@@ -1,0 +1,751 @@
+CREATE MIGRATION m1lmvbdy3bphrpfe4boazmyzvabpv23iphgudaxxwbnoo5gzc6u32a
+    ONTO initial
+{
+  CREATE MODULE datasets IF NOT EXISTS;
+  CREATE MODULE date IF NOT EXISTS;
+  CREATE MODULE event IF NOT EXISTS;
+  CREATE MODULE location IF NOT EXISTS;
+  CREATE MODULE occurrence IF NOT EXISTS;
+  CREATE MODULE people IF NOT EXISTS;
+  CREATE MODULE reference IF NOT EXISTS;
+  CREATE MODULE samples IF NOT EXISTS;
+  CREATE MODULE seq IF NOT EXISTS;
+  CREATE MODULE storage IF NOT EXISTS;
+  CREATE MODULE taxonomy IF NOT EXISTS;
+  CREATE MODULE traits IF NOT EXISTS;
+  CREATE SCALAR TYPE date::DatePrecision EXTENDING enum<Year, Month, Day, Unknown>;
+  CREATE ABSTRACT CONSTRAINT date::required_unless_unknown(date: std::datetime, precision: date::DatePrecision) {
+      SET errmessage := "Date value is required, except when precision is 'Unknown'";
+      USING ((EXISTS (date) IF (precision != date::DatePrecision.Unknown) ELSE NOT (EXISTS (date))));
+  };
+  CREATE ABSTRACT TYPE default::Auditable {
+      CREATE PROPERTY created: std::datetime {
+          CREATE REWRITE
+              INSERT 
+              USING (std::datetime_of_statement());
+      };
+      CREATE PROPERTY modified: std::datetime {
+          CREATE REWRITE
+              UPDATE 
+              USING (std::datetime_of_statement());
+      };
+      CREATE ANNOTATION std::title := 'Auto-generation of timestamps';
+  };
+  CREATE ABSTRACT TYPE default::Vocabulary {
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+          CREATE CONSTRAINT std::max_len_value(8);
+          CREATE CONSTRAINT std::min_len_value(2);
+          CREATE ANNOTATION std::title := 'An expressive, unique, user-generated uppercase alphanumeric code';
+      };
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY label: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE ANNOTATION std::title := 'An extensible list of terms';
+  };
+  CREATE TYPE event::AbioticParameter EXTENDING default::Vocabulary, default::Auditable;
+  CREATE TYPE people::Institution {
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY name: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE ABSTRACT TYPE event::Event EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY performed_on: tuple<date: std::datetime, precision: date::DatePrecision> {
+          CREATE CONSTRAINT date::required_unless_unknown(__subject__.date, __subject__.precision);
+      };
+  };
+  CREATE TYPE event::AbioticMeasurement EXTENDING event::Event {
+      CREATE REQUIRED LINK param: event::AbioticParameter;
+      CREATE REQUIRED PROPERTY value: std::float32;
+  };
+  CREATE TYPE default::Conservation EXTENDING default::Vocabulary, default::Auditable;
+  CREATE TYPE event::SamplingMethod EXTENDING default::Vocabulary, default::Auditable;
+  CREATE SCALAR TYPE taxonomy::Rank EXTENDING enum<Kingdom, Phylum, Class, Order, Family, Genus, Species, Subspecies>;
+  CREATE SCALAR TYPE taxonomy::TaxonStatus EXTENDING enum<Accepted, Synonym, Unclassified>;
+  CREATE TYPE taxonomy::Taxon EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY name: std::str;
+      CREATE REQUIRED PROPERTY status: taxonomy::TaxonStatus;
+      CREATE CONSTRAINT std::exclusive ON ((.name, .status));
+      CREATE LINK parent: taxonomy::Taxon;
+      CREATE REQUIRED PROPERTY rank: taxonomy::Rank;
+      CREATE CONSTRAINT std::expression ON (EXISTS (.parent)) EXCEPT ((.rank = taxonomy::Rank.Kingdom));
+      CREATE REQUIRED PROPERTY GBIF_ID: std::int32 {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY anchor: std::bool {
+          SET default := false;
+      };
+      CREATE PROPERTY authorship: std::str;
+      ALTER PROPERTY code {
+          CREATE REWRITE
+              INSERT 
+              USING (WITH
+                  chopped := 
+                      std::str_split(.name, ' ')
+                  ,
+                  suffix := 
+                      ('[syn]' IF (.status = taxonomy::TaxonStatus.Synonym) ELSE '')
+              SELECT
+                  ((.name ++ suffix) IF NOT ((.rank IN {taxonomy::Rank.Species, taxonomy::Rank.Subspecies})) ELSE (std::str_upper((chopped)[0][:3]) ++ std::array_join((chopped)[1:], '_')))
+              );
+          CREATE REWRITE
+              UPDATE 
+              USING (WITH
+                  chopped := 
+                      std::str_split(.name, ' ')
+                  ,
+                  suffix := 
+                      ('[syn]' IF (.status = taxonomy::TaxonStatus.Synonym) ELSE '')
+              SELECT
+                  ((.name ++ suffix) IF NOT ((.rank IN {taxonomy::Rank.Species, taxonomy::Rank.Subspecies})) ELSE (std::str_upper((chopped)[0][:3]) ++ std::array_join((chopped)[1:], '_')))
+              );
+      };
+  };
+  CREATE SCALAR TYPE event::SamplingTarget EXTENDING enum<Community, Unknown, Taxa>;
+  CREATE TYPE event::Sampling EXTENDING event::Event {
+      CREATE MULTI LINK fixatives: default::Conservation;
+      CREATE MULTI LINK methods: event::SamplingMethod;
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE ANNOTATION std::title := 'Unique sampling identifier, auto-generated at sampling creation.';
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE MULTI LINK target_taxa: taxonomy::Taxon {
+          CREATE ANNOTATION std::title := 'Taxonomic groups that were the target of the sampling effort';
+      };
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY is_donation: std::bool;
+      CREATE PROPERTY sampling_duration: std::duration {
+          CREATE ANNOTATION std::title := 'Sampling duration measured in minutes.';
+      };
+      CREATE REQUIRED PROPERTY sampling_target: event::SamplingTarget;
+  };
+  CREATE TYPE occurrence::Identification EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY identified_on: tuple<date: std::datetime, precision: date::DatePrecision> {
+          CREATE CONSTRAINT date::required_unless_unknown(__subject__.date, __subject__.precision);
+      };
+      CREATE REQUIRED LINK taxon: taxonomy::Taxon;
+  };
+  CREATE ABSTRACT TYPE occurrence::Occurrence EXTENDING default::Auditable {
+      CREATE REQUIRED LINK identification: occurrence::Identification {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED LINK sampling: event::Sampling;
+      CREATE PROPERTY comments: std::str;
+  };
+  CREATE TYPE reference::Article EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY authors: std::str;
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY title: std::str;
+      CREATE REQUIRED PROPERTY year: std::int16 {
+          CREATE CONSTRAINT std::min_value(1500);
+      };
+  };
+  CREATE TYPE samples::BioMaterial EXTENDING occurrence::Occurrence {
+      CREATE REQUIRED PROPERTY created_on: tuple<date: std::datetime, precision: date::DatePrecision> {
+          CREATE CONSTRAINT date::required_unless_unknown(.date, .precision);
+      };
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE REWRITE
+              INSERT 
+              USING (((.identification.taxon.code ++ '|') ++ .sampling.code));
+          CREATE REWRITE
+              UPDATE 
+              USING (((.identification.taxon.code ++ '|') ++ .sampling.code));
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE MULTI LINK published_in: reference::Article;
+  };
+  CREATE TYPE default::Picture {
+      CREATE PROPERTY legend: std::str;
+      CREATE REQUIRED PROPERTY path: std::str;
+  };
+  CREATE TYPE samples::Slide EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY created_on: tuple<date: std::datetime, precision: date::DatePrecision> {
+          CREATE CONSTRAINT date::required_unless_unknown(.date, .precision);
+      };
+      CREATE MULTI LINK pictures: default::Picture;
+      CREATE REQUIRED PROPERTY storage_position: std::int16;
+      CREATE PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE PROPERTY comment: std::str;
+      CREATE REQUIRED PROPERTY label: std::str;
+  };
+  CREATE TYPE seq::DNAExtractionMethod EXTENDING default::Vocabulary, default::Auditable;
+  CREATE SCALAR TYPE seq::DNAQuality EXTENDING enum<Unknown, Contaminated, Bad, Good>;
+  CREATE TYPE seq::DNA EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY extracted_on: tuple<date: std::datetime, precision: date::DatePrecision> {
+          CREATE CONSTRAINT date::required_unless_unknown(.date, .precision);
+      };
+      CREATE REQUIRED LINK extraction_method: seq::DNAExtractionMethod;
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY concentration: std::float32 {
+          CREATE ANNOTATION std::title := 'DNA concentration in ng/µL';
+          CREATE CONSTRAINT std::min_value(1e-6);
+      };
+      CREATE REQUIRED PROPERTY is_empty: std::bool {
+          SET default := false;
+      };
+      CREATE REQUIRED PROPERTY quality: seq::DNAQuality;
+  };
+  CREATE TYPE seq::Gene EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY name: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE ABSTRACT TYPE seq::Primer EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY label: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE TYPE seq::PCRForwardPrimer EXTENDING seq::Primer, default::Auditable;
+  CREATE TYPE seq::PCRReversePrimer EXTENDING seq::Primer, default::Auditable;
+  CREATE SCALAR TYPE seq::PCRQuality EXTENDING enum<Failure, Acceptable, Good, Unknown>;
+  CREATE TYPE seq::PCR EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY performed_on: tuple<date: std::datetime, precision: date::DatePrecision> {
+          CREATE CONSTRAINT date::required_unless_unknown(.date, .precision);
+      };
+      CREATE REQUIRED LINK DNA: seq::DNA;
+      CREATE REQUIRED LINK gene: seq::Gene;
+      CREATE REQUIRED LINK forward_primer: seq::PCRForwardPrimer;
+      CREATE REQUIRED LINK reverse_primer: seq::PCRReversePrimer;
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY quality: seq::PCRQuality;
+  };
+  CREATE FUNCTION date::rewrite_date(value: tuple<date: std::datetime, precision: date::DatePrecision>) -> OPTIONAL std::datetime USING ((std::datetime_truncate(value.date, 'years') IF (value.precision = date::DatePrecision.Year) ELSE (std::datetime_truncate(value.date, 'months') IF (value.precision = date::DatePrecision.Month) ELSE (std::datetime_truncate(value.date, 'days') IF (value.precision = date::DatePrecision.Day) ELSE <std::datetime>{}))));
+  ALTER TYPE event::Event {
+      ALTER PROPERTY performed_on {
+          CREATE REWRITE
+              INSERT 
+              USING ((
+                  date := date::rewrite_date(__subject__.performed_on),
+                  precision := __subject__.performed_on.precision
+              ));
+          CREATE REWRITE
+              UPDATE 
+              USING ((
+                  date := date::rewrite_date(__subject__.performed_on),
+                  precision := __subject__.performed_on.precision
+              ));
+      };
+  };
+  ALTER TYPE occurrence::Identification {
+      ALTER PROPERTY identified_on {
+          CREATE REWRITE
+              INSERT 
+              USING ((
+                  date := date::rewrite_date(.identified_on),
+                  precision := .identified_on.precision
+              ));
+          CREATE REWRITE
+              UPDATE 
+              USING ((
+                  date := date::rewrite_date(.identified_on),
+                  precision := .identified_on.precision
+              ));
+      };
+  };
+  ALTER TYPE samples::BioMaterial {
+      ALTER PROPERTY created_on {
+          CREATE REWRITE
+              INSERT 
+              USING ((
+                  date := date::rewrite_date(.created_on),
+                  precision := .created_on.precision
+              ));
+          CREATE REWRITE
+              UPDATE 
+              USING ((
+                  date := date::rewrite_date(.created_on),
+                  precision := .created_on.precision
+              ));
+      };
+  };
+  ALTER TYPE samples::Slide {
+      ALTER PROPERTY created_on {
+          CREATE REWRITE
+              INSERT 
+              USING ((
+                  date := date::rewrite_date(.created_on),
+                  precision := .created_on.precision
+              ));
+          CREATE REWRITE
+              UPDATE 
+              USING ((
+                  date := date::rewrite_date(.created_on),
+                  precision := .created_on.precision
+              ));
+      };
+  };
+  ALTER TYPE seq::DNA {
+      ALTER PROPERTY extracted_on {
+          CREATE REWRITE
+              INSERT 
+              USING ((
+                  date := date::rewrite_date(.extracted_on),
+                  precision := .extracted_on.precision
+              ));
+          CREATE REWRITE
+              UPDATE 
+              USING ((
+                  date := date::rewrite_date(.extracted_on),
+                  precision := .extracted_on.precision
+              ));
+      };
+  };
+  ALTER TYPE seq::PCR {
+      ALTER PROPERTY performed_on {
+          CREATE REWRITE
+              INSERT 
+              USING ((
+                  date := date::rewrite_date(__subject__.performed_on),
+                  precision := __subject__.performed_on.precision
+              ));
+          CREATE REWRITE
+              UPDATE 
+              USING ((
+                  date := date::rewrite_date(__subject__.performed_on),
+                  precision := __subject__.performed_on.precision
+              ));
+      };
+  };
+  CREATE GLOBAL default::current_user_id -> std::uuid;
+  CREATE ABSTRACT TYPE seq::Sequence {
+      CREATE REQUIRED LINK taxon: taxonomy::Taxon;
+      CREATE REQUIRED PROPERTY alignmentCode: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE PROPERTY comments: std::str;
+  };
+  CREATE TYPE datasets::Alignment EXTENDING default::Auditable {
+      CREATE REQUIRED MULTI LINK sequences: seq::Sequence;
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY label: std::str;
+  };
+  CREATE TYPE datasets::DelimitationMethod EXTENDING default::Vocabulary, default::Auditable;
+  CREATE TYPE datasets::MOTU EXTENDING default::Auditable {
+      CREATE REQUIRED LINK method: datasets::DelimitationMethod;
+      CREATE REQUIRED MULTI LINK sequences: seq::Sequence;
+      CREATE REQUIRED PROPERTY number: std::int16;
+  };
+  CREATE TYPE datasets::MOTUDataset EXTENDING default::Auditable {
+      CREATE LINK published_in: reference::Article;
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY label: std::str;
+  };
+  ALTER TYPE datasets::MOTU {
+      CREATE REQUIRED LINK dataset: datasets::MOTUDataset;
+  };
+  ALTER TYPE datasets::MOTUDataset {
+      CREATE MULTI LINK MOTUs := (.<dataset[IS datasets::MOTU]);
+  };
+  CREATE TYPE people::Person {
+      CREATE MULTI LINK institution: people::Institution;
+      CREATE PROPERTY contact: std::str;
+      CREATE REQUIRED PROPERTY first_name: std::str;
+      CREATE REQUIRED PROPERTY last_name: std::str;
+      CREATE PROPERTY full_name := (((.first_name ++ ' ') ++ .last_name));
+      CREATE PROPERTY second_names: std::str;
+  };
+  ALTER TYPE datasets::MOTUDataset {
+      CREATE REQUIRED MULTI LINK generated_by: people::Person;
+  };
+  CREATE TYPE event::PlannedSampling EXTENDING default::Auditable {
+      CREATE REQUIRED MULTI LINK found_by: people::Person;
+      CREATE MULTI LINK targetTaxa: taxonomy::Taxon;
+      CREATE PROPERTY comments: std::str;
+  };
+  CREATE TYPE event::Program EXTENDING default::Auditable {
+      CREATE PROPERTY end_year: std::int16;
+      CREATE PROPERTY start_year: std::int16 {
+          CREATE CONSTRAINT std::min_value(1900);
+      };
+      CREATE CONSTRAINT std::expression ON ((.start_year <= .end_year));
+      CREATE MULTI LINK funding_agencies: people::Institution;
+      CREATE REQUIRED MULTI LINK managers: people::Person;
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY label: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE TYPE location::AccessPoint EXTENDING default::Vocabulary, default::Auditable;
+  CREATE TYPE location::Country EXTENDING default::Auditable {
+      CREATE ANNOTATION std::description := 'Countries as defined in the ISO 3166-1 norm.';
+      CREATE REQUIRED PROPERTY code: std::str {
+          SET readonly := true;
+          CREATE CONSTRAINT std::exclusive;
+          CREATE CONSTRAINT std::max_len_value(2);
+          CREATE CONSTRAINT std::min_len_value(2);
+      };
+      CREATE REQUIRED PROPERTY name: std::str {
+          SET readonly := true;
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE TYPE location::Habitat EXTENDING default::Vocabulary, default::Auditable;
+  CREATE TYPE location::Locality EXTENDING default::Auditable {
+      CREATE REQUIRED LINK country: location::Country;
+      CREATE PROPERTY municipality: std::str;
+      CREATE PROPERTY region: std::str;
+      CREATE CONSTRAINT std::exclusive ON ((.region, .municipality));
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE SCALAR TYPE location::CoordinateMaxPrecision EXTENDING enum<`10m`, `100m`, `1Km`, `10Km`, `100Km`, Unknown>;
+  CREATE TYPE location::Site EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+          CREATE CONSTRAINT std::max_len_value(8);
+          CREATE CONSTRAINT std::min_len_value(4);
+          CREATE ANNOTATION std::description := 'A short, unique, user-generated, alphanumeric identifier. Recommended size is 8.';
+          CREATE ANNOTATION std::title := 'Site identifier';
+      };
+      CREATE REQUIRED LINK access_point: location::AccessPoint {
+          CREATE ANNOTATION std::description := 'Some habitats may not be directly accessible, and sampling may have to be done on a location that acts as a proxy for the target habitat.';
+          CREATE ANNOTATION std::title := 'The actual point where the sampling is performed.';
+      };
+      CREATE REQUIRED LINK habitat: location::Habitat {
+          CREATE ANNOTATION std::title := 'The type of habitat that is the target of the sampling.';
+      };
+      CREATE REQUIRED LINK locality: location::Locality;
+      CREATE PROPERTY altitudeRange: tuple<min: std::float32, max: std::float32> {
+          CREATE ANNOTATION std::title := 'The site elevation in meters';
+      };
+      CREATE REQUIRED PROPERTY coordinates: tuple<precision: location::CoordinateMaxPrecision, latitude: std::float32, longitude: std::float32> {
+          CREATE CONSTRAINT std::expression ON (((((.latitude <= 90) AND (.latitude >= -90)) AND (.longitude <= 180)) AND (.longitude >= -180)));
+      };
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY name: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE TYPE occurrence::Dataset EXTENDING default::Auditable {
+      CREATE REQUIRED MULTI LINK events: event::Sampling;
+      CREATE REQUIRED LINK assembled_by: people::Person;
+      CREATE MULTI LINK published_in: reference::Article;
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY name: std::str;
+      CREATE PROPERTY origin: std::str;
+  };
+  CREATE SCALAR TYPE occurrence::QuantityType EXTENDING enum<Exact, Unknown, One, Several, Ten, Tens, Hundred>;
+  CREATE TYPE occurrence::OccurrenceReport EXTENDING occurrence::Occurrence {
+      CREATE LINK recorded_by: people::Person;
+      CREATE LINK reference: reference::Article;
+      CREATE PROPERTY original_link: std::str;
+      CREATE REQUIRED PROPERTY quantity: tuple<precision: occurrence::QuantityType, exact: std::int16> {
+          CREATE CONSTRAINT std::expression ON ((((.precision = occurrence::QuantityType.Exact) AND (.exact > 0)) OR (.precision != occurrence::QuantityType.Exact)));
+          CREATE REWRITE
+              INSERT 
+              USING (((
+                  precision := __subject__.quantity.precision,
+                  exact := -1
+              ) IF (__subject__.quantity.precision != occurrence::QuantityType.Exact) ELSE __subject__.quantity));
+          CREATE REWRITE
+              UPDATE 
+              USING (((
+                  precision := __subject__.quantity.precision,
+                  exact := -1
+              ) IF (__subject__.quantity.precision != occurrence::QuantityType.Exact) ELSE __subject__.quantity));
+      };
+      CREATE PROPERTY specimen_available: tuple<collection: std::str, item: std::str> {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE TYPE samples::ContentType EXTENDING default::Vocabulary, default::Auditable;
+  CREATE ABSTRACT TYPE samples::Tube {
+      CREATE REQUIRED LINK biomat: samples::BioMaterial;
+      CREATE REQUIRED LINK conservation: default::Conservation;
+      CREATE REQUIRED LINK content_type: samples::ContentType;
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::max_len_value(10);
+          CREATE CONSTRAINT std::min_len_value(1);
+      };
+      CREATE PROPERTY comments: std::str;
+      CREATE CONSTRAINT std::exclusive ON ((.biomat, .code));
+  };
+  CREATE TYPE samples::ChelexTube EXTENDING samples::Tube, default::Auditable {
+      CREATE REQUIRED PROPERTY color: std::str;
+      CREATE REQUIRED PROPERTY number: std::int16;
+  };
+  CREATE TYPE samples::IndividualTube EXTENDING samples::Tube, default::Auditable;
+  CREATE TYPE samples::MultipleTube EXTENDING samples::Tube, default::Auditable {
+      CREATE REQUIRED PROPERTY specimen_quantity: std::int16 {
+          CREATE CONSTRAINT std::min_value(2);
+      };
+  };
+  CREATE TYPE samples::Specimen EXTENDING default::Auditable {
+      CREATE MULTI LINK pictures: default::Picture;
+      CREATE REQUIRED PROPERTY molecular_number: std::str;
+      CREATE LINK curated_by: people::Person;
+      CREATE PROPERTY comments: std::str;
+      CREATE PROPERTY molecular_code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY morphological_code: std::str;
+  };
+  CREATE TYPE seq::ChromatoPrimer EXTENDING seq::Primer, default::Auditable;
+  CREATE TYPE seq::SequencingInstitute EXTENDING default::Auditable {
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY name: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE SCALAR TYPE seq::ChromatoQuality EXTENDING enum<Contaminated, Failure, Ok, Unknown>;
+  CREATE TYPE seq::Chromatogram EXTENDING default::Auditable {
+      CREATE REQUIRED LINK primer: seq::ChromatoPrimer;
+      CREATE REQUIRED LINK PCR: seq::PCR;
+      CREATE REQUIRED LINK provider: seq::SequencingInstitute;
+      CREATE REQUIRED PROPERTY YAS_number: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY quality: seq::ChromatoQuality;
+  };
+  CREATE TYPE seq::AssembledSequence EXTENDING seq::Sequence, default::Auditable {
+      CREATE REQUIRED MULTI LINK assembled_by: people::Person;
+      CREATE MULTI LINK published_in: reference::Article;
+      CREATE REQUIRED MULTI LINK chromatograms: seq::Chromatogram;
+      CREATE PROPERTY accessionNumber: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE TYPE seq::BatchRequest EXTENDING default::Auditable {
+      CREATE REQUIRED LINK requested_by: people::Person;
+      CREATE MULTI LINK requested_to: people::Person;
+      CREATE REQUIRED MULTI LINK samples: samples::ChelexTube;
+      CREATE REQUIRED LINK target_gene: seq::Gene;
+      CREATE PROPERTY achieved_on: std::datetime;
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY is_ready: std::bool {
+          SET default := false;
+      };
+      CREATE REQUIRED PROPERTY label: std::str;
+      CREATE REQUIRED PROPERTY requested_on: std::datetime;
+  };
+  CREATE TYPE seq::ExternalSequence EXTENDING seq::Sequence, default::Auditable {
+      CREATE REQUIRED LINK sampling: event::Sampling;
+      CREATE REQUIRED LINK gene: seq::Gene;
+      CREATE LINK primaryTaxon: taxonomy::Taxon;
+      CREATE REQUIRED PROPERTY accessionNumber: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY specimenIdentifier: std::str;
+  };
+  CREATE TYPE seq::PCRSpecificity EXTENDING default::Auditable {
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY label: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE ABSTRACT TYPE storage::Storage EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY label: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE TYPE storage::BioMatStorage EXTENDING storage::Storage;
+  CREATE TYPE storage::DNAStorage EXTENDING storage::Storage;
+  CREATE TYPE storage::SlideStorage EXTENDING storage::Storage;
+  ALTER TYPE event::Event {
+      CREATE REQUIRED LINK site: location::Site;
+      CREATE MULTI LINK programs: event::Program;
+  };
+  ALTER TYPE event::AbioticMeasurement {
+      CREATE CONSTRAINT std::exclusive ON ((.site, .param, .performed_on));
+  };
+  ALTER TYPE location::Site {
+      CREATE MULTI LINK abiotic_measurements := (.<site[IS event::AbioticMeasurement]);
+  };
+  ALTER TYPE event::Sampling {
+      CREATE MULTI LINK biomaterials := (.<sampling[IS samples::BioMaterial]);
+      CREATE PROPERTY generated_code := (SELECT
+          (((.site.code ++ '_') ++ <std::str>std::datetime_get(.performed_on.date, 'year')) ++ <std::str>std::datetime_get(.performed_on.date, 'month'))
+      );
+      ALTER PROPERTY code {
+          CREATE REWRITE
+              INSERT 
+              USING (SELECT
+                  (((.generated_code ++ '_') ++ <std::str>(SELECT
+                      std::count(event::Sampling)
+                  FILTER
+                      (event::Sampling.code = __subject__.generated_code)
+                  )) IF (SELECT
+                      EXISTS (event::Sampling)
+                  FILTER
+                      (event::Sampling.code = __subject__.generated_code)
+                  ) ELSE .generated_code)
+              );
+      };
+  };
+  ALTER TYPE event::PlannedSampling {
+      CREATE REQUIRED LINK site: location::Site;
+  };
+  ALTER TYPE location::Site {
+      CREATE MULTI LINK samplings := (.<site[IS event::Sampling]);
+  };
+  ALTER TYPE samples::IndividualTube {
+      CREATE REQUIRED LINK specimen: samples::Specimen;
+  };
+  ALTER TYPE samples::Specimen {
+      CREATE LINK tube := (.<specimen[IS samples::IndividualTube]);
+      ALTER PROPERTY molecular_number {
+          CREATE REWRITE
+              INSERT 
+              USING (<std::str>(SELECT
+                  std::count(samples::Specimen)
+              FILTER
+                  (samples::Specimen.tube.biomat.sampling.site = __subject__.tube.biomat.sampling.site)
+              ));
+      };
+  };
+  ALTER TYPE location::Country {
+      CREATE MULTI LINK localities := (.<country[IS location::Locality]);
+  };
+  ALTER TYPE location::Locality {
+      CREATE MULTI LINK sites := (.<locality[IS location::Site]);
+  };
+  ALTER TYPE occurrence::Identification {
+      CREATE REQUIRED LINK identified_by: people::Person;
+  };
+  CREATE SCALAR TYPE traits::Category EXTENDING enum<Morphology, Physiology, Ecology, Behaviour, LifeHistory, HabitatPref>;
+  CREATE ABSTRACT TYPE traits::AbstractTrait {
+      CREATE REQUIRED PROPERTY category: traits::Category;
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY name: std::str;
+      CREATE CONSTRAINT std::exclusive ON ((.category, .name));
+  };
+  CREATE TYPE traits::FuzzyTrait EXTENDING traits::AbstractTrait {
+      CREATE REQUIRED MULTI PROPERTY modalities: tuple<name: std::str, range: tuple<min: std::int16, max: std::int16>>;
+  };
+  CREATE ABSTRACT TYPE traits::SpeciesTrait {
+      CREATE LINK expert_opinion: people::Person;
+      CREATE LINK reference: reference::Article;
+      CREATE REQUIRED LINK species: taxonomy::Taxon;
+      CREATE CONSTRAINT std::expression ON ((EXISTS (.reference) OR EXISTS (.expert_opinion)));
+  };
+  CREATE TYPE traits::FuzzyTraitValue EXTENDING traits::SpeciesTrait {
+      CREATE REQUIRED LINK trait: traits::FuzzyTrait;
+      CREATE REQUIRED MULTI PROPERTY values: tuple<name: std::str, value: std::int16> {
+          CREATE ANNOTATION std::description := 'Must be validated in the application logic.';
+      };
+  };
+  CREATE TYPE traits::QuantitativeTrait EXTENDING traits::AbstractTrait;
+  CREATE ABSTRACT TYPE traits::QuantitativeMeasurement {
+      CREATE REQUIRED LINK trait: traits::QuantitativeTrait;
+      CREATE REQUIRED PROPERTY value: std::float32;
+  };
+  CREATE TYPE traits::QualitativeSpeciesTrait EXTENDING traits::QuantitativeMeasurement, traits::SpeciesTrait;
+  CREATE TYPE traits::QualitativeTrait EXTENDING traits::AbstractTrait;
+  CREATE ABSTRACT TYPE traits::QualitativeMeasurement {
+      CREATE REQUIRED LINK trait: traits::QualitativeTrait;
+      CREATE REQUIRED PROPERTY value: std::str;
+  };
+  CREATE TYPE traits::QuantitativeSpeciesTrait EXTENDING traits::QualitativeMeasurement, traits::SpeciesTrait;
+  CREATE SCALAR TYPE people::UserRole EXTENDING enum<Guest, Contributor, ProjectMember, Admin>;
+  CREATE TYPE people::User {
+      CREATE REQUIRED LINK identity: people::Person;
+      CREATE REQUIRED PROPERTY email: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY name: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY password: std::str;
+      CREATE PROPERTY role: people::UserRole;
+      CREATE REQUIRED PROPERTY verified: std::bool {
+          SET default := false;
+      };
+  };
+  ALTER TYPE samples::Slide {
+      CREATE REQUIRED MULTI LINK mounted_by: people::Person;
+      CREATE REQUIRED LINK storage: storage::SlideStorage;
+      CREATE CONSTRAINT std::exclusive ON ((.storage, .storage_position));
+      CREATE REQUIRED LINK specimen: samples::Specimen;
+  };
+  ALTER TYPE samples::BioMaterial {
+      CREATE REQUIRED MULTI LINK sorted_by: people::Person;
+  };
+  ALTER TYPE seq::DNA {
+      CREATE REQUIRED MULTI LINK extracted_by: people::Person;
+      CREATE REQUIRED LINK specimen: samples::Specimen;
+      CREATE REQUIRED LINK stored_in: storage::DNAStorage;
+  };
+  ALTER TYPE samples::ChelexTube {
+      CREATE REQUIRED LINK origin: samples::IndividualTube;
+  };
+  ALTER TYPE samples::Specimen {
+      CREATE MULTI LINK slides := (.<specimen[IS samples::Slide]);
+  };
+  CREATE TYPE storage::Collection {
+      CREATE REQUIRED PROPERTY code: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED LINK taxon: taxonomy::Taxon;
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY label: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  ALTER TYPE storage::Storage {
+      CREATE REQUIRED LINK collection: storage::Collection;
+  };
+  ALTER TYPE samples::Slide {
+      ALTER PROPERTY code {
+          CREATE REWRITE
+              INSERT 
+              USING (SELECT
+                  std::array_join([.storage.collection.code, .storage.code, <std::str>.storage_position], '_')
+              );
+          CREATE REWRITE
+              UPDATE 
+              USING (SELECT
+                  std::array_join([.storage.collection.code, .storage.code, <std::str>.storage_position], '_')
+              );
+      };
+  };
+  ALTER TYPE storage::Collection {
+      CREATE MULTI LINK bio_mat_storages := (.<collection[IS storage::BioMatStorage]);
+  };
+  ALTER TYPE storage::Collection {
+      CREATE MULTI LINK DNA_storages := (.<collection[IS storage::DNAStorage]);
+      CREATE MULTI LINK slide_storages := (.<collection[IS storage::SlideStorage]);
+  };
+  CREATE TYPE traits::QualitativeIndividualTrait EXTENDING traits::QualitativeMeasurement {
+      CREATE REQUIRED PROPERTY method: std::str;
+  };
+  CREATE TYPE traits::QuantitativeIndividualTrait EXTENDING traits::QuantitativeMeasurement {
+      CREATE REQUIRED PROPERTY method: std::str;
+  };
+};
