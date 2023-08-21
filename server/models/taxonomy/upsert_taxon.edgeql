@@ -1,5 +1,5 @@
 with module taxonomy,
-data := <json>$data,
+data := <json>$0,
 anchor := <bool>data['anchor']
 insert Taxon {
   name := <str>data['name'],
@@ -14,5 +14,5 @@ insert Taxon {
 }
 unless conflict on (.name, .status)
 else (
-  update Taxon set { anchor := anchor }
+  update Taxon set { anchor := anchor if not .anchor else .anchor }
 );

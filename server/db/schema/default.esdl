@@ -42,7 +42,7 @@ module default {
     description: str;
   }
 
-  type Conservation extending Vocabulary,Auditable;
+  type Conservation extending Vocabulary, Auditable;
 
   type Picture {
     legend: str;
@@ -84,7 +84,7 @@ module taxonomy {
         suffix := "[syn]" if .status = TaxonStatus.Synonym else ""
         select (.name ++ suffix)
         if not .rank in {Rank.Species, Rank.Subspecies}
-        else str_upper(chopped[0][:3]) ++ array_join(chopped[1:], "_")
+        else str_upper(chopped[0][:3]) ++ array_join(chopped[1:], "_") ++ suffix
       )
     };
     required anchor: bool {
@@ -92,37 +92,13 @@ module taxonomy {
     }
     authorship: str;
 
-    parent: Taxon;
-    constraint exclusive on ((.name, .status));
+    parent: Taxon {
+      on target delete delete source;
+    };
     constraint expression on (exists .parent) except (.rank = Rank.Kingdom);
-    # required is_classified: bool; # is present in established taxonomy
-    # cannot be validated or synonym if not classified
+
+    constraint exclusive on ((.name, .status));
   }
-
-  # type Taxon extending Taxon {
-  #   overloaded required code: str {
-  #     constraint exclusive;
-  #     rewrite insert, update using (
-  #       with suffix := "[syn]" if .status = TaxonStatus.Synonym else ""
-  #       select (.name ++ suffix)
-  #     );
-  #   };
-  #   parent: Taxon;
-  #    # bracket_authorship ?
-  #   multi link children := .<parent[is Taxon];
-  # }
-
-  # type Species extending Taxon {
-  #   required parent: Taxon;
-  #   overloaded required code: str {
-  #     constraint exclusive;
-  #     rewrite insert, update using (
-  #       with chopped := str_split(.name, " ")
-  #       select(str_upper(chopped[0][:3]) ++ array_join(chopped[1:], "_"))
-  #     )
-  #   };
-  #   overloaded required authorship: str;
-  # }
 }
 
 module location {
@@ -156,7 +132,6 @@ module location {
 
   type Habitat extending default::Vocabulary, default::Auditable;
   type AccessPoint extending default::Vocabulary, default::Auditable;
-
 
   scalar type CoordinateMaxPrecision extending enum<"10m", "100m", "1Km", "10Km", "100Km", "Unknown">;
 
@@ -213,7 +188,6 @@ module event {
     };
     end_year: int16;
     constraint expression on (.start_year <= .end_year);
-    # TODO : constraint end year > start year + change to integer
     comments: str;
   }
 
@@ -222,8 +196,7 @@ module event {
   type PlannedSampling extending default::Auditable {
     required site: location::Site;
     required multi found_by: people::Person;
-    multi targetTaxa: taxonomy::Taxon; # TODO: required ?
-    comments: str;
+    required multi target_taxa: taxonomy::Taxon;
   }
 
   abstract type Event extending default::Auditable {
@@ -286,7 +259,9 @@ module event {
     required is_donation: bool;
 
     comments: str;
-    multi link biomaterials := .<sampling[is samples::BioMaterial]
+    multi link occurences := .<sampling[is occurrence::Occurrence];
+    multi link samples := .<sampling[is samples::BioMaterial];
+    multi link reports := .<sampling[is occurrence::OccurrenceReport];
   }
 }
 
@@ -306,17 +281,22 @@ module occurrence {
   abstract type Occurrence extending default::Auditable {
     required sampling: event::Sampling;
     required identification: Identification {
-      constraint exclusive
+      constraint exclusive;
+      on source delete delete target;
     };
     comments: str;
   }
 
   type Dataset extending default::Auditable {
     required name: str;
-    required multi events: event::Sampling;
+    multi samplings: event::Sampling {
+      on target delete allow;
+    };
     required assembled_by: people::Person;
     origin: str;
-    multi published_in: reference::Article;
+    multi published_in: reference::Article {
+      on target delete allow;
+    };
     comments: str;
   }
 
@@ -392,7 +372,6 @@ module samples {
         (date := date::rewrite_date(.created_on), precision :=.created_on.precision)
       )
     };
-    # required date: default::DateWithPrecision;
     required multi sorted_by: people::Person;
     multi published_in: reference::Article;
   }
@@ -438,7 +417,7 @@ module samples {
 
   type Specimen extending default::Auditable {
     required morphological_code: str; #auto-generated
-    curated_by: people::Person;
+    curated_by: people::Person; # TODO : maybe not include this, instead rely on the level of biomaterial identification
 
     molecular_code: str { constraint exclusive }; # auto-generated
     required molecular_number: str {
@@ -459,18 +438,19 @@ module samples {
     required specimen: Specimen;
     required label: str; # the physical label
     property code: str {
+      annotation description := "Generated as '{collectionCode}_{containerCode}_{slidePositionInBox}'";
       constraint exclusive;
       rewrite insert, update using (
         (select array_join([.storage.collection.code, .storage.code, <str>.storage_position], "_"))
       )
-    }; # as {collectionCode}_{containerCode}_{slideNumberInBox}
+    };
     required created_on: tuple<date: datetime, precision: date::DatePrecision> {
       constraint date::required_unless_unknown(.date, .precision);
       rewrite insert, update using (
         (date := date::rewrite_date(.created_on), precision :=.created_on.precision)
       )
     };
-    # date: default::DateWithPrecision;
+
     required multi mounted_by: people::Person;
 
     required storage: storage::SlideStorage;
@@ -502,8 +482,6 @@ module seq {
   }
 
   scalar type DNAQuality extending enum<Unknown, Contaminated, Bad, Good>;
-
-
 
   type DNAExtractionMethod extending default::Vocabulary, default::Auditable;
 
@@ -606,8 +584,8 @@ module seq {
 
     accessionNumber: str { constraint exclusive };
 
-    required multi assembled_by: people::Person;
     multi published_in: reference::Article;
+    required multi assembled_by: people::Person;
     required multi chromatograms: Chromatogram;
   }
 
@@ -659,7 +637,7 @@ module people {
 
   type Person {
     required first_name: str;
-    second_names: str; # TODO check spelling ; up to 3 values
+    second_names: array<str>; # TODO check spelling ; up to 3 values
     required last_name: str;
 
     property full_name := .first_name ++ ' ' ++ .last_name;

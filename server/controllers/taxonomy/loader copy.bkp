@@ -1,0 +1,195 @@
+package taxonomy
+
+import (
+	"darco/proto/models/taxonomy"
+	"io"
+	"log"
+	"net/http"
+	"sort"
+
+	"github.com/gin-gonic/gin"
+	"github.com/lithammer/fuzzysearch/fuzzy"
+)
+
+type State string
+
+const (
+	INITIAL    State = "initial"
+	DOWNLOAD   State = "download"
+	EXTRACTION State = "extraction"
+	INPUT      State = "input"
+	PARSING    State = "parsing"
+)
+
+type Event struct {
+	State        State `json:"state"`
+	ImportedTaxa int   `json:"imported"`
+}
+
+var lastEvent Event = Event{State: INITIAL}
+
+type EventServer struct {
+	// Events are pushed to this channel by the main events-gathering routine
+	Message chan Event
+
+	// New client connections
+	NewClients chan chan Event
+
+	// Closed client connections
+	ClosedClients chan chan Event
+
+	// Total client connections
+	TotalClients map[chan Event]bool
+
+	terminate chan struct{}
+}
+
+type ClientChan chan Event
+
+func (stream *EventServer) listen() {
+	for {
+		select {
+		// Add new available client
+		case client := <-stream.NewClients:
+			log.Printf("Last message : %v", lastEvent)
+			client <- lastEvent
+			stream.TotalClients[client] = true
+			log.Printf("Client added. %d registered clients", len(stream.TotalClients))
+
+		// Remove closed client
+		case client := <-stream.ClosedClients:
+			delete(stream.TotalClients, client)
+			log.Printf("Removed client. %d registered clients", len(stream.TotalClients))
+			close(client)
+
+		// Broadcast message to client
+		case eventMsg := <-stream.Message:
+			for clientMessageChan := range stream.TotalClients {
+				clientMessageChan <- eventMsg
+			}
+			lastEvent = eventMsg
+		case <-stream.terminate:
+			return
+		}
+	}
+}
+
+func NewServer() (event *EventServer) {
+	event = &EventServer{
+		Message:       make(chan Event),
+		NewClients:    make(chan chan Event),
+		ClosedClients: make(chan chan Event),
+		TotalClients:  make(map[chan Event]bool),
+		terminate:     make(chan struct{}),
+	}
+
+	// go event.listen()
+
+	return
+}
+
+func monitorProgress(stream *EventServer, c *gin.Context) func(taxonomy.DownloadProgress) {
+	return func(progress taxonomy.DownloadProgress) {
+		log.Printf("GBIF taxonomy download : %.2f%%\n", progress.PercentageDone)
+		// json, _ := json.Marshal(progress)
+		// stream.Message <- string(json)
+		stream.Message <- Event{
+			State:    DOWNLOAD,
+			Download: progress,
+		}
+		if progress.Done {
+			stream.Message <- Event{
+				State:    EXTRACTION,
+				Download: progress,
+			}
+		}
+	}
+}
+
+type Controller struct {
+	Endpoint        func(*gin.Context)
+	ProgressTracker func(*gin.Context)
+}
+
+func UpdateTaxonomyDB() Controller {
+	var stream = NewServer()
+	var tsv_file string
+
+	endpoint := func(c *gin.Context) {
+		log.Printf("Last event : %v", lastEvent)
+		switch lastEvent.State {
+		case INITIAL:
+			go stream.listen()
+			monitor := monitorProgress(stream, c)
+
+			go func() {
+				gz_file, err := taxonomy.Fetch(monitor)
+				if err != nil {
+					return
+				}
+				tsv_file, err = taxonomy.Extract(gz_file)
+				if err != nil {
+					return
+				} else {
+					stream.Message <- Event{State: INPUT, Download: lastEvent.Download}
+				}
+			}()
+
+			c.JSON(http.StatusOK, gin.H{"message": "Started"})
+			return
+		case DOWNLOAD, EXTRACTION, PARSING:
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Server is busy downloading GBIF database"})
+			return
+		case INPUT:
+			var taxon taxonomy.TargetTaxon
+			if c.ShouldBindJSON(&taxon) == nil {
+				stream.Message <- Event{
+					State:    PARSING,
+					Download: lastEvent.Download,
+				}
+				items, errors := taxonomy.SearchTaxon(tsv_file, taxon)
+				sort.Slice(items, func(i, j int) bool {
+					return fuzzy.LevenshteinDistance(items[i].ScientificName, taxon.Name) <
+						fuzzy.LevenshteinDistance(items[j].ScientificName, taxon.Name)
+				})
+				items = items[:10]
+				stream.Message <- Event{
+					State:    INPUT,
+					Download: lastEvent.Download,
+				}
+				c.JSON(http.StatusAccepted, gin.H{"data": items, "errors": errors})
+			} else {
+				c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid taxon search terms"})
+			}
+			return
+		}
+	}
+
+	tracker := func(c *gin.Context) {
+		c.Header("Content-Type", "text/event-stream")
+		c.Header("Cache-Control", "no-cache")
+		c.Header("Connection", "keep-alive")
+
+		clientChan := make(ClientChan)
+		stream.NewClients <- clientChan
+
+		go func() {
+			<-c.Request.Context().Done()
+			stream.ClosedClients <- clientChan
+		}()
+
+		c.Stream(func(writer io.Writer) bool {
+			msg, ok := <-clientChan
+			if ok {
+				c.SSEvent("download", msg)
+				return true
+			}
+			return false
+		})
+	}
+
+	return Controller{
+		Endpoint:        endpoint,
+		ProgressTracker: tracker,
+	}
+}

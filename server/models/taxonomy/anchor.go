@@ -7,11 +7,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/edgedb/edgedb-go"
 	jsoniter "github.com/json-iterator/go"
@@ -100,17 +101,10 @@ func fetchParents(GBIF_ID int) ([]TaxonGBIF, error) {
 	return requestTaxa(URL)
 }
 
-//go:embed upsert_clade.edgeql
-var upsertCladeCmd string
+//go:embed upsert_taxon.edgeql
+var upsertTaxonCmd string
 
-//go:embed upsert_clades.edgeql
-var upsertCladesCmd string
-
-type cladeResult struct {
-	ID edgedb.UUID `edgedb:"id"`
-}
-
-func upsertClades(taxa []TaxonGBIF) (n int, err error) {
+func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
 	taxa = funk.Map(taxa, func(taxon TaxonGBIF) TaxonGBIF {
 		taxon.normalize()
 		return taxon
@@ -119,10 +113,9 @@ func upsertClades(taxa []TaxonGBIF) (n int, err error) {
 	ctx := context.Background()
 	err = models.DB.Tx(ctx, func(ctx context.Context, tx *edgedb.Tx) (err error) {
 		for _, taxon := range taxa {
+			log.Debugf("INSERTING %v", &taxon)
 			args, _ := jsonDB.Marshal(&taxon)
-			log.Printf("INSERTING %s", args)
-			if err = tx.Execute(ctx, upsertCladeCmd, map[string]interface{}{"data": args}); err != nil {
-				log.Printf("ERROR : %s", err)
+			if err = tx.Execute(ctx, upsertTaxonCmd, args); err != nil {
 				return err
 			} else {
 				n++
@@ -130,10 +123,6 @@ func upsertClades(taxa []TaxonGBIF) (n int, err error) {
 		}
 		return
 	})
-
-	// data, _ := jsonDB.Marshal(taxa)
-	// log.Printf("%s", data)
-	// err = models.DB.Query(context.Background(), upsertCladesCmd, &result, map[string]any{"data": data})
 	return n, err
 }
 
@@ -159,14 +148,14 @@ func fetchChildren(GBIF_ID int, offset int) (children ChildrenGBIF, err error) {
 	return
 }
 
-func importChildren(GBIF_ID int, process *ImportProcess, monitor func(*ImportProcess)) {
+func importChildren(tx *edgedb.Tx, GBIF_ID int, process *ImportProcess, monitor func(*ImportProcess)) {
 	var taxa []TaxonGBIF
 	endReached := false
 	offset := 0
 	for !endReached {
 		children, err := fetchChildren(GBIF_ID, offset)
 		if err != nil {
-			log.Printf("ERROR: %v", err)
+			log.Errorf("Failed to fetch data from GBIF \n%s", err)
 			return
 		}
 		taxa = append(taxa, children.Results...)
@@ -179,29 +168,35 @@ func importChildren(GBIF_ID int, process *ImportProcess, monitor func(*ImportPro
 	}).([]TaxonGBIF)
 
 	if len(taxa) > 0 {
-		inserted, _ := upsertClades(taxa)
+		inserted, _ := upsertTaxa(tx, taxa)
 		process.Imported += inserted
 		monitor(process)
 	}
 
 	for _, taxon := range taxa {
 		if taxon.NumDescendants > 0 {
-			importChildren(taxon.Key, process, monitor)
+			importChildren(tx, taxon.Key, process, monitor)
 		}
 	}
 }
 
-func ImportTaxon(GBIF_ID int, monitor func(p *ImportProcess)) (result []cladeResult, err error) {
+func ImportTaxon(GBIF_ID int, monitor func(p *ImportProcess)) (err error) {
 
 	taxonURL, _ := url.JoinPath(baseURL, fmt.Sprint(GBIF_ID))
 	body, err := makeRequest(taxonURL, 0)
 	if err != nil {
-		log.Printf("Request ERR : %s", err)
+		log.Errorf("Failed to fetch GBIF record of anchor taxon #%d \n %s", GBIF_ID, err)
+		return
 	}
 	var taxon TaxonGBIF
 	if err = json.Unmarshal(body, &taxon); err != nil {
-		log.Printf("ERROR : %s", err)
+		log.WithFields(
+			log.Fields{"body": body},
+		).Errorf("Failed to parse JSON response from GBIF \n %s", err)
+		return
 	}
+
+	log.Infof("Started import of taxon : %s [GBIF %d]", taxon.Name, taxon.Key)
 
 	process := ImportProcess{
 		Name:     taxon.Name,
@@ -214,39 +209,41 @@ func ImportTaxon(GBIF_ID int, monitor func(p *ImportProcess)) (result []cladeRes
 	}
 	monitor(&process)
 
-	parents, err := fetchParents(GBIF_ID)
-	if err != nil {
-		log.Printf("%s", err)
-		return nil, err
-	}
-	parentCount, err := upsertClades(parents)
-	if err == nil {
-		process.Imported += parentCount
+	ctx := context.Background()
+	err = models.DB.Tx(ctx, func(ctx context.Context, tx *edgedb.Tx) (err error) {
+
+		parents, err := fetchParents(GBIF_ID)
+		if err != nil {
+			log.Errorf("Failed to fetch parent taxa of %s[%d] from GBIF\n %s",
+				taxon.Name, taxon.Key, err)
+			return err
+		}
+
+		parentCount, err := upsertTaxa(tx, parents)
+		if err == nil {
+			process.Imported += parentCount
+			monitor(&process)
+		} else {
+			log.Errorf("Failed to insert some parent taxa of %s[%d] \n %s",
+				taxon.Name, taxon.Key, err)
+		}
+
+		taxon.Anchor = true
+		_, err = upsertTaxa(tx, []TaxonGBIF{taxon})
+		if err == nil {
+			process.Imported++
+			monitor(&process)
+		} else {
+			log.Errorf("Failed to insert anchor taxon %s[%d] \n %s",
+				taxon.Name, taxon.Key, err)
+		}
+
+		importChildren(tx, GBIF_ID, &process, monitor)
+
+		process.Done = true
 		monitor(&process)
-	} else {
-		log.Printf("%s", err)
-	}
+		return
+	})
 
-	taxon.Anchor = true
-	_, err = upsertClades([]TaxonGBIF{taxon})
-	if err == nil {
-		process.Imported++
-		monitor(&process)
-	} else {
-		log.Printf("ANCHOR TAXON ERROR : %s", err)
-	}
-
-	// importChildren(GBIF_ID, &process, monitor)
-
-	process.Done = true
-	monitor(&process)
-
-	return result, err
-
-	// for i := 1; i < 10; i++ {
-	// 	log.Printf("LOOP")
-	// 	time.Sleep(time.Second)
-	// 	go monitor(1)
-	// }
-	// return result, nil
+	return err
 }

@@ -18,9 +18,9 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     },
     {
-      path: '/taxonomy/update',
-      name: 'taxonomy-update',
-      component: () => import ('../views/TaxonomyUpdate.vue')
+      path: '/taxonomy/anchors',
+      name: 'taxonomy-anchors',
+      component: () => import ('../views/TaxonomyAnchors.vue')
     }
   ]
 })

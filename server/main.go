@@ -1,10 +1,12 @@
 package main
 
 import (
+	country "darco/proto/controllers/location"
 	"darco/proto/controllers/taxonomy"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 var db = make(map[string]string)
@@ -22,18 +24,12 @@ func handleErrors(c *gin.Context) {
 }
 
 func setupRouter() *gin.Engine {
-	// Disable Console Color
-	// gin.DisableConsoleColor()
 	r := gin.Default()
 	r.Use(handleErrors)
 
-	// r.Use(cors.New(cors.Config{
-	// 	AllowOrigins:     []string{"http://localhost:5173"},
-	// 	AllowHeaders:     []string{"Origin"},
-	// 	ExposeHeaders:    []string{"Content-Length"},
-	// 	AllowCredentials: true,
-	// 	MaxAge:           12 * time.Hour,
-	// }))
+	if gin.Mode() == gin.DebugMode {
+		log.SetLevel(log.DebugLevel)
+	}
 
 	// Ping test
 	r.GET("/api/", func(c *gin.Context) {
@@ -42,10 +38,13 @@ func setupRouter() *gin.Engine {
 
 	api := r.Group("/api")
 
+	country_api := api.Group("/countries")
+	country_api.GET("/setup", country.Setup)
+
 	taxonomy_api := api.Group("/taxonomy")
 	taxonomyUpdate := taxonomy.UpdateTaxonomyDB()
-	taxonomy_api.POST("/update", taxonomyUpdate.Endpoint)
-	taxonomy_api.GET("/update/progress", taxonomyUpdate.ProgressTracker)
+	taxonomy_api.POST("/anchors", taxonomyUpdate.Endpoint)
+	taxonomy_api.GET("/anchors/progress", taxonomyUpdate.ProgressTracker)
 	taxonomy_api.GET("/anchors", taxonomy.GetAnchors)
 
 	// Get user value

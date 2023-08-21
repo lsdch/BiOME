@@ -3,10 +3,10 @@ package taxonomy
 import (
 	"darco/proto/models/taxonomy"
 	"io"
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 type State map[int]taxonomy.ImportProcess
@@ -14,60 +14,48 @@ type State map[int]taxonomy.ImportProcess
 var state State = make(State)
 
 type EventServer struct {
-	// Events are pushed to this channel by the main events-gathering routine
-	Message chan taxonomy.ImportProcess
-
-	// New client connections
-	NewClients chan chan State
-
-	// Closed client connections
+	Message       chan taxonomy.ImportProcess
+	NewClients    chan chan State
 	ClosedClients chan chan State
-
-	// Total client connections
-	TotalClients map[chan State]bool
-
-	terminate chan struct{}
+	TotalClients  map[chan State]bool
+	Running       bool
 }
 
 type ClientChan chan State
 
 func (stream *EventServer) listen() {
+	stream.Running = true
 	for {
 		select {
 		// Add new available client
 		case client := <-stream.NewClients:
-			log.Printf("Last message : %v", state)
 			client <- state
 			stream.TotalClients[client] = true
-			log.Printf("Client added. %d registered clients", len(stream.TotalClients))
+			log.Debugf("Client added. %d registered clients", len(stream.TotalClients))
 
 		// Remove closed client
 		case client := <-stream.ClosedClients:
 			delete(stream.TotalClients, client)
-			log.Printf("Removed client. %d registered clients", len(stream.TotalClients))
+			log.Debugf("Removed client. %d registered clients", len(stream.TotalClients))
 			close(client)
 
 		// Broadcast message to client
 		case eventMsg := <-stream.Message:
-			log.Printf("MSG : %v", eventMsg)
+			log.Debugf("MSG : %v", eventMsg)
 			if !state[eventMsg.GBIF_ID].Done {
 				state[eventMsg.GBIF_ID] = eventMsg
 				for clientMessageChan := range stream.TotalClients {
 					clientMessageChan <- state
 				}
 			}
-			if eventMsg.Done {
-				delete(state, eventMsg.GBIF_ID)
-			}
-		case <-stream.terminate:
-			return
+			// if eventMsg.Done {
+			// 	delete(state, eventMsg.GBIF_ID)
+			// }
 		}
 	}
 }
 
 func (stream *EventServer) monitor(p *taxonomy.ImportProcess) {
-	log.Printf("TRIGGER")
-	// p.Imported += c
 	stream.Message <- *p
 }
 
@@ -77,7 +65,7 @@ func NewServer() (event *EventServer) {
 		NewClients:    make(chan chan State),
 		ClosedClients: make(chan chan State),
 		TotalClients:  make(map[chan State]bool),
-		terminate:     make(chan struct{}),
+		Running:       false,
 	}
 	return
 }
@@ -91,15 +79,15 @@ func UpdateTaxonomyDB() Controller {
 	var stream = NewServer()
 
 	endpoint := func(c *gin.Context) {
-		log.Printf("State : %v", state)
-
 		var taxon taxonomy.TaxonGBIF
-		if c.ShouldBindJSON(&taxon) != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid taxon search terms"})
+		if err := c.ShouldBindJSON(&taxon); err != nil {
+			log.Errorf("Invalid taxon definition to import as anchor \n%s", err)
+			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid taxon definition", "error": err})
 			return
 		}
-		log.Printf("TAXON : %v", taxon)
-		go stream.listen()
+		if !stream.Running {
+			go stream.listen()
+		}
 
 		go taxonomy.ImportTaxon(taxon.Key, stream.monitor)
 
@@ -122,7 +110,7 @@ func UpdateTaxonomyDB() Controller {
 		c.Stream(func(writer io.Writer) bool {
 			msg, ok := <-clientChan
 			if ok {
-				c.SSEvent("download", msg)
+				c.SSEvent("progress", msg)
 				return true
 			}
 			return false
