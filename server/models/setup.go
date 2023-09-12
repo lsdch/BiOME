@@ -3,6 +3,8 @@ package models
 import (
 	"context"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/edgedb/edgedb-go"
 )
 
@@ -11,7 +13,7 @@ func ConnectDB() (db *edgedb.Client) {
 	db, err := edgedb.CreateClient(ctx, edgedb.Options{})
 
 	if err != nil {
-		panic("Failed to connect to database.")
+		log.Fatalf("Failed to connect to the database: %v", err)
 	}
 
 	return

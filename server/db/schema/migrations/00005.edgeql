@@ -1,15 +1,18 @@
-CREATE MIGRATION m13xy2wljavngnlipsmytisyzyr2acgfwqd4czg2subfvylqcqvsxq
-    ONTO m15eeizjt2q7igd2sjkwy5oz6jicc5bmpggm7p4kfapn62bdblm4uq
+CREATE MIGRATION m1zekcs5zvbhydwi6zxeliwrmbwozwwuef3e2bsqsvtwwmvroxkfuq
+    ONTO m1yfbgj6u2atxxlxngmizkeoi4wy3wkzmbz5yebiomi7abstldr5fa
 {
-  ALTER TYPE event::PlannedSampling {
-      ALTER LINK target_taxa {
-          SET REQUIRED USING (<taxonomy::Taxon>{});
-      };
-      DROP PROPERTY comments;
-  };
-  ALTER TYPE taxonomy::Taxon {
-      ALTER LINK parent {
-          ON TARGET DELETE DELETE SOURCE;
+  ALTER TYPE event::Sampling {
+      ALTER LINK all_ids {
+          USING (WITH
+              ext_samples_no_seqs := 
+                  (SELECT
+                      .reports
+                  FILTER
+                      NOT (EXISTS (.sequences))
+                  )
+          SELECT
+              ((DISTINCT (ext_samples_no_seqs.identification.taxon) UNION .external_seqs.identification.taxon) UNION .samples.identifications.taxon)
+          );
       };
   };
 };

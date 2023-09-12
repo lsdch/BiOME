@@ -164,7 +164,7 @@ func importChildren(tx *edgedb.Tx, GBIF_ID int, process *ImportProcess, monitor 
 	}
 
 	taxa = funk.Filter(taxa, func(taxon TaxonGBIF) bool {
-		return taxon.Rank != "UNRANKED"
+		return taxon.Rank != "UNRANKED" && taxon.Status != "DOUBTFUL"
 	}).([]TaxonGBIF)
 
 	if len(taxa) > 0 {

@@ -1,0 +1,5 @@
+// Replace all edgedb.Optional* types with string
+replace edgedb.OptionalStr string
+replace edgedb.OptionalInt32 int
+replace edgedb.OptionalDateTime string
+

@@ -52,7 +52,7 @@ const activities: Ref<ImportProcess[]> = ref([])
 const anchors: Ref<Taxon[]> = ref([])
 
 async function updateAnchors() {
-  const response = await axios.get('/api/taxonomy/anchors')
+  const response = await axios.get('/api/v1/taxonomy/anchors')
   anchors.value = response.data
 }
 onMounted(updateAnchors)
@@ -68,7 +68,7 @@ setInterval(updateElapsedTime, 5000)
 
 const pickerActive = ref(false)
 
-const source = new EventSource('/api/taxonomy/anchors/progress')
+const source = new EventSource('/api/v1/taxonomy/anchors/progress')
 source.addEventListener('progress', (event) => {
   console.log(event)
   const json: Object = JSON.parse(event.data)

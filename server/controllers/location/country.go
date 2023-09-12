@@ -4,7 +4,7 @@ import (
 	country "darco/proto/models/location"
 	"net/http"
 
-	"github.com/gin-gonic/gin"
+	gin "github.com/gin-gonic/gin"
 )
 
 func Setup(ctx *gin.Context) {
@@ -13,5 +13,20 @@ func Setup(ctx *gin.Context) {
 		ctx.Error(err)
 	} else {
 		ctx.Status(http.StatusOK)
+	}
+}
+
+// List countries
+// @Summary List Countries
+// @Tags Location
+// @Success 200 {array} country.Country
+// @Failure 500 {object} gin.Error
+// @Router /countries/ [get]
+func List(ctx *gin.Context) {
+	countries, err := country.List()
+	if err != nil {
+		ctx.Error(err)
+	} else {
+		ctx.JSON(http.StatusOK, countries)
 	}
 }

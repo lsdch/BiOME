@@ -3,10 +3,16 @@ package main
 import (
 	country "darco/proto/controllers/location"
 	"darco/proto/controllers/taxonomy"
+	"errors"
 	"net/http"
 
+	_ "darco/proto/docs" // import swagger docs
+
+	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 var db = make(map[string]string)
@@ -18,12 +24,38 @@ func handleErrors(c *gin.Context) {
 	// in this example we only will use the **last error typed as public**
 	// but you could iterate over all them since c.Errors is a slice!
 	errorToPrint := c.Errors.Last()
-	if errorToPrint != nil && errorToPrint.Meta != nil {
-		c.JSON(500, errorToPrint.Meta)
+	if errorToPrint == nil {
+		return
+	}
+
+	var dbErr edgedb.Error
+	if errors.As(errorToPrint, &dbErr) && dbErr.Category(edgedb.NoDataError) {
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+	}
+
+	if errorToPrint.Meta != nil {
+		c.JSON(http.StatusInternalServerError, errorToPrint.Meta)
+		return
 	}
 }
 
+// @title Proto API
+// @version 1.0
+// @description Testing Swagger APIs.
+// @BasePath /api/v1
+// @termsOfService http://swagger.io/terms/
+// @contact.name Louis Duchemin
+// @contact.email louis.duchemin@univ-lyon1.fr
+// @contact.url http://www.swagger.io/support
+// @securityDefinitions.apiKey JWT
+// @in header
+// @name token// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+// @host localhost:8080
+// @schemes http
 func setupRouter() *gin.Engine {
+
 	r := gin.Default()
 	r.Use(handleErrors)
 
@@ -36,11 +68,18 @@ func setupRouter() *gin.Engine {
 		c.String(http.StatusOK, "Hello world!")
 	})
 
-	api := r.Group("/api")
+	// Swagger docs
+	api := r.Group("/api/v1")
+	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	country_api := api.Group("/countries")
+	country_api.GET("/", country.List)
 	country_api.GET("/setup", country.Setup)
 
+	taxa_api := api.Group("/taxa")
+	taxa_api.GET("/:code", taxonomy.GetTaxon)
+	taxa_api.DELETE("/:code", taxonomy.DeleteTaxon)
+	taxa_api.PATCH("/:code", taxonomy.UpdateTaxon)
 	taxonomy_api := api.Group("/taxonomy")
 	taxonomyUpdate := taxonomy.UpdateTaxonomyDB()
 	taxonomy_api.POST("/anchors", taxonomyUpdate.Endpoint)

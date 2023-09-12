@@ -185,7 +185,7 @@ const postError: Ref<AxiosError | undefined> = ref()
 
 async function importAnchorTaxon(taxon: any) {
   try {
-    await axios.post('/api/taxonomy/anchors/', taxon)
+    await axios.post('/api/v1/taxonomy/anchors/', taxon)
     emit('close')
   } catch (error) {
     if (axios.isAxiosError(error)) {

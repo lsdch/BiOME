@@ -1,0 +1,414 @@
+basePath: /api/v1
+definitions:
+  country.Country:
+    properties:
+      code:
+        example: DE
+        type: string
+      id:
+        example: <UUID>
+        type: string
+      name:
+        example: Germany
+        type: string
+      nbLocalities:
+        example: 9
+        type: integer
+    type: object
+  gin.Error:
+    properties:
+      err: {}
+      meta: {}
+      type:
+        $ref: '#/definitions/gin.ErrorType'
+    type: object
+  gin.ErrorType:
+    enum:
+    - -9223372036854775808
+    - 4611686018427387904
+    - 1
+    - 2
+    - -1
+    type: integer
+    x-enum-varnames:
+    - ErrorTypeBind
+    - ErrorTypeRender
+    - ErrorTypePrivate
+    - ErrorTypePublic
+    - ErrorTypeAny
+  models.Meta:
+    properties:
+      created:
+        example: "2023-09-01T16:41:10.921097+00:00"
+        type: string
+      modified:
+        example: "2023-09-02T20:39:10.218057+00:00"
+        type: string
+    type: object
+  taxonomy.Taxon:
+    properties:
+      authorship:
+        example: (Linnaeus, 1758)
+        type: string
+      code:
+        example: ASEaquaticus
+        type: string
+      gbif_ID:
+        example: 2206247
+        type: integer
+      name:
+        example: Asellus aquaticus
+        type: string
+      rank:
+        allOf:
+        - $ref: '#/definitions/taxonomy.TaxonRank'
+        example: Species
+      status:
+        allOf:
+        - $ref: '#/definitions/taxonomy.TaxonStatus'
+        enum:
+        - TaxonStatus
+        example: Accepted
+    required:
+    - name
+    - rank
+    - status
+    type: object
+  taxonomy.TaxonDB:
+    properties:
+      anchor:
+        type: boolean
+      authorship:
+        example: (Linnaeus, 1758)
+        type: string
+      code:
+        example: ASEaquaticus
+        type: string
+      gbif_ID:
+        example: 2206247
+        type: integer
+      id:
+        example: <UUID>
+        type: string
+      meta:
+        $ref: '#/definitions/models.Meta'
+      name:
+        example: Asellus aquaticus
+        type: string
+      rank:
+        allOf:
+        - $ref: '#/definitions/taxonomy.TaxonRank'
+        example: Species
+      slug:
+        example: asellus-aquaticus
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/taxonomy.TaxonStatus'
+        enum:
+        - TaxonStatus
+        example: Accepted
+    required:
+    - name
+    - rank
+    - status
+    type: object
+  taxonomy.TaxonInput:
+    properties:
+      authorship:
+        example: (Linnaeus, 1758)
+        type: string
+      code:
+        example: ASEaquaticus
+        type: string
+      gbif_ID:
+        example: 2206247
+        type: integer
+      name:
+        example: Asellus aquaticus
+        type: string
+      parent:
+        type: string
+      rank:
+        allOf:
+        - $ref: '#/definitions/taxonomy.TaxonRank'
+        example: Species
+      status:
+        allOf:
+        - $ref: '#/definitions/taxonomy.TaxonStatus'
+        enum:
+        - TaxonStatus
+        example: Accepted
+    required:
+    - name
+    - rank
+    - status
+    type: object
+  taxonomy.TaxonRank:
+    enum:
+    - Kingdom
+    - Phylum
+    - Class
+    - Family
+    - Genus
+    - Species
+    - Subspecies
+    type: string
+    x-enum-varnames:
+    - Kingdom
+    - Phylum
+    - Class
+    - Family
+    - Genus
+    - Species
+    - Subspecies
+  taxonomy.TaxonSelect:
+    properties:
+      anchor:
+        type: boolean
+      authorship:
+        example: (Linnaeus, 1758)
+        type: string
+      children:
+        items:
+          $ref: '#/definitions/taxonomy.TaxonDB'
+        type: array
+      code:
+        example: ASEaquaticus
+        type: string
+      gbif_ID:
+        example: 2206247
+        type: integer
+      id:
+        example: <UUID>
+        type: string
+      meta:
+        $ref: '#/definitions/models.Meta'
+      name:
+        example: Asellus aquaticus
+        type: string
+      parent:
+        properties:
+          anchor:
+            type: boolean
+          authorship:
+            example: (Linnaeus, 1758)
+            type: string
+          code:
+            example: ASEaquaticus
+            type: string
+          gbif_ID:
+            example: 2206247
+            type: integer
+          id:
+            example: <UUID>
+            type: string
+          meta:
+            $ref: '#/definitions/models.Meta'
+          name:
+            example: Asellus aquaticus
+            type: string
+          rank:
+            allOf:
+            - $ref: '#/definitions/taxonomy.TaxonRank'
+            example: Species
+          slug:
+            example: asellus-aquaticus
+            type: string
+          status:
+            allOf:
+            - $ref: '#/definitions/taxonomy.TaxonStatus'
+            enum:
+            - TaxonStatus
+            example: Accepted
+        required:
+        - name
+        - rank
+        - status
+        type: object
+      rank:
+        allOf:
+        - $ref: '#/definitions/taxonomy.TaxonRank'
+        example: Species
+      slug:
+        example: asellus-aquaticus
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/taxonomy.TaxonStatus'
+        enum:
+        - TaxonStatus
+        example: Accepted
+    required:
+    - name
+    - rank
+    - status
+    type: object
+  taxonomy.TaxonStatus:
+    enum:
+    - Accepted
+    - Synonym
+    - Unclassified
+    type: string
+    x-enum-varnames:
+    - Accepted
+    - Synonym
+    - Unclassified
+info:
+  contact:
+    email: louis.duchemin@univ-lyon1.fr
+    name: Louis Duchemin
+    url: http://www.swagger.io/support
+  description: Testing Swagger APIs.
+  termsOfService: http://swagger.io/terms/
+  title: Proto API
+  version: "1.0"
+paths:
+  /countries/:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/country.Country'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/gin.Error'
+      summary: List Countries
+      tags:
+      - Location
+  /taxa/{code}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: Taxon code
+        in: path
+        minLength: 3
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete a taxon by its code
+      tags:
+      - Taxonomy
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Taxon code
+        in: path
+        minLength: 3
+        name: code
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get taxon success
+          schema:
+            allOf:
+            - $ref: '#/definitions/taxonomy.TaxonSelect'
+            - properties:
+                taxon:
+                  allOf:
+                  - $ref: '#/definitions/taxonomy.Taxon'
+                  - properties:
+                      children:
+                        items:
+                          $ref: '#/definitions/taxonomy.Taxon'
+                        type: array
+                    type: object
+              type: object
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get a taxon by its code
+      tags:
+      - Taxonomy
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Taxon code
+        in: path
+        minLength: 3
+        name: code
+        required: true
+        type: string
+      - description: Taxon
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/taxonomy.TaxonInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/taxonomy.TaxonSelect'
+        "403":
+          description: Forbidden
+        "404":
+          description: Not Found
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update a taxon by its code
+      tags:
+      - Taxonomy
+  /taxonomy/anchors:
+    get:
+      consumes:
+      - application/json
+      description: Anchors are taxa that were imported as the root of a subtree in
+        the taxonomy.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get anchor taxa list success
+          schema:
+            items:
+              allOf:
+              - $ref: '#/definitions/taxonomy.Taxon'
+              - properties:
+                  authorship:
+                    type: string
+                type: object
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List anchor taxa
+      tags:
+      - Taxonomy
+securityDefinitions:
+  JWT:
+    in: header
+    name: token// @license.name Apache 2.0
+    type: apiKey
+swagger: "2.0"
