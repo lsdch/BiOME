@@ -116,6 +116,12 @@ module taxonomy {
     required name: str {
       constraint min_len_value(4);
     };
+    constraint expression on (not contains(.name, " "))
+      except (.rank in {Rank.Species, Rank.Subspecies});
+    constraint expression on (len(str_split(.name, " ")) == 2)
+      except (.rank != Rank.Species);
+    constraint expression on (len(str_split(.name, " ")) == 3)
+      except (.rank != Rank.Subspecies);
 
     property slug := (str_replace(.name, " ", "-"));
 
@@ -138,7 +144,14 @@ module taxonomy {
     }
     authorship: str;
 
-    optional parent: Taxon {
+    kingdom: Taxon;
+    phylum: Taxon;
+    class: Taxon;
+    order: Taxon;
+    family: Taxon;
+    genus: Taxon;
+    species: Taxon;
+    parent: Taxon {
       on target delete delete source;
     };
     constraint expression on (exists .parent) except (.rank = Rank.Kingdom);

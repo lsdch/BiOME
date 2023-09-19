@@ -246,6 +246,44 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/taxonomy/import": {
+            "put": {
+                "description": "Imports a clade from the GBIF taxonomy, using a its GBIF ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "Import GBIF clade",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "GBIF taxon code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/taxonomy.TaxonSelect"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
         }
     },
     "definitions": {

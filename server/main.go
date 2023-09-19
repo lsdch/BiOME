@@ -82,8 +82,8 @@ func setupRouter() *gin.Engine {
 	taxa_api.PATCH("/:code", taxonomy.UpdateTaxon)
 	taxonomy_api := api.Group("/taxonomy")
 	taxonomyUpdate := taxonomy.UpdateTaxonomyDB()
-	taxonomy_api.POST("/anchors", taxonomyUpdate.Endpoint)
-	taxonomy_api.GET("/anchors/progress", taxonomyUpdate.ProgressTracker)
+	taxonomy_api.PUT("/import", taxonomyUpdate.Endpoint)
+	taxonomy_api.GET("/import", taxonomyUpdate.ProgressTracker)
 	taxonomy_api.GET("/anchors", taxonomy.GetAnchors)
 
 	// Get user value

@@ -55,14 +55,52 @@ type ImportProcess struct {
 	Rank     string    `json:"rank"`
 	Started  time.Time `json:"started"`
 	Done     bool      `json:"done"`
+	Error    error     `json:"error"`
 }
 
-var jsonDB = jsoniter.Config{
-	EscapeHTML:             true,
-	SortMapKeys:            true,
-	ValidateJsonRawMessage: true,
-	TagKey:                 "edgedb",
-}.Froze()
+type ProgressTracker struct {
+	process ImportProcess
+	monitor func(p *ImportProcess)
+}
+
+func (p *ProgressTracker) Report() {
+	p.monitor(&p.process)
+}
+
+func NewProgressTracker(taxon *TaxonGBIF, f func(p *ImportProcess)) *ProgressTracker {
+	process := ImportProcess{
+		Name:     taxon.Name,
+		GBIF_ID:  taxon.Key,
+		Expected: taxon.NumDescendants + 1,
+		Imported: 0,
+		Rank:     taxon.Rank,
+		Started:  time.Now(),
+		Done:     false,
+		Error:    nil,
+	}
+	tracker := ProgressTracker{
+		process: process,
+		monitor: f,
+	}
+	tracker.Report()
+	return &tracker
+}
+
+func (p *ProgressTracker) Progress(n int) {
+	p.process.Imported += n
+	p.Report()
+}
+
+func (p *ProgressTracker) Errorf(format string, a ...any) error {
+	p.process.Error = fmt.Errorf(format, a...)
+	p.Report()
+	return p.process.Error
+}
+
+func (p *ProgressTracker) Terminate() {
+	p.process.Done = true
+	p.Report()
+}
 
 var baseURL = "https://api.gbif.org/v1/species/"
 
@@ -78,6 +116,9 @@ func makeRequest(strURL string, offset int) (body []byte, err error) {
 		return nil, err
 	}
 	defer response.Body.Close()
+	if response.StatusCode >= http.StatusBadRequest {
+		return nil, fmt.Errorf("request failure: %s", response.Status)
+	}
 	return io.ReadAll(response.Body)
 }
 
@@ -101,7 +142,14 @@ func fetchParents(GBIF_ID int) ([]TaxonGBIF, error) {
 	return requestTaxa(URL)
 }
 
-//go:embed upsert_taxon.edgeql
+var jsonDB = jsoniter.Config{
+	EscapeHTML:             true,
+	SortMapKeys:            true,
+	ValidateJsonRawMessage: true,
+	TagKey:                 "edgedb",
+}.Froze()
+
+//go:embed upsert_anchor.edgeql
 var upsertTaxonCmd string
 
 func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
@@ -113,17 +161,17 @@ func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
 	ctx := context.Background()
 	err = models.DB.Tx(ctx, func(ctx context.Context, tx *edgedb.Tx) (err error) {
 		for _, taxon := range taxa {
-			log.Debugf("INSERTING %v", &taxon)
+			log.Debugf("Inserting taxon %+v", &taxon)
 			args, _ := jsonDB.Marshal(&taxon)
 			if err = tx.Execute(ctx, upsertTaxonCmd, args); err != nil {
-				return err
+				return
 			} else {
 				n++
 			}
 		}
 		return
 	})
-	return n, err
+	return
 }
 
 type ChildrenGBIF struct {
@@ -148,15 +196,14 @@ func fetchChildren(GBIF_ID int, offset int) (children ChildrenGBIF, err error) {
 	return
 }
 
-func importChildren(tx *edgedb.Tx, GBIF_ID int, process *ImportProcess, monitor func(*ImportProcess)) {
+func importChildren(tx *edgedb.Tx, GBIF_ID int, tracker *ProgressTracker) error {
 	var taxa []TaxonGBIF
 	endReached := false
 	offset := 0
 	for !endReached {
 		children, err := fetchChildren(GBIF_ID, offset)
 		if err != nil {
-			log.Errorf("Failed to fetch data from GBIF \n%s", err)
-			return
+			return tracker.Errorf("failed to fetch data from GBIF\n%w", err)
 		}
 		taxa = append(taxa, children.Results...)
 		endReached = children.EndOfRecords
@@ -168,82 +215,67 @@ func importChildren(tx *edgedb.Tx, GBIF_ID int, process *ImportProcess, monitor 
 	}).([]TaxonGBIF)
 
 	if len(taxa) > 0 {
-		inserted, _ := upsertTaxa(tx, taxa)
-		process.Imported += inserted
-		monitor(process)
+		inserted, err := upsertTaxa(tx, taxa)
+		if err != nil {
+			return tracker.Errorf("failed to insert taxon imported from GBIF\n%w", err)
+		}
+		tracker.Progress(inserted)
 	}
 
 	for _, taxon := range taxa {
 		if taxon.NumDescendants > 0 {
-			importChildren(tx, taxon.Key, process, monitor)
+			if err := importChildren(tx, taxon.Key, tracker); err != nil {
+				return err
+			}
 		}
 	}
+	return nil
+}
+
+func fetchTaxon(GBIF_ID int) (taxon TaxonGBIF, err error) {
+	taxonURL, _ := url.JoinPath(baseURL, fmt.Sprint(GBIF_ID))
+	body, err := makeRequest(taxonURL, 0)
+	if err != nil {
+		err = fmt.Errorf("failed to fetch GBIF record of anchor taxon #%d \n %w", GBIF_ID, err)
+		return
+	}
+	if err = json.Unmarshal(body, &taxon); err != nil {
+		err = fmt.Errorf("failed to parse JSON response from GBIF \n %w", err)
+		log.WithFields(log.Fields{"body": body}).Errorf("%s", err)
+		return
+	}
+	taxon.Anchor = true
+	return
 }
 
 func ImportTaxon(GBIF_ID int, monitor func(p *ImportProcess)) (err error) {
 
-	taxonURL, _ := url.JoinPath(baseURL, fmt.Sprint(GBIF_ID))
-	body, err := makeRequest(taxonURL, 0)
+	taxon, err := fetchTaxon(GBIF_ID)
 	if err != nil {
-		log.Errorf("Failed to fetch GBIF record of anchor taxon #%d \n %s", GBIF_ID, err)
 		return
 	}
-	var taxon TaxonGBIF
-	if err = json.Unmarshal(body, &taxon); err != nil {
-		log.WithFields(
-			log.Fields{"body": body},
-		).Errorf("Failed to parse JSON response from GBIF \n %s", err)
-		return
-	}
-
 	log.Infof("Started import of taxon : %s [GBIF %d]", taxon.Name, taxon.Key)
 
-	process := ImportProcess{
-		Name:     taxon.Name,
-		GBIF_ID:  taxon.Key,
-		Expected: taxon.NumDescendants + 1,
-		Imported: 0,
-		Rank:     taxon.Rank,
-		Started:  time.Now(),
-		Done:     false,
-	}
-	monitor(&process)
+	tracker := NewProgressTracker(&taxon, monitor)
 
-	ctx := context.Background()
-	err = models.DB.Tx(ctx, func(ctx context.Context, tx *edgedb.Tx) (err error) {
+	go models.DB.Tx(context.Background(),
+		func(ctx context.Context, tx *edgedb.Tx) error {
+			parents, err := fetchParents(GBIF_ID)
+			if err != nil {
+				return tracker.Errorf("failed to fetch parent taxa of %s[%d] from GBIF\n%w", taxon.Name, taxon.Key, err)
+			}
 
-		parents, err := fetchParents(GBIF_ID)
-		if err != nil {
-			log.Errorf("Failed to fetch parent taxa of %s[%d] from GBIF\n %s",
-				taxon.Name, taxon.Key, err)
-			return err
-		}
+			insert_count, err := upsertTaxa(tx, append(parents, taxon))
+			if err != nil {
+				return tracker.Errorf("failed to insert a parent of taxon %s[%d] \n%w",
+					taxon.Name, taxon.Key, err)
+			}
+			tracker.Progress(insert_count)
 
-		parentCount, err := upsertTaxa(tx, parents)
-		if err == nil {
-			process.Imported += parentCount
-			monitor(&process)
-		} else {
-			log.Errorf("Failed to insert some parent taxa of %s[%d] \n %s",
-				taxon.Name, taxon.Key, err)
-		}
-
-		taxon.Anchor = true
-		_, err = upsertTaxa(tx, []TaxonGBIF{taxon})
-		if err == nil {
-			process.Imported++
-			monitor(&process)
-		} else {
-			log.Errorf("Failed to insert anchor taxon %s[%d] \n %s",
-				taxon.Name, taxon.Key, err)
-		}
-
-		importChildren(tx, GBIF_ID, &process, monitor)
-
-		process.Done = true
-		monitor(&process)
-		return
-	})
+			importChildren(tx, GBIF_ID, tracker)
+			tracker.Terminate()
+			return nil
+		})
 
 	return err
 }

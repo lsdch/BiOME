@@ -2,8 +2,10 @@ package taxonomy
 
 import (
 	"darco/proto/models/taxonomy"
+	"errors"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
@@ -75,21 +77,37 @@ type Controller struct {
 	ProgressTracker func(*gin.Context)
 }
 
+// @Summary Import GBIF clade
+// @Description Imports a clade from the GBIF taxonomy, using a its GBIF ID
+// @tags Taxonomy
+// @Accept json
+// @Produce json
+// @Success 200 {object} taxonomy.TaxonSelect
+// @Failure 403
+// @Failure 400
+// @Router /taxonomy/import [put]
+// @Param code query number true "GBIF taxon code"
 func UpdateTaxonomyDB() Controller {
 	var stream = NewServer()
 
 	endpoint := func(c *gin.Context) {
-		var taxon taxonomy.TaxonGBIF
-		if err := c.ShouldBindJSON(&taxon); err != nil {
-			log.Errorf("Invalid taxon definition to import as anchor \n%s", err)
-			c.JSON(http.StatusBadRequest, gin.H{"message": "Invalid taxon definition", "error": err})
+		code_str, has_value := c.GetQuery("code")
+		code, err := strconv.Atoi(code_str)
+		if !has_value {
+			err = errors.New("missing required query parameter : code")
+		}
+		if err != nil {
+			c.AbortWithError(http.StatusBadRequest, err)
 			return
 		}
 		if !stream.Running {
 			go stream.listen()
 		}
 
-		go taxonomy.ImportTaxon(taxon.Key, stream.monitor)
+		if err := taxonomy.ImportTaxon(code, stream.monitor); err != nil {
+			c.Error(err)
+			return
+		}
 
 		c.JSON(http.StatusAccepted, nil)
 	}

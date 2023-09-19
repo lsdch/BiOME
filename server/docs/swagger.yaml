@@ -406,6 +406,31 @@ paths:
       summary: List anchor taxa
       tags:
       - Taxonomy
+  /taxonomy/import:
+    put:
+      consumes:
+      - application/json
+      description: Imports a clade from the GBIF taxonomy, using a its GBIF ID
+      parameters:
+      - description: GBIF taxon code
+        in: query
+        name: code
+        required: true
+        type: number
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/taxonomy.TaxonSelect'
+        "400":
+          description: Bad Request
+        "403":
+          description: Forbidden
+      summary: Import GBIF clade
+      tags:
+      - Taxonomy
 securityDefinitions:
   JWT:
     in: header
