@@ -68,7 +68,7 @@ setInterval(updateElapsedTime, 5000)
 
 const pickerActive = ref(false)
 
-const source = new EventSource('/api/v1/taxonomy/anchors/progress')
+const source = new EventSource('/api/v1/taxonomy/import')
 source.addEventListener('progress', (event) => {
   console.log(event)
   const json: Object = JSON.parse(event.data)

@@ -1,18 +1,7 @@
-CREATE MIGRATION m1zekcs5zvbhydwi6zxeliwrmbwozwwuef3e2bsqsvtwwmvroxkfuq
-    ONTO m1yfbgj6u2atxxlxngmizkeoi4wy3wkzmbz5yebiomi7abstldr5fa
+CREATE MIGRATION m1yv6b46o6qyge2mdxsarylysutuzy3wngbnzwaissokz5dwj7gxjq
+    ONTO m1emojwi2egcdl6utcg6nfsluhfzyifalybrx2uotnxa2a4o3lquaq
 {
-  ALTER TYPE event::Sampling {
-      ALTER LINK all_ids {
-          USING (WITH
-              ext_samples_no_seqs := 
-                  (SELECT
-                      .reports
-                  FILTER
-                      NOT (EXISTS (.sequences))
-                  )
-          SELECT
-              ((DISTINCT (ext_samples_no_seqs.identification.taxon) UNION .external_seqs.identification.taxon) UNION .samples.identifications.taxon)
-          );
-      };
+  ALTER TYPE taxonomy::Taxon {
+      CREATE CONSTRAINT std::expression ON (NOT (std::contains(.name, ' '))) EXCEPT (((.rank = taxonomy::Rank.Species) OR (.rank = taxonomy::Rank.Subspecies)));
   };
 };

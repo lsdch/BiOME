@@ -116,11 +116,12 @@ module taxonomy {
     required name: str {
       constraint min_len_value(4);
     };
+
     constraint expression on (not contains(.name, " "))
-      except (.rank in {Rank.Species, Rank.Subspecies});
-    constraint expression on (len(str_split(.name, " ")) == 2)
+      except (.rank = Rank.Species or .rank = Rank.Subspecies);
+    constraint expression on (len(str_split(.name, " ")) = 2)
       except (.rank != Rank.Species);
-    constraint expression on (len(str_split(.name, " ")) == 3)
+    constraint expression on (len(str_split(.name, " ")) = 3)
       except (.rank != Rank.Subspecies);
 
     property slug := (str_replace(.name, " ", "-"));
@@ -129,12 +130,12 @@ module taxonomy {
 
     required status: TaxonStatus;
     required code: str {
-      # constraint exclusive;
+      constraint exclusive;
       rewrite insert, update using (
         with chopped := str_split(.name, " "),
         suffix := "[syn]" if .status = TaxonStatus.Synonym else ""
-        select (.name ++ suffix)
-        if not .rank in {Rank.Species, Rank.Subspecies}
+        select .code if __specified__.code
+        else (.name ++ suffix) if not .rank in {Rank.Species, Rank.Subspecies}
         else str_upper(chopped[0][:3]) ++ array_join(chopped[1:], "_") ++ suffix
       )
     };
@@ -144,13 +145,62 @@ module taxonomy {
     }
     authorship: str;
 
-    kingdom: Taxon;
-    phylum: Taxon;
-    class: Taxon;
-    order: Taxon;
-    family: Taxon;
-    genus: Taxon;
-    species: Taxon;
+    kingdom: Taxon {
+      rewrite insert, update using (
+        .parent if .parent.rank = Rank.Kingdom
+        else .parent.kingdom if exists .parent
+        else <Taxon>{}
+      );
+      on target delete allow;
+    };
+    phylum: Taxon {
+      rewrite insert, update using (
+        .parent if .parent.rank = Rank.Phylum
+        else .parent.phylum if exists .parent
+        else <Taxon>{}
+      );
+      on target delete allow;
+    };
+    class: Taxon {
+      rewrite insert, update using (
+        .parent if .parent.rank = Rank.Class
+         else .parent.class if exists .parent
+         else <Taxon>{}
+      );
+      on target delete allow;
+    };
+    order: Taxon {
+      rewrite insert, update using (
+        .parent if .parent.rank = Rank.Order
+        else .parent.order if exists .parent
+        else <Taxon>{}
+      );
+      on target delete allow;
+    };
+    family: Taxon {
+      rewrite insert, update using (
+        .parent if .parent.rank = Rank.Family
+        else .parent.family if exists .parent
+        else <Taxon>{}
+      );
+      on target delete allow;
+    };
+    genus: Taxon {
+      rewrite insert, update using (
+        .parent if .parent.rank = Rank.Genus
+        else .parent.genus if exists .parent
+        else <Taxon>{}
+      );
+      on target delete allow;
+    };
+    species: Taxon {
+      rewrite insert, update using (
+        .parent if .parent.rank = Rank.Species
+        else .parent.species if exists .parent
+        else <Taxon>{}
+      );
+      on target delete allow;
+    };
     parent: Taxon {
       on target delete delete source;
     };
@@ -352,10 +402,11 @@ module event {
 
     multi link occurring_taxa := (
       with ext_samples_no_seqs := (select .reports filter not exists .sequences)
-      select distinct
-      (ext_samples_no_seqs.identification.taxon) union
-      (.external_seqs.identification.taxon) union
-      (.samples.identified_taxa)
+      select distinct (
+        ext_samples_no_seqs.identification.taxon union
+        .external_seqs.identification.taxon union
+        .samples.identified_taxa
+      )
     );
   }
 

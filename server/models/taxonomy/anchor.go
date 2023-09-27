@@ -211,7 +211,7 @@ func importChildren(tx *edgedb.Tx, GBIF_ID int, tracker *ProgressTracker) error 
 	}
 
 	taxa = funk.Filter(taxa, func(taxon TaxonGBIF) bool {
-		return taxon.Rank != "UNRANKED" && taxon.Status != "DOUBTFUL"
+		return taxon.Rank != "UNRANKED" && taxon.Rank != "VARIETY" && taxon.Status != "DOUBTFUL"
 	}).([]TaxonGBIF)
 
 	if len(taxa) > 0 {

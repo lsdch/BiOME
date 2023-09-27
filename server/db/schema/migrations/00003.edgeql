@@ -1,9 +1,7 @@
-CREATE MIGRATION m1gwdc3fyv5f5evagrf6nmvjjuxy54mwqygepqyzegij5ob2idxrbq
-    ONTO m1apy5rrwgvslzo7myk37d63mwsidhdllsw55hxtpmebdrul6rzrsq
+CREATE MIGRATION m1gzxrpzvw2qhtqu5yxfgw7t2gdh3tmo7lkenqm6ln7pfmgcrik2ea
+    ONTO m14ytq2iiu6hdrp5vuhphjzouphbytocdfely5fjxozsffv6hkhyaa
 {
-  ALTER TYPE event::Sampling {
-      ALTER LINK occurences {
-          RENAME TO occurrences;
-      };
+  ALTER TYPE taxonomy::Taxon {
+      CREATE CONSTRAINT std::expression ON (NOT (std::contains(.name, ' ')));
   };
 };

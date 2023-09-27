@@ -107,14 +107,14 @@
             </p>
             <p>All taxons below the root taxons will be imported recursively.</p>
           </div>
-          <v-alert
-            v-if="postError"
-            type="error"
-            title="Invalid taxon provided as anchor"
-            :text="postError.message"
-          />
         </v-col>
       </v-row>
+      <v-alert
+        v-if="postError"
+        type="error"
+        title="Invalid taxon provided as anchor"
+        :text="postError.message"
+      />
     </v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
@@ -185,7 +185,7 @@ const postError: Ref<AxiosError | undefined> = ref()
 
 async function importAnchorTaxon(taxon: any) {
   try {
-    await axios.post('/api/v1/taxonomy/anchors/', taxon)
+    await axios.post('/api/v1/taxonomy/import/', taxon)
     emit('close')
   } catch (error) {
     if (axios.isAxiosError(error)) {
