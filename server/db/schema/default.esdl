@@ -124,8 +124,6 @@ module taxonomy {
     constraint expression on (len(str_split(.name, " ")) = 3)
       except (.rank != Rank.Subspecies);
 
-    property slug := (str_replace(.name, " ", "-"));
-
     required rank: Rank;
 
     required status: TaxonStatus;
@@ -209,6 +207,10 @@ module taxonomy {
     constraint exclusive on ((.name, .status));
 
     multi link children := .<parent[is Taxon];
+
+    index on (.name);
+    index on (.rank);
+    index on (.status);
   }
 }
 
@@ -247,8 +249,19 @@ module location {
     multi link sites := .<locality[is Site]
   }
 
-  type Habitat extending default::Vocabulary, default::Auditable;
-  type AccessPoint extending default::Vocabulary, default::Auditable;
+  type HabitatTag extending default::Auditable {
+    required label: str;
+    description: str;
+    color: str {
+      rewrite update, insert using (
+        .color ?? .parent.color if exists .parent else <str>{}
+      )
+    };
+    is_required: bool {
+      default := false;
+    };
+    parent: HabitatTag;
+  };
 
   scalar type CoordinateMaxPrecision extending enum<"10m", "100m", "1Km", "10Km", "100Km", "Unknown">;
 
@@ -263,13 +276,8 @@ module location {
     }
     description: str;
 
-    required habitat: Habitat {
-      annotation title := "The type of habitat that is the target of the sampling.";
-      on target delete restrict;
-    };
-    required access_point: AccessPoint {
-      annotation title := "The actual point where the sampling is performed.";
-      annotation description := "Some habitats may not be directly accessible, and sampling may have to be done on a location that acts as a proxy for the target habitat.";
+    required multi habitat_tags: HabitatTag {
+      annotation title := "A list of descriptors for the habitat that was targeted.";
       on target delete restrict;
     };
 
@@ -344,7 +352,9 @@ module event {
     multi target_taxa: taxonomy::Taxon;
   }
 
-  type AbioticParameter extending default::Vocabulary, default::Auditable;
+  type AbioticParameter extending default::Vocabulary, default::Auditable {
+    required unit: str;
+  };
 
   type AbioticMeasurement extending event::Event {
     required param: AbioticParameter;
@@ -529,12 +539,6 @@ module storage {
 module samples {
 
   type BioMaterial extending occurrence::Occurrence {
-    # TODO IMPORTANT :
-    # Maybe move down the identification on the level of tube
-    # this would be more flexible, and it is always possible to suggest splitting
-    # the biomat bundle in the UI when identifications dont concur across tubes.
-
-    # Think about splitting between internal and external
     required code : str {
       constraint exclusive;
       annotation description := "Format like 'taxon_code|sampling_code'";

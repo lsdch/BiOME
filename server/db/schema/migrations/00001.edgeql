@@ -1,4 +1,4 @@
-CREATE MIGRATION m17dalqln6hw3ab2ljhv5n2rpabbpki3wle7azbigal47cpb7etk5q
+CREATE MIGRATION m1ktyejir4iry46z6whw5qtxmm672hh6zoz2g72lzhjqgdchfxa6ya
     ONTO initial
 {
   CREATE MODULE datasets IF NOT EXISTS;
@@ -660,19 +660,78 @@ CREATE MIGRATION m17dalqln6hw3ab2ljhv5n2rpabbpki3wle7azbigal47cpb7etk5q
       };
       CREATE REQUIRED PROPERTY status: taxonomy::TaxonStatus;
       CREATE CONSTRAINT std::exclusive ON ((.name, .status));
+      CREATE REQUIRED PROPERTY rank: taxonomy::Rank;
+      CREATE CONSTRAINT std::expression ON ((std::len(std::str_split(.name, ' ')) = 3)) EXCEPT ((.rank != taxonomy::Rank.Subspecies));
+      CREATE CONSTRAINT std::expression ON (NOT (std::contains(.name, ' '))) EXCEPT (((.rank = taxonomy::Rank.Species) OR (.rank = taxonomy::Rank.Subspecies)));
       CREATE LINK parent: taxonomy::Taxon {
           ON TARGET DELETE DELETE SOURCE;
       };
-      CREATE REQUIRED PROPERTY rank: taxonomy::Rank;
       CREATE CONSTRAINT std::expression ON (EXISTS (.parent)) EXCEPT ((.rank = taxonomy::Rank.Kingdom));
+      CREATE CONSTRAINT std::expression ON ((std::len(std::str_split(.name, ' ')) = 2)) EXCEPT ((.rank != taxonomy::Rank.Species));
       CREATE MULTI LINK children := (.<parent[IS taxonomy::Taxon]);
-      CREATE LINK class: taxonomy::Taxon;
-      CREATE LINK family: taxonomy::Taxon;
-      CREATE LINK genus: taxonomy::Taxon;
-      CREATE LINK kingdom: taxonomy::Taxon;
-      CREATE LINK order: taxonomy::Taxon;
-      CREATE LINK phylum: taxonomy::Taxon;
-      CREATE LINK species: taxonomy::Taxon;
+      CREATE LINK class: taxonomy::Taxon {
+          ON TARGET DELETE ALLOW;
+          CREATE REWRITE
+              INSERT 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Class) ELSE (.parent.class IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+          CREATE REWRITE
+              UPDATE 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Class) ELSE (.parent.class IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+      };
+      CREATE LINK family: taxonomy::Taxon {
+          ON TARGET DELETE ALLOW;
+          CREATE REWRITE
+              INSERT 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Family) ELSE (.parent.family IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+          CREATE REWRITE
+              UPDATE 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Family) ELSE (.parent.family IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+      };
+      CREATE LINK genus: taxonomy::Taxon {
+          ON TARGET DELETE ALLOW;
+          CREATE REWRITE
+              INSERT 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Genus) ELSE (.parent.genus IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+          CREATE REWRITE
+              UPDATE 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Genus) ELSE (.parent.genus IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+      };
+      CREATE LINK kingdom: taxonomy::Taxon {
+          ON TARGET DELETE ALLOW;
+          CREATE REWRITE
+              INSERT 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Kingdom) ELSE (.parent.kingdom IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+          CREATE REWRITE
+              UPDATE 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Kingdom) ELSE (.parent.kingdom IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+      };
+      CREATE LINK order: taxonomy::Taxon {
+          ON TARGET DELETE ALLOW;
+          CREATE REWRITE
+              INSERT 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Order) ELSE (.parent.order IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+          CREATE REWRITE
+              UPDATE 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Order) ELSE (.parent.order IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+      };
+      CREATE LINK phylum: taxonomy::Taxon {
+          ON TARGET DELETE ALLOW;
+          CREATE REWRITE
+              INSERT 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Phylum) ELSE (.parent.phylum IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+          CREATE REWRITE
+              UPDATE 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Phylum) ELSE (.parent.phylum IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+      };
+      CREATE LINK species: taxonomy::Taxon {
+          ON TARGET DELETE ALLOW;
+          CREATE REWRITE
+              INSERT 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Species) ELSE (.parent.species IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+          CREATE REWRITE
+              UPDATE 
+              USING ((.parent IF (.parent.rank = taxonomy::Rank.Species) ELSE (.parent.species IF EXISTS (.parent) ELSE <taxonomy::Taxon>{})));
+      };
       CREATE REQUIRED PROPERTY GBIF_ID: std::int32 {
           CREATE CONSTRAINT std::exclusive;
       };

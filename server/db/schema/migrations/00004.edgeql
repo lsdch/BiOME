@@ -1,7 +1,9 @@
-CREATE MIGRATION m1emojwi2egcdl6utcg6nfsluhfzyifalybrx2uotnxa2a4o3lquaq
-    ONTO m1gzxrpzvw2qhtqu5yxfgw7t2gdh3tmo7lkenqm6ln7pfmgcrik2ea
+CREATE MIGRATION m16dj7xaefgahqazq34efjxkudsj3mpmhk5rdmolnrwlk3hgbov2gq
+    ONTO m1cq5kdmkhjv26n2ndnguc36du5vv4kyvqq35jok7qngla2vdmv45a
 {
-  ALTER TYPE taxonomy::Taxon {
-      DROP CONSTRAINT std::expression ON (NOT (std::contains(.name, ' ')));
+  ALTER TYPE event::AbioticParameter {
+      CREATE REQUIRED PROPERTY unit: std::str {
+          SET REQUIRED USING (<std::str>{});
+      };
   };
 };

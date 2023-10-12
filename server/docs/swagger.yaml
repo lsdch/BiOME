@@ -15,27 +15,6 @@ definitions:
         example: 9
         type: integer
     type: object
-  gin.Error:
-    properties:
-      err: {}
-      meta: {}
-      type:
-        $ref: '#/definitions/gin.ErrorType'
-    type: object
-  gin.ErrorType:
-    enum:
-    - -9223372036854775808
-    - 4611686018427387904
-    - 1
-    - 2
-    - -1
-    type: integer
-    x-enum-varnames:
-    - ErrorTypeBind
-    - ErrorTypeRender
-    - ErrorTypePrivate
-    - ErrorTypePublic
-    - ErrorTypeAny
   models.Meta:
     properties:
       created:
@@ -66,8 +45,6 @@ definitions:
       status:
         allOf:
         - $ref: '#/definitions/taxonomy.TaxonStatus'
-        enum:
-        - TaxonStatus
         example: Accepted
     required:
     - name
@@ -99,14 +76,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/taxonomy.TaxonRank'
         example: Species
-      slug:
-        example: asellus-aquaticus
-        type: string
       status:
         allOf:
         - $ref: '#/definitions/taxonomy.TaxonStatus'
-        enum:
-        - TaxonStatus
         example: Accepted
     required:
     - name
@@ -136,8 +108,6 @@ definitions:
       status:
         allOf:
         - $ref: '#/definitions/taxonomy.TaxonStatus'
-        enum:
-        - TaxonStatus
         example: Accepted
     required:
     - name
@@ -212,14 +182,9 @@ definitions:
             allOf:
             - $ref: '#/definitions/taxonomy.TaxonRank'
             example: Species
-          slug:
-            example: asellus-aquaticus
-            type: string
           status:
             allOf:
             - $ref: '#/definitions/taxonomy.TaxonStatus'
-            enum:
-            - TaxonStatus
             example: Accepted
         required:
         - name
@@ -230,14 +195,9 @@ definitions:
         allOf:
         - $ref: '#/definitions/taxonomy.TaxonRank'
         example: Species
-      slug:
-        example: asellus-aquaticus
-        type: string
       status:
         allOf:
         - $ref: '#/definitions/taxonomy.TaxonStatus'
-        enum:
-        - TaxonStatus
         example: Accepted
     required:
     - name
@@ -273,13 +233,64 @@ paths:
             items:
               $ref: '#/definitions/country.Country'
             type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/gin.Error'
       summary: List Countries
       tags:
       - Location
+  /taxa/:
+    get:
+      consumes:
+      - application/json
+      description: Lists taxa, optionally filtered by name, rank and status
+      parameters:
+      - description: Name search pattern
+        in: query
+        minLength: 2
+        name: pattern
+        type: string
+      - description: Taxonomic rank
+        enum:
+        - Kingdom
+        - Phylum
+        - Class
+        - Family
+        - Genus
+        - Species
+        - Subspecies
+        in: query
+        name: rank
+        type: string
+      - description: Taxonomic status
+        enum:
+        - Accepted
+        - Synonym
+        - Unclassified
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Get taxon success
+          schema:
+            items:
+              allOf:
+              - $ref: '#/definitions/taxonomy.TaxonSelect'
+              - properties:
+                  taxon:
+                    allOf:
+                    - $ref: '#/definitions/taxonomy.Taxon'
+                    - properties:
+                        children:
+                          items:
+                            $ref: '#/definitions/taxonomy.Taxon'
+                          type: array
+                      type: object
+                type: object
+            type: array
+      summary: List taxa
+      tags:
+      - Taxonomy
   /taxa/{code}:
     delete:
       consumes:
@@ -300,10 +311,6 @@ paths:
           description: Forbidden
         "404":
           description: Not Found
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
       summary: Delete a taxon by its code
       tags:
       - Taxonomy
@@ -338,10 +345,6 @@ paths:
               type: object
         "404":
           description: Not Found
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
       summary: Get a taxon by its code
       tags:
       - Taxonomy
@@ -372,10 +375,6 @@ paths:
           description: Forbidden
         "404":
           description: Not Found
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
       summary: Update a taxon by its code
       tags:
       - Taxonomy
@@ -399,10 +398,6 @@ paths:
                     type: string
                 type: object
             type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
       summary: List anchor taxa
       tags:
       - Taxonomy

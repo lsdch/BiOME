@@ -1,7 +1,9 @@
-CREATE MIGRATION m1yv6b46o6qyge2mdxsarylysutuzy3wngbnzwaissokz5dwj7gxjq
-    ONTO m1emojwi2egcdl6utcg6nfsluhfzyifalybrx2uotnxa2a4o3lquaq
+CREATE MIGRATION m1kghg74bjihfngeirongjeooiyy5vvcfb5qa6osb66gs7kjb6lejq
+    ONTO m16dj7xaefgahqazq34efjxkudsj3mpmhk5rdmolnrwlk3hgbov2gq
 {
   ALTER TYPE taxonomy::Taxon {
-      CREATE CONSTRAINT std::expression ON (NOT (std::contains(.name, ' '))) EXCEPT (((.rank = taxonomy::Rank.Species) OR (.rank = taxonomy::Rank.Subspecies)));
+      CREATE INDEX ON (.name);
+      CREATE INDEX ON (.rank);
+      CREATE INDEX ON (.status);
   };
 };

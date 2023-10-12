@@ -35,11 +35,93 @@ const docTemplate = `{
                                 "$ref": "#/definitions/country.Country"
                             }
                         }
+                    }
+                }
+            }
+        },
+        "/taxa/": {
+            "get": {
+                "description": "Lists taxa, optionally filtered by name, rank and status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "List taxa",
+                "parameters": [
+                    {
+                        "minLength": 2,
+                        "type": "string",
+                        "description": "Name search pattern",
+                        "name": "pattern",
+                        "in": "query"
                     },
-                    "500": {
-                        "description": "Internal Server Error",
+                    {
+                        "enum": [
+                            "Kingdom",
+                            "Phylum",
+                            "Class",
+                            "Family",
+                            "Genus",
+                            "Species",
+                            "Subspecies"
+                        ],
+                        "type": "string",
+                        "description": "Taxonomic rank",
+                        "name": "rank",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "Accepted",
+                            "Synonym",
+                            "Unclassified"
+                        ],
+                        "type": "string",
+                        "description": "Taxonomic status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get taxon success",
                         "schema": {
-                            "$ref": "#/definitions/gin.Error"
+                            "type": "array",
+                            "items": {
+                                "allOf": [
+                                    {
+                                        "$ref": "#/definitions/taxonomy.TaxonSelect"
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "taxon": {
+                                                "allOf": [
+                                                    {
+                                                        "$ref": "#/definitions/taxonomy.Taxon"
+                                                    },
+                                                    {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "children": {
+                                                                "type": "array",
+                                                                "items": {
+                                                                    "$ref": "#/definitions/taxonomy.Taxon"
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    }
+                                ]
+                            }
                         }
                     }
                 }
@@ -103,12 +185,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 }
             },
@@ -142,12 +218,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 }
             },
@@ -193,12 +263,6 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found"
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
                     }
                 }
             }
@@ -236,12 +300,6 @@ const docTemplate = `{
                                     }
                                 ]
                             }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
                         }
                     }
                 }
@@ -308,33 +366,6 @@ const docTemplate = `{
                 }
             }
         },
-        "gin.Error": {
-            "type": "object",
-            "properties": {
-                "err": {},
-                "meta": {},
-                "type": {
-                    "$ref": "#/definitions/gin.ErrorType"
-                }
-            }
-        },
-        "gin.ErrorType": {
-            "type": "integer",
-            "enum": [
-                -9223372036854775808,
-                4611686018427387904,
-                1,
-                2,
-                -1
-            ],
-            "x-enum-varnames": [
-                "ErrorTypeBind",
-                "ErrorTypeRender",
-                "ErrorTypePrivate",
-                "ErrorTypePublic",
-                "ErrorTypeAny"
-            ]
-        },
         "models.Meta": {
             "type": "object",
             "properties": {
@@ -381,9 +412,6 @@ const docTemplate = `{
                     "example": "Species"
                 },
                 "status": {
-                    "enum": [
-                        "TaxonStatus"
-                    ],
                     "allOf": [
                         {
                             "$ref": "#/definitions/taxonomy.TaxonStatus"
@@ -435,14 +463,7 @@ const docTemplate = `{
                     ],
                     "example": "Species"
                 },
-                "slug": {
-                    "type": "string",
-                    "example": "asellus-aquaticus"
-                },
                 "status": {
-                    "enum": [
-                        "TaxonStatus"
-                    ],
                     "allOf": [
                         {
                             "$ref": "#/definitions/taxonomy.TaxonStatus"
@@ -488,9 +509,6 @@ const docTemplate = `{
                     "example": "Species"
                 },
                 "status": {
-                    "enum": [
-                        "TaxonStatus"
-                    ],
                     "allOf": [
                         {
                             "$ref": "#/definitions/taxonomy.TaxonStatus"
@@ -603,14 +621,7 @@ const docTemplate = `{
                             ],
                             "example": "Species"
                         },
-                        "slug": {
-                            "type": "string",
-                            "example": "asellus-aquaticus"
-                        },
                         "status": {
-                            "enum": [
-                                "TaxonStatus"
-                            ],
                             "allOf": [
                                 {
                                     "$ref": "#/definitions/taxonomy.TaxonStatus"
@@ -628,14 +639,7 @@ const docTemplate = `{
                     ],
                     "example": "Species"
                 },
-                "slug": {
-                    "type": "string",
-                    "example": "asellus-aquaticus"
-                },
                 "status": {
-                    "enum": [
-                        "TaxonStatus"
-                    ],
                     "allOf": [
                         {
                             "$ref": "#/definitions/taxonomy.TaxonStatus"

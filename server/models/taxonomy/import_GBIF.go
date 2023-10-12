@@ -21,7 +21,8 @@ import (
 	"golang.org/x/text/language"
 )
 
-var REQUEST_LIMIT = 1000
+var BASE_URL = "https://api.gbif.org/v1/species/"
+var PAGE_SIZE = 1000
 
 type TaxonGBIF struct {
 	Key            int                `json:"key" edgedb:"GBIF_ID"`
@@ -47,6 +48,7 @@ func (taxon *TaxonGBIF) normalize() {
 	taxon.Rank = cases.Title(language.English, cases.NoLower).String(rank)
 }
 
+// ImportProcess represents the progress and status of the taxon import process from GBIF.
 type ImportProcess struct {
 	Name     string    `json:"name"`
 	GBIF_ID  int       `json:"GBIF_ID"`
@@ -58,6 +60,7 @@ type ImportProcess struct {
 	Error    error     `json:"error"`
 }
 
+// ProgressTracker tracks and reports the progress of the import process.
 type ProgressTracker struct {
 	process ImportProcess
 	monitor func(p *ImportProcess)
@@ -65,6 +68,22 @@ type ProgressTracker struct {
 
 func (p *ProgressTracker) Report() {
 	p.monitor(&p.process)
+}
+
+func (p *ProgressTracker) Progress(n int) {
+	p.process.Imported += n
+	p.Report()
+}
+
+func (p *ProgressTracker) Errorf(format string, a ...any) error {
+	p.process.Error = fmt.Errorf(format, a...)
+	p.Report()
+	return p.process.Error
+}
+
+func (p *ProgressTracker) Terminate() {
+	p.process.Done = true
+	p.Report()
 }
 
 func NewProgressTracker(taxon *TaxonGBIF, f func(p *ImportProcess)) *ProgressTracker {
@@ -86,28 +105,10 @@ func NewProgressTracker(taxon *TaxonGBIF, f func(p *ImportProcess)) *ProgressTra
 	return &tracker
 }
 
-func (p *ProgressTracker) Progress(n int) {
-	p.process.Imported += n
-	p.Report()
-}
-
-func (p *ProgressTracker) Errorf(format string, a ...any) error {
-	p.process.Error = fmt.Errorf(format, a...)
-	p.Report()
-	return p.process.Error
-}
-
-func (p *ProgressTracker) Terminate() {
-	p.process.Done = true
-	p.Report()
-}
-
-var baseURL = "https://api.gbif.org/v1/species/"
-
 func makeRequest(strURL string, offset int) (body []byte, err error) {
 	URL, err := url.ParseRequestURI(strURL)
 	params := url.Values{}
-	params.Set("limit", fmt.Sprint(REQUEST_LIMIT))
+	params.Set("limit", fmt.Sprint(PAGE_SIZE))
 	params.Set("offset", fmt.Sprint(offset))
 	URL.RawQuery = params.Encode()
 	strURL = fmt.Sprint(URL)
@@ -135,7 +136,7 @@ func requestTaxa(URL string) (taxa []TaxonGBIF, err error) {
 }
 
 func fetchParents(GBIF_ID int) ([]TaxonGBIF, error) {
-	URL, err := url.JoinPath(baseURL, fmt.Sprintf("%d/parents", GBIF_ID))
+	URL, err := url.JoinPath(BASE_URL, fmt.Sprintf("%d/parents", GBIF_ID))
 	if err != nil {
 		return nil, err
 	}
@@ -161,7 +162,7 @@ func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
 	ctx := context.Background()
 	err = models.DB.Tx(ctx, func(ctx context.Context, tx *edgedb.Tx) (err error) {
 		for _, taxon := range taxa {
-			log.Debugf("Inserting taxon %+v", &taxon)
+			log.Debugf("Inserting taxon from GBIF %+v", &taxon)
 			args, _ := jsonDB.Marshal(&taxon)
 			if err = tx.Execute(ctx, upsertTaxonCmd, args); err != nil {
 				return
@@ -182,7 +183,7 @@ type ChildrenGBIF struct {
 }
 
 func fetchChildren(GBIF_ID int, offset int) (children ChildrenGBIF, err error) {
-	URL, err := url.JoinPath(baseURL, fmt.Sprintf("%d/children", GBIF_ID))
+	URL, err := url.JoinPath(BASE_URL, fmt.Sprintf("%d/children", GBIF_ID))
 	if err != nil {
 		return
 	}
@@ -207,7 +208,7 @@ func importChildren(tx *edgedb.Tx, GBIF_ID int, tracker *ProgressTracker) error 
 		}
 		taxa = append(taxa, children.Results...)
 		endReached = children.EndOfRecords
-		offset += REQUEST_LIMIT
+		offset += PAGE_SIZE
 	}
 
 	taxa = funk.Filter(taxa, func(taxon TaxonGBIF) bool {
@@ -233,7 +234,7 @@ func importChildren(tx *edgedb.Tx, GBIF_ID int, tracker *ProgressTracker) error 
 }
 
 func fetchTaxon(GBIF_ID int) (taxon TaxonGBIF, err error) {
-	taxonURL, _ := url.JoinPath(baseURL, fmt.Sprint(GBIF_ID))
+	taxonURL, _ := url.JoinPath(BASE_URL, fmt.Sprint(GBIF_ID))
 	body, err := makeRequest(taxonURL, 0)
 	if err != nil {
 		err = fmt.Errorf("failed to fetch GBIF record of anchor taxon #%d \n %w", GBIF_ID, err)

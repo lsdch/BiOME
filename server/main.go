@@ -77,13 +77,14 @@ func setupRouter() *gin.Engine {
 	country_api.GET("/setup", country.Setup)
 
 	taxa_api := api.Group("/taxa")
+	taxa_api.GET("/", taxonomy.ListTaxa)
 	taxa_api.GET("/:code", taxonomy.GetTaxon)
 	taxa_api.DELETE("/:code", taxonomy.DeleteTaxon)
 	taxa_api.PATCH("/:code", taxonomy.UpdateTaxon)
 	taxonomy_api := api.Group("/taxonomy")
-	taxonomyUpdate := taxonomy.UpdateTaxonomyDB()
-	taxonomy_api.POST("/import", taxonomyUpdate.Endpoint)
-	taxonomy_api.GET("/import", taxonomyUpdate.ProgressTracker)
+	importGBIF := taxonomy.ImportCladeGBIF()
+	taxonomy_api.PUT("/import", importGBIF.Endpoint)
+	taxonomy_api.GET("/import", importGBIF.ProgressTracker)
 	taxonomy_api.GET("/anchors", taxonomy.GetAnchors)
 
 	// Get user value

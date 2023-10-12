@@ -20,7 +20,6 @@ func Setup(ctx *gin.Context) {
 // @Summary List Countries
 // @Tags Location
 // @Success 200 {array} country.Country
-// @Failure 500 {object} gin.Error
 // @Router /countries/ [get]
 func List(ctx *gin.Context) {
 	countries, err := country.List()

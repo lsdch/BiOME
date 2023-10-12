@@ -9,10 +9,14 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-type State map[int]taxonomy.ImportProcess
+type GBIF_ID int
+
+// State represents the current state of import processes
+type State map[GBIF_ID]taxonomy.ImportProcess
 
 var state State = make(State)
 
+// EventServer manages the communication between clients and the import process.
 type EventServer struct {
 	Message       chan taxonomy.ImportProcess
 	NewClients    chan chan State
@@ -42,19 +46,18 @@ func (stream *EventServer) listen() {
 		// Broadcast message to client
 		case eventMsg := <-stream.Message:
 			log.Debugf("MSG : %v", eventMsg)
-			if !state[eventMsg.GBIF_ID].Done {
-				state[eventMsg.GBIF_ID] = eventMsg
+			GBIF_ID := GBIF_ID(eventMsg.GBIF_ID)
+			if !state[GBIF_ID].Done {
+				state[GBIF_ID] = eventMsg
 				for clientMessageChan := range stream.TotalClients {
 					clientMessageChan <- state
 				}
 			}
-			// if eventMsg.Done {
-			// 	delete(state, eventMsg.GBIF_ID)
-			// }
 		}
 	}
 }
 
+// monitor sends an import process event to the server.
 func (stream *EventServer) monitor(p *taxonomy.ImportProcess) {
 	stream.Message <- *p
 }
@@ -70,13 +73,16 @@ func NewServer() (event *EventServer) {
 	return
 }
 
+// Controller represents an API controller with two intertwined endpoints/
 type Controller struct {
-	Endpoint        func(*gin.Context)
+	// Endpoint handles requests to import a clade from GBIF.
+	Endpoint func(*gin.Context)
+	// ProgressTracker monitors the progress of an import process, using Server-Sent Events.
 	ProgressTracker func(*gin.Context)
 }
 
-type TaxonTargetGBIF struct {
-	Key int `json:"key"`
+type ImportRequestGBIF struct {
+	Key int `json:"key"` // target GBIF taxon key
 }
 
 // @Summary Import GBIF clade
@@ -87,15 +93,15 @@ type TaxonTargetGBIF struct {
 // @Success 200 {object} taxonomy.TaxonSelect
 // @Failure 403
 // @Failure 400
-// @Router /taxonomy/import/ [post]
-// @Param key body number true "GBIF taxon key"
-func UpdateTaxonomyDB() Controller {
+// @Router /taxonomy/import [put]
+// @Param code query number true "GBIF taxon code"
+func ImportCladeGBIF() Controller {
 	var stream = NewServer()
 
 	endpoint := func(c *gin.Context) {
-		target := TaxonTargetGBIF{}
+		target := ImportRequestGBIF{}
 		err := c.BindJSON(&target)
-		log.Debugf("GBIF ID = %v", target)
+		log.Debugf("Received GBIF import request : %v", target)
 		if err != nil {
 			c.AbortWithError(http.StatusBadRequest, err)
 			return

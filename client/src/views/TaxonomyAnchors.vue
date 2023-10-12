@@ -1,38 +1,45 @@
 <template>
-  <v-row>
-    <v-col v-for="item in anchors" :key="item.ID" cols="12" sm="6" lg="4" xl="3">
-      <AnchorTaxonCard v-bind="item" />
-    </v-col>
-    <v-col
-      v-for="item in activities.filter(({ done }) => !done)"
-      :key="item.GBIF_ID"
-      cols="12"
-      sm="6"
-      lg="4"
-      xl="3"
-    >
-      <ImportTaxonCard v-bind="item" />
-    </v-col>
-    <v-scale-transition>
-      <v-col v-if="pickerActive" cols="12" xl="10" offset-xl="1">
-        <RootTaxonPicker :value="undefined" @close="pickerActive = false" />
+  <v-container>
+    <v-row>
+      <v-col cols="12">
+        <TaxaTable></TaxaTable>
       </v-col>
+    </v-row>
+    <v-row>
+      <v-col v-for="item in anchors" :key="item.ID" cols="12" sm="6" lg="4" xl="3">
+        <AnchorTaxonCard v-bind="item" />
+      </v-col>
+      <v-col
+        v-for="item in activities.filter(({ done }) => !done)"
+        :key="item.GBIF_ID"
+        cols="12"
+        sm="6"
+        lg="4"
+        xl="3"
+      >
+        <ImportTaxonCard v-bind="item" />
+      </v-col>
+      <v-scale-transition>
+        <v-col v-if="pickerActive" cols="12" xl="10" offset-xl="1">
+          <RootTaxonPicker :value="undefined" @close="pickerActive = false" />
+        </v-col>
 
-      <v-col v-else cols="12" sm="6" lg="4" xl="3">
-        <v-card class="h-100" variant="tonal">
-          <v-card-text class="d-flex justify-center align-center h-100">
-            <v-btn
-              class="ma-2"
-              color="blue"
-              icon="mdi-plus"
-              size="x-large"
-              @click="pickerActive = true"
-            />
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-scale-transition>
-  </v-row>
+        <v-col v-else cols="12" sm="6" lg="4" xl="3">
+          <v-card class="h-100" variant="tonal">
+            <v-card-text class="d-flex justify-center align-center h-100">
+              <v-btn
+                class="ma-2"
+                color="blue"
+                icon="mdi-plus"
+                size="x-large"
+                @click="pickerActive = true"
+              />
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-scale-transition>
+    </v-row>
+  </v-container>
 </template>
 
 <script setup lang="ts">
@@ -46,6 +53,7 @@ import RootTaxonPicker from '@/components/taxonomy/AnchorTaxonPicker.vue'
 import AnchorTaxonCard from '@/components/taxonomy/AnchorTaxonCard.vue'
 import type { ImportProcess } from '@/components/taxonomy/ImportTaxonCard.vue'
 import ImportTaxonCard from '@/components/taxonomy/ImportTaxonCard.vue'
+import TaxaTable from '@/components/taxonomy/TaxaTable.vue'
 import type { Taxon } from '@/types/taxonomy'
 
 const activities: Ref<ImportProcess[]> = ref([])
@@ -55,6 +63,7 @@ async function updateAnchors() {
   const response = await axios.get('/api/v1/taxonomy/anchors')
   anchors.value = response.data
 }
+
 onMounted(updateAnchors)
 
 function updateElapsedTime() {

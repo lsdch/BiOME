@@ -47,8 +47,6 @@ func StructToMap(val interface{}) map[string]interface{} {
 		} else {
 			data[fieldName] = StructToMap(value.Field(i).Interface())
 		}
-
 	}
-
 	return data
 }
