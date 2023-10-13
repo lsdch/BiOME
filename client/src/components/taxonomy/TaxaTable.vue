@@ -3,29 +3,58 @@
     <v-form>
       <v-row>
         <v-col md="4">
-          <v-text-field label="Name" density="compact"></v-text-field>
+          <v-text-field label="Name" v-model="filters.name" density="compact"></v-text-field>
         </v-col>
         <v-col md="4">
-          <v-select label="Rank" density="compact"></v-select>
+          <v-select
+            label="Rank"
+            v-model="filters.rank"
+            :items="Object.values(TaxonRank)"
+            density="compact"
+            clearable
+          />
         </v-col>
         <v-col md="4">
-          <v-select label="Status" density="compact"></v-select>
+          <v-select
+            label="Status"
+            v-model="filters.status"
+            :items="Object.values(TaxonStatus)"
+            density="compact"
+            clearable
+          />
         </v-col>
       </v-row>
     </v-form>
-    <v-data-table :items="taxa" :headers="headers" density="compact"> </v-data-table>
+    <v-data-table :items="items" :headers="headers" density="compact" :loading="loading">
+      <template v-slot:[`item.code`]="{ item }">
+        <code>{{ item.columns.code }}</code>
+      </template>
+      <template v-slot:[`item.status`]="{ item }">
+        <status-icon :status="item.columns.status" size="small" />
+        <LinkIconGBIF
+          v-if="item.raw.GBIF_ID"
+          :GBIF_ID="item.raw.GBIF_ID"
+          variant="text"
+          size="x-small"
+        />
+      </template>
+      <!-- <template v-slot:[`item.GBIF_ID`]="{ item }">
+
+      </template> -->
+    </v-data-table>
   </div>
 </template>
 
 <script setup lang="ts">
-import axios from 'axios'
-import type { Taxon } from '@/types/taxonomy'
 import type { Ref } from 'vue'
-import { ref } from 'vue'
-import { onMounted } from 'vue'
+import { ref, onMounted } from 'vue'
 import { VDataTable } from 'vuetify/labs/components'
 
-import type { TaxonomyTaxonRank } from '@/api/data-contracts'
+import { TaxonRank, TaxonStatus, TaxonWithRelatives } from '@/api'
+import { TaxonomyService } from '@/api'
+import { computed } from 'vue'
+import StatusIcon from './StatusIcon.vue'
+import LinkIconGBIF from './LinkIconGBIF.vue'
 
 type UnwrapReadonlyArrayType<A> = A extends Readonly<Array<infer I>>
   ? UnwrapReadonlyArrayType<I>
@@ -33,29 +62,35 @@ type UnwrapReadonlyArrayType<A> = A extends Readonly<Array<infer I>>
 type DT = InstanceType<typeof VDataTable>
 type ReadonlyDataTableHeader = UnwrapReadonlyArrayType<DT['headers']>
 
-const taxa: Ref<Taxon[]> = ref([])
+const taxa: Ref<TaxonWithRelatives[]> = ref([])
+const loading = ref(true)
 
 const headers: ReadonlyDataTableHeader[] = [
   { title: 'Name', key: 'name' },
   { title: 'Code', key: 'code' },
   { title: 'Rank', key: 'rank' },
-  { title: 'Status', key: 'status' }
+  { title: 'Status', key: 'status', width: 0, align: 'center' }
 ]
 
-type Filters = {
-  name: string
-  rank: string
-}
+const filters = ref({
+  name: undefined,
+  rank: undefined,
+  status: TaxonStatus.Accepted
+})
 
-async function fetch(): Promise<Taxon[]> {
-  const response = await axios.get('/api/v1/taxa/', {
-    params: {}
+const items = computed(() => {
+  return taxa.value.filter(({ name, rank, status }) => {
+    return (
+      name.includes(filters.value.name ?? '') &&
+      (filters.value.rank ? rank === filters.value.rank : true) &&
+      (filters.value.status ? status === filters.value.status : true)
+    )
   })
-  return response.data
-}
+})
 
 onMounted(async () => {
-  taxa.value = await fetch()
+  taxa.value = await TaxonomyService.getTaxonomy()
+  loading.value = false
 })
 </script>
 

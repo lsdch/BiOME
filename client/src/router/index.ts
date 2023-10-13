@@ -28,13 +28,25 @@ export const routeGroups: RouteGroup[] = [
     icon: "mdi-graph",
     routes: [
       {
-        label: "Anchors",
-        path: '/taxonomy/anchors',
-        name: 'taxonomy-anchors',
-        component: () => import('../views/TaxonomyAnchors.vue')
-      },
+        label: "Taxonomy",
+        path: '/taxonomy',
+        name: 'taxonomy',
+        component: () => import('../views/Taxonomy/TaxonomyMain.vue')
+      }
+    ]
+  },
+  {
+    name: "Tmp",
+    icon: "mdi-flask",
+    routes: [
       {
         label: "About",
+        path: '/about',
+        name: 'about',
+        component: () => import('../views/AboutView.vue')
+      },
+      {
+        label: "Other",
         path: '/about',
         name: 'about',
         component: () => import('../views/AboutView.vue')

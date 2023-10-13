@@ -32,14 +32,14 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/country.Country"
+                                "$ref": "#/definitions/Country"
                             }
                         }
                     }
                 }
             }
         },
-        "/taxa/": {
+        "/taxonomy/": {
             "get": {
                 "description": "Lists taxa, optionally filtered by name, rank and status",
                 "consumes": [
@@ -93,30 +93,41 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
+                                "$ref": "#/definitions/TaxonWithRelatives"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/taxonomy/anchors": {
+            "get": {
+                "description": "Anchors are taxa that were imported as the root of a subtree in the taxonomy.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "List anchor taxa",
+                "responses": {
+                    "200": {
+                        "description": "Get anchor taxa list success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
                                 "allOf": [
                                     {
-                                        "$ref": "#/definitions/taxonomy.TaxonSelect"
+                                        "$ref": "#/definitions/Taxon"
                                     },
                                     {
                                         "type": "object",
                                         "properties": {
-                                            "taxon": {
-                                                "allOf": [
-                                                    {
-                                                        "$ref": "#/definitions/taxonomy.Taxon"
-                                                    },
-                                                    {
-                                                        "type": "object",
-                                                        "properties": {
-                                                            "children": {
-                                                                "type": "array",
-                                                                "items": {
-                                                                    "$ref": "#/definitions/taxonomy.Taxon"
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                ]
+                                            "authorship": {
+                                                "type": "string"
                                             }
                                         }
                                     }
@@ -127,7 +138,45 @@ const docTemplate = `{
                 }
             }
         },
-        "/taxa/{code}": {
+        "/taxonomy/import": {
+            "put": {
+                "description": "Imports a clade from the GBIF taxonomy, using a its GBIF ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "Import GBIF clade",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "GBIF taxon code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TaxonWithRelatives"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/taxonomy/{code}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -155,7 +204,7 @@ const docTemplate = `{
                         "schema": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/taxonomy.TaxonSelect"
+                                    "$ref": "#/definitions/TaxonWithRelatives"
                                 },
                                 {
                                     "type": "object",
@@ -163,7 +212,7 @@ const docTemplate = `{
                                         "taxon": {
                                             "allOf": [
                                                 {
-                                                    "$ref": "#/definitions/taxonomy.Taxon"
+                                                    "$ref": "#/definitions/Taxon"
                                                 },
                                                 {
                                                     "type": "object",
@@ -171,7 +220,7 @@ const docTemplate = `{
                                                         "children": {
                                                             "type": "array",
                                                             "items": {
-                                                                "$ref": "#/definitions/taxonomy.Taxon"
+                                                                "$ref": "#/definitions/Taxon"
                                                             }
                                                         }
                                                     }
@@ -247,7 +296,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/taxonomy.TaxonInput"
+                            "$ref": "#/definitions/TaxonInput"
                         }
                     }
                 ],
@@ -255,7 +304,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/taxonomy.TaxonSelect"
+                            "$ref": "#/definitions/TaxonWithRelatives"
                         }
                     },
                     "403": {
@@ -266,86 +315,10 @@ const docTemplate = `{
                     }
                 }
             }
-        },
-        "/taxonomy/anchors": {
-            "get": {
-                "description": "Anchors are taxa that were imported as the root of a subtree in the taxonomy.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Taxonomy"
-                ],
-                "summary": "List anchor taxa",
-                "responses": {
-                    "200": {
-                        "description": "Get anchor taxa list success",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/definitions/taxonomy.Taxon"
-                                    },
-                                    {
-                                        "type": "object",
-                                        "properties": {
-                                            "authorship": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/taxonomy/import": {
-            "put": {
-                "description": "Imports a clade from the GBIF taxonomy, using a its GBIF ID",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Taxonomy"
-                ],
-                "summary": "Import GBIF clade",
-                "parameters": [
-                    {
-                        "type": "number",
-                        "description": "GBIF taxon code",
-                        "name": "code",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/taxonomy.TaxonSelect"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    }
-                }
-            }
         }
     },
     "definitions": {
-        "country.Country": {
+        "Country": {
             "type": "object",
             "properties": {
                 "code": {
@@ -366,7 +339,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Meta": {
+        "Meta": {
             "type": "object",
             "properties": {
                 "created": {
@@ -379,7 +352,7 @@ const docTemplate = `{
                 }
             }
         },
-        "taxonomy.Taxon": {
+        "Taxon": {
             "type": "object",
             "required": [
                 "name",
@@ -406,7 +379,7 @@ const docTemplate = `{
                 "rank": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/taxonomy.TaxonRank"
+                            "$ref": "#/definitions/TaxonRank"
                         }
                     ],
                     "example": "Species"
@@ -414,14 +387,14 @@ const docTemplate = `{
                 "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/taxonomy.TaxonStatus"
+                            "$ref": "#/definitions/TaxonStatus"
                         }
                     ],
                     "example": "Accepted"
                 }
             }
         },
-        "taxonomy.TaxonDB": {
+        "TaxonDB": {
             "type": "object",
             "required": [
                 "name",
@@ -449,7 +422,7 @@ const docTemplate = `{
                     "example": "\u003cUUID\u003e"
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.Meta"
+                    "$ref": "#/definitions/Meta"
                 },
                 "name": {
                     "type": "string",
@@ -458,7 +431,7 @@ const docTemplate = `{
                 "rank": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/taxonomy.TaxonRank"
+                            "$ref": "#/definitions/TaxonRank"
                         }
                     ],
                     "example": "Species"
@@ -466,14 +439,14 @@ const docTemplate = `{
                 "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/taxonomy.TaxonStatus"
+                            "$ref": "#/definitions/TaxonStatus"
                         }
                     ],
                     "example": "Accepted"
                 }
             }
         },
-        "taxonomy.TaxonInput": {
+        "TaxonInput": {
             "type": "object",
             "required": [
                 "name",
@@ -503,7 +476,7 @@ const docTemplate = `{
                 "rank": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/taxonomy.TaxonRank"
+                            "$ref": "#/definitions/TaxonRank"
                         }
                     ],
                     "example": "Species"
@@ -511,14 +484,14 @@ const docTemplate = `{
                 "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/taxonomy.TaxonStatus"
+                            "$ref": "#/definitions/TaxonStatus"
                         }
                     ],
                     "example": "Accepted"
                 }
             }
         },
-        "taxonomy.TaxonRank": {
+        "TaxonRank": {
             "type": "string",
             "enum": [
                 "Kingdom",
@@ -539,7 +512,20 @@ const docTemplate = `{
                 "Subspecies"
             ]
         },
-        "taxonomy.TaxonSelect": {
+        "TaxonStatus": {
+            "type": "string",
+            "enum": [
+                "Accepted",
+                "Synonym",
+                "Unclassified"
+            ],
+            "x-enum-varnames": [
+                "Accepted",
+                "Synonym",
+                "Unclassified"
+            ]
+        },
+        "TaxonWithRelatives": {
             "type": "object",
             "required": [
                 "name",
@@ -557,7 +543,7 @@ const docTemplate = `{
                 "children": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/taxonomy.TaxonDB"
+                        "$ref": "#/definitions/TaxonDB"
                     }
                 },
                 "code": {
@@ -573,7 +559,7 @@ const docTemplate = `{
                     "example": "\u003cUUID\u003e"
                 },
                 "meta": {
-                    "$ref": "#/definitions/models.Meta"
+                    "$ref": "#/definitions/Meta"
                 },
                 "name": {
                     "type": "string",
@@ -607,7 +593,7 @@ const docTemplate = `{
                             "example": "\u003cUUID\u003e"
                         },
                         "meta": {
-                            "$ref": "#/definitions/models.Meta"
+                            "$ref": "#/definitions/Meta"
                         },
                         "name": {
                             "type": "string",
@@ -616,7 +602,7 @@ const docTemplate = `{
                         "rank": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/taxonomy.TaxonRank"
+                                    "$ref": "#/definitions/TaxonRank"
                                 }
                             ],
                             "example": "Species"
@@ -624,7 +610,7 @@ const docTemplate = `{
                         "status": {
                             "allOf": [
                                 {
-                                    "$ref": "#/definitions/taxonomy.TaxonStatus"
+                                    "$ref": "#/definitions/TaxonStatus"
                                 }
                             ],
                             "example": "Accepted"
@@ -634,7 +620,7 @@ const docTemplate = `{
                 "rank": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/taxonomy.TaxonRank"
+                            "$ref": "#/definitions/TaxonRank"
                         }
                     ],
                     "example": "Species"
@@ -642,25 +628,12 @@ const docTemplate = `{
                 "status": {
                     "allOf": [
                         {
-                            "$ref": "#/definitions/taxonomy.TaxonStatus"
+                            "$ref": "#/definitions/TaxonStatus"
                         }
                     ],
                     "example": "Accepted"
                 }
             }
-        },
-        "taxonomy.TaxonStatus": {
-            "type": "string",
-            "enum": [
-                "Accepted",
-                "Synonym",
-                "Unclassified"
-            ],
-            "x-enum-varnames": [
-                "Accepted",
-                "Synonym",
-                "Unclassified"
-            ]
         }
     },
     "securityDefinitions": {

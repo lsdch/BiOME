@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  country.Country:
+  Country:
     properties:
       code:
         example: DE
@@ -15,7 +15,7 @@ definitions:
         example: 9
         type: integer
     type: object
-  models.Meta:
+  Meta:
     properties:
       created:
         example: "2023-09-01T16:41:10.921097+00:00"
@@ -24,7 +24,7 @@ definitions:
         example: "2023-09-02T20:39:10.218057+00:00"
         type: string
     type: object
-  taxonomy.Taxon:
+  Taxon:
     properties:
       authorship:
         example: (Linnaeus, 1758)
@@ -40,18 +40,18 @@ definitions:
         type: string
       rank:
         allOf:
-        - $ref: '#/definitions/taxonomy.TaxonRank'
+        - $ref: '#/definitions/TaxonRank'
         example: Species
       status:
         allOf:
-        - $ref: '#/definitions/taxonomy.TaxonStatus'
+        - $ref: '#/definitions/TaxonStatus'
         example: Accepted
     required:
     - name
     - rank
     - status
     type: object
-  taxonomy.TaxonDB:
+  TaxonDB:
     properties:
       anchor:
         type: boolean
@@ -68,24 +68,24 @@ definitions:
         example: <UUID>
         type: string
       meta:
-        $ref: '#/definitions/models.Meta'
+        $ref: '#/definitions/Meta'
       name:
         example: Asellus aquaticus
         type: string
       rank:
         allOf:
-        - $ref: '#/definitions/taxonomy.TaxonRank'
+        - $ref: '#/definitions/TaxonRank'
         example: Species
       status:
         allOf:
-        - $ref: '#/definitions/taxonomy.TaxonStatus'
+        - $ref: '#/definitions/TaxonStatus'
         example: Accepted
     required:
     - name
     - rank
     - status
     type: object
-  taxonomy.TaxonInput:
+  TaxonInput:
     properties:
       authorship:
         example: (Linnaeus, 1758)
@@ -103,18 +103,18 @@ definitions:
         type: string
       rank:
         allOf:
-        - $ref: '#/definitions/taxonomy.TaxonRank'
+        - $ref: '#/definitions/TaxonRank'
         example: Species
       status:
         allOf:
-        - $ref: '#/definitions/taxonomy.TaxonStatus'
+        - $ref: '#/definitions/TaxonStatus'
         example: Accepted
     required:
     - name
     - rank
     - status
     type: object
-  taxonomy.TaxonRank:
+  TaxonRank:
     enum:
     - Kingdom
     - Phylum
@@ -132,7 +132,17 @@ definitions:
     - Genus
     - Species
     - Subspecies
-  taxonomy.TaxonSelect:
+  TaxonStatus:
+    enum:
+    - Accepted
+    - Synonym
+    - Unclassified
+    type: string
+    x-enum-varnames:
+    - Accepted
+    - Synonym
+    - Unclassified
+  TaxonWithRelatives:
     properties:
       anchor:
         type: boolean
@@ -141,7 +151,7 @@ definitions:
         type: string
       children:
         items:
-          $ref: '#/definitions/taxonomy.TaxonDB'
+          $ref: '#/definitions/TaxonDB'
         type: array
       code:
         example: ASEaquaticus
@@ -153,7 +163,7 @@ definitions:
         example: <UUID>
         type: string
       meta:
-        $ref: '#/definitions/models.Meta'
+        $ref: '#/definitions/Meta'
       name:
         example: Asellus aquaticus
         type: string
@@ -174,17 +184,17 @@ definitions:
             example: <UUID>
             type: string
           meta:
-            $ref: '#/definitions/models.Meta'
+            $ref: '#/definitions/Meta'
           name:
             example: Asellus aquaticus
             type: string
           rank:
             allOf:
-            - $ref: '#/definitions/taxonomy.TaxonRank'
+            - $ref: '#/definitions/TaxonRank'
             example: Species
           status:
             allOf:
-            - $ref: '#/definitions/taxonomy.TaxonStatus'
+            - $ref: '#/definitions/TaxonStatus'
             example: Accepted
         required:
         - name
@@ -193,27 +203,17 @@ definitions:
         type: object
       rank:
         allOf:
-        - $ref: '#/definitions/taxonomy.TaxonRank'
+        - $ref: '#/definitions/TaxonRank'
         example: Species
       status:
         allOf:
-        - $ref: '#/definitions/taxonomy.TaxonStatus'
+        - $ref: '#/definitions/TaxonStatus'
         example: Accepted
     required:
     - name
     - rank
     - status
     type: object
-  taxonomy.TaxonStatus:
-    enum:
-    - Accepted
-    - Synonym
-    - Unclassified
-    type: string
-    x-enum-varnames:
-    - Accepted
-    - Synonym
-    - Unclassified
 info:
   contact:
     email: louis.duchemin@univ-lyon1.fr
@@ -231,12 +231,12 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/country.Country'
+              $ref: '#/definitions/Country'
             type: array
       summary: List Countries
       tags:
       - Location
-  /taxa/:
+  /taxonomy/:
     get:
       consumes:
       - application/json
@@ -274,24 +274,12 @@ paths:
           description: Get taxon success
           schema:
             items:
-              allOf:
-              - $ref: '#/definitions/taxonomy.TaxonSelect'
-              - properties:
-                  taxon:
-                    allOf:
-                    - $ref: '#/definitions/taxonomy.Taxon'
-                    - properties:
-                        children:
-                          items:
-                            $ref: '#/definitions/taxonomy.Taxon'
-                          type: array
-                      type: object
-                type: object
+              $ref: '#/definitions/TaxonWithRelatives'
             type: array
       summary: List taxa
       tags:
       - Taxonomy
-  /taxa/{code}:
+  /taxonomy/{code}:
     delete:
       consumes:
       - application/json
@@ -331,15 +319,15 @@ paths:
           description: Get taxon success
           schema:
             allOf:
-            - $ref: '#/definitions/taxonomy.TaxonSelect'
+            - $ref: '#/definitions/TaxonWithRelatives'
             - properties:
                 taxon:
                   allOf:
-                  - $ref: '#/definitions/taxonomy.Taxon'
+                  - $ref: '#/definitions/Taxon'
                   - properties:
                       children:
                         items:
-                          $ref: '#/definitions/taxonomy.Taxon'
+                          $ref: '#/definitions/Taxon'
                         type: array
                     type: object
               type: object
@@ -363,14 +351,14 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/taxonomy.TaxonInput'
+          $ref: '#/definitions/TaxonInput'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/taxonomy.TaxonSelect'
+            $ref: '#/definitions/TaxonWithRelatives'
         "403":
           description: Forbidden
         "404":
@@ -392,7 +380,7 @@ paths:
           schema:
             items:
               allOf:
-              - $ref: '#/definitions/taxonomy.Taxon'
+              - $ref: '#/definitions/Taxon'
               - properties:
                   authorship:
                     type: string
@@ -418,7 +406,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/taxonomy.TaxonSelect'
+            $ref: '#/definitions/TaxonWithRelatives'
         "400":
           description: Bad Request
         "403":

@@ -28,7 +28,7 @@ type Country struct {
 	Name         string      `json:"name" edgedb:"name" example:"Germany"`
 	Code         string      `json:"code" edgedb:"code" example:"DE"`
 	NbLocalities int64       `json:"nbLocalities" edgedb:"nb_localities" example:"9"`
-}
+} // @name Country
 
 func List() (countries []Country, err error) {
 	query := `select

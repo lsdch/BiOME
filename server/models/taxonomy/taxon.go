@@ -11,7 +11,7 @@ import (
 )
 
 // TaxonStatus represents the taxonomic status of a taxon.
-type TaxonStatus string
+type TaxonStatus string // @name TaxonStatus
 
 const (
 	Accepted     TaxonStatus = "Accepted"
@@ -29,7 +29,7 @@ func (m *TaxonStatus) UnmarshalEdgeDBStr(data []byte) error {
 }
 
 // TaxonRank represents the taxonomic rank of a taxon.
-type TaxonRank string
+type TaxonRank string // @name TaxonRank
 
 const (
 	Kingdom    TaxonRank = "Kingdom"
@@ -57,14 +57,15 @@ type Taxon struct {
 	Status     TaxonStatus          `edgedb:"status" json:"status" example:"Accepted" validate:"required"`
 	Authorship edgedb.OptionalStr   `edgedb:"authorship" json:"authorship" example:"(Linnaeus, 1758)"`
 	Rank       TaxonRank            `edgedb:"rank" json:"rank" example:"Species" validate:"required"`
-}
+} // @name Taxon
 
+// @tags taxonomy
 type TaxonDB struct {
 	ID     edgedb.UUID `edgedb:"id" json:"id" example:"<UUID>"`
 	Taxon  `edgedb:"$inline"`
 	Anchor bool        `edgedb:"anchor" json:"anchor"`
 	Meta   models.Meta `edgedb:"meta" json:"meta"`
-}
+} // @name TaxonDB
 
 type TaxonSelect struct {
 	TaxonDB `edgedb:"$inline"`
@@ -73,12 +74,12 @@ type TaxonSelect struct {
 		TaxonDB `edgedb:"$inline"`
 	} `edgedb:"parent" json:"parent"`
 	Children []TaxonDB `edgedb:"children" json:"children,omitempty"`
-}
+} // @name TaxonWithRelatives
 
 type TaxonInput struct {
 	Taxon  `edgedb:"$inline"`
 	Parent string `edgedb:"parent"`
-}
+} // @name TaxonInput
 
 func ListTaxa(pattern string, rank TaxonRank, status TaxonStatus) ([]TaxonDB, error) {
 	var taxa = make([]TaxonDB, 0)

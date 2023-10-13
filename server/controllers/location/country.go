@@ -17,6 +17,7 @@ func Setup(ctx *gin.Context) {
 }
 
 // List countries
+// swagger:route GET /countries/
 // @Summary List Countries
 // @Tags Location
 // @Success 200 {array} country.Country

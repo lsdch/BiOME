@@ -2,8 +2,8 @@
   <svg
     id="svg2"
     version="1.1"
-    width="20"
-    height="20"
+    :width="size"
+    :height="size"
     viewBox="0 0 224.87865 218.29649"
     xmlns="http://www.w3.org/2000/svg"
   >
@@ -20,3 +20,7 @@
     />
   </svg>
 </template>
+
+<script setup lang="ts">
+withDefaults(defineProps<{ size?: number | string }>(), { size: 20 })
+</script>

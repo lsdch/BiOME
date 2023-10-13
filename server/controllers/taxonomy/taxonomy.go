@@ -31,8 +31,8 @@ func GetAnchors(ctx *gin.Context) {
 // @tags Taxonomy
 // @Accept json
 // @Produce json
-// @Success 200 {array} taxonomy.TaxonSelect{taxon=taxonomy.Taxon{children=[]taxonomy.Taxon}} "Get taxon success"
-// @Router /taxa/ [get]
+// @Success 200 {array} taxonomy.TaxonSelect "Get taxon success"
+// @Router /taxonomy/ [get]
 // @Param pattern query string false "Name search pattern" minlength(2)
 // @Param rank query taxonomy.TaxonRank false "Taxonomic rank"
 // @Param status query taxonomy.TaxonStatus false "Taxonomic status"
@@ -55,7 +55,7 @@ func ListTaxa(ctx *gin.Context) {
 // @Produce json
 // @Success 200 {object}  taxonomy.TaxonSelect{taxon=taxonomy.Taxon{children=[]taxonomy.Taxon}} "Get taxon success"
 // @Failure 404
-// @Router /taxa/{code} [get]
+// @Router /taxonomy/{code} [get]
 // @Param code path string true "Taxon code" minlength(3)
 func GetTaxon(ctx *gin.Context) {
 	code := ctx.Param("code")
@@ -78,7 +78,7 @@ func GetTaxon(ctx *gin.Context) {
 // @Success 200
 // @Failure 403
 // @Failure 404
-// @Router /taxa/{code} [delete]
+// @Router /taxonomy/{code} [delete]
 // @Param code path string true "Taxon code" minlength(3)
 func DeleteTaxon(ctx *gin.Context) {
 	code := ctx.Param("code")
@@ -98,7 +98,7 @@ func DeleteTaxon(ctx *gin.Context) {
 // @Success 200 {object} taxonomy.TaxonSelect
 // @Failure 403
 // @Failure 404
-// @Router /taxa/{code} [patch]
+// @Router /taxonomy/{code} [patch]
 // @Param code path string true "Taxon code" minlength(3)
 // @Param data body taxonomy.TaxonInput true "Taxon"
 func UpdateTaxon(ctx *gin.Context) {
