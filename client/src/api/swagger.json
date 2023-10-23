@@ -1,0 +1,1043 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Testing Swagger APIs.",
+        "title": "Proto API",
+        "termsOfService": "http://swagger.io/terms/",
+        "contact": {
+            "name": "Louis Duchemin",
+            "url": "http://www.swagger.io/support",
+            "email": "louis.duchemin@univ-lyon1.fr"
+        },
+        "version": "1.0"
+    },
+    "basePath": "/api/v1",
+    "paths": {
+        "/account": {
+            "get": {
+                "description": "Get details of currently authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Authenticated user details",
+                "operationId": "CurrentUser",
+                "responses": {
+                    "200": {
+                        "description": "Authenticated user details",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "400": {
+                        "description": "User is not authenticated"
+                    }
+                }
+            }
+        },
+        "/countries/": {
+            "get": {
+                "tags": [
+                    "Location"
+                ],
+                "summary": "List Countries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Country"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "description": "Authenticate user with their credentials and set a JWT.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Authenticate user",
+                "operationId": "Login",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserCredentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a token and stores it as a session cookie",
+                        "schema": {
+                            "$ref": "#/definitions/TokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
+        "/taxonomy/": {
+            "get": {
+                "description": "Lists taxa, optionally filtered by name, rank and status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "List taxa",
+                "operationId": "TaxonomyList",
+                "parameters": [
+                    {
+                        "minLength": 2,
+                        "type": "string",
+                        "description": "Name search pattern",
+                        "name": "pattern",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "Kingdom",
+                            "Phylum",
+                            "Class",
+                            "Family",
+                            "Genus",
+                            "Species",
+                            "Subspecies"
+                        ],
+                        "type": "string",
+                        "description": "Taxonomic rank",
+                        "name": "rank",
+                        "in": "query"
+                    },
+                    {
+                        "enum": [
+                            "Accepted",
+                            "Synonym",
+                            "Unclassified"
+                        ],
+                        "type": "string",
+                        "description": "Taxonomic status",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get taxon success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/TaxonWithRelatives"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/taxonomy/anchors": {
+            "get": {
+                "description": "Anchors are taxa that were imported as the root of a subtree in the taxonomy.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "List anchor taxa",
+                "operationId": "TaxonAnchors",
+                "responses": {
+                    "200": {
+                        "description": "Get anchor taxa list success",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Taxon"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/taxonomy/import": {
+            "put": {
+                "description": "Imports a clade from the GBIF taxonomy, using a its GBIF ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "Import GBIF clade",
+                "operationId": "ImportGBIF",
+                "parameters": [
+                    {
+                        "type": "number",
+                        "description": "GBIF taxon code",
+                        "name": "code",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TaxonWithRelatives"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    }
+                }
+            }
+        },
+        "/taxonomy/{code}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "Get a taxon by its code",
+                "operationId": "GetTaxon",
+                "parameters": [
+                    {
+                        "minLength": 3,
+                        "type": "string",
+                        "description": "Taxon code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get taxon success",
+                        "schema": {
+                            "$ref": "#/definitions/TaxonWithRelatives"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "Delete a taxon by its code",
+                "operationId": "DeleteTaxon",
+                "parameters": [
+                    {
+                        "minLength": 3,
+                        "type": "string",
+                        "description": "Taxon code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            },
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Taxonomy"
+                ],
+                "summary": "Update a taxon by its code",
+                "operationId": "UpdateTaxon",
+                "parameters": [
+                    {
+                        "minLength": 3,
+                        "type": "string",
+                        "description": "Taxon code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Taxon",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/TaxonInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/TaxonWithRelatives"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/users/confirm": {
+            "get": {
+                "description": "Confirms a user email using a token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Email confirmation",
+                "operationId": "EmailConfirmation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Confirmation token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Email was confirmed and account activated"
+                    },
+                    "400": {
+                        "description": "Invalid or expired confirmation token"
+                    },
+                    "500": {
+                        "description": "Token parse error"
+                    }
+                }
+            }
+        },
+        "/users/confirm/resend": {
+            "post": {
+                "description": "Send again the confirmation email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Resend confirmation email",
+                "operationId": "ResendConfirmationEmail",
+                "parameters": [
+                    {
+                        "description": "User informations",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserCredentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Email was sent"
+                    },
+                    "400": {
+                        "description": "Invalid parameters"
+                    }
+                }
+            }
+        },
+        "/users/password-reset/{token}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Verify a password token is valid",
+                "operationId": "ValidatePasswordToken",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Password reset token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password token is valid"
+                    },
+                    "400": {
+                        "description": "Invalid or expired confirmation token, or invalid input password"
+                    }
+                }
+            },
+            "post": {
+                "description": "Resets a user's password using a token sent to their email address.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Reset account password",
+                "operationId": "ResetPassword",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Password reset token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New password",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Password was reset successfully"
+                    },
+                    "400": {
+                        "description": "Invalid or expired confirmation token, or invalid input password"
+                    },
+                    "500": {
+                        "description": "Database error"
+                    }
+                }
+            }
+        },
+        "/users/register": {
+            "post": {
+                "description": "Register a new user account, that is inactive (until email is verified or admin intervention), and has role 'Guest'",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Register user",
+                "operationId": "RegisterUser",
+                "parameters": [
+                    {
+                        "description": "User informations",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "User created and waiting for email verification"
+                    },
+                    "400": {
+                        "description": "Invalid parameters"
+                    }
+                }
+            }
+        },
+        "/users/{uuid}": {
+            "delete": {
+                "description": "Deletes a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Delete a user",
+                "responses": {
+                    "200": {
+                        "description": "User was deleted successfully"
+                    },
+                    "401": {
+                        "description": "Admin privileges required"
+                    },
+                    "404": {
+                        "description": "User does not exist"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "Country": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "DE"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "\u003cUUID\u003e"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Germany"
+                },
+                "nbLocalities": {
+                    "type": "integer",
+                    "example": 9
+                }
+            }
+        },
+        "Meta": {
+            "type": "object",
+            "properties": {
+                "created": {
+                    "type": "string",
+                    "example": "2023-09-01T16:41:10.921097+00:00"
+                },
+                "modified": {
+                    "type": "string",
+                    "example": "2023-09-02T20:39:10.218057+00:00"
+                }
+            }
+        },
+        "PasswordInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "password_confirmation"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "password_confirmation": {
+                    "type": "string"
+                }
+            }
+        },
+        "Person": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "PersonInput": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "Taxon": {
+            "type": "object",
+            "required": [
+                "name",
+                "rank",
+                "status"
+            ],
+            "properties": {
+                "authorship": {
+                    "type": "string",
+                    "example": "(Linnaeus, 1758)"
+                },
+                "code": {
+                    "type": "string",
+                    "example": "ASEaquaticus"
+                },
+                "gbif_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Asellus aquaticus"
+                },
+                "rank": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonRank"
+                        }
+                    ],
+                    "example": "Species"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonStatus"
+                        }
+                    ],
+                    "example": "Accepted"
+                }
+            }
+        },
+        "TaxonDB": {
+            "type": "object",
+            "required": [
+                "name",
+                "rank",
+                "status"
+            ],
+            "properties": {
+                "anchor": {
+                    "type": "boolean"
+                },
+                "authorship": {
+                    "type": "string",
+                    "example": "(Linnaeus, 1758)"
+                },
+                "code": {
+                    "type": "string",
+                    "example": "ASEaquaticus"
+                },
+                "gbif_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
+                "id": {
+                    "type": "string",
+                    "example": "\u003cUUID\u003e"
+                },
+                "meta": {
+                    "$ref": "#/definitions/Meta"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Asellus aquaticus"
+                },
+                "rank": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonRank"
+                        }
+                    ],
+                    "example": "Species"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonStatus"
+                        }
+                    ],
+                    "example": "Accepted"
+                }
+            }
+        },
+        "TaxonInput": {
+            "type": "object",
+            "required": [
+                "name",
+                "rank",
+                "status"
+            ],
+            "properties": {
+                "authorship": {
+                    "type": "string",
+                    "example": "(Linnaeus, 1758)"
+                },
+                "code": {
+                    "type": "string",
+                    "example": "ASEaquaticus"
+                },
+                "gbif_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Asellus aquaticus"
+                },
+                "parent": {
+                    "type": "string"
+                },
+                "rank": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonRank"
+                        }
+                    ],
+                    "example": "Species"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonStatus"
+                        }
+                    ],
+                    "example": "Accepted"
+                }
+            }
+        },
+        "TaxonRank": {
+            "type": "string",
+            "enum": [
+                "Kingdom",
+                "Phylum",
+                "Class",
+                "Family",
+                "Genus",
+                "Species",
+                "Subspecies"
+            ],
+            "x-enum-varnames": [
+                "Kingdom",
+                "Phylum",
+                "Class",
+                "Family",
+                "Genus",
+                "Species",
+                "Subspecies"
+            ]
+        },
+        "TaxonStatus": {
+            "type": "string",
+            "enum": [
+                "Accepted",
+                "Synonym",
+                "Unclassified"
+            ],
+            "x-enum-varnames": [
+                "Accepted",
+                "Synonym",
+                "Unclassified"
+            ]
+        },
+        "TaxonWithRelatives": {
+            "type": "object",
+            "required": [
+                "name",
+                "rank",
+                "status"
+            ],
+            "properties": {
+                "anchor": {
+                    "type": "boolean"
+                },
+                "authorship": {
+                    "type": "string",
+                    "example": "(Linnaeus, 1758)"
+                },
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/TaxonDB"
+                    }
+                },
+                "code": {
+                    "type": "string",
+                    "example": "ASEaquaticus"
+                },
+                "gbif_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
+                "id": {
+                    "type": "string",
+                    "example": "\u003cUUID\u003e"
+                },
+                "meta": {
+                    "$ref": "#/definitions/Meta"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Asellus aquaticus"
+                },
+                "parent": {
+                    "type": "object",
+                    "required": [
+                        "name",
+                        "rank",
+                        "status"
+                    ],
+                    "properties": {
+                        "anchor": {
+                            "type": "boolean"
+                        },
+                        "authorship": {
+                            "type": "string",
+                            "example": "(Linnaeus, 1758)"
+                        },
+                        "code": {
+                            "type": "string",
+                            "example": "ASEaquaticus"
+                        },
+                        "gbif_ID": {
+                            "type": "integer",
+                            "example": 2206247
+                        },
+                        "id": {
+                            "type": "string",
+                            "example": "\u003cUUID\u003e"
+                        },
+                        "meta": {
+                            "$ref": "#/definitions/Meta"
+                        },
+                        "name": {
+                            "type": "string",
+                            "example": "Asellus aquaticus"
+                        },
+                        "rank": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/TaxonRank"
+                                }
+                            ],
+                            "example": "Species"
+                        },
+                        "status": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/TaxonStatus"
+                                }
+                            ],
+                            "example": "Accepted"
+                        }
+                    }
+                },
+                "rank": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonRank"
+                        }
+                    ],
+                    "example": "Species"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonStatus"
+                        }
+                    ],
+                    "example": "Accepted"
+                }
+            }
+        },
+        "TokenResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "some-generated-jwt"
+                }
+            }
+        },
+        "User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "identity": {
+                    "$ref": "#/definitions/Person"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/UserRole"
+                },
+                "verified": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "UserCredentials": {
+            "type": "object",
+            "required": [
+                "identifier",
+                "password",
+                "remember"
+            ],
+            "properties": {
+                "identifier": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "remember": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "UserInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "password_confirmation"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                },
+                "email_public": {
+                    "type": "boolean"
+                },
+                "identity": {
+                    "$ref": "#/definitions/PersonInput"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "password_confirmation": {
+                    "type": "string"
+                }
+            }
+        },
+        "UserRole": {
+            "type": "string",
+            "enum": [
+                "Guest",
+                "Contributor",
+                "ProjectMember",
+                "Admin"
+            ],
+            "x-enum-varnames": [
+                "Guest",
+                "Contributor",
+                "ProjectMember",
+                "Admin"
+            ]
+        },
+        "accounts.PasswordUpdateRequest": {
+            "type": "object",
+            "required": [
+                "credentials",
+                "password"
+            ],
+            "properties": {
+                "credentials": {
+                    "$ref": "#/definitions/UserCredentials"
+                },
+                "password": {
+                    "$ref": "#/definitions/PasswordInput"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "JWT": {
+            "type": "apiKey",
+            "name": "token// @license.name Apache 2.0",
+            "in": "header"
+        }
+    }
+}
