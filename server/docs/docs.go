@@ -20,6 +20,33 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/account": {
+            "get": {
+                "description": "Get details of currently authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Authenticated user details",
+                "operationId": "CurrentUser",
+                "responses": {
+                    "200": {
+                        "description": "Authenticated user details",
+                        "schema": {
+                            "$ref": "#/definitions/User"
+                        }
+                    },
+                    "400": {
+                        "description": "User is not authenticated"
+                    }
+                }
+            }
+        },
         "/countries/": {
             "get": {
                 "tags": [
@@ -39,6 +66,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/login": {
+            "post": {
+                "description": "Authenticate user with their credentials and set a JWT.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Authenticate user",
+                "operationId": "Login",
+                "parameters": [
+                    {
+                        "description": "User credentials",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserCredentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns a token and stores it as a session cookie",
+                        "schema": {
+                            "$ref": "#/definitions/TokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid credentials"
+                    }
+                }
+            }
+        },
         "/taxonomy/": {
             "get": {
                 "description": "Lists taxa, optionally filtered by name, rank and status",
@@ -52,6 +117,7 @@ const docTemplate = `{
                     "Taxonomy"
                 ],
                 "summary": "List taxa",
+                "operationId": "TaxonomyList",
                 "parameters": [
                     {
                         "minLength": 2,
@@ -113,25 +179,14 @@ const docTemplate = `{
                     "Taxonomy"
                 ],
                 "summary": "List anchor taxa",
+                "operationId": "TaxonAnchors",
                 "responses": {
                     "200": {
                         "description": "Get anchor taxa list success",
                         "schema": {
                             "type": "array",
                             "items": {
-                                "allOf": [
-                                    {
-                                        "$ref": "#/definitions/Taxon"
-                                    },
-                                    {
-                                        "type": "object",
-                                        "properties": {
-                                            "authorship": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    }
-                                ]
+                                "$ref": "#/definitions/Taxon"
                             }
                         }
                     }
@@ -151,6 +206,7 @@ const docTemplate = `{
                     "Taxonomy"
                 ],
                 "summary": "Import GBIF clade",
+                "operationId": "ImportGBIF",
                 "parameters": [
                     {
                         "type": "number",
@@ -188,6 +244,7 @@ const docTemplate = `{
                     "Taxonomy"
                 ],
                 "summary": "Get a taxon by its code",
+                "operationId": "GetTaxon",
                 "parameters": [
                     {
                         "minLength": 3,
@@ -202,34 +259,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Get taxon success",
                         "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/TaxonWithRelatives"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "taxon": {
-                                            "allOf": [
-                                                {
-                                                    "$ref": "#/definitions/Taxon"
-                                                },
-                                                {
-                                                    "type": "object",
-                                                    "properties": {
-                                                        "children": {
-                                                            "type": "array",
-                                                            "items": {
-                                                                "$ref": "#/definitions/Taxon"
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
+                            "$ref": "#/definitions/TaxonWithRelatives"
                         }
                     },
                     "404": {
@@ -248,6 +278,7 @@ const docTemplate = `{
                     "Taxonomy"
                 ],
                 "summary": "Delete a taxon by its code",
+                "operationId": "DeleteTaxon",
                 "parameters": [
                     {
                         "minLength": 3,
@@ -281,6 +312,7 @@ const docTemplate = `{
                     "Taxonomy"
                 ],
                 "summary": "Update a taxon by its code",
+                "operationId": "UpdateTaxon",
                 "parameters": [
                     {
                         "minLength": 3,
@@ -312,6 +344,213 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found"
+                    }
+                }
+            }
+        },
+        "/users/confirm": {
+            "get": {
+                "description": "Confirms a user email using a token",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Email confirmation",
+                "operationId": "EmailConfirmation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Confirmation token",
+                        "name": "token",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Email was confirmed and account activated"
+                    },
+                    "400": {
+                        "description": "Invalid or expired confirmation token"
+                    },
+                    "500": {
+                        "description": "Token parse error"
+                    }
+                }
+            }
+        },
+        "/users/confirm/resend": {
+            "post": {
+                "description": "Send again the confirmation email",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Resend confirmation email",
+                "operationId": "ResendConfirmationEmail",
+                "parameters": [
+                    {
+                        "description": "User informations",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserCredentials"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Email was sent"
+                    },
+                    "400": {
+                        "description": "Invalid parameters"
+                    }
+                }
+            }
+        },
+        "/users/password-reset/{token}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Verify a password token is valid",
+                "operationId": "ValidatePasswordToken",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Password reset token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Password token is valid"
+                    },
+                    "400": {
+                        "description": "Invalid or expired confirmation token, or invalid input password"
+                    }
+                }
+            },
+            "post": {
+                "description": "Resets a user's password using a token sent to their email address.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Reset account password",
+                "operationId": "ResetPassword",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Password reset token",
+                        "name": "token",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "New password",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Password was reset successfully"
+                    },
+                    "400": {
+                        "description": "Invalid or expired confirmation token, or invalid input password"
+                    },
+                    "500": {
+                        "description": "Database error"
+                    }
+                }
+            }
+        },
+        "/users/register": {
+            "post": {
+                "description": "Register a new user account, that is inactive (until email is verified or admin intervention), and has role 'Guest'",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Register user",
+                "operationId": "RegisterUser",
+                "parameters": [
+                    {
+                        "description": "User informations",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/UserInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "User created and waiting for email verification"
+                    },
+                    "400": {
+                        "description": "Invalid parameters"
+                    }
+                }
+            }
+        },
+        "/users/{uuid}": {
+            "delete": {
+                "description": "Deletes a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Delete a user",
+                "responses": {
+                    "200": {
+                        "description": "User was deleted successfully"
+                    },
+                    "401": {
+                        "description": "Admin privileges required"
+                    },
+                    "404": {
+                        "description": "User does not exist"
                     }
                 }
             }
@@ -349,6 +588,64 @@ const docTemplate = `{
                 "modified": {
                     "type": "string",
                     "example": "2023-09-02T20:39:10.218057+00:00"
+                }
+            }
+        },
+        "PasswordInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "password_confirmation"
+            ],
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "password_confirmation": {
+                    "type": "string"
+                }
+            }
+        },
+        "Person": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "PersonInput": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
                 }
             }
         },
@@ -632,6 +929,113 @@ const docTemplate = `{
                         }
                     ],
                     "example": "Accepted"
+                }
+            }
+        },
+        "TokenResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "example": "some-generated-jwt"
+                }
+            }
+        },
+        "User": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "identity": {
+                    "$ref": "#/definitions/Person"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/UserRole"
+                },
+                "verified": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "UserCredentials": {
+            "type": "object",
+            "required": [
+                "identifier",
+                "password",
+                "remember"
+            ],
+            "properties": {
+                "identifier": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "remember": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "UserInput": {
+            "type": "object",
+            "required": [
+                "password",
+                "password_confirmation"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                },
+                "email_public": {
+                    "type": "boolean"
+                },
+                "identity": {
+                    "$ref": "#/definitions/PersonInput"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 8
+                },
+                "password_confirmation": {
+                    "type": "string"
+                }
+            }
+        },
+        "UserRole": {
+            "type": "string",
+            "enum": [
+                "Guest",
+                "Contributor",
+                "ProjectMember",
+                "Admin"
+            ],
+            "x-enum-varnames": [
+                "Guest",
+                "Contributor",
+                "ProjectMember",
+                "Admin"
+            ]
+        },
+        "accounts.PasswordUpdateRequest": {
+            "type": "object",
+            "required": [
+                "credentials",
+                "password"
+            ],
+            "properties": {
+                "credentials": {
+                    "$ref": "#/definitions/UserCredentials"
+                },
+                "password": {
+                    "$ref": "#/definitions/PasswordInput"
                 }
             }
         }

@@ -87,6 +87,7 @@ type ImportRequestGBIF struct {
 
 // @Summary Import GBIF clade
 // @Description Imports a clade from the GBIF taxonomy, using a its GBIF ID
+// @id ImportGBIF
 // @tags Taxonomy
 // @Accept json
 // @Produce json

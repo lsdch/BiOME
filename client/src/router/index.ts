@@ -65,6 +65,18 @@ const router = createRouter({
       name: 'api-docs',
       component: () => import('../views/SwaggerDocs.vue')
     },
+    {
+      path: '/login',
+      name: 'login',
+      component: () => import('../views/auth/LoginView.vue'),
+      meta: { hideNavbar: true }
+    },
+    {
+      path: '/signup',
+      name: 'signup',
+      component: () => import('../views/auth/SignUpView.vue'),
+      meta: { hideNavbar: true }
+    },
     ...routeGroups.reduce((acc, current) => acc.concat(current.routes), <RouteDefinition[]>[])
   ]
 

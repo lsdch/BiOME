@@ -5,6 +5,8 @@
         <TaxaTable></TaxaTable>
       </v-col>
     </v-row>
+    <v-divider class="my-5"></v-divider>
+    <h1 class="mb-5">Anchors</h1>
     <v-row>
       <v-col v-for="item in anchors" :key="item.ID" cols="12" sm="6" lg="4" xl="3">
         <AnchorTaxonCard v-bind="item" />

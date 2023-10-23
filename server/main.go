@@ -1,8 +1,12 @@
 package main
 
 import (
+	"darco/proto/config"
 	country "darco/proto/controllers/location"
 	"darco/proto/controllers/taxonomy"
+	accounts "darco/proto/controllers/users"
+	"darco/proto/router"
+	"darco/proto/services/email"
 	"errors"
 	"net/http"
 
@@ -15,29 +19,33 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-var db = make(map[string]string)
+// Generate OpenAPI docs from swaggo doc comments
+//go:generate swag init --parseDependency --parseInternal -g main.go
 
+// Error handling middleware
 func handleErrors(c *gin.Context) {
 	c.Next() // execute all the handlers
 
 	// at this point, all the handlers finished. Let's read the errors!
 	// in this example we only will use the **last error typed as public**
 	// but you could iterate over all them since c.Errors is a slice!
-	errorToPrint := c.Errors.Last()
-	if errorToPrint == nil {
+	err := c.Errors.Last()
+	if err == nil {
 		return
 	}
 
 	var dbErr edgedb.Error
-	if errors.As(errorToPrint, &dbErr) && dbErr.Category(edgedb.NoDataError) {
+	if errors.As(err, &dbErr) && dbErr.Category(edgedb.NoDataError) {
 		c.AbortWithStatus(http.StatusNotFound)
 		return
 	}
 
-	if errorToPrint.Meta != nil {
-		c.JSON(http.StatusInternalServerError, errorToPrint.Meta)
+	if err.Meta != nil {
+		c.JSON(http.StatusInternalServerError, err.Meta)
 		return
 	}
+
+	c.JSON(int(err.Type), err.Err.Error())
 }
 
 // @title Proto API
@@ -55,13 +63,8 @@ func handleErrors(c *gin.Context) {
 // @host localhost:8080
 // @schemes http
 func setupRouter() *gin.Engine {
-
 	r := gin.Default()
 	r.Use(handleErrors)
-
-	if gin.Mode() == gin.DebugMode {
-		log.SetLevel(log.DebugLevel)
-	}
 
 	// Ping test
 	r.GET("/api/", func(c *gin.Context) {
@@ -69,7 +72,7 @@ func setupRouter() *gin.Engine {
 	})
 
 	// Swagger docs
-	api := r.Group("/api/v1")
+	api := r.Group(router.Config.BasePath)
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	country_api := api.Group("/countries")
@@ -86,16 +89,10 @@ func setupRouter() *gin.Engine {
 	taxonomy_api.GET("/import", importGBIF.ProgressTracker)
 	taxonomy_api.GET("/anchors", taxonomy.GetAnchors)
 
-	// Get user value
-	r.GET("/user/:name", func(c *gin.Context) {
-		user := c.Params.ByName("name")
-		value, ok := db[user]
-		if ok {
-			c.JSON(http.StatusOK, gin.H{"user": user, "value": value})
-		} else {
-			c.JSON(http.StatusOK, gin.H{"user": user, "status": "no value"})
-		}
-	})
+	users_api := api.Group("/users")
+	users_api.POST("/register", accounts.Register)
+	users_api.GET("/confirm", accounts.ConfirmEmail)
+	users_api.POST("/confirm/resend", accounts.ResendConfirmation)
 
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:
@@ -113,33 +110,30 @@ func setupRouter() *gin.Engine {
 		c.String(http.StatusOK, "Test OK")
 	})
 
-	/* example curl for /admin with basicauth header
-	   Zm9vOmJhcg== is base64("foo:bar")
-
-		curl -X POST \
-	  	http://localhost:8080/admin \
-	  	-H 'authorization: Basic Zm9vOmJhcg==' \
-	  	-H 'content-type: application/json' \
-	  	-d '{"value":"bar"}'
-	*/
-	authorized.POST("admin", func(c *gin.Context) {
-		user := c.MustGet(gin.AuthUserKey).(string)
-
-		// Parse JSON
-		var json struct {
-			Value string `json:"value" binding:"required"`
-		}
-
-		if c.Bind(&json) == nil {
-			db[user] = json.Value
-			c.JSON(http.StatusOK, gin.H{"status": "ok"})
-		}
-	})
-
 	return r
 }
 
+// Loads config from .env file
+func loadConfig() {
+	err := config.LoadConfig(".")
+	if err != nil {
+		log.Fatalf("Failed to load configuration file : %v", err)
+	}
+	log.Debugf("Config loaded : %+v", config.Get())
+
+}
+
 func main() {
+	gin.ForceConsoleColor()
+
+	if gin.Mode() == gin.DebugMode {
+		log.SetLevel(log.DebugLevel)
+	}
+
+	loadConfig()
+	if err := email.LoadTemplates("templates/**"); err != nil {
+		log.Fatalf("Failed to load email templates: %v", err)
+	}
 	r := setupRouter()
 	r.Run(":8080")
 }

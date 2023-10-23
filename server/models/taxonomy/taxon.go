@@ -102,7 +102,7 @@ func ListTaxa(pattern string, rank TaxonRank, status TaxonStatus) ([]TaxonDB, er
 	}
 	qb := models.QueryBuilder{Query: query, Expr: expr}
 	args := qb.Args()
-	logrus.Debug(qb.String())
+	logrus.Debugf("Taxonomy list query: %s", qb.String())
 	err := models.DB.Query(context.Background(), qb.String(), &taxa, args)
 	return taxa, err
 }

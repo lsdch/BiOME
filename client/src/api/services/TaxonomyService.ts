@@ -21,7 +21,7 @@ export class TaxonomyService {
      * @returns TaxonWithRelatives Get taxon success
      * @throws ApiError
      */
-    public static getTaxonomy(
+    public static taxonomyList(
         pattern?: string,
         rank?: 'Kingdom' | 'Phylum' | 'Class' | 'Family' | 'Genus' | 'Species' | 'Subspecies',
         status?: 'Accepted' | 'Synonym' | 'Unclassified',
@@ -40,12 +40,10 @@ export class TaxonomyService {
     /**
      * List anchor taxa
      * Anchors are taxa that were imported as the root of a subtree in the taxonomy.
-     * @returns any Get anchor taxa list success
+     * @returns Taxon Get anchor taxa list success
      * @throws ApiError
      */
-    public static getTaxonomyAnchors(): CancelablePromise<Array<(Taxon & {
-        authorship?: string;
-    })>> {
+    public static taxonAnchors(): CancelablePromise<Array<Taxon>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/taxonomy/anchors',
@@ -59,7 +57,7 @@ export class TaxonomyService {
      * @returns TaxonWithRelatives OK
      * @throws ApiError
      */
-    public static putTaxonomyImport(
+    public static importGbif(
         code: number,
     ): CancelablePromise<TaxonWithRelatives> {
         return __request(OpenAPI, {
@@ -78,16 +76,12 @@ export class TaxonomyService {
     /**
      * Get a taxon by its code
      * @param code Taxon code
-     * @returns any Get taxon success
+     * @returns TaxonWithRelatives Get taxon success
      * @throws ApiError
      */
-    public static getTaxonomy1(
+    public static getTaxon(
         code: string,
-    ): CancelablePromise<(TaxonWithRelatives & {
-        taxon?: (Taxon & {
-            children?: Array<Taxon>;
-        });
-    })> {
+    ): CancelablePromise<TaxonWithRelatives> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/taxonomy/{code}',
@@ -106,7 +100,7 @@ export class TaxonomyService {
      * @returns any OK
      * @throws ApiError
      */
-    public static deleteTaxonomy(
+    public static deleteTaxon(
         code: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
@@ -129,7 +123,7 @@ export class TaxonomyService {
      * @returns TaxonWithRelatives OK
      * @throws ApiError
      */
-    public static patchTaxonomy(
+    public static updateTaxon(
         code: string,
         data: TaxonInput,
     ): CancelablePromise<TaxonWithRelatives> {

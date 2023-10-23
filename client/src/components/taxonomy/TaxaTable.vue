@@ -89,7 +89,7 @@ const items = computed(() => {
 })
 
 onMounted(async () => {
-  taxa.value = await TaxonomyService.getTaxonomy()
+  taxa.value = await TaxonomyService.taxonomyList()
   loading.value = false
 })
 </script>

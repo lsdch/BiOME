@@ -56,6 +56,9 @@ const vuetify = createVuetify({
     themes: {
       lightTheme
     }
+  },
+  defaults: {
+    VTextField: { variant: "outlined" }
   }
 })
 

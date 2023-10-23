@@ -10,10 +10,11 @@ import (
 
 // @Summary List anchor taxa
 // @Description Anchors are taxa that were imported as the root of a subtree in the taxonomy.
+// @id TaxonAnchors
 // @tags Taxonomy
 // @Accept json
 // @Produce json
-// @Success 200 {array}  taxonomy.Taxon{authorship=string} "Get anchor taxa list success"
+// @Success 200 {array}  taxonomy.Taxon "Get anchor taxa list success"
 // @Router /taxonomy/anchors [get]
 func GetAnchors(ctx *gin.Context) {
 	anchors, err := taxonomy.GetAnchorTaxa()
@@ -28,6 +29,7 @@ func GetAnchors(ctx *gin.Context) {
 
 // @Summary List taxa
 // @Description Lists taxa, optionally filtered by name, rank and status
+// @id TaxonomyList
 // @tags Taxonomy
 // @Accept json
 // @Produce json
@@ -50,10 +52,11 @@ func ListTaxa(ctx *gin.Context) {
 
 // @Summary Get a taxon by its code
 // @Description
+// @id GetTaxon
 // @tags Taxonomy
 // @Accept json
 // @Produce json
-// @Success 200 {object}  taxonomy.TaxonSelect{taxon=taxonomy.Taxon{children=[]taxonomy.Taxon}} "Get taxon success"
+// @Success 200 {object}  taxonomy.TaxonSelect "Get taxon success"
 // @Failure 404
 // @Router /taxonomy/{code} [get]
 // @Param code path string true "Taxon code" minlength(3)
@@ -72,6 +75,7 @@ func GetTaxon(ctx *gin.Context) {
 
 // @Summary Delete a taxon by its code
 // @Description
+// @id DeleteTaxon
 // @tags Taxonomy
 // @Accept json
 // @Produce json
@@ -92,6 +96,7 @@ func DeleteTaxon(ctx *gin.Context) {
 
 // @Summary Update a taxon by its code
 // @Description
+// @id UpdateTaxon
 // @tags Taxonomy
 // @Accept json
 // @Produce json

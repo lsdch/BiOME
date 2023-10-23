@@ -3,15 +3,19 @@ import { RouterView, useRouter } from 'vue-router'
 import { ref } from 'vue'
 
 import { routeGroups } from './router'
+import { useDisplay } from 'vuetify'
 
 const drawer = ref(true)
 
 const router = useRouter()
+const { smAndDown } = useDisplay()
+
+const APP_TITLE = import.meta.env.VITE_APP_NAME
 </script>
 
 <template>
   <v-app>
-    <v-app-bar color="primary">
+    <v-app-bar color="primary" v-if="!$route.meta.hideNavbar">
       <v-app-bar-nav-icon @click="drawer = !drawer"></v-app-bar-nav-icon>
       <v-app-bar-title :to="$router.resolve({ name: 'home' })">
         <v-btn
@@ -19,13 +23,23 @@ const router = useRouter()
           variant="plain"
           :ripple="false"
           :to="{ name: 'home' }"
-          text="DarCo"
+          :text="APP_TITLE"
         />
       </v-app-bar-title>
+      <template v-slot:append>
+        <v-btn
+          :variant="smAndDown ? 'flat' : 'outlined'"
+          :prepend-icon="smAndDown ? '' : 'mdi-account-circle'"
+          :icon="smAndDown ? 'mdi-account' : undefined"
+          :color="smAndDown ? 'primary' : undefined"
+          :text="smAndDown ? '' : 'Sign in'"
+          :to="{ name: 'login' }"
+        />
+      </template>
     </v-app-bar>
 
     <!-- <v-navigation-drawer :rail="drawer"> -->
-    <v-navigation-drawer v-model="drawer">
+    <v-navigation-drawer v-if="!$route.meta.hideNavbar" v-model="drawer">
       <v-list density="compact" nav>
         <div v-for="group in routeGroups" :key="group.name">
           <v-list-item
