@@ -1,41 +1,17 @@
 <template>
   <v-container>
+    <HomeLinkTitle />
     <v-row>
-      <v-col lg="6" offset-lg="3">
-        <v-card>
-          <v-card-title primary-title> Sign up </v-card-title>
+      <v-col cols="12" lg="8" offset-lg="2">
+        <v-card :variant="smAndDown ? 'flat' : 'elevated'">
+          <v-card-title primary-title> Sign up for an account </v-card-title>
           <v-card-text>
-            <v-form>
-              <v-text-field
-                v-model="state.email"
-                prepend-inner-icon="mdi-at"
-                name="email"
-                type="email"
-                label="Email address"
-              />
-              <v-text-field
-                v-model="state.password"
-                name="password"
-                type="password"
-                label="Password"
-              />
-              <v-text-field
-                v-model="state.password_confirmation"
-                name="password-confirm"
-                type="password"
-                label="Password confirmation"
-                required
-              />
-              <v-row>
-                <v-col cols="12" sm="6">
-                  <v-text-field name="first-name" label="First name" />
-                </v-col>
-                <v-col cols="12" sm="6">
-                  <v-text-field name="last-name" label="Last name" />
-                </v-col>
-              </v-row>
-              <v-btn color="primary" text="Create account" block size="large" rounded="md" />
-            </v-form>
+            <SignUpForm />
+            <div class="d-flex justify-center mt-3">
+              <v-btn class="text-none" :to="{ name: 'login' }" variant="plain" :ripple="false">
+                Back to login page
+              </v-btn>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
@@ -44,25 +20,11 @@
 </template>
 
 <script setup lang="ts">
-import { UserInput } from '@/api'
-import { reactive } from 'vue'
-import { email, required, sameAs, minLength } from '@vuelidate/validators'
+import SignUpForm from '@/components/auth/SignUpForm.vue'
+import HomeLinkTitle from '@/components/navigation/HomeLinkTitle.vue'
+import { useDisplay } from 'vuetify'
 
-const state: UserInput = reactive({
-  email: '',
-  password: '',
-  password_confirmation: '',
-  identity: {
-    first_name: '',
-    last_name: '',
-    contact: ''
-  }
-})
+const { smAndDown } = useDisplay()
 </script>
 
-<style scoped>
-div[aria-required='true'].v-input .v-label::after {
-  content: ' *';
-  color: red;
-}
-</style>
+<style scoped></style>

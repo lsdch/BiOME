@@ -76,7 +76,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "People"
+                    "Auth"
                 ],
                 "summary": "Authenticate user",
                 "operationId": "Login",
@@ -358,7 +358,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "People"
+                    "Auth"
                 ],
                 "summary": "Email confirmation",
                 "operationId": "EmailConfirmation",
@@ -394,7 +394,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "People"
+                    "Auth"
                 ],
                 "summary": "Resend confirmation email",
                 "operationId": "ResendConfirmationEmail",
@@ -419,18 +419,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/users/forgotten-password": {
+            "post": {
+                "description": "A token to reset the password associated to the provided email address is sent, unless the address is not known in the DB.",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Request a password reset token",
+                "operationId": "RequestPasswordReset",
+                "parameters": [
+                    {
+                        "description": "The email address the account was registered with",
+                        "name": "email",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/EmailInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Email address is valid and a password reset token was sent"
+                    },
+                    "400": {
+                        "description": "Invalid email address"
+                    }
+                }
+            }
+        },
         "/users/password-reset/{token}": {
             "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "People"
+                    "Auth"
                 ],
-                "summary": "Verify a password token is valid",
+                "summary": "Verify that a password token is valid",
                 "operationId": "ValidatePasswordToken",
                 "parameters": [
                     {
@@ -446,20 +469,14 @@ const docTemplate = `{
                         "description": "Password token is valid"
                     },
                     "400": {
-                        "description": "Invalid or expired confirmation token, or invalid input password"
+                        "description": "Invalid or expired password reset token"
                     }
                 }
             },
             "post": {
                 "description": "Resets a user's password using a token sent to their email address.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
-                    "People"
+                    "Auth"
                 ],
                 "summary": "Reset account password",
                 "operationId": "ResetPassword",
@@ -504,7 +521,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "People"
+                    "Auth"
                 ],
                 "summary": "Register user",
                 "operationId": "RegisterUser",
@@ -539,7 +556,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "People"
+                    "Auth"
                 ],
                 "summary": "Delete a user",
                 "responses": {
@@ -578,6 +595,18 @@ const docTemplate = `{
                 }
             }
         },
+        "EmailInput": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "format": "email"
+                }
+            }
+        },
         "Meta": {
             "type": "object",
             "properties": {
@@ -599,8 +628,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "password": {
-                    "type": "string",
-                    "minLength": 8
+                    "type": "string"
                 },
                 "password_confirmation": {
                     "type": "string"
@@ -983,6 +1011,9 @@ const docTemplate = `{
         "UserInput": {
             "type": "object",
             "required": [
+                "email",
+                "identity",
+                "login",
                 "password",
                 "password_confirmation"
             ],
@@ -1001,8 +1032,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string",
-                    "minLength": 8
+                    "type": "string"
                 },
                 "password_confirmation": {
                     "type": "string"
@@ -1043,7 +1073,7 @@ const docTemplate = `{
     "securityDefinitions": {
         "JWT": {
             "type": "apiKey",
-            "name": "token// @license.name Apache 2.0",
+            "name": "token",
             "in": "header"
         }
     }

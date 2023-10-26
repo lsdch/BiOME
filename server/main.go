@@ -5,6 +5,7 @@ import (
 	country "darco/proto/controllers/location"
 	"darco/proto/controllers/taxonomy"
 	accounts "darco/proto/controllers/users"
+	"darco/proto/models/validations"
 	"darco/proto/router"
 	"darco/proto/services/email"
 	"errors"
@@ -14,6 +15,8 @@ import (
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
+	"github.com/gin-gonic/gin/binding"
+	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -58,7 +61,10 @@ func handleErrors(c *gin.Context) {
 // @contact.url http://www.swagger.io/support
 // @securityDefinitions.apiKey JWT
 // @in header
-// @name token// @license.name Apache 2.0
+// @name token
+// @accept json
+// @produce json
+// @license.name Apache 2.0
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost:8080
 // @schemes http
@@ -93,6 +99,7 @@ func setupRouter() *gin.Engine {
 	users_api.POST("/register", accounts.Register)
 	users_api.GET("/confirm", accounts.ConfirmEmail)
 	users_api.POST("/confirm/resend", accounts.ResendConfirmation)
+	users_api.POST("/forgotten-password", accounts.RequestPasswordReset)
 
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:
@@ -124,6 +131,9 @@ func loadConfig() {
 }
 
 func main() {
+	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		v.RegisterValidation("unique_email", validations.EmailUniqueValidator)
+	}
 	gin.ForceConsoleColor()
 
 	if gin.Mode() == gin.DebugMode {

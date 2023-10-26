@@ -38,6 +38,15 @@ func (newUser *UserInput) Register(config *config.Config) error {
 	return createdUser.SendConfirmationEmail()
 }
 
+func tokenUrl(config *config.Config, url_path string, token string) url.URL {
+	return url.URL{
+		Scheme:   "https",
+		Host:     fmt.Sprintf("%s:%d", config.DomainName, config.Port),
+		RawQuery: fmt.Sprintf("token=%s", token),
+		Path:     path.Join(router.Config.BasePath, url_path),
+	}
+}
+
 // sendConfirmationEmail sends a confirmation email to a newly registered user.
 //
 // This function generates a confirmation token using the user's email address and a configured token lifetime.
@@ -52,20 +61,14 @@ func (user *User) SendConfirmationEmail() (err error) {
 		return err
 	}
 
-	URL := url.URL{
-		Scheme:   "https",
-		Host:     fmt.Sprintf("%s:%d", config.DomainName, config.Port),
-		RawQuery: fmt.Sprintf("token=%s", confirmation_token),
-		Path:     path.Join(router.Config.BasePath, "/users/confirm"),
-	}
-
+	url := tokenUrl(config, "/users/confirm", confirmation_token)
 	emailData := &email.EmailData{
 		To:       user.Email,
 		Subject:  "Your account email verification",
 		Template: "email_verification.html",
 		Data: map[string]interface{}{
 			"Name": user.Person.FirstName,
-			"URL":  URL.String(),
+			"URL":  url.String(),
 		},
 	}
 
@@ -85,7 +88,7 @@ func (pwd *PasswordReset) IsValid() bool {
 	return pwd.Expires.After(time.Now())
 }
 
-//go:embed register_user.edgeql
+//go:embed create_pwd_reset.edgeql
 var queryCreatePasswordReset string
 
 func (user *User) RequestPasswordReset() (err error) {
@@ -95,11 +98,15 @@ func (user *User) RequestPasswordReset() (err error) {
 	if err = models.DB.Execute(context.Background(), queryCreatePasswordReset, user.ID, token, expiration); err != nil {
 		return
 	}
+	url := tokenUrl(config, "/users/password-reset/", token)
 	emailData := &email.EmailData{
 		To:       user.Email,
 		Subject:  "Reset your account password",
 		Template: "email_password_reset.html",
-		Data:     map[string]interface{}{},
+		Data: map[string]interface{}{
+			"Name": user.Person.FirstName,
+			"URL":  url.String(),
+		},
 	}
 	err = email.Send(&config.Emailer, emailData)
 	return

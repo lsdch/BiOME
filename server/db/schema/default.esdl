@@ -18,9 +18,7 @@ module date {
 module default {
 
   global current_user_id: uuid;
-  global current_user := (
-    select people::User filter .id = global current_user_id limit 1
-  );
+  # global current_user := <people::User>{};
   abstract annotation example;
 
   type AppConfig {
@@ -267,7 +265,7 @@ module location {
     parent: HabitatTag;
   };
 
-  scalar type CoordinateMaxPrecision extending enum<"10m", "100m", "1Km", "10Km", "100Km", "Unknown">;
+  scalar type CoordinateMaxPrecision extending enum<"m10", "m100", "Km1", "Km10", "Km100", "Unknown">;
 
   type Site extending default::Auditable {
     required name : str { constraint exclusive };
@@ -905,8 +903,14 @@ module people {
   }
 
   type Person {
-    required first_name: str;
-    required last_name: str;
+    required first_name: str {
+      constraint min_len_value(2);
+      constraint max_len_value(32);
+    };
+    required last_name: str {
+      constraint min_len_value(2);
+      constraint max_len_value(32);
+    };
 
     property full_name := .first_name ++ ' ' ++ .last_name;
 

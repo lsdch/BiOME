@@ -1,33 +1,15 @@
-CREATE MIGRATION m1cq5kdmkhjv26n2ndnguc36du5vv4kyvqq35jok7qngla2vdmv45a
-    ONTO m1l5of6qlns35qygewok2pj4skrcx3ehty6f7p475r6abt3upvchpq
+CREATE MIGRATION m1hck7qhij72j4hkzvlvn54ydzvvrsmbnl53mxma3ndgnimxqnjfba
+    ONTO m1qrh76duzrnlyzkqagufayq6ggj7w5cxhzalg6gefjouabjjwmokq
 {
-  ALTER TYPE location::Site {
-      DROP LINK access_point;
-      DROP LINK habitat;
-  };
-  DROP TYPE location::AccessPoint;
-  DROP TYPE location::Habitat;
-  CREATE TYPE location::HabitatTag EXTENDING default::Auditable {
-      CREATE LINK parent: location::HabitatTag;
-      CREATE PROPERTY color: std::str {
-          CREATE REWRITE
-              INSERT 
-              USING (((.color ?? .parent.color) IF EXISTS (.parent) ELSE <std::str>{}));
-          CREATE REWRITE
-              UPDATE 
-              USING (((.color ?? .parent.color) IF EXISTS (.parent) ELSE <std::str>{}));
+  CREATE EXTENSION graphql VERSION '1.0';
+  ALTER TYPE people::Person {
+      ALTER PROPERTY first_name {
+          CREATE CONSTRAINT std::max_len_value(32);
+          CREATE CONSTRAINT std::min_len_value(2);
       };
-      CREATE PROPERTY description: std::str;
-      CREATE PROPERTY is_required: std::bool {
-          SET default := false;
-      };
-      CREATE REQUIRED PROPERTY label: std::str;
-  };
-  ALTER TYPE location::Site {
-      CREATE REQUIRED MULTI LINK habitat_tags: location::HabitatTag {
-          ON TARGET DELETE RESTRICT;
-          SET REQUIRED USING (<location::HabitatTag>{});
-          CREATE ANNOTATION std::title := 'A list of descriptors for the habitat that was targeted.';
+      ALTER PROPERTY last_name {
+          CREATE CONSTRAINT std::max_len_value(32);
+          CREATE CONSTRAINT std::min_len_value(2);
       };
   };
 };

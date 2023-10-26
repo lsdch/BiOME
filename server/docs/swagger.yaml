@@ -15,6 +15,14 @@ definitions:
         example: 9
         type: integer
     type: object
+  EmailInput:
+    properties:
+      email:
+        format: email
+        type: string
+    required:
+    - email
+    type: object
   Meta:
     properties:
       created:
@@ -27,7 +35,6 @@ definitions:
   PasswordInput:
     properties:
       password:
-        minLength: 8
         type: string
       password_confirmation:
         type: string
@@ -297,11 +304,13 @@ definitions:
       login:
         type: string
       password:
-        minLength: 8
         type: string
       password_confirmation:
         type: string
     required:
+    - email
+    - identity
+    - login
     - password
     - password_confirmation
     type: object
@@ -391,7 +400,7 @@ paths:
           description: Invalid credentials
       summary: Authenticate user
       tags:
-      - People
+      - Auth
   /taxonomy/:
     get:
       consumes:
@@ -575,7 +584,7 @@ paths:
           description: User does not exist
       summary: Delete a user
       tags:
-      - People
+      - Auth
   /users/confirm:
     get:
       consumes:
@@ -599,7 +608,7 @@ paths:
           description: Token parse error
       summary: Email confirmation
       tags:
-      - People
+      - Auth
   /users/confirm/resend:
     post:
       consumes:
@@ -622,11 +631,29 @@ paths:
           description: Invalid parameters
       summary: Resend confirmation email
       tags:
-      - People
+      - Auth
+  /users/forgotten-password:
+    post:
+      description: A token to reset the password associated to the provided email
+        address is sent, unless the address is not known in the DB.
+      operationId: RequestPasswordReset
+      parameters:
+      - description: The email address the account was registered with
+        in: body
+        name: email
+        required: true
+        schema:
+          $ref: '#/definitions/EmailInput'
+      responses:
+        "202":
+          description: Email address is valid and a password reset token was sent
+        "400":
+          description: Invalid email address
+      summary: Request a password reset token
+      tags:
+      - Auth
   /users/password-reset/{token}:
     get:
-      consumes:
-      - application/json
       operationId: ValidatePasswordToken
       parameters:
       - description: Password reset token
@@ -634,19 +661,15 @@ paths:
         name: token
         required: true
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: Password token is valid
         "400":
-          description: Invalid or expired confirmation token, or invalid input password
-      summary: Verify a password token is valid
+          description: Invalid or expired password reset token
+      summary: Verify that a password token is valid
       tags:
-      - People
+      - Auth
     post:
-      consumes:
-      - application/json
       description: Resets a user's password using a token sent to their email address.
       operationId: ResetPassword
       parameters:
@@ -661,8 +684,6 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/PasswordInput'
-      produces:
-      - application/json
       responses:
         "202":
           description: Password was reset successfully
@@ -672,7 +693,7 @@ paths:
           description: Database error
       summary: Reset account password
       tags:
-      - People
+      - Auth
   /users/register:
     post:
       consumes:
@@ -696,10 +717,10 @@ paths:
           description: Invalid parameters
       summary: Register user
       tags:
-      - People
+      - Auth
 securityDefinitions:
   JWT:
     in: header
-    name: token// @license.name Apache 2.0
+    name: token
     type: apiKey
 swagger: "2.0"

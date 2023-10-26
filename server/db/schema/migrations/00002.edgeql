@@ -1,7 +1,6 @@
-CREATE MIGRATION m1l5of6qlns35qygewok2pj4skrcx3ehty6f7p475r6abt3upvchpq
-    ONTO m1ktyejir4iry46z6whw5qtxmm672hh6zoz2g72lzhjqgdchfxa6ya
+CREATE MIGRATION m1qrh76duzrnlyzkqagufayq6ggj7w5cxhzalg6gefjouabjjwmokq
+    ONTO m1ginfxg5lspuxcml7jggba5u2umtojefosbirin53evd5umssvkoq
 {
-  ALTER TYPE taxonomy::Taxon {
-      DROP PROPERTY slug;
-  };
+  CREATE GLOBAL default::current_user_id -> std::uuid;
+  DROP EXTENSION graphql;
 };

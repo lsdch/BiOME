@@ -13,6 +13,7 @@ type RouteGroup = {
   readonly routes: RouteDefinition[]
 }
 
+/** Route definitions meant to be displayed in navigation components */
 export const routeGroups: RouteGroup[] = [
   {
     icon: "mdi-home",
@@ -77,24 +78,14 @@ const router = createRouter({
       component: () => import('../views/auth/SignUpView.vue'),
       meta: { hideNavbar: true }
     },
+    {
+      path: '/users/password-reset',
+      name: 'password-reset',
+      component: () => import('../views/auth/PasswordResetView.vue'),
+      meta: { hideNavbar: true }
+    },
     ...routeGroups.reduce((acc, current) => acc.concat(current.routes), <RouteDefinition[]>[])
   ]
-
-  //
-  //   {
-  //     path: '/about',
-  //     name: 'about',
-  //     // route level code-splitting
-  //     // this generates a separate chunk (About.[hash].js) for this route
-  //     // which is lazy-loaded when the route is visited.
-  //     component: () => import('../views/AboutView.vue')
-  //   },
-  //   {
-  //     path: '/taxonomy/anchors',
-  //     name: 'taxonomy-anchors',
-  //     component: () => import ('../views/TaxonomyAnchors.vue')
-  //   }
-  // ]
 })
 
 export default router

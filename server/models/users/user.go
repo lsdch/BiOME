@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/google/uuid"
+	"github.com/edgedb/edgedb-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -30,15 +30,15 @@ func (m *UserRole) UnmarshalEdgeDBStr(data []byte) error {
 }
 
 type InnerUserInput struct {
-	Login       string      `edgedb:"login" json:"login" validate:"alphanum"`
-	Email       string      `edgedb:"email" json:"email" validate:"email" format:"email"`
+	Login       string      `edgedb:"login" json:"login" binding:"alphanum,required"`
+	Email       string      `edgedb:"email" json:"email" binding:"email,required" format:"email"`
 	EmailPublic bool        `edbedb:"email_public" json:"email_public"`
-	Person      PersonInput `edgedb:"identity" json:"identity"`
+	Person      PersonInput `edgedb:"identity" json:"identity" binding:"required"`
 }
 
 type PasswordInput struct {
-	Password   string `json:"password" validate:"required,gte=8"`
-	ConfirmPwd string `json:"password_confirmation" validate:"eqfield=Password,required"`
+	Password   string `json:"password" binding:"required"`
+	ConfirmPwd string `json:"password_confirmation" binding:"eqfield=Password,required"`
 } //@name PasswordInput
 
 func (pwdInput *PasswordInput) Hash() {}
@@ -81,10 +81,10 @@ type UserPartial struct {
 
 type User struct {
 	UserPartial `edgedb:"$inline" json:",inline"`
-	ID          uuid.UUID `edgedb:"id" json:"-"`
-	Email       string    `edgedb:"email" json:"email"`
-	Login       string    `edgedb:"login" json:"login"`
-	Password    string    `edgedb:"password" json:"-"`
+	ID          edgedb.UUID `edgedb:"id" json:"-"`
+	Email       string      `edgedb:"email" json:"email"`
+	Login       string      `edgedb:"login" json:"login"`
+	Password    string      `edgedb:"password" json:"-"`
 } //@name User
 
 func (user *User) Partial() *UserPartial {
@@ -134,7 +134,7 @@ func Find(identifier string) (*User, error) {
 	var user User
 
 	query := `select people::User {
-		login, email, verified, role, password, identity: { * }
+		id, login, email, verified, role, password, identity: { * }
 	} filter .email = <str>$0 or .login = <str>$0 limit 1`
 	if err := models.DB.QuerySingle(context.Background(), query, &user, identifier); err != nil {
 		return nil, err

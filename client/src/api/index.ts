@@ -9,6 +9,7 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { accounts_PasswordUpdateRequest } from './models/accounts_PasswordUpdateRequest';
 export type { Country } from './models/Country';
+export type { EmailInput } from './models/EmailInput';
 export type { Meta } from './models/Meta';
 export type { PasswordInput } from './models/PasswordInput';
 export type { Person } from './models/Person';
@@ -25,6 +26,7 @@ export type { UserCredentials } from './models/UserCredentials';
 export type { UserInput } from './models/UserInput';
 export { UserRole } from './models/UserRole';
 
+export { AuthService } from './services/AuthService';
 export { LocationService } from './services/LocationService';
 export { PeopleService } from './services/PeopleService';
 export { TaxonomyService } from './services/TaxonomyService';

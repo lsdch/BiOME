@@ -6,10 +6,10 @@
 import type { PersonInput } from './PersonInput';
 
 export type UserInput = {
-    email?: string;
+    email: string;
     email_public?: boolean;
-    identity?: PersonInput;
-    login?: string;
+    identity: PersonInput;
+    login: string;
     password: string;
     password_confirmation: string;
 };

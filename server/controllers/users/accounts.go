@@ -12,7 +12,7 @@ import (
 
 // @Summary Delete a user
 // @Description Deletes a user
-// @tags People
+// @tags Auth
 // @Accept json
 // @Produce json
 // @Success 200 "User was deleted successfully"
@@ -30,7 +30,7 @@ type TokenResponse struct {
 // @Summary Authenticate user
 // @Description Authenticate user with their credentials and set a JWT.
 // @id Login
-// @tags People
+// @tags Auth
 // @Accept json
 // @Produce json
 // @Success 200 {object} TokenResponse "Returns a token and stores it as a session cookie"
@@ -68,7 +68,7 @@ func Login(ctx *gin.Context) {
 // @Summary Register user
 // @Description Register a new user account, that is inactive (until email is verified or admin intervention), and has role 'Guest'
 // @id RegisterUser
-// @tags People
+// @tags Auth
 // @Accept json
 // @Produce json
 // @Success 202 "User created and waiting for email verification"
@@ -92,7 +92,7 @@ func Register(ctx *gin.Context) {
 // @Summary Resend confirmation email
 // @Description Send again the confirmation email
 // @id ResendConfirmationEmail
-// @tags People
+// @tags Auth
 // @Accept json
 // @Produce json
 // @Success 202 "Email was sent"
@@ -126,7 +126,7 @@ func ResendConfirmation(ctx *gin.Context) {
 // @Summary Email confirmation
 // @Description Confirms a user email using a token
 // @id EmailConfirmation
-// @tags People
+// @tags Auth
 // @Accept json
 // @Produce json
 // @Success 202 "Email was confirmed and account activated"
@@ -164,14 +164,12 @@ func ConfirmEmail(ctx *gin.Context) {
 	ctx.Status(http.StatusAccepted)
 }
 
-// @Summary Verify a password token is valid
+// @Summary Verify that a password token is valid
 // @Description
 // @id ValidatePasswordToken
-// @tags People
-// @Accept json
-// @Produce json
+// @tags Auth
 // @Success 200 "Password token is valid"
-// @Failure 400 "Invalid or expired confirmation token, or invalid input password"
+// @Failure 400 "Invalid or expired password reset token"
 // @Router /users/password-reset/{token} [get]
 // @Param token path string true "Password reset token"
 func ValidatePasswordToken(ctx *gin.Context) {
@@ -187,9 +185,7 @@ func ValidatePasswordToken(ctx *gin.Context) {
 // @Summary Reset account password
 // @Description Resets a user's password using a token sent to their email address.
 // @id ResetPassword
-// @tags People
-// @Accept json
-// @Produce json
+// @tags Auth
 // @Success 202 "Password was reset successfully"
 // @Failure 400 "Invalid or expired confirmation token, or invalid input password"
 // @Failure 500 "Database error"
@@ -209,6 +205,34 @@ func ResetPassword(ctx *gin.Context) {
 		return
 	}
 	if err := users.SetPassword(userID, &newPwd); err != nil {
+		ctx.Error(err)
+		return
+	}
+}
+
+type EmailInput struct {
+	Email string `json:"email" binding:"required,email" format:"email"`
+} // @name EmailInput
+
+// @Summary Request a password reset token
+// @Description A token to reset the password associated to the provided email address is sent, unless the address is not known in the DB.
+// @id RequestPasswordReset
+// @tags Auth
+// @Router /users/forgotten-password [post]
+// @Success 202 "Email address is valid and a password reset token was sent"
+// @Failure 400 "Invalid email address"
+// @Param email body EmailInput true "The email address the account was registered with"
+func RequestPasswordReset(ctx *gin.Context) {
+	var email EmailInput
+	if err := ctx.BindJSON(&email); err != nil {
+		return
+	}
+	user, err := users.Find(email.Email)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+	if err = user.RequestPasswordReset(); err != nil {
 		ctx.Error(err)
 		return
 	}
