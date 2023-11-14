@@ -1,15 +1,29 @@
 import { defineStore } from "pinia"
-import { ref } from "vue"
+import { ref, Ref } from "vue"
 import type { User } from "@/api/models/User"
-import { Ref } from "vue"
-import { PeopleService } from "@/api"
+import { ApiError, PeopleService, AuthService } from "@/api"
+
 
 export const useUserStore = defineStore("user", () => {
-  const jwt: Ref<string | undefined> = ref(undefined)
   const user: Ref<User | undefined> = ref(undefined)
+  const error: Ref<undefined | ApiError> = ref(undefined)
 
-  async function setToken(token: string) {
-    jwt.value = token
-    user.value = await PeopleService.currentUser().catch()
+  // Check whether a session is active
+  getUser()
+
+  async function getUser() {
+    user.value = await PeopleService.currentUser()
+      .catch((err: ApiError) => {
+        error.value = err
+        user.value = undefined
+        return undefined
+      })
   }
+
+  async function logout() {
+    user.value = undefined
+    await AuthService.logout()
+  }
+
+  return { user, error, getUser, logout }
 })

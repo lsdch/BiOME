@@ -3,7 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type TokenResponse = {
-    token: string;
-};
-
+export enum EmailConfirmationError {
+    AlreadyVerified = 'AlreadyVerified',
+    InvalidToken = 'InvalidToken',
+}

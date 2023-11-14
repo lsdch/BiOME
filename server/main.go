@@ -5,15 +5,17 @@ import (
 	country "darco/proto/controllers/location"
 	"darco/proto/controllers/taxonomy"
 	accounts "darco/proto/controllers/users"
+	"darco/proto/middlewares"
+	"darco/proto/models"
 	"darco/proto/models/validations"
 	"darco/proto/router"
 	"darco/proto/services/email"
-	"errors"
 	"net/http"
+	"reflect"
+	"strings"
 
 	_ "darco/proto/docs" // import swagger docs
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
@@ -24,32 +26,6 @@ import (
 
 // Generate OpenAPI docs from swaggo doc comments
 //go:generate swag init --parseDependency --parseInternal -g main.go
-
-// Error handling middleware
-func handleErrors(c *gin.Context) {
-	c.Next() // execute all the handlers
-
-	// at this point, all the handlers finished. Let's read the errors!
-	// in this example we only will use the **last error typed as public**
-	// but you could iterate over all them since c.Errors is a slice!
-	err := c.Errors.Last()
-	if err == nil {
-		return
-	}
-
-	var dbErr edgedb.Error
-	if errors.As(err, &dbErr) && dbErr.Category(edgedb.NoDataError) {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
-	}
-
-	if err.Meta != nil {
-		c.JSON(http.StatusInternalServerError, err.Meta)
-		return
-	}
-
-	c.JSON(int(err.Type), err.Err.Error())
-}
 
 // @title Proto API
 // @version 1.0
@@ -70,12 +46,8 @@ func handleErrors(c *gin.Context) {
 // @schemes http
 func setupRouter() *gin.Engine {
 	r := gin.Default()
-	r.Use(handleErrors)
-
-	// Ping test
-	r.GET("/api/", func(c *gin.Context) {
-		c.String(http.StatusOK, "Hello world!")
-	})
+	r.Use(middlewares.ErrorHandler)
+	r.Use(middlewares.AuthenticationMiddleware)
 
 	// Swagger docs
 	api := r.Group(router.Config.BasePath)
@@ -95,11 +67,16 @@ func setupRouter() *gin.Engine {
 	taxonomy_api.GET("/import", importGBIF.ProgressTracker)
 	taxonomy_api.GET("/anchors", taxonomy.GetAnchors)
 
+	api.POST("/login", models.WithDB(accounts.Login))
+	api.POST("/logout", accounts.Logout)
+
+	api.GET("/account", models.WithDB(accounts.Current))
 	users_api := api.Group("/users")
 	users_api.POST("/register", accounts.Register)
-	users_api.GET("/confirm", accounts.ConfirmEmail)
-	users_api.POST("/confirm/resend", accounts.ResendConfirmation)
-	users_api.POST("/forgotten-password", accounts.RequestPasswordReset)
+	users_api.GET("/confirm", models.WithDB(accounts.ConfirmEmail))
+	users_api.POST("/confirm/resend", models.WithDB(accounts.ResendConfirmation))
+	users_api.POST("/forgotten-password", models.WithDB(accounts.RequestPasswordReset))
+	users_api.GET("/password-reset/:token", accounts.ValidatePasswordToken)
 
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:
@@ -122,28 +99,42 @@ func setupRouter() *gin.Engine {
 
 // Loads config from .env file
 func loadConfig() {
-	err := config.LoadConfig(".")
+	config, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatalf("Failed to load configuration file : %v", err)
+	} else {
+		log.Debugf("Config loaded : %+v", config)
 	}
-	log.Debugf("Config loaded : %+v", config.Get())
+}
 
+func setupValidators() {
+	if engine, ok := binding.Validator.Engine().(*validator.Validate); ok {
+		validations.RegisterValidators(engine)
+		engine.RegisterTagNameFunc(func(fld reflect.StructField) string {
+			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+			// skip if tag key says it should be ignored
+			if name == "-" {
+				return ""
+			}
+			return name
+		})
+	}
 }
 
 func main() {
-	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		v.RegisterValidation("unique_email", validations.EmailUniqueValidator)
-	}
-	gin.ForceConsoleColor()
 
+	gin.ForceConsoleColor()
 	if gin.Mode() == gin.DebugMode {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	setupValidators()
 	loadConfig()
+
 	if err := email.LoadTemplates("templates/**"); err != nil {
 		log.Fatalf("Failed to load email templates: %v", err)
 	}
 	r := setupRouter()
 	r.Run(":8080")
+	defer models.DB().Close()
 }

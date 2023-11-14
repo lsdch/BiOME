@@ -4,25 +4,20 @@ import (
 	"context"
 	"darco/proto/config"
 	"darco/proto/models"
-	"darco/proto/router"
 	"darco/proto/services/email"
-	"darco/proto/services/tokens"
 	_ "embed"
 	"encoding/json"
 	"fmt"
 	"net/url"
-	"path"
-	"time"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/google/uuid"
-	"github.com/thanhpk/randstr"
 )
 
-//go:embed register_user.edgeql
+//go:embed queries/register_user.edgeql
 var queryRegister string
 
-func (newUser *UserInput) Register(config *config.Config) error {
+// Registers new account and sends an email with an activation link
+func (newUser *UserInput) Register(config *config.Config, originURL *url.URL) error {
 	userInsert, err := newUser.ProcessPassword()
 	if err != nil {
 		return err
@@ -30,97 +25,78 @@ func (newUser *UserInput) Register(config *config.Config) error {
 
 	var createdUser User
 	args, _ := json.Marshal(userInsert)
-	err = models.DB.QuerySingle(context.Background(), queryRegister, &createdUser, args)
+	if err = models.DB().QuerySingle(context.Background(), queryRegister, &createdUser, args); err != nil {
+		return err
+	}
+	return createdUser.SendConfirmationEmail(originURL)
+}
+
+// SendConfirmationEmail sends a confirmation email to the user with a verification token.
+// It generates a confirmation token, constructs a confirmation URL,
+// and sends an email with the confirmation link.
+//
+// Note:
+//
+// The confirmation URL is constructed based on a request origin URL.
+// If the origin URL matches the configured client's host,
+// the confirmation URL will use the client's base URL.
+// Otherwise, it defaults to an API endpoint URL ("/users/confirm").
+// The confirmation token is included as a query parameter in the URL.
+func (user *User) SendConfirmationEmail(originUrl *url.URL) (err error) {
+	token, err := user.CreateConfirmationToken()
 	if err != nil {
 		return err
 	}
 
-	return createdUser.SendConfirmationEmail()
-}
+	tokenURL := makeTokenURL(token, "/users/confirm", "/email-confirmation", originUrl)
 
-func tokenUrl(config *config.Config, url_path string, token string) url.URL {
-	return url.URL{
-		Scheme:   "https",
-		Host:     fmt.Sprintf("%s:%d", config.DomainName, config.Port),
-		RawQuery: fmt.Sprintf("token=%s", token),
-		Path:     path.Join(router.Config.BasePath, url_path),
-	}
-}
-
-// sendConfirmationEmail sends a confirmation email to a newly registered user.
-//
-// This function generates a confirmation token using the user's email address and a configured token lifetime.
-// As opposite to authentication tokens which are generated using the user's UUID, the generate token is generated using their email address, so that they can not be interchanged.
-//
-// Returns:
-//   - err: An error if any issues occur during token generation or email sending; otherwise, it returns nil.
-func (user *User) SendConfirmationEmail() (err error) {
-	config := config.Get()
-	confirmation_token, err := tokens.GenerateToken(user.Email, config.Emailer.TokenLifetime)
-	if err != nil {
-		return err
-	}
-
-	url := tokenUrl(config, "/users/confirm", confirmation_token)
 	emailData := &email.EmailData{
 		To:       user.Email,
 		Subject:  "Your account email verification",
 		Template: "email_verification.html",
 		Data: map[string]interface{}{
 			"Name": user.Person.FirstName,
-			"URL":  url.String(),
+			"URL":  tokenURL.String(),
 		},
 	}
 
-	err = email.Send(&config.Emailer, emailData)
+	err = email.Send(&config.Get().Emailer, emailData)
 	return
 }
 
-type PasswordReset struct {
-	User struct {
-		ID edgedb.UUID `edgedb:"id"`
-	} `edgedb:"user"`
-	Token   string    `edgedb:"token"`
-	Expires time.Time `edgedb:"expires"`
-}
-
-func (pwd *PasswordReset) IsValid() bool {
-	return pwd.Expires.After(time.Now())
-}
-
-//go:embed create_pwd_reset.edgeql
-var queryCreatePasswordReset string
-
-func (user *User) RequestPasswordReset() (err error) {
-	config := config.Get()
-	token := randstr.String(20)
-	expiration := time.Now().Add(config.Emailer.TokenLifetime)
-	if err = models.DB.Execute(context.Background(), queryCreatePasswordReset, user.ID, token, expiration); err != nil {
-		return
+func makeTokenURL(token Token, api_path string, client_path string, originURL *url.URL) url.URL {
+	var (
+		config    = config.Get()
+		tokenURL  url.URL
+		clientURL = config.MakeClientURL("/email-confirmation")
+	)
+	if (originURL != nil) && originURL.Host == clientURL.Host {
+		tokenURL = clientURL
+	} else {
+		tokenURL = config.MakeURL("/users/confirm")
 	}
-	url := tokenUrl(config, "/users/password-reset/", token)
+	tokenURL.RawQuery = fmt.Sprintf("token=%s", token)
+	return tokenURL
+}
+
+func (user *User) RequestPasswordReset(originURL *url.URL) (err error) {
+	token, err := user.CreatePasswordResetToken()
+	if err != nil {
+		return err
+	}
+
+	tokenURL := makeTokenURL(token, "/users/password-reset", "/password-reset", originURL)
 	emailData := &email.EmailData{
 		To:       user.Email,
 		Subject:  "Reset your account password",
 		Template: "email_password_reset.html",
 		Data: map[string]interface{}{
 			"Name": user.Person.FirstName,
-			"URL":  url.String(),
+			"URL":  tokenURL.String(),
 		},
 	}
-	err = email.Send(&config.Emailer, emailData)
-	return
-}
 
-func ValidatePasswordResetToken(token string) (uuid.UUID, bool) {
-	query := `select people::PasswordReset { user: {id}, token, expires }
-		filter .token = <str>$0`
-	var pwdReset PasswordReset
-	err := models.DB.QuerySingle(context.Background(), query, pwdReset, token)
-	if err != nil {
-		return uuid.Nil, false
-	}
-	return uuid.UUID(pwdReset.User.ID), pwdReset.IsValid()
+	return email.Send(&config.Get().Emailer, emailData)
 }
 
 func SetPassword(userID uuid.UUID, pwd *PasswordInput) error {
@@ -130,8 +106,6 @@ func SetPassword(userID uuid.UUID, pwd *PasswordInput) error {
 	}
 	query := `with module people
 		update User filter .id = <uuid>$0
-		set {
-			password = <str>$1
-		}`
-	return models.DB.Execute(context.Background(), query, userID, hashed_password)
+		set { password = <str>$1 }`
+	return models.DB().Execute(context.Background(), query, userID, hashed_password)
 }

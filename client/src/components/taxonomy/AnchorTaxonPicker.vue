@@ -136,8 +136,6 @@ import { watch } from 'vue'
 
 import IconGBIF from '@/components/icons/IconGBIF.vue'
 
-import { VSkeletonLoader } from 'vuetify/labs/components'
-
 enum Rank {
   Any = 'Any',
   Kingdom = 'Kingdom',

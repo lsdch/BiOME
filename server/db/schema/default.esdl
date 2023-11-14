@@ -17,12 +17,20 @@ module date {
 
 module default {
 
-  global current_user_id: uuid;
-  # global current_user := <people::User>{};
+  global current_user_id: uuid {
+    default := <uuid>{};
+  };
+  global current_user := (
+    select people::User { *, identity:{ * }}
+    filter .id = global current_user_id
+  );
+
   abstract annotation example;
 
   type AppConfig {
-    public: bool;
+    public: bool {
+      annotation description := "Sets whether parts of the platform are open to the public (anonymous users)."
+    };
   }
 
   type Meta {
@@ -899,7 +907,7 @@ module people {
 
   type Institution {
     required name: str { constraint exclusive };
-    comments: str;
+    description: str;
   }
 
   type Person {
@@ -948,25 +956,26 @@ module people {
   }
 
 
-  type PasswordReset {
-    required user: User {
-      constraint exclusive;
-      on target delete delete source;
-    };
+  abstract type AccountEmailToken {
     required token: str {
       constraint exclusive;
     };
     required expires: datetime;
   }
 
-  # type EmailConfirmation {
-  #   required user: User;
-  #   required token: str;
-  #   required expiration: datetime;
-  #   required consumed: bool {
-  #     default := false
-  #   };
-  # }
+  type PasswordReset extending AccountEmailToken {
+    required user: User {
+      constraint exclusive;
+      on target delete delete source;
+    };
+  };
+
+  type EmailConfirmation extending AccountEmailToken {
+    required user: User {
+      constraint exclusive;
+      on target delete delete source;
+    };
+  };
 }
 
 module traits {

@@ -27,20 +27,12 @@
     </v-form>
     <v-data-table :items="items" :headers="headers" density="compact" :loading="loading">
       <template v-slot:[`item.code`]="{ item }">
-        <code>{{ item.columns.code }}</code>
+        <code>{{ item.code }}</code>
       </template>
       <template v-slot:[`item.status`]="{ item }">
-        <status-icon :status="item.columns.status" size="small" />
-        <LinkIconGBIF
-          v-if="item.raw.GBIF_ID"
-          :GBIF_ID="item.raw.GBIF_ID"
-          variant="text"
-          size="x-small"
-        />
+        <status-icon :status="item.status" size="small" />
+        <LinkIconGBIF v-if="item.gbif_ID" :GBIF_ID="item.gbif_ID" variant="text" size="x-small" />
       </template>
-      <!-- <template v-slot:[`item.GBIF_ID`]="{ item }">
-
-      </template> -->
     </v-data-table>
   </div>
 </template>
@@ -48,24 +40,20 @@
 <script setup lang="ts">
 import type { Ref } from 'vue'
 import { ref, onMounted } from 'vue'
-import { VDataTable } from 'vuetify/labs/components'
 
 import { TaxonRank, TaxonStatus, TaxonWithRelatives } from '@/api'
 import { TaxonomyService } from '@/api'
 import { computed } from 'vue'
 import StatusIcon from './StatusIcon.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
+import { VDataTable } from 'vuetify/components'
 
-type UnwrapReadonlyArrayType<A> = A extends Readonly<Array<infer I>>
-  ? UnwrapReadonlyArrayType<I>
-  : A
-type DT = InstanceType<typeof VDataTable>
-type ReadonlyDataTableHeader = UnwrapReadonlyArrayType<DT['headers']>
+type ReadonlyHeaders = InstanceType<typeof VDataTable>['headers']
 
 const taxa: Ref<TaxonWithRelatives[]> = ref([])
 const loading = ref(true)
 
-const headers: ReadonlyDataTableHeader[] = [
+const headers: ReadonlyHeaders = [
   { title: 'Name', key: 'name' },
   { title: 'Code', key: 'code' },
   { title: 'Rank', key: 'rank' },

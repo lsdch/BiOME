@@ -3,7 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type TokenResponse = {
-    token: string;
+import type { LoginFailedReason } from './LoginFailedReason';
+
+export type LoginFailedError = {
+    reason: LoginFailedReason;
 };
 

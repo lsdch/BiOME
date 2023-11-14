@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import NotFound from '@/components/NotFound.vue'
 
 type RouteDefinition = RouteRecordRaw & {
   label: string
@@ -70,20 +71,33 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: () => import('../views/auth/LoginView.vue'),
-      meta: { hideNavbar: true }
+      // meta: { hideNavbar: true }
     },
     {
       path: '/signup',
       name: 'signup',
       component: () => import('../views/auth/SignUpView.vue'),
-      meta: { hideNavbar: true }
+      // meta: { hideNavbar: true }
     },
     {
-      path: '/users/password-reset',
+      path: '/password-reset/:token',
       name: 'password-reset',
       component: () => import('../views/auth/PasswordResetView.vue'),
       meta: { hideNavbar: true }
     },
+    {
+      path: '/email-confirmation',
+      name: 'email-confirmation',
+      component: () => import('../views/auth/EmailConfirmation.vue'),
+      meta: { hideNavbar: true }
+    },
+    {
+      path: "/init",
+      name: "init",
+      component: () => import("../views/InitialSetup.vue"),
+      meta: { hideNavbar: true }
+    },
+    { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
     ...routeGroups.reduce((acc, current) => acc.concat(current.routes), <RouteDefinition[]>[])
   ]
 })

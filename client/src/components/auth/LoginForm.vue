@@ -1,5 +1,5 @@
 <template>
-  <v-form>
+  <v-form @submit.prevent="submit">
     <v-text-field
       v-model="state.identifier"
       name="login"
@@ -7,7 +7,6 @@
       placeholder="Login or email"
       variant="outlined"
       prepend-inner-icon="mdi-account"
-      :error-messages="v$.identifier.$errors.map((e) => String(e.$message))"
     />
     <v-text-field
       v-model="state.password"
@@ -16,26 +15,47 @@
       name="password"
       variant="outlined"
       prepend-inner-icon="mdi-lock"
-      :error-messages="v$.password.$errors.map((e) => String(e.$message))"
     />
-
+    <div v-if="feedback" class="mb-3 w-100 text-center">
+      <v-alert v-if="feedback == 'ConfirmationSent'" type="info" variant="outlined">
+        A new activation link was sent to your email address.
+      </v-alert>
+      <v-alert v-else-if="feedback == 'ServerError'" type="error" variant="outlined">
+        An error occurred on the server.
+      </v-alert>
+      <span v-else-if="feedback?.reason == LoginFailedReason.InvalidCredentials" class="text-red">
+        Invalid credentials
+      </span>
+      <v-alert
+        v-else-if="feedback?.reason == LoginFailedReason.AccountInactive"
+        type="warning"
+        variant="outlined"
+      >
+        Your email was not confirmed yet, please check your inbox<br />
+        or <a href="#" @click="resendConfirmation">request another confirmation link</a> if needed.
+      </v-alert>
+    </div>
     <v-btn
       block
+      type="submit"
       size="large"
       rounded="sm"
       color="primary"
       text="Log in"
       class="mb-5"
       @click="submit"
+      :loading="loading"
     />
   </v-form>
 </template>
 
 <script setup lang="ts">
-import { required } from '@vuelidate/validators'
-import useVuelidate from '@vuelidate/core'
 import { reactive } from 'vue'
-import { UserCredentials } from '@/api'
+import { ApiError, AuthService, LoginFailedError, LoginFailedReason, UserCredentials } from '@/api'
+import { ref } from 'vue'
+import { Ref } from 'vue'
+import { useUserStore } from '@/stores/user'
+import { useRouter } from 'vue-router'
 
 const state: UserCredentials = reactive({
   identifier: '',
@@ -43,16 +63,56 @@ const state: UserCredentials = reactive({
   remember: true
 })
 
-const rules = {
-  identifier: { required },
-  password: { required },
-  remember: { required }
+const loading = ref(false)
+
+const feedback: Ref<undefined | LoginFailedError | 'ConfirmationSent' | 'ServerError'> =
+  ref(undefined)
+
+defineEmits<{ (event: 'sendConfirmation'): void }>()
+
+const { getUser } = useUserStore()
+const router = useRouter()
+
+async function submit() {
+  loading.value = true
+  await AuthService.login(state)
+    .then(() => {
+      feedback.value = undefined
+      getUser()
+      router.push({ name: 'home' })
+    })
+    .catch((err: ApiError) => {
+      switch (err.status) {
+        case 400:
+          feedback.value = err.body
+          break
+        default:
+          feedback.value = 'ServerError'
+          break
+      }
+      return undefined
+    })
+    .finally(() => {
+      loading.value = false
+    })
 }
 
-const v$ = useVuelidate(rules, state)
+function resendConfirmation() {
+  AuthService.resendConfirmationEmail(state)
+    .then(() => {
+      feedback.value = 'ConfirmationSent'
+    })
+    .catch((err: ApiError) => {
+      switch (err.status) {
+        case 400:
+          feedback.value = err.body
+          break
 
-function submit() {
-  v$.value.$validate()
+        default:
+          feedback.value = 'ServerError'
+          break
+      }
+    })
 }
 </script>
 

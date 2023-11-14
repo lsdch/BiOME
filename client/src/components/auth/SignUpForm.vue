@@ -9,7 +9,7 @@
       persistent-hint
       class="mb-3"
       required
-      :error-messages="vuelidateErrors(v$.login)"
+      :error-messages="registerError('login')"
     />
     <v-text-field
       v-model="state.email"
@@ -18,35 +18,10 @@
       type="email"
       label="Email address"
       @blur="v$.email.$touch"
-      :error-messages="vuelidateErrors(v$.email)"
+      :error-messages="registerError('email')"
       class="mb-3"
     />
-    <v-text-field
-      v-model="state.password"
-      name="password"
-      label="Password"
-      :type="show.pass1 ? 'text' : 'password'"
-      required
-      @blur="v$.password.$touch"
-      :error-messages="vuelidateErrors(v$.password)"
-      :append-inner-icon="show.pass1 ? 'mdi-eye' : 'mdi-eye-off'"
-      @click:append-inner="show.pass1 = !show.pass1"
-    >
-      <template v-slot:loader>
-        <PasswordStrengthMeter v-if="state.password.length > 0" :strength="passwordStrength" />
-      </template>
-    </v-text-field>
-    <v-text-field
-      v-model="state.password_confirmation"
-      name="password-confirm"
-      label="Password confirmation"
-      :type="show.pass2 ? 'text' : 'password'"
-      required
-      @blur="v$.password_confirmation.$touch"
-      :error-messages="vuelidateErrors(v$.password_confirmation)"
-      :append-inner-icon="show.pass2 ? 'mdi-eye' : 'mdi-eye-off'"
-      @click:append-inner="show.pass2 = !show.pass2"
-    />
+    <PasswordFields v-model="state" :user-inputs="passwordSensitiveInputs" />
 
     <v-row>
       <v-col>
@@ -90,25 +65,30 @@
       block
       size="large"
       rounded="md"
+      :loading="loading"
       :disabled="v$.$invalid || v$.password.$error || v$.password_confirmation.$error"
+    />
+    <v-alert
+      v-if="unhandledError"
+      class="my-2"
+      type="error"
+      title="Error"
+      text="Some unhandled error occurred on the server"
     />
   </v-form>
 </template>
 
 <script setup lang="ts">
-import { ApiError, AuthService, UserInput } from '@/api'
-import { reactive } from 'vue'
-
-import { email, required, sameAs, minLength, helpers, maxLength } from '@vuelidate/validators'
+import { ApiError, AuthService, InputValidationError, UserInput } from '@/api'
+import { email, required, minLength, maxLength } from '@vuelidate/validators'
 import useVuelidate from '@vuelidate/core'
 import { ValidationArgs } from '@vuelidate/core'
-import PasswordStrengthMeter from './PasswordStrengthMeter.vue'
-import { computed, Ref, ref } from 'vue'
-import { zxcvbn } from '@zxcvbn-ts/core'
+import { computed, Ref, ref, reactive } from 'vue'
 import { Validation } from '@vuelidate/core'
 import { vuelidateErrors } from '@/api/validation'
+import PasswordFields from './PasswordFields.vue'
 
-const state: UserInput = reactive<UserInput>({
+const state: Ref<UserInput> = ref<UserInput>({
   email: '',
   email_public: false,
   login: '',
@@ -121,27 +101,12 @@ const state: UserInput = reactive<UserInput>({
   }
 })
 
-const show = ref({
-  pass1: false,
-  pass2: false
-})
-
-const passwordReference = computed(() => state.password)
-
-const validators = {
-  password: helpers.withMessage(
-    'Password is too weak',
-    () => zxcvbn(state.password, userInputs(state)).score >= 3
-  ),
-  pwdConfirm: helpers.withMessage('Passwords do not match', sameAs(passwordReference))
-}
-
 const rules: ValidationArgs<UserInput> = {
   email: { email, required },
   email_public: {},
-  password: { required, strength: validators.password },
-  password_confirmation: { sameAsPassword: validators.pwdConfirm, required },
   login: { minLength: minLength(5), maxLength: maxLength(16) },
+  password: {},
+  password_confirmation: {},
   identity: {
     first_name: { minLength: minLength(2), required },
     last_name: { minLength: minLength(2), required },
@@ -151,30 +116,45 @@ const rules: ValidationArgs<UserInput> = {
 
 const v$: Ref<Validation<ValidationArgs<UserInput>, UserInput>> = useVuelidate(rules, state)
 
-function userInputs(state: UserInput) {
-  return [state.email, state.login, state.identity.first_name, state.identity.last_name]
-}
-
-const passwordStrength = computed(() => {
-  return zxcvbn(state.password, userInputs(state)).score
+const passwordSensitiveInputs = computed(() => {
+  return [
+    state.value.email,
+    state.value.login,
+    state.value.identity.first_name,
+    state.value.identity.last_name
+  ]
 })
 
-const userCreated = ref(false)
+const loading = ref(false)
+const emits = defineEmits<{ (event: 'created'): void }>()
+const errors: Ref<Record<string, InputValidationError[]>> = ref({})
+
+function registerError(field: string) {
+  return computed(() => {
+    return errors.value?.[field]?.map((e) => e.message) ?? vuelidateErrors(v$.value[field])
+  }).value
+}
+
+const unhandledError: Ref<undefined | ApiError> = ref(undefined)
 
 async function submit() {
-  await AuthService.registerUser(state)
+  loading.value = true
+  await AuthService.registerUser(state.value)
     .then(() => {
-      userCreated.value = true
+      emits('created')
     })
     .catch((err: ApiError) => {
-      console.log(err)
-      // switch (err.status) {
-      //   case 400:
-      //   // do stuff
-      //     break;
-
-      //   // default:
-      //   //   break;
+      switch (err.status) {
+        case 400:
+          errors.value = err.body
+          break
+        default:
+          unhandledError.value = err
+          break
+      }
+    })
+    .finally(() => {
+      loading.value = false
     })
 }
 </script>

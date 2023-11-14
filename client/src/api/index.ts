@@ -9,11 +9,17 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 
 export type { accounts_PasswordUpdateRequest } from './models/accounts_PasswordUpdateRequest';
 export type { Country } from './models/Country';
+export { EmailConfirmationError } from './models/EmailConfirmationError';
 export type { EmailInput } from './models/EmailInput';
+export type { FieldErrors } from './models/FieldErrors';
+export type { InputValidationError } from './models/InputValidationError';
+export type { LoginFailedError } from './models/LoginFailedError';
+export { LoginFailedReason } from './models/LoginFailedReason';
 export type { Meta } from './models/Meta';
 export type { PasswordInput } from './models/PasswordInput';
 export type { Person } from './models/Person';
 export type { PersonInput } from './models/PersonInput';
+export { ResendConfirmationError } from './models/ResendConfirmationError';
 export type { Taxon } from './models/Taxon';
 export type { TaxonDB } from './models/TaxonDB';
 export type { TaxonInput } from './models/TaxonInput';

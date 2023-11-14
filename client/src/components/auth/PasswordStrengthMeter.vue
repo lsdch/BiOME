@@ -7,7 +7,7 @@
     v-bind="$attrs"
   >
     <template v-slot:default>
-      <span class="meter-label">{{ labels[strength] }}</span>
+      <span class="meter-label text-black">{{ labels[strength] }}</span>
     </template>
   </v-progress-linear>
 </template>

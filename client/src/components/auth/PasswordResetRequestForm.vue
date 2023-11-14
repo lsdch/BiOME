@@ -31,7 +31,6 @@ import { reactive, ref } from 'vue'
 import { required, email } from '@vuelidate/validators'
 import useVuelidate from '@vuelidate/core'
 import { ApiError, AuthService } from '@/api'
-import { useRouter } from 'vue-router'
 import { Ref } from 'vue'
 
 const state = reactive({

@@ -103,13 +103,13 @@ func ListTaxa(pattern string, rank TaxonRank, status TaxonStatus) ([]TaxonDB, er
 	qb := models.QueryBuilder{Query: query, Expr: expr}
 	args := qb.Args()
 	logrus.Debugf("Taxonomy list query: %s", qb.String())
-	err := models.DB.Query(context.Background(), qb.String(), &taxa, args)
+	err := models.DB().Query(context.Background(), qb.String(), &taxa, args)
 	return taxa, err
 }
 
 func GetAnchorTaxa() (taxa []TaxonDB, err error) {
 	query := "select taxonomy::Taxon { *, meta: { ** } } filter .anchor"
-	err = models.DB.Query(context.Background(), query, &taxa)
+	err = models.DB().Query(context.Background(), query, &taxa)
 	return
 }
 
@@ -122,13 +122,13 @@ func GetTaxon(code string) (*TaxonSelect, error) {
 		}
 		filter .code = <str>$0;
 	`
-	err := models.DB.QuerySingle(context.Background(), query, taxon, code)
+	err := models.DB().QuerySingle(context.Background(), query, taxon, code)
 	return taxon, err
 }
 
 func DeleteTaxon(code string) (taxon TaxonDB, err error) {
 	query := "delete taxonomy::Taxon filter .code = <str>$0;"
-	err = models.DB.QuerySingle(context.Background(), query, &taxon, code)
+	err = models.DB().QuerySingle(context.Background(), query, &taxon, code)
 	return
 }
 
@@ -139,6 +139,6 @@ func UpdateTaxon(code string, taxon TaxonInput) (TaxonSelect, error) {
 	res := TaxonSelect{}
 	args := models.StructToMap(taxon)
 	args["target"] = code
-	err := models.DB.QuerySingle(context.Background(), updateTaxonCmd, &res, args)
+	err := models.DB().QuerySingle(context.Background(), updateTaxonCmd, &res, args)
 	return res, err
 }

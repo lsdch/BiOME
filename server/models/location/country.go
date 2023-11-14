@@ -19,7 +19,7 @@ func Setup() error {
 	if err != nil {
 		return err
 	}
-	err = models.DB.Execute(context.Background(), setupCountriesCmd, json)
+	err = models.DB().Execute(context.Background(), setupCountriesCmd, json)
 	return err
 }
 
@@ -36,6 +36,6 @@ func List() (countries []Country, err error) {
 			id, name, code, nb_localities := count(.localities)
 		}
 		order by (exists .localities) desc then .name asc;`
-	err = models.DB.Query(context.Background(), query, &countries)
+	err = models.DB().Query(context.Background(), query, &countries)
 	return
 }

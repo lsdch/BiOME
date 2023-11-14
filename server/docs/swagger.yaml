@@ -15,6 +15,14 @@ definitions:
         example: 9
         type: integer
     type: object
+  EmailConfirmationError:
+    enum:
+    - AlreadyVerified
+    - InvalidToken
+    type: string
+    x-enum-varnames:
+    - AlreadyVerified
+    - InvalidToken
   EmailInput:
     properties:
       email:
@@ -23,6 +31,52 @@ definitions:
     required:
     - email
     type: object
+  FieldErrors:
+    additionalProperties:
+      items:
+        $ref: '#/definitions/InputValidationError'
+      type: array
+    type: object
+  InputValidationError:
+    description: A validation error to be fixed in the input
+    properties:
+      error:
+        example: 'Key: ''Person.age'' Error:Field validation for ''age'' failed on
+          the ''min'' tag'
+        type: string
+      field:
+        example: age
+        type: string
+      message:
+        example: Must be a positive number
+        type: string
+      param:
+        example: "0"
+        type: string
+      tag:
+        example: min
+        type: string
+    required:
+    - field
+    - message
+    type: object
+  LoginFailedError:
+    properties:
+      reason:
+        $ref: '#/definitions/LoginFailedReason'
+    required:
+    - reason
+    type: object
+  LoginFailedReason:
+    enum:
+    - Inactive
+    - InvalidCredentials
+    - ServerError
+    type: string
+    x-enum-varnames:
+    - AccountInactive
+    - InvalidCredentials
+    - ServerError
   Meta:
     properties:
       created:
@@ -47,12 +101,16 @@ definitions:
       contact:
         type: string
       first_name:
+        maxLength: 32
+        minLength: 2
         type: string
       full_name:
         type: string
       id:
         type: string
       last_name:
+        maxLength: 32
+        minLength: 2
         type: string
     required:
     - first_name
@@ -63,13 +121,25 @@ definitions:
       contact:
         type: string
       first_name:
+        maxLength: 32
+        minLength: 2
         type: string
       last_name:
+        maxLength: 32
+        minLength: 2
         type: string
     required:
     - first_name
     - last_name
     type: object
+  ResendConfirmationError:
+    enum:
+    - InvalidCredentials
+    - AlreadyVerified
+    type: string
+    x-enum-varnames:
+    - ResendInvalidCredentials
+    - ResendAlreadyVerified
   Taxon:
     properties:
       authorship:
@@ -265,6 +335,8 @@ definitions:
       token:
         example: some-generated-jwt
         type: string
+    required:
+    - token
     type: object
   User:
     properties:
@@ -278,6 +350,12 @@ definitions:
         $ref: '#/definitions/UserRole'
       verified:
         type: boolean
+    required:
+    - email
+    - identity
+    - login
+    - role
+    - verified
     type: object
   UserCredentials:
     properties:
@@ -297,10 +375,10 @@ definitions:
       email:
         format: email
         type: string
-      email_public:
-        type: boolean
       identity:
-        $ref: '#/definitions/PersonInput'
+        allOf:
+        - $ref: '#/definitions/PersonInput'
+        description: EmailPublic bool        `edbedb:"email_public" json:"email_public"`
       login:
         type: string
       password:
@@ -397,8 +475,26 @@ paths:
           schema:
             $ref: '#/definitions/TokenResponse'
         "400":
-          description: Invalid credentials
+          description: Authentication failure
+          schema:
+            $ref: '#/definitions/LoginFailedError'
+        "500":
+          description: Internal Server Error
       summary: Authenticate user
+      tags:
+      - Auth
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Log out currently authenticated user
+      operationId: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User logged out
+      summary: Logout user
       tags:
       - Auth
   /taxonomy/:
@@ -603,9 +699,11 @@ paths:
         "202":
           description: Email was confirmed and account activated
         "400":
-          description: Invalid or expired confirmation token
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/EmailConfirmationError'
         "500":
-          description: Token parse error
+          description: Server error
       summary: Email confirmation
       tags:
       - Auth
@@ -628,7 +726,9 @@ paths:
         "202":
           description: Email was sent
         "400":
-          description: Invalid parameters
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ResendConfirmationError'
       summary: Resend confirmation email
       tags:
       - Auth
@@ -650,6 +750,29 @@ paths:
         "400":
           description: Invalid email address
       summary: Request a password reset token
+      tags:
+      - Auth
+  /users/password:
+    post:
+      description: Sets a new password for the currently authenticated user
+      operationId: SetPassword
+      parameters:
+      - description: New password
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/PasswordInput'
+      responses:
+        "202":
+          description: New password was set
+        "400":
+          description: Invalid password inputs
+        "403":
+          description: Not authenticated
+        "500":
+          description: Database or server error
+      summary: Set account password
       tags:
       - Auth
   /users/password-reset/{token}:
@@ -714,7 +837,9 @@ paths:
         "202":
           description: User created and waiting for email verification
         "400":
-          description: Invalid parameters
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/FieldErrors'
       summary: Register user
       tags:
       - Auth

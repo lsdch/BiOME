@@ -29,8 +29,22 @@ export class AuthService {
             url: '/login',
             body: data,
             errors: {
-                400: `Invalid credentials`,
+                400: `Authentication failure`,
+                500: `Internal Server Error`,
             },
+        });
+    }
+
+    /**
+     * Logout user
+     * Log out currently authenticated user
+     * @returns any User logged out
+     * @throws ApiError
+     */
+    public static logout(): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/logout',
         });
     }
 
@@ -51,8 +65,8 @@ export class AuthService {
                 'token': token,
             },
             errors: {
-                400: `Invalid or expired confirmation token`,
-                500: `Token parse error`,
+                400: `Bad Request`,
+                500: `Server error`,
             },
         });
     }
@@ -72,7 +86,7 @@ export class AuthService {
             url: '/users/confirm/resend',
             body: data,
             errors: {
-                400: `Invalid parameters`,
+                400: `Bad Request`,
             },
         });
     }
@@ -159,7 +173,7 @@ export class AuthService {
             url: '/users/register',
             body: data,
             errors: {
-                400: `Invalid parameters`,
+                400: `Bad Request`,
             },
         });
     }

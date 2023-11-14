@@ -99,7 +99,34 @@ const docTemplate = `{
                         }
                     },
                     "400": {
-                        "description": "Invalid credentials"
+                        "description": "Authentication failure",
+                        "schema": {
+                            "$ref": "#/definitions/LoginFailedError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error"
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "description": "Log out currently authenticated user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout user",
+                "operationId": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "User logged out"
                     }
                 }
             }
@@ -376,10 +403,13 @@ const docTemplate = `{
                         "description": "Email was confirmed and account activated"
                     },
                     "400": {
-                        "description": "Invalid or expired confirmation token"
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/EmailConfirmationError"
+                        }
                     },
                     "500": {
-                        "description": "Token parse error"
+                        "description": "Server error"
                     }
                 }
             }
@@ -414,7 +444,10 @@ const docTemplate = `{
                         "description": "Email was sent"
                     },
                     "400": {
-                        "description": "Invalid parameters"
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/ResendConfirmationError"
+                        }
                     }
                 }
             }
@@ -444,6 +477,41 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid email address"
+                    }
+                }
+            }
+        },
+        "/users/password": {
+            "post": {
+                "description": "Sets a new password for the currently authenticated user",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Set account password",
+                "operationId": "SetPassword",
+                "parameters": [
+                    {
+                        "description": "New password",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "New password was set"
+                    },
+                    "400": {
+                        "description": "Invalid password inputs"
+                    },
+                    "403": {
+                        "description": "Not authenticated"
+                    },
+                    "500": {
+                        "description": "Database or server error"
                     }
                 }
             }
@@ -541,7 +609,10 @@ const docTemplate = `{
                         "description": "User created and waiting for email verification"
                     },
                     "400": {
-                        "description": "Invalid parameters"
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/FieldErrors"
+                        }
                     }
                 }
             }
@@ -595,6 +666,17 @@ const docTemplate = `{
                 }
             }
         },
+        "EmailConfirmationError": {
+            "type": "string",
+            "enum": [
+                "AlreadyVerified",
+                "InvalidToken"
+            ],
+            "x-enum-varnames": [
+                "AlreadyVerified",
+                "InvalidToken"
+            ]
+        },
         "EmailInput": {
             "type": "object",
             "required": [
@@ -606,6 +688,69 @@ const docTemplate = `{
                     "format": "email"
                 }
             }
+        },
+        "FieldErrors": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "array",
+                "items": {
+                    "$ref": "#/definitions/InputValidationError"
+                }
+            }
+        },
+        "InputValidationError": {
+            "description": "A validation error to be fixed in the input",
+            "type": "object",
+            "required": [
+                "field",
+                "message"
+            ],
+            "properties": {
+                "error": {
+                    "type": "string",
+                    "example": "Key: 'Person.age' Error:Field validation for 'age' failed on the 'min' tag"
+                },
+                "field": {
+                    "type": "string",
+                    "example": "age"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Must be a positive number"
+                },
+                "param": {
+                    "type": "string",
+                    "example": "0"
+                },
+                "tag": {
+                    "type": "string",
+                    "example": "min"
+                }
+            }
+        },
+        "LoginFailedError": {
+            "type": "object",
+            "required": [
+                "reason"
+            ],
+            "properties": {
+                "reason": {
+                    "$ref": "#/definitions/LoginFailedReason"
+                }
+            }
+        },
+        "LoginFailedReason": {
+            "type": "string",
+            "enum": [
+                "Inactive",
+                "InvalidCredentials",
+                "ServerError"
+            ],
+            "x-enum-varnames": [
+                "AccountInactive",
+                "InvalidCredentials",
+                "ServerError"
+            ]
         },
         "Meta": {
             "type": "object",
@@ -646,7 +791,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "first_name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
                 },
                 "full_name": {
                     "type": "string"
@@ -655,7 +802,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "last_name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
                 }
             }
         },
@@ -670,12 +819,27 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "first_name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
                 },
                 "last_name": {
-                    "type": "string"
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
                 }
             }
+        },
+        "ResendConfirmationError": {
+            "type": "string",
+            "enum": [
+                "InvalidCredentials",
+                "AlreadyVerified"
+            ],
+            "x-enum-varnames": [
+                "ResendInvalidCredentials",
+                "ResendAlreadyVerified"
+            ]
         },
         "Taxon": {
             "type": "object",
@@ -962,6 +1126,9 @@ const docTemplate = `{
         },
         "TokenResponse": {
             "type": "object",
+            "required": [
+                "token"
+            ],
             "properties": {
                 "token": {
                     "type": "string",
@@ -971,6 +1138,13 @@ const docTemplate = `{
         },
         "User": {
             "type": "object",
+            "required": [
+                "email",
+                "identity",
+                "login",
+                "role",
+                "verified"
+            ],
             "properties": {
                 "email": {
                     "type": "string"
@@ -1022,11 +1196,13 @@ const docTemplate = `{
                     "type": "string",
                     "format": "email"
                 },
-                "email_public": {
-                    "type": "boolean"
-                },
                 "identity": {
-                    "$ref": "#/definitions/PersonInput"
+                    "description": "EmailPublic bool        ` + "`" + `edbedb:\"email_public\" json:\"email_public\"` + "`" + `",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/PersonInput"
+                        }
+                    ]
                 },
                 "login": {
                     "type": "string"

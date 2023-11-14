@@ -1,18 +1,18 @@
 <template>
-  <v-container class="fill-height">
-    <v-row :align="smAndDown ? 'baseline' : 'center'">
+  <v-container>
+    <v-row>
       <v-col lg="6" offset-lg="3">
-        <HomeLinkTitle />
-        <v-card :variant="smAndDown ? 'flat' : 'elevated'">
-          <v-card-text v-if="mode === 'Login'">
-            <LoginForm></LoginForm>
+        <!-- <HomeLinkTitle /> -->
+        <v-card variant="flat">
+          <v-card-text v-if="mode === Mode.Login">
+            <LoginForm />
             <div class="d-flex justify-space-between align-center">
               <v-btn
                 variant="plain"
                 text="I forgot my password"
                 :ripple="false"
                 class="text-none text-center"
-                @click="mode = 'PasswordReset'"
+                @click="mode = Mode.PasswordReset"
               ></v-btn>
               <v-btn
                 size="large"
@@ -23,7 +23,7 @@
               />
             </div>
           </v-card-text>
-          <v-card-text v-if="mode === 'PasswordReset'">
+          <v-card-text v-if="mode === Mode.PasswordReset">
             <PasswordResetForm />
             <div class="d-flex justify-center">
               <v-btn
@@ -31,7 +31,7 @@
                 text="Back to login page"
                 class="text-none"
                 :ripple="false"
-                @click="mode = 'Login'"
+                @click="mode = Mode.Login"
               ></v-btn>
             </div>
           </v-card-text>
@@ -43,16 +43,15 @@
 
 <script setup lang="ts">
 import { Ref, ref } from 'vue'
-import { useDisplay } from 'vuetify'
 import LoginForm from '@/components/auth/LoginForm.vue'
-import PasswordResetForm from '@/components/auth/PasswordResetForm.vue'
-import HomeLinkTitle from '@/components/navigation/HomeLinkTitle.vue'
+import PasswordResetForm from '@/components/auth/PasswordResetRequestForm.vue'
 
-type Mode = 'Login' | 'PasswordReset'
+enum Mode {
+  Login,
+  PasswordReset
+}
 
-const { smAndDown } = useDisplay()
-
-const mode: Ref<Mode> = ref('Login')
+const mode: Ref<Mode> = ref(Mode.Login)
 </script>
 
 <style lang="less"></style>

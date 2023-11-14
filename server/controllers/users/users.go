@@ -2,7 +2,9 @@ package accounts
 
 import (
 	"darco/proto/models/users"
+	"net/http"
 
+	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,8 +17,13 @@ import (
 // @Success 200 {object} users.User "Authenticated user details"
 // @Failure 400 "User is not authenticated"
 // @Router /account [get]
-func Current(ctx *gin.Context) {
-
+func Current(ctx *gin.Context, db *edgedb.Client) {
+	user, err := users.Current(db)
+	if err != nil {
+		ctx.Error(err)
+		return
+	}
+	ctx.JSON(http.StatusOK, user)
 }
 
 type PasswordUpdateRequest struct {

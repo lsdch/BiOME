@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,7 +21,21 @@ func ConnectDB() (db *edgedb.Client) {
 	return
 }
 
-var DB *edgedb.Client = ConnectDB()
+var db *edgedb.Client = ConnectDB()
+
+func WithDB(handler func(*gin.Context, *edgedb.Client)) gin.HandlerFunc {
+	return func(ctx *gin.Context) {
+		client, ok := ctx.Get("db")
+		if !ok {
+			client = db
+		}
+		handler(ctx, client.(*edgedb.Client))
+	}
+}
+
+func DB() *edgedb.Client {
+	return db
+}
 
 type Expr interface {
 	String() string

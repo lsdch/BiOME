@@ -160,7 +160,7 @@ func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
 	}).([]TaxonGBIF)
 
 	ctx := context.Background()
-	err = models.DB.Tx(ctx, func(ctx context.Context, tx *edgedb.Tx) (err error) {
+	err = models.DB().Tx(ctx, func(ctx context.Context, tx *edgedb.Tx) (err error) {
 		for _, taxon := range taxa {
 			log.Debugf("Inserting taxon from GBIF %+v", &taxon)
 			args, _ := jsonDB.Marshal(&taxon)
@@ -259,7 +259,7 @@ func ImportTaxon(GBIF_ID int, monitor func(p *ImportProcess)) (err error) {
 
 	tracker := NewProgressTracker(&taxon, monitor)
 
-	go models.DB.Tx(context.Background(),
+	go models.DB().Tx(context.Background(),
 		func(ctx context.Context, tx *edgedb.Tx) error {
 			parents, err := fetchParents(GBIF_ID)
 			if err != nil {

@@ -1,37 +1,100 @@
 package validations
 
 import (
-	"context"
-	"darco/proto/models"
 	"fmt"
+	"reflect"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/sirupsen/logrus"
 )
 
-type UniqueValidator struct {
-	model           string
-	field           string
-	edgedb_typecast string
+// Structured validation error built from go-playground/validator to be consumed by API clients
+// @description A validation error to be fixed in the input
+type InputValidationError struct {
+	Field     string `json:"field" example:"age" binding:"required"`
+	Tag       string `json:"tag" example:"min"`
+	Param     string `json:"param" example:"0"`
+	Message   string `json:"message" example:"Must be a positive number" binding:"required"`
+	ErrString string `json:"error" example:"Key: 'Person.age' Error:Field validation for 'age' failed on the 'min' tag"`
+} //@name InputValidationError
+
+func (vErr InputValidationError) Error() string {
+	return vErr.ErrString
 }
 
-func (uq *UniqueValidator) Query() string {
-	return fmt.Sprintf("select exists %s filter .%s = <%s>$0", uq.model, uq.field, uq.edgedb_typecast)
-}
-
-func (uq *UniqueValidator) Validator() validator.Func {
-	return func(fl validator.FieldLevel) bool {
-		var exists bool
-		err := models.DB.QuerySingle(context.Background(), uq.Query(), &exists, fl.Field().String())
-		if err != nil {
-			logrus.Errorf("Unique validation query failed: %v with query %s", err, uq.Query())
+func InputValidationErrors(errors validator.ValidationErrors) []InputValidationError {
+	out := make([]InputValidationError, len(errors))
+	for i, err := range errors {
+		out[i] = InputValidationError{
+			Field:     err.Field(),
+			Tag:       err.Tag(),
+			Param:     err.Param(),
+			ErrString: err.Error(),
+			Message:   fieldErrorMsg(err),
 		}
-		return exists
 	}
+	return out
 }
 
-var EmailUnique = UniqueValidator{
-	model:           "people::User",
-	field:           "email",
-	edgedb_typecast: "str",
+type FieldErrors map[string][]InputValidationError // @name FieldErrors
+
+func ValidationErrorsByField(errors []InputValidationError) FieldErrors {
+	indexed_errors := make(map[string][]InputValidationError)
+	for _, err := range errors {
+		indexed_errors[err.Field] = append(indexed_errors[err.Field], err)
+	}
+	return indexed_errors
+}
+
+func fieldErrorMsg(err validator.FieldError) string {
+	switch ValidationTag(err.Tag()) {
+	case Required:
+		return "This field is required"
+	case Email:
+		return "Invalid email address"
+	case Minimum:
+		switch err.Kind() {
+		case reflect.String:
+			return fmt.Sprintf("Required length is at least %s characters", err.Param())
+		case reflect.Slice, reflect.Map, reflect.Array:
+			return fmt.Sprintf("At least %s values are required", err.Param())
+		default:
+			return fmt.Sprintf("Minimum value is %s", err.Param())
+		}
+	case Maximum:
+		switch err.Kind() {
+		case reflect.String:
+			return fmt.Sprintf("Maximum length is %s characters", err.Param())
+		case reflect.Slice, reflect.Map, reflect.Array:
+			return fmt.Sprintf("At most %s values can be provided", err.Param())
+		default:
+			return fmt.Sprintf("Maximum value is %s", err.Param())
+		}
+	case NotEqual:
+		switch err.Kind() {
+		case reflect.Slice, reflect.Map, reflect.Array:
+			return fmt.Sprintf("Number of items must be different from %s", err.Param())
+		default:
+			return fmt.Sprintf("Must be different from %s", err.Param())
+		}
+	case GreaterThan:
+		return fmt.Sprintf("Must be greater than %s", err.Param())
+	case GreaterOrEqual:
+		return fmt.Sprintf("Must be greater or equal to %s", err.Param())
+	case AlphaUnicode:
+		return "Only alphabetic characters allowed"
+	case Numeric:
+		return "Only numbers allowed"
+	case StartsWith:
+		return fmt.Sprintf("Must start with \"%s\"", err.Param())
+	case EndsWith:
+		return fmt.Sprintf("Must end with \"%s\"", err.Param())
+	}
+
+	for _, validator := range validators {
+		if ValidationTag(err.Tag()) == validator.tag {
+			return validator.message(err)
+		}
+	}
+
+	return "Invalid value"
 }
