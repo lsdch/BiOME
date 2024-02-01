@@ -90,7 +90,6 @@ import PasswordFields from './PasswordFields.vue'
 
 const state: Ref<UserInput> = ref<UserInput>({
   email: '',
-  email_public: false,
   login: '',
   password: '',
   password_confirmation: '',
@@ -103,7 +102,6 @@ const state: Ref<UserInput> = ref<UserInput>({
 
 const rules: ValidationArgs<UserInput> = {
   email: { email, required },
-  email_public: {},
   login: { minLength: minLength(5), maxLength: maxLength(16) },
   password: {},
   password_confirmation: {},

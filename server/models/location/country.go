@@ -25,8 +25,8 @@ func Setup() error {
 
 type Country struct {
 	ID           edgedb.UUID `json:"id" edgedb:"id" example:"<UUID>"`
-	Name         string      `json:"name" edgedb:"name" example:"Germany"`
-	Code         string      `json:"code" edgedb:"code" example:"DE"`
+	Name         string      `json:"name" edgedb:"name" example:"Germany" binding:"required"`
+	Code         string      `json:"code" edgedb:"code" example:"DE" binding:"required,country_code=iso3166_1_alpha2"`
 	NbLocalities int64       `json:"nbLocalities" edgedb:"nb_localities" example:"9"`
 } // @name Country
 
