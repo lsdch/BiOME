@@ -107,6 +107,7 @@ module reference {
       constraint min_value(1500)
     };
     required title: str;
+    # TODO : add verbatim field ?
     comments: str;
    }
 }
@@ -225,6 +226,7 @@ module taxonomy {
 }
 
 module location {
+
   type Country extending default::Auditable {
     annotation description := "Countries as defined in the ISO 3166-1 norm.";
     required name: str {
@@ -906,8 +908,18 @@ module datasets {
 module people {
 
   type Institution {
-    required name: str { constraint exclusive };
+    required name: str {
+      constraint exclusive;
+      constraint min_len_value(10);
+      constraint max_len_value(128);
+    };
+    required acronym: str {
+      constraint exclusive;
+      constraint min_len_value(2);
+      constraint max_len_value(12);
+    };
     description: str;
+    multi link people := .<institution[is Person];
   }
 
   type Person {

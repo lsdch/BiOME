@@ -2,6 +2,7 @@ package main
 
 import (
 	"darco/proto/config"
+	"darco/proto/controllers/institution"
 	country "darco/proto/controllers/location"
 	"darco/proto/controllers/taxonomy"
 	accounts "darco/proto/controllers/users"
@@ -77,6 +78,12 @@ func setupRouter() *gin.Engine {
 	users_api.POST("/confirm/resend", models.WithDB(accounts.ResendConfirmation))
 	users_api.POST("/forgotten-password", models.WithDB(accounts.RequestPasswordReset))
 	users_api.GET("/password-reset/:token", accounts.ValidatePasswordToken)
+
+	people_api := api.Group("/people")
+	people_api.GET("/institutions", institution.List)
+	people_api.POST("/institutions", models.WithDB(institution.Create))
+	people_api.DELETE("/institutions/:acronym", models.WithDB(institution.Delete))
+	people_api.PATCH("/institutions/", models.WithDB(institution.Update))
 
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:

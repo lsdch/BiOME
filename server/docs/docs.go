@@ -131,6 +131,136 @@ const docTemplate = `{
                 }
             }
         },
+        "/people/institutions": {
+            "get": {
+                "tags": [
+                    "People"
+                ],
+                "summary": "List Institutions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Institution"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Register a new institution that people work in.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Create institution",
+                "operationId": "CreateInstitution",
+                "parameters": [
+                    {
+                        "description": "Institution informations",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/InstitutionInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/FieldErrors"
+                        }
+                    }
+                }
+            }
+        },
+        "/people/institutions/": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Update institution",
+                "operationId": "UpdateInstitution",
+                "parameters": [
+                    {
+                        "description": "Institution informations",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Institution"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Accepted",
+                        "schema": {
+                            "$ref": "#/definitions/Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/FieldErrors"
+                        }
+                    }
+                }
+            }
+        },
+        "/people/institutions/{acronym}": {
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "People"
+                ],
+                "summary": "Delete institution",
+                "operationId": "DeleteInstitution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution short name",
+                        "name": "acronym",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "Delete successful"
+                    },
+                    "404": {
+                        "description": "Institution does not exist"
+                    }
+                }
+            }
+        },
         "/taxonomy/": {
             "get": {
                 "description": "Lists taxa, optionally filtered by name, rank and status",
@@ -647,6 +777,10 @@ const docTemplate = `{
     "definitions": {
         "Country": {
             "type": "object",
+            "required": [
+                "code",
+                "name"
+            ],
             "properties": {
                 "code": {
                     "type": "string",
@@ -725,6 +859,67 @@ const docTemplate = `{
                 "tag": {
                     "type": "string",
                     "example": "min"
+                }
+            }
+        },
+        "Institution": {
+            "type": "object",
+            "required": [
+                "acronym",
+                "id",
+                "name"
+            ],
+            "properties": {
+                "acronym": {
+                    "type": "string",
+                    "maxLength": 12,
+                    "minLength": 2,
+                    "example": "MELES"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "The main ecological research lab on Tatooine."
+                },
+                "id": {
+                    "type": "string",
+                    "example": "\u003cUUID\u003e"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 10,
+                    "example": "Mos Eisley Laboratory of Environmental Studies"
+                },
+                "people": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Person"
+                    }
+                }
+            }
+        },
+        "InstitutionInput": {
+            "type": "object",
+            "required": [
+                "acronym",
+                "name"
+            ],
+            "properties": {
+                "acronym": {
+                    "type": "string",
+                    "maxLength": 12,
+                    "minLength": 2,
+                    "example": "MELES"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "The main ecological research lab on Tatooine."
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 10,
+                    "example": "Mos Eisley Laboratory of Environmental Studies"
                 }
             }
         },
