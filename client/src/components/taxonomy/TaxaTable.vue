@@ -48,8 +48,6 @@ import StatusIcon from './StatusIcon.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
 import { VDataTable } from 'vuetify/components'
 
-type ReadonlyHeaders = InstanceType<typeof VDataTable>['headers']
-
 const taxa: Ref<TaxonWithRelatives[]> = ref([])
 const loading = ref(true)
 
