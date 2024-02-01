@@ -2,6 +2,15 @@ import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import NotFound from '@/components/NotFound.vue'
+import { nextTick } from "vue"
+
+
+// Default app title to display
+const DEFAULT_TITLE = import.meta.env.VITE_APP_NAME
+
+function makeTitle(title: string) {
+  return `${DEFAULT_TITLE} - ${title}`
+}
 
 type RouteDefinition = RouteRecordRaw & {
   label: string
@@ -65,7 +74,10 @@ const router = createRouter({
     {
       path: '/docs/api',
       name: 'api-docs',
-      component: () => import('../views/SwaggerDocs.vue')
+      component: () => import('../views/SwaggerDocs.vue'),
+      meta: {
+        title: makeTitle("API docs")
+      }
     },
     {
       path: '/login',
@@ -101,5 +113,13 @@ const router = createRouter({
     ...routeGroups.reduce((acc, current) => acc.concat(current.routes), <RouteDefinition[]>[])
   ]
 })
+
+router.afterEach((to, from) => {
+  // Use next tick to handle router history correctly
+  // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
+  nextTick(() => {
+    document.title = to.meta?.title ?? DEFAULT_TITLE;
+  });
+});
 
 export default router
