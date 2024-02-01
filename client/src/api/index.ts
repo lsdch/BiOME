@@ -13,6 +13,8 @@ export { EmailConfirmationError } from './models/EmailConfirmationError';
 export type { EmailInput } from './models/EmailInput';
 export type { FieldErrors } from './models/FieldErrors';
 export type { InputValidationError } from './models/InputValidationError';
+export type { Institution } from './models/Institution';
+export type { InstitutionInput } from './models/InstitutionInput';
 export type { LoginFailedError } from './models/LoginFailedError';
 export { LoginFailedReason } from './models/LoginFailedReason';
 export type { Meta } from './models/Meta';

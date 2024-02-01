@@ -47,6 +47,24 @@ export const routeGroups: RouteGroup[] = [
     ]
   },
   {
+    name: "People",
+    icon: "mdi-account-group",
+    routes: [
+      {
+        label: "Persons",
+        path: "/people",
+        name: "people",
+        component: () => import("../views/people/PersonView.vue")
+      },
+      {
+        label: "Institutions",
+        path: "/people/institutions",
+        name: "institutions",
+        component: () => import("../views/people/InstitutionView.vue")
+      }
+    ]
+  },
+  {
     name: "Tmp",
     icon: "mdi-flask",
     routes: [

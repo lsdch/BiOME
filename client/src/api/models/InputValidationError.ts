@@ -8,7 +8,7 @@
  */
 export type InputValidationError = {
     error?: string;
-    field?: string;
+    field: string;
     message: string;
     param?: string;
     tag?: string;

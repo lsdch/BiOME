@@ -3,10 +3,9 @@
 /* tslint:disable */
 /* eslint-disable */
 
-export type Country = {
-    code: string;
-    id?: string;
+export type InstitutionInput = {
+    acronym: string;
+    description?: string;
     name: string;
-    nbLocalities?: number;
 };
 

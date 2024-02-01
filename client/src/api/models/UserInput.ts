@@ -7,7 +7,9 @@ import type { PersonInput } from './PersonInput';
 
 export type UserInput = {
     email: string;
-    email_public?: boolean;
+    /**
+     * EmailPublic bool        `edbedb:"email_public" json:"email_public"`
+     */
     identity: PersonInput;
     login: string;
     password: string;

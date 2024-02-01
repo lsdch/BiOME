@@ -38,6 +38,9 @@ dependencies:
   vue:
     specifier: ^3.3.9
     version: 3.3.9(typescript@5.1.6)
+  vue-component-type-helpers:
+    specifier: ^1.8.27
+    version: 1.8.27
   vue-router:
     specifier: ^4.2.5
     version: 4.2.5(vue@3.3.9)
@@ -1737,7 +1740,7 @@ packages:
     dependencies:
       js-beautify: 1.14.11
       vue: 3.3.9(typescript@5.1.6)
-      vue-component-type-helpers: 1.8.22
+      vue-component-type-helpers: 1.8.27
     dev: true
 
   /@vue/tsconfig@0.4.0:
@@ -6232,9 +6235,8 @@ packages:
       - terser
     dev: true
 
-  /vue-component-type-helpers@1.8.22:
-    resolution: {integrity: sha512-LK3wJHs3vJxHG292C8cnsRusgyC5SEZDCzDCD01mdE/AoREFMl2tzLRuzwyuEsOIz13tqgBcnvysN3Lxsa14Fw==}
-    dev: true
+  /vue-component-type-helpers@1.8.27:
+    resolution: {integrity: sha512-0vOfAtI67UjeO1G6UiX5Kd76CqaQ67wrRZiOe7UAb9Jm6GzlUr/fC7CV90XfwapJRjpCMaZFhv1V0ajWRmE9Dg==}
 
   /vue-demi@0.13.11(vue@3.3.9):
     resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
