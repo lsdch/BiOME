@@ -41,8 +41,8 @@
 </template>
 
 <script setup lang="ts">
-import { ApiError, InstitutionInput, PeopleService, Institution } from '@/api'
-import { ref, Ref, computed, Prop } from 'vue'
+import { Institution, InstitutionInput, PeopleService } from '@/api'
+import { Ref, ref } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { VForm } from 'vuetify/components'
 import { Emits, Props, useForm } from '../toolkit/form'
@@ -63,7 +63,7 @@ const inst: Ref<InstitutionInput> = ref(
 
 function request() {
   if (props.edit) {
-    return PeopleService.updateInstitution({ id: props.edit.id, ...inst.value })
+    return PeopleService.updateInstitution({ ...props.edit, ...inst.value })
   } else {
     return PeopleService.createInstitution(inst.value)
   }
