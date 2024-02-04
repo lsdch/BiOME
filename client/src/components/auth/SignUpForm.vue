@@ -80,12 +80,10 @@
 
 <script setup lang="ts">
 import { ApiError, AuthService, InputValidationError, UserInput } from '@/api'
-import { email, required, minLength, maxLength } from '@vuelidate/validators'
-import useVuelidate from '@vuelidate/core'
-import { ValidationArgs } from '@vuelidate/core'
-import { computed, Ref, ref, reactive } from 'vue'
-import { Validation } from '@vuelidate/core'
 import { vuelidateErrors } from '@/api/validation'
+import useVuelidate, { Validation, ValidationArgs } from '@vuelidate/core'
+import { email, maxLength, minLength, required } from '@vuelidate/validators'
+import { Ref, computed, ref } from 'vue'
 import PasswordFields from './PasswordFields.vue'
 
 const state: Ref<UserInput> = ref<UserInput>({

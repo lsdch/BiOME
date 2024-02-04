@@ -4,15 +4,15 @@ import App from './App.vue'
 import router from './router'
 
 // Vuetify
-import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
+import 'vuetify/styles'
 
+import { createPinia, setActivePinia } from 'pinia'
 import { createVuetify, type ThemeDefinition } from 'vuetify'
+import { md3 } from 'vuetify/blueprints'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
-import { md3 } from 'vuetify/blueprints'
-import { createPinia, setActivePinia } from 'pinia'
 
 
 const light: ThemeDefinition = {
