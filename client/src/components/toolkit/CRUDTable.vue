@@ -1,159 +1,150 @@
 <template>
-  <div>
-    <v-data-table :headers="headers" :items="items" :loading="loading" v-bind="$attrs">
-      <template v-slot:top>
-        <v-toolbar flat prepend-icon="mdi-check">
-          <template v-if="icon" v-slot:prepend>
-            <v-icon :icon="icon" />
-          </template>
-          <v-toolbar-title :text="title" />
-          <v-spacer />
-
-          <v-btn variant="text" color="primary" @click="editItem = undefined">
-            New Item
-            <FormDialog
-              ref="formDialog"
-              activator="parent"
-              :form="form"
-              :edit="editItem"
-              @success="onSuccess"
-            />
-          </v-btn>
-          <ConfirmDialog ref="deleteDialog" />
-        </v-toolbar>
-      </template>
-      <template v-if="props.showActions" v-slot:[`item.actions`]="{ item }">
-        <v-icon size="small" icon="mdi-pencil" @click="modifyItem(item)" />
-        <v-icon size="small" icon="mdi-delete" @click="deleteItem(item)" />
-      </template>
-      <template v-for="(name, index) of slotNames" v-slot:[name]="slotData" :key="index">
-        <slot :name="name" v-bind="slotData || {}" />
-      </template>
-    </v-data-table>
-    <v-snackbar v-model="feedback.show" :timeout="2000" :color="feedback.color">
-      {{ feedback.text }}
-      <template v-slot:actions>
-        <v-btn variant="text" @click="feedback.show = false"> Close </v-btn>
-      </template>
-    </v-snackbar>
-  </div>
+  <v-data-table
+    v-bind="$attrs"
+    :headers="headers"
+    :items="filteredItems"
+    :loading="loading"
+    :search="searchTerm"
+    :filter-keys="filterKeys"
+    show-expand
+    v-model:sort-by="sortBy"
+    must-sort
+  >
+    <template v-slot:top>
+      <TableToolbar
+        ref="toolbar"
+        v-model="items"
+        v-bind="toolbarProps"
+        :delete-request="crud.delete"
+      >
+        <template v-slot:append>
+          <v-tooltip bottom activator="parent" :open-delay="400">
+            Sort by last update
+            <template v-slot:activator="{ props }">
+              <v-btn
+                variant="plain"
+                v-bind="{ ...sortLastUpdateIcon, ...props }"
+                @click="() => toggleSort('meta.last_updated')"
+              />
+            </template>
+          </v-tooltip>
+        </template>
+        <template v-slot:search>
+          <slot name="search"></slot>
+        </template>
+      </TableToolbar>
+    </template>
+    <template v-if="props.showActions" v-slot:[`item.actions`]="{ item }">
+      <v-icon color="primary" icon="mdi-pencil" @click="toolbar?.editItem(item)" />
+      <v-icon color="primary" icon="mdi-delete" @click="toolbar?.deleteItem(item)" />
+    </template>
+    <template v-for="(name, index) of slotNames" v-slot:[name]="slotData" :key="index">
+      <slot :name="name" v-bind="slotData || {}" />
+    </template>
+    <template v-slot:[`footer.prepend`]>
+      <div class="flex-grow-1">
+        <v-btn variant="plain" size="small" prepend-icon="mdi-download">Export</v-btn>
+      </div>
+    </template>
+    <template v-slot:expanded-row="{ columns, item, ...others }">
+      <slot name="expanded-row" v-bind="{ columns, item, ...others }">
+        <tr>
+          <td :colspan="columns.length">
+            <div class="d-flex">
+              <div class="d-flex flex-column flex-grow-0 mr-3">
+                <ItemDateChip v-if="item.meta?.created" icon="created" :date="item.meta.created" />
+                <ItemDateChip
+                  v-if="item.meta?.modified"
+                  icon="updated"
+                  :date="item.meta.modified"
+                />
+              </div>
+              <v-divider vertical />
+              <slot name="expanded-row-inject" v-bind="{ item }"> </slot>
+            </div>
+          </td>
+        </tr>
+      </slot>
+    </template>
+  </v-data-table>
 </template>
 
-<script setup lang="ts" generic="ItemInputType extends {}, ItemType extends { id: string }">
-import { useSlots, type Component } from 'vue'
-import { ApiError, CancelablePromise } from '@/api'
-import { Ref, ref, onMounted } from 'vue'
-import { HttpStatusCode } from 'axios'
-import { type VDataTable, VSnackbar } from 'vuetify/components'
-import ConfirmDialog from './ConfirmDialog.vue'
-import FormDialog from './FormDialog.vue'
-import type { ComponentExposed } from 'vue-component-type-helpers'
-import { Prop } from 'vue'
-import { Mode } from './form'
+<script
+  setup
+  lang="ts"
+  generic="ItemInputType extends {}, ItemType extends { id: string; meta?: Meta }"
+>
+import { CancelablePromise, Meta } from '@/api'
+import { Ref, computed, onMounted, ref, useSlots } from 'vue'
+import { ComponentExposed } from 'vue-component-type-helpers'
+import { type VDataTable } from 'vuetify/components'
+import ItemDateChip from './ItemDateChip.vue'
+import TableToolbar from './TableToolbar.vue'
+import { TableProps } from './table'
+
+type Props = TableProps<ItemType, ItemInputType, () => CancelablePromise<ItemType[]>> & {
+  filter?: (item: ItemType) => boolean
+  filterKeys?: string | string[]
+}
+type SortItem = {
+  key: string
+  order?: boolean | 'asc' | 'desc'
+}
 
 const slots = useSlots()
 // Assert type here to prevent errors in template
 const slotNames = Object.keys(slots) as 'default'[]
 
+const toolbar = ref<ComponentExposed<typeof TableToolbar<ItemType>> | null>(null)
+
 const loading = ref(true)
-const formDialog = ref<ComponentExposed<typeof FormDialog> | null>(null)
-const deleteDialog = ref<ComponentExposed<typeof ConfirmDialog> | null>(null)
-const editItem: Ref<ItemType | undefined> = ref(undefined)
-
-type Props = {
-  title: string
-  headers: ReadonlyHeaders
-  list: () => CancelablePromise<ItemType[]>
-  delete: (item: ItemType) => CancelablePromise<any>
-  create: (item: ItemInputType) => CancelablePromise<any>
-  update: (item: ItemType) => CancelablePromise<any>
-  form: Component<Prop<{ onSuccess: string }>>
-  showActions?: boolean
-  itemRepr?: (item: ItemType) => string
-  icon?: string
-}
-
-const props = defineProps<Props>()
-defineSlots<VDataTable['$slots']>()
-
+const searchTerm = defineModel<string>('search')
 const items: Ref<ItemType[]> = ref([])
 
-onMounted(async () => {
-  items.value = await props.list()
+const sortBy = ref<SortItem[]>([])
+const sortLastUpdateIcon = computed(() => {
+  const sortMeta = sortBy.value.find(({ key }) => key === 'meta.last_updated')
+  if (sortMeta) {
+    return sortMeta.order === 'asc'
+      ? {
+          icon: 'mdi-sort-calendar-ascending',
+          color: 'primary'
+        }
+      : { icon: 'mdi-sort-calendar-descending', color: 'primary' }
+  }
+  return { icon: 'mdi-sort-calendar-ascending', color: 'secondary' }
+})
+
+const props = defineProps<Props>()
+
+defineSlots<
+  VDataTable['$slots'] & {
+    search(): any
+    'expanded-row-inject': (props: { item: ItemType }) => any
+  }
+>()
+
+function toggleSort(sortKey: string) {
+  const sortMeta = sortBy.value?.find(({ key }) => key === sortKey)
+  let order: 'desc' | 'asc' = 'asc'
+  if (sortMeta?.order === 'asc') {
+    order = 'desc'
+  }
+  sortBy.value.splice(0, sortBy.value.length)
+  sortBy.value.push({ key: sortKey, order })
+}
+
+const filteredItems = computed(() => {
+  return props.filter ? items.value.filter(props.filter) : items.value
+})
+
+async function loadItems() {
+  loading.value = true
+  items.value = await props.crud.list()
   loading.value = false
-})
-
-const feedback = ref<{
-  show: boolean
-  text: string
-  color: string | undefined
-}>({
-  show: false,
-  text: '',
-  color: undefined
-})
-function showFeedback(text: string, color: string | undefined = undefined) {
-  feedback.value = {
-    show: true,
-    text,
-    color
-  }
 }
 
-function onSuccess(mode: Mode, item: ItemType) {
-  switch (mode) {
-    case 'Create':
-      items.value.unshift(item)
-      showFeedback('Item created', 'success')
-      break
-    case 'Edit':
-      console.log('Edited item', item)
-      items.value = items.value.filter((oldItem) => oldItem.id !== item.id)
-      items.value.unshift(item)
-      showFeedback('Item updated', 'success')
-      break
-    default:
-      break
-  }
-}
-
-function modifyItem(item: ItemType) {
-  editItem.value = item
-  formDialog.value?.open()
-}
-
-async function deleteItem(item: ItemType) {
-  let msg = props.itemRepr
-    ? `Are you sure you want to delete ${props.itemRepr(item)} ?`
-    : 'Are you sure you want to delete this item ?'
-  await deleteDialog.value?.open('Confirm', msg).then((confirm) => {
-    if (confirm === true) {
-      console.log(`Deleting item`, item)
-      let index = items.value.indexOf(item)
-      props
-        .delete(item)
-        .then(() => {
-          items.value.splice(index, 1)
-          showFeedback('Item successfully deleted.', 'success')
-        })
-        .catch((err: ApiError) => {
-          switch (err.status) {
-            case HttpStatusCode.NotFound:
-              showFeedback('Deletion failed: record not found.', 'error')
-              break
-            case HttpStatusCode.BadRequest:
-              showFeedback(`Deletion was not allowed: ${err.message}`, 'error')
-              break
-            case HttpStatusCode.Forbidden:
-              showFeedback('You are not granted rights to modify this item.', 'error')
-              break
-            case HttpStatusCode.InternalServerError:
-              showFeedback('An unexpected error occurred.', 'error')
-          }
-        })
-    }
-  })
-}
+onMounted(loadItems)
 </script>
 
 <style scoped></style>

@@ -1,55 +1,62 @@
 <template>
-  <div>
-    <v-form>
-      <v-row>
-        <v-col md="4">
-          <v-text-field label="Name" v-model="filters.name" density="compact"></v-text-field>
-        </v-col>
-        <v-col md="4">
-          <v-select
-            label="Rank"
-            v-model="filters.rank"
-            :items="Object.values(TaxonRank)"
-            density="compact"
-            clearable
-          />
-        </v-col>
-        <v-col md="4">
-          <v-select
-            label="Status"
-            v-model="filters.status"
-            :items="Object.values(TaxonStatus)"
-            density="compact"
-            clearable
-          />
-        </v-col>
-      </v-row>
-    </v-form>
-    <v-data-table :items="items" :headers="headers" density="compact" :loading="loading">
-      <template v-slot:[`item.code`]="{ item }">
-        <code>{{ item.code }}</code>
-      </template>
-      <template v-slot:[`item.status`]="{ item }">
-        <status-icon :status="item.status" size="small" />
-        <LinkIconGBIF v-if="item.gbif_ID" :GBIF_ID="item.gbif_ID" variant="text" size="x-small" />
-      </template>
-    </v-data-table>
-  </div>
+  <CRUDTable
+    :crud="{
+      list: () => TaxonomyService.taxonomyList(),
+      update: (item: TaxonWithRelatives) =>
+        TaxonomyService.updateTaxon(item.code, item as TaxonInput),
+      delete: (item: TaxonWithRelatives) => TaxonomyService.deleteTaxon(item.code)
+    }"
+    :toolbar-props="{
+      title: 'Taxonomy',
+      entityName: 'Taxon',
+      itemRepr: (item: TaxonWithRelatives) => item.name,
+      icon: 'mdi-graph',
+      togglableSearch: true
+    }"
+    :headers="headers"
+    :filter="filter"
+    showActions
+    density="compact"
+    v-model:search="searchName"
+    :filter-keys="['name']"
+  >
+    <template v-slot:search>
+      <TaxaTableFilters v-model="filters" v-model:name="searchName" />
+    </template>
+    <template v-slot:[`item.code`]="{ item }">
+      <code>{{ item.code }}</code>
+    </template>
+    <template v-slot:[`item.status`]="{ item }">
+      <StatusIcon :status="item.status" size="small" />
+      <LinkIconGBIF v-if="item.GBIF_ID" :GBIF_ID="item.GBIF_ID" variant="text" size="x-small" />
+    </template>
+  </CRUDTable>
 </template>
 
 <script setup lang="ts">
-import type { Ref } from 'vue'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 
-import { TaxonRank, TaxonStatus, TaxonWithRelatives } from '@/api'
-import { TaxonomyService } from '@/api'
+import { TaxonInput, TaxonStatus, TaxonWithRelatives, TaxonomyService } from '@/api'
 import { computed } from 'vue'
-import StatusIcon from './StatusIcon.vue'
+import CRUDTable from '../toolkit/CRUDTable.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
-import { VDataTable } from 'vuetify/components'
+import StatusIcon from './StatusIcon.vue'
+import TaxaTableFilters from './TaxaTableFilters.vue'
 
-const taxa: Ref<TaxonWithRelatives[]> = ref([])
-const loading = ref(true)
+const searchName = ref('')
+const filters = ref({
+  rank: undefined,
+  status: TaxonStatus.Accepted
+})
+
+const filter = computed(() => {
+  const { rank, status } = filters.value
+  if (rank || status)
+    return (item: TaxonWithRelatives) => {
+      return (rank ? item.rank === rank : true) && (status ? item.status === status : true)
+    }
+  else return undefined
+})
 
 const headers: ReadonlyHeaders = [
   { title: 'Name', key: 'name' },
@@ -57,27 +64,6 @@ const headers: ReadonlyHeaders = [
   { title: 'Rank', key: 'rank' },
   { title: 'Status', key: 'status', width: 0, align: 'center' }
 ]
-
-const filters = ref({
-  name: undefined,
-  rank: undefined,
-  status: TaxonStatus.Accepted
-})
-
-const items = computed(() => {
-  return taxa.value.filter(({ name, rank, status }) => {
-    return (
-      name.includes(filters.value.name ?? '') &&
-      (filters.value.rank ? rank === filters.value.rank : true) &&
-      (filters.value.status ? status === filters.value.status : true)
-    )
-  })
-})
-
-onMounted(async () => {
-  taxa.value = await TaxonomyService.taxonomyList()
-  loading.value = false
-})
 </script>
 
 <style scoped></style>

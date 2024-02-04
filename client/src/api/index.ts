@@ -22,7 +22,6 @@ export type { PasswordInput } from './models/PasswordInput';
 export type { Person } from './models/Person';
 export type { PersonInput } from './models/PersonInput';
 export { ResendConfirmationError } from './models/ResendConfirmationError';
-export type { Taxon } from './models/Taxon';
 export type { TaxonDB } from './models/TaxonDB';
 export type { TaxonInput } from './models/TaxonInput';
 export { TaxonRank } from './models/TaxonRank';

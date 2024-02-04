@@ -10,49 +10,37 @@
       <v-card-actions>
         <v-spacer />
         <v-btn color="grey" variant="text" @click="cancel" text="Cancel" />
-        <v-btn color="blue-darken-1" variant="text" @click="agree" text="OK" />
+        <v-btn color="blue-darken-1" variant="text" @click="agree(content.payload)" text="OK" />
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue'
-
-const dialog = ref(false)
-const promise = ref({
-  resolve: (_: any) => {},
-  reject: (_: any) => {}
-})
-const content = ref({
-  title: '',
-  message: ''
-})
-
-function open(title: string, message: string) {
-  content.value = { title, message }
-  dialog.value = true
-  return new Promise((resolve, reject) => {
-    promise.value = {
-      resolve,
-      reject
-    }
-  })
+<script setup lang="ts" generic="Payload = any">
+export type ConfirmDialogProps<Payload> = {
+  title: string
+  message: string
+  payload?: Payload
 }
 
-function agree() {
-  promise.value.resolve(true)
+const dialog = defineModel<boolean>()
+
+const content = defineProps<ConfirmDialogProps<Payload>>()
+
+const emit = defineEmits<{
+  agree: [payload?: Payload]
+  cancel: []
+}>()
+
+function agree(payload?: Payload) {
+  emit('agree', payload)
   dialog.value = false
 }
 
 function cancel() {
-  promise.value.resolve(false)
+  emit('cancel')
   dialog.value = false
 }
-
-defineExpose({
-  open
-})
 </script>
 
 <style scoped></style>

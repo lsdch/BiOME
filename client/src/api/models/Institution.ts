@@ -3,12 +3,14 @@
 /* tslint:disable */
 /* eslint-disable */
 
+import type { Meta } from './Meta';
 import type { Person } from './Person';
 
 export type Institution = {
     acronym: string;
     description?: string;
     id: string;
+    meta: Meta;
     name: string;
     people?: Array<Person>;
 };

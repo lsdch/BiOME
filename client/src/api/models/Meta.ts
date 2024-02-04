@@ -4,7 +4,8 @@
 /* eslint-disable */
 
 export type Meta = {
-    created?: string;
+    created: string;
+    last_updated?: string;
     modified?: string;
 };
 
