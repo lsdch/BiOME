@@ -3,7 +3,7 @@ package institution
 import (
 	"context"
 	"darco/proto/models"
-	"darco/proto/models/users"
+	"darco/proto/models/person"
 	"encoding/json"
 
 	"github.com/edgedb/edgedb-go"
@@ -19,8 +19,8 @@ type InstitutionInput struct {
 type Institution struct {
 	ID               edgedb.UUID `json:"id" edgedb:"id" example:"<UUID>" binding:"required"`
 	InstitutionInput `edgedb:"$inline"`
-	People           []users.Person `json:"people" edgedb:"people"`
-	Meta             models.Meta    `json:"meta" edgedb:"meta" binding:"required"`
+	People           []person.Person `json:"people" edgedb:"people"`
+	Meta             models.Meta     `json:"meta" edgedb:"meta" binding:"required"`
 } // @name Institution
 
 func Find(db *edgedb.Client, acronym string) (inst Institution, err error) {

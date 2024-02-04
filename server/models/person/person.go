@@ -1,4 +1,4 @@
-package users
+package person
 
 import (
 	"context"

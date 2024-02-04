@@ -3,6 +3,7 @@ package users
 import (
 	"context"
 	"darco/proto/models"
+	"darco/proto/models/person"
 	_ "embed"
 	"encoding/json"
 	"errors"
@@ -17,7 +18,7 @@ type InnerUserInput struct {
 	Login string `edgedb:"login" json:"login" binding:"login,required,unique_login"`
 	Email string `edgedb:"email" json:"email" binding:"email,required,unique_email" format:"email"`
 	// EmailPublic bool        `edbedb:"email_public" json:"email_public"`
-	Person PersonInput `edgedb:"identity" json:"identity" binding:"required"`
+	Person person.PersonInput `edgedb:"identity" json:"identity" binding:"required"`
 } // @name InnerUserInput
 type UserInput struct {
 	InnerUserInput `json:",inline"`
@@ -41,9 +42,9 @@ type UserInsert struct {
 }
 
 type UserPartial struct {
-	Role     UserRole `edgedb:"role" json:"role" binding:"required"`
-	Verified bool     `edgedb:"verified" json:"verified" binding:"required"`
-	Person   Person   `edgedb:"identity" json:"identity" binding:"required"`
+	Role     UserRole      `edgedb:"role" json:"role" binding:"required"`
+	Verified bool          `edgedb:"verified" json:"verified" binding:"required"`
+	Person   person.Person `edgedb:"identity" json:"identity" binding:"required"`
 } // @name UserPartial
 
 type User struct {
