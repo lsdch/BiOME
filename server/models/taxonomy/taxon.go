@@ -64,7 +64,7 @@ type TaxonDB struct {
 	ID     edgedb.UUID `edgedb:"id" json:"id" example:"<UUID>" binding:"required"`
 	Taxon  `edgedb:"$inline"`
 	Anchor bool        `edgedb:"anchor" json:"anchor"`
-	Meta   models.Meta `edgedb:"meta" json:"meta"`
+	Meta   models.Meta `edgedb:"meta" json:"meta" binding:"required"`
 } // @name TaxonDB
 
 type TaxonSelect struct {

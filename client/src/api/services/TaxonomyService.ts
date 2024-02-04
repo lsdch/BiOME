@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Taxon } from '../models/Taxon';
+import type { TaxonDB } from '../models/TaxonDB';
 import type { TaxonInput } from '../models/TaxonInput';
 import type { TaxonWithRelatives } from '../models/TaxonWithRelatives';
 
@@ -40,10 +40,10 @@ export class TaxonomyService {
     /**
      * List anchor taxa
      * Anchors are taxa that were imported as the root of a subtree in the taxonomy.
-     * @returns Taxon Get anchor taxa list success
+     * @returns TaxonDB Get anchor taxa list success
      * @throws ApiError
      */
-    public static taxonAnchors(): CancelablePromise<Array<Taxon>> {
+    public static taxonAnchors(): CancelablePromise<Array<TaxonDB>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/taxonomy/anchors',

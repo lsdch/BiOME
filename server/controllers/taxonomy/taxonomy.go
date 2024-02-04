@@ -14,7 +14,7 @@ import (
 // @tags Taxonomy
 // @Accept json
 // @Produce json
-// @Success 200 {array}  taxonomy.Taxon "Get anchor taxa list success"
+// @Success 200 {array}  taxonomy.TaxonDB "Get anchor taxa list success"
 // @Router /taxonomy/anchors [get]
 func GetAnchors(ctx *gin.Context) {
 	anchors, err := taxonomy.GetAnchorTaxa()

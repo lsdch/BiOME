@@ -7,9 +7,9 @@ import type { TaxonRank } from './TaxonRank';
 import type { TaxonStatus } from './TaxonStatus';
 
 export type TaxonInput = {
+    GBIF_ID?: number;
     authorship?: string;
-    code?: string;
-    gbif_ID?: number;
+    code: string;
     name: string;
     parent?: string;
     rank: TaxonRank;

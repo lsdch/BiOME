@@ -1,22 +1,22 @@
 <template>
-  <v-tooltip
+  <!-- <v-tooltip
     text="Go to original GBIF record"
     location="top"
     :disabled="!tooltip"
     :open-delay="700"
   >
-    <template v-slot:activator="{ props }">
-      <v-btn
-        v-bind="{ ...$attrs, ...props }"
-        :size="size"
-        icon
-        :href="`https://www.gbif.org/species/${GBIF_ID}`"
-        target="_blank"
-      >
-        <IconGBIF size="50%"></IconGBIF>
-      </v-btn>
-    </template>
-  </v-tooltip>
+    <template v-slot:activator="{ props }"> -->
+  <v-btn
+    v-bind="$attrs"
+    :size="size"
+    icon
+    :href="`https://www.gbif.org/species/${GBIF_ID}`"
+    target="_blank"
+  >
+    <IconGBIF size="50%"></IconGBIF>
+  </v-btn>
+  <!-- </template>
+  </v-tooltip> -->
 </template>
 
 <script setup lang="ts">

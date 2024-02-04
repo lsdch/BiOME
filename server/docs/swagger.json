@@ -336,7 +336,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/Taxon"
+                                "$ref": "#/definitions/TaxonDB"
                             }
                         }
                     }
@@ -1040,54 +1040,12 @@
                 "ResendAlreadyVerified"
             ]
         },
-        "Taxon": {
-            "type": "object",
-            "required": [
-                "code",
-                "name",
-                "rank",
-                "status"
-            ],
-            "properties": {
-                "GBIF_ID": {
-                    "type": "integer",
-                    "example": 2206247
-                },
-                "authorship": {
-                    "type": "string",
-                    "example": "(Linnaeus, 1758)"
-                },
-                "code": {
-                    "type": "string",
-                    "example": "ASEaquaticus"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Asellus aquaticus"
-                },
-                "rank": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/TaxonRank"
-                        }
-                    ],
-                    "example": "Species"
-                },
-                "status": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/TaxonStatus"
-                        }
-                    ],
-                    "example": "Accepted"
-                }
-            }
-        },
         "TaxonDB": {
             "type": "object",
             "required": [
                 "code",
                 "id",
+                "meta",
                 "name",
                 "rank",
                 "status"
@@ -1222,6 +1180,7 @@
             "required": [
                 "code",
                 "id",
+                "meta",
                 "name",
                 "rank",
                 "status"
@@ -1264,6 +1223,7 @@
                     "required": [
                         "code",
                         "id",
+                        "meta",
                         "name",
                         "rank",
                         "status"

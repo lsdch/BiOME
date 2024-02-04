@@ -197,34 +197,6 @@ definitions:
     x-enum-varnames:
     - ResendInvalidCredentials
     - ResendAlreadyVerified
-  Taxon:
-    properties:
-      GBIF_ID:
-        example: 2206247
-        type: integer
-      authorship:
-        example: (Linnaeus, 1758)
-        type: string
-      code:
-        example: ASEaquaticus
-        type: string
-      name:
-        example: Asellus aquaticus
-        type: string
-      rank:
-        allOf:
-        - $ref: '#/definitions/TaxonRank'
-        example: Species
-      status:
-        allOf:
-        - $ref: '#/definitions/TaxonStatus'
-        example: Accepted
-    required:
-    - code
-    - name
-    - rank
-    - status
-    type: object
   TaxonDB:
     properties:
       GBIF_ID:
@@ -257,6 +229,7 @@ definitions:
     required:
     - code
     - id
+    - meta
     - name
     - rank
     - status
@@ -376,6 +349,7 @@ definitions:
         required:
         - code
         - id
+        - meta
         - name
         - rank
         - status
@@ -391,6 +365,7 @@ definitions:
     required:
     - code
     - id
+    - meta
     - name
     - rank
     - status
@@ -783,7 +758,7 @@ paths:
           description: Get anchor taxa list success
           schema:
             items:
-              $ref: '#/definitions/Taxon'
+              $ref: '#/definitions/TaxonDB'
             type: array
       summary: List anchor taxa
       tags:

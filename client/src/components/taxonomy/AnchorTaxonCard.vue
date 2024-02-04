@@ -1,6 +1,6 @@
 <template>
   <v-card class="h-100 d-flex flex-column">
-    <v-toolbar density="compact" color="white">
+    <v-toolbar density="compact" color="surface">
       <v-toolbar-title :title="name">
         {{ name }}
       </v-toolbar-title>
@@ -14,27 +14,28 @@
           ></v-btn>
         </template>
       </v-tooltip>
-      <LinkIconGBIF :GBIF_ID="GBIF_ID" />
+      <LinkIconGBIF v-if="GBIF_ID" :GBIF_ID="GBIF_ID" />
     </v-toolbar>
-    <v-card-subtitle class="d-flex flex-column flex-md-row">
-      <span class="col-12">{{ rank }}</span> <v-spacer></v-spacer> <span>{{ authorship }}</span>
+    <v-card-subtitle class="d-flex justify-space-between mb-3">
+      <span>{{ rank }}</span>
+      <v-spacer />
+      <v-chip v-if="authorship" label rounded="xl">{{ authorship }}</v-chip>
+      <span>KANAR</span>
     </v-card-subtitle>
-    <div class="mb-5 d-flex flex-column flex-grow-1 justify-end">
-      <v-card-subtitle class="flex-end">
-        Last modified
-        {{ moment(modified ?? created).format('DD MMM y HH:MM') }}
-      </v-card-subtitle>
-    </div>
+    <v-divider></v-divider>
+    <v-card-actions class="justify-space-between">
+      <ItemDateChip v-if="meta.created" icon="created" :date="meta.created" color="grey" />
+      <ItemDateChip v-if="meta.modified" icon="updated" :date="meta.modified" color="grey" />
+    </v-card-actions>
   </v-card>
 </template>
 
 <script setup lang="ts">
+import type { TaxonDB } from '@/api'
+import ItemDateChip from '../toolkit/ItemDateChip.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
-import moment from 'moment'
 
-import type { Taxon } from '@/types/taxonomy'
-
-defineProps<Taxon>()
+defineProps<TaxonDB>()
 </script>
 
 <style scoped></style>

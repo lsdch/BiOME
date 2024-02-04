@@ -8,7 +8,7 @@
     <v-divider class="my-5"></v-divider>
     <h1 class="mb-5">Anchors</h1>
     <v-row>
-      <v-col v-for="item in anchors" :key="item.ID" cols="12" sm="6" lg="4" xl="3">
+      <v-col v-for="item in anchors" :key="item.id" cols="12" sm="6" lg="4" xl="3">
         <AnchorTaxonCard v-bind="item" />
       </v-col>
       <v-col
@@ -45,25 +45,24 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios'
 import moment from 'moment'
 
-import { ref, onMounted } from 'vue'
 import type { Ref } from 'vue'
+import { onMounted, ref } from 'vue'
 
-import RootTaxonPicker from '@/components/taxonomy/AnchorTaxonPicker.vue'
+import { TaxonDB, TaxonomyService } from '@/api'
 import AnchorTaxonCard from '@/components/taxonomy/AnchorTaxonCard.vue'
+import RootTaxonPicker from '@/components/taxonomy/AnchorTaxonPicker.vue'
 import type { ImportProcess } from '@/components/taxonomy/ImportTaxonCard.vue'
 import ImportTaxonCard from '@/components/taxonomy/ImportTaxonCard.vue'
 import TaxaTable from '@/components/taxonomy/TaxaTable.vue'
-import type { Taxon } from '@/types/taxonomy'
 
 const activities: Ref<ImportProcess[]> = ref([])
-const anchors: Ref<Taxon[]> = ref([])
+const anchors: Ref<TaxonDB[]> = ref([])
 
 async function updateAnchors() {
-  const response = await axios.get('/api/v1/taxonomy/anchors')
-  anchors.value = response.data
+  const response = await TaxonomyService.taxonAnchors()
+  anchors.value = response
 }
 
 onMounted(updateAnchors)

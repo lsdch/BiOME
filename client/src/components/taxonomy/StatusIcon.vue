@@ -1,5 +1,5 @@
 <template>
-  <v-icon v-bind="spec" :size="size"></v-icon>
+  <v-icon v-bind="spec" :size="size" :title="status"> </v-icon>
 </template>
 
 <script setup lang="ts">
