@@ -867,6 +867,7 @@ const docTemplate = `{
             "required": [
                 "acronym",
                 "id",
+                "meta",
                 "name"
             ],
             "properties": {
@@ -883,6 +884,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
+                },
+                "meta": {
+                    "$ref": "#/definitions/Meta"
                 },
                 "name": {
                     "type": "string",
@@ -949,10 +953,17 @@ const docTemplate = `{
         },
         "Meta": {
             "type": "object",
+            "required": [
+                "created"
+            ],
             "properties": {
                 "created": {
                     "type": "string",
                     "example": "2023-09-01T16:41:10.921097+00:00"
+                },
+                "last_updated": {
+                    "type": "string",
+                    "example": "2023-09-02T20:39:10.218057+00:00"
                 },
                 "modified": {
                     "type": "string",
@@ -1039,11 +1050,16 @@ const docTemplate = `{
         "Taxon": {
             "type": "object",
             "required": [
+                "code",
                 "name",
                 "rank",
                 "status"
             ],
             "properties": {
+                "GBIF_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
                 "authorship": {
                     "type": "string",
                     "example": "(Linnaeus, 1758)"
@@ -1051,10 +1067,6 @@ const docTemplate = `{
                 "code": {
                     "type": "string",
                     "example": "ASEaquaticus"
-                },
-                "gbif_ID": {
-                    "type": "integer",
-                    "example": 2206247
                 },
                 "name": {
                     "type": "string",
@@ -1081,11 +1093,17 @@ const docTemplate = `{
         "TaxonDB": {
             "type": "object",
             "required": [
+                "code",
+                "id",
                 "name",
                 "rank",
                 "status"
             ],
             "properties": {
+                "GBIF_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
                 "anchor": {
                     "type": "boolean"
                 },
@@ -1096,10 +1114,6 @@ const docTemplate = `{
                 "code": {
                     "type": "string",
                     "example": "ASEaquaticus"
-                },
-                "gbif_ID": {
-                    "type": "integer",
-                    "example": 2206247
                 },
                 "id": {
                     "type": "string",
@@ -1133,11 +1147,16 @@ const docTemplate = `{
         "TaxonInput": {
             "type": "object",
             "required": [
+                "code",
                 "name",
                 "rank",
                 "status"
             ],
             "properties": {
+                "GBIF_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
                 "authorship": {
                     "type": "string",
                     "example": "(Linnaeus, 1758)"
@@ -1145,10 +1164,6 @@ const docTemplate = `{
                 "code": {
                     "type": "string",
                     "example": "ASEaquaticus"
-                },
-                "gbif_ID": {
-                    "type": "integer",
-                    "example": 2206247
                 },
                 "name": {
                     "type": "string",
@@ -1212,11 +1227,17 @@ const docTemplate = `{
         "TaxonWithRelatives": {
             "type": "object",
             "required": [
+                "code",
+                "id",
                 "name",
                 "rank",
                 "status"
             ],
             "properties": {
+                "GBIF_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
                 "anchor": {
                     "type": "boolean"
                 },
@@ -1234,10 +1255,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "ASEaquaticus"
                 },
-                "gbif_ID": {
-                    "type": "integer",
-                    "example": 2206247
-                },
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
@@ -1252,11 +1269,17 @@ const docTemplate = `{
                 "parent": {
                     "type": "object",
                     "required": [
+                        "code",
+                        "id",
                         "name",
                         "rank",
                         "status"
                     ],
                     "properties": {
+                        "GBIF_ID": {
+                            "type": "integer",
+                            "example": 2206247
+                        },
                         "anchor": {
                             "type": "boolean"
                         },
@@ -1267,10 +1290,6 @@ const docTemplate = `{
                         "code": {
                             "type": "string",
                             "example": "ASEaquaticus"
-                        },
-                        "gbif_ID": {
-                            "type": "integer",
-                            "example": 2206247
                         },
                         "id": {
                             "type": "string",

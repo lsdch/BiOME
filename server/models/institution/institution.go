@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/sirupsen/logrus"
 )
 
 type InstitutionInput struct {
@@ -19,11 +20,12 @@ type Institution struct {
 	ID               edgedb.UUID `json:"id" edgedb:"id" example:"<UUID>" binding:"required"`
 	InstitutionInput `edgedb:"$inline"`
 	People           []users.Person `json:"people" edgedb:"people"`
+	Meta             models.Meta    `json:"meta" edgedb:"meta" binding:"required"`
 } // @name Institution
 
 func Find(db *edgedb.Client, acronym string) (inst Institution, err error) {
 	query := `select people::Institution {
-		id, name, acronym, description, people
+		id, name, acronym, description, people, meta
 	} filter .acronym = <str>$0;`
 	err = db.QuerySingle(context.Background(), query, &inst, acronym)
 	return
@@ -32,7 +34,7 @@ func Find(db *edgedb.Client, acronym string) (inst Institution, err error) {
 func List() (institutions []Institution, err error) {
 	query := `select
 		people::Institution {
-			id, name, acronym, description, people
+			id, name, acronym, description, people, meta: { * }
 		}
 		order by .acronym;`
 	err = models.DB().Query(context.Background(), query, &institutions)
@@ -49,7 +51,7 @@ func (inst *InstitutionInput) Create(db *edgedb.Client) (*Institution, error) {
 			acronym := <str>data['acronym'],
 			description := <str>data['description']
 		}
-	) { id, name, acronym, description };
+	) { id, name, acronym, description, people, meta: { * } };
 	`
 	var createdInstitution Institution
 	args, _ := json.Marshal(inst)
@@ -59,22 +61,27 @@ func (inst *InstitutionInput) Create(db *edgedb.Client) (*Institution, error) {
 	return &createdInstitution, nil
 }
 
-func (inst *Institution) Update(db *edgedb.Client) error {
+func (inst *Institution) Update(db *edgedb.Client) (*Institution, error) {
 	query := `
 	with module people,
 	data := <json>$0,
-	update Institution filter .id = <uuid>data['id']
-	set {
-		name := <str>data['name'],
-		acronym := <str>data['acronym'],
-		description := <str>data['description']
-	};
+	select(
+		update Institution filter .id = <uuid>data['id']
+		set {
+			name := <str>data['name'],
+			acronym := <str>data['acronym'],
+			description := <str>data['description']
+		}
+	) { id, name, acronym, description, people, meta: { * } };
 	`
 	args, _ := json.Marshal(inst)
-	if err := db.Execute(context.Background(), query, args); err != nil {
-		return err
+	var updated Institution
+	err := db.QuerySingle(context.Background(), query, &updated, args)
+	logrus.Debugf("Updated institution : %+v", updated)
+	if err != nil {
+		return nil, err
 	}
-	return nil
+	return &updated, nil
 }
 
 func (inst *Institution) Delete(db *edgedb.Client) error {

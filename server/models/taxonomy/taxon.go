@@ -51,9 +51,9 @@ func (m *TaxonRank) UnmarshalEdgeDBStr(data []byte) error {
 }
 
 type Taxon struct {
-	GBIF_ID    edgedb.OptionalInt32 `edgedb:"GBIF_ID" example:"2206247" validate:"numeric"`
+	GBIF_ID    edgedb.OptionalInt32 `edgedb:"GBIF_ID" json:"GBIF_ID" example:"2206247" validate:"numeric"`
 	Name       string               `edgedb:"name" json:"name" example:"Asellus aquaticus" validate:"required, alpha" validatePatch:"alpha"`
-	Code       string               `edgedb:"code" json:"code" example:"ASEaquaticus"`
+	Code       string               `edgedb:"code" json:"code" example:"ASEaquaticus" binding:"required"`
 	Status     TaxonStatus          `edgedb:"status" json:"status" example:"Accepted" validate:"required"`
 	Authorship edgedb.OptionalStr   `edgedb:"authorship" json:"authorship" example:"(Linnaeus, 1758)"`
 	Rank       TaxonRank            `edgedb:"rank" json:"rank" example:"Species" validate:"required"`
@@ -61,7 +61,7 @@ type Taxon struct {
 
 // @tags taxonomy
 type TaxonDB struct {
-	ID     edgedb.UUID `edgedb:"id" json:"id" example:"<UUID>"`
+	ID     edgedb.UUID `edgedb:"id" json:"id" example:"<UUID>" binding:"required"`
 	Taxon  `edgedb:"$inline"`
 	Anchor bool        `edgedb:"anchor" json:"anchor"`
 	Meta   models.Meta `edgedb:"meta" json:"meta"`

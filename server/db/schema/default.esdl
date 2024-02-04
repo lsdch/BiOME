@@ -34,23 +34,23 @@ module default {
   }
 
   type Meta {
-    annotation title := "Tracking of data changes";
+    annotation title := "Tracking data modifications";
 
     required created: datetime {
-      default := datetime_of_statement();
+      default := datetime_of_statement()
     };
     # required created_by: people::Person {
     #   default := (select people::Person filter .user.id = global current_user_id);
     # };
 
-    modified: datetime {
-      rewrite update using (datetime_of_statement())
-    };
+    modified: datetime;
     # modified_by: people::Person {
     #   rewrite update using (
     #     select people::Person filter .user.id = global current_user_id
     #   )
     # };
+
+    property lastUpdated := (.modified ?? .created);
   }
 
   abstract type Auditable {
@@ -61,15 +61,10 @@ module default {
       on source delete delete target;
       on target delete restrict;
       default := (insert Meta {});
-      rewrite update using (update .meta set { created := .created });
+      rewrite update using (
+        select (update .meta set { modified := datetime_of_statement() }) { * }
+      );
     }
-
-    # required created: datetime {
-    #   default := datetime_of_statement()
-    # }
-    # modified: datetime {
-    #   rewrite update using (datetime_of_statement())
-    # }
   }
 
   abstract type Vocabulary {
@@ -907,7 +902,7 @@ module datasets {
 
 module people {
 
-  type Institution {
+  type Institution extending default::Auditable {
     required name: str {
       constraint exclusive;
       constraint min_len_value(10);
@@ -922,7 +917,7 @@ module people {
     multi link people := .<institution[is Person];
   }
 
-  type Person {
+  type Person extending default::Auditable {
     required first_name: str {
       constraint min_len_value(2);
       constraint max_len_value(32);

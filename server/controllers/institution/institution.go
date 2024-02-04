@@ -46,7 +46,7 @@ func Create(ctx *gin.Context, db *edgedb.Client) {
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 	}
-	ctx.JSON(http.StatusAccepted, created)
+	ctx.JSON(http.StatusAccepted, *created)
 }
 
 // @Summary Delete institution
@@ -86,8 +86,11 @@ func Update(ctx *gin.Context, db *edgedb.Client) {
 		ctx.Error(err)
 		return
 	}
-	if err := inst.Update(db); err != nil {
+	updated, err := inst.Update(db)
+	if err != nil {
+		logrus.Errorf("Institution update error : %v", err)
 		ctx.AbortWithStatus(http.StatusInternalServerError)
+		return
 	}
-	ctx.JSON(http.StatusAccepted, inst)
+	ctx.JSON(http.StatusAccepted, *updated)
 }

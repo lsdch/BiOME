@@ -76,6 +76,8 @@ definitions:
       id:
         example: <UUID>
         type: string
+      meta:
+        $ref: '#/definitions/Meta'
       name:
         example: Mos Eisley Laboratory of Environmental Studies
         maxLength: 128
@@ -88,6 +90,7 @@ definitions:
     required:
     - acronym
     - id
+    - meta
     - name
     type: object
   InstitutionInput:
@@ -131,9 +134,14 @@ definitions:
       created:
         example: "2023-09-01T16:41:10.921097+00:00"
         type: string
+      last_updated:
+        example: "2023-09-02T20:39:10.218057+00:00"
+        type: string
       modified:
         example: "2023-09-02T20:39:10.218057+00:00"
         type: string
+    required:
+    - created
     type: object
   PasswordInput:
     properties:
@@ -191,15 +199,15 @@ definitions:
     - ResendAlreadyVerified
   Taxon:
     properties:
+      GBIF_ID:
+        example: 2206247
+        type: integer
       authorship:
         example: (Linnaeus, 1758)
         type: string
       code:
         example: ASEaquaticus
         type: string
-      gbif_ID:
-        example: 2206247
-        type: integer
       name:
         example: Asellus aquaticus
         type: string
@@ -212,12 +220,16 @@ definitions:
         - $ref: '#/definitions/TaxonStatus'
         example: Accepted
     required:
+    - code
     - name
     - rank
     - status
     type: object
   TaxonDB:
     properties:
+      GBIF_ID:
+        example: 2206247
+        type: integer
       anchor:
         type: boolean
       authorship:
@@ -226,9 +238,6 @@ definitions:
       code:
         example: ASEaquaticus
         type: string
-      gbif_ID:
-        example: 2206247
-        type: integer
       id:
         example: <UUID>
         type: string
@@ -246,21 +255,23 @@ definitions:
         - $ref: '#/definitions/TaxonStatus'
         example: Accepted
     required:
+    - code
+    - id
     - name
     - rank
     - status
     type: object
   TaxonInput:
     properties:
+      GBIF_ID:
+        example: 2206247
+        type: integer
       authorship:
         example: (Linnaeus, 1758)
         type: string
       code:
         example: ASEaquaticus
         type: string
-      gbif_ID:
-        example: 2206247
-        type: integer
       name:
         example: Asellus aquaticus
         type: string
@@ -275,6 +286,7 @@ definitions:
         - $ref: '#/definitions/TaxonStatus'
         example: Accepted
     required:
+    - code
     - name
     - rank
     - status
@@ -309,6 +321,9 @@ definitions:
     - Unclassified
   TaxonWithRelatives:
     properties:
+      GBIF_ID:
+        example: 2206247
+        type: integer
       anchor:
         type: boolean
       authorship:
@@ -321,9 +336,6 @@ definitions:
       code:
         example: ASEaquaticus
         type: string
-      gbif_ID:
-        example: 2206247
-        type: integer
       id:
         example: <UUID>
         type: string
@@ -334,6 +346,9 @@ definitions:
         type: string
       parent:
         properties:
+          GBIF_ID:
+            example: 2206247
+            type: integer
           anchor:
             type: boolean
           authorship:
@@ -342,9 +357,6 @@ definitions:
           code:
             example: ASEaquaticus
             type: string
-          gbif_ID:
-            example: 2206247
-            type: integer
           id:
             example: <UUID>
             type: string
@@ -362,6 +374,8 @@ definitions:
             - $ref: '#/definitions/TaxonStatus'
             example: Accepted
         required:
+        - code
+        - id
         - name
         - rank
         - status
@@ -375,6 +389,8 @@ definitions:
         - $ref: '#/definitions/TaxonStatus'
         example: Accepted
     required:
+    - code
+    - id
     - name
     - rank
     - status

@@ -860,6 +860,7 @@
             "required": [
                 "acronym",
                 "id",
+                "meta",
                 "name"
             ],
             "properties": {
@@ -876,6 +877,9 @@
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
+                },
+                "meta": {
+                    "$ref": "#/definitions/Meta"
                 },
                 "name": {
                     "type": "string",
@@ -942,10 +946,17 @@
         },
         "Meta": {
             "type": "object",
+            "required": [
+                "created"
+            ],
             "properties": {
                 "created": {
                     "type": "string",
                     "example": "2023-09-01T16:41:10.921097+00:00"
+                },
+                "last_updated": {
+                    "type": "string",
+                    "example": "2023-09-02T20:39:10.218057+00:00"
                 },
                 "modified": {
                     "type": "string",
@@ -1032,11 +1043,16 @@
         "Taxon": {
             "type": "object",
             "required": [
+                "code",
                 "name",
                 "rank",
                 "status"
             ],
             "properties": {
+                "GBIF_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
                 "authorship": {
                     "type": "string",
                     "example": "(Linnaeus, 1758)"
@@ -1044,10 +1060,6 @@
                 "code": {
                     "type": "string",
                     "example": "ASEaquaticus"
-                },
-                "gbif_ID": {
-                    "type": "integer",
-                    "example": 2206247
                 },
                 "name": {
                     "type": "string",
@@ -1074,11 +1086,17 @@
         "TaxonDB": {
             "type": "object",
             "required": [
+                "code",
+                "id",
                 "name",
                 "rank",
                 "status"
             ],
             "properties": {
+                "GBIF_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
                 "anchor": {
                     "type": "boolean"
                 },
@@ -1089,10 +1107,6 @@
                 "code": {
                     "type": "string",
                     "example": "ASEaquaticus"
-                },
-                "gbif_ID": {
-                    "type": "integer",
-                    "example": 2206247
                 },
                 "id": {
                     "type": "string",
@@ -1126,11 +1140,16 @@
         "TaxonInput": {
             "type": "object",
             "required": [
+                "code",
                 "name",
                 "rank",
                 "status"
             ],
             "properties": {
+                "GBIF_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
                 "authorship": {
                     "type": "string",
                     "example": "(Linnaeus, 1758)"
@@ -1138,10 +1157,6 @@
                 "code": {
                     "type": "string",
                     "example": "ASEaquaticus"
-                },
-                "gbif_ID": {
-                    "type": "integer",
-                    "example": 2206247
                 },
                 "name": {
                     "type": "string",
@@ -1205,11 +1220,17 @@
         "TaxonWithRelatives": {
             "type": "object",
             "required": [
+                "code",
+                "id",
                 "name",
                 "rank",
                 "status"
             ],
             "properties": {
+                "GBIF_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
                 "anchor": {
                     "type": "boolean"
                 },
@@ -1227,10 +1248,6 @@
                     "type": "string",
                     "example": "ASEaquaticus"
                 },
-                "gbif_ID": {
-                    "type": "integer",
-                    "example": 2206247
-                },
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
@@ -1245,11 +1262,17 @@
                 "parent": {
                     "type": "object",
                     "required": [
+                        "code",
+                        "id",
                         "name",
                         "rank",
                         "status"
                     ],
                     "properties": {
+                        "GBIF_ID": {
+                            "type": "integer",
+                            "example": 2206247
+                        },
                         "anchor": {
                             "type": "boolean"
                         },
@@ -1260,10 +1283,6 @@
                         "code": {
                             "type": "string",
                             "example": "ASEaquaticus"
-                        },
-                        "gbif_ID": {
-                            "type": "integer",
-                            "example": 2206247
                         },
                         "id": {
                             "type": "string",

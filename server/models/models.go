@@ -10,9 +10,10 @@ import (
 )
 
 type Meta struct {
-	ID       edgedb.UUID             `edgedb:"id" json:"-" swaggerignore:"true"`
-	Created  time.Time               `edgedb:"created" json:"created" example:"2023-09-01T16:41:10.921097+00:00"`
-	Modified edgedb.OptionalDateTime `edgedb:"modified" json:"modified" example:"2023-09-02T20:39:10.218057+00:00"`
+	ID          edgedb.UUID             `edgedb:"id" json:"-" swaggerignore:"true"`
+	Created     time.Time               `edgedb:"created" json:"created" example:"2023-09-01T16:41:10.921097+00:00" binding:"required"`
+	Modified    edgedb.OptionalDateTime `edgedb:"modified" json:"modified" example:"2023-09-02T20:39:10.218057+00:00"`
+	LastUpdated time.Time               `edgedb:"lastUpdated" json:"last_updated" example:"2023-09-02T20:39:10.218057+00:00"`
 } // @name Meta
 
 func StructToMap(val interface{}) map[string]interface{} {
