@@ -9,6 +9,7 @@
     show-expand
     v-model:sort-by="sortBy"
     must-sort
+    :items-per-page-options="[5, 10, 20]"
   >
     <template v-slot:top>
       <TableToolbar
