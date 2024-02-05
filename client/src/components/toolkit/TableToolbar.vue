@@ -11,9 +11,7 @@
 
     <v-toolbar-title style="min-width: 150px">{{ title }}</v-toolbar-title>
 
-    <slot v-if="smAndUp && !togglableSearch" name="search" class="flex-grow-1">
-      <CRUDTableSearchBar v-model="searchTerm" />
-    </slot>
+    <slot v-if="smAndUp && !togglableSearch" name="search" class="flex-grow-1"> </slot>
 
     <v-spacer />
     <v-btn
@@ -81,7 +79,7 @@ const toggleSearch = ref(false)
 
 const items = defineModel<ItemType[]>({ required: true })
 
-const searchTerm = ref()
+const searchTerm = defineModel<string>('search')
 
 type Props = ToolbarProps<ItemType> & {
   deleteRequest: (item: ItemType) => CancelablePromise<any>

@@ -15,6 +15,7 @@
       <TableToolbar
         ref="toolbar"
         v-model="items"
+        v-model:search="searchTerm"
         v-bind="toolbarProps"
         :delete-request="crud.delete"
       >
@@ -31,7 +32,9 @@
           </v-tooltip>
         </template>
         <template v-slot:search>
-          <slot name="search"></slot>
+          <slot name="search">
+            <CRUDTableSearchBar v-model="searchTerm" />
+          </slot>
         </template>
       </TableToolbar>
     </template>
@@ -79,6 +82,7 @@ import { CancelablePromise, Meta } from '@/api'
 import { Ref, computed, onMounted, ref, useSlots } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { type VDataTable } from 'vuetify/components'
+import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import ItemDateChip from './ItemDateChip.vue'
 import TableToolbar from './TableToolbar.vue'
 import { TableProps } from './table'
