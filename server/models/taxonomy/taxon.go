@@ -51,12 +51,12 @@ func (m *TaxonRank) UnmarshalEdgeDBStr(data []byte) error {
 }
 
 type Taxon struct {
-	GBIF_ID    edgedb.OptionalInt32 `edgedb:"GBIF_ID" json:"GBIF_ID" example:"2206247" validate:"numeric"`
-	Name       string               `edgedb:"name" json:"name" example:"Asellus aquaticus" validate:"required, alpha" validatePatch:"alpha"`
+	GBIF_ID    edgedb.OptionalInt32 `edgedb:"GBIF_ID" json:"GBIF_ID" example:"2206247" binding:"numeric"`
+	Name       string               `edgedb:"name" json:"name" example:"Asellus aquaticus" binding:"required, alpha"`
 	Code       string               `edgedb:"code" json:"code" example:"ASEaquaticus" binding:"required"`
-	Status     TaxonStatus          `edgedb:"status" json:"status" example:"Accepted" validate:"required"`
+	Status     TaxonStatus          `edgedb:"status" json:"status" example:"Accepted" binding:"required"`
 	Authorship edgedb.OptionalStr   `edgedb:"authorship" json:"authorship" example:"(Linnaeus, 1758)"`
-	Rank       TaxonRank            `edgedb:"rank" json:"rank" example:"Species" validate:"required"`
+	Rank       TaxonRank            `edgedb:"rank" json:"rank" example:"Species" binding:"required"`
 } // @name Taxon
 
 // @tags taxonomy
@@ -76,10 +76,11 @@ type TaxonSelect struct {
 	Children []TaxonDB `edgedb:"children" json:"children,omitempty"`
 } // @name TaxonWithRelatives
 
-type TaxonInput struct {
+type TaxonUpdate struct {
+	ID     edgedb.UUID `json:"id" example:"<UUID>" binding:"required"`
 	Taxon  `edgedb:"$inline"`
-	Parent string `edgedb:"parent"`
-} // @name TaxonInput
+	Parent edgedb.UUID `json:"parent" edgedb:"parent"`
+} // @name TaxonUpdate
 
 func ListTaxa(pattern string, rank TaxonRank, status TaxonStatus) ([]TaxonDB, error) {
 	var taxa = make([]TaxonDB, 0)
@@ -107,14 +108,13 @@ func ListTaxa(pattern string, rank TaxonRank, status TaxonStatus) ([]TaxonDB, er
 	return taxa, err
 }
 
-func GetAnchorTaxa() (taxa []TaxonDB, err error) {
+func ListAnchorTaxa() (taxa []TaxonDB, err error) {
 	query := "select taxonomy::Taxon { *, meta: { ** } } filter .anchor"
 	err = models.DB().Query(context.Background(), query, &taxa)
 	return
 }
 
-func GetTaxon(code string) (*TaxonSelect, error) {
-	taxon := &TaxonSelect{}
+func FindByCode(db *edgedb.Client, code string) (taxon TaxonSelect, err error) {
 	query := `
 		select taxonomy::Taxon { *,
 			parent : { * , meta: { ** }},
@@ -122,23 +122,20 @@ func GetTaxon(code string) (*TaxonSelect, error) {
 		}
 		filter .code = <str>$0;
 	`
-	err := models.DB().QuerySingle(context.Background(), query, taxon, code)
+	err = db.QuerySingle(context.Background(), query, &taxon, code)
 	return taxon, err
 }
 
-func DeleteTaxon(code string) (taxon TaxonDB, err error) {
+func Delete(code string) error {
 	query := "delete taxonomy::Taxon filter .code = <str>$0;"
-	err = models.DB().QuerySingle(context.Background(), query, &taxon, code)
-	return
+	return models.DB().Execute(context.Background(), query, code)
 }
 
-//go:embed update_taxon.edgeql
+//go:embed queries/update_taxon.edgeql
 var updateTaxonCmd string
 
-func UpdateTaxon(code string, taxon TaxonInput) (TaxonSelect, error) {
-	res := TaxonSelect{}
+func (taxon TaxonSelect) Update(db *edgedb.Client) (updated TaxonSelect, err error) {
 	args := models.StructToMap(taxon)
-	args["target"] = code
-	err := models.DB().QuerySingle(context.Background(), updateTaxonCmd, &res, args)
-	return res, err
+	err = models.DB().QuerySingle(context.Background(), updateTaxonCmd, &updated, args)
+	return updated, err
 }

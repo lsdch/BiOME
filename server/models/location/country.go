@@ -33,7 +33,7 @@ type Country struct {
 func List() (countries []Country, err error) {
 	query := `select
 		location::Country {
-			id, name, code, nb_localities := count(.localities)
+			*, nb_localities := count(.localities)
 		}
 		order by (exists .localities) desc then .name asc;`
 	err = models.DB().Query(context.Background(), query, &countries)

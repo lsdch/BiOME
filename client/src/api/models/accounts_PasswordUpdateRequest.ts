@@ -2,10 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-
 import type { PasswordInput } from './PasswordInput';
 import type { UserCredentials } from './UserCredentials';
-
 export type accounts_PasswordUpdateRequest = {
     credentials: UserCredentials;
     password: PasswordInput;

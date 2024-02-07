@@ -1,10 +1,12 @@
 package taxonomy
 
 import (
+	"darco/proto/models"
 	"darco/proto/models/taxonomy"
 	"io"
 	"net/http"
 
+	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
@@ -99,7 +101,7 @@ type ImportRequestGBIF struct {
 func ImportCladeGBIF() Controller {
 	var stream = NewServer()
 
-	endpoint := func(c *gin.Context) {
+	endpoint := func(c *gin.Context, db *edgedb.Client) {
 		target := ImportRequestGBIF{}
 		err := c.BindJSON(&target)
 		log.Debugf("Received GBIF import request : %v", target)
@@ -111,10 +113,8 @@ func ImportCladeGBIF() Controller {
 			go stream.listen()
 		}
 
-		if err := taxonomy.ImportTaxon(target.Key, stream.monitor); err != nil {
-			c.Error(err)
-			return
-		}
+		log.Infof("Started import of taxon : [GBIF %d]", target.Key)
+		go taxonomy.ImportTaxon(db, target.Key, stream.monitor)
 
 		c.JSON(http.StatusAccepted, nil)
 	}
@@ -143,7 +143,7 @@ func ImportCladeGBIF() Controller {
 	}
 
 	return Controller{
-		Endpoint:        endpoint,
+		Endpoint:        models.WithDB(endpoint),
 		ProgressTracker: tracker,
 	}
 }

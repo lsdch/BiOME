@@ -2,7 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type EmailInput = {
-    email: string;
+export type PersonUpdate = {
+    contact?: string;
+    first_name?: string;
+    id?: string;
+    last_name?: string;
 };
 

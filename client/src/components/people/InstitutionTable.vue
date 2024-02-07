@@ -3,24 +3,24 @@
     :headers="headers"
     density="compact"
     :crud="{
-      list: PeopleService.getPeopleInstitutions,
+      list: PeopleService.listInstitutions,
       create: PeopleService.createInstitution,
-      update: PeopleService.updateInstitution,
-      delete: (inst: Institution) => PeopleService.deleteInstitution(inst.acronym)
+      update: (inst: Institution) => PeopleService.updateInstitution(inst.code, inst),
+      delete: (inst: Institution) => PeopleService.deleteInstitution(inst.code)
     }"
     :toolbar-props="{
       title: 'Institutions',
       entityName: 'Institution',
       form: InstitutionForm,
       icon: 'mdi-domain',
-      itemRepr: (inst) => inst.acronym
+      itemRepr: (inst) => inst.code
     }"
     show-actions
     icon="mdi-domain"
-    :filter-keys="['acronym', 'name']"
+    :filter-keys="['code', 'name']"
   >
-    <template v-slot:[`item.acronym`]="{ item }">
-      <code>{{ item.acronym }}</code>
+    <template v-slot:[`item.code`]="{ item }">
+      <code>{{ item.code }}</code>
     </template>
     <template v-slot:[`item.people`]="{ value, toggleExpand, internalItem }">
       <v-btn
@@ -34,30 +34,19 @@
       </v-btn>
     </template>
     <template v-slot:expanded-row-inject="{ item }">
-      <!-- <tr class="pb-5">
-        <td :colspan="columns.length">
-          <div class="d-flex">
-            <div class="flex-grow-0 mr-5">
-              <ItemMetaInfos v-if="item.meta" :meta="item.meta" />
-            </div>
-            <v-divider vertical></v-divider -->
-      <v-container>
-        <v-row>
-          <v-col>
-            <v-list v-if="item.people?.length" lines="one">
-              <v-list-item
-                v-for="person in item.people"
-                :key="person.id"
-                :title="person.full_name"
-              />
-            </v-list>
-            <span v-else>No people registered in this institution.</span>
-          </v-col>
-        </v-row>
-      </v-container>
-      <!-- </div>
-        </td>
-      </tr> -->
+      <v-card flat :min-width="300">
+        <v-list lines="one" density="compact" prepend-icon="mdi-account">
+          <v-list-subheader>
+            {{ item.people?.length ? 'PEOPLE' : 'No people registered in this institution.' }}
+          </v-list-subheader>
+          <v-list-item
+            v-for="person in item.people"
+            :key="person.id"
+            :subtitle="person.full_name"
+          />
+        </v-list>
+      </v-card>
+      <v-divider vertical />
     </template>
   </CRUDTable>
 </template>
@@ -69,7 +58,7 @@ import InstitutionForm from './InstitutionForm.vue'
 import CRUDTable from '@/components/toolkit/CRUDTable.vue'
 
 const headers: ReadonlyHeaders = [
-  { title: 'Short name', key: 'acronym' },
+  { title: 'Short name', key: 'code' },
   { title: 'Name', key: 'name' },
   { title: 'Description', key: 'description', sortable: false },
   { title: 'People', key: 'people', align: 'center' },

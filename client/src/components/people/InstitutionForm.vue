@@ -16,12 +16,12 @@
       <v-row class="mb-3">
         <v-text-field
           name="institution_shortname"
-          label="Acronym or abbreviated name"
+          label="Code or abbreviated name"
           id="institution-shortname"
-          hint="A short label or acronym that identifies your lab."
+          hint="A short label or code that identifies your lab."
           persistent-hint
-          v-model="inst.acronym"
-          :error-messages="errors?.acronym?.map(({ message }) => message)"
+          v-model="inst.code"
+          :error-messages="errors?.code?.map(({ message }) => message)"
         />
       </v-row>
       <v-row class="mb-3">
@@ -56,14 +56,14 @@ const inst: Ref<InstitutionInput> = ref(
     ? { ...props.edit }
     : {
         name: '',
-        acronym: '',
+        code: '',
         description: ''
       }
 )
 
 function request() {
   if (props.edit) {
-    return PeopleService.updateInstitution({ ...props.edit, ...inst.value })
+    return PeopleService.updateInstitution(props.edit.code, inst.value)
   } else {
     return PeopleService.createInstitution(inst.value)
   }

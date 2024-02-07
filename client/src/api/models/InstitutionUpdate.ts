@@ -2,7 +2,9 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type EmailInput = {
-    email: string;
+export type InstitutionUpdate = {
+    code?: string;
+    description?: string;
+    name?: string;
 };
 

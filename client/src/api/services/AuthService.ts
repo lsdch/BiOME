@@ -7,13 +7,10 @@ import type { PasswordInput } from '../models/PasswordInput';
 import type { TokenResponse } from '../models/TokenResponse';
 import type { UserCredentials } from '../models/UserCredentials';
 import type { UserInput } from '../models/UserInput';
-
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-
 export class AuthService {
-
     /**
      * Authenticate user
      * Authenticate user with their credentials and set a JWT.
@@ -34,7 +31,6 @@ export class AuthService {
             },
         });
     }
-
     /**
      * Logout user
      * Log out currently authenticated user
@@ -47,7 +43,6 @@ export class AuthService {
             url: '/logout',
         });
     }
-
     /**
      * Email confirmation
      * Confirms a user email using a token
@@ -70,7 +65,6 @@ export class AuthService {
             },
         });
     }
-
     /**
      * Resend confirmation email
      * Send again the confirmation email
@@ -90,7 +84,6 @@ export class AuthService {
             },
         });
     }
-
     /**
      * Request a password reset token
      * A token to reset the password associated to the provided email address is sent, unless the address is not known in the DB.
@@ -110,7 +103,6 @@ export class AuthService {
             },
         });
     }
-
     /**
      * Set account password
      * Sets a new password for the currently authenticated user
@@ -132,7 +124,6 @@ export class AuthService {
             },
         });
     }
-
     /**
      * Verify that a password token is valid
      * @param token Password reset token
@@ -153,7 +144,6 @@ export class AuthService {
             },
         });
     }
-
     /**
      * Reset account password
      * Resets a user's password using a token sent to their email address.
@@ -179,7 +169,6 @@ export class AuthService {
             },
         });
     }
-
     /**
      * Register user
      * Register a new user account, that is inactive (until email is verified or admin intervention), and has role 'Guest'
@@ -199,7 +188,6 @@ export class AuthService {
             },
         });
     }
-
     /**
      * Delete a user
      * Deletes a user
@@ -216,5 +204,4 @@ export class AuthService {
             },
         });
     }
-
 }

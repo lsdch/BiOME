@@ -4,6 +4,7 @@ import (
 	"darco/proto/config"
 	"darco/proto/controllers/institution"
 	country "darco/proto/controllers/location"
+	"darco/proto/controllers/person"
 	"darco/proto/controllers/taxonomy"
 	accounts "darco/proto/controllers/users"
 	"darco/proto/middlewares"
@@ -60,13 +61,13 @@ func setupRouter() *gin.Engine {
 
 	taxonomy_api := api.Group("/taxonomy")
 	taxonomy_api.GET("/", taxonomy.ListTaxa)
-	taxonomy_api.GET("/:code", taxonomy.GetTaxon)
-	taxonomy_api.DELETE("/:code", taxonomy.DeleteTaxon)
-	taxonomy_api.PATCH("/:code", taxonomy.UpdateTaxon)
+	taxonomy_api.GET("/:code", models.WithDB(taxonomy.GetTaxon))
+	taxonomy_api.DELETE("/:code", models.WithDB(taxonomy.DeleteTaxon))
+	taxonomy_api.PATCH("/:code", models.WithDB(taxonomy.UpdateTaxon))
 	importGBIF := taxonomy.ImportCladeGBIF()
 	taxonomy_api.PUT("/import", importGBIF.Endpoint)
 	taxonomy_api.GET("/import", importGBIF.ProgressTracker)
-	taxonomy_api.GET("/anchors", taxonomy.GetAnchors)
+	taxonomy_api.GET("/anchors", taxonomy.ListAnchors)
 
 	api.POST("/login", models.WithDB(accounts.Login))
 	api.POST("/logout", accounts.Logout)
@@ -80,10 +81,16 @@ func setupRouter() *gin.Engine {
 	users_api.GET("/password-reset/:token", accounts.ValidatePasswordToken)
 
 	people_api := api.Group("/people")
-	people_api.GET("/institutions", institution.List)
-	people_api.POST("/institutions", models.WithDB(institution.Create))
-	people_api.DELETE("/institutions/:acronym", models.WithDB(institution.Delete))
-	people_api.PATCH("/institutions/", models.WithDB(institution.Update))
+	people_api.GET("/", models.WithDB(person.List))
+
+	institution_api := people_api.Group("/institutions")
+	institution_api.GET("/", models.WithDB(institution.List))
+	institution_api.POST("/", models.WithDB(institution.Create))
+	institution_api.DELETE("/:code", models.WithDB(institution.Delete))
+	institution_api.PATCH("/:code", models.WithDB(institution.Update))
+
+	person_api := people_api.Group("/persons")
+	person_api.DELETE("/:id", models.WithDB(person.Delete))
 
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:

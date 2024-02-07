@@ -3,15 +3,12 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { TaxonDB } from '../models/TaxonDB';
-import type { TaxonInput } from '../models/TaxonInput';
+import type { TaxonUpdate } from '../models/TaxonUpdate';
 import type { TaxonWithRelatives } from '../models/TaxonWithRelatives';
-
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-
 export class TaxonomyService {
-
     /**
      * List taxa
      * Lists taxa, optionally filtered by name, rank and status
@@ -36,7 +33,6 @@ export class TaxonomyService {
             },
         });
     }
-
     /**
      * List anchor taxa
      * Anchors are taxa that were imported as the root of a subtree in the taxonomy.
@@ -49,7 +45,6 @@ export class TaxonomyService {
             url: '/taxonomy/anchors',
         });
     }
-
     /**
      * Import GBIF clade
      * Imports a clade from the GBIF taxonomy, using a its GBIF ID
@@ -72,7 +67,6 @@ export class TaxonomyService {
             },
         });
     }
-
     /**
      * Get a taxon by its code
      * @param code Taxon code
@@ -93,7 +87,6 @@ export class TaxonomyService {
             },
         });
     }
-
     /**
      * Delete a taxon by its code
      * @param code Taxon code
@@ -115,7 +108,6 @@ export class TaxonomyService {
             },
         });
     }
-
     /**
      * Update a taxon by its code
      * @param code Taxon code
@@ -125,7 +117,7 @@ export class TaxonomyService {
      */
     public static updateTaxon(
         code: string,
-        data: TaxonInput,
+        data: TaxonUpdate,
     ): CancelablePromise<TaxonWithRelatives> {
         return __request(OpenAPI, {
             method: 'PATCH',
@@ -140,5 +132,4 @@ export class TaxonomyService {
             },
         });
     }
-
 }

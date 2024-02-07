@@ -2,7 +2,6 @@ package taxonomy
 
 import (
 	"context"
-	"darco/proto/models"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -12,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/edgedb/edgedb-go"
@@ -72,11 +72,13 @@ func (p *ProgressTracker) Report() {
 
 func (p *ProgressTracker) Progress(n int) {
 	p.process.Imported += n
+	logrus.Debugf("Progress")
 	p.Report()
 }
 
 func (p *ProgressTracker) Errorf(format string, a ...any) error {
 	p.process.Error = fmt.Errorf(format, a...)
+	logrus.Debugf(format, a...)
 	p.Report()
 	return p.process.Error
 }
@@ -150,7 +152,7 @@ var jsonDB = jsoniter.Config{
 	TagKey:                 "edgedb",
 }.Froze()
 
-//go:embed upsert_anchor.edgeql
+//go:embed queries/upsert_anchor.edgeql
 var upsertTaxonCmd string
 
 func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
@@ -160,18 +162,16 @@ func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
 	}).([]TaxonGBIF)
 
 	ctx := context.Background()
-	err = models.DB().Tx(ctx, func(ctx context.Context, tx *edgedb.Tx) (err error) {
-		for _, taxon := range taxa {
-			log.Debugf("Inserting taxon from GBIF %+v", &taxon)
-			args, _ := jsonDB.Marshal(&taxon)
-			if err = tx.Execute(ctx, upsertTaxonCmd, args); err != nil {
-				return
-			} else {
-				n++
-			}
+
+	for _, taxon := range taxa {
+		log.Debugf("Inserting taxon from GBIF %+v", &taxon)
+		args, _ := jsonDB.Marshal(&taxon)
+		if err = tx.Execute(ctx, upsertTaxonCmd, args); err != nil {
+			return
+		} else {
+			n++
 		}
-		return
-	})
+	}
 	return
 }
 
@@ -249,23 +249,21 @@ func fetchTaxon(GBIF_ID int) (taxon TaxonGBIF, err error) {
 	return
 }
 
-func ImportTaxon(GBIF_ID int, monitor func(p *ImportProcess)) (err error) {
+func ImportTaxon(db *edgedb.Client, GBIF_ID int, monitor func(p *ImportProcess)) (err error) {
 
 	taxon, err := fetchTaxon(GBIF_ID)
 	if err != nil {
 		return
 	}
-	log.Infof("Started import of taxon : %s [GBIF %d]", taxon.Name, taxon.Key)
 
 	tracker := NewProgressTracker(&taxon, monitor)
 
-	go models.DB().Tx(context.Background(),
+	return db.Tx(context.Background(),
 		func(ctx context.Context, tx *edgedb.Tx) error {
 			parents, err := fetchParents(GBIF_ID)
 			if err != nil {
 				return tracker.Errorf("failed to fetch parent taxa of %s[%d] from GBIF\n%w", taxon.Name, taxon.Key, err)
 			}
-
 			insert_count, err := upsertTaxa(tx, append(parents, taxon))
 			if err != nil {
 				return tracker.Errorf("failed to insert a parent of taxon %s[%d] \n%w",
@@ -277,6 +275,4 @@ func ImportTaxon(GBIF_ID int, monitor func(p *ImportProcess)) (err error) {
 			tracker.Terminate()
 			return nil
 		})
-
-	return err
 }

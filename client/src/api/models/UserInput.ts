@@ -2,9 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-
 import type { PersonInput } from './PersonInput';
-
 export type UserInput = {
     email: string;
     /**

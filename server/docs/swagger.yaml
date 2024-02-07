@@ -65,7 +65,7 @@ definitions:
     type: object
   Institution:
     properties:
-      acronym:
+      code:
         example: MELES
         maxLength: 12
         minLength: 2
@@ -88,14 +88,14 @@ definitions:
           $ref: '#/definitions/Person'
         type: array
     required:
-    - acronym
+    - code
     - id
     - meta
     - name
     type: object
   InstitutionInput:
     properties:
-      acronym:
+      code:
         example: MELES
         maxLength: 12
         minLength: 2
@@ -109,8 +109,24 @@ definitions:
         minLength: 10
         type: string
     required:
-    - acronym
+    - code
     - name
+    type: object
+  InstitutionUpdate:
+    properties:
+      code:
+        example: MELES
+        maxLength: 12
+        minLength: 2
+        type: string
+      description:
+        example: The main ecological research lab on Tatooine.
+        type: string
+      name:
+        example: Mos Eisley Laboratory of Environmental Studies
+        maxLength: 128
+        minLength: 10
+        type: string
     type: object
   LoginFailedError:
     properties:
@@ -169,9 +185,13 @@ definitions:
         maxLength: 32
         minLength: 2
         type: string
+      meta:
+        $ref: '#/definitions/Meta'
     required:
     - first_name
+    - full_name
     - last_name
+    - meta
     type: object
   PersonInput:
     properties:
@@ -188,6 +208,21 @@ definitions:
     required:
     - first_name
     - last_name
+    type: object
+  PersonUpdate:
+    properties:
+      contact:
+        type: string
+      first_name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      id:
+        type: string
+      last_name:
+        maxLength: 32
+        minLength: 2
+        type: string
     type: object
   ResendConfirmationError:
     enum:
@@ -234,36 +269,6 @@ definitions:
     - rank
     - status
     type: object
-  TaxonInput:
-    properties:
-      GBIF_ID:
-        example: 2206247
-        type: integer
-      authorship:
-        example: (Linnaeus, 1758)
-        type: string
-      code:
-        example: ASEaquaticus
-        type: string
-      name:
-        example: Asellus aquaticus
-        type: string
-      parent:
-        type: string
-      rank:
-        allOf:
-        - $ref: '#/definitions/TaxonRank'
-        example: Species
-      status:
-        allOf:
-        - $ref: '#/definitions/TaxonStatus'
-        example: Accepted
-    required:
-    - code
-    - name
-    - rank
-    - status
-    type: object
   TaxonRank:
     enum:
     - Kingdom
@@ -292,6 +297,40 @@ definitions:
     - Accepted
     - Synonym
     - Unclassified
+  TaxonUpdate:
+    properties:
+      GBIF_ID:
+        example: 2206247
+        type: integer
+      authorship:
+        example: (Linnaeus, 1758)
+        type: string
+      code:
+        example: ASEaquaticus
+        type: string
+      id:
+        example: <UUID>
+        type: string
+      name:
+        example: Asellus aquaticus
+        type: string
+      parent:
+        type: string
+      rank:
+        allOf:
+        - $ref: '#/definitions/TaxonRank'
+        example: Species
+      status:
+        allOf:
+        - $ref: '#/definitions/TaxonStatus'
+        example: Accepted
+    required:
+    - code
+    - id
+    - name
+    - rank
+    - status
+    type: object
   TaxonWithRelatives:
     properties:
       GBIF_ID:
@@ -539,6 +578,7 @@ paths:
       - Auth
   /people/institutions:
     get:
+      operationId: List Institutions
       responses:
         "200":
           description: OK
@@ -550,8 +590,6 @@ paths:
       tags:
       - People
     post:
-      consumes:
-      - application/json
       description: Register a new institution that people work in.
       operationId: CreateInstitution
       parameters:
@@ -561,11 +599,9 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/InstitutionInput'
-      produces:
-      - application/json
       responses:
-        "202":
-          description: Accepted
+        "201":
+          description: Created
           schema:
             $ref: '#/definitions/Institution'
         "400":
@@ -575,23 +611,40 @@ paths:
       summary: Create institution
       tags:
       - People
-  /people/institutions/:
+  /people/institutions/{code}:
+    delete:
+      operationId: DeleteInstitution
+      parameters:
+      - description: Institution short name
+        in: path
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Delete successful
+        "404":
+          description: Institution does not exist
+      summary: Delete institution
+      tags:
+      - People
     patch:
-      consumes:
-      - application/json
       operationId: UpdateInstitution
       parameters:
+      - description: Institution code
+        in: path
+        name: code
+        required: true
+        type: string
       - description: Institution informations
         in: body
         name: data
         required: true
         schema:
-          $ref: '#/definitions/Institution'
-      produces:
-      - application/json
+          $ref: '#/definitions/InstitutionUpdate'
       responses:
-        "202":
-          description: Accepted
+        "200":
+          description: OK
           schema:
             $ref: '#/definitions/Institution'
         "400":
@@ -601,31 +654,85 @@ paths:
       summary: Update institution
       tags:
       - People
-  /people/institutions/{acronym}:
-    delete:
-      consumes:
-      - application/json
-      operationId: DeleteInstitution
+  /people/persons:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/Person'
+            type: array
+      summary: List persons
+      tags:
+      - People
+    post:
+      description: Register a new person
+      operationId: Createperson
       parameters:
-      - description: Institution short name
+      - description: Created person
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/PersonInput'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Person'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/FieldErrors'
+      summary: Create person
+      tags:
+      - People
+  /people/persons/{id}:
+    delete:
+      operationId: Deleteperson
+      parameters:
+      - description: Item UUID
         in: path
-        name: acronym
+        name: id
         required: true
         type: string
-      produces:
-      - application/json
       responses:
-        "202":
-          description: Delete successful
+        "204":
+          description: Deleted item
         "404":
-          description: Institution does not exist
-      summary: Delete institution
+          description: person does not exist
+      summary: Delete person
+      tags:
+      - People
+    patch:
+      operationId: Updateperson
+      parameters:
+      - description: Item UUID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Update infos
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/PersonUpdate'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Person'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/FieldErrors'
+      summary: Update person
       tags:
       - People
   /taxonomy/:
     get:
-      consumes:
-      - application/json
       description: Lists taxa, optionally filtered by name, rank and status
       operationId: TaxonomyList
       parameters:
@@ -654,8 +761,6 @@ paths:
         in: query
         name: status
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: Get taxon success
@@ -668,8 +773,6 @@ paths:
       - Taxonomy
   /taxonomy/{code}:
     delete:
-      consumes:
-      - application/json
       operationId: DeleteTaxon
       parameters:
       - description: Taxon code
@@ -678,8 +781,6 @@ paths:
         name: code
         required: true
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: OK
@@ -691,8 +792,6 @@ paths:
       tags:
       - Taxonomy
     get:
-      consumes:
-      - application/json
       operationId: GetTaxon
       parameters:
       - description: Taxon code
@@ -701,8 +800,6 @@ paths:
         name: code
         required: true
         type: string
-      produces:
-      - application/json
       responses:
         "200":
           description: Get taxon success
@@ -714,8 +811,6 @@ paths:
       tags:
       - Taxonomy
     patch:
-      consumes:
-      - application/json
       operationId: UpdateTaxon
       parameters:
       - description: Taxon code
@@ -729,9 +824,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/TaxonInput'
-      produces:
-      - application/json
+          $ref: '#/definitions/TaxonUpdate'
       responses:
         "200":
           description: OK
@@ -746,13 +839,9 @@ paths:
       - Taxonomy
   /taxonomy/anchors:
     get:
-      consumes:
-      - application/json
       description: Anchors are taxa that were imported as the root of a subtree in
         the taxonomy.
       operationId: TaxonAnchors
-      produces:
-      - application/json
       responses:
         "200":
           description: Get anchor taxa list success

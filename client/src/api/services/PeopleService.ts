@@ -4,14 +4,15 @@
 /* eslint-disable */
 import type { Institution } from '../models/Institution';
 import type { InstitutionInput } from '../models/InstitutionInput';
+import type { InstitutionUpdate } from '../models/InstitutionUpdate';
+import type { Person } from '../models/Person';
+import type { PersonInput } from '../models/PersonInput';
+import type { PersonUpdate } from '../models/PersonUpdate';
 import type { User } from '../models/User';
-
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
-
 export class PeopleService {
-
     /**
      * Authenticated user details
      * Get details of currently authenticated user
@@ -27,24 +28,22 @@ export class PeopleService {
             },
         });
     }
-
     /**
      * List Institutions
      * @returns Institution OK
      * @throws ApiError
      */
-    public static getPeopleInstitutions(): CancelablePromise<Array<Institution>> {
+    public static listInstitutions(): CancelablePromise<Array<Institution>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/people/institutions',
         });
     }
-
     /**
      * Create institution
      * Register a new institution that people work in.
      * @param data Institution informations
-     * @returns Institution Accepted
+     * @returns Institution Created
      * @throws ApiError
      */
     public static createInstitution(
@@ -59,45 +58,120 @@ export class PeopleService {
             },
         });
     }
-
-    /**
-     * Update institution
-     * @param data Institution informations
-     * @returns Institution Accepted
-     * @throws ApiError
-     */
-    public static updateInstitution(
-        data: Institution,
-    ): CancelablePromise<Institution> {
-        return __request(OpenAPI, {
-            method: 'PATCH',
-            url: '/people/institutions/',
-            body: data,
-            errors: {
-                400: `Bad Request`,
-            },
-        });
-    }
-
     /**
      * Delete institution
-     * @param acronym Institution short name
+     * @param code Institution short name
      * @returns any Delete successful
      * @throws ApiError
      */
     public static deleteInstitution(
-        acronym: string,
+        code: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'DELETE',
-            url: '/people/institutions/{acronym}',
+            url: '/people/institutions/{code}',
             path: {
-                'acronym': acronym,
+                'code': code,
             },
             errors: {
                 404: `Institution does not exist`,
             },
         });
     }
-
+    /**
+     * Update institution
+     * @param code Institution code
+     * @param data Institution informations
+     * @returns Institution OK
+     * @throws ApiError
+     */
+    public static updateInstitution(
+        code: string,
+        data: InstitutionUpdate,
+    ): CancelablePromise<Institution> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/people/institutions/{code}',
+            path: {
+                'code': code,
+            },
+            body: data,
+            errors: {
+                400: `Bad Request`,
+            },
+        });
+    }
+    /**
+     * List persons
+     * @returns Person OK
+     * @throws ApiError
+     */
+    public static getPeoplePersons(): CancelablePromise<Array<Person>> {
+        return __request(OpenAPI, {
+            method: 'GET',
+            url: '/people/persons',
+        });
+    }
+    /**
+     * Create person
+     * Register a new person
+     * @param data Created person
+     * @returns Person Created
+     * @throws ApiError
+     */
+    public static createperson(
+        data: PersonInput,
+    ): CancelablePromise<Person> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/people/persons',
+            body: data,
+            errors: {
+                400: `Bad Request`,
+            },
+        });
+    }
+    /**
+     * Delete person
+     * @param id Item UUID
+     * @returns void
+     * @throws ApiError
+     */
+    public static deleteperson(
+        id: string,
+    ): CancelablePromise<void> {
+        return __request(OpenAPI, {
+            method: 'DELETE',
+            url: '/people/persons/{id}',
+            path: {
+                'id': id,
+            },
+            errors: {
+                404: `person does not exist`,
+            },
+        });
+    }
+    /**
+     * Update person
+     * @param id Item UUID
+     * @param data Update infos
+     * @returns Person OK
+     * @throws ApiError
+     */
+    public static updateperson(
+        id: string,
+        data: PersonUpdate,
+    ): CancelablePromise<Person> {
+        return __request(OpenAPI, {
+            method: 'PATCH',
+            url: '/people/persons/{id}',
+            path: {
+                'id': id,
+            },
+            body: data,
+            errors: {
+                400: `Bad Request`,
+            },
+        });
+    }
 }

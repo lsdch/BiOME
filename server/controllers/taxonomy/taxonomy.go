@@ -1,9 +1,11 @@
 package taxonomy
 
 import (
+	"darco/proto/controllers"
 	"darco/proto/models/taxonomy"
 	"net/http"
 
+	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
@@ -12,12 +14,10 @@ import (
 // @Description Anchors are taxa that were imported as the root of a subtree in the taxonomy.
 // @id TaxonAnchors
 // @tags Taxonomy
-// @Accept json
-// @Produce json
-// @Success 200 {array}  taxonomy.TaxonDB "Get anchor taxa list success"
+// @Success 200 {array} taxonomy.TaxonDB "Get anchor taxa list success"
 // @Router /taxonomy/anchors [get]
-func GetAnchors(ctx *gin.Context) {
-	anchors, err := taxonomy.GetAnchorTaxa()
+func ListAnchors(ctx *gin.Context) {
+	anchors, err := taxonomy.ListAnchorTaxa()
 	if err != nil {
 		ctx.Error(err).SetMeta(gin.H{
 			"msg": "Failed to fetch taxonomy data",
@@ -31,8 +31,6 @@ func GetAnchors(ctx *gin.Context) {
 // @Description Lists taxa, optionally filtered by name, rank and status
 // @id TaxonomyList
 // @tags Taxonomy
-// @Accept json
-// @Produce json
 // @Success 200 {array} taxonomy.TaxonSelect "Get taxon success"
 // @Router /taxonomy/ [get]
 // @Param pattern query string false "Name search pattern" minlength(2)
@@ -54,20 +52,16 @@ func ListTaxa(ctx *gin.Context) {
 // @Description
 // @id GetTaxon
 // @tags Taxonomy
-// @Accept json
-// @Produce json
 // @Success 200 {object}  taxonomy.TaxonSelect "Get taxon success"
 // @Failure 404
 // @Router /taxonomy/{code} [get]
 // @Param code path string true "Taxon code" minlength(3)
-func GetTaxon(ctx *gin.Context) {
+func GetTaxon(ctx *gin.Context, db *edgedb.Client) {
 	code := ctx.Param("code")
-	taxon, err := taxonomy.GetTaxon(code)
+	taxon, err := taxonomy.FindByCode(db, code)
 	if err != nil {
 		logrus.Debug(err)
 		ctx.Error(err)
-	} else if taxon == nil {
-		ctx.AbortWithStatus(http.StatusNotFound)
 	} else {
 		ctx.JSON(http.StatusOK, taxon)
 	}
@@ -77,44 +71,39 @@ func GetTaxon(ctx *gin.Context) {
 // @Description
 // @id DeleteTaxon
 // @tags Taxonomy
-// @Accept json
-// @Produce json
 // @Success 200
 // @Failure 403
 // @Failure 404
 // @Router /taxonomy/{code} [delete]
 // @Param code path string true "Taxon code" minlength(3)
-func DeleteTaxon(ctx *gin.Context) {
-	code := ctx.Param("code")
-	_, err := taxonomy.DeleteTaxon(code)
+func DeleteTaxon(ctx *gin.Context, db *edgedb.Client) {
+	code, err := controllers.ParseCodeURI(ctx)
+	if err != nil {
+		return
+	}
+	err = taxonomy.Delete(code)
 	if err != nil {
 		ctx.Error(err)
-	} else {
-		ctx.Status(http.StatusOK)
 	}
+	ctx.Status(http.StatusNoContent)
 }
 
 // @Summary Update a taxon by its code
 // @Description
 // @id UpdateTaxon
 // @tags Taxonomy
-// @Accept json
-// @Produce json
 // @Success 200 {object} taxonomy.TaxonSelect
 // @Failure 403
 // @Failure 404
 // @Router /taxonomy/{code} [patch]
 // @Param code path string true "Taxon code" minlength(3)
-// @Param data body taxonomy.TaxonInput true "Taxon"
-func UpdateTaxon(ctx *gin.Context) {
-	code := ctx.Param("code")
-	taxon := taxonomy.TaxonInput{}
-	err := ctx.ShouldBindJSON(&taxon)
+// @Param data body taxonomy.TaxonUpdate true "Taxon"
+func UpdateTaxon(ctx *gin.Context, db *edgedb.Client) {
+	taxon, err := controllers.BindUpdateByCode[taxonomy.TaxonSelect](ctx, db, taxonomy.FindByCode)
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
-	updatedTaxon, err := taxonomy.UpdateTaxon(code, taxon)
+	updatedTaxon, err := taxon.Update(db)
 	if err != nil {
 		ctx.Error(err)
 	} else {

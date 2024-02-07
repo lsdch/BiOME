@@ -137,6 +137,7 @@ const docTemplate = `{
                     "People"
                 ],
                 "summary": "List Institutions",
+                "operationId": "List Institutions",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -151,12 +152,6 @@ const docTemplate = `{
             },
             "post": {
                 "description": "Register a new institution that people work in.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "People"
                 ],
@@ -174,8 +169,8 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "202": {
-                        "description": "Accepted",
+                    "201": {
+                        "description": "Created",
                         "schema": {
                             "$ref": "#/definitions/Institution"
                         }
@@ -189,54 +184,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/people/institutions/": {
-            "patch": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "People"
-                ],
-                "summary": "Update institution",
-                "operationId": "UpdateInstitution",
-                "parameters": [
-                    {
-                        "description": "Institution informations",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/Institution"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "Accepted",
-                        "schema": {
-                            "$ref": "#/definitions/Institution"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/FieldErrors"
-                        }
-                    }
-                }
-            }
-        },
-        "/people/institutions/{acronym}": {
+        "/people/institutions/{code}": {
             "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "People"
                 ],
@@ -246,17 +195,173 @@ const docTemplate = `{
                     {
                         "type": "string",
                         "description": "Institution short name",
-                        "name": "acronym",
+                        "name": "code",
                         "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "202": {
+                    "200": {
                         "description": "Delete successful"
                     },
                     "404": {
                         "description": "Institution does not exist"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "People"
+                ],
+                "summary": "Update institution",
+                "operationId": "UpdateInstitution",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Institution code",
+                        "name": "code",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Institution informations",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/InstitutionUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Institution"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/FieldErrors"
+                        }
+                    }
+                }
+            }
+        },
+        "/people/persons": {
+            "get": {
+                "tags": [
+                    "People"
+                ],
+                "summary": "List persons",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/Person"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Register a new person",
+                "tags": [
+                    "People"
+                ],
+                "summary": "Create person",
+                "operationId": "Createperson",
+                "parameters": [
+                    {
+                        "description": "Created person",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PersonInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/FieldErrors"
+                        }
+                    }
+                }
+            }
+        },
+        "/people/persons/{id}": {
+            "delete": {
+                "tags": [
+                    "People"
+                ],
+                "summary": "Delete person",
+                "operationId": "Deleteperson",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted item"
+                    },
+                    "404": {
+                        "description": "person does not exist"
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "People"
+                ],
+                "summary": "Update person",
+                "operationId": "Updateperson",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Item UUID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update infos",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PersonUpdate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/FieldErrors"
+                        }
                     }
                 }
             }
@@ -264,12 +369,6 @@ const docTemplate = `{
         "/taxonomy/": {
             "get": {
                 "description": "Lists taxa, optionally filtered by name, rank and status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Taxonomy"
                 ],
@@ -326,12 +425,6 @@ const docTemplate = `{
         "/taxonomy/anchors": {
             "get": {
                 "description": "Anchors are taxa that were imported as the root of a subtree in the taxonomy.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Taxonomy"
                 ],
@@ -391,12 +484,6 @@ const docTemplate = `{
         },
         "/taxonomy/{code}": {
             "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Taxonomy"
                 ],
@@ -425,12 +512,6 @@ const docTemplate = `{
                 }
             },
             "delete": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Taxonomy"
                 ],
@@ -459,12 +540,6 @@ const docTemplate = `{
                 }
             },
             "patch": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
                 "tags": [
                     "Taxonomy"
                 ],
@@ -485,7 +560,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/TaxonInput"
+                            "$ref": "#/definitions/TaxonUpdate"
                         }
                     }
                 ],
@@ -865,13 +940,13 @@ const docTemplate = `{
         "Institution": {
             "type": "object",
             "required": [
-                "acronym",
+                "code",
                 "id",
                 "meta",
                 "name"
             ],
             "properties": {
-                "acronym": {
+                "code": {
                     "type": "string",
                     "maxLength": 12,
                     "minLength": 2,
@@ -905,11 +980,32 @@ const docTemplate = `{
         "InstitutionInput": {
             "type": "object",
             "required": [
-                "acronym",
+                "code",
                 "name"
             ],
             "properties": {
-                "acronym": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 12,
+                    "minLength": 2,
+                    "example": "MELES"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "The main ecological research lab on Tatooine."
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 10,
+                    "example": "Mos Eisley Laboratory of Environmental Studies"
+                }
+            }
+        },
+        "InstitutionUpdate": {
+            "type": "object",
+            "properties": {
+                "code": {
                     "type": "string",
                     "maxLength": 12,
                     "minLength": 2,
@@ -990,7 +1086,9 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "first_name",
-                "last_name"
+                "full_name",
+                "last_name",
+                "meta"
             ],
             "properties": {
                 "contact": {
@@ -1011,6 +1109,9 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 2
+                },
+                "meta": {
+                    "$ref": "#/definitions/Meta"
                 }
             }
         },
@@ -1028,6 +1129,27 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 2
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                }
+            }
+        },
+        "PersonUpdate": {
+            "type": "object",
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "id": {
+                    "type": "string"
                 },
                 "last_name": {
                     "type": "string",
@@ -1102,52 +1224,6 @@ const docTemplate = `{
                 }
             }
         },
-        "TaxonInput": {
-            "type": "object",
-            "required": [
-                "code",
-                "name",
-                "rank",
-                "status"
-            ],
-            "properties": {
-                "GBIF_ID": {
-                    "type": "integer",
-                    "example": 2206247
-                },
-                "authorship": {
-                    "type": "string",
-                    "example": "(Linnaeus, 1758)"
-                },
-                "code": {
-                    "type": "string",
-                    "example": "ASEaquaticus"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Asellus aquaticus"
-                },
-                "parent": {
-                    "type": "string"
-                },
-                "rank": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/TaxonRank"
-                        }
-                    ],
-                    "example": "Species"
-                },
-                "status": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/TaxonStatus"
-                        }
-                    ],
-                    "example": "Accepted"
-                }
-            }
-        },
         "TaxonRank": {
             "type": "string",
             "enum": [
@@ -1181,6 +1257,57 @@ const docTemplate = `{
                 "Synonym",
                 "Unclassified"
             ]
+        },
+        "TaxonUpdate": {
+            "type": "object",
+            "required": [
+                "code",
+                "id",
+                "name",
+                "rank",
+                "status"
+            ],
+            "properties": {
+                "GBIF_ID": {
+                    "type": "integer",
+                    "example": 2206247
+                },
+                "authorship": {
+                    "type": "string",
+                    "example": "(Linnaeus, 1758)"
+                },
+                "code": {
+                    "type": "string",
+                    "example": "ASEaquaticus"
+                },
+                "id": {
+                    "type": "string",
+                    "example": "\u003cUUID\u003e"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Asellus aquaticus"
+                },
+                "parent": {
+                    "type": "string"
+                },
+                "rank": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonRank"
+                        }
+                    ],
+                    "example": "Species"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/TaxonStatus"
+                        }
+                    ],
+                    "example": "Accepted"
+                }
+            }
         },
         "TaxonWithRelatives": {
             "type": "object",

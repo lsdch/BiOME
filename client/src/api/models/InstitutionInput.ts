@@ -2,9 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-
 export type InstitutionInput = {
-    acronym: string;
+    code: string;
     description?: string;
     name: string;
 };

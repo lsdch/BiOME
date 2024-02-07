@@ -2,12 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-
 import type { Meta } from './Meta';
 import type { Person } from './Person';
-
 export type Institution = {
-    acronym: string;
+    code: string;
     description?: string;
     id: string;
     meta: Meta;
