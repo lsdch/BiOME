@@ -1,0 +1,13 @@
+{
+  "create": {
+    "code": "TEST",
+    "name": "National Mockery Institute",
+    "description": "A mock institution"
+  },
+  "update": {
+    "name": "The updated name"
+  },
+  "invalidUpdate": {
+    "name": "x"
+  }
+}
