@@ -43,7 +43,9 @@ module default {
     #   default := (select people::Person filter .user.id = global current_user_id);
     # };
 
-    modified: datetime;
+    modified: datetime {
+      rewrite update using (datetime_of_statement());
+    };
     # modified_by: people::Person {
     #   rewrite update using (
     #     select people::Person filter .user.id = global current_user_id
@@ -62,7 +64,7 @@ module default {
       on target delete restrict;
       default := (insert Meta {});
       rewrite update using (
-        select (update .meta set { modified := datetime_of_statement() }) { * }
+        update .meta set { modified := datetime_of_statement() }
       );
     }
   }
@@ -908,7 +910,7 @@ module people {
       constraint min_len_value(10);
       constraint max_len_value(128);
     };
-    required acronym: str {
+    required code: str {
       constraint exclusive;
       constraint min_len_value(2);
       constraint max_len_value(12);
