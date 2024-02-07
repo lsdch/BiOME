@@ -3,7 +3,7 @@
     :crud="{
       list: () => TaxonomyService.taxonomyList(),
       update: (item: TaxonWithRelatives) =>
-        TaxonomyService.updateTaxon(item.code, item as TaxonInput),
+        TaxonomyService.updateTaxon(item.code, item as TaxonUpdate),
       delete: (item: TaxonWithRelatives) => TaxonomyService.deleteTaxon(item.code)
     }"
     :toolbar-props="{
@@ -36,9 +36,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { TaxonInput, TaxonStatus, TaxonWithRelatives, TaxonomyService } from '@/api'
+import { TaxonUpdate, TaxonStatus, TaxonWithRelatives, TaxonomyService } from '@/api'
 import { computed } from 'vue'
-import CRUDTable from '../toolkit/CRUDTable.vue'
+import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
 import StatusIcon from './StatusIcon.vue'
 import TaxaTableFilters from './TaxaTableFilters.vue'

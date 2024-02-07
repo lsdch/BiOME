@@ -83,7 +83,7 @@ import { Ref, computed, onMounted, ref, useSlots } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { type VDataTable } from 'vuetify/components'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
-import ItemDateChip from './ItemDateChip.vue'
+import ItemDateChip from '../ItemDateChip.vue'
 import TableToolbar from './TableToolbar.vue'
 import { TableProps } from './table'
 

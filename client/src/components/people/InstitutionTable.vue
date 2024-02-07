@@ -55,7 +55,7 @@
 import { Institution, PeopleService } from '@/api'
 import InstitutionForm from './InstitutionForm.vue'
 
-import CRUDTable from '@/components/toolkit/CRUDTable.vue'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: ReadonlyHeaders = [
   { title: 'Short name', key: 'code' },
