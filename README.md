@@ -16,6 +16,7 @@
   - run `edgedb project init` in the `/server` directory
 
 6. Client setup
+- Install nodejs >= 20.0
 - Install [pnpm](https://pnpm.io/installation)
 - run `pnpm i` in the `/client` directory
 
