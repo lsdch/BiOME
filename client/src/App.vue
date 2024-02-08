@@ -1,38 +1,3 @@
-<script setup lang="ts">
-import { RouterView, useRouter } from 'vue-router'
-import { ref } from 'vue'
-
-import { routeGroups } from './router'
-import { useDisplay, useTheme } from 'vuetify'
-import { useUserStore } from './stores/user'
-import { storeToRefs } from 'pinia'
-
-const theme = useTheme()
-
-function toggleTheme() {
-  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
-}
-
-const drawer = ref(true)
-
-const router = useRouter()
-const { smAndDown } = useDisplay()
-
-const userStore = useUserStore()
-const { user } = storeToRefs(userStore)
-
-const APP_TITLE = import.meta.env.VITE_APP_NAME
-
-const snackbar = ref(false)
-const snackbarText = 'You are now logged out'
-
-async function logout() {
-  await userStore.logout()
-  router.push({ name: 'home' })
-  snackbar.value = true
-}
-</script>
-
 <template>
   <v-app>
     <v-app-bar color="primary" v-if="!$route.meta.hideNavbar">
@@ -99,44 +64,39 @@ async function logout() {
         </v-list>
       </v-menu>
     </v-app-bar>
-
-    <!-- <v-navigation-drawer :rail="drawer"> -->
-    <v-navigation-drawer v-if="!$route.meta.hideNavbar" v-model="drawer">
+    <v-navigation-drawer v-model="drawer">
       <v-list density="compact" nav>
-        <div v-for="group in routeGroups" :key="group.name">
+        <template v-for="group in routeGroups" :key="group.label">
           <v-list-item
-            v-if="group.routes.length === 1"
+            v-if="!group.routes"
             :prepend-icon="group.icon"
-            :title="group.routes[0].label"
-            :to="group.routes[0]"
+            :title="group.label"
             color="primary"
+            :to="$router.resolve(group)"
           />
           <v-list-group v-else>
             <template v-slot:activator="{ props }">
               <v-list-item
                 v-bind="props"
                 :prepend-icon="group.icon"
-                :key="group.name"
-                :title="group.name"
+                :title="group.label"
                 color="primary"
-                :active="
-                  group.routes.find((route) => route.name === router.currentRoute.value.name) !==
-                  undefined
-                "
+                :active="group.routes?.find(isRouteActive) !== undefined"
               />
             </template>
-
             <v-list-item
               v-for="route in group.routes"
-              :key="route.name"
+              :key="route.label"
               :title="route.label"
-              :to="route"
+              link
+              slim
+              :to="$router.resolve(route)"
               color="primary"
-              class="nav-section"
+              :active="isRouteActive(route)"
+              :prepend-icon="route.icon"
             />
           </v-list-group>
-        </div>
-        <!-- :to="route" -->
+        </template>
       </v-list>
     </v-navigation-drawer>
 
@@ -154,7 +114,46 @@ async function logout() {
   </v-app>
 </template>
 
-<style scoped>
+<script setup lang="ts">
+import { RouterView, useRouter } from 'vue-router'
+import { ref } from 'vue'
+
+import { RouteDefinition, routeGroups } from './router'
+import { useDisplay, useTheme } from 'vuetify'
+import { useUserStore } from './stores/user'
+import { storeToRefs } from 'pinia'
+
+const theme = useTheme()
+
+function toggleTheme() {
+  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
+}
+
+const drawer = ref(true)
+
+const router = useRouter()
+const { smAndDown } = useDisplay()
+
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
+
+const APP_TITLE = import.meta.env.VITE_APP_NAME
+
+const snackbar = ref(false)
+const snackbarText = 'You are now logged out'
+
+function isRouteActive(route: RouteDefinition) {
+  return route.name === router.currentRoute.value.name
+}
+
+async function logout() {
+  await userStore.logout()
+  router.push({ name: 'home' })
+  snackbar.value = true
+}
+</script>
+
+<style lang="less">
 .app-title {
   color: white;
   font-weight: bold;
@@ -163,7 +162,9 @@ async function logout() {
   font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
 
-.v-list-item.nav-section {
-  min-height: 30px;
-}
+// .v-list-group--open {
+//   .v-list-group__items {
+//     height: unset !important;
+//   }
+// }
 </style>

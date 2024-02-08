@@ -8,6 +8,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 export default defineConfig({
   server: {
     proxy: {
+      // redirects API calls made on the client host towards the API server
       '^/api': {
         target: "http://localhost:8080",
         changeOrigin: true
@@ -15,11 +16,7 @@ export default defineConfig({
     }
   },
   plugins: [
-    vue({
-      script: {
-        defineModel: true
-      }
-    }),
+    vue(),
     vueJsx(),
   ],
   resolve: {

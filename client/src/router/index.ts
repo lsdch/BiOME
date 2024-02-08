@@ -12,60 +12,59 @@ function makeTitle(title: string) {
   return `${DEFAULT_TITLE} - ${title}`
 }
 
-type RouteDefinition = RouteRecordRaw & {
+export type RouteDefinition = RouteRecordRaw & {
   label: string
-  // icon?: string
+  icon?: string
 }
 
+type Route = RouteDefinition & { icon: string, routes?: undefined }
+
 type RouteGroup = {
-  readonly name?: string // unused if only one route
+  readonly label: string
   readonly icon: string
   readonly routes: RouteDefinition[]
 }
 
+export type RouterItem = Route | RouteGroup
+
 /** Route definitions meant to be displayed in navigation components */
-export const routeGroups: RouteGroup[] = [
+export const routeGroups: RouterItem[] = [
   {
+    label: "Home",
+    path: '/',
+    name: 'home',
     icon: "mdi-home",
-    routes: [{
-      label: "Home",
-      path: '/',
-      name: 'home',
-      component: HomeView
-    }]
+    component: HomeView
   },
   {
-    name: "Taxonomy",
     icon: "mdi-graph",
-    routes: [
-      {
-        label: "Taxonomy",
-        path: '/taxonomy',
-        name: 'taxonomy',
-        component: () => import('../views/Taxonomy/TaxonomyMain.vue')
-      }
-    ]
+    label: "Taxonomy",
+    path: '/taxonomy',
+    name: 'taxonomy',
+    component: () => import('../views/Taxonomy/TaxonomyMain.vue')
   },
   {
-    name: "People",
+    label: "People",
     icon: "mdi-account-group",
     routes: [
       {
         label: "Persons",
         path: "/people",
         name: "people",
+        icon: "mdi-account",
         component: () => import("../views/people/PersonView.vue")
       },
       {
         label: "Institutions",
         path: "/people/institutions",
         name: "institutions",
+        icon: "mdi-domain",
         component: () => import("../views/people/InstitutionView.vue")
       }
     ]
   },
   {
-    name: "Tmp",
+    label: "Tmp",
     icon: "mdi-flask",
     routes: [
       {
@@ -128,11 +127,20 @@ const router = createRouter({
       meta: { hideNavbar: true }
     },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
-    ...routeGroups.reduce((acc, current) => acc.concat(current.routes), <RouteDefinition[]>[])
+    ...routeGroups.reduce((acc, current) => {
+      if (current.routes) {
+        return acc.concat(current.routes)
+      } else {
+        acc.unshift(current as RouteDefinition)
+        return acc
+      }
+    },
+      new Array<RouteDefinition>)
+
   ]
 })
 
-router.afterEach((to, from) => {
+router.afterEach((to, _from) => {
   // Use next tick to handle router history correctly
   // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
   nextTick(() => {
