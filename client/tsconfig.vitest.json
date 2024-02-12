@@ -1,9 +1,15 @@
 {
   "extends": "./tsconfig.app.json",
+  "include": [
+    "src/db/**/*"
+  ],
   "exclude": [],
   "compilerOptions": {
     "composite": true,
     "lib": [],
-    "types": ["node", "jsdom"]
+    "types": [
+      "node",
+      "jsdom"
+    ]
   }
 }
