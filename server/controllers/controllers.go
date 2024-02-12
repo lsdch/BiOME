@@ -1,13 +1,11 @@
 package controllers
 
 import (
+	"net/http"
+
 	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
 )
-
-type UUIDInput = struct {
-	UUID edgedb.UUID `uri:"id" binding:"required"`
-}
 
 type CodeInput = struct {
 	Code string `uri:"code" binding:"required"`
@@ -16,11 +14,12 @@ type CodeInput = struct {
 type IDParser[ID any] func(ctx *gin.Context) (ID, error)
 
 var ParseUUIDfromURI IDParser[edgedb.UUID] = func(ctx *gin.Context) (edgedb.UUID, error) {
-	var id UUIDInput
-	if err := ctx.BindUri(&id); err != nil {
-		ctx.Error(err)
+	var strUUID = ctx.Param("id")
+	uuid, err := edgedb.ParseUUID(strUUID)
+	if err != nil {
+		ctx.AbortWithError(http.StatusNotFound, err)
 	}
-	return id.UUID, nil
+	return uuid, err
 }
 
 var ParseCodeURI IDParser[string] = func(ctx *gin.Context) (string, error) {
