@@ -59,7 +59,11 @@ type Taxon struct {
 	Rank       TaxonRank            `edgedb:"rank" json:"rank" example:"Species" binding:"required"`
 } // @name Taxon
 
-// @tags taxonomy
+type TaxonInput struct {
+	Taxon  `edgedb:"$inline"`
+	Parent edgedb.UUID
+} // @name TaxonInput
+
 type TaxonDB struct {
 	ID     edgedb.UUID `edgedb:"id" json:"id" example:"<UUID>" binding:"required"`
 	Taxon  `edgedb:"$inline"`
@@ -131,6 +135,15 @@ func FindByCode(db *edgedb.Client, code string) (taxon TaxonSelect, err error) {
 func Delete(code string) error {
 	query := "delete taxonomy::Taxon filter .code = <str>$0;"
 	return models.DB().Execute(context.Background(), query, code)
+}
+
+//go:embed queries/create_taxon.edgeql
+var createTaxonCmd string
+
+func (taxon TaxonInput) Create(db *edgedb.Client) (created TaxonSelect, err error) {
+	args := models.StructToMap(taxon)
+	err = db.QuerySingle(context.Background(), createTaxonCmd, &created, args)
+	return created, err
 }
 
 //go:embed queries/update_taxon.edgeql
