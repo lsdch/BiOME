@@ -16,8 +16,8 @@ import (
 // @tags Taxonomy
 // @Success 200 {array} taxonomy.TaxonDB "Get anchor taxa list success"
 // @Router /taxonomy/anchors [get]
-func ListAnchors(ctx *gin.Context) {
-	anchors, err := taxonomy.ListAnchorTaxa()
+func ListAnchors(ctx *gin.Context, db *edgedb.Client) {
+	anchors, err := taxonomy.ListAnchorTaxa(db)
 	if err != nil {
 		ctx.Error(err).SetMeta(gin.H{
 			"msg": "Failed to fetch taxonomy data",
@@ -36,11 +36,11 @@ func ListAnchors(ctx *gin.Context) {
 // @Param pattern query string false "Name search pattern" minlength(2)
 // @Param rank query taxonomy.TaxonRank false "Taxonomic rank"
 // @Param status query taxonomy.TaxonStatus false "Taxonomic status"
-func ListTaxa(ctx *gin.Context) {
+func ListTaxa(ctx *gin.Context, db *edgedb.Client) {
 	pattern := ctx.Query("pattern")
 	rank := taxonomy.TaxonRank(ctx.Query("rank"))
 	status := taxonomy.TaxonStatus(ctx.Query("status"))
-	taxa, err := taxonomy.ListTaxa(pattern, rank, status)
+	taxa, err := taxonomy.ListTaxa(db, pattern, rank, status)
 	if err != nil {
 		ctx.Error(err)
 	} else {

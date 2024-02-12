@@ -26,7 +26,7 @@ type PersonUpdate struct {
 } // @name PersonUpdate
 
 type Person struct {
-	ID          edgedb.UUID `edgedb:"id" json:"id"`
+	ID          edgedb.UUID `edgedb:"id" json:"id" binding:"required"`
 	PersonInput `edgedb:"$inline"`
 	FullName    string      `json:"full_name" edgedb:"full_name" binding:"required"`
 	Meta        models.Meta `json:"meta" edgedb:"meta" binding:"required"`
@@ -85,6 +85,7 @@ func (person Person) Update(db *edgedb.Client) (updated Person, err error) {
 }
 
 func Delete(db *edgedb.Client, id edgedb.UUID) (deleted Person, err error) {
+	logrus.Infof("Deleting person: %v", id)
 	query := `select(delete people::Person filter .id = <uuid>$0){ *, meta:{ * }};`
 	err = db.QuerySingle(context.Background(), query, &deleted, id)
 	return

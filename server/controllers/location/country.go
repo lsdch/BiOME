@@ -4,6 +4,7 @@ import (
 	country "darco/proto/models/location"
 	"net/http"
 
+	"github.com/edgedb/edgedb-go"
 	gin "github.com/gin-gonic/gin"
 )
 
@@ -22,8 +23,8 @@ func Setup(ctx *gin.Context) {
 // @Tags Location
 // @Success 200 {array} country.Country
 // @Router /countries/ [get]
-func List(ctx *gin.Context) {
-	countries, err := country.List()
+func List(ctx *gin.Context, db *edgedb.Client) {
+	countries, err := country.List(db)
 	if err != nil {
 		ctx.Error(err)
 	} else {

@@ -3,7 +3,6 @@ package institution
 import (
 	"darco/proto/controllers"
 	"darco/proto/models/institution"
-	"net/http"
 
 	_ "darco/proto/models/validations"
 
@@ -19,12 +18,7 @@ import (
 // @Success 200 {array} institution.Institution
 // @Router /people/institutions [get]
 func List(ctx *gin.Context, db *edgedb.Client) {
-	items, err := institution.List(db)
-	if err != nil {
-		ctx.Error(err)
-	} else {
-		ctx.JSON(http.StatusOK, items)
-	}
+	controllers.ListItems[institution.Institution](ctx, db, institution.List)
 }
 
 // @Summary Create institution

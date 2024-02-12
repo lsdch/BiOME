@@ -56,18 +56,18 @@ func setupRouter() *gin.Engine {
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	country_api := api.Group("/countries")
-	country_api.GET("/", country.List)
+	country_api.GET("", models.WithDB(country.List))
 	country_api.GET("/setup", country.Setup)
 
 	taxonomy_api := api.Group("/taxonomy")
-	taxonomy_api.GET("/", taxonomy.ListTaxa)
+	taxonomy_api.GET("", models.WithDB(taxonomy.ListTaxa))
 	taxonomy_api.GET("/:code", models.WithDB(taxonomy.GetTaxon))
 	taxonomy_api.DELETE("/:code", models.WithDB(taxonomy.DeleteTaxon))
 	taxonomy_api.PATCH("/:code", models.WithDB(taxonomy.UpdateTaxon))
 	importGBIF := taxonomy.ImportCladeGBIF()
 	taxonomy_api.PUT("/import", importGBIF.Endpoint)
 	taxonomy_api.GET("/import", importGBIF.ProgressTracker)
-	taxonomy_api.GET("/anchors", taxonomy.ListAnchors)
+	taxonomy_api.GET("/anchors", models.WithDB(taxonomy.ListAnchors))
 
 	api.POST("/login", models.WithDB(accounts.Login))
 	api.POST("/logout", accounts.Logout)
@@ -81,15 +81,17 @@ func setupRouter() *gin.Engine {
 	users_api.GET("/password-reset/:token", accounts.ValidatePasswordToken)
 
 	people_api := api.Group("/people")
-	people_api.GET("/", models.WithDB(person.List))
 
 	institution_api := people_api.Group("/institutions")
-	institution_api.GET("/", models.WithDB(institution.List))
-	institution_api.POST("/", models.WithDB(institution.Create))
+	institution_api.GET("", models.WithDB(institution.List))
+	institution_api.POST("", models.WithDB(institution.Create))
 	institution_api.DELETE("/:code", models.WithDB(institution.Delete))
 	institution_api.PATCH("/:code", models.WithDB(institution.Update))
 
 	person_api := people_api.Group("/persons")
+	person_api.GET("", models.WithDB(person.List))
+	person_api.POST("", models.WithDB(person.Create))
+	person_api.PATCH("/:id", models.WithDB(person.Update))
 	person_api.DELETE("/:id", models.WithDB(person.Delete))
 
 	// Authorized group (uses gin.BasicAuth() middleware)

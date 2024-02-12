@@ -82,7 +82,9 @@ type TaxonUpdate struct {
 	Parent edgedb.UUID `json:"parent" edgedb:"parent"`
 } // @name TaxonUpdate
 
-func ListTaxa(pattern string, rank TaxonRank, status TaxonStatus) ([]TaxonDB, error) {
+func ListTaxa(db *edgedb.Client,
+	pattern string, rank TaxonRank, status TaxonStatus,
+) ([]TaxonDB, error) {
 	var taxa = make([]TaxonDB, 0)
 	query := "select taxonomy::Taxon { *, meta: {**}}"
 	expr := &models.FilterGroup{Operator: "AND", Components: make([]models.Expr, 3)}
@@ -104,13 +106,13 @@ func ListTaxa(pattern string, rank TaxonRank, status TaxonStatus) ([]TaxonDB, er
 	qb := models.QueryBuilder{Query: query, Expr: expr}
 	args := qb.Args()
 	logrus.Debugf("Taxonomy list query: %s", qb.String())
-	err := models.DB().Query(context.Background(), qb.String(), &taxa, args)
+	err := db.Query(context.Background(), qb.String(), &taxa, args)
 	return taxa, err
 }
 
-func ListAnchorTaxa() (taxa []TaxonDB, err error) {
+func ListAnchorTaxa(db *edgedb.Client) (taxa []TaxonDB, err error) {
 	query := "select taxonomy::Taxon { *, meta: { ** } } filter .anchor"
-	err = models.DB().Query(context.Background(), query, &taxa)
+	err = db.Query(context.Background(), query, &taxa)
 	return
 }
 
@@ -136,6 +138,6 @@ var updateTaxonCmd string
 
 func (taxon TaxonSelect) Update(db *edgedb.Client) (updated TaxonSelect, err error) {
 	args := models.StructToMap(taxon)
-	err = models.DB().QuerySingle(context.Background(), updateTaxonCmd, &updated, args)
+	err = db.QuerySingle(context.Background(), updateTaxonCmd, &updated, args)
 	return updated, err
 }

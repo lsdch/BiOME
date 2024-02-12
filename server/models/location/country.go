@@ -30,12 +30,12 @@ type Country struct {
 	NbLocalities int64       `json:"nbLocalities" edgedb:"nb_localities" example:"9"`
 } // @name Country
 
-func List() (countries []Country, err error) {
+func List(db *edgedb.Client) (countries []Country, err error) {
 	query := `select
 		location::Country {
 			*, nb_localities := count(.localities)
 		}
 		order by (exists .localities) desc then .name asc;`
-	err = models.DB().Query(context.Background(), query, &countries)
+	err = db.Query(context.Background(), query, &countries)
 	return
 }

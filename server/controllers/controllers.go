@@ -30,3 +30,11 @@ var ParseCodeURI IDParser[string] = func(ctx *gin.Context) (string, error) {
 	}
 	return code.Code, nil
 }
+
+func NonNilArray[T any](array []T) []T {
+	if array != nil {
+		return array
+	} else {
+		return []T{}
+	}
+}

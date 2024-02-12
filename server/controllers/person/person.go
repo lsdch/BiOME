@@ -3,7 +3,6 @@ package person
 import (
 	"darco/proto/controllers"
 	"darco/proto/models/person"
-	"net/http"
 
 	_ "darco/proto/models/validations"
 
@@ -17,12 +16,7 @@ import (
 // @Success 200 {array} person.Person
 // @Router /people/persons [get]
 func List(ctx *gin.Context, db *edgedb.Client) {
-	items, err := person.List(db)
-	if err != nil {
-		ctx.Error(err)
-	} else {
-		ctx.JSON(http.StatusOK, items)
-	}
+	controllers.ListItems[person.Person](ctx, db, person.List)
 }
 
 // @Summary Create person
@@ -38,9 +32,9 @@ func Create(ctx *gin.Context, db *edgedb.Client) {
 }
 
 // @Summary Delete person
-// @id Deleteperson
+// @id DeletePerson
 // @tags People
-// @Success 204 "Deleted item"
+// @Success 200 {object} person.Person
 // @Failure 404 "person does not exist"
 // @Router /people/persons/{id} [delete]
 // @Param id path string true "Item UUID"
@@ -49,7 +43,7 @@ func Delete(ctx *gin.Context, db *edgedb.Client) {
 }
 
 // @Summary Update person
-// @id Updateperson
+// @id UpdatePerson
 // @tags People
 // @Success 200 {object} person.Person
 // @Failure 400 {object} validations.FieldErrors
