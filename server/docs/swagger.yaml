@@ -190,6 +190,7 @@ definitions:
     required:
     - first_name
     - full_name
+    - id
     - last_name
     - meta
     type: object
@@ -690,7 +691,7 @@ paths:
       - People
   /people/persons/{id}:
     delete:
-      operationId: Deleteperson
+      operationId: DeletePerson
       parameters:
       - description: Item UUID
         in: path
@@ -698,15 +699,17 @@ paths:
         required: true
         type: string
       responses:
-        "204":
-          description: Deleted item
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Person'
         "404":
           description: person does not exist
       summary: Delete person
       tags:
       - People
     patch:
-      operationId: Updateperson
+      operationId: UpdatePerson
       parameters:
       - description: Item UUID
         in: path

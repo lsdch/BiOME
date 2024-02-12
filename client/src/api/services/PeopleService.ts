@@ -134,12 +134,12 @@ export class PeopleService {
     /**
      * Delete person
      * @param id Item UUID
-     * @returns void
+     * @returns Person OK
      * @throws ApiError
      */
-    public static deleteperson(
+    public static deletePerson(
         id: string,
-    ): CancelablePromise<void> {
+    ): CancelablePromise<Person> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/people/persons/{id}',
@@ -158,7 +158,7 @@ export class PeopleService {
      * @returns Person OK
      * @throws ApiError
      */
-    public static updateperson(
+    public static updatePerson(
         id: string,
         data: PersonUpdate,
     ): CancelablePromise<Person> {

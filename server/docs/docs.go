@@ -307,7 +307,7 @@ const docTemplate = `{
                     "People"
                 ],
                 "summary": "Delete person",
-                "operationId": "Deleteperson",
+                "operationId": "DeletePerson",
                 "parameters": [
                     {
                         "type": "string",
@@ -318,8 +318,11 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "Deleted item"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Person"
+                        }
                     },
                     "404": {
                         "description": "person does not exist"
@@ -331,7 +334,7 @@ const docTemplate = `{
                     "People"
                 ],
                 "summary": "Update person",
-                "operationId": "Updateperson",
+                "operationId": "UpdatePerson",
                 "parameters": [
                     {
                         "type": "string",
@@ -1087,6 +1090,7 @@ const docTemplate = `{
             "required": [
                 "first_name",
                 "full_name",
+                "id",
                 "last_name",
                 "meta"
             ],
