@@ -4,13 +4,19 @@ import (
 	"context"
 	"darco/proto/db"
 	"darco/proto/models/taxonomy"
+	"embed"
 	"fmt"
-	"os"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/schollz/progressbar/v3"
 	"github.com/sirupsen/logrus"
 )
+
+//go:embed queries
+var queries embed.FS
+
+//go:embed data
+var data embed.FS
 
 func entityQueryPath(entity string) string {
 	return fmt.Sprintf("queries/%s.edgeql", entity)
@@ -22,13 +28,13 @@ func entityDataPath(entity string) string {
 func Seed(tx *edgedb.Tx, entity string) error {
 	queryPath := entityQueryPath(entity)
 	dataPath := entityDataPath(entity)
-	query, err := os.ReadFile(queryPath)
+	query, err := queries.ReadFile(queryPath)
 	if err != nil {
 		logrus.Errorf("Failed to load seed query @ %s: %v", queryPath, err)
 		return err
 	}
 
-	data, err := os.ReadFile(dataPath)
+	data, err := data.ReadFile(dataPath)
 	if err != nil {
 		logrus.Errorf("Failed to load seed data @ %s: %v", dataPath, err)
 		return err

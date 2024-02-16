@@ -5,6 +5,8 @@ echo "Database will be wiped before inserting data seeds."
 edgedb database wipe
 
 echo "Migrating database schema..."
-edgedb migrate --schema-dir ../schema
+edgedb migrate --schema-dir schema
 
-go run ./seeds.go
+echo "Importing initial data"
+cd ./seeds
+go run

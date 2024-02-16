@@ -21,6 +21,7 @@ func ConnectDB() (db *edgedb.Client) {
 
 var db *edgedb.Client = ConnectDB()
 
+// Wraps a handler that requires a DB connection to provide it as an argument.
 func WithDB(handler func(*gin.Context, *edgedb.Client)) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		client, ok := ctx.Get("db")
