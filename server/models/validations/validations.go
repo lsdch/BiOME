@@ -100,5 +100,11 @@ func fieldErrorMsg(err validator.FieldError) string {
 		}
 	}
 
+	for _, customTag := range CustomTags {
+		if err.Tag() == customTag.Alias {
+			return customTag.Message
+		}
+	}
+
 	return "Invalid value"
 }

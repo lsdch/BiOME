@@ -83,10 +83,10 @@ func (person PersonInput) Create(db *edgedb.Client) (created Person, err error) 
 }
 
 type PersonUpdate struct {
-	FirstName    *string   `json:"first_name,omitempty" binding:"omitnil,alphaunicode,min=2,max=32"`
-	MiddleNames  *string   `json:"middle_names,omitempty" edgedb:"middle_names" binding:"omitnil,alphaunicode,max=32"`
-	LastName     *string   `json:"last_name,omitempty" binding:"omitnil,alphaunicode,min=2,max=32"`
-	Contact      *string   `json:"contact,omitempty" binding:"omitnil,email"`
+	FirstName    *string   `json:"first_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32"`
+	MiddleNames  *string   `json:"middle_names,omitempty" edgedb:"middle_names" binding:"omitnil,nullalphaunicode,max=32"`
+	LastName     *string   `json:"last_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32"`
+	Contact      *string   `json:"contact,omitempty" binding:"omitnil,nullemail"`
 	Institutions *[]string `json:"institutions,omitempty" binding:"omitnil,exist_all=people::Institution.code"` // Institution codes
 } // @name PersonUpdate
 

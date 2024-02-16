@@ -31,8 +31,30 @@ var Validators = []CustomValidator{
 	ExistValidator,
 }
 
+type CustomTag struct {
+	Alias   string
+	Tags    string
+	Message string
+}
+
+var CustomTags = []CustomTag{
+	{Alias: "nullalpha", Tags: "eq=|alpha",
+		Message: "Only alphabetic characters allowed"},
+	{Alias: "nullalphanum", Tags: "eq=|alphanum",
+		Message: "Only alphanumeric characters allowed"},
+	{Alias: "nullalphaunicode", Tags: "eq=|alphaunicode",
+		Message: "Only alphabetic characters allowed"},
+	{Alias: "nullalphanumunicode", Tags: "eq=|alphanumunicode",
+		Message: "Only alphabetic characters allowed"},
+	{Alias: "nullemail", Tags: "eq=|email",
+		Message: "Only alphabetic characters allowed"},
+}
+
 func RegisterValidators(engine *validator.Validate) {
 	for _, validator := range Validators {
 		engine.RegisterValidation(string(validator.tag), validator.handler)
+	}
+	for _, tag := range CustomTags {
+		engine.RegisterAlias(tag.Alias, tag.Tags)
 	}
 }
