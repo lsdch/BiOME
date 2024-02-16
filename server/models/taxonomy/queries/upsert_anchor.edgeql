@@ -1,6 +1,6 @@
 with module taxonomy,
 data := <json>$0,
-anchor := <bool>data['anchor']
+anchor := <bool>data['anchor'],
 insert Taxon {
   name := <str>data['name'],
   GBIF_ID := <int32>data['GBIF_ID'],

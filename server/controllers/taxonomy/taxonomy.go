@@ -98,15 +98,15 @@ func DeleteTaxon(ctx *gin.Context, db *edgedb.Client) {
 // @Router /taxonomy/{code} [patch]
 // @Param code path string true "Taxon code" minlength(3)
 // @Param data body taxonomy.TaxonUpdate true "Taxon"
-func UpdateTaxon(ctx *gin.Context, db *edgedb.Client) {
-	taxon, err := controllers.BindUpdateByCode[taxonomy.TaxonSelect](ctx, db, taxonomy.FindByCode)
-	if err != nil {
-		return
-	}
-	updatedTaxon, err := taxon.Update(db)
-	if err != nil {
-		ctx.Error(err)
-	} else {
-		ctx.JSON(http.StatusOK, updatedTaxon)
-	}
-}
+// func UpdateTaxon(ctx *gin.Context, db *edgedb.Client) {
+// 	taxon, err := controllers.BindUpdateByCode[taxonomy.TaxonSelect](ctx, db, taxonomy.FindByCode)
+// 	if err != nil {
+// 		return
+// 	}
+// 	updatedTaxon, err := taxon.Update(db)
+// 	if err != nil {
+// 		ctx.Error(err)
+// 	} else {
+// 		ctx.JSON(http.StatusOK, updatedTaxon)
+// 	}
+// }

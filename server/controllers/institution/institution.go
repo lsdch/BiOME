@@ -2,7 +2,7 @@ package institution
 
 import (
 	"darco/proto/controllers"
-	"darco/proto/models/institution"
+	"darco/proto/models/people"
 
 	_ "darco/proto/models/validations"
 
@@ -15,43 +15,43 @@ import (
 // @Summary List Institutions
 // @ID List Institutions
 // @Tags People
-// @Success 200 {array} institution.Institution
+// @Success 200 {array} people.Institution
 // @Router /people/institutions [get]
 func List(ctx *gin.Context, db *edgedb.Client) {
-	controllers.ListItems[institution.Institution](ctx, db, institution.List)
+	controllers.ListItems(ctx, db, people.ListInstitutions)
 }
 
 // @Summary Create institution
 // @Description Register a new institution that people work in.
 // @id CreateInstitution
 // @tags People
-// @Success 201 {object} institution.Institution
+// @Success 201 {object} people.Institution
 // @Failure 400 {object} validations.FieldErrors
 // @Router /people/institutions [post]
-// @Param data body institution.InstitutionInput true "Institution informations"
+// @Param data body people.InstitutionInput true "Institution informations"
 func Create(ctx *gin.Context, db *edgedb.Client) {
-	controllers.CreateItem[institution.Institution, institution.InstitutionInput](ctx, db)
+	controllers.CreateItem[people.InstitutionInput, people.Institution](ctx, db)
 }
 
 // @Summary Update institution
 // @id UpdateInstitution
 // @tags People
-// @Success 200 {object} institution.Institution
+// @Success 200 {object} people.Institution
 // @Failure 400 {object} validations.FieldErrors
 // @Router /people/institutions/{code} [patch]
 // @Param code path string true "Institution code"
-// @Param data body institution.InstitutionUpdate true "Institution informations"
+// @Param data body people.InstitutionUpdate true "Institution informations"
 func Update(ctx *gin.Context, db *edgedb.Client) {
-	controllers.UpdateByCode[institution.Institution](ctx, db, institution.Find)
+	controllers.UpdateItemByCode[people.InstitutionUpdate](ctx, db, people.FindInstitution)
 }
 
 // @Summary Delete institution
 // @id DeleteInstitution
 // @tags People
-// @Success 200 "Delete successful"
+// @Success 200 {object} people.Institution "Deleted item"
 // @Failure 404 "Institution does not exist"
 // @Router /people/institutions/{code} [delete]
 // @Param code path string true "Institution short name"
 func Delete(ctx *gin.Context, db *edgedb.Client) {
-	controllers.DeleteByCode[institution.Institution](ctx, db, institution.Delete)
+	controllers.DeleteByCode(ctx, db, people.DeleteInstitution)
 }

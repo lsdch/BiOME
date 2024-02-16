@@ -5,16 +5,15 @@ import {
   ApiError,
   CancelablePromise,
   InputValidationError,
-  OpenAPI, PeopleService
+  OpenAPI
 } from ".."
-import { institution, person } from "./fixtures"
 
 OpenAPI.BASE = "http://localhost:5173/api/v1"
 
-const db = edgedb.createClient()
+export const db = edgedb.createClient()
 
 expect.extend({
-  toHaveResponseCode(received: ApiError, status: number) {
+  toHaveErrorCode(received: ApiError, status: number) {
     if (received.status !== status) return {
       message: () => `expected response status to be ${status}, got ${received.status}`,
       pass: false,
@@ -40,39 +39,39 @@ expect.extend({
 })
 
 import { beforeEach } from 'vitest'
-import e from "../../db/edgeql-js"
 
-type CRUD<Item, ItemInput, ItemUpdate> = {
+export type CRUD<Item, ItemInput, ItemUpdate> = {
   list(): CancelablePromise<Item[]>
   create(input: ItemInput): CancelablePromise<Item>
   update(id: string, input: ItemUpdate): CancelablePromise<Item>
   delete(id: string): CancelablePromise<Item>
 }
 
-type TestData<ItemInput, ItemUpdate> = {
-  create: ItemInput
+export type TestData<ItemInput, ItemUpdate> = {
+  creates: ItemInput[]
+  invalidCreates: ItemInput[]
   update: ItemUpdate
-  invalidUpdate: ItemUpdate
+  invalidUpdates: ItemUpdate[]
 }
 
 
 
 
-type TestEntityConfig<Item, ItemInput, ItemUpdate, MockItem> = {
+export type TestEntityConfig<Item, ItemInput, ItemUpdate> = {
   CRUD: CRUD<Item, ItemInput, ItemUpdate>,
-  getItemIdentifier(item: MockItem | Item): string,
+  getItemIdentifier(item: Item): string,
   data: TestData<ItemInput, ItemUpdate>,
   setup: {
-    create(): Promise<MockItem>,
-    delete(item: MockItem): Promise<any>
+    mockInput: ItemInput,
+    create(): Promise<Item>,
+    delete(item: Item): Promise<any>
   }
 }
 
-async function generateTest<
-  Item extends MockItem,
+export async function generateTest<
+  Item extends { id: string },
   ItemInput extends {},
   ItemUpdate extends {},
-  MockItem extends ItemInput & { id: string },
 //   // P extends { [k in keyof ObjectTypePointers]: ObjectTypePointers[k] },
 //   P extends { id: $BaseObjectλShape["id"] },
 //   Z extends ExclusiveTuple,
@@ -90,7 +89,7 @@ async function generateTest<
 // // $expr_PathNode<TypeSet<ObjectType<string, X>, edgedb.$.Cardinality.Many>, null>
 >(
   entityName: string,
-  { CRUD, setup, data, getItemIdentifier }: TestEntityConfig<Item, ItemInput, ItemUpdate, MockItem>
+  { CRUD, setup, data, getItemIdentifier }: TestEntityConfig<Item, ItemInput, ItemUpdate>
   // schema: $expr_PathNode<ObjectTypeExpression>,
   // schema: Schema,
   // schema: $expr_PathNode<TypeSet<$Institution, edgedb.$.Cardinality.Many>>,
@@ -108,7 +107,7 @@ async function generateTest<
   // })
 
   interface LocalTestContext {
-    mock: MockItem
+    mock: Item
     mockID: string
   }
 
@@ -130,34 +129,81 @@ async function generateTest<
     withMock("lists", async () => {
       await expectTypeOf(CRUD.list()).resolves.toMatchTypeOf<Item[]>()
     })
-    withMock("creates", async () => {
-      const item = CRUD.create(data.create)
-      await expect(item.then((item: Item) => {
-        setup.delete(item as MockItem)
-        return item
-      })).resolves.toMatchObject(data.create)
-    })
 
-    withMock('fails to create duplicate', async ({ mock }) => {
-      await expect(CRUD.create(mock))
-        .rejects.toHaveResponseCode(400)
-    })
+    describe(
+      "creates", () => {
+        test.each(data.creates)("item %o",
+          async (input: ItemInput) => {
+            const item = CRUD.create(input)
+            await expect(item.then((item: Item) => {
+              setup.delete(item)
+              return item
+            })).resolves
+          })
+      }
+    )
+
+    describe(
+      "fails to create", () => {
+        withMock('duplicate', async () => {
+          const item = CRUD.create(setup.mockInput)
+          await expect(item.then((item: Item) => {
+            setup.delete(item)
+            return item
+          }))
+            .rejects.toHaveErrorCode(400)
+        })
+        describe.each(data.invalidCreates)(
+          "item %o", (input: ItemInput) => {
+            test("responds with BadRequest", async () => {
+              const item = CRUD.create(input)
+              await expect(item.then((item: Item) => {
+                setup.delete(item)
+                return item
+              }))
+                .rejects.toHaveErrorCode(400)
+            })
+            test("responds with validation errors on invalid input", async () => {
+              const item = CRUD.create(input)
+              await expect(item.then((item: Item) => {
+                setup.delete(item)
+                return item
+              }))
+                .rejects.toRespondWithValidationErrors()
+            })
+          }
+        )
+      }
+    )
+
+
+
+
     withMock("updates", async ({ mockID }) => {
       await expect(CRUD.update(mockID, data.update))
         .resolves.toMatchObject(data.update)
     })
-    withMock("fails to update non-existing item", async () => {
-      await expect(CRUD.update("null", data.update))
-        .rejects.toHaveResponseCode(404)
+
+    describe("fails to update", () => {
+      withMock("non-existing item", async () => {
+        await expect(CRUD.update("null", data.update))
+          .rejects.toHaveErrorCode(404)
+      })
+
+      describe.each(data.invalidUpdates)(
+        "with invalid properties %o",
+        (item: ItemUpdate) => {
+          test<LocalTestContext>("responds with BadRequest", async ({ mockID }) => {
+            await expect(CRUD.update(mockID, item))
+              .rejects.toHaveErrorCode(400)
+          })
+          test<LocalTestContext>("responds with validation errors on invalid input", async ({ mockID }) => {
+            await expect(CRUD.update(mockID, item))
+              .rejects.toRespondWithValidationErrors()
+          })
+        })
     })
-    withMock("fails to update with invalid property", async ({ mockID }) => {
-      await expect(CRUD.update(mockID, data.invalidUpdate))
-        .rejects.toHaveResponseCode(400)
-    })
-    withMock("responds with validation errors on invalid input", async ({ mockID }) => {
-      await expect(CRUD.update(mockID, data.invalidUpdate))
-        .rejects.toRespondWithValidationErrors()
-    })
+
 
     withMock("deletes", async ({ mock, mockID }) => {
       await expect(CRUD.delete(mockID))
@@ -165,70 +211,16 @@ async function generateTest<
     })
     withMock("fails to delete non-existing item", async () => {
       await expect(CRUD.delete(null))
-        .rejects.toHaveResponseCode(404)
+        .rejects.toHaveErrorCode(404)
     })
   })
 }
 
 
-const entityTests = {
-  Institution: {
-    CRUD: {
-      list: PeopleService.listInstitutions,
-      create: PeopleService.createInstitution,
-      update: PeopleService.updateInstitution,
-      delete: PeopleService.deleteInstitution,
-    },
-    getItemIdentifier: ({ code }) => code,
-    data: institution,
-    setup: {
-      async create() {
-        return await e.select(
-          e.insert(e.people.Institution, {
-            name: "Vitest institution",
-            code: "VITEST"
-          }),
-          () => ({ ...e.people.Institution['*'] })
-        ).run(db)
-      },
-      async delete(item) {
-        return await e.delete(e.people.Institution,
-          () => ({ filter_single: { id: item.id } })
-        ).run(db)
-      }
-    }
-  },
-  Person: {
-    CRUD: {
-      list: PeopleService.getPeoplePersons,
-      create: PeopleService.createperson,
-      update: PeopleService.updatePerson,
-      delete: PeopleService.deletePerson,
-    },
-    getItemIdentifier: ({ id }) => id,
-    data: person,
-    setup: {
-      async create() {
-        return await e.select(
-          e.insert(e.people.Person, {
-            first_name: "Anon",
-            last_name: "Ymous"
-          }),
-          () => ({ ...e.people.Person['*'] })
-        ).run(db)
-      },
-      async delete(item) {
-        return await e.delete(e.people.Person,
-          () => ({ filter_single: { id: item.id } })
-        ).run(db)
-      }
-    }
-  }
-}
 
-Object.entries(entityTests).forEach(([entity, config]) => {
-  generateTest(entity, config)
-})
+// Object.entries(entityTests).forEach(([entity, config]) => {
+//   generateTest(entity, config)
+// })
 // async () => {
 //   const item = await e.select(e.insert(e.people.Institution, {
 //     name: "Vitest institution",

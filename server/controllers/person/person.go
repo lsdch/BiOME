@@ -2,8 +2,8 @@ package person
 
 import (
 	"darco/proto/controllers"
-	"darco/proto/models/person"
 
+	"darco/proto/models/people"
 	_ "darco/proto/models/validations"
 
 	"github.com/edgedb/edgedb-go"
@@ -13,43 +13,64 @@ import (
 // List persons
 // @Summary List persons
 // @Tags People
-// @Success 200 {array} person.Person
+// @Success 200 {array} people.Person
 // @Router /people/persons [get]
 func List(ctx *gin.Context, db *edgedb.Client) {
-	controllers.ListItems[person.Person](ctx, db, person.List)
+	controllers.ListItems[people.Person](ctx, db, people.ListPersons)
 }
 
 // @Summary Create person
 // @Description Register a new person
 // @id Createperson
 // @tags People
-// @Success 201 {object} person.Person
+// @Success 201 {object} people.Person
 // @Failure 400 {object} validations.FieldErrors
 // @Router /people/persons [post]
-// @Param data body person.PersonInput true "Created person"
+// @Param data body people.PersonInput true "Created person"
 func Create(ctx *gin.Context, db *edgedb.Client) {
-	controllers.CreateItem[person.Person, person.PersonInput](ctx, db)
+	controllers.CreateItem[people.PersonInput, people.Person](ctx, db)
 }
 
 // @Summary Delete person
 // @id DeletePerson
 // @tags People
-// @Success 200 {object} person.Person
+// @Success 200 {object} people.Person
 // @Failure 404 "person does not exist"
 // @Router /people/persons/{id} [delete]
 // @Param id path string true "Item UUID"
 func Delete(ctx *gin.Context, db *edgedb.Client) {
-	controllers.DeleteByID[person.Person](ctx, db, person.Delete)
+	controllers.DeleteByID(ctx, db, people.DeletePerson)
 }
 
 // @Summary Update person
 // @id UpdatePerson
 // @tags People
-// @Success 200 {object} person.Person
+// @Success 200 {object} people.Person
 // @Failure 400 {object} validations.FieldErrors
 // @Router /people/persons/{id} [patch]
 // @Param id path string true "Item UUID"
-// @Param data body person.PersonUpdate true "Update infos"
+// @Param data body people.PersonUpdate true "Update infos"
 func Update(ctx *gin.Context, db *edgedb.Client) {
-	controllers.UpdateByID[person.Person](ctx, db, person.Find)
+	// uuid, err := controllers.ParseUUIDfromURI(ctx)
+	// if err != nil {
+	// 	logrus.Errorf("%v", err)
+	// 	return
+	// }
+	// person := people.PersonUpdate{ID: uuid}
+	// err = ctx.ShouldBindJSON(&person)
+	// if err != nil {
+	// 	logrus.Errorf("%v", err)
+	// 	return
+	// }
+	// logrus.Debugf("%+v", person)
+	// updated, err := person.Update(db)
+	// if err != nil {
+	// 	logrus.Errorf("%v", err)
+	// 	return
+	// }
+	// logrus.Infof("%v", updated)
+	// ctx.JSON(http.StatusOK, updated)
+
+	// controllers.UpdateByID(ctx, db, people.PersonInitUpdate)
+	controllers.UpdateItemByUUID[people.PersonUpdate](ctx, db, people.FindPerson)
 }

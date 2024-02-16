@@ -5,7 +5,11 @@
 export type PersonUpdate = {
     contact?: string;
     first_name?: string;
-    id?: string;
+    /**
+     * Institution codes
+     */
+    institutions?: Array<string>;
     last_name?: string;
+    middle_names?: string;
 };
 

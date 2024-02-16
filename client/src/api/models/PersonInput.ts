@@ -5,6 +5,8 @@
 export type PersonInput = {
     contact?: string;
     first_name: string;
+    institutions?: Array<string>;
     last_name: string;
+    middle_names?: string;
 };
 

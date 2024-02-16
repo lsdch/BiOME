@@ -1,41 +1,9 @@
-package models
+package expr
 
 import (
-	"context"
 	"fmt"
 	"strings"
-
-	"github.com/edgedb/edgedb-go"
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 )
-
-func ConnectDB() (db *edgedb.Client) {
-	ctx := context.Background()
-	db, err := edgedb.CreateClient(ctx, edgedb.Options{})
-
-	if err != nil {
-		log.Fatalf("Failed to connect to the database: %+v", err)
-	}
-
-	return
-}
-
-var db *edgedb.Client = ConnectDB()
-
-func WithDB(handler func(*gin.Context, *edgedb.Client)) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		client, ok := ctx.Get("db")
-		if !ok {
-			client = db
-		}
-		handler(ctx, client.(*edgedb.Client))
-	}
-}
-
-func DB() *edgedb.Client {
-	return db
-}
 
 type Expr interface {
 	String() string

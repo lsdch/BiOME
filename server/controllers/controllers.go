@@ -26,6 +26,7 @@ var ParseCodeURI IDParser[string] = func(ctx *gin.Context) (string, error) {
 	var code CodeInput
 	if err := ctx.BindUri(&code); err != nil {
 		ctx.Error(err)
+		return "", err
 	}
 	return code.Code, nil
 }

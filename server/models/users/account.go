@@ -3,7 +3,7 @@ package users
 import (
 	"context"
 	"darco/proto/config"
-	"darco/proto/models"
+	"darco/proto/db"
 	"darco/proto/services/email"
 	_ "embed"
 	"encoding/json"
@@ -25,7 +25,7 @@ func (newUser *UserInput) Register(config *config.Config, originURL *url.URL) er
 
 	var createdUser User
 	args, _ := json.Marshal(userInsert)
-	if err = models.DB().QuerySingle(context.Background(), queryRegister, &createdUser, args); err != nil {
+	if err = db.Client().QuerySingle(context.Background(), queryRegister, &createdUser, args); err != nil {
 		return err
 	}
 	return createdUser.SendConfirmationEmail(originURL)
@@ -107,5 +107,5 @@ func SetPassword(userID uuid.UUID, pwd *PasswordInput) error {
 	query := `with module people
 		update User filter .id = <uuid>$0
 		set { password = <str>$1 }`
-	return models.DB().Execute(context.Background(), query, userID, hashed_password)
+	return db.Client().Execute(context.Background(), query, userID, hashed_password)
 }

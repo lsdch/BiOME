@@ -2,13 +2,16 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { Institution } from './Institution';
 import type { Meta } from './Meta';
 export type Person = {
     contact?: string;
     first_name: string;
     full_name: string;
     id: string;
+    institutions?: Array<Institution>;
     last_name: string;
-    meta: Meta;
+    meta?: Meta;
+    middle_names?: string;
 };
 

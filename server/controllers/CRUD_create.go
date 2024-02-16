@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateItem[Created models.Updatable[Created], Item models.Creatable[Created]](
+func CreateItem[Item models.Creatable[Created], Created any](
 	ctx *gin.Context,
 	db *edgedb.Client,
 ) {

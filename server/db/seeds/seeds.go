@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"darco/proto/models"
+	"darco/proto/db"
 	"darco/proto/models/taxonomy"
 	"fmt"
 	"os"
@@ -47,9 +47,9 @@ func Seed(tx *edgedb.Tx, entity string) error {
 
 func seedTaxonomyGBIF() error {
 	bar := progressbar.Default(-1, "Importing Asellidae taxonomy from GBIF")
-	models.DB().Execute(context.Background(), "delete taxonomy::Taxon")
+	db.Client().Execute(context.Background(), "delete taxonomy::Taxon")
 	var total int
-	err := taxonomy.ImportTaxon(models.DB(), 4574, func(p *taxonomy.ImportProcess) {
+	err := taxonomy.ImportTaxon(db.Client(), 4574, func(p *taxonomy.ImportProcess) {
 		total = p.Imported
 		bar.Set(p.Imported)
 	})
@@ -70,7 +70,7 @@ func main() {
 		return
 	}
 
-	models.DB().Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+	db.Client().Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
 		for _, entity := range entities {
 			logrus.Infof("Seeding %s", entity)
 			err := Seed(tx, entity)

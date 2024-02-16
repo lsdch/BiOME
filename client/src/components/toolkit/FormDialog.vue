@@ -1,7 +1,8 @@
 <template>
   <v-dialog persistent v-model="dialog" v-bind="$attrs" :fullscreen="xs">
-    <template v-for="(name, index) of slotNames" v-slot:[name]="slotData" :key="index">
-      <slot :name="name" v-bind="slotData || {}" />
+    <!-- Expose activator slot -->
+    <template v-slot:activator="slotData">
+      <slot name="activator" v-bind="slotData"></slot>
     </template>
 
     <v-card flat :rounded="false">
@@ -12,45 +13,36 @@
         </template>
       </v-toolbar>
       <v-card-text>
-        <component :is="form" v-bind="$props" :onSuccess="onSuccess" />
+        <!-- Default form slot -->
+        <slot></slot>
       </v-card-text>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
-import { computed, type Component } from 'vue'
-import { ComponentSlots } from 'vue-component-type-helpers'
+import { computed, onBeforeMount, useSlots } from 'vue'
 import { useDisplay } from 'vuetify'
 import { VDialog } from 'vuetify/components'
-import type { Emits, Mode, Props } from './form'
+import { Mode } from './form'
 
 const dialog = defineModel<boolean>()
 
 const { xs } = useDisplay()
 
-const slots = defineSlots<ComponentSlots<typeof VDialog>>()
-const slotNames = Object.keys(slots) as 'default'[]
-
-const props = defineProps<
-  {
-    // FIXME : stronger type checking for emit events
-    form: Component
-    entityName: string
-  } & Omit<Props<ItemType>, 'onSuccess'>
->()
+const props = defineProps<{
+  entityName: string
+  mode: Mode
+}>()
 
 const title = computed(() => {
-  const mode: Mode = props.edit ? 'Edit' : 'Create'
-  return `${mode} ${props.entityName}`
+  return `${props.mode} ${props.entityName}`
 })
 
-const emit = defineEmits<Emits<ItemType>>()
-
-function onSuccess(mode: Mode, item: ItemType) {
-  dialog.value = false
-  emit('success', mode, item)
-}
+const slots = useSlots()
+onBeforeMount(() => {
+  if (!slots.default) console.error('No content provided in FormDialog slot.')
+})
 </script>
 
 <style scoped></style>

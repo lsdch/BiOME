@@ -3,43 +3,46 @@
     <v-card>
       <v-toolbar dark dense flat>
         <v-toolbar-title class="text-body-2 font-weight-bold grey--text">
-          {{ content.title }}
+          {{ props.title }}
         </v-toolbar-title>
       </v-toolbar>
-      <v-card-text> {{ content.message }} </v-card-text>
+      <v-card-text> {{ props.message }} </v-card-text>
       <v-card-actions>
         <v-spacer />
         <v-btn color="grey" variant="text" @click="cancel" text="Cancel" />
-        <v-btn color="blue-darken-1" variant="text" @click="agree(content.payload)" text="OK" />
+        <v-btn color="blue-darken-1" variant="text" @click="confirm" text="OK" />
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts" generic="Payload = any">
-export type ConfirmDialogProps<Payload> = {
+export type ConfirmDialogProps = {
   title: string
   message: string
-  payload?: Payload
+  onConfirm?: () => any
+  onCancel?: () => any
 }
 
 const dialog = defineModel<boolean>()
 
-const content = defineProps<ConfirmDialogProps<Payload>>()
+const props = defineProps<ConfirmDialogProps>()
 
 const emit = defineEmits<{
-  agree: [payload?: Payload]
+  confirm: []
   cancel: []
 }>()
 
-function agree(payload?: Payload) {
-  emit('agree', payload)
+function confirm() {
+  emit('confirm')
   dialog.value = false
+  return props.onConfirm?.()
 }
 
 function cancel() {
   emit('cancel')
   dialog.value = false
+  return props.onCancel?.()
 }
 </script>
 

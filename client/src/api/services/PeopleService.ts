@@ -61,12 +61,12 @@ export class PeopleService {
     /**
      * Delete institution
      * @param code Institution short name
-     * @returns any Delete successful
+     * @returns Institution Deleted item
      * @throws ApiError
      */
     public static deleteInstitution(
         code: string,
-    ): CancelablePromise<any> {
+    ): CancelablePromise<Institution> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/people/institutions/{code}',

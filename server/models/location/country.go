@@ -2,7 +2,7 @@ package country
 
 import (
 	"context"
-	"darco/proto/models"
+	"darco/proto/db"
 	"embed"
 
 	"github.com/edgedb/edgedb-go"
@@ -19,7 +19,7 @@ func Setup() error {
 	if err != nil {
 		return err
 	}
-	err = models.DB().Execute(context.Background(), setupCountriesCmd, json)
+	err = db.Client().Execute(context.Background(), setupCountriesCmd, json)
 	return err
 }
 

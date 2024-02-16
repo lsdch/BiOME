@@ -25,6 +25,9 @@ module default {
     filter .id = global current_user_id
   );
 
+  function null_if_empty(s: str) -> optional str
+    using(with trimmed := str_trim(s) select <str>{} if len(trimmed) = 0 else trimmed);
+
   abstract annotation example;
 
   type AppConfig {
@@ -907,7 +910,7 @@ module people {
   type Institution extending default::Auditable {
     required name: str {
       constraint exclusive;
-      constraint min_len_value(10);
+      constraint min_len_value(3);
       constraint max_len_value(128);
     };
     required code: str {
@@ -915,24 +918,36 @@ module people {
       constraint min_len_value(2);
       constraint max_len_value(12);
     };
-    description: str;
-    multi link people := .<institution[is Person];
+    description: str {
+      rewrite insert, update using (default::null_if_empty(.description));
+    };
+    multi link people := .<institutions[is Person];
+
+    index on (.code);
   }
 
   type Person extending default::Auditable {
     required first_name: str {
-      constraint min_len_value(2);
+      constraint min_len_value(1);
       constraint max_len_value(32);
+    };
+    middle_names: str {
+      constraint max_len_value(32);
+      rewrite insert, update using (default::null_if_empty(.middle_names));
     };
     required last_name: str {
       constraint min_len_value(2);
       constraint max_len_value(32);
     };
 
-    property full_name := .first_name ++ ' ' ++ .last_name;
+    required property full_name := array_join(
+      array_agg({.first_name, .middle_names, .last_name}), ' '
+    );
 
-    contact: str;
-    multi institution: Institution;
+    contact: str {
+      rewrite insert, update using (default::null_if_empty(.contact));
+    };
+    multi institutions: Institution;
   }
 
 

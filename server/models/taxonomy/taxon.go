@@ -2,8 +2,11 @@ package taxonomy
 
 import (
 	"context"
+	"darco/proto/db"
+	"darco/proto/db/expr"
 	"darco/proto/models"
 	_ "embed"
+	"encoding/json"
 	"fmt"
 
 	"github.com/edgedb/edgedb-go"
@@ -80,34 +83,28 @@ type TaxonSelect struct {
 	Children []TaxonDB `edgedb:"children" json:"children,omitempty"`
 } // @name TaxonWithRelatives
 
-type TaxonUpdate struct {
-	ID     edgedb.UUID `json:"id" example:"<UUID>" binding:"required"`
-	Taxon  `edgedb:"$inline"`
-	Parent edgedb.UUID `json:"parent" edgedb:"parent"`
-} // @name TaxonUpdate
-
 func ListTaxa(db *edgedb.Client,
 	pattern string, rank TaxonRank, status TaxonStatus,
 ) ([]TaxonDB, error) {
 	var taxa = make([]TaxonDB, 0)
 	query := "select taxonomy::Taxon { *, meta: {**}}"
-	expr := &models.FilterGroup{Operator: "AND", Components: make([]models.Expr, 3)}
+	e := &expr.FilterGroup{Operator: "AND", Components: make([]expr.Expr, 3)}
 	if pattern != "" {
-		expr.Add(&models.QueryFilter{
+		e.Add(&expr.QueryFilter{
 			Field: ".name", Op: "ilike", Arg: "<str>$pattern", Value: fmt.Sprintf("%%%s%%", pattern),
 		})
 	}
 	if rank != "" {
-		expr.Add(&models.QueryFilter{
+		e.Add(&expr.QueryFilter{
 			Field: ".rank", Op: "=", Arg: "<taxonomy::Rank>$rank", Value: string(rank),
 		})
 	}
 	if status != "" {
-		expr.Add(&models.QueryFilter{
+		e.Add(&expr.QueryFilter{
 			Field: ".status", Op: "=", Arg: "<taxonomy::TaxonStatus>$status", Value: string(status),
 		})
 	}
-	qb := models.QueryBuilder{Query: query, Expr: expr}
+	qb := expr.QueryBuilder{Query: query, Expr: e}
 	args := qb.Args()
 	logrus.Debugf("Taxonomy list query: %s", qb.String())
 	err := db.Query(context.Background(), qb.String(), &taxa, args)
@@ -134,23 +131,33 @@ func FindByCode(db *edgedb.Client, code string) (taxon TaxonSelect, err error) {
 
 func Delete(code string) error {
 	query := "delete taxonomy::Taxon filter .code = <str>$0;"
-	return models.DB().Execute(context.Background(), query, code)
+	return db.Client().Execute(context.Background(), query, code)
 }
 
 //go:embed queries/create_taxon.edgeql
 var createTaxonCmd string
 
 func (taxon TaxonInput) Create(db *edgedb.Client) (created TaxonSelect, err error) {
-	args := models.StructToMap(taxon)
+	args, _ := json.Marshal(taxon)
 	err = db.QuerySingle(context.Background(), createTaxonCmd, &created, args)
 	return created, err
 }
 
+type TaxonUpdate struct {
+	GBIF_ID    *int32       `json:"GBIF_ID,omitempty" binding:"omitnil,numeric"`
+	Name       *string      `json:"name,omitempty" binding:"omitnil,alpha"`
+	Code       *string      `json:"code,omitempty" binding:"omitnil,alpha"`
+	Status     *TaxonStatus `json:"status,omitempty" binding:"omitnil"`
+	Authorship *string      `json:"authorship,omitempty" binding:"omitnil,alphanumunicode"`
+	Rank       *TaxonRank   `json:"rank,omitempty" binding:"omitnil"`
+	Parent     *string      `json:"parent,omitempty" binding:"omitnil"` // parent code
+} // @name TaxonUpdate
+
 //go:embed queries/update_taxon.edgeql
 var updateTaxonCmd string
 
-func (taxon TaxonSelect) Update(db *edgedb.Client) (updated TaxonSelect, err error) {
-	args := models.StructToMap(taxon)
-	err = db.QuerySingle(context.Background(), updateTaxonCmd, &updated, args)
-	return updated, err
+func (taxon TaxonUpdate) Update(db *edgedb.Client) (uuid edgedb.UUID, err error) {
+	args, _ := json.Marshal(taxon)
+	err = db.QuerySingle(context.Background(), updateTaxonCmd, &uuid, args)
+	return uuid, err
 }

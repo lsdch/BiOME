@@ -202,7 +202,10 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Delete successful"
+                        "description": "Deleted item",
+                        "schema": {
+                            "$ref": "#/definitions/Institution"
+                        }
                     },
                     "404": {
                         "description": "Institution does not exist"
@@ -533,46 +536,6 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
-                    },
-                    "403": {
-                        "description": "Forbidden"
-                    },
-                    "404": {
-                        "description": "Not Found"
-                    }
-                }
-            },
-            "patch": {
-                "tags": [
-                    "Taxonomy"
-                ],
-                "summary": "Update a taxon by its code",
-                "operationId": "UpdateTaxon",
-                "parameters": [
-                    {
-                        "minLength": 3,
-                        "type": "string",
-                        "description": "Taxon code",
-                        "name": "code",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Taxon",
-                        "name": "data",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/TaxonUpdate"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/TaxonWithRelatives"
-                        }
                     },
                     "403": {
                         "description": "Forbidden"
@@ -915,7 +878,8 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "field",
-                "message"
+                "message",
+                "value"
             ],
             "properties": {
                 "error": {
@@ -937,7 +901,8 @@ const docTemplate = `{
                 "tag": {
                     "type": "string",
                     "example": "min"
-                }
+                },
+                "value": {}
             }
         },
         "Institution": {
@@ -945,7 +910,6 @@ const docTemplate = `{
             "required": [
                 "code",
                 "id",
-                "meta",
                 "name"
             ],
             "properties": {
@@ -1021,7 +985,7 @@ const docTemplate = `{
                 "name": {
                     "type": "string",
                     "maxLength": 128,
-                    "minLength": 10,
+                    "minLength": 3,
                     "example": "Mos Eisley Laboratory of Environmental Studies"
                 }
             }
@@ -1091,8 +1055,7 @@ const docTemplate = `{
                 "first_name",
                 "full_name",
                 "id",
-                "last_name",
-                "meta"
+                "last_name"
             ],
             "properties": {
                 "contact": {
@@ -1109,6 +1072,12 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "institutions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Institution"
+                    }
+                },
                 "last_name": {
                     "type": "string",
                     "maxLength": 32,
@@ -1116,6 +1085,10 @@ const docTemplate = `{
                 },
                 "meta": {
                     "$ref": "#/definitions/Meta"
+                },
+                "middle_names": {
+                    "type": "string",
+                    "maxLength": 32
                 }
             }
         },
@@ -1134,10 +1107,20 @@ const docTemplate = `{
                     "maxLength": 32,
                     "minLength": 2
                 },
+                "institutions": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "last_name": {
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 2
+                },
+                "middle_names": {
+                    "type": "string",
+                    "maxLength": 32
                 }
             }
         },
@@ -1152,13 +1135,21 @@ const docTemplate = `{
                     "maxLength": 32,
                     "minLength": 2
                 },
-                "id": {
-                    "type": "string"
+                "institutions": {
+                    "description": "Institution codes",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "last_name": {
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 2
+                },
+                "middle_names": {
+                    "type": "string",
+                    "maxLength": 32
                 }
             }
         },
@@ -1261,57 +1252,6 @@ const docTemplate = `{
                 "Synonym",
                 "Unclassified"
             ]
-        },
-        "TaxonUpdate": {
-            "type": "object",
-            "required": [
-                "code",
-                "id",
-                "name",
-                "rank",
-                "status"
-            ],
-            "properties": {
-                "GBIF_ID": {
-                    "type": "integer",
-                    "example": 2206247
-                },
-                "authorship": {
-                    "type": "string",
-                    "example": "(Linnaeus, 1758)"
-                },
-                "code": {
-                    "type": "string",
-                    "example": "ASEaquaticus"
-                },
-                "id": {
-                    "type": "string",
-                    "example": "\u003cUUID\u003e"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Asellus aquaticus"
-                },
-                "parent": {
-                    "type": "string"
-                },
-                "rank": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/TaxonRank"
-                        }
-                    ],
-                    "example": "Species"
-                },
-                "status": {
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/TaxonStatus"
-                        }
-                    ],
-                    "example": "Accepted"
-                }
-            }
         },
         "TaxonWithRelatives": {
             "type": "object",
@@ -1505,7 +1445,7 @@ const docTemplate = `{
                     "description": "EmailPublic bool        ` + "`" + `edbedb:\"email_public\" json:\"email_public\"` + "`" + `",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/PersonInput"
+                            "$ref": "#/definitions/people.PersonInner"
                         }
                     ]
                 },
@@ -1547,6 +1487,32 @@ const docTemplate = `{
                 },
                 "password": {
                     "$ref": "#/definitions/PasswordInput"
+                }
+            }
+        },
+        "people.PersonInner": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "middle_names": {
+                    "type": "string",
+                    "maxLength": 32
                 }
             }
         }

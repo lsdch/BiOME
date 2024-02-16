@@ -2,8 +2,8 @@ package users
 
 import (
 	"context"
-	"darco/proto/models"
-	"darco/proto/models/person"
+	"darco/proto/db"
+	"darco/proto/models/people"
 	_ "embed"
 	"encoding/json"
 	"errors"
@@ -18,7 +18,7 @@ type InnerUserInput struct {
 	Login string `edgedb:"login" json:"login" binding:"login,required,unique_login"`
 	Email string `edgedb:"email" json:"email" binding:"email,required,unique_email" format:"email"`
 	// EmailPublic bool        `edbedb:"email_public" json:"email_public"`
-	Person person.PersonInput `edgedb:"identity" json:"identity" binding:"required"`
+	Person people.PersonInner `edgedb:"identity" json:"identity" binding:"required"`
 } // @name InnerUserInput
 type UserInput struct {
 	InnerUserInput `json:",inline"`
@@ -44,7 +44,7 @@ type UserInsert struct {
 type UserPartial struct {
 	Role     UserRole      `edgedb:"role" json:"role" binding:"required"`
 	Verified bool          `edgedb:"verified" json:"verified" binding:"required"`
-	Person   person.Person `edgedb:"identity" json:"identity" binding:"required"`
+	Person   people.Person `edgedb:"identity" json:"identity" binding:"required"`
 } // @name UserPartial
 
 type User struct {
@@ -63,7 +63,7 @@ func (user *User) InnerUserInput() *InnerUserInput {
 	return &InnerUserInput{
 		Login:  user.Login,
 		Email:  user.Email,
-		Person: user.Person.PersonInput,
+		Person: user.Person.PersonInner,
 	}
 }
 
@@ -76,7 +76,7 @@ func (user *User) SetActive(active bool) error {
 	set {
 		verified := <bool>$0
 	} `
-	return models.DB().Execute(context.Background(), query, active, user.Email)
+	return db.Client().Execute(context.Background(), query, active, user.Email)
 }
 
 func (user *User) MarshalJSON() ([]byte, error) {

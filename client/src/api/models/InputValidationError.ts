@@ -11,5 +11,6 @@ export type InputValidationError = {
     message: string;
     param?: string;
     tag?: string;
+    value: any;
 };
 

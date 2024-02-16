@@ -3,7 +3,7 @@ package users
 import (
 	"context"
 	"darco/proto/config"
-	"darco/proto/models"
+	"darco/proto/db"
 	"time"
 
 	_ "embed"
@@ -40,7 +40,7 @@ func (token *AccountEmailToken) IsValid() bool {
 
 func (token *AccountEmailToken) Consume() (err error) {
 	deleteQuery := `delete people::AccountEmailToken filter .id = <uuid>$0`
-	if err = models.DB().Execute(context.Background(), deleteQuery, token.ID); err != nil {
+	if err = db.Client().Execute(context.Background(), deleteQuery, token.ID); err != nil {
 		logrus.Errorf("Database error %v (query: %s)", err, deleteQuery)
 		return
 	}
@@ -51,7 +51,7 @@ func ValidatePasswordResetToken(token Token) (uuid.UUID, bool) {
 	query := `select people::PasswordReset { id, user: {id}, token, expires }
 		filter .token = <str>$0`
 	var pwdReset AccountEmailToken
-	if err := models.DB().QuerySingle(context.Background(), query, pwdReset, token); err != nil {
+	if err := db.Client().QuerySingle(context.Background(), query, pwdReset, token); err != nil {
 		return uuid.Nil, false
 	}
 	if pwdReset.IsValid() {
@@ -63,7 +63,7 @@ func ValidatePasswordResetToken(token Token) (uuid.UUID, bool) {
 func ValidateEmailConfirmationToken(token Token) (uuid.UUID, bool) {
 	query := `select people::EmailConfirmation { id, user: {id}, token, expires} filter .token = <str>$0`
 	var emailConfirmation AccountEmailToken
-	if err := models.DB().QuerySingle(context.Background(), query, &emailConfirmation, string(token)); err != nil {
+	if err := db.Client().QuerySingle(context.Background(), query, &emailConfirmation, string(token)); err != nil {
 		logrus.Infof("Failed to validate email confirmation token with error %+v", err)
 		return uuid.Nil, false
 	}
@@ -83,7 +83,7 @@ func (user *User) CreateConfirmationToken() (Token, error) {
 	expires := time.Now().Add(config.Emailer.TokenLifetime)
 	logrus.Infof("Creating confirmation token %s for user ID %v", token, user.ID)
 	return Token(token),
-		models.DB().Execute(
+		db.Client().Execute(
 			context.Background(),
 			queryCreateConfirmationToken,
 			user.ID, token, expires,
@@ -98,7 +98,7 @@ func (user *User) CreatePasswordResetToken() (Token, error) {
 	token := randstr.String(20)
 	expiration := time.Now().Add(config.Emailer.TokenLifetime)
 	return Token(token),
-		models.DB().Execute(
+		db.Client().Execute(
 			context.Background(),
 			queryCreatePasswordReset,
 			user.ID, token, expiration,

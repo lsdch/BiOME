@@ -59,9 +59,11 @@ definitions:
       tag:
         example: min
         type: string
+      value: {}
     required:
     - field
     - message
+    - value
     type: object
   Institution:
     properties:
@@ -90,7 +92,6 @@ definitions:
     required:
     - code
     - id
-    - meta
     - name
     type: object
   InstitutionInput:
@@ -125,7 +126,7 @@ definitions:
       name:
         example: Mos Eisley Laboratory of Environmental Studies
         maxLength: 128
-        minLength: 10
+        minLength: 3
         type: string
     type: object
   LoginFailedError:
@@ -181,18 +182,24 @@ definitions:
         type: string
       id:
         type: string
+      institutions:
+        items:
+          $ref: '#/definitions/Institution'
+        type: array
       last_name:
         maxLength: 32
         minLength: 2
         type: string
       meta:
         $ref: '#/definitions/Meta'
+      middle_names:
+        maxLength: 32
+        type: string
     required:
     - first_name
     - full_name
     - id
     - last_name
-    - meta
     type: object
   PersonInput:
     properties:
@@ -202,9 +209,16 @@ definitions:
         maxLength: 32
         minLength: 2
         type: string
+      institutions:
+        items:
+          type: string
+        type: array
       last_name:
         maxLength: 32
         minLength: 2
+        type: string
+      middle_names:
+        maxLength: 32
         type: string
     required:
     - first_name
@@ -218,11 +232,17 @@ definitions:
         maxLength: 32
         minLength: 2
         type: string
-      id:
-        type: string
+      institutions:
+        description: Institution codes
+        items:
+          type: string
+        type: array
       last_name:
         maxLength: 32
         minLength: 2
+        type: string
+      middle_names:
+        maxLength: 32
         type: string
     type: object
   ResendConfirmationError:
@@ -298,40 +318,6 @@ definitions:
     - Accepted
     - Synonym
     - Unclassified
-  TaxonUpdate:
-    properties:
-      GBIF_ID:
-        example: 2206247
-        type: integer
-      authorship:
-        example: (Linnaeus, 1758)
-        type: string
-      code:
-        example: ASEaquaticus
-        type: string
-      id:
-        example: <UUID>
-        type: string
-      name:
-        example: Asellus aquaticus
-        type: string
-      parent:
-        type: string
-      rank:
-        allOf:
-        - $ref: '#/definitions/TaxonRank'
-        example: Species
-      status:
-        allOf:
-        - $ref: '#/definitions/TaxonStatus'
-        example: Accepted
-    required:
-    - code
-    - id
-    - name
-    - rank
-    - status
-    type: object
   TaxonWithRelatives:
     properties:
       GBIF_ID:
@@ -457,7 +443,7 @@ definitions:
         type: string
       identity:
         allOf:
-        - $ref: '#/definitions/PersonInput'
+        - $ref: '#/definitions/people.PersonInner'
         description: EmailPublic bool        `edbedb:"email_public" json:"email_public"`
       login:
         type: string
@@ -493,6 +479,25 @@ definitions:
     required:
     - credentials
     - password
+    type: object
+  people.PersonInner:
+    properties:
+      contact:
+        type: string
+      first_name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      last_name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      middle_names:
+        maxLength: 32
+        type: string
+    required:
+    - first_name
+    - last_name
     type: object
 info:
   contact:
@@ -623,7 +628,9 @@ paths:
         type: string
       responses:
         "200":
-          description: Delete successful
+          description: Deleted item
+          schema:
+            $ref: '#/definitions/Institution'
         "404":
           description: Institution does not exist
       summary: Delete institution
@@ -811,33 +818,6 @@ paths:
         "404":
           description: Not Found
       summary: Get a taxon by its code
-      tags:
-      - Taxonomy
-    patch:
-      operationId: UpdateTaxon
-      parameters:
-      - description: Taxon code
-        in: path
-        minLength: 3
-        name: code
-        required: true
-        type: string
-      - description: Taxon
-        in: body
-        name: data
-        required: true
-        schema:
-          $ref: '#/definitions/TaxonUpdate'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/TaxonWithRelatives'
-        "403":
-          description: Forbidden
-        "404":
-          description: Not Found
-      summary: Update a taxon by its code
       tags:
       - Taxonomy
   /taxonomy/anchors:

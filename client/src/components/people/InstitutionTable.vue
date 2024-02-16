@@ -4,21 +4,23 @@
     density="compact"
     :crud="{
       list: PeopleService.listInstitutions,
-      create: PeopleService.createInstitution,
-      update: (inst: Institution) => PeopleService.updateInstitution(inst.code, inst),
       delete: (inst: Institution) => PeopleService.deleteInstitution(inst.code)
     }"
-    :toolbar-props="{
+    entityName="Institution"
+    :itemRepr="(inst) => inst.code"
+    :toolbar="{
       title: 'Institutions',
-      entityName: 'Institution',
-      form: InstitutionForm,
-      icon: 'mdi-domain',
-      itemRepr: (inst) => inst.code
+      icon: 'mdi-domain'
     }"
     show-actions
-    icon="mdi-domain"
     :filter-keys="['code', 'name']"
+    @create-item="create"
+    @edit-item="edit"
   >
+    <template v-slot:form>
+      <InstitutionForm :edit="editItem" @success="onFormSuccess" />
+    </template>
+
     <template v-slot:[`item.code`]="{ item }">
       <code>{{ item.code }}</code>
     </template>
@@ -56,6 +58,7 @@ import { Institution, PeopleService } from '@/api'
 import InstitutionForm from './InstitutionForm.vue'
 
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { useEntityTable } from '../toolkit/tables'
 
 const headers: ReadonlyHeaders = [
   { title: 'Short name', key: 'code' },
@@ -64,6 +67,8 @@ const headers: ReadonlyHeaders = [
   { title: 'People', key: 'people', align: 'center' },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
 ]
+
+const { create, edit, editItem, onFormSuccess } = useEntityTable<Institution>()
 </script>
 
 <style scoped></style>

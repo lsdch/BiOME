@@ -1,7 +1,7 @@
 import 'vitest'
 
 interface CustomMatchers<R = unknown> {
-  toHaveResponseCode(status: number): R
+  toHaveErrorCode(status: number): R
   toRespondWithValidationErrors(): R
 }
 

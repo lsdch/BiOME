@@ -1,7 +1,7 @@
 package taxonomy
 
 import (
-	"darco/proto/models"
+	"darco/proto/db"
 	"darco/proto/models/taxonomy"
 	"io"
 	"net/http"
@@ -143,7 +143,7 @@ func ImportCladeGBIF() Controller {
 	}
 
 	return Controller{
-		Endpoint:        models.WithDB(endpoint),
+		Endpoint:        db.WithDB(endpoint),
 		ProgressTracker: tracker,
 	}
 }

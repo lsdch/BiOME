@@ -32,15 +32,18 @@ func ErrorHandler(c *gin.Context) {
 	var validationErr validator.ValidationErrors
 	if errors.As(err, &validationErr) {
 		apiErr := validations.ValidationErrorsByField(validations.InputValidationErrors(validationErr))
-		logrus.Debugf("Validation error: %v", apiErr)
+		logrus.Debugf("Validation error: %+v", apiErr)
 		c.AbortWithStatusJSON(http.StatusBadRequest, apiErr)
 		return
 	}
 
 	var manualValidationErr validations.InputValidationError
 	if errors.As(err, &manualValidationErr) {
-		logrus.Debugf("Validation error: %v", manualValidationErr)
-		c.AbortWithStatusJSON(http.StatusBadRequest, err)
+		apiErr := validations.ValidationErrorsByField(
+			[]validations.InputValidationError{manualValidationErr},
+		)
+		logrus.Debugf("Validation error: %+v", apiErr)
+		c.AbortWithStatusJSON(http.StatusBadRequest, apiErr)
 		return
 	}
 

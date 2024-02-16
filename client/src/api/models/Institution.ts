@@ -8,7 +8,7 @@ export type Institution = {
     code: string;
     description?: string;
     id: string;
-    meta: Meta;
+    meta?: Meta;
     name: string;
     people?: Array<Person>;
 };

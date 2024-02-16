@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"darco/proto/config"
-	"darco/proto/models"
+	"darco/proto/db"
 	"darco/proto/models/users"
 	"darco/proto/services/tokens"
 	"strings"
@@ -19,7 +19,7 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 	cookie, err := ctx.Cookie("token")
 
 	ctx.Set("currentUser", nil)
-	ctx.Set("db", models.DB())
+	ctx.Set("db", db.Client())
 
 	authorizationHeader := ctx.Request.Header.Get("Authorization")
 	fields := strings.Fields((authorizationHeader))
@@ -46,7 +46,7 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	current_user, err := users.FindID(models.DB(), userID)
+	current_user, err := users.FindID(db.Client(), userID)
 	if err != nil {
 		logrus.Errorf("Token was validated but does not match an existing user.")
 		return
@@ -54,7 +54,7 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 
 	logrus.Debugf("User authenticated %+v", current_user)
 
-	client := models.DB().WithGlobals(map[string]interface{}{"current_user_id": edgedb.UUID(userID)})
+	client := db.Client().WithGlobals(map[string]interface{}{"current_user_id": edgedb.UUID(userID)})
 	ctx.Set("current_user", current_user)
 	ctx.Set("db", client)
 	ctx.Next()

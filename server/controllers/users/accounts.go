@@ -3,7 +3,7 @@ package accounts
 import (
 	"context"
 	"darco/proto/config"
-	"darco/proto/models"
+	"darco/proto/db"
 	"darco/proto/models/users"
 	_ "darco/proto/models/validations"
 	"darco/proto/services/tokens"
@@ -316,7 +316,7 @@ func ResetPassword(ctx *gin.Context) {
 	}
 
 	pwd_strength := config.Get().Accounts.PasswordStrength
-	user, _ := users.FindID(models.DB(), userID)
+	user, _ := users.FindID(db.Client(), userID)
 	if err := newPwd.ValidateStrength(pwd_strength, user.InnerUserInput()); err != nil {
 		ctx.Error(err)
 		return

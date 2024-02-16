@@ -1,16 +1,16 @@
 package controllers
 
 import (
-	"darco/proto/models"
 	"net/http"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
-type ItemDelete[ID any, Item models.Updatable[Item]] func(db *edgedb.Client, id ID) (Item, error)
+type ItemDelete[ID any, Item any] func(db *edgedb.Client, id ID) (Item, error)
 
-func delete[ID any, Item models.Updatable[Item]](
+func delete[ID any, Item any](
 	ctx *gin.Context,
 	db *edgedb.Client,
 	delete ItemDelete[ID, Item],
@@ -25,10 +25,11 @@ func delete[ID any, Item models.Updatable[Item]](
 		ctx.Error(err)
 		return
 	}
+	logrus.Debugf("Deleted item %+v", deleted)
 	ctx.JSON(http.StatusOK, deleted)
 }
 
-func DeleteByCode[Item models.Updatable[Item]](
+func DeleteByCode[Item any](
 	ctx *gin.Context,
 	db *edgedb.Client,
 	deleteItem ItemDelete[string, Item],
@@ -36,7 +37,7 @@ func DeleteByCode[Item models.Updatable[Item]](
 	delete[string, Item](ctx, db, deleteItem, ParseCodeURI)
 }
 
-func DeleteByID[Item models.Updatable[Item]](
+func DeleteByID[Item any](
 	ctx *gin.Context,
 	db *edgedb.Client,
 	deleteItem ItemDelete[edgedb.UUID, Item],

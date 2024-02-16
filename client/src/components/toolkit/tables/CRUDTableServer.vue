@@ -37,7 +37,7 @@ import { Ref, ref, useSlots } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { VDataTable } from 'vuetify/components'
 import TableToolbar from './TableToolbar.vue'
-import { TableProps } from './table'
+import { TableProps } from '.'
 
 const slots = useSlots()
 // Assert type here to prevent errors in template

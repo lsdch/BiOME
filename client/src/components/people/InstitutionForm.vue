@@ -10,7 +10,7 @@
           persistent-hint
           v-model="inst.name"
           required
-          :error-messages="errors?.name?.map(({ message }) => message)"
+          :error-messages="errorMsgs.name"
         />
       </v-row>
       <v-row class="mb-3">
@@ -21,7 +21,7 @@
           hint="A short label or code that identifies your lab."
           persistent-hint
           v-model="inst.code"
-          :error-messages="errors?.code?.map(({ message }) => message)"
+          :error-messages="errorMsgs.code"
         />
       </v-row>
       <v-row class="mb-3">
@@ -29,7 +29,7 @@
           variant="outlined"
           label="Description (optional)"
           v-model="inst.description"
-          :error-messages="errors?.description?.map(({ message }) => message)"
+          :error-messages="errorMsgs.description"
         />
       </v-row>
       <v-row>
@@ -40,9 +40,13 @@
   </v-form>
 </template>
 
+<script lang="ts">
+const DEFAULT = { code: '', name: '' }
+</script>
+
 <script setup lang="ts">
 import { Institution, InstitutionInput, PeopleService } from '@/api'
-import { Ref, ref } from 'vue'
+import { ref, watchEffect } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { VForm } from 'vuetify/components'
 import { Emits, Props, useForm } from '../toolkit/form'
@@ -50,16 +54,13 @@ import { Emits, Props, useForm } from '../toolkit/form'
 const innerForm = ref<ComponentExposed<typeof VForm> | null>(null)
 
 const props = defineProps<Props<Institution>>()
+const inst = defineModel<InstitutionInput>({ default: DEFAULT })
+const emit = defineEmits<Emits<Institution>>()
 
-const inst: Ref<InstitutionInput> = ref(
-  props.edit
-    ? { ...props.edit }
-    : {
-        name: '',
-        code: '',
-        description: ''
-      }
-)
+watchEffect(() => {
+  if (props.edit) inst.value = { ...props.edit }
+  else inst.value = { ...DEFAULT }
+})
 
 function request() {
   if (props.edit) {
@@ -69,9 +70,7 @@ function request() {
   }
 }
 
-const emit = defineEmits<Emits<Institution>>()
-
-const { errors, submit, loading } = useForm<InstitutionInput, Institution>(props, emit, request)
+const { errorMsgs, submit, loading } = useForm<InstitutionInput, Institution>(props, emit, request)
 
 function reset() {
   innerForm.value?.reset()

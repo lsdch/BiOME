@@ -1,13 +1,31 @@
 {
-  "create": {
-    "code": "TEST",
-    "name": "National Mockery Institute",
-    "description": "A mock institution"
-  },
+  "creates": [
+    {
+      "code": "TEST",
+      "name": "National Mockery Institute",
+      "description": "A mock institution"
+    },
+    {
+      "code": "TESTINST",
+      "name": "Has no description"
+    }
+  ],
+  "invalidCreates": [
+    {
+      "name": "",
+      "code": "SHOULDFAIL"
+    },
+    {
+      "code": "L",
+      "name": "should fail"
+    }
+  ],
   "update": {
     "name": "The updated name"
   },
-  "invalidUpdate": {
-    "name": "x"
-  }
+  "invalidUpdates": [
+    {
+      "name": "x"
+    }
+  ]
 }

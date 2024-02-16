@@ -7,8 +7,8 @@ import (
 	"darco/proto/controllers/person"
 	"darco/proto/controllers/taxonomy"
 	accounts "darco/proto/controllers/users"
+	"darco/proto/db"
 	"darco/proto/middlewares"
-	"darco/proto/models"
 	"darco/proto/models/validations"
 	"darco/proto/router"
 	"darco/proto/services/email"
@@ -56,43 +56,43 @@ func setupRouter() *gin.Engine {
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	country_api := api.Group("/countries")
-	country_api.GET("", models.WithDB(country.List))
+	country_api.GET("", db.WithDB(country.List))
 	country_api.GET("/setup", country.Setup)
 
 	taxonomy_api := api.Group("/taxonomy")
-	taxonomy_api.GET("", models.WithDB(taxonomy.ListTaxa))
-	taxonomy_api.GET("/:code", models.WithDB(taxonomy.GetTaxon))
-	taxonomy_api.DELETE("/:code", models.WithDB(taxonomy.DeleteTaxon))
-	taxonomy_api.PATCH("/:code", models.WithDB(taxonomy.UpdateTaxon))
+	taxonomy_api.GET("", db.WithDB(taxonomy.ListTaxa))
+	taxonomy_api.GET("/:code", db.WithDB(taxonomy.GetTaxon))
+	taxonomy_api.DELETE("/:code", db.WithDB(taxonomy.DeleteTaxon))
+	// taxonomy_api.PATCH("/:code", db.WithDB(taxonomy.UpdateTaxon))
 	importGBIF := taxonomy.ImportCladeGBIF()
 	taxonomy_api.PUT("/import", importGBIF.Endpoint)
 	taxonomy_api.GET("/import", importGBIF.ProgressTracker)
-	taxonomy_api.GET("/anchors", models.WithDB(taxonomy.ListAnchors))
+	taxonomy_api.GET("/anchors", db.WithDB(taxonomy.ListAnchors))
 
-	api.POST("/login", models.WithDB(accounts.Login))
+	api.POST("/login", db.WithDB(accounts.Login))
 	api.POST("/logout", accounts.Logout)
 
-	api.GET("/account", models.WithDB(accounts.Current))
+	api.GET("/account", db.WithDB(accounts.Current))
 	users_api := api.Group("/users")
 	users_api.POST("/register", accounts.Register)
-	users_api.GET("/confirm", models.WithDB(accounts.ConfirmEmail))
-	users_api.POST("/confirm/resend", models.WithDB(accounts.ResendConfirmation))
-	users_api.POST("/forgotten-password", models.WithDB(accounts.RequestPasswordReset))
+	users_api.GET("/confirm", db.WithDB(accounts.ConfirmEmail))
+	users_api.POST("/confirm/resend", db.WithDB(accounts.ResendConfirmation))
+	users_api.POST("/forgotten-password", db.WithDB(accounts.RequestPasswordReset))
 	users_api.GET("/password-reset/:token", accounts.ValidatePasswordToken)
 
 	people_api := api.Group("/people")
 
 	institution_api := people_api.Group("/institutions")
-	institution_api.GET("", models.WithDB(institution.List))
-	institution_api.POST("", models.WithDB(institution.Create))
-	institution_api.DELETE("/:code", models.WithDB(institution.Delete))
-	institution_api.PATCH("/:code", models.WithDB(institution.Update))
+	institution_api.GET("", db.WithDB(institution.List))
+	institution_api.POST("", db.WithDB(institution.Create))
+	institution_api.DELETE("/:code", db.WithDB(institution.Delete))
+	institution_api.PATCH("/:code", db.WithDB(institution.Update))
 
 	person_api := people_api.Group("/persons")
-	person_api.GET("", models.WithDB(person.List))
-	person_api.POST("", models.WithDB(person.Create))
-	person_api.PATCH("/:id", models.WithDB(person.Update))
-	person_api.DELETE("/:id", models.WithDB(person.Delete))
+	person_api.GET("", db.WithDB(person.List))
+	person_api.POST("", db.WithDB(person.Create))
+	person_api.PATCH("/:id", db.WithDB(person.Update))
+	person_api.DELETE("/:id", db.WithDB(person.Delete))
 
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:
@@ -126,6 +126,7 @@ func loadConfig() {
 func setupValidators() {
 	if engine, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		validations.RegisterValidators(engine)
+		// Use json names
 		engine.RegisterTagNameFunc(func(fld reflect.StructField) string {
 			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
 			// skip if tag key says it should be ignored
@@ -152,5 +153,5 @@ func main() {
 	}
 	r := setupRouter()
 	r.Run(":8080")
-	defer models.DB().Close()
+	defer db.Client().Close()
 }

@@ -3,7 +3,6 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { TaxonDB } from '../models/TaxonDB';
-import type { TaxonUpdate } from '../models/TaxonUpdate';
 import type { TaxonWithRelatives } from '../models/TaxonWithRelatives';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -102,30 +101,6 @@ export class TaxonomyService {
             path: {
                 'code': code,
             },
-            errors: {
-                403: `Forbidden`,
-                404: `Not Found`,
-            },
-        });
-    }
-    /**
-     * Update a taxon by its code
-     * @param code Taxon code
-     * @param data Taxon
-     * @returns TaxonWithRelatives OK
-     * @throws ApiError
-     */
-    public static updateTaxon(
-        code: string,
-        data: TaxonUpdate,
-    ): CancelablePromise<TaxonWithRelatives> {
-        return __request(OpenAPI, {
-            method: 'PATCH',
-            url: '/taxonomy/{code}',
-            path: {
-                'code': code,
-            },
-            body: data,
             errors: {
                 403: `Forbidden`,
                 404: `Not Found`,

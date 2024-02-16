@@ -11,6 +11,7 @@ import (
 // @description A validation error to be fixed in the input
 type InputValidationError struct {
 	Field     string `json:"field" example:"age" binding:"required"`
+	Value     any    `json:"value" binding:"required"`
 	Tag       string `json:"tag" example:"min"`
 	Param     string `json:"param" example:"0"`
 	Message   string `json:"message" example:"Must be a positive number" binding:"required"`
@@ -26,6 +27,7 @@ func InputValidationErrors(errors validator.ValidationErrors) []InputValidationE
 	for i, err := range errors {
 		out[i] = InputValidationError{
 			Field:     err.Field(),
+			Value:     err.Value(),
 			Tag:       err.Tag(),
 			Param:     err.Param(),
 			ErrString: err.Error(),
@@ -80,6 +82,8 @@ func fieldErrorMsg(err validator.FieldError) string {
 		return fmt.Sprintf("Must be greater than %s", err.Param())
 	case GreaterOrEqual:
 		return fmt.Sprintf("Must be greater or equal to %s", err.Param())
+	case Alpha:
+		return "Only alphabetic characters allowed"
 	case AlphaUnicode:
 		return "Only alphabetic characters allowed"
 	case Numeric:
@@ -90,7 +94,7 @@ func fieldErrorMsg(err validator.FieldError) string {
 		return fmt.Sprintf("Must end with \"%s\"", err.Param())
 	}
 
-	for _, validator := range validators {
+	for _, validator := range Validators {
 		if ValidationTag(err.Tag()) == validator.tag {
 			return validator.message(err)
 		}

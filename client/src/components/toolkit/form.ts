@@ -1,35 +1,58 @@
 import { ApiError, CancelablePromise, InputValidationError } from "@/api"
 import { HttpStatusCode } from "axios"
-
 import { computed } from "vue"
+
 import { Ref, ref } from "vue"
 
 export type Mode = 'Create' | 'Edit'
 
 export type Props<ItemType> = {
   edit?: ItemType
-  onSuccess?: (mode: Mode, inst: ItemType) => any
 }
 
 export type Emits<ItemType> = {
-  success: [mode: Mode, item: ItemType]
+  (evt: "success", item: ItemType): void
 }
 
-export function useForm<ItemInputType, ItemType>
-  (props: Props<ItemType>,
-    emit: (evt: "success", mode: Mode, item: ItemType) => void,
-    submitRequest: () => CancelablePromise<ItemType> | Promise<ItemType>) {
-  const loading = ref(false)
-  const mode = computed((): Mode => (props.edit ? 'Edit' : 'Create'))
+export type ValidationErrors<ItemInputType> = Partial<
+  Record<keyof ItemInputType, InputValidationError[]>
+>
 
-  const errors: Ref<Partial<{
-    [Property in keyof ItemInputType]: InputValidationError[]
-  }>> = ref({})
+export function useForm<ItemInputType extends Record<string | symbol, any>, ItemType>(
+  props: Props<ItemType>,
+  emit: Emits<ItemType>,
+  submitRequest: () => CancelablePromise<ItemType> | Promise<ItemType>
+) {
+  const loading = ref(false)
+
+  /**
+   * Input validation errors indexed by field name
+   */
+  const errors: Ref<ValidationErrors<ItemInputType>> = ref({})
+
+  type ErrorMsgs<ItemInputType> = { [k in keyof ItemInputType]: any }
+
+  /**
+   * A proxy to validation errors that allows direct access to error messages
+   */
+  const errorMsgs = computed((): ErrorMsgs<ItemInputType> => {
+    return Object.fromEntries(
+      Object.entries(errors.value).map(
+        ([key, val]) => {
+          return [key, val?.map(({ message }) => message)]
+        }
+      )
+    ) as ErrorMsgs<ItemInputType>
+  })
+
+
 
   function submit() {
     loading.value = true
     submitRequest()
-      .then((item: ItemType) => emit("success", mode.value, item))
+      .then((item: ItemType) => {
+        emit("success", item)
+      })
       ?.catch((error: ApiError) => {
         switch (error.status) {
           case HttpStatusCode.BadRequest:
@@ -48,5 +71,5 @@ export function useForm<ItemInputType, ItemType>
       })
   }
 
-  return { errors, mode, loading, submit }
+  return { errors, loading, submit, errorMsgs }
 }

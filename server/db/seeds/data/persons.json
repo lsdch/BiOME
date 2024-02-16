@@ -2,6 +2,8 @@
   {
     "first_name": "Florian",
     "last_name": "Malard",
-    "institution": "LEHNA"
+    "institutions": [
+      "LEHNA"
+    ]
   }
 ]
