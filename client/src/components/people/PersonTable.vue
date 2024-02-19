@@ -31,12 +31,12 @@
 </template>
 
 <script setup lang="ts">
-import { Person, PeopleService } from '@/api'
+import { PeopleService, Person } from '@/api'
 
-import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
-import PersonForm from './PersonForm.vue'
-import { useEntityTable } from '../toolkit/tables'
 import { UserRole } from '@/api'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { useEntityTable } from '../toolkit/tables'
+import PersonForm from './PersonForm.vue'
 import { roleIcon } from './userRole'
 
 const role_order: UserRole[] = ['Guest', 'Contributor', 'ProjectMember', 'Admin']
@@ -53,7 +53,11 @@ const headers: ReadonlyHeaders = [
     }
   },
   { title: 'Name', key: 'full_name' },
-  { title: 'Institutions', key: 'institutions' },
+  {
+    title: 'Institutions',
+    key: 'institutions',
+    sortable: false
+  },
   { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
 ]
 

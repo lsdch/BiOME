@@ -13,7 +13,7 @@
       icon: 'mdi-domain'
     }"
     show-actions
-    :filter-keys="['code', 'name']"
+    :filter-keys="['code', 'name', 'kind']"
     @create-item="create"
     @edit-item="edit"
   >
@@ -30,19 +30,18 @@
     <template v-slot:[`item.code`]="{ item }">
       <code>{{ item.code }}</code>
     </template>
-    <template v-slot:[`item.kind`]="{ item }">
+    <template v-slot:[`item.kind`]="{ item, value }">
       <v-chip
         label
         variant="outlined"
         color="primary"
         text-color="primary"
         v-bind="kindIcon(item.kind)"
-        :title="enumAsString(item.kind)"
       >
         <template v-slot:prepend>
           <v-icon v-bind="kindIcon(item.kind)"></v-icon>
         </template>
-        {{ mdAndUp ? enumAsString(item.kind) : '' }}
+        {{ mdAndUp ? value : '' }}
       </v-chip>
     </template>
     <template v-slot:[`item.people`]="{ value, toggleExpand, internalItem }">
@@ -58,13 +57,11 @@
     </template>
     <template v-slot:expanded-row-inject="{ item }">
       <div class="w-100">
-        <div v-if="!mdAndUp">
-          <v-card density="compact" flat>
-            <v-card-title class="text-body-2">Description</v-card-title>
-            <v-card-text class="text-caption">{{ item.description }}</v-card-text>
-          </v-card>
-          <v-divider />
-        </div>
+        <v-card density="compact" flat>
+          <v-card-title class="text-body-2">Description</v-card-title>
+          <v-card-text class="text-caption">{{ item.description }}</v-card-text>
+        </v-card>
+        <v-divider />
         <v-card flat :min-width="300">
           <v-list lines="one" density="compact" prepend-icon="mdi-account">
             <v-list-subheader>
@@ -99,20 +96,21 @@ import { roleIcon } from './userRole'
 
 const { mdAndUp } = useDisplay()
 
-const headers = computed((): ReadonlyHeaders => {
-  const headers: DataTableHeader[] = [
+const headers = computed(
+  (): ReadonlyHeaders => [
     { title: 'Short name', key: 'code' },
     { title: 'Name', key: 'name' },
-    { title: 'Kind', key: 'kind' }
-  ]
-  if (mdAndUp.value) {
-    headers.push({ title: 'Description', key: 'description', sortable: false })
-  }
-  return headers.concat([
+    {
+      title: 'Kind',
+      key: 'kind',
+      value(item) {
+        return enumAsString(item.kind)
+      }
+    },
     { title: 'People', key: 'people', align: 'center' },
     { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
-  ])
-})
+  ]
+)
 
 const { create, edit, editItem, onFormSuccess } = useEntityTable<Institution>()
 </script>

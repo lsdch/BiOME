@@ -23,7 +23,6 @@ export function roleIcon(role?: UserRole) {
         color: 'green'
       }
     default:
-      console.error("Unknown user role encountered: ", role)
       return {}
   }
 }
