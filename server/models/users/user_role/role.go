@@ -2,8 +2,6 @@ package user_role
 
 import (
 	"encoding/json"
-
-	"github.com/sirupsen/logrus"
 )
 
 type UserRole string // @name UserRole
@@ -30,7 +28,6 @@ type OptionalUserRole struct {
 } //@name UserRole
 
 func (m OptionalUserRole) MarshalJSON() ([]byte, error) {
-	logrus.Infof("Custom marshaller")
 	if m.isSet {
 		return json.Marshal(m.role)
 	}
