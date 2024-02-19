@@ -2,14 +2,12 @@
   <CRUDTable
     :crud="{
       list: () => TaxonomyService.taxonomyList(),
-      update: (item: TaxonWithRelatives) =>
-        TaxonomyService.updateTaxon(item.code, item as TaxonUpdate),
       delete: (item: TaxonWithRelatives) => TaxonomyService.deleteTaxon(item.code)
     }"
-    :toolbar-props="{
+    entityName="Taxon"
+    :itemRepr="(item: TaxonWithRelatives) => item.name"
+    :toolbar="{
       title: 'Taxonomy',
-      entityName: 'Taxon',
-      itemRepr: (item: TaxonWithRelatives) => item.name,
       icon: 'mdi-graph',
       togglableSearch: true
     }"
@@ -36,17 +34,17 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { TaxonUpdate, TaxonStatus, TaxonWithRelatives, TaxonomyService } from '@/api'
-import { computed } from 'vue'
+import { TaxonRank, TaxonStatus, TaxonWithRelatives, TaxonomyService } from '@/api'
+import { Ref, computed } from 'vue'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
 import StatusIcon from './StatusIcon.vue'
 import TaxaTableFilters from './TaxaTableFilters.vue'
 
 const searchName = ref('')
-const filters = ref({
+const filters: Ref<{ rank?: TaxonRank; status: TaxonStatus }> = ref({
   rank: undefined,
-  status: TaxonStatus.Accepted
+  status: 'Accepted'
 })
 
 const filter = computed(() => {

@@ -10,17 +10,17 @@ const props = defineProps<{ status: TaxonStatus; size?: string }>()
 
 const spec = computed(() => {
   switch (props.status) {
-    case TaxonStatus.Accepted:
+    case 'Accepted':
       return {
         icon: 'mdi-check',
         color: 'green'
       }
-    case TaxonStatus.Synonym:
+    case 'Synonym':
       return {
         icon: 'mdi-arrow-left-right',
         color: 'orange'
       }
-    case TaxonStatus.Unclassified:
+    case 'Unclassified':
       return {
         icon: 'mdi-plus',
         color: 'blue'
