@@ -18,14 +18,11 @@ var queryRegister string
 
 // Registers new account and sends an email with an activation link
 func (newUser *UserInput) Register(config *config.Config, originURL *url.URL) error {
-	userInsert, err := newUser.ProcessPassword()
-	if err != nil {
-		return err
-	}
-
 	var createdUser User
-	args, _ := json.Marshal(userInsert)
-	if err = db.Client().QuerySingle(context.Background(), queryRegister, &createdUser, args); err != nil {
+	args, _ := json.Marshal(newUser)
+	if err := db.Client().QuerySingle(
+		context.Background(), queryRegister, &createdUser, args,
+	); err != nil {
 		return err
 	}
 	return createdUser.SendConfirmationEmail(originURL)
@@ -100,12 +97,8 @@ func (user *User) RequestPasswordReset(originURL *url.URL) (err error) {
 }
 
 func SetPassword(userID uuid.UUID, pwd *PasswordInput) error {
-	hashed_password, err := hashPassword(pwd.Password)
-	if err != nil {
-		return err
-	}
 	query := `with module people
 		update User filter .id = <uuid>$0
 		set { password = <str>$1 }`
-	return db.Client().Execute(context.Background(), query, userID, hashed_password)
+	return db.Client().Execute(context.Background(), query, userID, pwd.Password)
 }

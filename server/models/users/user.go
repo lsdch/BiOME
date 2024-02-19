@@ -4,6 +4,7 @@ import (
 	"context"
 	"darco/proto/db"
 	"darco/proto/models/people"
+	"darco/proto/models/users/user_role"
 	_ "embed"
 	"encoding/json"
 	"errors"
@@ -25,26 +26,10 @@ type UserInput struct {
 	PasswordInput  `json:",inline"`
 } // @name UserInput
 
-func (input *UserInput) ProcessPassword() (*UserInsert, error) {
-	hashed_password, err := hashPassword(input.Password)
-	if err != nil {
-		return nil, err
-	}
-	return &UserInsert{
-		InnerUserInput: input.InnerUserInput,
-		PasswordHash:   hashed_password,
-	}, nil
-}
-
-type UserInsert struct {
-	InnerUserInput `edgedb:"$inline" json:",inline"`
-	PasswordHash   string `edgedb:"password" json:"password"`
-}
-
 type UserPartial struct {
-	Role     UserRole      `edgedb:"role" json:"role" binding:"required"`
-	Verified bool          `edgedb:"verified" json:"verified" binding:"required"`
-	Person   people.Person `edgedb:"identity" json:"identity" binding:"required"`
+	Role     user_role.UserRole `edgedb:"role" json:"role" binding:"required"`
+	Verified bool               `edgedb:"verified" json:"verified" binding:"required"`
+	Person   people.Person      `edgedb:"identity" json:"identity" binding:"required"`
 } // @name UserPartial
 
 type User struct {
@@ -72,10 +57,8 @@ func (user *User) SetActive(active bool) error {
 		user.Person.FirstName, user.Person.LastName, user.Email,
 	)
 	query := `update people::User
-	filter .email = <str>$1
-	set {
-		verified := <bool>$0
-	} `
+		filter .email = <str>$1
+		set { verified := <bool>$0 };`
 	return db.Client().Execute(context.Background(), query, active, user.Email)
 }
 
@@ -87,8 +70,9 @@ func (user *User) MarshalJSON() ([]byte, error) {
 
 type UserCredentials struct {
 	Identifier string `json:"identifier" binding:"required"`
-	Password   string `json:"password" binding:"required"`
-	Remember   bool   `json:"remember" binding:"required"`
+	// Unhashed, password hash comparison is done within EdgeDB
+	Password string `json:"password" binding:"required"`
+	Remember bool   `json:"remember" binding:"required"`
 } // @name UserCredentials
 
 type loginFailedReason string // @name LoginFailedReason
@@ -107,8 +91,15 @@ func (err *LoginFailedError) Error() string {
 	return string(err.Reason)
 }
 
+// Attempts to authenticate a user given the provided credentials.
 func (creds *UserCredentials) Authenticate(db *edgedb.Client) (*User, *LoginFailedError) {
-	user, err := Find(db, creds.Identifier)
+	query := fmt.Sprintf(
+		`%s filter (.email = <str>$0 or .login = <str>$0)
+			and .password = ext::pgcrypto::crypt(<str>$1, .password)
+			limit 1`,
+		userSelect,
+	)
+	user, err := find(db, query, creds.Identifier, creds.Password)
 
 	if err != nil {
 		var dbErr edgedb.Error
@@ -118,10 +109,6 @@ func (creds *UserCredentials) Authenticate(db *edgedb.Client) (*User, *LoginFail
 			logrus.Errorf("%v", err)
 			return nil, &LoginFailedError{ServerError}
 		}
-	}
-
-	if err := VerifyPassword(user.Password, creds.Password); err != nil {
-		return user, &LoginFailedError{InvalidCredentials}
 	}
 
 	if !user.Verified {

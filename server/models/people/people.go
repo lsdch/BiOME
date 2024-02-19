@@ -4,6 +4,7 @@ import (
 	"context"
 	"darco/proto/db"
 	"darco/proto/models"
+	"darco/proto/models/users/user_role"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -27,10 +28,11 @@ type PersonInput struct {
 
 type Person struct {
 	PersonInner  `edgedb:"$inline"`
-	Institutions []Institution `json:"institutions" edgedb:"institutions"`
-	ID           edgedb.UUID   `edgedb:"id" json:"id" binding:"required"`
-	FullName     string        `json:"full_name" edgedb:"full_name" binding:"required"`
-	Meta         models.Meta   `json:"meta" edgedb:"meta"`
+	Institutions []Institution              `json:"institutions" edgedb:"institutions"`
+	ID           edgedb.UUID                `edgedb:"id" json:"id" binding:"required"`
+	FullName     string                     `json:"full_name" edgedb:"full_name" binding:"required"`
+	Role         user_role.OptionalUserRole `json:"role" edgedb:"role"`
+	Meta         models.Meta                `json:"meta" edgedb:"meta"`
 } // @name Person
 
 func PersonStructLevelValidation(sl validator.StructLevel) {

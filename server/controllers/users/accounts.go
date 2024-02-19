@@ -272,17 +272,16 @@ func SetPassword(ctx *gin.Context, db *edgedb.Client) {
 	}
 
 	pwd_strength := config.Get().Accounts.PasswordStrength
-	newPwd.ValidateStrength(pwd_strength, current_user.(*users.User).InnerUserInput())
-
-	hashed_password, err := newPwd.Hash()
+	err := newPwd.ValidateStrength(pwd_strength, current_user.(*users.User).InnerUserInput())
 	if err != nil {
 		ctx.Error(err)
 		return
 	}
+
 	query := `update people::User filter .id = current_user_id set {
 		password := <str>$0
 	}`
-	err = db.Execute(context.Background(), query, hashed_password)
+	err = db.Execute(context.Background(), query, newPwd)
 	if err != nil {
 		ctx.Error(err)
 		return

@@ -1,3 +1,5 @@
+using extension pgcrypto;
+
 module date {
   scalar type DatePrecision extending enum<Year, Month, Day, Unknown>;
 
@@ -121,7 +123,7 @@ module taxonomy {
   scalar type TaxonStatus extending enum<Accepted, Synonym, Unclassified>;
 
   type Taxon extending default::Auditable {
-    required GBIF_ID: int32 {
+    GBIF_ID: int32 {
       constraint exclusive;
     };
     required name: str {
@@ -143,7 +145,7 @@ module taxonomy {
       rewrite insert, update using (
         with chopped := str_split(.name, " "),
         suffix := "[syn]" if .status = TaxonStatus.Synonym else ""
-        select .code if __specified__.code
+        select .code if exists __specified__.code and __specified__.code
         else (.name ++ suffix) if not .rank in {Rank.Species, Rank.Subspecies}
         else str_upper(chopped[0][:3]) ++ array_join(chopped[1:], "_") ++ suffix
       )
@@ -948,6 +950,10 @@ module people {
       rewrite insert, update using (default::null_if_empty(.contact));
     };
     multi institutions: Institution;
+
+    link user := .<identity[is User];
+
+    property role := .user.role;
   }
 
 
@@ -966,7 +972,11 @@ module people {
     required email_public: bool {
       default := false
     };
-    required password: str;
+    required password: str {
+      rewrite insert, update using (
+        ext::pgcrypto::crypt(.password, ext::pgcrypto::gen_salt('des'))
+      )
+    };
     required verified: bool {
       default := false
     };

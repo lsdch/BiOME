@@ -41,11 +41,14 @@
           <v-list-subheader>
             {{ item.people?.length ? 'PEOPLE' : 'No people registered in this institution.' }}
           </v-list-subheader>
-          <v-list-item
-            v-for="person in item.people"
-            :key="person.id"
-            :subtitle="person.full_name"
-          />
+          <v-list-item v-for="person in item.people" :key="person.id" class="item-person">
+            <v-list-item-title class="text-body-2">
+              {{ person.full_name }}
+            </v-list-item-title>
+            <template v-slot:prepend>
+              <v-icon v-bind="roleIcon(person.role)" size="small"></v-icon>
+            </template>
+          </v-list-item>
         </v-list>
       </v-card>
       <v-divider vertical />
@@ -59,6 +62,7 @@ import InstitutionForm from './InstitutionForm.vue'
 
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { useEntityTable } from '../toolkit/tables'
+import { roleIcon } from './userRole'
 
 const headers: ReadonlyHeaders = [
   { title: 'Short name', key: 'code' },
@@ -71,4 +75,8 @@ const headers: ReadonlyHeaders = [
 const { create, edit, editItem, onFormSuccess } = useEntityTable<Institution>()
 </script>
 
-<style scoped></style>
+<style scoped>
+.item-person {
+  min-height: unset;
+}
+</style>
