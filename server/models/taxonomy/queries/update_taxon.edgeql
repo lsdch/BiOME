@@ -2,7 +2,7 @@ with module taxonomy,
 data := <json>$1
 select (
   update Taxon
-  filter .id = <uuid>$0
+  filter .code = <uuid>$0
   set {
     name := <str>json_get(data,'name') ?? .name,
     code := <str>json_get(data, 'code') ?? .code,

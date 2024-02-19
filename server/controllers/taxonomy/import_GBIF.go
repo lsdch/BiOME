@@ -2,7 +2,7 @@ package taxonomy
 
 import (
 	"darco/proto/db"
-	"darco/proto/models/taxonomy"
+	gbif "darco/proto/models/taxonomy/GBIF"
 	"io"
 	"net/http"
 
@@ -14,13 +14,13 @@ import (
 type GBIF_ID int
 
 // State represents the current state of import processes
-type State map[GBIF_ID]taxonomy.ImportProcess
+type State map[GBIF_ID]gbif.ImportProcess
 
 var state State = make(State)
 
 // EventServer manages the communication between clients and the import process.
 type EventServer struct {
-	Message       chan taxonomy.ImportProcess
+	Message       chan gbif.ImportProcess
 	NewClients    chan chan State
 	ClosedClients chan chan State
 	TotalClients  map[chan State]bool
@@ -60,13 +60,13 @@ func (stream *EventServer) listen() {
 }
 
 // monitor sends an import process event to the server.
-func (stream *EventServer) monitor(p *taxonomy.ImportProcess) {
+func (stream *EventServer) monitor(p *gbif.ImportProcess) {
 	stream.Message <- *p
 }
 
 func NewServer() (event *EventServer) {
 	event = &EventServer{
-		Message:       make(chan taxonomy.ImportProcess),
+		Message:       make(chan gbif.ImportProcess),
 		NewClients:    make(chan chan State),
 		ClosedClients: make(chan chan State),
 		TotalClients:  make(map[chan State]bool),
@@ -93,7 +93,7 @@ type ImportRequestGBIF struct {
 // @tags Taxonomy
 // @Accept json
 // @Produce json
-// @Success 200 {object} taxonomy.TaxonSelect
+// @Success 202
 // @Failure 403
 // @Failure 400
 // @Router /taxonomy/import [put]
@@ -114,7 +114,7 @@ func ImportCladeGBIF() Controller {
 		}
 
 		log.Infof("Started import of taxon : [GBIF %d]", target.Key)
-		go taxonomy.ImportTaxon(db, target.Key, stream.monitor)
+		go gbif.ImportTaxon(db, target.Key, stream.monitor)
 
 		c.JSON(http.StatusAccepted, nil)
 	}

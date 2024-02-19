@@ -61,9 +61,10 @@ func setupRouter() *gin.Engine {
 
 	taxonomy_api := api.Group("/taxonomy")
 	taxonomy_api.GET("", db.WithDB(taxonomy.ListTaxa))
+	taxonomy_api.POST("", db.WithDB(taxonomy.CreateTaxon))
 	taxonomy_api.GET("/:code", db.WithDB(taxonomy.GetTaxon))
 	taxonomy_api.DELETE("/:code", db.WithDB(taxonomy.DeleteTaxon))
-	// taxonomy_api.PATCH("/:code", db.WithDB(taxonomy.UpdateTaxon))
+	taxonomy_api.PATCH("/:code", db.WithDB(taxonomy.UpdateTaxon))
 	importGBIF := taxonomy.ImportCladeGBIF()
 	taxonomy_api.PUT("/import", importGBIF.Endpoint)
 	taxonomy_api.GET("/import", importGBIF.ProgressTracker)

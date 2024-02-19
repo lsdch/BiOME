@@ -1,4 +1,4 @@
-package taxonomy
+package gbif
 
 import (
 	"context"
@@ -11,11 +11,10 @@ import (
 	"strings"
 	"time"
 
+	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/edgedb/edgedb-go"
-	jsoniter "github.com/json-iterator/go"
 	"github.com/thoas/go-funk"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -32,7 +31,7 @@ type TaxonGBIF struct {
 	Status         string             `json:"taxonomicStatus" edgedb:"status"`
 	Rank           string             `json:"rank" edgedb:"rank"`
 	NumDescendants int                `json:"numDescendants" edgedb:"-"`
-	Anchor         bool               `edgedb:"anchor"`
+	Anchor         bool               `json:"anchor" edgedb:"anchor"`
 }
 
 func (taxon *TaxonGBIF) normalize() {
@@ -145,15 +144,16 @@ func fetchParents(GBIF_ID int) ([]TaxonGBIF, error) {
 	return requestTaxa(URL)
 }
 
+//go:embed queries/upsert_anchor.edgeql
+var upsertTaxonCmd string
+
+// Using different tags to unmarshall from GBIF and then marshal to EdgeDB
 var jsonDB = jsoniter.Config{
 	EscapeHTML:             true,
 	SortMapKeys:            true,
 	ValidateJsonRawMessage: true,
 	TagKey:                 "edgedb",
 }.Froze()
-
-//go:embed queries/upsert_anchor.edgeql
-var upsertTaxonCmd string
 
 func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
 	taxa = funk.Map(taxa, func(taxon TaxonGBIF) TaxonGBIF {
@@ -164,7 +164,7 @@ func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
 	ctx := context.Background()
 
 	for _, taxon := range taxa {
-		log.Debugf("Inserting taxon from GBIF %+v", &taxon)
+		logrus.Debugf("Inserting taxon from GBIF %+v", &taxon)
 		args, _ := jsonDB.Marshal(&taxon)
 		if err = tx.Execute(ctx, upsertTaxonCmd, args); err != nil {
 			return
@@ -242,7 +242,7 @@ func fetchTaxon(GBIF_ID int) (taxon TaxonGBIF, err error) {
 	}
 	if err = json.Unmarshal(body, &taxon); err != nil {
 		err = fmt.Errorf("failed to parse JSON response from GBIF \n %w", err)
-		log.WithFields(log.Fields{"body": body}).Errorf("%s", err)
+		logrus.WithFields(logrus.Fields{"body": body}).Errorf("%s", err)
 		return
 	}
 	taxon.Anchor = true

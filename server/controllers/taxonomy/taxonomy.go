@@ -3,6 +3,7 @@ package taxonomy
 import (
 	"darco/proto/controllers"
 	"darco/proto/models/taxonomy"
+	_ "darco/proto/models/validations"
 	"net/http"
 
 	"github.com/edgedb/edgedb-go"
@@ -52,7 +53,7 @@ func ListTaxa(ctx *gin.Context, db *edgedb.Client) {
 // @Description
 // @id GetTaxon
 // @tags Taxonomy
-// @Success 200 {object}  taxonomy.TaxonSelect "Get taxon success"
+// @Success 200 {object} taxonomy.TaxonSelect "Get taxon success"
 // @Failure 404
 // @Router /taxonomy/{code} [get]
 // @Param code path string true "Taxon code" minlength(3)
@@ -67,6 +68,20 @@ func GetTaxon(ctx *gin.Context, db *edgedb.Client) {
 	}
 }
 
+// @Summary Create taxon
+// @Description This provides a way to register new unclassified taxa,
+// @Description that have not yet been published to GBIF.
+// @Description Importing taxa directly from GBIF should be preferred otherwise.
+// @id CreateTaxon
+// @tags Taxonomy
+// @Success 201 {object} taxonomy.TaxonSelect
+// @Failure 400 {object} validations.FieldErrors
+// @Router /taxonomy/ [post]
+// @Param data body taxonomy.TaxonInput true "New taxon"
+func CreateTaxon(ctx *gin.Context, db *edgedb.Client) {
+	controllers.CreateItem[taxonomy.TaxonInput, taxonomy.TaxonSelect](ctx, db)
+}
+
 // @Summary Delete a taxon by its code
 // @Description
 // @id DeleteTaxon
@@ -77,15 +92,7 @@ func GetTaxon(ctx *gin.Context, db *edgedb.Client) {
 // @Router /taxonomy/{code} [delete]
 // @Param code path string true "Taxon code" minlength(3)
 func DeleteTaxon(ctx *gin.Context, db *edgedb.Client) {
-	code, err := controllers.ParseCodeURI(ctx)
-	if err != nil {
-		return
-	}
-	err = taxonomy.Delete(code)
-	if err != nil {
-		ctx.Error(err)
-	}
-	ctx.Status(http.StatusNoContent)
+	controllers.DeleteByCode(ctx, db, taxonomy.Delete)
 }
 
 // @Summary Update a taxon by its code
@@ -98,15 +105,6 @@ func DeleteTaxon(ctx *gin.Context, db *edgedb.Client) {
 // @Router /taxonomy/{code} [patch]
 // @Param code path string true "Taxon code" minlength(3)
 // @Param data body taxonomy.TaxonUpdate true "Taxon"
-// func UpdateTaxon(ctx *gin.Context, db *edgedb.Client) {
-// 	taxon, err := controllers.BindUpdateByCode[taxonomy.TaxonSelect](ctx, db, taxonomy.FindByCode)
-// 	if err != nil {
-// 		return
-// 	}
-// 	updatedTaxon, err := taxon.Update(db)
-// 	if err != nil {
-// 		ctx.Error(err)
-// 	} else {
-// 		ctx.JSON(http.StatusOK, updatedTaxon)
-// 	}
-// }
+func UpdateTaxon(ctx *gin.Context, db *edgedb.Client) {
+	controllers.UpdateItemByCode[taxonomy.TaxonUpdate](ctx, db, taxonomy.FindByID)
+}
