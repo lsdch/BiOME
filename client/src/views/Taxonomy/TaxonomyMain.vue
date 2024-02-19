@@ -1,10 +1,6 @@
 <template>
+  <TaxaTable></TaxaTable>
   <v-container>
-    <v-row>
-      <v-col cols="12">
-        <TaxaTable></TaxaTable>
-      </v-col>
-    </v-row>
     <v-divider class="my-5"></v-divider>
     <h1 class="mb-5">Anchors</h1>
     <v-row>

@@ -1,5 +1,5 @@
 <template>
-  <PersonTable></PersonTable>
+  <PersonTable class="fill-height"></PersonTable>
 </template>
 
 <script setup lang="ts">

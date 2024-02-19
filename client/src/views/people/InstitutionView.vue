@@ -1,7 +1,5 @@
 <template>
-  <v-container fluid>
-    <InstitutionTable />
-  </v-container>
+  <InstitutionTable class="fill-height" />
 </template>
 
 <script setup lang="ts">
