@@ -86,8 +86,8 @@ const inst: Ref<InstitutionInput> = ref(DEFAULT)
 const emit = defineEmits<Emits<Institution>>()
 
 watchEffect(() => {
-  if (props.edit) Object.assign(inst.value, props.edit)
-  else Object.assign(inst.value, DEFAULT)
+  if (props.edit) inst.value = props.edit
+  else inst.value = DEFAULT
 })
 
 function request() {
