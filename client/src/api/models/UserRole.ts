@@ -2,9 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum UserRole {
-    Guest = 'Guest',
-    Contributor = 'Contributor',
-    ProjectMember = 'ProjectMember',
-    Admin = 'Admin',
-}
+export type UserRole = 'Guest' | 'Contributor' | 'ProjectMember' | 'Admin';

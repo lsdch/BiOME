@@ -2,7 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum ResendConfirmationError {
-    ResendInvalidCredentials = 'InvalidCredentials',
-    ResendAlreadyVerified = 'AlreadyVerified',
-}
+export type ResendConfirmationError = 'InvalidCredentials' | 'AlreadyVerified';

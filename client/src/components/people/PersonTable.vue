@@ -39,7 +39,7 @@ import { useEntityTable } from '../toolkit/tables'
 import { UserRole } from '@/api'
 import { roleIcon } from './userRole'
 
-const role_order = [UserRole.Guest, UserRole.Contributor, UserRole.ProjectMember, UserRole.Admin]
+const role_order: UserRole[] = ['Guest', 'Contributor', 'ProjectMember', 'Admin']
 
 const headers: ReadonlyHeaders = [
   {

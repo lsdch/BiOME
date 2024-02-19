@@ -2,27 +2,28 @@ import { UserRole } from "@/api"
 
 export function roleIcon(role?: UserRole) {
   switch (role) {
-    case UserRole.Admin:
+    case "Admin":
       return {
         icon: 'mdi-star-cog',
         color: 'red'
       }
-    case UserRole.ProjectMember:
+    case "ProjectMember":
       return {
         icon: 'mdi-star-circle',
         color: 'orange'
       }
-    case UserRole.Contributor:
+    case "Contributor":
       return {
         icon: 'mdi-star',
         color: 'primary'
       }
-    case UserRole.Guest:
+    case "Guest":
       return {
         icon: 'mdi-circle-medium',
         color: 'green'
       }
     default:
+      console.error("Unknown user role encountered: ", role)
       return {}
   }
 }

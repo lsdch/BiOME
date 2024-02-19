@@ -13,6 +13,7 @@ type InstitutionInput struct {
 	Name        string             `json:"name" edgedb:"name" example:"Mos Eisley Laboratory of Environmental Studies" binding:"required,min=10,max=128"`
 	Code        string             `json:"code" edgedb:"code" example:"MELES" binding:"required,alphanum,min=2,max=12"`
 	Description edgedb.OptionalStr `json:"description" edgedb:"description" example:"The main ecological research lab on Tatooine."`
+	Kind        InstitutionKind    `json:"kind" edgedb:"kind" example:"Lab" binding:"required,institution_kind"`
 } // @name InstitutionInput
 
 type Institution struct {
@@ -49,7 +50,8 @@ func (inst InstitutionInput) Create(db *edgedb.Client) (created Institution, err
 		select ( insert Institution {
 			name := <str>data['name'],
 			code := <str>data['code'],
-			description := <str>data['description']
+			description := <str>json_get(data, 'description'),
+			kind := <InstitutionKind>data['kind']
 		}) { *, people:{ * }, meta:{ * } };`
 
 	args, _ := json.Marshal(inst)
@@ -58,9 +60,10 @@ func (inst InstitutionInput) Create(db *edgedb.Client) (created Institution, err
 }
 
 type InstitutionUpdate struct {
-	Name        *string `json:"name,omitempty" binding:"omitnil,min=3,max=128" example:"Mos Eisley Laboratory of Environmental Studies"`
-	Code        *string `json:"code,omitempty" binding:"omitnil,alphanum,min=2,max=12" example:"MELES"`
-	Description *string `json:"description,omitempty" binding:"omitnil" example:"The main ecological research lab on Tatooine."`
+	Name        *string          `json:"name,omitempty" binding:"omitnil,min=3,max=128" example:"Mos Eisley Laboratory of Environmental Studies"`
+	Code        *string          `json:"code,omitempty" binding:"omitnil,alphanum,min=2,max=12" example:"MELES"`
+	Description *string          `json:"description,omitempty" binding:"omitnil" example:"The main ecological research lab on Tatooine."`
+	Kind        *InstitutionKind `json:"kind,omitempty" example:"Lab" binding:"omitnil,institution_kind"`
 } //@name InstitutionUpdate
 
 func (inst InstitutionUpdate) Update(db *edgedb.Client, code string) (id edgedb.UUID, err error) {
@@ -72,7 +75,8 @@ func (inst InstitutionUpdate) Update(db *edgedb.Client, code string) (id edgedb.
 			set {
 				name := <str>json_get(data, 'name') ?? .name,
 				code := <str>json_get(data, 'code') ?? .code,
-				description := <str>json_get(data, 'description') ??.description
+				description := <str>json_get(data, 'description') ??.description,
+				kind := <InstitutionKind>json_get(data, 'kind') ?? .kind
 			}
 		).id;`
 	// { *, people:{ * }, meta:{ * } };

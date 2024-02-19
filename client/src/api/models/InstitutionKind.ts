@@ -2,4 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type TaxonStatus = 'Accepted' | 'Synonym' | 'Unclassified';
+export type InstitutionKind = 'Lab' | 'FoundingAgency' | 'SequencingPlatform' | 'Other';

@@ -973,6 +973,7 @@
             "required": [
                 "code",
                 "id",
+                "kind",
                 "name"
             ],
             "properties": {
@@ -989,6 +990,14 @@
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
+                },
+                "kind": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/InstitutionKind"
+                        }
+                    ],
+                    "example": "Lab"
                 },
                 "meta": {
                     "$ref": "#/definitions/Meta"
@@ -1011,6 +1020,7 @@
             "type": "object",
             "required": [
                 "code",
+                "kind",
                 "name"
             ],
             "properties": {
@@ -1024,6 +1034,14 @@
                     "type": "string",
                     "example": "The main ecological research lab on Tatooine."
                 },
+                "kind": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/InstitutionKind"
+                        }
+                    ],
+                    "example": "Lab"
+                },
                 "name": {
                     "type": "string",
                     "maxLength": 128,
@@ -1031,6 +1049,21 @@
                     "example": "Mos Eisley Laboratory of Environmental Studies"
                 }
             }
+        },
+        "InstitutionKind": {
+            "type": "string",
+            "enum": [
+                "Lab",
+                "FoundingAgency",
+                "SequencingPlatform",
+                "Other"
+            ],
+            "x-enum-varnames": [
+                "Lab",
+                "FoundingAgency",
+                "SequencingPlatform",
+                "Other"
+            ]
         },
         "InstitutionUpdate": {
             "type": "object",
@@ -1044,6 +1077,14 @@
                 "description": {
                     "type": "string",
                     "example": "The main ecological research lab on Tatooine."
+                },
+                "kind": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/InstitutionKind"
+                        }
+                    ],
+                    "example": "Lab"
                 },
                 "name": {
                     "type": "string",

@@ -78,6 +78,10 @@ definitions:
       id:
         example: <UUID>
         type: string
+      kind:
+        allOf:
+        - $ref: '#/definitions/InstitutionKind'
+        example: Lab
       meta:
         $ref: '#/definitions/Meta'
       name:
@@ -92,6 +96,7 @@ definitions:
     required:
     - code
     - id
+    - kind
     - name
     type: object
   InstitutionInput:
@@ -104,6 +109,10 @@ definitions:
       description:
         example: The main ecological research lab on Tatooine.
         type: string
+      kind:
+        allOf:
+        - $ref: '#/definitions/InstitutionKind'
+        example: Lab
       name:
         example: Mos Eisley Laboratory of Environmental Studies
         maxLength: 128
@@ -111,8 +120,21 @@ definitions:
         type: string
     required:
     - code
+    - kind
     - name
     type: object
+  InstitutionKind:
+    enum:
+    - Lab
+    - FoundingAgency
+    - SequencingPlatform
+    - Other
+    type: string
+    x-enum-varnames:
+    - Lab
+    - FoundingAgency
+    - SequencingPlatform
+    - Other
   InstitutionUpdate:
     properties:
       code:
@@ -123,6 +145,10 @@ definitions:
       description:
         example: The main ecological research lab on Tatooine.
         type: string
+      kind:
+        allOf:
+        - $ref: '#/definitions/InstitutionKind'
+        example: Lab
       name:
         example: Mos Eisley Laboratory of Environmental Studies
         maxLength: 128

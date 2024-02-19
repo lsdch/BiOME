@@ -40,6 +40,9 @@
       </template>
 
       <!-- Actions column -->
+      <template v-if="props.showActions" v-slot:[`header.actions`]>
+        <v-icon title="Actions" color="secondary">mdi-cog </v-icon>
+      </template>
       <template v-if="props.showActions" v-slot:[`item.actions`]="{ item }">
         <v-icon v-if="$slots.form" color="primary" icon="mdi-pencil" @click="actions.edit(item)" />
         <v-icon color="primary" icon="mdi-delete" @click="actions.delete(item)" />
@@ -60,10 +63,10 @@
       <!-- Expanded row -->
       <template v-slot:expanded-row="{ columns, item, ...others }">
         <slot name="expanded-row" v-bind="{ columns, item, ...others }">
-          <tr>
-            <td :colspan="columns.length">
-              <div class="d-flex">
-                <div class="d-flex flex-column flex-grow-0 mr-3">
+          <tr class="expanded">
+            <td :colspan="columns.length" class="px-0">
+              <div class="d-flex flex-wrap h-auto">
+                <div class="d-flex flex-column flex-grow-0">
                   <ItemDateChip
                     v-if="item.meta?.created"
                     icon="created"
@@ -75,8 +78,11 @@
                     :date="item.meta.modified"
                   />
                 </div>
-                <v-divider vertical />
-                <slot name="expanded-row-inject" v-bind="{ item }"> </slot>
+                <v-divider vertical></v-divider>
+                <div class="flex-grow-1">
+                  <v-divider v-show="$slots['expanded-row-inject']"></v-divider>
+                  <slot name="expanded-row-inject" v-bind="{ item }"> </slot>
+                </div>
               </div>
             </td>
           </tr>
@@ -163,4 +169,14 @@ async function loadItems() {
 onMounted(loadItems)
 </script>
 
-<style scoped></style>
+<style lang="less">
+tr.expanded td {
+  border-left: 1px solid rgb(16, 113, 176);
+}
+
+tr:has(+ tr.expanded) {
+  td:first-child {
+    border-left: 3px solid rgb(16, 113, 176);
+  }
+}
+</style>

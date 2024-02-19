@@ -2,18 +2,21 @@
   "mocks": [
     {
       "name": "Vitest institution",
-      "code": "VITEST"
+      "code": "VITEST",
+      "kind": "Lab"
     }
   ],
   "creates": [
     {
       "code": "TEST",
       "name": "National Mockery Institute",
-      "description": "A mock institution"
+      "description": "A mock institution",
+      "kind": "Lab"
     },
     {
       "code": "TESTINST",
-      "name": "Has no description"
+      "name": "Has no description",
+      "kind": "SequencingPlatform"
     }
   ],
   "invalidCreates": [
@@ -24,6 +27,11 @@
     {
       "code": "L",
       "name": "should fail"
+    },
+    {
+      "code": "CODEOK",
+      "name": "Name is ok too",
+      "kind": "INVALIDKIND"
     }
   ],
   "update": {
@@ -32,6 +40,9 @@
   "invalidUpdates": [
     {
       "name": "x"
+    },
+    {
+      "kind": "INVALIDKIND"
     }
   ]
 }

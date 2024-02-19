@@ -980,6 +980,7 @@ const docTemplate = `{
             "required": [
                 "code",
                 "id",
+                "kind",
                 "name"
             ],
             "properties": {
@@ -996,6 +997,14 @@ const docTemplate = `{
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
+                },
+                "kind": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/InstitutionKind"
+                        }
+                    ],
+                    "example": "Lab"
                 },
                 "meta": {
                     "$ref": "#/definitions/Meta"
@@ -1018,6 +1027,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "code",
+                "kind",
                 "name"
             ],
             "properties": {
@@ -1031,6 +1041,14 @@ const docTemplate = `{
                     "type": "string",
                     "example": "The main ecological research lab on Tatooine."
                 },
+                "kind": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/InstitutionKind"
+                        }
+                    ],
+                    "example": "Lab"
+                },
                 "name": {
                     "type": "string",
                     "maxLength": 128,
@@ -1038,6 +1056,21 @@ const docTemplate = `{
                     "example": "Mos Eisley Laboratory of Environmental Studies"
                 }
             }
+        },
+        "InstitutionKind": {
+            "type": "string",
+            "enum": [
+                "Lab",
+                "FoundingAgency",
+                "SequencingPlatform",
+                "Other"
+            ],
+            "x-enum-varnames": [
+                "Lab",
+                "FoundingAgency",
+                "SequencingPlatform",
+                "Other"
+            ]
         },
         "InstitutionUpdate": {
             "type": "object",
@@ -1051,6 +1084,14 @@ const docTemplate = `{
                 "description": {
                     "type": "string",
                     "example": "The main ecological research lab on Tatooine."
+                },
+                "kind": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/InstitutionKind"
+                        }
+                    ],
+                    "example": "Lab"
                 },
                 "name": {
                     "type": "string",

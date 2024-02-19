@@ -909,6 +909,9 @@ module datasets {
 
 module people {
 
+
+  scalar type InstitutionKind extending enum<Lab, FoundingAgency, SequencingPlatform, Other>;
+
   type Institution extending default::Auditable {
     required name: str {
       constraint exclusive;
@@ -923,6 +926,9 @@ module people {
     description: str {
       rewrite insert, update using (default::null_if_empty(.description));
     };
+
+    required kind: InstitutionKind;
+
     multi link people := .<institutions[is Person];
 
     index on (.code);

@@ -2,16 +2,31 @@
   {
     "name": "Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés",
     "code": "LEHNA",
-    "description": "Where this database was born!"
+    "description": "Where this database was born!",
+    "kind": "Lab"
   },
   {
     "name": "Mock Eisley Laboratory of Environmental Studies",
     "code": "MELES",
-    "description": "The main ecological research lab on Fakeooine."
+    "description": "The main ecological research lab on Fakeooine.",
+    "kind": "Lab"
   },
   {
     "name": "Dev testing team",
     "code": "DEVTEAM",
-    "description": "A group of mock accounts for testing purposes."
+    "description": "A group of mock accounts for testing purposes.",
+    "kind": "Other"
+  },
+  {
+    "name": "ATCG Sequencing Facility",
+    "code": "ATCG",
+    "description": "A mock sequencing platform.",
+    "kind": "SequencingPlatform"
+  },
+  {
+    "name": "Agence Nationale de la Recherche",
+    "code": "ANR",
+    "description": "National French research founding agency.",
+    "kind": "FundingAgency"
   }
 ]

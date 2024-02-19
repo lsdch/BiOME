@@ -2,12 +2,14 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { InstitutionKind } from './InstitutionKind';
 import type { Meta } from './Meta';
 import type { Person } from './Person';
 export type Institution = {
     code: string;
     description?: string;
     id: string;
+    kind: InstitutionKind;
     meta?: Meta;
     name: string;
     people?: Array<Person>;

@@ -2,8 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export enum LoginFailedReason {
-    AccountInactive = 'Inactive',
-    InvalidCredentials = 'InvalidCredentials',
-    ServerError = 'ServerError',
-}
+export type LoginFailedReason = 'Inactive' | 'InvalidCredentials' | 'ServerError';
