@@ -5,12 +5,16 @@ import {
   ApiError,
   CancelablePromise,
   InputValidationError,
+  Meta,
   OpenAPI
 } from ".."
 
-OpenAPI.BASE = "http://localhost:5173/api/v1"
+export function setupConnection() {
+  OpenAPI.BASE = "http://localhost:5173/api/v1"
+  return edgedb.createClient()
+}
 
-export const db = edgedb.createClient()
+export const db = setupConnection()
 
 expect.extend({
   toHaveErrorCode(received: ApiError, status: number) {
@@ -48,6 +52,7 @@ export type CRUD<Item, ItemInput, ItemUpdate> = {
 }
 
 export type TestData<ItemInput, ItemUpdate> = {
+  mocks: ItemInput[]
   creates: ItemInput[]
   invalidCreates: ItemInput[]
   update: ItemUpdate
@@ -57,19 +62,18 @@ export type TestData<ItemInput, ItemUpdate> = {
 
 
 
-export type TestEntityConfig<Item, ItemInput, ItemUpdate> = {
+export type TestEntityConfig<Item extends { id: string; meta?: Meta }, ItemInput, ItemUpdate> = {
   CRUD: CRUD<Item, ItemInput, ItemUpdate>,
   getItemIdentifier(item: Item): string,
   data: TestData<ItemInput, ItemUpdate>,
   setup: {
-    mockInput: ItemInput,
-    create(): Promise<Item>,
+    create(item: ItemInput): Promise<Item>,
     delete(item: Item): Promise<any>
   }
 }
 
 export async function generateTest<
-  Item extends { id: string },
+  Item extends { id: string; meta?: Meta },
   ItemInput extends {},
   ItemUpdate extends {},
 //   // P extends { [k in keyof ObjectTypePointers]: ObjectTypePointers[k] },
@@ -107,8 +111,9 @@ export async function generateTest<
   // })
 
   interface LocalTestContext {
-    mock: Item
-    mockID: string
+    mockItems: Item[]
+    oneMock: Item
+    oneID: string
   }
 
   return describe<LocalTestContext>(entityName, () => {
@@ -119,10 +124,16 @@ export async function generateTest<
     }
 
     beforeEach<LocalTestContext>(async (context) => {
-      context.mock = await setup.create()
-      context.mockID = getItemIdentifier(context.mock)
+      context.mockItems = await Promise.all(data.mocks.map(async (mock) => {
+        const item = await setup.create(mock)
+        delete item.meta
+        return item
+      }))
+      context.oneMock = context.mockItems[0]
+      context.oneID = getItemIdentifier(context.oneMock)
+
       return async () => {
-        await setup.delete(context.mock)
+        await Promise.all(context.mockItems.map(setup.delete))
       }
     })
 
@@ -146,7 +157,7 @@ export async function generateTest<
     describe(
       "fails to create", () => {
         withMock('duplicate', async () => {
-          const item = CRUD.create(setup.mockInput)
+          const item = CRUD.create(data.mocks[0])
           await expect(item.then((item: Item) => {
             setup.delete(item)
             return item
@@ -179,8 +190,8 @@ export async function generateTest<
 
 
 
-    withMock("updates", async ({ mockID }) => {
-      await expect(CRUD.update(mockID, data.update))
+    withMock("updates", async ({ oneID }) => {
+      await expect(CRUD.update(oneID, data.update))
         .resolves.toMatchObject(data.update)
     })
 
@@ -193,21 +204,21 @@ export async function generateTest<
       describe.each(data.invalidUpdates)(
         "with invalid properties %o",
         (item: ItemUpdate) => {
-          test<LocalTestContext>("responds with BadRequest", async ({ mockID }) => {
-            await expect(CRUD.update(mockID, item))
+          test<LocalTestContext>("responds with BadRequest", async ({ oneID }) => {
+            await expect(CRUD.update(oneID, item))
               .rejects.toHaveErrorCode(400)
           })
-          test<LocalTestContext>("responds with validation errors on invalid input", async ({ mockID }) => {
-            await expect(CRUD.update(mockID, item))
+          test<LocalTestContext>("responds with validation errors on invalid input", async ({ oneID }) => {
+            await expect(CRUD.update(oneID, item))
               .rejects.toRespondWithValidationErrors()
           })
         })
     })
 
 
-    withMock("deletes", async ({ mock, mockID }) => {
-      await expect(CRUD.delete(mockID))
-        .resolves.toMatchObject(mock)
+    withMock("deletes", async ({ oneMock, oneID }) => {
+      await expect(CRUD.delete(oneID))
+        .resolves.toMatchObject(oneMock)
     })
     withMock("fails to delete non-existing item", async () => {
       await expect(CRUD.delete(null))

@@ -15,15 +15,15 @@ generateTest("Person", {
   getItemIdentifier: ({ id }) => id,
   data: person,
   setup: {
-    mockInput: {
-      first_name: "Anon",
-      last_name: "Ymous"
-    },
-    async create() {
+    async create(mockInput) {
       return await e.select(
-        e.insert(e.people.Person, this.mockInput),
+        e.insert(e.people.Person, mockInput),
         () => ({
           ...e.people.Person['*'],
+          meta: () => ({
+            ...e.Meta['*'],
+            id: false
+          }),
           institutions: () => ({
             ...e.people.Institution['*']
           })

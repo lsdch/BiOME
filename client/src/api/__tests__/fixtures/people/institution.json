@@ -1,4 +1,10 @@
 {
+  "mocks": [
+    {
+      "name": "Vitest institution",
+      "code": "VITEST"
+    }
+  ],
   "creates": [
     {
       "code": "TEST",

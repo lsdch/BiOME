@@ -14,13 +14,9 @@ generateTest("Institution", {
   getItemIdentifier: ({ code }) => code,
   data: institution,
   setup: {
-    mockInput: {
-      name: "Vitest institution",
-      code: "VITEST"
-    },
-    async create() {
+    async create(mockInput) {
       return await e.select(
-        e.insert(e.people.Institution, this.mockInput),
+        e.insert(e.people.Institution, mockInput),
         () => ({ ...e.people.Institution['*'] })
       ).run(db)
     },

@@ -1,0 +1,26 @@
+{
+  "creates": [
+    {
+      "name": "Asellus testspecies",
+      "status": "Accepted",
+      "rank": "Species",
+      "parent": "Asellus",
+      "code": "ASEtestspecies",
+      "authorship": "(Elric, 2024)"
+    }
+  ],
+  "invalidCreates": [
+    {
+      "name": "",
+      "code": "SHOULDFAIL"
+    }
+  ],
+  "update": {
+    "name": "The updated name"
+  },
+  "invalidUpdates": [
+    {
+      "name": "x"
+    }
+  ]
+}

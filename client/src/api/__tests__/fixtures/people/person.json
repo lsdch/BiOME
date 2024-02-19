@@ -1,4 +1,10 @@
 {
+  "mocks": [
+    {
+      "first_name": "Anon",
+      "last_name": "Ymous"
+    }
+  ],
   "creates": [
     {
       "first_name": "Jane",
