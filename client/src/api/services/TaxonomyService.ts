@@ -112,12 +112,12 @@ export class TaxonomyService {
     /**
      * Delete a taxon by its code
      * @param code Taxon code
-     * @returns any OK
+     * @returns TaxonWithRelatives OK
      * @throws ApiError
      */
     public static deleteTaxon(
         code: string,
-    ): CancelablePromise<any> {
+    ): CancelablePromise<TaxonWithRelatives> {
         return __request(OpenAPI, {
             method: 'DELETE',
             url: '/taxonomy/{code}',

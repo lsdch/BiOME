@@ -86,7 +86,7 @@ func CreateTaxon(ctx *gin.Context, db *edgedb.Client) {
 // @Description
 // @id DeleteTaxon
 // @tags Taxonomy
-// @Success 200
+// @Success 200 {object} taxonomy.TaxonSelect
 // @Failure 403
 // @Failure 404
 // @Router /taxonomy/{code} [delete]

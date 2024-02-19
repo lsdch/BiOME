@@ -896,6 +896,8 @@ paths:
       responses:
         "200":
           description: OK
+          schema:
+            $ref: '#/definitions/TaxonWithRelatives'
         "403":
           description: Forbidden
         "404":
