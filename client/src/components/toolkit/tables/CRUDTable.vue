@@ -56,7 +56,13 @@
       <!-- Table footer -->
       <template v-slot:[`footer.prepend`]>
         <div class="flex-grow-1">
-          <v-btn variant="plain" size="small" prepend-icon="mdi-download">Export</v-btn>
+          <v-btn
+            variant="plain"
+            size="small"
+            prepend-icon="mdi-download"
+            text="Export"
+            @click="exportTSV"
+          />
         </div>
       </template>
 
@@ -115,6 +121,8 @@ import ItemDateChip from '../ItemDateChip.vue'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
+import CSVEngine from 'papaparse'
+import moment from 'moment'
 
 type Props = TableProps<ItemType, () => CancelablePromise<ItemType[]>> & {
   filter?: (item: ItemType) => boolean
@@ -167,6 +175,16 @@ async function loadItems() {
 }
 
 onMounted(loadItems)
+
+function exportTSV() {
+  const tsv_string = CSVEngine.unparse(items.value, { delimiter: '\t' })
+  const blob = new Blob([tsv_string], { type: 'text/csv;charset=utf8' })
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = `${props.entityName}_${moment().format('Y-MM-DD')}.tsv`
+  link.click()
+  URL.revokeObjectURL(link.href)
+}
 </script>
 
 <style lang="less">
