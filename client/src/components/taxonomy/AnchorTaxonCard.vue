@@ -20,7 +20,6 @@
       <span>{{ rank }}</span>
       <v-spacer />
       <v-chip v-if="authorship" label rounded="xl">{{ authorship }}</v-chip>
-      <span>KANAR</span>
     </v-card-subtitle>
     <v-divider></v-divider>
     <v-card-actions class="justify-space-between">
