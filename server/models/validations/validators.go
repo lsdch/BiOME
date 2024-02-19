@@ -7,28 +7,33 @@ import (
 )
 
 type CustomValidator struct {
-	tag     ValidationTag
-	handler validator.Func
-	message func(fl validator.FieldError) string
+	Tag     ValidationTag
+	Handler validator.Func
+	Message func(fl validator.FieldError) string
 }
 
 var loginRegex = regexp.MustCompile("^[a-zA-Z0-9.]+$")
 var LoginValidator = CustomValidator{
-	tag: "login",
-	handler: func(fl validator.FieldLevel) bool {
+	Tag: "login",
+	Handler: func(fl validator.FieldLevel) bool {
 		return loginRegex.MatchString(fl.Field().String())
 	},
-	message: func(fl validator.FieldError) string {
+	Message: func(fl validator.FieldError) string {
 		return "Only alphanumeric and '.' characters allowed"
 	},
 }
 
-var Validators = []CustomValidator{
+var validators = []CustomValidator{
 	UniqueEmailValidator,
 	UniqueLoginValidator,
 	LoginValidator,
 	ExistAllValidator,
 	ExistValidator,
+}
+
+func RegisterCustomValidator(v CustomValidator) error {
+	validators = append(validators, v)
+	return nil
 }
 
 type CustomTag struct {
@@ -37,7 +42,7 @@ type CustomTag struct {
 	Message string
 }
 
-var CustomTags = []CustomTag{
+var customTags = []CustomTag{
 	{Alias: "nullalpha", Tags: "eq=|alpha",
 		Message: "Only alphabetic characters allowed"},
 	{Alias: "nullalphanum", Tags: "eq=|alphanum",
@@ -51,10 +56,10 @@ var CustomTags = []CustomTag{
 }
 
 func RegisterValidators(engine *validator.Validate) {
-	for _, validator := range Validators {
-		engine.RegisterValidation(string(validator.tag), validator.handler)
+	for _, validator := range validators {
+		engine.RegisterValidation(string(validator.Tag), validator.Handler)
 	}
-	for _, tag := range CustomTags {
+	for _, tag := range customTags {
 		engine.RegisterAlias(tag.Alias, tag.Tags)
 	}
 }

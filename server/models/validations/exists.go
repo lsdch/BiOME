@@ -35,9 +35,9 @@ func validateExists(fl validator.FieldLevel) bool {
 }
 
 var ExistValidator = CustomValidator{
-	tag:     "exist",
-	handler: validateExists,
-	message: func(fl validator.FieldError) string {
+	Tag:     "exist",
+	Handler: validateExists,
+	Message: func(fl validator.FieldError) string {
 		return fmt.Sprintf("Item '%v' does not exist", fl.Value())
 	},
 }

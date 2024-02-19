@@ -45,18 +45,18 @@ var loginUnique = UniqueValidator{
 
 // Checks that an email address is not already in use
 var UniqueEmailValidator = CustomValidator{
-	tag:     "unique_email",
-	handler: emailUnique.Validator(),
-	message: func(fl validator.FieldError) string {
+	Tag:     "unique_email",
+	Handler: emailUnique.Validator(),
+	Message: func(fl validator.FieldError) string {
 		return "An account is already registered with this address"
 	},
 }
 
 // Checks that a login is not already in use in the database
 var UniqueLoginValidator = CustomValidator{
-	tag:     "unique_login",
-	handler: loginUnique.Validator(),
-	message: func(fl validator.FieldError) string {
+	Tag:     "unique_login",
+	Handler: loginUnique.Validator(),
+	Message: func(fl validator.FieldError) string {
 		return "This login is already used"
 	},
 }

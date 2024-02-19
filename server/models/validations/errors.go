@@ -94,13 +94,13 @@ func fieldErrorMsg(err validator.FieldError) string {
 		return fmt.Sprintf("Must end with \"%s\"", err.Param())
 	}
 
-	for _, validator := range Validators {
-		if ValidationTag(err.Tag()) == validator.tag {
-			return validator.message(err)
+	for _, validator := range validators {
+		if ValidationTag(err.Tag()) == validator.Tag {
+			return validator.Message(err)
 		}
 	}
 
-	for _, customTag := range CustomTags {
+	for _, customTag := range customTags {
 		if err.Tag() == customTag.Alias {
 			return customTag.Message
 		}

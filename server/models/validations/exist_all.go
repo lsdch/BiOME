@@ -58,9 +58,9 @@ func validateExistAll(fl validator.FieldLevel) bool {
 }
 
 var ExistAllValidator = CustomValidator{
-	tag:     "exist_all",
-	handler: validateExistAll,
-	message: func(fl validator.FieldError) string {
+	Tag:     "exist_all",
+	Handler: validateExistAll,
+	Message: func(fl validator.FieldError) string {
 		value := fl.Value()
 		key := fmt.Sprintf("%v", value)
 		notFound := unknownValuesMap[key]
