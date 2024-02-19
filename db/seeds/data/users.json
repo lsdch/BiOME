@@ -1,0 +1,80 @@
+[
+  {
+    "login": "dev.admin",
+    "email": "dev.admin@mockemail.com",
+    "password": "dev.admin",
+    "role": "Admin",
+    "identity": {
+      "first_name": "Mock",
+      "last_name": "Admin",
+      "institutions": [
+        "DEVTEAM"
+      ]
+    }
+  },
+  {
+    "login": "dev.member",
+    "email": "dev.member@mockemail.com",
+    "password": "dev.member",
+    "role": "ProjectMember",
+    "identity": {
+      "first_name": "Mock",
+      "last_name": "Member",
+      "institutions": [
+        "DEVTEAM"
+      ]
+    }
+  },
+  {
+    "login": "dev.contrib",
+    "email": "dev.contrib@mockemail.com",
+    "password": "dev.contrib",
+    "role": "Contributor",
+    "identity": {
+      "first_name": "Mock",
+      "last_name": "Contributor",
+      "institutions": [
+        "DEVTEAM"
+      ]
+    }
+  },
+  {
+    "login": "dev.guest",
+    "email": "dev.guest@mockemail.com",
+    "password": "dev.guest",
+    "role": "Guest",
+    "identity": {
+      "first_name": "Mock",
+      "last_name": "Guest",
+      "institutions": [
+        "DEVTEAM"
+      ]
+    }
+  },
+  {
+    "login": "fmalard",
+    "email": "florian.malard@univ-lyon1.fr",
+    "password": "fmalard",
+    "role": "Admin",
+    "identity": {
+      "first_name": "Florian",
+      "last_name": "Malard",
+      "institutions": [
+        "LEHNA"
+      ]
+    }
+  },
+  {
+    "login": "inactive",
+    "email": "inactive@mockemail.com",
+    "password": "inactive",
+    "role": "Contributor",
+    "identity": {
+      "first_name": "Inactive",
+      "last_name": "User",
+      "institutions": [
+        "LEHNA"
+      ]
+    }
+  }
+]

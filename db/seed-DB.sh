@@ -9,4 +9,4 @@ edgedb migrate --schema-dir schema
 
 echo "Importing initial data"
 cd ./seeds
-go run
+go run main.go

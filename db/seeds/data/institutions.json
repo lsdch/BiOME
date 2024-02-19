@@ -5,8 +5,13 @@
     "description": "Where this database was born!"
   },
   {
-    "name": "Mos Eisley Laboratory of Environmental Studies",
+    "name": "Mock Eisley Laboratory of Environmental Studies",
     "code": "MELES",
-    "description": "The main ecological research lab on Tatooine."
+    "description": "The main ecological research lab on Fakeooine."
+  },
+  {
+    "name": "Dev testing team",
+    "code": "DEVTEAM",
+    "description": "A group of mock accounts for testing purposes."
   }
 ]

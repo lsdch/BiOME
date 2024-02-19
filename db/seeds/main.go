@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"darco/proto/db"
-	"darco/proto/models/taxonomy"
+	gbif "darco/proto/models/taxonomy/GBIF"
 	"embed"
 	"fmt"
 
@@ -55,7 +55,7 @@ func seedTaxonomyGBIF() error {
 	bar := progressbar.Default(-1, "Importing Asellidae taxonomy from GBIF")
 	db.Client().Execute(context.Background(), "delete taxonomy::Taxon")
 	var total int
-	err := taxonomy.ImportTaxon(db.Client(), 4574, func(p *taxonomy.ImportProcess) {
+	err := gbif.ImportTaxon(db.Client(), 4574, func(p *gbif.ImportProcess) {
 		total = p.Imported
 		bar.Set(p.Imported)
 	})
@@ -68,6 +68,7 @@ func seedTaxonomyGBIF() error {
 var entities = []string{
 	"institutions",
 	"persons",
+	"users",
 }
 
 func main() {
