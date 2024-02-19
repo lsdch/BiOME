@@ -910,7 +910,7 @@ module datasets {
 module people {
 
 
-  scalar type InstitutionKind extending enum<Lab, FoundingAgency, SequencingPlatform, Other>;
+  scalar type InstitutionKind extending enum<Lab, FundingAgency, SequencingPlatform, Other>;
 
   type Institution extending default::Auditable {
     required name: str {

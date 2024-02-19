@@ -126,7 +126,7 @@ definitions:
   InstitutionKind:
     enum:
     - Lab
-    - FoundingAgency
+    - FundingAgency
     - SequencingPlatform
     - Other
     type: string

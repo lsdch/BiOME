@@ -12,7 +12,7 @@ type InstitutionKind string // @name InstitutionKind
 
 const (
 	Lab                InstitutionKind = "Lab"
-	FoundingAgency     InstitutionKind = "FoundingAgency"
+	FoundingAgency     InstitutionKind = "FundingAgency"
 	SequencingPlatform InstitutionKind = "SequencingPlatform"
 	Other              InstitutionKind = "Other"
 )

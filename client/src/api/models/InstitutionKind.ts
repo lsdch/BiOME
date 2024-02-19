@@ -2,4 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type InstitutionKind = 'Lab' | 'FoundingAgency' | 'SequencingPlatform' | 'Other';
+export type InstitutionKind = 'Lab' | 'FundingAgency' | 'SequencingPlatform' | 'Other';

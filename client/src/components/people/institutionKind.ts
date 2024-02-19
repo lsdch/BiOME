@@ -8,7 +8,7 @@ export function kindIcon(kind?: InstitutionKind) {
         icon: 'mdi-flask',
         color: 'primary'
       }
-    case "FoundingAgency":
+    case "FundingAgency":
       return {
         icon: 'mdi-file-certificate',
         color: 'green'
@@ -29,4 +29,4 @@ export function kindIcon(kind?: InstitutionKind) {
   }
 }
 
-export const institutionKindOptions = stringUnionToArray<InstitutionKind>()('Lab', 'FoundingAgency', 'SequencingPlatform', 'Other')
+export const institutionKindOptions = stringUnionToArray<InstitutionKind>()('Lab', 'FundingAgency', 'SequencingPlatform', 'Other')

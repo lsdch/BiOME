@@ -4,6 +4,7 @@ for item in json_array_unpack(data) union (
   insert Institution {
     name := <str>item['name'],
     code := <str>item['code'],
-    description := <str>item['description']
+    description := <str>item['description'],
+    kind := <InstitutionKind>item['kind']
   }
 )

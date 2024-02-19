@@ -7,7 +7,7 @@
     "node": ">=20.0.0 <21.0.0"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "pnpm gen-client && vite",
     "build": "run-p type-check build-only",
     "preview": "vite preview",
     "test:unit": "pnpm gen-client && pnpm db-client && vitest",

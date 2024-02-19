@@ -1064,7 +1064,7 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "Lab",
-                "FoundingAgency",
+                "FundingAgency",
                 "SequencingPlatform",
                 "Other"
             ],
