@@ -12,6 +12,7 @@ export type TaxonWithRelatives = {
     authorship?: string;
     children?: Array<TaxonDB>;
     code: string;
+    comment?: string;
     id: string;
     meta: Meta;
     name: string;
@@ -20,6 +21,7 @@ export type TaxonWithRelatives = {
         anchor?: boolean;
         authorship?: string;
         code: string;
+        comment?: string;
         id: string;
         meta: Meta;
         name: string;

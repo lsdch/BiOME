@@ -10,6 +10,7 @@ export type TaxonDB = {
     anchor?: boolean;
     authorship?: string;
     code: string;
+    comment?: string;
     id: string;
     meta: Meta;
     name: string;

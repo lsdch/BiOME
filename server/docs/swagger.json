@@ -1300,6 +1300,9 @@
                     "type": "string",
                     "example": "ASEaquaticus"
                 },
+                "comment": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
@@ -1347,6 +1350,9 @@
                     "type": "string",
                     "minLength": 4,
                     "example": "ASEaquaticus"
+                },
+                "comment": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string",
@@ -1467,6 +1473,9 @@
                     "type": "string",
                     "example": "ASEaquaticus"
                 },
+                "comment": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
@@ -1503,6 +1512,9 @@
                         "code": {
                             "type": "string",
                             "example": "ASEaquaticus"
+                        },
+                        "comment": {
+                            "type": "string"
                         },
                         "id": {
                             "type": "string",

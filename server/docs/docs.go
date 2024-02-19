@@ -1307,6 +1307,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "ASEaquaticus"
                 },
+                "comment": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
@@ -1354,6 +1357,9 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 4,
                     "example": "ASEaquaticus"
+                },
+                "comment": {
+                    "type": "string"
                 },
                 "name": {
                     "type": "string",
@@ -1474,6 +1480,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "ASEaquaticus"
                 },
+                "comment": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string",
                     "example": "\u003cUUID\u003e"
@@ -1510,6 +1519,9 @@ const docTemplate = `{
                         "code": {
                             "type": "string",
                             "example": "ASEaquaticus"
+                        },
+                        "comment": {
+                            "type": "string"
                         },
                         "id": {
                             "type": "string",

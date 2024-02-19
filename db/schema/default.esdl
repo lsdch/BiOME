@@ -221,6 +221,8 @@ module taxonomy {
 
     multi link children := .<parent[is Taxon];
 
+    comment: str;
+
     index on (.name);
     index on (.rank);
     index on (.status);
