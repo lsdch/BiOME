@@ -23,7 +23,17 @@
       <v-icon v-bind="roleIcon(value)"></v-icon>
     </template>
     <template v-slot:[`item.institutions`]="{ value }">
-      <v-chip v-for="inst in value" :key="inst.code" class="text-overline mx-1" rounded="xl">
+      <v-chip
+        label
+        v-for="inst in value"
+        :key="inst.code"
+        class="text-overline mx-1"
+        variant="outlined"
+        v-bind="kindIcon(inst.kind)"
+      >
+        <template v-slot:prepend>
+          <v-icon v-bind="kindIcon(inst.kind)"></v-icon>
+        </template>
         {{ inst.code }}
       </v-chip>
     </template>
@@ -38,6 +48,7 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { useEntityTable } from '../toolkit/tables'
 import PersonForm from './PersonForm.vue'
 import { roleIcon } from './userRole'
+import { kindIcon } from './institutionKind'
 
 const role_order: UserRole[] = ['Guest', 'Contributor', 'ProjectMember', 'Admin']
 
