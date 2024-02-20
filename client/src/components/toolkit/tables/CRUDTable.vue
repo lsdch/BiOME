@@ -71,8 +71,8 @@
         <slot name="expanded-row" v-bind="{ columns, item, ...others }">
           <tr class="expanded">
             <td :colspan="columns.length" class="px-0">
-              <div class="d-flex flex-wrap h-auto">
-                <div class="d-flex flex-column flex-grow-0">
+              <div class="d-flex flex-column h-auto">
+                <div class="d-flex flex-wrap">
                   <ItemDateChip
                     v-if="item.meta?.created"
                     icon="created"
@@ -83,8 +83,15 @@
                     icon="updated"
                     :date="item.meta.modified"
                   />
+                  <v-spacer></v-spacer>
+                  <v-btn
+                    prepend-icon="mdi-identifier"
+                    variant="plain"
+                    class="text-caption"
+                    @click="copyUUID(item)"
+                    :text="item.id"
+                  />
                 </div>
-                <v-divider vertical></v-divider>
                 <div class="flex-grow-1">
                   <v-divider v-show="$slots['expanded-row-inject']"></v-divider>
                   <slot name="expanded-row-inject" v-bind="{ item }"> </slot>
