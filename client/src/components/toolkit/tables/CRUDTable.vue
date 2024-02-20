@@ -61,6 +61,7 @@
             size="small"
             prepend-icon="mdi-download"
             text="Export"
+            :loading="exportDialog.loading"
             @click="exportTSV"
           />
         </div>
@@ -113,23 +114,30 @@
 
     <!-- Feedback snackbar -->
     <CRUDFeedback v-model="feedback.model" v-bind="feedback.props" />
+
+    <!-- CSV export dialog -->
+    <ExportDialog
+      v-model="exportDialog.open"
+      v-bind="exportDialog.props"
+      @ready="exportDialog.loading = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts" generic="ItemType extends { id: string; meta?: Meta }">
 import { CancelablePromise, Meta } from '@/api'
-import { computed, onMounted, ref, useSlots } from 'vue'
+import { Ref, computed, onMounted, ref, useSlots } from 'vue'
+import { ComponentProps } from 'vue-component-type-helpers'
 import { type VDataTable } from 'vuetify/components'
 import { TableEmitEvents, TableProps, useTable } from '.'
 import CRUDFeedback from '../CRUDFeedback.vue'
 import ConfirmDialog from '../ConfirmDialog.vue'
+import ExportDialog from '../ExportDialog.vue'
 import FormDialog from '../FormDialog.vue'
 import ItemDateChip from '../ItemDateChip.vue'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
-import CSVEngine from 'papaparse'
-import moment from 'moment'
 
 type Props = TableProps<ItemType, () => CancelablePromise<ItemType[]>> & {
   filter?: (item: ItemType) => boolean
@@ -183,14 +191,37 @@ async function loadItems() {
 
 onMounted(loadItems)
 
+const exportDialog: Ref<{
+  open: boolean
+  loading: boolean
+  props: ComponentProps<typeof ExportDialog>
+}> = ref({
+  open: false,
+  loading: false,
+  props: {
+    items: [],
+    namePrefix: props.entityName
+  }
+})
+
 function exportTSV() {
-  const tsv_string = CSVEngine.unparse(items.value, { delimiter: '\t' })
-  const blob = new Blob([tsv_string], { type: 'text/csv;charset=utf8' })
-  const link = document.createElement('a')
-  link.href = URL.createObjectURL(blob)
-  link.download = `${props.entityName}_${moment().format('Y-MM-DD')}.tsv`
-  link.click()
-  URL.revokeObjectURL(link.href)
+  exportDialog.value = {
+    open: true,
+    loading: true,
+    props: {
+      items: items.value,
+      namePrefix: props.entityName
+    }
+  }
+}
+
+async function copyUUID(item: ItemType) {
+  try {
+    await navigator.clipboard.writeText(item.id)
+    feedback.value.show('UUID copied to clipboard', 'primary')
+  } catch (err) {
+    feedback.value.show('Failed to copy UUID to clipboard', 'warning')
+  }
 }
 </script>
 

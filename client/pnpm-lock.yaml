@@ -32,6 +32,9 @@ dependencies:
   axios:
     specifier: ^1.6.7
     version: 1.6.7(debug@4.3.4)
+  flat:
+    specifier: ^6.0.1
+    version: 6.0.1
   moment:
     specifier: ^2.30.1
     version: 2.30.1
@@ -3383,6 +3386,12 @@ packages:
       keyv: 4.5.4
       rimraf: 3.0.2
     dev: true
+
+  /flat@6.0.1:
+    resolution: {integrity: sha512-/3FfIa8mbrg3xE7+wAhWeV+bd7L2Mof+xtZb5dRDKZ+wDvYJK4WDYeIOuOhre5Yv5aQObZrlbRmk3RTSiuQBtw==}
+    engines: {node: '>=18'}
+    hasBin: true
+    dev: false
 
   /flatted@3.2.9:
     resolution: {integrity: sha512-36yxDn5H7OFZQla0/jFJmbIKTdZAQHngCedGxiMmpNfEZM0sdEeT+WczLQrjK6D7o2aiyLYDnkw0R3JK0Qv1RQ==}
