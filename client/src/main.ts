@@ -48,7 +48,8 @@ const vuetify = createVuetify({
     }
   },
   defaults: {
-    VTextField: { variant: "outlined" }
+    VTextField: { variant: "outlined" },
+    VSelect: { variant: "outlined" }
   }
 })
 
