@@ -6,6 +6,7 @@ import type { Institution } from './Institution';
 import type { Meta } from './Meta';
 import type { UserRole } from './UserRole';
 export type Person = {
+    alias: string;
     contact?: string;
     first_name: string;
     full_name: string;

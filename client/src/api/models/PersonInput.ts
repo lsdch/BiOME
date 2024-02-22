@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export type PersonInput = {
+    alias?: string;
     contact?: string;
     first_name: string;
     institutions?: Array<string>;
