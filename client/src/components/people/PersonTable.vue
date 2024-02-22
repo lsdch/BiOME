@@ -22,6 +22,9 @@
     <template v-slot:[`item.role`]="{ value }">
       <v-icon v-bind="roleIcon(value)"></v-icon>
     </template>
+    <template v-slot:[`item.alias`]="{ value }">
+      <span class="font-weight-light"> {{ `@${value}` }}</span>
+    </template>
     <template v-slot:[`item.institutions`]="{ value }">
       <v-chip
         label
@@ -36,6 +39,18 @@
         </template>
         {{ inst.code }}
       </v-chip>
+    </template>
+
+    <template v-slot:[`expanded-row-inject`]="{ item }">
+      <v-btn
+        v-if="item.contact"
+        variant="plain"
+        prepend-icon="mdi-at"
+        :href="`mailto:${item.contact}`"
+        :text="item.contact"
+        size="small"
+        class="mx-1"
+      />
     </template>
   </CRUDTable>
 </template>
@@ -52,7 +67,7 @@ import { kindIcon } from './institutionKind'
 
 const role_order: UserRole[] = ['Guest', 'Contributor', 'ProjectMember', 'Admin']
 
-const headers: ReadonlyHeaders = [
+const headers: CRUDTableHeader[] = [
   {
     title: 'Role',
     key: 'role',
@@ -65,11 +80,14 @@ const headers: ReadonlyHeaders = [
   },
   { title: 'Name', key: 'full_name' },
   {
+    title: 'Alias',
+    key: 'alias'
+  },
+  {
     title: 'Institutions',
     key: 'institutions',
     sortable: false
-  },
-  { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+  }
 ]
 
 const { create, edit, editItem, onFormSuccess } = useEntityTable<Person>()

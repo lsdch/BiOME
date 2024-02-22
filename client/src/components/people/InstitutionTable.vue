@@ -67,12 +67,15 @@
             <v-list-subheader>
               {{ item.people?.length ? 'PEOPLE' : 'No people registered in this institution.' }}
             </v-list-subheader>
-            <v-list-item v-for="person in item.people" :key="person.id" class="item-person">
+            <v-list-item v-for="person in item.people" :key="person.id" class="item-person py-0">
               <v-list-item-title class="text-body-2">
                 {{ person.full_name }}
               </v-list-item-title>
+              <v-list-item-subtitle>
+                {{ `@${person.alias}` }}
+              </v-list-item-subtitle>
               <template v-slot:prepend>
-                <v-icon v-bind="roleIcon(person.role)" size="small"></v-icon>
+                <v-icon v-bind="roleIcon(person.role)" size="small" />
               </template>
             </v-list-item>
           </v-list>
@@ -97,7 +100,7 @@ import { roleIcon } from './userRole'
 const { mdAndUp } = useDisplay()
 
 const headers = computed(
-  (): ReadonlyHeaders => [
+  (): CRUDTableHeaders => [
     { title: 'Short name', key: 'code' },
     { title: 'Name', key: 'name' },
     {
@@ -107,8 +110,7 @@ const headers = computed(
         return enumAsString(item.kind)
       }
     },
-    { title: 'People', key: 'people', align: 'center' },
-    { title: 'Actions', key: 'actions', sortable: false, align: 'end' }
+    { title: 'People', key: 'people', align: 'center' }
   ]
 )
 
