@@ -1,5 +1,5 @@
 <template>
-  <v-dialog persistent v-model="dialog" v-bind="$attrs" :fullscreen="xs">
+  <v-dialog persistent v-model="dialog" v-bind="$attrs" :fullscreen="xs" max-width="1000">
     <!-- Expose activator slot -->
     <template v-slot:activator="slotData">
       <slot name="activator" v-bind="slotData"></slot>
