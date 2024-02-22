@@ -10,7 +10,7 @@ import {
 } from ".."
 
 export function setupConnection() {
-  OpenAPI.BASE = "http://localhost:5173/api/v1"
+  OpenAPI.BASE = "http://localhost:8080/api/v1"
   return edgedb.createClient()
 }
 
@@ -59,9 +59,6 @@ export type TestData<ItemInput, ItemUpdate> = {
   invalidUpdates: ItemUpdate[]
 }
 
-
-
-
 export type TestEntityConfig<Item extends { id: string; meta?: Meta }, ItemInput, ItemUpdate> = {
   CRUD: CRUD<Item, ItemInput, ItemUpdate>,
   getItemIdentifier(item: Item): string,
@@ -76,39 +73,11 @@ export async function generateTest<
   Item extends { id: string; meta?: Meta },
   ItemInput extends {},
   ItemUpdate extends {},
-//   // P extends { [k in keyof ObjectTypePointers]: ObjectTypePointers[k] },
-//   P extends { id: $BaseObjectλShape["id"] },
-//   Z extends ExclusiveTuple,
-//   X extends ObjectType<string, $BaseObjectλShape, any, Z>,
-//   // {
-//   //   [k in keyof ObjectType<string, $SiteλShape, null, $Site['__exclusives__']>]:
-//   //   ObjectType<string, $SiteλShape, null, $Site['__exclusives__']>[k]
-//   // },
-//   // X extends { [k in keyof $BaseObject]: $BaseObject[k] },
-//   // T extends { [k in keyof TypeSet<X, edgedb.$.Cardinality.Many>]: TypeSet<X, edgedb.$.Cardinality.Many>[k] },
-//   T extends TypeSet<X, edgedb.$.Cardinality.Many>,
-//   O extends anonymizeObject<$BaseObject>,
-//   Schema extends $expr_PathNode<TypeSet<anonymizeObject<$BaseObject>>>
-// // { [k in keyof $expr_PathNode<T, null>]: $expr_PathNode<T, null>[k] }
-// // $expr_PathNode<TypeSet<ObjectType<string, X>, edgedb.$.Cardinality.Many>, null>
 >(
   entityName: string,
   { CRUD, setup, data, getItemIdentifier }: TestEntityConfig<Item, ItemInput, ItemUpdate>
-  // schema: $expr_PathNode<ObjectTypeExpression>,
-  // schema: Schema,
-  // schema: $expr_PathNode<TypeSet<$Institution, edgedb.$.Cardinality.Many>>,
-  // setup: InsertShape<O>,
 ) {
-  // const s: (any) => exclusivesToFilterSingle<Schema['__element__']['__exclusives__']> = ({ id }) => id
 
-  // beforeEach(async () => {
-  //   const query = e.select(e.insert(schema, setup))
-  //   const item: $infer<typeof query> = await query.run(db)
-
-  //   return async () => {
-  //     await e.delete(schema, () => ({ filter_single: { id: item.id } })).run(db)
-  //   }
-  // })
 
   interface LocalTestContext {
     mockItems: Item[]
@@ -116,7 +85,7 @@ export async function generateTest<
     oneID: string
   }
 
-  return describe<LocalTestContext>(entityName, () => {
+  describe<LocalTestContext>(entityName, () => {
 
 
     function withMock(...args: Parameters<typeof test<LocalTestContext>>) {
@@ -221,7 +190,7 @@ export async function generateTest<
         .resolves.toMatchObject(oneMock)
     })
     withMock("fails to delete non-existing item", async () => {
-      await expect(CRUD.delete(null))
+      await expect(CRUD.delete("null"))
         .rejects.toHaveErrorCode(404)
     })
   })

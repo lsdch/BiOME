@@ -4,6 +4,7 @@ import { generateTest } from "./tests"
 
 import e from "../../db/edgeql-js"
 import { db } from "./tests"
+import { PersonInput, Person } from ".."
 
 generateTest("Person", {
   CRUD: {
@@ -15,9 +16,17 @@ generateTest("Person", {
   getItemIdentifier: ({ id }) => id,
   data: person,
   setup: {
-    async create(mockInput) {
+    async create(mockInput: PersonInput) {
       return await e.select(
-        e.insert(e.people.Person, mockInput),
+        e.insert(e.people.Person, {
+          ...mockInput,
+          institutions: e.select(e.people.Institution, inst => ({
+            filter: e.op(inst.code, "in",
+              e.array_unpack(e.literal(e.array(e.str),
+                mockInput.institutions ?? []))
+            )
+          }))
+        }),
         () => ({
           ...e.people.Person['*'],
           meta: () => ({

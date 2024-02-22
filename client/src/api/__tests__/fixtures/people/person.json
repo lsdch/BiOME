@@ -2,7 +2,8 @@
   "mocks": [
     {
       "first_name": "Anon",
-      "last_name": "Ymous"
+      "last_name": "Ymous",
+      "alias": "aymous"
     }
   ],
   "creates": [
@@ -40,6 +41,9 @@
     },
     {
       "last_name": ""
+    },
+    {
+      "alias": "x"
     },
     {
       "institutions": [
