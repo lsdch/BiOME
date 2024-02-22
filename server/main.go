@@ -48,6 +48,7 @@ import (
 // @schemes http
 func setupRouter() *gin.Engine {
 	r := gin.Default()
+	r.Use(gin.Recovery())
 	r.Use(middlewares.ErrorHandler)
 	r.Use(middlewares.AuthenticationMiddleware)
 
