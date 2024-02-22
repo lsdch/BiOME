@@ -8,8 +8,14 @@
         </template>
       </v-toolbar>
       <v-card-text>
-        <v-form @submit.prevent>
-          <v-text-field v-model="filename" label="Filename" :suffix="suffix" />
+        <v-form @submit.prevent validate-on="input" v-model="isValid">
+          <v-text-field
+            v-model="filename"
+            label="Filename"
+            :suffix="suffix"
+            required
+            :rules="inlineRules([required])"
+          />
           <v-row>
             <v-col cols="12" sm="">
               <v-checkbox label="Quote items" v-model="options.quotes" color="primary"></v-checkbox>
@@ -44,6 +50,7 @@
           prepend-icon="mdi-download"
           text="Download"
           :loading="loading"
+          :disabled="!isValid"
         />
       </v-card-actions>
     </v-card>
@@ -55,6 +62,10 @@ import { flatten } from 'flat'
 import moment from 'moment'
 import CSVEngine from 'papaparse'
 import { computed, ref, watch } from 'vue'
+import { inlineRules } from './form'
+import { required } from '@vuelidate/validators'
+
+const isValid = ref(null)
 
 const dialog = defineModel<boolean>()
 const props = defineProps<{ items: ItemType[]; namePrefix: string }>()
