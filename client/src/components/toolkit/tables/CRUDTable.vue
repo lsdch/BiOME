@@ -2,7 +2,7 @@
   <div>
     <v-data-table
       v-bind="$attrs"
-      :headers="headers"
+      :headers="processedHeaders"
       :items="filteredItems"
       :loading="loading"
       :search="searchTerm"
@@ -20,6 +20,7 @@
           v-model:search="searchTerm"
           v-bind="toolbar"
           @create-item="actions.create"
+          @reload="loadItems().then(() => feedback.show('Data reloaded'))"
         >
           <!-- Right toolbar actions -->
           <template v-slot:append>
@@ -165,7 +166,10 @@ defineSlots<
   }
 >()
 
-const { items, actions, deleteDialog, formDialog, feedback, formMode } = useTable(props, emit)
+const { items, actions, deleteDialog, formDialog, feedback, formMode, processedHeaders } = useTable(
+  props,
+  emit
+)
 
 const sortBy = ref<SortItem[]>([])
 

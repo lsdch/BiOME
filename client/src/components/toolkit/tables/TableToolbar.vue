@@ -2,9 +2,16 @@
   <v-toolbar flat dense prepend-icon="mdi-check" extension-height="auto">
     <!-- Top left icon -->
     <template v-if="icon" v-slot:prepend>
-      <v-avatar color="secondary" variant="outlined">
-        <v-icon dark color="secondary-darken-1">{{ icon }}</v-icon>
-      </v-avatar>
+      <v-tooltip>
+        <template v-slot:activator="{ props, isActive }">
+          <v-avatar color="secondary" variant="outlined" v-bind="props">
+            <v-icon dark color="secondary-darken-1" @click="emit('reload')">
+              {{ isActive ? 'mdi-reload' : icon }}
+            </v-icon>
+          </v-avatar>
+        </template>
+        Reload items
+      </v-tooltip>
     </template>
 
     <!-- Expose toolbar append slot -->
@@ -65,7 +72,7 @@ type Props = ToolbarProps
 
 defineProps<Props>()
 
-const emit = defineEmits<{ createItem: [] }>()
+const emit = defineEmits<{ createItem: []; reload: [] }>()
 </script>
 
 <style scoped></style>

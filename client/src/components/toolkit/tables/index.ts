@@ -5,6 +5,9 @@ import { FeedbackProps } from "../CRUDFeedback.vue"
 import { ConfirmDialogProps } from "../ConfirmDialog.vue"
 import { watchOnce } from '@vueuse/core'
 import { Mode } from "../form"
+import { computed } from "vue"
+import { ComputedRef } from "vue"
+
 
 export type SortItem = {
   key: string
@@ -19,7 +22,7 @@ export type ToolbarProps = {
 
 export type TableProps<ItemType, FetchList> = {
   entityName: string
-  headers: ReadonlyHeaders
+  headers: CRUDTableHeader[]
   toolbar: ToolbarProps
   showActions?: boolean
   itemRepr?: (item: ItemType) => string
@@ -50,6 +53,12 @@ export function useTable<ItemType extends { id: string }, FetchList, EmitType ex
   const formDialog = ref(false)
 
   const formMode: Ref<Mode> = ref('Create')
+
+  const processedHeaders: ComputedRef<CRUDTableHeaders> = computed((): CRUDTableHeader[] => {
+    return props.showActions
+      ? props.headers.concat([{ title: 'Actions', key: 'actions', sortable: false, align: 'end' }])
+      : props.headers
+  })
 
   const actions = {
     edit(item: ItemType) {
@@ -160,7 +169,7 @@ export function useTable<ItemType extends { id: string }, FetchList, EmitType ex
     }
   })
 
-  return { items, feedback, deleteDialog, actions, formDialog, formMode }
+  return { items, feedback, deleteDialog, actions, formDialog, formMode, processedHeaders }
 }
 
 export function useEntityTable<ItemType>() {
