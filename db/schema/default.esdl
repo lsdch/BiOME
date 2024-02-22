@@ -936,6 +936,19 @@ module people {
     index on (.code);
   }
 
+  function middle_names_initials(s: optional str) -> str
+    using(
+      if exists s then (
+        with split_middle_names := str_split(s, " "),
+        select array_join(array_agg(
+            (for middle_name in array_unpack(split_middle_names)
+              union (middle_name[0]))
+          ), "")
+      ) else (
+        select ''
+      )
+    );
+
   type Person extending default::Auditable {
     required first_name: str {
       constraint min_len_value(1);
@@ -953,6 +966,26 @@ module people {
     required property full_name := array_join(
       array_agg({.first_name, .middle_names, .last_name}), ' '
     );
+
+    required alias: str {
+      constraint exclusive;
+      constraint min_len_value(4);
+      default := <str>{};
+      rewrite insert, update using (
+        default::null_if_empty(.alias) ?? (
+        with
+          middle_names := middle_names_initials(.middle_names),
+          default_alias := str_lower(.first_name[0] ++ middle_names ++ .last_name),
+          conflicts := (select count (
+            detached Person filter (
+              str_trim(.alias, "0123456789") = default_alias
+            )
+          )),
+          suffix := if conflicts > 0 then <str>(conflicts) else "",
+        select (default_alias ++ suffix)
+        )
+      );
+    }
 
     contact: str {
       rewrite insert, update using (default::null_if_empty(.contact));

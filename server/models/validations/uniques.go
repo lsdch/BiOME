@@ -60,3 +60,24 @@ var UniqueLoginValidator = CustomValidator{
 		return "This login is already used"
 	},
 }
+
+func validateUnique(typecast string) validator.Func {
+	return func(fl validator.FieldLevel) bool {
+		bindings := ParseEdgeDBBindings(fl.Param(), "str")
+		return bindings.UniqueQuery(fl.Field().Interface())
+	}
+}
+
+func validateUniqueWithBindings(bindings BindingEdgeDB) validator.Func {
+	return func(fl validator.FieldLevel) bool {
+		return bindings.UniqueQuery(fl.Field().Interface())
+	}
+}
+
+var UniqueStrValidator = CustomValidator{
+	Tag:     "unique_str",
+	Handler: validateUnique("str"),
+	Message: func(fl validator.FieldError) string {
+		return fmt.Sprintf("'%s' is already in use", fl.Value())
+	},
+}

@@ -198,6 +198,8 @@ definitions:
     type: object
   Person:
     properties:
+      alias:
+        type: string
       contact:
         type: string
       first_name:
@@ -224,6 +226,7 @@ definitions:
       role:
         $ref: '#/definitions/UserRole'
     required:
+    - alias
     - first_name
     - full_name
     - id
@@ -231,6 +234,8 @@ definitions:
     type: object
   PersonInput:
     properties:
+      alias:
+        type: string
       contact:
         type: string
       first_name:
@@ -254,6 +259,9 @@ definitions:
     type: object
   PersonUpdate:
     properties:
+      alias:
+        minLength: 3
+        type: string
       contact:
         type: string
       first_name:
@@ -567,8 +575,6 @@ definitions:
     type: object
   people.PersonInner:
     properties:
-      contact:
-        type: string
       first_name:
         maxLength: 32
         minLength: 2

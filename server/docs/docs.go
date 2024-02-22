@@ -1166,12 +1166,16 @@ const docTemplate = `{
         "Person": {
             "type": "object",
             "required": [
+                "alias",
                 "first_name",
                 "full_name",
                 "id",
                 "last_name"
             ],
             "properties": {
+                "alias": {
+                    "type": "string"
+                },
                 "contact": {
                     "type": "string"
                 },
@@ -1216,6 +1220,9 @@ const docTemplate = `{
                 "last_name"
             ],
             "properties": {
+                "alias": {
+                    "type": "string"
+                },
                 "contact": {
                     "type": "string"
                 },
@@ -1244,6 +1251,10 @@ const docTemplate = `{
         "PersonUpdate": {
             "type": "object",
             "properties": {
+                "alias": {
+                    "type": "string",
+                    "minLength": 3
+                },
                 "contact": {
                     "type": "string"
                 },
@@ -1699,9 +1710,6 @@ const docTemplate = `{
                 "last_name"
             ],
             "properties": {
-                "contact": {
-                    "type": "string"
-                },
                 "first_name": {
                     "type": "string",
                     "maxLength": 32,

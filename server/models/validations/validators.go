@@ -26,6 +26,7 @@ var LoginValidator = CustomValidator{
 var validators = []CustomValidator{
 	UniqueEmailValidator,
 	UniqueLoginValidator,
+	UniqueStrValidator,
 	LoginValidator,
 	ExistAllValidator,
 	ExistValidator,

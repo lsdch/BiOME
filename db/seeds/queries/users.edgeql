@@ -11,6 +11,7 @@ for item in json_array_unpack(data) union (
         first_name := <str>item['identity']['first_name'],
         last_name := <str>item['identity']['last_name'],
         middle_names := <str>json_get(item['identity'], 'middle_names') ?? {},
+        alias := <str>json_get(item['identity'], 'alias') ?? {},
         institutions := (
           select Institution
           filter .code IN array_unpack(<array<str>>item['identity']['institutions'])
