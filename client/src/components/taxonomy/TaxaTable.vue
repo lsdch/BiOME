@@ -18,6 +18,9 @@
     v-model:search="searchName"
     :filter-keys="['name']"
   >
+    <template v-slot:form>
+      <TaxonForm></TaxonForm>
+    </template>
     <template v-slot:search>
       <TaxaTableFilters v-model="filters" v-model:name="searchName" />
     </template>
@@ -40,6 +43,7 @@ import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
 import StatusIcon from './StatusIcon.vue'
 import TaxaTableFilters from './TaxaTableFilters.vue'
+import TaxonForm from './TaxonForm.vue'
 
 const searchName = ref('')
 const filters: Ref<{ rank?: TaxonRank; status: TaxonStatus }> = ref({
@@ -56,7 +60,7 @@ const filter = computed(() => {
   else return undefined
 })
 
-const headers: ReadonlyHeaders = [
+const headers: CRUDTableHeaders = [
   { title: 'Name', key: 'name' },
   { title: 'Code', key: 'code' },
   { title: 'Rank', key: 'rank' },

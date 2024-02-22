@@ -93,7 +93,17 @@
                     </span>
                   </v-list-item>
                   <v-list-item>
-                    Up to {{ countTotal(taxonInfo) }} nodes will be imported.
+                    <v-switch
+                      label="Import descendants"
+                      v-model="importDescendants"
+                      color="primary"
+                      class="ml-3"
+                      :hint="
+                        importDescendants
+                          ? `Up to ${countTotal(taxonInfo)} nodes will be imported.`
+                          : undefined
+                      "
+                    />
                   </v-list-item>
                 </v-list>
               </v-card-text>
@@ -135,6 +145,8 @@ import axios, { AxiosError } from 'axios'
 import { watch } from 'vue'
 
 import IconGBIF from '@/components/icons/IconGBIF.vue'
+
+const importDescendants = ref(false)
 
 enum Rank {
   Any = 'Any',

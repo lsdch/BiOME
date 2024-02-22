@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card class="fill-height">
     <v-toolbar density="compact" color="white">
       <v-toolbar-title>
         {{ name }}
@@ -15,7 +15,7 @@
         <v-card-subtitle class="flex-end"> Started {{ elapsed }} </v-card-subtitle>
       </div>
       <v-icon v-if="done" class="mr-5" color="green">mdi-check</v-icon>
-      <v-progress-circular v-else indeterminate class="mr-5" color="blue"/>
+      <v-progress-circular v-else indeterminate class="mr-5" color="blue" />
     </div>
   </v-card>
 </template>

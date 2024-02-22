@@ -47,10 +47,10 @@ import type { Ref } from 'vue'
 import { onMounted, ref } from 'vue'
 
 import { TaxonDB, TaxonomyService } from '@/api'
-import AnchorTaxonCard from '@/components/taxonomy/AnchorTaxonCard.vue'
-import RootTaxonPicker from '@/components/taxonomy/AnchorTaxonPicker.vue'
-import type { ImportProcess } from '@/components/taxonomy/ImportTaxonCard.vue'
-import ImportTaxonCard from '@/components/taxonomy/ImportTaxonCard.vue'
+import AnchorTaxonCard from '@/components/taxonomy/imports/AnchorTaxonCard.vue'
+import RootTaxonPicker from '@/components/taxonomy/imports/AnchorTaxonPicker.vue'
+import type { ImportProcess } from '@/components/taxonomy/imports/ImportTaxonCard.vue'
+import ImportTaxonCard from '@/components/taxonomy/imports/ImportTaxonCard.vue'
 import TaxaTable from '@/components/taxonomy/TaxaTable.vue'
 
 const activities: Ref<ImportProcess[]> = ref([])
