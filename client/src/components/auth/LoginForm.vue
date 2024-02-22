@@ -23,14 +23,10 @@
       <v-alert v-else-if="feedback == 'ServerError'" type="error" variant="outlined">
         An error occurred on the server.
       </v-alert>
-      <span v-else-if="feedback?.reason == LoginFailedReason.InvalidCredentials" class="text-red">
+      <span v-else-if="feedback?.reason == 'InvalidCredentials'" class="text-red">
         Invalid credentials
       </span>
-      <v-alert
-        v-else-if="feedback?.reason == LoginFailedReason.AccountInactive"
-        type="warning"
-        variant="outlined"
-      >
+      <v-alert v-else-if="feedback?.reason == 'Inactive'" type="warning" variant="outlined">
         Your email was not confirmed yet, please check your inbox<br />
         or <a href="#" @click="resendConfirmation">request another confirmation link</a> if needed.
       </v-alert>
@@ -51,7 +47,7 @@
 
 <script setup lang="ts">
 import { reactive } from 'vue'
-import { ApiError, AuthService, LoginFailedError, LoginFailedReason, UserCredentials } from '@/api'
+import { ApiError, AuthService, LoginFailedError, UserCredentials } from '@/api'
 import { ref } from 'vue'
 import { Ref } from 'vue'
 import { useUserStore } from '@/stores/user'
