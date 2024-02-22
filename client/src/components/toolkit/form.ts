@@ -73,3 +73,17 @@ export function useForm<ItemInputType extends Record<string | symbol, any>, Item
 
   return { errors, loading, submit, errorMsgs }
 }
+
+
+
+import { ValidationRuleWithoutParams } from '@vuelidate/core'
+
+export function inlineRule(rule: ValidationRuleWithoutParams) {
+  return (value: any) => {
+    return rule.$validator(value, undefined, undefined) ? true : rule.$message?.toString() ?? ''
+  }
+}
+
+export function inlineRules(rules: ValidationRuleWithoutParams[]) {
+  return rules.map(inlineRule)
+}
