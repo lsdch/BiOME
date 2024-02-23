@@ -3,6 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 export type PersonUpdate = {
+    alias?: string;
+    comment?: string;
     contact?: string;
     first_name?: string;
     /**

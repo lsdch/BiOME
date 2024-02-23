@@ -4,6 +4,7 @@
 /* eslint-disable */
 export type PersonInput = {
     alias?: string;
+    comment?: string;
     contact?: string;
     first_name: string;
     institutions?: Array<string>;

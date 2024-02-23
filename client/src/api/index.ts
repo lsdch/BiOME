@@ -12,6 +12,7 @@ export type { Country } from './models/Country';
 export type { EmailConfirmationError } from './models/EmailConfirmationError';
 export type { EmailInput } from './models/EmailInput';
 export type { FieldErrors } from './models/FieldErrors';
+export type { gbif_ImportRequestGBIF } from './models/gbif_ImportRequestGBIF';
 export type { InputValidationError } from './models/InputValidationError';
 export type { Institution } from './models/Institution';
 export type { InstitutionInput } from './models/InstitutionInput';

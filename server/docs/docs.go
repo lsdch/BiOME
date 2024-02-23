@@ -498,11 +498,13 @@ const docTemplate = `{
                 "operationId": "ImportGBIF",
                 "parameters": [
                     {
-                        "type": "number",
-                        "description": "GBIF taxon code",
-                        "name": "code",
-                        "in": "query",
-                        "required": true
+                        "description": "Import parameters",
+                        "name": "data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/gbif.ImportRequestGBIF"
+                        }
                     }
                 ],
                 "responses": {
@@ -1176,6 +1178,9 @@ const docTemplate = `{
                 "alias": {
                     "type": "string"
                 },
+                "comment": {
+                    "type": "string"
+                },
                 "contact": {
                     "type": "string"
                 },
@@ -1223,6 +1228,9 @@ const docTemplate = `{
                 "alias": {
                     "type": "string"
                 },
+                "comment": {
+                    "type": "string"
+                },
                 "contact": {
                     "type": "string"
                 },
@@ -1254,6 +1262,9 @@ const docTemplate = `{
                 "alias": {
                     "type": "string",
                     "minLength": 3
+                },
+                "comment": {
+                    "type": "string"
                 },
                 "contact": {
                     "type": "string"
@@ -1700,6 +1711,18 @@ const docTemplate = `{
                 },
                 "password": {
                     "$ref": "#/definitions/PasswordInput"
+                }
+            }
+        },
+        "gbif.ImportRequestGBIF": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "type": "boolean"
+                },
+                "key": {
+                    "description": "target GBIF taxon key",
+                    "type": "integer"
                 }
             }
         },

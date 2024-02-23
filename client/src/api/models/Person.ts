@@ -7,6 +7,7 @@ import type { Meta } from './Meta';
 import type { UserRole } from './UserRole';
 export type Person = {
     alias: string;
+    comment?: string;
     contact?: string;
     first_name: string;
     full_name: string;

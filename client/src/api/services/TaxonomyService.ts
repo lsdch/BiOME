@@ -2,6 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { gbif_ImportRequestGBIF } from '../models/gbif_ImportRequestGBIF';
 import type { TaxonDB } from '../models/TaxonDB';
 import type { TaxonInput } from '../models/TaxonInput';
 import type { TaxonUpdate } from '../models/TaxonUpdate';
@@ -70,19 +71,17 @@ export class TaxonomyService {
     /**
      * Import GBIF clade
      * Imports a clade from the GBIF taxonomy, using a its GBIF ID
-     * @param code GBIF taxon code
+     * @param data Import parameters
      * @returns any Accepted
      * @throws ApiError
      */
     public static importGbif(
-        code: number,
+        data: gbif_ImportRequestGBIF,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'PUT',
             url: '/taxonomy/import',
-            query: {
-                'code': code,
-            },
+            body: data,
             errors: {
                 400: `Bad Request`,
                 403: `Forbidden`,
