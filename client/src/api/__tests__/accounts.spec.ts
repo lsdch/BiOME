@@ -13,4 +13,11 @@ describe("Accounts", () => {
       remember: true
     })).resolves.toMatchTypeOf({ token: "string" })
   })
+  test("login with email", async () => {
+    await expectTypeOf(AuthService.login({
+      identifier: "dev.admin@mockemail.com",
+      password: "dev.admin",
+      remember: true
+    })).resolves.toMatchTypeOf({ token: "string" })
+  })
 })
