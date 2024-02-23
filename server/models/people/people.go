@@ -26,6 +26,7 @@ type PersonInput struct {
 	Institutions []string `json:"institutions" binding:"omitempty,exist_all=people::Institution.code"`
 	Alias        *string  `json:"alias,omitempty" binding:"unique_str=people::Person.alias"`
 	Contact      *string  `json:"contact,omitempty" binding:"omitnil,nullemail"`
+	Comment      *string  `json:"comment,omitempty"`
 } // @name PersonInput
 
 func (p *PersonInput) generateAlias() string {
@@ -79,6 +80,7 @@ type Person struct {
 	Role         user_role.OptionalUserRole `json:"role" edgedb:"role"`
 	Contact      edgedb.OptionalStr         `json:"contact" edgedb:"contact"`
 	Meta         models.Meta                `json:"meta" edgedb:"meta"`
+	Comment      edgedb.OptionalStr         `json:"comment" edgedb:"comment"`
 } // @name Person
 
 // func PersonStructLevelValidation(sl validator.StructLevel) {
@@ -137,6 +139,7 @@ type PersonUpdate struct {
 	Contact      *string   `json:"contact,omitempty" binding:"omitnil,nullemail"`
 	Institutions *[]string `json:"institutions,omitempty" binding:"omitnil,exist_all=people::Institution.code"` // Institution codes
 	Alias        *string   `json:"alias,omitempty" binding:"omitnil,min=3"`
+	Comment      *string   `json:"comment,omitempty" binding:"omitnil"`
 } // @name PersonUpdate
 
 //go:embed queries/update_person.edgeql

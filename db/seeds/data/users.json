@@ -9,7 +9,8 @@
       "last_name": "Admin",
       "institutions": [
         "DEVTEAM"
-      ]
+      ],
+      "comment": "A test account with admin privileges."
     }
   },
   {
@@ -23,7 +24,8 @@
       "institutions": [
         "DEVTEAM"
       ]
-    }
+    },
+    "comment": "A test account with project member privileges."
   },
   {
     "login": "dev.contrib",
@@ -36,7 +38,8 @@
       "institutions": [
         "DEVTEAM"
       ]
-    }
+    },
+    "comment": "A test account with contributor privileges."
   },
   {
     "login": "dev.guest",
@@ -49,7 +52,8 @@
       "institutions": [
         "DEVTEAM"
       ]
-    }
+    },
+    "comment": "A test account with guest privileges."
   },
   {
     "login": "fmalard",

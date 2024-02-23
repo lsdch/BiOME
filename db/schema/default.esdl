@@ -48,9 +48,7 @@ module default {
     #   default := (select people::Person filter .user.id = global current_user_id);
     # };
 
-    modified: datetime {
-      rewrite update using (datetime_of_statement());
-    };
+    modified: datetime;
     # modified_by: people::Person {
     #   rewrite update using (
     #     select people::Person filter .user.id = global current_user_id
@@ -1009,6 +1007,8 @@ module people {
       rewrite insert, update using (default::null_if_empty(.contact));
     };
     multi institutions: Institution;
+
+    comment : str;
 
     link user := .<identity[is User];
 

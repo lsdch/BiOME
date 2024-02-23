@@ -59,6 +59,11 @@
         </v-col>
       </v-row>
       <v-row>
+        <v-col>
+          <v-textarea v-model="person.comment" variant="outlined" label="Comments (optional)" />
+        </v-col>
+      </v-row>
+      <v-row>
         <v-spacer />
         <v-btn
           :loading="loading"

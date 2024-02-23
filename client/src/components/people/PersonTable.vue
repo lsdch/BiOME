@@ -42,6 +42,11 @@
     </template>
 
     <template v-slot:[`expanded-row-inject`]="{ item }">
+      <v-card v-if="item.comment" flat>
+        <v-list-item prepend-icon="mdi-comment">
+          {{ item.comment }}
+        </v-list-item>
+      </v-card>
       <v-btn
         v-if="item.contact"
         variant="plain"

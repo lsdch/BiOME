@@ -12,6 +12,7 @@ select (update people::Person filter .id = <uuid>$0
     middle_names := <str>json_get(data, 'middle_names') ?? .middle_names,
     contact := <str>json_get(data, 'contact') ?? .contact,
     alias := <str>json_get(data, 'alias') ?? .alias,
+    comment := <str>json_get(data, "comment") ?? .comment,
     institutions := distinct institutions ?? .institutions
   }
 ) { *, institutions: { id, name, code }, meta: { * }};

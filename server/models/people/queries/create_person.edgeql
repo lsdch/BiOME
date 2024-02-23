@@ -8,5 +8,6 @@ select (insert people::Person {
   middle_names := <str>json_get(data, 'middle_names') ?? {},
   last_name := <str>data['last_name'],
   alias := <str>json_get(data, 'alias') ?? {},
+  comment := <str>json_get(data, "comment") ?? {},
   institutions := distinct institutions
 }) { *, institutions: { * }, meta: { * }}
