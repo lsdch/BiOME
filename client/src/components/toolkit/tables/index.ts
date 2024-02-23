@@ -7,6 +7,7 @@ import { watchOnce } from '@vueuse/core'
 import { Mode } from "../form"
 import { computed } from "vue"
 import { ComputedRef } from "vue"
+import { onMounted } from "vue"
 
 
 export type SortItem = {
@@ -20,7 +21,7 @@ export type ToolbarProps = {
   togglableSearch?: boolean
 }
 
-export type TableProps<ItemType, FetchList> = {
+export type TableProps<ItemType, FetchList extends Function> = {
   entityName: string
   headers: CRUDTableHeader[]
   toolbar: ToolbarProps
@@ -32,6 +33,7 @@ export type TableProps<ItemType, FetchList> = {
     // create?: (item: ItemInputType) => CancelablePromise<any>
     // update: (item: ItemType) => CancelablePromise<any>
   }
+  reloadOnDelete?: boolean
 }
 
 type DeleteDialog = {
@@ -42,10 +44,11 @@ type DeleteDialog = {
 export type TableEmitEvents<ItemType> = {
   (e: "edit-item", item: ItemType, resolve: ((item: ItemType) => void)): void
   (e: "create-item", resolve: ((item: ItemType) => void)): void
+  (e: 'deleted', item: ItemType): void
 }
 
 
-export function useTable<ItemType extends { id: string }, FetchList, EmitType extends TableEmitEvents<ItemType>>
+export function useTable<ItemType extends { id: string }, FetchList extends Function, EmitType extends TableEmitEvents<ItemType>>
   (props: TableProps<ItemType, FetchList>, emit: EmitType) {
 
   const items: Ref<ItemType[]> = ref([])
@@ -59,6 +62,15 @@ export function useTable<ItemType extends { id: string }, FetchList, EmitType ex
       ? props.headers.concat([{ title: 'Actions', key: 'actions', sortable: false, align: 'end' }])
       : props.headers
   })
+
+  const loading = ref(true)
+  async function loadItems() {
+    loading.value = true
+    items.value = await props.crud.list()
+    loading.value = false
+  }
+
+  onMounted(loadItems)
 
   const actions = {
     edit(item: ItemType) {
@@ -124,9 +136,13 @@ export function useTable<ItemType extends { id: string }, FetchList, EmitType ex
     const index = items.value.indexOf(item)
     props
       .crud.delete(item)
-      .then(() => {
+      .then(async () => {
         items.value.splice(index, 1)
         feedback.value.show('Item successfully deleted.', 'success')
+        emit('deleted', item)
+        if (props.reloadOnDelete) {
+          await loadItems()
+        }
       })
       .catch((err: ApiError) => {
         switch (err.status) {
@@ -169,7 +185,7 @@ export function useTable<ItemType extends { id: string }, FetchList, EmitType ex
     }
   })
 
-  return { items, feedback, deleteDialog, actions, formDialog, formMode, processedHeaders }
+  return { items, feedback, deleteDialog, actions, formDialog, formMode, processedHeaders, loading, loadItems }
 }
 
 export function useEntityTable<ItemType>() {

@@ -10,7 +10,10 @@
       show-expand
       v-model:sort-by="sortBy"
       must-sort
-      :items-per-page-options="[5, 10, 20]"
+      fixed-header
+      fixed-footer
+      hover
+      :items-per-page-options="[5, 10, 15, 20]"
     >
       <!-- Toolbar -->
       <template v-slot:top>
@@ -74,6 +77,10 @@
           <tr class="expanded">
             <td :colspan="columns.length" class="px-0">
               <div class="d-flex flex-column h-auto">
+                <div class="flex-grow-1">
+                  <slot name="expanded-row-inject" v-bind="{ item }"> </slot>
+                  <v-divider v-show="$slots['expanded-row-inject']" />
+                </div>
                 <div class="d-flex flex-wrap">
                   <ItemDateChip
                     v-if="item.meta?.created"
@@ -93,10 +100,6 @@
                     @click="copyUUID(item)"
                     :text="item.id"
                   />
-                </div>
-                <div class="flex-grow-1">
-                  <v-divider v-show="$slots['expanded-row-inject']"></v-divider>
-                  <slot name="expanded-row-inject" v-bind="{ item }"> </slot>
                 </div>
               </div>
             </td>
@@ -127,7 +130,7 @@
 
 <script setup lang="ts" generic="ItemType extends { id: string; meta?: Meta }">
 import { CancelablePromise, Meta } from '@/api'
-import { Ref, computed, onMounted, ref, useSlots } from 'vue'
+import { Ref, computed, ref, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { type VDataTable } from 'vuetify/components'
 import { TableEmitEvents, TableProps, useTable } from '.'
@@ -153,7 +156,6 @@ const slots = useSlots()
 // Assert type here to prevent errors in template when exposing VDataTable slots
 const slotNames = Object.keys(slots) as 'default'[]
 
-const loading = ref(true)
 const searchTerm = defineModel<string>('search')
 const props = defineProps<Props>()
 const emit = defineEmits<TableEmitEvents<ItemType>>()
@@ -166,10 +168,17 @@ defineSlots<
   }
 >()
 
-const { items, actions, deleteDialog, formDialog, feedback, formMode, processedHeaders } = useTable(
-  props,
-  emit
-)
+const {
+  items,
+  actions,
+  deleteDialog,
+  formDialog,
+  feedback,
+  formMode,
+  processedHeaders,
+  loading,
+  loadItems
+} = useTable(props, emit)
 
 const sortBy = ref<SortItem[]>([])
 
@@ -186,14 +195,6 @@ function toggleSort(sortKey: string) {
 const filteredItems = computed(() => {
   return props.filter ? items.value.filter(props.filter) : items.value
 })
-
-async function loadItems() {
-  loading.value = true
-  items.value = await props.crud.list()
-  loading.value = false
-}
-
-onMounted(loadItems)
 
 const exportDialog: Ref<{
   open: boolean
