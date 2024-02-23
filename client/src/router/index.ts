@@ -62,24 +62,6 @@ export const routeGroups: RouterItem[] = [
         component: () => import("../views/people/InstitutionView.vue")
       }
     ]
-  },
-  {
-    label: "Tmp",
-    icon: "mdi-flask",
-    routes: [
-      {
-        label: "About",
-        path: '/about',
-        name: 'about',
-        component: () => import('../views/AboutView.vue')
-      },
-      {
-        label: "Other",
-        path: '/about',
-        name: 'about',
-        component: () => import('../views/AboutView.vue')
-      },
-    ]
   }
 ]
 
