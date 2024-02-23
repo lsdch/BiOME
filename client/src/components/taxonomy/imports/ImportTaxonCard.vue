@@ -1,10 +1,8 @@
 <template>
   <v-card class="fill-height">
     <v-toolbar density="compact" color="white">
-      <v-toolbar-title>
-        {{ name }}
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
+      <v-toolbar-title :text="name" />
+      <v-spacer />
       <LinkIconGBIF :GBIF_ID="GBIF_ID" />
     </v-toolbar>
     <v-card-subtitle>{{ rank }}</v-card-subtitle>
@@ -14,8 +12,16 @@
         <v-card-subtitle> Imported {{ imported }} nodes </v-card-subtitle>
         <v-card-subtitle class="flex-end"> Started {{ elapsed }} </v-card-subtitle>
       </div>
-      <v-icon v-if="done" class="mr-5" color="green">mdi-check</v-icon>
-      <v-progress-circular v-else indeterminate class="mr-5" color="blue" />
+      <div class="mr-5">
+        <v-tooltip v-if="error" location="left">
+          <template v-slot:activator="{ props }">
+            <v-icon color="error" v-bind="props" icon="mdi-alert" />
+          </template>
+          An unexpected error occurred during the import.
+        </v-tooltip>
+        <v-icon v-else-if="done" color="green" icon="mdi-check" />
+        <v-progress-circular v-else indeterminate color="blue" />
+      </div>
     </div>
   </v-card>
 </template>
@@ -32,6 +38,7 @@ export type ImportProcess = {
   started: string
   done: boolean
   elapsed?: string
+  error?: object
 }
 
 defineProps<ImportProcess>()

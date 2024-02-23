@@ -83,10 +83,6 @@ type Controller struct {
 	ProgressTracker func(*gin.Context)
 }
 
-type ImportRequestGBIF struct {
-	Key int `json:"key"` // target GBIF taxon key
-}
-
 // @Summary Import GBIF clade
 // @Description Imports a clade from the GBIF taxonomy, using a its GBIF ID
 // @id ImportGBIF
@@ -97,26 +93,28 @@ type ImportRequestGBIF struct {
 // @Failure 403
 // @Failure 400
 // @Router /taxonomy/import [put]
-// @Param code query number true "GBIF taxon code"
+// @Param data body gbif.ImportRequestGBIF true "Import parameters"
 func ImportCladeGBIF() Controller {
 	var stream = NewServer()
 
 	endpoint := func(c *gin.Context, db *edgedb.Client) {
-		target := ImportRequestGBIF{}
+		target := gbif.ImportRequestGBIF{}
 		err := c.BindJSON(&target)
-		log.Debugf("Received GBIF import request : %v", target)
 		if err != nil {
-			c.AbortWithError(http.StatusBadRequest, err)
+			c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+				"error": "Failed to parse import parameters from URL query parameters",
+			})
 			return
 		}
+
+		log.Infof("Received GBIF import request : %v", target)
 		if !stream.Running {
 			go stream.listen()
 		}
 
-		log.Infof("Started import of taxon : [GBIF %d]", target.Key)
-		go gbif.ImportTaxon(db, target.Key, stream.monitor)
-
-		c.JSON(http.StatusAccepted, nil)
+		log.Infof("Started import of taxon : [GBIF %d] with children: %v", target.Key, target.Children)
+		go gbif.ImportTaxon(db, target, stream.monitor)
+		c.Status(http.StatusAccepted)
 	}
 
 	tracker := func(c *gin.Context) {

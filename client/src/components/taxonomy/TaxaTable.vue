@@ -17,6 +17,11 @@
     density="compact"
     v-model:search="searchName"
     :filter-keys="['name']"
+    reload-on-delete
+    fixed-header
+    fixed-footer
+    height="100"
+    :items-per-page="15"
   >
     <template v-slot:form>
       <TaxonForm></TaxonForm>
@@ -30,6 +35,20 @@
     <template v-slot:[`item.status`]="{ item }">
       <StatusIcon :status="item.status" size="small" />
       <LinkIconGBIF v-if="item.GBIF_ID" :GBIF_ID="item.GBIF_ID" variant="text" size="x-small" />
+    </template>
+    <template v-slot:[`expanded-row-inject`]="{ item }">
+      <v-card flat v-if="item.authorship">
+        <v-card-title class="text-body-2">
+          <v-icon size="small">mdi-newspaper-variant-outline</v-icon>
+          {{ item.authorship }}
+        </v-card-title>
+      </v-card>
+      <v-card flat v-if="item.comment">
+        <v-card-title class="text-body-2">
+          <v-icon size="small">mdi-comment-processing</v-icon>
+          {{ item.comment }}
+        </v-card-title>
+      </v-card>
     </template>
   </CRUDTable>
 </template>

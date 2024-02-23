@@ -59,53 +59,6 @@ type ImportProcess struct {
 	Error    error     `json:"error"`
 }
 
-// ProgressTracker tracks and reports the progress of the import process.
-type ProgressTracker struct {
-	process ImportProcess
-	monitor func(p *ImportProcess)
-}
-
-func (p *ProgressTracker) Report() {
-	p.monitor(&p.process)
-}
-
-func (p *ProgressTracker) Progress(n int) {
-	p.process.Imported += n
-	logrus.Debugf("Progress")
-	p.Report()
-}
-
-func (p *ProgressTracker) Errorf(format string, a ...any) error {
-	p.process.Error = fmt.Errorf(format, a...)
-	logrus.Debugf(format, a...)
-	p.Report()
-	return p.process.Error
-}
-
-func (p *ProgressTracker) Terminate() {
-	p.process.Done = true
-	p.Report()
-}
-
-func NewProgressTracker(taxon *TaxonGBIF, f func(p *ImportProcess)) *ProgressTracker {
-	process := ImportProcess{
-		Name:     taxon.Name,
-		GBIF_ID:  taxon.Key,
-		Expected: taxon.NumDescendants + 1,
-		Imported: 0,
-		Rank:     taxon.Rank,
-		Started:  time.Now(),
-		Done:     false,
-		Error:    nil,
-	}
-	tracker := ProgressTracker{
-		process: process,
-		monitor: f,
-	}
-	tracker.Report()
-	return &tracker
-}
-
 func makeRequest(strURL string, offset int) (body []byte, err error) {
 	URL, err := url.ParseRequestURI(strURL)
 	params := url.Values{}
@@ -233,6 +186,7 @@ func importChildren(tx *edgedb.Tx, GBIF_ID int, tracker *ProgressTracker) error 
 	return nil
 }
 
+// Retrieves GBIF data for a single taxon
 func fetchTaxon(GBIF_ID int) (taxon TaxonGBIF, err error) {
 	taxonURL, _ := url.JoinPath(BASE_URL, fmt.Sprint(GBIF_ID))
 	body, err := makeRequest(taxonURL, 0)
@@ -249,9 +203,14 @@ func fetchTaxon(GBIF_ID int) (taxon TaxonGBIF, err error) {
 	return
 }
 
-func ImportTaxon(db *edgedb.Client, GBIF_ID int, monitor func(p *ImportProcess)) (err error) {
+type ImportRequestGBIF struct {
+	Key      int  `json:"key"` // target GBIF taxon key
+	Children bool `json:"children"`
+}
 
-	taxon, err := fetchTaxon(GBIF_ID)
+func ImportTaxon(db *edgedb.Client, request ImportRequestGBIF, monitor func(p *ImportProcess)) (err error) {
+
+	taxon, err := fetchTaxon(request.Key)
 	if err != nil {
 		return
 	}
@@ -260,10 +219,11 @@ func ImportTaxon(db *edgedb.Client, GBIF_ID int, monitor func(p *ImportProcess))
 
 	return db.Tx(context.Background(),
 		func(ctx context.Context, tx *edgedb.Tx) error {
-			parents, err := fetchParents(GBIF_ID)
+			parents, err := fetchParents(request.Key)
 			if err != nil {
 				return tracker.Errorf("failed to fetch parent taxa of %s[%d] from GBIF\n%w", taxon.Name, taxon.Key, err)
 			}
+
 			insert_count, err := upsertTaxa(tx, append(parents, taxon))
 			if err != nil {
 				return tracker.Errorf("failed to insert a parent of taxon %s[%d] \n%w",
@@ -271,7 +231,10 @@ func ImportTaxon(db *edgedb.Client, GBIF_ID int, monitor func(p *ImportProcess))
 			}
 			tracker.Progress(insert_count)
 
-			importChildren(tx, GBIF_ID, tracker)
+			if request.Children {
+				importChildren(tx, request.Key, tracker)
+			}
+
 			tracker.Terminate()
 			return nil
 		})

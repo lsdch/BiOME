@@ -6,6 +6,7 @@
         Import anchor taxon
       </span>
     </v-card-title>
+    <v-divider></v-divider>
     <v-card-text>
       <v-row>
         <v-col cols="12" md="5">
@@ -17,7 +18,7 @@
           >
             <v-row>
               <v-col cols="12" sm="5" md="12">
-                <v-select :items="Object.values(Rank)" label="Rank" v-model="rank" />
+                <v-select :items="rankOptions" label="Rank" v-model="rank" />
               </v-col>
               <v-col cols="12" sm="7" md="12">
                 <v-autocomplete
@@ -98,6 +99,7 @@
                       v-model="importDescendants"
                       color="primary"
                       class="ml-3"
+                      persistent-hint
                       :hint="
                         importDescendants
                           ? `Up to ${countTotal(taxonInfo)} nodes will be imported.`
@@ -109,14 +111,14 @@
               </v-card-text>
             </div>
           </div>
-          <div v-else>
-            <p>Pick a taxonomic group to be used as an anchor to import all its descendants.</p>
+          <v-alert type="info" variant="text" title="Importing taxonomy" border v-else>
+            <p>Pick a taxonomic group import from GBIF.</p>
             <p>
-              Parent taxons up to the kingdom will also be imported so that the full classification
-              is available.
+              Parent taxa up to the kingdom will also be imported so that the full classification is
+              available.
             </p>
-            <p>All taxons below the root taxons will be imported recursively.</p>
-          </div>
+            <p>Descendant taxa may optionally be imported.</p>
+          </v-alert>
         </v-col>
       </v-row>
       <v-alert
@@ -129,7 +131,11 @@
     <v-card-actions>
       <v-spacer></v-spacer>
       <v-btn color="orange" @click="$emit('close')">Cancel</v-btn>
-      <v-btn :disabled="!taxonInfo" color="blue" @click="importAnchorTaxon(taxonInfo)">
+      <v-btn
+        :disabled="taxonInfo == undefined"
+        color="blue"
+        @click="taxonInfo ? importAnchorTaxon(taxonInfo) : null"
+      >
         Validate and import
       </v-btn>
     </v-card-actions>
@@ -144,22 +150,15 @@ import axios, { AxiosError } from 'axios'
 
 import { watch } from 'vue'
 
+import { TaxonRank, TaxonomyService } from '@/api'
 import IconGBIF from '@/components/icons/IconGBIF.vue'
+import { taxonRankOptions } from '../enums'
 
-const importDescendants = ref(false)
+const importDescendants = ref(true)
 
-enum Rank {
-  Any = 'Any',
-  Kingdom = 'Kingdom',
-  Phylum = 'Phylum',
-  Class = 'Class',
-  Order = 'Order',
-  Family = 'Family',
-  Genus = 'Genus',
-  Species = 'Species',
-  Subspecies = 'Subspecies'
-}
-const rank = ref(Rank.Any)
+type Rank = 'Any' | TaxonRank
+const rank = ref<Rank>('Any')
+const rankOptions: Rank[] = ['Any', ...taxonRankOptions]
 
 type TaxonGBIF = {
   key: number
@@ -193,9 +192,12 @@ const emit = defineEmits<{ (event: 'close'): void }>()
 
 const postError: Ref<AxiosError | undefined> = ref()
 
-async function importAnchorTaxon(taxon: any) {
+async function importAnchorTaxon(taxon: TaxonGBIF) {
   try {
-    await axios.put('/api/v1/taxonomy/import/', taxon)
+    await TaxonomyService.importGbif({
+      key: taxon.key,
+      children: importDescendants.value
+    })
     emit('close')
   } catch (error) {
     if (axios.isAxiosError(error)) {
@@ -208,7 +210,10 @@ watch(searchTerm, async (val: string) => {
   if (val.length >= 3) {
     loading.value = true
     let response = await axios.get(endpointGBIF('suggest'), {
-      params: { q: val, rank: rank.value !== Rank.Any ? rank.value : undefined }
+      params: {
+        q: val,
+        rank: rank.value !== 'Any' ? rank.value : undefined
+      }
     })
     let data: Item[] = response.data
     autocompleteItems.value = data.filter(({ status }) => status !== 'DOUBTFUL')
@@ -223,8 +228,8 @@ watch(targetTaxon, async (taxon) => {
     loadingTaxon.value = true
     let response = await axios.get(endpointGBIF(taxon.key.toString()))
     let info = response.data
-    info.path = Object.values(Rank)
-      .filter((rank) => rank != Rank.Any && rank.toLowerCase() in info)
+    info.path = taxonRankOptions
+      .filter((rank) => rank.toLowerCase() in info)
       .map((rank) => {
         let key = rank.toLowerCase()
         return {
@@ -239,8 +244,8 @@ watch(targetTaxon, async (taxon) => {
 
 function countTotal(taxon: any) {
   return (
-    Object.values(Rank).reduce((acc, rank) => {
-      return acc + Number(rank != Rank.Any && rank.toLocaleLowerCase() in taxon)
+    taxonRankOptions.reduce((acc, rank) => {
+      return acc + Number(rank.toLocaleLowerCase() in taxon)
     }, 0) + taxon.numDescendants
   )
 }

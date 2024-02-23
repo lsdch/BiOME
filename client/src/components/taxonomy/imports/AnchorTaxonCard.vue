@@ -11,7 +11,7 @@
             :icon="isActive ? 'mdi-close' : 'mdi-anchor'"
             size="small"
             :color="isActive ? 'red' : 'orange'"
-          ></v-btn>
+          />
         </template>
       </v-tooltip>
       <LinkIconGBIF v-if="GBIF_ID" :GBIF_ID="GBIF_ID" />
@@ -21,7 +21,7 @@
       <v-spacer />
       <v-chip v-if="authorship" label rounded="xl">{{ authorship }}</v-chip>
     </v-card-subtitle>
-    <v-divider></v-divider>
+    <v-divider />
     <v-card-actions class="justify-space-between">
       <ItemDateChip v-if="meta.created" icon="created" :date="meta.created" color="grey" />
       <ItemDateChip v-if="meta.modified" icon="updated" :date="meta.modified" color="grey" />

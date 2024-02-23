@@ -55,10 +55,12 @@ func seedTaxonomyGBIF() error {
 	bar := progressbar.Default(-1, "Importing Asellidae taxonomy from GBIF")
 	db.Client().Execute(context.Background(), "delete taxonomy::Taxon")
 	var total int
-	err := gbif.ImportTaxon(db.Client(), 4574, func(p *gbif.ImportProcess) {
-		total = p.Imported
-		bar.Set(p.Imported)
-	})
+	err := gbif.ImportTaxon(db.Client(),
+		gbif.ImportRequestGBIF{Key: 4574, Children: true},
+		func(p *gbif.ImportProcess) {
+			total = p.Imported
+			bar.Set(p.Imported)
+		})
 	bar.Clear()
 
 	logrus.Infof("Taxonomy setup done: %d taxa imported", total)

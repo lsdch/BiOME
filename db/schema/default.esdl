@@ -145,9 +145,13 @@ module taxonomy {
       rewrite insert, update using (
         with chopped := str_split(.name, " "),
         suffix := "[syn]" if .status = TaxonStatus.Synonym else ""
-        select .code if exists __specified__.code and __specified__.code
-        else (.name ++ suffix) if not .rank in {Rank.Species, Rank.Subspecies}
-        else str_upper(chopped[0][:3]) ++ array_join(chopped[1:], "_") ++ suffix
+        select (
+          if (__specified__.code and len(.code) > 0) then .code
+          else (
+            if (not .rank in {Rank.Species, Rank.Subspecies}) then (.name ++ suffix)
+            else (str_upper(chopped[0][:3]) ++ array_join(chopped[1:], "_") ++ suffix)
+          )
+        )
       )
     };
     required anchor: bool {
@@ -158,57 +162,71 @@ module taxonomy {
 
     kingdom: Taxon {
       rewrite insert, update using (
-        .parent if .parent.rank = Rank.Kingdom
-        else .parent.kingdom if exists .parent
-        else <Taxon>{}
+        if exists .parent then (
+          if .parent.rank = Rank.Kingdom
+          then .parent
+          else .parent.kingdom
+        ) else <Taxon>{}
       );
       on target delete allow;
     };
     phylum: Taxon {
       rewrite insert, update using (
-        .parent if .parent.rank = Rank.Phylum
-        else .parent.phylum if exists .parent
-        else <Taxon>{}
+        if exists .parent then (
+          if .parent.rank = Rank.Phylum
+          then .parent
+          else .parent.phylum
+        ) else <Taxon>{}
       );
       on target delete allow;
     };
     class: Taxon {
       rewrite insert, update using (
-        .parent if .parent.rank = Rank.Class
-         else .parent.class if exists .parent
-         else <Taxon>{}
+        if exists .parent then (
+          if .parent.rank = Rank.Class
+          then .parent
+          else .parent.class
+        ) else <Taxon>{}
       );
       on target delete allow;
     };
     order: Taxon {
       rewrite insert, update using (
-        .parent if .parent.rank = Rank.Order
-        else .parent.order if exists .parent
-        else <Taxon>{}
+        if exists .parent then (
+          if .parent.rank = Rank.Order
+          then .parent
+          else .parent.order
+        ) else <Taxon>{}
       );
       on target delete allow;
     };
     family: Taxon {
       rewrite insert, update using (
-        .parent if .parent.rank = Rank.Family
-        else .parent.family if exists .parent
-        else <Taxon>{}
+        if exists .parent then (
+          if .parent.rank = Rank.Family
+          then .parent
+          else .parent.family
+        ) else <Taxon>{}
       );
       on target delete allow;
     };
     genus: Taxon {
       rewrite insert, update using (
-        .parent if .parent.rank = Rank.Genus
-        else .parent.genus if exists .parent
-        else <Taxon>{}
+        if exists .parent then (
+          if .parent.rank = Rank.Genus
+          then .parent
+          else .parent.genus
+        ) else <Taxon>{}
       );
       on target delete allow;
     };
     species: Taxon {
       rewrite insert, update using (
-        .parent if .parent.rank = Rank.Species
-        else .parent.species if exists .parent
-        else <Taxon>{}
+        if exists .parent then (
+          if .parent.rank = Rank.Species
+          then .parent
+          else .parent.species
+        ) else <Taxon>{}
       );
       on target delete allow;
     };

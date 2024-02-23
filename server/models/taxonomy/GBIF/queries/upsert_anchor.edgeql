@@ -12,7 +12,8 @@ insert Taxon {
   authorship := <str>data['authorship'],
   anchor := anchor
 }
-unless conflict on (.name, .status)
-else (
-  update Taxon set { anchor := anchor if not .anchor else .anchor }
+unless conflict on .GBIF_ID else (
+  update Taxon set {
+    anchor := anchor if not .anchor else .anchor
+  }
 );

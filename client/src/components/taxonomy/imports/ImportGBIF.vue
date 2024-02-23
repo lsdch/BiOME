@@ -1,14 +1,11 @@
 <template>
-  <TaxaTable></TaxaTable>
-  <v-container>
-    <v-divider class="my-5"></v-divider>
-    <h1 class="mb-5">Anchors</h1>
+  <v-container fluid>
     <v-row>
       <v-col v-for="item in anchors" :key="item.id" cols="12" sm="6" lg="4" xl="3">
         <AnchorTaxonCard v-bind="item" />
       </v-col>
       <v-col
-        v-for="item in activities.filter(({ done }) => !done)"
+        v-for="item in activities.filter(({ done, error }) => !done || error)"
         :key="item.GBIF_ID"
         cols="12"
         sm="6"
@@ -51,7 +48,6 @@ import AnchorTaxonCard from '@/components/taxonomy/imports/AnchorTaxonCard.vue'
 import RootTaxonPicker from '@/components/taxonomy/imports/AnchorTaxonPicker.vue'
 import type { ImportProcess } from '@/components/taxonomy/imports/ImportTaxonCard.vue'
 import ImportTaxonCard from '@/components/taxonomy/imports/ImportTaxonCard.vue'
-import TaxaTable from '@/components/taxonomy/TaxaTable.vue'
 
 const activities: Ref<ImportProcess[]> = ref([])
 const anchors: Ref<TaxonDB[]> = ref([])
@@ -78,7 +74,7 @@ const source = new EventSource('/api/v1/taxonomy/import')
 source.addEventListener('progress', (event) => {
   console.log(event)
   const json: Object = JSON.parse(event.data)
-  console.log('JSON', json)
+  console.log('Progress: ', json)
   activities.value = Object.values(json).map((item) =>
     Object.assign(item, { elapsed: moment(item.started).fromNow() })
   )
@@ -89,4 +85,4 @@ source.addEventListener('progress', (event) => {
 })
 </script>
 
-<style></style>
+<style scoped></style>
