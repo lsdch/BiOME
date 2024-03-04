@@ -11,46 +11,58 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Error handling middleware
-func ErrorHandler(c *gin.Context) {
-	c.Next() // execute all the handlers
-
-	// at this point, all the handlers finished. Let's read the errors!
-	// in this example we only will use the **last error typed as public**
-	// but you could iterate over all them since c.Errors is a slice!
-	err := c.Errors.Last()
-	if err == nil {
-		return
-	}
-
+func handleNoData(ctx *gin.Context, err error) bool {
 	var dbErr edgedb.Error
 	if errors.As(err, &dbErr) && dbErr.Category(edgedb.NoDataError) {
-		c.AbortWithStatus(http.StatusNotFound)
-		return
+		ctx.AbortWithStatus(http.StatusNotFound)
+		return true
 	}
+	return false
+}
 
+func handleValidationErrors(ctx *gin.Context, err error) bool {
 	var validationErr validator.ValidationErrors
 	if errors.As(err, &validationErr) {
 		apiErr := validations.ValidationErrorsByField(validations.InputValidationErrors(validationErr))
 		logrus.Debugf("Validation error: %+v", apiErr)
-		c.AbortWithStatusJSON(http.StatusBadRequest, apiErr)
-		return
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, apiErr)
+		return true
 	}
+	return false
+}
 
+func handleManualValidationErrors(ctx *gin.Context, err error) bool {
 	var manualValidationErr validations.InputValidationError
 	if errors.As(err, &manualValidationErr) {
 		apiErr := validations.ValidationErrorsByField(
 			[]validations.InputValidationError{manualValidationErr},
 		)
 		logrus.Debugf("Validation error: %+v", apiErr)
-		c.AbortWithStatusJSON(http.StatusBadRequest, apiErr)
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, apiErr)
+		return true
+	}
+	return false
+}
+
+// Error handling middleware
+func ErrorHandler(c *gin.Context) {
+	c.Next() // execute all the handlers
+
+	err := c.Errors.Last()
+	if err == nil {
 		return
 	}
 
-	if err.Meta != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, err.Meta)
-		return
-	}
+	var unhandled = handleNoData(c, err) ||
+		handleValidationErrors(c, err) ||
+		handleManualValidationErrors(c, err)
 
-	c.JSON(int(err.Type), err.Err.Error())
+	if unhandled {
+		if err.Meta != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, err.Meta)
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, err.Err.Error())
+	}
 }
