@@ -41,7 +41,6 @@ import PasswordStrengthMeter from './PasswordStrengthMeter.vue'
 const props = withDefaults(defineProps<{ userInputs: string[] }>(), { userInputs: () => [] })
 
 const state = defineModel<PasswordInput>({
-  local: true,
   default: {
     password: '',
     password_confirmation: ''
