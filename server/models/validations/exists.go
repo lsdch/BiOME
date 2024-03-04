@@ -26,14 +26,17 @@ func checkExistence[T any](db *edgedb.Client, val T, bindings BindingEdgeDB) (ex
 func validateExists(fl validator.FieldLevel) bool {
 	var value, kind, _ = fl.ExtractType(fl.Field())
 	if val, ok := value.Interface().(edgedb.UUID); ok {
-		return checkExistence(db.Client(), val, ParseEdgeDBBindings(fl.Param(), "uuid"))
+		return checkExistence(db.Client(), val, ParseEdgeDBBindingsOrDie(fl.Param(), "uuid"))
 	} else if val, ok := value.Interface().(string); ok {
-		return checkExistence(db.Client(), val, ParseEdgeDBBindings(fl.Param(), "str"))
+		return checkExistence(db.Client(), val, ParseEdgeDBBindingsOrDie(fl.Param(), "str"))
 	}
-	logrus.Errorf("Unsupported type encountered while trying to validate 'exist=%s' constraint: %s", fl.Param(), kind)
+	logrus.Fatalf("Unsupported type encountered while trying to validate 'exist=%s' constraint: %s", fl.Param(), kind)
 	return false
 }
 
+// Validation constraint that checks for the existence of an item within the database. Only supports string-like or UUID values.
+//
+// Usage: `exist=<module name>::<object name>.<property name>`
 var ExistValidator = CustomValidator{
 	Tag:     "exist",
 	Handler: validateExists,

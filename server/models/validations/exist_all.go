@@ -29,34 +29,48 @@ func checkUnknownValues[T any](db *edgedb.Client, values []T, binding BindingEdg
 	return unknownValues, err
 }
 
+// Stores unknown values when checking for exist_all validation constraint.
+//
+// Key is the original field value formatted as string.
+// Value is a slice of strings representing unknown values.
 var unknownValuesMap = make(map[string][]string)
+
+func registerNotFound(value any, notFound []string) {
+	logrus.Infof("Validation failed for '%v'", value)
+	unknownValuesMap[fmt.Sprintf("%v", value)] = notFound
+}
 
 func validateExistAll(fl validator.FieldLevel) bool {
 	var value, _, _ = fl.ExtractType(fl.Field())
-	var not_found []string
+	var notFound []string
 	var err error
 
 	if slice, ok := value.Interface().([]string); ok {
-		not_found, err = checkUnknownValues(
-			db.Client(), slice, ParseEdgeDBBindings(fl.Param(), "str"),
+		notFound, err = checkUnknownValues(
+			db.Client(), slice, ParseEdgeDBBindingsOrDie(fl.Param(), "str"),
 		)
 	} else if slice, ok := value.Interface().([]edgedb.UUID); ok {
-		not_found, err = checkUnknownValues(
-			db.Client(), slice, ParseEdgeDBBindings(fl.Param(), "uuid"),
+		notFound, err = checkUnknownValues(
+			db.Client(), slice, ParseEdgeDBBindingsOrDie(fl.Param(), "uuid"),
 		)
+	} else {
+		logrus.Fatalf("Unprocessable value for 'exist_all' validator : %+v", value.Interface())
 	}
 
 	if err != nil {
-		return false
+		logrus.Fatal(err)
 	}
-	if len(not_found) > 0 {
-		logrus.Errorf("Validation failed for '%v'", fl.Field().Interface())
-		unknownValuesMap[fmt.Sprintf("%v", fl.Field().Interface())] = not_found
+
+	if len(notFound) > 0 {
+		registerNotFound(fl.Field().Interface(), notFound)
 		return false
 	}
 	return true
 }
 
+// Validation constraint that checks for the existence of each item of a list within the database. Only supports string-like or UUID values.
+//
+// Usage: `exist_all=<module name>::<object name>.<property name>`
 var ExistAllValidator = CustomValidator{
 	Tag:     "exist_all",
 	Handler: validateExistAll,
