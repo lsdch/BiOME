@@ -3,6 +3,7 @@ package people
 import (
 	"context"
 	"darco/proto/models"
+	_ "embed"
 	"encoding/json"
 
 	"github.com/edgedb/edgedb-go"
@@ -43,19 +44,12 @@ func DeleteInstitution(db *edgedb.Client, code string) (inst Institution, err er
 	return
 }
 
-func (inst InstitutionInput) Create(db *edgedb.Client) (created Institution, err error) {
-	query := `
-		with module people,
-			data := <json>$0,
-		select ( insert Institution {
-			name := <str>data['name'],
-			code := <str>data['code'],
-			description := <str>json_get(data, 'description'),
-			kind := <InstitutionKind>data['kind']
-		}) { *, people:{ * }, meta:{ * } };`
+//go:embed queries/create_institution.edgeql
+var institutionCreateQuery string
 
+func (inst InstitutionInput) Create(db *edgedb.Client) (created Institution, err error) {
 	args, _ := json.Marshal(inst)
-	err = db.QuerySingle(context.Background(), query, &created, args)
+	err = db.QuerySingle(context.Background(), institutionCreateQuery, &created, args)
 	return
 }
 
@@ -66,24 +60,13 @@ type InstitutionUpdate struct {
 	Kind        *InstitutionKind `json:"kind,omitempty" example:"Lab" binding:"omitnil,institution_kind"`
 } //@name InstitutionUpdate
 
-func (inst InstitutionUpdate) Update(db *edgedb.Client, code string) (id edgedb.UUID, err error) {
-	query := `
-		with module people,
-			data := <json>$1,
-		select (
-			update Institution filter .code = <str>$0
-			set {
-				name := <str>json_get(data, 'name') ?? .name,
-				code := <str>json_get(data, 'code') ?? .code,
-				description := <str>json_get(data, 'description') ??.description,
-				kind := <InstitutionKind>json_get(data, 'kind') ?? .kind
-			}
-		).id;`
-	// { *, people:{ * }, meta:{ * } };
+//go:embed queries/update_institution.edgeql
+var institutionUpdateQuery string
 
+func (inst InstitutionUpdate) Update(db *edgedb.Client, code string) (id edgedb.UUID, err error) {
 	args, _ := json.Marshal(inst)
 	logrus.Debugf("Updating institution %s with %+v", code, inst)
-	err = db.QuerySingle(context.Background(), query, &id, code, args)
+	err = db.QuerySingle(context.Background(), institutionUpdateQuery, &id, code, args)
 	return
 }
 
