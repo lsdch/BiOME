@@ -108,6 +108,11 @@ const router = createRouter({
       component: () => import("../views/InitialSetup.vue"),
       meta: { hideNavbar: true }
     },
+    {
+      path: "/account",
+      name: "account",
+      component: () => import("../views/AccountView.vue")
+    },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
     ...routeGroups.reduce((acc, current) => {
       if (current.routes) {

@@ -21,15 +21,28 @@
     </template>
     <v-list>
       <v-list-subheader class="mb-3">
-        <span class="text-overline">
-          {{ user.identity.first_name }} {{ user.identity.last_name }}
-        </span>
-        <br />
-        <span class="text-caption">{{ user.role }}</span>
+        <div class="d-flex align-center">
+          <v-icon class="mr-5" v-bind="roleIcon(user.role)" />
+          <div>
+            <span class="text-overline">
+              {{ user.identity.full_name }}
+            </span>
+            <br />
+            <span class="text-caption">
+              {{ user.role }}
+            </span>
+          </div>
+        </div>
       </v-list-subheader>
       <v-divider />
       <v-list-item>
-        <v-btn prepend-icon="mdi-account" variant="plain" density="compact" text="Account" />
+        <v-btn
+          prepend-icon="mdi-account"
+          variant="plain"
+          density="compact"
+          text="Account"
+          :to="{ name: 'account' }"
+        />
       </v-list-item>
       <v-list-item>
         <v-btn
@@ -58,6 +71,7 @@ import { useRouter } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useDisplay } from 'vuetify'
 import { useUserStore } from '@/stores/user'
+import { roleIcon } from '../people/userRole'
 
 const { smAndDown } = useDisplay()
 
