@@ -2,6 +2,7 @@
   <div>
     <v-text-field
       v-model="state.password"
+      v-bind="$attrs"
       name="password"
       label="Password"
       :type="show.pass1 ? 'text' : 'password'"
@@ -17,6 +18,7 @@
     </v-text-field>
     <v-text-field
       v-model="state.password_confirmation"
+      v-bind="$attrs"
       name="password-confirm"
       label="Password confirmation"
       :type="show.pass2 ? 'text' : 'password'"
@@ -32,13 +34,13 @@
 <script setup lang="ts">
 import { PasswordInput } from '@/api'
 import { vuelidateErrors } from '@/api/validation'
-import { computed, ref, Ref, defineModel } from 'vue'
-import { zxcvbn } from '@zxcvbn-ts/core'
 import useVuelidate, { Validation, ValidationArgs } from '@vuelidate/core'
-import { helpers, sameAs, required } from '@vuelidate/validators'
+import { helpers, required, sameAs } from '@vuelidate/validators'
+import { zxcvbn } from '@zxcvbn-ts/core'
+import { Ref, computed, defineModel, ref } from 'vue'
 import PasswordStrengthMeter from './PasswordStrengthMeter.vue'
 
-const props = withDefaults(defineProps<{ userInputs: string[] }>(), { userInputs: () => [] })
+const props = withDefaults(defineProps<{}>(), { userInputs: () => [] })
 
 const state = defineModel<PasswordInput>({
   default: {
