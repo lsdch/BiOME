@@ -47,11 +47,11 @@ func (token *AccountEmailToken) Consume() (err error) {
 	return
 }
 
-func ValidatePasswordResetToken(token Token) (uuid.UUID, bool) {
+func ValidatePasswordResetToken(db *edgedb.Client, token Token) (uuid.UUID, bool) {
 	query := `select people::PasswordReset { id, user: {id}, token, expires }
 		filter .token = <str>$0`
 	var pwdReset AccountEmailToken
-	if err := db.Client().QuerySingle(context.Background(), query, pwdReset, token); err != nil {
+	if err := db.QuerySingle(context.Background(), query, pwdReset, token); err != nil {
 		return uuid.Nil, false
 	}
 	if pwdReset.IsValid() {

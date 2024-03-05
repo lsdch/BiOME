@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/edgedb/edgedb-go"
-	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -21,17 +20,18 @@ func ConnectDB() (db *edgedb.Client) {
 
 var db *edgedb.Client = ConnectDB()
 
-// Wraps a handler that requires a DB connection to provide it as an argument.
-func WithDB(handler func(*gin.Context, *edgedb.Client)) gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		client, ok := ctx.Get("db")
-		if !ok {
-			client = db
-		}
-		handler(ctx, client.(*edgedb.Client))
-	}
-}
-
 func Client() *edgedb.Client {
 	return db
+}
+
+type Optional[T any] interface {
+	Get() (T, bool)
+}
+
+func OptionalAsPointer[T any](opt Optional[T]) *T {
+	val, ok := opt.Get()
+	if ok {
+		return &val
+	}
+	return nil
 }

@@ -8,7 +8,7 @@ import (
 	"darco/proto/controllers/taxonomy"
 	accounts "darco/proto/controllers/users"
 	"darco/proto/db"
-	"darco/proto/middlewares"
+	mw "darco/proto/middlewares"
 	"darco/proto/models/validations"
 	"darco/proto/router"
 	"darco/proto/services/email"
@@ -49,52 +49,56 @@ import (
 func setupRouter(config *config.Config) *gin.Engine {
 	r := gin.Default()
 	r.Use(gin.Recovery())
-	r.Use(middlewares.ErrorHandler)
-	r.Use(middlewares.AuthenticationMiddleware)
+	r.Use(mw.ErrorHandler)
+	r.Use(mw.AuthenticationMiddleware)
 
 	// Swagger docs
-	api := r.Group(router.Config.BasePath)
+	api := r.Group(config.BasePath)
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
-	country_api := api.Group("/countries")
-	country_api.GET("", db.WithDB(country.List))
+	country_api := router.Wrap(api.Group("/countries"), router.WithDB)
+	country_api.GET("", country.List)
 	country_api.GET("/setup", country.Setup)
 
-	taxonomy_api := api.Group("/taxonomy")
-	taxonomy_api.GET("", db.WithDB(taxonomy.ListTaxa))
-	taxonomy_api.POST("", db.WithDB(taxonomy.CreateTaxon))
-	taxonomy_api.GET("/:code", db.WithDB(taxonomy.GetTaxon))
-	taxonomy_api.DELETE("/:code", db.WithDB(taxonomy.DeleteTaxon))
-	taxonomy_api.PATCH("/:code", db.WithDB(taxonomy.UpdateTaxon))
+	taxonomy_api := router.Wrap(api.Group("/taxonomy"), router.WithDB)
+	taxonomy_api.GET("", taxonomy.ListTaxa)
+	taxonomy_api.POST("", taxonomy.CreateTaxon)
+	taxonomy_api.GET("/:code", taxonomy.GetTaxon)
+	taxonomy_api.DELETE("/:code", taxonomy.DeleteTaxon)
+	taxonomy_api.PATCH("/:code", taxonomy.UpdateTaxon)
+
 	importGBIF := taxonomy.ImportCladeGBIF()
 	taxonomy_api.PUT("/import", importGBIF.Endpoint)
-	taxonomy_api.GET("/import", importGBIF.ProgressTracker)
-	taxonomy_api.GET("/anchors", db.WithDB(taxonomy.ListAnchors))
+	taxonomy_api.RouterGroup.GET("/import", importGBIF.ProgressTracker)
+	taxonomy_api.GET("/anchors", taxonomy.ListAnchors)
 
-	api.POST("/login", db.WithDB(accounts.Login))
+	api.POST("/login", router.WithDB(accounts.Login))
 	api.POST("/logout", accounts.Logout)
 
-	api.GET("/account", db.WithDB(accounts.Current))
-	users_api := api.Group("/users")
+	account_api := api.Group("/account")
+	account_api.GET("", router.WithUser(accounts.Current))
+	account_api.POST("/password", router.WithUser(accounts.SetPassword))
+
+	users_api := router.Wrap(api.Group("/users"), router.WithDB)
 	users_api.POST("/register", accounts.Register)
-	users_api.GET("/confirm", db.WithDB(accounts.ConfirmEmail))
-	users_api.POST("/confirm/resend", db.WithDB(accounts.ResendConfirmation))
-	users_api.POST("/forgotten-password", db.WithDB(accounts.RequestPasswordReset))
+	users_api.GET("/confirm", accounts.ConfirmEmail)
+	users_api.POST("/confirm/resend", accounts.ResendConfirmation)
+	users_api.POST("/forgotten-password", accounts.RequestPasswordReset)
 	users_api.GET("/password-reset/:token", accounts.ValidatePasswordToken)
 
 	people_api := api.Group("/people")
 
-	institution_api := people_api.Group("/institutions")
-	institution_api.GET("", db.WithDB(institution.List))
-	institution_api.POST("", db.WithDB(institution.Create))
-	institution_api.DELETE("/:code", db.WithDB(institution.Delete))
-	institution_api.PATCH("/:code", db.WithDB(institution.Update))
+	institution_api := router.Wrap(people_api.Group("/institutions"), router.WithDB)
+	institution_api.GET("", institution.List)
+	institution_api.POST("", institution.Create)
+	institution_api.DELETE("/:code", institution.Delete)
+	institution_api.PATCH("/:code", institution.Update)
 
-	person_api := people_api.Group("/persons")
-	person_api.GET("", db.WithDB(person.List))
-	person_api.POST("", db.WithDB(person.Create))
-	person_api.PATCH("/:id", db.WithDB(person.Update))
-	person_api.DELETE("/:id", db.WithDB(person.Delete))
+	person_api := router.Wrap(people_api.Group("/persons"), router.WithDB)
+	person_api.GET("", person.List)
+	person_api.POST("", person.Create)
+	person_api.PATCH("/:id", person.Update)
+	person_api.DELETE("/:id", person.Delete)
 
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:

@@ -47,6 +47,41 @@ const docTemplate = `{
                 }
             }
         },
+        "/account/password": {
+            "post": {
+                "description": "Sets a new password for the currently authenticated user",
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Set account password",
+                "operationId": "SetPassword",
+                "parameters": [
+                    {
+                        "description": "New password",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/PasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "202": {
+                        "description": "New password was set"
+                    },
+                    "400": {
+                        "description": "Invalid password inputs"
+                    },
+                    "403": {
+                        "description": "Not authenticated"
+                    },
+                    "500": {
+                        "description": "Database or server error"
+                    }
+                }
+            }
+        },
         "/countries/": {
             "get": {
                 "tags": [
@@ -727,41 +762,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/users/password": {
-            "post": {
-                "description": "Sets a new password for the currently authenticated user",
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Set account password",
-                "operationId": "SetPassword",
-                "parameters": [
-                    {
-                        "description": "New password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/PasswordInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "202": {
-                        "description": "New password was set"
-                    },
-                    "400": {
-                        "description": "Invalid password inputs"
-                    },
-                    "403": {
-                        "description": "Not authenticated"
-                    },
-                    "500": {
-                        "description": "Database or server error"
-                    }
-                }
-            }
-        },
         "/users/password-reset/{token}": {
             "get": {
                 "tags": [
@@ -865,7 +865,7 @@ const docTemplate = `{
         },
         "/users/{uuid}": {
             "delete": {
-                "description": "Deletes a user",
+                "description": "Deletes an account",
                 "consumes": [
                     "application/json"
                 ],
@@ -875,7 +875,7 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Delete a user",
+                "summary": "Delete an account",
                 "responses": {
                     "200": {
                         "description": "User was deleted successfully"
@@ -1210,8 +1210,7 @@ const docTemplate = `{
                     "$ref": "#/definitions/Meta"
                 },
                 "middle_names": {
-                    "type": "string",
-                    "maxLength": 32
+                    "type": "string"
                 },
                 "role": {
                     "$ref": "#/definitions/UserRole"
@@ -1635,8 +1634,7 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "identifier",
-                "password",
-                "remember"
+                "password"
             ],
             "properties": {
                 "identifier": {
@@ -1645,9 +1643,6 @@ const docTemplate = `{
                 "password": {
                     "description": "Unhashed, password hash comparison is done within EdgeDB",
                     "type": "string"
-                },
-                "remember": {
-                    "type": "boolean"
                 }
             }
         },
@@ -1666,12 +1661,7 @@ const docTemplate = `{
                     "format": "email"
                 },
                 "identity": {
-                    "description": "EmailPublic bool        ` + "`" + `edbedb:\"email_public\" json:\"email_public\"` + "`" + `",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/people.PersonInner"
-                        }
-                    ]
+                    "$ref": "#/definitions/users.PersonUserInput"
                 },
                 "login": {
                     "type": "string"
@@ -1726,13 +1716,16 @@ const docTemplate = `{
                 }
             }
         },
-        "people.PersonInner": {
+        "users.PersonUserInput": {
             "type": "object",
             "required": [
                 "first_name",
                 "last_name"
             ],
             "properties": {
+                "contact": {
+                    "type": "string"
+                },
                 "first_name": {
                     "type": "string",
                     "maxLength": 32,

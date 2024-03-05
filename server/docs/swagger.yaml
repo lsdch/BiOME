@@ -223,7 +223,6 @@ definitions:
       meta:
         $ref: '#/definitions/Meta'
       middle_names:
-        maxLength: 32
         type: string
       role:
         $ref: '#/definitions/UserRole'
@@ -528,12 +527,9 @@ definitions:
       password:
         description: Unhashed, password hash comparison is done within EdgeDB
         type: string
-      remember:
-        type: boolean
     required:
     - identifier
     - password
-    - remember
     type: object
   UserInput:
     properties:
@@ -541,9 +537,7 @@ definitions:
         format: email
         type: string
       identity:
-        allOf:
-        - $ref: '#/definitions/people.PersonInner'
-        description: EmailPublic bool        `edbedb:"email_public" json:"email_public"`
+        $ref: '#/definitions/users.PersonUserInput'
       login:
         type: string
       password:
@@ -587,8 +581,10 @@ definitions:
         description: target GBIF taxon key
         type: integer
     type: object
-  people.PersonInner:
+  users.PersonUserInput:
     properties:
+      contact:
+        type: string
       first_name:
         maxLength: 32
         minLength: 2
@@ -632,6 +628,29 @@ paths:
       summary: Authenticated user details
       tags:
       - People
+  /account/password:
+    post:
+      description: Sets a new password for the currently authenticated user
+      operationId: SetPassword
+      parameters:
+      - description: New password
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/PasswordInput'
+      responses:
+        "202":
+          description: New password was set
+        "400":
+          description: Invalid password inputs
+        "403":
+          description: Not authenticated
+        "500":
+          description: Database or server error
+      summary: Set account password
+      tags:
+      - Auth
   /countries/:
     get:
       responses:
@@ -1023,7 +1042,7 @@ paths:
     delete:
       consumes:
       - application/json
-      description: Deletes a user
+      description: Deletes an account
       produces:
       - application/json
       responses:
@@ -1033,7 +1052,7 @@ paths:
           description: Admin privileges required
         "404":
           description: User does not exist
-      summary: Delete a user
+      summary: Delete an account
       tags:
       - Auth
   /users/confirm:
@@ -1105,29 +1124,6 @@ paths:
         "400":
           description: Invalid email address
       summary: Request a password reset token
-      tags:
-      - Auth
-  /users/password:
-    post:
-      description: Sets a new password for the currently authenticated user
-      operationId: SetPassword
-      parameters:
-      - description: New password
-        in: body
-        name: password
-        required: true
-        schema:
-          $ref: '#/definitions/PasswordInput'
-      responses:
-        "202":
-          description: New password was set
-        "400":
-          description: Invalid password inputs
-        "403":
-          description: Not authenticated
-        "500":
-          description: Database or server error
-      summary: Set account password
       tags:
       - Auth
   /users/password-reset/{token}:

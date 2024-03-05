@@ -7,20 +7,24 @@ import (
 	"darco/proto/models/users/user_role"
 	_ "embed"
 	"encoding/json"
-	"errors"
-	"fmt"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
+type PersonUserInput struct {
+	people.PersonInner `edgedb:"$inline"`
+	MiddleNames        *string `json:"middle_names,omitempty" edgedb:"middle_names" binding:"omitnil,alphaunicode,max=32"`
+	Contact            *string `json:"contact,omitempty" binding:"omitnil,nullemail"`
+}
+
 type InnerUserInput struct {
-	Login string `edgedb:"login" json:"login" binding:"login,required,unique_login"`
-	Email string `edgedb:"email" json:"email" binding:"email,required,unique_email" format:"email"`
-	// EmailPublic bool        `edbedb:"email_public" json:"email_public"`
-	Person people.PersonInner `edgedb:"identity" json:"identity" binding:"required"`
+	Login  string          `edgedb:"login" json:"login" binding:"login,required,unique_login"`
+	Email  string          `edgedb:"email" json:"email" binding:"email,required,unique_email" format:"email"`
+	Person PersonUserInput `edgedb:"identity" json:"identity" binding:"required"`
 } // @name InnerUserInput
+
 type UserInput struct {
 	InnerUserInput `json:",inline"`
 	PasswordInput  `json:",inline"`
@@ -46,9 +50,13 @@ func (user *User) Partial() *UserPartial {
 
 func (user *User) InnerUserInput() *InnerUserInput {
 	return &InnerUserInput{
-		Login:  user.Login,
-		Email:  user.Email,
-		Person: user.Person.PersonInner,
+		Login: user.Login,
+		Email: user.Email,
+		Person: PersonUserInput{
+			PersonInner: user.Person.PersonInner,
+			MiddleNames: db.OptionalAsPointer(user.Person.MiddleNames),
+			Contact:     db.OptionalAsPointer(user.Person.Contact),
+		},
 	}
 }
 
@@ -62,60 +70,11 @@ func (user *User) SetActive(active bool) error {
 	return db.Client().Execute(context.Background(), query, active, user.Email)
 }
 
+// Custom user marshaller that obfuscates password
 func (user *User) MarshalJSON() ([]byte, error) {
 	u := User(*user)
 	u.Password = "**********"
 	return json.Marshal(u)
-}
-
-type UserCredentials struct {
-	Identifier string `json:"identifier" binding:"required"`
-	// Unhashed, password hash comparison is done within EdgeDB
-	Password string `json:"password" binding:"required"`
-	Remember bool   `json:"remember" binding:"required"`
-} // @name UserCredentials
-
-type loginFailedReason string // @name LoginFailedReason
-
-const (
-	AccountInactive    loginFailedReason = "Inactive"
-	InvalidCredentials loginFailedReason = "InvalidCredentials"
-	ServerError        loginFailedReason = "ServerError"
-)
-
-type LoginFailedError struct {
-	Reason loginFailedReason `json:"reason" binding:"required"`
-} // @name LoginFailedError
-
-func (err *LoginFailedError) Error() string {
-	return string(err.Reason)
-}
-
-// Attempts to authenticate a user given the provided credentials.
-func (creds *UserCredentials) Authenticate(db *edgedb.Client) (*User, *LoginFailedError) {
-	query := fmt.Sprintf(
-		`%s filter (.email = <str>$0 or .login = <str>$0)
-			and .password = ext::pgcrypto::crypt(<str>$1, .password)
-			limit 1`,
-		userSelect,
-	)
-	user, err := find(db, query, creds.Identifier, creds.Password)
-
-	if err != nil {
-		var dbErr edgedb.Error
-		if errors.As(err, &dbErr) && dbErr.Category(edgedb.NoDataError) {
-			return nil, &LoginFailedError{InvalidCredentials}
-		} else {
-			logrus.Errorf("%v", err)
-			return nil, &LoginFailedError{ServerError}
-		}
-	}
-
-	if !user.Verified {
-		return user, &LoginFailedError{AccountInactive}
-	}
-
-	return user, nil
 }
 
 var userSelect = `select people::User {
@@ -131,7 +90,8 @@ func find(db *edgedb.Client, query string, args ...interface{}) (*User, error) {
 }
 
 func Current(db *edgedb.Client) (*User, error) {
-	query := fmt.Sprintf(`%s filter .id = global current_user_id limit 1`, userSelect)
+	query := `select people::User { * , identity: { * } }
+		filter .id = global current_user_id limit 1`
 	return find(db, query)
 }
 
@@ -139,7 +99,9 @@ func Current(db *edgedb.Client) (*User, error) {
 //
 // Returns edgedb.NoDataError if nothing matches
 func FindID(db *edgedb.Client, uuid uuid.UUID) (*User, error) {
-	query := fmt.Sprintf(`%s filter .id = <uuid>$0 limit 1`, userSelect)
+	query := `
+	select people::User { * , identity: { * } }
+		filter .id = <uuid>$0 limit 1`
 	return find(db, query, edgedb.UUID(uuid))
 }
 
@@ -147,6 +109,7 @@ func FindID(db *edgedb.Client, uuid uuid.UUID) (*User, error) {
 //
 // Returns edgedb.NoDataError if nothing matches
 func Find(db *edgedb.Client, identifier string) (*User, error) {
-	query := fmt.Sprintf(`%s filter .email = <str>$0 or .login = <str>$0 limit 1`, userSelect)
+	query := `select people::User { * , identity: { * } }
+		filter .email = <str>$0 or .login = <str>$0 limit 1`
 	return find(db, query, identifier)
 }

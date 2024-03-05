@@ -17,12 +17,7 @@ import (
 // @Success 200 {object} users.User "Authenticated user details"
 // @Failure 400 "User is not authenticated"
 // @Router /account [get]
-func Current(ctx *gin.Context, db *edgedb.Client) {
-	user, err := users.Current(db)
-	if err != nil {
-		ctx.Error(err)
-		return
-	}
+func Current(ctx *gin.Context, db *edgedb.Client, user *users.User) {
 	ctx.JSON(http.StatusOK, user)
 }
 

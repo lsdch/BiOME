@@ -1,4 +1,5 @@
 using extension pgcrypto;
+using extension auth;
 
 module date {
   scalar type DatePrecision extending enum<Year, Month, Day, Unknown>;
@@ -1028,10 +1029,9 @@ module people {
     required email: str {
       constraint exclusive;
     };
-    required email_public: bool {
-      default := false
-    };
+
     required password: str {
+      annotation description := "Password hashing is done within the database, raw password must be used when creating/updating."
       rewrite insert, update using (
         ext::pgcrypto::crypt(.password, ext::pgcrypto::gen_salt('des'))
       )

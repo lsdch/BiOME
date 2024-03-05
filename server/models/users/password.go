@@ -1,9 +1,11 @@
 package users
 
 import (
+	"context"
 	"darco/proto/models/validations"
 	"fmt"
 
+	"github.com/edgedb/edgedb-go"
 	"github.com/trustelem/zxcvbn"
 )
 
@@ -29,6 +31,13 @@ func (pwd *PasswordInput) ValidateStrength(strength int, user_info *InnerUserInp
 		}
 	}
 	return nil
+}
+
+func (user *User) SetPassword(db *edgedb.Client, pwd PasswordInput) error {
+	query := `with module people
+		update User filter .id = <uuid>$0
+		set { password = <str>$1 }`
+	return db.Execute(context.Background(), query, user.ID, pwd.Password)
 }
 
 type NewPasswordInput struct {
