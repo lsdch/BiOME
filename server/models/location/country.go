@@ -2,7 +2,6 @@ package country
 
 import (
 	"context"
-	"darco/proto/db"
 	"embed"
 
 	"github.com/edgedb/edgedb-go"
@@ -14,12 +13,12 @@ var setupCountriesCmd string
 //go:embed countries.json
 var seed embed.FS
 
-func Setup() error {
+func Setup(db *edgedb.Client) error {
 	json, err := seed.ReadFile("countries.json")
 	if err != nil {
 		return err
 	}
-	err = db.Client().Execute(context.Background(), setupCountriesCmd, json)
+	err = db.Execute(context.Background(), setupCountriesCmd, json)
 	return err
 }
 

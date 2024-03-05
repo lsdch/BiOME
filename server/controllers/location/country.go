@@ -8,8 +8,8 @@ import (
 	gin "github.com/gin-gonic/gin"
 )
 
-func Setup(ctx *gin.Context) {
-	err := country.Setup()
+func Setup(ctx *gin.Context, db *edgedb.Client) {
+	err := country.Setup(db)
 	if err != nil {
 		ctx.Error(err)
 	} else {

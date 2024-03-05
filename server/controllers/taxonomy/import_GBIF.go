@@ -1,7 +1,6 @@
 package taxonomy
 
 import (
-	"darco/proto/db"
 	gbif "darco/proto/models/taxonomy/GBIF"
 	"io"
 	"net/http"
@@ -78,7 +77,7 @@ func NewServer() (event *EventServer) {
 // Controller represents an API controller with two intertwined endpoints/
 type Controller struct {
 	// Endpoint handles requests to import a clade from GBIF.
-	Endpoint func(*gin.Context)
+	Endpoint func(*gin.Context, *edgedb.Client)
 	// ProgressTracker monitors the progress of an import process, using Server-Sent Events.
 	ProgressTracker func(*gin.Context)
 }
@@ -141,7 +140,7 @@ func ImportCladeGBIF() Controller {
 	}
 
 	return Controller{
-		Endpoint:        db.WithDB(endpoint),
+		Endpoint:        endpoint,
 		ProgressTracker: tracker,
 	}
 }

@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/edgedb/edgedb-go"
 	"github.com/google/uuid"
 )
 
@@ -17,10 +18,10 @@ import (
 var queryRegister string
 
 // Registers new account and sends an email with an activation link
-func (newUser *UserInput) Register(config *config.Config, originURL *url.URL) error {
+func (newUser *UserInput) Register(db *edgedb.Client, config *config.Config, originURL *url.URL) error {
 	var createdUser User
 	args, _ := json.Marshal(newUser)
-	if err := db.Client().QuerySingle(
+	if err := db.QuerySingle(
 		context.Background(), queryRegister, &createdUser, args,
 	); err != nil {
 		return err
