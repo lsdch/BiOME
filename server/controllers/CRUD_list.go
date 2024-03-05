@@ -14,6 +14,6 @@ func ListItems[Item any](ctx *gin.Context, db *edgedb.Client, listFn FetchItemLi
 	if err != nil {
 		ctx.Error(err)
 	} else {
-		ctx.JSON(http.StatusOK, NonNilArray[Item](items))
+		ctx.JSON(http.StatusOK, NonNilArray(items))
 	}
 }

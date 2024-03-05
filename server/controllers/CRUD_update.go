@@ -9,6 +9,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// A generic endpoint to update an item
+//
+//   - `ID` is the item identifier type, e.g. UUID or code
+//   - `Item` is the item update input type
+//   - `Updated` is the type of the item once updated
 func UpdateItem[ID any, Item models.Updatable[ID, Updated], Updated any](
 	ctx *gin.Context,
 	db *edgedb.Client,
@@ -41,18 +46,20 @@ func UpdateItem[ID any, Item models.Updatable[ID, Updated], Updated any](
 	ctx.JSON(http.StatusOK, updated)
 }
 
+// Updates an item using its code
 func UpdateItemByCode[Item models.Updatable[string, Updated], Updated any](
 	ctx *gin.Context,
 	db *edgedb.Client,
 	find models.ItemFinder[edgedb.UUID, Updated],
 ) {
-	UpdateItem[string, Item, Updated](ctx, db, ParseCodeURI, find)
+	UpdateItem[string, Item](ctx, db, ParseCodeURI, find)
 }
 
+// Updates an item using its UUID
 func UpdateItemByUUID[Item models.Updatable[edgedb.UUID, Updated], Updated any](
 	ctx *gin.Context,
 	db *edgedb.Client,
 	find models.ItemFinder[edgedb.UUID, Updated],
 ) {
-	UpdateItem[edgedb.UUID, Item, Updated](ctx, db, ParseUUIDfromURI, find)
+	UpdateItem[edgedb.UUID, Item](ctx, db, ParseUUIDfromURI, find)
 }

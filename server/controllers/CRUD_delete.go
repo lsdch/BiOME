@@ -29,18 +29,24 @@ func delete[ID any, Item any](
 	ctx.JSON(http.StatusOK, deleted)
 }
 
+// Deletes an item using a string identifier
+//
+// Responds with the deleted item when successful
 func DeleteByCode[Item any](
 	ctx *gin.Context,
 	db *edgedb.Client,
 	deleteItem ItemDelete[string, Item],
 ) {
-	delete[string, Item](ctx, db, deleteItem, ParseCodeURI)
+	delete(ctx, db, deleteItem, ParseCodeURI)
 }
 
+// Deletes an item using its UUID
+//
+// Responds with the deleted item when successful
 func DeleteByID[Item any](
 	ctx *gin.Context,
 	db *edgedb.Client,
 	deleteItem ItemDelete[edgedb.UUID, Item],
 ) {
-	delete[edgedb.UUID, Item](ctx, db, deleteItem, ParseUUIDfromURI)
+	delete(ctx, db, deleteItem, ParseUUIDfromURI)
 }

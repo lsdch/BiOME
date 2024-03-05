@@ -8,6 +8,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// A generic endpoint to handle item creation.
+//
+//   - `Item` type is the input item type
+//   - `Created` type is the type of the item once created
 func CreateItem[Item models.Creatable[Created], Created any](
 	ctx *gin.Context,
 	db *edgedb.Client,

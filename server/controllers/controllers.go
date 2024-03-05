@@ -7,12 +7,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CodeInput = struct {
-	Code string `uri:"code" binding:"required"`
-}
-
+// Functions that parse an identifier from Gin context
 type IDParser[ID any] func(ctx *gin.Context) (ID, error)
 
+// Retrieves an UUID from URI parameters, using the 'id' key
 var ParseUUIDfromURI IDParser[edgedb.UUID] = func(ctx *gin.Context) (edgedb.UUID, error) {
 	var strUUID = ctx.Param("id")
 	uuid, err := edgedb.ParseUUID(strUUID)
@@ -22,15 +20,12 @@ var ParseUUIDfromURI IDParser[edgedb.UUID] = func(ctx *gin.Context) (edgedb.UUID
 	return uuid, err
 }
 
+// Retrieves a string identifier from URI parameters, using the 'code' key
 var ParseCodeURI IDParser[string] = func(ctx *gin.Context) (string, error) {
-	var code CodeInput
-	if err := ctx.BindUri(&code); err != nil {
-		ctx.Error(err)
-		return "", err
-	}
-	return code.Code, nil
+	return ctx.Param("code"), nil
 }
 
+// Replaces nil array with empty array
 func NonNilArray[T any](array []T) []T {
 	if array != nil {
 		return array
