@@ -16,13 +16,13 @@ import (
 )
 
 type PersonInner struct {
-	FirstName   string             `json:"first_name" edgedb:"first_name" binding:"required,alphaunicode,min=2,max=32"`
-	MiddleNames edgedb.OptionalStr `json:"middle_names" edgedb:"middle_names" binding:"omitempty,alphaunicode,max=32"`
-	LastName    string             `json:"last_name" edgedb:"last_name" binding:"required,alphaunicode,min=2,max=32"`
+	FirstName string `json:"first_name" edgedb:"first_name" binding:"required,alphaunicode,min=2,max=32"`
+	LastName  string `json:"last_name" edgedb:"last_name" binding:"required,alphaunicode,min=2,max=32"`
 }
 
 type PersonInput struct {
 	PersonInner
+	MiddleNames  *string  `json:"middle_names,omitempty" edgedb:"middle_names" binding:"omitnil,alphaunicode,max=32"`
 	Institutions []string `json:"institutions" binding:"omitempty,exist_all=people::Institution.code"`
 	Alias        *string  `json:"alias,omitempty" binding:"unique_str=people::Person.alias"`
 	Contact      *string  `json:"contact,omitempty" binding:"omitnil,nullemail"`
@@ -31,8 +31,8 @@ type PersonInput struct {
 
 func (p *PersonInput) generateAlias() string {
 	middle_initials := ""
-	middle_names, isSet := p.MiddleNames.Get()
-	if isSet && len(middle_names) > 0 {
+	middle_names := *p.MiddleNames
+	if len(middle_names) > 0 {
 		re := regexp.MustCompile(`\W`)
 		split := re.Split(middle_names, -1)
 		for _, word := range split {
@@ -47,7 +47,7 @@ func (p *PersonInput) generateAlias() string {
 	alias := strings.ToLower(fmt.Sprintf("%s%s%s", first_initial, middle_initials, p.LastName))
 
 	var conflicts []string
-	query := `select (people::Person filter str_trim(.alias, "0123456789") = <str>$0).alias`
+	query := `select (select people::Person filter str_trim(.alias, "0123456789") = <str>$0).alias`
 	if err := db.Client().Query(context.Background(), query, &conflicts, alias); err != nil {
 		logrus.Errorf("Error while checking for Person.alias duplicates: %v", err)
 		return ""
@@ -73,6 +73,7 @@ func (p *PersonInput) UnmarshalJSON(data []byte) error {
 
 type Person struct {
 	PersonInner  `edgedb:"$inline"`
+	MiddleNames  edgedb.OptionalStr         `json:"middle_names,omitempty" edgedb:"middle_names"`
 	Institutions []Institution              `json:"institutions" edgedb:"institutions"`
 	ID           edgedb.UUID                `edgedb:"id" json:"id" binding:"required"`
 	FullName     string                     `json:"full_name" edgedb:"full_name" binding:"required"`
