@@ -18,6 +18,8 @@ export type ValidationErrors<ItemInputType> = Partial<
   Record<keyof ItemInputType, InputValidationError[]>
 >
 
+export type ErrorMsgs<ItemInputType> = { [k in keyof ItemInputType]: any }
+
 export function useForm<ItemInputType extends Record<string | symbol, any>, ItemType>(
   props: Props<ItemType>,
   emit: Emits<ItemType>,
@@ -29,8 +31,6 @@ export function useForm<ItemInputType extends Record<string | symbol, any>, Item
    * Input validation errors indexed by field name
    */
   const errors: Ref<ValidationErrors<ItemInputType>> = ref({})
-
-  type ErrorMsgs<ItemInputType> = { [k in keyof ItemInputType]: any }
 
   /**
    * A proxy to validation errors that allows direct access to error messages

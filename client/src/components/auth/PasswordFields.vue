@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { PasswordInput } from '@/api'
+import { PasswordInput, UserInput } from '@/api'
 import { vuelidateErrors } from '@/api/validation'
 import useVuelidate, { Validation, ValidationArgs } from '@vuelidate/core'
 import { helpers, required, sameAs } from '@vuelidate/validators'
@@ -40,7 +40,14 @@ import { zxcvbn } from '@zxcvbn-ts/core'
 import { Ref, computed, defineModel, ref } from 'vue'
 import PasswordStrengthMeter from './PasswordStrengthMeter.vue'
 
-const props = withDefaults(defineProps<{}>(), { userInputs: () => [] })
+const MIN_PWD_STRENGTH = 3
+
+const props = withDefaults(
+  defineProps<{
+    userInputs: string[] | UserInput
+  }>(),
+  { userInputs: () => [] }
+)
 
 const state = defineModel<PasswordInput>({
   default: {
@@ -54,7 +61,7 @@ const passwordReference = computed(() => state.value.password)
 const validators = {
   password: helpers.withMessage(
     'Password is too weak',
-    () => zxcvbn(state.value.password, props.userInputs).score >= 3
+    () => passwordStrength.value >= MIN_PWD_STRENGTH
   ),
   pwdConfirm: helpers.withMessage('Passwords do not match', sameAs(passwordReference))
 }
@@ -71,8 +78,19 @@ const show = ref({
 
 const v$: Ref<Validation<ValidationArgs<PasswordInput>, PasswordInput>> = useVuelidate(rules, state)
 
+const passwordSensitiveInputs = computed(() => {
+  return props.userInputs instanceof Array
+    ? props.userInputs
+    : [
+        props.userInputs.email,
+        props.userInputs.login,
+        props.userInputs.identity.first_name,
+        props.userInputs.identity.last_name
+      ]
+})
+
 const passwordStrength = computed(() => {
-  return zxcvbn(state.value.password, props.userInputs).score
+  return zxcvbn(state.value.password, passwordSensitiveInputs.value).score
 })
 </script>
 

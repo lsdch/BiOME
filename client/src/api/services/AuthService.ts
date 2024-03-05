@@ -12,6 +12,27 @@ import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
 export class AuthService {
     /**
+     * Set account password
+     * Sets a new password for the currently authenticated user
+     * @param password New password
+     * @returns any New password was set
+     * @throws ApiError
+     */
+    public static setPassword(
+        password: PasswordInput,
+    ): CancelablePromise<any> {
+        return __request(OpenAPI, {
+            method: 'POST',
+            url: '/account/password',
+            body: password,
+            errors: {
+                400: `Invalid password inputs`,
+                403: `Not authenticated`,
+                500: `Database or server error`,
+            },
+        });
+    }
+    /**
      * Authenticate user
      * Authenticate user with their credentials and set a JWT.
      * @param data User credentials
@@ -104,27 +125,6 @@ export class AuthService {
         });
     }
     /**
-     * Set account password
-     * Sets a new password for the currently authenticated user
-     * @param password New password
-     * @returns any New password was set
-     * @throws ApiError
-     */
-    public static setPassword(
-        password: PasswordInput,
-    ): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'POST',
-            url: '/users/password',
-            body: password,
-            errors: {
-                400: `Invalid password inputs`,
-                403: `Not authenticated`,
-                500: `Database or server error`,
-            },
-        });
-    }
-    /**
      * Verify that a password token is valid
      * @param token Password reset token
      * @returns any Password token is valid
@@ -189,8 +189,8 @@ export class AuthService {
         });
     }
     /**
-     * Delete a user
-     * Deletes a user
+     * Delete an account
+     * Deletes an account
      * @returns any User was deleted successfully
      * @throws ApiError
      */

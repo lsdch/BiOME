@@ -1,38 +1,7 @@
 <template>
   <v-form @submit.prevent="submit" v-model="isValid" validate-on="input">
     <v-container fluid>
-      <v-row>
-        <v-col cols="12" sm="4">
-          <v-text-field
-            name="first_name"
-            label="First name"
-            v-model.trim="person.first_name"
-            required
-            :error-messages="errorMsgs.first_name"
-            :rules="inlineRules([required])"
-          />
-        </v-col>
-        <v-col cols="12" sm="4">
-          <v-text-field
-            name="middle_names"
-            label="Middle name(s)"
-            hint="Optional"
-            clearable
-            v-model.trim="person.middle_names"
-            :error-messages="errorMsgs.middle_names"
-            validate-on="blur"
-          />
-        </v-col>
-        <v-col cols="12" sm="4">
-          <v-text-field
-            name="last_name"
-            label="Last name"
-            v-model.trim="person.last_name"
-            :error-messages="errorMsgs.last_name"
-            :rules="inlineRules([required])"
-          />
-        </v-col>
-      </v-row>
+      <PersonFormFields v-model="person" :error-msgs="errorMsgs" />
       <v-row>
         <v-col>
           <v-text-field
@@ -88,10 +57,11 @@ const DEFAULT: PersonInput = {
 
 <script setup lang="ts">
 import { Institution, PeopleService, Person, PersonInput } from '@/api'
+import { email } from '@vuelidate/validators'
 import { onMounted, ref, watchEffect } from 'vue'
 import { VForm } from 'vuetify/components'
 import { Emits, Props, inlineRules, useForm } from '../toolkit/form'
-import { required, email } from '@vuelidate/validators'
+import PersonFormFields from './PersonFormFields.vue'
 
 const isValid = ref(null)
 

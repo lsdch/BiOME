@@ -2,7 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type people_PersonInner = {
+export type PersonUserInput = {
+    contact?: string;
     first_name: string;
     last_name: string;
     middle_names?: string;

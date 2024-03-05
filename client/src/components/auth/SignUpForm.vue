@@ -21,7 +21,7 @@
       :error-messages="registerError('email')"
       class="mb-3"
     />
-    <PasswordFields v-model="state" :user-inputs="passwordSensitiveInputs" />
+    <PasswordFields v-model="state" :user-inputs="state" />
 
     <v-row>
       <v-col>
@@ -36,25 +36,23 @@
         </p>
       </v-col>
     </v-row>
+    <PersonFormFields v-model="state.identity" />
     <v-row>
       <v-col cols="12" sm="6">
         <v-text-field
-          v-model="state.identity.first_name"
-          name="first-name"
-          label="First name"
-          required
-          @blur="v$.identity.first_name.$touch"
-          :error-messages="vuelidateErrors(v$.identity.first_name)"
+          v-model="state.identity.contact"
+          name="contact"
+          label="Contact (optional)"
+          :disabled="exposeEmail"
+          @blur="v$.identity.contact.$touch"
+          :error-messages="registerError('identity.contact')"
         />
       </v-col>
       <v-col cols="12" sm="6">
-        <v-text-field
-          v-model="state.identity.last_name"
-          name="last-name"
-          label="Last name"
-          required
-          @blur="v$.identity.last_name.$touch()"
-          :error-messages="vuelidateErrors(v$.identity.last_name)"
+        <v-switch
+          label="Expose my account e-mail as contact address"
+          v-model="exposeEmail"
+          color="primary"
         />
       </v-col>
     </v-row>
@@ -73,7 +71,7 @@
       class="my-2"
       type="error"
       title="Error"
-      text="Some unhandled error occurred on the server"
+      text="An unexpected error occurred on the server"
     />
   </v-form>
 </template>
@@ -83,8 +81,12 @@ import { ApiError, AuthService, InputValidationError, UserInput } from '@/api'
 import { vuelidateErrors } from '@/api/validation'
 import useVuelidate, { Validation, ValidationArgs } from '@vuelidate/core'
 import { email, maxLength, minLength, required } from '@vuelidate/validators'
-import { Ref, computed, ref } from 'vue'
+import { Ref, computed, ref, watchEffect } from 'vue'
 import PasswordFields from './PasswordFields.vue'
+import PersonFormFields from '../people/PersonFormFields.vue'
+import _ from 'lodash'
+
+const exposeEmail = ref(false)
 
 const state: Ref<UserInput> = ref<UserInput>({
   email: '',
@@ -98,6 +100,14 @@ const state: Ref<UserInput> = ref<UserInput>({
   }
 })
 
+watchEffect(() => {
+  if (exposeEmail.value) {
+    state.value.identity.contact = state.value.email
+  } else {
+    state.value.identity.contact = undefined
+  }
+})
+
 const rules: ValidationArgs<UserInput> = {
   email: { email, required },
   login: { minLength: minLength(5), maxLength: maxLength(16) },
@@ -106,20 +116,11 @@ const rules: ValidationArgs<UserInput> = {
   identity: {
     first_name: { minLength: minLength(2), required },
     last_name: { minLength: minLength(2), required },
-    contact: {}
+    contact: { email }
   }
 }
 
 const v$: Ref<Validation<ValidationArgs<UserInput>, UserInput>> = useVuelidate(rules, state)
-
-const passwordSensitiveInputs = computed(() => {
-  return [
-    state.value.email,
-    state.value.login,
-    state.value.identity.first_name,
-    state.value.identity.last_name
-  ]
-})
 
 const loading = ref(false)
 const emits = defineEmits<{ (event: 'created'): void }>()
@@ -127,7 +128,9 @@ const errors: Ref<Record<string, InputValidationError[]>> = ref({})
 
 function registerError(field: string) {
   return computed(() => {
-    return errors.value?.[field]?.map((e) => e.message) ?? vuelidateErrors(v$.value[field])
+    return (
+      _.get(errors.value, field)?.map((e) => e.message) ?? vuelidateErrors(_.get(v$.value, field))
+    )
   }).value
 }
 
@@ -136,9 +139,7 @@ const unhandledError: Ref<undefined | ApiError> = ref(undefined)
 async function submit() {
   loading.value = true
   await AuthService.registerUser(state.value)
-    .then(() => {
-      emits('created')
-    })
+    .then(() => emits('created'))
     .catch((err: ApiError) => {
       switch (err.status) {
         case 400:

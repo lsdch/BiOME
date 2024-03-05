@@ -8,6 +8,5 @@ export type UserCredentials = {
      * Unhashed, password hash comparison is done within EdgeDB
      */
     password: string;
-    remember: boolean;
 };
 

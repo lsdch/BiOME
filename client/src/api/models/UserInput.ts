@@ -2,13 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { people_PersonInner } from './people_PersonInner';
+import type { PersonUserInput } from './PersonUserInput';
 export type UserInput = {
     email: string;
-    /**
-     * EmailPublic bool        `edbedb:"email_public" json:"email_public"`
-     */
-    identity: people_PersonInner;
+    identity: PersonUserInput;
     login: string;
     password: string;
     password_confirmation: string;
