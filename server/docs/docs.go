@@ -1291,6 +1291,32 @@ const docTemplate = `{
                 }
             }
         },
+        "PersonUserInput": {
+            "type": "object",
+            "required": [
+                "first_name",
+                "last_name"
+            ],
+            "properties": {
+                "contact": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "middle_names": {
+                    "type": "string",
+                    "maxLength": 32
+                }
+            }
+        },
         "ResendConfirmationError": {
             "type": "string",
             "enum": [
@@ -1661,7 +1687,7 @@ const docTemplate = `{
                     "format": "email"
                 },
                 "identity": {
-                    "$ref": "#/definitions/users.PersonUserInput"
+                    "$ref": "#/definitions/PersonUserInput"
                 },
                 "login": {
                     "type": "string"
@@ -1713,32 +1739,6 @@ const docTemplate = `{
                 "key": {
                     "description": "target GBIF taxon key",
                     "type": "integer"
-                }
-            }
-        },
-        "users.PersonUserInput": {
-            "type": "object",
-            "required": [
-                "first_name",
-                "last_name"
-            ],
-            "properties": {
-                "contact": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 2
-                },
-                "last_name": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 2
-                },
-                "middle_names": {
-                    "type": "string",
-                    "maxLength": 32
                 }
             }
         }

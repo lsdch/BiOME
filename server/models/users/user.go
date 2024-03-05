@@ -17,7 +17,7 @@ type PersonUserInput struct {
 	people.PersonInner `edgedb:"$inline"`
 	MiddleNames        *string `json:"middle_names,omitempty" edgedb:"middle_names" binding:"omitnil,alphaunicode,max=32"`
 	Contact            *string `json:"contact,omitempty" binding:"omitnil,nullemail"`
-}
+} // @name PersonUserInput
 
 type InnerUserInput struct {
 	Login  string          `edgedb:"login" json:"login" binding:"login,required,unique_login"`
