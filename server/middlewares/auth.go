@@ -13,13 +13,19 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Gin context key where the current user is stored as a pointer, if any
+const CTX_CURRENT_USER_KEY = "current_user"
+
+// Gin context key where the database client is stored as a pointer
+const CTX_DATABASE_KEY = "db"
+
 func AuthenticationMiddleware(ctx *gin.Context) {
 
 	var access_token string
 	cookie, err := ctx.Cookie("token")
 
-	ctx.Set("currentUser", nil)
-	ctx.Set("db", db.Client())
+	ctx.Set(CTX_CURRENT_USER_KEY, nil)
+	ctx.Set(CTX_DATABASE_KEY, db.Client())
 
 	authorizationHeader := ctx.Request.Header.Get("Authorization")
 	fields := strings.Fields((authorizationHeader))
@@ -30,32 +36,32 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 	}
 
 	if access_token == "" {
-		logrus.Debugf("No authentication token")
+		logrus.Debugf("Auth middleware: No authentication token")
 		return
 	}
 
 	sub, err := tokens.ValidateToken(config.Get(), access_token)
 	if err != nil {
-		logrus.Debugf("Invalid token received")
+		logrus.Debugf("Auth middleware: Invalid token received")
 		return
 	}
 
 	userID, err := uuid.Parse(sub.(string))
 	if err != nil {
-		logrus.Debugf("Token %s does not hold a valid UUID", sub)
+		logrus.Debugf("Auth middleware: Token %s does not hold a valid UUID", sub)
 		return
 	}
 
 	current_user, err := users.FindID(db.Client(), userID)
 	if err != nil {
-		logrus.Errorf("Token was validated but does not match an existing user.")
+		logrus.Errorf("Auth middleware: Token was validated but does not match an existing user.")
 		return
 	}
 
-	logrus.Debugf("User authenticated %+v", current_user)
-
+	// Authentication succeeded
+	logrus.Debugf("Auth middleware: User authenticated %+v", current_user)
 	client := db.Client().WithGlobals(map[string]interface{}{"current_user_id": edgedb.UUID(userID)})
-	ctx.Set("current_user", current_user)
-	ctx.Set("db", client)
+	ctx.Set(CTX_CURRENT_USER_KEY, current_user)
+	ctx.Set(CTX_DATABASE_KEY, client)
 	ctx.Next()
 }
