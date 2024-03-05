@@ -46,7 +46,7 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost:8080
 // @schemes http
-func setupRouter() *gin.Engine {
+func setupRouter(config *config.Config) *gin.Engine {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(middlewares.ErrorHandler)
@@ -116,13 +116,14 @@ func setupRouter() *gin.Engine {
 }
 
 // Loads config from .env file
-func loadConfig() {
+func loadConfig() *config.Config {
 	config, err := config.LoadConfig(".")
 	if err != nil {
 		log.Fatalf("Failed to load configuration file : %v", err)
 	} else {
-		log.Debugf("Config loaded : %+v", config)
+		log.Infof("Config loaded : %+v", config)
 	}
+	return config
 }
 
 func setupValidators() {
@@ -148,12 +149,12 @@ func main() {
 	}
 
 	setupValidators()
-	loadConfig()
+	config := loadConfig()
 
 	if err := email.LoadTemplates("templates/**"); err != nil {
 		log.Fatalf("Failed to load email templates: %v", err)
 	}
-	r := setupRouter()
+	r := setupRouter(config)
 	r.Run(":8080")
 	defer db.Client().Close()
 }

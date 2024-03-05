@@ -1,7 +1,6 @@
 package config
 
 import (
-	"darco/proto/router"
 	"fmt"
 	"log"
 	"net/url"
@@ -33,6 +32,7 @@ type Config struct {
 	Port          int            `mapstructure:"PORT" validate:"required"`
 	Client        ClientConfig   `mapstructure:",squash"`
 	Accounts      AccountsConfig `mapstructure:",squash"`
+	BasePath      string         `mapstructure:"API_BASE_PATH"`
 }
 
 type AccountsConfig struct {
@@ -53,6 +53,7 @@ var (
 		Accounts: AccountsConfig{
 			PasswordStrength: 3,
 		},
+		BasePath: "/api/v1",
 	}
 )
 
@@ -63,7 +64,7 @@ func (config *Config) MakeURL(url_path string) url.URL {
 	return url.URL{
 		Scheme: "https",
 		Host:   fmt.Sprintf("%s:%d", config.DomainName, config.Port),
-		Path:   path.Join(router.Config.BasePath, url_path),
+		Path:   path.Join(config.BasePath, url_path),
 	}
 }
 
