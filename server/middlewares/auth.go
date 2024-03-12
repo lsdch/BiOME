@@ -9,7 +9,6 @@ import (
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -46,7 +45,7 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	userID, err := uuid.Parse(sub.(string))
+	userID, err := edgedb.ParseUUID(sub.(string))
 	if err != nil {
 		logrus.Debugf("Auth middleware: Token %s does not hold a valid UUID", sub)
 		return
@@ -60,7 +59,7 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 
 	// Authentication succeeded
 	logrus.Debugf("Auth middleware: User authenticated %+v", current_user)
-	client := db.Client().WithGlobals(map[string]interface{}{"current_user_id": edgedb.UUID(userID)})
+	client := db.WithCurrentUser(userID)
 	ctx.Set(CTX_CURRENT_USER_KEY, current_user)
 	ctx.Set(CTX_DATABASE_KEY, client)
 	ctx.Next()
