@@ -79,7 +79,7 @@ source.addEventListener('progress', (event) => {
     Object.assign(item, { elapsed: moment(item.started).fromNow() })
   )
   updateElapsedTime()
-  if (activities.value.filter(({ done }) => done).length > 0) {
+  if (activities.value.filter(({ done, error }) => done && !error).length > 0) {
     updateAnchors()
   }
 })
