@@ -2,7 +2,6 @@ package users
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
@@ -32,12 +31,10 @@ func (err *LoginFailedError) Error() string {
 
 // Attempts to authenticate a user given the provided credentials.
 func (creds *UserCredentials) Authenticate(db *edgedb.Client) (*User, *LoginFailedError) {
-	query := fmt.Sprintf(
-		`%s filter (.email = <str>$0 or .login = <str>$0)
+	query := `select people::User { *, identity: { * } }
+			filter (.email = <str>$0 or .login = <str>$0)
 			and .password = ext::pgcrypto::crypt(<str>$1, .password)
-			limit 1`,
-		userSelect,
-	)
+			limit 1`
 	user, err := find(db, query, creds.Identifier, creds.Password)
 
 	if err != nil {

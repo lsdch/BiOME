@@ -1,9 +1,8 @@
 package accounts
 
 import (
-	"context"
-	"darco/proto/config"
 	"darco/proto/models/users"
+	"darco/proto/models/validations"
 	"errors"
 	"net/http"
 
@@ -21,7 +20,7 @@ import (
 // @Param token path string true "Password reset token"
 func ValidatePasswordToken(ctx *gin.Context, db *edgedb.Client) {
 	token := ctx.Param("token")
-	_, tokenValid := users.ValidatePasswordResetToken(db, users.Token(token))
+	_, tokenValid := users.ValidateAccountToken(db, users.Token(token), users.PasswordResetToken)
 	if !tokenValid {
 		ctx.AbortWithError(http.StatusBadRequest, errors.New("invalid token"))
 		return
@@ -40,24 +39,23 @@ func ValidatePasswordToken(ctx *gin.Context, db *edgedb.Client) {
 // @Router /account/password [post]
 // @Param password body users.PasswordInput true "New password"
 func SetPassword(ctx *gin.Context, db *edgedb.Client, user *users.User) {
-	var newPwd users.PasswordInput
+	var newPwd users.NewPasswordInput
 	if err := ctx.BindJSON(&newPwd); err != nil {
 		return
 	}
 
-	pwd_strength := config.Get().Accounts.PasswordStrength
-	err := newPwd.ValidateStrength(pwd_strength, user.InnerUserInput())
-	if err != nil {
-		ctx.Error(err)
+	if !user.PasswordMatch(db, newPwd.Password) {
+		ctx.Error(validations.InputValidationError{
+			Field:   "password",
+			Message: "Invalid password",
+		})
 		return
 	}
 
-	query := `update people::User filter .id = current_user_id set { password := <str>$0 }`
-	err = db.Execute(context.Background(), query, newPwd)
-	if err != nil {
-		ctx.Error(err)
-		return
+	if err := user.SetPassword(db, newPwd.NewPassword.Password); err != nil {
+		ctx.Error(weakPasswordError("new_password.password", err))
 	}
+
 	ctx.Status(http.StatusOK)
 }
 
@@ -73,14 +71,11 @@ func SetPassword(ctx *gin.Context, db *edgedb.Client, user *users.User) {
 // @Param password body users.PasswordInput true "New password"
 func ResetPassword(ctx *gin.Context, db *edgedb.Client) {
 	token := ctx.Param("token")
-	userID, tokenValid := users.ValidatePasswordResetToken(db, users.Token(token))
+	user, tokenValid := users.ValidateAccountToken(db, users.Token(token), users.PasswordResetToken)
 	if !tokenValid {
 		ctx.AbortWithError(http.StatusBadRequest, errors.New("invalid token"))
 		return
 	}
-
-	// User must exist if token validation succeeded
-	user, _ := users.FindID(db, userID)
 
 	var newPwd users.PasswordInput
 	if err := ctx.BindJSON(&newPwd); err != nil {
@@ -88,14 +83,8 @@ func ResetPassword(ctx *gin.Context, db *edgedb.Client) {
 		return
 	}
 
-	pwd_strength := config.Get().Accounts.PasswordStrength
-	if err := newPwd.ValidateStrength(pwd_strength, user.InnerUserInput()); err != nil {
-		ctx.Error(err)
-		return
-	}
-
-	if err := user.SetPassword(db, newPwd); err != nil {
-		ctx.Error(err)
+	if err := user.SetPassword(db, newPwd.Password); err != nil {
+		ctx.Error(weakPasswordError("password", err))
 		return
 	}
 	ctx.Status(http.StatusAccepted)
@@ -125,7 +114,9 @@ func RequestPasswordReset(ctx *gin.Context, db *edgedb.Client) {
 		ctx.Error(err)
 		return
 	}
-	if err = user.RequestPasswordReset(parseRequestOrigin(ctx)); err != nil {
+
+	tokenURL := newTokenURL(ctx, passwordResetTokenPath)
+	if err = user.RequestPasswordReset(db, tokenURL); err != nil {
 		ctx.Error(err)
 		return
 	}

@@ -1,7 +1,6 @@
 package accounts
 
 import (
-	"darco/proto/config"
 	"darco/proto/models/users"
 	_ "darco/proto/models/validations"
 	"net/http"
@@ -34,21 +33,63 @@ func Register(ctx *gin.Context, db *edgedb.Client) {
 		newUser.Email,
 	)
 
-	originURL := parseRequestOrigin(ctx)
-	if err := newUser.Register(db, config.Get(), originURL); err != nil {
+	user, err := newUser.Register(db)
+	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
+	target := newTokenURL(ctx, emailConfirmationTokenPath)
+	user.SendConfirmationEmail(db, target)
+
 	ctx.Status(http.StatusAccepted)
+}
+
+type EmailConfirmationError string // @name EmailConfirmationError
+const (
+	AlreadyVerified EmailConfirmationError = "AlreadyVerified"
+	InvalidToken    EmailConfirmationError = "InvalidToken"
+)
+
+// @Summary Email confirmation
+// @Description Confirms a user email using a token
+// @id EmailConfirmation
+// @tags Auth
+// @Accept json
+// @Produce json
+// @Success 200 "Email was confirmed and account activated"
+// @Failure 400 {object} EmailConfirmationError
+// @Failure 500 "Server error"
+// @Router /users/confirm [get]
+// @Param token query string true "Confirmation token"
+func ConfirmEmail(ctx *gin.Context, db *edgedb.Client) {
+	token := ctx.Query("token")
+	logrus.Infof("Received email confirmation token: %s", token)
+
+	user, tokenValid := users.ValidateAccountToken(db, users.Token(token), users.EmailConfirmationToken)
+	if !tokenValid {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, InvalidToken)
+		return
+	}
+
+	if user.Verified {
+		ctx.AbortWithStatusJSON(http.StatusBadRequest, AlreadyVerified)
+		return
+	}
+
+	if err := user.SetActive(db, true); err != nil {
+		ctx.AbortWithError(http.StatusInternalServerError, err)
+		return
+	}
+
+	startUserSession(ctx, user)
 }
 
 type ResendConfirmationError string // @name ResendConfirmationError
 
 const (
-	AccountAlreadyVerified   string                  = "AlreadyVerified"
 	ResendInvalidCredentials ResendConfirmationError = "InvalidCredentials"
-	ResendAlreadyVerified    ResendConfirmationError = ResendConfirmationError(AccountAlreadyVerified)
+	ResendAlreadyVerified    ResendConfirmationError = ResendConfirmationError(AlreadyVerified)
 )
 
 // @Summary Resend confirmation email
@@ -86,57 +127,10 @@ func ResendConfirmation(ctx *gin.Context, db *edgedb.Client) {
 		return
 	}
 
-	originURL := parseRequestOrigin(ctx)
-	if err := user.SendConfirmationEmail(originURL); err != nil {
+	target := newTokenURL(ctx, emailConfirmationTokenPath)
+	if err := user.SendConfirmationEmail(db, target); err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
-	ctx.Status(http.StatusAccepted)
-}
-
-type EmailConfirmationError string // @name EmailConfirmationError
-const (
-	AlreadyVerified EmailConfirmationError = EmailConfirmationError(AccountAlreadyVerified)
-	InvalidToken    EmailConfirmationError = "InvalidToken"
-)
-
-// @Summary Email confirmation
-// @Description Confirms a user email using a token
-// @id EmailConfirmation
-// @tags Auth
-// @Accept json
-// @Produce json
-// @Success 202 "Email was confirmed and account activated"
-// @Failure 400 {object} EmailConfirmationError
-// @Failure 500 "Server error"
-// @Router /users/confirm [get]
-// @Param token query string true "Confirmation token"
-func ConfirmEmail(ctx *gin.Context, db *edgedb.Client) {
-	token := ctx.Query("token")
-	logrus.Infof("Received email confirmation token: %s", token)
-
-	userID, tokenValid := users.ValidateEmailConfirmationToken(users.Token(token))
-	if !tokenValid {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, InvalidToken)
-		return
-	}
-
-	user, err := users.FindID(db, userID)
-	if err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	if user.Verified {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, AccountAlreadyVerified)
-		return
-	}
-
-	if err = user.SetActive(true); err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	startUserSession(ctx, user.ID)
 	ctx.Status(http.StatusAccepted)
 }

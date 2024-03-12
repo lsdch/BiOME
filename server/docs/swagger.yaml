@@ -696,7 +696,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Log out currently authenticated user
+      description: Log out currently authenticated user by revoking authentication
+        token in cookies
       operationId: Logout
       produces:
       - application/json
@@ -1070,7 +1071,7 @@ paths:
       produces:
       - application/json
       responses:
-        "202":
+        "200":
           description: Email was confirmed and account activated
         "400":
           description: Bad Request

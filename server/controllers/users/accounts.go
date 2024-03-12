@@ -6,11 +6,9 @@ import (
 	_ "darco/proto/models/validations"
 	"darco/proto/services/tokens"
 	"net/http"
-	"net/url"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
 // @Summary Delete an account
@@ -25,10 +23,6 @@ import (
 func Delete(ctx *gin.Context) {
 
 }
-
-type TokenResponse struct {
-	Token string `json:"token" binding:"required" example:"some-generated-jwt"`
-} // @name TokenResponse
 
 // @Summary Authenticate user
 // @Description Authenticate user with their credentials and set a JWT.
@@ -55,12 +49,17 @@ func Login(ctx *gin.Context, db *edgedb.Client) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, authError)
 		return
 	}
-	startUserSession(ctx, user.ID)
+	startUserSession(ctx, user)
 }
 
-func startUserSession(ctx *gin.Context, userID edgedb.UUID) {
+type TokenResponse struct {
+	Token string `json:"token" binding:"required" example:"some-generated-jwt"`
+} // @name TokenResponse
+
+// Stores authentication token in cookies after a user has logged, and send it back with HTTP status OK.
+func startUserSession(ctx *gin.Context, user *users.User) {
 	config := config.Get()
-	token, err := tokens.GenerateToken(userID, config.TokenLifetime)
+	token, err := tokens.GenerateToken(user.ID, config.TokenLifetime)
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
@@ -71,7 +70,7 @@ func startUserSession(ctx *gin.Context, userID edgedb.UUID) {
 }
 
 // @Summary Logout user
-// @Description Log out currently authenticated user
+// @Description Log out currently authenticated user by revoking authentication token in cookies
 // @id Logout
 // @tags Auth
 // @Accept json
@@ -83,15 +82,4 @@ func Logout(ctx *gin.Context) {
 	ctx.SetCookie("refresh_token", "", -1, "/", "", false, true)
 
 	ctx.JSON(http.StatusOK, gin.H{"status": "success"})
-}
-
-// Returns nil if URL parsing failed
-func parseRequestOrigin(ctx *gin.Context) *url.URL {
-	origin := ctx.Request.Header.Get("Origin")
-	originURL, err := url.Parse(origin)
-	if err != nil {
-		logrus.Errorf("Failed to parse origin URL '%s'. Defaulting to creating token URL pointing to API endpoint.", origin)
-		originURL = nil
-	}
-	return originURL
 }

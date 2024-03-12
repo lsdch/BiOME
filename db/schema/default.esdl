@@ -1031,10 +1031,12 @@ module people {
     };
 
     required password: str {
-      annotation description := "Password hashing is done within the database, raw password must be used when creating/updating."
+      annotation description := "Password hashing is done within the database, raw password must be used when creating/updating.";
       rewrite insert, update using (
-        ext::pgcrypto::crypt(.password, ext::pgcrypto::gen_salt('des'))
-      )
+        if __specified__.password
+        then ext::pgcrypto::crypt(.password, ext::pgcrypto::gen_salt('des'))
+        else .password
+      );
     };
     required verified: bool {
       default := false
@@ -1049,26 +1051,20 @@ module people {
   }
 
 
-  abstract type AccountEmailToken {
+  abstract type AccountToken {
     required token: str {
       constraint exclusive;
     };
     required expires: datetime;
+    required user: User {
+      constraint exclusive;
+      on target delete delete source;
+    };
   }
 
-  type PasswordReset extending AccountEmailToken {
-    required user: User {
-      constraint exclusive;
-      on target delete delete source;
-    };
-  };
+  type PasswordReset extending AccountToken;
 
-  type EmailConfirmation extending AccountEmailToken {
-    required user: User {
-      constraint exclusive;
-      on target delete delete source;
-    };
-  };
+  type EmailConfirmation extending AccountToken;
 }
 
 module traits {

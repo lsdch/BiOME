@@ -54,7 +54,7 @@ export class AuthService {
     }
     /**
      * Logout user
-     * Log out currently authenticated user
+     * Log out currently authenticated user by revoking authentication token in cookies
      * @returns any User logged out
      * @throws ApiError
      */

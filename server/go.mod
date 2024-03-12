@@ -7,7 +7,6 @@ require (
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-playground/validator/v10 v10.18.0
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/google/uuid v1.6.0
 	github.com/json-iterator/go v1.1.12
 	github.com/k3a/html2text v1.2.1
 	github.com/sirupsen/logrus v1.9.3

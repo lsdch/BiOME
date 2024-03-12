@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 
 	"github.com/edgedb/edgedb-go"
-	"github.com/google/uuid"
 	"github.com/sirupsen/logrus"
 )
 
@@ -30,23 +29,15 @@ type UserInput struct {
 	PasswordInput  `json:",inline"`
 } // @name UserInput
 
-type UserPartial struct {
+type User struct {
+	ID       edgedb.UUID        `edgedb:"id" json:"-" binding:"required"`
+	Email    string             `edgedb:"email" json:"email" binding:"required"`
+	Login    string             `edgedb:"login" json:"login" binding:"required"`
+	Password string             `edgedb:"password" json:"-"`
 	Role     user_role.UserRole `edgedb:"role" json:"role" binding:"required"`
 	Verified bool               `edgedb:"verified" json:"verified" binding:"required"`
 	Person   people.Person      `edgedb:"identity" json:"identity" binding:"required"`
-} // @name UserPartial
-
-type User struct {
-	UserPartial `edgedb:"$inline" json:",inline"`
-	ID          edgedb.UUID `edgedb:"id" json:"-" binding:"required"`
-	Email       string      `edgedb:"email" json:"email" binding:"required"`
-	Login       string      `edgedb:"login" json:"login" binding:"required"`
-	Password    string      `edgedb:"password" json:"-"`
 } //@name User
-
-func (user *User) Partial() *UserPartial {
-	return &user.UserPartial
-}
 
 func (user *User) InnerUserInput() *InnerUserInput {
 	return &InnerUserInput{
@@ -60,14 +51,12 @@ func (user *User) InnerUserInput() *InnerUserInput {
 	}
 }
 
-func (user *User) SetActive(active bool) error {
+func (user *User) SetActive(db *edgedb.Client, active bool) error {
 	logrus.Infof("Activating account of %s %s (%s)",
 		user.Person.FirstName, user.Person.LastName, user.Email,
 	)
-	query := `update people::User
-		filter .email = <str>$1
-		set { verified := <bool>$0 };`
-	return db.Client().Execute(context.Background(), query, active, user.Email)
+	query := `update people::User filter .email = <str>$1 set { verified := <bool>$0 };`
+	return db.Execute(context.Background(), query, active, user.Email)
 }
 
 // Custom user marshaller that obfuscates password
@@ -77,10 +66,6 @@ func (user *User) MarshalJSON() ([]byte, error) {
 	return json.Marshal(u)
 }
 
-var userSelect = `select people::User {
-	id, login, email, verified, role, password, identity: { * }
-}`
-
 func find(db *edgedb.Client, query string, args ...interface{}) (*User, error) {
 	var user User
 	if err := db.QuerySingle(context.Background(), query, &user, args...); err != nil {
@@ -89,6 +74,7 @@ func find(db *edgedb.Client, query string, args ...interface{}) (*User, error) {
 	return &user, nil
 }
 
+// Returns currently authenticated user or edgedb.NoDataError if not authenticated
 func Current(db *edgedb.Client) (*User, error) {
 	query := `select people::User { * , identity: { * } }
 		filter .id = global current_user_id limit 1`
@@ -98,7 +84,7 @@ func Current(db *edgedb.Client) (*User, error) {
 // Find a user by UUID
 //
 // Returns edgedb.NoDataError if nothing matches
-func FindID(db *edgedb.Client, uuid uuid.UUID) (*User, error) {
+func FindID(db *edgedb.Client, uuid edgedb.UUID) (*User, error) {
 	query := `
 	select people::User { * , identity: { * } }
 		filter .id = <uuid>$0 limit 1`

@@ -147,7 +147,7 @@ const docTemplate = `{
         },
         "/logout": {
             "post": {
-                "description": "Log out currently authenticated user",
+                "description": "Log out currently authenticated user by revoking authentication token in cookies",
                 "consumes": [
                     "application/json"
                 ],
@@ -680,7 +680,7 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "202": {
+                    "200": {
                         "description": "Email was confirmed and account activated"
                     },
                     "400": {
