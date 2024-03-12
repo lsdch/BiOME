@@ -50,14 +50,11 @@ export function useForm<ItemInputType extends Record<string | symbol, any>, Item
   function submit() {
     loading.value = true
     submitRequest()
-      .then((item: ItemType) => {
-        emit("success", item)
-      })
+      .then((item: ItemType) => { emit("success", item) })
       ?.catch((error: ApiError) => {
         switch (error.status) {
           case HttpStatusCode.BadRequest:
             if (typeof error.body === 'object') {
-              console.log(error.body)
               errors.value = error.body
             }
             break
@@ -66,9 +63,7 @@ export function useForm<ItemInputType extends Record<string | symbol, any>, Item
             break
         }
       })
-      .finally(() => {
-        loading.value = false
-      })
+      .finally(() => { loading.value = false })
   }
 
   return { errors, loading, submit, errorMsgs }

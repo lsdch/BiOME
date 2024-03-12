@@ -8,6 +8,7 @@ import (
 	"github.com/golang-jwt/jwt"
 )
 
+// Generates a session token for an authenticated user
 func GenerateToken(payload interface{}, lifetime time.Duration) (string, error) {
 	config := config.Get()
 

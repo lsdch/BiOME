@@ -22,6 +22,7 @@ func (vErr InputValidationError) Error() string {
 	return vErr.ErrString
 }
 
+// Transforms [validator.ValidationErrors] to a slice of richer [InputValidationError].
 func InputValidationErrors(errors validator.ValidationErrors) []InputValidationError {
 	out := make([]InputValidationError, len(errors))
 	for i, err := range errors {
@@ -37,8 +38,10 @@ func InputValidationErrors(errors validator.ValidationErrors) []InputValidationE
 	return out
 }
 
+// Validation errors indexed by JSON field name
 type FieldErrors map[string][]InputValidationError // @name FieldErrors
 
+// Indexes validation errors by JSON field name
 func ValidationErrorsByField(errors []InputValidationError) FieldErrors {
 	indexed_errors := make(map[string][]InputValidationError)
 	for _, err := range errors {
@@ -47,6 +50,7 @@ func ValidationErrorsByField(errors []InputValidationError) FieldErrors {
 	return indexed_errors
 }
 
+// Custom error messages for some built-in validation tags
 func fieldErrorMsg(err validator.FieldError) string {
 	switch ValidationTag(err.Tag()) {
 	case Required:

@@ -12,8 +12,6 @@ import (
 	"go/format"
 	"os"
 	"text/template"
-
-	"github.com/sirupsen/logrus"
 )
 
 //go:embed route_methods.go.tmpl
@@ -60,7 +58,6 @@ func generateWrapperCode(file *os.File, methods []string) {
 		fmt.Println("Error formatting code:", err)
 		return
 	}
-	logrus.Debug(formattedCode)
 
 	// Write the formatted code back to the file
 	file.Truncate(0)
