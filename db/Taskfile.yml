@@ -1,0 +1,58 @@
+version: "3"
+
+vars:
+  TEST_DB_NAME: testing
+
+tasks:
+  install:
+    cmds: [curl https://sh.edgedb.com --proto '=https' -sSf1 | sh]
+    status: [command -v edgedb >/dev/null 2>&1]
+
+  init:
+    dir: ..
+    interactive: true
+    cmds:
+      - edgedb project init
+      - edgedb database create {{.TEST_DB_NAME}}
+      - edgedb migrate -d {{.TEST_DB_NAME}}
+      - edgedb project info
+      - edgedb list databases
+    status: [edgedb project info]
+    deps: [install]
+    run: once
+
+  seed:
+    cmds:
+      - cmd: echo "Seeding database..."
+        silent: true
+      - go run ./seeds/main.go
+    deps: [migrate]
+
+  migration:
+    dir: ..
+    interactive: true
+    cmd: edgedb migration create
+
+  migrate-dev:
+    dir: ..
+    internal: true
+    cmd: edgedb migrate
+    deps: [init]
+
+  migrate-test:
+    dir: ..
+    internal: true
+    cmd: edgedb migrate -d {{.TEST_DB_NAME}}
+    deps: [init]
+
+  migrate:
+    dir: ..
+    deps: [migrate-dev, migrate-test]
+
+  reset:
+    dir: ..
+    prompt: This will wipe all data in your dev database and re-run migrations from scratch. Continue?
+    cmds:
+      - edgedb database wipe
+      - task: migrate
+      - task: seed

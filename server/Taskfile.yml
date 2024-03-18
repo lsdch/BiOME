@@ -1,0 +1,29 @@
+version: 3
+
+includes:
+  db:
+    taskfile: ../db
+    dir: ../db
+
+tasks:
+  install-linter:
+    internal: true
+    cmd: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.56.2
+    status: [command -v golangci-lint >/dev/null 2>&1]
+
+  install-air:
+    internal: true
+    cmd: go install github.com/cosmtrek/air@latest
+    status: [command -v air >/dev/null 2>&1]
+
+  install:
+    cmd: go get
+    deps: [install-linter, install-air]
+
+  start:
+    deps: [db:init, install]
+    cmds: [air]
+
+  lint:
+    cmd: golangci-lint run --fast --print-issued-lines=false --out-format=colored-line-number --issues-exit-code=0
+    deps: [install-linter]

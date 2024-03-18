@@ -1,0 +1,15 @@
+version: "3"
+
+tasks:
+  install-pnpm:
+    internal: true
+    cmd: wget -qO- https://get.pnpm.io/install.sh | sh -
+    status: [command -v pnpm >/dev/null 2>&1]
+
+  install:
+    deps: [install-pnpm]
+    cmd: pnpm i
+
+  start:
+    deps: [install-client]
+    cmd: pnpm dev --host

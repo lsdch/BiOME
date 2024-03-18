@@ -1,0 +1,28 @@
+version: "3"
+
+vars:
+  TEST_DB_NAME: testing
+
+includes:
+  db:
+    taskfile: ./db
+    dir: ./db
+  client:
+    taskfile: ./client
+    dir: ./client
+  server:
+    taskfile: ./server
+    dir: ./server
+
+output: group
+
+tasks:
+  setup:
+    cmds:
+      - task: db:seed
+    deps:
+      - server:install
+      - task: client:install
+        silent: true
+  lint:
+    deps: [server:lint]
