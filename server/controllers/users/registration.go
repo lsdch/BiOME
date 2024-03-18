@@ -1,8 +1,10 @@
 package accounts
 
 import (
-	"darco/proto/models/users"
+	"darco/proto/models/people"
+	users "darco/proto/models/people"
 	_ "darco/proto/models/validations"
+	"fmt"
 	"net/http"
 
 	"github.com/edgedb/edgedb-go"
@@ -19,9 +21,10 @@ import (
 // @Success 202 "User created and waiting for email verification"
 // @Failure 400 {object} validations.FieldErrors
 // @Router /users/register [post]
-// @Param data body users.UserInput true "User informations"
+// @Param data body people.PendingUserRequestInput true "User informations"
+// @Param redirect query string false "Path to redirect to when email is successfully confirmed"
 func Register(ctx *gin.Context, db *edgedb.Client) {
-	var newUser users.UserInput
+	var newUser people.PendingUserRequestInput
 	if err := ctx.ShouldBindJSON(&newUser); err != nil {
 		ctx.Error(err)
 		return
@@ -30,18 +33,25 @@ func Register(ctx *gin.Context, db *edgedb.Client) {
 	logrus.Infof("Attempting to create account for %s %s (%s)",
 		newUser.Person.FirstName,
 		newUser.Person.LastName,
-		newUser.Email,
+		newUser.User.Email,
 	)
 
-	user, err := newUser.Register(db)
+	pending, err := newUser.Register(db)
 	if err != nil {
 		ctx.AbortWithError(http.StatusBadRequest, err)
 		return
 	}
 
-	target := newTokenURL(ctx, emailConfirmationTokenPath)
-	user.SendConfirmationEmail(db, target)
-
+	target := confirmEmailURL(ctx)
+	if err := pending.User.SendConfirmationEmail(db, target); err != nil {
+		msg := fmt.Errorf(
+			"Failed to send account confirmation email to '%s'. This is likely to be a server configuration error.",
+			newUser.User.Email,
+		)
+		logrus.Errorf("%s Error: %v", msg, err)
+		ctx.AbortWithError(http.StatusInternalServerError, msg)
+		return
+	}
 	ctx.Status(http.StatusAccepted)
 }
 
@@ -62,6 +72,7 @@ const (
 // @Failure 500 "Server error"
 // @Router /users/confirm [get]
 // @Param token query string true "Confirmation token"
+// @Param redirect query string false "Path to redirect to on success"
 func ConfirmEmail(ctx *gin.Context, db *edgedb.Client) {
 	token := ctx.Query("token")
 	logrus.Infof("Received email confirmation token: %s", token)
@@ -72,17 +83,24 @@ func ConfirmEmail(ctx *gin.Context, db *edgedb.Client) {
 		return
 	}
 
-	if user.Verified {
+	if user.EmailConfirmed {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, AlreadyVerified)
 		return
 	}
 
-	if err := user.SetActive(db, true); err != nil {
+	if err := user.SetEmailConfirmed(db, true); err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}
 
-	startUserSession(ctx, user)
+	if user.IsActive {
+		startUserSession(ctx, user)
+	}
+	if redirect := ctx.Param("redirect"); redirect != "" {
+		ctx.Redirect(http.StatusOK, redirect)
+	} else {
+		ctx.Status(http.StatusOK)
+	}
 }
 
 type ResendConfirmationError string // @name ResendConfirmationError
@@ -102,6 +120,7 @@ const (
 // @Failure 400 {object} ResendConfirmationError
 // @Router /users/confirm/resend [post]
 // @Param data body users.UserCredentials true "User informations"
+// @Param redirect query string false "Redirect to path on confirmation"
 func ResendConfirmation(ctx *gin.Context, db *edgedb.Client) {
 	var creds users.UserCredentials
 	if err := ctx.ShouldBindJSON(&creds); err != nil {
@@ -119,7 +138,7 @@ func ResendConfirmation(ctx *gin.Context, db *edgedb.Client) {
 		)
 		return
 	}
-	if user.Verified {
+	if user.EmailConfirmed {
 		ctx.AbortWithStatusJSON(
 			http.StatusBadRequest,
 			ResendAlreadyVerified,
@@ -127,8 +146,9 @@ func ResendConfirmation(ctx *gin.Context, db *edgedb.Client) {
 		return
 	}
 
-	target := newTokenURL(ctx, emailConfirmationTokenPath)
-	if err := user.SendConfirmationEmail(db, target); err != nil {
+	tokenURL := confirmEmailURL(ctx)
+
+	if err := user.SendConfirmationEmail(db, tokenURL); err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return
 	}

@@ -2,4 +2,4 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type UserRole = 'Guest' | 'Contributor' | 'ProjectMember' | 'Admin';
+export type UserRole = 'Visitor' | 'Contributor' | 'ProjectMember' | 'Admin';

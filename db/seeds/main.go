@@ -60,6 +60,10 @@ func seedTaxonomyGBIF() error {
 		func(p *gbif.ImportProcess) {
 			total = p.Imported
 			bar.Set(p.Imported)
+			if p.Error != nil {
+				bar.Describe(fmt.Sprintf("%+v", p))
+				logrus.Fatalf("Failed to import taxonomy: %v", p.Error)
+			}
 		})
 	bar.Clear()
 

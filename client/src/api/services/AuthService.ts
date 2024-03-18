@@ -4,9 +4,9 @@
 /* eslint-disable */
 import type { EmailInput } from '../models/EmailInput';
 import type { PasswordInput } from '../models/PasswordInput';
+import type { PendingUserRequestInput } from '../models/PendingUserRequestInput';
 import type { TokenResponse } from '../models/TokenResponse';
 import type { UserCredentials } from '../models/UserCredentials';
-import type { UserInput } from '../models/UserInput';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
 import { request as __request } from '../core/request';
@@ -177,7 +177,7 @@ export class AuthService {
      * @throws ApiError
      */
     public static registerUser(
-        data: UserInput,
+        data: PendingUserRequestInput,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',

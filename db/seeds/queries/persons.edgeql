@@ -4,7 +4,6 @@ for item in json_array_unpack(data) union (
   insert Person {
     first_name := <str>item['first_name'],
     last_name := <str>item['last_name'],
-    middle_names := <str>json_get(item, 'middle_names') ?? {},
     alias := <str>json_get(item, 'alias') ?? {},
     comment := <str>json_get(item, 'comment') ?? {},
     institutions := (

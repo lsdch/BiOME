@@ -3,11 +3,12 @@ package email
 import (
 	"bytes"
 	"crypto/tls"
-	"darco/proto/config"
+	"darco/proto/models/settings"
 	"html/template"
 	"sync"
 
 	"github.com/k3a/html2text"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/gomail.v2"
 )
 
@@ -44,19 +45,27 @@ func LoadTemplates(pattern string) (err error) {
 	return
 }
 
-func Send(config *config.EmailConfig, email *EmailData) (err error) {
+func AdminEmailAddress() string {
+	// DarCo Admin <admin@darco.instance.edu>
+	logrus.Fatalf("Not implemented")
+	return ""
+}
+
+func Send(from string, email *EmailData) (err error) {
 	body, err := email.Body()
 	if err != nil {
 		return err
 	}
+
+	settings := settings.Get().Email
 	m := gomail.NewMessage()
-	m.SetHeader("From", config.From)
+	m.SetHeader("From", from)
 	m.SetHeader("To", email.To)
 	m.SetHeader("Subject", email.Subject)
 	m.SetBody("text/html", body.String())
 	m.AddAlternative("text/plain", html2text.HTML2Text(body.String()))
 
-	dialer := gomail.NewDialer(config.Host, config.Port, config.User, config.Pass)
+	dialer := gomail.NewDialer(settings.Host, int(settings.Port), settings.User, settings.Password)
 	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	return dialer.DialAndSend(m)

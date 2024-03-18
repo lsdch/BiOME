@@ -61,6 +61,9 @@ type ImportProcess struct {
 
 func makeRequest(strURL string, offset int) (body []byte, err error) {
 	URL, err := url.ParseRequestURI(strURL)
+	if err != nil {
+		return
+	}
 	params := url.Values{}
 	params.Set("limit", fmt.Sprint(PAGE_SIZE))
 	params.Set("offset", fmt.Sprint(offset))
@@ -68,7 +71,7 @@ func makeRequest(strURL string, offset int) (body []byte, err error) {
 	strURL = fmt.Sprint(URL)
 	response, err := http.Get(strURL)
 	if err != nil {
-		return nil, err
+		return
 	}
 	defer response.Body.Close()
 	if response.StatusCode >= http.StatusBadRequest {

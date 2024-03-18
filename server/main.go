@@ -1,7 +1,6 @@
 package main
 
 import (
-	"darco/proto/config"
 	"darco/proto/controllers/institution"
 	country "darco/proto/controllers/location"
 	"darco/proto/controllers/person"
@@ -46,14 +45,15 @@ import (
 // @license.url http://www.apache.org/licenses/LICENSE-2.0.html
 // @host localhost:8080
 // @schemes http
-func setupRouter(config *config.Config) *gin.Engine {
+func setupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.Use(mw.ErrorHandler)
 	r.Use(mw.AuthenticationMiddleware)
 
 	// Swagger docs
-	api := r.Group(config.BasePath)
+	api := r.Group("/api/v1")
+
 	api.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	country_api := router.Wrap(api.Group("/countries"), router.WithDB)
@@ -120,15 +120,15 @@ func setupRouter(config *config.Config) *gin.Engine {
 }
 
 // Loads config from .env file
-func loadConfig() *config.Config {
-	config, err := config.LoadConfig(".")
-	if err != nil {
-		log.Fatalf("Failed to load configuration file : %v", err)
-	} else {
-		log.Infof("Config loaded : %+v", config)
-	}
-	return config
-}
+// func loadConfig() *config.Config {
+// 	config, err := config.LoadConfig(".")
+// 	if err != nil {
+// 		log.Fatalf("Failed to load configuration file : %v", err)
+// 	} else {
+// 		log.Infof("Config loaded : %+v", config)
+// 	}
+// 	return config
+// }
 
 func setupValidators() {
 	if engine, ok := binding.Validator.Engine().(*validator.Validate); ok {
@@ -153,12 +153,12 @@ func main() {
 	}
 
 	setupValidators()
-	config := loadConfig()
+	// config := loadConfig()
 
 	if err := email.LoadTemplates("templates/**"); err != nil {
 		log.Fatalf("Failed to load email templates: %v", err)
 	}
-	r := setupRouter(config)
+	r := setupRouter()
 	r.Run(":8080")
 	defer db.Client().Close()
 }

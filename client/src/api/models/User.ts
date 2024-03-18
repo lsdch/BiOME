@@ -2,13 +2,17 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Person } from './Person';
+import type { Meta } from './Meta';
+import type { OptionalPerson } from './OptionalPerson';
 import type { UserRole } from './UserRole';
 export type User = {
     email: string;
-    identity: Person;
+    email_confirmed: boolean;
+    id: string;
+    identity: OptionalPerson;
+    is_active: boolean;
     login: string;
+    meta?: Meta;
     role: UserRole;
-    verified: boolean;
 };
 

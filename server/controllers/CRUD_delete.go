@@ -8,11 +8,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type ItemDelete[ID any, Item any] func(db *edgedb.Client, id ID) (Item, error)
+type ItemDelete[ID any, Item any] func(db edgedb.Executor, id ID) (Item, error)
 
 func delete[ID any, Item any](
 	ctx *gin.Context,
-	db *edgedb.Client,
+	db edgedb.Executor,
 	delete ItemDelete[ID, Item],
 	bindID IDParser[ID],
 ) {
@@ -34,7 +34,7 @@ func delete[ID any, Item any](
 // Responds with the deleted item when successful
 func DeleteByCode[Item any](
 	ctx *gin.Context,
-	db *edgedb.Client,
+	db edgedb.Executor,
 	deleteItem ItemDelete[string, Item],
 ) {
 	delete(ctx, db, deleteItem, ParseCodeURI)
@@ -45,7 +45,7 @@ func DeleteByCode[Item any](
 // Responds with the deleted item when successful
 func DeleteByID[Item any](
 	ctx *gin.Context,
-	db *edgedb.Client,
+	db edgedb.Executor,
 	deleteItem ItemDelete[edgedb.UUID, Item],
 ) {
 	delete(ctx, db, deleteItem, ParseUUIDfromURI)

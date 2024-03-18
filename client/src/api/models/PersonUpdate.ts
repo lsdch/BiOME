@@ -12,6 +12,5 @@ export type PersonUpdate = {
      */
     institutions?: Array<string>;
     last_name?: string;
-    middle_names?: string;
 };
 

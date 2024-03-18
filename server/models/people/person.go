@@ -4,11 +4,9 @@ import (
 	"context"
 	"darco/proto/db"
 	"darco/proto/models"
-	"darco/proto/models/users/user_role"
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"regexp"
 	"strings"
 
 	"github.com/edgedb/edgedb-go"
@@ -16,73 +14,26 @@ import (
 )
 
 type PersonInner struct {
-	FirstName string `json:"first_name" edgedb:"first_name" binding:"required,alphaunicode,min=2,max=32"`
-	LastName  string `json:"last_name" edgedb:"last_name" binding:"required,alphaunicode,min=2,max=32"`
-}
-
-type PersonInput struct {
-	PersonInner
-	MiddleNames  *string  `json:"middle_names,omitempty" edgedb:"middle_names" binding:"omitnil,alphaunicode,max=32"`
-	Institutions []string `json:"institutions" binding:"omitempty,exist_all=people::Institution.code"`
-	Alias        *string  `json:"alias,omitempty" binding:"unique_str=people::Person.alias"`
-	Contact      *string  `json:"contact,omitempty" binding:"omitnil,nullemail"`
-	Comment      *string  `json:"comment,omitempty"`
-} // @name PersonInput
-
-func (p *PersonInput) generateAlias() string {
-	middle_initials := ""
-	middle_names := *p.MiddleNames
-	if len(middle_names) > 0 {
-		re := regexp.MustCompile(`\W`)
-		split := re.Split(middle_names, -1)
-		for _, word := range split {
-			middle_initials = middle_initials + string(word[0])
-		}
-	}
-	first_initial := ""
-	if len(p.FirstName) > 0 {
-		first_initial = string(p.FirstName[0])
-	}
-
-	alias := strings.ToLower(fmt.Sprintf("%s%s%s", first_initial, middle_initials, p.LastName))
-
-	var conflicts []string
-	query := `select (select people::Person filter str_trim(.alias, "0123456789") = <str>$0).alias`
-	if err := db.Client().Query(context.Background(), query, &conflicts, alias); err != nil {
-		logrus.Errorf("Error while checking for Person.alias duplicates: %v", err)
-		return ""
-	}
-	if len(conflicts) > 0 {
-		alias = alias + fmt.Sprint(len(conflicts))
-	}
-	return alias
-}
-
-func (p *PersonInput) UnmarshalJSON(data []byte) error {
-	type TmpInput PersonInput
-	if err := json.Unmarshal(data, (*TmpInput)(p)); err != nil {
-		return err
-	}
-	if p.Alias == nil {
-		alias := p.generateAlias()
-		logrus.Infof("Generated alias %s for person %+v", alias, *p)
-		p.Alias = &alias
-	}
-	return nil
+	FirstName string `json:"first_name" edgedb:"first_name" binding:"required,alphaunicode,min=2,max=32" faker:"first_name"`
+	LastName  string `json:"last_name" edgedb:"last_name" binding:"required,alphaunicode,min=2,max=32" faker:"last_name"`
 }
 
 type Person struct {
 	PersonInner  `edgedb:"$inline"`
-	MiddleNames  edgedb.OptionalStr         `json:"middle_names,omitempty" edgedb:"middle_names"`
-	Institutions []Institution              `json:"institutions" edgedb:"institutions"`
-	ID           edgedb.UUID                `edgedb:"id" json:"id" binding:"required"`
-	FullName     string                     `json:"full_name" edgedb:"full_name" binding:"required"`
-	Alias        string                     `json:"alias" edgedb:"alias" binding:"required"`
-	Role         user_role.OptionalUserRole `json:"role" edgedb:"role"`
-	Contact      edgedb.OptionalStr         `json:"contact" edgedb:"contact"`
-	Meta         models.Meta                `json:"meta" edgedb:"meta"`
-	Comment      edgedb.OptionalStr         `json:"comment" edgedb:"comment"`
+	Institutions []Institution      `json:"institutions" edgedb:"institutions"`
+	ID           edgedb.UUID        `edgedb:"id" json:"id" binding:"required"`
+	FullName     string             `json:"full_name" edgedb:"full_name" binding:"required"`
+	Alias        string             `json:"alias" edgedb:"alias" binding:"required"`
+	Role         OptionalUserRole   `json:"role" edgedb:"role"`
+	Contact      edgedb.OptionalStr `json:"contact" edgedb:"contact"`
+	Meta         models.Meta        `json:"meta" edgedb:"meta"`
+	Comment      edgedb.OptionalStr `json:"comment" edgedb:"comment"`
 } // @name Person
+
+type OptionalPerson struct {
+	edgedb.Optional
+	Person `edgedb:"$inline" json:",inline"`
+} // @name OptionalPerson
 
 // func PersonStructLevelValidation(sl validator.StructLevel) {
 // 	person := sl.Current().Interface().(PersonInput)
@@ -102,32 +53,81 @@ type Person struct {
 // 	}
 // }
 
-func FindPerson(db *edgedb.Client, id edgedb.UUID) (person Person, err error) {
+func FindPerson(db edgedb.Executor, id edgedb.UUID) (person Person, err error) {
 	query := `select people::Person { *, institutions: { * }, meta: { * } } filter .id = <uuid>$0;`
 	err = db.QuerySingle(context.Background(), query, &person, id)
 	return person, err
 }
 
-func ListPersons(db *edgedb.Client) (people []Person, err error) {
+func ListPersons(db edgedb.Executor) (people []Person, err error) {
 	query := `select people::Person { *, institutions: { * }, meta: { * } } order by .last_name;`
 	err = db.Query(context.Background(), query, &people)
 	return
 }
 
-func DeletePerson(db *edgedb.Client, id edgedb.UUID) (deleted Person, err error) {
+func DeletePerson(db edgedb.Executor, id edgedb.UUID) (deleted Person, err error) {
 	logrus.Infof("Deleting person: %v", id)
 	query := `select(
-		delete people::Person filter .id = <uuid>$0
+		delete (<people::Person><uuid>$0)
 	){ *, institutions: { * }, meta:{ * }};`
 	err = db.QuerySingle(context.Background(), query, &deleted, id)
 	return
 }
 
+func (person Person) Delete(db edgedb.Executor) (Person, error) {
+	return DeletePerson(db, person.ID)
+}
+
+type PersonInput struct {
+	PersonInner
+	Institutions []string `json:"institutions" binding:"omitempty,exist_all=people::Institution.code" faker:"len=10,slice_len=2"`
+	Alias        *string  `json:"alias,omitempty" binding:"unique_str=people::Person.alias" faker:"-"`
+	Contact      *string  `json:"contact,omitempty" binding:"omitnil,nullemail" faker:"email"`
+	Comment      *string  `json:"comment,omitempty" faker:"sentence"`
+} // @name PersonInput
+
+func (p *PersonInput) generateAlias() *string {
+	first_initial := ""
+	if len(p.FirstName) > 0 {
+		first_initial = string(p.FirstName[0])
+	}
+
+	alias := strings.ToLower(fmt.Sprintf("%s%s", first_initial, p.LastName))
+
+	var conflicts int64
+	query := `select (count (people::Person
+			filter str_trim(.alias, "0123456789") = <str>$0
+		))`
+	if err := db.Client().QuerySingle(context.Background(), query, &conflicts, alias); err != nil {
+		logrus.Errorf("Error while checking for Person.alias duplicates: %v", err)
+		return nil
+	}
+	if conflicts > 0 {
+		alias = alias + fmt.Sprint(conflicts)
+	}
+	return &alias
+}
+
+func (p *PersonInput) UnmarshalJSON(data []byte) error {
+	type TmpInput PersonInput
+	if err := json.Unmarshal(data, (*TmpInput)(p)); err != nil {
+		return err
+	}
+	if p.Alias == nil {
+		p.Alias = p.generateAlias()
+		logrus.Infof("Generated alias '%s' for person %+v", *p.Alias, *p)
+	}
+	return nil
+}
+
 //go:embed queries/create_person.edgeql
 var personCreateQuery string
 
-func (person PersonInput) Create(db *edgedb.Client) (created Person, err error) {
+func (person PersonInput) Create(db edgedb.Executor) (created Person, err error) {
 	logrus.Infof("Creating person %+v", person)
+	if person.Alias == nil || *person.Alias == "" {
+		person.Alias = person.generateAlias()
+	}
 	args, _ := json.Marshal(person)
 	err = db.QuerySingle(context.Background(), personCreateQuery, &created, args)
 	return created, err
@@ -135,7 +135,6 @@ func (person PersonInput) Create(db *edgedb.Client) (created Person, err error) 
 
 type PersonUpdate struct {
 	FirstName    *string   `json:"first_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32"`
-	MiddleNames  *string   `json:"middle_names,omitempty" edgedb:"middle_names" binding:"omitnil,nullalphaunicode,max=32"`
 	LastName     *string   `json:"last_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32"`
 	Contact      *string   `json:"contact,omitempty" binding:"omitnil,nullemail"`
 	Institutions *[]string `json:"institutions,omitempty" binding:"omitnil,exist_all=people::Institution.code"` // Institution codes
@@ -146,7 +145,7 @@ type PersonUpdate struct {
 //go:embed queries/update_person.edgeql
 var personUpdateQuery string
 
-func (person PersonUpdate) Update(db *edgedb.Client, id edgedb.UUID) (uuid edgedb.UUID, err error) {
+func (person PersonUpdate) Update(db edgedb.Executor, id edgedb.UUID) (uuid edgedb.UUID, err error) {
 	logrus.Infof("Updating person %+v", person)
 	args, _ := json.Marshal(person)
 	err = db.Execute(context.Background(), personUpdateQuery, id, args)

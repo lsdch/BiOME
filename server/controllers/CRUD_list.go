@@ -7,9 +7,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type FetchItemList[Item any] func(db *edgedb.Client) ([]Item, error)
+type FetchItemList[Item any] func(db edgedb.Executor) ([]Item, error)
 
-func ListItems[Item any](ctx *gin.Context, db *edgedb.Client, listFn FetchItemList[Item]) {
+func ListItems[Item any](ctx *gin.Context, db edgedb.Executor, listFn FetchItemList[Item]) {
 	items, err := listFn(db)
 	if err != nil {
 		ctx.Error(err)

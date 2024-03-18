@@ -14,7 +14,7 @@ import (
 //   - `Created` type is the type of the item once created
 func CreateItem[Item models.Creatable[Created], Created any](
 	ctx *gin.Context,
-	db *edgedb.Client,
+	db edgedb.Executor,
 ) {
 	var item Item
 	if err := ctx.ShouldBindJSON(&item); err != nil {

@@ -1,7 +1,7 @@
 package accounts
 
 import (
-	"darco/proto/models/users"
+	users "darco/proto/models/people"
 	"darco/proto/models/validations"
 	"errors"
 	"net/http"
@@ -115,7 +115,7 @@ func RequestPasswordReset(ctx *gin.Context, db *edgedb.Client) {
 		return
 	}
 
-	tokenURL := newTokenURL(ctx, passwordResetTokenPath)
+	tokenURL := passwordResetURL(ctx)
 	if err = user.RequestPasswordReset(db, tokenURL); err != nil {
 		ctx.Error(err)
 		return

@@ -14,13 +14,13 @@
     }
   },
   {
-    "login": "dev.member",
-    "email": "dev.member@mockemail.com",
-    "password": "dev.member",
-    "role": "ProjectMember",
+    "login": "dev.maintainer",
+    "email": "dev.maintainer@mockemail.com",
+    "password": "dev.maintainer",
+    "role": "Maintainer",
     "identity": {
       "first_name": "Mock",
-      "last_name": "Member",
+      "last_name": "Maintainer",
       "institutions": [
         "DEVTEAM"
       ]
@@ -42,18 +42,18 @@
     "comment": "A test account with contributor privileges."
   },
   {
-    "login": "dev.guest",
-    "email": "dev.guest@mockemail.com",
-    "password": "dev.guest",
-    "role": "Guest",
+    "login": "dev.visitor",
+    "email": "dev.visitor@mockemail.com",
+    "password": "dev.visitor",
+    "role": "Visitor",
     "identity": {
       "first_name": "Mock",
-      "last_name": "Guest",
+      "last_name": "Visitor",
       "institutions": [
         "DEVTEAM"
       ]
     },
-    "comment": "A test account with guest privileges."
+    "comment": "A test account with visitor privileges."
   },
   {
     "login": "fmalard",

@@ -1,7 +1,6 @@
 [
   {
-    "first_name": "Monkey",
-    "middle_names": "D.",
+    "first_name": "Monkey D.",
     "last_name": "Luffy",
     "institutions": [
       "MELES"
@@ -10,7 +9,6 @@
   },
   {
     "first_name": "Edward",
-    "middle_names": "",
     "last_name": "Elric",
     "institutions": [
       "MELES"
@@ -18,7 +16,6 @@
   },
   {
     "first_name": "Edwy",
-    "middle_names": "",
     "last_name": "Elric",
     "alias": "eelric1",
     "institutions": [
@@ -27,15 +24,13 @@
   },
   {
     "first_name": "Alphonse",
-    "middle_names": "",
     "last_name": "Elric",
     "institutions": [
       "MELES"
     ]
   },
   {
-    "first_name": "Portgas",
-    "middle_names": "D.",
+    "first_name": "Portgas D.",
     "last_name": "Ace",
     "institutions": [
       "MELES"

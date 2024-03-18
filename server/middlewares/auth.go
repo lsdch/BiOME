@@ -1,9 +1,8 @@
 package middlewares
 
 import (
-	"darco/proto/config"
 	"darco/proto/db"
-	"darco/proto/models/users"
+	"darco/proto/models/people"
 	"darco/proto/services/tokens"
 	"strings"
 
@@ -12,16 +11,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// Gin context key where the current user is stored as a pointer, if any
-const CTX_CURRENT_USER_KEY = "current_user"
-
-// Gin context key where the database client is stored as a pointer
-const CTX_DATABASE_KEY = "db"
+const (
+	// Gin context key where the current user is stored as a pointer, if any
+	CTX_CURRENT_USER_KEY = "current_user"
+	// Gin context key where the database client is stored as a pointer
+	CTX_DATABASE_KEY = "db"
+)
 
 func AuthenticationMiddleware(ctx *gin.Context) {
 
 	var access_token string
-	cookie, err := ctx.Cookie("token")
+	cookie, err := ctx.Cookie(tokens.AUTH_TOKEN_COOKIE)
 
 	ctx.Set(CTX_CURRENT_USER_KEY, nil)
 	ctx.Set(CTX_DATABASE_KEY, db.Client())
@@ -39,7 +39,7 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	sub, err := tokens.ValidateToken(config.Get(), access_token)
+	sub, err := tokens.ValidateToken(access_token)
 	if err != nil {
 		logrus.Debugf("Auth middleware: Invalid token received")
 		return
@@ -51,7 +51,7 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	current_user, err := users.FindID(db.Client(), userID)
+	current_user, err := people.FindID(db.Client(), userID)
 	if err != nil {
 		logrus.Errorf("Auth middleware: Token was validated but does not match an existing user.")
 		return

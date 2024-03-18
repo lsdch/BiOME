@@ -3,7 +3,7 @@ package router
 import (
 	"darco/proto/db"
 	"darco/proto/middlewares"
-	"darco/proto/models/users"
+	"darco/proto/models/people"
 	"net/http"
 
 	"github.com/edgedb/edgedb-go"
@@ -41,13 +41,13 @@ func WithDB(handler func(*gin.Context, *edgedb.Client)) gin.HandlerFunc {
 }
 
 // Wraps a handler that requires an authenticated user to provide it as an argument.
-func WithUser(handler func(*gin.Context, *edgedb.Client, *users.User)) gin.HandlerFunc {
+func WithUser(handler func(*gin.Context, *edgedb.Client, *people.User)) gin.HandlerFunc {
 	return WithDB(func(ctx *gin.Context, db *edgedb.Client) {
 		user, ok := ctx.Get(middlewares.CTX_CURRENT_USER_KEY)
 		if !ok || user == nil {
 			ctx.AbortWithStatusJSON(http.StatusForbidden, "Not authenticated")
 			return
 		}
-		handler(ctx, db, user.(*users.User))
+		handler(ctx, db, user.(*people.User))
 	})
 }

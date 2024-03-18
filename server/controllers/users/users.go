@@ -1,7 +1,7 @@
 package accounts
 
 import (
-	"darco/proto/models/users"
+	users "darco/proto/models/people"
 	"net/http"
 
 	"github.com/edgedb/edgedb-go"

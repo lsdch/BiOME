@@ -177,14 +177,53 @@ definitions:
       created:
         example: "2023-09-01T16:41:10.921097+00:00"
         type: string
+      created_by:
+        $ref: '#/definitions/models.UserShortIdentity'
       last_updated:
         example: "2023-09-02T20:39:10.218057+00:00"
         type: string
       modified:
         example: "2023-09-02T20:39:10.218057+00:00"
         type: string
+      updated_by:
+        $ref: '#/definitions/models.UserShortIdentity'
     required:
     - created
+    type: object
+  OptionalPerson:
+    properties:
+      alias:
+        type: string
+      comment:
+        type: string
+      contact:
+        type: string
+      first_name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      institutions:
+        items:
+          $ref: '#/definitions/Institution'
+        type: array
+      last_name:
+        maxLength: 32
+        minLength: 2
+        type: string
+      meta:
+        $ref: '#/definitions/Meta'
+      role:
+        $ref: '#/definitions/UserRole'
+    required:
+    - alias
+    - first_name
+    - full_name
+    - id
+    - last_name
     type: object
   PasswordInput:
     properties:
@@ -195,6 +234,29 @@ definitions:
     required:
     - password
     - password_confirmation
+    type: object
+  PendingUserRequestInput:
+    properties:
+      identity:
+        properties:
+          first_name:
+            maxLength: 32
+            minLength: 2
+            type: string
+          institution:
+            type: string
+          last_name:
+            maxLength: 32
+            minLength: 2
+            type: string
+        required:
+        - first_name
+        - last_name
+        type: object
+      motive:
+        type: string
+      user:
+        $ref: '#/definitions/UserInput'
     type: object
   Person:
     properties:
@@ -222,8 +284,6 @@ definitions:
         type: string
       meta:
         $ref: '#/definitions/Meta'
-      middle_names:
-        type: string
       role:
         $ref: '#/definitions/UserRole'
     required:
@@ -253,9 +313,6 @@ definitions:
         maxLength: 32
         minLength: 2
         type: string
-      middle_names:
-        maxLength: 32
-        type: string
     required:
     - first_name
     - last_name
@@ -282,28 +339,6 @@ definitions:
         maxLength: 32
         minLength: 2
         type: string
-      middle_names:
-        maxLength: 32
-        type: string
-    type: object
-  PersonUserInput:
-    properties:
-      contact:
-        type: string
-      first_name:
-        maxLength: 32
-        minLength: 2
-        type: string
-      last_name:
-        maxLength: 32
-        minLength: 2
-        type: string
-      middle_names:
-        maxLength: 32
-        type: string
-    required:
-    - first_name
-    - last_name
     type: object
   ResendConfirmationError:
     enum:
@@ -524,20 +559,28 @@ definitions:
     properties:
       email:
         type: string
+      email_confirmed:
+        type: boolean
+      id:
+        type: string
       identity:
-        $ref: '#/definitions/Person'
+        $ref: '#/definitions/OptionalPerson'
+      is_active:
+        type: boolean
       login:
         type: string
+      meta:
+        $ref: '#/definitions/Meta'
       role:
         $ref: '#/definitions/UserRole'
-      verified:
-        type: boolean
     required:
     - email
+    - email_confirmed
+    - id
     - identity
+    - is_active
     - login
     - role
-    - verified
     type: object
   UserCredentials:
     properties:
@@ -555,8 +598,6 @@ definitions:
       email:
         format: email
         type: string
-      identity:
-        $ref: '#/definitions/PersonUserInput'
       login:
         type: string
       password:
@@ -565,20 +606,19 @@ definitions:
         type: string
     required:
     - email
-    - identity
     - login
     - password
     - password_confirmation
     type: object
   UserRole:
     enum:
-    - Guest
+    - Visitor
     - Contributor
     - ProjectMember
     - Admin
     type: string
     x-enum-varnames:
-    - Guest
+    - Visitor
     - Contributor
     - ProjectMember
     - Admin
@@ -599,6 +639,13 @@ definitions:
       key:
         description: target GBIF taxon key
         type: integer
+    type: object
+  models.UserShortIdentity:
+    properties:
+      alias:
+        type: string
+      name:
+        type: string
     type: object
 info:
   contact:
@@ -1182,7 +1229,7 @@ paths:
         name: data
         required: true
         schema:
-          $ref: '#/definitions/UserInput'
+          $ref: '#/definitions/PendingUserRequestInput'
       produces:
       - application/json
       responses:

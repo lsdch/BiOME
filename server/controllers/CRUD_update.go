@@ -16,7 +16,7 @@ import (
 //   - `Updated` is the type of the item once updated
 func UpdateItem[ID any, Item models.Updatable[ID, Updated], Updated any](
 	ctx *gin.Context,
-	db *edgedb.Client,
+	db edgedb.Executor,
 	parseID IDParser[ID],
 	find models.ItemFinder[edgedb.UUID, Updated],
 ) {
@@ -49,7 +49,7 @@ func UpdateItem[ID any, Item models.Updatable[ID, Updated], Updated any](
 // Updates an item using its code
 func UpdateItemByCode[Item models.Updatable[string, Updated], Updated any](
 	ctx *gin.Context,
-	db *edgedb.Client,
+	db edgedb.Executor,
 	find models.ItemFinder[edgedb.UUID, Updated],
 ) {
 	UpdateItem[string, Item](ctx, db, ParseCodeURI, find)
@@ -58,7 +58,7 @@ func UpdateItemByCode[Item models.Updatable[string, Updated], Updated any](
 // Updates an item using its UUID
 func UpdateItemByUUID[Item models.Updatable[edgedb.UUID, Updated], Updated any](
 	ctx *gin.Context,
-	db *edgedb.Client,
+	db edgedb.Executor,
 	find models.ItemFinder[edgedb.UUID, Updated],
 ) {
 	UpdateItem[edgedb.UUID, Item](ctx, db, ParseUUIDfromURI, find)

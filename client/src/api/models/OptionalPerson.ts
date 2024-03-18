@@ -1,0 +1,20 @@
+/* generated using openapi-typescript-codegen -- do no edit */
+/* istanbul ignore file */
+/* tslint:disable */
+/* eslint-disable */
+import type { Institution } from './Institution';
+import type { Meta } from './Meta';
+import type { UserRole } from './UserRole';
+export type OptionalPerson = {
+    alias: string;
+    comment?: string;
+    contact?: string;
+    first_name: string;
+    full_name: string;
+    id: string;
+    institutions?: Array<Institution>;
+    last_name: string;
+    meta?: Meta;
+    role?: UserRole;
+};
+

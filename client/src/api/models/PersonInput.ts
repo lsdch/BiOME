@@ -9,6 +9,5 @@ export type PersonInput = {
     first_name: string;
     institutions?: Array<string>;
     last_name: string;
-    middle_names?: string;
 };
 

@@ -46,7 +46,7 @@ type TaxonSelect struct {
 	Children []TaxonDB `edgedb:"children" json:"children,omitempty"`
 } // @name TaxonWithRelatives
 
-func ListTaxa(db *edgedb.Client,
+func ListTaxa(db edgedb.Executor,
 	pattern string, rank TaxonRank, status TaxonStatus,
 ) ([]TaxonDB, error) {
 	var taxa = make([]TaxonDB, 0)
@@ -74,13 +74,13 @@ func ListTaxa(db *edgedb.Client,
 	return taxa, err
 }
 
-func ListAnchorTaxa(db *edgedb.Client) (taxa []TaxonDB, err error) {
+func ListAnchorTaxa(db edgedb.Executor) (taxa []TaxonDB, err error) {
 	query := "select taxonomy::Taxon { *, meta: { ** } } filter .anchor"
 	err = db.Query(context.Background(), query, &taxa)
 	return
 }
 
-func FindByID(db *edgedb.Client, id edgedb.UUID) (taxon TaxonSelect, err error) {
+func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonSelect, err error) {
 	query := `
 		select taxonomy::Taxon { *,
 			parent : { * , meta: { ** }},
@@ -92,7 +92,7 @@ func FindByID(db *edgedb.Client, id edgedb.UUID) (taxon TaxonSelect, err error) 
 	return taxon, err
 }
 
-func FindByCode(db *edgedb.Client, code string) (taxon TaxonSelect, err error) {
+func FindByCode(db edgedb.Executor, code string) (taxon TaxonSelect, err error) {
 	query := `
 		select taxonomy::Taxon { *,
 			parent : { * , meta: { ** }},
@@ -104,7 +104,7 @@ func FindByCode(db *edgedb.Client, code string) (taxon TaxonSelect, err error) {
 	return taxon, err
 }
 
-func Delete(db *edgedb.Client, code string) (taxon TaxonSelect, err error) {
+func Delete(db edgedb.Executor, code string) (taxon TaxonSelect, err error) {
 	query := `select (
 		delete taxonomy::Taxon filter .code = <str>$0
 	) { *,
@@ -118,7 +118,7 @@ func Delete(db *edgedb.Client, code string) (taxon TaxonSelect, err error) {
 //go:embed queries/create_taxon.edgeql
 var createTaxonCmd string
 
-func (taxon TaxonInput) Create(db *edgedb.Client) (created TaxonSelect, err error) {
+func (taxon TaxonInput) Create(db edgedb.Executor) (created TaxonSelect, err error) {
 	args, _ := json.Marshal(taxon)
 	err = db.QuerySingle(context.Background(), createTaxonCmd, &created, args)
 	return created, err
@@ -137,7 +137,7 @@ type TaxonUpdate struct {
 //go:embed queries/update_taxon.edgeql
 var updateTaxonCmd string
 
-func (taxon TaxonUpdate) Update(db *edgedb.Client, code string) (uuid edgedb.UUID, err error) {
+func (taxon TaxonUpdate) Update(db edgedb.Executor, code string) (uuid edgedb.UUID, err error) {
 	args, _ := json.Marshal(taxon)
 	err = db.QuerySingle(context.Background(), updateTaxonCmd, &uuid, code, args)
 	return uuid, err

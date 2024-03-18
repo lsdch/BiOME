@@ -24,19 +24,19 @@ type Institution struct {
 	Meta             models.Meta `json:"meta" edgedb:"meta"`
 } // @name Institution
 
-func FindInstitution(db *edgedb.Client, uuid edgedb.UUID) (inst Institution, err error) {
+func FindInstitution(db edgedb.Executor, uuid edgedb.UUID) (inst Institution, err error) {
 	query := "select people::Institution { *, people:{ * }, meta:{ * } } filter	.id = <uuid>$0;"
 	err = db.QuerySingle(context.Background(), query, &inst, uuid)
 	return inst, err
 }
 
-func ListInstitutions(db *edgedb.Client) (institutions []Institution, err error) {
+func ListInstitutions(db edgedb.Executor) (institutions []Institution, err error) {
 	query := `select people::Institution { *, people:{ * }, meta:{ * } } order by .code;`
 	err = db.Query(context.Background(), query, &institutions)
 	return
 }
 
-func DeleteInstitution(db *edgedb.Client, code string) (inst Institution, err error) {
+func DeleteInstitution(db edgedb.Executor, code string) (inst Institution, err error) {
 	query := `select(
 		delete people::Institution filter .code = <str>$0
 	) { *, people:{ * }, meta: { * }};`
@@ -47,7 +47,7 @@ func DeleteInstitution(db *edgedb.Client, code string) (inst Institution, err er
 //go:embed queries/create_institution.edgeql
 var institutionCreateQuery string
 
-func (inst InstitutionInput) Create(db *edgedb.Client) (created Institution, err error) {
+func (inst InstitutionInput) Create(db edgedb.Executor) (created Institution, err error) {
 	args, _ := json.Marshal(inst)
 	err = db.QuerySingle(context.Background(), institutionCreateQuery, &created, args)
 	return
@@ -63,13 +63,13 @@ type InstitutionUpdate struct {
 //go:embed queries/update_institution.edgeql
 var institutionUpdateQuery string
 
-func (inst InstitutionUpdate) Update(db *edgedb.Client, code string) (id edgedb.UUID, err error) {
+func (inst InstitutionUpdate) Update(db edgedb.Executor, code string) (id edgedb.UUID, err error) {
 	args, _ := json.Marshal(inst)
 	logrus.Debugf("Updating institution %s with %+v", code, inst)
 	err = db.QuerySingle(context.Background(), institutionUpdateQuery, &id, code, args)
 	return
 }
 
-func (inst InstitutionUpdate) Validate(db *edgedb.Client, code string) error {
+func (inst InstitutionUpdate) Validate(db edgedb.Executor, code string) error {
 	return nil
 }

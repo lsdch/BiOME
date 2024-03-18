@@ -15,7 +15,6 @@ export type Person = {
     institutions?: Array<Institution>;
     last_name: string;
     meta?: Meta;
-    middle_names?: string;
     role?: UserRole;
 };
 

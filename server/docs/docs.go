@@ -846,7 +846,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/UserInput"
+                            "$ref": "#/definitions/PendingUserRequestInput"
                         }
                     }
                 ],
@@ -1140,6 +1140,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2023-09-01T16:41:10.921097+00:00"
                 },
+                "created_by": {
+                    "$ref": "#/definitions/models.UserShortIdentity"
+                },
                 "last_updated": {
                     "type": "string",
                     "example": "2023-09-02T20:39:10.218057+00:00"
@@ -1147,6 +1150,58 @@ const docTemplate = `{
                 "modified": {
                     "type": "string",
                     "example": "2023-09-02T20:39:10.218057+00:00"
+                },
+                "updated_by": {
+                    "$ref": "#/definitions/models.UserShortIdentity"
+                }
+            }
+        },
+        "OptionalPerson": {
+            "type": "object",
+            "required": [
+                "alias",
+                "first_name",
+                "full_name",
+                "id",
+                "last_name"
+            ],
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "comment": {
+                    "type": "string"
+                },
+                "contact": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "institutions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Institution"
+                    }
+                },
+                "last_name": {
+                    "type": "string",
+                    "maxLength": 32,
+                    "minLength": 2
+                },
+                "meta": {
+                    "$ref": "#/definitions/Meta"
+                },
+                "role": {
+                    "$ref": "#/definitions/UserRole"
                 }
             }
         },
@@ -1162,6 +1217,39 @@ const docTemplate = `{
                 },
                 "password_confirmation": {
                     "type": "string"
+                }
+            }
+        },
+        "PendingUserRequestInput": {
+            "type": "object",
+            "properties": {
+                "identity": {
+                    "type": "object",
+                    "required": [
+                        "first_name",
+                        "last_name"
+                    ],
+                    "properties": {
+                        "first_name": {
+                            "type": "string",
+                            "maxLength": 32,
+                            "minLength": 2
+                        },
+                        "institution": {
+                            "type": "string"
+                        },
+                        "last_name": {
+                            "type": "string",
+                            "maxLength": 32,
+                            "minLength": 2
+                        }
+                    }
+                },
+                "motive": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/UserInput"
                 }
             }
         },
@@ -1209,9 +1297,6 @@ const docTemplate = `{
                 "meta": {
                     "$ref": "#/definitions/Meta"
                 },
-                "middle_names": {
-                    "type": "string"
-                },
                 "role": {
                     "$ref": "#/definitions/UserRole"
                 }
@@ -1248,10 +1333,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 2
-                },
-                "middle_names": {
-                    "type": "string",
-                    "maxLength": 32
                 }
             }
         },
@@ -1284,36 +1365,6 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 2
-                },
-                "middle_names": {
-                    "type": "string",
-                    "maxLength": 32
-                }
-            }
-        },
-        "PersonUserInput": {
-            "type": "object",
-            "required": [
-                "first_name",
-                "last_name"
-            ],
-            "properties": {
-                "contact": {
-                    "type": "string"
-                },
-                "first_name": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 2
-                },
-                "last_name": {
-                    "type": "string",
-                    "maxLength": 32,
-                    "minLength": 2
-                },
-                "middle_names": {
-                    "type": "string",
-                    "maxLength": 32
                 }
             }
         },
@@ -1633,26 +1684,37 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
+                "email_confirmed",
+                "id",
                 "identity",
+                "is_active",
                 "login",
-                "role",
-                "verified"
+                "role"
             ],
             "properties": {
                 "email": {
                     "type": "string"
                 },
+                "email_confirmed": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
                 "identity": {
-                    "$ref": "#/definitions/Person"
+                    "$ref": "#/definitions/OptionalPerson"
+                },
+                "is_active": {
+                    "type": "boolean"
                 },
                 "login": {
                     "type": "string"
                 },
+                "meta": {
+                    "$ref": "#/definitions/Meta"
+                },
                 "role": {
                     "$ref": "#/definitions/UserRole"
-                },
-                "verified": {
-                    "type": "boolean"
                 }
             }
         },
@@ -1676,7 +1738,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "email",
-                "identity",
                 "login",
                 "password",
                 "password_confirmation"
@@ -1685,9 +1746,6 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "format": "email"
-                },
-                "identity": {
-                    "$ref": "#/definitions/PersonUserInput"
                 },
                 "login": {
                     "type": "string"
@@ -1703,13 +1761,13 @@ const docTemplate = `{
         "UserRole": {
             "type": "string",
             "enum": [
-                "Guest",
+                "Visitor",
                 "Contributor",
                 "ProjectMember",
                 "Admin"
             ],
             "x-enum-varnames": [
-                "Guest",
+                "Visitor",
                 "Contributor",
                 "ProjectMember",
                 "Admin"
@@ -1739,6 +1797,17 @@ const docTemplate = `{
                 "key": {
                     "description": "target GBIF taxon key",
                     "type": "integer"
+                }
+            }
+        },
+        "models.UserShortIdentity": {
+            "type": "object",
+            "properties": {
+                "alias": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         }

@@ -1,42 +1,33 @@
 package accounts
 
 import (
-	"darco/proto/config"
-	"darco/proto/models/users"
+	users "darco/proto/models/people"
 	"net/url"
 
 	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
 )
 
-type TokenTargetPath struct {
-	// The target path when the request origin matches then configured client
-	Client string
-	// An API endpoint path otherwise
-	Default string
-}
+const (
+	CONFIRM_EMAIL_PATH  = "/api/v1/users/confirm"
+	PASSWORD_RESET_PATH = "/api/v1/users/password-reset"
+)
 
-var emailConfirmationTokenPath = TokenTargetPath{
-	Client:  "/email-confirmation",
-	Default: "/users/confirm",
-}
-
-var passwordResetTokenPath = TokenTargetPath{
-	Client:  "/password-reset",
-	Default: "/users/password-reset",
-}
-
-func newTokenURL(ctx *gin.Context, path TokenTargetPath) users.TokenURL {
-	config := config.Get()
-	target := users.TokenURL{URL: config.MakeClientURL(path.Client)}
-
-	origin := ctx.Request.Header.Get("Origin")
-	originURL, err := url.Parse(origin)
-
-	if err != nil || originURL.Host != target.Host {
-		logrus.Infof("Origin URL '%s' does not match configured client URL '%s'. Defaulting to creating token URL pointing to API endpoint.",
-			origin, config.Client.DomainName)
-		target = users.TokenURL{URL: config.MakeURL(path.Default)}
+func newTokenURL(ctx *gin.Context, path string) users.TokenURL {
+	target := users.NewTokenURL(url.URL{
+		Scheme: ctx.Request.URL.Scheme,
+		Host:   ctx.Request.Host,
+		Path:   path,
+	})
+	if redirect := ctx.Query("redirect"); redirect != "" {
+		target.SetRedirect(redirect)
 	}
 	return target
+}
+
+func confirmEmailURL(ctx *gin.Context) users.TokenURL {
+	return newTokenURL(ctx, CONFIRM_EMAIL_PATH)
+}
+
+func passwordResetURL(ctx *gin.Context) users.TokenURL {
+	return newTokenURL(ctx, PASSWORD_RESET_PATH)
 }

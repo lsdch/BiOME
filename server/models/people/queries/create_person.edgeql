@@ -1,12 +1,13 @@
-with data := <json>$0,
+with module people,
+  data := <json>$0,
 	institutions := (
-    select people::Institution
-    filter .code in array_unpack(<array<str>>data['institutions'])
+    select Institution
+    filter .code in array_unpack(<array<str>>json_get(data, 'institutions'))
   )
-select (insert people::Person {
+select (insert Person {
   first_name := <str>data['first_name'],
-  middle_names := <str>json_get(data, 'middle_names') ?? {},
   last_name := <str>data['last_name'],
+  contact := <str>json_get(data, 'contact') ?? {},
   alias := <str>json_get(data, 'alias') ?? {},
   comment := <str>json_get(data, "comment") ?? {},
   institutions := distinct institutions

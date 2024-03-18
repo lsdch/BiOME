@@ -2,8 +2,10 @@ package db
 
 import (
 	"context"
+	"os"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -17,9 +19,17 @@ type Executor interface {
 }
 
 // Opens a new connection to EdgeDB
-func connectDB() (db *edgedb.Client) {
+func connectDB(options edgedb.Options) (db *edgedb.Client) {
 	ctx := context.Background()
-	db, err := edgedb.CreateClient(ctx, edgedb.Options{})
+	_, runningTests := os.LookupEnv("GO_TESTING")
+	if options.Database == "" {
+		options.Database = "edgedb"
+	}
+	if runningTests {
+		options.Database = "testing"
+	}
+	logrus.Infof("Attempting connection to database '%s'", options.Database)
+	db, err := edgedb.CreateClient(ctx, options)
 
 	if err != nil {
 		log.Fatalf("Failed to connect to the database: %+v", err)
@@ -28,7 +38,9 @@ func connectDB() (db *edgedb.Client) {
 	return
 }
 
-var db *edgedb.Client = connectDB()
+var db *edgedb.Client = connectDB(edgedb.Options{})
+
+type DatabaseConnection string
 
 // Gets a connection to EdgeDB
 func Client() *edgedb.Client {
