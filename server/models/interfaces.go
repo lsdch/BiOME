@@ -4,17 +4,15 @@ import (
 	"github.com/edgedb/edgedb-go"
 )
 
+// Creatable items can be inserted to the database
 type Creatable[CreatedItem any] interface {
 	Create(db edgedb.Executor) (CreatedItem, error)
 }
 
+// Updatable items can be updated in the database
 type Updatable[ID any, Updated any] interface {
 	Update(db edgedb.Executor, id ID) (edgedb.UUID, error)
-	// Custom validations that can not be run through Gin bindings.
-	// This is primarily intended to check for unique constraints or related objects existence, by returning validations.InputValidationError
-	// Validate(db edgedb.Executor, id ID) error
 }
 
+// ItemFinder functions fetch an item from the database using an identifier having a generic type
 type ItemFinder[ID any, Item any] func(db edgedb.Executor, id ID) (Item, error)
-
-// type ItemUpdateInit[ID any, Item Updatable[ID, Updated], Updated any] func(db *edgedb.Client, id ID) (Item, error)
