@@ -2,7 +2,7 @@ package db
 
 import (
 	"context"
-	"os"
+	"testing"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
@@ -21,11 +21,10 @@ type Executor interface {
 // Opens a new connection to EdgeDB
 func connectDB(options edgedb.Options) (db *edgedb.Client) {
 	ctx := context.Background()
-	_, runningTests := os.LookupEnv("GO_TESTING")
 	if options.Database == "" {
 		options.Database = "edgedb"
 	}
-	if runningTests {
+	if testing.Testing() {
 		options.Database = "testing"
 	}
 	logrus.Infof("Attempting connection to database '%s'", options.Database)
