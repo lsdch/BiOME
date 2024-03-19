@@ -11,6 +11,8 @@ type Creatable[CreatedItem any] interface {
 
 // Updatable items can be updated in the database
 type Updatable[ID any, Updated any] interface {
+	// Returning [edgedb.UUID] because of a bug in edgedb
+	// which do not return up-to-date items after `select (update ... )` statement
 	Update(db edgedb.Executor, id ID) (edgedb.UUID, error)
 }
 
