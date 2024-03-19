@@ -60,8 +60,9 @@ func FindPerson(db edgedb.Executor, id edgedb.UUID) (person Person, err error) {
 }
 
 func ListPersons(db edgedb.Executor) (people []Person, err error) {
-	query := `select people::Person { *, institutions: { * }, meta: { * } } order by .last_name;`
-	err = db.Query(context.Background(), query, &people)
+	err = db.Query(context.Background(),
+		`select people::Person { *, institutions: { * }, meta: { * } } order by .last_name;`,
+		&people)
 	return
 }
 
@@ -86,7 +87,7 @@ type PersonInput struct {
 	Comment      *string  `json:"comment,omitempty" faker:"sentence"`
 } // @name PersonInput
 
-func (p *PersonInput) generateAlias() *string {
+func (p *PersonInner) GenerateAlias() *string {
 	first_initial := ""
 	if len(p.FirstName) > 0 {
 		first_initial = string(p.FirstName[0])
@@ -98,7 +99,9 @@ func (p *PersonInput) generateAlias() *string {
 	query := `select (count (people::Person
 			filter str_trim(.alias, "0123456789") = <str>$0
 		))`
-	if err := db.Client().QuerySingle(context.Background(), query, &conflicts, alias); err != nil {
+	if err := db.Client().QuerySingle(context.Background(),
+		query, &conflicts, alias,
+	); err != nil {
 		logrus.Errorf("Error while checking for Person.alias duplicates: %v", err)
 		return nil
 	}
@@ -108,17 +111,17 @@ func (p *PersonInput) generateAlias() *string {
 	return &alias
 }
 
-func (p *PersonInput) UnmarshalJSON(data []byte) error {
-	type TmpInput PersonInput
-	if err := json.Unmarshal(data, (*TmpInput)(p)); err != nil {
-		return err
-	}
-	if p.Alias == nil {
-		p.Alias = p.generateAlias()
-		logrus.Infof("Generated alias '%s' for person %+v", *p.Alias, *p)
-	}
-	return nil
-}
+// func (p *PersonInput) UnmarshalJSON(data []byte) error {
+// 	type TmpInput PersonInput
+// 	if err := json.Unmarshal(data, (*TmpInput)(p)); err != nil {
+// 		return err
+// 	}
+// 	if p.Alias == nil {
+// 		p.Alias = p.generateAlias()
+// 		logrus.Infof("Generated alias '%s' for person %+v", *p.Alias, *p)
+// 	}
+// 	return nil
+// }
 
 //go:embed queries/create_person.edgeql
 var personCreateQuery string
@@ -126,7 +129,7 @@ var personCreateQuery string
 func (person PersonInput) Create(db edgedb.Executor) (created Person, err error) {
 	logrus.Infof("Creating person %+v", person)
 	if person.Alias == nil || *person.Alias == "" {
-		person.Alias = person.generateAlias()
+		person.Alias = person.GenerateAlias()
 	}
 	args, _ := json.Marshal(person)
 	err = db.QuerySingle(context.Background(), personCreateQuery, &created, args)
@@ -134,12 +137,12 @@ func (person PersonInput) Create(db edgedb.Executor) (created Person, err error)
 }
 
 type PersonUpdate struct {
-	FirstName    *string   `json:"first_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32"`
-	LastName     *string   `json:"last_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32"`
-	Contact      *string   `json:"contact,omitempty" binding:"omitnil,nullemail"`
-	Institutions *[]string `json:"institutions,omitempty" binding:"omitnil,exist_all=people::Institution.code"` // Institution codes
-	Alias        *string   `json:"alias,omitempty" binding:"omitnil,min=3"`
-	Comment      *string   `json:"comment,omitempty" binding:"omitnil"`
+	FirstName    *string   `json:"first_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32" faker:"first_name"`
+	LastName     *string   `json:"last_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32" faker:"last_name"`
+	Contact      *string   `json:"contact,omitempty" binding:"omitnil,nullemail" faker:"email"`
+	Institutions *[]string `json:"institutions,omitempty" binding:"omitnil,exist_all=people::Institution.code" faker:"len=10,slice_len=3"` // Institution codes
+	Alias        *string   `json:"alias,omitempty" binding:"omitnil,min=3" faker:"word,len=5"`
+	Comment      *string   `json:"comment,omitempty" binding:"omitnil" faker:"sentence"`
 } // @name PersonUpdate
 
 //go:embed queries/update_person.edgeql
