@@ -11,24 +11,21 @@ import (
 )
 
 func TestActivationAuthentication(t *testing.T) {
-	user, teardown := setupMockUser()
-	defer teardown()
 	db := db.Client()
-
+	input := FakePendingUserInput(t)
+	p, err := input.Register(db)
+	user := p.User
+	require.NoError(t, err)
 	assert.Falsef(t, user.EmailConfirmed, "New user email must not be already confirmed when first created.")
 
 	var credentials = users.UserCredentials{
-		Identifier: "mock.user",
-		Password:   "mockuserpassword",
+		Identifier: input.User.Email,
+		Password:   input.User.Password,
 	}
 
 	_, auth_err := credentials.Authenticate(db)
 	require.Errorf(t, auth_err, "Inactive user should not be able to authenticate.")
 	assert.Equal(t, auth_err.Reason, users.AccountInactive)
-
-	// if err := user.SetActive(db, true); err != nil {
-	// 	t.Fatalf("Failed to activate user account: %v", err)
-	// }
 
 	require.NoError(t, user.SetEmailConfirmed(db, true))
 	person, err := FakePersonInput(t).Create(db)
@@ -36,7 +33,7 @@ func TestActivationAuthentication(t *testing.T) {
 	require.NoError(t, user.SetIdentity(db, &person))
 	auth_user, err := credentials.Authenticate(db)
 	assert.Nil(t, err)
-	assert.Equal(t, user, auth_user)
+	assert.Equal(t, user, *auth_user)
 
 	var invalidCredentials = []users.UserCredentials{
 		{"invalid.identifier", "whateverpassword"},

@@ -1,48 +1,16 @@
 package people_test
 
 import (
-	"context"
 	"darco/proto/db"
 	users "darco/proto/models/people"
 	"testing"
 
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 	"github.com/test-go/testify/assert"
 )
 
-func setupMockUser() (*users.User, func()) {
-	query := `
-		with module people select (
-			insert User {
-				login := "mock.user",
-				email := "mock.user@mockemail.com",
-				password := "mockuserpassword",
-				role := UserRole.Visitor,
-				identity := (insert Person {
-					first_name := "Mock",
-					last_name := "User",
-					contact := "mock.user@mockemail.com"
-				})
-			} #unless conflict on .email else (select User)
-		) { *, identity: { * }}`
-
-	var user users.User
-	err := db.Client().QuerySingle(context.Background(), query, &user)
-	if err != nil {
-		logrus.Fatalf("Failed to setup test: %v", err)
-	}
-	var teardown = func() {
-		db.Client().Execute(context.Background(),
-			`delete people::User filter .id = <uuid>$0 limit 1`, user.ID,
-		)
-	}
-	return &user, teardown
-}
-
 func TestFindUser(t *testing.T) {
-	user, teardown := setupMockUser()
-	defer teardown()
+	user := SetupUser(t)
 	var client = db.Client()
 	var assertUser = func(u *users.User, err error) {
 		require.NoError(t, err)
@@ -81,11 +49,10 @@ func TestFindUser(t *testing.T) {
 
 func TestDeleteUser(t *testing.T) {
 	client := db.Client()
-	input, err := FakePendingUserInput(t).Register(client)
+	user := SetupUser(t)
+	deleted, err := user.Delete(client)
 	require.NoError(t, err)
-	deleted, err := input.User.Delete(client)
-	require.NoError(t, err)
-	assert.Equal(t, *deleted, input.User)
+	assert.Equal(t, *deleted, user)
 	_, err = users.FindID(client, deleted.ID)
 	require.Error(t, err)
 }

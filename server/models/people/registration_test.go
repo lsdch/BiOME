@@ -4,7 +4,6 @@ import (
 	"darco/proto/db"
 	"darco/proto/models/people"
 	"darco/proto/tests"
-	"fmt"
 	"testing"
 
 	"github.com/edgedb/edgedb-go"
@@ -18,6 +17,12 @@ func FakePendingUserInput(t *testing.T) *people.PendingUserRequestInput {
 	return p
 }
 
+func SetupUser(t *testing.T) *people.User {
+	p, err := FakePendingUserInput(t).Register(db.Client())
+	require.NoError(t, err)
+	return &p.User
+}
+
 func TestPendingUser(t *testing.T) {
 
 	t.Run("Register user",
@@ -29,12 +34,8 @@ func TestPendingUser(t *testing.T) {
 	t.Run("New pending user is initially inactive",
 		tests.WrapTransaction(t, func(tx *edgedb.Tx) error {
 			pendingUser, err := FakePendingUserInput(t).Register(tx)
-			if err != nil {
-				return err
-			}
-			if pendingUser.User.IsActive {
-				return fmt.Errorf("User is active")
-			}
+			require.NoError(t, err)
+			assert.False(t, pendingUser.User.IsActive)
 			return nil
 		}))
 
@@ -53,9 +54,7 @@ func TestPendingUser(t *testing.T) {
 	t.Run("Delete pending user request",
 		tests.WrapTransaction(t, func(tx *edgedb.Tx) error {
 			pendingUser, err := FakePendingUserInput(t).Register(tx)
-			if err != nil {
-				return err
-			}
+			require.NoError(t, err)
 			return pendingUser.Delete(tx)
 		}))
 }

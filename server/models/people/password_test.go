@@ -13,12 +13,14 @@ import (
 
 func TestPasswordManipulation(t *testing.T) {
 
-	user, teardown := setupMockUser()
+	user := SetupUser(t)
 	db := db.Client()
-	defer teardown()
 
 	t.Run("Correct password matches", func(t *testing.T) {
-		assert.True(t, user.PasswordMatch(db, "mockuserpassword"))
+		input := FakePendingUserInput(t)
+		u, err := input.Register(db)
+		require.NoError(t, err)
+		assert.True(t, u.User.PasswordMatch(db, input.User.Password))
 	})
 	t.Run("Invalid password does not match", func(t *testing.T) {
 		assert.False(t, user.PasswordMatch(db, "invalidpassword"))

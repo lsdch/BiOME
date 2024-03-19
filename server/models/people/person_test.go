@@ -13,9 +13,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-//go:embed fixtures/person.json
-var mockPersonJSON string
-
 func FakePersonInput(t *testing.T) *people.PersonInput {
 	return tests.FakeData[people.PersonInput](t)
 }
