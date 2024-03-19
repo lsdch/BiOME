@@ -11,14 +11,14 @@ import (
 type UserRole string // @name UserRole
 
 const (
-	Visitor       UserRole = "Visitor"
-	Contributor   UserRole = "Contributor"
-	ProjectMember UserRole = "ProjectMember"
-	Admin         UserRole = "Admin"
+	Visitor     UserRole = "Visitor"
+	Contributor UserRole = "Contributor"
+	Maintainer  UserRole = "Maintainer"
+	Admin       UserRole = "Admin"
 )
 
-func (m *UserRole) MarshalEdgeDBStr() ([]byte, error) {
-	return []byte(*m), nil
+func (m UserRole) MarshalEdgeDBStr() ([]byte, error) {
+	return []byte(m), nil
 }
 
 func (m *UserRole) UnmarshalEdgeDBStr(data []byte) error {
