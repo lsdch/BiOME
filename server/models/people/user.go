@@ -2,7 +2,6 @@ package people
 
 import (
 	"context"
-	"darco/proto/models"
 	"darco/proto/services/email"
 	_ "embed"
 	"encoding/json"
@@ -20,7 +19,6 @@ type User struct {
 	EmailConfirmed bool           `edgedb:"email_confirmed" json:"email_confirmed" binding:"required"`
 	Person         OptionalPerson `edgedb:"identity" json:"identity" binding:"required"`
 	IsActive       bool           `edgedb:"is_active" json:"is_active" binding:"required"`
-	models.Meta    `edgedb:"meta" json:"meta"`
 } //@name User
 
 func (user *User) SetIdentity(db edgedb.Executor, person *Person) error {

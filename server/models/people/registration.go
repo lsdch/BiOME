@@ -19,8 +19,8 @@ type UserInput struct {
 
 type InnerPendingUserRequest struct {
 	Person struct {
-		PersonInner `edgedb:"$inline" json:",inline"`
-		Institution string `edgedb:"institution" json:"institution,omitempty" faker:"word"`
+		PersonIdentity `edgedb:"$inline" json:",inline"`
+		Institution    string `edgedb:"institution" json:"institution,omitempty" faker:"word"`
 	} `json:"identity" edgedb:"identity"`
 	Motive string `json:"motive" edgedb:"motive" faker:"sentence"`
 } // @name InnerPendingUserRequest

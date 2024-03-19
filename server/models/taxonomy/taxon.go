@@ -3,7 +3,7 @@ package taxonomy
 import (
 	"context"
 	"darco/proto/db/expr"
-	"darco/proto/models"
+	"darco/proto/models/people"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -34,7 +34,7 @@ type TaxonDB struct {
 	Authorship edgedb.OptionalStr `edgedb:"authorship" json:"authorship" example:"(Linnaeus, 1758)"`
 	Anchor     bool               `edgedb:"anchor" json:"anchor"`
 	Comment    edgedb.OptionalStr `json:"comment" edgedb:"comment"`
-	Meta       models.Meta        `edgedb:"meta" json:"meta" binding:"required"`
+	Meta       people.Meta        `edgedb:"meta" json:"meta" binding:"required"`
 } // @name TaxonDB
 
 type TaxonSelect struct {

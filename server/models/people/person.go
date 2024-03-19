@@ -3,7 +3,6 @@ package people
 import (
 	"context"
 	"darco/proto/db"
-	"darco/proto/models"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -13,26 +12,30 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type PersonInner struct {
+type PersonIdentity struct {
 	FirstName string `json:"first_name" edgedb:"first_name" binding:"required,alphaunicode,min=2,max=32" faker:"first_name"`
 	LastName  string `json:"last_name" edgedb:"last_name" binding:"required,alphaunicode,min=2,max=32" faker:"last_name"`
 }
 
+type PersonInner struct {
+	PersonIdentity `edgedb:"$inline"`
+	ID             edgedb.UUID        `edgedb:"id" json:"id" binding:"required"`
+	FullName       string             `json:"full_name" edgedb:"full_name" binding:"required"`
+	Alias          string             `json:"alias" edgedb:"alias" binding:"required"`
+	Role           OptionalUserRole   `json:"role" edgedb:"role"`
+	Contact        edgedb.OptionalStr `json:"contact" edgedb:"contact"`
+	Comment        edgedb.OptionalStr `json:"comment" edgedb:"comment"`
+}
+
 type Person struct {
-	PersonInner  `edgedb:"$inline"`
-	Institutions []Institution      `json:"institutions" edgedb:"institutions"`
-	ID           edgedb.UUID        `edgedb:"id" json:"id" binding:"required"`
-	FullName     string             `json:"full_name" edgedb:"full_name" binding:"required"`
-	Alias        string             `json:"alias" edgedb:"alias" binding:"required"`
-	Role         OptionalUserRole   `json:"role" edgedb:"role"`
-	Contact      edgedb.OptionalStr `json:"contact" edgedb:"contact"`
-	Meta         models.Meta        `json:"meta" edgedb:"meta"`
-	Comment      edgedb.OptionalStr `json:"comment" edgedb:"comment"`
+	PersonInner  `edgedb:"$inline" json:",inline"`
+	Institutions []InstitutionInner `json:"institutions" edgedb:"institutions"`
+	Meta         Meta               `json:"meta" edgedb:"meta"`
 } // @name Person
 
 type OptionalPerson struct {
 	edgedb.Optional
-	Person `edgedb:"$inline" json:",inline"`
+	PersonInner `edgedb:"$inline" json:",inline"`
 } // @name OptionalPerson
 
 // func PersonStructLevelValidation(sl validator.StructLevel) {
@@ -80,14 +83,14 @@ func (person Person) Delete(db edgedb.Executor) (Person, error) {
 }
 
 type PersonInput struct {
-	PersonInner
+	PersonIdentity
 	Institutions []string `json:"institutions" binding:"omitempty,exist_all=people::Institution.code" faker:"len=10,slice_len=2"`
 	Alias        *string  `json:"alias,omitempty" binding:"unique_str=people::Person.alias" faker:"-"`
 	Contact      *string  `json:"contact,omitempty" binding:"omitnil,nullemail" faker:"email"`
 	Comment      *string  `json:"comment,omitempty" faker:"sentence"`
 } // @name PersonInput
 
-func (p *PersonInner) GenerateAlias() *string {
+func (p *PersonIdentity) GenerateAlias() *string {
 	first_initial := ""
 	if len(p.FirstName) > 0 {
 		first_initial = string(p.FirstName[0])

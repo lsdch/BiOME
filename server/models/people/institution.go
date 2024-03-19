@@ -2,7 +2,6 @@ package people
 
 import (
 	"context"
-	"darco/proto/models"
 	_ "embed"
 	"encoding/json"
 
@@ -17,11 +16,15 @@ type InstitutionInput struct {
 	Description edgedb.OptionalStr `json:"description,omitempty" edgedb:"description" example:"Where this database was born."`
 } // @name InstitutionInput
 
-type Institution struct {
+type InstitutionInner struct {
 	ID               edgedb.UUID `json:"id" edgedb:"id" example:"<UUID>" binding:"required"`
 	InstitutionInput `edgedb:"$inline"`
-	People           []Person    `json:"people,omitempty" edgedb:"people"`
-	Meta             models.Meta `json:"meta" edgedb:"meta"`
+}
+
+type Institution struct {
+	InstitutionInner `edgedb:"$inline" json:",inline"`
+	People           []Person `json:"people,omitempty" edgedb:"people"`
+	Meta             Meta     `json:"meta" edgedb:"meta"`
 } // @name Institution
 
 func FindInstitution(db edgedb.Executor, uuid edgedb.UUID) (inst Institution, err error) {
