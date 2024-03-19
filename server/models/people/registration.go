@@ -59,21 +59,24 @@ func (p *PendingUserRequest) Delete(db edgedb.Executor) error {
 // Validate an inactive user by setting their identity to an existing person.
 // PendingUserRequest is deleted in the database afterwards.
 // All operations are done within a database transaction.
-func (p *PendingUserRequest) Validate(db *edgedb.Client, person *Person) (*User, error) {
+func (p *PendingUserRequest) Validate(db *edgedb.Client, person *Person, role UserRole) (*User, error) {
 	var (
 		user *User
 		err  error
 	)
 	db.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
-		user, err = p.ValidateTx(tx, person)
+		user, err = p.ValidateTx(tx, person, role)
 		return err
 	})
 	return user, err
 }
 
 // Like [*PendingUserRequest.ValidateTx] but the transaction executor is provided as argument
-func (p *PendingUserRequest) ValidateTx(tx *edgedb.Tx, person *Person) (*User, error) {
+func (p *PendingUserRequest) ValidateTx(tx *edgedb.Tx, person *Person, role UserRole) (*User, error) {
 	if err := p.User.SetIdentity(tx, person); err != nil {
+		return nil, err
+	}
+	if err := p.User.SetRole(tx, role); err != nil {
 		return nil, err
 	}
 	if err := p.Delete(tx); err != nil {

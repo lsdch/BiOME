@@ -1,7 +1,11 @@
 package people
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
+
+	"github.com/edgedb/edgedb-go"
 )
 
 type UserRole string // @name UserRole
@@ -43,4 +47,17 @@ func (m *OptionalUserRole) UnmarshalEdgeDBStr(data []byte) error {
 
 func (m *OptionalUserRole) SetMissing(isMissing bool) {
 	m.isSet = !isMissing
+}
+
+func (u *User) SetRole(db edgedb.Executor, role UserRole) error {
+	if err := db.Execute(context.Background(),
+		`update people::User set {
+			role := <people::UserRole>$0
+		}`,
+		string(role),
+	); err != nil {
+		return fmt.Errorf("Failed to set user role: %v", err)
+	}
+	u.Role = role
+	return nil
 }

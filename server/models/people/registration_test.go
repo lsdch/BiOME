@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -43,8 +44,10 @@ func TestPendingUser(t *testing.T) {
 		require.NoError(t, err)
 		person, err := FakePersonInput(t).Create(client)
 		require.NoError(t, err)
-		_, err = pendingUser.Validate(client, &person)
+		role := people.Contributor
+		u, err := pendingUser.Validate(client, &person, role)
 		require.NoError(t, err)
+		assert.Equal(t, role, u.Role)
 	})
 
 	t.Run("Delete pending user request",
