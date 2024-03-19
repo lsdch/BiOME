@@ -3,9 +3,13 @@ package people
 import (
 	"darco/proto/models/validations"
 	"fmt"
+	"math/rand"
+	"reflect"
 	"slices"
 
+	"github.com/go-faker/faker/v4"
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 )
 
 type InstitutionKind string // @name InstitutionKind
@@ -41,3 +45,11 @@ var InstitutionKindValidator = validations.CustomValidator{
 }
 
 var _ = validations.RegisterCustomValidator(InstitutionKindValidator)
+
+var _ = faker.AddProvider("institutionKind",
+	func(v reflect.Value) (interface{}, error) {
+		idx := rand.Intn(len(values))
+		x := values[idx]
+		logrus.Infof("Called %d: %v", idx, x)
+		return InstitutionKind(values[idx]), nil
+	})

@@ -11,10 +11,10 @@ import (
 )
 
 type InstitutionInput struct {
-	Name        string             `json:"name" edgedb:"name" example:"Mos Eisley Laboratory of Environmental Studies" binding:"required,min=10,max=128"`
-	Code        string             `json:"code" edgedb:"code" example:"MELES" binding:"required,alphanum,min=2,max=12"`
-	Description edgedb.OptionalStr `json:"description" edgedb:"description" example:"The main ecological research lab on Tatooine."`
-	Kind        InstitutionKind    `json:"kind" edgedb:"kind" example:"Lab" binding:"required,institution_kind"`
+	Name        string             `json:"name" edgedb:"name" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés" binding:"required,min=10,max=128"`
+	Code        string             `json:"code" edgedb:"code" example:"LEHNA" binding:"required,alphanum,min=2,max=12" faker:"word,len=10"`
+	Kind        InstitutionKind    `json:"kind" edgedb:"kind" example:"Lab" binding:"required,institution_kind" faker:"oneof: Lab, FundingAgency"`
+	Description edgedb.OptionalStr `json:"description,omitempty" edgedb:"description" example:"Where this database was born."`
 } // @name InstitutionInput
 
 type Institution struct {
@@ -25,23 +25,30 @@ type Institution struct {
 } // @name Institution
 
 func FindInstitution(db edgedb.Executor, uuid edgedb.UUID) (inst Institution, err error) {
-	query := "select people::Institution { *, people:{ * }, meta:{ * } } filter	.id = <uuid>$0;"
-	err = db.QuerySingle(context.Background(), query, &inst, uuid)
+	err = db.QuerySingle(context.Background(),
+		`select people::Institution { *, people:{ * }, meta:{ * } }
+			filter .id = <uuid>$0;`,
+		&inst, uuid)
 	return inst, err
 }
 
 func ListInstitutions(db edgedb.Executor) (institutions []Institution, err error) {
-	query := `select people::Institution { *, people:{ * }, meta:{ * } } order by .code;`
-	err = db.Query(context.Background(), query, &institutions)
+	err = db.Query(context.Background(),
+		`select people::Institution { *, people:{ * }, meta:{ * } } order by .code;`,
+		&institutions)
 	return
 }
 
 func DeleteInstitution(db edgedb.Executor, code string) (inst Institution, err error) {
-	query := `select(
-		delete people::Institution filter .code = <str>$0
-	) { *, people:{ * }, meta: { * }};`
-	err = db.QuerySingle(context.Background(), query, &inst, code)
+	err = db.QuerySingle(context.Background(),
+		`select(
+			delete people::Institution filter .code = <str>$0 limit 1
+		) { *, people:{ * }, meta: { * }};`, &inst, code)
 	return
+}
+
+func (inst Institution) Delete(db edgedb.Executor) (Institution, error) {
+	return DeleteInstitution(db, inst.Code)
 }
 
 //go:embed queries/create_institution.edgeql
@@ -54,10 +61,10 @@ func (inst InstitutionInput) Create(db edgedb.Executor) (created Institution, er
 }
 
 type InstitutionUpdate struct {
-	Name        *string          `json:"name,omitempty" binding:"omitnil,min=3,max=128" example:"Mos Eisley Laboratory of Environmental Studies"`
-	Code        *string          `json:"code,omitempty" binding:"omitnil,alphanum,min=2,max=12" example:"MELES"`
-	Description *string          `json:"description,omitempty" binding:"omitnil" example:"The main ecological research lab on Tatooine."`
-	Kind        *InstitutionKind `json:"kind,omitempty" example:"Lab" binding:"omitnil,institution_kind"`
+	Name        *string          `json:"name,omitempty" binding:"omitnil,min=3,max=128" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
+	Code        *string          `json:"code,omitempty" binding:"omitnil,alphanum,min=2,max=12" example:"LEHNA" faker:"word,len=10"`
+	Description *string          `json:"description,omitempty" binding:"omitnil" example:"Where this database was born." faker:"sentence"`
+	Kind        *InstitutionKind `json:"kind,omitempty" example:"Lab" binding:"omitnil,institution_kind" faker:"oneof: Lab, FundingAgency"`
 } //@name InstitutionUpdate
 
 //go:embed queries/update_institution.edgeql
@@ -66,10 +73,7 @@ var institutionUpdateQuery string
 func (inst InstitutionUpdate) Update(db edgedb.Executor, code string) (id edgedb.UUID, err error) {
 	args, _ := json.Marshal(inst)
 	logrus.Debugf("Updating institution %s with %+v", code, inst)
-	err = db.QuerySingle(context.Background(), institutionUpdateQuery, &id, code, args)
+	err = db.QuerySingle(context.Background(), institutionUpdateQuery,
+		&id, code, args)
 	return
-}
-
-func (inst InstitutionUpdate) Validate(db edgedb.Executor, code string) error {
-	return nil
 }
