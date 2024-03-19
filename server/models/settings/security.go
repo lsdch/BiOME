@@ -61,9 +61,9 @@ func (input *SecuritySettingsInput) Save(db edgedb.Executor) (*SecuritySettings,
 	if err := db.QuerySingle(context.Background(),
 		`with data := <json>$0
 			select (update admin::SecuritySettings set {
-				min_password_strength := <int16>data['min_password_strength'],
-				auth_token_lifetime := <int16>data['auth_token_lifetime'],
-				account_token_lifetime := <int16>data['account_token_lifetime'],
+				min_password_strength := <int32>data['min_password_strength'],
+				auth_token_lifetime := <int32>data['auth_token_lifetime'],
+				account_token_lifetime := <int32>data['account_token_lifetime'],
 				jwt_secret_key := <str>data['jwt_secret_key']
 			}) { * } limit 1`, &settings, jsonData,
 	); err != nil {

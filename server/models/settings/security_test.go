@@ -11,15 +11,11 @@ import (
 )
 
 func TestAuthTokenDuration(t *testing.T) {
-	if settings.Security().AuthTokenDuration().Seconds() < 1 {
-		t.Fatalf("Duration should be more than 1 second")
-	}
+	assert.GreaterOrEqual(t, settings.Security().AuthTokenDuration().Seconds(), 1.)
 }
 
 func TestAccountTokenDuration(t *testing.T) {
-	if settings.Security().AccountTokenDuration().Hours() < 1 {
-		t.Fatalf("Duration should be more than 1 hour")
-	}
+	assert.GreaterOrEqual(t, settings.Security().AccountTokenDuration().Hours(), 1.)
 }
 
 func TestSecuritySave(t *testing.T) {
