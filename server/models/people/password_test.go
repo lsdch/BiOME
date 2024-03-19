@@ -44,6 +44,6 @@ func TestPasswordManipulation(t *testing.T) {
 	t.Run("Weak password update fails", func(t *testing.T) {
 		newPwd := "weak"
 		err := user.SetPassword(db, newPwd)
-		require.NoError(t, err)
+		require.Error(t, err)
 	})
 }

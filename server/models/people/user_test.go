@@ -75,6 +75,6 @@ func TestFindUser(t *testing.T) {
 	t.Run("Fetch current user fails when global is not set", func(t *testing.T) {
 		u, err := users.Current(client)
 		require.Error(t, err)
-		assert.Equal(t, u, nil)
+		assert.Nil(t, u)
 	})
 }
