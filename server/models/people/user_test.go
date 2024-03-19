@@ -78,3 +78,14 @@ func TestFindUser(t *testing.T) {
 		assert.Nil(t, u)
 	})
 }
+
+func TestDeleteUser(t *testing.T) {
+	client := db.Client()
+	input, err := FakePendingUserInput(t).Register(client)
+	require.NoError(t, err)
+	deleted, err := input.User.Delete(client)
+	require.NoError(t, err)
+	assert.Equal(t, *deleted, input.User)
+	_, err = users.FindID(client, deleted.ID)
+	require.Error(t, err)
+}
