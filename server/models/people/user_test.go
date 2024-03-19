@@ -22,11 +22,11 @@ func TestFindUser(t *testing.T) {
 		assertUser(u, err)
 	})
 	t.Run("Find user by their email", func(t *testing.T) {
-		u, err := users.Find(client, "mock.user@mockemail.com")
+		u, err := users.Find(client, user.Email)
 		assertUser(u, err)
 	})
 	t.Run("Find user by their login", func(t *testing.T) {
-		u, err := users.Find(client, "mock.user")
+		u, err := users.Find(client, user.Login)
 		assertUser(u, err)
 	})
 	t.Run("Attempt to find non existing user", func(t *testing.T) {
@@ -52,7 +52,7 @@ func TestDeleteUser(t *testing.T) {
 	user := SetupUser(t)
 	deleted, err := user.Delete(client)
 	require.NoError(t, err)
-	assert.Equal(t, *deleted, user)
+	assert.Equal(t, deleted, user)
 	_, err = users.FindID(client, deleted.ID)
 	require.Error(t, err)
 }
