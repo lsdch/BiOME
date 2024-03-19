@@ -6,9 +6,9 @@ import (
 	users "darco/proto/models/people"
 	"testing"
 
-	"github.com/go-playground/assert/v2"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
+	"github.com/test-go/testify/assert"
 )
 
 func setupMockUser() (*users.User, func()) {
