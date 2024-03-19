@@ -2,14 +2,11 @@ package taxonomy
 
 import (
 	"context"
-	"darco/proto/db/expr"
 	"darco/proto/models/people"
 	_ "embed"
 	"encoding/json"
-	"fmt"
 
 	"github.com/edgedb/edgedb-go"
-	"github.com/sirupsen/logrus"
 )
 
 type Taxon struct {
@@ -46,38 +43,31 @@ type TaxonSelect struct {
 	Children []TaxonDB `edgedb:"children" json:"children,omitempty"`
 } // @name TaxonWithRelatives
 
-func ListTaxa(db edgedb.Executor,
-	pattern string, rank TaxonRank, status TaxonStatus,
-) ([]TaxonDB, error) {
-	var taxa = make([]TaxonDB, 0)
-	query := "select taxonomy::Taxon { *, meta: {**}}"
-	e := &expr.FilterGroup{Operator: "AND", Components: make([]expr.Expr, 3)}
-	if pattern != "" {
-		e.Add(&expr.QueryFilter{
-			Field: ".name", Op: "ilike", Arg: "<str>$pattern", Value: fmt.Sprintf("%%%s%%", pattern),
-		})
-	}
-	if rank != "" {
-		e.Add(&expr.QueryFilter{
-			Field: ".rank", Op: "=", Arg: "<taxonomy::Rank>$rank", Value: string(rank),
-		})
-	}
-	if status != "" {
-		e.Add(&expr.QueryFilter{
-			Field: ".status", Op: "=", Arg: "<taxonomy::TaxonStatus>$status", Value: string(status),
-		})
-	}
-	qb := expr.QueryBuilder{Query: query, Expr: e}
-	args := qb.Args()
-	logrus.Debugf("Taxonomy list query: %s", qb.String())
-	err := db.Query(context.Background(), qb.String(), &taxa, args)
-	return taxa, err
+type ListFilters struct {
+	Pattern  string              `json:"pattern,omitempty"`
+	Rank     TaxonRank           `json:"rank,omitempty"`
+	Status   TaxonStatus         `json:"status,omitempty"`
+	IsAnchor edgedb.OptionalBool `json:"anchors_only,omitempty"`
 }
 
-func ListAnchorTaxa(db edgedb.Executor) (taxa []TaxonDB, err error) {
-	query := "select taxonomy::Taxon { *, meta: { ** } } filter .anchor"
-	err = db.Query(context.Background(), query, &taxa)
-	return
+func ListTaxa(db edgedb.Executor, filters *ListFilters) ([]TaxonDB, error) {
+	var taxa = make([]TaxonDB, 0)
+	query := `select taxonomy::Taxon { *, meta: {**}}`
+	if filters != nil {
+		query = `with module taxonomy,
+				pattern := <str>$0,
+				rank := <Rank>(<str>$1 if len(<str>$1) > 0 else <str>{}),
+				status := <TaxonStatus>(<str>$2 if len(<str>$2) > 0 else <str>{}),
+				is_anchor := <optional bool>$3
+			select Taxon { *, meta: {**}}
+			filter (.name ilike ("%" ++ pattern ++ "%") if len(pattern) > 0 else true)
+			and (.rank = rank if exists rank else true)
+			and (.status = status if exists status else true)
+			and (.anchor = is_anchor if exists is_anchor else true);`
+	}
+	err := db.Query(context.Background(), query, &taxa,
+		filters.Pattern, filters.Rank, filters.Status, filters.IsAnchor)
+	return taxa, err
 }
 
 func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonSelect, err error) {

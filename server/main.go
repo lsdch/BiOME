@@ -70,7 +70,6 @@ func setupRouter() *gin.Engine {
 	importGBIF := taxonomy.ImportCladeGBIF()
 	taxonomy_api.PUT("/import", importGBIF.Endpoint)
 	taxonomy_api.RouterGroup.GET("/import", importGBIF.ProgressTracker)
-	taxonomy_api.GET("/anchors", taxonomy.ListAnchors)
 
 	api.POST("/login", router.WithDB(accounts.Login))
 	api.POST("/logout", accounts.Logout)

@@ -5,6 +5,7 @@ import (
 	"darco/proto/db"
 	gbif "darco/proto/models/taxonomy/GBIF"
 	"embed"
+	"flag"
 	"fmt"
 
 	"github.com/edgedb/edgedb-go"
@@ -51,11 +52,11 @@ func Seed(tx *edgedb.Tx, entity string) error {
 	return nil
 }
 
-func seedTaxonomyGBIF() error {
+func seedTaxonomyGBIF(db *edgedb.Client) error {
 	bar := progressbar.Default(-1, "Importing Asellidae taxonomy from GBIF")
-	db.Client().Execute(context.Background(), "delete taxonomy::Taxon")
+	db.Execute(context.Background(), "delete taxonomy::Taxon")
 	var total int
-	err := gbif.ImportTaxon(db.Client(),
+	err := gbif.ImportTaxon(db,
 		gbif.ImportRequestGBIF{Key: 4574, Children: true},
 		func(p *gbif.ImportProcess) {
 			total = p.Imported
@@ -78,19 +79,26 @@ var entities = []string{
 }
 
 func main() {
-	if err := seedTaxonomyGBIF(); err != nil {
+
+	database := flag.String("db", "", "The name of the database to seed")
+	flag.Parse()
+
+	client := db.Connect(edgedb.Options{Database: *database})
+
+	if err := seedTaxonomyGBIF(client); err != nil {
 		logrus.Errorf("Failed to load Asellidae taxonomy: %v", err)
 		return
 	}
 
-	db.Client().Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
-		for _, entity := range entities {
-			logrus.Infof("Seeding %s", entity)
-			err := Seed(tx, entity)
-			if err != nil {
-				return err
+	client.Tx(context.Background(),
+		func(ctx context.Context, tx *edgedb.Tx) error {
+			for _, entity := range entities {
+				logrus.Infof("Seeding %s", entity)
+				err := Seed(tx, entity)
+				if err != nil {
+					return err
+				}
 			}
-		}
-		return nil
-	})
+			return nil
+		})
 }

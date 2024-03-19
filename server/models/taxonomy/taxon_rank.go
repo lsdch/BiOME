@@ -13,8 +13,8 @@ const (
 	Subspecies TaxonRank = "Subspecies"
 )
 
-func (m *TaxonRank) MarshalEdgeDBStr() ([]byte, error) {
-	return []byte(*m), nil
+func (m TaxonRank) MarshalEdgeDBStr() ([]byte, error) {
+	return []byte(m), nil
 }
 
 func (m *TaxonRank) UnmarshalEdgeDBStr(data []byte) error {

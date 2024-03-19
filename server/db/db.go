@@ -19,7 +19,7 @@ type Executor interface {
 }
 
 // Opens a new connection to EdgeDB
-func connectDB(options edgedb.Options) (db *edgedb.Client) {
+func Connect(options edgedb.Options) (db *edgedb.Client) {
 	ctx := context.Background()
 	if options.Database == "" {
 		options.Database = "edgedb"
@@ -37,7 +37,7 @@ func connectDB(options edgedb.Options) (db *edgedb.Client) {
 	return
 }
 
-var db *edgedb.Client = connectDB(edgedb.Options{})
+var db *edgedb.Client = Connect(edgedb.Options{})
 
 type DatabaseConnection string
 

@@ -9,8 +9,8 @@ const (
 	Unclassified TaxonStatus = "Unclassified"
 )
 
-func (m *TaxonStatus) MarshalEdgeDBStr() ([]byte, error) {
-	return []byte(*m), nil
+func (m TaxonStatus) MarshalEdgeDBStr() ([]byte, error) {
+	return []byte(m), nil
 }
 
 func (m *TaxonStatus) UnmarshalEdgeDBStr(data []byte) error {

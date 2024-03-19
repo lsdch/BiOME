@@ -11,37 +11,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-// @Summary List anchor taxa
-// @Description Anchors are taxa that were imported as the root of a subtree in the taxonomy.
-// @id TaxonAnchors
-// @tags Taxonomy
-// @Success 200 {array} taxonomy.TaxonDB "Get anchor taxa list success"
-// @Router /taxonomy/anchors [get]
-func ListAnchors(ctx *gin.Context, db *edgedb.Client) {
-	anchors, err := taxonomy.ListAnchorTaxa(db)
-	if err != nil {
-		ctx.Error(err).SetMeta(gin.H{
-			"msg": "Failed to fetch taxonomy data",
-		})
-	} else {
-		ctx.JSON(http.StatusOK, anchors)
-	}
-}
-
 // @Summary List taxa
 // @Description Lists taxa, optionally filtered by name, rank and status
 // @id TaxonomyList
 // @tags Taxonomy
 // @Success 200 {array} taxonomy.TaxonSelect "Get taxon success"
 // @Router /taxonomy/ [get]
-// @Param pattern query string false "Name search pattern" minlength(2)
-// @Param rank query taxonomy.TaxonRank false "Taxonomic rank"
-// @Param status query taxonomy.TaxonStatus false "Taxonomic status"
+// @Param filter body taxonomy.ListFilters false "Query filters"
 func ListTaxa(ctx *gin.Context, db *edgedb.Client) {
-	pattern := ctx.Query("pattern")
-	rank := taxonomy.TaxonRank(ctx.Query("rank"))
-	status := taxonomy.TaxonStatus(ctx.Query("status"))
-	taxa, err := taxonomy.ListTaxa(db, pattern, rank, status)
+	var filters = new(taxonomy.ListFilters)
+	ctx.ShouldBindJSON(filters)
+	taxa, err := taxonomy.ListTaxa(db, filters)
 	if err != nil {
 		ctx.Error(err)
 	} else {
