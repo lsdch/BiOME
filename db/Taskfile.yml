@@ -22,11 +22,21 @@ tasks:
     run: once
 
   seed:
+    interactive: true
     cmds:
       - cmd: echo "Seeding database..."
         silent: true
       - go run ./seeds/main.go
+      - go run ./seeds/main.go -db=testing
     deps: [migrate]
+
+  reset:
+    dir: ..
+    interactive: true
+    prompt: This will wipe existing databases and re-run all migrations and seeds. Continue ?
+    cmds:
+      - edgedb database wipe
+      - task: seed
 
   migration:
     dir: ..
@@ -48,11 +58,3 @@ tasks:
   migrate:
     dir: ..
     deps: [migrate-dev, migrate-test]
-
-  reset:
-    dir: ..
-    prompt: This will wipe all data in your dev database and re-run migrations from scratch. Continue?
-    cmds:
-      - edgedb database wipe
-      - task: migrate
-      - task: seed
