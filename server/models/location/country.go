@@ -7,7 +7,7 @@ import (
 	"github.com/edgedb/edgedb-go"
 )
 
-//go:embed setup_countries.edgeql
+//go:embed queries/setup_countries.edgeql
 var setupCountriesCmd string
 
 //go:embed countries.json

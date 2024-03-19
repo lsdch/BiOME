@@ -16,7 +16,7 @@ func FakeData[T any](t *testing.T) *T {
 	if err := faker.FakeData(item); err != nil {
 		t.Fatalf("Failed to generate mock data: %v", err)
 	}
-	logrus.Infof("Generated item %+v", item)
+	logrus.Debugf("Generated item %+v", item)
 	return item
 }
 
