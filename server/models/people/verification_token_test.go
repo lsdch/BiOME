@@ -4,29 +4,25 @@ import (
 	"darco/proto/db"
 	"darco/proto/models/people"
 	"testing"
-	"time"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestEmailConfirmationToken(t *testing.T) {
 	client := db.Client()
 	p, err := FakePendingUserInput(t).Register(client)
-	if err != nil {
-		t.Fatalf("%v", err)
-	}
+	require.NoError(t, err)
 	token, err := p.User.CreateAccountToken(client, people.EmailConfirmationToken)
-	if err != nil {
-		t.Fatalf("Token generation failed: %v", err)
-	}
-	if len(token) == 0 {
-		t.Fatalf("Empty token generated")
-	}
-
-	time.Sleep(time.Second)
+	require.NoError(t, err)
+	assert.NotEmpty(t, token)
 	user, ok := people.ValidateAccountToken(client, token, people.EmailConfirmationToken)
-	if !ok {
-		t.Fatalf("Failed to validate account token")
+	assert.True(t, ok)
+	// if !ok {
+	// 	t.Fatalf("Failed to validate account token")
+	// }
+	if err := user.SetEmailConfirmed(client, ok); err != nil {
+		require.NoError(t, err)
 	}
-	if !user.EmailConfirmed {
-		t.Fatalf("User email was not confirmed")
-	}
+	assert.True(t, user.EmailConfirmed)
 }

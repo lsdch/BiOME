@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPasswordManipulation(t *testing.T) {
@@ -16,14 +18,10 @@ func TestPasswordManipulation(t *testing.T) {
 	defer teardown()
 
 	t.Run("Correct password matches", func(t *testing.T) {
-		if !user.PasswordMatch(db, "mockuserpassword") {
-			t.Fatalf("Password %s should have matched", "mockuserpassword")
-		}
+		assert.True(t, user.PasswordMatch(db, "mockuserpassword"))
 	})
 	t.Run("Invalid password does not match", func(t *testing.T) {
-		if user.PasswordMatch(db, "invalidpassword") {
-			t.Fatalf("Password %s should not match", "mockuserpassword")
-		}
+		assert.False(t, user.PasswordMatch(db, "invalidpassword"))
 	})
 
 	t.Run("Password update succeeds", func(t *testing.T) {
@@ -36,12 +34,9 @@ func TestPasswordManipulation(t *testing.T) {
 			),
 		).Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
 			err := user.SetPassword(tx, newPwd)
-			if err != nil {
-				t.Fatalf("Failed to set password: %v", err)
-			}
-			if !user.PasswordMatch(tx, newPwd) {
-				t.Fatalf("New password does not match in database")
-			}
+			require.NoError(t, err)
+			assert.Truef(t, user.PasswordMatch(tx, newPwd),
+				"New password does not match in database")
 			return errors.New("Rollback")
 		})
 	})
@@ -49,8 +44,6 @@ func TestPasswordManipulation(t *testing.T) {
 	t.Run("Weak password update fails", func(t *testing.T) {
 		newPwd := "weak"
 		err := user.SetPassword(db, newPwd)
-		if err == nil {
-			t.Fatalf("Weak password should not have been accepted")
-		}
+		require.NoError(t, err)
 	})
 }

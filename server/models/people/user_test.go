@@ -6,7 +6,9 @@ import (
 	users "darco/proto/models/people"
 	"testing"
 
+	"github.com/go-playground/assert/v2"
 	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/require"
 )
 
 func setupMockUser() (*users.User, func()) {
@@ -43,12 +45,8 @@ func TestFindUser(t *testing.T) {
 	defer teardown()
 	var client = db.Client()
 	var assertUser = func(u *users.User, err error) {
-		if err != nil {
-			t.Fatalf("Failed retrieving mock user")
-		}
-		if u.ID != user.ID {
-			t.Fatalf("Retrieved user is not the expected one")
-		}
+		require.NoError(t, err)
+		assert.Equal(t, u.ID, user.ID)
 	}
 
 	t.Run("Find user by their UUID", func(t *testing.T) {
@@ -65,9 +63,7 @@ func TestFindUser(t *testing.T) {
 	})
 	t.Run("Attempt to find non existing user", func(t *testing.T) {
 		_, err := users.Find(client, "#thisuserdoesnotexist#")
-		if err == nil {
-			t.Fatalf("Looking up for non existing user did not return an error")
-		}
+		require.Error(t, err)
 	})
 
 	t.Run("Fetch current user", func(t *testing.T) {
@@ -78,8 +74,7 @@ func TestFindUser(t *testing.T) {
 
 	t.Run("Fetch current user fails when global is not set", func(t *testing.T) {
 		u, err := users.Current(client)
-		if err == nil || u != nil {
-			t.Fatalf("Should return error when EdgeDB global current_user_id is not set")
-		}
+		require.Error(t, err)
+		assert.Equal(t, u, nil)
 	})
 }
