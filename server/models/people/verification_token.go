@@ -5,7 +5,6 @@ import (
 	"context"
 	"darco/proto/models/settings"
 	"fmt"
-	"net/url"
 	"text/template"
 	"time"
 
@@ -27,43 +26,6 @@ func (t Token) MarshalEdgeDBStr() ([]byte, error) {
 func (t *Token) UnmarshalEdgeDBStr(data []byte) error {
 	*t = Token(string(data))
 	return nil
-}
-
-// A URL that encodes a token in its query parameters as '?token=<token-string>'
-type TokenURL struct {
-	url.URL
-	token    Token
-	redirect string
-}
-
-func NewTokenURL(url url.URL) TokenURL {
-	return TokenURL{url, "", ""}
-}
-
-func (u *TokenURL) SetToken(token Token) {
-	u.token = token
-}
-func (u *TokenURL) Token() Token {
-	return u.token
-}
-
-func (u *TokenURL) SetRedirect(path string) {
-	u.redirect = path
-}
-func (u *TokenURL) Redirect() string {
-	return u.redirect
-}
-
-func (u *TokenURL) Encode() *url.URL {
-	params := url.Values{}
-	if u.token != "" {
-		params.Set("token", string(u.token))
-	}
-	if u.redirect != "" {
-		params.Set("redirect", u.redirect)
-	}
-	u.URL.RawQuery = params.Encode()
-	return &u.URL
 }
 
 type AccountTokenKind string

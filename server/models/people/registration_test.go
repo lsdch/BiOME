@@ -1,12 +1,14 @@
 package people_test
 
 import (
+	"darco/proto/db"
 	"darco/proto/models/people"
 	"darco/proto/tests"
 	"fmt"
 	"testing"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/stretchr/testify/require"
 )
 
 func FakePendingUserInput(t *testing.T) *people.PendingUserRequestInput {
@@ -35,22 +37,15 @@ func TestPendingUser(t *testing.T) {
 			return nil
 		}))
 
-	t.Run("Validate pending account request",
-		tests.WrapTransaction(t, func(tx *edgedb.Tx) error {
-			pendingUser, err := FakePendingUserInput(t).Register(tx)
-			if err != nil {
-				return err
-			}
-			person, err := FakePersonInput(t).Create(tx)
-			if err != nil {
-				return err
-			}
-			_, err = pendingUser.ValidateTx(tx, &person)
-			if err != nil {
-				return err
-			}
-			return nil
-		}))
+	t.Run("Validate pending account request", func(t *testing.T) {
+		client := db.Client()
+		pendingUser, err := FakePendingUserInput(t).Register(client)
+		require.NoError(t, err)
+		person, err := FakePersonInput(t).Create(client)
+		require.NoError(t, err)
+		_, err = pendingUser.Validate(client, &person)
+		require.NoError(t, err)
+	})
 
 	t.Run("Delete pending user request",
 		tests.WrapTransaction(t, func(tx *edgedb.Tx) error {

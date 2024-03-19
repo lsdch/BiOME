@@ -2,6 +2,7 @@ package people
 
 import (
 	"context"
+	"darco/proto/utils"
 	_ "embed"
 	"encoding/json"
 	"time"
@@ -59,8 +60,10 @@ func (p *PendingUserRequest) Delete(db edgedb.Executor) error {
 // PendingUserRequest is deleted in the database afterwards.
 // All operations are done within a database transaction.
 func (p *PendingUserRequest) Validate(db *edgedb.Client, person *Person) (*User, error) {
-	var user *User
-	var err error
+	var (
+		user *User
+		err  error
+	)
 	db.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
 		user, err = p.ValidateTx(tx, person)
 		return err
@@ -86,33 +89,33 @@ func (p *PendingUserRequest) ValidateTx(tx *edgedb.Tx, person *Person) (*User, e
 // SendConfirmationEmail sends a confirmation email to the user with a verification token.
 // It generates a confirmation token, and sends an email with the confirmation link.
 // The confirmation token is included as a query parameter in the URL.
-func (user *User) SendConfirmationEmail(db *edgedb.Client, target TokenURL) error {
+func (user *User) SendConfirmationEmail(db *edgedb.Client, target utils.RedirectURL) error {
 	token, err := user.CreateAccountToken(db, EmailConfirmationToken)
 	if err != nil {
 		return err
 	}
-	target.SetToken(token)
+	url := NewTokenURL(target, token)
 
 	return user.SendEmail(
 		"Activation of your account",
 		"email_verification.html",
 		map[string]any{
 			"Name": user.Person.FirstName,
-			"URL":  target.Encode().String(),
+			"URL":  url.String(),
 		})
 }
 
-func (user *User) RequestPasswordReset(db *edgedb.Client, tokenURL TokenURL) error {
+func (user *User) RequestPasswordReset(db *edgedb.Client, target utils.RedirectURL) error {
 	token, err := user.CreateAccountToken(db, PasswordResetToken)
 	if err != nil {
 		return err
 	}
-	tokenURL.SetToken(token)
+	url := NewTokenURL(target, token)
 	return user.SendEmail(
 		"Reset your account password",
 		"email_password_reset.html",
 		map[string]interface{}{
 			"Name": user.Person.FirstName,
-			"URL":  tokenURL.String(),
+			"URL":  url.String(),
 		})
 }

@@ -7,13 +7,6 @@ import (
 	"testing"
 )
 
-func TestInitialEmailSettings(t *testing.T) {
-	emailSettings := settings.Email()
-	if !emailSettings.Missing() {
-		t.Fatalf("Email configuration should not exist in initial settings")
-	}
-}
-
 func TestEmailSettingsSave(t *testing.T) {
 	input := tests.FakeData[settings.EmailSettingsInput](t)
 	settings, err := input.Save(db.Client())

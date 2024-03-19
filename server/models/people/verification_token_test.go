@@ -18,9 +18,6 @@ func TestEmailConfirmationToken(t *testing.T) {
 	assert.NotEmpty(t, token)
 	user, ok := people.ValidateAccountToken(client, token, people.EmailConfirmationToken)
 	assert.True(t, ok)
-	// if !ok {
-	// 	t.Fatalf("Failed to validate account token")
-	// }
 	if err := user.SetEmailConfirmed(client, ok); err != nil {
 		require.NoError(t, err)
 	}
