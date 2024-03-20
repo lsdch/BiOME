@@ -4,8 +4,10 @@ import (
 	"context"
 	"darco/proto/db"
 	"darco/proto/models/settings"
+	"darco/proto/utils"
 	"fmt"
 
+	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 	"github.com/trustelem/zxcvbn"
 )
@@ -89,4 +91,19 @@ func (user *User) setPassword(db db.Executor, pwd validatedPassword) {
 			user.ID, err,
 		)
 	}
+}
+
+func (user *User) RequestPasswordReset(db *edgedb.Client, target utils.RedirectURL) error {
+	token, err := user.CreateAccountToken(db, PasswordResetToken)
+	if err != nil {
+		return err
+	}
+	url := NewTokenURL(target, token)
+	return user.SendEmail(
+		"Reset your account password",
+		"email_password_reset.html",
+		map[string]interface{}{
+			"Name": user.Person.FirstName,
+			"URL":  url.String(),
+		})
 }

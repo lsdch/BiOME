@@ -46,7 +46,7 @@ func TestPendingUser(t *testing.T) {
 		person, err := FakePersonInput(t).Create(client)
 		require.NoError(t, err)
 		role := people.Contributor
-		u, err := pendingUser.Validate(client, &person, role)
+		u, err := pendingUser.Validate(client, &person.PersonInner, role)
 		require.NoError(t, err)
 		assert.Equal(t, role, u.Role)
 	})

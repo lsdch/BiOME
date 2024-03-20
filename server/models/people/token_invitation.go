@@ -55,3 +55,12 @@ func (p *Person) CreateInvitation(db edgedb.Executor, role UserRole) (*Invitatio
 	}
 	return token.Save(db)
 }
+
+func ValidateInvitationToken(db edgedb.Executor, token Token) (*Invitation, error) {
+	var invitation Invitation
+	err := db.QuerySingle(context.Background(),
+		`select people::UserInvitation { ** } filter .token = <str>$0`,
+		&invitation, token,
+	)
+	return &invitation, err
+}

@@ -30,7 +30,7 @@ func TestActivationAuthentication(t *testing.T) {
 	require.NoError(t, user.SetEmailConfirmed(db, true))
 	person, err := FakePersonInput(t).Create(db)
 	require.NoError(t, err)
-	require.NoError(t, user.SetIdentity(db, &person))
+	require.NoError(t, user.SetIdentity(db, &person.PersonInner))
 	auth_user, err := credentials.Authenticate(db)
 	assert.Nil(t, err)
 	assert.Equal(t, user, *auth_user)

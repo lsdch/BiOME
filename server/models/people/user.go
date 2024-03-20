@@ -21,7 +21,7 @@ type User struct {
 	IsActive       bool           `edgedb:"is_active" json:"is_active" binding:"required"`
 } //@name User
 
-func (user *User) SetIdentity(db edgedb.Executor, person *Person) error {
+func (user *User) SetIdentity(db edgedb.Executor, person *PersonInner) error {
 	return db.QuerySingle(context.Background(),
 		`with module people
 			select (update (<User><uuid>$0) set {

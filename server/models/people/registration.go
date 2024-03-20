@@ -17,6 +17,24 @@ type UserInput struct {
 	PasswordInput `json:",inline"`
 } // @name UserInput
 
+func (u UserInput) Save(db edgedb.Executor, role UserRole) (*User, error) {
+	var user User
+	input, _ := json.Marshal(u)
+	err := db.QuerySingle(context.Background(),
+		`with module people,
+		user := <json>$0
+		insert User {
+			login := <str>user['login'],
+			email := <str>user['email'],
+			password := <str>user['password'],
+			role := <UserRole>$1,
+		}`,
+		&user, input, role,
+	)
+	return &user, err
+
+}
+
 type InnerPendingUserRequest struct {
 	Person struct {
 		PersonIdentity `edgedb:"$inline" json:",inline"`
@@ -59,7 +77,7 @@ func (p *PendingUserRequest) Delete(db edgedb.Executor) error {
 // Validate an inactive user by setting their identity to an existing person.
 // PendingUserRequest is deleted in the database afterwards.
 // All operations are done within a database transaction.
-func (p *PendingUserRequest) Validate(db *edgedb.Client, person *Person, role UserRole) (*User, error) {
+func (p *PendingUserRequest) Validate(db *edgedb.Client, person *PersonInner, role UserRole) (*User, error) {
 	var (
 		user *User
 		err  error
@@ -72,7 +90,7 @@ func (p *PendingUserRequest) Validate(db *edgedb.Client, person *Person, role Us
 }
 
 // Like [*PendingUserRequest.ValidateTx] but the transaction executor is provided as argument
-func (p *PendingUserRequest) ValidateTx(tx *edgedb.Tx, person *Person, role UserRole) (*User, error) {
+func (p *PendingUserRequest) ValidateTx(tx *edgedb.Tx, person *PersonInner, role UserRole) (*User, error) {
 	if err := p.User.SetIdentity(tx, person); err != nil {
 		return nil, err
 	}
@@ -108,17 +126,17 @@ func (user *User) SendConfirmationEmail(db *edgedb.Client, target utils.Redirect
 		})
 }
 
-func (user *User) RequestPasswordReset(db *edgedb.Client, target utils.RedirectURL) error {
-	token, err := user.CreateAccountToken(db, PasswordResetToken)
+func (u *UserInput) ClaimInvitationToken(db edgedb.Executor, token Token) (*User, error) {
+	invitation, err := ValidateInvitationToken(db, token)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	url := NewTokenURL(target, token)
-	return user.SendEmail(
-		"Reset your account password",
-		"email_password_reset.html",
-		map[string]interface{}{
-			"Name": user.Person.FirstName,
-			"URL":  url.String(),
-		})
+	user, err := u.Save(db, invitation.Role)
+	if err != nil {
+		return nil, err
+	}
+	if err := user.SetIdentity(db, &invitation.Person); err != nil {
+		return nil, err
+	}
+	return user, nil
 }

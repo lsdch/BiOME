@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"darco/proto/models/settings"
-	"fmt"
 	"text/template"
 	"time"
 
@@ -75,13 +74,11 @@ func (token *AccountToken) Consume(db *edgedb.Client) (err error) {
 }
 
 func ValidateAccountToken(db *edgedb.Client, token Token, kind AccountTokenKind) (*User, bool) {
-	query := fmt.Sprintf(
-		`select people::%s { id, user: { *, identity: { * }}, token, expires }
-		filter .token = <str>$0`, kind,
-	)
 	var db_token AccountToken
 	if err := db.QuerySingle(context.Background(),
-		query, &db_token, token,
+		`select people::AccountToken { *, user: { *, identity: { * }} }
+				  filter .token = <str>$0`,
+		&db_token, token,
 	); err != nil {
 		logrus.Infof("Failed to validate password reset token: %+v", err)
 		return nil, false
