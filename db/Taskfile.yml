@@ -23,11 +23,12 @@ tasks:
 
   seed:
     interactive: true
+    dir: seeds
     cmds:
       - cmd: echo "Seeding database..."
         silent: true
-      - go run ./seeds/main.go
-      - go run ./seeds/main.go -db=testing
+      - go run .
+      - go run . -db=testing
     deps: [migrate]
 
   reset:

@@ -21,6 +21,7 @@ require (
 	github.com/trustelem/zxcvbn v1.0.1
 	golang.org/x/text v0.14.0
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
+	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (

@@ -3,8 +3,11 @@ package settings
 import (
 	"context"
 	"encoding/json"
+	"os"
 
 	"github.com/edgedb/edgedb-go"
+	"gopkg.in/gomail.v2"
+	"gopkg.in/yaml.v2"
 )
 
 type EmailSettingsInput struct {
@@ -46,4 +49,18 @@ func (e *EmailSettingsInput) Save(db edgedb.Executor) (*EmailSettings, error) {
 		return nil, err
 	}
 	return &emailSettings, nil
+}
+
+func (e *EmailSettingsInput) Dialer() *gomail.Dialer {
+	return gomail.NewDialer(e.Host, int(e.Port), e.User, e.Password)
+}
+
+func (e *EmailSettingsInput) TestConnection() error {
+	_, err := e.Dialer().Dial()
+	return err
+}
+
+func (e *EmailSettingsInput) WriteYAML(path string) error {
+	yamlCfg, _ := yaml.Marshal(e)
+	return os.WriteFile(path, yamlCfg, 0644)
 }
