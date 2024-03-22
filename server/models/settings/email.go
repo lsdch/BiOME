@@ -7,7 +7,7 @@ import (
 
 	"github.com/edgedb/edgedb-go"
 	"gopkg.in/gomail.v2"
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type EmailSettingsInput struct {
