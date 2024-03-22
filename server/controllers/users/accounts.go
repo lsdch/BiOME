@@ -11,6 +11,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type TokenResponse struct {
+	Token string `edgedb:"token" json:"token"`
+}
+
 // @Summary Authenticate user
 // @Description Authenticate user with their credentials and set a JWT.
 // @id Login
@@ -36,7 +40,8 @@ func Login(ctx *gin.Context, db *edgedb.Client) {
 		ctx.AbortWithStatusJSON(http.StatusBadRequest, authError)
 		return
 	}
-	startUserSession(ctx, user)
+	token := startUserSession(ctx, user)
+	ctx.JSON(http.StatusOK, TokenResponse{token})
 }
 
 // Stores authentication token in cookies after a user has logged, and send it back with HTTP status OK.

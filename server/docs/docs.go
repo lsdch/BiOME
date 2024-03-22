@@ -130,7 +130,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Returns a token and stores it as a session cookie",
                         "schema": {
-                            "$ref": "#/definitions/TokenResponse"
+                            "$ref": "#/definitions/accounts.TokenResponse"
                         }
                     },
                     "400": {
@@ -417,37 +417,12 @@ const docTemplate = `{
                 "operationId": "TaxonomyList",
                 "parameters": [
                     {
-                        "minLength": 2,
-                        "type": "string",
-                        "description": "Name search pattern",
-                        "name": "pattern",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "Kingdom",
-                            "Phylum",
-                            "Class",
-                            "Family",
-                            "Genus",
-                            "Species",
-                            "Subspecies"
-                        ],
-                        "type": "string",
-                        "description": "Taxonomic rank",
-                        "name": "rank",
-                        "in": "query"
-                    },
-                    {
-                        "enum": [
-                            "Accepted",
-                            "Synonym",
-                            "Unclassified"
-                        ],
-                        "type": "string",
-                        "description": "Taxonomic status",
-                        "name": "status",
-                        "in": "query"
+                        "description": "Query filters",
+                        "name": "filter",
+                        "in": "body",
+                        "schema": {
+                            "$ref": "#/definitions/taxonomy.ListFilters"
+                        }
                     }
                 ],
                 "responses": {
@@ -491,27 +466,6 @@ const docTemplate = `{
                         "description": "Bad Request",
                         "schema": {
                             "$ref": "#/definitions/FieldErrors"
-                        }
-                    }
-                }
-            }
-        },
-        "/taxonomy/anchors": {
-            "get": {
-                "description": "Anchors are taxa that were imported as the root of a subtree in the taxonomy.",
-                "tags": [
-                    "Taxonomy"
-                ],
-                "summary": "List anchor taxa",
-                "operationId": "TaxonAnchors",
-                "responses": {
-                    "200": {
-                        "description": "Get anchor taxa list success",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/TaxonDB"
-                            }
                         }
                     }
                 }
@@ -677,6 +631,12 @@ const docTemplate = `{
                         "name": "token",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Path to redirect to on success",
+                        "name": "redirect",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -718,6 +678,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/UserCredentials"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Redirect to path on confirmation",
+                        "name": "redirect",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -848,6 +814,12 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/PendingUserRequestInput"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "Path to redirect to when email is successfully confirmed",
+                        "name": "redirect",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -859,32 +831,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/FieldErrors"
                         }
-                    }
-                }
-            }
-        },
-        "/users/{uuid}": {
-            "delete": {
-                "description": "Deletes an account",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Auth"
-                ],
-                "summary": "Delete an account",
-                "responses": {
-                    "200": {
-                        "description": "User was deleted successfully"
-                    },
-                    "401": {
-                        "description": "Admin privileges required"
-                    },
-                    "404": {
-                        "description": "User does not exist"
                     }
                 }
             }
@@ -993,11 +939,11 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 12,
                     "minLength": 2,
-                    "example": "MELES"
+                    "example": "LEHNA"
                 },
                 "description": {
                     "type": "string",
-                    "example": "The main ecological research lab on Tatooine."
+                    "example": "Where this database was born."
                 },
                 "id": {
                     "type": "string",
@@ -1018,7 +964,7 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 128,
                     "minLength": 10,
-                    "example": "Mos Eisley Laboratory of Environmental Studies"
+                    "example": "Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
                 },
                 "people": {
                     "type": "array",
@@ -1040,11 +986,11 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 12,
                     "minLength": 2,
-                    "example": "MELES"
+                    "example": "LEHNA"
                 },
                 "description": {
                     "type": "string",
-                    "example": "The main ecological research lab on Tatooine."
+                    "example": "Where this database was born."
                 },
                 "kind": {
                     "allOf": [
@@ -1058,7 +1004,7 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 128,
                     "minLength": 10,
-                    "example": "Mos Eisley Laboratory of Environmental Studies"
+                    "example": "Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
                 }
             }
         },
@@ -1084,11 +1030,11 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 12,
                     "minLength": 2,
-                    "example": "MELES"
+                    "example": "LEHNA"
                 },
                 "description": {
                     "type": "string",
-                    "example": "The main ecological research lab on Tatooine."
+                    "example": "Where this database was born."
                 },
                 "kind": {
                     "allOf": [
@@ -1102,7 +1048,7 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 128,
                     "minLength": 3,
-                    "example": "Mos Eisley Laboratory of Environmental Studies"
+                    "example": "Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
                 }
             }
         },
@@ -1141,7 +1087,10 @@ const docTemplate = `{
                     "example": "2023-09-01T16:41:10.921097+00:00"
                 },
                 "created_by": {
-                    "$ref": "#/definitions/models.UserShortIdentity"
+                    "$ref": "#/definitions/people.UserShortIdentity"
+                },
+                "created_by_user": {
+                    "$ref": "#/definitions/people.OptionalUser"
                 },
                 "last_updated": {
                     "type": "string",
@@ -1152,7 +1101,10 @@ const docTemplate = `{
                     "example": "2023-09-02T20:39:10.218057+00:00"
                 },
                 "updated_by": {
-                    "$ref": "#/definitions/models.UserShortIdentity"
+                    "$ref": "#/definitions/people.UserShortIdentity"
+                },
+                "updated_by_user": {
+                    "$ref": "#/definitions/people.OptionalUser"
                 }
             }
         },
@@ -1186,19 +1138,10 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "institutions": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Institution"
-                    }
-                },
                 "last_name": {
                     "type": "string",
                     "maxLength": 32,
                     "minLength": 2
-                },
-                "meta": {
-                    "$ref": "#/definitions/Meta"
                 },
                 "role": {
                     "$ref": "#/definitions/UserRole"
@@ -1286,7 +1229,7 @@ const docTemplate = `{
                 "institutions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Institution"
+                        "$ref": "#/definitions/people.InstitutionInner"
                     }
                 },
                 "last_name": {
@@ -1668,18 +1611,6 @@ const docTemplate = `{
                 }
             }
         },
-        "TokenResponse": {
-            "type": "object",
-            "required": [
-                "token"
-            ],
-            "properties": {
-                "token": {
-                    "type": "string",
-                    "example": "some-generated-jwt"
-                }
-            }
-        },
         "User": {
             "type": "object",
             "required": [
@@ -1709,9 +1640,6 @@ const docTemplate = `{
                 },
                 "login": {
                     "type": "string"
-                },
-                "meta": {
-                    "$ref": "#/definitions/Meta"
                 },
                 "role": {
                     "$ref": "#/definitions/UserRole"
@@ -1763,13 +1691,13 @@ const docTemplate = `{
             "enum": [
                 "Visitor",
                 "Contributor",
-                "ProjectMember",
+                "Maintainer",
                 "Admin"
             ],
             "x-enum-varnames": [
                 "Visitor",
                 "Contributor",
-                "ProjectMember",
+                "Maintainer",
                 "Admin"
             ]
         },
@@ -1788,6 +1716,17 @@ const docTemplate = `{
                 }
             }
         },
+        "accounts.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "edgedb.OptionalBool": {
+            "type": "object"
+        },
         "gbif.ImportRequestGBIF": {
             "type": "object",
             "properties": {
@@ -1800,7 +1739,81 @@ const docTemplate = `{
                 }
             }
         },
-        "models.UserShortIdentity": {
+        "people.InstitutionInner": {
+            "type": "object",
+            "required": [
+                "code",
+                "id",
+                "kind",
+                "name"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "maxLength": 12,
+                    "minLength": 2,
+                    "example": "LEHNA"
+                },
+                "description": {
+                    "type": "string",
+                    "example": "Where this database was born."
+                },
+                "id": {
+                    "type": "string",
+                    "example": "\u003cUUID\u003e"
+                },
+                "kind": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/InstitutionKind"
+                        }
+                    ],
+                    "example": "Lab"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 128,
+                    "minLength": 10,
+                    "example": "Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
+                }
+            }
+        },
+        "people.OptionalUser": {
+            "type": "object",
+            "required": [
+                "email",
+                "email_confirmed",
+                "id",
+                "identity",
+                "is_active",
+                "login",
+                "role"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "email_confirmed": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "identity": {
+                    "$ref": "#/definitions/OptionalPerson"
+                },
+                "is_active": {
+                    "type": "boolean"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/UserRole"
+                }
+            }
+        },
+        "people.UserShortIdentity": {
             "type": "object",
             "properties": {
                 "alias": {
@@ -1808,6 +1821,23 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string"
+                }
+            }
+        },
+        "taxonomy.ListFilters": {
+            "type": "object",
+            "properties": {
+                "anchors_only": {
+                    "$ref": "#/definitions/edgedb.OptionalBool"
+                },
+                "pattern": {
+                    "type": "string"
+                },
+                "rank": {
+                    "$ref": "#/definitions/TaxonRank"
+                },
+                "status": {
+                    "$ref": "#/definitions/TaxonStatus"
                 }
             }
         }

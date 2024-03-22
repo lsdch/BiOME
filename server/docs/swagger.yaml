@@ -68,12 +68,12 @@ definitions:
   Institution:
     properties:
       code:
-        example: MELES
+        example: LEHNA
         maxLength: 12
         minLength: 2
         type: string
       description:
-        example: The main ecological research lab on Tatooine.
+        example: Where this database was born.
         type: string
       id:
         example: <UUID>
@@ -85,7 +85,7 @@ definitions:
       meta:
         $ref: '#/definitions/Meta'
       name:
-        example: Mos Eisley Laboratory of Environmental Studies
+        example: Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés
         maxLength: 128
         minLength: 10
         type: string
@@ -102,19 +102,19 @@ definitions:
   InstitutionInput:
     properties:
       code:
-        example: MELES
+        example: LEHNA
         maxLength: 12
         minLength: 2
         type: string
       description:
-        example: The main ecological research lab on Tatooine.
+        example: Where this database was born.
         type: string
       kind:
         allOf:
         - $ref: '#/definitions/InstitutionKind'
         example: Lab
       name:
-        example: Mos Eisley Laboratory of Environmental Studies
+        example: Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés
         maxLength: 128
         minLength: 10
         type: string
@@ -138,19 +138,19 @@ definitions:
   InstitutionUpdate:
     properties:
       code:
-        example: MELES
+        example: LEHNA
         maxLength: 12
         minLength: 2
         type: string
       description:
-        example: The main ecological research lab on Tatooine.
+        example: Where this database was born.
         type: string
       kind:
         allOf:
         - $ref: '#/definitions/InstitutionKind'
         example: Lab
       name:
-        example: Mos Eisley Laboratory of Environmental Studies
+        example: Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés
         maxLength: 128
         minLength: 3
         type: string
@@ -178,7 +178,9 @@ definitions:
         example: "2023-09-01T16:41:10.921097+00:00"
         type: string
       created_by:
-        $ref: '#/definitions/models.UserShortIdentity'
+        $ref: '#/definitions/people.UserShortIdentity'
+      created_by_user:
+        $ref: '#/definitions/people.OptionalUser'
       last_updated:
         example: "2023-09-02T20:39:10.218057+00:00"
         type: string
@@ -186,7 +188,9 @@ definitions:
         example: "2023-09-02T20:39:10.218057+00:00"
         type: string
       updated_by:
-        $ref: '#/definitions/models.UserShortIdentity'
+        $ref: '#/definitions/people.UserShortIdentity'
+      updated_by_user:
+        $ref: '#/definitions/people.OptionalUser'
     required:
     - created
     type: object
@@ -206,16 +210,10 @@ definitions:
         type: string
       id:
         type: string
-      institutions:
-        items:
-          $ref: '#/definitions/Institution'
-        type: array
       last_name:
         maxLength: 32
         minLength: 2
         type: string
-      meta:
-        $ref: '#/definitions/Meta'
       role:
         $ref: '#/definitions/UserRole'
     required:
@@ -276,7 +274,7 @@ definitions:
         type: string
       institutions:
         items:
-          $ref: '#/definitions/Institution'
+          $ref: '#/definitions/people.InstitutionInner'
         type: array
       last_name:
         maxLength: 32
@@ -547,14 +545,6 @@ definitions:
     - rank
     - status
     type: object
-  TokenResponse:
-    properties:
-      token:
-        example: some-generated-jwt
-        type: string
-    required:
-    - token
-    type: object
   User:
     properties:
       email:
@@ -569,8 +559,6 @@ definitions:
         type: boolean
       login:
         type: string
-      meta:
-        $ref: '#/definitions/Meta'
       role:
         $ref: '#/definitions/UserRole'
     required:
@@ -614,13 +602,13 @@ definitions:
     enum:
     - Visitor
     - Contributor
-    - ProjectMember
+    - Maintainer
     - Admin
     type: string
     x-enum-varnames:
     - Visitor
     - Contributor
-    - ProjectMember
+    - Maintainer
     - Admin
   accounts.PasswordUpdateRequest:
     properties:
@@ -632,6 +620,13 @@ definitions:
     - credentials
     - password
     type: object
+  accounts.TokenResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  edgedb.OptionalBool:
+    type: object
   gbif.ImportRequestGBIF:
     properties:
       children:
@@ -640,12 +635,76 @@ definitions:
         description: target GBIF taxon key
         type: integer
     type: object
-  models.UserShortIdentity:
+  people.InstitutionInner:
+    properties:
+      code:
+        example: LEHNA
+        maxLength: 12
+        minLength: 2
+        type: string
+      description:
+        example: Where this database was born.
+        type: string
+      id:
+        example: <UUID>
+        type: string
+      kind:
+        allOf:
+        - $ref: '#/definitions/InstitutionKind'
+        example: Lab
+      name:
+        example: Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés
+        maxLength: 128
+        minLength: 10
+        type: string
+    required:
+    - code
+    - id
+    - kind
+    - name
+    type: object
+  people.OptionalUser:
+    properties:
+      email:
+        type: string
+      email_confirmed:
+        type: boolean
+      id:
+        type: string
+      identity:
+        $ref: '#/definitions/OptionalPerson'
+      is_active:
+        type: boolean
+      login:
+        type: string
+      role:
+        $ref: '#/definitions/UserRole'
+    required:
+    - email
+    - email_confirmed
+    - id
+    - identity
+    - is_active
+    - login
+    - role
+    type: object
+  people.UserShortIdentity:
     properties:
       alias:
         type: string
       name:
         type: string
+    type: object
+  taxonomy.ListFilters:
+    properties:
+      anchors_only:
+        $ref: '#/definitions/edgedb.OptionalBool'
+      pattern:
+        type: string
+      rank:
+        $ref: '#/definitions/TaxonRank'
+      status:
+        $ref: '#/definitions/TaxonStatus'
     type: object
 info:
   contact:
@@ -729,7 +788,7 @@ paths:
         "200":
           description: Returns a token and stores it as a session cookie
           schema:
-            $ref: '#/definitions/TokenResponse'
+            $ref: '#/definitions/accounts.TokenResponse'
         "400":
           description: Authentication failure
           schema:
@@ -918,31 +977,11 @@ paths:
       description: Lists taxa, optionally filtered by name, rank and status
       operationId: TaxonomyList
       parameters:
-      - description: Name search pattern
-        in: query
-        minLength: 2
-        name: pattern
-        type: string
-      - description: Taxonomic rank
-        enum:
-        - Kingdom
-        - Phylum
-        - Class
-        - Family
-        - Genus
-        - Species
-        - Subspecies
-        in: query
-        name: rank
-        type: string
-      - description: Taxonomic status
-        enum:
-        - Accepted
-        - Synonym
-        - Unclassified
-        in: query
-        name: status
-        type: string
+      - description: Query filters
+        in: body
+        name: filter
+        schema:
+          $ref: '#/definitions/taxonomy.ListFilters'
       responses:
         "200":
           description: Get taxon success
@@ -1046,21 +1085,6 @@ paths:
       summary: Update a taxon by its code
       tags:
       - Taxonomy
-  /taxonomy/anchors:
-    get:
-      description: Anchors are taxa that were imported as the root of a subtree in
-        the taxonomy.
-      operationId: TaxonAnchors
-      responses:
-        "200":
-          description: Get anchor taxa list success
-          schema:
-            items:
-              $ref: '#/definitions/TaxonDB'
-            type: array
-      summary: List anchor taxa
-      tags:
-      - Taxonomy
   /taxonomy/import:
     put:
       consumes:
@@ -1086,23 +1110,6 @@ paths:
       summary: Import GBIF clade
       tags:
       - Taxonomy
-  /users/{uuid}:
-    delete:
-      consumes:
-      - application/json
-      description: Deletes an account
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: User was deleted successfully
-        "401":
-          description: Admin privileges required
-        "404":
-          description: User does not exist
-      summary: Delete an account
-      tags:
-      - Auth
   /users/confirm:
     get:
       consumes:
@@ -1114,6 +1121,10 @@ paths:
         in: query
         name: token
         required: true
+        type: string
+      - description: Path to redirect to on success
+        in: query
+        name: redirect
         type: string
       produces:
       - application/json
@@ -1142,6 +1153,10 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/UserCredentials'
+      - description: Redirect to path on confirmation
+        in: query
+        name: redirect
+        type: string
       produces:
       - application/json
       responses:
@@ -1230,6 +1245,10 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/PendingUserRequestInput'
+      - description: Path to redirect to when email is successfully confirmed
+        in: query
+        name: redirect
+        type: string
       produces:
       - application/json
       responses:
