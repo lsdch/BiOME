@@ -10,6 +10,7 @@
             prepend-inner-icon="mdi-at"
             :rules="inlineRules([email])"
             validate-on="blur"
+            hint="An e-mail address to contact this person"
           />
         </v-col>
       </v-row>
@@ -24,6 +25,7 @@
             :item-props="({ code, name }) => ({ title: code, subtitle: name })"
             item-value="code"
             :error-messages="errorMsgs.institutions"
+            prepend-inner-icon="mdi-domain"
           />
         </v-col>
       </v-row>

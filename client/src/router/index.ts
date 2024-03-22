@@ -114,6 +114,11 @@ const router = createRouter({
       component: () => import("../views/AccountView.vue")
     },
     { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+    {
+      path: '/settings',
+      name: "app-settings",
+      component: () => import("@/views/settings/AdminSettings.vue")
+    },
     ...routeGroups.reduce((acc, current) => {
       if (current.routes) {
         return acc.concat(current.routes)

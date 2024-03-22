@@ -1,0 +1,146 @@
+<template>
+  <v-dialog v-model="model.open" :fullscreen="smAndDown" :max-width="1000">
+    <v-card flat :rounded="0">
+      <v-toolbar flat dark>
+        <v-card-title>
+          <v-icon>mdi-image</v-icon>
+          App icon
+        </v-card-title>
+        <v-spacer></v-spacer>
+        <v-btn color="secondary" text="Cancel" @click="model.open = false" />
+        <v-btn color="primary" prepend-icon="mdi-floppy" text="Save" variant="flat" />
+      </v-toolbar>
+      <v-container fluid>
+        <v-row>
+          <v-col cols="12" md="8">
+            <div class="d-flex flex-column mx-auto" style="max-width: 500px">
+              <v-responsive :aspect-ratio="1" :max-width="500" :max-height="500">
+                <cropper
+                  class="cropper icon-cropper"
+                  @change="updatePreview"
+                  auto-zoom
+                  :src="imgSrc"
+                  :default-visible-area="defaultCoordinates"
+                  :stencil-component="CircleStencil"
+                />
+              </v-responsive>
+              <v-file-input
+                v-model="imgFile"
+                class="w-100 cursor-pointer"
+                accept="image/*"
+                color="primary"
+                label="Upload new image"
+                prepend-icon=""
+                prepend-inner-icon="mdi-upload"
+                variant="solo-filled"
+                show-size
+                single-line
+                hide-details
+                flat
+                :rounded="0"
+              />
+            </div>
+          </v-col>
+          <v-col>
+            <div class="h-100 d-flex flex-column align-center justify-space-between">
+              <InstanceIconPreviews
+                :result="result"
+                :direction="mdAndUp ? 'vertical' : 'horizontal'"
+              />
+
+              <!-- <v-btn
+                block
+                size="large"
+                variant="flat"
+                :rounded="0"
+                class="flex-grow-0"
+                color="primary"
+                text="Save icon"
+                prepend-icon="mdi-content-save"
+              /> -->
+            </div>
+          </v-col>
+        </v-row>
+      </v-container>
+    </v-card>
+  </v-dialog>
+</template>
+
+<script setup lang="ts">
+import { ref } from 'vue'
+import { CircleStencil, Coordinates, Cropper, CropperResult } from 'vue-advanced-cropper'
+import 'vue-advanced-cropper/dist/style.css'
+import { useDisplay } from 'vuetify'
+import InstanceIconPreviews from './InstanceIconPreviews.vue'
+import { computed, watch } from 'vue'
+
+const { smAndDown, mdAndUp } = useDisplay()
+
+const defaultCoordinates: Coordinates = {
+  width: 500,
+  height: 500,
+  top: 100,
+  left: 100
+}
+
+const model = defineModel<{
+  open: boolean
+  iconSrc?: string
+}>({ default: { open: false } })
+
+const result = ref<CropperResult>()
+function updatePreview(c: CropperResult) {
+  result.value = c
+}
+
+const imgFile = ref<File[]>([])
+const uploadedImg = ref<string | undefined>(undefined)
+
+watch(imgFile, () => {
+  if (uploadedImg.value) {
+    URL.revokeObjectURL(uploadedImg.value)
+  }
+  if (imgFile.value.length > 0) {
+    uploadedImg.value = URL.createObjectURL(imgFile.value[0])
+  } else {
+    uploadedImg.value = undefined
+  }
+})
+
+const imgSrc = computed(() => {
+  return uploadedImg.value ?? model.value.iconSrc
+})
+</script>
+
+<style lang="scss">
+@use 'vuetify';
+
+.icon-cropper {
+  width: 500px;
+  aspect-ratio: 1 / 1;
+}
+
+.crop-container {
+  max-width: 500px;
+  max-height: 500px;
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.v-file-input {
+  * {
+    cursor: pointer;
+  }
+  i {
+    color: white;
+  }
+  .v-field {
+    background: rgb(var(--v-theme-primary)) !important;
+  }
+  label,
+  .v-field__input {
+    color: white !important;
+  }
+}
+</style>

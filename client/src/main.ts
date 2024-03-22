@@ -29,11 +29,12 @@ const dark: ThemeDefinition = {
   }
 }
 
-
+import { VNumberInput } from 'vuetify/labs/VNumberInput'
 const vuetify = createVuetify({
   blueprint: md3,
   components: {
-    ...components
+    ...components,
+    VNumberInput,
   },
   directives,
   icons: {
@@ -51,7 +52,8 @@ const vuetify = createVuetify({
     VTextField: { variant: "outlined" },
     VSelect: { variant: "outlined" },
     VAutocomplete: { variant: "outlined" },
-    VTextArea: { variant: "outlined" }
+    VTextArea: { variant: "outlined" },
+    VNumberInput: { variant: "outlined" }
   }
 })
 

@@ -20,6 +20,10 @@
           color="purple"
         />
       </v-list-item>
+      <v-divider />
+      <v-list-item prepend-icon="mdi-tools" :to="{ name: 'app-settings' }">
+        Database settings
+      </v-list-item>
     </v-list>
   </v-menu>
 </template>
