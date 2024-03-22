@@ -4,7 +4,7 @@
 /* eslint-disable */
 import type { OptionalPerson } from './OptionalPerson';
 import type { UserRole } from './UserRole';
-export type User = {
+export type people_OptionalUser = {
     email: string;
     email_confirmed: boolean;
     id: string;

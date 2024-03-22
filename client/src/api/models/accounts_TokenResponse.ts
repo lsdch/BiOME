@@ -2,7 +2,7 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type TokenResponse = {
-    token: string;
+export type accounts_TokenResponse = {
+    token?: string;
 };
 

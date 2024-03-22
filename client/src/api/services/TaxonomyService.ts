@@ -3,8 +3,8 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { gbif_ImportRequestGBIF } from '../models/gbif_ImportRequestGBIF';
-import type { TaxonDB } from '../models/TaxonDB';
 import type { TaxonInput } from '../models/TaxonInput';
+import type { taxonomy_ListFilters } from '../models/taxonomy_ListFilters';
 import type { TaxonUpdate } from '../models/TaxonUpdate';
 import type { TaxonWithRelatives } from '../models/TaxonWithRelatives';
 import type { CancelablePromise } from '../core/CancelablePromise';
@@ -14,25 +14,17 @@ export class TaxonomyService {
     /**
      * List taxa
      * Lists taxa, optionally filtered by name, rank and status
-     * @param pattern Name search pattern
-     * @param rank Taxonomic rank
-     * @param status Taxonomic status
+     * @param filter Query filters
      * @returns TaxonWithRelatives Get taxon success
      * @throws ApiError
      */
     public static taxonomyList(
-        pattern?: string,
-        rank?: 'Kingdom' | 'Phylum' | 'Class' | 'Family' | 'Genus' | 'Species' | 'Subspecies',
-        status?: 'Accepted' | 'Synonym' | 'Unclassified',
+        filter?: taxonomy_ListFilters,
     ): CancelablePromise<Array<TaxonWithRelatives>> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/taxonomy/',
-            query: {
-                'pattern': pattern,
-                'rank': rank,
-                'status': status,
-            },
+            body: filter,
         });
     }
     /**
@@ -54,18 +46,6 @@ export class TaxonomyService {
             errors: {
                 400: `Bad Request`,
             },
-        });
-    }
-    /**
-     * List anchor taxa
-     * Anchors are taxa that were imported as the root of a subtree in the taxonomy.
-     * @returns TaxonDB Get anchor taxa list success
-     * @throws ApiError
-     */
-    public static taxonAnchors(): CancelablePromise<Array<TaxonDB>> {
-        return __request(OpenAPI, {
-            method: 'GET',
-            url: '/taxonomy/anchors',
         });
     }
     /**

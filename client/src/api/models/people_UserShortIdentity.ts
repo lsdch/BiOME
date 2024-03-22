@@ -2,4 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type UserRole = 'Visitor' | 'Contributor' | 'Maintainer' | 'Admin';
+export type people_UserShortIdentity = {
+    alias?: string;
+    name?: string;
+};
+

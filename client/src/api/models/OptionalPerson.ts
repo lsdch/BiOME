@@ -2,8 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Institution } from './Institution';
-import type { Meta } from './Meta';
 import type { UserRole } from './UserRole';
 export type OptionalPerson = {
     alias: string;
@@ -12,9 +10,7 @@ export type OptionalPerson = {
     first_name: string;
     full_name: string;
     id: string;
-    institutions?: Array<Institution>;
     last_name: string;
-    meta?: Meta;
     role?: UserRole;
 };
 

@@ -2,12 +2,15 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { models_UserShortIdentity } from './models_UserShortIdentity';
+import type { people_OptionalUser } from './people_OptionalUser';
+import type { people_UserShortIdentity } from './people_UserShortIdentity';
 export type Meta = {
     created: string;
-    created_by?: models_UserShortIdentity;
+    created_by?: people_UserShortIdentity;
+    created_by_user?: people_OptionalUser;
     last_updated?: string;
     modified?: string;
-    updated_by?: models_UserShortIdentity;
+    updated_by?: people_UserShortIdentity;
+    updated_by_user?: people_OptionalUser;
 };
 

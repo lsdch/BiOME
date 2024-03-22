@@ -2,8 +2,6 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-export type models_UserShortIdentity = {
-    alias?: string;
-    name?: string;
+export type edgedb_OptionalBool = {
 };
 

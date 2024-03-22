@@ -2,10 +2,10 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
+import type { accounts_TokenResponse } from '../models/accounts_TokenResponse';
 import type { EmailInput } from '../models/EmailInput';
 import type { PasswordInput } from '../models/PasswordInput';
 import type { PendingUserRequestInput } from '../models/PendingUserRequestInput';
-import type { TokenResponse } from '../models/TokenResponse';
 import type { UserCredentials } from '../models/UserCredentials';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import { OpenAPI } from '../core/OpenAPI';
@@ -36,12 +36,12 @@ export class AuthService {
      * Authenticate user
      * Authenticate user with their credentials and set a JWT.
      * @param data User credentials
-     * @returns TokenResponse Returns a token and stores it as a session cookie
+     * @returns accounts_TokenResponse Returns a token and stores it as a session cookie
      * @throws ApiError
      */
     public static login(
         data: UserCredentials,
-    ): CancelablePromise<TokenResponse> {
+    ): CancelablePromise<accounts_TokenResponse> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/login',
@@ -68,17 +68,20 @@ export class AuthService {
      * Email confirmation
      * Confirms a user email using a token
      * @param token Confirmation token
+     * @param redirect Path to redirect to on success
      * @returns any Email was confirmed and account activated
      * @throws ApiError
      */
     public static emailConfirmation(
         token: string,
+        redirect?: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'GET',
             url: '/users/confirm',
             query: {
                 'token': token,
+                'redirect': redirect,
             },
             errors: {
                 400: `Bad Request`,
@@ -90,15 +93,20 @@ export class AuthService {
      * Resend confirmation email
      * Send again the confirmation email
      * @param data User informations
+     * @param redirect Redirect to path on confirmation
      * @returns any Email was sent
      * @throws ApiError
      */
     public static resendConfirmationEmail(
         data: UserCredentials,
+        redirect?: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/users/confirm/resend',
+            query: {
+                'redirect': redirect,
+            },
             body: data,
             errors: {
                 400: `Bad Request`,
@@ -173,34 +181,23 @@ export class AuthService {
      * Register user
      * Register a new user account, that is inactive (until email is verified or admin intervention), and has role 'Guest'
      * @param data User informations
+     * @param redirect Path to redirect to when email is successfully confirmed
      * @returns any User created and waiting for email verification
      * @throws ApiError
      */
     public static registerUser(
         data: PendingUserRequestInput,
+        redirect?: string,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
             method: 'POST',
             url: '/users/register',
+            query: {
+                'redirect': redirect,
+            },
             body: data,
             errors: {
                 400: `Bad Request`,
-            },
-        });
-    }
-    /**
-     * Delete an account
-     * Deletes an account
-     * @returns any User was deleted successfully
-     * @throws ApiError
-     */
-    public static deleteUsers(): CancelablePromise<any> {
-        return __request(OpenAPI, {
-            method: 'DELETE',
-            url: '/users/{uuid}',
-            errors: {
-                401: `Admin privileges required`,
-                404: `User does not exist`,
             },
         });
     }

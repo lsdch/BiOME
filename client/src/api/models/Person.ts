@@ -2,8 +2,8 @@
 /* istanbul ignore file */
 /* tslint:disable */
 /* eslint-disable */
-import type { Institution } from './Institution';
 import type { Meta } from './Meta';
+import type { people_InstitutionInner } from './people_InstitutionInner';
 import type { UserRole } from './UserRole';
 export type Person = {
     alias: string;
@@ -12,7 +12,7 @@ export type Person = {
     first_name: string;
     full_name: string;
     id: string;
-    institutions?: Array<Institution>;
+    institutions?: Array<people_InstitutionInner>;
     last_name: string;
     meta?: Meta;
     role?: UserRole;
