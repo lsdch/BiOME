@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import NotFound from '@/components/NotFound.vue'
+import NotFound from '@/components/navigation/NotFound.vue'
 import { nextTick } from "vue"
 
 

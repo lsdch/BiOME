@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { RouterView } from 'vue-router'
-import NavigationDrawer from './NavigationDrawer.vue'
+import NavigationDrawer from '@/components/navigation/NavigationDrawer.vue'
 
 import AccountNavMenu from '@/components/navbar/AccountNavMenu.vue'
 import SettingsMenu from '@/components/navbar/SettingsMenu.vue'

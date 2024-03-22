@@ -38,7 +38,7 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router'
-import { RouteDefinition, routeGroups } from './router'
+import { RouteDefinition, routeGroups } from '@/router'
 const drawer = defineModel<boolean>({ default: true })
 const router = useRouter()
 function isRouteActive(route: RouteDefinition) {
