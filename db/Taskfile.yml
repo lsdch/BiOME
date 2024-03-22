@@ -37,6 +37,7 @@ tasks:
     prompt: This will wipe existing databases and re-run all migrations and seeds. Continue ?
     cmds:
       - edgedb database wipe
+      - edgedb database wipe -d testing
       - task: seed
 
   migration:
