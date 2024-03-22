@@ -1,6 +1,8 @@
 package people
 
 import (
+	"darco/proto/models/settings"
+	"darco/proto/services/tokens"
 	"errors"
 
 	"github.com/edgedb/edgedb-go"
@@ -57,4 +59,9 @@ func (creds *UserCredentials) Authenticate(db *edgedb.Client) (*User, *LoginFail
 // Returns currently authenticated user or edgedb.NoDataError if not authenticated
 func Current(db *edgedb.Client) (*User, error) {
 	return find(db, `select (global current_user) { * , identity: { * } } limit 1`)
+}
+
+func (user *User) GenerateJWT() (string, error) {
+	return tokens.GenerateToken(user.ID,
+		settings.Security().AuthTokenDuration())
 }

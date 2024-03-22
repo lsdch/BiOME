@@ -41,10 +41,7 @@ func Login(ctx *gin.Context, db *edgedb.Client) {
 
 // Stores authentication token in cookies after a user has logged, and send it back with HTTP status OK.
 func startUserSession(ctx *gin.Context, user *users.User) string {
-	token, err := tokens.GenerateToken(
-		user.ID,
-		settings.Security().AuthTokenDuration(),
-	)
+	token, err := user.GenerateJWT()
 	if err != nil {
 		ctx.AbortWithError(http.StatusInternalServerError, err)
 		return ""
