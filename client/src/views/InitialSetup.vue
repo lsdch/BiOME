@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import SignUpForm from '@/components/auth/SignUpForm.vue'
-import AnchorTaxonPicker from '@/components/taxonomy/AnchorTaxonPicker.vue'
+import AnchorTaxonPicker from '@/components/taxonomy/imports/AnchorTaxonPicker.vue'
 const stepper_items = ['General configuration', 'Admin account', 'Backbone taxonomy']
 </script>
 
