@@ -2,7 +2,13 @@
   <v-form @submit.prevent="submit" class="pb-5">
     <v-row>
       <v-col cols="12" sm="6">
-        <v-select :items="allowedRanks" v-model="taxon.rank" label="Rank" variant="outlined" />
+        <v-select
+          :items="allowedRanks"
+          v-model="taxon.rank"
+          label="Rank"
+          variant="outlined"
+          prepend-inner-icon="mdi-order-bool-ascending"
+        />
       </v-col>
       <v-col cols="12" sm="6">
         <v-autocomplete
@@ -23,7 +29,7 @@
         <v-text-field v-model="taxon.name" label="Name" />
       </v-col>
       <v-col cols="12" sm="6">
-        <v-text-field label="Authorship (optional)" />
+        <v-text-field label="Authorship (optional)" placeholder="e.g. (Linnaeus, 1758)" />
       </v-col>
     </v-row>
     <v-row>
@@ -43,7 +49,7 @@ import { TaxonInput, TaxonRank, TaxonWithRelatives, TaxonomyService } from '@/ap
 import { Ref, computed, onMounted, ref } from 'vue'
 import { useForm, Props, Emits } from '../toolkit/form'
 
-const allowedRanks: TaxonRank[] = ['Species', 'Subspecies']
+const allowedRanks: TaxonRank[] = ['Subspecies', 'Species', 'Genus', 'Family']
 
 const props = defineProps<Props<TaxonWithRelatives>>()
 const emit = defineEmits<Emits<TaxonWithRelatives>>()
@@ -51,7 +57,7 @@ const emit = defineEmits<Emits<TaxonWithRelatives>>()
 const taxon: Ref<TaxonInput> = ref({
   name: '',
   parent: '',
-  rank: 'Species',
+  rank: 'Subspecies',
   status: 'Unclassified',
   authorship: '',
   code: ''
@@ -59,6 +65,10 @@ const taxon: Ref<TaxonInput> = ref({
 
 const parentLabel = computed((): string => {
   switch (taxon.value.rank) {
+    case 'Family':
+      return 'Parent class'
+    case 'Genus':
+      return 'Parent family'
     case 'Species':
       return 'Parent genus'
     case 'Subspecies':
@@ -73,6 +83,8 @@ const taxa: Ref<TaxonWithRelatives[]> = ref([])
 const candidateParents = computed(() => {
   return taxa.value.filter(
     ({ rank }) =>
+      (rank == 'Class' && taxon.value.rank == 'Family') ||
+      (rank == 'Family' && taxon.value.rank == 'Genus') ||
       (rank == 'Genus' && taxon.value.rank == 'Species') ||
       (rank == 'Species' && taxon.value.rank == 'Subspecies')
   )
