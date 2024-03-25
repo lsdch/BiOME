@@ -7,7 +7,7 @@ export function roleIcon(role?: UserRole) {
         icon: 'mdi-star-cog',
         color: 'red'
       }
-    case "ProjectMember":
+    case "Maintainer":
       return {
         icon: 'mdi-star-circle',
         color: 'orange'
@@ -17,7 +17,7 @@ export function roleIcon(role?: UserRole) {
         icon: 'mdi-star',
         color: 'primary'
       }
-    case "Guest":
+    case "Visitor":
       return {
         icon: 'mdi-circle-medium',
         color: 'green'
@@ -26,3 +26,5 @@ export function roleIcon(role?: UserRole) {
       return {}
   }
 }
+
+export const orderedUserRoles: UserRole[] = ['Visitor', 'Contributor', 'Maintainer', 'Admin'] as const

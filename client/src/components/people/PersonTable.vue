@@ -6,16 +6,22 @@
       list: PeopleService.getPeoplePersons,
       delete: (person: Person) => PeopleService.deletePerson(person.id)
     }"
+    :filter="filter"
+    :search="filters.term"
     entityName="Person"
     :itemRepr="(p: Person) => p.full_name"
     :toolbar="{
       title: 'People',
       icon: 'mdi-account'
     }"
+    filter-mode="some"
     show-actions
     @create-item="create"
     @edit-item="edit"
   >
+    <template v-slot:search>
+      <PersonFilters v-model="filters" />
+    </template>
     <template v-slot:form>
       <PersonForm :edit="editItem" @success="onFormSuccess"></PersonForm>
     </template>
@@ -61,16 +67,36 @@
 </template>
 
 <script setup lang="ts">
-import { PeopleService, Person } from '@/api'
+import { Institution, PeopleService, Person } from '@/api'
 
 import { UserRole } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { computed, ref } from 'vue'
 import { useEntityTable } from '../toolkit/tables'
+import type { PersonFilters as Filters } from './PersonFilters.vue'
+import PersonFilters from './PersonFilters.vue'
 import PersonForm from './PersonForm.vue'
-import { roleIcon } from './userRole'
 import { kindIcon } from './institutionKind'
+import { orderedUserRoles, roleIcon } from './userRole'
 
-const role_order: UserRole[] = ['Guest', 'Contributor', 'ProjectMember', 'Admin']
+const filters = ref<Filters>({
+  term: '',
+  status: undefined
+})
+
+const filter = computed(() => {
+  const { status } = filters.value
+  switch (status) {
+    case undefined:
+      return () => true
+    case 'Registered user':
+      return (item: Person) => Boolean(item.role)
+    case 'Unregistered':
+      return (item: Person) => !item.role
+    default:
+      return (item: Person) => item.role === status
+  }
+})
 
 const headers: CRUDTableHeader[] = [
   {
@@ -78,9 +104,9 @@ const headers: CRUDTableHeader[] = [
     key: 'role',
     width: 0,
     align: 'end',
-    sort(a, b) {
+    sort(a: UserRole, b: UserRole) {
       if (a === b) return 0
-      return role_order.indexOf(a) - role_order.indexOf(b)
+      return orderedUserRoles.indexOf(a) - orderedUserRoles.indexOf(b)
     }
   },
   { title: 'Name', key: 'full_name' },
@@ -91,7 +117,10 @@ const headers: CRUDTableHeader[] = [
   {
     title: 'Institutions',
     key: 'institutions',
-    sortable: false
+    sortable: false,
+    filter: (value: Institution[], query: string) => {
+      return value.find((inst) => inst.code.includes(query)) !== undefined
+    }
   }
 ]
 
