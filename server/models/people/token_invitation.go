@@ -21,6 +21,7 @@ type InvitationInput struct {
 
 type Invitation struct {
 	ID              edgedb.UUID `edgedb:"id" json:"id"`
+	IssuedBy        User        `edgedb:"issued_by" json:"issued_by"`
 	InvitationInput `edgedb:"$inline" json:",inline"`
 } // @name Invitation
 

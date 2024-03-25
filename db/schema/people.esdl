@@ -136,6 +136,9 @@ module people {
       constraint exclusive;
     };
     required expires: datetime;
+    required issued_by: User {
+      default := (global default::current_user);
+    };
   }
 
   # AccountToken is a consumable token that confirms that some operation
