@@ -88,6 +88,7 @@ const filter = computed(() => {
   const { status } = filters.value
   switch (status) {
     case undefined:
+    case null:
       return () => true
     case 'Registered user':
       return (item: Person) => Boolean(item.role)
