@@ -53,11 +53,11 @@ func ErrorHandler(c *gin.Context) {
 		return
 	}
 
-	var unhandled = handleNoData(c, err) ||
+	var handled = handleNoData(c, err) ||
 		handleValidationErrors(c, err) ||
 		handleManualValidationErrors(c, err)
 
-	if unhandled {
+	if !handled {
 		if err.Meta != nil {
 			c.AbortWithStatusJSON(http.StatusInternalServerError, err.Meta)
 			return
