@@ -12,11 +12,17 @@
       title: 'Institutions',
       icon: 'mdi-domain'
     }"
+    :search="filters.term"
+    :filter="filter"
+    filter-mode="some"
     show-actions
     :filter-keys="['code', 'name', 'kind']"
     @create-item="create"
     @edit-item="edit"
   >
+    <template v-slot:search>
+      <InstitutionFilters v-model="filters" />
+    </template>
     <template v-slot:form>
       <InstitutionForm :edit="editItem" @success="onFormSuccess" />
     </template>
@@ -90,14 +96,25 @@ import { Institution, PeopleService } from '@/api'
 import InstitutionForm from './InstitutionForm.vue'
 
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import { enumAsString } from '../toolkit/enums'
 import { useEntityTable } from '../toolkit/tables'
+import InstitutionFilters from './InstitutionFilters.vue'
+import { Filters } from './InstitutionFilters.vue'
 import { kindIcon } from './institutionKind'
 import { roleIcon } from './userRole'
 
 const { mdAndUp } = useDisplay()
+
+const filters = ref<Filters>({
+  term: '',
+  kind: undefined
+})
+
+const filter = computed(() => {
+  return filters.value.kind ? (item: Institution) => item.kind === filters.value.kind : () => true
+})
 
 const headers = computed(
   (): CRUDTableHeaders => [
@@ -106,7 +123,7 @@ const headers = computed(
     {
       title: 'Kind',
       key: 'kind',
-      value(item) {
+      value(item: Institution) {
         return enumAsString(item.kind)
       }
     },
