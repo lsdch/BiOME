@@ -37,18 +37,9 @@
       <code>{{ item.code }}</code>
     </template>
     <template v-slot:[`item.kind`]="{ item, value }">
-      <v-chip
-        label
-        variant="outlined"
-        color="primary"
-        text-color="primary"
-        v-bind="kindIcon(item.kind)"
-      >
-        <template v-slot:prepend>
-          <v-icon v-bind="kindIcon(item.kind)"></v-icon>
-        </template>
+      <InstitutionKindChip :kind="item.kind">
         {{ mdAndUp ? value : '' }}
-      </v-chip>
+      </InstitutionKindChip>
     </template>
     <template v-slot:[`item.people`]="{ value, toggleExpand, internalItem }">
       <v-btn
@@ -100,9 +91,8 @@ import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import { enumAsString } from '../toolkit/enums'
 import { useEntityTable } from '../toolkit/tables'
-import InstitutionFilters from './InstitutionFilters.vue'
-import { Filters } from './InstitutionFilters.vue'
-import { kindIcon } from './institutionKind'
+import InstitutionFilters, { Filters } from './InstitutionFilters.vue'
+import InstitutionKindChip from './InstitutionKindChip.vue'
 import { roleIcon } from './userRole'
 
 const { mdAndUp } = useDisplay()
