@@ -47,17 +47,6 @@
                 :result="result"
                 :direction="mdAndUp ? 'vertical' : 'horizontal'"
               />
-
-              <!-- <v-btn
-                block
-                size="large"
-                variant="flat"
-                :rounded="0"
-                class="flex-grow-0"
-                color="primary"
-                text="Save icon"
-                prepend-icon="mdi-content-save"
-              /> -->
             </div>
           </v-col>
         </v-row>

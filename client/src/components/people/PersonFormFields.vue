@@ -5,7 +5,6 @@
         name="first_name"
         label="First name(s)"
         v-model.trim="person.first_name"
-        required
         :error-messages="errorMsgs?.first_name"
         :rules="inlineRules([required])"
       />
