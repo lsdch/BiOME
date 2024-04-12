@@ -16,17 +16,25 @@
       </v-row>
       <v-row>
         <v-col>
-          <v-select
+          <v-autocomplete
             label="Institutions (optional)"
             v-model="person.institutions"
             :items="institutions"
+            item-color="primary"
             chips
+            closable-chips
             multiple
             :item-props="({ code, name }) => ({ title: code, subtitle: name })"
             item-value="code"
             :error-messages="errorMsgs.institutions"
             prepend-inner-icon="mdi-domain"
-          />
+          >
+            <template v-slot:chip="{ item, props }">
+              <InstitutionKindChip :kind="item.raw.kind" v-bind="props" size="x-small">
+                {{ item.raw.code }}
+              </InstitutionKindChip>
+            </template>
+          </v-autocomplete>
         </v-col>
       </v-row>
       <v-row>
@@ -36,14 +44,7 @@
       </v-row>
       <v-row>
         <v-spacer />
-        <v-btn
-          :loading="loading"
-          color="primary"
-          variant="plain"
-          type="submit"
-          text="Submit"
-          :disabled="!isValid"
-        />
+        <v-btn :loading="loading" color="primary" variant="plain" type="submit" text="Submit" />
       </v-row>
     </v-container>
   </v-form>
@@ -64,6 +65,7 @@ import { onMounted, ref, watchEffect } from 'vue'
 import { VForm } from 'vuetify/components'
 import { Emits, Props, inlineRules, useForm } from '../toolkit/form'
 import PersonFormFields from './PersonFormFields.vue'
+import InstitutionKindChip from './InstitutionKindChip.vue'
 
 const isValid = ref(null)
 

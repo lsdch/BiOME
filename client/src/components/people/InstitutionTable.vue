@@ -37,9 +37,7 @@
       <code>{{ item.code }}</code>
     </template>
     <template v-slot:[`item.kind`]="{ item, value }">
-      <InstitutionKindChip :kind="item.kind">
-        {{ mdAndUp ? value : '' }}
-      </InstitutionKindChip>
+      <InstitutionKindChip size="small" :kind="item.kind" :label="value" :hide-label="!mdAndUp" />
     </template>
     <template v-slot:[`item.people`]="{ value, toggleExpand, internalItem }">
       <v-btn

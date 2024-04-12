@@ -19,32 +19,33 @@
     @create-item="create"
     @edit-item="edit"
   >
+    <!-- User Role column -->
+    <template #[`header.role`]="slotProps">
+      <IconTableHeader v-bind="slotProps" icon="mdi-account-badge" />
+    </template>
+    <template #[`item.role`]="{ value }">
+      <v-icon v-bind="roleIcon(value)" size="x-small" :title="value" />
+    </template>
+
     <template v-slot:search>
       <PersonFilters v-model="filters" />
     </template>
     <template v-slot:form>
       <PersonForm :edit="editItem" @success="onFormSuccess"></PersonForm>
     </template>
-    <template v-slot:[`item.role`]="{ value }">
-      <v-icon v-bind="roleIcon(value)"></v-icon>
-    </template>
+
     <template v-slot:[`item.alias`]="{ value }">
       <span class="font-weight-light"> {{ `@${value}` }}</span>
     </template>
     <template v-slot:[`item.institutions`]="{ value }">
-      <v-chip
-        label
+      <InstitutionKindChip
         v-for="inst in value"
         :key="inst.code"
-        class="text-overline mx-1"
-        variant="outlined"
-        v-bind="kindIcon(inst.kind)"
-      >
-        <template v-slot:prepend>
-          <v-icon v-bind="kindIcon(inst.kind)"></v-icon>
-        </template>
-        {{ inst.code }}
-      </v-chip>
+        :kind="inst.kind"
+        :label="inst.code"
+        :hide-label="xs"
+        size="x-small"
+      />
     </template>
 
     <template v-slot:[`expanded-row-inject`]="{ item }">
@@ -53,15 +54,23 @@
           {{ item.comment }}
         </v-list-item>
       </v-card>
-      <v-btn
-        v-if="item.contact"
-        variant="plain"
-        prepend-icon="mdi-at"
-        :href="`mailto:${item.contact}`"
-        :text="item.contact"
-        size="small"
-        class="mx-1"
-      />
+      <v-card flat>
+        <v-btn
+          v-if="item.contact"
+          variant="plain"
+          prepend-icon="mdi-at"
+          :href="`mailto:${item.contact}`"
+          :text="item.contact"
+          size="small"
+          class="mx-1"
+        />
+        <v-btn
+          color="primary"
+          variant="plain"
+          prepend-icon="mdi-account-box-plus-outline"
+          text="Invite"
+        />
+      </v-card>
     </template>
   </CRUDTable>
 </template>
@@ -72,12 +81,16 @@ import { Institution, PeopleService, Person } from '@/api'
 import { UserRole } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
+import { useDisplay } from 'vuetify'
 import { useEntityTable } from '../toolkit/tables'
+import InstitutionKindChip from './InstitutionKindChip.vue'
 import type { PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
 import PersonForm from './PersonForm.vue'
-import { kindIcon } from './institutionKind'
 import { orderedUserRoles, roleIcon } from './userRole'
+import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
+
+const { xs } = useDisplay()
 
 const filters = ref<Filters>({
   term: '',
