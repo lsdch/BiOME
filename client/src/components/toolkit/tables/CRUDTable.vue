@@ -147,10 +147,6 @@ type Props = TableProps<ItemType, () => CancelablePromise<ItemType[]>> & {
   filter?: (item: ItemType) => boolean
   filterKeys?: string | string[]
 }
-type SortItem = {
-  key: string
-  order?: boolean | 'asc' | 'desc'
-}
 
 const slots = useSlots()
 // Assert type here to prevent errors in template when exposing VDataTable slots
@@ -188,8 +184,8 @@ function toggleSort(sortKey: string) {
   if (sortMeta?.order === 'asc') {
     order = 'desc'
   }
-  sortBy.value.splice(0, sortBy.value.length)
-  sortBy.value.push({ key: sortKey, order })
+  sortBy.value?.splice(0, sortBy.value.length)
+  sortBy.value?.push({ key: sortKey, order })
 }
 
 const filteredItems = computed(() => {
