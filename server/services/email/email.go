@@ -2,7 +2,6 @@ package email
 
 import (
 	"bytes"
-	"crypto/tls"
 	"darco/proto/models/settings"
 	"html/template"
 	"sync"
@@ -57,7 +56,6 @@ func Send(from string, email *EmailData) (err error) {
 		return err
 	}
 
-	settings := settings.Get().Email
 	m := gomail.NewMessage()
 	m.SetHeader("From", from)
 	m.SetHeader("To", email.To)
@@ -65,8 +63,9 @@ func Send(from string, email *EmailData) (err error) {
 	m.SetBody("text/html", body.String())
 	m.AddAlternative("text/plain", html2text.HTML2Text(body.String()))
 
-	dialer := gomail.NewDialer(settings.Host, int(settings.Port), settings.User, settings.Password)
-	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
+	settings := settings.Email()
+	dialer := settings.Dialer()
+	// dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 
 	return dialer.DialAndSend(m)
 }
