@@ -50,11 +50,9 @@ type ListFilters struct {
 	IsAnchor edgedb.OptionalBool `json:"anchors_only,omitempty"`
 }
 
-func ListTaxa(db edgedb.Executor, filters *ListFilters) ([]TaxonDB, error) {
+func ListTaxa(db edgedb.Executor, filters ListFilters) ([]TaxonDB, error) {
 	var taxa = make([]TaxonDB, 0)
-	query := `select taxonomy::Taxon { *, meta: {**}}`
-	if filters != nil {
-		query = `with module taxonomy,
+	query := `with module taxonomy,
 				pattern := <str>$0,
 				rank := <Rank>(<str>$1 if len(<str>$1) > 0 else <str>{}),
 				status := <TaxonStatus>(<str>$2 if len(<str>$2) > 0 else <str>{}),
@@ -64,7 +62,6 @@ func ListTaxa(db edgedb.Executor, filters *ListFilters) ([]TaxonDB, error) {
 			and (.rank = rank if exists rank else true)
 			and (.status = status if exists status else true)
 			and (.anchor = is_anchor if exists is_anchor else true);`
-	}
 	err := db.Query(context.Background(), query, &taxa,
 		filters.Pattern, filters.Rank, filters.Status, filters.IsAnchor)
 	return taxa, err

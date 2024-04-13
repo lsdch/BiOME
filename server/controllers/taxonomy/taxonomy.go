@@ -19,8 +19,10 @@ import (
 // @Router /taxonomy/ [get]
 // @Param filter body taxonomy.ListFilters false "Query filters"
 func ListTaxa(ctx *gin.Context, db *edgedb.Client) {
-	var filters = new(taxonomy.ListFilters)
-	ctx.ShouldBindJSON(filters)
+	var filters = taxonomy.ListFilters{}
+	if err := ctx.ShouldBindJSON(&filters); err != nil {
+		_ = ctx.Error(err)
+	}
 	taxa, err := taxonomy.ListTaxa(db, filters)
 	if err != nil {
 		ctx.Error(err)

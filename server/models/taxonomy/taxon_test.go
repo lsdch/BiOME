@@ -65,7 +65,7 @@ func TestTaxonomyList(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		taxa, err := taxonomy.ListTaxa(db.Client(), &c.filters)
+		taxa, err := taxonomy.ListTaxa(db.Client(), c.filters)
 		require.NoError(t, err)
 		c.expect(taxa)
 	}
