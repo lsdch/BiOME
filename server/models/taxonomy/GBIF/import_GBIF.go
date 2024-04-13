@@ -235,7 +235,10 @@ func ImportTaxon(db *edgedb.Client, request ImportRequestGBIF, monitor func(p *I
 			tracker.Progress(insert_count)
 
 			if request.Children {
-				importChildren(tx, request.Key, tracker)
+				err := importChildren(tx, request.Key, tracker)
+				if err != nil {
+					return tracker.Errorf("failed to import children of taxon %s[%d]\b%w", taxon.Name, taxon.Key, err)
+				}
 			}
 
 			tracker.Terminate()
