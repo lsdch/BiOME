@@ -5,6 +5,7 @@ export type AuthenticationResponse = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  User: User
   messages: Array<string>
   /**
    * JSON Web Token

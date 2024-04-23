@@ -53,6 +53,7 @@ type LoginInput struct {
 type AuthenticationResponse struct {
 	Messages          []string `json:"messages"`
 	AuthTokenResponse `json:",inline"`
+	User              *users.User
 }
 
 type LoginOutput struct {
@@ -83,6 +84,7 @@ func createSession(user *users.User, domain string, messages ...string) (*LoginO
 				messages,
 			),
 			AuthTokenResponse: AuthTokenResponse{Token: token},
+			User:              user,
 		},
 	}, nil
 }

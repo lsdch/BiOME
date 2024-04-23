@@ -10,6 +10,9 @@ export const $AuthenticationResponse = {
       readOnly: true,
       type: 'string'
     },
+    User: {
+      $ref: '#/components/schemas/User'
+    },
     messages: {
       items: {
         type: 'string'
@@ -22,7 +25,7 @@ export const $AuthenticationResponse = {
       type: 'string'
     }
   },
-  required: ['messages', 'token'],
+  required: ['messages', 'User', 'token'],
   type: 'object'
 } as const
 
