@@ -13,8 +13,8 @@ tasks:
     interactive: true
     cmds:
       - edgedb project init
-      - edgedb database create {{.TEST_DB_NAME}}
-      - edgedb migrate -d {{.TEST_DB_NAME}}
+      - edgedb branch create {{.TEST_DB_NAME}}
+      - edgedb migrate -b {{.TEST_DB_NAME}}
       - edgedb project info
       - edgedb list databases
     status: [edgedb project info]
@@ -36,8 +36,8 @@ tasks:
     interactive: true
     prompt: This will wipe existing databases and re-run all migrations and seeds. Continue ?
     cmds:
-      - edgedb database wipe
-      - edgedb database wipe -d testing
+      - edgedb branch wipe
+      - edgedb branch wipe -b testing
       - task: seed
 
   migration:
@@ -54,7 +54,7 @@ tasks:
   migrate-test:
     dir: ..
     internal: true
-    cmd: edgedb migrate -d {{.TEST_DB_NAME}}
+    cmd: edgedb migrate -b {{.TEST_DB_NAME}}
     deps: [init]
 
   migrate:
