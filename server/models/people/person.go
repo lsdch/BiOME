@@ -36,25 +36,7 @@ type Person struct {
 type OptionalPerson struct {
 	edgedb.Optional
 	PersonInner `edgedb:"$inline" json:",inline"`
-} // @name OptionalPerson
-
-// func PersonStructLevelValidation(sl validator.StructLevel) {
-// 	person := sl.Current().Interface().(PersonInput)
-// 	var exists = false
-// 	query := `
-// 		select exists (
-// 			select people::Person
-// 			filter .first_name = <str>$0 and .last_name = <str>$1
-// 		);`
-
-// 	err := db.Client().QuerySingle(context.Background(), query, &exists, person.FirstName, person.LastName)
-// 	if err != nil {
-// 		logrus.Errorf("Unique validation query failed: %v with query %s", err, query)
-// 	}
-// 	if exists {
-// 		sl.ReportError(fmt.Sprintf("%s %s", person.FirstName, person.LastName), "*", "Person", "person_unique", "")
-// 	}
-// }
+}
 
 func FindPerson(db edgedb.Executor, id edgedb.UUID) (person Person, err error) {
 	query := `select people::Person { *, institutions: { * }, meta: { * } } filter .id = <uuid>$0;`
@@ -113,18 +95,6 @@ func (p *PersonIdentity) GenerateAlias() *string {
 	}
 	return &alias
 }
-
-// func (p *PersonInput) UnmarshalJSON(data []byte) error {
-// 	type TmpInput PersonInput
-// 	if err := json.Unmarshal(data, (*TmpInput)(p)); err != nil {
-// 		return err
-// 	}
-// 	if p.Alias == nil {
-// 		p.Alias = p.generateAlias()
-// 		logrus.Infof("Generated alias '%s' for person %+v", *p.Alias, *p)
-// 	}
-// 	return nil
-// }
 
 //go:embed queries/create_person.edgeql
 var personCreateQuery string
