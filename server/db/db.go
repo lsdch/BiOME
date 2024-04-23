@@ -41,15 +41,3 @@ func Client() *edgedb.Client {
 func WithCurrentUser(userID edgedb.UUID) *edgedb.Client {
 	return db.WithGlobals(map[string]interface{}{"current_user_id": userID})
 }
-
-type Optional[T any] interface {
-	Get() (T, bool)
-}
-
-func OptionalAsPointer[T any](opt Optional[T]) *T {
-	val, ok := opt.Get()
-	if ok {
-		return &val
-	}
-	return nil
-}
