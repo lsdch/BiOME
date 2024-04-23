@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { RouterView } from 'vue-router'
+import { RouterView, useRouter } from 'vue-router'
 import NavigationDrawer from '@/components/navigation/NavigationDrawer.vue'
 
 import AccountNavMenu from '@/components/navbar/AccountNavMenu.vue'
@@ -32,6 +32,13 @@ import SettingsMenu from '@/components/navbar/SettingsMenu.vue'
 
 const APP_TITLE = import.meta.env.VITE_APP_NAME
 const drawer = ref(true)
+
+const router = useRouter()
+router.afterEach((to) => {
+  if (to.name === 'api-docs') {
+    drawer.value = false
+  }
+})
 </script>
 
 <style lang="less">
