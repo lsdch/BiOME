@@ -10,16 +10,30 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type UserInner struct {
+	ID             edgedb.UUID `edgedb:"id" json:"id" binding:"required" format:"uuid"`
+	Email          string      `edgedb:"email" json:"email" binding:"required" format:"email"`
+	Login          string      `edgedb:"login" json:"login" binding:"required"`
+	Password       string      `edgedb:"password" json:"-"`
+	Role           UserRole    `edgedb:"role" json:"role" binding:"required"`
+	EmailConfirmed bool        `edgedb:"email_confirmed" json:"email_confirmed" binding:"required"`
+	IsActive       bool        `edgedb:"is_active" json:"is_active" binding:"required"`
+}
+
+type OptionalUserInner struct {
+	edgedb.Optional
+	UserInner `edgedb:"$inline" json:",inline"`
+}
+
 type User struct {
-	ID             edgedb.UUID    `edgedb:"id" json:"id" binding:"required" format:"uuid"`
-	Email          string         `edgedb:"email" json:"email" binding:"required" format:"email"`
-	Login          string         `edgedb:"login" json:"login" binding:"required"`
-	Password       string         `edgedb:"password" json:"-"`
-	Role           UserRole       `edgedb:"role" json:"role" binding:"required"`
-	EmailConfirmed bool           `edgedb:"email_confirmed" json:"email_confirmed" binding:"required"`
-	Person         OptionalPerson `edgedb:"identity" json:"identity" binding:"required"`
-	IsActive       bool           `edgedb:"is_active" json:"is_active" binding:"required"`
+	UserInner `edgedb:"$inline" json:",inline"`
+	Person    OptionalPerson `edgedb:"identity" json:"identity" binding:"required"`
 } //@name User
+
+type OptionalUser struct {
+	edgedb.Optional
+	User `edgedb:"$inline" json:",inline"`
+}
 
 func (user *User) SetIdentity(db edgedb.Executor, person *PersonInner) error {
 	return db.QuerySingle(context.Background(),

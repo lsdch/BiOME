@@ -12,11 +12,6 @@ type UserShortIdentity struct {
 	Alias string `json:"alias" edgedb:"alias"`
 }
 
-type OptionalUser struct {
-	edgedb.Optional
-	User `edgedb:"$inline" json:",inline"`
-}
-
 // Metadata attached to an item in the database that track updates of the item.
 type Meta struct {
 	ID            edgedb.UUID             `edgedb:"id" json:"-" swaggerignore:"true"`

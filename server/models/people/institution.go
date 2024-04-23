@@ -23,13 +23,13 @@ type InstitutionInner struct {
 
 type Institution struct {
 	InstitutionInner `edgedb:"$inline" json:",inline"`
-	People           []PersonInner `json:"people,omitempty" edgedb:"people" doc:"Known members of this institution"`
-	Meta             Meta          `json:"meta" edgedb:"meta"`
+	People           []PersonUser `json:"people,omitempty" edgedb:"people" doc:"Known members of this institution"`
+	Meta             Meta         `json:"meta" edgedb:"meta"`
 } // @name Institution
 
 func FindInstitution(db edgedb.Executor, uuid edgedb.UUID) (inst Institution, err error) {
 	err = db.QuerySingle(context.Background(),
-		`select people::Institution { *, people:{ * }, meta:{ * } }
+		`select people::Institution { *, people:{ *, user: { * } }, meta:{ * } }
 			filter .id = <uuid>$0;`,
 		&inst, uuid)
 	return inst, err

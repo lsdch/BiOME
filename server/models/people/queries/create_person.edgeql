@@ -11,4 +11,4 @@ select (insert Person {
   alias := <str>json_get(data, 'alias') ?? {},
   comment := <str>json_get(data, "comment") ?? {},
   institutions := distinct institutions
-}) { *, institutions: { * }, meta: { * }}
+}) { ** }

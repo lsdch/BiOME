@@ -17,18 +17,26 @@ type PersonIdentity struct {
 	LastName  string `json:"last_name" edgedb:"last_name" binding:"required,alphaunicode,min=2,max=32" faker:"last_name"`
 }
 
+// PersonInner contains all properties defining a person, excluding links to related entities
 type PersonInner struct {
 	PersonIdentity `edgedb:"$inline"`
 	ID             edgedb.UUID        `edgedb:"id" json:"id" binding:"required" format:"uuid"`
 	FullName       string             `json:"full_name" edgedb:"full_name" binding:"required"`
 	Alias          string             `json:"alias" edgedb:"alias" binding:"required"`
-	Role           OptionalUserRole   `json:"role" edgedb:"role"`
+	Role           OptionalUserRole   `json:"role,omitempty" edgedb:"role"`
 	Contact        edgedb.OptionalStr `json:"contact" edgedb:"contact"`
 	Comment        edgedb.OptionalStr `json:"comment" edgedb:"comment"`
 }
 
+// PersonUser is PersonInner with optional user informations attached
+type PersonUser struct {
+	PersonInner `edgedb:"$inline" json:",inline"`
+	User        OptionalUserInner `edgedb:"user" json:"user,omitempty"`
+}
+
+// Person is the complete informations about a person, including related entities
 type Person struct {
-	PersonInner  `edgedb:"$inline" json:",inline"`
+	PersonUser   `edgedb:"$inline" json:",inline"`
 	Institutions []InstitutionInner `json:"institutions" edgedb:"institutions"`
 	Meta         Meta               `json:"meta" edgedb:"meta"`
 } // @name Person
@@ -39,14 +47,14 @@ type OptionalPerson struct {
 }
 
 func FindPerson(db edgedb.Executor, id edgedb.UUID) (person Person, err error) {
-	query := `select people::Person { *, institutions: { * }, meta: { * } } filter .id = <uuid>$0;`
+	query := `select people::Person { *, ** } filter .id = <uuid>$0;`
 	err = db.QuerySingle(context.Background(), query, &person, id)
 	return person, err
 }
 
 func ListPersons(db edgedb.Executor) (people []Person, err error) {
 	err = db.Query(context.Background(),
-		`select people::Person { *, institutions: { * }, meta: { * } } order by .last_name;`,
+		`select people::Person { ** } order by .last_name;`,
 		&people)
 	return
 }
@@ -55,7 +63,7 @@ func DeletePerson(db edgedb.Executor, id edgedb.UUID) (deleted Person, err error
 	logrus.Infof("Deleting person: %v", id)
 	query := `select(
 		delete (<people::Person><uuid>$0)
-	){ *, institutions: { * }, meta:{ * }};`
+	){ ** };`
 	err = db.QuerySingle(context.Background(), query, &deleted, id)
 	return
 }

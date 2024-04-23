@@ -8,6 +8,7 @@ import (
 	_ "darco/proto/models/validations"
 	"darco/proto/resolvers"
 	"darco/proto/router"
+	"errors"
 	"fmt"
 	"net/url"
 
@@ -150,13 +151,11 @@ type ClaimInvitationInput struct {
 
 func ClaimInvitation(ctx context.Context, input *ClaimInvitationInput) (*LoginOutput, error) {
 	user, err := input.Body.ClaimInvitationToken(db.Client(), input.Token)
-	if err != nil {
-		switch err.Type {
-		case people.InvalidToken:
-			return nil, huma.Error422UnprocessableEntity(string(people.InvalidToken))
-		case people.IdentityLinkageFailed, people.RegistrationFailed:
-			return nil, huma.Error500InternalServerError(string(err.Type))
-		}
+	switch {
+	case errors.Is(err, people.InvalidTokenError):
+		return nil, huma.Error422UnprocessableEntity("Invalid invitation token")
+	case err != nil:
+		return nil, huma.Error500InternalServerError("Registration failed due to an internal server error", err)
 	}
 	return createSession(user, input.Host,
 		fmt.Sprintf("Account created with role %s", user.Role),
