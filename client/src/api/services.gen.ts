@@ -663,6 +663,41 @@ export class PeopleService {
       }
     })
   }
+
+  /**
+   * Invite person
+   * Sends an invitation link to a person at the address provided in `dest`, allowing them to register an account assigned with a specified `role`.
+   * @param data The data for the request.
+   * @param data.id
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns InvitationLink OK
+   * @throws ApiError
+   */
+  public static invitePerson(
+    data: $OpenApiTs['/persons/{id}/invite']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/persons/{id}/invite']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/persons/{id}/invite',
+      path: {
+        id: data.id
+      },
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
 }
 
 export class InstitutionService {
@@ -912,6 +947,41 @@ export class PersonService {
       mediaType: 'application/json',
       errors: {
         400: 'Bad Request',
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Invite person
+   * Sends an invitation link to a person at the address provided in `dest`, allowing them to register an account assigned with a specified `role`.
+   * @param data The data for the request.
+   * @param data.id
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns InvitationLink OK
+   * @throws ApiError
+   */
+  public static invitePerson(
+    data: $OpenApiTs['/persons/{id}/invite']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/persons/{id}/invite']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/persons/{id}/invite',
+      path: {
+        id: data.id
+      },
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }

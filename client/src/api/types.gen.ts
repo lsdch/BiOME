@@ -118,7 +118,7 @@ export type Institution = {
   /**
    * Known members of this institution
    */
-  people?: Array<PersonInner>
+  people?: Array<PersonUser>
 }
 
 export type InstitutionInner = {
@@ -153,6 +153,30 @@ export type InstitutionUpdate = {
   name?: string
 }
 
+export type InvitationInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  dest: string
+  /**
+   * A URL with a path parameter '{token}', which implements the UI to validate the invitation token and fill a registration form.
+   */
+  handler?: Url
+  role: UserRole
+}
+
+export type InvitationLink = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * The generated URL containing a registration token that can be shared to the invitee.
+   */
+  invitation_link: Url
+}
+
 export type Meta = {
   created: Date
   created_by: UserShortIdentity
@@ -171,7 +195,7 @@ export type OptionalPerson = {
   full_name: string
   id: string
   last_name: string
-  role: UserRole
+  role?: UserRole
 }
 
 export type OptionalUser = {
@@ -179,6 +203,15 @@ export type OptionalUser = {
   email_confirmed: boolean
   id: string
   identity: OptionalPerson
+  is_active: boolean
+  login: string
+  role: UserRole
+}
+
+export type OptionalUserInner = {
+  email: string
+  email_confirmed: boolean
+  id: string
   is_active: boolean
   login: string
   role: UserRole
@@ -207,18 +240,8 @@ export type Person = {
   institutions: Array<InstitutionInner>
   last_name: string
   meta: Meta
-  role: UserRole
-}
-
-export type PersonInner = {
-  alias: string
-  comment: string
-  contact: string
-  first_name: string
-  full_name: string
-  id: string
-  last_name: string
-  role: UserRole
+  role?: UserRole
+  user?: OptionalUserInner
 }
 
 export type PersonInput = {
@@ -251,6 +274,18 @@ export type PersonUpdate = {
   first_name?: string
   institutions?: Array<string>
   last_name?: string
+}
+
+export type PersonUser = {
+  alias: string
+  comment: string
+  contact: string
+  first_name: string
+  full_name: string
+  id: string
+  last_name: string
+  role?: UserRole
+  user?: OptionalUserInner
 }
 
 export type RegisterInputBody = {
@@ -1007,6 +1042,36 @@ export type $OpenApiTs = {
          * Bad Request
          */
         400: ErrorModel
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/persons/{id}/invite': {
+    post: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        id: string
+        requestBody: InvitationInput
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: InvitationLink
         /**
          * Unprocessable Entity
          */

@@ -244,7 +244,7 @@ export const $Institution = {
     people: {
       description: 'Known members of this institution',
       items: {
-        $ref: '#/components/schemas/PersonInner'
+        $ref: '#/components/schemas/PersonUser'
       },
       type: 'array'
     }
@@ -352,6 +352,55 @@ export const $InstitutionUpdate = {
   type: 'object'
 } as const
 
+export const $InvitationInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/InvitationInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    dest: {
+      format: 'email',
+      type: 'string'
+    },
+    handler: {
+      $ref: '#/components/schemas/URL',
+      description:
+        "A URL with a path parameter '{token}', which implements the UI to validate the invitation token and fill a registration form.",
+      examples: ['http://example.com/register/{token}']
+    },
+    role: {
+      $ref: '#/components/schemas/UserRole',
+      type: 'string'
+    }
+  },
+  required: ['dest', 'role'],
+  type: 'object'
+} as const
+
+export const $InvitationLink = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/InvitationLink.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    invitation_link: {
+      $ref: '#/components/schemas/URL',
+      description:
+        'The generated URL containing a registration token that can be shared to the invitee.'
+    }
+  },
+  required: ['invitation_link'],
+  type: 'object'
+} as const
+
 export const $Meta = {
   additionalProperties: false,
   properties: {
@@ -423,7 +472,7 @@ export const $OptionalPerson = {
       type: 'string'
     }
   },
-  required: ['id', 'full_name', 'alias', 'role', 'contact', 'comment', 'first_name', 'last_name'],
+  required: ['id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
   type: 'object'
 } as const
 
@@ -456,7 +505,37 @@ export const $OptionalUser = {
       type: 'string'
     }
   },
-  required: ['id', 'email', 'login', 'role', 'email_confirmed', 'identity', 'is_active'],
+  required: ['identity', 'id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
+  type: 'object'
+} as const
+
+export const $OptionalUserInner = {
+  additionalProperties: false,
+  properties: {
+    email: {
+      format: 'email',
+      type: 'string'
+    },
+    email_confirmed: {
+      type: 'boolean'
+    },
+    id: {
+      contentEncoding: 'base64',
+      format: 'uuid',
+      type: 'string'
+    },
+    is_active: {
+      type: 'boolean'
+    },
+    login: {
+      type: 'string'
+    },
+    role: {
+      $ref: '#/components/schemas/UserRole',
+      type: 'string'
+    }
+  },
+  required: ['id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
   type: 'object'
 } as const
 
@@ -526,6 +605,9 @@ export const $Person = {
     role: {
       $ref: '#/components/schemas/UserRole',
       type: 'string'
+    },
+    user: {
+      $ref: '#/components/schemas/OptionalUserInner'
     }
   },
   required: [
@@ -534,47 +616,11 @@ export const $Person = {
     'id',
     'full_name',
     'alias',
-    'role',
     'contact',
     'comment',
     'first_name',
     'last_name'
   ],
-  type: 'object'
-} as const
-
-export const $PersonInner = {
-  additionalProperties: false,
-  properties: {
-    alias: {
-      type: 'string'
-    },
-    comment: {
-      type: 'string'
-    },
-    contact: {
-      type: 'string'
-    },
-    first_name: {
-      type: 'string'
-    },
-    full_name: {
-      type: 'string'
-    },
-    id: {
-      contentEncoding: 'base64',
-      format: 'uuid',
-      type: 'string'
-    },
-    last_name: {
-      type: 'string'
-    },
-    role: {
-      $ref: '#/components/schemas/UserRole',
-      type: 'string'
-    }
-  },
-  required: ['id', 'full_name', 'alias', 'role', 'contact', 'comment', 'first_name', 'last_name'],
   type: 'object'
 } as const
 
@@ -663,6 +709,44 @@ export const $PersonUpdate = {
       type: 'string'
     }
   },
+  type: 'object'
+} as const
+
+export const $PersonUser = {
+  additionalProperties: false,
+  properties: {
+    alias: {
+      type: 'string'
+    },
+    comment: {
+      type: 'string'
+    },
+    contact: {
+      type: 'string'
+    },
+    first_name: {
+      type: 'string'
+    },
+    full_name: {
+      type: 'string'
+    },
+    id: {
+      contentEncoding: 'base64',
+      format: 'uuid',
+      type: 'string'
+    },
+    last_name: {
+      type: 'string'
+    },
+    role: {
+      $ref: '#/components/schemas/UserRole',
+      type: 'string'
+    },
+    user: {
+      $ref: '#/components/schemas/OptionalUserInner'
+    }
+  },
+  required: ['id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
   type: 'object'
 } as const
 
@@ -1092,7 +1176,7 @@ export const $User = {
       type: 'string'
     }
   },
-  required: ['id', 'email', 'login', 'role', 'email_confirmed', 'identity', 'is_active'],
+  required: ['identity', 'id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
   type: 'object'
 } as const
 

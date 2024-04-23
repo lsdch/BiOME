@@ -25,7 +25,9 @@ func TestInvitation(t *testing.T) {
 	client := db.Client()
 	person := SetupPerson(t, client)
 	auth_client := SetupAuthAdminUser(t)
-	invitation, err := person.CreateInvitation(auth_client, people.Maintainer)
+	invitation, err := person.CreateInvitation(
+		people.InvitationOptions{Role: people.Maintainer},
+	).Save(auth_client)
 	require.NoError(t, err)
 	assert.True(t, invitation.IsValid())
 }
@@ -35,7 +37,9 @@ func TestValidateInvitation(t *testing.T) {
 	person := SetupPerson(t, client)
 
 	auth_client := SetupAuthAdminUser(t)
-	invitation, err := person.CreateInvitation(auth_client, people.Contributor)
+	invitation, err := person.CreateInvitation(
+		people.InvitationOptions{Role: people.Maintainer},
+	).Save(auth_client)
 	require.NoError(t, err)
 	i, err := people.ValidateInvitationToken(client, invitation.Token)
 	require.NoError(t, err)
@@ -48,7 +52,9 @@ func TestClaimInvitation(t *testing.T) {
 	person := SetupPerson(t, client)
 
 	auth_client := SetupAuthAdminUser(t)
-	invitation, err := person.CreateInvitation(auth_client, people.Contributor)
+	invitation, err := person.CreateInvitation(
+		people.InvitationOptions{Role: people.Maintainer},
+	).Save(auth_client)
 	require.NoError(t, err)
 	u, err := input.ClaimInvitationToken(client, invitation.Token)
 	require.NoError(t, err)

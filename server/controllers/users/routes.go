@@ -8,6 +8,10 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
+// Path to the API endpoint where invitation token can be consumed to register an account.
+// See [person.InvitePerson].
+var InvitationClaimPath = ""
+
 func RegisterRoutes(r router.Router) {
 	accountAPI := r.RouteGroup("/account").
 		WithTags([]string{"Account"})
@@ -106,7 +110,7 @@ func RegisterRoutes(r router.Router) {
 			Errors:        []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 		}, Register(confirmEmailPath))
 
-	router.Register(accountAPI, "ClaimInvitation",
+	InvitationClaimPath = router.Register(accountAPI, "ClaimInvitation",
 		huma.Operation{
 			Path:        "/register/{token}",
 			Method:      http.MethodPost,

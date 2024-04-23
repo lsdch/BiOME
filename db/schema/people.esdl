@@ -132,6 +132,7 @@ module people {
   type UserInvitation {
     required identity: Person;
     required role: UserRole;
+    required dest: str;
     required token: str {
       constraint exclusive;
     };
