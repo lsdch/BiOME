@@ -77,7 +77,7 @@
 </template>
 
 <script setup lang="ts">
-import { ApiError, AuthService, InputValidationError, UserInput } from '@/api'
+import { ApiError, AccountService, InputValidationError, UserInput } from '@/api'
 import { vuelidateErrors } from '@/api/validation'
 import useVuelidate, { Validation, ValidationArgs } from '@vuelidate/core'
 import { email, maxLength, minLength, required } from '@vuelidate/validators'
@@ -138,7 +138,7 @@ const unhandledError: Ref<undefined | ApiError> = ref(undefined)
 
 async function submit() {
   loading.value = true
-  await AuthService.registerUser(state.value)
+  await AccountService.registerUser(state.value)
     .then(() => emits('created'))
     .catch((err: ApiError) => {
       switch (err.status) {

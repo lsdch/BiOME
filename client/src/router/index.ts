@@ -73,7 +73,7 @@ const router = createRouter({
     {
       path: '/docs/api',
       name: 'api-docs',
-      component: () => import('../views/SwaggerDocs.vue'),
+      component: () => import('../views/APIDocs.vue'),
       meta: {
         title: makeTitle("API docs")
       }

@@ -1,20 +1,26 @@
+import { AccountService, ApiError } from "@/api"
+import type { User } from "@/api"
 import { defineStore } from "pinia"
 import { ref, Ref } from "vue"
-import type { User } from "@/api/models/User"
-import { ApiError, PeopleService, AuthService } from "@/api"
 
 
 export const useUserStore = defineStore("user", () => {
   const user: Ref<User | undefined> = ref(undefined)
   const error: Ref<undefined | ApiError> = ref(undefined)
+  const sessionToken: Ref<string | undefined> = ref(undefined)
 
   // Check whether a session is active
   getUser()
 
   async function getUser() {
-    user.value = await PeopleService.currentUser()
-      .catch((err: ApiError) => {
-        error.value = err
+    error.value = undefined
+    await AccountService.currentUser()
+      .then(({ token, user: u }) => {
+        user.value = u
+        sessionToken.value = token
+      })
+      .catch((reason) => {
+        error.value = reason as ApiError
         user.value = undefined
         return undefined
       })
@@ -22,8 +28,8 @@ export const useUserStore = defineStore("user", () => {
 
   async function logout() {
     user.value = undefined
-    await AuthService.logout()
+    await AccountService.logout()
   }
 
-  return { user, error, getUser, logout }
+  return { user, error, token: sessionToken, getUser, logout }
 })

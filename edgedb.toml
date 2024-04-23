@@ -1,5 +1,5 @@
 [edgedb]
-server-version = "4.7"
+server-version = "5.0"
 
 [project]
 schema-dir = "db/schema"

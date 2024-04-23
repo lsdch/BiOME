@@ -1,0 +1,8 @@
+linters:
+  enable:
+    - exhaustive
+linters-settings:
+  exhaustive:
+    check:
+      - switch
+      - map

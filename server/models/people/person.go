@@ -19,7 +19,7 @@ type PersonIdentity struct {
 
 type PersonInner struct {
 	PersonIdentity `edgedb:"$inline"`
-	ID             edgedb.UUID        `edgedb:"id" json:"id" binding:"required"`
+	ID             edgedb.UUID        `edgedb:"id" json:"id" binding:"required" format:"uuid"`
 	FullName       string             `json:"full_name" edgedb:"full_name" binding:"required"`
 	Alias          string             `json:"alias" edgedb:"alias" binding:"required"`
 	Role           OptionalUserRole   `json:"role" edgedb:"role"`

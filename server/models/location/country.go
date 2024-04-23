@@ -23,13 +23,13 @@ func Setup(db *edgedb.Client) error {
 }
 
 type Country struct {
-	ID           edgedb.UUID `json:"id" edgedb:"id" example:"<UUID>"`
+	ID           edgedb.UUID `json:"id" edgedb:"id" format:"uuid"`
 	Name         string      `json:"name" edgedb:"name" example:"Germany" binding:"required"`
 	Code         string      `json:"code" edgedb:"code" example:"DE" binding:"required,country_code=iso3166_1_alpha2"`
-	NbLocalities int64       `json:"nbLocalities" edgedb:"nb_localities" example:"9"`
+	NbLocalities int64       `json:"nbLocalities" edgedb:"nb_localities" minimum:"0"`
 } // @name Country
 
-func List(db *edgedb.Client) (countries []Country, err error) {
+func List(db edgedb.Executor) (countries []Country, err error) {
 	query := `select
 		location::Country {
 			*, nb_localities := count(.localities)

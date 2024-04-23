@@ -3,7 +3,7 @@
     :headers="headers"
     density="compact"
     :crud="{
-      list: PeopleService.getPeoplePersons,
+      list: PeopleService.listPersons,
       delete: (person: Person) => PeopleService.deletePerson(person.id)
     }"
     :filter="filter"

@@ -2,17 +2,16 @@ package people
 
 import (
 	"context"
-	"darco/proto/db"
 	"darco/proto/models/settings"
-	"darco/proto/utils"
 	"fmt"
+	"net/url"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 	"github.com/trustelem/zxcvbn"
 )
 
-type NewPasswordInput struct {
+type UpdatePasswordInput struct {
 	Password    string        `json:"password" binding:"required"` // Old password
 	NewPassword PasswordInput `json:"new_password" binding:"required"`
 } // @name NewPasswordInput
@@ -54,7 +53,7 @@ func ValidatePasswordStrength(p PasswordSensitiveInfos, pwd string, strength int
 }
 
 // Checks that a password matches the hashed password for a user.
-func (user *User) PasswordMatch(db db.Executor, pwd string) bool {
+func (user *User) PasswordMatch(db edgedb.Executor, pwd string) bool {
 	var match bool
 	query := `select exists (select people::User
 			filter .id = <uuid>$0
@@ -68,7 +67,7 @@ func (user *User) PasswordMatch(db db.Executor, pwd string) bool {
 
 // Sets the password of a user.
 // Returns string error if password is not strong enough.
-func (user *User) SetPassword(db db.Executor, pwd string) error {
+func (user *User) SetPassword(db edgedb.Executor, pwd string) error {
 	maybeValidPwd, err := ValidatePasswordStrength(
 		user.PasswordSensitiveInfos(), pwd, int(settings.Security().MinPasswordStrength),
 	)
@@ -81,7 +80,7 @@ func (user *User) SetPassword(db db.Executor, pwd string) error {
 
 // Sets the password for a user in DB.
 // The query failing indicates a programming error, which results in a fatal error.
-func (user *User) setPassword(db db.Executor, pwd validatedPassword) {
+func (user *User) setPassword(db edgedb.Executor, pwd validatedPassword) {
 	if err := db.Execute(context.Background(),
 		`update (<people::User><uuid>$0) set { password := <str>$1 }`,
 		user.ID, pwd.value,
@@ -93,17 +92,17 @@ func (user *User) setPassword(db db.Executor, pwd validatedPassword) {
 	}
 }
 
-func (user *User) RequestPasswordReset(db *edgedb.Client, target utils.RedirectURL) error {
+func (user *User) RequestPasswordReset(db *edgedb.Client, target url.URL) error {
 	token, err := user.CreateAccountToken(db, PasswordResetToken)
 	if err != nil {
 		return err
 	}
-	url := NewTokenURL(target, token)
+	target.RawQuery = url.QueryEscape(string(token))
 	return user.SendEmail(
 		"Reset your account password",
 		"email_password_reset.html",
 		map[string]interface{}{
 			"Name": user.Person.FirstName,
-			"URL":  url.String(),
+			"URL":  target.String(),
 		})
 }

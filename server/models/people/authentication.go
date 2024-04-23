@@ -4,7 +4,9 @@ import (
 	"darco/proto/models/settings"
 	"darco/proto/services/tokens"
 	"errors"
+	"net/http"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
@@ -24,12 +26,28 @@ const (
 )
 
 type LoginFailedError struct {
-	Reason loginFailedReason `json:"reason" binding:"required"`
+	Message loginFailedReason `json:"message" binding:"required"`
+	Details string            `json:"details,omitempty"`
 } // @name LoginFailedError
 
 func (err *LoginFailedError) Error() string {
-	return string(err.Reason)
+	return string(err.Message)
 }
+
+func (err *LoginFailedError) GetStatus() int {
+	if err == nil {
+		return 0
+	}
+	switch err.Message {
+	case AccountInactive, InvalidCredentials:
+		return http.StatusUnprocessableEntity
+	case ServerError:
+		return http.StatusInternalServerError
+	}
+	return http.StatusInternalServerError
+}
+
+var _ huma.StatusError = (*LoginFailedError)(nil)
 
 // Attempts to authenticate a user given the provided credentials.
 func (creds *UserCredentials) Authenticate(db *edgedb.Client) (*User, *LoginFailedError) {
@@ -42,15 +60,15 @@ func (creds *UserCredentials) Authenticate(db *edgedb.Client) (*User, *LoginFail
 	if err != nil {
 		var dbErr edgedb.Error
 		if errors.As(err, &dbErr) && dbErr.Category(edgedb.NoDataError) {
-			return nil, &LoginFailedError{InvalidCredentials}
+			return nil, &LoginFailedError{Message: InvalidCredentials}
 		} else {
 			logrus.Errorf("%v", err)
-			return nil, &LoginFailedError{ServerError}
+			return nil, &LoginFailedError{Message: ServerError}
 		}
 	}
 
 	if !user.IsActive {
-		return user, &LoginFailedError{AccountInactive}
+		return user, &LoginFailedError{Message: AccountInactive}
 	}
 
 	return user, nil
@@ -64,4 +82,16 @@ func Current(db *edgedb.Client) (*User, error) {
 func (user *User) GenerateJWT() (string, error) {
 	return tokens.GenerateToken(user.ID,
 		settings.Security().AuthTokenDuration())
+}
+
+func (user *User) JWTCookie(jwt string, domain string) http.Cookie {
+	return http.Cookie{
+		Name:     tokens.AUTH_TOKEN_COOKIE,
+		Value:    jwt,
+		Path:     "/",
+		Domain:   domain,
+		MaxAge:   int(settings.Security().AuthTokenLifetimeSeconds),
+		Secure:   true,
+		HttpOnly: true,
+	}
 }

@@ -20,9 +20,9 @@ type OptionalUser struct {
 // Metadata attached to an item in the database that track updates of the item.
 type Meta struct {
 	ID            edgedb.UUID             `edgedb:"id" json:"-" swaggerignore:"true"`
-	Created       time.Time               `edgedb:"created" json:"created" example:"2023-09-01T16:41:10.921097+00:00" binding:"required"`
-	Modified      edgedb.OptionalDateTime `edgedb:"modified" json:"modified" example:"2023-09-02T20:39:10.218057+00:00"`
-	LastUpdated   time.Time               `edgedb:"lastUpdated" json:"last_updated" example:"2023-09-02T20:39:10.218057+00:00"`
+	Created       time.Time               `edgedb:"created" json:"created" binding:"required"`
+	Modified      edgedb.OptionalDateTime `edgedb:"modified" json:"modified"`
+	LastUpdated   time.Time               `edgedb:"lastUpdated" json:"last_updated"`
 	CreatedByUser OptionalUser            `json:"created_by_user" edgedb:"created_by_user"`
 	UpdatedByUser OptionalUser            `json:"updated_by_user" edgedb:"modified_by_user"`
 	CreatedBy     UserShortIdentity       `json:"created_by" edgedb:"created_by"`

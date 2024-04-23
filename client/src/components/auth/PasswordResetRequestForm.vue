@@ -27,13 +27,12 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
-import { required, email } from '@vuelidate/validators'
+import { AccountService, ApiError } from '@/api'
 import useVuelidate from '@vuelidate/core'
-import { ApiError, AuthService } from '@/api'
-import { Ref } from 'vue'
+import { email, required } from '@vuelidate/validators'
+import { Ref, ref } from 'vue'
 
-const state = reactive({
+const state = ref({
   email: ''
 })
 
@@ -48,7 +47,7 @@ const v$ = useVuelidate(rules, state)
 
 async function submit() {
   v$.value.$validate()
-  await AuthService.requestPasswordReset(state)
+  await AccountService.requestPasswordReset({ requestBody: state.value })
     .then(() => {
       requestAccepted.value = true
     })

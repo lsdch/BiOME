@@ -1,92 +1,87 @@
 package taxonomy
 
 import (
+	"context"
 	"darco/proto/controllers"
+	"darco/proto/db"
 	"darco/proto/models/taxonomy"
 	_ "darco/proto/models/validations"
+	"darco/proto/router"
+	"fmt"
 	"net/http"
 
-	"github.com/edgedb/edgedb-go"
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
+	"github.com/danielgtaylor/huma/v2"
 )
 
-// @Summary List taxa
-// @Description Lists taxa, optionally filtered by name, rank and status
-// @id TaxonomyList
-// @tags Taxonomy
-// @Success 200 {array} taxonomy.TaxonSelect "Get taxon success"
-// @Router /taxonomy/ [get]
-// @Param filter body taxonomy.ListFilters false "Query filters"
-func ListTaxa(ctx *gin.Context, db *edgedb.Client) {
-	var filters = taxonomy.ListFilters{}
-	if err := ctx.ShouldBindJSON(&filters); err != nil {
-		_ = ctx.Error(err)
-	}
-	taxa, err := taxonomy.ListTaxa(db, filters)
+func RegisterRoutes(r router.Router) {
+	taxonomyAPI := r.RouteGroup("/taxonomy").
+		WithTags([]string{"Taxonomy"})
+
+	router.Register(taxonomyAPI, "ListTaxa",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodGet,
+			Summary: "List taxa",
+		}, ListTaxa)
+
+	router.Register(taxonomyAPI, "GetTaxon",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodGet,
+			Summary: "Get taxon",
+			Errors:  []int{http.StatusNotFound},
+		},
+		GetTaxon)
+
+	router.Register(taxonomyAPI, "CreateTaxon",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodPost,
+			Summary: "Create taxon",
+			Errors:  []int{http.StatusBadRequest},
+		},
+		controllers.CreateHandler[taxonomy.TaxonInput])
+
+	router.Register(taxonomyAPI, "UpdateTaxon",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodPatch,
+			Summary: "Update taxon",
+			Errors:  []int{http.StatusBadRequest, http.StatusUnauthorized, http.StatusNotFound},
+		}, controllers.UpdateByCodeHandler[taxonomy.TaxonUpdate](taxonomy.FindByID))
+
+	router.Register(taxonomyAPI, "DeleteTaxon",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodDelete,
+			Summary: "Delete taxon",
+			Errors:  []int{http.StatusNotFound, http.StatusUnauthorized},
+		},
+		controllers.DeleteByCodeHandler(taxonomy.Delete))
+}
+
+type ListTaxaInput struct {
+	taxonomy.ListFilters
+}
+type ListTaxaOutput struct{ Body []taxonomy.Taxon }
+
+func ListTaxa(ctx context.Context, input *ListTaxaInput) (*ListTaxaOutput, error) {
+	taxa, err := taxonomy.ListTaxa(db.Client(), input.ListFilters)
 	if err != nil {
-		ctx.Error(err)
-	} else {
-		ctx.JSON(http.StatusOK, taxa)
+		return nil, huma.Error500InternalServerError("Failed to retrieve list of taxa", err)
 	}
+	return &ListTaxaOutput{Body: taxa}, nil
 }
 
-// @Summary Get a taxon by its code
-// @Description
-// @id GetTaxon
-// @tags Taxonomy
-// @Success 200 {object} taxonomy.TaxonSelect "Get taxon success"
-// @Failure 404
-// @Router /taxonomy/{code} [get]
-// @Param code path string true "Taxon code" minlength(3)
-func GetTaxon(ctx *gin.Context, db *edgedb.Client) {
-	code := ctx.Param("code")
-	taxon, err := taxonomy.FindByCode(db, code)
+type GetTaxonInput struct{ controllers.CodeInput }
+type GetTaxonOutput struct{ Body taxonomy.TaxonWithRelatives }
+
+func GetTaxon(ctx context.Context, input *GetTaxonInput) (*GetTaxonOutput, error) {
+	taxon, err := taxonomy.FindByCode(db.Client(), input.Code)
 	if err != nil {
-		logrus.Debug(err)
-		ctx.Error(err)
-	} else {
-		ctx.JSON(http.StatusOK, taxon)
+		return nil, huma.Error404NotFound(
+			fmt.Sprintf("Taxon %s does not exist", input.Code),
+		)
 	}
-}
-
-// @Summary Create taxon
-// @Description This provides a way to register new unclassified taxa,
-// @Description that have not yet been published to GBIF.
-// @Description Importing taxa directly from GBIF should be preferred otherwise.
-// @id CreateTaxon
-// @tags Taxonomy
-// @Success 201 {object} taxonomy.TaxonSelect
-// @Failure 400 {object} validations.FieldErrors
-// @Router /taxonomy/ [post]
-// @Param data body taxonomy.TaxonInput true "New taxon"
-func CreateTaxon(ctx *gin.Context, db *edgedb.Client) {
-	controllers.CreateItem[taxonomy.TaxonInput, taxonomy.TaxonSelect](ctx, db)
-}
-
-// @Summary Delete a taxon by its code
-// @Description
-// @id DeleteTaxon
-// @tags Taxonomy
-// @Success 200 {object} taxonomy.TaxonSelect
-// @Failure 403
-// @Failure 404
-// @Router /taxonomy/{code} [delete]
-// @Param code path string true "Taxon code" minlength(3)
-func DeleteTaxon(ctx *gin.Context, db *edgedb.Client) {
-	controllers.DeleteByCode(ctx, db, taxonomy.Delete)
-}
-
-// @Summary Update a taxon by its code
-// @Description
-// @id UpdateTaxon
-// @tags Taxonomy
-// @Success 200 {object} taxonomy.TaxonSelect
-// @Failure 403
-// @Failure 404
-// @Router /taxonomy/{code} [patch]
-// @Param code path string true "Taxon code" minlength(3)
-// @Param data body taxonomy.TaxonUpdate true "Taxon"
-func UpdateTaxon(ctx *gin.Context, db *edgedb.Client) {
-	controllers.UpdateItemByCode[taxonomy.TaxonUpdate](ctx, db, taxonomy.FindByID)
+	return &GetTaxonOutput{Body: taxon}, nil
 }

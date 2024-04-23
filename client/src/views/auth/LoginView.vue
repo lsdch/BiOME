@@ -13,7 +13,7 @@
                 :ripple="false"
                 class="text-none text-center"
                 @click="mode = Mode.PasswordReset"
-              ></v-btn>
+              />
               <v-btn
                 size="large"
                 color="primary"

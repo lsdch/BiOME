@@ -44,7 +44,7 @@
 </template>
 
 <script setup lang="ts">
-import { ApiError, AuthService, PasswordInput } from '@/api'
+import { ApiError, AccountService, PasswordInput } from '@/api'
 import PasswordFields from '@/components/auth/PasswordFields.vue'
 import HomeLinkTitle from '@/components/navigation/HomeLinkTitle.vue'
 import { onBeforeMount } from 'vue'
@@ -79,7 +79,7 @@ onBeforeMount(() => {
 })
 
 async function validateToken(token: string) {
-  AuthService.validatePasswordToken(token)
+  AccountService.validatePasswordToken({ token })
     .then(() => {
       status.value = Status.TokenOK
     })
@@ -98,7 +98,7 @@ async function validateToken(token: string) {
 
 async function submit() {
   loading.value = true
-  AuthService.resetPassword(token, state.value)
+  AccountService.resetPassword({ token, requestBody: state.value })
     .then(() => {
       status.value = Status.PasswordResetDone
       setTimeout(() => {

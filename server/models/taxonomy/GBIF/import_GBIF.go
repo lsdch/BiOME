@@ -2,6 +2,7 @@ package gbif
 
 import (
 	"context"
+	"darco/proto/models/taxonomy"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -49,14 +50,14 @@ func (taxon *TaxonGBIF) normalize() {
 
 // ImportProcess represents the progress and status of the taxon import process from GBIF.
 type ImportProcess struct {
-	Name     string    `json:"name"`
-	GBIF_ID  int       `json:"GBIF_ID"`
-	Expected int       `json:"expected"`
-	Imported int       `json:"imported"`
-	Rank     string    `json:"rank"`
-	Started  time.Time `json:"started"`
-	Done     bool      `json:"done"`
-	Error    error     `json:"error"`
+	Name     string             `json:"name"`
+	GBIF_ID  int                `json:"GBIF_ID"`
+	Expected int                `json:"expected"`
+	Imported int                `json:"imported"`
+	Rank     taxonomy.TaxonRank `json:"rank"`
+	Started  time.Time          `json:"started"`
+	Done     bool               `json:"done"`
+	Error    error              `json:"error"`
 }
 
 func makeRequest(strURL string, offset int) (body []byte, err error) {
@@ -207,8 +208,8 @@ func fetchTaxon(GBIF_ID int) (taxon TaxonGBIF, err error) {
 }
 
 type ImportRequestGBIF struct {
-	Key      int  `json:"key"` // target GBIF taxon key
-	Children bool `json:"children"`
+	Key      int  `json:"key" doc:"Target GBIF taxon key"`
+	Children bool `json:"children" doc:"Import whole clade, including the taxon descendants"`
 }
 
 func ImportTaxon(db *edgedb.Client, request ImportRequestGBIF, monitor func(p *ImportProcess)) (err error) {

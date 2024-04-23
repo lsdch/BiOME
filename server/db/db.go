@@ -9,15 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// A common interface between *edgedb.Client and *edgedb.Tx
-type Executor interface {
-	Execute(context.Context, string, ...any) error
-	Query(context.Context, string, any, ...any) error
-	QueryJSON(context.Context, string, *[]byte, ...any) error
-	QuerySingle(context.Context, string, any, ...any) error
-	QuerySingleJSON(context.Context, string, any, ...any) error
-}
-
 // Opens a new connection to EdgeDB
 func Connect(options edgedb.Options) (db *edgedb.Client) {
 	ctx := context.Background()

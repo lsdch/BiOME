@@ -25,7 +25,7 @@ func TestActivationAuthentication(t *testing.T) {
 
 	_, auth_err := credentials.Authenticate(db)
 	require.Errorf(t, auth_err, "Inactive user should not be able to authenticate.")
-	assert.Equal(t, auth_err.Reason, users.AccountInactive)
+	assert.Equal(t, auth_err.Message, users.AccountInactive)
 
 	require.NoError(t, user.SetEmailConfirmed(db, true))
 	person, err := FakePersonInput(t).Create(db)

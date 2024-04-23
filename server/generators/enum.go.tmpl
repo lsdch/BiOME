@@ -1,0 +1,60 @@
+// This file is auto-generated *DO NOT EDIT*
+
+package {{ .Pkg }}
+
+
+import (
+	"reflect"
+
+  "fmt"
+	"github.com/danielgtaylor/huma/v2"
+  "github.com/go-faker/faker/v4"
+	"math/rand"
+)
+
+{{- range .Enums }}
+
+{{$enumSlice := printf "%s%s" .EnumType "Values"}}
+
+var {{ $enumSlice }} = []{{ .EnumType }}{
+{{- range .EnumValues }}
+	{{ . }},
+{{- end }}
+}
+
+// Register enum in OpenAPI specification
+func (u {{ .EnumType }}) Schema(r huma.Registry) *huma.Schema {
+	schemaRef := r.Schema(reflect.TypeOf(""), true, "{{.EnumType}}")
+  schemaRef.Title = "{{.EnumType}}"
+  for _, v := range {{$enumSlice}} {
+	  schemaRef.Enum = append(schemaRef.Enum, string(v))
+  }
+  r.Map()["{{.EnumType}}"] = schemaRef
+
+
+  schema := r.Schema(reflect.TypeOf(""), true, "{{.EnumType}}")
+  schema.Ref = "#/components/schemas/{{.EnumType}}"
+	return schema
+}
+
+func init () {
+  // Faker
+  faker.AddProvider("{{.EnumType}}",
+    func(v reflect.Value) (interface{}, error) {
+      idx := rand.Intn(len({{$enumSlice}}))
+      fmt.Printf("Called provided for {{.EnumType}}: %s\n", {{.EnumType}}({{$enumSlice}}[idx]))
+      return string({{$enumSlice}}[idx]), nil
+    })
+}
+
+// EdgeDB Marshalling
+func (m {{.EnumType}}) MarshalEdgeDBStr() ([]byte, error) {
+	return []byte(m), nil
+}
+
+func (m *{{.EnumType}}) UnmarshalEdgeDBStr(data []byte) error {
+	*m = {{.EnumType}}(string(data))
+	return nil
+}
+
+{{- end }}

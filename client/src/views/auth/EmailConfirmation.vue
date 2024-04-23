@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ApiError, AuthService, EmailConfirmationError } from '@/api'
+import { ApiError, AccountService, EmailConfirmationError } from '@/api'
 import HomeLinkTitle from '@/components/navigation/HomeLinkTitle.vue'
 import { Ref } from 'vue'
 import { ref } from 'vue'
@@ -50,7 +50,7 @@ type Response = 'ConfirmationSuccess' | EmailConfirmationError | 'ServerError'
 const result: Ref<undefined | Response> = ref(undefined)
 
 onMounted(() => {
-  AuthService.emailConfirmation(token.value)
+  AccountService.confirmEmail({ token: token.value })
     .then(() => {
       result.value = 'ConfirmationSuccess'
       setTimeout(() => {

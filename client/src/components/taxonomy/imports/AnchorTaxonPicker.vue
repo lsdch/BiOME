@@ -150,7 +150,7 @@ import axios, { AxiosError } from 'axios'
 
 import { watch } from 'vue'
 
-import { TaxonRank, TaxonomyService } from '@/api'
+import { TaxonRank, TaxonomyGbifService } from '@/api'
 import IconGBIF from '@/components/icons/IconGBIF.vue'
 import { taxonRankOptions } from '../enums'
 
@@ -194,7 +194,7 @@ const postError: Ref<AxiosError | undefined> = ref()
 
 async function importAnchorTaxon(taxon: TaxonGBIF) {
   try {
-    await TaxonomyService.importGbif({
+    await TaxonomyGbifService.importGbif({
       key: taxon.key,
       children: importDescendants.value
     })

@@ -2,75 +2,52 @@ package person
 
 import (
 	"darco/proto/controllers"
+	"darco/proto/router"
+	"net/http"
 
 	"darco/proto/models/people"
 	_ "darco/proto/models/validations"
 
-	"github.com/edgedb/edgedb-go"
-	"github.com/gin-gonic/gin"
+	"github.com/danielgtaylor/huma/v2"
 )
 
-// List persons
-// @Summary List persons
-// @Tags People
-// @Success 200 {array} people.Person
-// @Router /people/persons [get]
-func List(ctx *gin.Context, db *edgedb.Client) {
-	controllers.ListItems[people.Person](ctx, db, people.ListPersons)
-}
+func RegisterRoutes(r router.Router) {
+	personsAPI := r.RouteGroup("/persons").
+		WithTags([]string{"People", "Person"})
 
-// @Summary Create person
-// @Description Register a new person
-// @id Createperson
-// @tags People
-// @Success 201 {object} people.Person
-// @Failure 400 {object} validations.FieldErrors
-// @Router /people/persons [post]
-// @Param data body people.PersonInput true "Created person"
-func Create(ctx *gin.Context, db *edgedb.Client) {
-	controllers.CreateItem[people.PersonInput, people.Person](ctx, db)
-}
+	router.Register(personsAPI, "ListPersons",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodGet,
+			Summary: "List persons",
+			Errors:  []int{500},
+		},
+		controllers.ListHandler(people.ListPersons),
+	)
 
-// @Summary Delete person
-// @id DeletePerson
-// @tags People
-// @Success 200 {object} people.Person
-// @Failure 404 "person does not exist"
-// @Router /people/persons/{id} [delete]
-// @Param id path string true "Item UUID"
-func Delete(ctx *gin.Context, db *edgedb.Client) {
-	controllers.DeleteByID(ctx, db, people.DeletePerson)
-}
+	router.Register(personsAPI, "CreatePerson",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodPost,
+			Summary: "Create person",
+			Errors:  []int{400, 500},
+		},
+		controllers.CreateHandler[people.PersonInput, people.Person])
 
-// @Summary Update person
-// @id UpdatePerson
-// @tags People
-// @Success 200 {object} people.Person
-// @Failure 400 {object} validations.FieldErrors
-// @Router /people/persons/{id} [patch]
-// @Param id path string true "Item UUID"
-// @Param data body people.PersonUpdate true "Update infos"
-func Update(ctx *gin.Context, db *edgedb.Client) {
-	// uuid, err := controllers.ParseUUIDfromURI(ctx)
-	// if err != nil {
-	// 	logrus.Errorf("%v", err)
-	// 	return
-	// }
-	// person := people.PersonUpdate{ID: uuid}
-	// err = ctx.ShouldBindJSON(&person)
-	// if err != nil {
-	// 	logrus.Errorf("%v", err)
-	// 	return
-	// }
-	// logrus.Debugf("%+v", person)
-	// updated, err := person.Update(db)
-	// if err != nil {
-	// 	logrus.Errorf("%v", err)
-	// 	return
-	// }
-	// logrus.Infof("%v", updated)
-	// ctx.JSON(http.StatusOK, updated)
+	router.Register(personsAPI, "UpdatePerson",
+		huma.Operation{
+			Path:    "/{id}",
+			Method:  http.MethodPatch,
+			Summary: "Update person",
+			Errors:  []int{400, 500},
+		}, controllers.UpdateByIDHandler[people.PersonUpdate](people.FindPerson))
 
-	// controllers.UpdateByID(ctx, db, people.PersonInitUpdate)
-	controllers.UpdateItemByUUID[people.PersonUpdate](ctx, db, people.FindPerson)
+	router.Register(personsAPI, "DeletePerson",
+		huma.Operation{
+			Path:    "/{id}",
+			Method:  http.MethodDelete,
+			Summary: "Delete person",
+			Errors:  []int{400, 500},
+		},
+		controllers.DeleteByIDHandler(people.DeletePerson))
 }

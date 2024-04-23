@@ -1,6 +1,7 @@
 package gbif
 
 import (
+	"darco/proto/models/taxonomy"
 	"fmt"
 	"time"
 
@@ -41,7 +42,7 @@ func NewProgressTracker(taxon *TaxonGBIF, f func(p *ImportProcess)) *ProgressTra
 		GBIF_ID:  taxon.Key,
 		Expected: taxon.NumDescendants + 1,
 		Imported: 0,
-		Rank:     taxon.Rank,
+		Rank:     taxonomy.TaxonRank(taxon.Rank),
 		Started:  time.Now(),
 		Done:     false,
 		Error:    nil,

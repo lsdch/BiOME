@@ -1,52 +1,61 @@
 package controllers
 
 import (
-	"net/http"
+	"context"
+	"darco/proto/resolvers"
+	"darco/proto/router"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
-	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
 type ItemDelete[ID any, Item any] func(db edgedb.Executor, id ID) (Item, error)
 
-func delete[ID any, Item any](
-	ctx *gin.Context,
-	db edgedb.Executor,
-	delete ItemDelete[ID, Item],
-	bindID IDParser[ID],
-) {
-	id, err := bindID(ctx)
-	if err != nil {
-		return
-	}
-	deleted, err := delete(db, id)
-	if err != nil {
-		ctx.Error(err)
-		return
-	}
-	logrus.Debugf("Deleted item %+v", deleted)
-	ctx.JSON(http.StatusOK, deleted)
+type DeleteHandlerInput[ID any] interface {
+	resolvers.AuthDBProvider
+	IdentifierInput[ID]
 }
 
-// Deletes an item using a string identifier
-//
-// Responds with the deleted item when successful
-func DeleteByCode[Item any](
-	ctx *gin.Context,
-	db edgedb.Executor,
+type DeleteHandlerOutput[Deleted any] struct {
+	Body Deleted
+}
+
+func DeleteHandler[
+	OperationInput DeleteHandlerInput[ID],
+	Item any,
+	ID any,
+](deleteItem ItemDelete[ID, Item]) func(context.Context, OperationInput) (*DeleteHandlerOutput[Item], error) {
+	return func(ctx context.Context, input OperationInput) (*DeleteHandlerOutput[Item], error) {
+		deleted, err := deleteItem(input.DB(), input.Identifier())
+		if err != nil {
+			return nil, huma.Error500InternalServerError("Item deletion failed", err)
+		}
+		logrus.Debugf("Delete item %+v", deleted)
+		return &DeleteHandlerOutput[Item]{
+			Body: deleted,
+		}, nil
+	}
+}
+
+type DeleteByCodeHandlerInput struct {
+	resolvers.AuthRequired
+	CodeInput
+}
+
+func DeleteByCodeHandler[Item any](
 	deleteItem ItemDelete[string, Item],
-) {
-	delete(ctx, db, deleteItem, ParseCodeURI)
+) router.Endpoint[DeleteByCodeHandlerInput, DeleteHandlerOutput[Item]] {
+	return DeleteHandler[*DeleteByCodeHandlerInput, Item, string](deleteItem)
 }
 
-// Deletes an item using its UUID
-//
-// Responds with the deleted item when successful
-func DeleteByID[Item any](
-	ctx *gin.Context,
-	db edgedb.Executor,
+type DeleteByIDHandlerInput struct {
+	resolvers.AuthRequired
+	UUIDInput
+}
+
+func DeleteByIDHandler[Item any](
 	deleteItem ItemDelete[edgedb.UUID, Item],
-) {
-	delete(ctx, db, deleteItem, ParseUUIDfromURI)
+) router.Endpoint[DeleteByIDHandlerInput, DeleteHandlerOutput[Item]] {
+	return DeleteHandler[*DeleteByIDHandlerInput, Item, edgedb.UUID](deleteItem)
 }

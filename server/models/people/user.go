@@ -11,8 +11,8 @@ import (
 )
 
 type User struct {
-	ID             edgedb.UUID    `edgedb:"id" json:"id" binding:"required"`
-	Email          string         `edgedb:"email" json:"email" binding:"required"`
+	ID             edgedb.UUID    `edgedb:"id" json:"id" binding:"required" format:"uuid"`
+	Email          string         `edgedb:"email" json:"email" binding:"required" format:"email"`
 	Login          string         `edgedb:"login" json:"login" binding:"required"`
 	Password       string         `edgedb:"password" json:"-"`
 	Role           UserRole       `edgedb:"role" json:"role" binding:"required"`

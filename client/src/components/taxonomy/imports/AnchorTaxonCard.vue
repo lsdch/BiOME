@@ -30,11 +30,11 @@
 </template>
 
 <script setup lang="ts">
-import type { TaxonDB } from '@/api'
+import type { Taxon } from '@/api'
 import ItemDateChip from '../../toolkit/ItemDateChip.vue'
 import LinkIconGBIF from '../LinkIconGBIF.vue'
 
-defineProps<TaxonDB>()
+defineProps<Taxon>()
 </script>
 
 <style scoped></style>

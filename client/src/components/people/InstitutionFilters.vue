@@ -28,7 +28,7 @@ export type Filters = {
 
 <script setup lang="ts">
 import { institutionKindOptions } from './institutionKind'
-import { InstitutionKind } from '@/api/models/InstitutionKind.js'
+import { InstitutionKind } from '@/api'
 
 const model = defineModel<Filters>({ required: true })
 </script>

@@ -14,16 +14,16 @@ import (
 func TestTaxonomyList(t *testing.T) {
 	cases := []struct {
 		filters taxonomy.ListFilters
-		expect  func(taxa []taxonomy.TaxonDB)
+		expect  func(taxa []taxonomy.Taxon)
 	}{
 		{
-			taxonomy.ListFilters{}, func(taxa []taxonomy.TaxonDB) {
+			taxonomy.ListFilters{}, func(taxa []taxonomy.Taxon) {
 				assert.NotEmpty(t, taxa)
 			},
 		},
 		{
 			taxonomy.ListFilters{IsAnchor: edgedb.NewOptionalBool(false)},
-			func(taxa []taxonomy.TaxonDB) {
+			func(taxa []taxonomy.Taxon) {
 				for _, taxon := range taxa {
 					assert.False(t, taxon.Anchor)
 				}
@@ -31,13 +31,13 @@ func TestTaxonomyList(t *testing.T) {
 		},
 		{
 			taxonomy.ListFilters{Pattern: "thisTAXONdoesntEXIST"},
-			func(taxa []taxonomy.TaxonDB) {
+			func(taxa []taxonomy.Taxon) {
 				assert.Empty(t, taxa)
 			},
 		},
 		{
 			taxonomy.ListFilters{Pattern: "Asel"},
-			func(taxa []taxonomy.TaxonDB) {
+			func(taxa []taxonomy.Taxon) {
 				assert.NotEmpty(t, taxa)
 				for _, taxon := range taxa {
 					assert.Contains(t, strings.ToLower(taxon.Name), "asel")
@@ -46,7 +46,7 @@ func TestTaxonomyList(t *testing.T) {
 		},
 		{
 			taxonomy.ListFilters{Rank: taxonomy.Genus},
-			func(taxa []taxonomy.TaxonDB) {
+			func(taxa []taxonomy.Taxon) {
 				assert.NotEmpty(t, taxa)
 				for _, taxon := range taxa {
 					assert.Equal(t, taxon.Rank, taxonomy.Genus)
@@ -55,7 +55,7 @@ func TestTaxonomyList(t *testing.T) {
 		},
 		{
 			taxonomy.ListFilters{Status: taxonomy.Accepted},
-			func(taxa []taxonomy.TaxonDB) {
+			func(taxa []taxonomy.Taxon) {
 				assert.NotEmpty(t, taxa)
 				for _, taxon := range taxa {
 					assert.Equal(t, taxon.Status, taxonomy.Accepted)

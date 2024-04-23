@@ -30,12 +30,14 @@ const dark: ThemeDefinition = {
 }
 
 import { VNumberInput } from 'vuetify/labs/VNumberInput'
+import { VFab } from 'vuetify/labs/components'
 import { VTextField } from 'vuetify/components'
 const vuetify = createVuetify({
   blueprint: md3,
   components: {
     ...components,
     VNumberInput,
+    VFab,
   },
   aliases: {
     VInlineSearchBar: VTextField,

@@ -1,156 +1,143 @@
 package accounts
 
 import (
+	"context"
+	"darco/proto/db"
 	"darco/proto/models/people"
 	users "darco/proto/models/people"
 	_ "darco/proto/models/validations"
+	"darco/proto/resolvers"
+	"darco/proto/router"
 	"fmt"
-	"net/http"
+	"net/url"
 
-	"github.com/edgedb/edgedb-go"
-	"github.com/gin-gonic/gin"
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/sirupsen/logrus"
 )
 
-// @Summary Register user
-// @Description Register a new user account, that is inactive (until email is verified or admin intervention), and has role 'Guest'
-// @id RegisterUser
-// @tags Auth
-// @Accept json
-// @Produce json
-// @Success 202 "User created and waiting for email verification"
-// @Failure 400 {object} validations.FieldErrors
-// @Router /users/register [post]
-// @Param data body people.PendingUserRequestInput true "User informations"
-// @Param redirect query string false "Path to redirect to when email is successfully confirmed"
-func Register(ctx *gin.Context, db *edgedb.Client) {
-	var newUser people.PendingUserRequestInput
-	if err := ctx.ShouldBindJSON(&newUser); err != nil {
-		ctx.Error(err)
-		return
+type EmailVerificationURL struct {
+	Handler url.URL `json:"handler,omitempty" doc:"A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter."`
+}
+
+type RegisterInput struct {
+	resolvers.HostResolver
+	Body struct {
+		people.PendingUserRequestInput `json:",inline"`
+		EmailVerificationURL           `json:",inline"`
 	}
+}
 
-	logrus.Infof("Attempting to create account for %s %s (%s)",
-		newUser.Person.FirstName,
-		newUser.Person.LastName,
-		newUser.User.Email,
-	)
-
-	pending, err := newUser.Register(db)
-	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
-		return
-	}
-
-	target := confirmEmailURL(ctx)
-	if err := pending.User.SendConfirmationEmail(db, target); err != nil {
-		msg := fmt.Errorf(
-			"Failed to send account confirmation email to '%s'. This is likely to be a server configuration error.",
-			newUser.User.Email,
+func sendConfirmationEmail(user *users.User, target url.URL) (*struct{}, error) {
+	if err := user.SendConfirmationEmail(db.Client(), target); err != nil {
+		msg := fmt.Sprintf(
+			"Failed to send account confirmation email to '%s'.",
+			user.Email,
 		)
 		logrus.Errorf("%s Error: %v", msg, err)
-		ctx.AbortWithError(http.StatusInternalServerError, msg)
-		return
+		return nil, huma.Error500InternalServerError(msg, err)
 	}
-	ctx.Status(http.StatusAccepted)
+
+	return nil, nil
 }
 
-type EmailConfirmationError string // @name EmailConfirmationError
-const (
-	AlreadyVerified EmailConfirmationError = "AlreadyVerified"
-	InvalidToken    EmailConfirmationError = "InvalidToken"
-)
+func Register(confirmEmailPath string) router.Endpoint[RegisterInput, struct{}] {
+	return func(ctx context.Context, input *RegisterInput) (*struct{}, error) {
+		logrus.Infof("Attempting to create account for %s %s (%s)",
+			input.Body.Person.FirstName,
+			input.Body.Person.LastName,
+			input.Body.User.Email,
+		)
 
-// @Summary Email confirmation
-// @Description Confirms a user email using a token
-// @id EmailConfirmation
-// @tags Auth
-// @Accept json
-// @Produce json
-// @Success 200 "Email was confirmed and account activated"
-// @Failure 400 {object} EmailConfirmationError
-// @Failure 500 "Server error"
-// @Router /users/confirm [get]
-// @Param token query string true "Confirmation token"
-// @Param redirect query string false "Path to redirect to on success"
-func ConfirmEmail(ctx *gin.Context, db *edgedb.Client) {
-	token := ctx.Query("token")
-	logrus.Infof("Received email confirmation token: %s", token)
+		pending, err := input.Body.Register(db.Client())
+		if err != nil {
+			return nil, huma.Error500InternalServerError("Failed to register new account", err)
+		}
 
-	user, tokenValid := users.ValidateAccountToken(db, users.Token(token), users.EmailConfirmationToken)
+		target := input.GenerateURL(confirmEmailPath)
+		if input.Body.Handler.Host != "" {
+			target = input.Body.Handler
+		}
+		return sendConfirmationEmail(&pending.User, target)
+	}
+}
+
+type ConfirmEmailInput struct {
+	resolvers.HostResolver
+	Token string `query:"token"`
+	*users.User
+}
+
+func (i *ConfirmEmailInput) Resolve(ctx huma.Context) []error {
+	if errs := i.HostResolver.Resolve(ctx); errs != nil {
+		return errs
+	}
+	user, tokenValid := users.ValidateAccountToken(
+		db.Client(),
+		users.Token(i.Token),
+		users.EmailConfirmationToken,
+	)
 	if !tokenValid {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, InvalidToken)
-		return
+		return []error{&huma.ErrorDetail{
+			Message: "Invalid token",
+		}}
 	}
 
 	if user.EmailConfirmed {
-		ctx.AbortWithStatusJSON(http.StatusBadRequest, AlreadyVerified)
-		return
+		return []error{&huma.ErrorDetail{
+			Message: "Account is already verified",
+		}}
 	}
 
-	if err := user.SetEmailConfirmed(db, true); err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
-	}
-
-	if user.IsActive {
-		startUserSession(ctx, user)
-	}
-	if redirect := ctx.Param("redirect"); redirect != "" {
-		ctx.Redirect(http.StatusOK, redirect)
-	} else {
-		ctx.Status(http.StatusOK)
-	}
+	i.User = user
+	return nil
 }
 
-type ResendConfirmationError string // @name ResendConfirmationError
-
-const (
-	ResendInvalidCredentials ResendConfirmationError = "InvalidCredentials"
-	ResendAlreadyVerified    ResendConfirmationError = ResendConfirmationError(AlreadyVerified)
-)
-
-// @Summary Resend confirmation email
-// @Description Send again the confirmation email
-// @id ResendConfirmationEmail
-// @tags Auth
-// @Accept json
-// @Produce json
-// @Success 202 "Email was sent"
-// @Failure 400 {object} ResendConfirmationError
-// @Router /users/confirm/resend [post]
-// @Param data body users.UserCredentials true "User informations"
-// @Param redirect query string false "Redirect to path on confirmation"
-func ResendConfirmation(ctx *gin.Context, db *edgedb.Client) {
-	var creds users.UserCredentials
-	if err := ctx.ShouldBindJSON(&creds); err != nil {
-		ctx.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			ResendInvalidCredentials,
-		)
-		return
+func ConfirmEmail(ctx context.Context, input *ConfirmEmailInput) (*LoginOutput, error) {
+	if err := input.User.SetEmailConfirmed(db.Client(), true); err != nil {
+		return nil, huma.Error500InternalServerError("Email confirmation failed", err)
 	}
-	user, err := creds.Authenticate(db)
-	if err != nil && err.Reason == users.InvalidCredentials {
-		ctx.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			ResendInvalidCredentials,
-		)
-		return
+	return createSession(
+		input.User,
+		input.Host,
+		"Email confirmation successful",
+	)
+}
+
+type ResendEmailConfirmationInput struct {
+	resolvers.HostResolver
+	Body struct {
+		Email                string `json:"email" format:"email"`
+		EmailVerificationURL `json:",inline"`
+	}
+	*users.User
+}
+
+func (i *ResendEmailConfirmationInput) Resolve(ctx huma.Context) []error {
+	user, err := users.Find(db.Client(), i.Body.Email)
+	if err != nil {
+		return []error{&huma.ErrorDetail{
+			Message:  "Unknown e-mail address",
+			Location: "email",
+			Value:    i.Body.Email,
+		}}
 	}
 	if user.EmailConfirmed {
-		ctx.AbortWithStatusJSON(
-			http.StatusBadRequest,
-			ResendAlreadyVerified,
-		)
-		return
+		return []error{&huma.ErrorDetail{
+			Message:  "E-mail was already verified",
+			Location: "email",
+			Value:    i.Body.Email,
+		}}
 	}
+	i.User = user
+	return nil
+}
 
-	tokenURL := confirmEmailURL(ctx)
-
-	if err := user.SendConfirmationEmail(db, tokenURL); err != nil {
-		ctx.AbortWithError(http.StatusInternalServerError, err)
-		return
+func ResendEmailConfirmation(confirmEmailPath string) router.Endpoint[ResendEmailConfirmationInput, struct{}] {
+	return func(ctx context.Context, input *ResendEmailConfirmationInput) (*struct{}, error) {
+		target := input.GenerateURL(confirmEmailPath)
+		if input.Body.Handler.Host != "" {
+			target = input.Body.Handler
+		}
+		return sendConfirmationEmail(input.User, target)
 	}
-	ctx.Status(http.StatusAccepted)
 }

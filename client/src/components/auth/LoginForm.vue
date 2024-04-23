@@ -1,7 +1,7 @@
 <template>
   <v-form @submit.prevent="submit">
     <v-text-field
-      v-model="state.identifier"
+      v-model="formData.identifier"
       name="login"
       label="Account"
       placeholder="Login or email"
@@ -9,28 +9,28 @@
       prepend-inner-icon="mdi-account"
     />
     <v-text-field
-      v-model="state.password"
+      v-model="formData.password"
       type="password"
       label="Password"
       name="password"
       variant="outlined"
       prepend-inner-icon="mdi-lock"
     />
-    <div v-if="feedback" class="mb-3 w-100 text-center">
-      <v-alert v-if="feedback == 'ConfirmationSent'" type="info" variant="outlined">
+    <!-- <div v-if="errors" class="mb-3 w-100 text-center">
+      <v-alert v-if="errors == 'ConfirmationSent'" type="info" variant="outlined">
         A new activation link was sent to your email address.
       </v-alert>
-      <v-alert v-else-if="feedback == 'ServerError'" type="error" variant="outlined">
+      <v-alert v-else-if="errors == 'ServerError'" type="error" variant="outlined">
         An error occurred on the server.
       </v-alert>
-      <span v-else-if="feedback?.reason == 'InvalidCredentials'" class="text-red">
+      <span v-else-if="errors?.reason == 'InvalidCredentials'" class="text-red">
         Invalid credentials
       </span>
-      <v-alert v-else-if="feedback?.reason == 'Inactive'" type="warning" variant="outlined">
+      <v-alert v-else-if="errors?.reason == 'Inactive'" type="warning" variant="outlined">
         Your email was not confirmed yet, please check your inbox<br />
         or <a href="#" @click="resendConfirmation">request another confirmation link</a> if needed.
       </v-alert>
-    </div>
+    </div> -->
     <v-btn
       block
       type="submit"
@@ -39,77 +39,65 @@
       color="primary"
       text="Log in"
       class="mb-5"
-      @click="submit"
       :loading="loading"
     />
   </v-form>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
-import { ApiError, AuthService, LoginFailedError, UserCredentials } from '@/api'
-import { ref } from 'vue'
-import { Ref } from 'vue'
+import { AccountService, ApiError, ErrorModel, UserCredentials } from '@/api'
 import { useUserStore } from '@/stores/user'
+import { Ref, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const state: UserCredentials = reactive({
+const formData: UserCredentials = reactive({
   identifier: '',
-  password: '',
-  remember: true
+  password: ''
 })
 
 const loading = ref(false)
 
-const feedback: Ref<undefined | LoginFailedError | 'ConfirmationSent' | 'ServerError'> =
-  ref(undefined)
+const errors: Ref<ErrorModel | undefined> = ref(undefined)
 
 defineEmits<{ (event: 'sendConfirmation'): void }>()
 
-const { getUser } = useUserStore()
 const router = useRouter()
+
+const { getUser } = useUserStore()
 
 async function submit() {
   loading.value = true
-  await AuthService.login(state)
-    .then(() => {
-      feedback.value = undefined
-      getUser()
+  await AccountService.login({ requestBody: formData })
+    .then(async () => {
+      errors.value = undefined
+      await getUser()
       router.push({ name: 'home' })
     })
     .catch((err: ApiError) => {
-      switch (err.status) {
-        case 400:
-          feedback.value = err.body
-          break
-        default:
-          feedback.value = 'ServerError'
-          break
-      }
-      return undefined
+      errors.value = err.body as ErrorModel
     })
     .finally(() => {
       loading.value = false
     })
 }
 
-function resendConfirmation() {
-  AuthService.resendConfirmationEmail(state)
-    .then(() => {
-      feedback.value = 'ConfirmationSent'
-    })
-    .catch((err: ApiError) => {
-      switch (err.status) {
-        case 400:
-          feedback.value = err.body
-          break
+// function resendConfirmation() {
+//   AccountService.resendEmailConfirmation(state)
+//     .then(() => {
+//       errors.value = 'ConfirmationSent'
+//     })
+//     .catch((err: ApiError) => {
+//       switch (err.status) {
+//         case 400:
+//           errors.value = err.body
+//           break
 
-        default:
-          feedback.value = 'ServerError'
-          break
-      }
-    })
-}
+//         default:
+//           errors.value = 'ServerError'
+//           break
+//       }
+//     })
+// }
 </script>
 
 <style scoped></style>

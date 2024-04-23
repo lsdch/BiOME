@@ -43,17 +43,17 @@ import moment from 'moment'
 import type { Ref } from 'vue'
 import { onMounted, ref } from 'vue'
 
-import { TaxonDB, TaxonomyService } from '@/api'
+import { Taxon, TaxonomyGbifService } from '@/api'
 import AnchorTaxonCard from '@/components/taxonomy/imports/AnchorTaxonCard.vue'
 import RootTaxonPicker from '@/components/taxonomy/imports/AnchorTaxonPicker.vue'
 import type { ImportProcess } from '@/components/taxonomy/imports/ImportTaxonCard.vue'
 import ImportTaxonCard from '@/components/taxonomy/imports/ImportTaxonCard.vue'
 
 const activities: Ref<ImportProcess[]> = ref([])
-const anchors: Ref<TaxonDB[]> = ref([])
+const anchors: Ref<Taxon[]> = ref([])
 
 async function updateAnchors() {
-  const response = await TaxonomyService.taxonAnchors()
+  const response = await TaxonomyGbifService.listAnchors()
   anchors.value = response
 }
 

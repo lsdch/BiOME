@@ -4,12 +4,15 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"reflect"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 )
 
 type UserRole string // @name UserRole
 
+//generate:enum
 const (
 	Visitor     UserRole = "Visitor"
 	Contributor UserRole = "Contributor"
@@ -17,12 +20,14 @@ const (
 	Admin       UserRole = "Admin"
 )
 
-func (m UserRole) MarshalEdgeDBStr() ([]byte, error) {
-	return []byte(m), nil
-}
-
-func (m *UserRole) UnmarshalEdgeDBStr(data []byte) error {
-	*m = UserRole(string(data))
+func (u *User) SetRole(db edgedb.Executor, role UserRole) error {
+	if err := db.Execute(context.Background(),
+		`update people::User set { role := <people::UserRole>$0 }`,
+		string(role),
+	); err != nil {
+		return fmt.Errorf("Failed to set user role: %w", err)
+	}
+	u.Role = role
 	return nil
 }
 
@@ -49,15 +54,6 @@ func (m *OptionalUserRole) SetMissing(isMissing bool) {
 	m.isSet = !isMissing
 }
 
-func (u *User) SetRole(db edgedb.Executor, role UserRole) error {
-	if err := db.Execute(context.Background(),
-		`update people::User set {
-			role := <people::UserRole>$0
-		}`,
-		string(role),
-	); err != nil {
-		return fmt.Errorf("Failed to set user role: %v", err)
-	}
-	u.Role = role
-	return nil
+func (m *OptionalUserRole) Schema(r huma.Registry) *huma.Schema {
+	return r.Schema(reflect.TypeFor[UserRole](), true, "")
 }

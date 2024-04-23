@@ -3,55 +3,51 @@ package institution
 import (
 	"darco/proto/controllers"
 	"darco/proto/models/people"
+	"darco/proto/router"
+	"net/http"
 
 	_ "darco/proto/models/validations"
 
-	"github.com/edgedb/edgedb-go"
-	"github.com/gin-gonic/gin"
+	"github.com/danielgtaylor/huma/v2"
 )
 
-// List institutions
-// swagger:route GET /people/institutions/
-// @Summary List Institutions
-// @ID List Institutions
-// @Tags People
-// @Success 200 {array} people.Institution
-// @Router /people/institutions [get]
-func List(ctx *gin.Context, db *edgedb.Client) {
-	controllers.ListItems(ctx, db, people.ListInstitutions)
-}
+func RegisterRoutes(r router.Router) {
+	institutionsAPI := r.RouteGroup("/institutions").
+		WithTags([]string{"People", "Institution"})
 
-// @Summary Create institution
-// @Description Register a new institution that people work in.
-// @id CreateInstitution
-// @tags People
-// @Success 201 {object} people.Institution
-// @Failure 400 {object} validations.FieldErrors
-// @Router /people/institutions [post]
-// @Param data body people.InstitutionInput true "Institution informations"
-func Create(ctx *gin.Context, db *edgedb.Client) {
-	controllers.CreateItem[people.InstitutionInput, people.Institution](ctx, db)
-}
+	router.Register(institutionsAPI, "ListInstitutions",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodGet,
+			Summary: "List institutions",
+			Errors:  []int{500},
+		},
+		controllers.ListHandler(people.ListInstitutions),
+	)
 
-// @Summary Update institution
-// @id UpdateInstitution
-// @tags People
-// @Success 200 {object} people.Institution
-// @Failure 400 {object} validations.FieldErrors
-// @Router /people/institutions/{code} [patch]
-// @Param code path string true "Institution code"
-// @Param data body people.InstitutionUpdate true "Institution informations"
-func Update(ctx *gin.Context, db *edgedb.Client) {
-	controllers.UpdateItemByCode[people.InstitutionUpdate](ctx, db, people.FindInstitution)
-}
+	router.Register(institutionsAPI, "CreateInstitution",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodPost,
+			Summary: "Create institution",
+			Errors:  []int{400, 500},
+		},
+		controllers.CreateHandler[people.InstitutionInput, people.Institution])
 
-// @Summary Delete institution
-// @id DeleteInstitution
-// @tags People
-// @Success 200 {object} people.Institution "Deleted item"
-// @Failure 404 "Institution does not exist"
-// @Router /people/institutions/{code} [delete]
-// @Param code path string true "Institution short name"
-func Delete(ctx *gin.Context, db *edgedb.Client) {
-	controllers.DeleteByCode(ctx, db, people.DeleteInstitution)
+	router.Register(institutionsAPI, "UpdateInstitution",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodPatch,
+			Summary: "Update institution",
+			Errors:  []int{400, 500},
+		}, controllers.UpdateByCodeHandler[people.InstitutionUpdate](people.FindInstitution))
+
+	router.Register(institutionsAPI, "DeleteInstitution",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodDelete,
+			Summary: "Delete institution",
+			Errors:  []int{400, 500},
+		},
+		controllers.DeleteByCodeHandler(people.DeleteInstitution))
 }

@@ -1,11 +1,11 @@
 <template>
   <CRUDTable
     :crud="{
-      list: () => TaxonomyService.taxonomyList(),
-      delete: (item: TaxonWithRelatives) => TaxonomyService.deleteTaxon(item.code)
+      list: () => TaxonomyService.listTaxa({}),
+      delete: (item: Taxon) => TaxonomyService.deleteTaxon(item.code)
     }"
     entityName="Taxon"
-    :itemRepr="(item: TaxonWithRelatives) => item.name"
+    :itemRepr="(item: Taxon) => item.name"
     :toolbar="{
       title: 'Taxonomy',
       icon: 'mdi-graph',
@@ -56,7 +56,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 
-import { TaxonRank, TaxonStatus, TaxonWithRelatives, TaxonomyService } from '@/api'
+import { Taxon, TaxonRank, TaxonStatus, TaxonomyService } from '@/api'
 import { Ref, computed } from 'vue'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
@@ -73,7 +73,7 @@ const filters: Ref<{ rank?: TaxonRank; status: TaxonStatus }> = ref({
 const filter = computed(() => {
   const { rank, status } = filters.value
   if (rank || status)
-    return (item: TaxonWithRelatives) => {
+    return (item: Taxon) => {
       return (rank ? item.rank === rank : true) && (status ? item.status === status : true)
     }
   else return undefined

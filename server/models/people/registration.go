@@ -2,9 +2,9 @@ package people
 
 import (
 	"context"
-	"darco/proto/utils"
 	_ "embed"
 	"encoding/json"
+	"net/url"
 	"time"
 
 	"github.com/edgedb/edgedb-go"
@@ -110,19 +110,21 @@ func (p *PendingUserRequest) ValidateTx(tx *edgedb.Tx, person *PersonInner, role
 // SendConfirmationEmail sends a confirmation email to the user with a verification token.
 // It generates a confirmation token, and sends an email with the confirmation link.
 // The confirmation token is included as a query parameter in the URL.
-func (user *User) SendConfirmationEmail(db *edgedb.Client, target utils.RedirectURL) error {
+func (user *User) SendConfirmationEmail(db *edgedb.Client, target url.URL) error {
 	token, err := user.CreateAccountToken(db, EmailConfirmationToken)
 	if err != nil {
 		return err
 	}
-	url := NewTokenURL(target, token)
+	params := target.Query()
+	params.Set("token", string(token))
+	target.RawQuery = params.Encode()
 
 	return user.SendEmail(
 		"Activation of your account",
 		"email_verification.html",
 		map[string]any{
 			"Name": user.Person.FirstName,
-			"URL":  url.String(),
+			"URL":  target.String(),
 		})
 }
 

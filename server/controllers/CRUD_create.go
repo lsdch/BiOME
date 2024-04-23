@@ -1,29 +1,29 @@
 package controllers
 
 import (
+	"context"
 	"darco/proto/models"
-	"net/http"
+	"darco/proto/resolvers"
 
-	"github.com/edgedb/edgedb-go"
-	"github.com/gin-gonic/gin"
+	"github.com/danielgtaylor/huma/v2"
 )
 
-// A generic endpoint to handle item creation.
-//
-//   - `Item` type is the input item type
-//   - `Created` type is the type of the item once created
-func CreateItem[Item models.Creatable[Created], Created any](
-	ctx *gin.Context,
-	db edgedb.Executor,
-) {
-	var item Item
-	if err := ctx.ShouldBindJSON(&item); err != nil {
-		ctx.Error(err)
-		return
-	}
-	created, err := item.Create(db)
+type CreateHandlerInput[Item models.Creatable[Created], Created any] struct {
+	resolvers.AuthRequired
+	Body Item
+}
+
+type CreateHandlerOutput[Created any] struct {
+	Body Created
+}
+
+func CreateHandler[
+	Input models.Creatable[Created],
+	Created any,
+](ctx context.Context, input *CreateHandlerInput[Input, Created]) (*CreateHandlerOutput[Created], error) {
+	created, err := input.Body.Create(input.DB())
 	if err != nil {
-		ctx.AbortWithError(http.StatusBadRequest, err)
+		return nil, huma.Error500InternalServerError("Item creation failed", err)
 	}
-	ctx.JSON(http.StatusAccepted, created)
+	return &CreateHandlerOutput[Created]{Body: created}, nil
 }

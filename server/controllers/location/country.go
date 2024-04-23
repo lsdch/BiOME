@@ -1,9 +1,12 @@
 package country
 
 import (
+	"darco/proto/controllers"
 	country "darco/proto/models/location"
+	"darco/proto/router"
 	"net/http"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 	gin "github.com/gin-gonic/gin"
 )
@@ -17,17 +20,14 @@ func Setup(ctx *gin.Context, db *edgedb.Client) {
 	}
 }
 
-// List countries
-// swagger:route GET /countries/
-// @Summary List Countries
-// @Tags Location
-// @Success 200 {array} country.Country
-// @Router /countries/ [get]
-func List(ctx *gin.Context, db *edgedb.Client) {
-	countries, err := country.List(db)
-	if err != nil {
-		ctx.Error(err)
-	} else {
-		ctx.JSON(http.StatusOK, countries)
-	}
+func RegisterRoutes(r router.Router) {
+	countriesAPI := r.RouteGroup("/countries").
+		WithTags([]string{"Location", "Countries"})
+
+	router.Register(countriesAPI, "ListCountries",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodGet,
+			Summary: "List countries",
+		}, controllers.ListHandler(country.List))
 }

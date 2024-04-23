@@ -4,6 +4,7 @@ import (
 	"darco/proto/db"
 	"darco/proto/models/people"
 	"darco/proto/tests"
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -19,6 +20,7 @@ func SetupInstitution(t *testing.T) people.Institution {
 
 func TestCreateInstitution(t *testing.T) {
 	var input = tests.FakeData[people.InstitutionInput](t)
+	fmt.Printf("%+v\n", input)
 	inst, err := input.Create(db.Client())
 	require.NoError(t, err)
 	assert.Equal(t, input.Name, inst.Name)
