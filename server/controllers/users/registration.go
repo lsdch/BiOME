@@ -141,3 +141,24 @@ func ResendEmailConfirmation(confirmEmailPath string) router.Endpoint[ResendEmai
 		return sendConfirmationEmail(input.User, target)
 	}
 }
+
+type ClaimInvitationInput struct {
+	resolvers.HostResolver
+	Token people.Token `path:"token"`
+	Body  people.UserInput
+}
+
+func ClaimInvitation(ctx context.Context, input *ClaimInvitationInput) (*LoginOutput, error) {
+	user, err := input.Body.ClaimInvitationToken(db.Client(), input.Token)
+	if err != nil {
+		switch err.Type {
+		case people.InvalidToken:
+			return nil, huma.Error422UnprocessableEntity(string(people.InvalidToken))
+		case people.IdentityLinkageFailed, people.RegistrationFailed:
+			return nil, huma.Error500InternalServerError(string(err.Type))
+		}
+	}
+	return createSession(user, input.Host,
+		fmt.Sprintf("Account created with role %s", user.Role),
+	)
+}

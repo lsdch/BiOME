@@ -1117,6 +1117,13 @@ export const $UserCredentials = {
 export const $UserInput = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/UserInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     email: {
       format: 'email',
       type: 'string'

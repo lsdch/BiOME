@@ -28,7 +28,7 @@ export class AccountService {
         Authorization: data.authorization
       },
       errors: {
-        404: 'Not Found',
+        401: 'Unauthorized',
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
@@ -53,7 +53,6 @@ export class AccountService {
         token: data.token
       },
       errors: {
-        400: 'Bad Request',
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
@@ -77,7 +76,6 @@ export class AccountService {
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
-        400: 'Bad Request',
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
@@ -101,7 +99,6 @@ export class AccountService {
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
-        400: 'Bad Request',
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
@@ -125,7 +122,6 @@ export class AccountService {
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
-        400: 'Bad Request',
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
@@ -175,7 +171,6 @@ export class AccountService {
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
-        400: 'Bad Request',
         401: 'Unauthorized',
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
@@ -201,7 +196,6 @@ export class AccountService {
         token: data.token
       },
       errors: {
-        400: 'Bad Request',
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
@@ -229,7 +223,6 @@ export class AccountService {
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
-        400: 'Bad Request',
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
@@ -253,7 +246,33 @@ export class AccountService {
       body: data.requestBody,
       mediaType: 'application/json',
       errors: {
-        400: 'Bad Request',
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Claim invitation
+   * Register an account with pre-assigned role and identity, using an invitation token
+   * @param data The data for the request.
+   * @param data.token
+   * @param data.requestBody
+   * @returns AuthenticationResponse OK
+   * @throws ApiError
+   */
+  public static claimInvitation(
+    data: $OpenApiTs['/account/register/{token}']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/account/register/{token}']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/account/register/{token}',
+      path: {
+        token: data.token
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }

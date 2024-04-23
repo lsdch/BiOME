@@ -409,6 +409,10 @@ export type UserCredentials = {
 }
 
 export type UserInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   email: string
   login: string
   password: string
@@ -441,9 +445,9 @@ export type $OpenApiTs = {
          */
         200: CurrentUserResponse
         /**
-         * Not Found
+         * Unauthorized
          */
-        404: ErrorModel
+        401: ErrorModel
         /**
          * Unprocessable Entity
          */
@@ -466,10 +470,6 @@ export type $OpenApiTs = {
          */
         200: AuthenticationResponse
         /**
-         * Bad Request
-         */
-        400: ErrorModel
-        /**
          * Unprocessable Entity
          */
         422: ErrorModel
@@ -490,10 +490,6 @@ export type $OpenApiTs = {
          * No Content
          */
         204: void
-        /**
-         * Bad Request
-         */
-        400: ErrorModel
         /**
          * Unprocessable Entity
          */
@@ -516,10 +512,6 @@ export type $OpenApiTs = {
          */
         204: void
         /**
-         * Bad Request
-         */
-        400: ErrorModel
-        /**
          * Unprocessable Entity
          */
         422: ErrorModel
@@ -540,10 +532,6 @@ export type $OpenApiTs = {
          * OK
          */
         200: AuthenticationResponse
-        /**
-         * Bad Request
-         */
-        400: ErrorModel
         /**
          * Unprocessable Entity
          */
@@ -592,10 +580,6 @@ export type $OpenApiTs = {
          */
         204: void
         /**
-         * Bad Request
-         */
-        400: ErrorModel
-        /**
          * Unauthorized
          */
         401: ErrorModel
@@ -621,10 +605,6 @@ export type $OpenApiTs = {
          */
         204: void
         /**
-         * Bad Request
-         */
-        400: ErrorModel
-        /**
          * Unprocessable Entity
          */
         422: ErrorModel
@@ -644,10 +624,6 @@ export type $OpenApiTs = {
          * No Content
          */
         204: void
-        /**
-         * Bad Request
-         */
-        400: ErrorModel
         /**
          * Unprocessable Entity
          */
@@ -670,9 +646,27 @@ export type $OpenApiTs = {
          */
         201: unknown
         /**
-         * Bad Request
+         * Unprocessable Entity
          */
-        400: ErrorModel
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/account/register/{token}': {
+    post: {
+      req: {
+        requestBody: UserInput
+        token: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: AuthenticationResponse
         /**
          * Unprocessable Entity
          */

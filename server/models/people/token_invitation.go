@@ -65,3 +65,35 @@ func ValidateInvitationToken(db edgedb.Executor, token Token) (*Invitation, erro
 	)
 	return &invitation, err
 }
+
+type InvitationClaimErrorType string
+
+const (
+	InvalidToken          InvitationClaimErrorType = "Invalid token"
+	RegistrationFailed    InvitationClaimErrorType = "User registration failed"
+	IdentityLinkageFailed InvitationClaimErrorType = "Failed to assign identity to registered user "
+)
+
+type InvitationClaimError struct {
+	Type InvitationClaimErrorType
+	Err  error
+}
+
+func (err InvitationClaimError) Error() string {
+	return err.Err.Error()
+}
+
+func (u *UserInput) ClaimInvitationToken(db edgedb.Executor, token Token) (*User, *InvitationClaimError) {
+	invitation, err := ValidateInvitationToken(db, token)
+	if err != nil {
+		return nil, &InvitationClaimError{Type: InvalidToken, Err: err}
+	}
+	user, err := u.Save(db, invitation.Role)
+	if err != nil {
+		return nil, &InvitationClaimError{Type: RegistrationFailed, Err: err}
+	}
+	if err := user.SetIdentity(db, &invitation.Person); err != nil {
+		return nil, &InvitationClaimError{Type: IdentityLinkageFailed, Err: err}
+	}
+	return user, nil
+}

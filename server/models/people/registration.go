@@ -127,18 +127,3 @@ func (user *User) SendConfirmationEmail(db *edgedb.Client, target url.URL) error
 			"URL":  target.String(),
 		})
 }
-
-func (u *UserInput) ClaimInvitationToken(db edgedb.Executor, token Token) (*User, error) {
-	invitation, err := ValidateInvitationToken(db, token)
-	if err != nil {
-		return nil, err
-	}
-	user, err := u.Save(db, invitation.Role)
-	if err != nil {
-		return nil, err
-	}
-	if err := user.SetIdentity(db, &invitation.Person); err != nil {
-		return nil, err
-	}
-	return user, nil
-}

@@ -18,7 +18,7 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodPost,
 			Summary:     "Login",
 			Description: "Authenticate using user credentials",
-			Errors:      []int{400},
+			Errors:      []int{http.StatusUnprocessableEntity},
 		}, Login)
 
 	router.Register(accountAPI, "Logout",
@@ -35,7 +35,7 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodGet,
 			Summary:     "Current user",
 			Description: "Get infos of currently authenticated user account",
-			Errors:      []int{404},
+			Errors:      []int{http.StatusUnauthorized},
 		}, CurrentUser)
 
 	router.Register(accountAPI, "UpdatePassword",
@@ -44,7 +44,7 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodPost,
 			Summary:     "Update password",
 			Description: "Updates password of currently authenticated user",
-			Errors:      []int{400, 401},
+			Errors:      []int{http.StatusUnprocessableEntity, http.StatusUnauthorized},
 		}, UpdatePassword)
 
 	pwdResetPath := router.Register(accountAPI, "ResetPassword",
@@ -53,7 +53,7 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodPost,
 			Summary:     "Reset password",
 			Description: "Set a new password using a previously issued reset token",
-			Errors:      []int{400},
+			Errors:      []int{http.StatusUnprocessableEntity},
 		},
 		PasswordReset)
 
@@ -63,7 +63,7 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodGet,
 			Summary:     "Validate password token",
 			Description: "Verifies that the password token is valid and can be used to reset a password",
-			Errors:      []int{400},
+			Errors:      []int{http.StatusUnprocessableEntity},
 		}, ValidatePasswordToken)
 
 	router.Register(accountAPI, "RequestPasswordReset",
@@ -72,7 +72,7 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodPost,
 			Summary:     "Request password reset",
 			Description: fmt.Sprintf("Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `%s`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.", pwdResetPath),
-			Errors:      []int{400, 500},
+			Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 		}, RequestPasswordReset(pwdResetPath))
 
 	confirmEmailPath := router.Register(accountAPI, "ConfirmEmail",
@@ -81,7 +81,7 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodGet,
 			Summary:     "Confirm e-mail",
 			Description: "Confirms the validity of an e-mail address associated to an account, using a token issued at the end of user registration.",
-			Errors:      []int{400, 500},
+			Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 		}, ConfirmEmail)
 
 	router.Register(accountAPI, "ResendEmailConfirmation",
@@ -90,7 +90,7 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodPost,
 			Summary:     "Resend e-mail verification link",
 			Description: "Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.",
-			Errors:      []int{400, 500},
+			Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 		}, ResendEmailConfirmation(confirmEmailPath))
 
 	router.Register(accountAPI, "Register",
@@ -103,6 +103,15 @@ func RegisterRoutes(r router.Router) {
 				confirmEmailPath,
 			),
 			DefaultStatus: http.StatusCreated,
-			Errors:        []int{400, 500},
+			Errors:        []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 		}, Register(confirmEmailPath))
+
+	router.Register(accountAPI, "ClaimInvitation",
+		huma.Operation{
+			Path:        "/register/{token}",
+			Method:      http.MethodPost,
+			Summary:     "Claim invitation",
+			Description: "Register an account with pre-assigned role and identity, using an invitation token",
+			Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
+		}, ClaimInvitation)
 }
