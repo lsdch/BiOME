@@ -104,8 +104,7 @@ func RequestPasswordReset(defaultHandlerPath string) RequestPasswordResetHandler
 			return nil, huma.Error400BadRequest("Unknown email address", err)
 		}
 
-		var targetURL = input.URL
-		targetURL.Path = defaultHandlerPath
+		var targetURL = input.GenerateURL(defaultHandlerPath)
 		if input.Body.Handler != nil {
 			targetURL = *input.Body.Handler
 		}
