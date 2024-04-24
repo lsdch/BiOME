@@ -1,6 +1,10 @@
 <template>
   <div class="d-flex flex-no-wrap">
+    <template v-if="expanded">
+      {{ column.title }}
+    </template>
     <v-icon
+      v-else
       :title="column.title"
       :color="isSorted(column) ? 'primary' : 'secondary'"
       :icon="icon"
@@ -14,6 +18,7 @@ type Column = { title?: string }
 defineProps<{
   icon: string
   column: Column
+  expanded?: boolean
   isSorted(column: Column): boolean
   getSortIcon(column: Column): IconValue
 }>()

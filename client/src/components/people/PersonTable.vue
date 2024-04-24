@@ -19,25 +19,29 @@
     @create-item="create"
     @edit-item="edit"
   >
+    <template #search>
+      <PersonFilters v-model="filters" />
+    </template>
+    <template #form>
+      <PersonForm :edit="editItem" @success="onFormSuccess"></PersonForm>
+    </template>
+
     <!-- User Role column -->
     <template #[`header.role`]="slotProps">
       <IconTableHeader v-bind="slotProps" icon="mdi-account-badge" />
     </template>
+    <template #[`header.institutions`]="slotProps">
+      <IconTableHeader v-bind="slotProps" icon="mdi-domain" :expanded="smAndUp" />
+    </template>
+
     <template #[`item.role`]="{ value }">
       <v-icon v-bind="roleIcon(value)" size="x-small" :title="value" />
     </template>
 
-    <template v-slot:search>
-      <PersonFilters v-model="filters" />
-    </template>
-    <template v-slot:form>
-      <PersonForm :edit="editItem" @success="onFormSuccess"></PersonForm>
-    </template>
-
-    <template v-slot:[`item.alias`]="{ value }">
+    <template #[`item.alias`]="{ value }">
       <span class="font-weight-light"> {{ `@${value}` }}</span>
     </template>
-    <template v-slot:[`item.institutions`]="{ value }">
+    <template #[`item.institutions`]="{ value }">
       <InstitutionKindChip
         v-for="inst in value"
         :key="inst.code"
@@ -48,7 +52,7 @@
       />
     </template>
 
-    <template v-slot:[`expanded-row-inject`]="{ item }">
+    <template #[`expanded-row-inject`]="{ item }">
       <v-card v-if="item.comment" flat>
         <v-list-item prepend-icon="mdi-comment">
           {{ item.comment }}
@@ -90,7 +94,7 @@ import PersonForm from './PersonForm.vue'
 import { orderedUserRoles, roleIcon } from './userRole'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
 
-const { xs } = useDisplay()
+const { xs, smAndUp } = useDisplay()
 
 const filters = ref<Filters>({
   term: '',
