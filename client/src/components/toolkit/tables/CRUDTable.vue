@@ -32,6 +32,7 @@
               :sort-by="sortBy"
               @click="toggleSort('meta.last_updated')"
             />
+            <TableFilterMenu v-model="tableFilters" :user="currentUser" />
           </template>
 
           <!-- Searchbar -->
@@ -61,7 +62,7 @@
 
       <!-- Table footer -->
       <template #[`footer.prepend`]>
-        <div class="flex-grow-1">
+        <div class="d-flex align-center flex-grow-1">
           <v-btn
             variant="plain"
             size="small"
@@ -94,7 +95,7 @@
                     icon="updated"
                     :date="item.meta.modified"
                   />
-                  <v-spacer></v-spacer>
+                  <v-spacer />
                   <v-btn
                     prepend-icon="mdi-identifier"
                     variant="plain"
@@ -145,6 +146,8 @@ import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
 import CRUDItemActions from './CRUDItemActions.vue'
+import { isOwner } from '../meta'
+import TableFilterMenu from './TableFilterMenu.vue'
 
 type Props = TableProps<ItemType, () => CancelablePromise<ItemType[]>> & {
   filter?: (item: ItemType) => boolean
@@ -192,8 +195,22 @@ function toggleSort(sortKey: string) {
   sortBy.value?.push({ key: sortKey, order })
 }
 
+const tableFilters = ref({
+  ownedItems: false
+})
+
+function ownedItemFilter(item: ItemType) {
+  return tableFilters.value.ownedItems && currentUser !== undefined
+    ? isOwner(currentUser, item)
+    : true
+}
+
 const filteredItems = computed(() => {
-  return props.filter ? items.value.filter(props.filter) : items.value
+  return props.filter || tableFilters.value.ownedItems
+    ? items.value.filter((item) => {
+        return (props.filter ? props.filter(item) : true) && ownedItemFilter(item)
+      })
+    : items.value
 })
 
 const exportDialog: Ref<{
