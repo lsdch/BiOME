@@ -14,10 +14,13 @@
       <v-divider />
       <v-list-item>
         <v-switch
+          class="px-3"
           label="Dark theme"
-          v-model="theme.global.current.value.dark"
-          @click="toggleTheme"
+          v-model="theme.global.name.value"
+          false-value="light"
+          true-value="dark"
           color="purple"
+          hide-details
         />
       </v-list-item>
       <v-divider />
