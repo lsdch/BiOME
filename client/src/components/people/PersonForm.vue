@@ -84,11 +84,10 @@ watchEffect(() => {
 
 function request() {
   const data = person.value
-  // const data = sanitizeEmptyStrings(person.value)
   if (props.edit) {
-    return PeopleService.updatePerson(props.edit.id, data)
+    return PeopleService.updatePerson({ id: props.edit.id, requestBody: data })
   } else {
-    return PeopleService.createperson(data)
+    return PeopleService.createPerson({ requestBody: data })
   }
 }
 

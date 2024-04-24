@@ -4,7 +4,7 @@
     density="compact"
     :crud="{
       list: PeopleService.listPersons,
-      delete: (person: Person) => PeopleService.deletePerson(person.id)
+      delete: (person: Person) => PeopleService.deletePerson({ id: person.id })
     }"
     :filter="filter"
     :search="filters.term"
