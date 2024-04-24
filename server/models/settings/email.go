@@ -11,15 +11,15 @@ import (
 )
 
 type EmailSettingsInput struct {
-	Host     string `edgedb:"host" json:"host" faker:"domain_name"`
-	Port     int32  `edgedb:"port" json:"port" faker:"boundary_start=10, boundary_end=99999"`
-	User     string `edgedb:"user" json:"user" faker:"username"`
-	Password string `edgedb:"password" json:"password" faker:"password"`
+	Host     string `edgedb:"host" json:"host" doc:"SMTP domain that handles email sending" faker:"domain_name"`
+	Port     int32  `edgedb:"port" json:"port" doc:"SMTP port" faker:"boundary_start=10, boundary_end=99999"`
+	User     string `edgedb:"user" json:"user" doc:"SMTP login" faker:"username"`
+	Password string `edgedb:"password" json:"password" doc:"SMTP password" faker:"password"`
 }
 
 type EmailSettings struct {
 	edgedb.Optional
-	ID                 edgedb.UUID `edgedb:"id" json:"id"`
+	ID                 edgedb.UUID `edgedb:"id" json:"-"`
 	EmailSettingsInput `edgedb:"$inline" json:",inline"`
 }
 

@@ -37,10 +37,21 @@ export type EmailSettings = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  /**
+   * SMTP domain that handles email sending
+   */
   host: string
-  id: string
+  /**
+   * SMTP password
+   */
   password: string
+  /**
+   * SMTP port
+   */
   port: number
+  /**
+   * SMTP login
+   */
   user: string
 }
 
@@ -121,10 +132,18 @@ export type InstanceSettings = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  /**
+   * Whether requests to contribute to the database can be made.
+   */
   allow_contributor_signup: boolean
   description: string
-  id: string
+  /**
+   * The name of this database platform
+   */
   name: string
+  /**
+   * Whether the platform is accessible to unauthenticated users
+   */
   public: boolean
 }
 
@@ -355,10 +374,21 @@ export type SecuritySettings = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  /**
+   * Account manipulation token lifetime in hours
+   */
   account_token_lifetime: number
+  /**
+   * User session lifetime in seconds
+   */
   auth_token_lifetime: number
-  id: string
+  /**
+   * Used to verify session tokens. Changing it will revoke all currently active user sessions.
+   */
   jwt_secret_key: string
+  /**
+   * The level of complexity required for account passwords.
+   */
   min_password_strength: number
 }
 

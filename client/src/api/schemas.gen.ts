@@ -89,24 +89,24 @@ export const $EmailSettings = {
       type: 'string'
     },
     host: {
-      type: 'string'
-    },
-    id: {
-      contentEncoding: 'base64',
+      description: 'SMTP domain that handles email sending',
       type: 'string'
     },
     password: {
+      description: 'SMTP password',
       type: 'string'
     },
     port: {
+      description: 'SMTP port',
       format: 'int32',
       type: 'integer'
     },
     user: {
+      description: 'SMTP login',
       type: 'string'
     }
   },
-  required: ['id', 'host', 'port', 'user', 'password'],
+  required: ['host', 'port', 'user', 'password'],
   type: 'object'
 } as const
 
@@ -249,23 +249,22 @@ export const $InstanceSettings = {
       type: 'string'
     },
     allow_contributor_signup: {
+      description: 'Whether requests to contribute to the database can be made.',
       type: 'boolean'
     },
     description: {
       type: 'string'
     },
-    id: {
-      contentEncoding: 'base64',
-      type: 'string'
-    },
     name: {
+      description: 'The name of this database platform',
       type: 'string'
     },
     public: {
+      description: 'Whether the platform is accessible to unauthenticated users',
       type: 'boolean'
     }
   },
-  required: ['id', 'description', 'name', 'public', 'allow_contributor_signup'],
+  required: ['description', 'name', 'public', 'allow_contributor_signup'],
   type: 'object'
 } as const
 
@@ -900,27 +899,27 @@ export const $SecuritySettings = {
       type: 'string'
     },
     account_token_lifetime: {
+      description: 'Account manipulation token lifetime in hours',
       format: 'int32',
       type: 'integer'
     },
     auth_token_lifetime: {
+      description: 'User session lifetime in seconds',
       format: 'int32',
       type: 'integer'
     },
-    id: {
-      contentEncoding: 'base64',
-      type: 'string'
-    },
     jwt_secret_key: {
+      description:
+        'Used to verify session tokens. Changing it will revoke all currently active user sessions.',
       type: 'string'
     },
     min_password_strength: {
+      description: 'The level of complexity required for account passwords.',
       format: 'int32',
       type: 'integer'
     }
   },
   required: [
-    'id',
     'min_password_strength',
     'auth_token_lifetime',
     'account_token_lifetime',

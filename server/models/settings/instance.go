@@ -8,9 +8,9 @@ import (
 )
 
 type InstanceSettingsInner struct {
-	Name               string `edgedb:"name" json:"name" faker:"word"`
-	IsPublic           bool   `edgedb:"public" json:"public"`
-	AllowContribSignup bool   `edgedb:"allow_contributor_signup" json:"allow_contributor_signup"`
+	Name               string `edgedb:"name" json:"name" doc:"The name of this database platform" faker:"word"`
+	IsPublic           bool   `edgedb:"public" json:"public" doc:"Whether the platform is accessible to unauthenticated users"`
+	AllowContribSignup bool   `edgedb:"allow_contributor_signup" json:"allow_contributor_signup" doc:"Whether requests to contribute to the database can be made."`
 }
 
 type InstanceSettingsInput struct {
@@ -19,7 +19,7 @@ type InstanceSettingsInput struct {
 }
 
 type InstanceSettings struct {
-	ID                    edgedb.UUID `edgedb:"id" json:"id"`
+	ID                    edgedb.UUID `edgedb:"id" json:"-"`
 	InstanceSettingsInner `edgedb:"$inline" json:",inline"`
 	Description           edgedb.OptionalStr `edgedb:"description" json:"description"`
 }
