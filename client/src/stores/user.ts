@@ -15,9 +15,11 @@ export const useUserStore = defineStore("user", () => {
   async function getUser() {
     error.value = undefined
     await AccountService.currentUser()
-      .then(({ token, user: u }) => {
-        user.value = u
-        sessionToken.value = token
+      .then((res) => {
+        if (res != undefined) {
+          user.value = res.user
+          sessionToken.value = res.token
+        }
       })
       .catch((reason) => {
         error.value = reason as ApiError

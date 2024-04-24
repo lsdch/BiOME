@@ -477,13 +477,13 @@ export type $OpenApiTs = {
       }
       res: {
         /**
-         * OK
+         * The currently authenticated user
          */
         200: CurrentUserResponse
         /**
-         * Unauthorized
+         * No active user session
          */
-        401: ErrorModel
+        204: void
         /**
          * Unprocessable Entity
          */

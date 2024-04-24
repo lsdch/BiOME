@@ -1550,25 +1550,10 @@
 								}
 							}
 						},
-						"description": "OK",
-						"headers": {
-							"Authorization": {
-								"schema": {
-									"description": "Session JWT",
-									"type": "string"
-								}
-							}
-						}
+						"description": "The currently authenticated user"
 					},
-					"401": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unauthorized"
+					"204": {
+						"description": "No active user session"
 					},
 					"422": {
 						"content": {

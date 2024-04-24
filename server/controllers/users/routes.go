@@ -4,6 +4,7 @@ import (
 	"darco/proto/router"
 	"fmt"
 	"net/http"
+	"reflect"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -15,6 +16,27 @@ var InvitationClaimPath = ""
 func RegisterRoutes(r router.Router) {
 	accountAPI := r.RouteGroup("/account").
 		WithTags([]string{"Account"})
+
+	registry := r.API.OpenAPI().Components.Schemas
+
+	router.Register(accountAPI, "CurrentUser",
+		huma.Operation{
+			Path:        "/",
+			Method:      http.MethodGet,
+			Summary:     "Current user",
+			Description: "Get infos of currently authenticated user account",
+			Responses: map[string]*huma.Response{
+				"200": {
+					Description: "The currently authenticated user",
+					Content: map[string]*huma.MediaType{
+						"application/json": {
+							Schema: registry.Schema(reflect.TypeFor[CurrentUserResponse](), true, ""),
+						},
+					},
+				},
+				"204": {Description: "No active user session", Content: nil},
+			},
+		}, CurrentUser)
 
 	router.Register(accountAPI, "Login",
 		huma.Operation{
@@ -32,15 +54,6 @@ func RegisterRoutes(r router.Router) {
 			Summary:     "Logout",
 			Description: "Logout from current user session by revoking session cookies",
 		}, Logout)
-
-	router.Register(accountAPI, "CurrentUser",
-		huma.Operation{
-			Path:        "/",
-			Method:      http.MethodGet,
-			Summary:     "Current user",
-			Description: "Get infos of currently authenticated user account",
-			Errors:      []int{http.StatusUnauthorized},
-		}, CurrentUser)
 
 	router.Register(accountAPI, "UpdatePassword",
 		huma.Operation{

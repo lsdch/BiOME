@@ -12,12 +12,15 @@ export class AccountService {
    * @param data The data for the request.
    * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
    * @param data.authToken Session cookie containing JWT
-   * @returns CurrentUserResponse OK
+   * @returns CurrentUserResponse The currently authenticated user
+   * @returns void No active user session
    * @throws ApiError
    */
   public static currentUser(
     data: $OpenApiTs['/account']['get']['req'] = {}
-  ): CancelablePromise<$OpenApiTs['/account']['get']['res'][200]> {
+  ): CancelablePromise<
+    $OpenApiTs['/account']['get']['res'][200] | $OpenApiTs['/account']['get']['res'][204]
+  > {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/account',
@@ -28,7 +31,6 @@ export class AccountService {
         Authorization: data.authorization
       },
       errors: {
-        401: 'Unauthorized',
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }

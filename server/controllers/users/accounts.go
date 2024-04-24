@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"slices"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/sirupsen/logrus"
 )
 
@@ -28,20 +27,23 @@ type CurrentUserResponse struct {
 }
 
 type CurrentUserOutput struct {
-	Body      CurrentUserResponse
-	AuthToken string `header:"Authorization" doc:"Session JWT"`
+	Status int
+	Body   CurrentUserResponse `json:"omitempty"`
 }
 
 func CurrentUser(ctx context.Context, input *CurrentUserInput) (*CurrentUserOutput, error) {
 	if input.User != nil {
 		return &CurrentUserOutput{
+			Status: http.StatusOK,
 			Body: CurrentUserResponse{
 				User:              input.User,
 				AuthTokenResponse: AuthTokenResponse{Token: input.AuthToken},
 			},
 		}, nil
 	} else {
-		return nil, huma.Error401Unauthorized("No active user session")
+		return &CurrentUserOutput{
+			Status: http.StatusNoContent,
+		}, nil
 	}
 }
 
