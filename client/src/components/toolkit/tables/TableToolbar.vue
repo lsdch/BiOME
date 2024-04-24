@@ -26,14 +26,18 @@
     <v-spacer />
 
     <!-- Toggle large searchbar component -->
-    <v-btn
-      v-if="xs || togglableSearch"
-      size="small"
-      icon="mdi-magnify"
-      color="primary"
-      :variant="toggleSearch ? 'flat' : 'text'"
-      @click="toggleSearch = !toggleSearch"
-    />
+    <v-tooltip v-if="xs || togglableSearch" left activator="parent" text="Toggle search">
+      <template #activator="{ props }">
+        <v-btn
+          v-bind="props"
+          size="small"
+          icon="mdi-magnify"
+          color="primary"
+          :variant="toggleSearch ? 'flat' : 'text'"
+          @click="toggleSearch = !toggleSearch"
+        />
+      </template>
+    </v-tooltip>
 
     <!-- Toggle item creation form -->
     <v-btn
@@ -44,6 +48,7 @@
       size="small"
       @click="emit('createItem')"
     >
+      <v-tooltip v-if="xs" left activator="parent" text="New item" />
       <v-icon v-if="xs" icon="mdi-plus" size="small" />
       <span v-else>New Item</span>
     </v-btn>
