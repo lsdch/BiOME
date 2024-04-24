@@ -39,6 +39,11 @@ func main() {
 	}
 }
 
+type EnumDecl struct {
+	Decl    *ast.GenDecl
+	Ordered bool
+}
+
 func parseDir(path string) {
 	// Parse current directory and its subdirectories for Go files
 	fset := token.NewFileSet()
@@ -58,12 +63,14 @@ func parseDir(path string) {
 
 	for _, pkg := range pkgs {
 		for fileName, file := range pkg.Files {
-			var foundEnums []*ast.GenDecl // Stores enum value declarations
+			var foundEnums []EnumDecl // Stores enum value declarations
 			for _, decl := range file.Decls {
 				if genEnum, ok := decl.(*ast.GenDecl); ok && genEnum.Doc != nil {
 					for _, comment := range genEnum.Doc.List {
 						if strings.Contains(comment.Text, "generate:enum") {
-							foundEnums = append(foundEnums, genEnum)
+							foundEnums = append(foundEnums, EnumDecl{Decl: genEnum})
+						} else if strings.Contains(comment.Text, "generate:order-enum") {
+							foundEnums = append(foundEnums, EnumDecl{Decl: genEnum, Ordered: true})
 						}
 					}
 				}
@@ -78,6 +85,7 @@ func parseDir(path string) {
 type EnumData struct {
 	EnumType   string
 	EnumValues []string
+	Ordered    bool
 }
 
 type EnumTemplateData struct {
@@ -94,14 +102,14 @@ func generateFileName(fileName string) string {
 	return fmt.Sprintf("%s_gen%s", strippedPath, fileExtension)
 }
 
-func generateEnumTemplateData(decls []*ast.GenDecl) []EnumData {
+func generateEnumTemplateData(decls []EnumDecl) []EnumData {
 	var enums []EnumData
 
 	for _, decl := range decls {
 		var enumType string
 		var values []string
 
-		for _, spec := range decl.Specs {
+		for _, spec := range decl.Decl.Specs {
 			if valueSpec, ok := spec.(*ast.ValueSpec); ok {
 				if t, ok := valueSpec.Type.(*ast.Ident); ok {
 					enumType = t.Name
@@ -115,13 +123,14 @@ func generateEnumTemplateData(decls []*ast.GenDecl) []EnumData {
 			enums = append(enums, EnumData{
 				EnumType:   enumType,
 				EnumValues: values,
+				Ordered:    decl.Ordered,
 			})
 		}
 	}
 	return enums
 }
 
-func generateEnumCode(pkg *ast.Package, fileName string, decls []*ast.GenDecl) {
+func generateEnumCode(pkg *ast.Package, fileName string, decls []EnumDecl) {
 
 	generatedFileName := generateFileName(fileName)
 

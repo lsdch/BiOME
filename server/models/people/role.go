@@ -12,7 +12,10 @@ import (
 
 type UserRole string // @name UserRole
 
-//generate:enum
+// *CAUTION* the enum order DOES MATTER as it establishes roles hierarchy
+// in the generated code. See [./roles_gen.go].
+
+//generate:order-enum
 const (
 	Visitor     UserRole = "Visitor"
 	Contributor UserRole = "Contributor"

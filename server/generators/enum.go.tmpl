@@ -22,6 +22,22 @@ var {{ $enumSlice }} = []{{ .EnumType }}{
 {{- end }}
 }
 
+{{- if .Ordered }}
+var {{.EnumType}}Hierarchy = map[{{.EnumType}}]int{
+{{- range $index, $value := .EnumValues }}
+  "{{$value}}": {{$index}},
+{{- end }}
+}
+
+func (u {{.EnumType}}) IsGreater(v {{.EnumType}}) bool {
+  return {{.EnumType}}Hierarchy[u] > {{.EnumType}}Hierarchy[u]
+}
+
+func (u {{.EnumType}}) IsGreaterEqual(v {{.EnumType}}) bool {
+  return {{.EnumType}}Hierarchy[u] >= {{.EnumType}}Hierarchy[u]
+}
+{{- end}}
+
 // Register enum in OpenAPI specification
 func (u {{ .EnumType }}) Schema(r huma.Registry) *huma.Schema {
 	schemaRef := r.Schema(reflect.TypeOf(""), true, "{{.EnumType}}")

@@ -20,6 +20,20 @@ var UserRoleValues = []UserRole{
 	Maintainer,
 	Admin,
 }
+var UserRoleHierarchy = map[UserRole]int{
+  "Visitor": 0,
+  "Contributor": 1,
+  "Maintainer": 2,
+  "Admin": 3,
+}
+
+func (u UserRole) IsGreater(v UserRole) bool {
+  return UserRoleHierarchy[u] > UserRoleHierarchy[u]
+}
+
+func (u UserRole) IsGreaterEqual(v UserRole) bool {
+  return UserRoleHierarchy[u] >= UserRoleHierarchy[u]
+}
 
 // Register enum in OpenAPI specification
 func (u UserRole) Schema(r huma.Registry) *huma.Schema {
