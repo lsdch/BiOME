@@ -32,6 +32,18 @@ export type CurrentUserResponse = {
   user: User
 }
 
+export type EmailSettings = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  host: string
+  id: string
+  password: string
+  port: number
+  user: string
+}
+
 export type ErrorDetail = {
   /**
    * Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
@@ -102,6 +114,18 @@ export type ImportRequestGbif = {
    * Target GBIF taxon key
    */
   key: number
+}
+
+export type InstanceSettings = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  allow_contributor_signup: boolean
+  description: string
+  id: string
+  name: string
+  public: boolean
 }
 
 export type Institution = {
@@ -324,6 +348,18 @@ export type ResendEmailConfirmationInputBody = {
    * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
    */
   handler?: Url
+}
+
+export type SecuritySettings = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  account_token_lifetime: number
+  auth_token_lifetime: number
+  id: string
+  jwt_secret_key: string
+  min_password_strength: number
 }
 
 export type Taxon = {
@@ -1072,6 +1108,80 @@ export type $OpenApiTs = {
          * OK
          */
         200: InvitationLink
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/settings/emailing': {
+    get: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: EmailSettings
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/settings/instance': {
+    get: {
+      res: {
+        /**
+         * OK
+         */
+        200: InstanceSettings
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/settings/security': {
+    get: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: SecuritySettings
         /**
          * Unprocessable Entity
          */

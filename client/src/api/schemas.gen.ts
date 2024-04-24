@@ -78,6 +78,38 @@ export const $CurrentUserResponse = {
   type: 'object'
 } as const
 
+export const $EmailSettings = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/EmailSettings.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    host: {
+      type: 'string'
+    },
+    id: {
+      contentEncoding: 'base64',
+      type: 'string'
+    },
+    password: {
+      type: 'string'
+    },
+    port: {
+      format: 'int32',
+      type: 'integer'
+    },
+    user: {
+      type: 'string'
+    }
+  },
+  required: ['id', 'host', 'port', 'user', 'password'],
+  type: 'object'
+} as const
+
 export const $ErrorDetail = {
   additionalProperties: false,
   properties: {
@@ -203,6 +235,37 @@ export const $ImportRequestGBIF = {
     }
   },
   required: ['key', 'children'],
+  type: 'object'
+} as const
+
+export const $InstanceSettings = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/InstanceSettings.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    allow_contributor_signup: {
+      type: 'boolean'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      contentEncoding: 'base64',
+      type: 'string'
+    },
+    name: {
+      type: 'string'
+    },
+    public: {
+      type: 'boolean'
+    }
+  },
+  required: ['id', 'description', 'name', 'public', 'allow_contributor_signup'],
   type: 'object'
 } as const
 
@@ -823,6 +886,46 @@ export const $ResendEmailConfirmationInputBody = {
     }
   },
   required: ['email'],
+  type: 'object'
+} as const
+
+export const $SecuritySettings = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/SecuritySettings.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    account_token_lifetime: {
+      format: 'int32',
+      type: 'integer'
+    },
+    auth_token_lifetime: {
+      format: 'int32',
+      type: 'integer'
+    },
+    id: {
+      contentEncoding: 'base64',
+      type: 'string'
+    },
+    jwt_secret_key: {
+      type: 'string'
+    },
+    min_password_strength: {
+      format: 'int32',
+      type: 'integer'
+    }
+  },
+  required: [
+    'id',
+    'min_password_strength',
+    'auth_token_lifetime',
+    'account_token_lifetime',
+    'jwt_secret_key'
+  ],
   type: 'object'
 } as const
 

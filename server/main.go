@@ -4,6 +4,7 @@ import (
 	"darco/proto/controllers/institution"
 	country "darco/proto/controllers/location"
 	"darco/proto/controllers/person"
+	"darco/proto/controllers/settings"
 	"darco/proto/controllers/taxonomy"
 	accounts "darco/proto/controllers/users"
 	"darco/proto/db"
@@ -52,6 +53,7 @@ func setupRoutes(r *gin.Engine, basePath string) *gin.RouterGroup {
 	country.RegisterRoutes(router)
 	taxonomy.RegisterRoutes(router)
 	taxonomy.RegisterImportRoutes(router)
+	settings.RegisterRoutes(router)
 	if err := router.WriteSpecJSON("../client/openapi.json"); err != nil {
 		panic(err)
 	}

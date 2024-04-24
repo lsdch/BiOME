@@ -991,6 +991,80 @@ export class PersonService {
   }
 }
 
+export class SettingsService {
+  /**
+   * Email settings
+   * @param data The data for the request.
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns EmailSettings OK
+   * @throws ApiError
+   */
+  public static emailSettings(
+    data: $OpenApiTs['/settings/emailing']['get']['req'] = {}
+  ): CancelablePromise<$OpenApiTs['/settings/emailing']['get']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/settings/emailing',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Instance settings
+   * @returns InstanceSettings OK
+   * @throws ApiError
+   */
+  public static instanceSettings(): CancelablePromise<
+    $OpenApiTs['/settings/instance']['get']['res'][200]
+  > {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/settings/instance',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Security settings
+   * @param data The data for the request.
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns SecuritySettings OK
+   * @throws ApiError
+   */
+  public static securitySettings(
+    data: $OpenApiTs['/settings/security']['get']['req'] = {}
+  ): CancelablePromise<$OpenApiTs['/settings/security']['get']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/settings/security',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+}
+
 export class TaxonomyService {
   /**
    * List taxa

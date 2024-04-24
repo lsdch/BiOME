@@ -29,10 +29,6 @@ module admin {
 
   type Settings {
 
-    required registration_enabled := (
-      select (exists .email) and .instance.allow_contributor_signup
-    );
-
     required instance: InstanceSettings {
       constraint exclusive;
       on source delete delete target;

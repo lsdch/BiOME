@@ -100,6 +100,45 @@
 				],
 				"type": "object"
 			},
+			"EmailSettings": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/EmailSettings.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"host": {
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"type": "string"
+					},
+					"password": {
+						"type": "string"
+					},
+					"port": {
+						"format": "int32",
+						"type": "integer"
+					},
+					"user": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"host",
+					"port",
+					"user",
+					"password"
+				],
+				"type": "object"
+			},
 			"ErrorDetail": {
 				"additionalProperties": false,
 				"properties": {
@@ -246,6 +285,44 @@
 				"required": [
 					"key",
 					"children"
+				],
+				"type": "object"
+			},
+			"InstanceSettings": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/InstanceSettings.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"allow_contributor_signup": {
+						"type": "boolean"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					},
+					"public": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"id",
+					"description",
+					"name",
+					"public",
+					"allow_contributor_signup"
 				],
 				"type": "object"
 			},
@@ -974,6 +1051,47 @@
 				},
 				"required": [
 					"email"
+				],
+				"type": "object"
+			},
+			"SecuritySettings": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SecuritySettings.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"account_token_lifetime": {
+						"format": "int32",
+						"type": "integer"
+					},
+					"auth_token_lifetime": {
+						"format": "int32",
+						"type": "integer"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"type": "string"
+					},
+					"jwt_secret_key": {
+						"type": "string"
+					},
+					"min_password_strength": {
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"id",
+					"min_password_strength",
+					"auth_token_lifetime",
+					"account_token_lifetime",
+					"jwt_secret_key"
 				],
 				"type": "object"
 			},
@@ -3195,6 +3313,177 @@
 				"tags": [
 					"People",
 					"Person"
+				]
+			}
+		},
+		"/settings/emailing": {
+			"get": {
+				"operationId": "EmailSettings",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EmailSettings"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Email settings",
+				"tags": [
+					"Settings"
+				]
+			}
+		},
+		"/settings/instance": {
+			"get": {
+				"operationId": "InstanceSettings",
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InstanceSettings"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Instance settings",
+				"tags": [
+					"Settings"
+				]
+			}
+		},
+		"/settings/security": {
+			"get": {
+				"operationId": "SecuritySettings",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SecuritySettings"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Security settings",
+				"tags": [
+					"Settings"
 				]
 			}
 		},

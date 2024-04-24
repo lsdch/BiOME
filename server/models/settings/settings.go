@@ -9,11 +9,10 @@ import (
 )
 
 type Settings struct {
-	ID                  edgedb.UUID      `edgedb:"id" json:"id"`
-	RegistrationEnabled bool             `edgedb:"registration_enabled" json:"registration_enabled"`
-	Instance            InstanceSettings `edgedb:"instance" json:"instance"`
-	Email               EmailSettings    `edgedb:"email" json:"email,omitempty"`
-	Security            SecuritySettings `edgedb:"security" json:"security"`
+	ID       edgedb.UUID      `edgedb:"id" json:"-"`
+	Instance InstanceSettings `edgedb:"instance" json:"instance"`
+	Email    EmailSettings    `edgedb:"email" json:"email,omitempty"`
+	Security SecuritySettings `edgedb:"security" json:"security"`
 }
 
 var settings = new(Settings)
