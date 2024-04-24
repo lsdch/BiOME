@@ -19,6 +19,7 @@
     <v-main>
       <RouterView />
     </v-main>
+    <ErrorSnackbar v-model="snackbar.open" :title="snackbar.title" :errors="snackbar.errors" />
   </v-app>
 </template>
 
@@ -29,6 +30,25 @@ import NavigationDrawer from '@/components/navigation/NavigationDrawer.vue'
 
 import AccountNavMenu from '@/components/navbar/AccountNavMenu.vue'
 import SettingsMenu from '@/components/navbar/SettingsMenu.vue'
+
+import { ErrorDetail, OpenAPI } from './api'
+import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
+
+const snackbar = ref<{ open: boolean; title: string; errors: ErrorDetail[] }>({
+  open: false,
+  title: '',
+  errors: []
+})
+
+OpenAPI.interceptors.response.use(async (response) => {
+  if (response.status === 401) {
+    const body = await response.json()
+    snackbar.value.title = 'Access denied'
+    snackbar.value.errors = body.errors
+    snackbar.value.open = true
+  }
+  return response
+})
 
 const APP_TITLE = import.meta.env.VITE_APP_NAME
 const drawer = ref(true)
@@ -41,7 +61,7 @@ router.afterEach((to) => {
 })
 </script>
 
-<style lang="less">
+<style>
 .app-title {
   color: white;
   font-weight: bold;
