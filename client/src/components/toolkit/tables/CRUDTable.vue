@@ -16,7 +16,7 @@
       :items-per-page-options="[5, 10, 15, 20]"
     >
       <!-- Toolbar -->
-      <template v-slot:top>
+      <template #top>
         <TableToolbar
           ref="toolbar"
           v-model="items"
@@ -26,7 +26,7 @@
           @reload="loadItems().then(() => feedback.show('Data reloaded'))"
         >
           <!-- Right toolbar actions -->
-          <template v-slot:append>
+          <template #append>
             <SortLastUpdatedBtn
               sort-key="meta.last_updated"
               :sort-by="sortBy"
@@ -35,7 +35,7 @@
           </template>
 
           <!-- Searchbar -->
-          <template v-slot:search>
+          <template #search>
             <slot name="search">
               <CRUDTableSearchBar v-model="searchTerm" />
             </slot>
@@ -44,21 +44,23 @@
       </template>
 
       <!-- Actions column -->
-      <template v-if="props.showActions" v-slot:[`header.actions`]>
+      <template v-if="props.showActions" #[`header.actions`]>
         <v-icon title="Actions" color="secondary">mdi-cog </v-icon>
       </template>
-      <template v-if="props.showActions" v-slot:[`item.actions`]="{ item }">
-        <v-icon v-if="$slots.form" color="primary" icon="mdi-pencil" @click="actions.edit(item)" />
-        <v-icon color="primary" icon="mdi-delete" @click="actions.delete(item)" />
+      <template
+        v-if="props.showActions && currentUser !== undefined"
+        v-slot:[`item.actions`]="{ item }"
+      >
+        <CRUDItemActions :item="item" :actions="actions" :user="currentUser" />
       </template>
 
       <!-- Expose VDataTable slots -->
-      <template v-for="(name, index) of slotNames" v-slot:[name]="slotData" :key="index">
-        <slot :name="name" v-bind="slotData || {}" />
+      <template v-for="(id, index) of slotNames" #[id]="slotData" :key="index">
+        <slot :name="id" v-bind="slotData || {}" />
       </template>
 
       <!-- Table footer -->
-      <template v-slot:[`footer.prepend`]>
+      <template #[`footer.prepend`]>
         <div class="flex-grow-1">
           <v-btn
             variant="plain"
@@ -72,7 +74,7 @@
       </template>
 
       <!-- Expanded row -->
-      <template v-slot:expanded-row="{ columns, item, ...others }">
+      <template #expanded-row="{ columns, item, ...others }">
         <slot name="expanded-row" v-bind="{ columns, item, ...others }">
           <tr class="expanded">
             <td :colspan="columns.length" class="px-0">
@@ -142,6 +144,7 @@ import ItemDateChip from '../ItemDateChip.vue'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
+import CRUDItemActions from './CRUDItemActions.vue'
 
 type Props = TableProps<ItemType, () => CancelablePromise<ItemType[]>> & {
   filter?: (item: ItemType) => boolean
@@ -165,6 +168,7 @@ defineSlots<
 >()
 
 const {
+  currentUser,
   items,
   actions,
   deleteDialog,

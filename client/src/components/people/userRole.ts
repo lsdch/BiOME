@@ -1,4 +1,4 @@
-import { UserRole } from "@/api"
+import { User, UserRole } from "@/api"
 
 export function roleIcon(role?: UserRole) {
   switch (role) {
@@ -28,3 +28,7 @@ export function roleIcon(role?: UserRole) {
 }
 
 export const orderedUserRoles: UserRole[] = ['Visitor', 'Contributor', 'Maintainer', 'Admin'] as const
+
+export function isGranted(user: User, role: UserRole) {
+  return orderedUserRoles.indexOf(user.role) >= orderedUserRoles.indexOf(role)
+}

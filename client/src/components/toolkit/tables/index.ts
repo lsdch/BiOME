@@ -8,6 +8,7 @@ import { Mode } from "../form"
 import { computed } from "vue"
 import { ComputedRef } from "vue"
 import { onMounted } from "vue"
+import { useUserStore } from "@/stores/user"
 
 
 export type SortItem = {
@@ -48,8 +49,13 @@ export type TableEmitEvents<ItemType> = {
 }
 
 
-export function useTable<ItemType extends { id: string }, FetchList extends Function, EmitType extends TableEmitEvents<ItemType>>
-  (props: TableProps<ItemType, FetchList>, emit: EmitType) {
+export function useTable<
+  ItemType extends { id: string },
+  FetchList extends Function,
+  EmitType extends TableEmitEvents<ItemType>
+>(props: TableProps<ItemType, FetchList>, emit: EmitType) {
+
+  const { user: currentUser } = useUserStore()
 
   const items: Ref<ItemType[]> = ref([])
 
@@ -58,7 +64,7 @@ export function useTable<ItemType extends { id: string }, FetchList extends Func
   const formMode: Ref<Mode> = ref('Create')
 
   const processedHeaders: ComputedRef<CRUDTableHeaders> = computed((): CRUDTableHeader[] => {
-    return props.showActions
+    return props.showActions && currentUser !== undefined && currentUser.role !== "Visitor"
       ? props.headers.concat([{ title: 'Actions', key: 'actions', sortable: false, align: 'end' }])
       : props.headers
   })
@@ -185,7 +191,7 @@ export function useTable<ItemType extends { id: string }, FetchList extends Func
     }
   })
 
-  return { items, feedback, deleteDialog, actions, formDialog, formMode, processedHeaders, loading, loadItems }
+  return { currentUser, items, feedback, deleteDialog, actions, formDialog, formMode, processedHeaders, loading, loadItems }
 }
 
 export function useEntityTable<ItemType>() {
