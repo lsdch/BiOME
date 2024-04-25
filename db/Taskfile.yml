@@ -8,15 +8,18 @@ tasks:
     cmds: [curl https://sh.edgedb.com --proto '=https' -sSf1 | sh]
     status: [command -v edgedb >/dev/null 2>&1]
 
+  init-testing:
+    dir: ..
+    cmd: edgedb branch create {{.TEST_DB_NAME}} --copy-data
+    status:
+      - edgedb branch list | grep "{{.TEST_DB_NAME}}"
+
   init:
     dir: ..
     interactive: true
     cmds:
       - edgedb project init
-      - edgedb branch create {{.TEST_DB_NAME}}
-      - edgedb migrate -b {{.TEST_DB_NAME}}
       - edgedb project info
-      - edgedb list databases
     status: [edgedb project info]
     deps: [install]
     run: once
@@ -28,7 +31,8 @@ tasks:
       - cmd: echo "Seeding database..."
         silent: true
       - go run .
-      - go run . -db=testing
+      - edgedb branch drop {{.TEST_DB_NAME}} --non-interactive
+      - edgedb branch create {{.TEST_DB_NAME}} --copy-data
     deps: [migrate]
 
   reset:
@@ -36,8 +40,7 @@ tasks:
     interactive: true
     prompt: This will wipe existing databases and re-run all migrations and seeds. Continue ?
     cmds:
-      - edgedb branch wipe
-      - edgedb branch wipe -b testing
+      - edgedb branch wipe main
       - task: seed
 
   migration:
@@ -45,18 +48,9 @@ tasks:
     interactive: true
     cmd: edgedb migration create
 
-  migrate-dev:
-    dir: ..
-    internal: true
-    cmd: edgedb migrate
-    deps: [init]
-
-  migrate-test:
-    dir: ..
-    internal: true
-    cmd: edgedb migrate -b {{.TEST_DB_NAME}}
-    deps: [init]
-
   migrate:
     dir: ..
-    deps: [migrate-dev, migrate-test]
+    cmds:
+      - edgedb migrate
+      - edgedb branch rebase {{.TEST_DB_NAME}}
+    deps: [init, init-testing]

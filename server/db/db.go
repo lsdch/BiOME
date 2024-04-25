@@ -13,7 +13,7 @@ import (
 func Connect(options edgedb.Options) (db *edgedb.Client) {
 	ctx := context.Background()
 	if options.Database == "" {
-		options.Database = "edgedb"
+		options.Database = "main"
 	}
 	if testing.Testing() {
 		options.Database = "testing"
