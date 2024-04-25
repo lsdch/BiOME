@@ -17,6 +17,7 @@
     </v-app-bar>
     <NavigationDrawer v-model="drawer" />
     <v-main>
+      <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <RouterView />
     </v-main>
     <ErrorSnackbar v-model="snackbar.open" :title="snackbar.title" :errors="snackbar.errors" />
@@ -24,6 +25,7 @@
 </template>
 
 <script setup lang="ts">
+import colors from 'vuetify/util/colors'
 import { ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import NavigationDrawer from '@/components/navigation/NavigationDrawer.vue'
@@ -33,6 +35,8 @@ import SettingsMenu from '@/components/navbar/SettingsMenu.vue'
 
 import { ErrorDetail, OpenAPI } from './api'
 import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
+
+const loading = ref(false)
 
 const snackbar = ref<{ open: boolean; title: string; errors: ErrorDetail[] }>({
   open: false,
@@ -54,10 +58,14 @@ const APP_TITLE = import.meta.env.VITE_APP_NAME
 const drawer = ref(true)
 
 const router = useRouter()
+router.beforeEach(() => {
+  loading.value = true
+})
 router.afterEach((to) => {
   if (to.name === 'api-docs') {
     drawer.value = false
   }
+  loading.value = false
 })
 </script>
 
