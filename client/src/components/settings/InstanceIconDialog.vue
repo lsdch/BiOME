@@ -6,9 +6,15 @@
           <v-icon>mdi-image</v-icon>
           App icon
         </v-card-title>
-        <v-spacer></v-spacer>
+        <v-spacer />
         <v-btn color="secondary" text="Cancel" @click="model.open = false" />
-        <v-btn color="primary" prepend-icon="mdi-floppy" text="Save" variant="flat" />
+        <v-btn
+          color="primary"
+          prepend-icon="mdi-floppy"
+          text="Save"
+          variant="flat"
+          @click="saveIcon"
+        />
       </v-toolbar>
       <v-container fluid>
         <v-row>
@@ -62,6 +68,7 @@ import 'vue-advanced-cropper/dist/style.css'
 import { useDisplay } from 'vuetify'
 import InstanceIconPreviews from './InstanceIconPreviews.vue'
 import { computed, watch } from 'vue'
+import { SettingsService } from '@/api'
 
 const { smAndDown, mdAndUp } = useDisplay()
 
@@ -99,6 +106,15 @@ watch(imgFile, () => {
 const imgSrc = computed(() => {
   return uploadedImg.value ?? model.value.iconSrc
 })
+
+function saveIcon() {
+  result.value?.canvas?.toBlob((blob) => {
+    if (blob !== null) {
+      const file = new File([blob], 'icon')
+      SettingsService.setAppIcon({ formData: { icon: file } })
+    }
+  })
+}
 </script>
 
 <style lang="scss">
@@ -107,6 +123,9 @@ const imgSrc = computed(() => {
 .icon-cropper {
   width: 500px;
   aspect-ratio: 1 / 1;
+  .vue-advanced-cropper__background {
+    background: #252525;
+  }
 }
 
 .crop-container {

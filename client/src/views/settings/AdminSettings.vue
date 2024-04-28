@@ -20,17 +20,22 @@
     <v-container>
       <v-row>
         <v-col>
-          <v-window v-model="tab" class="pa-3" :direction="direction">
-            <v-window-item value="Instance">
-              <InstanceSettings />
-            </v-window-item>
-            <v-window-item value="Security">
-              <SecuritySettings />
-            </v-window-item>
-            <v-window-item value="Email">
-              <EmailSettings />
-            </v-window-item>
-          </v-window>
+          <Suspense>
+            <v-window v-model="tab" class="pa-3" :direction="direction">
+              <v-window-item value="Instance">
+                <InstanceSettings />
+              </v-window-item>
+              <v-window-item value="Security">
+                <SecuritySettings />
+              </v-window-item>
+              <v-window-item value="Email">
+                <EmailSettings />
+              </v-window-item>
+            </v-window>
+            <template #fallback>
+              <v-skeleton-loader type="article, article, article"> </v-skeleton-loader>
+            </template>
+          </Suspense>
         </v-col>
       </v-row>
     </v-container>
