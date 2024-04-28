@@ -1613,6 +1613,11 @@
 				"bearerFormat": "JWT",
 				"scheme": "bearer",
 				"type": "http"
+			},
+			"cookieAuth": {
+				"in": "cookie",
+				"name": "auth_token",
+				"type": "apiKey"
 			}
 		}
 	},
@@ -3910,6 +3915,14 @@
 			}
 		}
 	},
+	"security": [
+		{
+			"bearer": []
+		},
+		{
+			"cookieAuth": []
+		}
+	],
 	"servers": [
 		{
 			"url": "/api/v1"

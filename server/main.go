@@ -33,6 +33,11 @@ func humaConfig(basePath string) huma.Config {
 			Scheme:       "bearer",
 			BearerFormat: "JWT",
 		},
+		"cookieAuth": {
+			Type: "apiKey",
+			In:   "cookie",
+			Name: "auth_token",
+		},
 	}
 	cfg.Info.Contact = &huma.Contact{
 		Name:  "Louis Duchemin",
@@ -40,6 +45,10 @@ func humaConfig(basePath string) huma.Config {
 	}
 	cfg.OpenAPI.Servers = []*huma.Server{
 		{URL: basePath},
+	}
+	cfg.Security = []map[string][]string{
+		{"bearer": {}},
+		{"cookieAuth": {}},
 	}
 
 	return cfg
