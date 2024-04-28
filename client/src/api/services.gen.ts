@@ -1020,6 +1020,36 @@ export class SettingsService {
   }
 
   /**
+   * Update email settings
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns EmailSettings OK
+   * @throws ApiError
+   */
+  public static updateEmailSettings(
+    data: $OpenApiTs['/settings/emailing']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/settings/emailing']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/settings/emailing',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
    * Instance settings
    * @returns InstanceSettings OK
    * @throws ApiError
@@ -1030,6 +1060,36 @@ export class SettingsService {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/settings/instance',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Update instance settings
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns InstanceSettings OK
+   * @throws ApiError
+   */
+  public static updateInstanceSettings(
+    data: $OpenApiTs['/settings/instance']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/settings/instance']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/settings/instance',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
       errors: {
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
@@ -1057,6 +1117,36 @@ export class SettingsService {
       headers: {
         Authorization: data.authorization
       },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Update security settings
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns SecuritySettings OK
+   * @throws ApiError
+   */
+  public static updateSecuritySettings(
+    data: $OpenApiTs['/settings/security']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/settings/security']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/settings/security',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
       errors: {
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'

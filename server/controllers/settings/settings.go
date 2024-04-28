@@ -19,6 +19,12 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodGet,
 			Summary: "Instance settings",
 		}, GetInstanceSettings)
+	router.Register(api, "UpdateInstanceSettings",
+		huma.Operation{
+			Path:    "/instance",
+			Method:  http.MethodPost,
+			Summary: "Update instance settings",
+		}, UpdateInstanceSettings)
 
 	router.Register(api, "SecuritySettings",
 		huma.Operation{
@@ -26,6 +32,12 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodGet,
 			Summary: "Security settings",
 		}, GetSecuritySettings)
+	router.Register(api, "UpdateSecuritySettings",
+		huma.Operation{
+			Path:    "/security",
+			Method:  http.MethodPost,
+			Summary: "Update security settings",
+		}, UpdateSecuritySettings)
 
 	router.Register(api, "EmailSettings",
 		huma.Operation{
@@ -33,22 +45,56 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodGet,
 			Summary: "Email settings",
 		}, GetEmailSettings)
+	router.Register(api, "UpdateEmailSettings",
+		huma.Operation{
+			Path:    "/emailing",
+			Method:  http.MethodPost,
+			Summary: "Update email settings",
+		}, UpdateEmailSettings)
+
 }
 
-type GetInstanceSettingsOutput struct{ Body settings.InstanceSettings }
+type InstanceSettings struct{ Body settings.InstanceSettings }
 
-func GetInstanceSettings(ctx context.Context, input *struct{}) (*GetInstanceSettingsOutput, error) {
-	return &GetInstanceSettingsOutput{Body: settings.Instance()}, nil
+func GetInstanceSettings(ctx context.Context, input *struct{}) (*InstanceSettings, error) {
+	return &InstanceSettings{Body: settings.Instance()}, nil
+}
+func UpdateInstanceSettings(ctx context.Context,
+	input *struct {
+		resolvers.AccessRestricted[resolvers.Admin]
+		Body settings.InstanceSettingsInput
+	},
+) (*InstanceSettings, error) {
+	updated, err := input.Body.Save(input.DB())
+	return &InstanceSettings{Body: *updated}, err
 }
 
-type GetSecuritySettingsOutput struct{ Body settings.SecuritySettings }
+type SecuritySettings struct{ Body settings.SecuritySettings }
 
-func GetSecuritySettings(ctx context.Context, input *resolvers.AccessRestricted[resolvers.Admin]) (*GetSecuritySettingsOutput, error) {
-	return &GetSecuritySettingsOutput{Body: settings.Security()}, nil
+func GetSecuritySettings(ctx context.Context, input *resolvers.AccessRestricted[resolvers.Admin]) (*SecuritySettings, error) {
+	return &SecuritySettings{Body: settings.Security()}, nil
 }
 
-type GetEmailSettingsOutput struct{ Body settings.EmailSettings }
+func UpdateSecuritySettings(ctx context.Context,
+	input *struct {
+		resolvers.AccessRestricted[resolvers.Admin]
+		Body settings.SecuritySettingsInput
+	},
+) (*SecuritySettings, error) {
+	updated, err := input.Body.Save(input.DB())
+	return &SecuritySettings{Body: *updated}, err
+}
 
-func GetEmailSettings(ctx context.Context, input *resolvers.AccessRestricted[resolvers.Admin]) (*GetEmailSettingsOutput, error) {
-	return &GetEmailSettingsOutput{Body: settings.Email()}, nil
+type EmailSettings struct{ Body settings.EmailSettings }
+
+func GetEmailSettings(ctx context.Context, input *resolvers.AccessRestricted[resolvers.Admin]) (*EmailSettings, error) {
+	return &EmailSettings{Body: settings.Email()}, nil
+}
+
+func UpdateEmailSettings(ctx context.Context, input *struct {
+	resolvers.AccessRestricted[resolvers.Admin]
+	Body settings.EmailSettingsInput
+}) (*EmailSettings, error) {
+	updated, err := input.Body.Save(input.DB())
+	return &EmailSettings{Body: *updated}, err
 }

@@ -110,6 +110,38 @@ export const $EmailSettings = {
   type: 'object'
 } as const
 
+export const $EmailSettingsInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/EmailSettingsInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    host: {
+      description: 'SMTP domain that handles email sending',
+      type: 'string'
+    },
+    password: {
+      description: 'SMTP password',
+      type: 'string'
+    },
+    port: {
+      description: 'SMTP port',
+      format: 'int32',
+      type: 'integer'
+    },
+    user: {
+      description: 'SMTP login',
+      type: 'string'
+    }
+  },
+  required: ['host', 'port', 'user', 'password'],
+  type: 'object'
+} as const
+
 export const $ErrorDetail = {
   additionalProperties: false,
   properties: {
@@ -254,6 +286,36 @@ export const $InstanceSettings = {
     },
     description: {
       type: 'string'
+    },
+    name: {
+      description: 'The name of this database platform',
+      type: 'string'
+    },
+    public: {
+      description: 'Whether the platform is accessible to unauthenticated users',
+      type: 'boolean'
+    }
+  },
+  required: ['description', 'name', 'public', 'allow_contributor_signup'],
+  type: 'object'
+} as const
+
+export const $InstanceSettingsInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/InstanceSettingsInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    allow_contributor_signup: {
+      description: 'Whether requests to contribute to the database can be made.',
+      type: 'boolean'
+    },
+    description: {
+      type: ['string', 'null']
     },
     name: {
       description: 'The name of this database platform',
@@ -431,8 +493,9 @@ export const $InvitationInput = {
     handler: {
       $ref: '#/components/schemas/URL',
       description:
-        "A URL with a path parameter '{token}', which implements the UI to validate the invitation token and fill a registration form.",
-      examples: ['http://example.com/register/{token}']
+        'A URL template with a {token} parameter, which implements the UI to validate the invitation token and fill a registration form.',
+      examples: ['http://example.com/register/{token}'],
+      format: 'uri-template'
     },
     role: {
       $ref: '#/components/schemas/UserRole',
@@ -928,6 +991,46 @@ export const $SecuritySettings = {
   type: 'object'
 } as const
 
+export const $SecuritySettingsInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/SecuritySettingsInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    account_token_lifetime: {
+      description: 'Account manipulation token lifetime in hours',
+      format: 'int32',
+      type: 'integer'
+    },
+    auth_token_lifetime: {
+      description: 'User session lifetime in seconds',
+      format: 'int32',
+      type: 'integer'
+    },
+    jwt_secret_key: {
+      description:
+        'Used to verify session tokens. Changing it will revoke all currently active user sessions.',
+      type: 'string'
+    },
+    min_password_strength: {
+      description: 'The level of complexity required for account passwords.',
+      format: 'int32',
+      type: 'integer'
+    }
+  },
+  required: [
+    'min_password_strength',
+    'auth_token_lifetime',
+    'account_token_lifetime',
+    'jwt_secret_key'
+  ],
+  type: 'object'
+} as const
+
 export const $Taxon = {
   additionalProperties: false,
   properties: {
@@ -1077,9 +1180,11 @@ export const $TaxonUpdate = {
       type: 'string'
     },
     rank: {
+      $ref: '#/components/schemas/TaxonRank',
       type: 'string'
     },
     status: {
+      $ref: '#/components/schemas/TaxonStatus',
       type: 'string'
     }
   },

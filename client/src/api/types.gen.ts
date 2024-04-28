@@ -55,6 +55,29 @@ export type EmailSettings = {
   user: string
 }
 
+export type EmailSettingsInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * SMTP domain that handles email sending
+   */
+  host: string
+  /**
+   * SMTP password
+   */
+  password: string
+  /**
+   * SMTP port
+   */
+  port: number
+  /**
+   * SMTP login
+   */
+  user: string
+}
+
 export type ErrorDetail = {
   /**
    * Where the error occurred, e.g. 'body.items[3].tags' or 'path.thing-id'
@@ -147,6 +170,26 @@ export type InstanceSettings = {
   public: boolean
 }
 
+export type InstanceSettingsInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * Whether requests to contribute to the database can be made.
+   */
+  allow_contributor_signup: boolean
+  description: string | null
+  /**
+   * The name of this database platform
+   */
+  name: string
+  /**
+   * Whether the platform is accessible to unauthenticated users
+   */
+  public: boolean
+}
+
 export type Institution = {
   /**
    * A URL to the JSON Schema for this object.
@@ -203,7 +246,7 @@ export type InvitationInput = {
   readonly $schema?: string
   dest: string
   /**
-   * A URL with a path parameter '{token}', which implements the UI to validate the invitation token and fill a registration form.
+   * A URL template with a {token} parameter, which implements the UI to validate the invitation token and fill a registration form.
    */
   handler?: Url
   role: UserRole
@@ -392,6 +435,29 @@ export type SecuritySettings = {
   min_password_strength: number
 }
 
+export type SecuritySettingsInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * Account manipulation token lifetime in hours
+   */
+  account_token_lifetime: number
+  /**
+   * User session lifetime in seconds
+   */
+  auth_token_lifetime: number
+  /**
+   * Used to verify session tokens. Changing it will revoke all currently active user sessions.
+   */
+  jwt_secret_key: string
+  /**
+   * The level of complexity required for account passwords.
+   */
+  min_password_strength: number
+}
+
 export type Taxon = {
   /**
    * A URL to the JSON Schema for this object.
@@ -444,8 +510,8 @@ export type TaxonUpdate = {
   code?: string
   name?: string
   parent?: string
-  rank?: string
-  status?: string
+  rank?: TaxonRank
+  status?: TaxonStatus
 }
 
 export type TaxonWithRelatives = {
@@ -1176,9 +1242,63 @@ export type $OpenApiTs = {
         500: ErrorModel
       }
     }
+    post: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        requestBody: EmailSettingsInput
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: EmailSettings
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
   }
   '/settings/instance': {
     get: {
+      res: {
+        /**
+         * OK
+         */
+        200: InstanceSettings
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+    post: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        requestBody: InstanceSettingsInput
+      }
       res: {
         /**
          * OK
@@ -1206,6 +1326,33 @@ export type $OpenApiTs = {
          * Session cookie containing JWT
          */
         authToken?: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: SecuritySettings
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+    post: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        requestBody: SecuritySettingsInput
       }
       res: {
         /**

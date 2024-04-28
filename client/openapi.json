@@ -138,6 +138,44 @@
 				],
 				"type": "object"
 			},
+			"EmailSettingsInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/EmailSettingsInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"host": {
+						"description": "SMTP domain that handles email sending",
+						"type": "string"
+					},
+					"password": {
+						"description": "SMTP password",
+						"type": "string"
+					},
+					"port": {
+						"description": "SMTP port",
+						"format": "int32",
+						"type": "integer"
+					},
+					"user": {
+						"description": "SMTP login",
+						"type": "string"
+					}
+				},
+				"required": [
+					"host",
+					"port",
+					"user",
+					"password"
+				],
+				"type": "object"
+			},
 			"ErrorDetail": {
 				"additionalProperties": false,
 				"properties": {
@@ -305,6 +343,45 @@
 					},
 					"description": {
 						"type": "string"
+					},
+					"name": {
+						"description": "The name of this database platform",
+						"type": "string"
+					},
+					"public": {
+						"description": "Whether the platform is accessible to unauthenticated users",
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"description",
+					"name",
+					"public",
+					"allow_contributor_signup"
+				],
+				"type": "object"
+			},
+			"InstanceSettingsInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/InstanceSettingsInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"allow_contributor_signup": {
+						"description": "Whether requests to contribute to the database can be made.",
+						"type": "boolean"
+					},
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
 					},
 					"name": {
 						"description": "The name of this database platform",
@@ -540,10 +617,11 @@
 					},
 					"handler": {
 						"$ref": "#/components/schemas/URL",
-						"description": "A URL with a path parameter '{token}', which implements the UI to validate the invitation token and fill a registration form.",
+						"description": "A URL template with a {token} parameter, which implements the UI to validate the invitation token and fill a registration form.",
 						"examples": [
 							"http://example.com/register/{token}"
-						]
+						],
+						"format": "uri-template"
 					},
 					"role": {
 						"$ref": "#/components/schemas/UserRole",
@@ -1091,6 +1169,46 @@
 				],
 				"type": "object"
 			},
+			"SecuritySettingsInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SecuritySettingsInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"account_token_lifetime": {
+						"description": "Account manipulation token lifetime in hours",
+						"format": "int32",
+						"type": "integer"
+					},
+					"auth_token_lifetime": {
+						"description": "User session lifetime in seconds",
+						"format": "int32",
+						"type": "integer"
+					},
+					"jwt_secret_key": {
+						"description": "Used to verify session tokens. Changing it will revoke all currently active user sessions.",
+						"type": "string"
+					},
+					"min_password_strength": {
+						"description": "The level of complexity required for account passwords.",
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"min_password_strength",
+					"auth_token_lifetime",
+					"account_token_lifetime",
+					"jwt_secret_key"
+				],
+				"type": "object"
+			},
 			"Taxon": {
 				"additionalProperties": false,
 				"properties": {
@@ -1281,9 +1399,11 @@
 						"type": "string"
 					},
 					"rank": {
+						"$ref": "#/components/schemas/TaxonRank",
 						"type": "string"
 					},
 					"status": {
+						"$ref": "#/components/schemas/TaxonStatus",
 						"type": "string"
 					}
 				},
@@ -3380,6 +3500,79 @@
 				"tags": [
 					"Settings"
 				]
+			},
+			"post": {
+				"operationId": "UpdateEmailSettings",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/EmailSettingsInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/EmailSettings"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update email settings",
+				"tags": [
+					"Settings"
+				]
 			}
 		},
 		"/settings/instance": {
@@ -3418,6 +3611,79 @@
 					}
 				},
 				"summary": "Instance settings",
+				"tags": [
+					"Settings"
+				]
+			},
+			"post": {
+				"operationId": "UpdateInstanceSettings",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/InstanceSettingsInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/InstanceSettings"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update instance settings",
 				"tags": [
 					"Settings"
 				]
@@ -3483,6 +3749,79 @@
 					}
 				},
 				"summary": "Security settings",
+				"tags": [
+					"Settings"
+				]
+			},
+			"post": {
+				"operationId": "UpdateSecuritySettings",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SecuritySettingsInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SecuritySettings"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update security settings",
 				"tags": [
 					"Settings"
 				]
