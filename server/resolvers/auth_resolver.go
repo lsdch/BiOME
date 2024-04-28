@@ -19,7 +19,7 @@ type AuthDBProvider interface {
 
 type UserResolver interface {
 	AuthDBProvider
-	AuthUser() *people.User
+	AuthUser() (*people.User, bool)
 	ResolveAuth(huma.Context)
 }
 
@@ -30,8 +30,11 @@ type AuthResolver struct {
 	Session         http.Cookie `cookie:"auth_token" doc:"Session cookie containing JWT"`
 }
 
-func (p *AuthResolver) AuthUser() *people.User {
-	return p.User
+func (p *AuthResolver) AuthUser() (*people.User, bool) {
+	if p.User != nil {
+		return p.User, true
+	}
+	return nil, false
 }
 
 func (p *AuthResolver) DB() *edgedb.Client {
@@ -48,6 +51,7 @@ func (p *AuthResolver) Resolve(ctx huma.Context) []error {
 }
 func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 	p.User = nil
+	p.AuthToken = ""
 	var accessToken string
 
 	logrus.Debugf("Session cookie: %+v", p.Session)
@@ -60,21 +64,25 @@ func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 
 	if accessToken == "" {
 		logrus.Debugf("Auth middleware: No authentication token")
+		return
 	}
 
 	sub, err := tokens.ValidateToken(accessToken)
 	if err != nil {
-		logrus.Debugf("Auth middleware: Invalid token received %v", err)
+		logrus.Debugf("Auth middleware: Invalid token received [%v]", err)
+		return
 	}
 
 	userID, err := edgedb.ParseUUID(sub.(string))
 	if err != nil {
 		logrus.Debugf("Auth middleware: Token %s does not hold a valid UUID", sub)
+		return
 	}
 
 	currentUser, err := people.FindID(db.Client(), userID)
 	if err != nil {
 		logrus.Errorf("Auth middleware: Token was validated but does not match an existing user.")
+		return
 	}
 
 	logrus.Debugf("Auth middleware: User authenticated %+v", currentUser)

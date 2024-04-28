@@ -47,7 +47,10 @@ type AccessRestricted[R RoleSpecifier] struct {
 }
 
 func (a *AccessRestricted[R]) IsGranted() bool {
-	return a.AuthUser().Role.IsGreaterEqual(a.RoleSpec.Role())
+	if user, ok := a.AuthUser(); ok {
+		return user.Role.IsGreaterEqual(a.RoleSpec.Role())
+	}
+	return false
 }
 
 func (a *AccessRestricted[RV]) Resolve(ctx huma.Context) []error {
