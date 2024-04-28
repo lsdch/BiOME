@@ -8,12 +8,10 @@
       variant="outlined"
       prepend-inner-icon="mdi-account"
     />
-    <v-text-field
+    <PasswordField
       v-model="formData.password"
-      type="password"
       label="Password"
       name="password"
-      variant="outlined"
       prepend-inner-icon="mdi-lock"
     />
     <!-- <div v-if="errors" class="mb-3 w-100 text-center">
@@ -49,6 +47,7 @@ import { AccountService, ApiError, ErrorModel, UserCredentials } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { Ref, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import PasswordField from '../toolkit/ui/PasswordField.vue'
 
 const formData: UserCredentials = reactive({
   identifier: '',
