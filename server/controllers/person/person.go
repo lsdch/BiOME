@@ -81,7 +81,7 @@ func RegisterRoutes(r router.Router) {
 }
 
 type InvitationInput struct {
-	Handler *url.URL `json:"handler,omitempty" example:"http://example.com/register/{token}" doc:"A URL with a path parameter '{token}', which implements the UI to validate the invitation token and fill a registration form."`
+	Handler *url.URL `json:"handler,omitempty" format:"uri-template" example:"http://example.com/register/{token}" doc:"A URL template with a {token} parameter, which implements the UI to validate the invitation token and fill a registration form."`
 	people.InvitationOptions
 }
 
