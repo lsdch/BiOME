@@ -76,8 +76,8 @@ func setupRouter() *gin.Engine {
 	r.Use(mw.ErrorHandler)
 	r.Use(mw.AuthenticationMiddleware)
 
-	setupRoutes(r, "/api/v1")
-
+	ginAPI := setupRoutes(r, "/api/v1")
+	ginAPI.Static("/assets/", "./assets")
 	return r
 }
 
