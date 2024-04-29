@@ -54,13 +54,15 @@ module admin {
     required auth_token_lifetime: int32 {
       annotation description := "Validity period for an authentication token in seconds";
       constraint min_value(60);
-      default := 60;
+      default := 600;
     };
     required account_token_lifetime: int32 {
       annotation description := "Validity period for an account operation token in hours";
       constraint min_value(1);
       default := 24;
     };
-    required jwt_secret_key: str;
+    required jwt_secret_key: str {
+      constraint min_len_value(32);
+    };
   }
 }
