@@ -52,9 +52,9 @@ module admin {
       constraint max_value(5);
     };
     required auth_token_lifetime: int32 {
-      annotation description := "Validity period for an authentication token in seconds";
-      constraint min_value(60);
-      default := 600;
+      annotation description := "Validity period for an authentication token in minutes";
+      constraint min_value(5);
+      default := 15;
     };
     required account_token_lifetime: int32 {
       annotation description := "Validity period for an account operation token in hours";

@@ -13,10 +13,10 @@ import (
 )
 
 type SecuritySettingsInput struct {
-	MinPasswordStrength       int32  `edgedb:"min_password_strength" json:"min_password_strength" doc:"The level of complexity required for account passwords." faker:"boundary_start=3, boundary_end=5"`
-	AuthTokenLifetimeSeconds  int32  `edgedb:"auth_token_lifetime" json:"auth_token_lifetime" doc:"User session lifetime in seconds" faker:"boundary_start=1, boundary_end=100000"`
-	AccountTokenLifetimeHours int32  `edgedb:"account_token_lifetime" json:"account_token_lifetime" doc:"Account manipulation token lifetime in hours" faker:"boundary_start=1, boundary_end=1000"`
-	SecretKey                 string `edgedb:"jwt_secret_key" json:"jwt_secret_key" doc:"Used to verify session tokens. Changing it will revoke all currently active user sessions." faker:"password,len=32"`
+	MinPasswordStrength       int32  `edgedb:"min_password_strength" json:"min_password_strength" doc:"The level of complexity required for account passwords." minimum:"3" maximum:"5" faker:"boundary_start=3, boundary_end=5"`
+	AuthTokenLifetimeMinutes  int32  `edgedb:"auth_token_lifetime" json:"auth_token_lifetime" doc:"User session lifetime in seconds" minimum:"600" faker:"boundary_start=1, boundary_end=100000"`
+	AccountTokenLifetimeHours int32  `edgedb:"account_token_lifetime" json:"account_token_lifetime" minimum:"2" doc:"Account manipulation token lifetime in hours" faker:"boundary_start=1, boundary_end=1000"`
+	SecretKey                 string `edgedb:"jwt_secret_key" json:"jwt_secret_key" doc:"Used to verify session tokens. Changing it will revoke all currently active user sessions." minLength:"32" faker:"password,len=32"`
 }
 
 type SecuritySettings struct {
@@ -26,7 +26,7 @@ type SecuritySettings struct {
 
 func (s SecuritySettings) AuthTokenDuration() time.Duration {
 	d, err := time.ParseDuration(
-		fmt.Sprintf("%ds", s.AuthTokenLifetimeSeconds),
+		fmt.Sprintf("%ds", s.AuthTokenLifetimeMinutes),
 	)
 	if err != nil {
 		logrus.Fatalf("Failed to parse auth token duration: %v", err)
