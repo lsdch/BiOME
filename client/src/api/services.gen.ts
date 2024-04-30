@@ -1050,6 +1050,29 @@ export class SettingsService {
   }
 
   /**
+   * Set app icon
+   * @param data The data for the request.
+   * @param data.formData
+   * @returns string No Content
+   * @throws ApiError
+   */
+  public static setAppIcon(
+    data: $OpenApiTs['/settings/icon']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/settings/icon']['post']['res'][204]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/settings/icon',
+      formData: data.formData,
+      mediaType: 'multipart/form-data',
+      responseHeader: 'Location',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
    * Instance settings
    * @returns InstanceSettings OK
    * @throws ApiError

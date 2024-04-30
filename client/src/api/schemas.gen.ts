@@ -90,6 +90,7 @@ export const $EmailSettings = {
     },
     host: {
       description: 'SMTP domain that handles email sending',
+      format: 'hostname',
       type: 'string'
     },
     password: {
@@ -99,10 +100,12 @@ export const $EmailSettings = {
     port: {
       description: 'SMTP port',
       format: 'int32',
+      minimum: 1,
       type: 'integer'
     },
     user: {
       description: 'SMTP login',
+      format: 'uri',
       type: 'string'
     }
   },
@@ -122,6 +125,7 @@ export const $EmailSettingsInput = {
     },
     host: {
       description: 'SMTP domain that handles email sending',
+      format: 'hostname',
       type: 'string'
     },
     password: {
@@ -131,10 +135,12 @@ export const $EmailSettingsInput = {
     port: {
       description: 'SMTP port',
       format: 'int32',
+      minimum: 1,
       type: 'integer'
     },
     user: {
       description: 'SMTP login',
+      format: 'uri',
       type: 'string'
     }
   },
@@ -964,21 +970,26 @@ export const $SecuritySettings = {
     account_token_lifetime: {
       description: 'Account manipulation token lifetime in hours',
       format: 'int32',
+      minimum: 2,
       type: 'integer'
     },
     auth_token_lifetime: {
       description: 'User session lifetime in seconds',
       format: 'int32',
+      minimum: 600,
       type: 'integer'
     },
     jwt_secret_key: {
       description:
         'Used to verify session tokens. Changing it will revoke all currently active user sessions.',
+      minLength: 32,
       type: 'string'
     },
     min_password_strength: {
       description: 'The level of complexity required for account passwords.',
       format: 'int32',
+      maximum: 5,
+      minimum: 3,
       type: 'integer'
     }
   },
@@ -1004,21 +1015,26 @@ export const $SecuritySettingsInput = {
     account_token_lifetime: {
       description: 'Account manipulation token lifetime in hours',
       format: 'int32',
+      minimum: 2,
       type: 'integer'
     },
     auth_token_lifetime: {
       description: 'User session lifetime in seconds',
       format: 'int32',
+      minimum: 600,
       type: 'integer'
     },
     jwt_secret_key: {
       description:
         'Used to verify session tokens. Changing it will revoke all currently active user sessions.',
+      minLength: 32,
       type: 'string'
     },
     min_password_strength: {
       description: 'The level of complexity required for account passwords.',
       format: 'int32',
+      maximum: 5,
+      minimum: 3,
       type: 'integer'
     }
   },

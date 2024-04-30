@@ -1270,6 +1270,36 @@ export type $OpenApiTs = {
       }
     }
   }
+  '/settings/icon': {
+    post: {
+      req: {
+        formData: {
+          /**
+           * filename of the file being uploaded
+           */
+          filename?: Blob | File
+          /**
+           * general purpose name for multipart form value
+           */
+          name?: string
+        }
+      }
+      res: {
+        /**
+         * No Content
+         */
+        204: string
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
   '/settings/instance': {
     get: {
       res: {
