@@ -9,15 +9,13 @@ export const useUserStore = defineStore("user", () => {
   const error: Ref<undefined | ApiError> = ref(undefined)
   const sessionToken: Ref<string | undefined> = ref(undefined)
 
-  // Check whether a session is active
-  getUser()
-
   async function getUser() {
     error.value = undefined
     await AccountService.currentUser()
       .then((res) => {
         if (res != undefined) {
           user.value = res.user
+          console.info(`User ${user.value.identity.full_name} authenticated with role ${user.value.role}`)
           sessionToken.value = res.token
         }
       })

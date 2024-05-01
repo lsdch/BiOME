@@ -1,8 +1,10 @@
-import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import NotFound from '@/components/navigation/NotFound.vue'
+import { useUserStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
 import { nextTick } from "vue"
+import type { RouteRecordRaw } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
+import HomeView from '../views/HomeView.vue'
 
 
 // Default app title to display
@@ -26,6 +28,8 @@ type RouteGroup = {
 }
 
 export type RouterItem = Route | RouteGroup
+
+
 
 /** Route definitions meant to be displayed in navigation components */
 export const routeGroups: RouterItem[] = [
@@ -67,77 +71,85 @@ export const routeGroups: RouterItem[] = [
 
 
 
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/docs/api',
-      name: 'api-docs',
-      component: () => import('../views/APIDocs.vue'),
-      meta: {
-        title: makeTitle("API docs")
-      }
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: () => import('../views/auth/LoginView.vue'),
-      // meta: { hideNavbar: true }
-    },
-    {
-      path: '/signup',
-      name: 'signup',
-      component: () => import('../views/auth/SignUpView.vue'),
-      // meta: { hideNavbar: true }
-    },
-    {
-      path: '/password-reset/:token',
-      name: 'password-reset',
-      component: () => import('../views/auth/PasswordResetView.vue'),
-      meta: { hideNavbar: true }
-    },
-    {
-      path: '/email-confirmation',
-      name: 'email-confirmation',
-      component: () => import('../views/auth/EmailConfirmation.vue'),
-      meta: { hideNavbar: true }
-    },
-    {
-      path: "/init",
-      name: "init",
-      component: () => import("../views/InitialSetup.vue"),
-      meta: { hideNavbar: true }
-    },
-    {
-      path: "/account",
-      name: "account",
-      component: () => import("../views/AccountView.vue")
-    },
-    { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
-    {
-      path: '/settings',
-      name: "app-settings",
-      component: () => import("@/views/settings/AdminSettings.vue")
-    },
-    ...routeGroups.reduce((acc, current) => {
-      if (current.routes) {
-        return acc.concat(current.routes)
-      } else {
-        acc.unshift(current as RouteDefinition)
-        return acc
-      }
-    },
-      new Array<RouteDefinition>)
+function router() {
+  const { user } = storeToRefs(useUserStore())
+  const router = createRouter({
+    history: createWebHistory(import.meta.env.BASE_URL),
+    routes: [
+      {
+        path: '/docs/api',
+        name: 'api-docs',
+        component: () => import('../views/APIDocs.vue'),
+        meta: {
+          title: makeTitle("API docs")
+        }
+      },
+      {
+        path: '/login',
+        name: 'login',
+        component: () => import('../views/auth/LoginView.vue'),
+        // meta: { hideNavbar: true }
+      },
+      {
+        path: '/signup',
+        name: 'signup',
+        component: () => import('../views/auth/SignUpView.vue'),
+        // meta: { hideNavbar: true }
+      },
+      {
+        path: '/password-reset/:token',
+        name: 'password-reset',
+        component: () => import('../views/auth/PasswordResetView.vue'),
+        meta: { hideNavbar: true }
+      },
+      {
+        path: '/email-confirmation',
+        name: 'email-confirmation',
+        component: () => import('../views/auth/EmailConfirmation.vue'),
+        meta: { hideNavbar: true }
+      },
+      {
+        path: "/init",
+        name: "init",
+        component: () => import("../views/InitialSetup.vue"),
+        meta: { hideNavbar: true }
+      },
+      {
+        path: "/account",
+        name: "account",
+        component: () => import("../views/AccountView.vue")
+      },
+      { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+      {
+        path: '/settings',
+        name: "app-settings",
+        beforeEnter: () => {
+          console.log(user)
+          return user.value?.role === 'Admin' ? true : { name: 'login' }
+        },
+        component: () => import("@/views/settings/AdminSettings.vue")
+      },
+      ...routeGroups.reduce((acc, current) => {
+        if (current.routes) {
+          return acc.concat(current.routes)
+        } else {
+          acc.unshift(current as RouteDefinition)
+          return acc
+        }
+      },
+        new Array<RouteDefinition>)
 
-  ]
-})
+    ]
+  })
 
-router.afterEach((to, _from) => {
-  // Use next tick to handle router history correctly
-  // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
-  nextTick(() => {
-    document.title = to.meta?.title ?? DEFAULT_TITLE;
+  router.afterEach((to, _from) => {
+    // Use next tick to handle router history correctly
+    // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
+    nextTick(() => {
+      document.title = to.meta?.title ?? DEFAULT_TITLE;
+    });
   });
-});
 
+  return router
+}
 export default router

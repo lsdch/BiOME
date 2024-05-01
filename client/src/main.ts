@@ -31,6 +31,7 @@ const dark: ThemeDefinition = {
 
 import { VNumberInput } from 'vuetify/labs/VNumberInput'
 import { VTextField } from 'vuetify/components'
+import { useUserStore } from './stores/user'
 const vuetify = createVuetify({
   blueprint: md3,
   components: {
@@ -71,11 +72,15 @@ const vuetify = createVuetify({
 
 const app = createApp(App)
 
-app.use(router)
-app.use(vuetify)
+// Must be
 const pinia = createPinia()
 setActivePinia(pinia)
 app.use(pinia)
+
+await useUserStore().getUser()
+
+app.use(router())
+app.use(vuetify)
 
 
 app.mount('#app')
