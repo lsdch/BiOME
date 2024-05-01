@@ -59,6 +59,12 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Update email settings",
 		}, UpdateEmailSettings)
+	router.Register(api, "TestSMTP",
+		huma.Operation{
+			Path:    "/emailing/test-dial",
+			Method:  http.MethodPost,
+			Summary: "Test SMTP connection",
+		}, TestSMTP)
 
 	router.Register(api, "SetAppIcon",
 		huma.Operation{
@@ -105,12 +111,26 @@ func GetEmailSettings(ctx context.Context, input *resolvers.AccessRestricted[res
 	return &EmailSettings{Body: settings.Email()}, nil
 }
 
-func UpdateEmailSettings(ctx context.Context, input *struct {
+type EmailSettingsInput struct {
 	resolvers.AccessRestricted[resolvers.Admin]
 	Body settings.EmailSettingsInput
-}) (*EmailSettings, error) {
+}
+
+type SMTPConnectionStatus struct{ Body bool }
+
+func UpdateEmailSettings(ctx context.Context, input *EmailSettingsInput) (*EmailSettings, error) {
+	if status, err := TestSMTP(ctx, input); !status.Body {
+		return nil, err
+	}
 	updated, err := input.Body.Save(input.DB())
 	return &EmailSettings{Body: *updated}, err
+}
+
+func TestSMTP(ctx context.Context, input *EmailSettingsInput) (*SMTPConnectionStatus, error) {
+	if err := input.Body.TestConnection(); err != nil {
+		return &SMTPConnectionStatus{false}, huma.Error422UnprocessableEntity("SMTP connection failed", err)
+	}
+	return &SMTPConnectionStatus{true}, nil
 }
 
 // router.Register(api, "SetAppIcon",
