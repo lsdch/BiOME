@@ -15,20 +15,17 @@ type Settings struct {
 	Security SecuritySettings `edgedb:"security" json:"security"`
 }
 
-var settings = new(Settings)
-
 func init() {
 	secretKey := generateSecretKeyJWT()
 	if err := db.Client().QuerySingle(context.Background(),
 		`with module admin
 		select (
-			(select Settings) ?? (insert Settings {
-				instance := (select InstanceSettings limit 1) ?? (insert InstanceSettings {}),
-				email := (select EmailSettings limit 1),
-				security := (select SecuritySettings limit 1) ?? (insert SecuritySettings {
+			(select Settings) ?? (
+				with security := (select SecuritySettings limit 1) ?? (insert SecuritySettings {
 					jwt_secret_key := <str>$0
 				})
-			})
+				insert Settings {}
+			)
 		) { ** } limit 1`,
 		settings,
 		secretKey,
@@ -37,18 +34,26 @@ func init() {
 	}
 }
 
-func Get() Settings {
-	return *settings
+var settings = new(Settings)
+
+func Get() *Settings {
+
+	if err := db.Client().QuerySingle(context.Background(),
+		`select admin::Settings { ** } limit 1`, settings,
+	); err != nil {
+		logrus.Fatalf("Failed to get settings: %v", err)
+	}
+	return settings
 }
 
 func Security() SecuritySettings {
-	return (*settings).Security
+	return Get().Security
 }
 
 func Email() EmailSettings {
-	return (*settings).Email
+	return Get().Email
 }
 
 func Instance() InstanceSettings {
-	return (*settings).Instance
+	return Get().Instance
 }

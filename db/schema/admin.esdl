@@ -29,20 +29,11 @@ module admin {
 
   type Settings {
 
-    required instance: InstanceSettings {
-      constraint exclusive;
-      on source delete delete target;
-    };
+    required instance := assert_exists((select InstanceSettings limit 1));
 
+    email := (select EmailSettings limit 1);
 
-    email: EmailSettings {
-      on source delete delete target;
-    };
-
-    required security: SecuritySettings {
-      constraint exclusive;
-      on source delete delete target;
-    };
+    required security:= assert_exists((select SecuritySettings limit 1));
   }
 
   type SecuritySettings {

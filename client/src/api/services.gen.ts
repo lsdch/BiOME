@@ -1050,6 +1050,36 @@ export class SettingsService {
   }
 
   /**
+   * Test SMTP connection
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns boolean OK
+   * @throws ApiError
+   */
+  public static testSmtp(
+    data: $OpenApiTs['/settings/emailing/test-dial']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/settings/emailing/test-dial']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/settings/emailing/test-dial',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
    * Set app icon
    * @param data The data for the request.
    * @param data.formData

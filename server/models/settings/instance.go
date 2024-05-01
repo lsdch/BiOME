@@ -26,7 +26,7 @@ type InstanceSettings struct {
 
 func (input *InstanceSettingsInner) Save(db edgedb.Executor) (*InstanceSettings, error) {
 	jsonData, _ := json.Marshal(input)
-	var settings InstanceSettings
+	var s InstanceSettings
 	if err := db.QuerySingle(context.Background(),
 		`with data := <json>$0
 			select (update admin::InstanceSettings set {
@@ -35,10 +35,10 @@ func (input *InstanceSettingsInner) Save(db edgedb.Executor) (*InstanceSettings,
 				public := <bool>data['public'],
 				allow_contributor_signup := <bool>data['allow_contributor_signup']
 			}) { * } limit 1`,
-		&settings,
+		&s,
 		jsonData,
 	); err != nil {
 		return nil, err
 	}
-	return &settings, nil
+	return &s, nil
 }

@@ -1270,6 +1270,35 @@ export type $OpenApiTs = {
       }
     }
   }
+  '/settings/emailing/test-dial': {
+    post: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        requestBody: EmailSettingsInput
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: boolean
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
   '/settings/icon': {
     post: {
       req: {

@@ -34,6 +34,10 @@ func (s SecuritySettings) AuthTokenDuration() time.Duration {
 	return d
 }
 
+func (s SecuritySettings) CookieMaxAge() int {
+	return int(s.AuthTokenDuration()) * 60
+}
+
 func (s SecuritySettings) AccountTokenDuration() time.Duration {
 	d, err := time.ParseDuration(
 		fmt.Sprintf("%dh", s.AccountTokenLifetimeHours),
@@ -57,7 +61,7 @@ func generateSecretKeyJWT() string {
 
 func (input *SecuritySettingsInput) Save(db edgedb.Executor) (*SecuritySettings, error) {
 	jsonData, _ := json.Marshal(input)
-	var settings SecuritySettings
+	var s SecuritySettings
 	if err := db.QuerySingle(context.Background(),
 		`with data := <json>$0
 			select (update admin::SecuritySettings set {
@@ -65,9 +69,9 @@ func (input *SecuritySettingsInput) Save(db edgedb.Executor) (*SecuritySettings,
 				auth_token_lifetime := <int32>data['auth_token_lifetime'],
 				account_token_lifetime := <int32>data['account_token_lifetime'],
 				jwt_secret_key := <str>data['jwt_secret_key']
-			}) { * } limit 1`, &settings, jsonData,
+			}) { * } limit 1`, &s, jsonData,
 	); err != nil {
 		return nil, err
 	}
-	return &settings, nil
+	return &s, nil
 }
