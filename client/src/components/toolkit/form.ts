@@ -1,4 +1,4 @@
-import { ApiError, CancelablePromise, InputValidationError } from "@/api"
+import { ApiError, CancelablePromise } from "@/api"
 import { HttpStatusCode } from "axios"
 import { computed } from "vue"
 
@@ -81,4 +81,64 @@ export function inlineRule(rule: ValidationRuleWithoutParams) {
 
 export function inlineRules(rules: ValidationRuleWithoutParams[]) {
   return rules.map(inlineRule)
+}
+
+
+// Adapted from openapi-ts src
+export type Schema = Readonly<{
+  additionalProperties?: (boolean | Schema)
+  allOf?: Readonly<Schema[]>
+  anyOf?: Readonly<Schema[]>
+  const?: string | number | boolean | null
+  default?: unknown
+  deprecated?: boolean
+  description?: string
+  enum?: Readonly<(string | number)[]>
+  example?: unknown
+  exclusiveMaximum?: boolean
+  exclusiveMinimum?: boolean
+  format?: string
+  items?: Schema
+  maximum?: number
+  maxItems?: number
+  maxLength?: number
+  maxProperties?: number
+  minimum?: number
+  minItems?: number
+  minLength?: number
+  minProperties?: number
+  multipleOf?: number
+  not?: Readonly<Schema[]>
+  nullable?: boolean
+  oneOf?: Readonly<Schema[]>
+  pattern?: string
+  properties?: Readonly<Record<string, Schema>>
+  readOnly?: boolean
+  required?: Readonly<string[]>
+  title?: string
+  type?: string | Readonly<string[]>
+  uniqueItems?: boolean
+  writeOnly?: boolean
+}>
+
+export type SchemaProperties = Readonly<Record<string, {}>>
+export type SchemaWithProperties<P> = Schema & Readonly<{ type: "object", properties: P }>
+export function useSchema<P extends SchemaProperties>(schema: SchemaWithProperties<P>) {
+  function inputProps(key: keyof P) {
+    const k = key as unknown as string
+    const s = schema.properties?.[k]
+
+    return {
+      hint: s?.description,
+      min: s?.minimum,
+      max: s?.maximum,
+      rules: schema.required?.includes(k)
+        ? [
+          (value: any) => value || value === 0 ? true : "This field is required"
+        ]
+        : undefined
+    }
+  }
+
+  return { schema: inputProps }
 }
