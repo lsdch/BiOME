@@ -90,7 +90,7 @@ func (user *User) JWTCookie(jwt string, domain string) http.Cookie {
 		Value:    jwt,
 		Path:     "/",
 		Domain:   domain,
-		MaxAge:   int(settings.Security().AuthTokenLifetimeMinutes),
+		MaxAge:   settings.Security().CookieMaxAge(),
 		Secure:   true,
 		HttpOnly: true,
 	}
