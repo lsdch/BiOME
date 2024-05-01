@@ -22,7 +22,7 @@ func GenerateToken(payload interface{}, lifetime time.Duration) (string, error) 
 	claims := jwt.MapClaims{
 		"sub": payload,
 		"iat": time.Now().Unix(),
-		"exp": time.Now().Add(lifetime).Unix(), // Token expires in 24 hours
+		"exp": time.Now().Add(lifetime).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

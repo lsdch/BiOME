@@ -974,9 +974,9 @@ export const $SecuritySettings = {
       type: 'integer'
     },
     auth_token_lifetime: {
-      description: 'User session lifetime in seconds',
+      description: 'User session lifetime in minutes',
       format: 'int32',
-      minimum: 600,
+      minimum: 15,
       type: 'integer'
     },
     jwt_secret_key: {
@@ -1019,9 +1019,9 @@ export const $SecuritySettingsInput = {
       type: 'integer'
     },
     auth_token_lifetime: {
-      description: 'User session lifetime in seconds',
+      description: 'User session lifetime in minutes',
       format: 'int32',
-      minimum: 600,
+      minimum: 15,
       type: 'integer'
     },
     jwt_secret_key: {

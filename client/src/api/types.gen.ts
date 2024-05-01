@@ -422,7 +422,7 @@ export type SecuritySettings = {
    */
   account_token_lifetime: number
   /**
-   * User session lifetime in seconds
+   * User session lifetime in minutes
    */
   auth_token_lifetime: number
   /**
@@ -445,7 +445,7 @@ export type SecuritySettingsInput = {
    */
   account_token_lifetime: number
   /**
-   * User session lifetime in seconds
+   * User session lifetime in minutes
    */
   auth_token_lifetime: number
   /**
