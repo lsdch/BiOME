@@ -24,15 +24,14 @@
 </template>
 
 <script setup lang="ts" generic="Settings extends {}, P extends SchemaProperties">
-import { CancelablePromise } from '@/api'
 import { Ref, computed, ref, useSlots, watch } from 'vue'
 import { SchemaProperties, SchemaWithProperties, useSchema } from '../toolkit/form'
 
 useSlots()
 
 const props = defineProps<{
-  get(): CancelablePromise<Settings>
-  update(data: { requestBody: Settings | Awaited<Settings> }): CancelablePromise<Settings>
+  get(): PromiseLike<Settings>
+  update(data: { requestBody: Settings | Awaited<Settings> }): PromiseLike<Settings>
   schema?: SchemaWithProperties<P>
 }>()
 
