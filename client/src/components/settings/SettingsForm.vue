@@ -19,24 +19,26 @@
       />
     </v-row>
     <v-divider />
-    <slot :model="model" />
+    <slot :model="model" :schema="schema" />
   </v-form>
 </template>
 
-<script setup lang="ts" generic="Settings extends {}">
+<script setup lang="ts" generic="Settings extends {}, P extends SchemaProperties">
 import { CancelablePromise } from '@/api'
-import { UnwrapRef, ref, useSlots, watch } from 'vue'
+import { Ref, computed, ref, useSlots, watch } from 'vue'
+import { SchemaProperties, SchemaWithProperties, useSchema } from '../toolkit/form'
 
 useSlots()
 
 const props = defineProps<{
   get(): CancelablePromise<Settings>
-  update(data: { requestBody: UnwrapRef<Awaited<Settings>> }): CancelablePromise<Settings>
+  update(data: { requestBody: Settings | Awaited<Settings> }): CancelablePromise<Settings>
+  schema?: SchemaWithProperties<P>
 }>()
 
 const initial = await props.get()
 
-const model = ref(initial)
+const model = ref<Awaited<Settings>>(initial) as Ref<Settings>
 const disabled = ref(true)
 
 watch(model, (m) => {
@@ -51,8 +53,16 @@ function submit() {
 }
 
 function reset() {
-  model.value = initial as UnwrapRef<Awaited<Settings>>
+  model.value = initial
 }
+
+const schema = computed(() => {
+  if (props.schema !== undefined) {
+    const { schema: inputSchema } = useSchema(props.schema)
+    return inputSchema
+  }
+  return () => ({})
+})
 </script>
 
 <style scoped></style>
