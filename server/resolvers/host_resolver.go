@@ -13,7 +13,7 @@ type HostResolver struct {
 
 func (i *HostResolver) Resolve(ctx huma.Context) []error {
 	i.URL = ctx.URL()
-	i.Host = ctx.Host()
+	i.Host = ctx.URL().Host
 	return nil
 }
 
