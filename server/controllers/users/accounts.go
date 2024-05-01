@@ -106,8 +106,8 @@ type LogoutOutput struct {
 func Logout(ctx context.Context, input *struct{}) (*LogoutOutput, error) {
 	return &LogoutOutput{
 		SetCookie: []*http.Cookie{
-			{Name: tokens.AUTH_TOKEN_COOKIE, MaxAge: -1},
-			{Name: tokens.REFRESH_TOKEN_COOKIE, MaxAge: -1},
+			{Name: tokens.AUTH_TOKEN_COOKIE, MaxAge: -1, Value: "", Path: "/", HttpOnly: true, Secure: true},
+			{Name: tokens.REFRESH_TOKEN_COOKIE, MaxAge: -1, Value: "", Path: "/", HttpOnly: true, Secure: true},
 		},
 	}, nil
 }
