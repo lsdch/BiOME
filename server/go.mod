@@ -2,8 +2,11 @@ module darco/proto
 
 go 1.22
 
+// replace github.com/danielgtaylor/huma/v2 => ../../huma
+
 require (
 	github.com/danielgtaylor/huma/v2 v2.14.0
+	github.com/disintegration/imaging v1.6.2
 	github.com/edgedb/edgedb-go v0.17.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/go-faker/faker/v4 v4.4.1
@@ -51,6 +54,7 @@ require (
 	golang.org/x/arch v0.7.0 // indirect
 	golang.org/x/crypto v0.22.0 // indirect
 	golang.org/x/exp v0.0.0-20240416160154-fe59bbe5cc7f // indirect
+	golang.org/x/image v0.0.0-20191009234506-e7c1f5e7dbb8 // indirect
 	golang.org/x/mod v0.17.0 // indirect
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
