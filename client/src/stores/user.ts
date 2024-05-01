@@ -1,7 +1,8 @@
 import { AccountService, ApiError } from "@/api"
-import type { User } from "@/api"
+import type { User, UserRole } from "@/api"
+import { orderedUserRoles } from "@/components/people/userRole"
 import { defineStore } from "pinia"
-import { ref, Ref } from "vue"
+import { computed, ref, Ref } from "vue"
 
 
 export const useUserStore = defineStore("user", () => {
@@ -31,5 +32,15 @@ export const useUserStore = defineStore("user", () => {
     await AccountService.logout()
   }
 
-  return { user, error, token: sessionToken, getUser, logout }
+  const isAuthenticated = computed(() => {
+    return user.value !== undefined
+  })
+
+  function isGranted(role: UserRole) {
+    return user.value
+      ? orderedUserRoles.indexOf(user.value.role) >= orderedUserRoles.indexOf(role)
+      : false
+  }
+
+  return { user, error, token: sessionToken, getUser, logout, isGranted, isAuthenticated }
 })

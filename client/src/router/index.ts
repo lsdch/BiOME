@@ -5,6 +5,7 @@ import { nextTick } from "vue"
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
+import { useGuards } from './guards'
 
 
 // Default app title to display
@@ -72,7 +73,7 @@ export const routeGroups: RouterItem[] = [
 
 
 function router() {
-  const { user } = storeToRefs(useUserStore())
+  const { guardRole } = useGuards()
   const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -120,15 +121,11 @@ function router() {
         component: () => import("../views/AccountView.vue")
       },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
-      {
+      guardRole('Admin', {
         path: '/settings',
         name: "app-settings",
-        beforeEnter: () => {
-          console.log(user)
-          return user.value?.role === 'Admin' ? true : { name: 'login' }
-        },
         component: () => import("@/views/settings/AdminSettings.vue")
-      },
+      }),
       ...routeGroups.reduce((acc, current) => {
         if (current.routes) {
           return acc.concat(current.routes)

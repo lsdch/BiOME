@@ -45,8 +45,8 @@
 <script setup lang="ts">
 import { AccountService, ApiError, ErrorModel, UserCredentials } from '@/api'
 import { useUserStore } from '@/stores/user'
-import { Ref, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { Ref, onBeforeMount, reactive, ref } from 'vue'
+import { LocationQueryValue, useRouter } from 'vue-router'
 import PasswordField from '../toolkit/ui/PasswordField.vue'
 
 const formData: UserCredentials = reactive({
@@ -62,7 +62,20 @@ defineEmits<{ (event: 'sendConfirmation'): void }>()
 
 const router = useRouter()
 
-const { getUser } = useUserStore()
+const { getUser, isAuthenticated } = useUserStore()
+
+onBeforeMount(() => {
+  if (isAuthenticated) {
+    redirect()
+  }
+})
+
+function redirect() {
+  router.push({
+    name: (router.currentRoute.value.query.redirect as LocationQueryValue) ?? 'home'
+  })
+  return
+}
 
 async function submit() {
   loading.value = true
@@ -70,7 +83,7 @@ async function submit() {
     .then(async () => {
       errors.value = undefined
       await getUser()
-      router.push({ name: 'home' })
+      redirect()
     })
     .catch((err: ApiError) => {
       errors.value = err.body as ErrorModel
