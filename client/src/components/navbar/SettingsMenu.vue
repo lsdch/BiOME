@@ -32,12 +32,17 @@
 </template>
 
 <script setup lang="ts">
+import { onBeforeMount, watch } from 'vue'
 import { useTheme } from 'vuetify'
 const theme = useTheme()
 
-function toggleTheme() {
-  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark'
-}
+watch(theme.global.name, () => {
+  localStorage.setItem('app-theme', theme.global.name.value)
+})
+
+onBeforeMount(() => {
+  theme.global.name.value = localStorage.getItem('app-theme') ?? 'light'
+})
 </script>
 
 <style scoped></style>
