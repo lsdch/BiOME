@@ -17,7 +17,14 @@
         :rounded="false"
         href="#security"
       />
-      <v-tab value="email" text="E-mail" prepend-icon="mdi-email" tile :rounded="false" />
+      <v-tab
+        value="email"
+        text="E-mail"
+        prepend-icon="mdi-email"
+        tile
+        :rounded="false"
+        href="#email"
+      />
     </v-tabs>
     <v-container>
       <v-row>
