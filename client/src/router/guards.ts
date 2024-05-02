@@ -9,13 +9,13 @@ function denyAccess(msg: string) {
 }
 
 export function useGuards() {
-  const { isGranted, isAuthenticated } = useUserStore()
+  const store = useUserStore()
   function guardRole(role: UserRole, route: RouteRecordRaw & { name: string }): RouteRecordRaw {
     return {
       ...route,
       beforeEnter: () => {
-        if (isAuthenticated) {
-          return isGranted(role) ? true : denyAccess(`Access requires ${role} privileges`)
+        if (store.isAuthenticated) {
+          return store.isGranted(role) ? true : denyAccess(`Access requires ${role} privileges`)
         } else {
           return { name: 'login', query: { redirect: route.name } }
         }
