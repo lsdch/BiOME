@@ -46,7 +46,7 @@ export const routeGroups: RouterItem[] = [
     label: "Taxonomy",
     path: '/taxonomy',
     name: 'taxonomy',
-    component: () => import('../views/taxonomy/TaxonomyMain.vue')
+    component: () => import('../views/taxonomy/TaxonomyView.vue')
   },
   {
     label: "People",
