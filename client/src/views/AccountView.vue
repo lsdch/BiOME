@@ -16,11 +16,7 @@
               <h3>Password</h3>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
-              <v-form>
-                <v-text-field label="Your current password" density="compact" />
-                <PasswordFields />
-                <v-btn color="primary" type="submit" variant="plain"> Set new password </v-btn>
-              </v-form>
+              <PasswordUpdate />
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>
@@ -30,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import PasswordFields from '@/components/auth/PasswordFields.vue'
+import PasswordUpdate from '@/components/account/PasswordUpdate.vue'
 </script>
 
 <style scoped></style>

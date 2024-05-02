@@ -1,97 +1,72 @@
 <template>
-  <div>
-    <v-text-field
-      v-model="state.password"
-      v-bind="$attrs"
-      name="password"
-      label="Password"
-      :type="show.pass1 ? 'text' : 'password'"
-      required
-      @blur="v$.password.$touch"
-      :error-messages="vuelidateErrors(v$.password)"
-      :append-inner-icon="show.pass1 ? 'mdi-eye' : 'mdi-eye-off'"
-      @click:append-inner="show.pass1 = !show.pass1"
-    >
-      <template v-slot:loader>
-        <PasswordStrengthMeter v-if="state.password.length > 0" :strength="passwordStrength" />
-      </template>
-    </v-text-field>
-    <v-text-field
-      v-model="state.password_confirmation"
-      v-bind="$attrs"
-      name="password-confirm"
-      label="Password confirmation"
-      :type="show.pass2 ? 'text' : 'password'"
-      required
-      @blur="v$.password_confirmation.$touch"
-      :error-messages="vuelidateErrors(v$.password_confirmation)"
-      :append-inner-icon="show.pass2 ? 'mdi-eye' : 'mdi-eye-off'"
-      @click:append-inner="show.pass2 = !show.pass2"
-    />
-  </div>
+  <v-row>
+    <v-col>
+      <PasswordField
+        class="password-strength"
+        :model-value="model.password"
+        @update:model-value="(password) => (model = { ...model, password })"
+        v-bind="$attrs"
+        name="password"
+        label="New password"
+        :rules="[() => passwordStrength >= MIN_PWD_STRENGTH || 'Password is too weak']"
+      >
+        <template v-slot:loader>
+          <PasswordStrengthMeter v-if="model.password.length > 0" :strength="passwordStrength" />
+        </template>
+      </PasswordField>
+    </v-col>
+  </v-row>
+  <v-row>
+    <v-col>
+      <PasswordField
+        :model-value="model.password_confirmation"
+        @update:model-value="
+          (password_confirmation) => (model = { ...model, password_confirmation })
+        "
+        v-bind="$attrs"
+        name="password-confirm"
+        label="Password confirmation"
+        :rules="[(v: string) => v === model.password || 'Inputs do not match']"
+      />
+    </v-col>
+  </v-row>
 </template>
 
 <script setup lang="ts">
-import { PasswordInput, UserInput } from '@/api'
-import { vuelidateErrors } from '@/api/validation'
-import useVuelidate, { Validation, ValidationArgs } from '@vuelidate/core'
-import { helpers, required, sameAs } from '@vuelidate/validators'
+import { PasswordInput, PersonStruct } from '@/api'
 import { zxcvbn } from '@zxcvbn-ts/core'
-import { Ref, computed, defineModel, ref } from 'vue'
+import { computed, defineModel } from 'vue'
+import PasswordField from '../toolkit/ui/PasswordField.vue'
 import PasswordStrengthMeter from './PasswordStrengthMeter.vue'
 
 const MIN_PWD_STRENGTH = 3
 
-const props = withDefaults(
-  defineProps<{
-    userInputs: string[] | UserInput
-  }>(),
-  { userInputs: () => [] }
-)
+const props = defineProps<{
+  email?: string
+  login?: string
+  identity?: PersonStruct
+}>()
 
-const state = defineModel<PasswordInput>({
+const model = defineModel<PasswordInput>({
   default: {
     password: '',
     password_confirmation: ''
   }
 })
 
-const passwordReference = computed(() => state.value.password)
-
-const validators = {
-  password: helpers.withMessage(
-    'Password is too weak',
-    () => passwordStrength.value >= MIN_PWD_STRENGTH
-  ),
-  pwdConfirm: helpers.withMessage('Passwords do not match', sameAs(passwordReference))
-}
-
-const rules: ValidationArgs<PasswordInput> = {
-  password: { required, strength: validators.password },
-  password_confirmation: { sameAsPassword: validators.pwdConfirm, required }
-}
-
-const show = ref({
-  pass1: false,
-  pass2: false
-})
-
-const v$: Ref<Validation<ValidationArgs<PasswordInput>, PasswordInput>> = useVuelidate(rules, state)
-
 const passwordSensitiveInputs = computed(() => {
-  return props.userInputs instanceof Array
-    ? props.userInputs
-    : [
-        props.userInputs.email,
-        props.userInputs.login,
-        props.userInputs.identity.first_name,
-        props.userInputs.identity.last_name
-      ]
+  return [props.email, props.login, props.identity?.first_name, props.identity?.last_name].filter(
+    (v): v is string => v !== undefined
+  )
 })
 
 const passwordStrength = computed(() => {
-  return zxcvbn(state.value.password, passwordSensitiveInputs.value).score
+  return zxcvbn(model.value.password, passwordSensitiveInputs.value).score
 })
 </script>
 
-<style scoped></style>
+<style lang="less">
+.password-strength .v-field__loader {
+  top: calc(100% - 12px);
+}
+</style>

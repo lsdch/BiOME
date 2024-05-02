@@ -3,7 +3,7 @@
     :model-value="strength + 1"
     max="5"
     :color="colors[strength]"
-    height="15px"
+    height="12px"
     v-bind="$attrs"
   >
     <template v-slot:default>
