@@ -1,0 +1,43 @@
+- label: Aquatic
+- label: Lotic
+  depends: [Aquatic]
+- label: Lentic
+  depends: [Aquatic]
+  incompatible: [Lotic]
+- label: Freshwater
+  depends: [Aquatic]
+- label: Saltwater
+  depends: [Aquatic]
+  incompatible: [Freshwater]
+- label: Brackish water
+  depends: [Aquatic]
+  incompatible: [Freshwater, Saltwater]
+
+- label: Terrestrial
+  incompatible: [Aquatic]
+
+- label: Surface
+- label: Subsurface
+  incompatible: [Surface]
+- label: Aquifer
+  depends: [Subsurface]
+
+- label: Saturated
+  depends: [Aquifer]
+- label: Unsaturated
+  depends: [Aquifer]
+  incompatible: [Saturated]
+
+- label: Porous
+  depends: [Aquifer]
+- label: Fissured
+  depends: [Aquifer]
+- label: Karst
+  depends: [Aquifer]
+  incompatible: [Fissured]
+- label: Alluvial
+  depends: [Aquifer]
+  incompatible: [Karst, Porous, Fissured]
+- label: Hyporheic zone
+  incompatible: [Alluvial, Karst, Fissured, Porous]
+  depends: [Aquifer]

@@ -67,6 +67,17 @@ export const routeGroups: RouterItem[] = [
         component: () => import("../views/people/InstitutionView.vue")
       }
     ]
+  },
+  {
+    label: "Locations", icon: "mdi-map-marker-circle", routes: [
+      {
+        label: "Habitats",
+        path: "/location/habitats",
+        name: "habitats",
+        icon: "mdi-image-filter-hdr-outline",
+        component: () => import("@/views/location/HabitatsView.vue")
+      },
+    ]
   }
 ]
 

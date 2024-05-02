@@ -260,6 +260,134 @@
 				},
 				"type": "object"
 			},
+			"Habitat": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Habitat.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"depends": {
+						"items": {
+							"$ref": "#/components/schemas/HabitatRecord"
+						},
+						"type": "array"
+					},
+					"description": {
+						"description": "Optional habitat description",
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"incompatible": {
+						"items": {
+							"$ref": "#/components/schemas/HabitatRecord"
+						},
+						"type": "array"
+					},
+					"label": {
+						"description": "A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.",
+						"examples": [
+							"Lotic"
+						],
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"incompatible",
+					"label"
+				],
+				"type": "object"
+			},
+			"HabitatInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/HabitatInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"depends": {
+						"description": "List of habitat labels this habitat may specialize.",
+						"examples": [
+							[
+								"Aquatic",
+								"Surface"
+							]
+						],
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"description": {
+						"description": "Optional habitat description",
+						"type": "string"
+					},
+					"incompatible": {
+						"description": "List of habitat labels this habitat is incompatible with.",
+						"examples": [
+							[
+								"Lentic"
+							]
+						],
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"label": {
+						"description": "A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.",
+						"examples": [
+							"Lotic"
+						],
+						"type": "string"
+					}
+				},
+				"required": [
+					"label"
+				],
+				"type": "object"
+			},
+			"HabitatRecord": {
+				"additionalProperties": false,
+				"properties": {
+					"description": {
+						"description": "Optional habitat description",
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"description": "A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.",
+						"examples": [
+							"Lotic"
+						],
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"label"
+				],
+				"type": "object"
+			},
 			"ImportProcess": {
 				"additionalProperties": false,
 				"properties": {
@@ -1415,11 +1543,9 @@
 						"type": "string"
 					},
 					"rank": {
-						"$ref": "#/components/schemas/TaxonRank",
 						"type": "string"
 					},
 					"status": {
-						"$ref": "#/components/schemas/TaxonStatus",
 						"type": "string"
 					}
 				},
@@ -2511,75 +2637,6 @@
 				]
 			}
 		},
-		"/countries": {
-			"get": {
-				"operationId": "ListCountries",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/Country"
-									},
-									"type": "array"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "List countries",
-				"tags": [
-					"Location",
-					"Countries"
-				]
-			}
-		},
 		"/import/taxonomy": {
 			"put": {
 				"operationId": "ImportGBIF",
@@ -3030,6 +3087,218 @@
 				"tags": [
 					"People",
 					"Institution"
+				]
+			}
+		},
+		"/locations/countries": {
+			"get": {
+				"operationId": "ListCountries",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Country"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List countries",
+				"tags": [
+					"Location",
+					"Countries"
+				]
+			}
+		},
+		"/locations/habitats": {
+			"get": {
+				"operationId": "ListHabitats",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Habitat"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List habitats",
+				"tags": [
+					"Location",
+					"Countries"
+				]
+			},
+			"post": {
+				"operationId": "CreateHabitat",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/HabitatInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Habitat"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create habitat",
+				"tags": [
+					"Location",
+					"Countries"
 				]
 			}
 		},

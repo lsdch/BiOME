@@ -35,19 +35,16 @@ module location {
     multi link sites := .<locality[is Site]
   }
 
-  type HabitatTag extending default::Auditable {
-    required label: str;
+
+  type Habitat extending default::Auditable {
+    required label: str {
+      constraint exclusive;
+    };
     description: str;
-    color: str {
-      rewrite update, insert using (
-        .color ?? .parent.color if exists .parent else <str>{}
-      )
-    };
-    is_required: bool {
-      default := false;
-    };
-    parent: HabitatTag;
-  };
+    multi depends: Habitat;
+    multi incompatibleFrom: Habitat;
+    incompatible := (.incompatibleFrom union .<incompatibleFrom[is Habitat])
+  }
 
   scalar type CoordinateMaxPrecision extending enum<"m10", "m100", "Km1", "Km10", "Km100", "Unknown">;
 
@@ -62,9 +59,9 @@ module location {
     }
     description: str;
 
-    required multi habitat_tags: HabitatTag {
+    required multi habitat_tags: Habitat {
       annotation title := "A list of descriptors for the habitat that was targeted.";
-      on target delete restrict;
+      on target delete allow;
     };
 
     required locality: Locality {

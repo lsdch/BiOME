@@ -217,6 +217,112 @@ export const $ErrorModel = {
   type: 'object'
 } as const
 
+export const $Habitat = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Habitat.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    depends: {
+      items: {
+        $ref: '#/components/schemas/HabitatRecord'
+      },
+      type: 'array'
+    },
+    description: {
+      description: 'Optional habitat description',
+      type: 'string'
+    },
+    id: {
+      contentEncoding: 'base64',
+      format: 'uuid',
+      type: 'string'
+    },
+    incompatible: {
+      items: {
+        $ref: '#/components/schemas/HabitatRecord'
+      },
+      type: 'array'
+    },
+    label: {
+      description:
+        'A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.',
+      examples: ['Lotic'],
+      type: 'string'
+    }
+  },
+  required: ['id', 'incompatible', 'label'],
+  type: 'object'
+} as const
+
+export const $HabitatInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/HabitatInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    depends: {
+      description: 'List of habitat labels this habitat may specialize.',
+      examples: [['Aquatic', 'Surface']],
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    description: {
+      description: 'Optional habitat description',
+      type: 'string'
+    },
+    incompatible: {
+      description: 'List of habitat labels this habitat is incompatible with.',
+      examples: [['Lentic']],
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    label: {
+      description:
+        'A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.',
+      examples: ['Lotic'],
+      type: 'string'
+    }
+  },
+  required: ['label'],
+  type: 'object'
+} as const
+
+export const $HabitatRecord = {
+  additionalProperties: false,
+  properties: {
+    description: {
+      description: 'Optional habitat description',
+      type: 'string'
+    },
+    id: {
+      contentEncoding: 'base64',
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      description:
+        'A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.',
+      examples: ['Lotic'],
+      type: 'string'
+    }
+  },
+  required: ['id', 'label'],
+  type: 'object'
+} as const
+
 export const $ImportProcess = {
   additionalProperties: false,
   properties: {
@@ -1196,11 +1302,9 @@ export const $TaxonUpdate = {
       type: 'string'
     },
     rank: {
-      $ref: '#/components/schemas/TaxonRank',
       type: 'string'
     },
     status: {
-      $ref: '#/components/schemas/TaxonStatus',
       type: 'string'
     }
   },

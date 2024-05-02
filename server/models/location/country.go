@@ -10,7 +10,7 @@ import (
 //go:embed queries/setup_countries.edgeql
 var setupCountriesCmd string
 
-//go:embed countries.json
+//go:embed data/countries.json
 var seed embed.FS
 
 func Setup(db *edgedb.Client) error {

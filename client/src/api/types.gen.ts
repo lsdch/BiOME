@@ -124,6 +124,59 @@ export type ErrorModel = {
   type?: string
 }
 
+export type Habitat = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  depends?: Array<HabitatRecord>
+  /**
+   * Optional habitat description
+   */
+  description?: string
+  id: string
+  incompatible: Array<HabitatRecord>
+  /**
+   * A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.
+   */
+  label: string
+}
+
+export type HabitatInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * List of habitat labels this habitat may specialize.
+   */
+  depends?: Array<string>
+  /**
+   * Optional habitat description
+   */
+  description?: string
+  /**
+   * List of habitat labels this habitat is incompatible with.
+   */
+  incompatible?: Array<string>
+  /**
+   * A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.
+   */
+  label: string
+}
+
+export type HabitatRecord = {
+  /**
+   * Optional habitat description
+   */
+  description?: string
+  id: string
+  /**
+   * A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.
+   */
+  label: string
+}
+
 export type ImportProcess = {
   GBIF_ID: number
   done: boolean
@@ -510,8 +563,8 @@ export type TaxonUpdate = {
   code?: string
   name?: string
   parent?: string
-  rank?: TaxonRank
-  status?: TaxonStatus
+  rank?: string
+  status?: string
 }
 
 export type TaxonWithRelatives = {
@@ -909,34 +962,6 @@ export type $OpenApiTs = {
       }
     }
   }
-  '/countries': {
-    get: {
-      req: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        authorization?: string
-        /**
-         * Session cookie containing JWT
-         */
-        authToken?: string
-      }
-      res: {
-        /**
-         * OK
-         */
-        200: Array<Country>
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
-         * Internal Server Error
-         */
-        500: ErrorModel
-      }
-    }
-  }
   '/institutions': {
     get: {
       req: {
@@ -1204,6 +1229,89 @@ export type $OpenApiTs = {
          * OK
          */
         200: InvitationLink
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/locations/countries': {
+    get: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: Array<Country>
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/locations/habitats': {
+    get: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: Array<Habitat>
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+    post: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        requestBody: HabitatInput
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: Habitat
         /**
          * Unprocessable Entity
          */

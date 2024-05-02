@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"darco/proto/db"
+	"darco/proto/models/location"
 	"embed"
 	"flag"
 	"fmt"
@@ -64,6 +65,11 @@ func main() {
 	client := db.Connect(edgedb.Options{Database: *database})
 
 	setupEmailConfig(client)
+
+	logrus.Infof("Seeding habitats")
+	if err := location.InitialHabitatsSetup(client); err != nil {
+		logrus.Fatalf("Failed to seed habitats: %v", err)
+	}
 
 	if err := seedTaxonomyGBIF(client); err != nil {
 		logrus.Errorf("Failed to load Asellidae taxonomy: %v", err)
