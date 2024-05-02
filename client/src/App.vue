@@ -21,6 +21,7 @@
       <RouterView />
     </v-main>
     <ErrorSnackbar v-model="snackbar.open" :title="snackbar.title" :errors="snackbar.errors" />
+    <FeedbackSnackbar />
   </v-app>
 </template>
 
@@ -35,6 +36,7 @@ import SettingsMenu from '@/components/navbar/SettingsMenu.vue'
 
 import { ErrorDetail, OpenAPI } from './api'
 import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
+import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 
 const loading = ref(false)
 

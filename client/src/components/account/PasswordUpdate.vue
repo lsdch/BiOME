@@ -18,6 +18,7 @@
 import { AccountService, UpdatePasswordInput } from '@/api'
 import PasswordFields from '@/components/auth/PasswordFields.vue'
 import PasswordField from '@/components/toolkit/ui/PasswordField.vue'
+import { useFeedback } from '@/stores/feedback'
 import { ref } from 'vue'
 
 const model = ref<UpdatePasswordInput>({
@@ -28,8 +29,16 @@ const model = ref<UpdatePasswordInput>({
   }
 })
 
+const { feedback } = useFeedback()
+
 async function submit() {
   AccountService.updatePassword({ requestBody: model.value })
+    .then(() => {
+      feedback({ type: 'success', message: 'Password updated' })
+    })
+    .catch(() => {
+      feedback({ type: 'error', message: 'Password update failed' })
+    })
 }
 </script>
 
