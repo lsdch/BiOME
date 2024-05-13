@@ -1,43 +1,54 @@
-- label: Aquatic
-- label: Lotic
-  depends: [Aquatic]
-- label: Lentic
-  depends: [Aquatic]
-  incompatible: [Lotic]
-- label: Freshwater
-  depends: [Aquatic]
-- label: Saltwater
-  depends: [Aquatic]
-  incompatible: [Freshwater]
-- label: Brackish water
-  depends: [Aquatic]
-  incompatible: [Freshwater, Saltwater]
+- label: Stratum
+  elements:
+    - label: Surface
+    - label: Subsurface
+- label: Hydrology
+  elements:
+    - label: Aquatic
+    - label: Terrestrial
+- label: Flow
+  depends: Aquatic
+  elements:
+    - label: Lotic
+      description: Fast moving water, e.g. stream or river
+    - label: Lentic
+      description: Slow moving water, e.g. pond or lake
+- label: Salinity
+  depends: Aquatic
+  elements:
+    - label: Freshwater
+    - label: Saltwater
+    - label: Brackish water
+      description: More saline than freshwater, yet not as mush as seawater
 
-- label: Terrestrial
-  incompatible: [Aquatic]
-
-- label: Surface
-- label: Subsurface
-  incompatible: [Surface]
 - label: Aquifer
-  depends: [Subsurface]
+  depends: Subsurface
+  elements:
+    - label: Aquifer
+      description: Underground layer of water-bearing permeable rock
 
-- label: Saturated
-  depends: [Aquifer]
-- label: Unsaturated
-  depends: [Aquifer]
-  incompatible: [Saturated]
+- label: Saturation
+  depends: Aquifer
+  elements:
+    - label: Saturated
+      description: Filled with water
+    - label: Unsaturated
+      description: Presence of air pockets
 
-- label: Porous
-  depends: [Aquifer]
-- label: Fissured
-  depends: [Aquifer]
-- label: Karst
-  depends: [Aquifer]
-  incompatible: [Fissured]
-- label: Alluvial
-  depends: [Aquifer]
-  incompatible: [Karst, Porous, Fissured]
-- label: Hyporheic zone
-  incompatible: [Alluvial, Karst, Fissured, Porous]
-  depends: [Aquifer]
+- label: Aquifer type
+  depends: Aquifer
+  exclusive_elements: false
+  elements:
+    - label: Porous
+      description: Permeable minerals that enable the absorption of water
+    - label: Fissured
+      description: Presence of fissures that facilitate the movement and absorption of water
+    - label: Karst
+      description: Presence of cavities formed from the dissolution of soluble rocks
+      incompatible: [Fissured]
+    - label: Alluvial
+      description: Loose soil or sediment
+      incompatible: [Karst, Porous, Fissured]
+    - label: Hyporheic zone
+      description: Region where there is mixing of shallow groundwater and surface water
+      incompatible: [Alluvial, Karst, Fissured, Porous]

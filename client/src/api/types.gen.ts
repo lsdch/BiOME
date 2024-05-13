@@ -129,17 +129,29 @@ export type Habitat = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  depends?: Array<HabitatRecord>
   /**
    * Optional habitat description
    */
   description?: string
   id: string
-  incompatible: Array<HabitatRecord>
+  incompatible?: Array<HabitatRecord>
   /**
    * A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.
    */
   label: string
+  meta: Meta
+}
+
+export type HabitatGroup = {
+  depends?: HabitatRecord
+  elements: Array<HabitatRecord>
+  exclusive_elements: boolean
+  id: string
+  /**
+   * Name for the group of habitat tags
+   */
+  label: string
+  meta: Meta
 }
 
 export type HabitatInput = {
@@ -147,10 +159,6 @@ export type HabitatInput = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  /**
-   * List of habitat labels this habitat may specialize.
-   */
-  depends?: Array<string>
   /**
    * Optional habitat description
    */
@@ -171,6 +179,7 @@ export type HabitatRecord = {
    */
   description?: string
   id: string
+  incompatible?: Array<HabitatRecord>
   /**
    * A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.
    */
@@ -318,12 +327,12 @@ export type InvitationLink = {
 
 export type Meta = {
   created: Date
-  created_by: UserShortIdentity
-  created_by_user: OptionalUser
+  created_by?: UserShortIdentity
+  created_by_user?: OptionalUser
   last_updated: Date
-  modified: Date
-  updated_by: UserShortIdentity
-  updated_by_user: OptionalUser
+  modified?: Date
+  updated_by?: UserShortIdentity
+  updated_by_user?: OptionalUser
 }
 
 export type OptionalPerson = {
@@ -1257,6 +1266,24 @@ export type $OpenApiTs = {
          * OK
          */
         200: Array<Country>
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/locations/habitat-groups': {
+    get: {
+      res: {
+        /**
+         * OK
+         */
+        200: Array<HabitatGroup>
         /**
          * Unprocessable Entity
          */

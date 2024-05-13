@@ -3,6 +3,7 @@ package router
 import (
 	"bytes"
 	"context"
+	"darco/proto/models/location"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -34,6 +35,7 @@ func New(r *gin.Engine, basePath string, config huma.Config) Router {
 	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalInt32](), reflect.TypeOf(0))
 	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalBool](), reflect.TypeOf(true))
 	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalDateTime](), reflect.TypeFor[time.Time]())
+	registry.RegisterTypeAlias(reflect.TypeFor[location.OptionalHabitatRecord](), reflect.TypeFor[location.HabitatRecord]())
 	API.OpenAPI().Components.Schemas = registry
 
 	return Router{

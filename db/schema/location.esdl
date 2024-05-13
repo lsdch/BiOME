@@ -35,15 +35,35 @@ module location {
     multi link sites := .<locality[is Site]
   }
 
-
   type Habitat extending default::Auditable {
     required label: str {
       constraint exclusive;
     };
     description: str;
-    multi depends: Habitat;
-    multi incompatibleFrom: Habitat;
-    incompatible := (.incompatibleFrom union .<incompatibleFrom[is Habitat])
+
+    required in_group: HabitatGroup {
+      on target delete delete source;
+    };
+
+    multi incompatible_from: Habitat {
+      on target delete allow;
+    };
+    incompatible := (
+      .incompatible_from
+      union .<incompatible_from[is Habitat]
+      union (.in_group.elements if .in_group.exclusive_elements else {})
+    )
+  }
+
+  type HabitatGroup extending default::Auditable {
+    required label: str {
+      constraint exclusive;
+    };
+    depends: Habitat;
+    required exclusive_elements: bool {
+      default := true;
+    };
+    elements := .<in_group[is Habitat];
   }
 
   scalar type CoordinateMaxPrecision extending enum<"m10", "m100", "Km1", "Km10", "Km100", "Unknown">;

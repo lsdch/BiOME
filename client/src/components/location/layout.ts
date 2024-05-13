@@ -6,14 +6,13 @@ import { ref } from 'vue'
  * Composable to run the layout algorithm on the graph.
  * It uses the `dagre` library to calculate the layout of the nodes and edges.
  */
-export function useLayout() {
+export function useLayout<NodeData>() {
   const { findNode } = useVueFlow()
 
   const graph = ref(new dagre.graphlib.Graph())
 
-  const previousDirection = ref('LR')
 
-  function layout(nodes: Node[], edges: Edge[], direction: 'TB' | 'BT' | 'LR' | 'RL') {
+  function layout(nodes: Node<NodeData>[], edges: Edge[], direction: 'TB' | 'BT' | 'LR' | 'RL') {
     // we create a new graph instance, in case some nodes/edges were removed, otherwise dagre would act as if they were still there
     const dagreGraph = new dagre.graphlib.Graph()
 
@@ -22,21 +21,17 @@ export function useLayout() {
     dagreGraph.setDefaultEdgeLabel(() => ({}))
 
     const isHorizontal = direction === 'LR'
-    dagreGraph.setGraph({ rankdir: direction })
+    dagreGraph.setGraph({ rankdir: direction, ranker: 'network-simplex', nodesep: 100, ranksep: 60, edgesep: 20 })
 
-    previousDirection.value = direction
 
-    for (const node of nodes) {
+    nodes.forEach((node) => {
       // if you need width+height of nodes for your layout, you can use the dimensions property of the internal node (`GraphNode` type)
       const graphNode = findNode(node.id)
 
       dagreGraph.setNode(node.id, { width: graphNode?.dimensions.width || 150, height: graphNode?.dimensions.height || 50 })
-    }
+    })
 
-    for (const edge of edges) {
-      dagreGraph.setEdge(edge.source, edge.target)
-    }
-
+    edges.forEach(edge => dagreGraph.setEdge(edge.source, edge.target))
     dagre.layout(dagreGraph)
 
     // set nodes with updated positions
@@ -52,5 +47,5 @@ export function useLayout() {
     })
   }
 
-  return { graph, layout, previousDirection }
+  return { graph, layout }
 }

@@ -2,45 +2,75 @@ package location
 
 import (
 	"context"
+	"darco/proto/models"
+	"darco/proto/models/people"
 	"encoding/json"
 
 	_ "embed"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/edgedb/edgedb-go"
 	"github.com/goccy/go-yaml"
 	"github.com/sirupsen/logrus"
 )
 
 type HabitatInner struct {
-	Label       string             `edgedb:"label" json:"label" doc:"A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label." example:"Lotic"`
-	Description edgedb.OptionalStr `edgedb:"description" json:"description,omitempty" doc:"Optional habitat description"`
+	Label string `edgedb:"label" json:"label" doc:"A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label." example:"Lotic"`
 }
 
 type HabitatRecord struct {
 	ID           edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
 	HabitatInner `edgedb:"$inline" json:",inline"`
+	Description  edgedb.OptionalStr `edgedb:"description" json:"description,omitempty" doc:"Optional habitat description"`
+	Incompatible []HabitatRecord    `edgedb:"incompatible" json:"incompatible,omitempty"`
+}
+
+type OptionalHabitatRecord struct {
+	edgedb.Optional
+	HabitatRecord `edgedb:"$inline"`
 }
 
 type Habitat struct {
-	ID            edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
 	HabitatRecord `edgedb:"$inline" json:",inline"`
-	Incompatible  []HabitatRecord `edgedb:"incompatible" json:"incompatible"`
-	Depends       []HabitatRecord `edgedb:"depends" json:"depends,omitempty"`
+	Meta          people.Meta `edgedb:"meta" json:"meta"`
 }
 
 type HabitatInput struct {
 	HabitatInner `json:",inline"`
-	Depends      []string `json:"depends,omitempty" doc:"List of habitat labels this habitat may specialize." example:"Aquatic, Surface"`
+	Description  *string  `json:"description,omitempty" doc:"Optional habitat description"`
 	Incompatible []string `json:"incompatible,omitempty" doc:"List of habitat labels this habitat is incompatible with." example:"Lentic"`
+}
+
+type HabitatGroup struct {
+	ID        edgedb.UUID                    `edgedb:"id" json:"id" format:"uuid"`
+	Label     string                         `edgedb:"label" json:"label" doc:"Name for the group of habitat tags" example:"Water flow"`
+	Exclusive bool                           `edgedb:"exclusive_elements" json:"exclusive_elements"`
+	Depends   models.Optional[HabitatRecord] `edgedb:"depends" json:"depends,omitempty"`
+	Elements  []HabitatRecord                `edgedb:"elements" json:"elements"`
+	Meta      people.Meta                    `edgedb:"meta" json:"meta"`
+}
+
+type HabitatGroupInput struct {
+	Label     string         `json:"label" doc:"Name for the group of habitat tags" example:"Water flow"`
+	Depends   string         `json:"depends,omitempty" doc:"Habitat tag that this group is a refinement of" example:"Aquatic, Surface"`
+	Exclusive *bool          `json:"exclusive_elements,omitempty"`
+	Elements  []HabitatInput `json:"elements,omitempty"`
 }
 
 func ListHabitats(db edgedb.Executor) ([]Habitat, error) {
 	var habitats []Habitat
 	err := db.Query(context.Background(),
-		`select location::Habitat { *, depends: { * }, incompatible: { * } }`,
+		`select location::Habitat { *, meta: { * }, incompatible: { * } }`,
 		&habitats)
-	logrus.Debugf("HABITATS: %+v", habitats)
 	return habitats, err
+}
+
+func ListHabitatGroups(db edgedb.Executor) ([]HabitatGroup, error) {
+	var groups []HabitatGroup
+	err := db.Query(context.Background(),
+		`select location::HabitatGroup { *, depends: { * }, elements: { *, incompatible : { * } } }`,
+		&groups)
+	return groups, err
 }
 
 func (i HabitatInput) Create(db edgedb.Executor) (Habitat, error) {
@@ -59,7 +89,7 @@ func (i HabitatInput) Create(db edgedb.Executor) (Habitat, error) {
 					select detached location::Habitat
 					filter .label in <str>json_array_unpack(data['incompatible'])
 				)
-			}) { *, depends: { * }, incompatible: { * }}`,
+			}) { *, depends: { * }, meta: { * }, incompatible: { * }`,
 		&created, habitat)
 	return created, err
 }
@@ -67,49 +97,59 @@ func (i HabitatInput) Create(db edgedb.Executor) (Habitat, error) {
 //go:embed data/habitats.yaml
 var habitatsYaml string
 
-func InitialHabitatsSetup(db edgedb.Executor) error {
-	var input []HabitatInput
+func InitialHabitatsSetup(db *edgedb.Client) error {
+	var input []HabitatGroupInput
 	if err := yaml.Unmarshal([]byte(habitatsYaml), &input); err != nil {
 		return err
 	}
-	logrus.Infof("Habitat inputs: %+v", input)
-	_, err := ImportHabitats(db, input)
-	return err
+	spew.Dump("Habitat inputs: %+v", input)
+	return db.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+		return ImportHabitats(tx, input)
+	})
 }
 
-func ImportHabitats(db edgedb.Executor, habitats []HabitatInput) ([]Habitat, error) {
-	var created []Habitat
-	items, _ := json.Marshal(habitats)
+func ImportHabitats(tx *edgedb.Tx, habitats []HabitatGroupInput) error {
+	items, _ := json.MarshalIndent(habitats, "", "  ")
 
-	err := db.Execute(context.Background(),
-		`with items := <json>$0,
-			for item in json_array_unpack(items) union (
-				insert location::Habitat {
-					label := <str>item['label'],
-					description := <str>item['description'],
-				}
-			)`, items)
-	if err != nil {
-		return nil, err
-	}
-	err = db.Query(context.Background(),
+	logrus.Infof("%s", items)
+
+	err := tx.Execute(context.Background(),
 		`with module location,
-			items := <json>$0
-		select (
-			for item in json_array_unpack(items) union (
-				update Habitat filter .label = <str>item['label'] set {
-					depends := (
-						select detached Habitat
-						filter .label in <str>json_array_unpack(json_get(item, 'depends'))
-					),
-					incompatibleFrom := (
-						select detached Habitat
-						filter .label in <str>json_array_unpack(json_get(item, 'incompatible'))
-					)
-				}
+			items := json_array_unpack(<json>$0),
+			for item in items union (
+				with habitatGroup := (insert HabitatGroup {
+						label := <str>item['label'],
+						exclusive_elements := <bool>json_get(item, 'exclusive_elements') ?? true
+					}),
+				for habitat in json_array_unpack(item['elements']) union (
+					insert Habitat {
+						label := <str>habitat['label'],
+						description := <str>json_get(habitat, 'description'),
+						in_group := habitatGroup,
+					}
+				)
+			);`, items)
+	if err != nil {
+		return err
+	}
+
+	return tx.Execute(context.Background(),
+		`with module location,
+		items := json_array_unpack(<json>$0),
+		select (for item in items union (
+			(update HabitatGroup filter .label = <str>item['label'] set {
+				depends := assert_single((
+					select Habitat filter .label = <str>json_get(item, 'depends')
+				))
+			}) union (
+				for habitat in json_array_unpack(item['elements']) union (
+					update Habitat filter .label = <str>habitat['label'] set {
+						incompatible_from := (
+							select detached Habitat
+							filter .label in <str>json_array_unpack(json_get(habitat, 'incompatible'))
+						)
+					}
+				)
 			)
-		) { *, depends: { * }, incompatible: { * }}`,
-		&created, items,
-	)
-	return created, err
+		));`, items)
 }

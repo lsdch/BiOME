@@ -22,7 +22,7 @@ import { storeToRefs } from 'pinia'
 import { computed, nextTick, ref, watch } from 'vue'
 import colors from 'vuetify/util/colors'
 
-withDefaults(defineProps<{ timeout: number }>(), { timeout: 2000 })
+withDefaults(defineProps<{ timeout?: number }>(), { timeout: 2000 })
 
 const isOpen = ref(false)
 

@@ -800,6 +800,24 @@ export class LocationService {
   }
 
   /**
+   * List habitat groups
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static listHabitatGroups(): CancelablePromise<
+    $OpenApiTs['/locations/habitat-groups']['get']['res'][200]
+  > {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/locations/habitat-groups',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
    * List habitats
    * @param data The data for the request.
    * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -878,6 +896,24 @@ export class CountriesService {
       headers: {
         Authorization: data.authorization
       },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * List habitat groups
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static listHabitatGroups(): CancelablePromise<
+    $OpenApiTs['/locations/habitat-groups']['get']['res'][200]
+  > {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/locations/habitat-groups',
       errors: {
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'

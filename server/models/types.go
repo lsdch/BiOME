@@ -1,6 +1,10 @@
 package models
 
 import (
+	"encoding/json"
+	"reflect"
+
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 )
 
@@ -18,3 +22,19 @@ type Updatable[ID any, Updated any] interface {
 
 // ItemFinder functions fetch an item from the database using an identifier having a generic type
 type ItemFinder[ID any, Item any] func(db edgedb.Executor, id ID) (Item, error)
+
+type Optional[T any] struct {
+	edgedb.Optional
+	Value T `edgedb:"$inline" json:",inline"`
+}
+
+func (o *Optional[T]) MarshalJSON() ([]byte, error) {
+	if o.Missing() {
+		return []byte("null"), nil
+	}
+	return json.Marshal(o.Value)
+}
+
+func (o *Optional[T]) Schema(r huma.Registry) *huma.Schema {
+	return r.Schema(reflect.TypeOf(o.Value), true, "")
+}

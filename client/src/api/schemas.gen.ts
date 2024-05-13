@@ -227,12 +227,6 @@ export const $Habitat = {
       readOnly: true,
       type: 'string'
     },
-    depends: {
-      items: {
-        $ref: '#/components/schemas/HabitatRecord'
-      },
-      type: 'array'
-    },
     description: {
       description: 'Optional habitat description',
       type: 'string'
@@ -253,9 +247,45 @@ export const $Habitat = {
         'A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.',
       examples: ['Lotic'],
       type: 'string'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
     }
   },
-  required: ['id', 'incompatible', 'label'],
+  required: ['meta', 'id', 'label'],
+  type: 'object'
+} as const
+
+export const $HabitatGroup = {
+  additionalProperties: false,
+  properties: {
+    depends: {
+      $ref: '#/components/schemas/HabitatRecord'
+    },
+    elements: {
+      items: {
+        $ref: '#/components/schemas/HabitatRecord'
+      },
+      type: 'array'
+    },
+    exclusive_elements: {
+      type: 'boolean'
+    },
+    id: {
+      contentEncoding: 'base64',
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      description: 'Name for the group of habitat tags',
+      examples: ['Water flow'],
+      type: 'string'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    }
+  },
+  required: ['id', 'label', 'exclusive_elements', 'elements', 'meta'],
   type: 'object'
 } as const
 
@@ -268,14 +298,6 @@ export const $HabitatInput = {
       format: 'uri',
       readOnly: true,
       type: 'string'
-    },
-    depends: {
-      description: 'List of habitat labels this habitat may specialize.',
-      examples: [['Aquatic', 'Surface']],
-      items: {
-        type: 'string'
-      },
-      type: 'array'
     },
     description: {
       description: 'Optional habitat description',
@@ -311,6 +333,12 @@ export const $HabitatRecord = {
       contentEncoding: 'base64',
       format: 'uuid',
       type: 'string'
+    },
+    incompatible: {
+      items: {
+        $ref: '#/components/schemas/HabitatRecord'
+      },
+      type: 'array'
     },
     label: {
       description:
@@ -666,15 +694,7 @@ export const $Meta = {
       $ref: '#/components/schemas/OptionalUser'
     }
   },
-  required: [
-    'created',
-    'modified',
-    'last_updated',
-    'created_by_user',
-    'updated_by_user',
-    'created_by',
-    'updated_by'
-  ],
+  required: ['created', 'last_updated'],
   type: 'object'
 } as const
 

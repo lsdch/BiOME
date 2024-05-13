@@ -52,5 +52,6 @@ tasks:
     dir: ..
     cmds:
       - edgedb migrate
-      - edgedb branch rebase {{.TEST_DB_NAME}}
+      - edgedb branch drop {{.TEST_DB_NAME}} --non-interactive
+      - edgedb branch create {{.TEST_DB_NAME}} --copy-data
     deps: [init, init-testing]

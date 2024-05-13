@@ -20,12 +20,18 @@ importers:
       '@types/papaparse':
         specifier: ^5.3.14
         version: 5.3.14
+      '@vue-flow/background':
+        specifier: ^1.3.0
+        version: 1.3.0(@vue-flow/core@1.33.6(vue@3.4.26(typescript@5.3.3)))(vue@3.4.26(typescript@5.3.3))
       '@vue-flow/controls':
         specifier: ^1.1.1
         version: 1.1.1(@vue-flow/core@1.33.6(vue@3.4.26(typescript@5.3.3)))(vue@3.4.26(typescript@5.3.3))
       '@vue-flow/core':
         specifier: ^1.33.6
         version: 1.33.6(vue@3.4.26(typescript@5.3.3))
+      '@vue-flow/node-toolbar':
+        specifier: ^1.1.0
+        version: 1.1.0(@vue-flow/core@1.33.6(vue@3.4.26(typescript@5.3.3)))
       '@vuelidate/core':
         specifier: ^2.0.3
         version: 2.0.3(vue@3.4.26(typescript@5.3.3))
@@ -1165,6 +1171,12 @@ packages:
   '@volar/typescript@1.11.1':
     resolution: {integrity: sha512-iU+t2mas/4lYierSnoFOeRFQUhAEMgsFuQxoxvwn5EdQopw43j+J27a4lt9LMInx1gLJBC6qL14WYGlgymaSMQ==}
 
+  '@vue-flow/background@1.3.0':
+    resolution: {integrity: sha512-fu/8s9wzSOQIitnSTI10XT3bzTtagh4h8EF2SWwtlDklOZjAaKy75lqv4htHa3wigy/r4LGCOGwLw3Pk88/AxA==}
+    peerDependencies:
+      '@vue-flow/core': ^1.23.0
+      vue: ^3.3.0
+
   '@vue-flow/controls@1.1.1':
     resolution: {integrity: sha512-TCoRD5aYZQsM/N7QlPJcIILg1Gxm0O/zoUikxaeadcom1OlKFHutY72agsySJEWM6fTlyb7w8DYCbB4T8YbFoQ==}
     peerDependencies:
@@ -1175,6 +1187,11 @@ packages:
     resolution: {integrity: sha512-AfDXA5aTKxNjTeSP2zn1uox5vUCTOO8ZMllWMsPE7T7FJD7iHwLoLyxhjNMDRTaRAOPu4MohZaNr4wuEm6c6Qg==}
     peerDependencies:
       vue: ^3.3.0
+
+  '@vue-flow/node-toolbar@1.1.0':
+    resolution: {integrity: sha512-6RVDHgY+x8m1cXPaEkqPa/RMR90AC1hPHYBK/QVh8k6lJnFPgwJ9PSiYoC4amsUiDK0mF0Py+PlztLJY1ty+4A==}
+    peerDependencies:
+      '@vue-flow/core': ^1.12.2
 
   '@vue/babel-helper-vue-transform-on@1.2.2':
     resolution: {integrity: sha512-nOttamHUR3YzdEqdM/XXDyCSdxMA9VizUKoroLX6yTyRtggzQMHXcmwh8a7ZErcJttIBIc9s68a1B8GZ+Dmvsw==}
@@ -5688,6 +5705,11 @@ snapshots:
       '@volar/language-core': 1.11.1
       path-browserify: 1.0.1
 
+  '@vue-flow/background@1.3.0(@vue-flow/core@1.33.6(vue@3.4.26(typescript@5.3.3)))(vue@3.4.26(typescript@5.3.3))':
+    dependencies:
+      '@vue-flow/core': 1.33.6(vue@3.4.26(typescript@5.3.3))
+      vue: 3.4.26(typescript@5.3.3)
+
   '@vue-flow/controls@1.1.1(@vue-flow/core@1.33.6(vue@3.4.26(typescript@5.3.3)))(vue@3.4.26(typescript@5.3.3))':
     dependencies:
       '@vue-flow/core': 1.33.6(vue@3.4.26(typescript@5.3.3))
@@ -5702,6 +5724,10 @@ snapshots:
       vue: 3.4.26(typescript@5.3.3)
     transitivePeerDependencies:
       - '@vue/composition-api'
+
+  '@vue-flow/node-toolbar@1.1.0(@vue-flow/core@1.33.6(vue@3.4.26(typescript@5.3.3)))':
+    dependencies:
+      '@vue-flow/core': 1.33.6(vue@3.4.26(typescript@5.3.3))
 
   '@vue/babel-helper-vue-transform-on@1.2.2': {}
 

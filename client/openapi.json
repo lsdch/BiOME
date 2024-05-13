@@ -272,12 +272,6 @@
 						"readOnly": true,
 						"type": "string"
 					},
-					"depends": {
-						"items": {
-							"$ref": "#/components/schemas/HabitatRecord"
-						},
-						"type": "array"
-					},
 					"description": {
 						"description": "Optional habitat description",
 						"type": "string"
@@ -299,12 +293,55 @@
 							"Lotic"
 						],
 						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					}
+				},
+				"required": [
+					"meta",
+					"id",
+					"label"
+				],
+				"type": "object"
+			},
+			"HabitatGroup": {
+				"additionalProperties": false,
+				"properties": {
+					"depends": {
+						"$ref": "#/components/schemas/HabitatRecord"
+					},
+					"elements": {
+						"items": {
+							"$ref": "#/components/schemas/HabitatRecord"
+						},
+						"type": "array"
+					},
+					"exclusive_elements": {
+						"type": "boolean"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"description": "Name for the group of habitat tags",
+						"examples": [
+							"Water flow"
+						],
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
 					}
 				},
 				"required": [
 					"id",
-					"incompatible",
-					"label"
+					"label",
+					"exclusive_elements",
+					"elements",
+					"meta"
 				],
 				"type": "object"
 			},
@@ -319,19 +356,6 @@
 						"format": "uri",
 						"readOnly": true,
 						"type": "string"
-					},
-					"depends": {
-						"description": "List of habitat labels this habitat may specialize.",
-						"examples": [
-							[
-								"Aquatic",
-								"Surface"
-							]
-						],
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
 					},
 					"description": {
 						"description": "Optional habitat description",
@@ -373,6 +397,12 @@
 						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
+					},
+					"incompatible": {
+						"items": {
+							"$ref": "#/components/schemas/HabitatRecord"
+						},
+						"type": "array"
 					},
 					"label": {
 						"description": "A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.",
@@ -820,12 +850,7 @@
 				},
 				"required": [
 					"created",
-					"modified",
-					"last_updated",
-					"created_by_user",
-					"updated_by_user",
-					"created_by",
-					"updated_by"
+					"last_updated"
 				],
 				"type": "object"
 			},
@@ -3153,6 +3178,51 @@
 					}
 				},
 				"summary": "List countries",
+				"tags": [
+					"Location",
+					"Countries"
+				]
+			}
+		},
+		"/locations/habitat-groups": {
+			"get": {
+				"operationId": "ListHabitatGroups",
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/HabitatGroup"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List habitat groups",
 				"tags": [
 					"Location",
 					"Countries"

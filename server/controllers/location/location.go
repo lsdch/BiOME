@@ -1,7 +1,9 @@
-package country
+package location
 
 import (
+	"context"
 	"darco/proto/controllers"
+	"darco/proto/db"
 	"darco/proto/models/location"
 	country "darco/proto/models/location"
 	"darco/proto/router"
@@ -39,10 +41,29 @@ func RegisterRoutes(r router.Router) {
 			Summary: "List habitats",
 		}, controllers.ListHandler(country.ListHabitats))
 
+	router.Register(locationAPI, "ListHabitatGroups",
+		huma.Operation{
+			Path:    "/habitat-groups",
+			Method:  http.MethodGet,
+			Summary: "List habitat groups",
+		}, ListHabitatGroups)
+
 	router.Register(locationAPI, "CreateHabitat",
 		huma.Operation{
 			Path:    "/habitats",
 			Method:  http.MethodPost,
 			Summary: "Create habitat",
 		}, controllers.CreateHandler[location.HabitatInput])
+}
+
+type HabitatGroups struct {
+	Body []location.HabitatGroup
+}
+
+func ListHabitatGroups(ctx context.Context, input *struct{}) (*HabitatGroups, error) {
+	data, err := location.ListHabitatGroups(db.Client())
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Failed to retrieve grouped habitat list", err)
+	}
+	return &HabitatGroups{data}, nil
 }
