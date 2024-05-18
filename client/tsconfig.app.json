@@ -8,9 +8,12 @@
     "openapi-ts.config.ts"
   ],
   "exclude": [
-    "src/db/edgeql-js/**/*"
+    "src/db/edgeql-js/**/*",
+    "node_modules",
+    "assets"
   ],
   "compilerOptions": {
+    "skipLibCheck": true,
     "noErrorTruncation": true,
     "composite": true,
     "baseUrl": ".",
