@@ -13,8 +13,8 @@ import (
 )
 
 type PersonIdentity struct {
-	FirstName string `json:"first_name" edgedb:"first_name" binding:"required,alphaunicode,min=2,max=32" faker:"first_name"`
-	LastName  string `json:"last_name" edgedb:"last_name" binding:"required,alphaunicode,min=2,max=32" faker:"last_name"`
+	FirstName string `json:"first_name" edgedb:"first_name" minLength:"2" maxLength:"32" faker:"first_name"`
+	LastName  string `json:"last_name" edgedb:"last_name" minLength:"2" maxLength:"32" faker:"last_name"`
 }
 
 // PersonInner contains all properties defining a person, excluding links to related entities
@@ -24,7 +24,7 @@ type PersonInner struct {
 	FullName       string             `json:"full_name" edgedb:"full_name" binding:"required"`
 	Alias          string             `json:"alias" edgedb:"alias" binding:"required"`
 	Role           OptionalUserRole   `json:"role,omitempty" edgedb:"role"`
-	Contact        edgedb.OptionalStr `json:"contact" edgedb:"contact"`
+	Contact        edgedb.OptionalStr `json:"contact" edgedb:"contact" format:"email"`
 	Comment        edgedb.OptionalStr `json:"comment" edgedb:"comment"`
 }
 
@@ -76,7 +76,7 @@ type PersonInput struct {
 	PersonIdentity
 	Institutions []string `json:"institutions" binding:"omitempty,exist_all=people::Institution.code" faker:"len=10,slice_len=2"`
 	Alias        *string  `json:"alias,omitempty" binding:"unique_str=people::Person.alias" faker:"-"`
-	Contact      *string  `json:"contact,omitempty" binding:"omitnil,nullemail" faker:"email"`
+	Contact      *string  `json:"contact,omitempty" format:"email" faker:"email"`
 	Comment      *string  `json:"comment,omitempty" faker:"sentence"`
 } // @name PersonInput
 
