@@ -50,6 +50,9 @@ const vuetify = createVuetify({
     aliases,
     sets: { mdi }
   },
+  display: {
+    mobileBreakpoint: 'sm',
+  },
   theme: {
     defaultTheme: "light",
     themes: {
