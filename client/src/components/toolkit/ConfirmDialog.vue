@@ -36,7 +36,7 @@ const emit = defineEmits<{
 function confirm() {
   emit('confirm')
   dialog.value = false
-  return props.onConfirm?.()
+  // return props.onConfirm?.()
 }
 
 function cancel() {

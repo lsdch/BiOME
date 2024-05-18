@@ -9,13 +9,7 @@
       </v-toolbar>
       <v-card-text>
         <v-form @submit.prevent validate-on="input" v-model="isValid">
-          <v-text-field
-            v-model="filename"
-            label="Filename"
-            :suffix="suffix"
-            required
-            :rules="inlineRules([required])"
-          />
+          <v-text-field v-model="filename" label="Filename" :suffix="suffix" required />
           <v-row>
             <v-col cols="12" sm="">
               <v-checkbox label="Quote items" v-model="options.quotes" color="primary"></v-checkbox>
@@ -62,13 +56,12 @@ import { flatten } from 'flat'
 import moment from 'moment'
 import CSVEngine from 'papaparse'
 import { computed, ref, watch } from 'vue'
-import { inlineRules } from './form'
-import { required } from '@vuelidate/validators'
 
 const isValid = ref(null)
 
 const dialog = defineModel<boolean>()
 const props = defineProps<{ items: ItemType[]; namePrefix: string }>()
+const emit = defineEmits<{ ready: [] }>()
 
 function defaultOptions() {
   return {
@@ -107,16 +100,13 @@ function generateFilename() {
   return `${props.namePrefix}_${moment().format('Y-MM-DD')}`
 }
 
-const emit = defineEmits<{
-  ready: []
-}>()
-
 const csvString = ref('')
 const loading = ref(true)
 
 watch(() => props.items, unparse, { immediate: true })
 watch(() => options.value, unparse, { immediate: true, deep: true })
 
+const button = ref({ href: '', download: '' })
 async function unparse() {
   loading.value = true
   csvString.value = await new Promise((resolve) => {
@@ -139,8 +129,6 @@ async function unparse() {
   emit('ready')
   loading.value = false
 }
-
-const button = ref({ href: '', download: '' })
 </script>
 
 <style scoped></style>

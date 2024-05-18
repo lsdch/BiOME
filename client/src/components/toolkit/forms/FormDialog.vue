@@ -1,15 +1,29 @@
 <template>
-  <v-dialog persistent v-model="dialog" v-bind="$attrs" :fullscreen="xs" max-width="1000">
+  <v-dialog
+    persistent
+    scrollable
+    v-model="dialog"
+    v-bind="$attrs"
+    :fullscreen="xs"
+    max-width="1000"
+  >
     <!-- Expose activator slot -->
-    <template v-slot:activator="slotData">
+    <template #activator="slotData">
       <slot name="activator" v-bind="slotData"></slot>
     </template>
 
     <v-card flat :rounded="false">
-      <v-toolbar dark dense flat>
+      <v-toolbar dark dense flat class="position-sticky">
         <v-toolbar-title class="font-weight-bold"> {{ title }} </v-toolbar-title>
-        <template v-slot:append>
-          <v-btn color="grey" @click="dialog = false">Cancel</v-btn>
+        <template #append>
+          <v-btn
+            color="primary"
+            type="submit"
+            @click="emit('submit')"
+            :loading="loading"
+            text="Submit"
+          />
+          <v-btn color="grey" @click="close" text="Cancel" />
         </template>
       </v-toolbar>
       <v-card-text>
@@ -21,23 +35,25 @@
 </template>
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
-import { computed, onBeforeMount, useSlots } from 'vue'
+import { onBeforeMount, useSlots } from 'vue'
 import { useDisplay } from 'vuetify'
 import { VDialog } from 'vuetify/components'
-import { Mode } from './form'
 
 const dialog = defineModel<boolean>()
 
+const emit = defineEmits<{ submit: []; close: [] }>()
+
 const { xs } = useDisplay()
 
-const props = defineProps<{
-  entityName: string
-  mode: Mode
+defineProps<{
+  title: string
+  loading?: boolean
 }>()
 
-const title = computed(() => {
-  return `${props.mode} ${props.entityName}`
-})
+function close() {
+  dialog.value = false
+  emit('close')
+}
 
 const slots = useSlots()
 onBeforeMount(() => {

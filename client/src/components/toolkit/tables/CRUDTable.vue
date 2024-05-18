@@ -48,10 +48,7 @@
       <template v-if="props.showActions" #[`header.actions`]>
         <v-icon title="Actions" color="secondary">mdi-cog </v-icon>
       </template>
-      <template
-        v-if="props.showActions && currentUser !== undefined"
-        v-slot:[`item.actions`]="{ item }"
-      >
+      <template v-if="props.showActions && currentUser !== undefined" #[`item.actions`]="{ item }">
         <CRUDItemActions :item="item" :actions="actions" :user="currentUser" />
       </template>
 
@@ -112,9 +109,9 @@
     </v-data-table>
 
     <!-- Form dialog with form slot -->
-    <FormDialog v-model="formDialog" v-if="$slots.form" :mode="formMode" :entityName="entityName">
-      <slot name="form"></slot>
-    </FormDialog>
+    <!-- <FormDialog v-model="formDialog" v-if="$slots.form" :mode="formMode" :entityName="entityName">
+    </FormDialog> -->
+    <slot name="form" v-bind="form" />
 
     <!-- Confirm item deletion dialog -->
     <ConfirmDialog v-model="deleteDialog.open" v-bind="deleteDialog.props" />
@@ -133,14 +130,14 @@
 
 <script setup lang="ts" generic="ItemType extends { id: string; meta?: Meta }">
 import { CancelablePromise, Meta } from '@/api'
-import { Ref, computed, ref, useSlots } from 'vue'
+import { Ref, UnwrapRef, computed, ref, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { type VDataTable } from 'vuetify/components'
-import { TableEmitEvents, TableProps, useTable } from '.'
+import { TableProps, useTable } from '.'
 import CRUDFeedback from '../CRUDFeedback.vue'
 import ConfirmDialog from '../ConfirmDialog.vue'
 import ExportDialog from '../ExportDialog.vue'
-import FormDialog from '../FormDialog.vue'
+import FormDialog from '../forms/FormDialog.vue'
 import ItemDateChip from '../ItemDateChip.vue'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
@@ -148,6 +145,7 @@ import TableToolbar from './TableToolbar.vue'
 import CRUDItemActions from './CRUDItemActions.vue'
 import { isOwner } from '../meta'
 import TableFilterMenu from './TableFilterMenu.vue'
+import { useClipboard } from '@vueuse/core'
 
 type Props = TableProps<ItemType, () => CancelablePromise<ItemType[]>> & {
   filter?: (item: ItemType) => boolean
@@ -160,13 +158,12 @@ const slotNames = Object.keys(slots) as 'default'[]
 
 const searchTerm = defineModel<string>('search')
 const props = defineProps<Props>()
-const emit = defineEmits<TableEmitEvents<ItemType>>()
 
 defineSlots<
   VDataTable['$slots'] & {
     search(): any
     'expanded-row-inject': (props: { item: ItemType }) => any
-    form(): any
+    form(props: UnwrapRef<typeof form>): any
   }
 >()
 
@@ -175,13 +172,12 @@ const {
   items,
   actions,
   deleteDialog,
-  formDialog,
   feedback,
-  formMode,
+  form,
   processedHeaders,
   loading,
   loadItems
-} = useTable(props, emit)
+} = useTable(props)
 
 const sortBy = ref<SortItem[]>([])
 
@@ -237,9 +233,10 @@ function exportTSV() {
   }
 }
 
+const { copy } = useClipboard()
 async function copyUUID(item: ItemType) {
   try {
-    await navigator.clipboard.writeText(item.id)
+    await copy(item.id)
     feedback.value.show('UUID copied to clipboard', 'primary')
   } catch (err) {
     feedback.value.show('Failed to copy UUID to clipboard', 'warning')

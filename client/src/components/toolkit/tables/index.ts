@@ -1,14 +1,15 @@
 import { ApiError, CancelablePromise } from "@/api"
 import { HttpStatusCode } from "axios"
-import { Ref, ref } from "vue"
+import { Ref, UnwrapRef, ref } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { ConfirmDialogProps } from "../ConfirmDialog.vue"
 import { watchOnce } from '@vueuse/core'
-import { Mode } from "../form"
+import { Mode } from "../forms/form"
 import { computed } from "vue"
 import { ComputedRef } from "vue"
 import { onMounted } from "vue"
 import { useUserStore } from "@/stores/user"
+import { MaybeRef } from "vue"
 
 
 export type SortItem = {
@@ -42,26 +43,31 @@ type DeleteDialog = {
   props: ConfirmDialogProps
 }
 
-export type TableEmitEvents<ItemType> = {
-  (e: "edit-item", item: ItemType, resolve: ((item: ItemType) => void)): void
-  (e: "create-item", resolve: ((item: ItemType) => void)): void
-  (e: 'deleted', item: ItemType): void
+type FormSlotScope<ItemType extends { id: string }> = {
+  dialog: boolean,
+  mode: Mode,
+  editItem?: MaybeRef<ItemType>,
+  onSuccess: (_item: ItemType) => void,
+  onClose: () => void,
 }
 
 
 export function useTable<
   ItemType extends { id: string },
   FetchList extends Function,
-  EmitType extends TableEmitEvents<ItemType>
->(props: TableProps<ItemType, FetchList>, emit: EmitType) {
+>(props: TableProps<ItemType, FetchList>) {
 
   const { user: currentUser } = useUserStore()
 
   const items: Ref<ItemType[]> = ref([])
 
-  const formDialog = ref(false)
-
-  const formMode: Ref<Mode> = ref('Create')
+  const form = ref<FormSlotScope<ItemType>>({
+    dialog: false,
+    mode: 'Create',
+    editItem: undefined,
+    onSuccess: (_item: ItemType) => { },
+    onClose: () => { }
+  })
 
   const processedHeaders: ComputedRef<CRUDTableHeaders> = computed((): CRUDTableHeader[] => {
     return props.showActions && currentUser !== undefined && currentUser.role !== "Visitor"
@@ -81,11 +87,15 @@ export function useTable<
   const actions = {
     edit(item: ItemType) {
       return new Promise<ItemType>((resolve, reject) => {
-        formMode.value = 'Edit'
-        emit('edit-item', item, resolve)
-        formDialog.value = true
-        watchOnce(formDialog, reject)
+        form.value = {
+          mode: "Edit",
+          editItem: item,
+          dialog: true,
+          onSuccess: resolve,
+          onClose: reject
+        }
       }).then(
+        // Resolve
         (item) => {
           const index = items.value.findIndex(({ id }) => item.id === id)
           if (index < 0) {
@@ -97,27 +107,32 @@ export function useTable<
           items.value.unshift(item)
           feedback.value.show(props.itemRepr ? `${props.itemRepr(item)} updated` : 'Item updated', 'success')
         },
+        // Reject
         () => { console.info('Item edition was cancelled') }
       ).finally(() => {
-        formDialog.value = false
+        form.value.dialog = false
       })
     },
     create() {
       return new Promise<ItemType>((resolve, reject) => {
-        formMode.value = 'Create'
-        emit('create-item', resolve)
-        formDialog.value = true
-        watchOnce(formDialog, reject)
+        form.value = {
+          mode: 'Create',
+          editItem: undefined,
+          dialog: true,
+          onSuccess: resolve,
+          onClose: reject
+        }
       }).then(
+        // Resolve
         (item): void => {
           console.info('Created item', item)
-          formDialog.value = false
           items.value.unshift(item)
           feedback.value.show(props.itemRepr ? `${props.itemRepr(item)} registered` : 'Item registered', 'success')
         },
+        // Reject
         () => { console.info('Item creation was cancelled') }
       ).finally(() => {
-        formDialog.value = false
+        form.value.dialog = false
       })
     },
     delete(item: ItemType) {
@@ -145,7 +160,6 @@ export function useTable<
       .then(async () => {
         items.value.splice(index, 1)
         feedback.value.show('Item successfully deleted.', 'success')
-        emit('deleted', item)
         if (props.reloadOnDelete) {
           await loadItems()
         }
@@ -191,22 +205,6 @@ export function useTable<
     }
   })
 
-  return { currentUser, items, feedback, deleteDialog, actions, formDialog, formMode, processedHeaders, loading, loadItems }
-}
 
-export function useEntityTable<ItemType>() {
-  const editItem: Ref<ItemType | undefined> = ref(undefined)
-  const onFormSuccess = ref((_item: ItemType) => { })
-
-  function create(resolver: (item: ItemType) => void) {
-    editItem.value = undefined
-    onFormSuccess.value = resolver
-  }
-
-  function edit(item: ItemType, resolver: (item: ItemType) => void) {
-    console.info('Edit item', item)
-    editItem.value = item
-    onFormSuccess.value = resolver
-  }
-  return { editItem, onFormSuccess, create, edit }
+  return { currentUser, items, feedback, deleteDialog, actions, form, processedHeaders, loading, loadItems }
 }
