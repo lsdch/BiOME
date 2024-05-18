@@ -11,6 +11,8 @@ module default {
       default := (select global current_user);
     };
     property created_by := (
+      id := .created_by_user.id,
+      login := .created_by_user.login,
       name := .created_by_user.identity.full_name,
       alias := .created_by_user.identity.alias
     );
@@ -21,6 +23,8 @@ module default {
       rewrite update using (select global current_user)
     };
     property updated_by := (
+      id := .modified_by_user.id,
+      login := .modified_by_user.login,
       name := .modified_by_user.identity.full_name,
       alias := .modified_by_user.identity.alias
     );

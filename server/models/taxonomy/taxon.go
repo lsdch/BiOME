@@ -57,7 +57,7 @@ func ListTaxa(db edgedb.Executor, filters ListFilters) ([]Taxon, error) {
 				rank := <Rank>(<str>$1 if len(<str>$1) > 0 else <str>{}),
 				status := <TaxonStatus>(<str>$2 if len(<str>$2) > 0 else <str>{}),
 				is_anchor := <optional bool>$3
-			select Taxon { *, meta: {**}}
+			select Taxon { *, meta: {*} }
 			filter (.name ilike ("%" ++ pattern ++ "%") if len(pattern) > 0 else true)
 			and (.rank = rank if exists rank else true)
 			and (.status = status if exists status else true)
@@ -70,8 +70,9 @@ func ListTaxa(db edgedb.Executor, filters ListFilters) ([]Taxon, error) {
 func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonWithRelatives, err error) {
 	query := `
 		select taxonomy::Taxon { *,
-			parent : { * , meta: { ** }},
-			children : { * , meta: { ** }}
+			meta: { * },
+			parent : { *, meta: { * } },
+			children : { *, meta: { * } }
 		}
 		filter .id = <uuid>$0;
 	`
@@ -82,8 +83,9 @@ func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonWithRelatives, err
 func FindByCode(db edgedb.Executor, code string) (taxon TaxonWithRelatives, err error) {
 	query := `
 		select taxonomy::Taxon { *,
-			parent : { * , meta: { ** }},
-			children : { * , meta: { ** }}
+			meta : { * },
+			parent : { *, meta: { * } },
+			children : { *, meta: { * } }
 		}
 		filter .code = <str>$0;
 	`
