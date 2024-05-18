@@ -2,7 +2,7 @@
   <FormDialog v-model="dialog" title="Create habitat group" @submit="submit" :loading="loading">
     <v-form @submit.prevent="submit">
       <v-row>
-        <v-col>
+        <v-col cols="12" md="8">
           <v-text-field label="Group label" v-model.trim="model.label" v-bind="field('label')">
             <template #append>
               <v-btn
@@ -15,6 +15,18 @@
             </template>
           </v-text-field>
         </v-col>
+        <v-col cols="12" md="4">
+          <v-switch
+            v-model="model.exclusive_elements"
+            label="Elements exclusive"
+            color="primary"
+            :messages="
+              model.exclusive_elements
+                ? 'Combining group elements disallowed.'
+                : 'Combining group elements allowed.'
+            "
+          />
+        </v-col>
       </v-row>
       <v-row class="align-center">
         <v-col><v-divider /></v-col>
@@ -23,7 +35,9 @@
             `${model.elements?.length ?? 0} element${(model.elements?.length ?? 0) > 1 ? 's' : ''}`
           }}
         </v-col>
-        <v-col><v-divider /></v-col>
+        <v-col class="pa-0">
+          <v-divider />
+        </v-col>
       </v-row>
       <v-row class="align-stretch">
         <v-col cols="12" sm="6" md="4" v-for="(habitat, index) in model.elements" :key="index">
@@ -79,6 +93,7 @@ const emit = defineEmits<FormEmits<HabitatGroup>>()
 
 const initial: HabitatGroupInput = {
   label: '',
+  exclusive_elements: true,
   elements: [{ label: '', description: '' }]
 }
 
