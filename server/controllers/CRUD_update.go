@@ -41,13 +41,6 @@ type UpdateHandlerOutput[Updated any] struct {
 	Body Updated
 }
 
-type UpdateEndpoint[
-	Input UpdateInputInterface[Item, ID, Updated],
-	Item models.Updatable[ID, Updated],
-	ID any,
-	Updated any,
-] func(context.Context, Input) (*UpdateHandlerOutput[Updated], error)
-
 func UpdateHandler[
 	Item models.Updatable[ID, Updated],
 	OperationInput UpdateInputInterface[Item, ID, Updated],
