@@ -2,7 +2,7 @@
   <CRUDTable
     :crud="{
       list: () => TaxonomyService.listTaxa({}),
-      delete: (item: Taxon) => TaxonomyService.deleteTaxon(item.code)
+      delete: (item: Taxon) => TaxonomyService.deleteTaxon({ code: item.code })
     }"
     entityName="Taxon"
     :itemRepr="(item: Taxon) => item.name"
@@ -23,8 +23,13 @@
     height="100"
     :items-per-page="15"
   >
-    <template v-slot:form>
-      <TaxonForm></TaxonForm>
+    <template v-slot:form="{ dialog, onClose, onSuccess, editItem }">
+      <TaxonFormDialog
+        :model-value="dialog"
+        :edit="editItem"
+        @success="onSuccess"
+        @onClose="onClose"
+      />
     </template>
     <template v-slot:search>
       <TaxaTableFilters v-model="filters" v-model:name="searchName" />
@@ -62,7 +67,7 @@ import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
 import StatusIcon from './StatusIcon.vue'
 import TaxaTableFilters from './TaxaTableFilters.vue'
-import TaxonForm from './TaxonForm.vue'
+import TaxonFormDialog from './TaxonFormDialog.vue'
 
 const searchName = ref('')
 const filters: Ref<{ rank?: TaxonRank; status: TaxonStatus }> = ref({
