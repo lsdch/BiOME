@@ -136,13 +136,17 @@ export type Habitat = {
   id: string
   incompatible?: Array<HabitatRecord>
   /**
-   * A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.
+   * A short label for the habitat.
    */
   label: string
   meta: Meta
 }
 
 export type HabitatGroup = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   depends?: HabitatRecord
   elements: Array<HabitatRecord>
   exclusive_elements: boolean
@@ -152,6 +156,40 @@ export type HabitatGroup = {
    */
   label: string
   meta: Meta
+}
+
+export type HabitatGroupInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * Habitat tag that this group is a refinement of
+   */
+  depends?: string
+  elements?: Array<HabitatInput>
+  exclusive_elements?: boolean
+  /**
+   * Name for the group of habitat tags
+   */
+  label: string
+}
+
+export type HabitatGroupUpdate = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * Habitat tag that this group is a refinement of
+   */
+  depends?: string
+  elements?: Array<HabitatInput>
+  exclusive_elements?: boolean
+  /**
+   * Name for the group of habitat tags
+   */
+  label?: string
 }
 
 export type HabitatInput = {
@@ -168,7 +206,7 @@ export type HabitatInput = {
    */
   incompatible?: Array<string>
   /**
-   * A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.
+   * A short label for the habitat.
    */
   label: string
 }
@@ -181,7 +219,7 @@ export type HabitatRecord = {
   id: string
   incompatible?: Array<HabitatRecord>
   /**
-   * A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.
+   * A short label for the habitat.
    */
   label: string
 }
@@ -328,11 +366,9 @@ export type InvitationLink = {
 export type Meta = {
   created: Date
   created_by?: UserShortIdentity
-  created_by_user?: OptionalUser
   last_updated: Date
   modified?: Date
   updated_by?: UserShortIdentity
-  updated_by_user?: OptionalUser
 }
 
 export type OptionalPerson = {
@@ -344,16 +380,6 @@ export type OptionalPerson = {
   id: string
   last_name: string
   role?: UserRole
-}
-
-export type OptionalUser = {
-  email: string
-  email_confirmed: boolean
-  id: string
-  identity: OptionalPerson
-  is_active: boolean
-  login: string
-  role: UserRole
 }
 
 export type OptionalUserInner = {
@@ -572,8 +598,8 @@ export type TaxonUpdate = {
   code?: string
   name?: string
   parent?: string
-  rank?: string
-  status?: string
+  rank?: TaxonRank
+  status?: TaxonStatus
 }
 
 export type TaxonWithRelatives = {
@@ -653,6 +679,8 @@ export type UserRole = 'Visitor' | 'Contributor' | 'Maintainer' | 'Admin'
 
 export type UserShortIdentity = {
   alias: string
+  id: string
+  login: string
   name: string
 }
 
@@ -1279,11 +1307,120 @@ export type $OpenApiTs = {
   }
   '/locations/habitat-groups': {
     get: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+      }
       res: {
         /**
          * OK
          */
         200: Array<HabitatGroup>
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+    post: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        requestBody: HabitatGroupInput
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: HabitatGroup
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/locations/habitat-groups/{code}': {
+    delete: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        code: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: HabitatGroup
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+    patch: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        code: string
+        requestBody: {
+          /**
+           * A URL to the JSON Schema for this object.
+           */
+          readonly $schema?: string
+          /**
+           * Habitat tag that this group is a refinement of
+           */
+          depends?: string
+          elements?: Array<HabitatInput>
+          exclusive_elements?: boolean
+          /**
+           * Name for the group of habitat tags
+           */
+          label?: string
+        }
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: HabitatGroup
         /**
          * Unprocessable Entity
          */
@@ -1437,15 +1574,8 @@ export type $OpenApiTs = {
   '/settings/icon': {
     post: {
       req: {
-        formData: {
-          /**
-           * filename of the file being uploaded
-           */
-          filename?: Blob | File
-          /**
-           * general purpose name for multipart form value
-           */
-          name?: string
+        formData?: {
+          [key: string]: unknown
         }
       }
       res: {

@@ -243,9 +243,10 @@ export const $Habitat = {
       type: 'array'
     },
     label: {
-      description:
-        'A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.',
+      description: 'A short label for the habitat.',
       examples: ['Lotic'],
+      maxLength: 32,
+      minLength: 3,
       type: 'string'
     },
     meta: {
@@ -259,6 +260,13 @@ export const $Habitat = {
 export const $HabitatGroup = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/HabitatGroup.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     depends: {
       $ref: '#/components/schemas/HabitatRecord'
     },
@@ -289,6 +297,77 @@ export const $HabitatGroup = {
   type: 'object'
 } as const
 
+export const $HabitatGroupInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/HabitatGroupInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    depends: {
+      description: 'Habitat tag that this group is a refinement of',
+      examples: ['Aquatic, Surface'],
+      type: 'string'
+    },
+    elements: {
+      items: {
+        $ref: '#/components/schemas/HabitatInput'
+      },
+      type: 'array'
+    },
+    exclusive_elements: {
+      type: 'boolean'
+    },
+    label: {
+      description: 'Name for the group of habitat tags',
+      examples: ['Water flow'],
+      maxLength: 32,
+      minLength: 3,
+      type: 'string'
+    }
+  },
+  required: ['label'],
+  type: 'object'
+} as const
+
+export const $HabitatGroupUpdate = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/HabitatGroupInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    depends: {
+      description: 'Habitat tag that this group is a refinement of',
+      examples: ['Aquatic, Surface'],
+      type: 'string'
+    },
+    elements: {
+      items: {
+        $ref: '#/components/schemas/HabitatInput'
+      },
+      type: 'array'
+    },
+    exclusive_elements: {
+      type: 'boolean'
+    },
+    label: {
+      description: 'Name for the group of habitat tags',
+      examples: ['Water flow'],
+      maxLength: 32,
+      minLength: 3,
+      type: 'string'
+    }
+  },
+  type: 'object'
+} as const
+
 export const $HabitatInput = {
   additionalProperties: false,
   properties: {
@@ -312,9 +391,10 @@ export const $HabitatInput = {
       type: 'array'
     },
     label: {
-      description:
-        'A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.',
+      description: 'A short label for the habitat.',
       examples: ['Lotic'],
+      maxLength: 32,
+      minLength: 3,
       type: 'string'
     }
   },
@@ -341,9 +421,10 @@ export const $HabitatRecord = {
       type: 'array'
     },
     label: {
-      description:
-        'A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.',
+      description: 'A short label for the habitat.',
       examples: ['Lotic'],
+      maxLength: 32,
+      minLength: 3,
       type: 'string'
     }
   },
@@ -676,9 +757,6 @@ export const $Meta = {
     created_by: {
       $ref: '#/components/schemas/UserShortIdentity'
     },
-    created_by_user: {
-      $ref: '#/components/schemas/OptionalUser'
-    },
     last_updated: {
       format: 'date-time',
       type: 'string'
@@ -689,9 +767,6 @@ export const $Meta = {
     },
     updated_by: {
       $ref: '#/components/schemas/UserShortIdentity'
-    },
-    updated_by_user: {
-      $ref: '#/components/schemas/OptionalUser'
     }
   },
   required: ['created', 'last_updated'],
@@ -708,9 +783,12 @@ export const $OptionalPerson = {
       type: 'string'
     },
     contact: {
+      format: 'email',
       type: 'string'
     },
     first_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     },
     full_name: {
@@ -722,6 +800,8 @@ export const $OptionalPerson = {
       type: 'string'
     },
     last_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     },
     role: {
@@ -730,39 +810,6 @@ export const $OptionalPerson = {
     }
   },
   required: ['id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
-  type: 'object'
-} as const
-
-export const $OptionalUser = {
-  additionalProperties: false,
-  properties: {
-    email: {
-      format: 'email',
-      type: 'string'
-    },
-    email_confirmed: {
-      type: 'boolean'
-    },
-    id: {
-      contentEncoding: 'base64',
-      format: 'uuid',
-      type: 'string'
-    },
-    identity: {
-      $ref: '#/components/schemas/OptionalPerson'
-    },
-    is_active: {
-      type: 'boolean'
-    },
-    login: {
-      type: 'string'
-    },
-    role: {
-      $ref: '#/components/schemas/UserRole',
-      type: 'string'
-    }
-  },
-  required: ['identity', 'id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
   type: 'object'
 } as const
 
@@ -834,9 +881,12 @@ export const $Person = {
       type: 'string'
     },
     contact: {
+      format: 'email',
       type: 'string'
     },
     first_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     },
     full_name: {
@@ -854,6 +904,8 @@ export const $Person = {
       type: 'array'
     },
     last_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     },
     meta: {
@@ -898,9 +950,12 @@ export const $PersonInput = {
       type: 'string'
     },
     contact: {
+      format: 'email',
       type: 'string'
     },
     first_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     },
     institutions: {
@@ -910,6 +965,8 @@ export const $PersonInput = {
       type: 'array'
     },
     last_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     }
   },
@@ -921,12 +978,16 @@ export const $PersonStruct = {
   additionalProperties: false,
   properties: {
     first_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     },
     institution: {
       type: 'string'
     },
     last_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     }
   },
@@ -979,9 +1040,12 @@ export const $PersonUser = {
       type: 'string'
     },
     contact: {
+      format: 'email',
       type: 'string'
     },
     first_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     },
     full_name: {
@@ -993,6 +1057,8 @@ export const $PersonUser = {
       type: 'string'
     },
     last_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     },
     role: {
@@ -1322,9 +1388,11 @@ export const $TaxonUpdate = {
       type: 'string'
     },
     rank: {
+      $ref: '#/components/schemas/TaxonRank',
       type: 'string'
     },
     status: {
+      $ref: '#/components/schemas/TaxonStatus',
       type: 'string'
     }
   },
@@ -1588,10 +1656,18 @@ export const $UserShortIdentity = {
     alias: {
       type: 'string'
     },
+    id: {
+      contentEncoding: 'base64',
+      format: 'uuid',
+      type: 'string'
+    },
+    login: {
+      type: 'string'
+    },
     name: {
       type: 'string'
     }
   },
-  required: ['name', 'alias'],
+  required: ['id', 'login', 'name', 'alias'],
   type: 'object'
 } as const
