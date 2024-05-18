@@ -16,14 +16,17 @@
     }"
     filter-mode="some"
     show-actions
-    @create-item="create"
-    @edit-item="edit"
   >
     <template #search>
       <PersonFilters v-model="filters" />
     </template>
-    <template #form>
-      <PersonForm :edit="editItem" @success="onFormSuccess"></PersonForm>
+    <template #form="{ dialog, onClose, onSuccess, editItem }">
+      <PersonFormDialog
+        :edit="editItem"
+        @success="onSuccess"
+        @close="onClose"
+        :model-value="dialog"
+      />
     </template>
 
     <!-- User Role column -->
@@ -86,13 +89,12 @@ import { UserRole } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import { useEntityTable } from '../toolkit/tables'
 import InstitutionKindChip from './InstitutionKindChip.vue'
 import type { PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
-import PersonForm from './PersonForm.vue'
 import { orderedUserRoles, roleIcon } from './userRole'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
+import PersonFormDialog from './PersonFormDialog.vue'
 
 const { xs, smAndUp } = useDisplay()
 
@@ -141,8 +143,6 @@ const headers: CRUDTableHeader[] = [
     }
   }
 ]
-
-const { create, edit, editItem, onFormSuccess } = useEntityTable<Person>()
 </script>
 
 <style scoped></style>

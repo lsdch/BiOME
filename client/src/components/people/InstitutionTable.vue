@@ -4,7 +4,7 @@
     density="compact"
     :crud="{
       list: PeopleService.listInstitutions,
-      delete: (inst: Institution) => PeopleService.deleteInstitution(inst.code)
+      delete: (inst: Institution) => PeopleService.deleteInstitution({ code: inst.code })
     }"
     entityName="Institution"
     :itemRepr="(inst) => inst.code"
@@ -17,29 +17,32 @@
     filter-mode="some"
     show-actions
     :filter-keys="['code', 'name', 'kind']"
-    @create-item="create"
-    @edit-item="edit"
   >
-    <template v-slot:search>
+    <template #search>
       <InstitutionFilters v-model="filters" />
     </template>
-    <template v-slot:form>
-      <InstitutionForm :edit="editItem" @success="onFormSuccess" />
+    <template #form="{ dialog, editItem, onSuccess, onClose }">
+      <InstitutionFormDialog
+        :model-value="dialog"
+        :edit="editItem"
+        @success="onSuccess"
+        @close="onClose"
+      />
     </template>
 
     <!-- Header slots -->
-    <template v-slot:[`header.people`]>
+    <template #[`header.people`]>
       <v-icon title="People">mdi-account-group </v-icon>
     </template>
 
     <!-- Item slots -->
-    <template v-slot:[`item.code`]="{ item }">
+    <template #[`item.code`]="{ item }">
       <code>{{ item.code }}</code>
     </template>
-    <template v-slot:[`item.kind`]="{ item, value }">
+    <template #[`item.kind`]="{ item, value }">
       <InstitutionKindChip size="small" :kind="item.kind" :label="value" :hide-label="!mdAndUp" />
     </template>
-    <template v-slot:[`item.people`]="{ value, toggleExpand, internalItem }">
+    <template #[`item.people`]="{ value, toggleExpand, internalItem }">
       <v-btn
         icon
         color="primary"
@@ -50,7 +53,7 @@
         {{ value?.length ?? 0 }}
       </v-btn>
     </template>
-    <template v-slot:expanded-row-inject="{ item }">
+    <template #expanded-row-inject="{ item }">
       <div class="w-100">
         <v-card density="compact" flat>
           <v-card-title class="text-body-2">Description</v-card-title>
@@ -69,7 +72,7 @@
               <v-list-item-subtitle>
                 {{ `@${person.alias}` }}
               </v-list-item-subtitle>
-              <template v-slot:prepend>
+              <template #prepend>
                 <v-icon v-bind="roleIcon(person.role)" size="small" />
               </template>
             </v-list-item>
@@ -82,16 +85,14 @@
 
 <script setup lang="ts">
 import { Institution, PeopleService } from '@/api'
-import InstitutionForm from './InstitutionForm.vue'
-
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import { enumAsString } from '../toolkit/enums'
-import { useEntityTable } from '../toolkit/tables'
 import InstitutionFilters, { Filters } from './InstitutionFilters.vue'
 import InstitutionKindChip from './InstitutionKindChip.vue'
 import { roleIcon } from './userRole'
+import InstitutionFormDialog from './InstitutionFormDialog.vue'
 
 const { mdAndUp } = useDisplay()
 
@@ -111,15 +112,11 @@ const headers = computed(
     {
       title: 'Kind',
       key: 'kind',
-      value(item: Institution) {
-        return enumAsString(item.kind)
-      }
+      value: (item: Institution) => enumAsString(item.kind)
     },
     { title: 'People', key: 'people', align: 'center' }
   ]
 )
-
-const { create, edit, editItem, onFormSuccess } = useEntityTable<Institution>()
 </script>
 
 <style scoped>

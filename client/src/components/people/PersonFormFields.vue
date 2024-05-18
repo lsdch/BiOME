@@ -5,8 +5,7 @@
         name="first_name"
         label="First name(s)"
         v-model.trim="person.first_name"
-        :error-messages="errorMsgs?.first_name"
-        :rules="inlineRules([required])"
+        v-bind="bindings?.firstName"
       />
     </v-col>
     <v-col cols="12" sm="6">
@@ -14,8 +13,7 @@
         name="last_name"
         label="Last name"
         v-model.trim="person.last_name"
-        :error-messages="errorMsgs?.last_name"
-        :rules="inlineRules([required])"
+        v-bind="bindings?.lastName"
       />
     </v-col>
   </v-row>
@@ -23,15 +21,17 @@
 
 <script setup lang="ts">
 import { PersonInput } from '@/api'
-import { required } from '@vuelidate/validators'
-import { ErrorMsgs, inlineRules } from '../toolkit/form'
+import { type FieldBinding } from '../toolkit/forms/form'
 
 type PartialPersonInput = Pick<PersonInput, 'first_name' | 'last_name'>
 
 const person = defineModel<PartialPersonInput>({ required: true })
 
 defineProps<{
-  errorMsgs?: ErrorMsgs<PartialPersonInput>
+  bindings?: {
+    firstName: FieldBinding
+    lastName: FieldBinding
+  }
 }>()
 </script>
 

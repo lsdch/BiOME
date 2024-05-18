@@ -25,7 +25,7 @@
 
 <script setup lang="ts" generic="Settings extends {}, P extends SchemaProperties">
 import { Ref, computed, ref, useSlots, watch } from 'vue'
-import { SchemaProperties, SchemaWithProperties, useSchema } from '../toolkit/form'
+import { SchemaProperties, SchemaWithProperties, useSchema } from '../toolkit/forms/form'
 
 useSlots()
 
