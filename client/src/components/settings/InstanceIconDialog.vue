@@ -69,6 +69,7 @@ import { useDisplay } from 'vuetify'
 import InstanceIconPreviews from './InstanceIconPreviews.vue'
 import { computed, watch } from 'vue'
 import { SettingsService } from '@/api'
+import mime from 'mime'
 
 const { smAndDown, mdAndUp } = useDisplay()
 
@@ -89,15 +90,15 @@ function updatePreview(c: CropperResult) {
   result.value = c
 }
 
-const imgFile = ref<File[]>([])
+const imgFile = ref<File | undefined>(undefined)
 const uploadedImg = ref<string | undefined>(undefined)
 
 watch(imgFile, () => {
   if (uploadedImg.value) {
     URL.revokeObjectURL(uploadedImg.value)
   }
-  if (imgFile.value.length > 0) {
-    uploadedImg.value = URL.createObjectURL(imgFile.value[0])
+  if (imgFile.value) {
+    uploadedImg.value = URL.createObjectURL(imgFile.value)
   } else {
     uploadedImg.value = undefined
   }
@@ -110,11 +111,16 @@ const imgSrc = computed(() => {
 function saveIcon() {
   result.value?.canvas?.toBlob((blob) => {
     if (blob !== null) {
-      const file = new File([blob], 'icon')
+      const file = new File([blob], 'icon', { type: mimeType.value })
       SettingsService.setAppIcon({ formData: { icon: file } })
     }
-  })
+  }, mimeType.value)
 }
+
+const mimeType = computed(
+  () =>
+    imgFile.value?.type ?? (mime.getType(model.value.iconSrc ?? '') || 'application/octet-stream')
+)
 </script>
 
 <style lang="scss">
