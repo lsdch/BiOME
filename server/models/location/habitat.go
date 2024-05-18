@@ -2,7 +2,6 @@ package location
 
 import (
 	"context"
-	"darco/proto/models"
 	"darco/proto/models/people"
 	"encoding/json"
 
@@ -15,7 +14,7 @@ import (
 )
 
 type HabitatInner struct {
-	Label string `edgedb:"label" json:"label" doc:"A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label." example:"Lotic"`
+	Label string `edgedb:"label" json:"label" doc:"A short label for the habitat." minLength:"3" maxLength:"32" example:"Lotic"`
 }
 
 type HabitatRecord struct {
@@ -41,36 +40,12 @@ type HabitatInput struct {
 	Incompatible []string `json:"incompatible,omitempty" doc:"List of habitat labels this habitat is incompatible with." example:"Lentic"`
 }
 
-type HabitatGroup struct {
-	ID        edgedb.UUID                    `edgedb:"id" json:"id" format:"uuid"`
-	Label     string                         `edgedb:"label" json:"label" doc:"Name for the group of habitat tags" example:"Water flow"`
-	Exclusive bool                           `edgedb:"exclusive_elements" json:"exclusive_elements"`
-	Depends   models.Optional[HabitatRecord] `edgedb:"depends" json:"depends,omitempty"`
-	Elements  []HabitatRecord                `edgedb:"elements" json:"elements"`
-	Meta      people.Meta                    `edgedb:"meta" json:"meta"`
-}
-
-type HabitatGroupInput struct {
-	Label     string         `json:"label" doc:"Name for the group of habitat tags" example:"Water flow"`
-	Depends   string         `json:"depends,omitempty" doc:"Habitat tag that this group is a refinement of" example:"Aquatic, Surface"`
-	Exclusive *bool          `json:"exclusive_elements,omitempty"`
-	Elements  []HabitatInput `json:"elements,omitempty"`
-}
-
 func ListHabitats(db edgedb.Executor) ([]Habitat, error) {
 	var habitats []Habitat
 	err := db.Query(context.Background(),
 		`select location::Habitat { *, meta: { * }, incompatible: { * } }`,
 		&habitats)
 	return habitats, err
-}
-
-func ListHabitatGroups(db edgedb.Executor) ([]HabitatGroup, error) {
-	var groups []HabitatGroup
-	err := db.Query(context.Background(),
-		`select location::HabitatGroup { *, depends: { * }, elements: { *, incompatible : { * } } }`,
-		&groups)
-	return groups, err
 }
 
 func (i HabitatInput) Create(db edgedb.Executor) (Habitat, error) {

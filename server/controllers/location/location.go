@@ -3,7 +3,6 @@ package location
 import (
 	"context"
 	"darco/proto/controllers"
-	"darco/proto/db"
 	"darco/proto/models/location"
 	country "darco/proto/models/location"
 	"darco/proto/router"
@@ -46,7 +45,7 @@ func RegisterRoutes(r router.Router) {
 			Path:    "/habitat-groups",
 			Method:  http.MethodGet,
 			Summary: "List habitat groups",
-		}, ListHabitatGroups)
+		}, controllers.ListHandler(location.ListHabitatGroups))
 
 	router.Register(locationAPI, "CreateHabitat",
 		huma.Operation{
@@ -54,16 +53,37 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Create habitat",
 		}, controllers.CreateHandler[location.HabitatInput])
+
+	router.Register(locationAPI, "CreateHabitatGroup",
+		huma.Operation{
+			Path:    "/habitat-groups",
+			Method:  http.MethodPost,
+			Summary: "Create habitat group",
+		}, controllers.CreateHandler[location.HabitatGroupInput])
+
+	router.Register(locationAPI, "DeleteHabitatGroup",
+		huma.Operation{
+			Path:    "/habitat-groups/{code}",
+			Method:  http.MethodDelete,
+			Summary: "Delete habitat group",
+		}, controllers.DeleteByCodeHandler(location.DeleteHabitatGroup))
+
+	router.Register(locationAPI, "UpdateHabitatGroup",
+		huma.Operation{
+			Path:    "/habitat-groups/{code}",
+			Method:  http.MethodPatch,
+			Summary: "Update habitat group",
+		}, controllers.UpdateByCodeHandler[location.HabitatGroupUpdate](location.FindHabitatGroup))
 }
 
-type HabitatGroups struct {
-	Body []location.HabitatGroup
-}
-
-func ListHabitatGroups(ctx context.Context, input *struct{}) (*HabitatGroups, error) {
-	data, err := location.ListHabitatGroups(db.Client())
-	if err != nil {
-		return nil, huma.Error500InternalServerError("Failed to retrieve grouped habitat list", err)
+type SetHabitatGroupParentInput struct {
+	controllers.CodeInput
+	Body struct {
+		Parent location.Habitat
 	}
-	return &HabitatGroups{data}, nil
+}
+type SetHabitatGroupParentOutput struct{}
+
+func SetHabitatGroupParent(ctx context.Context, input *SetHabitatGroupParentInput) (*SetHabitatGroupParentOutput, error) {
+	return &SetHabitatGroupParentOutput{}, nil
 }

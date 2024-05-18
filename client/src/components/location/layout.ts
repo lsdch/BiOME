@@ -7,12 +7,19 @@ import { ref } from 'vue'
  * It uses the `dagre` library to calculate the layout of the nodes and edges.
  */
 export function useLayout<NodeData>() {
+
+
+  const blockLayout = ref(false)
   const { findNode } = useVueFlow()
 
   const graph = ref(new dagre.graphlib.Graph())
 
 
   function layout(nodes: Node<NodeData>[], edges: Edge[], direction: 'TB' | 'BT' | 'LR' | 'RL') {
+    if (blockLayout.value) {
+      blockLayout.value = false
+      return nodes
+    }
     // we create a new graph instance, in case some nodes/edges were removed, otherwise dagre would act as if they were still there
     const dagreGraph = new dagre.graphlib.Graph()
 
@@ -47,5 +54,5 @@ export function useLayout<NodeData>() {
     })
   }
 
-  return { graph, layout }
+  return { graph, layout, blockLayout }
 }

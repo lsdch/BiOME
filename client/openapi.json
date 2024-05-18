@@ -288,10 +288,12 @@
 						"type": "array"
 					},
 					"label": {
-						"description": "A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.",
+						"description": "A short label for the habitat.",
 						"examples": [
 							"Lotic"
 						],
+						"maxLength": 32,
+						"minLength": 3,
 						"type": "string"
 					},
 					"meta": {
@@ -308,6 +310,15 @@
 			"HabitatGroup": {
 				"additionalProperties": false,
 				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/HabitatGroup.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
 					"depends": {
 						"$ref": "#/components/schemas/HabitatRecord"
 					},
@@ -345,6 +356,89 @@
 				],
 				"type": "object"
 			},
+			"HabitatGroupInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/HabitatGroupInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"depends": {
+						"description": "Habitat tag that this group is a refinement of",
+						"examples": [
+							"Aquatic, Surface"
+						],
+						"type": "string"
+					},
+					"elements": {
+						"items": {
+							"$ref": "#/components/schemas/HabitatInput"
+						},
+						"type": "array"
+					},
+					"exclusive_elements": {
+						"type": "boolean"
+					},
+					"label": {
+						"description": "Name for the group of habitat tags",
+						"examples": [
+							"Water flow"
+						],
+						"maxLength": 32,
+						"minLength": 3,
+						"type": "string"
+					}
+				},
+				"required": [
+					"label"
+				],
+				"type": "object"
+			},
+			"HabitatGroupUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/HabitatGroupInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"depends": {
+						"description": "Habitat tag that this group is a refinement of",
+						"examples": [
+							"Aquatic, Surface"
+						],
+						"type": "string"
+					},
+					"elements": {
+						"items": {
+							"$ref": "#/components/schemas/HabitatInput"
+						},
+						"type": "array"
+					},
+					"exclusive_elements": {
+						"type": "boolean"
+					},
+					"label": {
+						"description": "Name for the group of habitat tags",
+						"examples": [
+							"Water flow"
+						],
+						"maxLength": 32,
+						"minLength": 3,
+						"type": "string"
+					}
+				},
+				"type": "object"
+			},
 			"HabitatInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -374,10 +468,12 @@
 						"type": "array"
 					},
 					"label": {
-						"description": "A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.",
+						"description": "A short label for the habitat.",
 						"examples": [
 							"Lotic"
 						],
+						"maxLength": 32,
+						"minLength": 3,
 						"type": "string"
 					}
 				},
@@ -405,10 +501,12 @@
 						"type": "array"
 					},
 					"label": {
-						"description": "A short label for the habitat. If the habitat is a specialization of a more general one, it should not repeat the parent label.",
+						"description": "A short label for the habitat.",
 						"examples": [
 							"Lotic"
 						],
+						"maxLength": 32,
+						"minLength": 3,
 						"type": "string"
 					}
 				},
@@ -830,9 +928,6 @@
 					"created_by": {
 						"$ref": "#/components/schemas/UserShortIdentity"
 					},
-					"created_by_user": {
-						"$ref": "#/components/schemas/OptionalUser"
-					},
 					"last_updated": {
 						"format": "date-time",
 						"type": "string"
@@ -843,9 +938,6 @@
 					},
 					"updated_by": {
 						"$ref": "#/components/schemas/UserShortIdentity"
-					},
-					"updated_by_user": {
-						"$ref": "#/components/schemas/OptionalUser"
 					}
 				},
 				"required": [
@@ -864,9 +956,12 @@
 						"type": "string"
 					},
 					"contact": {
+						"format": "email",
 						"type": "string"
 					},
 					"first_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"full_name": {
@@ -878,6 +973,8 @@
 						"type": "string"
 					},
 					"last_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"role": {
@@ -893,46 +990,6 @@
 					"comment",
 					"first_name",
 					"last_name"
-				],
-				"type": "object"
-			},
-			"OptionalUser": {
-				"additionalProperties": false,
-				"properties": {
-					"email": {
-						"format": "email",
-						"type": "string"
-					},
-					"email_confirmed": {
-						"type": "boolean"
-					},
-					"id": {
-						"contentEncoding": "base64",
-						"format": "uuid",
-						"type": "string"
-					},
-					"identity": {
-						"$ref": "#/components/schemas/OptionalPerson"
-					},
-					"is_active": {
-						"type": "boolean"
-					},
-					"login": {
-						"type": "string"
-					},
-					"role": {
-						"$ref": "#/components/schemas/UserRole",
-						"type": "string"
-					}
-				},
-				"required": [
-					"identity",
-					"id",
-					"email",
-					"login",
-					"role",
-					"email_confirmed",
-					"is_active"
 				],
 				"type": "object"
 			},
@@ -1016,9 +1073,12 @@
 						"type": "string"
 					},
 					"contact": {
+						"format": "email",
 						"type": "string"
 					},
 					"first_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"full_name": {
@@ -1036,6 +1096,8 @@
 						"type": "array"
 					},
 					"last_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"meta": {
@@ -1081,9 +1143,12 @@
 						"type": "string"
 					},
 					"contact": {
+						"format": "email",
 						"type": "string"
 					},
 					"first_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"institutions": {
@@ -1093,6 +1158,8 @@
 						"type": "array"
 					},
 					"last_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					}
 				},
@@ -1107,12 +1174,16 @@
 				"additionalProperties": false,
 				"properties": {
 					"first_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"institution": {
 						"type": "string"
 					},
 					"last_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					}
 				},
@@ -1168,9 +1239,12 @@
 						"type": "string"
 					},
 					"contact": {
+						"format": "email",
 						"type": "string"
 					},
 					"first_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"full_name": {
@@ -1182,6 +1256,8 @@
 						"type": "string"
 					},
 					"last_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"role": {
@@ -1568,9 +1644,11 @@
 						"type": "string"
 					},
 					"rank": {
+						"$ref": "#/components/schemas/TaxonRank",
 						"type": "string"
 					},
 					"status": {
+						"$ref": "#/components/schemas/TaxonStatus",
 						"type": "string"
 					}
 				},
@@ -1884,11 +1962,21 @@
 					"alias": {
 						"type": "string"
 					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"login": {
+						"type": "string"
+					},
 					"name": {
 						"type": "string"
 					}
 				},
 				"required": [
+					"id",
+					"login",
 					"name",
 					"alias"
 				],
@@ -3187,6 +3275,30 @@
 		"/locations/habitat-groups": {
 			"get": {
 				"operationId": "ListHabitatGroups",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
 				"responses": {
 					"200": {
 						"content": {
@@ -3223,6 +3335,273 @@
 					}
 				},
 				"summary": "List habitat groups",
+				"tags": [
+					"Location",
+					"Countries"
+				]
+			},
+			"post": {
+				"operationId": "CreateHabitatGroup",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/HabitatGroupInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HabitatGroup"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create habitat group",
+				"tags": [
+					"Location",
+					"Countries"
+				]
+			}
+		},
+		"/locations/habitat-groups/{code}": {
+			"delete": {
+				"operationId": "DeleteHabitatGroup",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HabitatGroup"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Delete habitat group",
+				"tags": [
+					"Location",
+					"Countries"
+				]
+			},
+			"patch": {
+				"operationId": "UpdateHabitatGroup",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"additionalProperties": false,
+								"properties": {
+									"$schema": {
+										"description": "A URL to the JSON Schema for this object.",
+										"examples": [
+											"/api/v1/schemas/HabitatGroupInput.json"
+										],
+										"format": "uri",
+										"readOnly": true,
+										"type": "string"
+									},
+									"depends": {
+										"description": "Habitat tag that this group is a refinement of",
+										"examples": [
+											"Aquatic, Surface"
+										],
+										"type": "string"
+									},
+									"elements": {
+										"items": {
+											"$ref": "#/components/schemas/HabitatInput"
+										},
+										"type": "array"
+									},
+									"exclusive_elements": {
+										"type": "boolean"
+									},
+									"label": {
+										"description": "Name for the group of habitat tags",
+										"examples": [
+											"Water flow"
+										],
+										"maxLength": 32,
+										"minLength": 3,
+										"type": "string"
+									}
+								},
+								"type": "object"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/HabitatGroup"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update habitat group",
 				"tags": [
 					"Location",
 					"Countries"
@@ -4011,23 +4390,19 @@
 				"requestBody": {
 					"content": {
 						"multipart/form-data": {
+							"encoding": {
+								"icon": {
+									"contentType": "image/png"
+								}
+							},
 							"schema": {
-								"properties": {
-									"filename": {
-										"description": "filename of the file being uploaded",
-										"format": "binary",
-										"type": "string"
-									},
-									"name": {
-										"description": "general purpose name for multipart form value",
-										"type": "string"
-									}
-								},
+								"required": [
+									""
+								],
 								"type": "object"
 							}
 						}
-					},
-					"required": true
+					}
 				},
 				"responses": {
 					"204": {
