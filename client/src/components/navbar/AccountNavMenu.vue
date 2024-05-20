@@ -6,7 +6,7 @@
     :icon="smAndDown ? 'mdi-account' : undefined"
     :color="smAndDown ? 'primary' : undefined"
     :text="smAndDown ? '' : 'Sign in'"
-    :to="{ name: 'login' }"
+    :to="{ name: 'login', query: { redirect: $router.currentRoute.value.name?.toString() } }"
   />
   <v-menu
     v-else
