@@ -74,7 +74,7 @@ import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import { Edge, MarkerType, Node, VueFlow, useVueFlow } from '@vue-flow/core'
 import { useMouseInElement } from '@vueuse/core'
-import { computed, inject, nextTick, reactive, ref, toRefs } from 'vue'
+import { computed, inject, nextTick, reactive, ref, toRefs, unref } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
 import { useSelection } from './habitats'
@@ -136,7 +136,7 @@ const form = ref<{ open: boolean; mode: Mode }>({
   mode: 'Create'
 })
 
-const { fitView, getSelectedNodes } = useVueFlow()
+const { fitView, getSelectedNodes, project } = useVueFlow()
 const { layout, blockLayout } = useLayout<HabitatGroup>()
 
 const creating = ref(false)
@@ -145,10 +145,10 @@ const graphElement = ref(null)
 const { elementX: x, elementY: y } = useMouseInElement(graphElement)
 const creationPos = ref({ x: 0, y: 0 })
 
-function onPaneClick() {
+function onPaneClick({ layerX, layerY }: MouseEvent) {
   selection.value = undefined
   if (creating.value) {
-    creationPos.value = { x: x.value, y: y.value }
+    creationPos.value = { x: layerX, y: layerY }
     form.value.open = true
   }
 }
@@ -172,7 +172,8 @@ const { nodes, edges } = toRefs(reactive(collectGraphElements(data)))
 function addCreatedNode(group: HabitatGroup) {
   creating.value = false
   blockLayout.value = true
-  nodes.value.push(createNode(group, { x: x.value, y: y.value }))
+  nodes.value.push(createNode(group, project(creationPos.value)))
+  feedback({ type: 'success', message: `Created node group: ${group.label}` })
 }
 
 const { selection } = useSelection()
@@ -244,7 +245,7 @@ async function layoutGraph(direction: 'LR' | 'TB' | 'BT' | 'RL') {
 
   .creating {
     .vue-flow__pane {
-      cursor: none;
+      // cursor: none;
     }
   }
 }
