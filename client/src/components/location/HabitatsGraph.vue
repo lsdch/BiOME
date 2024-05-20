@@ -1,5 +1,10 @@
 <template>
-  <div class="graph" ref="graphElement" @keyup.esc="console.log('PRESS'), (creating = false)">
+  <div
+    class="graph"
+    ref="graphElement"
+    @keyup.esc="creating = false"
+    @keyup.delete="askDeleteGroups(selectedGroups)"
+  >
     <VueFlow
       :nodes="nodes"
       :edges="edges"
@@ -11,7 +16,6 @@
       @nodes-initialized="layoutGraph('LR')"
       @pane-click="onPaneClick"
       :class="{ creating }"
-      @keyup.esc="console.log('PRESS'), (creating = false)"
     >
       <Background :gap="20" />
       <div v-if="creating" class="text-secondary pa-3">
@@ -53,12 +57,6 @@
       @success="addCreatedNode"
       @close="creating = false"
     />
-    <ConfirmDialog
-      v-model="confirmDialog.open"
-      :title="confirmDialog.title"
-      :message="confirmDialog.message"
-      @confirm="deleteGroups(selectedGroups)"
-    />
   </div>
 </template>
 
@@ -76,40 +74,38 @@ import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import { Edge, MarkerType, Node, VueFlow, useVueFlow } from '@vue-flow/core'
 import { useMouseInElement } from '@vueuse/core'
-import { computed, nextTick, reactive, ref, toRefs } from 'vue'
+import { computed, inject, nextTick, reactive, ref, toRefs } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
 import { useSelection } from './habitats'
 import { useLayout } from './layout'
 
+import { ConfirmDialogKey } from '@/injection'
 import { useFeedback } from '@/stores/feedback'
-import { onKeyStroke } from '@vueuse/core'
-import ConfirmDialog from '../toolkit/ConfirmDialog.vue'
-
-const confirmDialog = ref({
-  open: false,
-  message: '',
-  title: ''
-})
 
 const selectedGroups = computed<HabitatGroup[]>(() => {
   return getSelectedNodes.value.map(({ data }) => data)
 })
 
-onKeyStroke('Escape', () => (creating.value = false))
-onKeyStroke('Delete', () => {
-  if (selectedGroups.value.length > 0)
-    confirmDialog.value = {
-      open: true,
-      title:
-        selectedGroups.value.length > 1
-          ? `Delete ${selectedGroups.value.length} habitat groups ?`
-          : `Delete habitat group ${selectedGroups.value[0].label} ?`,
-      message: 'All terms in group and their references in the database will be deleted.'
-    }
-})
-
+const confirmDeletion = inject(ConfirmDialogKey)
 const { feedback } = useFeedback()
+
+function askDeleteGroups(groups: HabitatGroup[]) {
+  const title =
+    groups.length === 1
+      ? `Delete habitat group ${groups[0].label} ?`
+      : groups.length > 0
+        ? `Delete ${groups.length} habitat groups ?`
+        : null
+  if (title !== null)
+    confirmDeletion?.({
+      title,
+      message: 'All terms in group and their references in the database will be deleted.'
+    }).then(({ isCanceled }) =>
+      isCanceled ? console.info('Group deletion cancelled') : deleteGroups(groups)
+    ) ?? console.error('No confirm dialog provider')
+}
+
 async function deleteGroups(groups: HabitatGroup[]) {
   await Promise.all(
     groups.map((group) => LocationService.deleteHabitatGroup({ code: group.label }))
@@ -195,7 +191,7 @@ function createNode(group: HabitatGroup, position: { x: number; y: number }): No
 function collectGraphElements(groups: HabitatGroup[]) {
   return groups.reduce(
     (acc: { nodes: Node<HabitatGroup>[]; edges: Edge[] }, group) => {
-      const { id, label, depends, exclusive_elements, elements } = group
+      const { id, label, depends } = group
       acc.nodes.push(createNode(group, { x: 0, y: 0 }))
       if (depends) {
         acc.edges.push({

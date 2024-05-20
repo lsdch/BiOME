@@ -1,15 +1,10 @@
 import { ApiError, CancelablePromise } from "@/api"
-import { HttpStatusCode } from "axios"
-import { Ref, UnwrapRef, ref } from "vue"
-import { FeedbackProps } from "../CRUDFeedback.vue"
-import { ConfirmDialogProps } from "../ConfirmDialog.vue"
-import { watchOnce } from '@vueuse/core'
-import { Mode } from "../forms/form"
-import { computed } from "vue"
-import { ComputedRef } from "vue"
-import { onMounted } from "vue"
+import { ConfirmDialogKey } from "@/injection"
 import { useUserStore } from "@/stores/user"
-import { MaybeRef } from "vue"
+import { HttpStatusCode } from "axios"
+import { ComputedRef, MaybeRef, Ref, computed, inject, onMounted, ref } from "vue"
+import { FeedbackProps } from "../CRUDFeedback.vue"
+import { Mode } from "../forms/form"
 
 
 export type SortItem = {
@@ -32,16 +27,11 @@ export type TableProps<ItemType, FetchList extends Function> = {
   crud: {
     list: FetchList
     delete: (item: ItemType) => CancelablePromise<ItemType>
-    // create?: (item: ItemInputType) => CancelablePromise<any>
-    // update: (item: ItemType) => CancelablePromise<any>
   }
   reloadOnDelete?: boolean
 }
 
-type DeleteDialog = {
-  open: boolean
-  props: ConfirmDialogProps
-}
+
 
 type FormSlotScope<ItemType extends { id: string }> = {
   dialog: boolean,
@@ -83,6 +73,8 @@ export function useTable<
   }
 
   onMounted(loadItems)
+
+  const confirmDelete = inject(ConfirmDialogKey)
 
   const actions = {
     edit(item: ItemType) {
@@ -135,20 +127,26 @@ export function useTable<
         form.value.dialog = false
       })
     },
-    delete(item: ItemType) {
-      return new Promise<ItemType>((resolve, reject) => {
-        const message = props.itemRepr
-          ? `Are you sure you want to delete ${props.itemRepr(item)} ?`
-          : 'Are you sure you want to delete this item ?'
-        deleteDialog.value.props.message = message
-        deleteDialog.value.props.onConfirm = () => resolve(item)
-        deleteDialog.value.props.onCancel = () => reject()
-        deleteDialog.value.open = true
-      }).then(executeDelete)
+    async delete(item: ItemType) {
+      const message = props.itemRepr
+        ? `Are you sure you want to delete ${props.itemRepr(item)} ?`
+        : 'Are you sure you want to delete this item ?'
+      console.log(item)
+      await confirmDelete?.({
+        title: "Confirm deletion",
+        message,
+        data: item
+      }).then(({ isCanceled, data }) => {
+        console.log(data)
+        if (isCanceled)
+          console.info("Item deletion canceled")
+        else if (data !== undefined)
+          executeDelete(data)
+      })
     }
   }
 
-  function executeDelete(item: ItemType) {
+  async function executeDelete(item: ItemType) {
     if (!item) {
       console.error('Item to delete is undefined. Aborting.')
       return
@@ -181,14 +179,6 @@ export function useTable<
       })
   }
 
-  const deleteDialog: Ref<DeleteDialog> = ref({
-    open: false,
-    props: {
-      title: 'Confirm',
-      message: '',
-    }
-  })
-
   const feedback = ref<{
     model: boolean
     props: FeedbackProps
@@ -206,5 +196,5 @@ export function useTable<
   })
 
 
-  return { currentUser, items, feedback, deleteDialog, actions, form, processedHeaders, loading, loadItems }
+  return { currentUser, items, feedback, actions, form, processedHeaders, loading, loadItems }
 }

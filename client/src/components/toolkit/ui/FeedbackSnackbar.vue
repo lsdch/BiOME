@@ -33,7 +33,6 @@ function open() {
 }
 watch(isOpen, (state, oldState) => {
   if (oldState && !state) {
-    console.log('HAS CLOSED')
     store.next()
   }
 })

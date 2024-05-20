@@ -108,13 +108,7 @@
       </template>
     </v-data-table>
 
-    <!-- Form dialog with form slot -->
-    <!-- <FormDialog v-model="formDialog" v-if="$slots.form" :mode="formMode" :entityName="entityName">
-    </FormDialog> -->
     <slot name="form" v-bind="form" />
-
-    <!-- Confirm item deletion dialog -->
-    <ConfirmDialog v-model="deleteDialog.open" v-bind="deleteDialog.props" />
 
     <!-- Feedback snackbar -->
     <CRUDFeedback v-model="feedback.model" v-bind="feedback.props" />
@@ -130,22 +124,20 @@
 
 <script setup lang="ts" generic="ItemType extends { id: string; meta?: Meta }">
 import { CancelablePromise, Meta } from '@/api'
+import { useClipboard } from '@vueuse/core'
 import { Ref, UnwrapRef, computed, ref, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { type VDataTable } from 'vuetify/components'
 import { TableProps, useTable } from '.'
 import CRUDFeedback from '../CRUDFeedback.vue'
-import ConfirmDialog from '../ConfirmDialog.vue'
 import ExportDialog from '../ExportDialog.vue'
-import FormDialog from '../forms/FormDialog.vue'
 import ItemDateChip from '../ItemDateChip.vue'
-import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
-import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
-import TableToolbar from './TableToolbar.vue'
-import CRUDItemActions from './CRUDItemActions.vue'
 import { isOwner } from '../meta'
+import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
+import CRUDItemActions from './CRUDItemActions.vue'
+import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableFilterMenu from './TableFilterMenu.vue'
-import { useClipboard } from '@vueuse/core'
+import TableToolbar from './TableToolbar.vue'
 
 type Props = TableProps<ItemType, () => CancelablePromise<ItemType[]>> & {
   filter?: (item: ItemType) => boolean
@@ -167,17 +159,8 @@ defineSlots<
   }
 >()
 
-const {
-  currentUser,
-  items,
-  actions,
-  deleteDialog,
-  feedback,
-  form,
-  processedHeaders,
-  loading,
-  loadItems
-} = useTable(props)
+const { currentUser, items, actions, feedback, form, processedHeaders, loading, loadItems } =
+  useTable(props)
 
 const sortBy = ref<SortItem[]>([])
 
