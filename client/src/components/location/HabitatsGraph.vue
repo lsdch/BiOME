@@ -31,9 +31,6 @@
       >
         {{ creating ? 'Cancel' : 'New group' }}
       </v-fab>
-      <template #node-habitat="props">
-        <HabitatNode v-bind="props" />
-      </template>
       <template #node-group="props">
         <HabitatGroupNode v-bind="props" />
       </template>
@@ -82,7 +79,6 @@ import { useMouseInElement } from '@vueuse/core'
 import { computed, nextTick, reactive, ref, toRefs } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
-import HabitatNode from './HabitatNode.vue'
 import { useSelection } from './habitats'
 import { useLayout } from './layout'
 

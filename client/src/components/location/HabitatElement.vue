@@ -1,40 +1,23 @@
 <template>
-  <div :class="[textClass, 'habitat-item text-no-wrap']" @click="select(habitat, group)">
-    <Handle :id="habitat.id" :position="Position.Right" type="source" />
+  <div
+    :class="[
+      textClass,
+      'habitat-item text-no-wrap',
+      {
+        connecting: startHandle !== null
+      }
+    ]"
+    @click="select(habitat, group)"
+  >
+    <Handle :id="habitat.id" :position="Position.Right" type="source" :connectable-start="false" />
     {{ habitat.label }}
-    <NodeToolbar
-      v-if="isSelected(habitat).value"
-      :is-visible="isSelected(habitat).value"
-      :position="Position.Right"
-      class="d-flex flex-column"
-    >
-      <BtnTooltip key="1" class="ma-1" size="small" icon="mdi-pencil" tooltip="Edit" />
-      <BtnTooltip
-        key="2"
-        v-bind="props"
-        class="ma-1"
-        size="small"
-        icon="mdi-arrow-right"
-        tooltip="Add dependency"
-      />
-      <BtnTooltip
-        key="3"
-        class="ma-1"
-        size="small"
-        color="error"
-        icon="mdi-arrow-right"
-        tooltip="Add incompatibility"
-      />
-    </NodeToolbar>
   </div>
 </template>
 
 <script setup lang="ts">
 import { HabitatGroup, HabitatRecord } from '@/api'
-import { Handle, Position } from '@vue-flow/core'
-import { NodeToolbar } from '@vue-flow/node-toolbar'
+import { Handle, Position, useConnection } from '@vue-flow/core'
 import { computed } from 'vue'
-import BtnTooltip from '../toolkit/ui/BtnTooltip.vue'
 import { useSelection } from './habitats'
 
 const props = defineProps<{
@@ -44,9 +27,7 @@ const props = defineProps<{
 
 const { isSelected, isIncompatibleWithSelection, select } = useSelection()
 
-const inRootGroup = computed(() => {
-  return props.group && !props.group.depends
-})
+const { startHandle } = useConnection()
 
 const textClass = computed(() => {
   if (isSelected(props.habitat).value) return 'text-primary'
@@ -56,17 +37,34 @@ const textClass = computed(() => {
 </script>
 
 <style scoped lang="scss">
+@use 'vuetify';
+
 .vue-flow__handle {
-  // border-radius: 2px;
   width: 2px;
   height: 2px;
+  visibility: hidden;
   &.vue-flow__handle-bottom {
     top: 100%;
   }
   &.vue-flow__handle-right {
     left: 100%;
   }
-  // visibility: hidden;
+}
+
+.connecting {
+  .vue-flow__handle {
+    visibility: visible;
+    background-color: rgb(var(--v-theme-primary));
+    width: 15px;
+    height: 15px;
+    border-radius: 100%;
+    &.connectionindicator {
+      background-color: rgb(var(--v-theme-success));
+    }
+    &.vue-flow__handle-right {
+      left: 92.5%;
+    }
+  }
 }
 
 div.habitat-item {
@@ -77,13 +75,6 @@ div.habitat-item {
   height: 39px;
   line-height: 30px;
   box-sizing: border-box;
-  &.horizontal {
-    padding-left: 10px;
-    padding-right: 10px;
-    text-align: center;
-    border-top: none;
-    border-left: 1px solid grey;
-  }
 }
 
 div.habitat-item:first-child {

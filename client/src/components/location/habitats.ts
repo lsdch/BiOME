@@ -26,9 +26,5 @@ export function useSelection() {
     })
   }
 
-  function isUnreachable(habitat: HabitatRecord, group?: HabitatGroup) {
-
-  }
-
   return { selection, select, isSelected, isIncompatibleWithSelection }
 }
