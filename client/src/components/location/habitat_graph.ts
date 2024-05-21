@@ -1,4 +1,5 @@
-import { HabitatGroup, HabitatRecord } from "@/api"
+import { Habitat, HabitatGroup, HabitatRecord } from "@/api"
+import { computed, ref } from "vue"
 
 export type Dependencies = { dependencies?: (HabitatRecord & { group: HabitatGroup })[] }
 export type ConnectedHabitat = HabitatRecord & Dependencies & {
@@ -10,7 +11,8 @@ export type HabitatsGraph = {
   habitats: Record<string, ConnectedHabitat>
 }
 
-export function addGroup(group: HabitatGroup, graph: HabitatsGraph) {
+
+function addGroup(group: HabitatGroup, graph: HabitatsGraph) {
   graph.groups[group.id] = {
     ...group,
     elements: group.elements.map((habitat) => {
@@ -23,10 +25,10 @@ export function addGroup(group: HabitatGroup, graph: HabitatsGraph) {
 }
 
 /**
- * Indexes groups and their children habitats by UUID,
- * adding references to their groups and dependencies
- * so they can be used as a graph-like structure
- */
+* Indexes groups and their children habitats by UUID,
+* adding references to their groups and dependencies
+* so they can be used as a graph-like structure
+*/
 export function indexGroups(groups: HabitatGroup[]) {
   const index = groups.reduce<HabitatsGraph>(
     (acc: HabitatsGraph, group) => addGroup(group, acc),
@@ -49,4 +51,46 @@ export function indexGroups(groups: HabitatGroup[]) {
     })
   }
   return index
+}
+
+// State management
+
+const habitatGraph = ref<HabitatsGraph>()
+const selection = ref<ConnectedHabitat>()
+
+export function useHabitatGraph(groups?: HabitatGroup[]) {
+
+  function select(habitat: ConnectedHabitat) {
+    selection.value = habitat
+  }
+
+  function isSelected(habitat: ConnectedHabitat) {
+    return computed(() => habitat.id === selection.value?.id)
+  }
+
+  function isIncompatibleWithSelection(habitat: ConnectedHabitat) {
+    return computed(() => {
+      return (selection.value?.incompatible?.find(({ id }) => id === habitat.id)) ||
+        (
+          selection.value?.group.label == habitat.group.label &&
+          selection.value?.id !== habitat.id &&
+          habitat.group.exclusive_elements
+        )
+    })
+  }
+
+  function buildGraph(groups: HabitatGroup[]) {
+    habitatGraph.value = indexGroups(groups)
+    return habitatGraph.value
+  }
+
+  if (groups) {
+    if (habitatGraph.value == undefined)
+      habitatGraph.value = buildGraph(groups)
+    else
+      console.error("Graph is already initialized. Did you call useHabitatGraph with an argument multiple times ?")
+  } else if (habitatGraph.value == undefined)
+    console.error("Graph was never initialized, useHabitatGraph must be called with an argument")
+
+  return { selection, select, isSelected, isIncompatibleWithSelection, addGroup, buildGraph, habitatGraph: habitatGraph.value as HabitatsGraph }
 }

@@ -78,12 +78,11 @@ import { useMouseInElement } from '@vueuse/core'
 import { computed, inject, nextTick, reactive, ref, toRefs } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
-import { useSelection } from './habitats'
 import { useLayout } from './layout'
 
 import { ConfirmDialogKey } from '@/injection'
 import { useFeedback } from '@/stores/feedback'
-import { ConnectedGroup, addGroup, indexGroups } from './habitat_graph'
+import { ConnectedGroup, useHabitatGraph } from './habitat_graph'
 
 const data = await LocationService.listHabitatGroups()
 
@@ -158,8 +157,7 @@ function onPaneClick({ layerX, layerY }: MouseEvent) {
   }
 }
 
-// Lookup table for element group by element ID
-const habitatGraph = indexGroups(data)
+const { selection, habitatGraph, addGroup } = useHabitatGraph(data)
 
 const { nodes, edges } = toRefs(reactive(collectGraphElements(data)))
 
@@ -170,8 +168,6 @@ function addCreatedNode(group: HabitatGroup) {
   nodes.value.push(createNode(habitatGraph.groups[group.id], project(creationPos.value)))
   feedback({ type: 'success', message: `Created node group: ${group.label}` })
 }
-
-const { selection } = useSelection()
 
 function createNode(
   group: ConnectedGroup,

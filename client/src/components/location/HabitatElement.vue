@@ -1,8 +1,5 @@
 <template>
-  <div
-    :class="[textClass, 'habitat-item text-no-wrap', { connecting }]"
-    @click="select(habitat, group)"
-  >
+  <div :class="[textClass, 'habitat-item text-no-wrap', { connecting }]" @click="select(habitat)">
     <Handle
       :id="habitat.id"
       :position="Position.Right"
@@ -15,18 +12,13 @@
 </template>
 
 <script setup lang="ts">
-import { HabitatGroup } from '@/api'
 import { Handle, Position, useConnection } from '@vue-flow/core'
 import { computed } from 'vue'
-import { ConnectedHabitat } from './habitat_graph'
-import { useSelection } from './habitats'
+import { ConnectedHabitat, useHabitatGraph } from './habitat_graph'
 
-const props = defineProps<{
-  habitat: ConnectedHabitat
-  group?: HabitatGroup
-}>()
+const props = defineProps<{ habitat: ConnectedHabitat }>()
 
-const { isSelected, isIncompatibleWithSelection, select } = useSelection()
+const { isSelected, isIncompatibleWithSelection, select } = useHabitatGraph()
 
 const { startHandle } = useConnection()
 
@@ -40,7 +32,7 @@ const connecting = computed(
 
 const textClass = computed(() => {
   if (isSelected(props.habitat).value) return 'text-primary'
-  if (isIncompatibleWithSelection(props.habitat, props.group).value) return 'text-error'
+  if (isIncompatibleWithSelection(props.habitat).value) return 'text-error'
   return ''
 })
 </script>
