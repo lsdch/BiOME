@@ -55,36 +55,28 @@
       </v-list-item>
     </v-list>
   </v-menu>
-  <v-snackbar v-model="snackbar" multi-line :timeout="3000">
-    {{ snackbarText }}
-
-    <template v-slot:actions>
-      <v-btn color="primary" variant="text" @click="snackbar = false"> Close </v-btn>
-    </template>
-  </v-snackbar>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
-import { useRouter } from 'vue-router'
-import { storeToRefs } from 'pinia'
-import { useDisplay } from 'vuetify'
+import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
+import { useRouter } from 'vue-router'
+import { useDisplay } from 'vuetify'
 import { roleIcon } from '../people/userRole'
 
 const { smAndDown } = useDisplay()
 
 const userStore = useUserStore()
 const { user } = storeToRefs(userStore)
-const snackbar = ref(false)
-const snackbarText = 'You are now logged out'
 const router = useRouter()
+
+const { feedback } = useFeedback()
 
 async function logout() {
   await userStore.logout()
   router.push({ name: 'home' })
-  snackbar.value = true
+  feedback({ type: 'info', message: 'You have been logged out' })
 }
 </script>
 
