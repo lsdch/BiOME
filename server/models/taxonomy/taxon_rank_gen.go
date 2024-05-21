@@ -26,17 +26,16 @@ var TaxonRankValues = []TaxonRank{
 
 // Register enum in OpenAPI specification
 func (u TaxonRank) Schema(r huma.Registry) *huma.Schema {
-	schemaRef := r.Schema(reflect.TypeOf(""), true, "TaxonRank")
-  schemaRef.Title = "TaxonRank"
-  for _, v := range TaxonRankValues {
-	  schemaRef.Enum = append(schemaRef.Enum, string(v))
+  if r.Map()["TaxonRank"] == nil {
+    schemaRef := r.Schema(reflect.TypeOf(""), true, "TaxonRank")
+    schemaRef.Title = "TaxonRank"
+    for _, v := range TaxonRankValues {
+      schemaRef.Enum = append(schemaRef.Enum, string(v))
+    }
+    r.Map()["TaxonRank"] = schemaRef
   }
-  r.Map()["TaxonRank"] = schemaRef
 
-
-  schema := r.Schema(reflect.TypeOf(""), true, "TaxonRank")
-  schema.Ref = "#/components/schemas/TaxonRank"
-	return schema
+	return &huma.Schema{Ref: "#/components/schemas/TaxonRank"}
 }
 
 func init () {

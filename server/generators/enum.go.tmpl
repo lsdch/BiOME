@@ -40,17 +40,16 @@ func (u {{.EnumType}}) IsGreaterEqual(v {{.EnumType}}) bool {
 
 // Register enum in OpenAPI specification
 func (u {{ .EnumType }}) Schema(r huma.Registry) *huma.Schema {
-	schemaRef := r.Schema(reflect.TypeOf(""), true, "{{.EnumType}}")
-  schemaRef.Title = "{{.EnumType}}"
-  for _, v := range {{$enumSlice}} {
-	  schemaRef.Enum = append(schemaRef.Enum, string(v))
+  if r.Map()["{{.EnumType}}"] == nil {
+    schemaRef := r.Schema(reflect.TypeOf(""), true, "{{.EnumType}}")
+    schemaRef.Title = "{{.EnumType}}"
+    for _, v := range {{$enumSlice}} {
+      schemaRef.Enum = append(schemaRef.Enum, string(v))
+    }
+    r.Map()["{{.EnumType}}"] = schemaRef
   }
-  r.Map()["{{.EnumType}}"] = schemaRef
 
-
-  schema := r.Schema(reflect.TypeOf(""), true, "{{.EnumType}}")
-  schema.Ref = "#/components/schemas/{{.EnumType}}"
-	return schema
+	return &huma.Schema{Ref: "#/components/schemas/{{.EnumType}}"}
 }
 
 func init () {

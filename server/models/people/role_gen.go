@@ -37,17 +37,16 @@ func (u UserRole) IsGreaterEqual(v UserRole) bool {
 
 // Register enum in OpenAPI specification
 func (u UserRole) Schema(r huma.Registry) *huma.Schema {
-	schemaRef := r.Schema(reflect.TypeOf(""), true, "UserRole")
-  schemaRef.Title = "UserRole"
-  for _, v := range UserRoleValues {
-	  schemaRef.Enum = append(schemaRef.Enum, string(v))
+  if r.Map()["UserRole"] == nil {
+    schemaRef := r.Schema(reflect.TypeOf(""), true, "UserRole")
+    schemaRef.Title = "UserRole"
+    for _, v := range UserRoleValues {
+      schemaRef.Enum = append(schemaRef.Enum, string(v))
+    }
+    r.Map()["UserRole"] = schemaRef
   }
-  r.Map()["UserRole"] = schemaRef
 
-
-  schema := r.Schema(reflect.TypeOf(""), true, "UserRole")
-  schema.Ref = "#/components/schemas/UserRole"
-	return schema
+	return &huma.Schema{Ref: "#/components/schemas/UserRole"}
 }
 
 func init () {

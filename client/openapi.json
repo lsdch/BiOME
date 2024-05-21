@@ -539,8 +539,7 @@
 						"type": "string"
 					},
 					"rank": {
-						"$ref": "#/components/schemas/TaxonRank",
-						"type": "string"
+						"$ref": "#/components/schemas/TaxonRank"
 					},
 					"started": {
 						"format": "date-time",
@@ -695,8 +694,7 @@
 						"$ref": "#/components/schemas/InstitutionKind",
 						"examples": [
 							"Lab"
-						],
-						"type": "string"
+						]
 					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
@@ -748,8 +746,7 @@
 						"$ref": "#/components/schemas/InstitutionKind",
 						"examples": [
 							"Lab"
-						],
-						"type": "string"
+						]
 					},
 					"name": {
 						"examples": [
@@ -794,8 +791,7 @@
 						"$ref": "#/components/schemas/InstitutionKind",
 						"examples": [
 							"Lab"
-						],
-						"type": "string"
+						]
 					},
 					"name": {
 						"examples": [
@@ -849,8 +845,7 @@
 						"$ref": "#/components/schemas/InstitutionKind",
 						"examples": [
 							"Lab"
-						],
-						"type": "string"
+						]
 					},
 					"name": {
 						"examples": [
@@ -886,8 +881,7 @@
 						"format": "uri-template"
 					},
 					"role": {
-						"$ref": "#/components/schemas/UserRole",
-						"type": "string"
+						"$ref": "#/components/schemas/UserRole"
 					}
 				},
 				"required": [
@@ -978,8 +972,7 @@
 						"type": "string"
 					},
 					"role": {
-						"$ref": "#/components/schemas/UserRole",
-						"type": "string"
+						"$ref": "#/components/schemas/UserRole"
 					}
 				},
 				"required": [
@@ -1015,8 +1008,7 @@
 						"type": "string"
 					},
 					"role": {
-						"$ref": "#/components/schemas/UserRole",
-						"type": "string"
+						"$ref": "#/components/schemas/UserRole"
 					}
 				},
 				"required": [
@@ -1104,8 +1096,7 @@
 						"$ref": "#/components/schemas/Meta"
 					},
 					"role": {
-						"$ref": "#/components/schemas/UserRole",
-						"type": "string"
+						"$ref": "#/components/schemas/UserRole"
 					},
 					"user": {
 						"$ref": "#/components/schemas/OptionalUserInner"
@@ -1261,8 +1252,7 @@
 						"type": "string"
 					},
 					"role": {
-						"$ref": "#/components/schemas/UserRole",
-						"type": "string"
+						"$ref": "#/components/schemas/UserRole"
 					},
 					"user": {
 						"$ref": "#/components/schemas/OptionalUserInner"
@@ -1509,15 +1499,13 @@
 						"$ref": "#/components/schemas/TaxonRank",
 						"examples": [
 							"Species"
-						],
-						"type": "string"
+						]
 					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
 						"examples": [
 							"Accepted"
-						],
-						"type": "string"
+						]
 					}
 				},
 				"required": [
@@ -1574,15 +1562,13 @@
 						"$ref": "#/components/schemas/TaxonRank",
 						"examples": [
 							"Species"
-						],
-						"type": "string"
+						]
 					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
 						"examples": [
 							"Accepted"
-						],
-						"type": "string"
+						]
 					}
 				},
 				"required": [
@@ -1644,12 +1630,10 @@
 						"type": "string"
 					},
 					"rank": {
-						"$ref": "#/components/schemas/TaxonRank",
-						"type": "string"
+						"$ref": "#/components/schemas/TaxonRank"
 					},
 					"status": {
-						"$ref": "#/components/schemas/TaxonStatus",
-						"type": "string"
+						"$ref": "#/components/schemas/TaxonStatus"
 					}
 				},
 				"type": "object"
@@ -1718,15 +1702,13 @@
 						"$ref": "#/components/schemas/TaxonRank",
 						"examples": [
 							"Species"
-						],
-						"type": "string"
+						]
 					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
 						"examples": [
 							"Accepted"
-						],
-						"type": "string"
+						]
 					}
 				},
 				"required": [
@@ -1790,15 +1772,13 @@
 						"$ref": "#/components/schemas/TaxonRank",
 						"examples": [
 							"Species"
-						],
-						"type": "string"
+						]
 					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
 						"examples": [
 							"Accepted"
-						],
-						"type": "string"
+						]
 					}
 				},
 				"required": [
@@ -1872,8 +1852,7 @@
 						"type": "string"
 					},
 					"role": {
-						"$ref": "#/components/schemas/UserRole",
-						"type": "string"
+						"$ref": "#/components/schemas/UserRole"
 					}
 				},
 				"required": [
@@ -4712,8 +4691,7 @@
 						"in": "query",
 						"name": "rank",
 						"schema": {
-							"$ref": "#/components/schemas/TaxonRank",
-							"type": "string"
+							"$ref": "#/components/schemas/TaxonRank"
 						}
 					},
 					{
@@ -4721,8 +4699,7 @@
 						"in": "query",
 						"name": "status",
 						"schema": {
-							"$ref": "#/components/schemas/TaxonStatus",
-							"type": "string"
+							"$ref": "#/components/schemas/TaxonStatus"
 						}
 					},
 					{

@@ -455,8 +455,7 @@ export const $ImportProcess = {
       type: 'string'
     },
     rank: {
-      $ref: '#/components/schemas/TaxonRank',
-      type: 'string'
+      $ref: '#/components/schemas/TaxonRank'
     },
     started: {
       format: 'date-time',
@@ -576,8 +575,7 @@ export const $Institution = {
     },
     kind: {
       $ref: '#/components/schemas/InstitutionKind',
-      examples: ['Lab'],
-      type: 'string'
+      examples: ['Lab']
     },
     meta: {
       $ref: '#/components/schemas/Meta'
@@ -616,8 +614,7 @@ export const $InstitutionInner = {
     },
     kind: {
       $ref: '#/components/schemas/InstitutionKind',
-      examples: ['Lab'],
-      type: 'string'
+      examples: ['Lab']
     },
     name: {
       examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
@@ -648,8 +645,7 @@ export const $InstitutionInput = {
     },
     kind: {
       $ref: '#/components/schemas/InstitutionKind',
-      examples: ['Lab'],
-      type: 'string'
+      examples: ['Lab']
     },
     name: {
       examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
@@ -686,8 +682,7 @@ export const $InstitutionUpdate = {
     },
     kind: {
       $ref: '#/components/schemas/InstitutionKind',
-      examples: ['Lab'],
-      type: 'string'
+      examples: ['Lab']
     },
     name: {
       examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
@@ -719,8 +714,7 @@ export const $InvitationInput = {
       format: 'uri-template'
     },
     role: {
-      $ref: '#/components/schemas/UserRole',
-      type: 'string'
+      $ref: '#/components/schemas/UserRole'
     }
   },
   required: ['dest', 'role'],
@@ -805,8 +799,7 @@ export const $OptionalPerson = {
       type: 'string'
     },
     role: {
-      $ref: '#/components/schemas/UserRole',
-      type: 'string'
+      $ref: '#/components/schemas/UserRole'
     }
   },
   required: ['id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
@@ -835,8 +828,7 @@ export const $OptionalUserInner = {
       type: 'string'
     },
     role: {
-      $ref: '#/components/schemas/UserRole',
-      type: 'string'
+      $ref: '#/components/schemas/UserRole'
     }
   },
   required: ['id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
@@ -912,8 +904,7 @@ export const $Person = {
       $ref: '#/components/schemas/Meta'
     },
     role: {
-      $ref: '#/components/schemas/UserRole',
-      type: 'string'
+      $ref: '#/components/schemas/UserRole'
     },
     user: {
       $ref: '#/components/schemas/OptionalUserInner'
@@ -1062,8 +1053,7 @@ export const $PersonUser = {
       type: 'string'
     },
     role: {
-      $ref: '#/components/schemas/UserRole',
-      type: 'string'
+      $ref: '#/components/schemas/UserRole'
     },
     user: {
       $ref: '#/components/schemas/OptionalUserInner'
@@ -1282,13 +1272,11 @@ export const $Taxon = {
     },
     rank: {
       $ref: '#/components/schemas/TaxonRank',
-      examples: ['Species'],
-      type: 'string'
+      examples: ['Species']
     },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
-      examples: ['Accepted'],
-      type: 'string'
+      examples: ['Accepted']
     }
   },
   required: [
@@ -1336,13 +1324,11 @@ export const $TaxonInput = {
     },
     rank: {
       $ref: '#/components/schemas/TaxonRank',
-      examples: ['Species'],
-      type: 'string'
+      examples: ['Species']
     },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
-      examples: ['Accepted'],
-      type: 'string'
+      examples: ['Accepted']
     }
   },
   required: ['parent', 'name', 'status', 'rank'],
@@ -1388,12 +1374,10 @@ export const $TaxonUpdate = {
       type: 'string'
     },
     rank: {
-      $ref: '#/components/schemas/TaxonRank',
-      type: 'string'
+      $ref: '#/components/schemas/TaxonRank'
     },
     status: {
-      $ref: '#/components/schemas/TaxonStatus',
-      type: 'string'
+      $ref: '#/components/schemas/TaxonStatus'
     }
   },
   type: 'object'
@@ -1451,13 +1435,11 @@ export const $TaxonWithRelatives = {
     },
     rank: {
       $ref: '#/components/schemas/TaxonRank',
-      examples: ['Species'],
-      type: 'string'
+      examples: ['Species']
     },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
-      examples: ['Accepted'],
-      type: 'string'
+      examples: ['Accepted']
     }
   },
   required: [
@@ -1512,13 +1494,11 @@ export const $TaxonWithRelativesParentStruct = {
     },
     rank: {
       $ref: '#/components/schemas/TaxonRank',
-      examples: ['Species'],
-      type: 'string'
+      examples: ['Species']
     },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
-      examples: ['Accepted'],
-      type: 'string'
+      examples: ['Accepted']
     }
   },
   required: [
@@ -1587,8 +1567,7 @@ export const $User = {
       type: 'string'
     },
     role: {
-      $ref: '#/components/schemas/UserRole',
-      type: 'string'
+      $ref: '#/components/schemas/UserRole'
     }
   },
   required: ['identity', 'id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],

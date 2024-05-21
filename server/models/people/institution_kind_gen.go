@@ -23,17 +23,16 @@ var InstitutionKindValues = []InstitutionKind{
 
 // Register enum in OpenAPI specification
 func (u InstitutionKind) Schema(r huma.Registry) *huma.Schema {
-	schemaRef := r.Schema(reflect.TypeOf(""), true, "InstitutionKind")
-  schemaRef.Title = "InstitutionKind"
-  for _, v := range InstitutionKindValues {
-	  schemaRef.Enum = append(schemaRef.Enum, string(v))
+  if r.Map()["InstitutionKind"] == nil {
+    schemaRef := r.Schema(reflect.TypeOf(""), true, "InstitutionKind")
+    schemaRef.Title = "InstitutionKind"
+    for _, v := range InstitutionKindValues {
+      schemaRef.Enum = append(schemaRef.Enum, string(v))
+    }
+    r.Map()["InstitutionKind"] = schemaRef
   }
-  r.Map()["InstitutionKind"] = schemaRef
 
-
-  schema := r.Schema(reflect.TypeOf(""), true, "InstitutionKind")
-  schema.Ref = "#/components/schemas/InstitutionKind"
-	return schema
+	return &huma.Schema{Ref: "#/components/schemas/InstitutionKind"}
 }
 
 func init () {
