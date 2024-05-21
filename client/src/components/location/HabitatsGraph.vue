@@ -13,8 +13,9 @@
       :max-zoom="4"
       snap-to-grid
       :snap-grid="[20, 20]"
-      @nodes-initialized="layoutGraph('LR')"
+      @nodes-initialized="layoutGraph()"
       @pane-click="onPaneClick"
+      connect-on-click
       :class="{ creating }"
     >
       <Background :gap="20" />
@@ -23,7 +24,7 @@
         <pre>Esc: cancel group creation</pre>
       </div>
       <Controls>
-        <ControlButton @click="layoutGraph('LR')">
+        <ControlButton @click="layoutGraph()">
           <v-icon class="text-black">mdi-graph</v-icon>
         </ControlButton>
       </Controls>
@@ -74,7 +75,7 @@ import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import { Edge, MarkerType, Node, VueFlow, useVueFlow } from '@vue-flow/core'
 import { useMouseInElement } from '@vueuse/core'
-import { computed, inject, nextTick, reactive, ref, toRefs, unref } from 'vue'
+import { computed, inject, nextTick, reactive, ref, toRefs } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
 import { useSelection } from './habitats'
@@ -82,13 +83,27 @@ import { useLayout } from './layout'
 
 import { ConfirmDialogKey } from '@/injection'
 import { useFeedback } from '@/stores/feedback'
+import { ConnectedGroup, addGroup, indexGroups } from './habitat_graph'
+
+const data = await LocationService.listHabitatGroups()
 
 const selectedGroups = computed<HabitatGroup[]>(() => {
   return getSelectedNodes.value.map(({ data }) => data)
 })
 
-const confirmDeletion = inject(ConfirmDialogKey)
+/**
+ * Creation mode: cursor displays as a node template to place on the graph
+ */
+const creating = ref(false)
+const form = ref<{ open: boolean; mode: Mode }>({
+  open: false,
+  mode: 'Create'
+})
+
+const { fitView, getSelectedNodes, project } = useVueFlow()
+
 const { feedback } = useFeedback()
+const confirmDeletion = inject(ConfirmDialogKey)
 
 function askDeleteGroups(groups: HabitatGroup[]) {
   const title =
@@ -131,16 +146,6 @@ async function deleteGroups(groups: HabitatGroup[]) {
     })
 }
 
-const form = ref<{ open: boolean; mode: Mode }>({
-  open: false,
-  mode: 'Create'
-})
-
-const { fitView, getSelectedNodes, project } = useVueFlow()
-const { layout, blockLayout } = useLayout<HabitatGroup>()
-
-const creating = ref(false)
-
 const graphElement = ref(null)
 const { elementX: x, elementY: y } = useMouseInElement(graphElement)
 const creationPos = ref({ x: 0, y: 0 })
@@ -153,32 +158,25 @@ function onPaneClick({ layerX, layerY }: MouseEvent) {
   }
 }
 
-const data = await LocationService.listHabitatGroups()
-
 // Lookup table for element group by element ID
-const nodeIndex = data.reduce(
-  (
-    acc: Record<string, { group: { id: string; label: string } }>,
-    { id: groupId, label: groupLabel, elements }
-  ) => {
-    elements.forEach(({ id }) => (acc[id] = { group: { id: groupId, label: groupLabel } }))
-    return acc
-  },
-  {}
-)
+const habitatGraph = indexGroups(data)
 
 const { nodes, edges } = toRefs(reactive(collectGraphElements(data)))
 
 function addCreatedNode(group: HabitatGroup) {
   creating.value = false
   blockLayout.value = true
-  nodes.value.push(createNode(group, project(creationPos.value)))
+  addGroup(group, habitatGraph)
+  nodes.value.push(createNode(habitatGraph.groups[group.id], project(creationPos.value)))
   feedback({ type: 'success', message: `Created node group: ${group.label}` })
 }
 
 const { selection } = useSelection()
 
-function createNode(group: HabitatGroup, position: { x: number; y: number }): Node<HabitatGroup> {
+function createNode(
+  group: ConnectedGroup,
+  position: { x: number; y: number }
+): Node<ConnectedGroup> {
   const { id, label } = group
   return {
     id,
@@ -191,13 +189,13 @@ function createNode(group: HabitatGroup, position: { x: number; y: number }): No
 
 function collectGraphElements(groups: HabitatGroup[]) {
   return groups.reduce(
-    (acc: { nodes: Node<HabitatGroup>[]; edges: Edge[] }, group) => {
+    (acc: { nodes: Node<ConnectedGroup>[]; edges: Edge[] }, group) => {
       const { id, label, depends } = group
-      acc.nodes.push(createNode(group, { x: 0, y: 0 }))
+      acc.nodes.push(createNode(habitatGraph.groups[group.id], { x: 0, y: 0 }))
       if (depends) {
         acc.edges.push({
           id: `edge-${depends.label}-${label}`,
-          source: nodeIndex[depends.id].group.id ?? depends.id,
+          source: habitatGraph.habitats[depends.id].group.id ?? depends.id,
           sourceHandle: depends.id,
           target: id,
           type: 'smoothstep',
@@ -214,11 +212,12 @@ function collectGraphElements(groups: HabitatGroup[]) {
   )
 }
 
-async function layoutGraph(direction: 'LR' | 'TB' | 'BT' | 'RL') {
+const { layout, blockLayout } = useLayout<ConnectedGroup>()
+async function layoutGraph() {
   nodes.value = layout(
     nodes.value.filter(({ parentNode }) => !parentNode),
     edges.value,
-    direction
+    'LR'
   )
 
   nextTick(() => {
@@ -245,7 +244,7 @@ async function layoutGraph(direction: 'LR' | 'TB' | 'BT' | 'RL') {
 
   .creating {
     .vue-flow__pane {
-      // cursor: none;
+      cursor: none;
     }
   }
 }

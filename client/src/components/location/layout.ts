@@ -8,7 +8,6 @@ import { ref } from 'vue'
  */
 export function useLayout<NodeData>() {
 
-
   const blockLayout = ref(false)
   const { findNode } = useVueFlow()
 
@@ -54,5 +53,18 @@ export function useLayout<NodeData>() {
     })
   }
 
-  return { graph, layout, blockLayout }
+  return {
+    /**
+     * Graph representation using `dagre`
+     */
+    graph,
+    /**
+     * Trigger automatic layout of graph nodes
+     */
+    layout,
+    /**
+     * Block next automatic layout attempt
+     */
+    blockLayout,
+  }
 }

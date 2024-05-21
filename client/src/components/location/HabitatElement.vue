@@ -1,33 +1,42 @@
 <template>
   <div
-    :class="[
-      textClass,
-      'habitat-item text-no-wrap',
-      {
-        connecting: startHandle !== null
-      }
-    ]"
+    :class="[textClass, 'habitat-item text-no-wrap', { connecting }]"
     @click="select(habitat, group)"
   >
-    <Handle :id="habitat.id" :position="Position.Right" type="source" :connectable-start="false" />
+    <Handle
+      :id="habitat.id"
+      :position="Position.Right"
+      type="source"
+      :connectable-start="false"
+      :connectable-end="connecting"
+    />
     {{ habitat.label }}
   </div>
 </template>
 
 <script setup lang="ts">
-import { HabitatGroup, HabitatRecord } from '@/api'
+import { HabitatGroup } from '@/api'
 import { Handle, Position, useConnection } from '@vue-flow/core'
 import { computed } from 'vue'
+import { ConnectedHabitat } from './habitat_graph'
 import { useSelection } from './habitats'
 
 const props = defineProps<{
-  habitat: HabitatRecord
+  habitat: ConnectedHabitat
   group?: HabitatGroup
 }>()
 
 const { isSelected, isIncompatibleWithSelection, select } = useSelection()
 
 const { startHandle } = useConnection()
+
+const connecting = computed(
+  () =>
+    startHandle.value != null &&
+    props.habitat.group.id != startHandle.value.nodeId &&
+    props.habitat.dependencies?.find(({ group: { id } }) => id === startHandle.value?.nodeId) ===
+      undefined
+)
 
 const textClass = computed(() => {
   if (isSelected(props.habitat).value) return 'text-primary'
@@ -51,7 +60,7 @@ const textClass = computed(() => {
   }
 }
 
-.connecting {
+.habitat-item.connecting {
   .vue-flow__handle {
     visibility: visible;
     background-color: rgb(var(--v-theme-primary));

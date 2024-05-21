@@ -16,12 +16,20 @@
 
       <Handle
         v-if="selected && !data.depends"
+        :id="data.id"
         class="button"
         :position="Position.Left"
         type="source"
       >
-        <template v-if="selected" #default="{ id }">
-          <BtnTooltip :id="id" size="x-small" icon="mdi-arrow-left-bold" tooltip="Edit" flat />
+        <template #default="{ id }">
+          <BtnTooltip
+            v-if="selected"
+            :id="id"
+            size="x-small"
+            icon="mdi-arrow-left-bold"
+            tooltip="Edit"
+            flat
+          />
         </template>
       </Handle>
     </div>
@@ -29,13 +37,13 @@
 </template>
 
 <script setup lang="ts">
-import { HabitatGroup } from '@/api'
 import { Handle, NodeProps, Position } from '@vue-flow/core'
 import { computed } from 'vue'
 import BtnTooltip from '../toolkit/ui/BtnTooltip.vue'
 import HabitatElement from './HabitatElement.vue'
+import { ConnectedGroup } from './habitat_graph'
 
-const props = defineProps<NodeProps<HabitatGroup>>()
+const props = defineProps<NodeProps<ConnectedGroup>>()
 
 const sideLabel = computed(() => (props.data.elements.length > 1 ? props.data.label : undefined))
 </script>
