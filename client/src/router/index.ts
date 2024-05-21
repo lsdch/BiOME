@@ -1,18 +1,16 @@
 import NotFound from '@/components/navigation/NotFound.vue'
-import { useUserStore } from '@/stores/user'
-import { storeToRefs } from 'pinia'
 import { nextTick } from "vue"
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useGuards } from './guards'
+import { useInstanceSettings } from '@/components/settings/settings'
 
 
 // Default app title to display
-const DEFAULT_TITLE = import.meta.env.VITE_APP_NAME
-
+const { settings } = useInstanceSettings()
 function makeTitle(title: string) {
-  return `${DEFAULT_TITLE} - ${title}`
+  return `${settings.name} | ${title}`
 }
 
 export type RouteDefinition = RouteRecordRaw & {
@@ -154,7 +152,7 @@ function router() {
     // Use next tick to handle router history correctly
     // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
     nextTick(() => {
-      document.title = to.meta?.title ?? DEFAULT_TITLE;
+      document.title = to.meta?.title ?? settings.name;
     });
   });
 

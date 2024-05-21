@@ -34,7 +34,7 @@ import { VTextField } from 'vuetify/components'
 import { VTreeview } from 'vuetify/labs/VTreeview'
 
 import { useUserStore } from './stores/user'
-import { SettingsService } from './api'
+import { useInstanceSettings } from './components/settings/settings'
 const vuetify = createVuetify({
   blueprint: md3,
   components: {
@@ -77,10 +77,9 @@ const vuetify = createVuetify({
   }
 })
 
-const settings = await SettingsService.instanceSettings()
+const { settings } = useInstanceSettings()
 const app = createApp(App, { settings })
 
-// Must be
 const pinia = createPinia()
 setActivePinia(pinia)
 app.use(pinia)
