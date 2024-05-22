@@ -1,5 +1,5 @@
-import { Habitat, HabitatGroup, HabitatRecord } from "@/api"
-import { computed, ref } from "vue"
+import { HabitatGroup, HabitatRecord } from "@/api"
+import { computed, ref, watch } from "vue"
 
 export type Dependencies = { dependencies?: (HabitatRecord & { group: HabitatGroup })[] }
 export type ConnectedHabitat = HabitatRecord & Dependencies & {
@@ -57,12 +57,26 @@ export function indexGroups(groups: HabitatGroup[]) {
 
 const habitatGraph = ref<HabitatsGraph>()
 const selection = ref<ConnectedHabitat>()
+const connection = ref<{
+  source: {
+    group: ConnectedGroup
+    x: number
+    y: number
+  }
+  target?: {
+    habitat: ConnectedHabitat
+    x: number
+    y: number
+  }
+}>()
 
 export function useHabitatGraph(groups?: HabitatGroup[]) {
 
   function select(habitat: ConnectedHabitat) {
     selection.value = habitat
   }
+
+  watch(selection, () => connection.value = undefined)
 
   function isSelected(habitat: ConnectedHabitat) {
     return computed(() => habitat.id === selection.value?.id)
@@ -84,6 +98,7 @@ export function useHabitatGraph(groups?: HabitatGroup[]) {
     return habitatGraph.value
   }
 
+  // Graph initialization
   if (groups) {
     if (habitatGraph.value == undefined)
       habitatGraph.value = buildGraph(groups)
@@ -92,5 +107,5 @@ export function useHabitatGraph(groups?: HabitatGroup[]) {
   } else if (habitatGraph.value == undefined)
     console.error("Graph was never initialized, useHabitatGraph must be called with an argument")
 
-  return { selection, select, isSelected, isIncompatibleWithSelection, addGroup, buildGraph, habitatGraph: habitatGraph.value as HabitatsGraph }
+  return { connection, selection, select, isSelected, isIncompatibleWithSelection, addGroup, buildGraph, habitatGraph: habitatGraph.value as HabitatsGraph }
 }

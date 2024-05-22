@@ -20,16 +20,29 @@
         class="button"
         :position="Position.Left"
         type="source"
+        @mousedown="
+          ({ layerX: x, layerY: y }: MouseEvent) => {
+            connection = { source: { group: data, x, y } }
+            console.log(connection)
+          }
+        "
       >
         <template #default="{ id }">
           <BtnTooltip
-            v-if="selected"
+            v-if="selected && !connection?.source"
             :id="id"
             size="x-small"
             icon="mdi-arrow-left-bold"
             tooltip="Edit"
             flat
           />
+          <v-progress-circular
+            v-else-if="connection?.source != undefined"
+            indeterminate
+            color="warning"
+          >
+            <v-icon icon="mdi-arrow-left-bold" size="small"></v-icon>
+          </v-progress-circular>
         </template>
       </Handle>
     </div>
@@ -41,9 +54,11 @@ import { Handle, NodeProps, Position } from '@vue-flow/core'
 import { computed } from 'vue'
 import BtnTooltip from '../toolkit/ui/BtnTooltip.vue'
 import HabitatElement from './HabitatElement.vue'
-import { ConnectedGroup } from './habitat_graph'
+import { ConnectedGroup, useHabitatGraph } from './habitat_graph'
 
 const props = defineProps<NodeProps<ConnectedGroup>>()
+
+const { connection } = useHabitatGraph()
 
 const sideLabel = computed(() => (props.data.elements.length > 1 ? props.data.label : undefined))
 </script>

@@ -12,22 +12,21 @@
 </template>
 
 <script setup lang="ts">
-import { Handle, Position, useConnection } from '@vue-flow/core'
+import { Handle, Position } from '@vue-flow/core'
 import { computed } from 'vue'
 import { ConnectedHabitat, useHabitatGraph } from './habitat_graph'
 
 const props = defineProps<{ habitat: ConnectedHabitat }>()
 
-const { isSelected, isIncompatibleWithSelection, select } = useHabitatGraph()
-
-const { startHandle } = useConnection()
+const { isSelected, isIncompatibleWithSelection, select, connection } = useHabitatGraph()
 
 const connecting = computed(
   () =>
-    startHandle.value != null &&
-    props.habitat.group.id != startHandle.value.nodeId &&
-    props.habitat.dependencies?.find(({ group: { id } }) => id === startHandle.value?.nodeId) ===
-      undefined
+    connection.value != null &&
+    props.habitat.group.id != connection.value.source.group.id &&
+    props.habitat.dependencies?.find(
+      ({ group: { id } }) => id === connection.value?.source.group.id
+    ) === undefined
 )
 
 const textClass = computed(() => {

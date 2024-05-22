@@ -9,8 +9,8 @@
       :nodes="nodes"
       :edges="edges"
       :default-viewport="{ zoom: 10 }"
-      :min-zoom="0.2"
-      :max-zoom="4"
+      :min-zoom="0.4"
+      :max-zoom="2"
       snap-to-grid
       :snap-grid="[20, 20]"
       @nodes-initialized="layoutGraph()"
@@ -99,7 +99,22 @@ const form = ref<{ open: boolean; mode: Mode }>({
   mode: 'Create'
 })
 
-const { fitView, getSelectedNodes, project } = useVueFlow()
+const { fitView, getSelectedNodes, project, onConnect } = useVueFlow()
+
+onConnect(({ source, target, targetHandle }) => {
+  edges.value.push({
+    id: `edge-${target}-${source}`,
+    target: source,
+    source: target,
+    sourceHandle: targetHandle,
+    type: 'smoothstep',
+    markerEnd: {
+      type: MarkerType.ArrowClosed,
+      width: 30,
+      height: 30
+    }
+  })
+})
 
 const { feedback } = useFeedback()
 const confirmDeletion = inject(ConfirmDialogKey)
