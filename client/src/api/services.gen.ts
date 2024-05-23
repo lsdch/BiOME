@@ -922,6 +922,43 @@ export class LocationService {
   }
 
   /**
+   * Set dependency of habitat group to habitat
+   * @param data The data for the request.
+   * @param data.code
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @param data.setDepends
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static setHabitatGroupDepends(
+    data: $OpenApiTs['/locations/habitat-groups/{code}/set-depends']['post']['req']
+  ): CancelablePromise<
+    $OpenApiTs['/locations/habitat-groups/{code}/set-depends']['post']['res'][200]
+  > {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/locations/habitat-groups/{code}/set-depends',
+      path: {
+        code: data.code
+      },
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      query: {
+        'set-depends': data.setDepends
+      },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
    * List habitats
    * @param data The data for the request.
    * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -1122,6 +1159,43 @@ export class CountriesService {
       },
       body: data.requestBody,
       mediaType: 'application/json',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Set dependency of habitat group to habitat
+   * @param data The data for the request.
+   * @param data.code
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @param data.setDepends
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static setHabitatGroupDepends(
+    data: $OpenApiTs['/locations/habitat-groups/{code}/set-depends']['post']['req']
+  ): CancelablePromise<
+    $OpenApiTs['/locations/habitat-groups/{code}/set-depends']['post']['res'][200]
+  > {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/locations/habitat-groups/{code}/set-depends',
+      path: {
+        code: data.code
+      },
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      query: {
+        'set-depends': data.setDepends
+      },
       errors: {
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'

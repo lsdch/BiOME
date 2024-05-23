@@ -119,7 +119,7 @@ func (t HabitatGroupUpdate) Update(db edgedb.Executor, label string) (id edgedb.
 func SetHabitatGroupParent(db edgedb.Executor, groupLabel string, parentHabitatLabel string) (*HabitatGroup, error) {
 	var updated HabitatGroup
 	err := db.QuerySingle(context.Background(),
-		`select (update location::HabitatGroup filter .id = <uuid>$0 set {
+		`select (update location::HabitatGroup filter .label = <str>$0 set {
 			depends := assert_exists((select location::Habitat filter .label = <str>$1))
 		}) { ** }`,
 		&updated, groupLabel, parentHabitatLabel)

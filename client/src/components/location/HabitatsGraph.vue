@@ -18,6 +18,10 @@
       @pane-click="onPaneClick"
       connect-on-click
       :class="{ creating }"
+      :connection-line-options="{
+        type: ConnectionLineType.SmoothStep,
+        class: `${connection.status.value} animated`
+      }"
     >
       <Background :gap="20" />
       <div v-if="creating" class="text-secondary pa-3">
@@ -77,8 +81,17 @@ import { HabitatGroup, LocationService } from '@/api'
 import { type Mode } from '@/components/toolkit/forms/form'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
-import { Edge, MarkerType, Node, VueFlow, XYPosition, useVueFlow } from '@vue-flow/core'
-import { useMouseInElement } from '@vueuse/core'
+import {
+  Edge,
+  MarkerType,
+  Node,
+  VueFlow,
+  XYPosition,
+  useVueFlow,
+  ConnectionLineType,
+  useConnection
+} from '@vue-flow/core'
+import { useConfirmDialog, useMouseInElement } from '@vueuse/core'
 import { computed, inject, nextTick, reactive, ref, toRefs } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
@@ -86,7 +99,7 @@ import { useLayout } from './layout'
 
 import { ConfirmDialogKey } from '@/injection'
 import { useFeedback } from '@/stores/feedback'
-import { ConnectedGroup, useHabitatGraph } from './habitat_graph'
+import { ConnectedGroup, registerGroup, useHabitatGraph } from './habitat_graph'
 import { NodeData } from './layout'
 
 const data = await LocationService.listHabitatGroups()
@@ -104,20 +117,50 @@ const form = ref<{ open: boolean; mode: Mode }>({
   mode: 'Create'
 })
 
-const { fitView, getSelectedNodes, project, onConnect, updateNodeInternals } = useVueFlow()
+const connection = useConnection()
 
-onConnect(({ source, target, targetHandle }) => {
-  edges.value.push({
-    id: `e-${target}-${source}`,
-    target: source,
-    source: target,
-    sourceHandle: targetHandle,
-    markerEnd: {
-      type: MarkerType.ArrowClosed,
-      width: 30,
-      height: 30
-    }
+const {
+  fitView,
+  getSelectedNodes,
+  project,
+  onConnect,
+  updateNodeInternals,
+  updateNodeData,
+  endConnection
+} = useVueFlow()
+
+const askConfirm = inject(ConfirmDialogKey)
+
+onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitatID }) => {
+  const group = habitatGraph.groups[groupID]
+  const habitat = habitatGraph.habitats[dependHabitatID!]
+  askConfirm?.({
+    title: 'Confirm connection',
+    message: `Set group ${group.label} as a refinement of ${habitat.label} ?`
   })
+    .then(async ({ isCanceled }) => {
+      if (isCanceled) return
+      await LocationService.setHabitatGroupDepends({
+        code: group.label,
+        setDepends: habitat.label
+      }).then((updated) => {
+        edges.value.push({
+          id: `e-${dependHabitatID}-${groupID}`,
+          target: groupID,
+          source: dependGroupID,
+          sourceHandle: dependHabitatID,
+          markerEnd: {
+            type: MarkerType.ArrowClosed,
+            width: 20,
+            height: 20
+          }
+        })
+        registerGroup(updated, habitatGraph)
+        updateNodeData(groupID, { depends: habitatGraph.habitats[dependHabitatID!] })
+      })
+    })
+    .finally(() => endConnection()) ??
+    console.error('Failed to inject confirmation dialog in component')
 })
 
 const { feedback } = useFeedback()
@@ -233,8 +276,8 @@ function collectGraphElements(groups: HabitatGroup[]) {
           target: id,
           markerEnd: {
             type: MarkerType.ArrowClosed,
-            width: 30,
-            height: 30
+            width: 20,
+            height: 20
           }
         })
       }
@@ -256,6 +299,19 @@ async function layoutGraph() {
 </script>
 
 <style lang="scss">
+@use 'vuetify';
+.vue-flow__edge-path {
+  stroke-width: 2px;
+}
+
+.vue-flow__connection-path {
+  stroke-width: 3px;
+  stroke: rgb(var(--v-theme-primary));
+  &.valid {
+    stroke: rgb(var(--v-theme-success));
+  }
+}
+
 #new-group-template {
   position: absolute;
   overflow: hidden;

@@ -11,7 +11,6 @@ export type HabitatsGraph = {
   habitats: Record<string, ConnectedHabitat>
 }
 
-
 function addGroup(group: HabitatGroup, graph: HabitatsGraph) {
   graph.groups[group.id] = {
     ...group,
@@ -23,6 +22,26 @@ function addGroup(group: HabitatGroup, graph: HabitatsGraph) {
     })
   }
   return graph
+}
+
+export function registerGroup(group: HabitatGroup, graph: HabitatsGraph) {
+  addGroup(group, graph)
+  if (group.depends) {
+    const depends = graph.habitats[group.depends.id]
+    updateDependencies(graph, group.id, [depends].concat(depends.dependencies ?? []))
+  }
+}
+
+function updateDependencies(
+  graph: HabitatsGraph,
+  groupID: string,
+  dependencies: (HabitatRecord & { group: HabitatGroup })[]
+) {
+  graph.groups[groupID].dependencies = dependencies
+  graph.groups[groupID].elements = graph.groups[groupID].elements.map((habitat) => {
+    graph.habitats[habitat.id].dependencies = graph.groups[groupID].dependencies
+    return graph.habitats[habitat.id]
+  })
 }
 
 /**
@@ -45,11 +64,7 @@ export function indexGroups(groups: HabitatGroup[]) {
     }
   }
   for (const key in index.groups) {
-    index.groups[key].dependencies = collectDepends(index.groups[key])
-    index.groups[key].elements = index.groups[key].elements.map((habitat) => {
-      index.habitats[habitat.id].dependencies = index.groups[key].dependencies
-      return index.habitats[habitat.id]
-    })
+    updateDependencies(index, key, collectDepends(index.groups[key]))
   }
   return index
 }

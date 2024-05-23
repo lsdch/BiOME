@@ -1,5 +1,12 @@
 <template>
-  <div :class="[textClass, 'habitat-item text-no-wrap', { connecting }]" @click="select(habitat)">
+  <div
+    :class="[
+      textClass,
+      'habitat-item text-no-wrap',
+      { connecting, 'text-success font-weight-bold': endHandle?.handleId === habitat.id }
+    ]"
+    @click="select(habitat)"
+  >
     <Handle
       :id="habitat.id"
       :position="Position.Right"
@@ -12,22 +19,23 @@
 </template>
 
 <script setup lang="ts">
-import { Handle, Position } from '@vue-flow/core'
+import { Handle, Position, useConnection } from '@vue-flow/core'
 import { computed } from 'vue'
 import { ConnectedHabitat, useHabitatGraph } from './habitat_graph'
 
 const props = defineProps<{ habitat: ConnectedHabitat }>()
 
-const { isSelected, isIncompatibleWithSelection, select, connection } = useHabitatGraph()
+const { isSelected, isIncompatibleWithSelection, select } = useHabitatGraph()
+const { startHandle, endHandle } = useConnection()
 
-const connecting = computed(
-  () =>
-    connection.value != null &&
-    props.habitat.group.id != connection.value.source.group.id &&
-    props.habitat.dependencies?.find(
-      ({ group: { id } }) => id === connection.value?.source.group.id
-    ) === undefined
-)
+const connecting = computed(() => {
+  return (
+    startHandle.value !== null &&
+    props.habitat.group.id != startHandle.value?.nodeId &&
+    props.habitat.dependencies?.find(({ group: { id } }) => id === startHandle.value?.nodeId) ===
+      undefined
+  )
+})
 
 const textClass = computed(() => {
   if (isSelected(props.habitat).value) return 'text-primary'
@@ -55,9 +63,10 @@ const textClass = computed(() => {
   .vue-flow__handle {
     visibility: visible;
     background-color: rgb(var(--v-theme-primary));
-    width: 15px;
-    height: 15px;
+    width: 20px;
+    height: 20px;
     border-radius: 100%;
+    border-color: grey;
     &.connectionindicator {
       background-color: rgb(var(--v-theme-success));
     }

@@ -25,8 +25,9 @@ type HabitatRecord struct {
 }
 
 type OptionalHabitatRecord struct {
-	edgedb.Optional
-	HabitatRecord `edgedb:"$inline"`
+	edgedb.Optional `json:"-"`
+	_               struct{} `nullable:"true"`
+	HabitatRecord   `edgedb:"$inline" json:",omitempty"`
 }
 
 type Habitat struct {

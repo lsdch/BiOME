@@ -1432,6 +1432,36 @@ export type $OpenApiTs = {
       }
     }
   }
+  '/locations/habitat-groups/{code}/set-depends': {
+    post: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        code: string
+        setDepends?: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: HabitatGroup
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
   '/locations/habitats': {
     get: {
       req: {
