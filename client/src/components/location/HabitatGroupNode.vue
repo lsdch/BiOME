@@ -23,7 +23,6 @@
         @mousedown="
           ({ layerX: x, layerY: y }: MouseEvent) => {
             connection = { source: { group: data, x, y } }
-            console.log(connection)
           }
         "
       >
@@ -60,7 +59,8 @@ const props = defineProps<NodeProps<ConnectedGroup>>()
 
 const { connection } = useHabitatGraph()
 
-const sideLabel = computed(() => (props.data.elements.length > 1 ? props.data.label : undefined))
+// const sideLabel = computed(() => (props.data.elements.length > 1 ? props.data.label : undefined))
+const sideLabel = computed(() => props.data.label)
 </script>
 
 <style lang="scss">

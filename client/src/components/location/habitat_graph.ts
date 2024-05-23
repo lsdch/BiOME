@@ -5,7 +5,7 @@ export type Dependencies = { dependencies?: (HabitatRecord & { group: HabitatGro
 export type ConnectedHabitat = HabitatRecord & Dependencies & {
   group: HabitatGroup
 }
-export type ConnectedGroup = HabitatGroup & Dependencies & { elements: ConnectedHabitat[] }
+export type ConnectedGroup = HabitatGroup & Dependencies & { depends?: ConnectedHabitat, elements: ConnectedHabitat[] }
 export type HabitatsGraph = {
   groups: { [k: string]: ConnectedGroup }
   habitats: Record<string, ConnectedHabitat>
@@ -15,6 +15,7 @@ export type HabitatsGraph = {
 function addGroup(group: HabitatGroup, graph: HabitatsGraph) {
   graph.groups[group.id] = {
     ...group,
+    depends: group.depends ? graph.habitats[group.depends.id] : undefined,
     elements: group.elements.map((habitat) => {
       const h = { ...habitat, group }
       graph.habitats[h.id] = h

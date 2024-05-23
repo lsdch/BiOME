@@ -62,7 +62,8 @@ const textClass = computed(() => {
       background-color: rgb(var(--v-theme-success));
     }
     &.vue-flow__handle-right {
-      left: 92.5%;
+      left: unset;
+      right: -4px;
     }
   }
 }

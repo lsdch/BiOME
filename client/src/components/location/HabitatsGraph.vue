@@ -5,6 +5,7 @@
     @keyup.esc="creating = false"
     @keyup.delete="askDeleteGroups(selectedGroups)"
   >
+    <!-- :nodes="nodes.filter((node) => node.type === 'group')" -->
     <VueFlow
       :nodes="nodes"
       :edges="edges"
@@ -38,6 +39,9 @@
       </v-fab>
       <template #node-group="props">
         <HabitatGroupNode v-bind="props" />
+      </template>
+      <template #node-habitat="props">
+        {{ props.data.label }}
       </template>
     </VueFlow>
     <div
@@ -73,7 +77,7 @@ import { HabitatGroup, LocationService } from '@/api'
 import { type Mode } from '@/components/toolkit/forms/form'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
-import { Edge, MarkerType, Node, VueFlow, useVueFlow } from '@vue-flow/core'
+import { Edge, MarkerType, Node, VueFlow, XYPosition, useVueFlow } from '@vue-flow/core'
 import { useMouseInElement } from '@vueuse/core'
 import { computed, inject, nextTick, reactive, ref, toRefs } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
@@ -83,6 +87,7 @@ import { useLayout } from './layout'
 import { ConfirmDialogKey } from '@/injection'
 import { useFeedback } from '@/stores/feedback'
 import { ConnectedGroup, useHabitatGraph } from './habitat_graph'
+import { NodeData } from './layout'
 
 const data = await LocationService.listHabitatGroups()
 
@@ -99,15 +104,14 @@ const form = ref<{ open: boolean; mode: Mode }>({
   mode: 'Create'
 })
 
-const { fitView, getSelectedNodes, project, onConnect } = useVueFlow()
+const { fitView, getSelectedNodes, project, onConnect, updateNodeInternals } = useVueFlow()
 
 onConnect(({ source, target, targetHandle }) => {
   edges.value.push({
-    id: `edge-${target}-${source}`,
+    id: `e-${target}-${source}`,
     target: source,
     source: target,
     sourceHandle: targetHandle,
-    type: 'smoothstep',
     markerEnd: {
       type: MarkerType.ArrowClosed,
       width: 30,
@@ -180,36 +184,53 @@ function addCreatedNode(group: HabitatGroup) {
   creating.value = false
   blockLayout.value = true
   addGroup(group, habitatGraph)
-  nodes.value.push(createNode(habitatGraph.groups[group.id], project(creationPos.value)))
-  feedback({ type: 'success', message: `Created node group: ${group.label}` })
+  nodes.value.push(
+    createNode(habitatGraph.groups[group.id], {
+      cluster: group.id,
+      position: project(creationPos.value),
+      type: 'group'
+    })
+  )
+  feedback({ type: 'success', message: `Created habitat group: ${group.label}` })
 }
 
 function createNode(
   group: ConnectedGroup,
-  position: { x: number; y: number }
-): Node<ConnectedGroup> {
+  options: Partial<Node<NodeData>> & {
+    cluster: string
+    position: XYPosition
+    type: 'group' | 'habitat'
+  }
+): Node<NodeData> {
   const { id, label } = group
   return {
     id,
     label,
-    position,
-    data: group,
-    type: 'group'
+    data:
+      options.type === 'group'
+        ? { ...group, cluster: options.cluster }
+        : { ...group, cluster: options.cluster },
+    ...options
   }
 }
 
 function collectGraphElements(groups: HabitatGroup[]) {
-  return groups.reduce(
-    (acc: { nodes: Node<ConnectedGroup>[]; edges: Edge[] }, group) => {
+  return groups.reduce<{ nodes: Node<NodeData>[]; edges: Edge[] }>(
+    (acc, group) => {
       const { id, label, depends } = group
-      acc.nodes.push(createNode(habitatGraph.groups[group.id], { x: 0, y: 0 }))
+      acc.nodes.push(
+        createNode(habitatGraph.groups[group.id], {
+          cluster: id,
+          type: 'group',
+          position: { x: 0, y: 0 }
+        })
+      )
       if (depends) {
         acc.edges.push({
           id: `edge-${depends.label}-${label}`,
-          source: habitatGraph.habitats[depends.id].group.id ?? depends.id,
+          source: habitatGraph.habitats[depends.id].group.id,
           sourceHandle: depends.id,
           target: id,
-          type: 'smoothstep',
           markerEnd: {
             type: MarkerType.ArrowClosed,
             width: 30,
@@ -223,15 +244,12 @@ function collectGraphElements(groups: HabitatGroup[]) {
   )
 }
 
-const { layout, blockLayout } = useLayout<ConnectedGroup>()
+const { layout, blockLayout } = useLayout()
 async function layoutGraph() {
-  nodes.value = layout(
-    nodes.value.filter(({ parentNode }) => !parentNode),
-    edges.value,
-    'LR'
-  )
-
+  nodes.value = layout(nodes.value, edges.value, 'LR')
   nextTick(() => {
+    // Update wrt new handle positions
+    updateNodeInternals()
     fitView()
   })
 }
