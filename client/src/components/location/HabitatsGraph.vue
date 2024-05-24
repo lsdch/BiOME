@@ -82,16 +82,16 @@ import { type Mode } from '@/components/toolkit/forms/form'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import {
+  ConnectionLineType,
   Edge,
   MarkerType,
   Node,
   VueFlow,
   XYPosition,
-  useVueFlow,
-  ConnectionLineType,
-  useConnection
+  useConnection,
+  useVueFlow
 } from '@vue-flow/core'
-import { useConfirmDialog, useMouseInElement } from '@vueuse/core'
+import { useMouseInElement } from '@vueuse/core'
 import { computed, inject, nextTick, reactive, ref, toRefs } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'

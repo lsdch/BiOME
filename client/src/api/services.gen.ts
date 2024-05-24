@@ -800,7 +800,7 @@ export class LocationService {
   }
 
   /**
-   * List habitat groups
+   * List habitats
    * @param data The data for the request.
    * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
    * @param data.authToken Session cookie containing JWT
@@ -808,11 +808,11 @@ export class LocationService {
    * @throws ApiError
    */
   public static listHabitatGroups(
-    data: $OpenApiTs['/locations/habitat-groups']['get']['req'] = {}
-  ): CancelablePromise<$OpenApiTs['/locations/habitat-groups']['get']['res'][200]> {
+    data: $OpenApiTs['/locations/habitats']['get']['req'] = {}
+  ): CancelablePromise<$OpenApiTs['/locations/habitats']['get']['res'][200]> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/locations/habitat-groups',
+      url: '/locations/habitats',
       cookies: {
         auth_token: data.authToken
       },
@@ -836,11 +836,11 @@ export class LocationService {
    * @throws ApiError
    */
   public static createHabitatGroup(
-    data: $OpenApiTs['/locations/habitat-groups']['post']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitat-groups']['post']['res'][200]> {
+    data: $OpenApiTs['/locations/habitats']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/locations/habitats']['post']['res'][200]> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/locations/habitat-groups',
+      url: '/locations/habitats',
       cookies: {
         auth_token: data.authToken
       },
@@ -866,11 +866,11 @@ export class LocationService {
    * @throws ApiError
    */
   public static deleteHabitatGroup(
-    data: $OpenApiTs['/locations/habitat-groups/{code}']['delete']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitat-groups/{code}']['delete']['res'][200]> {
+    data: $OpenApiTs['/locations/habitats/{code}']['delete']['req']
+  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['delete']['res'][200]> {
     return __request(OpenAPI, {
       method: 'DELETE',
-      url: '/locations/habitat-groups/{code}',
+      url: '/locations/habitats/{code}',
       path: {
         code: data.code
       },
@@ -898,11 +898,11 @@ export class LocationService {
    * @throws ApiError
    */
   public static updateHabitatGroup(
-    data: $OpenApiTs['/locations/habitat-groups/{code}']['patch']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitat-groups/{code}']['patch']['res'][200]> {
+    data: $OpenApiTs['/locations/habitats/{code}']['patch']['req']
+  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['patch']['res'][200]> {
     return __request(OpenAPI, {
       method: 'PATCH',
-      url: '/locations/habitat-groups/{code}',
+      url: '/locations/habitats/{code}',
       path: {
         code: data.code
       },
@@ -932,13 +932,11 @@ export class LocationService {
    * @throws ApiError
    */
   public static setHabitatGroupDepends(
-    data: $OpenApiTs['/locations/habitat-groups/{code}/set-depends']['post']['req']
-  ): CancelablePromise<
-    $OpenApiTs['/locations/habitat-groups/{code}/set-depends']['post']['res'][200]
-  > {
+    data: $OpenApiTs['/locations/habitats/{code}']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['post']['res'][200]> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/locations/habitat-groups/{code}/set-depends',
+      url: '/locations/habitats/{code}',
       path: {
         code: data.code
       },
@@ -951,63 +949,6 @@ export class LocationService {
       query: {
         'set-depends': data.setDepends
       },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * List habitats
-   * @param data The data for the request.
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns Habitat OK
-   * @throws ApiError
-   */
-  public static listHabitats(
-    data: $OpenApiTs['/locations/habitats']['get']['req'] = {}
-  ): CancelablePromise<$OpenApiTs['/locations/habitats']['get']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/locations/habitats',
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Create habitat
-   * @param data The data for the request.
-   * @param data.requestBody
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns Habitat OK
-   * @throws ApiError
-   */
-  public static createHabitat(
-    data: $OpenApiTs['/locations/habitats']['post']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats']['post']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/locations/habitats',
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      body: data.requestBody,
-      mediaType: 'application/json',
       errors: {
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'
@@ -1045,7 +986,7 @@ export class CountriesService {
   }
 
   /**
-   * List habitat groups
+   * List habitats
    * @param data The data for the request.
    * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
    * @param data.authToken Session cookie containing JWT
@@ -1053,11 +994,11 @@ export class CountriesService {
    * @throws ApiError
    */
   public static listHabitatGroups(
-    data: $OpenApiTs['/locations/habitat-groups']['get']['req'] = {}
-  ): CancelablePromise<$OpenApiTs['/locations/habitat-groups']['get']['res'][200]> {
+    data: $OpenApiTs['/locations/habitats']['get']['req'] = {}
+  ): CancelablePromise<$OpenApiTs['/locations/habitats']['get']['res'][200]> {
     return __request(OpenAPI, {
       method: 'GET',
-      url: '/locations/habitat-groups',
+      url: '/locations/habitats',
       cookies: {
         auth_token: data.authToken
       },
@@ -1081,11 +1022,11 @@ export class CountriesService {
    * @throws ApiError
    */
   public static createHabitatGroup(
-    data: $OpenApiTs['/locations/habitat-groups']['post']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitat-groups']['post']['res'][200]> {
+    data: $OpenApiTs['/locations/habitats']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/locations/habitats']['post']['res'][200]> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/locations/habitat-groups',
+      url: '/locations/habitats',
       cookies: {
         auth_token: data.authToken
       },
@@ -1111,11 +1052,11 @@ export class CountriesService {
    * @throws ApiError
    */
   public static deleteHabitatGroup(
-    data: $OpenApiTs['/locations/habitat-groups/{code}']['delete']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitat-groups/{code}']['delete']['res'][200]> {
+    data: $OpenApiTs['/locations/habitats/{code}']['delete']['req']
+  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['delete']['res'][200]> {
     return __request(OpenAPI, {
       method: 'DELETE',
-      url: '/locations/habitat-groups/{code}',
+      url: '/locations/habitats/{code}',
       path: {
         code: data.code
       },
@@ -1143,11 +1084,11 @@ export class CountriesService {
    * @throws ApiError
    */
   public static updateHabitatGroup(
-    data: $OpenApiTs['/locations/habitat-groups/{code}']['patch']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitat-groups/{code}']['patch']['res'][200]> {
+    data: $OpenApiTs['/locations/habitats/{code}']['patch']['req']
+  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['patch']['res'][200]> {
     return __request(OpenAPI, {
       method: 'PATCH',
-      url: '/locations/habitat-groups/{code}',
+      url: '/locations/habitats/{code}',
       path: {
         code: data.code
       },
@@ -1177,13 +1118,11 @@ export class CountriesService {
    * @throws ApiError
    */
   public static setHabitatGroupDepends(
-    data: $OpenApiTs['/locations/habitat-groups/{code}/set-depends']['post']['req']
-  ): CancelablePromise<
-    $OpenApiTs['/locations/habitat-groups/{code}/set-depends']['post']['res'][200]
-  > {
+    data: $OpenApiTs['/locations/habitats/{code}']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['post']['res'][200]> {
     return __request(OpenAPI, {
       method: 'POST',
-      url: '/locations/habitat-groups/{code}/set-depends',
+      url: '/locations/habitats/{code}',
       path: {
         code: data.code
       },
@@ -1196,63 +1135,6 @@ export class CountriesService {
       query: {
         'set-depends': data.setDepends
       },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * List habitats
-   * @param data The data for the request.
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns Habitat OK
-   * @throws ApiError
-   */
-  public static listHabitats(
-    data: $OpenApiTs['/locations/habitats']['get']['req'] = {}
-  ): CancelablePromise<$OpenApiTs['/locations/habitats']['get']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/locations/habitats',
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Create habitat
-   * @param data The data for the request.
-   * @param data.requestBody
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns Habitat OK
-   * @throws ApiError
-   */
-  public static createHabitat(
-    data: $OpenApiTs['/locations/habitats']['post']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats']['post']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/locations/habitats',
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      body: data.requestBody,
-      mediaType: 'application/json',
       errors: {
         422: 'Unprocessable Entity',
         500: 'Internal Server Error'

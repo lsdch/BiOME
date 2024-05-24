@@ -217,46 +217,6 @@ export const $ErrorModel = {
   type: 'object'
 } as const
 
-export const $Habitat = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/Habitat.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    description: {
-      description: 'Optional habitat description',
-      type: 'string'
-    },
-    id: {
-      contentEncoding: 'base64',
-      format: 'uuid',
-      type: 'string'
-    },
-    incompatible: {
-      items: {
-        $ref: '#/components/schemas/HabitatRecord'
-      },
-      type: 'array'
-    },
-    label: {
-      description: 'A short label for the habitat.',
-      examples: ['Lotic'],
-      maxLength: 32,
-      minLength: 3,
-      type: 'string'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    }
-  },
-  required: ['meta', 'id', 'label'],
-  type: 'object'
-} as const
-
 export const $HabitatGroup = {
   additionalProperties: false,
   properties: {
@@ -371,13 +331,6 @@ export const $HabitatGroupUpdate = {
 export const $HabitatInput = {
   additionalProperties: false,
   properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/HabitatInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
     description: {
       description: 'Optional habitat description',
       type: 'string'

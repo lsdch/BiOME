@@ -29,7 +29,7 @@ type Country struct {
 	NbLocalities int64       `json:"nbLocalities" edgedb:"nb_localities" minimum:"0"`
 } // @name Country
 
-func List(db edgedb.Executor) (countries []Country, err error) {
+func ListCountries(db edgedb.Executor) (countries []Country, err error) {
 	query := `select
 		location::Country {
 			*, nb_localities := count(.localities)

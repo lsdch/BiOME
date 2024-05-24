@@ -124,24 +124,6 @@ export type ErrorModel = {
   type?: string
 }
 
-export type Habitat = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  /**
-   * Optional habitat description
-   */
-  description?: string
-  id: string
-  incompatible?: Array<HabitatRecord>
-  /**
-   * A short label for the habitat.
-   */
-  label: string
-  meta: Meta
-}
-
 export type HabitatGroup = {
   /**
    * A URL to the JSON Schema for this object.
@@ -193,10 +175,6 @@ export type HabitatGroupUpdate = {
 }
 
 export type HabitatInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
   /**
    * Optional habitat description
    */
@@ -1305,7 +1283,7 @@ export type $OpenApiTs = {
       }
     }
   }
-  '/locations/habitat-groups': {
+  '/locations/habitats': {
     get: {
       req: {
         /**
@@ -1360,7 +1338,7 @@ export type $OpenApiTs = {
       }
     }
   }
-  '/locations/habitat-groups/{code}': {
+  '/locations/habitats/{code}': {
     delete: {
       req: {
         /**
@@ -1431,8 +1409,6 @@ export type $OpenApiTs = {
         500: ErrorModel
       }
     }
-  }
-  '/locations/habitat-groups/{code}/set-depends': {
     post: {
       req: {
         /**
@@ -1451,61 +1427,6 @@ export type $OpenApiTs = {
          * OK
          */
         200: HabitatGroup
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
-         * Internal Server Error
-         */
-        500: ErrorModel
-      }
-    }
-  }
-  '/locations/habitats': {
-    get: {
-      req: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        authorization?: string
-        /**
-         * Session cookie containing JWT
-         */
-        authToken?: string
-      }
-      res: {
-        /**
-         * OK
-         */
-        200: Array<Habitat>
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
-         * Internal Server Error
-         */
-        500: ErrorModel
-      }
-    }
-    post: {
-      req: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        authorization?: string
-        /**
-         * Session cookie containing JWT
-         */
-        authToken?: string
-        requestBody: HabitatInput
-      }
-      res: {
-        /**
-         * OK
-         */
-        200: Habitat
         /**
          * Unprocessable Entity
          */
