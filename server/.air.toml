@@ -22,7 +22,7 @@ poll = false
 poll_interval = 0
 post_cmd = ["cd ../client && pnpm gen-client"]
 # run code generation, e.g. swaggo
-pre_cmd = ["go generate"]
+pre_cmd = ["clear", "go generate"]
 rerun = false
 rerun_delay = 500
 send_interrupt = false
