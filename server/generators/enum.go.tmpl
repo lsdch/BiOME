@@ -6,10 +6,8 @@ package {{ .Pkg }}
 import (
 	"reflect"
 
-  "fmt"
 	"github.com/danielgtaylor/huma/v2"
-  "github.com/go-faker/faker/v4"
-	"math/rand"
+  "github.com/brianvoe/gofakeit/v7"
 )
 
 {{- range .Enums }}
@@ -52,14 +50,8 @@ func (u {{ .EnumType }}) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{Ref: "#/components/schemas/{{.EnumType}}"}
 }
 
-func init () {
-  // Faker
-  faker.AddProvider("{{.EnumType}}",
-    func(v reflect.Value) (interface{}, error) {
-      idx := rand.Intn(len({{$enumSlice}}))
-      fmt.Printf("Called provided for {{.EnumType}}: %s\n", {{.EnumType}}({{$enumSlice}}[idx]))
-      return string({{$enumSlice}}[idx]), nil
-    })
+func (m *{{.EnumType}}) Fake(f *gofakeit.Faker) (any, error) {
+	return string({{$enumSlice}}[f.IntN(len({{$enumSlice}}) - 1)]), nil
 }
 
 // EdgeDB Marshalling

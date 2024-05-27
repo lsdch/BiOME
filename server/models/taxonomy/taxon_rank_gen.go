@@ -6,10 +6,8 @@ package taxonomy
 import (
 	"reflect"
 
-  "fmt"
 	"github.com/danielgtaylor/huma/v2"
-  "github.com/go-faker/faker/v4"
-	"math/rand"
+  "github.com/brianvoe/gofakeit/v7"
 )
 
 
@@ -38,14 +36,8 @@ func (u TaxonRank) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{Ref: "#/components/schemas/TaxonRank"}
 }
 
-func init () {
-  // Faker
-  faker.AddProvider("TaxonRank",
-    func(v reflect.Value) (interface{}, error) {
-      idx := rand.Intn(len(TaxonRankValues))
-      fmt.Printf("Called provided for TaxonRank: %s\n", TaxonRank(TaxonRankValues[idx]))
-      return string(TaxonRankValues[idx]), nil
-    })
+func (m *TaxonRank) Fake(f *gofakeit.Faker) (any, error) {
+	return string(TaxonRankValues[f.IntN(len(TaxonRankValues) - 1)]), nil
 }
 
 // EdgeDB Marshalling
