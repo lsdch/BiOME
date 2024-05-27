@@ -81,6 +81,10 @@ func (g group) WithTags(tags []string) group {
 	return g
 }
 
+func (g group) RouteGroup(prefix string) group {
+	return group{router: g.router, API: g.API, Prefix: path.Join(g.Prefix, prefix), Tags: g.Tags}
+}
+
 type Endpoint[I, O any] func(context.Context, *I) (*O, error)
 
 func Register[I, O any](
