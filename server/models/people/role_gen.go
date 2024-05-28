@@ -6,10 +6,8 @@ package people
 import (
 	"reflect"
 
-  "fmt"
 	"github.com/danielgtaylor/huma/v2"
-  "github.com/go-faker/faker/v4"
-	"math/rand"
+  "github.com/brianvoe/gofakeit/v7"
 )
 
 
@@ -49,14 +47,8 @@ func (u UserRole) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{Ref: "#/components/schemas/UserRole"}
 }
 
-func init () {
-  // Faker
-  faker.AddProvider("UserRole",
-    func(v reflect.Value) (interface{}, error) {
-      idx := rand.Intn(len(UserRoleValues))
-      fmt.Printf("Called provided for UserRole: %s\n", UserRole(UserRoleValues[idx]))
-      return string(UserRoleValues[idx]), nil
-    })
+func (m *UserRole) Fake(f *gofakeit.Faker) (any, error) {
+	return string(UserRoleValues[f.IntN(len(UserRoleValues) - 1)]), nil
 }
 
 // EdgeDB Marshalling

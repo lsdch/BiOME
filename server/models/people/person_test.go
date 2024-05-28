@@ -31,7 +31,7 @@ func TestPerson(t *testing.T) {
 		alias := input.GenerateAlias()
 		p, err := input.Create(client)
 		require.NoError(t, err)
-		assert.Equal(t, p.Alias, *alias)
+		assert.Equal(t, p.Alias, alias)
 	})
 
 	t.Run("Delete person", func(t *testing.T) {
@@ -62,12 +62,13 @@ func TestPerson(t *testing.T) {
 		t.Parallel()
 		p := SetupPerson(t, client)
 		u := tests.FakeData[people.PersonUpdate](t)
+		u.FirstName.IsSet = true
 		json, _ := json.Marshal(u)
 		id, err := u.Update(client, p.ID)
 		require.NoErrorf(t, err, "%s", json)
 		assert.Equal(t, p.ID, id)
 		p, err = people.FindPerson(client, p.ID)
 		require.NoError(t, err)
-		assert.Equal(t, p.FirstName, *u.FirstName)
+		assert.Equal(t, p.FirstName, u.FirstName.Value)
 	})
 }

@@ -6,15 +6,15 @@ import (
 	"errors"
 	"testing"
 
+	"github.com/brianvoe/gofakeit/v7"
 	"github.com/edgedb/edgedb-go"
-	"github.com/go-faker/faker/v4"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
 
 func FakeData[T any](t *testing.T) *T {
 	item := new(T)
-	require.NoError(t, faker.FakeData(item))
+	require.NoError(t, gofakeit.Struct(item))
 	logrus.Debugf("Generated item %+v", item)
 	return item
 }

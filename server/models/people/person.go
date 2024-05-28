@@ -3,6 +3,7 @@ package people
 import (
 	"context"
 	"darco/proto/db"
+	"darco/proto/models"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -13,8 +14,8 @@ import (
 )
 
 type PersonIdentity struct {
-	FirstName string `json:"first_name" edgedb:"first_name" minLength:"2" maxLength:"32" faker:"first_name"`
-	LastName  string `json:"last_name" edgedb:"last_name" minLength:"2" maxLength:"32" faker:"last_name"`
+	FirstName string `json:"first_name" edgedb:"first_name" minLength:"2" maxLength:"32" fake:"{firstname}"`
+	LastName  string `json:"last_name" edgedb:"last_name" minLength:"2" maxLength:"32" fake:"{lastname}"`
 }
 
 // PersonInner contains all properties defining a person, excluding links to related entities
@@ -74,13 +75,13 @@ func (person Person) Delete(db edgedb.Executor) (Person, error) {
 
 type PersonInput struct {
 	PersonIdentity
-	Institutions []string `json:"institutions" binding:"omitempty,exist_all=people::Institution.code" faker:"len=10,slice_len=2"`
-	Alias        *string  `json:"alias,omitempty" binding:"unique_str=people::Person.alias" faker:"-"`
-	Contact      *string  `json:"contact,omitempty" format:"email" faker:"email"`
-	Comment      *string  `json:"comment,omitempty" faker:"sentence"`
-} // @name PersonInput
+	Institutions []string                     `json:"institutions" binding:"omitempty,exist_all=people::Institution.code" fakesize:"2"`
+	Alias        models.OptionalInput[string] `json:"alias,omitempty" binding:"unique_str=people::Person.alias" fake:"-"`
+	Contact      models.OptionalInput[string] `json:"contact,omitempty" format:"email"`
+	Comment      models.OptionalInput[string] `json:"comment,omitempty"`
+}
 
-func (p *PersonIdentity) GenerateAlias() *string {
+func (p *PersonIdentity) GenerateAlias() string {
 	first_initial := ""
 	if len(p.FirstName) > 0 {
 		first_initial = string(p.FirstName[0])
@@ -96,12 +97,12 @@ func (p *PersonIdentity) GenerateAlias() *string {
 		query, &conflicts, alias,
 	); err != nil {
 		logrus.Errorf("Error while checking for Person.alias duplicates: %v", err)
-		return nil
+		return ""
 	}
 	if conflicts > 0 {
 		alias = alias + fmt.Sprint(conflicts)
 	}
-	return &alias
+	return alias
 }
 
 //go:embed queries/create_person.edgeql
@@ -109,8 +110,8 @@ var personCreateQuery string
 
 func (person PersonInput) Create(db edgedb.Executor) (created Person, err error) {
 	logrus.Infof("Creating person %+v", person)
-	if person.Alias == nil || *person.Alias == "" {
-		person.Alias = person.GenerateAlias()
+	if !person.Alias.IsSet {
+		person.Alias.Value = person.GenerateAlias()
 	}
 	args, _ := json.Marshal(person)
 	err = db.QuerySingle(context.Background(), personCreateQuery, &created, args)
@@ -118,13 +119,13 @@ func (person PersonInput) Create(db edgedb.Executor) (created Person, err error)
 }
 
 type PersonUpdate struct {
-	FirstName    *string   `json:"first_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32" faker:"first_name"`
-	LastName     *string   `json:"last_name,omitempty" binding:"omitnil,min=2,alphaunicode,max=32" faker:"last_name"`
-	Contact      *string   `json:"contact,omitempty" binding:"omitnil,nullemail" faker:"email"`
-	Institutions *[]string `json:"institutions,omitempty" binding:"omitnil,exist_all=people::Institution.code" faker:"len=10,slice_len=3"` // Institution codes
-	Alias        *string   `json:"alias,omitempty" binding:"omitnil,min=3" faker:"word,len=5"`
-	Comment      *string   `json:"comment,omitempty" binding:"omitnil" faker:"sentence"`
-} // @name PersonUpdate
+	FirstName    models.OptionalInput[string]   `json:"first_name,omitempty" minLength:"2" maxLength:"32"`
+	LastName     models.OptionalInput[string]   `json:"last_name,omitempty" minLength:"2" maxLength:"32"`
+	Contact      models.OptionalNull[string]    `json:"contact,omitempty" binding:"omitnil,nullemail" `
+	Institutions models.OptionalInput[[]string] `json:"institutions,omitempty" binding:"omitnil,exist_all=people::Institution.code" fakesize:"3"` // Institution codes
+	Alias        models.OptionalInput[string]   `json:"alias,omitempty" binding:"omitnil,min=3"`
+	Comment      models.OptionalNull[string]    `json:"comment,omitempty" binding:"omitnil"`
+}
 
 //go:embed queries/update_person.edgeql
 var personUpdateQuery string

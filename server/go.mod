@@ -5,12 +5,12 @@ go 1.22
 replace github.com/danielgtaylor/huma/v2 => ../../huma
 
 require (
-	github.com/danielgtaylor/huma/v2 v2.16.0
+	github.com/brianvoe/gofakeit/v7 v7.0.3
+	github.com/danielgtaylor/huma/v2 v2.17.0
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc
 	github.com/disintegration/imaging v1.6.2
 	github.com/edgedb/edgedb-go v0.17.1
 	github.com/gin-gonic/gin v1.10.0
-	github.com/go-faker/faker/v4 v4.4.1
 	github.com/go-playground/validator/v10 v10.20.0
 	github.com/goccy/go-yaml v1.11.3
 	github.com/golang-jwt/jwt v3.2.2+incompatible

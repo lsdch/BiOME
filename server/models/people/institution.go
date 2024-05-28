@@ -2,6 +2,7 @@ package people
 
 import (
 	"context"
+	"darco/proto/models"
 	_ "embed"
 	"encoding/json"
 
@@ -9,16 +10,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type InstitutionInfos struct {
+	Name string          `json:"name" edgedb:"name" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés" minLength:"10" maxLength:"128" fake:"{company}"`
+	Code string          `json:"code" edgedb:"code" example:"LEHNA" minLength:"2" maxLength:"12" fake:"{word}"`
+	Kind InstitutionKind `json:"kind" edgedb:"kind" example:"Lab"`
+}
+
 type InstitutionInput struct {
-	Name        string             `json:"name" edgedb:"name" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés" binding:"required,min=10,max=128"`
-	Code        string             `json:"code" edgedb:"code" example:"LEHNA" binding:"required,alphanum,min=2,max=12" faker:"word,len=10"`
-	Kind        InstitutionKind    `json:"kind" edgedb:"kind" example:"Lab" faker:"InstitutionKind"`
-	Description edgedb.OptionalStr `json:"description,omitempty" edgedb:"description" example:"Where this database was born."`
+	InstitutionInfos `edgedb:"$inline"`
+	Description      models.OptionalInput[string] `json:"description,omitempty" edgedb:"description" example:"Where this database was born."`
 }
 
 type InstitutionInner struct {
 	ID               edgedb.UUID `json:"id" edgedb:"id" format:"uuid" binding:"required"`
-	InstitutionInput `edgedb:"$inline"`
+	InstitutionInfos `edgedb:"$inline" json:",inline"`
+	Description      edgedb.OptionalStr `json:"description,omitempty" edgedb:"description" example:"Where this database was born."`
 }
 
 type Institution struct {
@@ -64,18 +70,32 @@ func (inst InstitutionInput) Create(db edgedb.Executor) (created Institution, er
 }
 
 type InstitutionUpdate struct {
-	Name        string          `json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
-	Code        string          `json:"code,omitempty" example:"LEHNA" faker:"word,len=10"`
-	Description string          `json:"description,omitempty" example:"Where this database was born." faker:"sentence"`
-	Kind        InstitutionKind `json:"kind,omitempty" example:"Lab" faker:"InstitutionKind"`
+	Name        models.OptionalInput[string]         `json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
+	Code        models.OptionalInput[string]         `json:"code,omitempty" example:"LEHNA"`
+	Description models.OptionalNull[string]          `json:"description,omitempty" example:"Where this database was born."`
+	Kind        models.OptionalNull[InstitutionKind] `json:"kind,omitempty" example:"Lab"`
 }
 
 //go:embed queries/update_institution.edgeql
 var institutionUpdateQuery string
 
 func (inst InstitutionUpdate) Update(db edgedb.Executor, code string) (id edgedb.UUID, err error) {
+
+	query := models.UpdateQuery{
+		Frame: `with module people, data := <json>$1
+			select(update Institution filter .code = <str>$0
+			set {
+				%s
+			}).id`,
+		Set: map[models.OptionalNullable]models.FieldMapping{
+			inst.Name:        {Field: "name", Value: "<str>data['name']"},
+			inst.Code:        {Field: "code", Value: "<str>data['code']"},
+			inst.Description: {Field: "description", Value: "<str>data['description']"},
+			inst.Kind:        {Field: "kind", Value: "<InstitutionKind>data['kind']"},
+		},
+	}
 	args, _ := json.Marshal(inst)
 	logrus.Debugf("Updating institution %s with %+v", code, inst)
-	err = db.QuerySingle(context.Background(), institutionUpdateQuery, &id, code, args)
+	err = db.QuerySingle(context.Background(), query.Query(), &id, code, args)
 	return
 }

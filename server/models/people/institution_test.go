@@ -50,6 +50,8 @@ func TestDeleteInstitution(t *testing.T) {
 func TestUpdateInstitution(t *testing.T) {
 	inst := SetupInstitution(t)
 	input := tests.FakeData[people.InstitutionUpdate](t)
+	input.Description.Null = true
+	input.Description.IsSet = true
 	id, err := input.Update(db.Client(), inst.Code)
 	require.NoError(t, err)
 	assert.Equal(t, inst.ID, id)

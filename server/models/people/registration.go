@@ -12,8 +12,8 @@ import (
 )
 
 type UserInput struct {
-	Login         string `edgedb:"login" json:"login" binding:"login,required,unique_login" faker:"username,unique"`
-	Email         string `edgedb:"email" json:"email" binding:"email,required,unique_email" format:"email" faker:"email,unique"`
+	Login         string `edgedb:"login" json:"login" binding:"login,required,unique_login" fake:"{username}"`
+	Email         string `edgedb:"email" json:"email" binding:"email,required,unique_email" format:"email" fake:"{email}"`
 	PasswordInput `json:",inline"`
 } // @name UserInput
 
@@ -38,9 +38,9 @@ func (u UserInput) Save(db edgedb.Executor, role UserRole) (*User, error) {
 type InnerPendingUserRequest struct {
 	Person struct {
 		PersonIdentity `edgedb:"$inline" json:",inline"`
-		Institution    string `edgedb:"institution" json:"institution,omitempty" faker:"word"`
+		Institution    string `edgedb:"institution" json:"institution,omitempty" fake:"{word}"`
 	} `json:"identity" edgedb:"identity"`
-	Motive string `json:"motive" edgedb:"motive" faker:"sentence"`
+	Motive string `json:"motive" edgedb:"motive" fake:"{sentence:10}"`
 } // @name InnerPendingUserRequest
 
 type PendingUserRequestInput struct {

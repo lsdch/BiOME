@@ -8,7 +8,7 @@ import (
 )
 
 type InstanceSettingsInner struct {
-	Name               string `edgedb:"name" json:"name" doc:"The name of this database platform" faker:"word"`
+	Name               string `edgedb:"name" json:"name" doc:"The name of this database platform" fake:"{word}"`
 	IsPublic           bool   `edgedb:"public" json:"public" doc:"Whether the platform is accessible to unauthenticated users"`
 	AllowContribSignup bool   `edgedb:"allow_contributor_signup" json:"allow_contributor_signup" doc:"Whether requests to contribute to the database can be made."`
 }

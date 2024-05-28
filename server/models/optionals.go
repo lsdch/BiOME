@@ -1,0 +1,107 @@
+package models
+
+import (
+	"bytes"
+	"encoding/json"
+	"reflect"
+
+	"github.com/brianvoe/gofakeit/v7"
+	"github.com/danielgtaylor/huma/v2"
+)
+
+type OptionalNullable interface {
+	HasValue() bool
+	IsNull() bool
+}
+
+type OptionalInput[T any] struct {
+	IsSet bool
+	Value T
+}
+
+func (o OptionalInput[T]) HasValue() bool {
+	return o.IsSet
+}
+
+func (o OptionalInput[T]) IsNull() bool {
+	return false
+}
+
+func (o *OptionalInput[T]) Fake(f *gofakeit.Faker) (any, error) {
+	var value T
+	if err := f.Struct(&value); err != nil {
+		return nil, err
+	}
+	return OptionalInput[T]{
+		IsSet: f.Bool(),
+		Value: value,
+	}, nil
+}
+
+var _ gofakeit.Fakeable = (*OptionalInput[any])(nil)
+
+func (o OptionalInput[T]) Schema(r huma.Registry) *huma.Schema {
+	return r.Schema(reflect.TypeOf(o.Value), true, "")
+}
+
+func (o OptionalInput[T]) MarshalJSON() ([]byte, error) {
+	if !o.IsSet {
+		return []byte("null"), nil
+	}
+	return json.Marshal(o.Value)
+}
+
+func (o OptionalInput[T]) UnmarshalJSON(b []byte) error {
+	if len(b) > 0 {
+		o.IsSet = true
+		return json.Unmarshal(b, &o.Value)
+	}
+	return nil
+}
+
+// OptionalNull is a field which can be omitted from the input,
+// set to `null`, or set to a value. Each state is tracked and can
+// be checked for in handling code.
+type OptionalNull[T any] struct {
+	Null bool
+	OptionalInput[T]
+}
+
+func (o OptionalNull[T]) IsNull() bool {
+	return o.Null
+}
+
+func (o OptionalNull[T]) Schema(r huma.Registry) *huma.Schema {
+	s := r.Schema(reflect.TypeOf(o.Value), true, "")
+	s.Nullable = true
+	return s
+}
+
+func (o OptionalNull[T]) MarshalJSON() ([]byte, error) {
+	if (!o.IsSet) || o.Null {
+		return []byte("null"), nil
+	}
+	return json.Marshal(o.Value)
+}
+
+func (o *OptionalNull[T]) UnmarshalJSON(b []byte) error {
+	if len(b) > 0 {
+		o.IsSet = true
+		if bytes.Equal(b, []byte("null")) || bytes.Equal(b, []byte("")) {
+			o.Null = true
+			return nil
+		}
+		return json.Unmarshal(b, &o.Value)
+	}
+	return nil
+}
+
+func (o *OptionalNull[T]) Fake(f *gofakeit.Faker) (any, error) {
+	v, err := o.OptionalInput.Fake(f)
+	if err != nil {
+		return nil, err
+	}
+	return OptionalNull[T]{
+		OptionalInput: v.(OptionalInput[T]),
+	}, nil
+}
