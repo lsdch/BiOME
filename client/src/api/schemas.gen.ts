@@ -228,7 +228,7 @@ export const $HabitatGroup = {
       type: 'string'
     },
     depends: {
-      $ref: '#/components/schemas/HabitatRecord'
+      $ref: '#/components/schemas/OptionalHabitatRecord'
     },
     elements: {
       items: {
@@ -253,7 +253,7 @@ export const $HabitatGroup = {
       $ref: '#/components/schemas/Meta'
     }
   },
-  required: ['id', 'label', 'exclusive_elements', 'elements', 'meta'],
+  required: ['id', 'label', 'exclusive_elements', 'depends', 'elements', 'meta'],
   type: 'object'
 } as const
 
@@ -298,33 +298,22 @@ export const $HabitatGroupUpdate = {
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/HabitatGroupInput.json'],
+      examples: ['/api/v1/schemas/HabitatGroupUpdate.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
     },
     depends: {
-      description: 'Habitat tag that this group is a refinement of',
-      examples: ['Aquatic, Surface'],
-      type: 'string'
-    },
-    elements: {
-      items: {
-        $ref: '#/components/schemas/HabitatInput'
-      },
-      type: 'array'
+      type: ['string', 'null']
     },
     exclusive_elements: {
       type: 'boolean'
     },
     label: {
-      description: 'Name for the group of habitat tags',
-      examples: ['Water flow'],
-      maxLength: 32,
-      minLength: 3,
       type: 'string'
     }
   },
+  required: ['depends'],
   type: 'object'
 } as const
 
@@ -382,7 +371,7 @@ export const $HabitatRecord = {
     }
   },
   required: ['id', 'label'],
-  type: 'object'
+  type: ['object', 'null']
 } as const
 
 export const $ImportProcess = {
@@ -515,6 +504,8 @@ export const $Institution = {
     },
     code: {
       examples: ['LEHNA'],
+      maxLength: 12,
+      minLength: 2,
       type: 'string'
     },
     description: {
@@ -535,6 +526,8 @@ export const $Institution = {
     },
     name: {
       examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
+      maxLength: 128,
+      minLength: 10,
       type: 'string'
     },
     people: {
@@ -554,6 +547,8 @@ export const $InstitutionInner = {
   properties: {
     code: {
       examples: ['LEHNA'],
+      maxLength: 12,
+      minLength: 2,
       type: 'string'
     },
     description: {
@@ -571,6 +566,8 @@ export const $InstitutionInner = {
     },
     name: {
       examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
+      maxLength: 128,
+      minLength: 10,
       type: 'string'
     }
   },
@@ -590,6 +587,8 @@ export const $InstitutionInput = {
     },
     code: {
       examples: ['LEHNA'],
+      maxLength: 12,
+      minLength: 2,
       type: 'string'
     },
     description: {
@@ -602,6 +601,8 @@ export const $InstitutionInput = {
     },
     name: {
       examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
+      maxLength: 128,
+      minLength: 10,
       type: 'string'
     }
   },
@@ -631,11 +632,12 @@ export const $InstitutionUpdate = {
     },
     description: {
       examples: ['Where this database was born.'],
-      type: 'string'
+      type: ['string', 'null']
     },
     kind: {
       $ref: '#/components/schemas/InstitutionKind',
-      examples: ['Lab']
+      examples: ['Lab'],
+      type: ['', 'null']
     },
     name: {
       examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
@@ -718,6 +720,36 @@ export const $Meta = {
   },
   required: ['created', 'last_updated'],
   type: 'object'
+} as const
+
+export const $OptionalHabitatRecord = {
+  additionalProperties: false,
+  properties: {
+    description: {
+      description: 'Optional habitat description',
+      type: 'string'
+    },
+    id: {
+      contentEncoding: 'base64',
+      format: 'uuid',
+      type: 'string'
+    },
+    incompatible: {
+      items: {
+        $ref: '#/components/schemas/HabitatRecord'
+      },
+      type: 'array'
+    },
+    label: {
+      description: 'A short label for the habitat.',
+      examples: ['Lotic'],
+      maxLength: 32,
+      minLength: 3,
+      type: 'string'
+    }
+  },
+  required: ['id', 'label'],
+  type: ['object', 'null']
 } as const
 
 export const $OptionalPerson = {
@@ -953,12 +985,14 @@ export const $PersonUpdate = {
       type: 'string'
     },
     comment: {
-      type: 'string'
+      type: ['string', 'null']
     },
     contact: {
-      type: 'string'
+      type: ['string', 'null']
     },
     first_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     },
     institutions: {
@@ -968,6 +1002,8 @@ export const $PersonUpdate = {
       type: 'array'
     },
     last_name: {
+      maxLength: 32,
+      minLength: 2,
       type: 'string'
     }
   },

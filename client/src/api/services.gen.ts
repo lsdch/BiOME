@@ -142,7 +142,6 @@ export class AccountService {
       url: '/account/logout',
       responseHeader: 'Domain',
       errors: {
-        422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
     })
@@ -353,6 +352,281 @@ export class TaxonomyGbifService {
     return __request(OpenAPI, {
       method: 'GET',
       url: '/import/taxonomy/monitor'
+    })
+  }
+}
+
+export class LocationService {
+  /**
+   * List habitats
+   * @param data The data for the request.
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static listHabitatGroups(
+    data: $OpenApiTs['/habitats']['get']['req'] = {}
+  ): CancelablePromise<$OpenApiTs['/habitats']['get']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/habitats',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Create habitat group
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static createHabitatGroup(
+    data: $OpenApiTs['/habitats']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/habitats']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/habitats',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Delete habitat group
+   * @param data The data for the request.
+   * @param data.code
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static deleteHabitatGroup(
+    data: $OpenApiTs['/habitats/{code}']['delete']['req']
+  ): CancelablePromise<$OpenApiTs['/habitats/{code}']['delete']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'DELETE',
+      url: '/habitats/{code}',
+      path: {
+        code: data.code
+      },
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Update habitat group
+   * @param data The data for the request.
+   * @param data.code
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static updateHabitatGroup(
+    data: $OpenApiTs['/habitats/{code}']['patch']['req']
+  ): CancelablePromise<$OpenApiTs['/habitats/{code}']['patch']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'PATCH',
+      url: '/habitats/{code}',
+      path: {
+        code: data.code
+      },
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * List countries
+   * @param data The data for the request.
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns Country OK
+   * @throws ApiError
+   */
+  public static listCountries(
+    data: $OpenApiTs['/locations/countries']['get']['req'] = {}
+  ): CancelablePromise<$OpenApiTs['/locations/countries']['get']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/locations/countries',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+}
+
+export class HabitatsService {
+  /**
+   * List habitats
+   * @param data The data for the request.
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static listHabitatGroups(
+    data: $OpenApiTs['/habitats']['get']['req'] = {}
+  ): CancelablePromise<$OpenApiTs['/habitats']['get']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'GET',
+      url: '/habitats',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Create habitat group
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static createHabitatGroup(
+    data: $OpenApiTs['/habitats']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/habitats']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/habitats',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Delete habitat group
+   * @param data The data for the request.
+   * @param data.code
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static deleteHabitatGroup(
+    data: $OpenApiTs['/habitats/{code}']['delete']['req']
+  ): CancelablePromise<$OpenApiTs['/habitats/{code}']['delete']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'DELETE',
+      url: '/habitats/{code}',
+      path: {
+        code: data.code
+      },
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
+
+  /**
+   * Update habitat group
+   * @param data The data for the request.
+   * @param data.code
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns HabitatGroup OK
+   * @throws ApiError
+   */
+  public static updateHabitatGroup(
+    data: $OpenApiTs['/habitats/{code}']['patch']['req']
+  ): CancelablePromise<$OpenApiTs['/habitats/{code}']['patch']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'PATCH',
+      url: '/habitats/{code}',
+      path: {
+        code: data.code
+      },
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
     })
   }
 }
@@ -771,192 +1045,6 @@ export class InstitutionService {
   }
 }
 
-export class LocationService {
-  /**
-   * List countries
-   * @param data The data for the request.
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns Country OK
-   * @throws ApiError
-   */
-  public static listCountries(
-    data: $OpenApiTs['/locations/countries']['get']['req'] = {}
-  ): CancelablePromise<$OpenApiTs['/locations/countries']['get']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/locations/countries',
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * List habitats
-   * @param data The data for the request.
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static listHabitatGroups(
-    data: $OpenApiTs['/locations/habitats']['get']['req'] = {}
-  ): CancelablePromise<$OpenApiTs['/locations/habitats']['get']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/locations/habitats',
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Create habitat group
-   * @param data The data for the request.
-   * @param data.requestBody
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static createHabitatGroup(
-    data: $OpenApiTs['/locations/habitats']['post']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats']['post']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/locations/habitats',
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      body: data.requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Delete habitat group
-   * @param data The data for the request.
-   * @param data.code
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static deleteHabitatGroup(
-    data: $OpenApiTs['/locations/habitats/{code}']['delete']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['delete']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'DELETE',
-      url: '/locations/habitats/{code}',
-      path: {
-        code: data.code
-      },
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Update habitat group
-   * @param data The data for the request.
-   * @param data.code
-   * @param data.requestBody
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static updateHabitatGroup(
-    data: $OpenApiTs['/locations/habitats/{code}']['patch']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['patch']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'PATCH',
-      url: '/locations/habitats/{code}',
-      path: {
-        code: data.code
-      },
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      body: data.requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Set dependency of habitat group to habitat
-   * @param data The data for the request.
-   * @param data.code
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @param data.setDepends
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static setHabitatGroupDepends(
-    data: $OpenApiTs['/locations/habitats/{code}']['post']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['post']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/locations/habitats/{code}',
-      path: {
-        code: data.code
-      },
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      query: {
-        'set-depends': data.setDepends
-      },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-}
-
 export class CountriesService {
   /**
    * List countries
@@ -977,163 +1065,6 @@ export class CountriesService {
       },
       headers: {
         Authorization: data.authorization
-      },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * List habitats
-   * @param data The data for the request.
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static listHabitatGroups(
-    data: $OpenApiTs['/locations/habitats']['get']['req'] = {}
-  ): CancelablePromise<$OpenApiTs['/locations/habitats']['get']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'GET',
-      url: '/locations/habitats',
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Create habitat group
-   * @param data The data for the request.
-   * @param data.requestBody
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static createHabitatGroup(
-    data: $OpenApiTs['/locations/habitats']['post']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats']['post']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/locations/habitats',
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      body: data.requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Delete habitat group
-   * @param data The data for the request.
-   * @param data.code
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static deleteHabitatGroup(
-    data: $OpenApiTs['/locations/habitats/{code}']['delete']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['delete']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'DELETE',
-      url: '/locations/habitats/{code}',
-      path: {
-        code: data.code
-      },
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Update habitat group
-   * @param data The data for the request.
-   * @param data.code
-   * @param data.requestBody
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static updateHabitatGroup(
-    data: $OpenApiTs['/locations/habitats/{code}']['patch']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['patch']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'PATCH',
-      url: '/locations/habitats/{code}',
-      path: {
-        code: data.code
-      },
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      body: data.requestBody,
-      mediaType: 'application/json',
-      errors: {
-        422: 'Unprocessable Entity',
-        500: 'Internal Server Error'
-      }
-    })
-  }
-
-  /**
-   * Set dependency of habitat group to habitat
-   * @param data The data for the request.
-   * @param data.code
-   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-   * @param data.authToken Session cookie containing JWT
-   * @param data.setDepends
-   * @returns HabitatGroup OK
-   * @throws ApiError
-   */
-  public static setHabitatGroupDepends(
-    data: $OpenApiTs['/locations/habitats/{code}']['post']['req']
-  ): CancelablePromise<$OpenApiTs['/locations/habitats/{code}']['post']['res'][200]> {
-    return __request(OpenAPI, {
-      method: 'POST',
-      url: '/locations/habitats/{code}',
-      path: {
-        code: data.code
-      },
-      cookies: {
-        auth_token: data.authToken
-      },
-      headers: {
-        Authorization: data.authorization
-      },
-      query: {
-        'set-depends': data.setDepends
       },
       errors: {
         422: 'Unprocessable Entity',
@@ -1410,7 +1341,6 @@ export class SettingsService {
       mediaType: 'multipart/form-data',
       responseHeader: 'Location',
       errors: {
-        422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
     })
@@ -1428,7 +1358,6 @@ export class SettingsService {
       method: 'GET',
       url: '/settings/instance',
       errors: {
-        422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
     })

@@ -129,7 +129,7 @@ export type HabitatGroup = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  depends?: HabitatRecord
+  depends: OptionalHabitatRecord
   elements: Array<HabitatRecord>
   exclusive_elements: boolean
   id: string
@@ -162,15 +162,8 @@ export type HabitatGroupUpdate = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  /**
-   * Habitat tag that this group is a refinement of
-   */
-  depends?: string
-  elements?: Array<HabitatInput>
+  depends: string | null
   exclusive_elements?: boolean
-  /**
-   * Name for the group of habitat tags
-   */
   label?: string
 }
 
@@ -312,7 +305,7 @@ export type InstitutionUpdate = {
    */
   readonly $schema?: string
   code?: string
-  description?: string
+  description?: string | null
   kind?: InstitutionKind
   name?: string
 }
@@ -347,6 +340,19 @@ export type Meta = {
   last_updated: Date
   modified?: Date
   updated_by?: UserShortIdentity
+}
+
+export type OptionalHabitatRecord = {
+  /**
+   * Optional habitat description
+   */
+  description?: string
+  id: string
+  incompatible?: Array<HabitatRecord>
+  /**
+   * A short label for the habitat.
+   */
+  label: string
 }
 
 export type OptionalPerson = {
@@ -421,8 +427,8 @@ export type PersonUpdate = {
    */
   readonly $schema?: string
   alias?: string
-  comment?: string
-  contact?: string
+  comment?: string | null
+  contact?: string | null
   first_name?: string
   institutions?: Array<string>
   last_name?: string
@@ -787,10 +793,6 @@ export type $OpenApiTs = {
          */
         204: string
         /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
          * Internal Server Error
          */
         500: ErrorModel
@@ -974,6 +976,146 @@ export type $OpenApiTs = {
          * Error
          */
         200: ErrorModel
+      }
+    }
+  }
+  '/habitats': {
+    get: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: Array<HabitatGroup>
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+    post: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        requestBody: HabitatGroupInput
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: HabitatGroup
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/habitats/{code}': {
+    delete: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        code: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: HabitatGroup
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+    patch: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+        code: string
+        requestBody: HabitatGroupUpdate
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: HabitatGroup
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
+      }
+    }
+  }
+  '/locations/countries': {
+    get: {
+      req: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        authorization?: string
+        /**
+         * Session cookie containing JWT
+         */
+        authToken?: string
+      }
+      res: {
+        /**
+         * OK
+         */
+        200: Array<Country>
+        /**
+         * Unprocessable Entity
+         */
+        422: ErrorModel
+        /**
+         * Internal Server Error
+         */
+        500: ErrorModel
       }
     }
   }
@@ -1255,189 +1397,6 @@ export type $OpenApiTs = {
       }
     }
   }
-  '/locations/countries': {
-    get: {
-      req: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        authorization?: string
-        /**
-         * Session cookie containing JWT
-         */
-        authToken?: string
-      }
-      res: {
-        /**
-         * OK
-         */
-        200: Array<Country>
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
-         * Internal Server Error
-         */
-        500: ErrorModel
-      }
-    }
-  }
-  '/locations/habitats': {
-    get: {
-      req: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        authorization?: string
-        /**
-         * Session cookie containing JWT
-         */
-        authToken?: string
-      }
-      res: {
-        /**
-         * OK
-         */
-        200: Array<HabitatGroup>
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
-         * Internal Server Error
-         */
-        500: ErrorModel
-      }
-    }
-    post: {
-      req: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        authorization?: string
-        /**
-         * Session cookie containing JWT
-         */
-        authToken?: string
-        requestBody: HabitatGroupInput
-      }
-      res: {
-        /**
-         * OK
-         */
-        200: HabitatGroup
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
-         * Internal Server Error
-         */
-        500: ErrorModel
-      }
-    }
-  }
-  '/locations/habitats/{code}': {
-    delete: {
-      req: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        authorization?: string
-        /**
-         * Session cookie containing JWT
-         */
-        authToken?: string
-        code: string
-      }
-      res: {
-        /**
-         * OK
-         */
-        200: HabitatGroup
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
-         * Internal Server Error
-         */
-        500: ErrorModel
-      }
-    }
-    patch: {
-      req: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        authorization?: string
-        /**
-         * Session cookie containing JWT
-         */
-        authToken?: string
-        code: string
-        requestBody: {
-          /**
-           * A URL to the JSON Schema for this object.
-           */
-          readonly $schema?: string
-          /**
-           * Habitat tag that this group is a refinement of
-           */
-          depends?: string
-          elements?: Array<HabitatInput>
-          exclusive_elements?: boolean
-          /**
-           * Name for the group of habitat tags
-           */
-          label?: string
-        }
-      }
-      res: {
-        /**
-         * OK
-         */
-        200: HabitatGroup
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
-         * Internal Server Error
-         */
-        500: ErrorModel
-      }
-    }
-    post: {
-      req: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        authorization?: string
-        /**
-         * Session cookie containing JWT
-         */
-        authToken?: string
-        code: string
-        setDepends?: string
-      }
-      res: {
-        /**
-         * OK
-         */
-        200: HabitatGroup
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
-         * Internal Server Error
-         */
-        500: ErrorModel
-      }
-    }
-  }
   '/settings/emailing': {
     get: {
       req: {
@@ -1535,10 +1494,6 @@ export type $OpenApiTs = {
          */
         204: string
         /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
-        /**
          * Internal Server Error
          */
         500: ErrorModel
@@ -1552,10 +1507,6 @@ export type $OpenApiTs = {
          * OK
          */
         200: InstanceSettings
-        /**
-         * Unprocessable Entity
-         */
-        422: ErrorModel
         /**
          * Internal Server Error
          */
