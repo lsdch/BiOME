@@ -1,11 +1,5 @@
 <template>
-  <div
-    class="graph"
-    ref="graphElement"
-    @keyup.esc="creating = false"
-    @keyup.delete="askDeleteGroups(selectedGroups)"
-  >
-    <!-- :nodes="nodes.filter((node) => node.type === 'group')" -->
+  <div class="graph" ref="graphElement" @keyup.esc="creating = false">
     <VueFlow
       :nodes="nodes"
       :edges="edges"
@@ -22,6 +16,7 @@
         type: ConnectionLineType.SmoothStep,
         class: `${connection.status.value} animated`
       }"
+      :delete-key-code="null"
     >
       <Background :gap="20" />
       <div v-if="creating" class="text-secondary pa-3">
@@ -42,7 +37,10 @@
         {{ creating ? 'Cancel' : 'New group' }}
       </v-fab>
       <template #node-group="props">
-        <HabitatGroupNode v-bind="props" />
+        <HabitatGroupNode
+          v-bind="props"
+          @edit="(group) => ((form.open = true), (form.edit = group))"
+        />
       </template>
       <template #node-habitat="props">
         {{ props.data.label }}
@@ -62,7 +60,7 @@
     </div>
     <HabitatFormDialog
       v-model="form.open"
-      mode="Create"
+      :edit="form.edit"
       @success="addCreatedNode"
       @close="creating = false"
     />
@@ -75,15 +73,14 @@ import '@vue-flow/core/dist/style.css'
 /* this contains the default theme, these are optional styles */
 import '@vue-flow/core/dist/theme-default.css'
 // import default controls styles
-import '@vue-flow/controls/dist/style.css'
-
 import { HabitatGroup, LocationService } from '@/api'
-import { type Mode } from '@/components/toolkit/forms/form'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
+import '@vue-flow/controls/dist/style.css'
 import {
   ConnectionLineType,
   Edge,
+  GraphEdge,
   MarkerType,
   Node,
   VueFlow,
@@ -91,7 +88,7 @@ import {
   useConnection,
   useVueFlow
 } from '@vue-flow/core'
-import { useMouseInElement } from '@vueuse/core'
+import { useMouseInElement, onKeyStroke } from '@vueuse/core'
 import { computed, inject, nextTick, reactive, ref, toRefs } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
@@ -101,6 +98,15 @@ import { ConfirmDialogKey } from '@/injection'
 import { useFeedback } from '@/stores/feedback'
 import { ConnectedGroup, registerGroup, useHabitatGraph } from './habitat_graph'
 import { NodeData } from './layout'
+
+onKeyStroke('Delete', () => {
+  console.log(getSelectedEdges)
+  selectedGroups.value.length
+    ? askDeleteGroups(selectedGroups.value)
+    : getSelectedEdges.value.length == 1
+      ? askDeleteEdge(getSelectedEdges.value[0])
+      : undefined
+})
 
 const data = await LocationService.listHabitatGroups()
 
@@ -112,9 +118,9 @@ const selectedGroups = computed<HabitatGroup[]>(() => {
  * Creation mode: cursor displays as a node template to place on the graph
  */
 const creating = ref(false)
-const form = ref<{ open: boolean; mode: Mode }>({
+const form = ref<{ open: boolean; edit?: ConnectedGroup }>({
   open: false,
-  mode: 'Create'
+  edit: undefined
 })
 
 const connection = useConnection()
@@ -126,7 +132,8 @@ const {
   onConnect,
   updateNodeInternals,
   updateNodeData,
-  endConnection
+  endConnection,
+  getSelectedEdges
 } = useVueFlow()
 
 const askConfirm = inject(ConfirmDialogKey)
@@ -140,9 +147,9 @@ onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitat
   })
     .then(async ({ isCanceled }) => {
       if (isCanceled) return
-      await LocationService.setHabitatGroupDepends({
+      await LocationService.updateHabitatGroup({
         code: group.label,
-        setDepends: habitat.label
+        requestBody: { depends: habitat.label }
       }).then((updated) => {
         edges.value.push({
           id: `e-${dependHabitatID}-${groupID}`,
@@ -165,6 +172,21 @@ onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitat
 
 const { feedback } = useFeedback()
 const confirmDeletion = inject(ConfirmDialogKey)
+
+function askDeleteEdge(edge: GraphEdge) {
+  const group: string = edge.targetNode.data.label
+  confirmDeletion?.({ title: `Drop dependency of '${group}'?` }).then(async ({ isCanceled }) => {
+    if (isCanceled) return console.info('Dependency drop canceled')
+    else {
+      const updated = await LocationService.updateHabitatGroup({
+        code: group,
+        requestBody: { depends: null }
+      })
+      registerGroup(updated, habitatGraph)
+      feedback({ type: 'success', message: `Dropped dependency for '${group}'` })
+    }
+  })
+}
 
 function askDeleteGroups(groups: HabitatGroup[]) {
   const title =
@@ -213,6 +235,7 @@ const creationPos = ref({ x: 0, y: 0 })
 
 function onPaneClick({ layerX, layerY }: MouseEvent) {
   selection.value = undefined
+  form.value.edit = undefined
   if (creating.value) {
     creationPos.value = { x: layerX, y: layerY }
     form.value.open = true

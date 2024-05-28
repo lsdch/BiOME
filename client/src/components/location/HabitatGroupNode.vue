@@ -42,21 +42,35 @@
         </template>
       </Handle>
     </div>
+    <NodeToolbar :position="Position.Bottom" :is-visible="selected">
+      <v-btn
+        color="primary"
+        size="small"
+        variant="outlined"
+        prepend-icon="mdi-pencil"
+        @click="emit('edit', data)"
+        text="Edit"
+      />
+    </NodeToolbar>
   </div>
 </template>
 
 <script setup lang="ts">
 import { Handle, NodeProps, Position, useConnection } from '@vue-flow/core'
 import { computed } from 'vue'
+import { useDisplay } from 'vuetify'
 import BtnTooltip from '../toolkit/ui/BtnTooltip.vue'
 import HabitatElement from './HabitatElement.vue'
-import { ConnectedGroup, useHabitatGraph } from './habitat_graph'
-import { useDisplay } from 'vuetify'
+import { ConnectedGroup } from './habitat_graph'
+import { NodeToolbar } from '@vue-flow/node-toolbar'
+
 const { mobile } = useDisplay()
 
 const props = defineProps<NodeProps<ConnectedGroup>>()
+const emit = defineEmits<{
+  edit: [group: ConnectedGroup]
+}>()
 
-const { connection } = useHabitatGraph()
 const { startHandle, status } = useConnection()
 
 // const sideLabel = computed(() => (props.data.elements.length > 1 ? props.data.label : undefined))

@@ -107,7 +107,6 @@ function addElement() {
 async function submit() {
   await LocationService.createHabitatGroup({ requestBody: model.value })
     .then((created) => {
-      console.log(created)
       emit('success', created)
       dialog.value = false
     })
@@ -116,4 +115,3 @@ async function submit() {
 </script>
 
 <style scoped></style>
-../toolkit/forms/form

@@ -1,6 +1,6 @@
 import { ApiError, ErrorModel } from "@/api"
 
-import { Ref, reactive, ref, toValue, watch } from "vue"
+import { Ref, computed, reactive, ref, toValue, watch } from "vue"
 import { Schema, SchemaBinding, useSchema, type SchemaPaths } from "./schema"
 
 export * from "./FormDialog.vue"
@@ -53,6 +53,7 @@ export function useForm<
 ) {
 
   const model = ref(dataModel.initial) as Ref<ItemInputType>
+  const mode = computed<Mode>(() => props.edit == undefined ? 'Create' : 'Edit')
 
   const { schema: bindSchema } = useSchema<T>(schema)
 
@@ -123,5 +124,5 @@ export function useForm<
   }
 
 
-  return { errors, loading, errorHandler, bindErrors, field, bindSchema, model }
+  return { errors, loading, errorHandler, field, model, mode, bindings: { schema: bindSchema, errors: bindErrors } }
 }

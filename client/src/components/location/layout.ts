@@ -29,7 +29,7 @@ export function useLayout() {
 
     dagreGraph.setDefaultEdgeLabel(() => ({}))
 
-    dagreGraph.setGraph({ rankdir: direction, ranker: 'network-simplex', nodesep: 20, ranksep: 60, edgesep: 10 })
+    dagreGraph.setGraph({ rankdir: direction, ranker: 'network-simplex', nodesep: 25, ranksep: 60, edgesep: 10 })
 
 
     nodes.forEach((node) => {
