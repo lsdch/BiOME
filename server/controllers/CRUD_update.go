@@ -42,8 +42,8 @@ type UpdateHandlerOutput[Updated any] struct {
 }
 
 func UpdateHandler[
-	Item models.Updatable[ID, Updated],
 	OperationInput UpdateInputInterface[Item, ID, Updated],
+	Item models.Updatable[ID, Updated],
 	ID any,
 	Updated any,
 ](
@@ -76,7 +76,7 @@ func UpdateByIDHandler[Item models.Updatable[edgedb.UUID, Updated], Updated any]
 	UpdateByIDHandlerInput[Item, Updated],
 	UpdateHandlerOutput[Updated],
 ] {
-	return UpdateHandler[Item, *UpdateByIDHandlerInput[Item, Updated]](find)
+	return UpdateHandler[*UpdateByIDHandlerInput[Item, Updated]](find)
 }
 
 func UpdateByCodeHandler[Item models.Updatable[string, Updated], Updated any](
@@ -85,7 +85,7 @@ func UpdateByCodeHandler[Item models.Updatable[string, Updated], Updated any](
 	UpdateByCodeHandlerInput[Item, Updated],
 	UpdateHandlerOutput[Updated],
 ] {
-	return UpdateHandler[Item, *UpdateByCodeHandlerInput[Item, Updated]](find)
+	return UpdateHandler[*UpdateByCodeHandlerInput[Item, Updated]](find)
 }
 
 // Implementation assertions
