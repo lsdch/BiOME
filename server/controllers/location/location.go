@@ -1,11 +1,11 @@
 package location
 
 import (
-	"context"
 	"darco/proto/controllers"
 	"darco/proto/models/location"
 	"darco/proto/resolvers"
 	"darco/proto/router"
+	"fmt"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -33,55 +33,53 @@ func RegisterRoutes(r router.Router) {
 			Summary: "List countries",
 		}, controllers.ListHandler(location.ListCountries))
 
-	router.Register(locationAPI, "ListHabitatGroups",
+	habitatsAPI := r.RouteGroup("/habitats").
+		WithTags([]string{"Location", "Habitats"})
+
+	router.Register(habitatsAPI, "ListHabitatGroups",
 		huma.Operation{
-			Path:    "/habitats",
+			Path:    "/",
 			Method:  http.MethodGet,
 			Summary: "List habitats",
 		}, controllers.ListHandler(location.ListHabitatGroups))
 
-	router.Register(locationAPI, "CreateHabitatGroup",
+	router.Register(habitatsAPI, "CreateHabitatGroup",
 		huma.Operation{
-			Path:    "/habitats",
+			Path:    "/",
 			Method:  http.MethodPost,
 			Summary: "Create habitat group",
 		}, controllers.CreateHandler[location.HabitatGroupInput])
 
-	router.Register(locationAPI, "DeleteHabitatGroup",
+	router.Register(habitatsAPI, "DeleteHabitatGroup",
 		huma.Operation{
-			Path:    "/habitats/{code}",
+			Path:    "/{code}",
 			Method:  http.MethodDelete,
 			Summary: "Delete habitat group",
 		}, controllers.DeleteByCodeHandler(location.DeleteHabitatGroup))
 
-	router.Register(locationAPI, "UpdateHabitatGroup",
+	router.Register(habitatsAPI, "UpdateHabitatGroup",
 		huma.Operation{
-			Path:    "/habitats/{code}",
+			Path:    "/{code}",
 			Method:  http.MethodPatch,
 			Summary: "Update habitat group",
 		}, controllers.UpdateByCodeHandler[location.HabitatGroupUpdate](location.FindHabitatGroup))
 
-	router.Register(locationAPI, "setHabitatGroupDepends",
-		huma.Operation{
-			Path:    "/habitats/{code}/",
-			Method:  http.MethodPost,
-			Summary: "Set dependency of habitat group to habitat",
-		}, SetHabitatGroupDepends)
 }
 
-type SetHabitatGroupDependsInput struct {
-	resolvers.AccessRestricted[resolvers.Admin]
+type HabitatGroupInput[R resolvers.RoleSpecifier] struct {
+	resolvers.AccessRestricted[R]
 	controllers.CodeInput
-	Depends string `query:"set-depends"`
+	HabitatGroup location.HabitatGroup
 }
 type HabitatGroupOutput struct {
 	Body location.HabitatGroup
 }
 
-func SetHabitatGroupDepends(ctx context.Context, input *SetHabitatGroupDependsInput) (*HabitatGroupOutput, error) {
-	group, err := location.SetHabitatGroupParent(input.DB(), input.Code, input.Depends)
+func (i *HabitatGroupInput[R]) Resolve(ctx huma.Context) []error {
+	group, err := location.FindHabitatGroup(i.DB(), i.Code)
 	if err != nil {
-		return nil, huma.Error500InternalServerError("Failed to set habitat group dependency", err)
+		return []error{huma.Error404NotFound(fmt.Sprintf("Habitat group '%s' does not exist", i.Code))}
 	}
-	return &HabitatGroupOutput{Body: *group}, nil
+	i.HabitatGroup = *group
+	return nil
 }
