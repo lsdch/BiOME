@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"path/filepath"
 	"reflect"
 	"slices"
 	"time"
@@ -48,6 +49,9 @@ func New(r *gin.Engine, basePath string, config huma.Config) Router {
 }
 
 func (r *Router) WriteSpecJSON(outputPath string) error {
+	if err := os.MkdirAll(filepath.Dir(outputPath), os.ModeDir); err != nil {
+		return err
+	}
 	file, err := os.Create(outputPath)
 	if err != nil {
 		return err
