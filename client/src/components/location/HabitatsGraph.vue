@@ -1,5 +1,5 @@
 <template>
-  <div class="graph" ref="graphElement" @keyup.esc="creating = false">
+  <div class="graph" ref="graphContainer" @keyup.esc="creating = false">
     <VueFlow
       :nodes="nodes"
       :edges="edges"
@@ -19,23 +19,47 @@
       :delete-key-code="null"
     >
       <Background :gap="20" />
-      <div v-if="creating" class="text-secondary pa-3">
-        <pre>Click / tap: create group</pre>
-        <pre>Esc: cancel group creation</pre>
+      <div id="help-pane" class="text-secondary pa-3">
+        <div v-if="creating">
+          <pre>Click / tap: create group</pre>
+          <pre>Esc: cancel group creation</pre>
+        </div>
+        <div v-else-if="selectedGroups.length > 0">
+          <pre>Del: delete selected groups</pre>
+        </div>
+        <div v-else-if="getSelectedEdges.length == 1">
+          <pre>Del: delete selected edge</pre>
+        </div>
       </div>
       <Controls>
         <ControlButton @click="layoutGraph()">
           <v-icon class="text-black">mdi-graph</v-icon>
         </ControlButton>
       </Controls>
-      <v-fab
-        :color="creating ? 'error' : 'primary'"
-        app
-        :prepend-icon="creating ? 'mdi-close' : 'mdi-plus'"
-        @click="creating = !creating"
-      >
-        {{ creating ? 'Cancel' : 'New group' }}
-      </v-fab>
+      <div class="vue-flow__panel bottom right">
+        <v-btn
+          v-if="selectedGroups.length > 0"
+          class="mr-2"
+          color="error"
+          prepend-icon="mdi-delete"
+          :text="`Delete ${selectedGroups.length} group(s)`"
+          @click="askDeleteGroups(selectedGroups)"
+        />
+        <v-btn
+          v-else-if="getSelectedEdges.length == 1"
+          class="mr-2"
+          color="error"
+          prepend-icon="mdi-close"
+          text="Drop dependency"
+          @click="askDeleteEdge(getSelectedEdges[0])"
+        />
+        <v-btn
+          :color="creating ? 'error' : 'primary'"
+          :prepend-icon="creating ? 'mdi-close' : 'mdi-plus'"
+          @click="creating = !creating"
+          :text="creating ? 'Cancel' : 'New group'"
+        />
+      </div>
       <template #node-group="props">
         <HabitatGroupNode
           v-bind="props"
@@ -99,14 +123,15 @@ import { useFeedback } from '@/stores/feedback'
 import { ConnectedGroup, registerGroup, useHabitatGraph } from './habitat_graph'
 import { NodeData } from './layout'
 
-onKeyStroke('Delete', () => {
-  console.log(getSelectedEdges)
+function handleDelete() {
   selectedGroups.value.length
     ? askDeleteGroups(selectedGroups.value)
     : getSelectedEdges.value.length == 1
       ? askDeleteEdge(getSelectedEdges.value[0])
       : undefined
-})
+}
+
+onKeyStroke('Delete', handleDelete)
 
 const data = await LocationService.listHabitatGroups()
 
@@ -233,8 +258,8 @@ async function deleteGroups(groups: HabitatGroup[]) {
     })
 }
 
-const graphElement = ref(null)
-const { elementX: x, elementY: y } = useMouseInElement(graphElement)
+const graphContainer = ref(null)
+const { elementX: x, elementY: y } = useMouseInElement(graphContainer)
 const creationPos = ref({ x: 0, y: 0 })
 
 function onPaneClick({ layerX, layerY }: MouseEvent) {
@@ -340,6 +365,12 @@ async function layoutGraph() {
   stroke: rgb(var(--v-theme-primary));
   &.valid {
     stroke: rgb(var(--v-theme-success));
+  }
+}
+
+.vue-flow__edge.selected {
+  .vue-flow__edge-path {
+    stroke: rgb(var(--v-theme-primary));
   }
 }
 
