@@ -133,7 +133,8 @@ const {
   updateNodeInternals,
   updateNodeData,
   endConnection,
-  getSelectedEdges
+  getSelectedEdges,
+  removeEdges
 } = useVueFlow()
 
 const askConfirm = inject(ConfirmDialogKey)
@@ -183,6 +184,9 @@ function askDeleteEdge(edge: GraphEdge) {
         requestBody: { depends: null }
       })
       registerGroup(updated, habitatGraph)
+      updateNodeData(updated.id, { depends: null })
+      removeEdges(edge)
+      edges.value = edges.value.filter(({ id }) => id !== edge.id)
       feedback({ type: 'success', message: `Dropped dependency for '${group}'` })
     }
   })
@@ -280,10 +284,14 @@ function createNode(
   }
 }
 
+function edgeId({ label, depends }: HabitatGroup) {
+  return `edge-${depends.label}-${label}`
+}
+
 function collectGraphElements(groups: HabitatGroup[]) {
   return groups.reduce<{ nodes: Node<NodeData>[]; edges: Edge[] }>(
     (acc, group) => {
-      const { id, label, depends } = group
+      const { id, depends } = group
       acc.nodes.push(
         createNode(habitatGraph.groups[group.id], {
           cluster: id,
@@ -293,7 +301,7 @@ function collectGraphElements(groups: HabitatGroup[]) {
       )
       if (depends) {
         acc.edges.push({
-          id: `edge-${depends.label}-${label}`,
+          id: edgeId(group),
           source: habitatGraph.habitats[depends.id].group.id,
           sourceHandle: depends.id,
           target: id,
