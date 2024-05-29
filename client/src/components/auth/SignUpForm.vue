@@ -84,7 +84,6 @@ import { email, maxLength, minLength, required } from '@vuelidate/validators'
 import { Ref, computed, ref, watchEffect } from 'vue'
 import PasswordFields from './PasswordFields.vue'
 import PersonFormFields from '../people/PersonFormFields.vue'
-import _ from 'lodash'
 
 const exposeEmail = ref(false)
 
