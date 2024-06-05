@@ -15,7 +15,7 @@
       <Handle :position="Position.Left" type="target" style="visibility: hidden" />
 
       <Handle
-        v-if="selected && !data.depends"
+        v-if="isGranted('Admin') && selected && !data.depends"
         :id="data.id"
         :class="['button', { mobile }]"
         :position="Position.Left"
@@ -42,7 +42,7 @@
         </template>
       </Handle>
     </div>
-    <NodeToolbar :position="Position.Bottom" :is-visible="selected">
+    <NodeToolbar v-if="isGranted('Admin')" :position="Position.Bottom" :is-visible="selected">
       <v-btn
         color="primary"
         size="small"
@@ -63,6 +63,9 @@ import BtnTooltip from '../toolkit/ui/BtnTooltip.vue'
 import HabitatElement from './HabitatElement.vue'
 import { ConnectedGroup } from './habitat_graph'
 import { NodeToolbar } from '@vue-flow/node-toolbar'
+import { useUserStore } from '@/stores/user'
+
+const { isGranted } = useUserStore()
 
 const { mobile } = useDisplay()
 

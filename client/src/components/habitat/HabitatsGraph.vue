@@ -19,7 +19,7 @@
       :delete-key-code="null"
     >
       <Background :gap="20" />
-      <div id="help-pane" class="text-secondary pa-3">
+      <div v-if="isGranted('Admin')" id="help-pane" class="text-secondary pa-3">
         <div v-if="creating">
           <pre>Click / tap: create group</pre>
           <pre>Esc: cancel group creation</pre>
@@ -36,7 +36,8 @@
           <v-icon class="text-black">mdi-graph</v-icon>
         </ControlButton>
       </Controls>
-      <div class="vue-flow__panel bottom right">
+      <!-- Edition controls -->
+      <div v-if="isGranted('Admin')" class="vue-flow__panel bottom right">
         <v-btn
           v-if="selectedGroups.length > 0"
           class="mr-2"
@@ -122,6 +123,9 @@ import { ConfirmDialogKey } from '@/injection'
 import { useFeedback } from '@/stores/feedback'
 import { ConnectedGroup, registerGroup, useHabitatGraph } from './habitat_graph'
 import { NodeData } from './layout'
+import { useUserStore } from '@/stores/user'
+
+const { isGranted } = useUserStore()
 
 function handleDelete() {
   selectedGroups.value.length
