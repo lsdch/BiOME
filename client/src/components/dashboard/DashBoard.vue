@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import HabitatPicker from '../location/HabitatPicker.vue'
+import HabitatPicker from '../habitat/HabitatPicker.vue'
 </script>
 
 <style scoped></style>

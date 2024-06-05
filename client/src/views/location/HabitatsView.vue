@@ -1,10 +1,9 @@
 <template>
-  <!-- <HabitatsTreeView /> -->
   <HabitatsGraph />
 </template>
 
 <script setup lang="ts">
-import HabitatsGraph from '@/components/location/HabitatsGraph.vue'
+import HabitatsGraph from '@/components/habitat/HabitatsGraph.vue'
 </script>
 
 <style scoped></style>
