@@ -9,7 +9,6 @@ import (
 	_ "image/jpeg"
 	"image/png"
 	_ "image/png"
-	"mime/multipart"
 	"net/http"
 	"net/url"
 	"os"
@@ -133,79 +132,27 @@ func TestSMTP(ctx context.Context, input *EmailSettingsInput) (*SMTPConnectionSt
 	return &SMTPConnectionStatus{true}, nil
 }
 
-// router.Register(api, "SetAppIcon",
-// 	huma.Operation{
-// 		Path:          "/icon",
-// 		Method:        http.MethodPost,
-// 		Summary:       "Set app icon",
-// 		DefaultStatus: http.StatusSeeOther,
-// 		// RequestBody: &huma.RequestBody{
-// 		// 	Required:    true,
-// 		// 	Description: "Icon file encoded as multipart form data",
-// 		// 	Content: map[string]*huma.MediaType{
-// 		// 		"multipart/form-data": {
-// 		// 			Schema: &huma.Schema{
-// 		// 				Type: "object",
-// 		// 				Properties: map[string]*huma.Schema{
-// 		// 					FORMDATA_ICON_KEY: {
-// 		// 						Type:        "string",
-// 		// 						Format:      "binary",
-// 		// 						Description: "Icon file to upload",
-// 		// 					},
-// 		// 				},
-// 		// 			},
-// 		// 		},
-// 		// 	},
-// 		// },
-// 	}, SetAppIcon)
-
-// type AppIconInputData struct {
-// 	Icon multipart.File `form-data:"icon" content-type:"image/png" required:"true"`
-// 	// Test []multipart.File `form-data:"test" content-type:"image/png" required:"true"`
-// }
-
-type AppIconInput struct {
-	// resolvers.AccessRestricted[resolvers.Admin]
-	resolvers.HostResolver
-	RawBody multipart.Form
-	// RawBody huma.MultipartFormFiles[AppIconInputData]
-	Image image.Image
+type AppIconInputData struct {
+	Icon huma.FormFile `form:"icon" contentType:"image/png" required:"true"`
 }
 
-const (
-	APP_ICON_PATH     = "assets/app_icon.png"
-	FORMDATA_ICON_KEY = "iconFile"
-)
+type AppIconInput struct {
+	resolvers.AccessRestricted[resolvers.Admin]
+	resolvers.HostResolver
+	RawBody huma.MultipartFormFiles[AppIconInputData]
+	Image   image.Image
+}
 
 func (i *AppIconInput) Resolve(ctx huma.Context) []error {
-	fileHeaders := i.RawBody.File[FORMDATA_ICON_KEY]
-	if len(fileHeaders) == 0 {
-		return []error{&huma.ErrorDetail{Message: "Empty file content received"}}
-	} else if len(fileHeaders) > 1 {
-		return []error{&huma.ErrorDetail{Message: "Multiple files received"}}
-	}
-	f, err := fileHeaders[0].Open()
-	if err != nil {
-		return []error{&huma.ErrorDetail{Message: "Failed to open submitted file"}}
-	}
-	img, _, err := image.Decode(f)
+	formData := i.RawBody.Data()
+
+	img, _, err := image.Decode(formData.Icon)
 	if err != nil {
 		return []error{&huma.ErrorDetail{Message: "Failed to decode image from file. Accepted formats are: PNG, JPEG."}}
 	}
 	i.Image = img
 	return nil
 }
-
-// func (i *AppIconInput) Resolve(ctx huma.Context) []error {
-// 	formData := i.RawBody.Data()
-
-// 	img, _, err := image.Decode(formData.Icon)
-// 	if err != nil {
-// 		return []error{&huma.ErrorDetail{Message: "Failed to decode image from file. Accepted formats are: PNG, JPEG."}}
-// 	}
-// 	i.Image = img
-// 	return nil
-// }
 
 type SetAppIconOutput struct {
 	Location url.URL `header:"Location" format:"uri"`
