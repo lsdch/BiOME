@@ -123,7 +123,7 @@
 </template>
 
 <script setup lang="ts" generic="ItemType extends { id: string; meta?: Meta }">
-import { CancelablePromise, Meta } from '@/api'
+import { Meta } from '@/api'
 import { useClipboard } from '@vueuse/core'
 import { Ref, UnwrapRef, computed, ref, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
@@ -139,7 +139,7 @@ import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableFilterMenu from './TableFilterMenu.vue'
 import TableToolbar from './TableToolbar.vue'
 
-type Props = TableProps<ItemType, () => CancelablePromise<ItemType[]>> & {
+type Props = TableProps<ItemType> & {
   filter?: (item: ItemType) => boolean
   filterKeys?: string | string[]
 }
@@ -148,6 +148,7 @@ const slots = useSlots()
 // Assert type here to prevent errors in template when exposing VDataTable slots
 const slotNames = Object.keys(slots) as 'default'[]
 
+const items = defineModel<ItemType[]>({ default: [] })
 const searchTerm = defineModel<string>('search')
 const props = defineProps<Props>()
 
@@ -159,8 +160,10 @@ defineSlots<
   }
 >()
 
-const { currentUser, items, actions, feedback, form, processedHeaders, loading, loadItems } =
-  useTable(props)
+const { currentUser, actions, feedback, form, processedHeaders, loading, loadItems } = useTable(
+  items,
+  props
+)
 
 const sortBy = ref<SortItem[]>([])
 

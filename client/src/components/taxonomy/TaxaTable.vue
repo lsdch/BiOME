@@ -1,10 +1,8 @@
 <template>
   <CRUDTable
-    :crud="{
-      list: () => TaxonomyService.listTaxa({}),
-      delete: (item: Taxon) => TaxonomyService.deleteTaxon({ code: item.code })
-    }"
     entityName="Taxon"
+    :fetch-items="() => TaxonomyService.listTaxa({})"
+    :delete="(item: Taxon) => TaxonomyService.deleteTaxon({ code: item.code })"
     :itemRepr="(item: Taxon) => item.name"
     :toolbar="{
       title: 'Taxonomy',

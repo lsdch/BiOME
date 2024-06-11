@@ -2,10 +2,8 @@
   <CRUDTable
     :headers="headers"
     density="compact"
-    :crud="{
-      list: PeopleService.listInstitutions,
-      delete: (inst: Institution) => PeopleService.deleteInstitution({ code: inst.code })
-    }"
+    :fetch-items="PeopleService.listInstitutions"
+    :delete="(inst: Institution) => PeopleService.deleteInstitution({ code: inst.code })"
     entityName="Institution"
     :itemRepr="(inst) => inst.code"
     :toolbar="{

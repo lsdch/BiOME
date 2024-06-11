@@ -1,33 +1,59 @@
-import { ApiError, CancelablePromise } from "@/api"
+import { ApiError } from "@/api"
 import { ConfirmDialogKey } from "@/injection"
 import { useUserStore } from "@/stores/user"
 import { HttpStatusCode } from "axios"
-import { ComputedRef, MaybeRef, Ref, computed, inject, onMounted, ref } from "vue"
+import { ComputedRef, MaybeRef, ModelRef, computed, inject, onMounted, ref } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
 
 
-export type SortItem = {
-  key: string
-  order?: boolean | 'asc' | 'desc'
-}
-
 export type ToolbarProps = {
+  /**
+   * Table toolbar title
+   */
   title: string
+  /**
+   * Table icon
+   */
   icon?: string
+  /**
+   * Whether table search bar is displayed by default, or must be toggled
+   */
   togglableSearch?: boolean
 }
 
-export type TableProps<ItemType, FetchList extends Function> = {
+export type TableProps<ItemType> = {
+  /**
+   * Entity name to display as title
+   */
   entityName: string
+  /**
+   * Datatable headers definition
+   */
   headers: CRUDTableHeader[]
+  /**
+   * Table toolbar configuration
+   */
   toolbar: ToolbarProps
+  /**
+   * Display column with update/delete controls
+   */
   showActions?: boolean
+  /**
+   * Short string representation of a table item to display in UI
+   */
   itemRepr?: (item: ItemType) => string
-  crud: {
-    list: FetchList
-    delete: (item: ItemType) => CancelablePromise<ItemType>
-  }
+  /**
+   * API call to populate table items
+   */
+  fetchItems?: () => Promise<ItemType[]>
+  /**
+   * API call to delete an item
+   */
+  delete?: (item: ItemType) => Promise<ItemType>
+  /**
+   * Reload all items after deleting one
+   */
   reloadOnDelete?: boolean
 }
 
@@ -42,14 +68,12 @@ type FormSlotScope<ItemType extends { id: string }> = {
 }
 
 
-export function useTable<
-  ItemType extends { id: string },
-  FetchList extends Function,
->(props: TableProps<ItemType, FetchList>) {
+export function useTable<ItemType extends { id: string }>(
+  items: ModelRef<ItemType[]>,
+  props: TableProps<ItemType>
+) {
 
   const { user: currentUser } = useUserStore()
-
-  const items: Ref<ItemType[]> = ref([])
 
   const form = ref<FormSlotScope<ItemType>>({
     dialog: false,
@@ -68,7 +92,9 @@ export function useTable<
   const loading = ref(true)
   async function loadItems() {
     loading.value = true
-    items.value = await props.crud.list()
+    if (props.fetchItems) {
+      items.value = await props.fetchItems()
+    }
     loading.value = false
   }
 
@@ -153,30 +179,34 @@ export function useTable<
     }
     console.log(`Deleting item`, item)
     const index = items.value.indexOf(item)
-    props
-      .crud.delete(item)
-      .then(async () => {
-        items.value.splice(index, 1)
-        feedback.value.show('Item successfully deleted.', 'success')
-        if (props.reloadOnDelete) {
-          await loadItems()
-        }
-      })
-      .catch((err: ApiError) => {
-        switch (err.status) {
-          case HttpStatusCode.NotFound:
-            feedback.value.show('Deletion failed: record not found.', 'error')
-            break
-          case HttpStatusCode.BadRequest:
-            feedback.value.show(`Deletion was not allowed: ${err.message}`, 'error')
-            break
-          case HttpStatusCode.Forbidden:
-            feedback.value.show('You are not granted rights to modify this item.', 'error')
-            break
-          case HttpStatusCode.InternalServerError:
-            feedback.value.show('An unexpected error occurred.', 'error')
-        }
-      })
+
+    if (props.delete == undefined) {
+      items.value.splice(index, 1)
+    } else {
+      props.delete(item)
+        .then(async () => {
+          items.value.splice(index, 1)
+          feedback.value.show('Item successfully deleted.', 'success')
+          if (props.reloadOnDelete) {
+            await loadItems()
+          }
+        })
+        .catch((err: ApiError) => {
+          switch (err.status) {
+            case HttpStatusCode.NotFound:
+              feedback.value.show('Deletion failed: record not found.', 'error')
+              break
+            case HttpStatusCode.BadRequest:
+              feedback.value.show(`Deletion was not allowed: ${err.message}`, 'error')
+              break
+            case HttpStatusCode.Forbidden:
+              feedback.value.show('You are not granted rights to modify this item.', 'error')
+              break
+            case HttpStatusCode.InternalServerError:
+              feedback.value.show('An unexpected error occurred.', 'error')
+          }
+        })
+    }
   }
 
   const feedback = ref<{
@@ -196,5 +226,5 @@ export function useTable<
   })
 
 
-  return { currentUser, items, feedback, actions, form, processedHeaders, loading, loadItems }
+  return { currentUser, feedback, actions, form, processedHeaders, loading, loadItems }
 }

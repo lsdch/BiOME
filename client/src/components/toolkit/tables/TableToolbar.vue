@@ -73,9 +73,7 @@ const { xs, smAndUp } = useDisplay()
 
 const toggleSearch = ref(false)
 
-type Props = ToolbarProps
-
-defineProps<Props>()
+defineProps<ToolbarProps>()
 
 const emit = defineEmits<{ createItem: []; reload: [] }>()
 </script>
