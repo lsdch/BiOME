@@ -69,6 +69,18 @@ export const routeGroups: RouterItem[] = [
   {
     label: "Locations", icon: "mdi-map-marker-circle", routes: [
       {
+        label: "Sites",
+        path: "/location/sites",
+        name: "sites",
+        icon: "mdi-map-marker-radius",
+        component: () => import("@/views/location/SitesView.vue"),
+        meta: {
+          drawer: {
+            temporary: true
+          }
+        }
+      },
+      {
         label: "Habitats",
         path: "/location/habitats",
         name: "habitats",
@@ -128,6 +140,11 @@ function router() {
         path: "/account",
         name: "account",
         component: () => import("../views/AccountView.vue")
+      },
+      {
+        path: "/location/import-sites",
+        name: "import-sites",
+        component: () => import("../views/location/SiteImportView.vue")
       },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       guardRole('Admin', {
