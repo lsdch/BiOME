@@ -12,7 +12,10 @@ declare global {
   type IconValue = VIcon['$props']['icon']
 
   // DataTables
-  type CRUDTableHeader = Omit<UnwrapReadonlyArray<ReadonlyHeaders>, 'filter'> & {
+
+  type DataTableHeader = UnwrapReadonlyArray<ReadonlyHeaders>
+
+  type CRUDTableHeader = Omit<DataTableHeader, 'filter'> & {
     // Allow filtering using any value type instead of string only
     // See original definition of FilterFunction type:
     // https://github.com/vuetifyjs/vuetify/blob/21241e1762734f639b4ee421e00735d3754181c8/packages/vuetify/src/composables/filter.ts#L19-L19
