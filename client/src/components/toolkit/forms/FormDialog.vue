@@ -4,8 +4,8 @@
     scrollable
     v-model="dialog"
     v-bind="$attrs"
-    :fullscreen="xs"
-    max-width="1000"
+    :max-width="maxWidth ?? 1000"
+    :fullscreen="fullscreen || xs"
   >
     <!-- Expose activator slot -->
     <template #activator="slotData">
@@ -48,6 +48,8 @@ const { xs } = useDisplay()
 defineProps<{
   title: string
   loading?: boolean
+  fullscreen?: boolean
+  maxWidth?: number
 }>()
 
 function close() {
