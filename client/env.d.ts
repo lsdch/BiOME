@@ -13,10 +13,11 @@ interface ImportMeta {
 export { }
 declare module 'vue-router' {
   interface RouteMeta {
-    // is optional
     title?: string
-    // must be declared by every route
     hideNavbar?: boolean
+    drawer?: {
+      temporary?: boolean
+    }
   }
 }
 

@@ -1,5 +1,8 @@
 <template>
-  <v-navigation-drawer v-model="drawer">
+  <v-navigation-drawer
+    v-model="drawer"
+    :temporary="router.currentRoute.value.meta.drawer?.temporary"
+  >
     <v-list density="compact" nav>
       <template v-for="group in routeGroups" :key="group.label">
         <v-list-item
