@@ -1,39 +1,23 @@
 
 module location {
 
-  type Country extending default::Auditable {
+  type Country {
     annotation description := "Countries as defined in the ISO 3166-1 norm.";
     required name: str {
       constraint exclusive;
-      readonly := true;
     };
     required code: str {
       constraint exclusive;
-      readonly := true;
       constraint min_len_value(2);
       constraint max_len_value(2);
     };
-    multi link localities := .<country[is Locality]
+
+    multi sites := .<country[is Site];
   }
 
-  type Locality extending default::Auditable {
-    region: str;
-    municipality: str;
-    constraint exclusive on ((.region, .municipality));
-
-    required code: str {
-      constraint exclusive;
-      annotation description := "Format like 'municipality|region[country_code]'";
-      rewrite insert, update using (
-        .municipality ?? "NA" ++ "|"
-        ++ .region ?? "NA" ++ "|"
-        ++ .country.code
-      )
-    };
-
-    required country: Country;
-    multi link sites := .<locality[is Site]
-  }
+  alias CountryList := (
+    select Country { *, sites_count := count(.sites) }
+  );
 
   type Habitat extending default::Auditable {
     required label: str {
@@ -79,16 +63,16 @@ module location {
     }
     description: str;
 
-    required multi habitat_tags: Habitat {
-      annotation title := "A list of descriptors for the habitat that was targeted.";
-      on target delete allow;
-    };
+    # required multi habitat_tags: Habitat {
+    #   annotation title := "A list of descriptors for the habitat that was targeted.";
+    #   on target delete allow;
+    # };
 
-    required locality: Locality {
-      on target delete restrict;
-    };
+    region: str;
+    municipality: str;
+    required country: Country;
 
-    required coordinates: tuple<
+    coordinates: tuple<
       precision: CoordinateMaxPrecision,
       latitude: float32,
       longitude: float32
@@ -99,7 +83,7 @@ module location {
       );
     };
 
-    altitudeRange: tuple<min:float32, max:float32> {
+    altitude: tuple<min: float32, max: float32> {
       annotation title := "The site elevation in meters";
     };
 
@@ -107,6 +91,7 @@ module location {
     multi link abiotic_measurements := .<site[is event::AbioticMeasurement];
     multi link samplings := .<site[is event::Sampling];
     multi link spottings := .<site[is event::Spotting];
+    multi datasets := .<sites[is SiteDataset];
   }
 
   type SiteDataset extending default::Auditable {
