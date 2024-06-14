@@ -9,6 +9,9 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  optimizeDeps: {
+    exclude: ['leaflet.fullscreen'],
+  },
   server: {
     proxy: {
       // redirects API calls made on the client host towards the API server
