@@ -2,6 +2,7 @@ package db
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/edgedb/edgedb-go"
@@ -40,4 +41,10 @@ func Client() *edgedb.Client {
 // Get a connection to EdgeDB with an authenticated user identified by an UUID
 func WithCurrentUser(userID edgedb.UUID) *edgedb.Client {
 	return db.WithGlobals(map[string]interface{}{"current_user_id": userID})
+}
+
+// IsNoData returns true if error is edgedb.NoDataError
+func IsNoData(err error) bool {
+	var edbErr edgedb.Error
+	return errors.As(err, &edbErr) && edbErr.Category(edgedb.NoDataError)
 }
