@@ -5,5 +5,9 @@ for item in json_array_unpack(data) union (
     name := <str>item['name'],
     code := <str>item['code']
   }
-  unless conflict on (.code)
+  unless conflict on (.code) else (
+    update Country set {
+      name := <str>item['name']
+    }
+  )
 )

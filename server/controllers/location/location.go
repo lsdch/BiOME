@@ -9,18 +9,7 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
-	gin "github.com/gin-gonic/gin"
 )
-
-func Setup(ctx *gin.Context, db *edgedb.Client) {
-	err := location.Setup(db)
-	if err != nil {
-		ctx.Error(err)
-	} else {
-		ctx.Status(http.StatusOK)
-	}
-}
 
 func RegisterRoutes(r router.Router) {
 	locationAPI := r.RouteGroup("/locations").

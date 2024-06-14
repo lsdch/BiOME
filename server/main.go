@@ -9,6 +9,7 @@ import (
 	accounts "darco/proto/controllers/users"
 	"darco/proto/db"
 	mw "darco/proto/middlewares"
+	"darco/proto/models/location"
 	"darco/proto/models/validations"
 	"darco/proto/router"
 	"darco/proto/services/email"
@@ -19,6 +20,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -108,6 +110,11 @@ func main() {
 	if err := email.LoadTemplates("templates/**"); err != nil {
 		log.Fatalf("Failed to load email templates: %v", err)
 	}
+
+	if err := location.SetupCountries(db.Client()); err != nil {
+		logrus.Fatalf("Failed to setup countries in database: %v", err)
+	}
+
 	r := setupRouter()
 	if err := r.Run(":8080"); err != nil {
 		log.Fatalf("Failed to start Gin router: %v", err)

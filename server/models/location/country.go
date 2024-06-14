@@ -2,7 +2,7 @@ package location
 
 import (
 	"context"
-	"embed"
+	_ "embed"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -11,30 +11,21 @@ import (
 var setupCountriesCmd string
 
 //go:embed data/countries.json
-var seed embed.FS
+var seed []byte
 
-func Setup(db *edgedb.Client) error {
-	json, err := seed.ReadFile("countries.json")
-	if err != nil {
-		return err
-	}
-	err = db.Execute(context.Background(), setupCountriesCmd, json)
-	return err
+func SetupCountries(db *edgedb.Client) error {
+	return db.Execute(context.Background(), setupCountriesCmd, seed)
 }
 
 type Country struct {
-	ID           edgedb.UUID `json:"id" edgedb:"id" format:"uuid"`
-	Name         string      `json:"name" edgedb:"name" example:"Germany" binding:"required"`
-	Code         string      `json:"code" edgedb:"code" example:"DE" binding:"required,country_code=iso3166_1_alpha2"`
-	NbLocalities int64       `json:"nbLocalities" edgedb:"nb_localities" minimum:"0"`
-} // @name Country
+	ID   edgedb.UUID `json:"id" edgedb:"id" format:"uuid"`
+	Name string      `json:"name" edgedb:"name" example:"Germany" binding:"required"`
+	Code string      `json:"code" edgedb:"code" example:"DE" binding:"required,country_code=iso3166_1_alpha2"`
+}
 
-func ListCountries(db edgedb.Executor) (countries []Country, err error) {
-	query := `select
-		location::Country {
-			*, nb_localities := count(.localities)
-		}
-		order by (exists .localities) desc then .name asc;`
-	err = db.Query(context.Background(), query, &countries)
-	return
+func ListCountries(db edgedb.Executor) ([]Country, error) {
+	var countries []Country
+	query := `select location::Country { * };`
+	err := db.Query(context.Background(), query, &countries)
+	return countries, err
 }
