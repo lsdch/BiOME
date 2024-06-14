@@ -14,6 +14,42 @@ type OptionalNullable interface {
 	IsNull() bool
 }
 
+type Nullable[T any] struct {
+	Null  bool
+	Value T
+}
+
+func (n Nullable[T]) HasValue() bool {
+	return true
+}
+func (n Nullable[T]) IsNull() bool {
+	return n.Null
+}
+
+func (n Nullable[T]) Schema(r huma.Registry) *huma.Schema {
+	s := r.Schema(reflect.TypeOf(n.Value), true, "")
+	s.Nullable = true
+	return s
+}
+
+func (n Nullable[T]) MarshalJSON() ([]byte, error) {
+	if !n.Null {
+		return []byte("null"), nil
+	}
+	return json.Marshal(n.Value)
+}
+
+func (o *Nullable[T]) UnmarshalJSON(b []byte) error {
+	if len(b) > 0 {
+		if bytes.Equal(b, []byte("null")) || bytes.Equal(b, []byte("")) {
+			o.Null = true
+			return nil
+		}
+		return json.Unmarshal(b, &o.Value)
+	}
+	return nil
+}
+
 type OptionalInput[T any] struct {
 	IsSet bool
 	Value T
@@ -51,7 +87,7 @@ func (o OptionalInput[T]) MarshalJSON() ([]byte, error) {
 	return json.Marshal(o.Value)
 }
 
-func (o OptionalInput[T]) UnmarshalJSON(b []byte) error {
+func (o *OptionalInput[T]) UnmarshalJSON(b []byte) error {
 	if len(b) > 0 {
 		o.IsSet = true
 		return json.Unmarshal(b, &o.Value)
