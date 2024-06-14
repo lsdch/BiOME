@@ -505,6 +505,37 @@ export class LocationService {
       }
     })
   }
+
+  /**
+   * Create site dataset
+   * Create a new site dataset with new or existing sites
+   * @param data The data for the request.
+   * @param data.requestBody
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
+   * @returns SiteDataset OK
+   * @throws ApiError
+   */
+  public static createSiteDataset(
+    data: $OpenApiTs['/sites']['post']['req']
+  ): CancelablePromise<$OpenApiTs['/sites']['post']['res'][200]> {
+    return __request(OpenAPI, {
+      method: 'POST',
+      url: '/sites',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
+      body: data.requestBody,
+      mediaType: 'application/json',
+      errors: {
+        422: 'Unprocessable Entity',
+        500: 'Internal Server Error'
+      }
+    })
+  }
 }
 
 export class HabitatsService {
@@ -1327,6 +1358,8 @@ export class SettingsService {
   /**
    * Set app icon
    * @param data The data for the request.
+   * @param data.authorization Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+   * @param data.authToken Session cookie containing JWT
    * @param data.formData
    * @returns string No Content
    * @throws ApiError
@@ -1337,10 +1370,17 @@ export class SettingsService {
     return __request(OpenAPI, {
       method: 'POST',
       url: '/settings/icon',
+      cookies: {
+        auth_token: data.authToken
+      },
+      headers: {
+        Authorization: data.authorization
+      },
       formData: data.formData,
       mediaType: 'multipart/form-data',
       responseHeader: 'Location',
       errors: {
+        422: 'Unprocessable Entity',
         500: 'Internal Server Error'
       }
     })

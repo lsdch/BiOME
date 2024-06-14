@@ -1,6 +1,23 @@
 {
 	"components": {
 		"schemas": {
+			"AltitudeRange": {
+				"additionalProperties": false,
+				"properties": {
+					"max": {
+						"format": "float",
+						"type": "number"
+					},
+					"min": {
+						"format": "float",
+						"type": "number"
+					}
+				},
+				"required": [
+					"min"
+				],
+				"type": "object"
+			},
 			"AuthenticationResponse": {
 				"additionalProperties": false,
 				"properties": {
@@ -37,6 +54,44 @@
 				],
 				"type": "object"
 			},
+			"CoordinatePrecision": {
+				"enum": [
+					"m10",
+					"m100",
+					"Km1",
+					"Km10",
+					"Km100",
+					"Unknown"
+				],
+				"title": "CoordinatePrecision",
+				"type": "string"
+			},
+			"Coordinates": {
+				"additionalProperties": false,
+				"properties": {
+					"latitude": {
+						"format": "float",
+						"maximum": 90,
+						"minimum": -90,
+						"type": "number"
+					},
+					"longitude": {
+						"format": "float",
+						"maximum": 180,
+						"minimum": -180,
+						"type": "number"
+					},
+					"precision": {
+						"$ref": "#/components/schemas/CoordinatePrecision"
+					}
+				},
+				"required": [
+					"precision",
+					"latitude",
+					"longitude"
+				],
+				"type": "object"
+			},
 			"Country": {
 				"additionalProperties": false,
 				"properties": {
@@ -56,18 +111,12 @@
 							"Germany"
 						],
 						"type": "string"
-					},
-					"nbLocalities": {
-						"format": "int64",
-						"minimum": 0,
-						"type": "integer"
 					}
 				},
 				"required": [
 					"id",
 					"name",
-					"code",
-					"nbLocalities"
+					"code"
 				],
 				"type": "object"
 			},
@@ -1445,6 +1494,230 @@
 					"auth_token_lifetime",
 					"account_token_lifetime",
 					"jwt_secret_key"
+				],
+				"type": "object"
+			},
+			"SiteDataset": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SiteDataset.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"sites": {
+						"items": {
+							"$ref": "#/components/schemas/SiteItem"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"sites",
+					"maintainers",
+					"id",
+					"label",
+					"description"
+				],
+				"type": "object"
+			},
+			"SiteDatasetInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SiteDatasetInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"label": {
+						"maxLength": 32,
+						"minLength": 4,
+						"type": "string"
+					},
+					"maintainers": {
+						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"new_sites": {
+						"description": "New sites to include in the dataset",
+						"items": {
+							"$ref": "#/components/schemas/SiteInput"
+						},
+						"type": "array"
+					},
+					"sites": {
+						"description": "Existing site codes to include in the dataset",
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"label",
+					"maintainers"
+				],
+				"type": "object"
+			},
+			"SiteInput": {
+				"additionalProperties": false,
+				"properties": {
+					"altitude": {
+						"$ref": "#/components/schemas/AltitudeRange"
+					},
+					"code": {
+						"maxLength": 8,
+						"minLength": 4,
+						"type": "string"
+					},
+					"coordinates": {
+						"$ref": "#/components/schemas/Coordinates",
+						"type": [
+							"",
+							"null"
+						]
+					},
+					"country_code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"municipality": {
+						"type": "string"
+					},
+					"name": {
+						"minLength": 4,
+						"type": "string"
+					},
+					"region": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"code",
+					"coordinates",
+					"country_code"
+				],
+				"type": "object"
+			},
+			"SiteItem": {
+				"additionalProperties": false,
+				"properties": {
+					"altitude": {
+						"$ref": "#/components/schemas/SiteItemAltitudeStruct"
+					},
+					"code": {
+						"maxLength": 8,
+						"minLength": 4,
+						"type": "string"
+					},
+					"coordinates": {
+						"$ref": "#/components/schemas/SiteItemCoordinatesStruct"
+					},
+					"country": {
+						"$ref": "#/components/schemas/Country"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"municipality": {
+						"type": "string"
+					},
+					"name": {
+						"minLength": 4,
+						"type": "string"
+					},
+					"region": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"code",
+					"description",
+					"country"
+				],
+				"type": "object"
+			},
+			"SiteItemAltitudeStruct": {
+				"additionalProperties": false,
+				"properties": {
+					"max": {
+						"format": "float",
+						"type": "number"
+					},
+					"min": {
+						"format": "float",
+						"type": "number"
+					}
+				},
+				"required": [
+					"min"
+				],
+				"type": "object"
+			},
+			"SiteItemCoordinatesStruct": {
+				"additionalProperties": false,
+				"properties": {
+					"latitude": {
+						"format": "float",
+						"maximum": 90,
+						"minimum": -90,
+						"type": "number"
+					},
+					"longitude": {
+						"format": "float",
+						"maximum": 180,
+						"minimum": -180,
+						"type": "number"
+					},
+					"precision": {
+						"$ref": "#/components/schemas/CoordinatePrecision"
+					}
+				},
+				"required": [
+					"precision",
+					"latitude",
+					"longitude"
 				],
 				"type": "object"
 			},
@@ -4507,6 +4780,82 @@
 				"summary": "Update security settings",
 				"tags": [
 					"Settings"
+				]
+			}
+		},
+		"/sites": {
+			"post": {
+				"description": "Create a new site dataset with new or existing sites",
+				"operationId": "CreateSiteDataset",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SiteDatasetInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SiteDataset"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create site dataset",
+				"tags": [
+					"Location"
 				]
 			}
 		},
