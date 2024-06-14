@@ -45,7 +45,13 @@ export function useForm<
   props: FormProps<ItemType>,
   schema: T,
   dataModel: {
+    /**
+     * Base value for data model
+     */
     initial: ItemInputType,
+    /**
+     * Transform item fields to their representation for update inputs
+     */
     transformers?: Partial<{
       [k in keyof (ItemType | ItemInputType)]: (v: ItemType[k]) => ItemInputType[k]
     }>
