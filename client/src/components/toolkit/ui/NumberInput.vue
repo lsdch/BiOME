@@ -11,10 +11,10 @@
 
 <script setup lang="ts">
 const model = defineModel<number>()
-const props = defineProps<{ floating?: boolean; min?: number; max?: number }>()
+const props = defineProps<{ float?: boolean | number; min?: number; max?: number }>()
 
 function filterInput(event: KeyboardEvent) {
-  if (event.key.length === 1 && isNaN(Number(event.key)) && !(props.floating && event.key == '.')) {
+  if (event.key.length === 1 && isNaN(Number(event.key)) && !(props.float && event.key == '.')) {
     event.preventDefault()
   }
 }
