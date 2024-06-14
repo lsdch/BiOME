@@ -1,8 +1,5 @@
 <template>
-  <v-navigation-drawer
-    v-model="drawer"
-    :temporary="router.currentRoute.value.meta.drawer?.temporary"
-  >
+  <v-navigation-drawer v-model="drawer" v-bind="$attrs">
     <v-list density="compact" nav>
       <template v-for="group in routeGroups" :key="group.label">
         <v-list-item
@@ -40,10 +37,11 @@
 </template>
 
 <script setup lang="ts">
-import { useRouter } from 'vue-router'
 import { RouteDefinition, routeGroups } from '@/router'
-const drawer = defineModel<boolean>({ default: true })
+import { useRouter } from 'vue-router'
+
 const router = useRouter()
+const drawer = defineModel<boolean>({ default: true })
 function isRouteActive(route: RouteDefinition) {
   return route.name === router.currentRoute.value.name
 }

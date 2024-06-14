@@ -15,7 +15,10 @@
       <SettingsMenu />
       <AccountNavMenu />
     </v-app-bar>
-    <NavigationDrawer v-model="drawer" />
+    <NavigationDrawer
+      v-model="drawer"
+      :temporary="router.currentRoute.value.meta.drawer?.temporary"
+    />
     <v-main>
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <RouterView />
@@ -47,8 +50,25 @@ import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { ConfirmDialogKey } from './injection'
 
+// Navigation
+const router = useRouter()
+router.beforeEach(() => {
+  loading.value = true
+})
+router.afterEach((to) => {
+  if (to.name === 'api-docs') {
+    drawer.value = false
+  }
+  loading.value = false
+})
+
 const loading = ref(false)
-const drawer = ref(true)
+
+const drawer = ref(false)
+if (!router.currentRoute.value.meta.drawer?.temporary) {
+  drawer.value = true
+}
+
 defineProps<{ settings: InstanceSettings }>()
 
 // Confirm dialog
@@ -78,18 +98,6 @@ OpenAPI.interceptors.response.use(async (response) => {
     snackbar.value.open = true
   }
   return response
-})
-
-// Navigation
-const router = useRouter()
-router.beforeEach(() => {
-  loading.value = true
-})
-router.afterEach((to) => {
-  if (to.name === 'api-docs') {
-    drawer.value = false
-  }
-  loading.value = false
 })
 </script>
 
