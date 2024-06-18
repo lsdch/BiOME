@@ -65,12 +65,13 @@ import { $PersonInput, Institution, PeopleService, Person, PersonInput } from '@
 import { ref } from 'vue'
 import { VForm } from 'vuetify/components'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { FormEmits, FormProps, useForm } from '../toolkit/forms/form'
+import { FormEmits, FormProps, useForm } from '@/components/toolkit/forms/form'
 import InstitutionKindChip from './InstitutionKindChip.vue'
 import PersonFormFields from './PersonFormFields.vue'
+import { handleErrors } from '@/api/responses'
 
-const props = defineProps<FormProps<Person>>()
 const dialog = defineModel<boolean>()
+const props = defineProps<FormProps<Person>>()
 const emit = defineEmits<FormEmits<Person>>()
 const { loading, field, errorHandler, model } = useForm(props, $PersonInput, {
   initial: DEFAULT,
@@ -86,15 +87,19 @@ const nameBindings = ref({
 /**
  * List of known institutions from the DB
  */
-const institutions = ref<Institution[]>(await PeopleService.listInstitutions())
+const institutions = ref<Institution[]>(
+  await PeopleService.listInstitutions().then(
+    handleErrors((err) => console.error('Failed to fetch institutions: ', err))
+  )
+)
 
 async function submit() {
   const data = model.value
   const request = props.edit
-    ? PeopleService.updatePerson({ id: props.edit.id, requestBody: data })
-    : PeopleService.createPerson({ requestBody: data })
+    ? PeopleService.updatePerson({ path: { id: props.edit.id }, body: data })
+    : PeopleService.createPerson({ body: data })
 
-  return await request.then((person) => emit('success', person)).catch(errorHandler)
+  return await request.then(errorHandler).then((person) => emit('success', person))
 }
 </script>
 

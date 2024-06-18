@@ -105,12 +105,12 @@ function addElement() {
 }
 
 async function submit() {
-  await LocationService.createHabitatGroup({ requestBody: model.value })
+  await LocationService.createHabitatGroup({ body: model.value })
+    .then(errorHandler)
     .then((created) => {
       emit('success', created)
       dialog.value = false
     })
-    .catch(errorHandler)
 }
 </script>
 

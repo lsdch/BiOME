@@ -124,6 +124,7 @@ import { useFeedback } from '@/stores/feedback'
 import { ConnectedGroup, registerGroup, useHabitatGraph } from './habitat_graph'
 import { NodeData } from './layout'
 import { useUserStore } from '@/stores/user'
+import { mergeResponses } from '@/api/responses'
 
 const { isGranted } = useUserStore()
 
@@ -137,7 +138,13 @@ function handleDelete() {
 
 onKeyStroke('Delete', handleDelete)
 
-const data = await LocationService.listHabitatGroups()
+const data = await LocationService.listHabitatGroups().then(({ data, error }) => {
+  if (error !== undefined) {
+    console.error('Failed to fetch habitat groups: ', error)
+    return []
+  }
+  return data
+})
 
 const selectedGroups = computed<HabitatGroup[]>(() => {
   return getSelectedNodes.value.map(({ data }) => data)
@@ -178,9 +185,14 @@ onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitat
     .then(async ({ isCanceled }) => {
       if (isCanceled) return
       await LocationService.updateHabitatGroup({
-        code: group.label,
-        requestBody: { depends: habitat.label }
-      }).then((updated) => {
+        path: { code: group.label },
+        body: { depends: habitat.label }
+      }).then(({ data: updated, error }) => {
+        if (error !== undefined) {
+          // TODO: error handling
+          console.error('Error:', error)
+          return
+        }
         edges.value.push({
           id: `e-${dependHabitatID}-${groupID}`,
           target: groupID,
@@ -208,10 +220,15 @@ function askDeleteEdge(edge: GraphEdge) {
   confirmDeletion?.({ title: `Drop dependency of '${group}'?` }).then(async ({ isCanceled }) => {
     if (isCanceled) return console.info('Dependency drop canceled')
     else {
-      const updated = await LocationService.updateHabitatGroup({
-        code: group,
-        requestBody: { depends: null }
+      const { data: updated, error } = await LocationService.updateHabitatGroup({
+        path: { code: group },
+        body: { depends: null }
       })
+      if (error !== undefined) {
+        //TODO: handle error
+        console.error('Error: ', error)
+        return
+      }
       registerGroup(updated, habitatGraph)
       updateNodeData(updated.id, { depends: null })
       removeEdges(edge)
@@ -239,25 +256,28 @@ function askDeleteGroups(groups: HabitatGroup[]) {
 
 async function deleteGroups(groups: HabitatGroup[]) {
   await Promise.all(
-    groups.map((group) => LocationService.deleteHabitatGroup({ code: group.label }))
+    groups.map((group) => LocationService.deleteHabitatGroup({ path: { code: group.label } }))
   )
-    .then((deleted) => {
+    .then(mergeResponses)
+    .then(({ data, error }) => {
+      if (error !== undefined) {
+        // TODO: better error handling
+        feedback({
+          type: 'error',
+          message: `Failed to delete habitat group(s)`
+        })
+        return
+      }
       blockLayout.value = true
       nodes.value = nodes.value.filter(
-        ({ id }) => !deleted.find(({ id: deletedID }) => deletedID === id)
+        ({ id }) => !data.find(({ id: deletedID }) => deletedID === id)
       )
       feedback({
         type: 'success',
         message:
-          deleted.length > 1
-            ? `Deleted ${deleted.length} habitat group`
-            : `Deleted habitat group ${deleted[0].label}`
-      })
-    })
-    .catch(() => {
-      feedback({
-        type: 'error',
-        message: `Failed to delete habitat group(s)`
+          data.length > 1
+            ? `Deleted ${data.length} habitat group`
+            : `Deleted habitat group ${data[0].label}`
       })
     })
 }
@@ -314,7 +334,7 @@ function createNode(
 }
 
 function edgeId({ label, depends }: HabitatGroup) {
-  return `edge-${depends.label}-${label}`
+  return `edge-${depends?.label}-${label}`
 }
 
 function collectGraphElements(groups: HabitatGroup[]) {

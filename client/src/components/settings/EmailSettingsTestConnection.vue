@@ -12,6 +12,7 @@
 
 <script setup lang="ts">
 import { EmailSettingsInput, SettingsService } from '@/api'
+import { abort } from 'process'
 import { computed, watch } from 'vue'
 import { ref } from 'vue'
 
@@ -22,10 +23,12 @@ const connectionOK = defineModel<boolean | undefined>('connectionOK', { default:
 
 const response = ref<ReturnType<typeof SettingsService.testSmtp> | undefined>(undefined)
 
+const abortController = new AbortController()
+
 watch(
   () => props.settings,
   () => {
-    response.value?.cancel()
+    abortController.abort()
     testing.value = false
     connectionOK.value = undefined
   },
@@ -57,9 +60,10 @@ const btnProps = computed(() => {
 
 async function testConnection(settings: EmailSettingsInput) {
   testing.value = true
-  response.value = SettingsService.testSmtp({ requestBody: settings })
+  response.value = SettingsService.testSmtp({ body: settings, signal: abortController.signal })
   await response.value
-    .then((ok) => (connectionOK.value = ok))
+    // TODO: better error handling
+    .then(({ data: ok, error }) => (connectionOK.value = ok))
     .catch(() => {
       console.info('CAUGHT ERROR')
       connectionOK.value = false

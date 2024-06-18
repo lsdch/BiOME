@@ -84,10 +84,18 @@ const parentLabel = computed((): string => {
 })
 
 const taxa: Ref<Taxon[]> = ref(
-  await TaxonomyService.listTaxa().then((taxa) => {
-    loading.value = false
-    return taxa
-  })
+  await TaxonomyService.listTaxa()
+    .then(({ data: taxa, error }) => {
+      if (error !== undefined) {
+        // TODO: better error handling
+        console.error('Failed to fetch taxa', error)
+        return []
+      }
+      return taxa
+    })
+    .finally(() => {
+      loading.value = false
+    })
 )
 const candidateParents = computed(() => {
   return taxa.value.filter(
@@ -101,9 +109,9 @@ const candidateParents = computed(() => {
 
 async function submit() {
   if (props.edit) {
-    return TaxonomyService.updateTaxon({ code: props.edit.code, requestBody: model.value })
+    return TaxonomyService.updateTaxon({ path: { code: props.edit.code }, body: model.value })
   } else {
-    return TaxonomyService.createTaxon({ requestBody: model.value })
+    return TaxonomyService.createTaxon({ body: model.value })
   }
 }
 

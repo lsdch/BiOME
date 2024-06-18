@@ -32,7 +32,7 @@ const model = ref<UpdatePasswordInput>({
 const { feedback } = useFeedback()
 
 async function submit() {
-  AccountService.updatePassword({ requestBody: model.value })
+  AccountService.updatePassword({ body: model.value })
     .then(() => {
       feedback({ type: 'success', message: 'Password updated' })
     })

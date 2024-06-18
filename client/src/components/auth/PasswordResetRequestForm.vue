@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import { AccountService, ApiError } from '@/api'
+import { AccountService } from '@/api'
 import useVuelidate from '@vuelidate/core'
 import { email, required } from '@vuelidate/validators'
 import { Ref, ref } from 'vue'
@@ -47,12 +47,8 @@ const v$ = useVuelidate(rules, state)
 
 async function submit() {
   v$.value.$validate()
-  await AccountService.requestPasswordReset({ requestBody: state.value })
-    .then(() => {
-      requestAccepted.value = true
-    })
-    .catch((err: ApiError) => {
-      console.log(err)
+  await AccountService.requestPasswordReset({ body: state.value }).then(({ data, error: err }) => {
+    if (err !== undefined) {
       switch (err.status) {
         case 400:
           error.value = 'Invalid email address'
@@ -63,7 +59,10 @@ async function submit() {
         default:
           break
       }
-    })
+      return
+    }
+    requestAccepted.value = true
+  })
 }
 </script>
 

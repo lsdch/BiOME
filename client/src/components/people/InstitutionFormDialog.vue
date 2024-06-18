@@ -84,9 +84,9 @@ const title = computed(() => (props.edit ? `Edit ${props.edit.code}` : 'Create i
 
 async function submit() {
   const req = props.edit
-    ? PeopleService.updateInstitution({ code: props.edit.code, requestBody: model.value })
-    : PeopleService.createInstitution({ requestBody: model.value })
-  await req.then((inst) => emit('success', inst)).catch(errorHandler)
+    ? PeopleService.updateInstitution({ path: { code: props.edit.code }, body: model.value })
+    : PeopleService.createInstitution({ body: model.value })
+  await req.then(errorHandler).then((inst) => emit('success', inst))
 }
 
 const { errorHandler, field, loading, model } = useForm(props, $InstitutionInput, {

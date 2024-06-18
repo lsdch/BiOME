@@ -98,7 +98,7 @@ async function validateToken(token: string) {
 
 async function submit() {
   loading.value = true
-  AccountService.resetPassword({ token, requestBody: state.value })
+  AccountService.resetPassword({ token, body: state.value })
     .then(() => {
       status.value = Status.PasswordResetDone
       setTimeout(() => {

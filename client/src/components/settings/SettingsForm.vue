@@ -31,7 +31,7 @@ useSlots()
 
 const props = defineProps<{
   get(): PromiseLike<Settings>
-  update(data: { requestBody: Settings | Awaited<Settings> }): PromiseLike<Settings>
+  update(data: { body: Settings | Awaited<Settings> }): PromiseLike<Settings>
   schema?: SchemaWithProperties<P>
 }>()
 
@@ -45,7 +45,7 @@ watch(model, (m) => {
 })
 
 function submit() {
-  const resp = props.update({ requestBody: model.value })
+  const resp = props.update({ body: model.value })
   resp.then((_settings) => {
     console.log('Settings saved')
   })

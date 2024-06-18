@@ -1,7 +1,8 @@
-import { ApiError, ErrorModel } from "@/api"
+import { ErrorModel } from "@/api"
 
 import { Ref, computed, reactive, ref, toValue, watch } from "vue"
 import { Schema, SchemaBinding, useSchema, type SchemaPaths } from "./schema"
+import { ResponseBody, handleErrors } from "@/api/responses"
 
 export * from "./FormDialog.vue"
 export * from "./schema"
@@ -87,9 +88,8 @@ export function useForm<
   /**
    * Collects error messages indexed by their object path in an API request body,
    * so that they can be consumed by `bindErrors` or `field`.
-   * @param error An instance of `ApiError` returned from an API request.
    */
-  function errorHandler({ body }: { body: ErrorModel } & ApiError) {
+  function _errorHandler(body: ErrorModel) {
     body.errors?.forEach(({ location, message }) => {
       if (location === undefined || message === undefined) return
       if (location.startsWith('body.')) {
@@ -97,6 +97,9 @@ export function useForm<
         errors.value[loc].push(message)
       }
     })
+  }
+  function errorHandler<D>(e: ResponseBody<D, ErrorModel>) {
+    return handleErrors<D, ErrorModel>(_errorHandler)(e)
   }
 
   /**

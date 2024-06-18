@@ -43,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { AccountService, ApiError, ErrorModel, UserCredentials } from '@/api'
+import { AccountService, ErrorModel, UserCredentials } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { Ref, onBeforeMount, reactive, ref } from 'vue'
 import { LocationQueryValue, useRouter } from 'vue-router'
@@ -79,14 +79,15 @@ function redirect() {
 
 async function submit() {
   loading.value = true
-  await AccountService.login({ requestBody: formData })
-    .then(async () => {
+  await AccountService.login({ body: formData })
+    .then(async ({ data: _, error }) => {
+      if (error !== undefined) {
+        errors.value = error
+        return
+      }
       errors.value = undefined
       await getUser()
       redirect()
-    })
-    .catch((err: ApiError) => {
-      errors.value = err.body as ErrorModel
     })
     .finally(() => {
       loading.value = false

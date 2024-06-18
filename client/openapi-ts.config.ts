@@ -1,12 +1,20 @@
-import { defineConfig } from "@hey-api/openapi-ts"
+import { UserConfig, defineConfig } from "@hey-api/openapi-ts"
 
-export default defineConfig({
+const config: UserConfig = defineConfig({
+  client: "@hey-api/client-fetch",
   input: "../server/docs/openapi.json",
-  output: "src/api",
-  client: "fetch",
-  format: "prettier",
+  output: {
+    path: "src/api",
+    format: "prettier",
+    lint: "eslint"
+  },
+  services: {
+    asClass: true,
+  },
   types: {
     dates: true,
     name: "PascalCase",
   }
 })
+
+export default config
