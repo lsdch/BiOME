@@ -13,7 +13,6 @@ import (
 
 
 var CoordinatePrecisionValues = []CoordinatePrecision{
-	M10,
 	M100,
 	KM1,
 	KM10,

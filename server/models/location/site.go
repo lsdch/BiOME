@@ -15,20 +15,15 @@ type Coordinates struct {
 	Longitude float32             `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180"`
 }
 
-type AltitudeRange struct {
-	Min float32 `edgedb:"min" json:"min"`
-	Max float32 `edgedb:"max" json:"max,omitempty"`
-}
-
 type SiteInput struct {
-	Name         string                              `json:"name" minLength:"4"`
-	Code         string                              `json:"code" minLength:"4" maxLength:"8"`
-	Description  models.OptionalInput[string]        `json:"description,omitempty"`
-	Coordinates  models.Nullable[Coordinates]        `json:"coordinates"`
-	Altitude     models.OptionalInput[AltitudeRange] `json:"altitude,omitempty"`
-	Region       models.OptionalInput[string]        `json:"region,omitempty"`
-	Municipality models.OptionalInput[string]        `json:"municipality,omitempty"`
-	CountryCode  string                              `json:"country_code"`
+	Name         string                       `json:"name" minLength:"4"`
+	Code         string                       `json:"code" minLength:"4" maxLength:"8"`
+	Description  models.OptionalInput[string] `json:"description,omitempty"`
+	Coordinates  models.Nullable[Coordinates] `json:"coordinates"`
+	Altitude     models.OptionalInput[int32]  `json:"altitude,omitempty"`
+	Region       models.OptionalInput[string] `json:"region,omitempty"`
+	Municipality models.OptionalInput[string] `json:"municipality,omitempty"`
+	CountryCode  string                       `json:"country_code"`
 }
 
 type SiteItem struct {
@@ -40,13 +35,10 @@ type SiteItem struct {
 		edgedb.Optional
 		Coordinates
 	} `edgedb:"coordinates" json:"coordinates,omitempty"`
-	Altitude struct {
-		edgedb.Optional
-		AltitudeRange
-	} `edgedb:"altitude" json:"altitude,omitempty"`
-	Region       edgedb.OptionalStr `edgedb:"region" json:"region,omitempty"`
-	Municipality edgedb.OptionalStr `edgedb:"municipality" json:"municipality,omitempty"`
-	Country      Country            `edgedb:"country" json:"country"`
+	Altitude     edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
+	Region       edgedb.OptionalStr   `edgedb:"region" json:"region,omitempty"`
+	Municipality edgedb.OptionalStr   `edgedb:"municipality" json:"municipality,omitempty"`
+	Country      Country              `edgedb:"country" json:"country"`
 }
 
 type Site struct {

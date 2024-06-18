@@ -50,7 +50,12 @@ module location {
     elements := .<in_group[is Habitat];
   }
 
-  scalar type CoordinateMaxPrecision extending enum<"m10", "m100", "Km1", "Km10", "Km100", "Unknown">;
+  # <100m: Coordinates of site position
+  # <1Km: Nearest small locality
+  # <10Km: Nearest locality
+  # 10-100Km: Country/region
+  # Unknown
+  scalar type CoordinatesPrecision extending enum<"<100m", "<1Km", "<10Km", "10-100Km", "Unknown">;
 
   type Site extending default::Auditable {
     required name : str { constraint exclusive };
@@ -68,12 +73,11 @@ module location {
     #   on target delete allow;
     # };
 
-    region: str;
-    municipality: str;
+    locality: str;
     required country: Country;
 
     coordinates: tuple<
-      precision: CoordinateMaxPrecision,
+      precision: CoordinatePrecision,
       latitude: float32,
       longitude: float32
     > {
@@ -83,7 +87,7 @@ module location {
       );
     };
 
-    altitude: tuple<min: float32, max: float32> {
+    altitude: int32 {
       annotation title := "The site elevation in meters";
     };
 

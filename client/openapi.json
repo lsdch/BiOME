@@ -1,23 +1,6 @@
 {
 	"components": {
 		"schemas": {
-			"AltitudeRange": {
-				"additionalProperties": false,
-				"properties": {
-					"max": {
-						"format": "float",
-						"type": "number"
-					},
-					"min": {
-						"format": "float",
-						"type": "number"
-					}
-				},
-				"required": [
-					"min"
-				],
-				"type": "object"
-			},
 			"AuthenticationResponse": {
 				"additionalProperties": false,
 				"properties": {
@@ -56,11 +39,10 @@
 			},
 			"CoordinatePrecision": {
 				"enum": [
-					"m10",
-					"m100",
-					"Km1",
-					"Km10",
-					"Km100",
+					"\u003c100m",
+					"\u003c1km",
+					"\u003c10km",
+					"10-100km",
 					"Unknown"
 				],
 				"title": "CoordinatePrecision",
@@ -1594,7 +1576,8 @@
 				"additionalProperties": false,
 				"properties": {
 					"altitude": {
-						"$ref": "#/components/schemas/AltitudeRange"
+						"format": "int32",
+						"type": "integer"
 					},
 					"code": {
 						"maxLength": 8,
@@ -1637,7 +1620,8 @@
 				"additionalProperties": false,
 				"properties": {
 					"altitude": {
-						"$ref": "#/components/schemas/SiteItemAltitudeStruct"
+						"format": "int64",
+						"type": "integer"
 					},
 					"code": {
 						"maxLength": 8,
@@ -1675,23 +1659,6 @@
 					"code",
 					"description",
 					"country"
-				],
-				"type": "object"
-			},
-			"SiteItemAltitudeStruct": {
-				"additionalProperties": false,
-				"properties": {
-					"max": {
-						"format": "float",
-						"type": "number"
-					},
-					"min": {
-						"format": "float",
-						"type": "number"
-					}
-				},
-				"required": [
-					"min"
 				],
 				"type": "object"
 			},
