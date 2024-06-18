@@ -60,7 +60,6 @@ func (i *SiteInput) Create(db edgedb.Executor) (*Site, error) {
 		`with module location,
 			data := <json>$0,
 			coords := data['coordinates'],
-			altitude := json_get(data, 'altitude')
 		select ( insert Site {
 			name := <str>data['name'],
 			code := <str>data['code'],
@@ -73,11 +72,7 @@ func (i *SiteInput) Create(db edgedb.Executor) (*Site, error) {
 			region := <str>json_get(data, 'region'),
 			municipality := <str>json_get(data, 'municipality'),
 			country := (assert_exists(select Country filter .code = <str>data['country_code'])),
-			altitude := (
-				if exists altitude
-				then (min := altitude['min'], max := altitude['max'])
-				else {}
-			)
+			altitude := <int32>json_get(data, 'altitude')
 		}) { **, country: { * } }`,
 		&created, data)
 	return &created, err
