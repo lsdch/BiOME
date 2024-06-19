@@ -34,7 +34,7 @@ import { VTextField } from 'vuetify/components'
 import { VTreeview } from 'vuetify/labs/VTreeview'
 
 import { useUserStore } from './stores/user'
-import { useInstanceSettings } from './components/settings/settings'
+import { useInstanceSettings } from './components/settings/'
 const vuetify = createVuetify({
   blueprint: md3,
   components: {

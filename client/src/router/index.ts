@@ -4,7 +4,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useGuards } from './guards'
-import { useInstanceSettings } from '@/components/settings/settings'
+import { useInstanceSettings } from '@/components/settings'
 
 
 // Default app title to display
