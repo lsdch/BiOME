@@ -51,6 +51,8 @@ import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { ConfirmDialogKey } from './injection'
 import { client } from '@hey-api/client-fetch'
 
+const loading = ref(false)
+const drawer = ref(false)
 // Navigation
 const router = useRouter()
 router.beforeEach(() => {
@@ -61,14 +63,9 @@ router.afterEach((to) => {
     drawer.value = false
   }
   loading.value = false
+
+  drawer.value = !router.currentRoute.value.meta.drawer?.temporary
 })
-
-const loading = ref(false)
-
-const drawer = ref(false)
-if (!router.currentRoute.value.meta.drawer?.temporary) {
-  drawer.value = true
-}
 
 defineProps<{ settings: InstanceSettings }>()
 
