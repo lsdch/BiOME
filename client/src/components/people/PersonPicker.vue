@@ -17,6 +17,7 @@
 
 <script setup lang="ts">
 import { PeopleService, Person, PersonUser } from '@/api'
+import { handleErrors } from '@/api/responses'
 
 const props = defineProps<{
   multiple?: boolean
@@ -24,7 +25,13 @@ const props = defineProps<{
   items?: Person[]
 }>()
 
-const _items = props.items ?? (await PeopleService.listPersons())
+const _items =
+  props.items ??
+  (await PeopleService.listPersons().then(
+    handleErrors((err) => {
+      console.error('Failed to fetch persons: ', err)
+    })
+  ))
 
 const model = defineModel<PersonUser[] | PersonUser>()
 </script>

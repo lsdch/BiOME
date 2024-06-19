@@ -1,10 +1,11 @@
-import { ApiError } from "@/api"
+import { ErrorModel } from "@/api"
 import { ConfirmDialogKey } from "@/injection"
 import { useUserStore } from "@/stores/user"
 import { HttpStatusCode } from "axios"
 import { ComputedRef, MaybeRef, ModelRef, computed, inject, onMounted, ref } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
+import { RequestResult } from "@/api/responses"
 
 
 export type ToolbarProps = {
@@ -46,11 +47,11 @@ export type TableProps<ItemType> = {
   /**
    * API call to populate table items
    */
-  fetchItems?: () => Promise<ItemType[]>
+  fetchItems?: () => RequestResult<ItemType[], ErrorModel>
   /**
    * API call to delete an item
    */
-  delete?: (item: ItemType) => Promise<ItemType>
+  delete?: (item: ItemType) => RequestResult<ItemType, ErrorModel>
   /**
    * Reload all items after deleting one
    */
@@ -90,12 +91,19 @@ export function useTable<ItemType extends { id: string }>(
   })
 
   const loading = ref(true)
+  const loadingFailed = ref(false)
   async function loadItems() {
-    loading.value = true
     if (props.fetchItems) {
-      items.value = await props.fetchItems()
+      loading.value = true
+      const { data, error } = await props.fetchItems()
+      if (error != undefined) {
+        items.value = []
+        loadingFailed.value = true
+      } else {
+        items.value = data
+      }
+      loading.value = false
     }
-    loading.value = false
   }
 
   onMounted(loadItems)
@@ -183,29 +191,28 @@ export function useTable<ItemType extends { id: string }>(
     if (props.delete == undefined) {
       items.value.splice(index, 1)
     } else {
-      props.delete(item)
-        .then(async () => {
-          items.value.splice(index, 1)
-          feedback.value.show('Item successfully deleted.', 'success')
-          if (props.reloadOnDelete) {
-            await loadItems()
-          }
-        })
-        .catch((err: ApiError) => {
-          switch (err.status) {
-            case HttpStatusCode.NotFound:
-              feedback.value.show('Deletion failed: record not found.', 'error')
-              break
-            case HttpStatusCode.BadRequest:
-              feedback.value.show(`Deletion was not allowed: ${err.message}`, 'error')
-              break
-            case HttpStatusCode.Forbidden:
-              feedback.value.show('You are not granted rights to modify this item.', 'error')
-              break
-            case HttpStatusCode.InternalServerError:
-              feedback.value.show('An unexpected error occurred.', 'error')
-          }
-        })
+      const { error } = props.delete(item)
+      if (error != undefined) {
+        switch (error.status) {
+          case HttpStatusCode.NotFound:
+            feedback.value.show('Deletion failed: record not found.', 'error')
+            break
+          case HttpStatusCode.BadRequest:
+            feedback.value.show(`Deletion was not allowed: ${error.detail}`, 'error')
+            break
+          case HttpStatusCode.Forbidden:
+            feedback.value.show('You are not granted rights to modify this item.', 'error')
+            break
+          case HttpStatusCode.InternalServerError:
+            feedback.value.show('An unexpected error occurred.', 'error')
+        }
+      } else {
+        items.value.splice(index, 1)
+        feedback.value.show('Item successfully deleted.', 'success')
+        if (props.reloadOnDelete) {
+          await loadItems()
+        }
+      }
     }
   }
 
@@ -226,5 +233,8 @@ export function useTable<ItemType extends { id: string }>(
   })
 
 
-  return { currentUser, feedback, actions, form, processedHeaders, loading, loadItems }
+  return {
+    currentUser, feedback, actions, form, processedHeaders,
+    loading, loadItems, loadingFailed
+  }
 }

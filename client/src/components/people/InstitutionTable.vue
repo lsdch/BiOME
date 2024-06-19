@@ -3,7 +3,7 @@
     :headers="headers"
     density="compact"
     :fetch-items="PeopleService.listInstitutions"
-    :delete="(inst: Institution) => PeopleService.deleteInstitution({ code: inst.code })"
+    :delete="(inst: Institution) => PeopleService.deleteInstitution({ path: { code: inst.code } })"
     entityName="Institution"
     :itemRepr="(inst) => inst.code"
     :toolbar="{

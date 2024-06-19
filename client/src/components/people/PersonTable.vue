@@ -2,8 +2,8 @@
   <CRUDTable
     :headers="headers"
     density="compact"
-    :delete="(person: Person) => PeopleService.deletePerson({ id: person.id })"
-    :fetch-items="PeopleService.listPersons"
+    :delete="(person: Person) => PeopleService.deletePerson({ path: { id: person.id } })"
+    :fetch-items="() => PeopleService.listPersons()"
     :filter="filter"
     :search="filters.term"
     entityName="Person"
