@@ -73,9 +73,9 @@ func (o *Optional[T]) Schema(r huma.Registry) *huma.Schema {
 	contentName := huma.DefaultSchemaNamer(reflect.TypeOf(o.Value), "")
 	name := fmt.Sprintf("Optional%s", contentName)
 	if r.Map()[name] == nil {
-		s := r.Schema(reflect.TypeOf(o.Value), false, "")
+		s := *r.Schema(reflect.TypeOf(o.Value), false, "")
 		s.Nullable = true
-		r.Map()[name] = s
+		r.Map()[name] = &s
 	}
 	return &huma.Schema{Ref: fmt.Sprintf("#/components/schemas/%s", name)}
 }

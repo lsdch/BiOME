@@ -480,10 +480,7 @@
 					"id",
 					"label"
 				],
-				"type": [
-					"object",
-					"null"
-				]
+				"type": "object"
 			},
 			"ImportProcess": {
 				"additionalProperties": false,
