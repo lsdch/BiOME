@@ -76,7 +76,7 @@ module location {
     locality: str;
     required country: Country;
 
-    coordinates: tuple<
+    required coordinates: tuple<
       precision: CoordinatePrecision,
       latitude: float32,
       longitude: float32

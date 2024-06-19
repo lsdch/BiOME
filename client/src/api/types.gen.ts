@@ -573,7 +573,7 @@ export type SiteDatasetInput = {
 export type SiteInput = {
     altitude?: number;
     code: string;
-    coordinates: Coordinates | null;
+    coordinates: Coordinates;
     country_code: string;
     description?: string;
     municipality?: string;
@@ -584,19 +584,13 @@ export type SiteInput = {
 export type SiteItem = {
     altitude?: number;
     code: string;
-    coordinates?: SiteItemCoordinatesStruct;
+    coordinates?: Coordinates;
     country: Country;
     description: string;
     id: string;
     municipality?: string;
     name: string;
     region?: string;
-};
-
-export type SiteItemCoordinatesStruct = {
-    latitude: number;
-    longitude: number;
-    precision: CoordinatePrecision;
 };
 
 export type Taxon = {

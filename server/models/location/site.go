@@ -19,7 +19,7 @@ type SiteInput struct {
 	Name         string                       `json:"name" minLength:"4"`
 	Code         string                       `json:"code" minLength:"4" maxLength:"8"`
 	Description  models.OptionalInput[string] `json:"description,omitempty"`
-	Coordinates  models.Nullable[Coordinates] `json:"coordinates"`
+	Coordinates  Coordinates                  `json:"coordinates"`
 	Altitude     models.OptionalInput[int32]  `json:"altitude,omitempty"`
 	Region       models.OptionalInput[string] `json:"region,omitempty"`
 	Municipality models.OptionalInput[string] `json:"municipality,omitempty"`
@@ -27,14 +27,11 @@ type SiteInput struct {
 }
 
 type SiteItem struct {
-	ID          edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
-	Name        string             `edgedb:"name" json:"name" minLength:"4"`
-	Code        string             `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
-	Description edgedb.OptionalStr `edgedb:"description" json:"description"`
-	Coordinates struct {
-		edgedb.Optional
-		Coordinates
-	} `edgedb:"coordinates" json:"coordinates,omitempty"`
+	ID           edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
+	Name         string               `edgedb:"name" json:"name" minLength:"4"`
+	Code         string               `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
+	Description  edgedb.OptionalStr   `edgedb:"description" json:"description"`
+	Coordinates  Coordinates          `edgedb:"coordinates" json:"coordinates,omitempty"`
 	Altitude     edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
 	Region       edgedb.OptionalStr   `edgedb:"region" json:"region,omitempty"`
 	Municipality edgedb.OptionalStr   `edgedb:"municipality" json:"municipality,omitempty"`

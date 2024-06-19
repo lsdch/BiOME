@@ -1310,8 +1310,7 @@ export const $SiteInput = {
             type: 'string'
         },
         coordinates: {
-            '$ref': '#/components/schemas/Coordinates',
-            type: ['', 'null']
+            '$ref': '#/components/schemas/Coordinates'
         },
         country_code: {
             type: 'string'
@@ -1347,7 +1346,7 @@ export const $SiteItem = {
             type: 'string'
         },
         coordinates: {
-            '$ref': '#/components/schemas/SiteItemCoordinatesStruct'
+            '$ref': '#/components/schemas/Coordinates'
         },
         country: {
             '$ref': '#/components/schemas/Country'
@@ -1372,29 +1371,6 @@ export const $SiteItem = {
         }
     },
     required: ['id', 'name', 'code', 'description', 'country'],
-    type: 'object'
-} as const;
-
-export const $SiteItemCoordinatesStruct = {
-    additionalProperties: false,
-    properties: {
-        latitude: {
-            format: 'float',
-            maximum: 90,
-            minimum: -90,
-            type: 'number'
-        },
-        longitude: {
-            format: 'float',
-            maximum: 180,
-            minimum: -180,
-            type: 'number'
-        },
-        precision: {
-            '$ref': '#/components/schemas/CoordinatePrecision'
-        }
-    },
-    required: ['precision', 'latitude', 'longitude'],
     type: 'object'
 } as const;
 
