@@ -394,7 +394,7 @@ export const $HabitatRecord = {
         }
     },
     required: ['id', 'label'],
-    type: ['object', 'null']
+    type: 'object'
 } as const;
 
 export const $ImportProcess = {

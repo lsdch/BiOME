@@ -200,7 +200,7 @@ export type HabitatRecord = {
      * A short label for the habitat.
      */
     label: string;
-} | null;
+};
 
 export type ImportProcess = {
     GBIF_ID: number;

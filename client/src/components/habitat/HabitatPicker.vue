@@ -60,6 +60,7 @@
 import { HabitatGroup, HabitatRecord, LocationService } from '@/api'
 import { computed, ref } from 'vue'
 import { ConnectedGroup, ConnectedHabitat, Dependencies, indexGroups } from './habitat_graph'
+import { handleErrors } from '@/api/responses'
 
 function addWithDependencies(habitat: ConnectedHabitat) {
   model.value.push(
@@ -75,7 +76,13 @@ function onDelete(item: HabitatRecord & Dependencies) {
   )
 }
 
-const habitatGroups = ref<HabitatGroup[]>(await LocationService.listHabitatGroups())
+const habitatGroups = ref<HabitatGroup[]>(
+  await LocationService.listHabitatGroups().then(
+    handleErrors((err) => {
+      console.error('Failed to fetch habitat groups: ', err)
+    })
+  )
+)
 
 const habitatsGraph = ref(indexGroups(habitatGroups.value))
 
