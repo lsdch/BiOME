@@ -25,6 +25,13 @@
           @create-item="actions.create"
           @reload="loadItems().then(() => feedback.show('Data reloaded'))"
         >
+          <template #[`prepend-actions`]>
+            <slot name="toolbar-prepend-actions" />
+          </template>
+          <template #[`append-actions`]>
+            <slot name="toolbar-append-actions" />
+          </template>
+
           <!-- Right toolbar actions -->
           <template #append>
             <SortLastUpdatedBtn

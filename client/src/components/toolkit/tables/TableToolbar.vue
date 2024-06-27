@@ -39,6 +39,7 @@
       </template>
     </v-tooltip>
 
+    <slot name="prepend-actions"></slot>
     <!-- Toggle item creation form -->
     <v-btn
       style="min-width: 30px"
@@ -52,6 +53,8 @@
       <v-icon v-if="xs" icon="mdi-plus" size="small" />
       <span v-else>New Item</span>
     </v-btn>
+
+    <slot name="append-actions" />
 
     <!-- Search bar slot with default searchbar -->
     <template v-if="togglableSearch || xs" v-slot:extension>
