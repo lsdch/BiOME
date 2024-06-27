@@ -5,7 +5,8 @@ import { HttpStatusCode } from "axios"
 import { ComputedRef, MaybeRef, ModelRef, computed, inject, onMounted, ref } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
-import { RequestResult } from "@/api/responses"
+import { RequestResult } from "@hey-api/client-fetch"
+
 
 
 export type ToolbarProps = {
@@ -21,6 +22,14 @@ export type ToolbarProps = {
    * Whether table search bar is displayed by default, or must be toggled
    */
   togglableSearch?: boolean
+  /**
+   * Disable sorting by item last update
+   */
+  noSort?: boolean
+  /**
+   * Disable common filters such as owned items
+   */
+  noFilters?: boolean
 }
 
 export type TableProps<ItemType> = {
@@ -39,7 +48,7 @@ export type TableProps<ItemType> = {
   /**
    * Display column with update/delete controls
    */
-  showActions?: boolean
+  showActions?: boolean | "delete" | "edit"
   /**
    * Short string representation of a table item to display in UI
    */
@@ -90,7 +99,7 @@ export function useTable<ItemType extends { id: string }>(
       : props.headers
   })
 
-  const loading = ref(true)
+  const loading = ref(props.fetchItems !== undefined)
   const loadingFailed = ref(false)
   async function loadItems() {
     if (props.fetchItems) {
@@ -191,7 +200,7 @@ export function useTable<ItemType extends { id: string }>(
     if (props.delete == undefined) {
       items.value.splice(index, 1)
     } else {
-      const { error } = props.delete(item)
+      const { error } = await props.delete(item)
       if (error != undefined) {
         switch (error.status) {
           case HttpStatusCode.NotFound:
