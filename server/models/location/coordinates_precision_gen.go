@@ -12,7 +12,7 @@ import (
 
 
 
-var CoordinatePrecisionValues = []CoordinatePrecision{
+var CoordinatesPrecisionValues = []CoordinatesPrecision{
 	M100,
 	KM1,
 	KM10,
@@ -21,29 +21,29 @@ var CoordinatePrecisionValues = []CoordinatePrecision{
 }
 
 // Register enum in OpenAPI specification
-func (u CoordinatePrecision) Schema(r huma.Registry) *huma.Schema {
-  if r.Map()["CoordinatePrecision"] == nil {
-    schemaRef := r.Schema(reflect.TypeOf(""), true, "CoordinatePrecision")
-    schemaRef.Title = "CoordinatePrecision"
-    for _, v := range CoordinatePrecisionValues {
+func (u CoordinatesPrecision) Schema(r huma.Registry) *huma.Schema {
+  if r.Map()["CoordinatesPrecision"] == nil {
+    schemaRef := r.Schema(reflect.TypeOf(""), true, "CoordinatesPrecision")
+    schemaRef.Title = "CoordinatesPrecision"
+    for _, v := range CoordinatesPrecisionValues {
       schemaRef.Enum = append(schemaRef.Enum, string(v))
     }
-    r.Map()["CoordinatePrecision"] = schemaRef
+    r.Map()["CoordinatesPrecision"] = schemaRef
   }
 
-	return &huma.Schema{Ref: "#/components/schemas/CoordinatePrecision"}
+	return &huma.Schema{Ref: "#/components/schemas/CoordinatesPrecision"}
 }
 
-func (m *CoordinatePrecision) Fake(f *gofakeit.Faker) (any, error) {
-	return string(CoordinatePrecisionValues[f.IntN(len(CoordinatePrecisionValues) - 1)]), nil
+func (m *CoordinatesPrecision) Fake(f *gofakeit.Faker) (any, error) {
+	return string(CoordinatesPrecisionValues[f.IntN(len(CoordinatesPrecisionValues) - 1)]), nil
 }
 
 // EdgeDB Marshalling
-func (m CoordinatePrecision) MarshalEdgeDBStr() ([]byte, error) {
+func (m CoordinatesPrecision) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }
 
-func (m *CoordinatePrecision) UnmarshalEdgeDBStr(data []byte) error {
-	*m = CoordinatePrecision(string(data))
+func (m *CoordinatesPrecision) UnmarshalEdgeDBStr(data []byte) error {
+	*m = CoordinatesPrecision(string(data))
 	return nil
 }

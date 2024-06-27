@@ -64,7 +64,7 @@ module location {
       annotation description := "A short, unique, user-generated, alphanumeric identifier. Recommended size is 8.";
       constraint exclusive;
       constraint min_len_value(4);
-      constraint max_len_value(8);
+      constraint max_len_value(10);
     }
     description: str;
 
@@ -77,7 +77,7 @@ module location {
     required country: Country;
 
     required coordinates: tuple<
-      precision: CoordinatePrecision,
+      precision: CoordinatesPrecision,
       latitude: float32,
       longitude: float32
     > {
@@ -91,6 +91,7 @@ module location {
       annotation title := "The site elevation in meters";
     };
 
+    access_point: str;
 
     multi link abiotic_measurements := .<site[is event::AbioticMeasurement];
     multi link samplings := .<site[is event::Sampling];

@@ -13,13 +13,13 @@ export type AuthenticationResponse = {
     token: string;
 };
 
-export type CoordinatePrecision = '<100m' | '<1km' | '<10km' | '10-100km' | 'Unknown';
-
 export type Coordinates = {
     latitude: number;
     longitude: number;
-    precision: CoordinatePrecision;
+    precision: CoordinatesPrecision;
 };
+
+export type CoordinatesPrecision = '<100m' | '<1km' | '<10km' | '10-100km' | 'Unknown';
 
 export type Country = {
     code: string;
@@ -571,26 +571,29 @@ export type SiteDatasetInput = {
 };
 
 export type SiteInput = {
+    access_point?: string;
     altitude?: number;
+    /**
+     * A short unique uppercase alphanumeric code to identify the site
+     */
     code: string;
     coordinates: Coordinates;
     country_code: string;
     description?: string;
-    municipality?: string;
+    locality?: string;
     name: string;
-    region?: string;
 };
 
 export type SiteItem = {
+    access_point?: string;
     altitude?: number;
     code: string;
     coordinates?: Coordinates;
     country: Country;
     description: string;
     id: string;
-    municipality?: string;
+    locality?: string;
     name: string;
-    region?: string;
 };
 
 export type Taxon = {
@@ -723,6 +726,106 @@ export type UserShortIdentity = {
     login: string;
     name: string;
 };
+
+export type GetAccessPointsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type GetAccessPointsResponse = Array<(string)>;
+
+export type GetAccessPointsError = unknown;
+
+export type ListHabitatGroupsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListHabitatGroupsResponse = Array<HabitatGroup>;
+
+export type ListHabitatGroupsError = ErrorModel;
+
+export type CreateHabitatGroupData = {
+    body: HabitatGroupInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateHabitatGroupResponse = HabitatGroup;
+
+export type CreateHabitatGroupError = ErrorModel;
+
+export type DeleteHabitatGroupData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteHabitatGroupResponse = HabitatGroup;
+
+export type DeleteHabitatGroupError = ErrorModel;
+
+export type UpdateHabitatGroupData = {
+    body: HabitatGroupUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateHabitatGroupResponse = HabitatGroup;
+
+export type UpdateHabitatGroupError = ErrorModel;
+
+export type ListCountriesData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListCountriesResponse = Array<Country>;
+
+export type ListCountriesError = ErrorModel;
+
+export type CreateSiteDatasetData = {
+    body: SiteDatasetInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateSiteDatasetResponse = SiteDataset;
+
+export type CreateSiteDatasetError = ErrorModel;
 
 export type CurrentUserData = {
     headers?: {
@@ -875,93 +978,6 @@ export type MonitorGbifResponse = Array<({
 })>;
 
 export type MonitorGbifError = unknown;
-
-export type ListHabitatGroupsData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ListHabitatGroupsResponse = Array<HabitatGroup>;
-
-export type ListHabitatGroupsError = ErrorModel;
-
-export type CreateHabitatGroupData = {
-    body: HabitatGroupInput;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type CreateHabitatGroupResponse = HabitatGroup;
-
-export type CreateHabitatGroupError = ErrorModel;
-
-export type DeleteHabitatGroupData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-    path: {
-        code: string;
-    };
-};
-
-export type DeleteHabitatGroupResponse = HabitatGroup;
-
-export type DeleteHabitatGroupError = ErrorModel;
-
-export type UpdateHabitatGroupData = {
-    body: HabitatGroupUpdate;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-    path: {
-        code: string;
-    };
-};
-
-export type UpdateHabitatGroupResponse = HabitatGroup;
-
-export type UpdateHabitatGroupError = ErrorModel;
-
-export type ListCountriesData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ListCountriesResponse = Array<Country>;
-
-export type ListCountriesError = ErrorModel;
-
-export type CreateSiteDatasetData = {
-    body: SiteDatasetInput;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type CreateSiteDatasetResponse = SiteDataset;
-
-export type CreateSiteDatasetError = ErrorModel;
 
 export type ListInstitutionsData = {
     headers?: {
@@ -1270,6 +1286,131 @@ export type UpdateTaxonResponse = TaxonWithRelatives;
 export type UpdateTaxonError = ErrorModel;
 
 export type $OpenApiTs = {
+    '/access-points': {
+        get: {
+            req: GetAccessPointsData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': Array<(string)>;
+                /**
+                 * Error
+                 */
+                default: ErrorModel;
+            };
+        };
+    };
+    '/habitats': {
+        get: {
+            req: ListHabitatGroupsData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': Array<HabitatGroup>;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+        post: {
+            req: CreateHabitatGroupData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': HabitatGroup;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+    };
+    '/habitats/{code}': {
+        delete: {
+            req: DeleteHabitatGroupData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': HabitatGroup;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+        patch: {
+            req: UpdateHabitatGroupData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': HabitatGroup;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+    };
+    '/locations/countries': {
+        get: {
+            req: ListCountriesData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': Array<Country>;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+    };
+    '/sites': {
+        post: {
+            req: CreateSiteDatasetData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': SiteDataset;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+    };
     '/account': {
         get: {
             req: CurrentUserData;
@@ -1541,116 +1682,6 @@ export type $OpenApiTs = {
                  * Error
                  */
                 default: ErrorModel;
-            };
-        };
-    };
-    '/habitats': {
-        get: {
-            req: ListHabitatGroupsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<HabitatGroup>;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: CreateHabitatGroupData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': HabitatGroup;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/habitats/{code}': {
-        delete: {
-            req: DeleteHabitatGroupData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': HabitatGroup;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        patch: {
-            req: UpdateHabitatGroupData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': HabitatGroup;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/locations/countries': {
-        get: {
-            req: ListCountriesData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<Country>;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/sites': {
-        post: {
-            req: CreateSiteDatasetData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': SiteDataset;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
             };
         };
     };

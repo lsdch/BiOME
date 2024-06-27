@@ -29,12 +29,6 @@ export const $AuthenticationResponse = {
     type: 'object'
 } as const;
 
-export const $CoordinatePrecision = {
-    enum: ['<100m', '<1km', '<10km', '10-100km', 'Unknown'],
-    title: 'CoordinatePrecision',
-    type: 'string'
-} as const;
-
 export const $Coordinates = {
     additionalProperties: false,
     properties: {
@@ -51,11 +45,17 @@ export const $Coordinates = {
             type: 'number'
         },
         precision: {
-            '$ref': '#/components/schemas/CoordinatePrecision'
+            '$ref': '#/components/schemas/CoordinatesPrecision'
         }
     },
     required: ['precision', 'latitude', 'longitude'],
     type: 'object'
+} as const;
+
+export const $CoordinatesPrecision = {
+    enum: ['<100m', '<1km', '<10km', '10-100km', 'Unknown'],
+    title: 'CoordinatesPrecision',
+    type: 'string'
 } as const;
 
 export const $Country = {
@@ -1300,32 +1300,39 @@ export const $SiteDatasetInput = {
 export const $SiteInput = {
     additionalProperties: false,
     properties: {
+        access_point: {
+            type: 'string'
+        },
         altitude: {
             format: 'int32',
             type: 'integer'
         },
         code: {
-            maxLength: 8,
+            description: 'A short unique uppercase alphanumeric code to identify the site',
+            examples: ['SITE89'],
+            maxLength: 10,
             minLength: 4,
+            pattern: '[A-Z0-9]+',
+            patternDescription: 'alphanum',
             type: 'string'
         },
         coordinates: {
             '$ref': '#/components/schemas/Coordinates'
         },
         country_code: {
+            examples: ['FR'],
+            format: 'country-code',
+            pattern: '[A-Z]{2}',
             type: 'string'
         },
         description: {
             type: 'string'
         },
-        municipality: {
+        locality: {
             type: 'string'
         },
         name: {
             minLength: 4,
-            type: 'string'
-        },
-        region: {
             type: 'string'
         }
     },
@@ -1336,6 +1343,9 @@ export const $SiteInput = {
 export const $SiteItem = {
     additionalProperties: false,
     properties: {
+        access_point: {
+            type: 'string'
+        },
         altitude: {
             format: 'int64',
             type: 'integer'
@@ -1359,14 +1369,11 @@ export const $SiteItem = {
             format: 'uuid',
             type: 'string'
         },
-        municipality: {
+        locality: {
             type: 'string'
         },
         name: {
             minLength: 4,
-            type: 'string'
-        },
-        region: {
             type: 'string'
         }
     },

@@ -10,32 +10,32 @@ import (
 )
 
 type Coordinates struct {
-	Precision CoordinatePrecision `edgedb:"precision" json:"precision"`
-	Latitude  float32             `edgedb:"latitude" json:"latitude" minimum:"-90" maximum:"90"`
-	Longitude float32             `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180"`
+	Precision CoordinatesPrecision `edgedb:"precision" json:"precision"`
+	Latitude  float32              `edgedb:"latitude" json:"latitude" minimum:"-90" maximum:"90"`
+	Longitude float32              `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180"`
 }
 
 type SiteInput struct {
-	Name         string                       `json:"name" minLength:"4"`
-	Code         string                       `json:"code" minLength:"4" maxLength:"8"`
-	Description  models.OptionalInput[string] `json:"description,omitempty"`
-	Coordinates  Coordinates                  `json:"coordinates"`
-	Altitude     models.OptionalInput[int32]  `json:"altitude,omitempty"`
-	Region       models.OptionalInput[string] `json:"region,omitempty"`
-	Municipality models.OptionalInput[string] `json:"municipality,omitempty"`
-	CountryCode  string                       `json:"country_code"`
+	Name        string                       `json:"name" minLength:"4"`
+	Code        string                       `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric code to identify the site"`
+	Description models.OptionalInput[string] `json:"description,omitempty"`
+	Coordinates Coordinates                  `json:"coordinates"`
+	Altitude    models.OptionalInput[int32]  `json:"altitude,omitempty"`
+	Locality    models.OptionalInput[string] `json:"locality,omitempty"`
+	CountryCode string                       `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	AccessPoint models.OptionalInput[string] `json:"access_point,omitempty"`
 }
 
 type SiteItem struct {
-	ID           edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
-	Name         string               `edgedb:"name" json:"name" minLength:"4"`
-	Code         string               `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
-	Description  edgedb.OptionalStr   `edgedb:"description" json:"description"`
-	Coordinates  Coordinates          `edgedb:"coordinates" json:"coordinates,omitempty"`
-	Altitude     edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
-	Region       edgedb.OptionalStr   `edgedb:"region" json:"region,omitempty"`
-	Municipality edgedb.OptionalStr   `edgedb:"municipality" json:"municipality,omitempty"`
-	Country      Country              `edgedb:"country" json:"country"`
+	ID          edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
+	Name        string               `edgedb:"name" json:"name" minLength:"4"`
+	Code        string               `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
+	Description edgedb.OptionalStr   `edgedb:"description" json:"description"`
+	Coordinates Coordinates          `edgedb:"coordinates" json:"coordinates,omitempty"`
+	Altitude    edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
+	Locality    edgedb.OptionalStr   `edgedb:"locality" json:"locality,omitempty"`
+	Country     Country              `edgedb:"country" json:"country"`
+	AccessPoint edgedb.OptionalStr   `edgedb:"access_point" json:"access_point,omitempty"`
 }
 
 type Site struct {
@@ -62,15 +62,23 @@ func (i *SiteInput) Create(db edgedb.Executor) (*Site, error) {
 			code := <str>data['code'],
 			description := <str>json_get(data, 'description'),
 			coordinates := (
-				precision := <CoordinateMaxPrecision>coords['precision'],
+				precision := <CoordinatesPrecision>coords['precision'],
 				latitude := <float32>coords['latitude'],
 				longitude := <float32>coords['longitude']
 			),
-			region := <str>json_get(data, 'region'),
-			municipality := <str>json_get(data, 'municipality'),
+			locality := <str>json_get(data, 'locality'),
 			country := (assert_exists(select Country filter .code = <str>data['country_code'])),
 			altitude := <int32>json_get(data, 'altitude')
 		}) { **, country: { * } }`,
 		&created, data)
 	return &created, err
+}
+
+func ListAccessPoints(db edgedb.Executor) ([]string, error) {
+	var accessPoints []string
+	err := db.Query(context.Background(),
+		`select distinct location::Site.access_point order by .`,
+		&accessPoints,
+	)
+	return accessPoints, err
 }

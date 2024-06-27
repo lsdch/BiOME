@@ -37,17 +37,6 @@
 				],
 				"type": "object"
 			},
-			"CoordinatePrecision": {
-				"enum": [
-					"\u003c100m",
-					"\u003c1km",
-					"\u003c10km",
-					"10-100km",
-					"Unknown"
-				],
-				"title": "CoordinatePrecision",
-				"type": "string"
-			},
 			"Coordinates": {
 				"additionalProperties": false,
 				"properties": {
@@ -64,7 +53,7 @@
 						"type": "number"
 					},
 					"precision": {
-						"$ref": "#/components/schemas/CoordinatePrecision"
+						"$ref": "#/components/schemas/CoordinatesPrecision"
 					}
 				},
 				"required": [
@@ -73,6 +62,17 @@
 					"longitude"
 				],
 				"type": "object"
+			},
+			"CoordinatesPrecision": {
+				"enum": [
+					"\u003c100m",
+					"\u003c1km",
+					"\u003c10km",
+					"10-100km",
+					"Unknown"
+				],
+				"title": "CoordinatesPrecision",
+				"type": "string"
 			},
 			"Country": {
 				"additionalProperties": false,
@@ -1572,32 +1572,43 @@
 			"SiteInput": {
 				"additionalProperties": false,
 				"properties": {
+					"access_point": {
+						"type": "string"
+					},
 					"altitude": {
 						"format": "int32",
 						"type": "integer"
 					},
 					"code": {
-						"maxLength": 8,
+						"description": "A short unique uppercase alphanumeric code to identify the site",
+						"examples": [
+							"SITE89"
+						],
+						"maxLength": 10,
 						"minLength": 4,
+						"pattern": "[A-Z0-9]+",
+						"patternDescription": "alphanum",
 						"type": "string"
 					},
 					"coordinates": {
 						"$ref": "#/components/schemas/Coordinates"
 					},
 					"country_code": {
+						"examples": [
+							"FR"
+						],
+						"format": "country-code",
+						"pattern": "[A-Z]{2}",
 						"type": "string"
 					},
 					"description": {
 						"type": "string"
 					},
-					"municipality": {
+					"locality": {
 						"type": "string"
 					},
 					"name": {
 						"minLength": 4,
-						"type": "string"
-					},
-					"region": {
 						"type": "string"
 					}
 				},
@@ -1612,6 +1623,9 @@
 			"SiteItem": {
 				"additionalProperties": false,
 				"properties": {
+					"access_point": {
+						"type": "string"
+					},
 					"altitude": {
 						"format": "int64",
 						"type": "integer"
@@ -1635,14 +1649,11 @@
 						"format": "uuid",
 						"type": "string"
 					},
-					"municipality": {
+					"locality": {
 						"type": "string"
 					},
 					"name": {
 						"minLength": 4,
-						"type": "string"
-					},
-					"region": {
 						"type": "string"
 					}
 				},
@@ -2197,6 +2208,63 @@
 	},
 	"openapi": "3.1.0",
 	"paths": {
+		"/access-points": {
+			"get": {
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"type": "string"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"default": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Error"
+					}
+				},
+				"summary": "List access points",
+				"tags": [
+					"Location"
+				]
+			}
+		},
 		"/account": {
 			"get": {
 				"description": "Get infos of currently authenticated user account",

@@ -2,6 +2,7 @@ package sites
 
 import (
 	"context"
+	"darco/proto/controllers"
 	"darco/proto/models/location"
 	"darco/proto/resolvers"
 	"darco/proto/router"
@@ -20,6 +21,13 @@ func RegisterRoutes(r router.Router) {
 			Summary:     "Create site dataset",
 			Description: "Create a new site dataset with new or existing sites",
 		}, CreateSiteDataset)
+
+	huma.Register(r.API, huma.Operation{
+		Path:    "/access-points",
+		Method:  http.MethodGet,
+		Summary: "List access points",
+		Tags:    sites_API.Tags,
+	}, controllers.ListHandler(location.ListAccessPoints))
 }
 
 type CreateSiteDatasetInput struct {
