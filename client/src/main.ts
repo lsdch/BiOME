@@ -35,6 +35,8 @@ import { VTreeview } from 'vuetify/labs/VTreeview'
 
 import { useUserStore } from './stores/user'
 import { useInstanceSettings } from './components/settings/'
+import { useCountries } from './stores/countries'
+
 const vuetify = createVuetify({
   blueprint: md3,
   components: {
@@ -85,6 +87,7 @@ setActivePinia(pinia)
 app.use(pinia)
 
 await useUserStore().getUser()
+await useCountries().fetch()
 
 app.use(router())
 app.use(vuetify)

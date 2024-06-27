@@ -30,11 +30,10 @@
 </template>
 
 <script setup lang="ts">
-import { Country, LocationService } from '@/api'
-import { ref } from 'vue'
+import { Country } from '@/api'
+import { useCountries } from '@/stores/countries'
 
-// TODO: use composable with cached list
-const items = ref(await LocationService.listCountries())
+const { countries: items } = useCountries()
 </script>
 
 <style scoped></style>
