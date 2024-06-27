@@ -5,7 +5,7 @@
     v-model="dialog"
     v-bind="$attrs"
     :max-width="maxWidth ?? 1000"
-    :fullscreen="fullscreen || xs"
+    :fullscreen="fullscreen ?? xs"
   >
     <!-- Expose activator slot -->
     <template #activator="slotData">
@@ -21,7 +21,7 @@
             type="submit"
             @click="emit('submit')"
             :loading="loading"
-            text="Submit"
+            :text="btnText"
           />
           <v-btn color="grey" @click="close" text="Cancel" />
         </template>
@@ -39,18 +39,21 @@ import { onBeforeMount, useSlots } from 'vue'
 import { useDisplay } from 'vuetify'
 import { VDialog } from 'vuetify/components'
 
-const dialog = defineModel<boolean>()
+const { xs } = useDisplay()
+const dialog = defineModel<boolean>({ default: false })
 
 const emit = defineEmits<{ submit: []; close: [] }>()
 
-const { xs } = useDisplay()
-
-defineProps<{
-  title: string
-  loading?: boolean
-  fullscreen?: boolean
-  maxWidth?: number
-}>()
+withDefaults(
+  defineProps<{
+    title: string
+    loading?: boolean
+    fullscreen?: boolean
+    maxWidth?: number
+    btnText?: string
+  }>(),
+  { btnText: 'Submit' }
+)
 
 function close() {
   dialog.value = false
