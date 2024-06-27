@@ -25,7 +25,7 @@ type Country struct {
 
 func ListCountries(db edgedb.Executor) ([]Country, error) {
 	var countries []Country
-	query := `select location::Country { * };`
+	query := `select location::Country { * } order by .name;`
 	err := db.Query(context.Background(), query, &countries)
 	return countries, err
 }
