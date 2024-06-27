@@ -6,7 +6,7 @@
     <v-icon
       v-else
       :title="column.title"
-      :color="isSorted(column) ? 'primary' : 'secondary'"
+      :color="color ?? (isSorted(column) ? 'primary' : 'secondary')"
       :icon="icon"
     />
     <v-icon v-if="isSorted(column)" :icon="getSortIcon(column)" />
@@ -16,6 +16,7 @@
 <script setup lang="ts">
 type Column = { title?: string }
 defineProps<{
+  color?: string
   icon: string
   column: Column
   expanded?: boolean
