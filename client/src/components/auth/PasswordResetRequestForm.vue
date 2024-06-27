@@ -28,22 +28,22 @@
 
 <script setup lang="ts">
 import { AccountService } from '@/api'
-import useVuelidate from '@vuelidate/core'
-import { email, required } from '@vuelidate/validators'
+// import useVuelidate from '@vuelidate/core'
+// import { email, required } from '@vuelidate/validators'
 import { Ref, ref } from 'vue'
 
 const state = ref({
   email: ''
 })
 
-const rules = {
-  email: { required, email }
-}
+// const rules = {
+//   email: { required, email }
+// }
 
 const requestAccepted = ref(false)
 const error: Ref<string | undefined> = ref(undefined)
 
-const v$ = useVuelidate(rules, state)
+// const v$ = useVuelidate(rules, state)
 
 async function submit() {
   v$.value.$validate()

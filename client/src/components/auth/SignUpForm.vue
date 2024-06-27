@@ -79,8 +79,8 @@
 <script setup lang="ts">
 import { ApiError, AccountService, InputValidationError, UserInput } from '@/api'
 import { vuelidateErrors } from '@/api/validation'
-import useVuelidate, { Validation, ValidationArgs } from '@vuelidate/core'
-import { email, maxLength, minLength, required } from '@vuelidate/validators'
+// import useVuelidate, { Validation, ValidationArgs } from '@vuelidate/core'
+// import { email, maxLength, minLength, required } from '@vuelidate/validators'
 import { Ref, computed, ref, watchEffect } from 'vue'
 import PasswordFields from './PasswordFields.vue'
 import PersonFormFields from '../people/PersonFormFields.vue'
@@ -91,47 +91,47 @@ const state: Ref<UserInput> = ref<UserInput>({
   email: '',
   login: '',
   password: '',
-  password_confirmation: '',
-  identity: {
-    first_name: '',
-    last_name: '',
-    contact: undefined
-  }
+  password_confirmation: ''
+  // identity: {
+  //   first_name: '',
+  //   last_name: '',
+  //   contact: undefined
+  // }
 })
 
-watchEffect(() => {
-  if (exposeEmail.value) {
-    state.value.identity.contact = state.value.email
-  } else {
-    state.value.identity.contact = undefined
-  }
-})
+// watchEffect(() => {
+//   if (exposeEmail.value) {
+//     state.value.identity.contact = state.value.email
+//   } else {
+//     state.value.identity.contact = undefined
+//   }
+// })
 
-const rules: ValidationArgs<UserInput> = {
-  email: { email, required },
-  login: { minLength: minLength(5), maxLength: maxLength(16) },
-  password: {},
-  password_confirmation: {},
-  identity: {
-    first_name: { minLength: minLength(2), required },
-    last_name: { minLength: minLength(2), required },
-    contact: { email }
-  }
-}
+// const rules: ValidationArgs<UserInput> = {
+//   email: { email, required },
+//   login: { minLength: minLength(5), maxLength: maxLength(16) },
+//   password: {},
+//   password_confirmation: {},
+//   identity: {
+//     first_name: { minLength: minLength(2), required },
+//     last_name: { minLength: minLength(2), required },
+//     contact: { email }
+//   }
+// }
 
-const v$: Ref<Validation<ValidationArgs<UserInput>, UserInput>> = useVuelidate(rules, state)
+// const v$: Ref<Validation<ValidationArgs<UserInput>, UserInput>> = useVuelidate(rules, state)
 
 const loading = ref(false)
 const emits = defineEmits<{ (event: 'created'): void }>()
 const errors: Ref<Record<string, InputValidationError[]>> = ref({})
 
-function registerError(field: string) {
-  return computed(() => {
-    return (
-      _.get(errors.value, field)?.map((e) => e.message) ?? vuelidateErrors(_.get(v$.value, field))
-    )
-  }).value
-}
+// function registerError(field: string) {
+//   return computed(() => {
+//     return (
+//       _.get(errors.value, field)?.map((e) => e.message) ?? vuelidateErrors(_.get(v$.value, field))
+//     )
+//   }).value
+// }
 
 const unhandledError: Ref<undefined | ApiError> = ref(undefined)
 
