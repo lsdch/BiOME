@@ -6,7 +6,6 @@ export type ResponseBody<Data = unknown, Error = unknown> = {
   error: Error;
 }
 
-export type RequestResult<Data = unknown, Error = unknown> = ResponseBody<Data, Error> & { response: Response, request: Request }
 
 export function mergeResponses<D = unknown, E = unknown>(responses: ResponseBody<D, E>[]): ResponseBody<D[], E[]> {
   return responses.reduce<ResponseBody<D[], E[]>>((acc, { data, error }) => {
