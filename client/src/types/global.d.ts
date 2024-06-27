@@ -26,4 +26,18 @@ declare global {
   type SortItem = VDataTable['$props']['sortBy'] extends Readonly<Array<infer T>> | undefined
     ? T
     : never
+
+
+  // Type wrangling
+
+  /**
+   * Build the union of all paths in an object type
+   */
+  type ObjectPaths<T extends Record<string, any>> = {
+    [K in keyof T]-?: T[K] extends Record<string, any> ? `${K}.${ObjectPaths<T[K]>}` : `${K}`
+  }[keyof T]
+
+  type DeepPartial<T extends {}> = {
+    [K in keyof T]?: DeepPartial<T[K]>
+  }
 }
