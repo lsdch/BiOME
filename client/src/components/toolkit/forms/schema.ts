@@ -51,7 +51,7 @@ export type SchemaWithProperties<P> = Schema & Readonly<{ type: "object", proper
 /**
  * All property paths in an OpenAPI schema
  */
-export type SchemaPaths<T extends Schema | undefined, Terminal extends boolean = false> =
+export type SchemaPaths<T extends Schema | undefined, Terminal extends "Terminal" | "All" = "All"> =
   T extends { properties: Record<string, Schema> } ? {
     [K in keyof T['properties']]-?: (Terminal extends true ? never : [K]) | [K, ...SchemaPaths<T['properties'][K]>]
   }[keyof T['properties']]
@@ -92,7 +92,7 @@ function paths(s: Schema): (string | '*')[][] {
 
 export type FieldSpecification = { schema: Schema | undefined, required: boolean }
 
-export function getSchema<T extends Schema>(schema: T | undefined, ...path: SchemaPaths<typeof schema, boolean>): FieldSpecification {
+export function getSchema<T extends Schema>(schema: T | undefined, ...path: SchemaPaths<typeof schema, "Terminal" | "All">): FieldSpecification {
   if (schema === undefined)
     return { schema: undefined, required: false }
   if (schema.$ref !== undefined) {
@@ -180,7 +180,7 @@ export function useSchema<T extends Schema>(schema: T) {
   }
 
 
-  const allPaths = paths(schema) as unknown as Union.ListOf<List.Replace<SchemaPaths<T, false>, number, '*'>>
+  const allPaths = paths(schema) as unknown as Union.ListOf<List.Replace<SchemaPaths<T, "All">, number, '*'>>
 
   function validateAll(v: Record<string, any>) {
     return allPaths.flatMap<(ErrorDetail & { path: string[] })>((path: string[]): (ErrorDetail & { path: string[] })[] => {
@@ -193,7 +193,7 @@ export function useSchema<T extends Schema>(schema: T) {
     })
   }
 
-  function bindSchema(...path: SchemaPaths<typeof schema, true>): SchemaBinding {
+  function bindSchema(...path: SchemaPaths<typeof schema, "Terminal">): SchemaBinding {
     const spec = getSchema(schema, ...path)
     const rules = makeRules(spec)
     const { schema: s } = spec

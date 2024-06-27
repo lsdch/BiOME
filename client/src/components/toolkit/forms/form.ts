@@ -17,7 +17,7 @@ export type FormEmits<ItemType> = {
   (evt: "success", item: ItemType): void
 }
 
-function joinPath<T extends Schema>(path: SchemaPaths<T>) {
+function joinPath<T extends Schema>(path: SchemaPaths<T, "Terminal">) {
   return path.reduce((acc: string, p) => {
     let suffix = String(p)
     if (acc.length !== 0 && typeof p === 'string') {
@@ -108,7 +108,7 @@ export function useForm<
    *
    * @param path The object property path for the field
    */
-  function bindErrors(...path: SchemaPaths<T>): ErrorBinding {
+  function bindErrors(...path: SchemaPaths<T, "Terminal">): ErrorBinding {
     const strPath = joinPath(path)
     errors.value[strPath] = reactive([])
     return {
@@ -125,7 +125,7 @@ export function useForm<
    * @param path The object property path for the field
    * @returns Field bindings to be passed to form element using `v-bind`
    */
-  function field(...path: SchemaPaths<T>): FieldBinding {
+  function field(...path: SchemaPaths<T, "Terminal">): FieldBinding {
     return {
       ...bindSchema(...path),
       ...bindErrors(...path),
