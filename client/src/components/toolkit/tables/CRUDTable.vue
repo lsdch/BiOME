@@ -8,6 +8,7 @@
       :search="searchTerm"
       :filter-keys="filterKeys"
       show-expand
+      v-model="selected"
       v-model:sort-by="sortBy"
       must-sort
       fixed-header
@@ -35,11 +36,12 @@
           <!-- Right toolbar actions -->
           <template #append>
             <SortLastUpdatedBtn
+              v-if="!toolbar.noSort"
               sort-key="meta.last_updated"
               :sort-by="sortBy"
               @click="toggleSort('meta.last_updated')"
             />
-            <TableFilterMenu v-model="tableFilters" :user="currentUser" />
+            <TableFilterMenu v-if="!toolbar.noFilters" v-model="tableFilters" :user="currentUser" />
           </template>
 
           <!-- Searchbar -->
@@ -56,13 +58,28 @@
         <v-icon title="Actions" color="secondary">mdi-cog </v-icon>
       </template>
       <template v-if="props.showActions && currentUser !== undefined" #[`item.actions`]="{ item }">
-        <CRUDItemActions :item="item" :actions="actions" :user="currentUser" />
+        <slot name="actions" v-bind="{ actions, show: showActions, currentUser, item }">
+          <CRUDItemActions
+            :show="showActions"
+            :item="item"
+            :actions="actions"
+            :user="currentUser"
+          />
+        </slot>
       </template>
 
       <!-- Expose VDataTable slots -->
       <template v-for="(id, index) of slotNames" #[id]="slotData" :key="index">
         <slot :name="id" v-bind="slotData || {}" />
       </template>
+
+      <!-- <template v-for="header in processedHeaders" #[`header.${header.key}`]="data">
+        <slot :name="`header.${header.key}`" v-bind="data" />
+      </template>
+
+      <template v-for="header in processedHeaders" #[`item.${header.key}`]="data">
+        <slot :name="`item.${header.key}`" v-bind="data" />
+      </template> -->
 
       <!-- Table footer -->
       <template #[`footer.prepend`]>
@@ -156,21 +173,30 @@ const slots = useSlots()
 const slotNames = Object.keys(slots) as 'default'[]
 
 const items = defineModel<ItemType[]>({ default: [] })
+const selected = defineModel<string[]>('selected', { default: [] })
 const searchTerm = defineModel<string>('search')
 const props = defineProps<Props>()
-
-defineSlots<
-  VDataTable['$slots'] & {
-    search(): any
-    'expanded-row-inject': (props: { item: ItemType }) => any
-    form(props: UnwrapRef<typeof form>): any
-  }
->()
 
 const { currentUser, actions, feedback, form, processedHeaders, loading, loadItems } = useTable(
   items,
   props
 )
+
+defineSlots<
+  VDataTable['$slots'] & {
+    actions(bind: {
+      actions: typeof actions
+      show: typeof props.showActions
+      item: ItemType
+      currentUser: typeof currentUser
+    }): any
+    search(): any
+    'expanded-row-inject': (props: { item: ItemType }) => any
+    'toolbar-prepend-actions': () => any
+    'toolbar-append-actions': () => any
+    form(props: UnwrapRef<typeof form>): any
+  }
+>()
 
 const sortBy = ref<SortItem[]>([])
 
@@ -228,6 +254,7 @@ function exportTSV() {
 
 const { copy } = useClipboard()
 async function copyUUID(item: ItemType) {
+  if (item.id === undefined) return
   try {
     await copy(item.id)
     feedback.value.show('UUID copied to clipboard', 'primary')
