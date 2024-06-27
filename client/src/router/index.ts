@@ -141,11 +141,11 @@ function router() {
         name: "account",
         component: () => import("../views/AccountView.vue")
       },
-      {
+      guardRole('Contributor', {
         path: "/location/import-sites",
         name: "import-sites",
         component: () => import("../views/location/SiteImportView.vue")
-      },
+      }),
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       guardRole('Admin', {
         path: '/settings',

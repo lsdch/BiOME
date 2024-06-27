@@ -1,16 +1,83 @@
 <template>
-  <v-data-table :items="model" :headers="headers" show-select select-strategy="all" show-expand>
-    <!-- <template v-for="header in headers" :key="header.key" #[headerSlotName(header)]>
-      {{ header.title }} <br />
-      {{ header.key }}
-    </template> -->
-
-    <template #top>
-      <v-toolbar>
-        <v-spacer />
-        <v-btn prepend-icon="mdi-plus" color="primary" text="New site" @click="addSite" />
-      </v-toolbar>
+  <CRUDTable
+    v-model="model"
+    v-model:selected="selected"
+    :headers="headers"
+    density="compact"
+    select-strategy="all"
+    entityName="Site"
+    item-value="id"
+    :itemRepr="({ code, id }) => code ?? `#${id}`"
+    :toolbar="{
+      title: 'Import sites',
+      icon: 'mdi-map-marker-radius',
+      noSort: true,
+      noFilters: true
+    }"
+    show-actions="edit"
+    show-select
+    show-expand
+    :row-props="
+      ({ item }: Record<'item', Item> & {}) => ({
+        class: Object.keys(item.errors ?? {}).length > 0 ? 'error-row' : undefined
+      })
+    "
+  >
+    <template #[`toolbar-append-actions`]>
+      <v-btn
+        color="primary"
+        variant="plain"
+        icon="mdi-tune-vertical"
+        @click="settingsDialog = true"
+      />
+      <SiteImportSettingsDialog v-model="settingsDialog" />
     </template>
+
+    <!-- Columns -->
+    <template
+      v-for="(header, i) in headers.filter(({ key }) => !['exists', 'errors'].includes(key!))"
+      :key="i"
+      #[`item.${header.key}`]="{ value, item, column }"
+    >
+      <v-tooltip v-if="column.key !== null && item.errors[column.key] !== undefined">
+        <template #activator="{ props }">
+          <span class="text-error" v-bind="props">{{ value }}</span>
+        </template>
+        {{ item.errors[column.key] }}
+      </v-tooltip>
+      <span v-else>{{ value }}</span>
+    </template>
+
+    <!-- Status column -->
+    <template #[`header.exists`]="props">
+      <IconTableHeader v-bind="props" icon="mdi-link-variant-plus" />
+    </template>
+    <template #[`item.exists`]="{ value }">
+      <SiteStatusIcon :exists="value" />
+    </template>
+
+    <!-- Errors column -->
+    <template #[`header.errors`]="props">
+      <IconTableHeader v-bind="props" icon="mdi-alert-circle-outline" color="error" />
+    </template>
+    <template #[`item.errors`]="{ value, item }">
+      <v-chip
+        v-if="value > 0"
+        color="error"
+        size="small"
+        rounded
+        @click="debug ? console.log(item.errors) : null"
+        >{{ value }}</v-chip
+      >
+      <v-icon v-else color="success">mdi-check</v-icon>
+    </template>
+
+    <template #expanded-row="{ item }">
+      <SiteTableExpandedRow :offset="2" :item="item" :errors="item.errors" />
+      <!-- <tr> {{ item.errors }} </tr> -->
+    </template>
+
+    <!-- Empty table -->
     <template #[`no-data`]>
       <div class="d-flex justify-center align-center">
         <DropZone
@@ -23,49 +90,146 @@
         />
       </div>
     </template>
-    <template #[`footer.prepend`]> </template>
-  </v-data-table>
-  <SiteImportDialog
-    v-model="importDialog"
-    :file="importedFile"
-    @parse-chunk="
-      (items, errors) => {
-        console.log('ITEMS:', items)
-        model = model.concat(model, items)
-        console.log('ERRORS:', errors)
-      }
-    "
-  />
-  <SiteFormDialog title="New site" v-model="formDialog"></SiteFormDialog>
+
+    <!-- Footer -->
+    <template #[`footer.prepend`]>
+      <v-btn
+        v-if="selected.length > 0"
+        color="warning"
+        variant="plain"
+        :text="`Remove ${selected.length} selected items`"
+        @click="removeItems(selected)"
+      />
+      <v-spacer />
+    </template>
+
+    <!-- Item form -->
+    <template #form="{ dialog, onClose, onSuccess, editItem }">
+      <SiteFormDialog
+        title="New site"
+        :edit="editItem"
+        :model-value="dialog"
+        @success="
+          (item) => {
+            console.log(item)
+            return onSuccess(validateItem(item))
+          }
+        "
+        @close="onClose"
+      />
+    </template>
+  </CRUDTable>
+  <SiteImportDialog v-model:open="importDialog" :file="importedFile" @parse-chunk="addItems" />
 </template>
 
 <script setup lang="ts">
-import { SiteDatasetInput, SiteInput } from '@/api'
+import { $SiteInput, SiteInput } from '@/api'
 import DropZone from '@/components/toolkit/import/DropZone.vue'
-import { reactive, ref } from 'vue'
+import { ParseError } from 'papaparse'
+import { ref } from 'vue'
+import { useSchema } from '../toolkit/forms/schema'
+import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import SiteFormDialog from './SiteFormDialog.vue'
-import SiteImportDialog from './SiteImportDialog.vue'
-import { ParseConfig, ParseLocalConfig, parse } from 'papaparse'
+import SiteImportDialog, { ProcessedItem } from './SiteImportDialog.vue'
+import SiteStatusIcon from './SiteStatusIcon.vue'
+import SiteTableExpandedRow from './SiteTableExpandedRow.vue'
+import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
+import SiteImportSettingsDialog from './SiteImportSettingsDialog.vue'
 
-const model = reactive<SiteInput[]>([])
+type Errors = Partial<{
+  [K in ObjectPaths<SiteInput> | 'exists']: string
+}>
 
-const headers: DataTableHeader[] = [
-  { title: undefined },
-  { title: 'Code', key: 'code' },
+type Item = DeepPartial<SiteInput> & {
+  exists?: boolean
+  id: string
+  errors?: Errors
+}
+
+const model = ref<Item[]>([])
+const selected = ref<string[]>([])
+const debug = ref(false)
+const settingsDialog = ref(false)
+
+/**
+ * Item ID generator
+ */
+const id = (function* genID() {
+  let n = 0
+  while (true) {
+    yield `${(n += 1)}`
+  }
+})()
+
+function removeItems(items: string[]) {
+  model.value = model.value.filter(({ id }) => {
+    return !items.includes(id ?? '')
+  })
+  selected.value = []
+}
+
+const headers: CRUDTableHeaders = [
+  {
+    title: 'Site status',
+    key: 'exists',
+    width: 0,
+    align: 'center'
+  },
+  { title: 'Code', key: 'code', cellProps: { class: 'text-overline' } },
   { title: 'Name', key: 'name' },
-  { title: 'Latitude', key: 'latitude' },
-  { title: 'Longitude', key: 'longitude' },
+  { title: 'Latitude', key: 'coordinates.latitude' },
+  { title: 'Longitude', key: 'coordinates.longitude' },
   { title: 'Altitude (m)', key: 'altitude' },
-  { title: '', key: 'data-table-expand' }
-  // { title: 'Region' },
-  // { title: 'Municipality' },
-  // { title: 'Country' },
-  // { title: 'Description' }
+  {
+    title: 'Errors',
+    key: 'errors',
+    width: 0,
+    align: 'center',
+    value(item) {
+      return Object.keys(item.errors).length ?? 0
+    }
+  }
 ]
 
-const formDialog = ref(false)
-function addSite() {
-  formDialog.value = true
+const { schema, validate, paths, validateAll } = useSchema($SiteInput)
+console.log('PATHS', paths)
+
+function setValue(obj: Record<string, any>, [p, ...rest]: string[], value: any) {
+  if (rest.length == 0) {
+    obj[p] = value
+  }
+  if (!(p in obj)) {
+    obj[p] = {}
+  }
+  setValue(obj[p], rest, value)
+}
+
+function validateItem(item: Item) {
+  item.errors = Object.fromEntries(
+    validateAll(item).map(({ location, message }) => [location!, message])
+  ) as unknown as Errors
+  return item
+}
+
+function addItems(items: ProcessedItem[], parseErrors: ParseError[]) {
+  const toAdd = items.map<Item>((item: ProcessedItem): Item => {
+    return validateItem({
+      id: id.next().value,
+      code: item.code,
+      name: item.name,
+      altitude: item.altitude,
+      description: item.description,
+      locality: item.locality,
+      coordinates: {
+        latitude: item.coordinates?.latitude,
+        longitude: item.coordinates?.longitude,
+        precision: item.coordinates?.precision
+      },
+      country_code: item.country_code,
+      exists: item.exists
+    })
+  })
+  model.value.unshift(...toAdd)
 }
 
 const importDialog = ref(false)
@@ -77,4 +241,15 @@ function onUpload(files: File[]) {
 }
 </script>
 
-<style lang="scss"></style>
+<style lang="scss">
+@use 'vuetify';
+table tr {
+  > td:first-child,
+  th:first-child {
+    border-left: 2px solid transparent;
+  }
+  &.error-row > td:first-child {
+    border-left: 2px solid rgb(var(--v-theme-error));
+  }
+}
+</style>

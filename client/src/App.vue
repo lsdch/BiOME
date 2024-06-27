@@ -15,10 +15,7 @@
       <SettingsMenu />
       <AccountNavMenu />
     </v-app-bar>
-    <NavigationDrawer
-      v-model="drawer"
-      :temporary="router.currentRoute.value.meta.drawer?.temporary"
-    />
+    <NavigationDrawer v-model="drawer" :temporary="drawerTemporary" />
     <v-main>
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <RouterView />
@@ -36,7 +33,7 @@
 
 <script setup lang="ts">
 import NavigationDrawer from '@/components/navigation/NavigationDrawer.vue'
-import { provide, ref } from 'vue'
+import { nextTick, provide, ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import colors from 'vuetify/util/colors'
 
@@ -50,12 +47,20 @@ import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { ConfirmDialogKey } from './injection'
 import { client } from '@hey-api/client-fetch'
+import { useDisplay } from 'vuetify'
 
 const loading = ref(false)
-const drawer = ref(false)
+
+const { mobile } = useDisplay()
+
+const drawer = ref(!mobile.value)
+const drawerTemporary = ref<boolean>()
+
 // Navigation
 const router = useRouter()
-router.beforeEach(() => {
+router.beforeEach(async (to) => {
+  drawerTemporary.value = to.meta.drawer?.temporary
+  await nextTick()
   loading.value = true
 })
 router.afterEach((to) => {
@@ -63,8 +68,6 @@ router.afterEach((to) => {
     drawer.value = false
   }
   loading.value = false
-
-  drawer.value = !router.currentRoute.value.meta.drawer?.temporary
 })
 
 defineProps<{ settings: InstanceSettings }>()
@@ -106,5 +109,9 @@ client.interceptors.response.use(async (response) => {
   font-size: larger;
   text-transform: none;
   font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.noTransition {
+  transition-duration: 0s !important;
 }
 </style>

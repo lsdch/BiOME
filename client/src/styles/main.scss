@@ -1,0 +1,7 @@
+@use "vuetify";
+
+.input-overline input {
+  @extend .text-overline;
+  text-transform: none;
+  line-height: unset;
+}
