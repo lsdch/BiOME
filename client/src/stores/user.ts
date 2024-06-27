@@ -1,29 +1,32 @@
-import { AccountService, ApiError } from "@/api"
-import type { User, UserRole } from "@/api"
+import type { ErrorModel, User, UserRole } from "@/api"
+import { AccountService } from "@/api"
 import { orderedUserRoles } from "@/components/people/userRole"
 import { defineStore } from "pinia"
-import { computed, ref, Ref } from "vue"
+import { computed, ref } from "vue"
 
 
 export const useUserStore = defineStore("user", () => {
-  const user: Ref<User | undefined> = ref(undefined)
-  const error: Ref<undefined | ApiError> = ref(undefined)
-  const sessionToken: Ref<string | undefined> = ref(undefined)
+  const user = ref<User>()
+  const error = ref<ErrorModel>()
+  const sessionToken = ref<string>()
 
   async function getUser() {
     error.value = undefined
     await AccountService.currentUser()
-      .then((res) => {
-        if (res != undefined) {
-          user.value = res.user
-          console.info(`User ${user.value.identity.full_name} authenticated with role ${user.value.role}`)
-          sessionToken.value = res.token
+      .then(({ data, error: err, response }) => {
+        if (err != undefined) {
+          error.value = err
+          user.value = undefined
+          return
         }
-      })
-      .catch((reason) => {
-        error.value = reason as ApiError
-        user.value = undefined
-        return undefined
+        if (response.status === 204) {
+          user.value = undefined
+          sessionToken.value = undefined
+          return
+        }
+        user.value = data!.user
+        sessionToken.value = data!.token
+        console.info(`User ${user.value?.identity.full_name} authenticated with role ${user.value?.role}`)
       })
   }
 
