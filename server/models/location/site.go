@@ -50,6 +50,12 @@ func ListSites(db edgedb.Executor) ([]Site, error) {
 	return sites, err
 }
 
+func GetSite(db edgedb.Executor, identifier string) (Site, error) {
+	var site Site
+	err := db.QuerySingle(context.Background(), `select location::Site { ** } filter .code = $0`, &site, identifier)
+	return site, err
+}
+
 func (i *SiteInput) Create(db edgedb.Executor) (*Site, error) {
 	var created Site
 	data, _ := json.Marshal(i)

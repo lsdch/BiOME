@@ -537,6 +537,24 @@ export type SecuritySettingsInput = {
     min_password_strength: number;
 };
 
+export type Site = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    access_point?: string;
+    altitude?: number;
+    code: string;
+    coordinates?: Coordinates;
+    country: Country;
+    datasets: Array<SiteDatasetInner>;
+    description: string;
+    id: string;
+    locality?: string;
+    meta: Meta;
+    name: string;
+};
+
 export type SiteDataset = {
     /**
      * A URL to the JSON Schema for this object.
@@ -547,6 +565,12 @@ export type SiteDataset = {
     label: string;
     maintainers: Array<PersonUser>;
     sites: Array<SiteItem>;
+};
+
+export type SiteDatasetInner = {
+    description: string;
+    id: string;
+    label: string;
 };
 
 export type SiteDatasetInput = {
@@ -813,6 +837,19 @@ export type ListCountriesResponse = Array<Country>;
 
 export type ListCountriesError = ErrorModel;
 
+export type ListSitesData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListSitesResponse = Array<Site>;
+
+export type ListSitesError = ErrorModel;
+
 export type CreateSiteDatasetData = {
     body: SiteDatasetInput;
     headers?: {
@@ -826,6 +863,23 @@ export type CreateSiteDatasetData = {
 export type CreateSiteDatasetResponse = SiteDataset;
 
 export type CreateSiteDatasetError = ErrorModel;
+
+export type GetSiteData = {
+    body: Site;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type GetSiteResponse = Site;
+
+export type GetSiteError = ErrorModel;
 
 export type CurrentUserData = {
     headers?: {
@@ -1393,6 +1447,23 @@ export type $OpenApiTs = {
         };
     };
     '/sites': {
+        get: {
+            req: ListSitesData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': Array<Site>;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
         post: {
             req: CreateSiteDatasetData;
             res: {
@@ -1400,6 +1471,25 @@ export type $OpenApiTs = {
                  * OK
                  */
                 '200': SiteDataset;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+    };
+    '/sites/{code}': {
+        get: {
+            req: GetSiteData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': Site;
                 /**
                  * Unprocessable Entity
                  */

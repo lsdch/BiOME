@@ -14,6 +14,22 @@ import (
 func RegisterRoutes(r router.Router) {
 	sites_API := r.RouteGroup("/sites").WithTags([]string{"Location"})
 
+	router.Register(sites_API, "ListSites",
+		huma.Operation{
+			Path:        "/",
+			Method:      http.MethodGet,
+			Summary:     "List sites",
+			Description: "List all registered sites",
+		}, controllers.ListHandler(location.ListSites))
+
+	router.Register(sites_API, "GetSite",
+		huma.Operation{
+			Path:        "/{code}",
+			Method:      http.MethodGet,
+			Summary:     "Get site",
+			Description: "Get site infos using its code",
+		}, controllers.GetByCodeHandler(location.GetSite))
+
 	router.Register(sites_API, "CreateSiteDataset",
 		huma.Operation{
 			Path:        "/",

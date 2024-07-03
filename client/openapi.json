@@ -1476,6 +1476,72 @@
 				],
 				"type": "object"
 			},
+			"Site": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Site.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"access_point": {
+						"type": "string"
+					},
+					"altitude": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"code": {
+						"maxLength": 8,
+						"minLength": 4,
+						"type": "string"
+					},
+					"coordinates": {
+						"$ref": "#/components/schemas/Coordinates"
+					},
+					"country": {
+						"$ref": "#/components/schemas/Country"
+					},
+					"datasets": {
+						"items": {
+							"$ref": "#/components/schemas/SiteDatasetInner"
+						},
+						"type": "array"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"locality": {
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"name": {
+						"minLength": 4,
+						"type": "string"
+					}
+				},
+				"required": [
+					"datasets",
+					"meta",
+					"id",
+					"name",
+					"code",
+					"description",
+					"country"
+				],
+				"type": "object"
+			},
 			"SiteDataset": {
 				"additionalProperties": false,
 				"properties": {
@@ -1515,6 +1581,28 @@
 				"required": [
 					"sites",
 					"maintainers",
+					"id",
+					"label",
+					"description"
+				],
+				"type": "object"
+			},
+			"SiteDatasetInner": {
+				"additionalProperties": false,
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					}
+				},
+				"required": [
 					"id",
 					"label",
 					"description"
@@ -4786,6 +4874,73 @@
 			}
 		},
 		"/sites": {
+			"get": {
+				"description": "List all registered sites",
+				"operationId": "ListSites",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Site"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List sites",
+				"tags": [
+					"Location"
+				]
+			},
 			"post": {
 				"description": "Create a new site dataset with new or existing sites",
 				"operationId": "CreateSiteDataset",
@@ -4856,6 +5011,90 @@
 					}
 				},
 				"summary": "Create site dataset",
+				"tags": [
+					"Location"
+				]
+			}
+		},
+		"/sites/{code}": {
+			"get": {
+				"description": "Get site infos using its code",
+				"operationId": "GetSite",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/Site"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Site"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Get site",
 				"tags": [
 					"Location"
 				]

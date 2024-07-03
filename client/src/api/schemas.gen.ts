@@ -1215,6 +1215,63 @@ export const $SecuritySettingsInput = {
     type: 'object'
 } as const;
 
+export const $Site = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Site.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        access_point: {
+            type: 'string'
+        },
+        altitude: {
+            format: 'int64',
+            type: 'integer'
+        },
+        code: {
+            maxLength: 8,
+            minLength: 4,
+            type: 'string'
+        },
+        coordinates: {
+            '$ref': '#/components/schemas/Coordinates'
+        },
+        country: {
+            '$ref': '#/components/schemas/Country'
+        },
+        datasets: {
+            items: {
+                '$ref': '#/components/schemas/SiteDatasetInner'
+            },
+            type: 'array'
+        },
+        description: {
+            type: 'string'
+        },
+        id: {
+            contentEncoding: 'base64',
+            format: 'uuid',
+            type: 'string'
+        },
+        locality: {
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        name: {
+            minLength: 4,
+            type: 'string'
+        }
+    },
+    required: ['datasets', 'meta', 'id', 'name', 'code', 'description', 'country'],
+    type: 'object'
+} as const;
+
 export const $SiteDataset = {
     additionalProperties: false,
     properties: {
@@ -1250,6 +1307,25 @@ export const $SiteDataset = {
         }
     },
     required: ['sites', 'maintainers', 'id', 'label', 'description'],
+    type: 'object'
+} as const;
+
+export const $SiteDatasetInner = {
+    additionalProperties: false,
+    properties: {
+        description: {
+            type: 'string'
+        },
+        id: {
+            contentEncoding: 'base64',
+            format: 'uuid',
+            type: 'string'
+        },
+        label: {
+            type: 'string'
+        }
+    },
+    required: ['id', 'label', 'description'],
     type: 'object'
 } as const;
 
