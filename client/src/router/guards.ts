@@ -4,9 +4,10 @@ import { useUserStore } from "@/stores/user";
 import { RouteRecordRaw } from "vue-router";
 
 
-const { feedback } = useFeedback()
+
 
 function denyAccess(msg: string) {
+  const { feedback } = useFeedback()
   feedback({ message: msg, type: "error" })
   return false
 }
