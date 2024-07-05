@@ -16,8 +16,9 @@
           :rules="[() => validity.step1 ?? true]"
         />
       </div>
-      <v-stepper-item :value="2" title="New sites" editable />
-      <v-stepper-item :value="3" title="Review" />
+      <v-stepper-item :value="2" title="Sites coordinates" />
+      <v-stepper-item :value="3" title="New sites" editable />
+      <v-stepper-item :value="4" title="Review" />
     </v-stepper-header>
 
     <v-stepper-window class="fill-height">
@@ -60,10 +61,13 @@
           </v-form>
         </v-container>
       </v-stepper-window-item>
-      <v-stepper-window-item :value="2">
+      <v-stepper-window-item :value="2" class="fill-height">
+        <SiteDatasetPrimer />
+      </v-stepper-window-item>
+      <v-stepper-window-item :value="3">
         <SiteTabularImport />
       </v-stepper-window-item>
-      <v-stepper-window-item :value="3" class="fill-height">
+      <v-stepper-window-item :value="4" class="fill-height">
         <div class="fill-height w-100">
           <SitesMap />
         </div>
@@ -78,6 +82,7 @@
 import { $SiteDatasetInput, SiteDatasetInput } from '@/api'
 import SitesMap from '@/components/maps/SitesMap.vue'
 import PersonPicker from '@/components/people/PersonPicker.vue'
+import SiteDatasetPrimer from '@/components/sites/SiteDatasetPrimer.vue'
 import SiteTabularImport from '@/components/sites/SiteTabularImport.vue'
 import { FormProps, useForm } from '@/components/toolkit/forms/form'
 import { ref } from 'vue'

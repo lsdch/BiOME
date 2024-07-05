@@ -135,15 +135,16 @@ import SiteStatusIcon from './SiteStatusIcon.vue'
 import SiteTableExpandedRow from './SiteTableExpandedRow.vue'
 import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
 import SiteImportSettingsDialog from './SiteImportSettingsDialog.vue'
+import { Errors, indexErrors } from '../toolkit/validation'
 
-type Errors = Partial<{
-  [K in ObjectPaths<SiteInput> | 'exists']: string
-}>
+// type Errors = Partial<{
+//   [K in ObjectPaths<SiteInput> | 'exists']: string
+// }>
 
 type Item = DeepPartial<SiteInput> & {
   exists?: boolean
   id: string
-  errors?: Errors
+  errors?: Errors<ObjectPaths<SiteInput> | 'exists'>
 }
 
 const model = ref<Item[]>([])
@@ -205,9 +206,7 @@ function setValue(obj: Record<string, any>, [p, ...rest]: string[], value: any) 
 }
 
 function validateItem(item: Item) {
-  item.errors = Object.fromEntries(
-    validateAll(item).map(({ location, message }) => [location!, message])
-  ) as unknown as Errors
+  item.errors = indexErrors(validateAll(item))
   return item
 }
 
