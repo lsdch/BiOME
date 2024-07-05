@@ -1565,7 +1565,7 @@ export const $TaxonRank = {
 } as const;
 
 export const $TaxonStatus = {
-    enum: ['Accepted', 'Synonym', 'Unclassified'],
+    enum: ['Accepted', 'Unreferenced', 'Unclassified'],
     title: 'TaxonStatus',
     type: 'string'
 } as const;
@@ -1665,7 +1665,7 @@ export const $TaxonWithRelatives = {
             examples: ['Accepted']
         }
     },
-    required: ['parent', 'id', 'GBIF_ID', 'code', 'authorship', 'anchor', 'comment', 'meta', 'name', 'status', 'rank'],
+    required: ['id', 'GBIF_ID', 'code', 'authorship', 'anchor', 'comment', 'meta', 'name', 'status', 'rank'],
     type: 'object'
 } as const;
 

@@ -1915,7 +1915,7 @@
 			"TaxonStatus": {
 				"enum": [
 					"Accepted",
-					"Synonym",
+					"Unreferenced",
 					"Unclassified"
 				],
 				"title": "TaxonStatus",
@@ -2032,7 +2032,6 @@
 					}
 				},
 				"required": [
-					"parent",
 					"id",
 					"GBIF_ID",
 					"code",

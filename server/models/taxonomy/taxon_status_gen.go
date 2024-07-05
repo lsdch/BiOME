@@ -14,7 +14,7 @@ import (
 
 var TaxonStatusValues = []TaxonStatus{
 	Accepted,
-	Synonym,
+	Unreferenced,
 	Unclassified,
 }
 

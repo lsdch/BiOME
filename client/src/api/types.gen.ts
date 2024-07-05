@@ -665,7 +665,7 @@ export type TaxonInput = {
 
 export type TaxonRank = 'Kingdom' | 'Phylum' | 'Class' | 'Family' | 'Genus' | 'Species' | 'Subspecies';
 
-export type TaxonStatus = 'Accepted' | 'Synonym' | 'Unclassified';
+export type TaxonStatus = 'Accepted' | 'Unreferenced' | 'Unclassified';
 
 export type TaxonUpdate = {
     /**
@@ -695,7 +695,7 @@ export type TaxonWithRelatives = {
     id: string;
     meta: Meta;
     name: string;
-    parent: TaxonWithRelativesParentStruct;
+    parent?: TaxonWithRelativesParentStruct;
     rank: TaxonRank;
     status: TaxonStatus;
 };

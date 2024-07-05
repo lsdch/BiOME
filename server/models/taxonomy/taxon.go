@@ -39,7 +39,7 @@ type TaxonWithRelatives struct {
 	Parent struct {
 		edgedb.Optional
 		Taxon `edgedb:"$inline"`
-	} `edgedb:"parent" json:"parent"`
+	} `edgedb:"parent" json:"parent,omitempty"`
 	Children []Taxon `edgedb:"children" json:"children,omitempty"`
 } // @name TaxonWithRelatives
 

@@ -3,12 +3,17 @@ module taxonomy {
   scalar type Rank extending enum<Kingdom, Phylum, Class, Order, Family, Genus, Species, Subspecies>;
   # Ignore FORM, VARIETY, UNRANKED
 
-  scalar type TaxonStatus extending enum<Accepted, Synonym, Unclassified>;
+
+  # Accepted: referenced in GBIF with status "ACCEPTED"
+  # Unreferenced: not "ACCEPTED" in GBIF yet, but a scientific consensus exists for the taxon
+  # Unclassified: taxon description is currently on-going
+  scalar type TaxonStatus extending enum<Accepted, Unreferenced, Unclassified>;
 
   type Taxon extending default::Auditable {
     GBIF_ID: int32 {
       constraint exclusive;
     };
+
     required name: str {
       constraint min_len_value(4);
     };
@@ -23,18 +28,12 @@ module taxonomy {
     required rank: Rank;
 
     required status: TaxonStatus;
+    # constraint expression on (exists .GBIF_ID) except (<TaxonStatus>.status != TaxonStatus.Accepted);
     required code: str {
       constraint exclusive;
       rewrite insert, update using (
-        with chopped := str_split(.name, " "),
-        suffix := "[syn]" if .status = TaxonStatus.Synonym else ""
-        select (
-          if (__specified__.code and len(.code) > 0) then .code
-          else (
-            if (not .rank in {Rank.Species, Rank.Subspecies}) then (.name ++ suffix)
-            else (str_upper(chopped[0][:3]) ++ array_join(chopped[1:], "_") ++ suffix)
-          )
-        )
+        if (__specified__.code and len(.code) > 0) then .code
+        else str_replace(.name, " ", "_")
       )
     };
     required anchor: bool {

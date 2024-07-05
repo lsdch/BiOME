@@ -42,7 +42,7 @@ func (taxon *TaxonGBIF) normalize() {
 	if taxon.Status == "ACCEPTED" {
 		taxon.Status = "Accepted"
 	} else {
-		taxon.Status = "Synonym"
+		taxon.Status = "Unclassified"
 	}
 	rank := strings.ToLower(taxon.Rank)
 	taxon.Rank = cases.Title(language.English, cases.NoLower).String(rank)
