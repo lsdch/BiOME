@@ -1,10 +1,13 @@
 import { UserRole } from "@/api";
+import { useFeedback } from "@/stores/feedback";
 import { useUserStore } from "@/stores/user";
 import { RouteRecordRaw } from "vue-router";
 
 
+const { feedback } = useFeedback()
+
 function denyAccess(msg: string) {
-  console.warn(msg)
+  feedback({ message: msg, type: "error" })
   return false
 }
 
