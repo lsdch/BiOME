@@ -45,8 +45,9 @@
 <script setup lang="ts">
 import { AccountService, ErrorModel, UserCredentials } from '@/api'
 import { useUserStore } from '@/stores/user'
+import { useRouteQuery } from '@vueuse/router'
 import { Ref, onBeforeMount, reactive, ref } from 'vue'
-import { LocationQueryValue, useRouter } from 'vue-router'
+import { useRouter } from 'vue-router'
 import PasswordField from '../toolkit/ui/PasswordField.vue'
 
 const formData: UserCredentials = reactive({
@@ -65,15 +66,14 @@ const router = useRouter()
 const { getUser, isAuthenticated } = useUserStore()
 
 onBeforeMount(() => {
-  if (isAuthenticated) {
-    redirect()
-  }
+  if (isAuthenticated) redirect()
 })
 
+const target = useRouteQuery<string | 'home'>('redirect', 'home')
+
 function redirect() {
-  router.push({
-    name: (router.currentRoute.value.query.redirect as LocationQueryValue) ?? 'home'
-  })
+  // Using replace to overwrite router history
+  router.replace({ name: target.value })
   return
 }
 
