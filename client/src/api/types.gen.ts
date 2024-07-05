@@ -16,6 +16,9 @@ export type AuthenticationResponse = {
 export type Coordinates = {
     latitude: number;
     longitude: number;
+    /**
+     * Where the coordinates point to
+     */
     precision: CoordinatesPrecision;
 };
 
@@ -596,14 +599,23 @@ export type SiteDatasetInput = {
 
 export type SiteInput = {
     access_point?: string;
+    /**
+     * Site altitude in meters
+     */
     altitude?: number;
     /**
      * A short unique uppercase alphanumeric code to identify the site
      */
     code: string;
+    /**
+     * Site coordinates in decimal degrees
+     */
     coordinates: Coordinates;
     country_code: string;
     description?: string;
+    /**
+     * Nearest populated place
+     */
     locality?: string;
     name: string;
 };

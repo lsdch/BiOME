@@ -10,18 +10,18 @@ import (
 )
 
 type Coordinates struct {
-	Precision CoordinatesPrecision `edgedb:"precision" json:"precision"`
-	Latitude  float32              `edgedb:"latitude" json:"latitude" minimum:"-90" maximum:"90"`
-	Longitude float32              `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180"`
+	Precision CoordinatesPrecision `edgedb:"precision" json:"precision" doc:"Where the coordinates point to"`
+	Latitude  float32              `edgedb:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"39.1137"`
+	Longitude float32              `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"9.5064"`
 }
 
 type SiteInput struct {
 	Name        string                       `json:"name" minLength:"4"`
 	Code        string                       `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric code to identify the site"`
 	Description models.OptionalInput[string] `json:"description,omitempty"`
-	Coordinates Coordinates                  `json:"coordinates"`
-	Altitude    models.OptionalInput[int32]  `json:"altitude,omitempty"`
-	Locality    models.OptionalInput[string] `json:"locality,omitempty"`
+	Coordinates Coordinates                  `json:"coordinates" doc:"Site coordinates in decimal degrees"`
+	Altitude    models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
+	Locality    models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
 	CountryCode string                       `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 	AccessPoint models.OptionalInput[string] `json:"access_point,omitempty"`
 }

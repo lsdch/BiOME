@@ -33,19 +33,22 @@ export const $Coordinates = {
     additionalProperties: false,
     properties: {
         latitude: {
+            examples: [39.1137],
             format: 'float',
             maximum: 90,
             minimum: -90,
             type: 'number'
         },
         longitude: {
+            examples: [9.5064],
             format: 'float',
             maximum: 180,
             minimum: -180,
             type: 'number'
         },
         precision: {
-            '$ref': '#/components/schemas/CoordinatesPrecision'
+            '$ref': '#/components/schemas/CoordinatesPrecision',
+            description: 'Where the coordinates point to'
         }
     },
     required: ['precision', 'latitude', 'longitude'],
@@ -1380,6 +1383,7 @@ export const $SiteInput = {
             type: 'string'
         },
         altitude: {
+            description: 'Site altitude in meters',
             format: 'int32',
             type: 'integer'
         },
@@ -1393,7 +1397,8 @@ export const $SiteInput = {
             type: 'string'
         },
         coordinates: {
-            '$ref': '#/components/schemas/Coordinates'
+            '$ref': '#/components/schemas/Coordinates',
+            description: 'Site coordinates in decimal degrees'
         },
         country_code: {
             examples: ['FR'],
@@ -1405,6 +1410,7 @@ export const $SiteInput = {
             type: 'string'
         },
         locality: {
+            description: 'Nearest populated place',
             type: 'string'
         },
         name: {

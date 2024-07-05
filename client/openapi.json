@@ -41,19 +41,26 @@
 				"additionalProperties": false,
 				"properties": {
 					"latitude": {
+						"examples": [
+							39.1137
+						],
 						"format": "float",
 						"maximum": 90,
 						"minimum": -90,
 						"type": "number"
 					},
 					"longitude": {
+						"examples": [
+							9.5064
+						],
 						"format": "float",
 						"maximum": 180,
 						"minimum": -180,
 						"type": "number"
 					},
 					"precision": {
-						"$ref": "#/components/schemas/CoordinatesPrecision"
+						"$ref": "#/components/schemas/CoordinatesPrecision",
+						"description": "Where the coordinates point to"
 					}
 				},
 				"required": [
@@ -1664,6 +1671,7 @@
 						"type": "string"
 					},
 					"altitude": {
+						"description": "Site altitude in meters",
 						"format": "int32",
 						"type": "integer"
 					},
@@ -1679,7 +1687,8 @@
 						"type": "string"
 					},
 					"coordinates": {
-						"$ref": "#/components/schemas/Coordinates"
+						"$ref": "#/components/schemas/Coordinates",
+						"description": "Site coordinates in decimal degrees"
 					},
 					"country_code": {
 						"examples": [
@@ -1693,6 +1702,7 @@
 						"type": "string"
 					},
 					"locality": {
+						"description": "Nearest populated place",
 						"type": "string"
 					},
 					"name": {
