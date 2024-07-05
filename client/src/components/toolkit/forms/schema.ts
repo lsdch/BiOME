@@ -6,6 +6,8 @@ import { List, Union } from "ts-toolbelt"
 
 type SchemaModule = typeof import("@/api/schemas.gen")
 
+type SchemaRefs = keyof SchemaModule extends `$${infer U}` ? `#/components/schemas/${U}` : never
+
 // Adapted from openapi-ts src
 export type Schema = Readonly<{
   $ref?: string,
@@ -75,7 +77,6 @@ function paths(s: Schema): (string | '*')[][] {
     return Object.entries<Schema>(s.properties).reduce<(string | '*')[][]>((acc, [prop, schema]) => {
       if (schema.$ref) {
         const key = `$${schema.$ref.split('/').at(-1)}` as keyof SchemaModule
-        // console.log(key, paths(Schemas[key]))
         const p = paths(Schemas[key]).map(p => [prop, ...p])
         return acc.concat(p.length ? p : [[prop]])
       }
@@ -90,24 +91,35 @@ function paths(s: Schema): (string | '*')[][] {
 }
 
 
-export type FieldSpecification = { schema: Schema | undefined, required: boolean }
+export type FieldSpecification = {
+  schema: Schema | undefined,
+  required: boolean
+}
+
+
+
+export function getSchemaRef(ref: SchemaRefs) {
+  const refName = `$${ref.split('/').at(-1)}` as keyof SchemaModule
+  return Schemas[refName] as Schema
+}
 
 export function getSchema<T extends Schema>(schema: T | undefined, ...path: SchemaPaths<typeof schema, "Terminal" | "All">): FieldSpecification {
   if (schema === undefined)
     return { schema: undefined, required: false }
   if (schema.$ref !== undefined) {
-    const refName = `$${schema.$ref.split('/').at(-1)}` as keyof SchemaModule
-    const target = Schemas[refName] as Schema
+    const target = getSchemaRef(schema.$ref as SchemaRefs) as Schema
     const p = path as SchemaPaths<typeof target>
     return getSchema<typeof target>(target, ...p)
   }
   const [fragment, ...rest] = path
   if (rest.length == 0) {
-    if (typeof fragment === "string")
+    if (typeof fragment === "string") {
+      const prop = schema.properties?.[fragment]
       return {
-        schema: schema.properties?.[fragment],
+        schema: prop?.$ref !== undefined ? getSchemaRef(prop.$ref as SchemaRefs) : prop,
         required: schema.required?.includes(fragment) ?? false
       }
+    }
     else if (typeof fragment === "number" && schema.items !== undefined)
       return getSchema(schema.items)
   }
@@ -160,6 +172,11 @@ export function useSchema<T extends Schema>(schema: T) {
       rules.push((value: number) => (value >= s.minimum!) || `Minimum value is ${s.minimum!}`)
     }
 
+    // Enum
+    if (s?.enum !== undefined) {
+      rules.push((value: any) => s.enum?.includes(value) || 'Invalid value')
+    }
+
     // Custom
     if (s?.format == "country-code") {
       rules.push((value: string) => useCountries().findCountry(value) !== undefined || `Invalid country code`)
@@ -185,8 +202,10 @@ export function useSchema<T extends Schema>(schema: T) {
   function validateAll(v: Record<string, any>) {
     return allPaths.flatMap<(ErrorDetail & { path: string[] })>((path: string[]): (ErrorDetail & { path: string[] })[] => {
       if (path.includes('*')) {
+        // TODO: implement array validation
         return []
       }
+
       const value = path.reduce((acc, p) => acc[p], v)
       const valid = validate(...path as (typeof allPaths)[number])(value)
       return valid !== true ? [{ location: path.join('.'), message: valid, value, path }] : []
