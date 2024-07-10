@@ -17,7 +17,7 @@
           <v-select
             label="Rank"
             v-model="filters.rank"
-            :items="taxonRankOptions"
+            :items="$TaxonRank.enum"
             density="compact"
             clearable
             single-line
@@ -45,9 +45,9 @@
 </template>
 
 <script setup lang="ts">
-import { TaxonRank, TaxonStatus } from '@/api'
+import { $TaxonRank, TaxonRank, TaxonStatus } from '@/api'
 import { debounce as debounceFn } from 'vue-debounce'
-import { taxonRankOptions, taxonStatusOptions } from './enums'
+import { taxonStatusOptions } from './enums'
 
 type TaxaFilters = {
   name?: string

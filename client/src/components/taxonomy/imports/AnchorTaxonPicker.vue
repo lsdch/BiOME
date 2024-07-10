@@ -150,15 +150,14 @@ import axios, { AxiosError } from 'axios'
 
 import { watch } from 'vue'
 
-import { TaxonRank, TaxonomyGbifService } from '@/api'
+import { $TaxonRank, TaxonRank, TaxonomyGbifService } from '@/api'
 import IconGBIF from '@/components/icons/IconGBIF.vue'
-import { taxonRankOptions } from '../enums'
 
 const importDescendants = ref(true)
 
 type Rank = 'Any' | TaxonRank
 const rank = ref<Rank>('Any')
-const rankOptions: Rank[] = ['Any', ...taxonRankOptions]
+const rankOptions: Rank[] = ['Any', ...$TaxonRank.enum]
 
 type TaxonGBIF = {
   key: number
@@ -228,7 +227,7 @@ watch(targetTaxon, async (taxon) => {
     loadingTaxon.value = true
     let response = await axios.get(endpointGBIF(taxon.key.toString()))
     let info = response.data
-    info.path = taxonRankOptions
+    info.path = $TaxonRank.enum
       .filter((rank) => rank.toLowerCase() in info)
       .map((rank) => {
         let key = rank.toLowerCase()
@@ -244,7 +243,7 @@ watch(targetTaxon, async (taxon) => {
 
 function countTotal(taxon: any) {
   return (
-    taxonRankOptions.reduce((acc, rank) => {
+    $TaxonRank.enum.reduce((acc, rank) => {
       return acc + Number(rank.toLocaleLowerCase() in taxon)
     }, 0) + taxon.numDescendants
   )
