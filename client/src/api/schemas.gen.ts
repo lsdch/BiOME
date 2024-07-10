@@ -1485,6 +1485,10 @@ export const $Taxon = {
             examples: ['(Linnaeus, 1758)'],
             type: 'string'
         },
+        children_count: {
+            format: 'int64',
+            type: 'integer'
+        },
         code: {
             examples: ['ASEaquaticus'],
             type: 'string'
@@ -1513,7 +1517,7 @@ export const $Taxon = {
             examples: ['Accepted']
         }
     },
-    required: ['id', 'GBIF_ID', 'code', 'authorship', 'anchor', 'comment', 'meta', 'name', 'status', 'rank'],
+    required: ['id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
     type: 'object'
 } as const;
 
@@ -1559,7 +1563,7 @@ export const $TaxonInput = {
 } as const;
 
 export const $TaxonRank = {
-    enum: ['Kingdom', 'Phylum', 'Class', 'Family', 'Genus', 'Species', 'Subspecies'],
+    enum: ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Subspecies'],
     title: 'TaxonRank',
     type: 'string'
 } as const;
@@ -1606,6 +1610,60 @@ export const $TaxonUpdate = {
     type: 'object'
 } as const;
 
+export const $TaxonWithParentRef = {
+    additionalProperties: false,
+    properties: {
+        GBIF_ID: {
+            examples: [2206247],
+            format: 'int64',
+            type: 'integer'
+        },
+        anchor: {
+            type: 'boolean'
+        },
+        authorship: {
+            examples: ['(Linnaeus, 1758)'],
+            type: 'string'
+        },
+        children_count: {
+            format: 'int64',
+            type: 'integer'
+        },
+        code: {
+            examples: ['ASEaquaticus'],
+            type: 'string'
+        },
+        comment: {
+            type: 'string'
+        },
+        id: {
+            contentEncoding: 'base64',
+            format: 'uuid',
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        name: {
+            examples: ['Asellus aquaticus'],
+            type: 'string'
+        },
+        parent: {
+            type: 'string'
+        },
+        rank: {
+            '$ref': '#/components/schemas/TaxonRank',
+            examples: ['Species']
+        },
+        status: {
+            '$ref': '#/components/schemas/TaxonStatus',
+            examples: ['Accepted']
+        }
+    },
+    required: ['parent', 'id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+    type: 'object'
+} as const;
+
 export const $TaxonWithRelatives = {
     additionalProperties: false,
     properties: {
@@ -1633,6 +1691,10 @@ export const $TaxonWithRelatives = {
                 '$ref': '#/components/schemas/Taxon'
             },
             type: 'array'
+        },
+        children_count: {
+            format: 'int64',
+            type: 'integer'
         },
         code: {
             examples: ['ASEaquaticus'],
@@ -1665,7 +1727,7 @@ export const $TaxonWithRelatives = {
             examples: ['Accepted']
         }
     },
-    required: ['id', 'GBIF_ID', 'code', 'authorship', 'anchor', 'comment', 'meta', 'name', 'status', 'rank'],
+    required: ['id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
     type: 'object'
 } as const;
 
@@ -1683,6 +1745,10 @@ export const $TaxonWithRelativesParentStruct = {
         authorship: {
             examples: ['(Linnaeus, 1758)'],
             type: 'string'
+        },
+        children_count: {
+            format: 'int64',
+            type: 'integer'
         },
         code: {
             examples: ['ASEaquaticus'],
@@ -1712,7 +1778,67 @@ export const $TaxonWithRelativesParentStruct = {
             examples: ['Accepted']
         }
     },
-    required: ['id', 'GBIF_ID', 'code', 'authorship', 'anchor', 'comment', 'meta', 'name', 'status', 'rank'],
+    required: ['id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+    type: 'object'
+} as const;
+
+export const $Taxonomy = {
+    additionalProperties: false,
+    properties: {
+        GBIF_ID: {
+            examples: [2206247],
+            format: 'int64',
+            type: 'integer'
+        },
+        anchor: {
+            type: 'boolean'
+        },
+        authorship: {
+            examples: ['(Linnaeus, 1758)'],
+            type: 'string'
+        },
+        children: {
+            items: {
+                '$ref': '#/components/schemas/Taxonomy'
+            },
+            type: 'array'
+        },
+        children_count: {
+            format: 'int64',
+            type: 'integer'
+        },
+        code: {
+            examples: ['ASEaquaticus'],
+            type: 'string'
+        },
+        comment: {
+            type: 'string'
+        },
+        id: {
+            contentEncoding: 'base64',
+            format: 'uuid',
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        name: {
+            examples: ['Asellus aquaticus'],
+            type: 'string'
+        },
+        parent: {
+            type: 'string'
+        },
+        rank: {
+            '$ref': '#/components/schemas/TaxonRank',
+            examples: ['Species']
+        },
+        status: {
+            '$ref': '#/components/schemas/TaxonStatus',
+            examples: ['Accepted']
+        }
+    },
+    required: ['parent', 'children', 'id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
     type: 'object'
 } as const;
 

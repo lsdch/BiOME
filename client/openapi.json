@@ -1792,6 +1792,10 @@
 						],
 						"type": "string"
 					},
+					"children_count": {
+						"format": "int64",
+						"type": "integer"
+					},
 					"code": {
 						"examples": [
 							"ASEaquaticus"
@@ -1830,11 +1834,10 @@
 				},
 				"required": [
 					"id",
-					"GBIF_ID",
 					"code",
 					"authorship",
 					"anchor",
-					"comment",
+					"children_count",
 					"meta",
 					"name",
 					"status",
@@ -1904,6 +1907,7 @@
 					"Kingdom",
 					"Phylum",
 					"Class",
+					"Order",
 					"Family",
 					"Genus",
 					"Species",
@@ -1958,6 +1962,82 @@
 				},
 				"type": "object"
 			},
+			"TaxonWithParentRef": {
+				"additionalProperties": false,
+				"properties": {
+					"GBIF_ID": {
+						"examples": [
+							2206247
+						],
+						"format": "int64",
+						"type": "integer"
+					},
+					"anchor": {
+						"type": "boolean"
+					},
+					"authorship": {
+						"examples": [
+							"(Linnaeus, 1758)"
+						],
+						"type": "string"
+					},
+					"children_count": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"code": {
+						"examples": [
+							"ASEaquaticus"
+						],
+						"type": "string"
+					},
+					"comment": {
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"name": {
+						"examples": [
+							"Asellus aquaticus"
+						],
+						"type": "string"
+					},
+					"parent": {
+						"type": "string"
+					},
+					"rank": {
+						"$ref": "#/components/schemas/TaxonRank",
+						"examples": [
+							"Species"
+						]
+					},
+					"status": {
+						"$ref": "#/components/schemas/TaxonStatus",
+						"examples": [
+							"Accepted"
+						]
+					}
+				},
+				"required": [
+					"parent",
+					"id",
+					"code",
+					"authorship",
+					"anchor",
+					"children_count",
+					"meta",
+					"name",
+					"status",
+					"rank"
+				],
+				"type": "object"
+			},
 			"TaxonWithRelatives": {
 				"additionalProperties": false,
 				"properties": {
@@ -1991,6 +2071,10 @@
 							"$ref": "#/components/schemas/Taxon"
 						},
 						"type": "array"
+					},
+					"children_count": {
+						"format": "int64",
+						"type": "integer"
 					},
 					"code": {
 						"examples": [
@@ -2033,11 +2117,10 @@
 				},
 				"required": [
 					"id",
-					"GBIF_ID",
 					"code",
 					"authorship",
 					"anchor",
-					"comment",
+					"children_count",
 					"meta",
 					"name",
 					"status",
@@ -2063,6 +2146,10 @@
 							"(Linnaeus, 1758)"
 						],
 						"type": "string"
+					},
+					"children_count": {
+						"format": "int64",
+						"type": "integer"
 					},
 					"code": {
 						"examples": [
@@ -2102,11 +2189,93 @@
 				},
 				"required": [
 					"id",
-					"GBIF_ID",
 					"code",
 					"authorship",
 					"anchor",
-					"comment",
+					"children_count",
+					"meta",
+					"name",
+					"status",
+					"rank"
+				],
+				"type": "object"
+			},
+			"Taxonomy": {
+				"additionalProperties": false,
+				"properties": {
+					"GBIF_ID": {
+						"examples": [
+							2206247
+						],
+						"format": "int64",
+						"type": "integer"
+					},
+					"anchor": {
+						"type": "boolean"
+					},
+					"authorship": {
+						"examples": [
+							"(Linnaeus, 1758)"
+						],
+						"type": "string"
+					},
+					"children": {
+						"items": {
+							"$ref": "#/components/schemas/Taxonomy"
+						},
+						"type": "array"
+					},
+					"children_count": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"code": {
+						"examples": [
+							"ASEaquaticus"
+						],
+						"type": "string"
+					},
+					"comment": {
+						"type": "string"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"name": {
+						"examples": [
+							"Asellus aquaticus"
+						],
+						"type": "string"
+					},
+					"parent": {
+						"type": "string"
+					},
+					"rank": {
+						"$ref": "#/components/schemas/TaxonRank",
+						"examples": [
+							"Species"
+						]
+					},
+					"status": {
+						"$ref": "#/components/schemas/TaxonStatus",
+						"examples": [
+							"Accepted"
+						]
+					}
+				},
+				"required": [
+					"parent",
+					"children",
+					"id",
+					"code",
+					"authorship",
+					"anchor",
+					"children_count",
 					"meta",
 					"name",
 					"status",
@@ -3060,7 +3229,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/Taxon"
+										"$ref": "#/components/schemas/TaxonWithParentRef"
 									},
 									"type": "array"
 								}
@@ -5111,6 +5280,90 @@
 		},
 		"/taxonomy": {
 			"get": {
+				"operationId": "GetTaxonomy",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "parent",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "max-depth",
+						"schema": {
+							"$ref": "#/components/schemas/TaxonRank"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Taxonomy"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Get taxonomy",
+				"tags": [
+					"Taxonomy"
+				]
+			}
+		},
+		"/taxonomy/taxa": {
+			"get": {
 				"operationId": "ListTaxa",
 				"parameters": [
 					{
@@ -5152,7 +5405,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/Taxon"
+										"$ref": "#/components/schemas/TaxonWithParentRef"
 									},
 									"type": "array"
 								}
@@ -5270,7 +5523,7 @@
 				]
 			}
 		},
-		"/taxonomy/{code}": {
+		"/taxonomy/taxa/{code}": {
 			"delete": {
 				"operationId": "DeleteTaxon",
 				"parameters": [

@@ -6,6 +6,7 @@ import (
 	"darco/proto/db"
 	"darco/proto/models/taxonomy"
 	_ "darco/proto/models/validations"
+	"darco/proto/resolvers"
 	"darco/proto/router"
 	"fmt"
 	"net/http"
@@ -17,14 +18,24 @@ func RegisterRoutes(r router.Router) {
 	taxonomyAPI := r.RouteGroup("/taxonomy").
 		WithTags([]string{"Taxonomy"})
 
-	router.Register(taxonomyAPI, "ListTaxa",
+	router.Register(taxonomyAPI, "GetTaxonomy",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodGet,
+			Summary: "Get taxonomy",
+		}, GetTaxonomy)
+
+	taxaAPI := r.RouteGroup("/taxonomy/taxa").
+		WithTags([]string{"Taxonomy"})
+
+	router.Register(taxaAPI, "ListTaxa",
 		huma.Operation{
 			Path:    "/",
 			Method:  http.MethodGet,
 			Summary: "List taxa",
 		}, ListTaxa)
 
-	router.Register(taxonomyAPI, "GetTaxon",
+	router.Register(taxaAPI, "GetTaxon",
 		huma.Operation{
 			Path:    "/{code}",
 			Method:  http.MethodGet,
@@ -33,7 +44,7 @@ func RegisterRoutes(r router.Router) {
 		},
 		GetTaxon)
 
-	router.Register(taxonomyAPI, "CreateTaxon",
+	router.Register(taxaAPI, "CreateTaxon",
 		huma.Operation{
 			Path:    "/",
 			Method:  http.MethodPost,
@@ -42,7 +53,7 @@ func RegisterRoutes(r router.Router) {
 		},
 		controllers.CreateHandler[taxonomy.TaxonInput])
 
-	router.Register(taxonomyAPI, "UpdateTaxon",
+	router.Register(taxaAPI, "UpdateTaxon",
 		huma.Operation{
 			Path:    "/{code}",
 			Method:  http.MethodPatch,
@@ -50,7 +61,7 @@ func RegisterRoutes(r router.Router) {
 			Errors:  []int{http.StatusBadRequest, http.StatusUnauthorized, http.StatusNotFound},
 		}, controllers.UpdateByCodeHandler[taxonomy.TaxonUpdate](taxonomy.FindByID))
 
-	router.Register(taxonomyAPI, "DeleteTaxon",
+	router.Register(taxaAPI, "DeleteTaxon",
 		huma.Operation{
 			Path:    "/{code}",
 			Method:  http.MethodDelete,
@@ -63,7 +74,7 @@ func RegisterRoutes(r router.Router) {
 type ListTaxaInput struct {
 	taxonomy.ListFilters
 }
-type ListTaxaOutput struct{ Body []taxonomy.Taxon }
+type ListTaxaOutput struct{ Body []taxonomy.TaxonWithParentRef }
 
 func ListTaxa(ctx context.Context, input *ListTaxaInput) (*ListTaxaOutput, error) {
 	taxa, err := taxonomy.ListTaxa(db.Client(), input.ListFilters)
@@ -84,4 +95,20 @@ func GetTaxon(ctx context.Context, input *GetTaxonInput) (*GetTaxonOutput, error
 		)
 	}
 	return &GetTaxonOutput{Body: taxon}, nil
+}
+
+type GetTaxonomyInput struct {
+	resolvers.AuthResolver
+	taxonomy.TaxonomyQuery
+}
+type GetTaxonomyOutput struct {
+	Body []taxonomy.Taxonomy
+}
+
+func GetTaxonomy(ctx context.Context, input *GetTaxonomyInput) (*GetTaxonomyOutput, error) {
+	var taxonomy, err = taxonomy.GetTaxonomy(input.DB(), input.TaxonomyQuery)
+	if err != nil {
+		return nil, huma.Error500InternalServerError("Failed to fetch taxonomy", err)
+	}
+	return &GetTaxonomyOutput{Body: taxonomy}, nil
 }

@@ -16,6 +16,7 @@ var TaxonRankValues = []TaxonRank{
 	Kingdom,
 	Phylum,
 	Class,
+	Order,
 	Family,
 	Genus,
 	Species,

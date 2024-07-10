@@ -637,11 +637,12 @@ export type Taxon = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    GBIF_ID: number;
+    GBIF_ID?: number;
     anchor: boolean;
     authorship: string;
+    children_count: number;
     code: string;
-    comment: string;
+    comment?: string;
     id: string;
     meta: Meta;
     name: string;
@@ -663,7 +664,7 @@ export type TaxonInput = {
     status: TaxonStatus;
 };
 
-export type TaxonRank = 'Kingdom' | 'Phylum' | 'Class' | 'Family' | 'Genus' | 'Species' | 'Subspecies';
+export type TaxonRank = 'Kingdom' | 'Phylum' | 'Class' | 'Order' | 'Family' | 'Genus' | 'Species' | 'Subspecies';
 
 export type TaxonStatus = 'Accepted' | 'Unreferenced' | 'Unclassified';
 
@@ -681,17 +682,33 @@ export type TaxonUpdate = {
     status?: TaxonStatus;
 };
 
+export type TaxonWithParentRef = {
+    GBIF_ID?: number;
+    anchor: boolean;
+    authorship: string;
+    children_count: number;
+    code: string;
+    comment?: string;
+    id: string;
+    meta: Meta;
+    name: string;
+    parent: string;
+    rank: TaxonRank;
+    status: TaxonStatus;
+};
+
 export type TaxonWithRelatives = {
     /**
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    GBIF_ID: number;
+    GBIF_ID?: number;
     anchor: boolean;
     authorship: string;
     children?: Array<Taxon>;
+    children_count: number;
     code: string;
-    comment: string;
+    comment?: string;
     id: string;
     meta: Meta;
     name: string;
@@ -701,14 +718,31 @@ export type TaxonWithRelatives = {
 };
 
 export type TaxonWithRelativesParentStruct = {
-    GBIF_ID: number;
+    GBIF_ID?: number;
     anchor: boolean;
     authorship: string;
+    children_count: number;
     code: string;
-    comment: string;
+    comment?: string;
     id: string;
     meta: Meta;
     name: string;
+    rank: TaxonRank;
+    status: TaxonStatus;
+};
+
+export type Taxonomy = {
+    GBIF_ID?: number;
+    anchor: boolean;
+    authorship: string;
+    children: Array<Taxonomy>;
+    children_count: number;
+    code: string;
+    comment?: string;
+    id: string;
+    meta: Meta;
+    name: string;
+    parent: string;
     rank: TaxonRank;
     status: TaxonStatus;
 };
@@ -1007,7 +1041,7 @@ export type ListAnchorsData = {
     };
 };
 
-export type ListAnchorsResponse = Array<Taxon>;
+export type ListAnchorsResponse = Array<TaxonWithParentRef>;
 
 export type ListAnchorsError = ErrorModel;
 
@@ -1281,6 +1315,23 @@ export type UpdateSecuritySettingsResponse = SecuritySettings;
 
 export type UpdateSecuritySettingsError = ErrorModel;
 
+export type GetTaxonomyData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    query?: {
+        'max-depth'?: TaxonRank;
+        parent?: string;
+    };
+};
+
+export type GetTaxonomyResponse = Array<Taxonomy>;
+
+export type GetTaxonomyError = ErrorModel;
+
 export type ListTaxaData = {
     query?: {
         anchor?: boolean;
@@ -1290,7 +1341,7 @@ export type ListTaxaData = {
     };
 };
 
-export type ListTaxaResponse = Array<Taxon>;
+export type ListTaxaResponse = Array<TaxonWithParentRef>;
 
 export type ListTaxaError = ErrorModel;
 
@@ -1730,7 +1781,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<Taxon>;
+                '200': Array<TaxonWithParentRef>;
                 /**
                  * Unprocessable Entity
                  */
@@ -2117,12 +2168,31 @@ export type $OpenApiTs = {
     };
     '/taxonomy': {
         get: {
+            req: GetTaxonomyData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': Array<Taxonomy>;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+    };
+    '/taxonomy/taxa': {
+        get: {
             req: ListTaxaData;
             res: {
                 /**
                  * OK
                  */
-                '200': Array<Taxon>;
+                '200': Array<TaxonWithParentRef>;
                 /**
                  * Unprocessable Entity
                  */
@@ -2155,7 +2225,7 @@ export type $OpenApiTs = {
             };
         };
     };
-    '/taxonomy/{code}': {
+    '/taxonomy/taxa/{code}': {
         delete: {
             req: DeleteTaxonData;
             res: {

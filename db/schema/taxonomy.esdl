@@ -120,6 +120,7 @@ module taxonomy {
     constraint exclusive on ((.name, .status));
 
     multi link children := .<parent[is Taxon];
+    required children_count := (select count(.children));
 
     comment: str;
 
