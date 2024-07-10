@@ -1,5 +1,5 @@
 import { Edge, Node, useVueFlow } from '@vue-flow/core';
-import dagre from 'dagre';
+import dagre from '@dagrejs/dagre';
 import { ref } from 'vue';
 import { ConnectedGroup } from './habitat_graph';
 
