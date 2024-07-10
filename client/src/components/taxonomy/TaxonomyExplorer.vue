@@ -28,9 +28,8 @@
     <div class="taxonomy-footer bg-surface pa-3 border-t-thin">
       <TaxonRankPicker v-model="maxRank" label="Truncate above" hide-details density="compact" />
     </div>
-    <v-bottom-sheet v-model="showTaxon" :inset="mdAndUp" content-class="rounded-0">
-      <TaxonCard v-if="selected" :taxon="selected" />
-    </v-bottom-sheet>
+
+    <TaxonCard v-if="selected" v-model="showTaxon" :taxon="selected" />
   </div>
 </template>
 
@@ -44,9 +43,6 @@ import TaxonRankPicker from './TaxonRankPicker.vue'
 import { FoldEvent, MaxRankInjection, useTaxonSelection } from '.'
 import { isAscendant, isDescendant } from './rank'
 import TaxonCard from './TaxonCard.vue'
-import { useDisplay } from 'vuetify'
-
-const { mdAndUp } = useDisplay()
 
 const showTaxon = ref(false)
 const { selected } = useTaxonSelection()
