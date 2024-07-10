@@ -95,6 +95,13 @@ func (o *OptionalInput[T]) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (o OptionalInput[T]) MarshalEdgeDBStr() ([]byte, error) {
+	if !o.IsSet {
+		return []byte("null"), nil
+	}
+	return json.Marshal(o.Value)
+}
+
 // OptionalNull is a field which can be omitted from the input,
 // set to `null`, or set to a value. Each state is tracked and can
 // be checked for in handling code.
