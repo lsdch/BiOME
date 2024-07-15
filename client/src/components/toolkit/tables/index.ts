@@ -1,11 +1,11 @@
 import { ErrorModel } from "@/api"
-import { ConfirmDialogKey } from "@/injection"
+import { useAppConfirmDialog } from "@/composables"
 import { useUserStore } from "@/stores/user"
+import { RequestResult } from "@hey-api/client-fetch"
 import { HttpStatusCode } from "axios"
-import { ComputedRef, MaybeRef, ModelRef, computed, inject, onMounted, ref } from "vue"
+import { ComputedRef, MaybeRef, ModelRef, computed, onMounted, ref } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
-import { RequestResult } from "@hey-api/client-fetch"
 
 
 
@@ -84,6 +84,7 @@ export function useTable<ItemType extends { id: string }>(
 ) {
 
   const { user: currentUser } = useUserStore()
+  const { askConfirm } = useAppConfirmDialog()
 
   const form = ref<FormSlotScope<ItemType>>({
     dialog: false,
@@ -117,7 +118,6 @@ export function useTable<ItemType extends { id: string }>(
 
   onMounted(loadItems)
 
-  const confirmDelete = inject(ConfirmDialogKey)
 
   const actions = {
     edit(item: ItemType) {
@@ -175,10 +175,10 @@ export function useTable<ItemType extends { id: string }>(
         ? `Are you sure you want to delete ${props.itemRepr(item)} ?`
         : 'Are you sure you want to delete this item ?'
       console.log(item)
-      await confirmDelete?.({
+      await askConfirm({
         title: "Confirm deletion",
         message,
-        data: item
+        payload: item
       }).then(({ isCanceled, data }) => {
         console.log(data)
         if (isCanceled)

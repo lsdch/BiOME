@@ -113,18 +113,18 @@ import {
   useConnection,
   useVueFlow
 } from '@vue-flow/core'
-import { useMouseInElement, onKeyStroke } from '@vueuse/core'
-import { computed, inject, nextTick, reactive, ref, toRefs } from 'vue'
+import { onKeyStroke, useMouseInElement } from '@vueuse/core'
+import { computed, nextTick, reactive, ref, toRefs } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
 import { useLayout } from './layout'
 
-import { ConfirmDialogKey } from '@/injection'
+import { mergeResponses } from '@/api/responses'
+import { useAppConfirmDialog } from '@/composables'
 import { useFeedback } from '@/stores/feedback'
+import { useUserStore } from '@/stores/user'
 import { ConnectedGroup, registerGroup, useHabitatGraph } from './habitat_graph'
 import { NodeData } from './layout'
-import { useUserStore } from '@/stores/user'
-import { mergeResponses } from '@/api/responses'
 
 const { isGranted } = useUserStore()
 
@@ -173,12 +173,12 @@ const {
   removeEdges
 } = useVueFlow()
 
-const askConfirm = inject(ConfirmDialogKey)
+const { askConfirm } = useAppConfirmDialog()
 
 onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitatID }) => {
   const group = habitatGraph.groups[groupID]
   const habitat = habitatGraph.habitats[dependHabitatID!]
-  askConfirm?.({
+  askConfirm({
     title: 'Confirm connection',
     message: `Set group ${group.label} as a refinement of ${habitat.label} ?`
   })
@@ -213,11 +213,10 @@ onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitat
 })
 
 const { feedback } = useFeedback()
-const confirmDeletion = inject(ConfirmDialogKey)
 
 function askDeleteEdge(edge: GraphEdge) {
   const group: string = edge.targetNode.data.label
-  confirmDeletion?.({ title: `Drop dependency of '${group}'?` }).then(async ({ isCanceled }) => {
+  askConfirm({ title: `Drop dependency of '${group}'?` }).then(async ({ isCanceled }) => {
     if (isCanceled) return console.info('Dependency drop canceled')
     else {
       const { data: updated, error } = await LocationService.updateHabitatGroup({
@@ -246,7 +245,7 @@ function askDeleteGroups(groups: HabitatGroup[]) {
         ? `Delete ${groups.length} habitat groups ?`
         : null
   if (title !== null)
-    confirmDeletion?.({
+    askConfirm({
       title,
       message: 'All terms in group and their references in the database will be deleted.'
     }).then(({ isCanceled }) =>

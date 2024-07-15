@@ -24,7 +24,7 @@
               chips
               closable-chips
               multiple
-              :item-props="({ code, name }) => ({ title: code, subtitle: name })"
+              :item-props="({ code, name }: Institution) => ({ title: code, subtitle: name })"
               item-value="code"
               v-bind="field('institutions')"
               prepend-inner-icon="mdi-domain"
@@ -62,13 +62,13 @@ const DEFAULT: PersonInput = {
 
 <script setup lang="ts">
 import { $PersonInput, Institution, PeopleService, Person, PersonInput } from '@/api'
+import { handleErrors } from '@/api/responses'
+import { FormEmits, FormProps, useForm } from '@/components/toolkit/forms/form'
 import { ref } from 'vue'
 import { VForm } from 'vuetify/components'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { FormEmits, FormProps, useForm } from '@/components/toolkit/forms/form'
 import InstitutionKindChip from './InstitutionKindChip.vue'
 import PersonFormFields from './PersonFormFields.vue'
-import { handleErrors } from '@/api/responses'
 
 const dialog = defineModel<boolean>()
 const props = defineProps<FormProps<Person>>()
