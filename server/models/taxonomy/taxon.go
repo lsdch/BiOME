@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"encoding/json"
 	"slices"
+	"strconv"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -42,13 +43,22 @@ type TaxonWithParentRef struct {
 	Parent edgedb.OptionalStr `edgedb:"parent_code" json:"parent"`
 }
 
+type Lineage struct {
+	Kingdom    models.Optional[Taxon] `edgedb:"kingdom" json:"kingdom,omitempty"`
+	Phylum     models.Optional[Taxon] `edgedb:"phylum" json:"phylum,omitempty"`
+	Class      models.Optional[Taxon] `edgedb:"class" json:"class,omitempty"`
+	Order      models.Optional[Taxon] `edgedb:"order" json:"order,omitempty"`
+	Family     models.Optional[Taxon] `edgedb:"family" json:"family,omitempty"`
+	Genus      models.Optional[Taxon] `edgedb:"genus" json:"genus,omitempty"`
+	Species    models.Optional[Taxon] `edgedb:"species" json:"species,omitempty"`
+	Subspecies models.Optional[Taxon] `edgedb:"subspecies" json:"subspecies,omitempty"`
+}
+
 type TaxonWithRelatives struct {
-	Taxon  `edgedb:"$inline" json:",inline"`
-	Parent struct {
-		edgedb.Optional
-		Taxon `edgedb:"$inline" json:",inline"`
-	} `edgedb:"parent" json:"parent,omitempty"`
-	Children []Taxon `edgedb:"children" json:"children,omitempty"`
+	Taxon    `edgedb:"$inline" json:",inline"`
+	Lineage  Lineage                `edgedb:"$inline" json:"lineage"`
+	Parent   models.Optional[Taxon] `edgedb:"parent" json:"parent,omitempty"`
+	Children []Taxon                `edgedb:"children" json:"children,omitempty"`
 }
 
 type Taxonomy struct {
@@ -94,20 +104,31 @@ func GetTaxonomy(db edgedb.Executor, q TaxonomyQuery) ([]Taxonomy, error) {
 		}
 		(&taxonomy[i]).Children = slices.Concat(taxon.Children, descendants)
 	}
-	// logrus.Infof("\n\n TAXONOMY \n\n%+v", taxonomy)
 	return taxonomy, nil
 }
 
 type ListFilters struct {
 	Pattern  string              `json:"pattern,omitempty" query:"pattern"`
-	Rank     TaxonRank           `json:"rank,omitempty" query:"rank"`
+	Rank     TaxonRank           `query:"rank"`
 	Status   TaxonStatus         `json:"status,omitempty" query:"status"`
 	IsAnchor edgedb.OptionalBool `json:"anchors_only,omitempty" query:"anchor"`
-	Parent   string              `edgedb:"parent" json:"parent,omitempty"`
+	Parent   string              `json:"parent,omitempty" query:"parent"`
+	Limit    int64               `json:"limit,omitempty" query:"limit"`
 }
 
 func ListTaxa(db edgedb.Executor, filters ListFilters) ([]TaxonWithParentRef, error) {
+
 	var taxa = make([]TaxonWithParentRef, 0)
+	var (
+		order_by = ".name"
+		limit    = "{}"
+	)
+	if filters.Pattern != "" {
+		order_by = "ext::pg_trgm::word_similarity_dist(pattern, .name)"
+	}
+	if filters.Limit > 0 {
+		limit = strconv.FormatInt(filters.Limit, 10)
+	}
 	query := `with module taxonomy,
 				pattern := <str>$0,
 				rank := <Rank>(<str>$1 if len(<str>$1) > 0 else <str>{}),
@@ -115,11 +136,12 @@ func ListTaxa(db edgedb.Executor, filters ListFilters) ([]TaxonWithParentRef, er
 				is_anchor := <optional bool>$3,
 				parent := <optional str>$4
 			select Taxon { *, meta: {*}, parent_code := .parent.code }
-			filter (.name ilike ("%" ++ pattern ++ "%") if len(pattern) > 0 else true)
-			and (.rank = rank if exists rank else true)
+			filter (.rank = rank if exists rank else true)
 			and (.status = status if exists status else true)
 			and (.anchor = is_anchor if exists is_anchor else true)
-			and (.parent.code ilike parent if len(parent) > 0 else true);`
+			and (.parent.code ilike parent if len(parent) > 0 else true)` +
+		"order by " + order_by + " then .rank asc then .name asc " +
+		"limit " + limit
 	err := db.Query(context.Background(), query, &taxa,
 		filters.Pattern, filters.Rank, filters.Status, filters.IsAnchor, filters.Parent)
 	return taxa, err
@@ -130,7 +152,14 @@ func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonWithRelatives, err
 		select taxonomy::Taxon { *,
 			meta: { * },
 			parent : { *, meta: { * } },
-			children : { *, meta: { * } }
+			children : { *, meta: { * } },
+			kingdom: { *, meta: { * } },
+			phylum: { *, meta: { * } },
+			class: { *, meta: { * } },
+			order: { *, meta: { * } },
+			family: { *, meta: { * } },
+			genus: { *, meta: { * } },
+			species: { *, meta: { * } },
 		}
 		filter .id = <uuid>$0;
 	`
@@ -143,7 +172,14 @@ func FindByCode(db edgedb.Executor, code string) (taxon TaxonWithRelatives, err 
 		select taxonomy::Taxon { *,
 			meta : { * },
 			parent : { *, meta: { * } },
-			children : { *, meta: { * } }
+			children : { *, meta: { * } },
+			kingdom: { *, meta: { * } },
+			phylum: { *, meta: { * } },
+			class: { *, meta: { * } },
+			order: { *, meta: { * } },
+			family: { *, meta: { * } },
+			genus: { *, meta: { * } },
+			species: { *, meta: { * } },
 		}
 		filter .code = <str>$0;
 	`
@@ -154,7 +190,7 @@ func FindByCode(db edgedb.Executor, code string) (taxon TaxonWithRelatives, err 
 func Delete(db edgedb.Executor, code string) (taxon Taxon, err error) {
 	query := `select (
 		delete taxonomy::Taxon filter .code = <str>$0
-	) { *, meta: {**}};`
+	) { *, meta: {*}};`
 	err = db.QuerySingle(context.Background(), query, &taxon, code)
 	return
 }

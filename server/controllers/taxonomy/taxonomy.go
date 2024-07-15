@@ -89,12 +89,12 @@ type GetTaxonOutput struct{ Body taxonomy.TaxonWithRelatives }
 
 func GetTaxon(ctx context.Context, input *GetTaxonInput) (*GetTaxonOutput, error) {
 	taxon, err := taxonomy.FindByCode(db.Client(), input.Code)
-	if err != nil {
+	if db.IsNoData(err) {
 		return nil, huma.Error404NotFound(
 			fmt.Sprintf("Taxon %s does not exist", input.Code),
 		)
 	}
-	return &GetTaxonOutput{Body: taxon}, nil
+	return &GetTaxonOutput{Body: taxon}, err
 }
 
 type GetTaxonomyInput struct {

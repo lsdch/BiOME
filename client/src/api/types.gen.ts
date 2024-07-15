@@ -344,6 +344,17 @@ export type InvitationLink = {
     invitation_link: Url;
 };
 
+export type Lineage = {
+    class?: OptionalTaxon;
+    family?: OptionalTaxon;
+    genus?: OptionalTaxon;
+    kingdom?: OptionalTaxon;
+    order?: OptionalTaxon;
+    phylum?: OptionalTaxon;
+    species?: OptionalTaxon;
+    subspecies?: OptionalTaxon;
+};
+
 export type Meta = {
     created: Date;
     created_by?: UserShortIdentity;
@@ -375,6 +386,24 @@ export type OptionalPerson = {
     last_name: string;
     role?: UserRole;
 };
+
+export type OptionalTaxon = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    GBIF_ID?: number;
+    anchor: boolean;
+    authorship: string;
+    children_count: number;
+    code: string;
+    comment?: string;
+    id: string;
+    meta: Meta;
+    name: string;
+    rank: TaxonRank;
+    status: TaxonStatus;
+} | null;
 
 export type OptionalUserInner = {
     email: string;
@@ -710,23 +739,10 @@ export type TaxonWithRelatives = {
     code: string;
     comment?: string;
     id: string;
+    lineage: Lineage;
     meta: Meta;
     name: string;
-    parent?: TaxonWithRelativesParentStruct;
-    rank: TaxonRank;
-    status: TaxonStatus;
-};
-
-export type TaxonWithRelativesParentStruct = {
-    GBIF_ID?: number;
-    anchor: boolean;
-    authorship: string;
-    children_count: number;
-    code: string;
-    comment?: string;
-    id: string;
-    meta: Meta;
-    name: string;
+    parent?: OptionalTaxon;
     rank: TaxonRank;
     status: TaxonStatus;
 };
@@ -1335,6 +1351,8 @@ export type GetTaxonomyError = ErrorModel;
 export type ListTaxaData = {
     query?: {
         anchor?: boolean;
+        limit?: number;
+        parent?: string;
         pattern?: string;
         rank?: TaxonRank;
         status?: TaxonStatus;
