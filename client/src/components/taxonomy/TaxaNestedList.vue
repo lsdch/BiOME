@@ -10,7 +10,7 @@
 import { Taxonomy, TaxonRank } from '@/api'
 import TaxonomyItem from './TaxonomyItem.vue'
 
-const props = defineProps<{ items: Taxonomy[]; rank: TaxonRank }>()
+defineProps<{ items: Taxonomy[]; rank: TaxonRank }>()
 </script>
 
 <style scoped lang="scss">

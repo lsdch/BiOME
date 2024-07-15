@@ -11,3 +11,11 @@ export function isDescendant(rank: TaxonRank, from: TaxonRank) {
 export function isAscendant(rank: TaxonRank, of: TaxonRank) {
   return taxonRankOrder[rank] < taxonRankOrder[of]
 }
+
+export function parentRank(rank: TaxonRank): TaxonRank | undefined {
+  return $TaxonRank.enum[$TaxonRank.enum.indexOf(rank) - 1]
+}
+
+export function childRank(rank: TaxonRank): TaxonRank | undefined {
+  return $TaxonRank.enum[$TaxonRank.enum.indexOf(rank) + 1]
+}

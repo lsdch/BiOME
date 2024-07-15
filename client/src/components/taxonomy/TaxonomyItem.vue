@@ -7,11 +7,12 @@
     :id="item.name"
   >
     <div class="taxon-item">
-      <LinkIconGBIF v-if="item.GBIF_ID" :GBIF_ID="item.GBIF_ID" size="small" variant="plain" />
+      <FTaxonStatusIndicator :status="item.status" />
       <span class="mr-3 text-no-wrap cursor-pointer" @click="select(omitChildren(item))">
         {{ item.name }}
       </span>
       <v-spacer></v-spacer>
+      <v-icon v-if="item.anchor" icon="mdi-pin" size="x-small" color="warning" />
       <v-chip
         v-if="item.children_count > 0"
         :color="expanded ? 'success' : 'primary'"
@@ -24,23 +25,21 @@
       </v-chip>
     </div>
   </div>
-  <!-- <v-expand-transition @transitionend="scrollTo"> -->
-  <TaxaNestedList
+
+  <FTaxaNestedList
     v-if="expanded && item.children_count > 0"
     :items="item.children"
     :rank="item.children[0].rank"
   />
-  <!-- </v-expand-transition> -->
 </template>
 
 <script setup lang="ts">
 import { Taxon, Taxonomy } from '@/api'
-import { useElementVisibility, useEventBus, useToggle } from '@vueuse/core'
+import { useElementVisibility, useToggle } from '@vueuse/core'
 import { inject, nextTick, ref, watch } from 'vue'
-import { FoldEvent, MaxRankInjection, useTaxonSelection } from '.'
-import LinkIconGBIF from './LinkIconGBIF.vue'
+import { MaxRankInjection, useFoldState, useTaxonSelection } from '.'
+import { FTaxaNestedList, FTaxonStatusIndicator } from './functionals'
 import { isAscendant } from './rank'
-import TaxaNestedList from './TaxaNestedList.vue'
 
 const maxRank = inject(MaxRankInjection) ?? ref('Kingdom')
 watch(maxRank, (rank) => {
@@ -58,27 +57,26 @@ function omitChildren(item: Taxonomy): Taxon {
   return rest
 }
 
-const expanded = ref(true)
+const { onFold, onUnfold, isFolded } = useFoldState()
+const expanded = ref(!isFolded(props.item.rank))
 const toggle = useToggle(expanded)
-const waitingForScroll = ref(false)
-
-const { on: onFold } = useEventBus<FoldEvent>('fold')
-
-onFold(({ rank, state }) => {
-  if (rank == props.item.rank && state !== undefined) {
-    expanded.value = state
-  }
+onFold((rank) => {
+  if (rank == props.item.rank) expanded.value = false
+})
+onUnfold((rank) => {
+  if (rank == props.item.rank) expanded.value = true
 })
 
-function toggleAndScroll() {
+async function toggleAndScroll() {
   const toggled = toggle()
-  waitingForScroll.value = !toggled
-  nextTick(scrollTo)
+  await nextTick()
+  setTimeout(() => {
+    if (!toggled && !containerVisible.value) scrollTo()
+  }, 25)
 }
 
 function scrollTo() {
-  if (waitingForScroll.value && !containerVisible.value)
-    document.getElementById(`${props.item.name}`)!.scrollIntoView({ block: 'center' })
+  document.getElementById(`${props.item.name}`)!.scrollIntoView({ block: 'center' })
 }
 
 const container = ref()
