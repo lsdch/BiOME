@@ -59,6 +59,11 @@ func (o OptionalInput[T]) HasValue() bool {
 	return o.IsSet
 }
 
+func (o *OptionalInput[T]) SetValue(value T) {
+	o.IsSet = true
+	o.Value = value
+}
+
 func (o OptionalInput[T]) IsNull() bool {
 	return false
 }
@@ -88,10 +93,11 @@ func (o OptionalInput[T]) MarshalJSON() ([]byte, error) {
 }
 
 func (o *OptionalInput[T]) UnmarshalJSON(b []byte) error {
-	if len(b) > 0 {
+	if len(b) > 0 && string(b) != `""` {
 		o.IsSet = true
 		return json.Unmarshal(b, &o.Value)
 	}
+	o.IsSet = false
 	return nil
 }
 
