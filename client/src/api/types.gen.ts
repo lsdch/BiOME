@@ -388,13 +388,9 @@ export type OptionalPerson = {
 };
 
 export type OptionalTaxon = {
-    /**
-     * A URL to the JSON Schema for this object.
-     */
-    readonly $schema?: string;
     GBIF_ID?: number;
     anchor: boolean;
-    authorship: string;
+    authorship?: string;
     children_count: number;
     code: string;
     comment?: string;
@@ -662,13 +658,9 @@ export type SiteItem = {
 };
 
 export type Taxon = {
-    /**
-     * A URL to the JSON Schema for this object.
-     */
-    readonly $schema?: string;
     GBIF_ID?: number;
     anchor: boolean;
-    authorship: string;
+    authorship?: string;
     children_count: number;
     code: string;
     comment?: string;
@@ -711,10 +703,31 @@ export type TaxonUpdate = {
     status?: TaxonStatus;
 };
 
+export type TaxonWithLineage = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    GBIF_ID?: number;
+    anchor: boolean;
+    authorship?: string;
+    children?: Array<Taxon>;
+    children_count: number;
+    code: string;
+    comment?: string;
+    id: string;
+    lineage: Lineage;
+    meta: Meta;
+    name: string;
+    parent?: OptionalTaxon;
+    rank: TaxonRank;
+    status: TaxonStatus;
+};
+
 export type TaxonWithParentRef = {
     GBIF_ID?: number;
     anchor: boolean;
-    authorship: string;
+    authorship?: string;
     children_count: number;
     code: string;
     comment?: string;
@@ -733,13 +746,12 @@ export type TaxonWithRelatives = {
     readonly $schema?: string;
     GBIF_ID?: number;
     anchor: boolean;
-    authorship: string;
+    authorship?: string;
     children?: Array<Taxon>;
     children_count: number;
     code: string;
     comment?: string;
     id: string;
-    lineage: Lineage;
     meta: Meta;
     name: string;
     parent?: OptionalTaxon;
@@ -748,17 +760,21 @@ export type TaxonWithRelatives = {
 };
 
 export type Taxonomy = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
     GBIF_ID?: number;
     anchor: boolean;
-    authorship: string;
-    children: Array<Taxonomy>;
+    authorship?: string;
+    children?: Array<Taxonomy>;
     children_count: number;
     code: string;
     comment?: string;
     id: string;
     meta: Meta;
     name: string;
-    parent: string;
+    parent?: OptionalTaxon;
     rank: TaxonRank;
     status: TaxonStatus;
 };
@@ -1339,12 +1355,15 @@ export type GetTaxonomyData = {
         Authorization?: string;
     };
     query?: {
+        /**
+         * Taxon code or UUID
+         */
+        identifier?: string;
         'max-depth'?: TaxonRank;
-        parent?: string;
     };
 };
 
-export type GetTaxonomyResponse = Array<Taxonomy>;
+export type GetTaxonomyResponse = Taxonomy;
 
 export type GetTaxonomyError = ErrorModel;
 
@@ -1389,7 +1408,7 @@ export type DeleteTaxonData = {
     };
 };
 
-export type DeleteTaxonResponse = Taxon;
+export type DeleteTaxonResponse = TaxonWithRelatives;
 
 export type DeleteTaxonError = ErrorModel;
 
@@ -1399,7 +1418,7 @@ export type GetTaxonData = {
     };
 };
 
-export type GetTaxonResponse = TaxonWithRelatives;
+export type GetTaxonResponse = TaxonWithLineage;
 
 export type GetTaxonError = ErrorModel;
 
@@ -1416,7 +1435,7 @@ export type UpdateTaxonData = {
     };
 };
 
-export type UpdateTaxonResponse = TaxonWithRelatives;
+export type UpdateTaxonResponse = TaxonWithLineage;
 
 export type UpdateTaxonError = ErrorModel;
 
@@ -2191,7 +2210,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<Taxonomy>;
+                '200': Taxonomy;
                 /**
                  * Unprocessable Entity
                  */
@@ -2250,7 +2269,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Taxon;
+                '200': TaxonWithRelatives;
                 /**
                  * Unauthorized
                  */
@@ -2275,7 +2294,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': TaxonWithRelatives;
+                '200': TaxonWithLineage;
                 /**
                  * Not Found
                  */
@@ -2296,7 +2315,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': TaxonWithRelatives;
+                '200': TaxonWithLineage;
                 /**
                  * Bad Request
                  */

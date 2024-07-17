@@ -27,7 +27,7 @@
   </div>
 
   <FTaxaNestedList
-    v-if="expanded && item.children_count > 0"
+    v-if="expanded && item.children"
     :items="item.children"
     :rank="item.children[0].rank"
   />
@@ -37,7 +37,7 @@
 import { Taxon, Taxonomy } from '@/api'
 import { useElementVisibility, useToggle } from '@vueuse/core'
 import { inject, nextTick, ref, watch } from 'vue'
-import { MaxRankInjection, useFoldState, useTaxonSelection } from '.'
+import { MaxRankInjection, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
 import { FTaxaNestedList, FTaxonStatusIndicator } from './functionals'
 import { isAscendant } from './rank'
 
@@ -57,18 +57,19 @@ function omitChildren(item: Taxonomy): Taxon {
   return rest
 }
 
-const { onFold, onUnfold, isFolded } = useFoldState()
-const expanded = ref(!isFolded(props.item.rank))
-const toggle = useToggle(expanded)
-onFold((rank) => {
+const { onFold: onRankFold, onUnfold: onRankUnfold, isFolded: isRankFolded } = useRankFoldState()
+const { expanded, toggleFold } = useTaxonFoldState(props.item, !isRankFolded(props.item.rank))
+// const expanded = ref(!isRankFolded(props.item.rank))
+// const toggleFold = useToggle(expanded)
+onRankFold((rank) => {
   if (rank == props.item.rank) expanded.value = false
 })
-onUnfold((rank) => {
+onRankUnfold((rank) => {
   if (rank == props.item.rank) expanded.value = true
 })
 
 async function toggleAndScroll() {
-  const toggled = toggle()
+  const toggled = toggleFold()
   await nextTick()
   setTimeout(() => {
     if (!toggled && !containerVisible.value) scrollTo()

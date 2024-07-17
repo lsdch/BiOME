@@ -85,7 +85,7 @@ func ListTaxa(ctx context.Context, input *ListTaxaInput) (*ListTaxaOutput, error
 }
 
 type GetTaxonInput struct{ controllers.CodeInput }
-type GetTaxonOutput struct{ Body taxonomy.TaxonWithRelatives }
+type GetTaxonOutput struct{ Body taxonomy.TaxonWithLineage }
 
 func GetTaxon(ctx context.Context, input *GetTaxonInput) (*GetTaxonOutput, error) {
 	taxon, err := taxonomy.FindByCode(db.Client(), input.Code)
@@ -102,7 +102,7 @@ type GetTaxonomyInput struct {
 	taxonomy.TaxonomyQuery
 }
 type GetTaxonomyOutput struct {
-	Body []taxonomy.Taxonomy
+	Body *taxonomy.Taxonomy
 }
 
 func GetTaxonomy(ctx context.Context, input *GetTaxonomyInput) (*GetTaxonomyOutput, error) {

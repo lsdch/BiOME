@@ -3,6 +3,7 @@
     <v-card :rounded="false">
       <template #prepend>
         <LinkIconGBIF v-if="taxon.GBIF_ID" :GBIF_ID="taxon.GBIF_ID" variant="text" />
+        <FTaxonStatusIndicator v-else :status="taxon.status" />
       </template>
 
       <template #append>
@@ -46,7 +47,11 @@
           <v-spacer></v-spacer>
           <div class="flex-grow-0">
             <v-chip :text="taxon.rank" variant="outlined" class="ma-3" />
-            <v-chip :text="taxon.status" variant="outlined" />
+            <v-chip
+              :text="taxon.status"
+              variant="outlined"
+              :color="taxonStatusIndicatorProps(taxon.status).color"
+            />
           </div>
         </div>
 
@@ -129,7 +134,7 @@
 </template>
 
 <script setup lang="ts">
-import { Taxon, TaxonomyService, TaxonRank, TaxonWithRelatives } from '@/api'
+import { Taxon, TaxonomyService, TaxonRank, TaxonWithLineage, TaxonWithRelatives } from '@/api'
 import { handleErrors } from '@/api/responses'
 import { useAppConfirmDialog } from '@/composables'
 import { useFeedback } from '@/stores/feedback'
@@ -139,6 +144,7 @@ import ItemDateChip from '../toolkit/ItemDateChip.vue'
 import LinkIconGBIF from './LinkIconGBIF.vue'
 import { useUserStore } from '@/stores/user'
 import moment from 'moment'
+import { FTaxonStatusIndicator, taxonStatusIndicatorProps } from './functionals'
 
 const { mdAndUp } = useDisplay()
 const { isGranted } = useUserStore()
@@ -148,11 +154,12 @@ const extensibleRanks: TaxonRank[] = ['Order', 'Family', 'Genus', 'Species']
 const taxon = defineModel<Taxon>({ required: true })
 const open = defineModel<boolean>('open')
 
-const relatives = ref<TaxonWithRelatives>()
+const relatives = ref<TaxonWithLineage>()
 const loading = ref(false)
 
 const emit = defineEmits<{
   'add-child': [parent: Taxon]
+  deleted: [taxon: TaxonWithRelatives]
   navigate: [target: Taxon]
 }>()
 
@@ -188,6 +195,8 @@ async function deleteTaxon(taxon: Taxon) {
       feedback({ type: 'error', message: 'Failed to delete taxon' })
       return
     }
+    emit('deleted', data)
+    open.value = false
     feedback({ type: 'success', message: `Taxon ${taxon.name} was successfully deleted` })
   })
 }

@@ -1,6 +1,6 @@
-import { Taxon, TaxonRank } from "@/api";
+import { Taxon, Taxonomy, TaxonRank } from "@/api";
 import { useEventBus } from "@vueuse/core";
-import { InjectionKey, ref, Ref } from "vue";
+import { InjectionKey, nextTick, reactive, Reactive, ref, Ref, ToRefs, toRefs } from "vue";
 import { childRank, parentRank } from "./rank";
 
 
@@ -9,6 +9,7 @@ export const MaxRankInjection = Symbol() as InjectionKey<Ref<TaxonRank>>
 
 
 const selectedTaxon = ref<Taxon>()
+
 
 export function useTaxonSelection() {
 
@@ -23,8 +24,49 @@ export function useTaxonSelection() {
   return { select, drop, selected: selectedTaxon }
 }
 
+type TaxonFoldState = ToRefs<Reactive<{ expanded: boolean, parent: string | undefined }>>
+const taxonFoldState: Record<string, TaxonFoldState> = {}
 
-const foldState = ref<{ [k in TaxonRank]: boolean | undefined }>({
+function foldTaxon(taxonID: string) {
+  return taxonFoldState[taxonID].expanded.value = false
+}
+
+async function unfoldTaxon(taxonID: string) {
+  const state = taxonFoldState[taxonID]
+  if (state.parent.value !== undefined) {
+    unfoldTaxon(state.parent.value)
+    await nextTick()
+  }
+  return state.expanded.value = true
+
+}
+
+export function useTaxonFoldState(taxon: Taxonomy, initial?: boolean) {
+  if (!(taxon.id in taxonFoldState))
+    taxonFoldState[taxon.id] = toRefs(reactive({ expanded: initial ?? true, parent: taxon.parent?.id }))
+  const state = taxonFoldState[taxon.id]
+
+  function fold() {
+    return foldTaxon(taxon.id)
+  }
+
+  function unfold() {
+    return unfoldTaxon(taxon.id)
+  }
+
+  function toggleFold() {
+    return state.expanded.value ? fold() : unfold()
+  }
+
+  async function show() {
+    if (taxon.parent) await unfoldTaxon(taxon.parent.id)
+    document.getElementById(`${taxon.name}`)!.scrollIntoView({ block: 'center' })
+  }
+
+  return { expanded: state.expanded, fold, unfold, show, toggleFold }
+}
+
+const rankFoldState = ref<{ [k in TaxonRank]: boolean | undefined }>({
   Kingdom: true,
   Phylum: true,
   Class: true,
@@ -34,31 +76,32 @@ const foldState = ref<{ [k in TaxonRank]: boolean | undefined }>({
   Species: true,
   Subspecies: true
 })
+
 const { emit: emitFold, on: onFold } = useEventBus<TaxonRank>('fold')
 const { emit: emitUnfold, on: onUnfold } = useEventBus<TaxonRank>('unfold')
 
-export function useFoldState() {
+export function useRankFoldState() {
 
   function fold(rank: TaxonRank) {
     const child = childRank(rank)
     if (child) fold(child)
-    foldState.value[rank] = false
+    rankFoldState.value[rank] = false
     emitFold(rank)
   }
 
   function unfold(rank: TaxonRank) {
     const parent = parentRank(rank)
     if (parent) unfold(parent)
-    foldState.value[rank] = true
+    rankFoldState.value[rank] = true
     emitUnfold(rank)
   }
 
   function isFolded(rank: TaxonRank) {
-    return !foldState.value[rank]
+    return !rankFoldState.value[rank]
   }
 
   function toggleFold(rank: TaxonRank) {
-    return foldState.value[rank] ? fold(rank) : unfold(rank)
+    return rankFoldState.value[rank] ? fold(rank) : unfold(rank)
   }
 
   return { fold, unfold, toggleFold, onFold, onUnfold, isFolded }

@@ -38,9 +38,12 @@
         />
       </template>
     </v-toolbar>
+
+    <!-- TREE -->
     <div class="taxonomy-explorer bg-surface" :style="{ 'grid-template-columns': templateColumns }">
+      <!-- HEADERS -->
       <div
-        v-for="{ rank, noFold } in headers.filter(
+        v-for="{ rank } in headers.filter(
           ({ rank }) => rank == maxRank || isDescendant(rank, maxRank)
         )"
         :key="rank"
@@ -54,65 +57,91 @@
           size="small"
           rounded="100"
           color="primary"
-          @click="noFold ? unfold(parentRank(rank)!) : toggleFold(rank)"
+          @click="rank == 'Subspecies' ? unfold(parentRank(rank)!) : toggleFold(rank)"
         >
           {{ countsByRank[rank] }}
           <template #append>
             <v-icon
-              v-if="!noFold"
+              v-if="rank !== 'Subspecies'"
               class="ml-1"
               :icon="isFolded(rank) ? 'mdi-plus-box-outline' : 'mdi-minus-box-outline'"
             />
           </template>
         </v-chip>
       </div>
+
+      <!-- INNER TREE -->
       <div class="taxonomy-tree">
         <v-progress-linear v-if="loading" class="loading" indeterminate />
-        <FTaxaNestedList :items="filteredItems" rank="Kingdom" />
+        <FTaxaNestedList
+          v-if="filteredItems?.children"
+          :items="filteredItems?.children"
+          rank="Kingdom"
+        />
         <div style="grid-column: start / span end; grid-row: -1"></div>
       </div>
     </div>
-    <div class="taxonomy-footer bg-surface pa-3 border-t-thin"></div>
 
+    <!-- FOOTER -->
+    <div class="taxonomy-footer bg-surface pa-3 border-t-thin d-flex">
+      <v-spacer />
+      <v-btn color="primary" variant="plain" text="GBIF Imports" :to="{ name: 'import-GBIF' }">
+        <template #prepend>
+          <IconGBIF />
+        </template>
+      </v-btn>
+    </div>
+
+    <!-- MODALS -->
     <TaxonCard
       v-if="selected"
-      v-model:open="showTaxon"
+      v-model:open="showTaxonCard"
       v-model="selected"
       @add-child="addDescendant"
       @navigate="(target) => (selected = target)"
+      @deleted="({ parent }) => update(parent?.id)"
     />
-    <TaxonFormDialog v-model="formDialog" :parent="parentTaxon" />
+    <TaxonFormDialog v-model="formDialog" :parent="parentTaxon" @success="onTaxonCreated" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { $TaxonRank, Taxon, Taxonomy, TaxonomyService, TaxonRank, TaxonStatus } from '@/api'
+import {
+  $TaxonRank,
+  GetTaxonomyData,
+  Taxon,
+  Taxonomy,
+  TaxonomyService,
+  TaxonRank,
+  TaxonStatus
+} from '@/api'
 import { handleErrors } from '@/api/responses'
 import { refDebounced, useLocalStorage } from '@vueuse/core'
 import { computed, onMounted, provide, ref, watch } from 'vue'
-import { MaxRankInjection, useFoldState, useTaxonSelection } from '.'
+import { MaxRankInjection, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
 import { FTaxaNestedList } from './functionals'
 import { isAscendant, isDescendant, parentRank } from './rank'
 import StatusPicker from './StatusPicker.vue'
 import TaxonCard from './TaxonCard.vue'
 import TaxonFormDialog from './TaxonFormDialog.vue'
 import TaxonRankPicker from './TaxonRankPicker.vue'
+import IconGBIF from '../icons/IconGBIF.vue'
 
 const formDialog = ref(false)
 const parentTaxon = ref<Taxon>()
+const showTaxonCard = ref(false)
 function addDescendant(taxon: Taxon) {
   formDialog.value = true
-  showTaxon.value = false
+  showTaxonCard.value = false
   parentTaxon.value = taxon
 }
 
-const showTaxon = ref(false)
 const { selected } = useTaxonSelection()
 watch(selected, (taxon) => {
-  showTaxon.value = taxon !== undefined
+  showTaxonCard.value = taxon !== undefined
 })
 
-type Header = { rank: TaxonRank & string; noFold?: boolean }
+type Header = { rank: TaxonRank }
 
 const headers: Header[] = [
   { rank: 'Kingdom' },
@@ -122,16 +151,17 @@ const headers: Header[] = [
   { rank: 'Family' },
   { rank: 'Genus' },
   { rank: 'Species' },
-  { rank: 'Subspecies', noFold: true }
+  { rank: 'Subspecies' }
 ]
 
 const maxRank = useLocalStorage<TaxonRank>('max-taxon-rank', 'Kingdom')
 provide(MaxRankInjection, maxRank)
 
-const { toggleFold, isFolded, unfold } = useFoldState()
+const { toggleFold, isFolded, unfold } = useRankFoldState()
 
 const loading = ref(false)
-const items = ref<Taxonomy[]>([])
+const items = ref<Taxonomy>()
+onMounted(async () => (items.value = await fetch()))
 
 const filterStatus = ref<TaxonStatus>()
 const searchTerm = ref<string>()
@@ -162,24 +192,56 @@ function matchSearch(filters: SearchFilters) {
 }
 
 const filteredItems = computed(() => {
-  if (!filterStatus.value && !debouncedSearchTerm.value) return items.value
+  if (!items.value || (!filterStatus.value && !debouncedSearchTerm.value)) return items.value
   const filters = {
     term: debouncedSearchTerm.value ? new RegExp(debouncedSearchTerm.value, 'i') : undefined,
     status: filterStatus.value
   }
-  return items.value.map(matchSearch(filters)).filter((t) => t !== undefined)
+  return {
+    ...items.value,
+    children: items.value.children?.map(matchSearch(filters)).filter((t) => t !== undefined)
+  }
 })
 
-async function fetch() {
+async function fetch(query?: GetTaxonomyData['query']) {
   loading.value = true
-  const taxa = await TaxonomyService.getTaxonomy({
-    query: { 'max-depth': undefined }
-  }).then(handleErrors((err) => console.error(err)))
+  const taxonomy = await TaxonomyService.getTaxonomy({ query }).then(
+    handleErrors((err) => console.error(err))
+  )
   loading.value = false
-  return taxa
+  return taxonomy
 }
 
-onMounted(async () => (items.value = await fetch()))
+function find(subtree: Taxonomy, taxonID: string) {
+  const match = subtree.children?.find(({ id }) => id === taxonID)
+  if (match) return match
+  return subtree.children?.reduce<Taxonomy | undefined>((acc, item): Taxonomy | undefined => {
+    if (acc !== undefined) return acc
+    if (!item.children) return acc
+    return find(item, taxonID)
+  }, undefined)
+}
+
+async function update(taxonID: string | undefined) {
+  if (!taxonID) {
+    items.value = await fetch()
+    return
+  }
+  if (!items.value) return
+  const toUpdate = find(items.value, taxonID)
+  if (toUpdate === undefined) {
+    console.error('Failed to find taxon with ID: ', taxonID)
+    return
+  }
+  const subtree = await fetch({ identifier: taxonID })
+  Object.assign(toUpdate, subtree)
+}
+
+async function onTaxonCreated(taxon: Taxonomy) {
+  await update(taxon.parent?.id)
+  const { show } = useTaxonFoldState(taxon)
+  show()
+}
 
 const templateColumns = computed(() => {
   return $TaxonRank.enum
@@ -194,10 +256,10 @@ type RanksCount = {
   [k in TaxonRank]: number
 }
 
-function _countsByRank(acc: RanksCount, taxa: Taxonomy[]) {
-  taxa.forEach(({ rank, children, children_count }) => {
-    acc[rank] += 1
-    if (children_count > 0) _countsByRank(acc, children)
+function _countsByRank(acc: RanksCount, taxonomy: Taxonomy | undefined) {
+  taxonomy?.children?.forEach((child) => {
+    acc[child.rank] += 1
+    if (child.children_count > 0) _countsByRank(acc, child)
   })
   return acc
 }

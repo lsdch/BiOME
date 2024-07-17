@@ -1,28 +1,32 @@
 <template>
   <v-card class="h-100 d-flex flex-column">
-    <v-toolbar density="compact" color="surface">
-      <v-toolbar-title :title="name">
-        {{ name }}
-      </v-toolbar-title>
-      <v-tooltip location="top" text="Drop anchor">
-        <template v-slot:activator="{ isActive, props }">
+    <template #title>
+      {{ name }}
+    </template>
+    <template #subtitle>
+      {{ authorship }}
+    </template>
+    <template #append>
+      <v-tooltip location="top" text="Update from GBIF">
+        <template #activator="{ isActive, props }">
           <v-btn
             v-bind="props"
-            :icon="isActive ? 'mdi-close' : 'mdi-anchor'"
+            variant="text"
+            :icon="isActive ? 'mdi-refresh' : 'mdi-pin'"
             size="small"
-            :color="isActive ? 'red' : 'orange'"
+            :color="isActive ? 'primary' : 'warning'"
           />
         </template>
       </v-tooltip>
-      <LinkIconGBIF v-if="GBIF_ID" :GBIF_ID="GBIF_ID" />
-    </v-toolbar>
-    <v-card-subtitle class="d-flex justify-space-between mb-3">
-      <span>{{ rank }}</span>
-      <v-spacer />
-      <v-chip v-if="authorship" label rounded="xl">{{ authorship }}</v-chip>
-    </v-card-subtitle>
+      <LinkIconGBIF v-if="GBIF_ID" :GBIF_ID="GBIF_ID" variant="text" />
+    </template>
+    <template #text>
+      <div class="flex-grow-0">
+        <v-chip :text="rank" />
+      </div>
+    </template>
     <v-divider />
-    <v-card-actions class="justify-space-between">
+    <v-card-actions class="flex-column align-start">
       <ItemDateChip v-if="meta.created" icon="created" :date="meta.created" color="grey" />
       <ItemDateChip v-if="meta.modified" icon="updated" :date="meta.modified" color="grey" />
     </v-card-actions>

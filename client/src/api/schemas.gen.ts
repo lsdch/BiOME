@@ -849,13 +849,6 @@ export const $OptionalPerson = {
 export const $OptionalTaxon = {
     additionalProperties: false,
     properties: {
-        '$schema': {
-            description: 'A URL to the JSON Schema for this object.',
-            examples: ['/api/v1/schemas/Taxon.json'],
-            format: 'uri',
-            readOnly: true,
-            type: 'string'
-        },
         GBIF_ID: {
             examples: [2206247],
             format: 'int64',
@@ -900,7 +893,7 @@ export const $OptionalTaxon = {
             examples: ['Accepted']
         }
     },
-    required: ['id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+    required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
     type: ['object', 'null']
 } as const;
 
@@ -1555,13 +1548,6 @@ export const $SiteItem = {
 export const $Taxon = {
     additionalProperties: false,
     properties: {
-        '$schema': {
-            description: 'A URL to the JSON Schema for this object.',
-            examples: ['/api/v1/schemas/Taxon.json'],
-            format: 'uri',
-            readOnly: true,
-            type: 'string'
-        },
         GBIF_ID: {
             examples: [2206247],
             format: 'int64',
@@ -1606,7 +1592,7 @@ export const $Taxon = {
             examples: ['Accepted']
         }
     },
-    required: ['id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+    required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
     type: 'object'
 } as const;
 
@@ -1625,7 +1611,7 @@ export const $TaxonInput = {
             type: 'string'
         },
         code: {
-            examples: ['ASEaquaticus'],
+            examples: ['Asellus_aquaticus'],
             type: 'string'
         },
         comment: {
@@ -1699,66 +1685,12 @@ export const $TaxonUpdate = {
     type: 'object'
 } as const;
 
-export const $TaxonWithParentRef = {
-    additionalProperties: false,
-    properties: {
-        GBIF_ID: {
-            examples: [2206247],
-            format: 'int64',
-            type: 'integer'
-        },
-        anchor: {
-            type: 'boolean'
-        },
-        authorship: {
-            examples: ['(Linnaeus, 1758)'],
-            type: 'string'
-        },
-        children_count: {
-            format: 'int64',
-            type: 'integer'
-        },
-        code: {
-            examples: ['ASEaquaticus'],
-            type: 'string'
-        },
-        comment: {
-            type: 'string'
-        },
-        id: {
-            contentEncoding: 'base64',
-            format: 'uuid',
-            type: 'string'
-        },
-        meta: {
-            '$ref': '#/components/schemas/Meta'
-        },
-        name: {
-            examples: ['Asellus aquaticus'],
-            type: 'string'
-        },
-        parent: {
-            type: 'string'
-        },
-        rank: {
-            '$ref': '#/components/schemas/TaxonRank',
-            examples: ['Species']
-        },
-        status: {
-            '$ref': '#/components/schemas/TaxonStatus',
-            examples: ['Accepted']
-        }
-    },
-    required: ['parent', 'id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
-    type: 'object'
-} as const;
-
-export const $TaxonWithRelatives = {
+export const $TaxonWithLineage = {
     additionalProperties: false,
     properties: {
         '$schema': {
             description: 'A URL to the JSON Schema for this object.',
-            examples: ['/api/v1/schemas/TaxonWithRelatives.json'],
+            examples: ['/api/v1/schemas/TaxonWithLineage.json'],
             format: 'uri',
             readOnly: true,
             type: 'string'
@@ -1819,13 +1751,141 @@ export const $TaxonWithRelatives = {
             examples: ['Accepted']
         }
     },
-    required: ['lineage', 'id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+    required: ['lineage', 'id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+    type: 'object'
+} as const;
+
+export const $TaxonWithParentRef = {
+    additionalProperties: false,
+    properties: {
+        GBIF_ID: {
+            examples: [2206247],
+            format: 'int64',
+            type: 'integer'
+        },
+        anchor: {
+            type: 'boolean'
+        },
+        authorship: {
+            examples: ['(Linnaeus, 1758)'],
+            type: 'string'
+        },
+        children_count: {
+            format: 'int64',
+            type: 'integer'
+        },
+        code: {
+            examples: ['ASEaquaticus'],
+            type: 'string'
+        },
+        comment: {
+            type: 'string'
+        },
+        id: {
+            contentEncoding: 'base64',
+            format: 'uuid',
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        name: {
+            examples: ['Asellus aquaticus'],
+            type: 'string'
+        },
+        parent: {
+            type: 'string'
+        },
+        rank: {
+            '$ref': '#/components/schemas/TaxonRank',
+            examples: ['Species']
+        },
+        status: {
+            '$ref': '#/components/schemas/TaxonStatus',
+            examples: ['Accepted']
+        }
+    },
+    required: ['parent', 'id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+    type: 'object'
+} as const;
+
+export const $TaxonWithRelatives = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/TaxonWithRelatives.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        GBIF_ID: {
+            examples: [2206247],
+            format: 'int64',
+            type: 'integer'
+        },
+        anchor: {
+            type: 'boolean'
+        },
+        authorship: {
+            examples: ['(Linnaeus, 1758)'],
+            type: 'string'
+        },
+        children: {
+            items: {
+                '$ref': '#/components/schemas/Taxon'
+            },
+            type: 'array'
+        },
+        children_count: {
+            format: 'int64',
+            type: 'integer'
+        },
+        code: {
+            examples: ['ASEaquaticus'],
+            type: 'string'
+        },
+        comment: {
+            type: 'string'
+        },
+        id: {
+            contentEncoding: 'base64',
+            format: 'uuid',
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        name: {
+            examples: ['Asellus aquaticus'],
+            type: 'string'
+        },
+        parent: {
+            '$ref': '#/components/schemas/OptionalTaxon'
+        },
+        rank: {
+            '$ref': '#/components/schemas/TaxonRank',
+            examples: ['Species']
+        },
+        status: {
+            '$ref': '#/components/schemas/TaxonStatus',
+            examples: ['Accepted']
+        }
+    },
+    required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
     type: 'object'
 } as const;
 
 export const $Taxonomy = {
     additionalProperties: false,
     properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Taxonomy.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
         GBIF_ID: {
             examples: [2206247],
             format: 'int64',
@@ -1868,7 +1928,7 @@ export const $Taxonomy = {
             type: 'string'
         },
         parent: {
-            type: 'string'
+            '$ref': '#/components/schemas/OptionalTaxon'
         },
         rank: {
             '$ref': '#/components/schemas/TaxonRank',
@@ -1879,7 +1939,7 @@ export const $Taxonomy = {
             examples: ['Accepted']
         }
     },
-    required: ['parent', 'children', 'id', 'code', 'authorship', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+    required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
     type: 'object'
 } as const;
 

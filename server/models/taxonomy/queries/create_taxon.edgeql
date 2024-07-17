@@ -11,4 +11,4 @@ select (
     rank := <Rank>data['rank'],
     authorship := <str>json_get(data, 'authorship')
   }
-) { *, parent : { * , meta: { ** }}, children : { * , meta: { ** }} };
+) { *, meta: { * }, parent : { * , meta: { * }}, children : { * , meta: { * }} };

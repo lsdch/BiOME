@@ -141,6 +141,11 @@ function router() {
         name: "account",
         component: () => import("../views/AccountView.vue")
       },
+      guardRole('Admin', {
+        path: "/taxonomy/import",
+        name: "import-GBIF",
+        component: () => import("../views/taxonomy/GBIFImportView.vue")
+      }),
       guardRole('Contributor', {
         path: "/location/import-sites",
         name: "import-sites",

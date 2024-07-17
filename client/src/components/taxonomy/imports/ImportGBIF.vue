@@ -1,4 +1,5 @@
 <template>
+  <v-progress-linear indeterminate v-if="loading" />
   <v-container fluid>
     <v-row>
       <v-col v-for="item in anchors" :key="item.id" cols="12" sm="6" lg="4" xl="3">
@@ -40,21 +41,27 @@
 <script setup lang="ts">
 import moment from 'moment'
 
-import type { Ref } from 'vue'
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
 
 import { Taxon, TaxonomyGbifService } from '@/api'
+import { handleErrors } from '@/api/responses'
 import AnchorTaxonCard from '@/components/taxonomy/imports/AnchorTaxonCard.vue'
 import RootTaxonPicker from '@/components/taxonomy/imports/AnchorTaxonPicker.vue'
 import type { ImportProcess } from '@/components/taxonomy/imports/ImportTaxonCard.vue'
 import ImportTaxonCard from '@/components/taxonomy/imports/ImportTaxonCard.vue'
+import { useEventSource } from '@vueuse/core'
+import { onBeforeRouteLeave } from 'vue-router'
 
-const activities: Ref<ImportProcess[]> = ref([])
-const anchors: Ref<Taxon[]> = ref([])
+const activities = ref<ImportProcess[]>([])
+const anchors = ref<Taxon[]>([])
+const loading = ref(false)
 
 async function updateAnchors() {
-  const response = await TaxonomyGbifService.listAnchors()
-  anchors.value = response
+  loading.value = true
+  anchors.value = await TaxonomyGbifService.listAnchors().then(
+    handleErrors((err) => console.error('Failed to fetch taxonomy anchors', err))
+  )
+  loading.value = false
 }
 
 onMounted(updateAnchors)
@@ -62,7 +69,6 @@ onMounted(updateAnchors)
 function updateElapsedTime() {
   activities.value.map((progress) => {
     progress.elapsed = moment(progress.started).fromNow()
-    // elapsed.value.set(GBIF_ID, moment.duration(started).humanize())
   })
 }
 updateElapsedTime()
@@ -70,11 +76,13 @@ setInterval(updateElapsedTime, 5000)
 
 const pickerActive = ref(false)
 
-const source = new EventSource('/api/v1/taxonomy/import')
-source.addEventListener('progress', (event) => {
-  console.log(event)
-  const json: Object = JSON.parse(event.data)
-  console.log('Progress: ', json)
+const { data, status, close } = useEventSource('/api/v1/import/taxonomy/monitor', [
+  'state'
+] as const)
+watch(data, (data) => {
+  if (!data) return
+  const json: Object = JSON.parse(data)
+  console.log('Monitor: ', status, json)
   activities.value = Object.values(json).map((item) =>
     Object.assign(item, { elapsed: moment(item.started).fromNow() })
   )
@@ -83,6 +91,8 @@ source.addEventListener('progress', (event) => {
     updateAnchors()
   }
 })
+
+onBeforeRouteLeave(() => close())
 </script>
 
 <style scoped></style>

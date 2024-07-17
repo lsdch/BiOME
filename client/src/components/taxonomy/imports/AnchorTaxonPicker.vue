@@ -1,12 +1,10 @@
 <template>
   <v-card>
-    <v-card-title class="d-flex justify-space-between">
-      <span>
-        <v-icon icon="mdi-sitemap" start />
-        Import anchor taxon
-      </span>
-    </v-card-title>
-    <v-divider></v-divider>
+    <template #prepend>
+      <v-icon icon="mdi-sitemap" start />
+    </template>
+    <template #title> Import GBIF clade </template>
+    <v-divider />
     <v-card-text>
       <v-row>
         <v-col cols="12" md="5">
@@ -21,39 +19,7 @@
                 <v-select :items="rankOptions" label="Rank" v-model="rank" />
               </v-col>
               <v-col cols="12" sm="7" md="12">
-                <v-autocomplete
-                  v-model="targetTaxon"
-                  v-model:search="searchTerm"
-                  item-title="canonicalName"
-                  :items="autocompleteItems"
-                  :loading="loading"
-                  label="Taxon name"
-                  return-object
-                  auto-select-first
-                  color="blue"
-                  :no-data-text="
-                    searchTerm.trim().length >= 3
-                      ? 'No matching taxa found'
-                      : 'At least 3 characters required'
-                  "
-                >
-                  <template v-slot:item="{ props, item }">
-                    <v-list-item
-                      v-bind="props"
-                      :title="item?.raw?.canonicalName"
-                      :subtitle="item?.raw?.status"
-                    >
-                      <template v-slot:append>
-                        <v-chip close>{{ item?.raw?.rank }}</v-chip>
-                      </template>
-                    </v-list-item>
-                  </template>
-                  <template v-slot:append-inner>
-                    <v-chip v-if="targetTaxon">
-                      {{ targetTaxon.rank }}
-                    </v-chip>
-                  </template>
-                </v-autocomplete>
+                <AutocompleteGBIF v-model="targetTaxon" :rank="rank" />
               </v-col>
             </v-row>
           </v-form>
@@ -62,53 +28,40 @@
           <div v-if="taxonInfo != undefined">
             <v-skeleton-loader class="mx-auto" type="article, actions" v-if="loadingTaxon" />
             <div v-else>
-              <v-card-title class="d-flex align-center">
-                <b>{{ taxonInfo.canonicalName }}</b>
-                <v-spacer />
-                <v-chip color="blue" class="mr-3">{{ taxonInfo.rank }}</v-chip>
-                <v-tooltip text="Go to original GBIF record" location="top">
-                  <template v-slot:activator="{ props }">
-                    <v-btn
-                      icon
-                      v-bind="props"
-                      :disabled="taxonInfo == undefined"
-                      :href="
-                        taxonInfo ? `https://www.gbif.org/species/${taxonInfo.key}` : undefined
-                      "
-                      target="_blank"
-                    >
-                      <IconGBIF />
-                    </v-btn>
-                  </template>
-                </v-tooltip>
-              </v-card-title>
-              <v-card-subtitle>
-                {{ taxonInfo.authorship }}
-              </v-card-subtitle>
-              <v-card-text>
-                <v-list>
-                  <v-list-item>
+              <v-card flat>
+                <template #title>
+                  {{ taxonInfo.canonicalName }}
+                </template>
+                <template #subtitle>
+                  {{ taxonInfo.authorship }}
+                </template>
+                <template #append>
+                  <v-chip color="blue" class="mr-3">{{ taxonInfo.rank }}</v-chip>
+                  <LinkIconGBIF variant="plain" :GBIF_ID="taxonInfo.key"></LinkIconGBIF>
+                </template>
+                <v-card-text>
+                  <div class="my-3">
                     <span v-for="{ name, id } in taxonInfo.path" :key="id" class="d-inline-block">
-                      <a :href="`https://www.gbif.org/species/${id}`" target="_blank">{{ name }}</a>
+                      <a :href="`https://www.gbif.org/species/${id}`" target="_blank">
+                        {{ name }}
+                      </a>
                       <v-icon v-if="id !== taxonInfo.key" icon="mdi-chevron-right" />
                     </span>
-                  </v-list-item>
-                  <v-list-item>
-                    <v-switch
-                      label="Import descendants"
-                      v-model="importDescendants"
-                      color="primary"
-                      class="ml-3"
-                      persistent-hint
-                      :hint="
-                        importDescendants
-                          ? `Up to ${countTotal(taxonInfo)} nodes will be imported.`
-                          : undefined
-                      "
-                    />
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
+                  </div>
+                  <v-switch
+                    label="Import descendants"
+                    v-model="importDescendants"
+                    color="primary"
+                    class="my-3"
+                    persistent-hint
+                    :hint="
+                      importDescendants
+                        ? `Up to ${countTotal(taxonInfo)} nodes will be imported.`
+                        : undefined
+                    "
+                  />
+                </v-card-text>
+              </v-card>
             </div>
           </div>
           <v-alert type="info" variant="text" title="Importing taxonomy" border v-else>
@@ -151,7 +104,9 @@ import axios, { AxiosError } from 'axios'
 import { watch } from 'vue'
 
 import { $TaxonRank, TaxonRank, TaxonomyGbifService } from '@/api'
-import IconGBIF from '@/components/icons/IconGBIF.vue'
+import { endpointGBIF } from '.'
+import LinkIconGBIF from '../LinkIconGBIF.vue'
+import AutocompleteGBIF from './AutocompleteGBIF.vue'
 
 const importDescendants = ref(true)
 
@@ -165,37 +120,26 @@ type TaxonGBIF = {
   authorship: string
   rank: string
   status: string
-  path?: any
+  path?: { name: string; id: number }[]
 }
 
-const targetTaxon: Ref<TaxonGBIF | undefined> = ref(undefined)
+const targetTaxon = ref<TaxonGBIF>()
 
-const taxonInfo: Ref<TaxonGBIF | undefined> = ref(undefined)
-
-type Item = {
-  canonicalName: string
-  rank: string
-  status: string
-}
-const autocompleteItems: Ref<Item[]> = ref([])
-const searchTerm = ref('')
-const loading = ref(false)
+const taxonInfo = ref<TaxonGBIF>()
 
 const loadingTaxon = ref(false)
 
-function endpointGBIF(suffix: string) {
-  return `https://api.gbif.org/v1/species/${suffix}`
-}
-
 const emit = defineEmits<{ (event: 'close'): void }>()
 
-const postError: Ref<AxiosError | undefined> = ref()
+const postError = ref<AxiosError>()
 
 async function importAnchorTaxon(taxon: TaxonGBIF) {
   try {
     await TaxonomyGbifService.importGbif({
-      key: taxon.key,
-      children: importDescendants.value
+      body: {
+        key: taxon.key,
+        children: importDescendants.value
+      }
     })
     emit('close')
   } catch (error) {
@@ -205,35 +149,20 @@ async function importAnchorTaxon(taxon: TaxonGBIF) {
   }
 }
 
-watch(searchTerm, async (val: string) => {
-  if (val.length >= 3) {
-    loading.value = true
-    let response = await axios.get(endpointGBIF('suggest'), {
-      params: {
-        q: val,
-        rank: rank.value !== 'Any' ? rank.value : undefined
-      }
-    })
-    let data: Item[] = response.data
-    autocompleteItems.value = data.filter(({ status }) => status !== 'DOUBTFUL')
-    loading.value = false
-  } else {
-    autocompleteItems.value = []
-  }
-})
-
 watch(targetTaxon, async (taxon) => {
   if (taxon) {
     loadingTaxon.value = true
-    let response = await axios.get(endpointGBIF(taxon.key.toString()))
+    let response = await axios.get<TaxonGBIF & Record<string, unknown>>(
+      endpointGBIF(taxon.key.toString())
+    )
     let info = response.data
     info.path = $TaxonRank.enum
       .filter((rank) => rank.toLowerCase() in info)
       .map((rank) => {
         let key = rank.toLowerCase()
         return {
-          name: info[key],
-          id: info[`${key}Key`]
+          name: info[key] as string,
+          id: info[`${key}Key`] as number
         }
       })
     taxonInfo.value = info as TaxonGBIF

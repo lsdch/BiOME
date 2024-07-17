@@ -31,7 +31,7 @@ type Taxon struct {
 	GBIF_ID       edgedb.OptionalInt32 `edgedb:"GBIF_ID" json:"GBIF_ID,omitempty" example:"2206247" binding:"numeric"`
 	Code          string               `edgedb:"code" json:"code" example:"ASEaquaticus" binding:"required"`
 	TaxonInner    `edgedb:"$inline"`
-	Authorship    edgedb.OptionalStr `edgedb:"authorship" json:"authorship" example:"(Linnaeus, 1758)"`
+	Authorship    edgedb.OptionalStr `edgedb:"authorship" json:"authorship,omitempty" example:"(Linnaeus, 1758)"`
 	Anchor        bool               `edgedb:"anchor" json:"anchor"`
 	ChildrenCount int64              `edgedb:"children_count" json:"children_count"`
 	Comment       edgedb.OptionalStr `json:"comment,omitempty" edgedb:"comment"`
@@ -56,55 +56,88 @@ type Lineage struct {
 
 type TaxonWithRelatives struct {
 	Taxon    `edgedb:"$inline" json:",inline"`
-	Lineage  Lineage                `edgedb:"$inline" json:"lineage"`
 	Parent   models.Optional[Taxon] `edgedb:"parent" json:"parent,omitempty"`
 	Children []Taxon                `edgedb:"children" json:"children,omitempty"`
 }
 
+type TaxonWithLineage struct {
+	TaxonWithRelatives `edgedb:"$inline" json:",inline"`
+	Lineage            Lineage `edgedb:"$inline" json:"lineage"`
+}
+
+// Taxonomy type is a tree like representation of the taxonomy, or part of it.
 type Taxonomy struct {
 	Taxon    `edgedb:"$inline" json:",inline"`
-	Parent   edgedb.OptionalStr `edgedb:"parent_code" json:"parent"`
-	Children []Taxonomy         `edgedb:"children" json:"children"`
+	Parent   models.Optional[Taxon] `edgedb:"parent" json:"parent,omitempty"`
+	Children []Taxonomy             `edgedb:"children" json:"children,omitempty"`
 }
 
 type TaxonomyQuery struct {
-	Parent   string    `json:"parent,omitempty" query:"parent"`
-	MaxDepth TaxonRank `json:"max_depth" query:"max-depth"`
+	Identifier string    `json:"identifier,omitempty" query:"identifier" doc:"Taxon code or UUID"`
+	MaxDepth   TaxonRank `json:"max_depth" query:"max-depth"`
 }
 
-func GetTaxonomy(db edgedb.Executor, q TaxonomyQuery) ([]Taxonomy, error) {
-
-	var taxonomy []Taxonomy
-
-	if q.Parent != "" {
+func GetTaxonomyChildren(db edgedb.Executor, parent Taxonomy) ([]Taxonomy, error) {
+	var children []Taxonomy
+	if parent.Code == "ROOT" {
 		query := `with module taxonomy,
-			select Taxon { *, meta: {*}, parent_code := .parent.code }
-			filter .parent.code ilike <str>$0
-			order by .name;`
-		if err := db.Query(context.Background(), query, &taxonomy, q.Parent); err != nil {
+	select Taxon { *, meta: {*} }
+	filter .rank = Rank.Kingdom
+	order by .name;`
+		if err := db.Query(context.Background(), query, &children); err != nil {
 			return nil, err
 		}
 	} else {
 		query := `with module taxonomy,
-		select Taxon { *, meta: {*}, parent_code := .parent.code }
-		filter .rank = Rank.Kingdom
-		order by .name;`
-		if err := db.Query(context.Background(), query, &taxonomy); err != nil {
+	select Taxon { *, meta: {*}, parent: { * } }
+	filter .parent.code = <str>$0
+	order by .name;`
+		if err := db.Query(context.Background(), query, &children, parent.Code); err != nil {
 			return nil, err
 		}
 	}
-	for i, taxon := range taxonomy {
-		if taxon.Rank == q.MaxDepth {
-			break
-		}
-		descendants, err := GetTaxonomy(db,
-			TaxonomyQuery{Parent: taxon.Code, MaxDepth: q.MaxDepth})
+
+	for i, taxon := range children {
+		descendants, err := GetTaxonomyChildren(db, taxon)
 		if err != nil {
 			return nil, err
 		}
-		(&taxonomy[i]).Children = slices.Concat(taxon.Children, descendants)
+		(&children[i]).Children = slices.Concat(taxon.Children, descendants)
 	}
-	return taxonomy, nil
+	return children, nil
+}
+
+// GetTaxonomy returns a taxonomy tree or subtree,
+// with a pseudo root node when querying for the full taxonomy.
+func GetTaxonomy(db edgedb.Executor, q TaxonomyQuery) (*Taxonomy, error) {
+
+	var taxonomy = Taxonomy{
+		Taxon: Taxon{
+			Code: "ROOT",
+			TaxonInner: TaxonInner{
+				Name: "ROOT",
+			},
+		},
+	}
+
+	if q.Identifier != "" {
+		maybeUUID, _ := edgedb.ParseUUID(q.Identifier)
+		query := `with module taxonomy,
+			select assert_single(
+				Taxon { *, meta: {*}, parent: { * } }
+				filter .code = <str>$0 or .id = <uuid>$1
+			);`
+		if err := db.QuerySingle(context.Background(), query, &taxonomy, q.Identifier, maybeUUID); err != nil {
+			return nil, err
+		}
+	}
+	if descendants, err := GetTaxonomyChildren(db, taxonomy); err != nil {
+		return nil, err
+	} else {
+		taxonomy.Children = descendants
+	}
+
+	return &taxonomy, nil
 }
 
 type ListFilters struct {
@@ -147,7 +180,7 @@ func ListTaxa(db edgedb.Executor, filters ListFilters) ([]TaxonWithParentRef, er
 	return taxa, err
 }
 
-func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonWithRelatives, err error) {
+func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonWithLineage, err error) {
 	query := `
 		select taxonomy::Taxon { *,
 			meta: { * },
@@ -167,7 +200,7 @@ func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonWithRelatives, err
 	return taxon, err
 }
 
-func FindByCode(db edgedb.Executor, code string) (taxon TaxonWithRelatives, err error) {
+func FindByCode(db edgedb.Executor, code string) (taxon TaxonWithLineage, err error) {
 	query := `
 		select taxonomy::Taxon { *,
 			meta : { * },
@@ -187,10 +220,10 @@ func FindByCode(db edgedb.Executor, code string) (taxon TaxonWithRelatives, err 
 	return taxon, err
 }
 
-func Delete(db edgedb.Executor, code string) (taxon Taxon, err error) {
+func Delete(db edgedb.Executor, code string) (taxon TaxonWithRelatives, err error) {
 	query := `select (
 		delete taxonomy::Taxon filter .code = <str>$0
-	) { *, meta: {*}};`
+	) { *, meta: { * }, parent : { * , meta: { * }}, children : { * , meta: { * }} };`
 	err = db.QuerySingle(context.Background(), query, &taxon, code)
 	return
 }

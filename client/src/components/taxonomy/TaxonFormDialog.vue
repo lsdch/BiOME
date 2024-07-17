@@ -1,15 +1,24 @@
 <template>
-  <FormDialog :loading="loading" v-model="dialog" title="Create taxon">
+  <FormDialog :loading="loading" v-model="dialog" title="Create taxon" @submit="submit">
     <v-form @submit.prevent="submit" class="pb-5">
       <v-row>
         <v-col cols="12" sm="6">
+          <v-text-field
+            v-if="parent"
+            :modelValue="parent.name"
+            :text="parent.name"
+            label="Parent"
+            readonly
+            variant="plain"
+          />
           <TaxonPicker
+            v-else
             label="Parent"
             :ranks="['Order', 'Family', 'Genus', 'Species']"
             @update:modelValue="
               (parent: Taxon) => {
                 model.parent = parent.code
-                model.rank = childRank(parent.rank)
+                model.rank = childRank(parent.rank)!
               }
             "
           />
@@ -60,34 +69,36 @@
           ></v-textarea>
         </v-col>
       </v-row>
-      <v-row>
-        <v-spacer></v-spacer>
-        <v-btn color="primary" type="submit" variant="text" :loading="loading">Submit</v-btn>
-      </v-row>
     </v-form>
   </FormDialog>
 </template>
 
 <script setup lang="ts">
-import { $TaxonInput, $TaxonStatus, Taxon, TaxonInput, TaxonRank, TaxonomyService } from '@/api'
-import { Ref, computed, ref } from 'vue'
+import {
+  $TaxonInput,
+  Taxon,
+  TaxonInput,
+  TaxonWithLineage,
+  TaxonWithRelatives,
+  TaxonomyService
+} from '@/api'
+import { Ref, computed, ref, watch } from 'vue'
 import { useForm, type FormEmits, type FormProps } from '../toolkit/forms/form'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { watch } from 'vue'
 import { childRank } from './rank'
-import TaxonPicker from './TaxonPicker.vue'
 import StatusPicker from './StatusPicker.vue'
+import TaxonPicker from './TaxonPicker.vue'
 
 const dialog = defineModel<boolean>()
 
 type Props = FormProps<Taxon> & { parent?: Taxon }
 
 const props = defineProps<Props>()
-const emit = defineEmits<FormEmits<Taxon>>()
+const emit = defineEmits<FormEmits<TaxonWithRelatives>>()
 
 const initial: TaxonInput = {
   name: '',
-  parent: parent?.name ?? '',
+  parent: props.parent?.name ?? '',
   rank: 'Subspecies',
   status: 'Unclassified',
   authorship: '',
@@ -100,10 +111,11 @@ watch(
   () => props.parent,
   (parent) => {
     if (parent !== undefined) {
-      model.value.rank = childRank(parent.rank)
+      model.value.rank = childRank(parent.rank)!
       model.value.parent = parent.code
     }
-  }
+  },
+  { immediate: true }
 )
 
 const generatedCode = computed(() => {
@@ -131,11 +143,9 @@ const candidateParents = computed(() => {
 })
 
 async function submit() {
-  if (props.edit) {
-    return TaxonomyService.updateTaxon({ path: { code: props.edit.code }, body: model.value })
-  } else {
-    return TaxonomyService.createTaxon({ body: model.value })
-  }
+  const data = await TaxonomyService.createTaxon({ body: model.value }).then(errorHandler)
+  emit('success', data)
+  dialog.value = false
 }
 </script>
 
