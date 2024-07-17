@@ -19,11 +19,17 @@ module taxonomy {
     };
 
     constraint expression on (not contains(.name, " "))
-      except (.rank = Rank.Species or .rank = Rank.Subspecies);
-    constraint expression on (len(str_split(.name, " ")) = 2)
-      except (.rank != Rank.Species);
-    constraint expression on (len(str_split(.name, " ")) = 3)
-      except (.rank != Rank.Subspecies);
+      except (.rank = Rank.Species or .rank = Rank.Subspecies) {
+        errmessage := "Taxon names with rank higher than species may not include a whitespace."
+      };
+    constraint expression on (len(str_split(.name, " ")) >= 2)
+      except (.rank != Rank.Species) {
+        errmessage := "A species name must include a whitespace."
+      };
+    constraint expression on (len(str_split(.name, " ")) >= 3)
+      except (.rank != Rank.Subspecies){
+        errmessage := "A subspecies name must include at least 2 whitespaces."
+      };
 
     required rank: Rank;
 
