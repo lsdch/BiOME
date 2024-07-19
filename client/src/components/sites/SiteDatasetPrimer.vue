@@ -3,6 +3,7 @@
     <v-divider />
     <v-data-table
       id="spreadsheet"
+      ref="spreadsheet"
       class="spreadsheet fill-height"
       height="100"
       :headers="headers"
@@ -10,7 +11,6 @@
       :items-per-page="-1"
       density="compact"
       disable-sort
-      @paste.capture="handlePaste"
       fixed-footer
       fixed-header
     >
@@ -133,12 +133,23 @@ import { useSpreadsheet } from '.'
 import { Errors } from '../toolkit/validation'
 import CoordPrecisionPicker from './CoordPrecisionPicker.vue'
 import ErrorTooltip from './ErrorTooltip.vue'
-import { ref } from 'vue'
+import { onMounted, ref, watch } from 'vue'
+import { useActiveElement, useFocus } from '@vueuse/core'
 
 const s = ref()
 const sites = ref(['kanar'])
 
 type Item = Partial<Coordinates> & { errors?: Errors<ObjectPaths<Coordinates>> }
+
+const spreadsheet = ref()
+const { focused } = useFocus(spreadsheet)
+onMounted(() => (focused.value = true))
+const activeElement = useActiveElement()
+
+watch(activeElement, (el) => {
+  console.log('focus changed to', el)
+  console.log('focus changed to', focused.value)
+})
 
 const {
   items,
@@ -146,7 +157,6 @@ const {
   selection,
   edit,
   onEdited,
-  handlePaste,
   cellHeader,
   select,
   selectEnd,
@@ -172,7 +182,8 @@ const headers: DataTableHeader[] = [
 ]
 
 function setValue(row: number, col: number, value: any) {
-  items.value[row][headers[col].key as keyof Coordinates] = value
+  if (row < items.value.length && col < 3)
+    items.value[row][headers[col].key as keyof Coordinates] = value
 }
 </script>
 

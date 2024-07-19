@@ -64,14 +64,10 @@
       <v-stepper-window-item :value="2" class="fill-height">
         <SiteDatasetPrimer />
       </v-stepper-window-item>
-      <v-stepper-window-item :value="3">
+      <v-stepper-window-item :value="3" class="fill-height">
         <SiteTabularImport />
       </v-stepper-window-item>
-      <v-stepper-window-item :value="4" class="fill-height">
-        <div class="fill-height w-100">
-          <SitesMap />
-        </div>
-      </v-stepper-window-item>
+      <v-stepper-window-item :value="4" class="fill-height"> SUMMARY </v-stepper-window-item>
     </v-stepper-window>
 
     <v-stepper-actions @click:next="step += 1" @click:prev="step -= 1" />

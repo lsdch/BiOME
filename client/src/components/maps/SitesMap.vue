@@ -4,7 +4,7 @@
     v-model:zoom="zoom"
     :center="[0, 0]"
     :use-global-leaflet="true"
-    :bounds="latLngBounds(latLng(90, -360), latLng(-90, 360))"
+    v-model:bounds="mapBounds"
     :max-bounds="latLngBounds(latLng(90, -360), latLng(-90, 360))"
     :max-bounds-viscosity="1.0"
     :min-zoom="2"
@@ -17,6 +17,37 @@
       zoomSnap: 0.5
     }"
   >
+    <LControl position="topright" class="ma-0 d-flex justify-end">
+      <v-btn
+        v-if="closable"
+        title="Close"
+        color="white"
+        :rounded="false"
+        icon="mdi-close"
+        :width="35"
+        :height="35"
+        density="compact"
+        @click="emit('close')"
+      />
+    </LControl>
+
+    <LControl position="topleft">
+      <div class="leaflet-bar">
+        <v-btn
+          v-if="items"
+          title="Fit view"
+          color="white"
+          :rounded="false"
+          icon="mdi-fit-to-screen"
+          :width="30"
+          density="compact"
+          @click="fitBounds(items)"
+        />
+      </div>
+    </LControl>
+
+    <LControlLayers hide-single-base />
+
     <l-tile-layer
       :subdomains="['server', 'services']"
       url="https://{s}.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
@@ -25,24 +56,112 @@
       layer-type="base"
       name="Base layer"
     />
+    <l-tile-layer
+      :subdomains="['server', 'services']"
+      url="https://{s}.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}"
+      layer-type="overlay"
+      name="Regions"
+      :opacity="0.75"
+      :visible="false"
+    />
+    <LCircleMarker
+      v-for="(item, key) in items"
+      :key
+      :latLng="[item.coordinates.latitude, item.coordinates.longitude]"
+      v-bind="marker"
+    >
+      <slot name="marker" :item></slot>
+    </LCircleMarker>
   </l-map>
 </template>
 
-<script setup lang="ts">
-import L from 'leaflet'
+<script setup lang="ts" generic="SiteItem extends Geocoordinates">
+import { LCircleMarker, LControl, LControlLayers, LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import L, {
+  CircleMarkerOptions,
+  latLng,
+  latLngBounds,
+  LatLngExpression,
+  LatLngLiteral,
+  type Map
+} from 'leaflet'
 import 'leaflet.fullscreen'
 import 'leaflet.fullscreen/Control.FullScreen.css'
-import { latLngBounds, latLng, Control, type Map } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { Geocoordinates } from '.'
+import { onKeyStroke, useFullscreen } from '@vueuse/core'
 
 const zoom = ref(1)
-
 const map = ref<HTMLElement>()
 
+const { isFullscreen, enter, exit } = useFullscreen(map)
+onKeyStroke('f', enter)
+onKeyStroke('Escape', exit)
+
+const emit = defineEmits<{
+  close: []
+}>()
+
+const props = withDefaults(
+  defineProps<{
+    items?: SiteItem[]
+    marker?: Omit<CircleMarkerOptions, 'dashArray'>
+    bounds?: [LatLngExpression, LatLngExpression]
+    autoFit?: boolean
+    closable?: boolean
+  }>(),
+  {
+    bounds: () => [latLng(90, -360), latLng(-90, 360)]
+  }
+)
+
+const mapBounds = ref(L.latLngBounds(...props.bounds))
+
+defineExpose({ fitBounds })
+
+watch(
+  () => props.items,
+  (items) => {
+    if (props.autoFit && items) fitBounds(items)
+  },
+  { immediate: true }
+)
+
 function onReady(mapInstance: Map) {
+  console.log('Map ready')
   L.control.fullscreen().addTo(mapInstance)
+  fitBounds()
+}
+
+function fitBounds(items: SiteItem[] = props.items ?? []) {
+  const minMaxCoords = items.reduce(
+    (
+      acc: { sw: LatLngLiteral; ne: LatLngLiteral } | null,
+      { coordinates: { latitude, longitude } }: SiteItem
+    ): { sw: LatLngLiteral; ne: LatLngLiteral } | null => {
+      return acc === null
+        ? {
+            sw: { lat: latitude, lng: longitude },
+            ne: { lat: latitude, lng: longitude }
+          }
+        : {
+            sw: {
+              lat: Math.min(acc.sw.lat, latitude),
+              lng: Math.min(acc.sw.lng, longitude)
+            },
+            ne: {
+              lat: Math.max(acc.ne.lat, latitude),
+              lng: Math.max(acc.ne.lng, longitude)
+            }
+          }
+    },
+    null
+  )
+
+  if (minMaxCoords) {
+    mapBounds.value = latLngBounds(minMaxCoords.sw, minMaxCoords.ne).pad(0.1)
+  }
 }
 </script>
 

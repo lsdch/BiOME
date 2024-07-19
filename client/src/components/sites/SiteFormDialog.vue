@@ -6,7 +6,7 @@
     @submit="submit"
     :fullscreen="smAndDown"
   >
-    <v-form @submit.prevent="submit">
+    <v-form ref="form" @submit.prevent="submit">
       <v-container fluid>
         <v-row>
           <v-col cols="12" sm="4" md="3">
@@ -15,7 +15,7 @@
               label="Code"
               class="input-overline"
               v-bind="field('code')"
-              @input="() => (model.code = model.code.toUpperCase())"
+              @input="() => (model.code = model.code?.toUpperCase())"
             />
           </v-col>
           <v-col cols="12" sm="8" md="9">
@@ -24,7 +24,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <NumberInput
+            <v-text-field
               v-model="model.altitude"
               v-bind="field('altitude')"
               label="Altitude"
@@ -40,7 +40,7 @@
         <CoordinatesPicker v-model="model.coordinates" />
         <v-row>
           <v-col cols="12" sm="4">
-            <CountryPicker />
+            <CountryPicker v-model="model.country_code" item-value="code" />
           </v-col>
           <v-col>
             <v-text-field label="Nearest locality" />
@@ -61,7 +61,7 @@
   </FormDialog>
 </template>
 
-<script setup lang="ts" generic="Item extends SiteInput & {}">
+<script setup lang="ts">
 import { $SiteInput, SiteInput, SiteItem } from '@/api'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
 import { FormEmits, FormProps, useForm } from '@/components/toolkit/forms/form'
@@ -69,10 +69,16 @@ import CountryPicker from '../toolkit/forms/CountryPicker.vue'
 import NumberInput from '../toolkit/ui/NumberInput.vue'
 import CoordinatesPicker from './CoordinatesPicker.vue'
 import { useDisplay } from 'vuetify'
+import { ref, watch } from 'vue'
+import { VForm } from 'vuetify/components'
+import { nextTick } from 'vue'
+import { ImportItem } from '.'
 
 const { smAndDown } = useDisplay()
 
+type Item = ImportItem
 const initial: Item = {
+  id: '',
   name: '',
   code: '',
   coordinates: {
@@ -84,12 +90,20 @@ const initial: Item = {
 }
 
 const dialog = defineModel<boolean>()
+const form = ref<InstanceType<typeof VForm> | null>(null)
 const props = defineProps<FormProps<Item>>()
 const emit = defineEmits<FormEmits<Item>>()
 const { loading, field, errorHandler, model } = useForm(props, $SiteInput, {
   initial,
   transformers: {}
 })
+
+// watch(
+//   () => props.edit,
+//   () => nextTick(() => form.value?.validate())
+// )
+
+watch(dialog, () => nextTick(() => form.value?.validate()))
 
 async function submit() {
   emit('success', model.value)

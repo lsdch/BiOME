@@ -149,6 +149,11 @@ function router() {
       guardRole('Contributor', {
         path: "/location/import-sites",
         name: "import-sites",
+        meta: {
+          drawer: {
+            temporary: true
+          }
+        },
         component: () => import("../views/location/SiteImportView.vue")
       }),
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },

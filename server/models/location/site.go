@@ -31,7 +31,7 @@ type SiteItem struct {
 	Name        string               `edgedb:"name" json:"name" minLength:"4"`
 	Code        string               `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
 	Description edgedb.OptionalStr   `edgedb:"description" json:"description"`
-	Coordinates Coordinates          `edgedb:"coordinates" json:"coordinates,omitempty"`
+	Coordinates Coordinates          `edgedb:"coordinates" json:"coordinates"`
 	Altitude    edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
 	Locality    edgedb.OptionalStr   `edgedb:"locality" json:"locality,omitempty"`
 	Country     Country              `edgedb:"country" json:"country"`

@@ -4,7 +4,7 @@
     <td colspan="1000">
       <div class="site-expanded-row">
         <div class="label">Coord. precision:</div>
-        <ErrorTooltip :error="errors?.['coordinates.precision']">
+        <ErrorTooltip :error="errors?.['coordinates.precision']" class="text-overline">
           {{ item.coordinates?.precision ?? 'NA' }}
         </ErrorTooltip>
         <div class="label">Locality:</div>

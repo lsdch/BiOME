@@ -101,6 +101,14 @@
         @click="removeItems(selected)"
       />
       <v-spacer />
+      <v-btn
+        color="primary"
+        text="preview"
+        prepend-icon="mdi-map"
+        variant="plain"
+        @click="showPreview = true"
+      />
+      <v-spacer />
     </template>
 
     <!-- Item form -->
@@ -119,38 +127,49 @@
       />
     </template>
   </CRUDTable>
+  <SitesMapPreview v-model:open="showPreview" :sites="itemsPreview" />
   <SiteImportDialog v-model:open="importDialog" :file="importedFile" @parse-chunk="addItems" />
 </template>
 
 <script setup lang="ts">
-import { $SiteInput, SiteInput } from '@/api'
+import { $SiteInput } from '@/api'
 import DropZone from '@/components/toolkit/import/DropZone.vue'
 import { ParseError } from 'papaparse'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+import { ImportItem } from '.'
 import { useSchema } from '../toolkit/forms/schema'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
+import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
+import { indexErrors } from '../toolkit/validation'
 import SiteFormDialog from './SiteFormDialog.vue'
 import SiteImportDialog, { ProcessedItem } from './SiteImportDialog.vue'
+import SiteImportSettingsDialog from './SiteImportSettingsDialog.vue'
 import SiteStatusIcon from './SiteStatusIcon.vue'
 import SiteTableExpandedRow from './SiteTableExpandedRow.vue'
-import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
-import SiteImportSettingsDialog from './SiteImportSettingsDialog.vue'
-import { Errors, indexErrors } from '../toolkit/validation'
+import SitesMapPreview from './SitesMapPreview.vue'
 
-// type Errors = Partial<{
-//   [K in ObjectPaths<SiteInput> | 'exists']: string
-// }>
+const showPreview = ref(false)
 
-type Item = DeepPartial<SiteInput> & {
-  exists?: boolean
-  id: string
-  errors?: Errors<ObjectPaths<SiteInput> | 'exists'>
-}
+type Item = ImportItem
 
 const model = ref<Item[]>([])
+const itemsPreview = computed(() => {
+  return model.value.filter(({ coordinates }) => {
+    return (
+      coordinates !== undefined &&
+      validate('coordinates', 'latitude')(coordinates.latitude) === true &&
+      validate('coordinates', 'longitude')(coordinates.longitude) === true
+    )
+  })
+})
+
 const selected = ref<string[]>([])
 const debug = ref(false)
 const settingsDialog = ref(false)
+
+const emit = defineEmits<{
+  ready: [sites: Item[]]
+}>()
 
 /**
  * Item ID generator
@@ -193,17 +212,6 @@ const headers: CRUDTableHeaders = [
 ]
 
 const { schema, validate, paths, validateAll } = useSchema($SiteInput)
-console.log('PATHS', paths)
-
-function setValue(obj: Record<string, any>, [p, ...rest]: string[], value: any) {
-  if (rest.length == 0) {
-    obj[p] = value
-  }
-  if (!(p in obj)) {
-    obj[p] = {}
-  }
-  setValue(obj[p], rest, value)
-}
 
 function validateItem(item: Item) {
   item.errors = indexErrors(validateAll(item))

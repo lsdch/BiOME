@@ -1353,7 +1353,7 @@ export const $Site = {
             type: 'string'
         }
     },
-    required: ['datasets', 'meta', 'id', 'name', 'code', 'description', 'country'],
+    required: ['datasets', 'meta', 'id', 'name', 'code', 'description', 'coordinates', 'country'],
     type: 'object'
 } as const;
 
@@ -1541,7 +1541,7 @@ export const $SiteItem = {
             type: 'string'
         }
     },
-    required: ['id', 'name', 'code', 'description', 'country'],
+    required: ['id', 'name', 'code', 'description', 'coordinates', 'country'],
     type: 'object'
 } as const;
 
@@ -1611,7 +1611,7 @@ export const $TaxonInput = {
             type: 'string'
         },
         code: {
-            examples: ['Asellus_aquaticus'],
+            examples: ['ASEaquaticus'],
             type: 'string'
         },
         comment: {

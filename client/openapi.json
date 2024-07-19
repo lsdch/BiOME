@@ -1649,6 +1649,7 @@
 					"name",
 					"code",
 					"description",
+					"coordinates",
 					"country"
 				],
 				"type": "object"
@@ -1864,6 +1865,7 @@
 					"name",
 					"code",
 					"description",
+					"coordinates",
 					"country"
 				],
 				"type": "object"
@@ -1959,7 +1961,7 @@
 					},
 					"code": {
 						"examples": [
-							"Asellus_aquaticus"
+							"ASEaquaticus"
 						],
 						"type": "string"
 					},

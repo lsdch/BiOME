@@ -1,6 +1,6 @@
-import { LocationService } from "@/api";
+import { LocationService, SiteInput } from "@/api";
 import { handleErrors } from "@/api/responses";
-import { onKeyDown, onKeyStroke, useDebouncedRefHistory, useKeyModifier, useMagicKeys, whenever } from "@vueuse/core";
+import { onKeyDown, onKeyStroke, useDebouncedRefHistory, useEventListener, useKeyModifier, useMagicKeys, whenever } from "@vueuse/core";
 import { parse } from "papaparse";
 import { computed, Ref, ref } from "vue";
 import { Schema, useSchema } from "../toolkit/forms/schema";
@@ -261,6 +261,17 @@ export function useSpreadsheet<Item extends {} & { errors?: Errors<string> }>(
   }
 
 
+  /**
+   * Register paste event on body element since it's not captured correctly by table element
+   */
+  useEventListener(document.body, 'paste', handlePaste)
 
   return { items, selection, editing, dragging, edit, onEdited, cellHeader, handlePaste, isSelected, isEditing, moveSelection, select, selectEnd, isEmpty }
+}
+
+
+export type ImportItem = DeepPartial<SiteInput> & {
+  exists?: boolean
+  id: string
+  errors?: Errors<ObjectPaths<SiteInput> | 'exists'>
 }

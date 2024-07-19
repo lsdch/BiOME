@@ -573,7 +573,7 @@ export type Site = {
     access_point?: string;
     altitude?: number;
     code: string;
-    coordinates?: Coordinates;
+    coordinates: Coordinates;
     country: Country;
     datasets: Array<SiteDatasetInner>;
     description: string;
@@ -649,7 +649,7 @@ export type SiteItem = {
     access_point?: string;
     altitude?: number;
     code: string;
-    coordinates?: Coordinates;
+    coordinates: Coordinates;
     country: Country;
     description: string;
     id: string;
