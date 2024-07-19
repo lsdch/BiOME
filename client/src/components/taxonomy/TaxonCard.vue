@@ -7,6 +7,13 @@
       </template>
 
       <template #append>
+        <v-btn
+          v-if="taxon.status != 'Accepted'"
+          variant="plain"
+          color="primary"
+          text="EDIT"
+          prepend-icon="mdi-pencil-outline"
+        />
         <v-btn variant="text" icon="mdi-close" @click="open = false" />
       </template>
 
@@ -20,31 +27,19 @@
       <template #text>
         <div class="d-flex">
           <div class="flex-grow-1">
-            <v-hover>
-              <template #default="{ isHovering, props }">
-                <div class="w-auto" v-bind="props">
-                  <v-text-field
-                    class="shrink"
-                    v-model="taxon.code"
-                    label="Code"
-                    variant="plain"
-                    readonly
-                  >
-                    <template #append>
-                      <v-btn
-                        color="primary"
-                        v-if="isHovering"
-                        icon="mdi-pencil-circle-outline"
-                        density="compact"
-                        variant="plain"
-                      />
-                    </template>
-                  </v-text-field>
-                </div>
+            <ActivableField v-model="taxon.code">
+              <template #default="{ proxy, active, props }">
+                <v-text-field
+                  label="Code"
+                  v-model="proxy.value"
+                  v-bind="{ ...props, ...schema('code') }"
+                  :variant="active ? 'underlined' : 'plain'"
+                >
+                </v-text-field>
               </template>
-            </v-hover>
+            </ActivableField>
           </div>
-          <v-spacer></v-spacer>
+          <v-spacer />
           <div class="flex-grow-0">
             <v-chip :text="taxon.rank" variant="outlined" class="ma-3" />
             <v-chip
@@ -61,7 +56,21 @@
           {{ moment(taxon.meta.created).format('DD/MM/YYYY') }}
         </div>
 
-        <div>{{ taxon.comment }}</div>
+        <div>
+          <ActivableField v-model="taxon.comment">
+            <template #default="{ proxy, active, props }">
+              <v-textarea
+                v-model="proxy.value"
+                :label="proxy.value || active ? 'Comment' : 'Add comment...'"
+                :rows="1"
+                auto-grow
+                v-bind="{ ...props, ...schema('comment') }"
+                :variant="active ? 'underlined' : 'plain'"
+              >
+              </v-textarea>
+            </template>
+          </ActivableField>
+        </div>
 
         <v-divider class="my-3" />
 
@@ -134,7 +143,14 @@
 </template>
 
 <script setup lang="ts">
-import { Taxon, TaxonomyService, TaxonRank, TaxonWithLineage, TaxonWithRelatives } from '@/api'
+import {
+  $TaxonInput,
+  Taxon,
+  TaxonomyService,
+  TaxonRank,
+  TaxonWithLineage,
+  TaxonWithRelatives
+} from '@/api'
 import { handleErrors } from '@/api/responses'
 import { useAppConfirmDialog } from '@/composables'
 import { useFeedback } from '@/stores/feedback'
@@ -145,6 +161,8 @@ import LinkIconGBIF from './LinkIconGBIF.vue'
 import { useUserStore } from '@/stores/user'
 import moment from 'moment'
 import { FTaxonStatusIndicator, taxonStatusIndicatorProps } from './functionals'
+import ActivableField from '../toolkit/forms/ActivableField.vue'
+import { useSchema } from '../toolkit/forms/schema'
 
 const { mdAndUp } = useDisplay()
 const { isGranted } = useUserStore()
@@ -153,6 +171,8 @@ const extensibleRanks: TaxonRank[] = ['Order', 'Family', 'Genus', 'Species']
 
 const taxon = defineModel<Taxon>({ required: true })
 const open = defineModel<boolean>('open')
+
+const { schema } = useSchema($TaxonInput)
 
 const relatives = ref<TaxonWithLineage>()
 const loading = ref(false)
