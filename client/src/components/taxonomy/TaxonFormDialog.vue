@@ -1,5 +1,11 @@
 <template>
-  <FormDialog :loading="loading" v-model="dialog" title="Create taxon" @submit="submit">
+  <FormDialog
+    :loading="loading"
+    v-model="dialog"
+    title="Create taxon"
+    @submit="submit"
+    :fullscreen="xs"
+  >
     <v-form @submit.prevent="submit" class="pb-5">
       <v-row>
         <v-col cols="12" sm="6">
@@ -74,20 +80,16 @@
 </template>
 
 <script setup lang="ts">
-import {
-  $TaxonInput,
-  Taxon,
-  TaxonInput,
-  TaxonWithLineage,
-  TaxonWithRelatives,
-  TaxonomyService
-} from '@/api'
+import { $TaxonInput, Taxon, TaxonInput, TaxonWithRelatives, TaxonomyService } from '@/api'
 import { Ref, computed, ref, watch } from 'vue'
 import { useForm, type FormEmits, type FormProps } from '../toolkit/forms/form'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
 import { childRank } from './rank'
 import StatusPicker from './StatusPicker.vue'
 import TaxonPicker from './TaxonPicker.vue'
+import { useDisplay } from 'vuetify'
+
+const { xs } = useDisplay()
 
 const dialog = defineModel<boolean>()
 
