@@ -1,27 +1,28 @@
 import { Taxon, Taxonomy, TaxonRank } from "@/api";
-import { useEventBus } from "@vueuse/core";
-import { InjectionKey, nextTick, reactive, Reactive, ref, Ref, ToRefs, toRefs } from "vue";
+import { createEventHook, useEventBus, useLocalStorage } from "@vueuse/core";
+import { nextTick, reactive, Reactive, ref, ToRefs, toRefs } from "vue";
 import { childRank, parentRank } from "./rank";
 
 
-
-export const MaxRankInjection = Symbol() as InjectionKey<Ref<TaxonRank>>
-
+export const maxRankDisplay = useLocalStorage<TaxonRank>('max-taxon-rank', 'Kingdom')
 
 const selectedTaxon = ref<Taxon>()
-
+const selectHook = createEventHook<Taxon>()
 
 export function useTaxonSelection() {
 
   function select(taxon: Taxon) {
     selectedTaxon.value = taxon
+    selectHook.trigger(taxon)
   }
 
   function drop() {
     selectedTaxon.value = undefined
   }
 
-  return { select, drop, selected: selectedTaxon }
+
+
+  return { select, drop, selected: selectedTaxon, onSelect: selectHook.on }
 }
 
 type TaxonFoldState = ToRefs<Reactive<{ expanded: boolean, parent: string | undefined }>>

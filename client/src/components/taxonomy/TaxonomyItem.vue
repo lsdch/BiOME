@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="!isAscendant(item.rank, maxRank)"
+    v-if="!isAscendant(item.rank, maxRankDisplay)"
     class="taxon-item-container"
     ref="container"
     :style="{ 'grid-column': item.rank }"
@@ -8,7 +8,7 @@
   >
     <div class="taxon-item">
       <FTaxonStatusIndicator :status="item.status" />
-      <span class="mr-3 text-no-wrap cursor-pointer" @click="select(omitChildren(item))">
+      <span class="mr-3 text-no-wrap cursor-pointer" @click="select(item)">
         {{ item.name }}
       </span>
       <v-spacer></v-spacer>
@@ -34,15 +34,14 @@
 </template>
 
 <script setup lang="ts">
-import { Taxon, Taxonomy } from '@/api'
-import { useElementVisibility, useToggle } from '@vueuse/core'
-import { inject, nextTick, ref, watch } from 'vue'
-import { MaxRankInjection, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
+import { Taxonomy } from '@/api'
+import { useElementVisibility } from '@vueuse/core'
+import { nextTick, ref, watch } from 'vue'
+import { maxRankDisplay, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
 import { FTaxaNestedList, FTaxonStatusIndicator } from './functionals'
 import { isAscendant } from './rank'
 
-const maxRank = inject(MaxRankInjection) ?? ref('Kingdom')
-watch(maxRank, (rank) => {
+watch(maxRankDisplay, (rank) => {
   if (isAscendant(props.item.rank, rank)) {
     expanded.value = true
   }
@@ -51,11 +50,6 @@ watch(maxRank, (rank) => {
 const props = defineProps<{ item: Taxonomy }>()
 
 const { select } = useTaxonSelection()
-
-function omitChildren(item: Taxonomy): Taxon {
-  const { children: _, ...rest } = item
-  return rest
-}
 
 const { onFold: onRankFold, onUnfold: onRankUnfold, isFolded: isRankFolded } = useRankFoldState()
 const { expanded, toggleFold } = useTaxonFoldState(props.item, !isRankFolded(props.item.rank))

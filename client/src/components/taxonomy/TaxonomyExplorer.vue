@@ -29,7 +29,7 @@
       <template #append>
         <TaxonRankPicker
           class="ml-3"
-          v-model="maxRank"
+          v-model="maxRankDisplay"
           label="Truncate above"
           hide-details
           density="compact"
@@ -43,7 +43,7 @@
       <!-- HEADERS -->
       <div
         v-for="{ rank } in headers.filter(
-          ({ rank }) => rank == maxRank || isDescendant(rank, maxRank)
+          ({ rank }) => rank == maxRankDisplay || isDescendant(rank, maxRankDisplay)
         )"
         :key="rank"
         :style="{ 'grid-column': rank }"
@@ -73,10 +73,13 @@
       <div class="taxonomy-tree">
         <v-progress-linear v-if="loading" class="loading" indeterminate />
         <FTaxaNestedList
-          v-if="filteredItems?.children"
+          v-if="filteredItems?.children?.length"
           :items="filteredItems?.children"
           rank="Kingdom"
         />
+        <div v-else class="mx-auto my-5" style="grid-column: start / span end">
+          {{ loading ? 'Loading...' : 'Nothing to display' }}
+        </div>
         <div style="grid-column: start / span end; grid-row: -1"></div>
       </div>
     </div>
@@ -115,18 +118,18 @@ import {
   TaxonStatus
 } from '@/api'
 import { handleErrors } from '@/api/responses'
-import { refDebounced, useLocalStorage } from '@vueuse/core'
-import { computed, onMounted, provide, ref, watch } from 'vue'
-import { MaxRankInjection, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
+import { refDebounced } from '@vueuse/core'
+import { computed, onMounted, ref } from 'vue'
+import { useDisplay } from 'vuetify'
+import { maxRankDisplay, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
+import IconGBIF from '../icons/IconGBIF.vue'
+import TableToolbar from '../toolkit/tables/TableToolbar.vue'
 import { FTaxaNestedList } from './functionals'
 import { isAscendant, isDescendant, parentRank } from './rank'
 import StatusPicker from './StatusPicker.vue'
 import TaxonCard from './TaxonCard.vue'
 import TaxonFormDialog from './TaxonFormDialog.vue'
 import TaxonRankPicker from './TaxonRankPicker.vue'
-import IconGBIF from '../icons/IconGBIF.vue'
-import TableToolbar from '../toolkit/tables/TableToolbar.vue'
-import { useDisplay } from 'vuetify'
 
 const { smAndDown } = useDisplay()
 
@@ -139,9 +142,10 @@ function addDescendant(taxon: Taxon) {
   parentTaxon.value = taxon
 }
 
-const { selected } = useTaxonSelection()
-watch(selected, (taxon) => {
-  showTaxonCard.value = taxon !== undefined
+const { selected, onSelect } = useTaxonSelection()
+onSelect((taxon) => {
+  console.log('trigger')
+  showTaxonCard.value = true
 })
 
 type Header = { rank: TaxonRank }
@@ -156,9 +160,6 @@ const headers: Header[] = [
   { rank: 'Species' },
   { rank: 'Subspecies' }
 ]
-
-const maxRank = useLocalStorage<TaxonRank>('max-taxon-rank', 'Kingdom')
-provide(MaxRankInjection, maxRank)
 
 const { toggleFold, isFolded, unfold } = useRankFoldState()
 
@@ -254,7 +255,7 @@ const templateColumns = computed(() => {
   return $TaxonRank.enum
     .reduce((acc, rank) => {
       const name = `[${rank}${rank == 'Kingdom' ? ' start' : ''}]`
-      return `${acc} ${name} ${isAscendant(rank, maxRank.value) ? '0px' : 'auto'}`
+      return `${acc} ${name} ${isAscendant(rank, maxRankDisplay.value) ? '0px' : 'auto'}`
     }, '')
     .concat(' [end]')
 })
