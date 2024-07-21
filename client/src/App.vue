@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import NavigationDrawer from '@/components/navigation/NavigationDrawer.vue'
-import { nextTick, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import colors from 'vuetify/util/colors'
 
@@ -50,16 +50,16 @@ import { useAppConfirmDialog } from './composables'
 
 const loading = ref(false)
 
-const { mobile } = useDisplay()
+const { smAndDown } = useDisplay()
 
-const drawer = ref(!mobile.value)
-const drawerTemporary = ref<boolean>()
+const drawer = ref(!smAndDown.value)
 
 // Navigation
 const router = useRouter()
-router.beforeEach(async (to) => {
-  drawerTemporary.value = to.meta.drawer?.temporary
-  await nextTick()
+const drawerTemporary = computed(
+  () => router.currentRoute.value.meta.drawer?.temporary || smAndDown.value
+)
+router.beforeEach(() => {
   loading.value = true
 })
 router.afterEach((to) => {
