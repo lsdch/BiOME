@@ -23,11 +23,25 @@
           v-model="items"
           v-model:search="searchTerm"
           v-bind="toolbar"
-          @create-item="actions.create"
           @reload="loadItems().then(() => feedback.show('Data reloaded'))"
         >
           <template #[`prepend-actions`]>
             <slot name="toolbar-prepend-actions" />
+          </template>
+          <template #actions>
+            <!-- Toggle item creation form -->
+            <v-btn
+              style="min-width: 30px"
+              variant="text"
+              color="primary"
+              :icon="xs"
+              size="small"
+              @click="actions.create"
+            >
+              <v-tooltip v-if="xs" left activator="parent" text="New item" />
+              <v-icon v-if="xs" icon="mdi-plus" size="small" />
+              <span v-else>New Item</span>
+            </v-btn>
           </template>
           <template #[`append-actions`]>
             <slot name="toolbar-append-actions" />
@@ -162,11 +176,14 @@ import CRUDItemActions from './CRUDItemActions.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableFilterMenu from './TableFilterMenu.vue'
 import TableToolbar from './TableToolbar.vue'
+import { useDisplay } from 'vuetify'
 
 type Props = TableProps<ItemType> & {
   filter?: (item: ItemType) => boolean
   filterKeys?: string | string[]
 }
+
+const { xs } = useDisplay()
 
 const slots = useSlots()
 // Assert type here to prevent errors in template when exposing VDataTable slots

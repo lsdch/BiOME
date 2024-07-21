@@ -1,35 +1,34 @@
 <template>
   <div class="taxonomy-container d-flex flex-column">
-    <v-toolbar flat dense>
-      <template #prepend>
-        <v-btn icon="mdi-graph" variant="outlined" color="secondary" size="small" />
+    <TableToolbar
+      title="Taxonomy"
+      icon="mdi-family-tree"
+      :togglable-search="smAndDown"
+      @reload="reload()"
+    >
+      <template #search>
+        <v-container>
+          <v-row>
+            <v-col cols="12" sm="6" lg="8">
+              <v-text-field
+                v-model="searchTerm"
+                label="Search"
+                hide-details
+                density="compact"
+                clearable
+                prepend-inner-icon="mdi-magnify"
+                color="primary"
+              />
+            </v-col>
+            <v-col cols="12" sm="6" lg="4">
+              <StatusPicker v-model="filterStatus" density="compact" hide-details clearable />
+            </v-col>
+          </v-row>
+        </v-container>
       </template>
-
-      <v-toolbar-title style="min-width: 150px" class="flex-grow-0">Taxonomy</v-toolbar-title>
-
-      <div class="flex-grow-1 mx-3 d-flex justify-center">
-        <v-text-field
-          v-model="searchTerm"
-          class="mr-2"
-          label="Search"
-          hide-details
-          density="compact"
-          clearable
-          prepend-inner-icon="mdi-magnify"
-          color="primary"
-          max-width="500px"
-        />
-        <StatusPicker
-          max-width="220px"
-          v-model="filterStatus"
-          density="compact"
-          hide-details
-          clearable
-        />
-      </div>
-
       <template #append>
         <TaxonRankPicker
+          class="ml-3"
           v-model="maxRank"
           label="Truncate above"
           hide-details
@@ -37,7 +36,7 @@
           min-width="200px"
         />
       </template>
-    </v-toolbar>
+    </TableToolbar>
 
     <!-- TREE -->
     <div class="taxonomy-explorer bg-surface" :style="{ 'grid-template-columns': templateColumns }">
@@ -126,6 +125,10 @@ import TaxonCard from './TaxonCard.vue'
 import TaxonFormDialog from './TaxonFormDialog.vue'
 import TaxonRankPicker from './TaxonRankPicker.vue'
 import IconGBIF from '../icons/IconGBIF.vue'
+import TableToolbar from '../toolkit/tables/TableToolbar.vue'
+import { useDisplay } from 'vuetify'
+
+const { smAndDown } = useDisplay()
 
 const formDialog = ref(false)
 const parentTaxon = ref<Taxon>()
@@ -202,6 +205,10 @@ const filteredItems = computed(() => {
     children: items.value.children?.map(matchSearch(filters)).filter((t) => t !== undefined)
   }
 })
+
+async function reload() {
+  items.value = await fetch()
+}
 
 async function fetch(query?: GetTaxonomyData['query']) {
   loading.value = true
