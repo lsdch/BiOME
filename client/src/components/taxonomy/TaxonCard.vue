@@ -25,30 +25,50 @@
       </template>
 
       <template #text>
-        <div class="d-flex">
-          <div class="flex-grow-1">
+        <v-row>
+          <v-col cols="12" sm="6" class="d-flex justify-sm-end align-center order-sm-last">
+            <v-chip :text="taxon.rank" variant="outlined" class="mr-3" />
+            <v-chip
+              :text="taxon.status"
+              variant="outlined"
+              :color="taxonStatusIndicatorProps(taxon.status).color"
+            />
+          </v-col>
+          <v-col cols="12" sm="6">
             <ActivableField v-model="taxon.code">
-              <template #default="{ proxy, active, props }">
+              <template #default="{ proxy, active, props, save, cancel, isPristine }">
                 <v-text-field
                   label="Code"
                   v-model="proxy.value"
                   v-bind="{ ...props, ...schema('code') }"
                   :variant="active ? 'underlined' : 'plain'"
                 >
+                  <template #append="{ isValid }">
+                    <v-btn
+                      v-if="active && !isPristine"
+                      :disabled="!isValid.value"
+                      class="flex-grow-0"
+                      color="success"
+                      icon="mdi-check"
+                      density="compact"
+                      variant="plain"
+                      @click="save"
+                    />
+                    <v-btn
+                      v-if="active && !isPristine"
+                      class="flex-grow-0"
+                      color="error"
+                      icon="mdi-close"
+                      density="compact"
+                      variant="plain"
+                      @click="cancel"
+                    />
+                  </template>
                 </v-text-field>
               </template>
             </ActivableField>
-          </div>
-          <v-spacer />
-          <div class="flex-grow-0">
-            <v-chip :text="taxon.rank" variant="outlined" class="ma-3" />
-            <v-chip
-              :text="taxon.status"
-              variant="outlined"
-              :color="taxonStatusIndicatorProps(taxon.status).color"
-            />
-          </div>
-        </div>
+          </v-col>
+        </v-row>
 
         <div v-if="taxon.anchor" class="text-body-2">
           <v-icon icon="mdi-pin" color="warning" />
@@ -58,7 +78,7 @@
 
         <div>
           <ActivableField v-model="taxon.comment">
-            <template #default="{ proxy, active, props }">
+            <template #default="{ proxy, active, props, actions, isPristine }">
               <v-textarea
                 v-model="proxy.value"
                 :label="proxy.value || active ? 'Comment' : 'Add comment...'"
@@ -67,6 +87,11 @@
                 v-bind="{ ...props, ...schema('comment') }"
                 :variant="active ? 'underlined' : 'plain'"
               >
+                <template #details>
+                  <div class="align-self-start" v-if="active && !isPristine">
+                    <component :is="actions"></component>
+                  </div>
+                </template>
               </v-textarea>
             </template>
           </ActivableField>
@@ -154,15 +179,15 @@ import {
 import { handleErrors } from '@/api/responses'
 import { useAppConfirmDialog } from '@/composables'
 import { useFeedback } from '@/stores/feedback'
-import { ref, watch } from 'vue'
-import { useDisplay } from 'vuetify'
-import ItemDateChip from '../toolkit/ItemDateChip.vue'
-import LinkIconGBIF from './LinkIconGBIF.vue'
 import { useUserStore } from '@/stores/user'
 import moment from 'moment'
-import { FTaxonStatusIndicator, taxonStatusIndicatorProps } from './functionals'
+import { ref, watch } from 'vue'
+import { useDisplay } from 'vuetify'
 import ActivableField from '../toolkit/forms/ActivableField.vue'
 import { useSchema } from '../toolkit/forms/schema'
+import ItemDateChip from '../toolkit/ItemDateChip.vue'
+import { FTaxonStatusIndicator, taxonStatusIndicatorProps } from './functionals'
+import LinkIconGBIF from './LinkIconGBIF.vue'
 
 const { mdAndUp } = useDisplay()
 const { isGranted } = useUserStore()
