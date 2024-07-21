@@ -15,7 +15,7 @@
       <SettingsMenu />
       <AccountNavMenu />
     </v-app-bar>
-    <NavigationDrawer v-model="drawer" :temporary="drawerTemporary" />
+    <NavigationDrawer v-model="drawer" :temporary="drawerTemporary || smAndDown" />
     <v-main>
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <RouterView />
@@ -33,7 +33,7 @@
 
 <script setup lang="ts">
 import NavigationDrawer from '@/components/navigation/NavigationDrawer.vue'
-import { computed, ref } from 'vue'
+import { nextTick, ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import colors from 'vuetify/util/colors'
 
@@ -53,13 +53,13 @@ const loading = ref(false)
 const { smAndDown } = useDisplay()
 
 const drawer = ref(!smAndDown.value)
+const drawerTemporary = ref<boolean>()
 
 // Navigation
 const router = useRouter()
-const drawerTemporary = computed(
-  () => router.currentRoute.value.meta.drawer?.temporary || smAndDown.value
-)
-router.beforeEach(() => {
+router.beforeEach(async (to) => {
+  drawerTemporary.value = to.meta.drawer?.temporary
+  await nextTick()
   loading.value = true
 })
 router.afterEach((to) => {
