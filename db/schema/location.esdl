@@ -93,10 +93,14 @@ module location {
 
     access_point: str;
 
-    multi link abiotic_measurements := .<site[is event::AbioticMeasurement];
-    multi link samplings := .<site[is event::Sampling];
-    multi link spottings := .<site[is event::Spotting];
+    multi link events := .<site[is event::Event];
     multi datasets := .<sites[is SiteDataset];
+
+    imported_in: SiteDataset {
+      rewrite insert using (
+        if count(.datasets) = 1 then assert_single(.datasets) else <SiteDataset>{}
+      )
+    };
   }
 
   type SiteDataset extending default::Auditable {

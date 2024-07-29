@@ -3,17 +3,20 @@ module event {
   type Program extending default::Auditable {
     required label: str { constraint exclusive };
     required code: str { constraint exclusive };
+
     required multi managers: people::Person;
     multi funding_agencies: people::Institution;
+
     start_year: int16 {
       constraint min_value(1900);
     };
     end_year: int16;
     constraint expression on (.start_year <= .end_year);
-    comments: str;
+
+    description: str;
   }
 
-  abstract type Event extending default::Auditable {
+  type Event extending default::Auditable {
     required site: location::Site;
 
     required multi performed_by: people::Person;
@@ -27,9 +30,14 @@ module event {
       )
     };
     multi programs: Program;
+    multi actions: Action;
   }
 
-  type Spotting extending Event {
+  abstract type Action extending default::Auditable {
+    required event: Event;
+  }
+
+  type Spotting extending Action {
     multi target_taxa: taxonomy::Taxon;
   }
 
@@ -37,22 +45,22 @@ module event {
     required unit: str;
   };
 
-  type AbioticMeasurement extending event::Event {
+  type AbioticMeasurement extending Action {
     required param: AbioticParameter;
     required value: float32;
     related_sampling: Sampling;
-    constraint exclusive on ((.site, .param, .performed_on))
+    constraint exclusive on ((.event, .param))
   }
 
   scalar type SamplingTarget extending enum<Community, Unknown, Taxa>;
 
   type SamplingMethod extending default::Vocabulary, default::Auditable;
 
-  type Sampling extending Event {
+  type Sampling extending Action {
     property generated_code := (
-      select .site.code ++
-      "_" ++ <str>datetime_get(.performed_on.date, 'year') ++
-      <str>datetime_get(.performed_on.date, 'month')
+      select .event.site.code ++
+      "_" ++ <str>datetime_get(.event.performed_on.date, 'year') ++
+      <str>datetime_get(.event.performed_on.date, 'month')
     );
     required code : str {
       annotation title := "Unique sampling identifier, auto-generated at sampling creation.";
@@ -101,28 +109,28 @@ module event {
     );
   }
 
-  type EventDataset extending default::Auditable {
-    required name: str {
-      constraint min_len_value(4);
-      constraint max_len_value(40);
-    };
+  # type EventDataset extending default::Auditable {
+  #   required name: str {
+  #     constraint min_len_value(4);
+  #     constraint max_len_value(40);
+  #   };
 
-    multi samplings: Sampling {
-      on target delete allow;
-    };
-    multi abiotic_measurements: AbioticMeasurement {
-      on target delete allow;
-    };
-    multi spottings: Spotting {
-      on target delete allow;
-    };
+  #   multi samplings: Sampling {
+  #     on target delete allow;
+  #   };
+  #   multi abiotic_measurements: AbioticMeasurement {
+  #     on target delete allow;
+  #   };
+  #   multi spottings: Spotting {
+  #     on target delete allow;
+  #   };
 
-    required multi maintainers: people::Person {
-      on target delete restrict;
-    };
-    multi published_in: reference::Article {
-      on target delete allow;
-    };
-    comments: str;
-  }
+  #   required multi maintainers: people::Person {
+  #     on target delete restrict;
+  #   };
+  #   multi published_in: reference::Article {
+  #     on target delete allow;
+  #   };
+  #   comments: str;
+  # }
 }
