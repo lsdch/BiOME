@@ -6,14 +6,17 @@ import (
 	"darco/proto/models"
 	"darco/proto/models/people"
 	"encoding/json"
+	"fmt"
 	"slices"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/gosimple/slug"
 )
 
 type SiteDatasetInner struct {
 	ID          edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
-	Label       string             `edgedb:"label" json:"label" `
+	Label       string             `edgedb:"label" json:"label"`
+	Slug        string             `edgedb:"slug" json:"slug"`
 	Description edgedb.OptionalStr `edgedb:"description" json:"description"`
 }
 
@@ -21,30 +24,49 @@ type SiteDataset struct {
 	SiteDatasetInner `edgedb:"$inline" json:",inline"`
 	Sites            []SiteItem          `edgedb:"sites" json:"sites"`
 	Maintainers      []people.PersonUser `edgedb:"maintainers" json:"maintainers"`
+	Meta             people.Meta         `edgedb:"meta" json:"meta"`
 }
 
 func (d *SiteDataset) AddSites(db edgedb.Executor, site_ids []edgedb.UUID) (*SiteDataset, error) {
 	err := db.QuerySingle(context.Background(),
 		`with module location,
 		select(update <SiteDataset><uuid>$0 set {
-			sites := (select .sites union (
-				select Site filter .id in array_unpack(<array<uuid>>$1)
+			sites := (select distinct (
+				.sites union (
+					select Site filter .id in array_unpack(<array<uuid>>$1)
+				)
 			))
-		}) { ** }
+		}) { **, sites: { *, country: { * } } }
 	`, d, d.ID, site_ids)
 	return d, err
 }
 
 func (d *SiteDataset) CreateSites(tx *edgedb.Tx, sites []SiteInput) (*SiteDataset, error) {
-	for _, s := range sites {
-		created, err := s.Create(tx)
-		if err != nil {
-			return d, err
-		} else {
-			d.Sites = append(d.Sites, created.SiteItem)
-		}
-	}
-	return d, nil
+	sitesData, _ := json.Marshal(sites)
+	query := fmt.Sprintf(`with module location,
+		dataset := <SiteDataset><uuid>$0,
+		sites := <json>$1,
+		created_sites := (
+			for site in json_array_unpack(sites) union (
+				%s
+			)
+		)
+		select (update dataset set {
+			sites := (select distinct (
+				.sites union created_sites
+			))
+		}) { **, sites: { *, country: { * } } }`, sites[0].InsertQuery("site"))
+	err := tx.QuerySingle(context.Background(), query, d, d.ID, sitesData)
+	return d, err
+}
+
+func ListSiteDatasets(db edgedb.Executor) ([]SiteDataset, error) {
+	var datasets []SiteDataset
+	err := db.Query(context.Background(),
+		`with module location select SiteDataset { **, meta: { * } }`,
+		&datasets,
+	)
+	return datasets, err
 }
 
 type SiteDatasetInput struct {
@@ -67,7 +89,7 @@ func (i *SiteDatasetInput) ValidateMaintainers(edb edgedb.Executor) ([]edgedb.UU
 	return maintainers, nil
 }
 
-func (i *SiteDatasetInput) ValidateSites(edb edgedb.Executor) ([]edgedb.UUID, []error) {
+func (i *SiteDatasetInput) ValidateExistingSites(edb edgedb.Executor) ([]edgedb.UUID, []error) {
 	sites, absents := db.DBProperty{
 		Object:   "location::Site",
 		Property: "code",
@@ -81,31 +103,45 @@ func (i *SiteDatasetInput) ValidateSites(edb edgedb.Executor) ([]edgedb.UUID, []
 	return sites, nil
 }
 
+func (s *SiteDatasetInput) ValidateNewSites(edb edgedb.Executor) []error {
+	var errors []error
+	for i, site := range s.NewSites {
+		if errs := site.Validate(edb); errs != nil {
+			errors = slices.Concat(errors, errs.WithLocation(fmt.Sprintf("new_sites[%d].", i)))
+		}
+	}
+	return errors
+}
+
 func (i *SiteDatasetInput) Validate(edb edgedb.Executor) (*SiteDatasetInputValidated, []error) {
 	maintainers, errsMaintainers := i.ValidateMaintainers(edb)
-	sites, errsSites := i.ValidateSites(edb)
-	errs := slices.Concat(errsMaintainers, errsSites)
+	sites, errsSites := i.ValidateExistingSites(edb)
+	errsNewSites := i.ValidateNewSites(edb)
+	errs := slices.Concat(errsMaintainers, errsSites, errsNewSites)
 	if errs != nil {
 		return nil, errs
 	}
 
 	return &SiteDatasetInputValidated{
 		Label:       i.Label,
+		Slug:        slug.Make(i.Label),
 		Description: i.Description,
 		Maintainers: maintainers,
 		Sites:       sites,
+		NewSites:    i.NewSites,
 	}, nil
 }
 
 type SiteDatasetInputValidated struct {
 	Label       string                       `json:"label"`
+	Slug        string                       `json:"slug"`
 	Description models.OptionalInput[string] `json:"description"`
 	Maintainers []edgedb.UUID                `json:"maintainers"`
 	Sites       []edgedb.UUID                `json:"sites"`
 	NewSites    []SiteInput                  `json:"new_sites"`
 }
 
-func (i *SiteDatasetInputValidated) Create(db edgedb.Client) (*SiteDataset, error) {
+func (i *SiteDatasetInputValidated) Create(db *edgedb.Client) (*SiteDataset, error) {
 	var created SiteDataset
 	m, _ := json.Marshal(i)
 
@@ -115,20 +151,34 @@ func (i *SiteDatasetInputValidated) Create(db edgedb.Client) (*SiteDataset, erro
 				data := <json>$0
 			select(insert location::SiteDataset {
 				label := <str>data['label'],
+				slug := <str>data['slug'],
 				description := <str>json_get(data, 'description'),
 				maintainers := (
-					select (global current_user).identity
+					select distinct (
+						(
+							(global default::current_user).identity
+						) union (
+							select distinct people::Person filter .alias in array_unpack(<array<str>>json_get(data, 'maintainers'))
+						)
+					)
 				)
-			})`, &created, m)
+			}) { ** }`, &created, m)
 		if err != nil {
 			return err
 		}
-		if _, err := created.AddSites(tx, i.Sites); err != nil {
-			return err
+
+		if len(i.Sites) > 0 {
+			if _, err := created.AddSites(tx, i.Sites); err != nil {
+				return err
+			}
 		}
-		if _, err := created.CreateSites(tx, i.NewSites); err != nil {
-			return err
+
+		if len(i.NewSites) > 0 {
+			if _, err := created.CreateSites(tx, i.NewSites); err != nil {
+				return err
+			}
 		}
+
 		return nil
 	})
 	return &created, err
