@@ -97,9 +97,11 @@ module location {
     multi datasets := .<sites[is SiteDataset];
 
     imported_in: SiteDataset {
+      on target delete allow;
+      on source delete allow;
       rewrite insert using (
         if count(.datasets) = 1 then assert_single(.datasets) else <SiteDataset>{}
-      )
+      );
     };
   }
 
@@ -108,8 +110,15 @@ module location {
       constraint min_len_value(4);
       constraint max_len_value(40);
     }
+    required slug: str {
+      constraint exclusive;
+    };
+
     description: str;
-    multi sites: Site;
+    multi sites: Site {
+      on target delete allow;
+      on source delete allow;
+    };
     required multi maintainers: people::Person;
   }
 }

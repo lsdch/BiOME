@@ -17,7 +17,10 @@ module event {
   }
 
   type Event extending default::Auditable {
-    required site: location::Site;
+    required site: location::Site {
+      on source delete allow;
+      on target delete delete source;
+    };
 
     required multi performed_by: people::Person;
     required performed_on: tuple<date: datetime, precision: date::DatePrecision> {
@@ -30,11 +33,21 @@ module event {
       )
     };
     multi programs: Program;
-    multi actions: Action;
+
+    multi spottings := .<event[is Spotting];
+    multi abiotic_measurements := .<event[is AbioticMeasurement];
+    multi samplings := .<event[is Sampling];
   }
 
+  # Several actions may have been performed during an event
+  #
+  # - Spotting: visiting a site without taking any samples, e.g. in preparation of future sampling
+  # - Abiotic measurement: measuring environmental variables at the site
+  # - Sampling: sampling for the presence of one or several target taxa
   abstract type Action extending default::Auditable {
-    required event: Event;
+    required event: Event {
+      on target delete delete source;
+    };
   }
 
   type Spotting extending Action {
@@ -48,7 +61,6 @@ module event {
   type AbioticMeasurement extending Action {
     required param: AbioticParameter;
     required value: float32;
-    related_sampling: Sampling;
     constraint exclusive on ((.event, .param))
   }
 
@@ -57,11 +69,13 @@ module event {
   type SamplingMethod extending default::Vocabulary, default::Auditable;
 
   type Sampling extending Action {
+
     property generated_code := (
       select .event.site.code ++
       "_" ++ <str>datetime_get(.event.performed_on.date, 'year') ++
       <str>datetime_get(.event.performed_on.date, 'month')
     );
+
     required code : str {
       annotation title := "Unique sampling identifier, auto-generated at sampling creation.";
       annotation description := "Format : SITE_YEARMONTH_NUMBER. The NUMBER suffix is not appended if the site and month tuple is unique.";
@@ -94,7 +108,6 @@ module event {
 
     comments: str;
 
-    multi link measurements := .<related_sampling[is AbioticMeasurement];
     multi link samples := .<sampling[is samples::BioMaterial];
     multi link reports := .<sampling[is occurrence::OccurrenceReport];
     multi link external_seqs := .<sampling[is seq::ExternalSequence];
