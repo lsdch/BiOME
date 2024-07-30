@@ -27,6 +27,15 @@ type SiteDataset struct {
 	Meta             people.Meta         `edgedb:"meta" json:"meta"`
 }
 
+func FindDataset(db edgedb.Executor, slug string) (*SiteDataset, error) {
+	var dataset SiteDataset
+	err := db.QuerySingle(context.Background(),
+		`select location::SiteDataset { **, sites: {*, country: { * }}} filter .slug = <str>$0`,
+		&dataset, slug,
+	)
+	return &dataset, err
+}
+
 func (d *SiteDataset) AddSites(db edgedb.Executor, site_ids []edgedb.UUID) (*SiteDataset, error) {
 	err := db.QuerySingle(context.Background(),
 		`with module location,

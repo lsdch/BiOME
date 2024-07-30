@@ -871,6 +871,22 @@ export type CreateSiteDatasetResponse = SiteDataset;
 
 export type CreateSiteDatasetError = ErrorModel;
 
+export type GetSiteDatasetData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        slug: string;
+    };
+};
+
+export type GetSiteDatasetResponse = SiteDataset;
+
+export type GetSiteDatasetError = ErrorModel;
+
 export type ListHabitatGroupsData = {
     headers?: {
         /**
@@ -1490,6 +1506,25 @@ export type $OpenApiTs = {
         };
         post: {
             req: CreateSiteDatasetData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': SiteDataset;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+    };
+    '/datasets/{slug}': {
+        post: {
+            req: GetSiteDatasetData;
             res: {
                 /**
                  * OK

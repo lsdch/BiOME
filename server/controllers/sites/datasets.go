@@ -11,8 +11,26 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
+type GetSiteDatasetInput struct {
+	resolvers.AuthResolver
+	Slug string `path:"slug"`
+}
+
+func (i GetSiteDatasetInput) Identifier() string {
+	return i.Slug
+}
+
 func RegisterDatasetRoutes(r router.Router) {
 	datasets_API := r.RouteGroup("/datasets").WithTags([]string{"Location"})
+
+	router.Register(datasets_API, "GetSiteDataset",
+		huma.Operation{
+			Path:        "/{slug}",
+			Method:      http.MethodPost,
+			Summary:     "Get site dataset",
+			Description: "Get infos for a site dataset",
+		}, controllers.GetHandler[*GetSiteDatasetInput](location.FindDataset))
+
 	router.Register(datasets_API, "CreateSiteDataset",
 		huma.Operation{
 			Path:        "/",
