@@ -67,6 +67,7 @@ func setupRoutes(r *gin.Engine, basePath string) *gin.RouterGroup {
 	taxonomy.RegisterImportRoutes(router)
 	settings.RegisterRoutes(router)
 	sites.RegisterRoutes(router)
+	sites.RegisterDatasetRoutes(router)
 	if err := router.WriteSpecJSON("../client/openapi.json"); err != nil {
 		panic(err)
 	}
