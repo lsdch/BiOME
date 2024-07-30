@@ -8,9 +8,18 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
+type CreateInputBody[Item models.Creatable[Created], Created any] interface {
+	resolvers.AuthDBProvider
+	Item() Item
+}
+
 type CreateHandlerInput[Item models.Creatable[Created], Created any] struct {
 	resolvers.AuthRequired
 	Body Item
+}
+
+func (i CreateHandlerInput[Item, Created]) Item() Item {
+	return i.Body
 }
 
 type CreateHandlerOutput[Created any] struct {
@@ -18,10 +27,18 @@ type CreateHandlerOutput[Created any] struct {
 }
 
 func CreateHandler[
-	Input models.Creatable[Created],
+	Item models.Creatable[Created],
 	Created any,
-](ctx context.Context, input *CreateHandlerInput[Input, Created]) (*CreateHandlerOutput[Created], error) {
-	created, err := input.Body.Create(input.DB())
+](ctx context.Context, input *CreateHandlerInput[Item, Created]) (*CreateHandlerOutput[Created], error) {
+	return CreateHandlerWithInput(ctx, input)
+}
+
+func CreateHandlerWithInput[
+	Input CreateInputBody[Item, Created],
+	Item models.Creatable[Created],
+	Created any,
+](ctx context.Context, input Input) (*CreateHandlerOutput[Created], error) {
+	created, err := input.Item().Create(input.DB())
 	if err != nil {
 		return nil, huma.Error500InternalServerError("Item creation failed", err)
 	}

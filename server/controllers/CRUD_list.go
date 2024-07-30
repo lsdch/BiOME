@@ -24,8 +24,6 @@ func ListHandler[Item any](listFn FetchItemList[Item]) ListItemHandler[Item] {
 		if err != nil {
 			return nil, huma.Error500InternalServerError("Failed to retrieve item list", err)
 		}
-		return &ListHandlerOutput[Item]{
-			Body: items,
-		}, nil
+		return &ListHandlerOutput[Item]{Body: items}, nil
 	}
 }

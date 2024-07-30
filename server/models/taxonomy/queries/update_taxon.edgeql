@@ -6,7 +6,6 @@ select (
   set {
     name := <str>json_get(data,'name') ?? .name,
     code := <str>json_get(data, 'code') ?? .code,
-    GBIF_ID := <int32>json_get(data, 'GBIF_ID') ?? .GBIF_ID,
     status := <TaxonStatus>json_get(data, 'status') ?? .status,
     parent := (
       select detached Taxon filter .code = <str>parent

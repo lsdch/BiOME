@@ -51,7 +51,7 @@ func RegisterRoutes(r router.Router) {
 			Summary: "Create taxon",
 			Errors:  []int{http.StatusBadRequest},
 		},
-		controllers.CreateHandler[taxonomy.TaxonInput])
+		controllers.CreateHandlerWithInput[*CreateTaxonInput, taxonomy.TaxonInput, taxonomy.TaxonWithRelatives])
 
 	router.Register(taxaAPI, "UpdateTaxon",
 		huma.Operation{
@@ -111,4 +111,13 @@ func GetTaxonomy(ctx context.Context, input *GetTaxonomyInput) (*GetTaxonomyOutp
 		return nil, huma.Error500InternalServerError("Failed to fetch taxonomy", err)
 	}
 	return &GetTaxonomyOutput{Body: taxonomy}, nil
+}
+
+type CreateTaxonInput struct {
+	resolvers.AccessRestricted[resolvers.Admin]
+	Body taxonomy.TaxonInput
+}
+
+func (i CreateTaxonInput) Item() taxonomy.TaxonInput {
+	return i.Body
 }
