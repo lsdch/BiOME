@@ -6,7 +6,7 @@ export type AuthenticationResponse = {
      */
     readonly $schema?: string;
     User: User;
-    messages: Array<(string)>;
+    messages: Array<(string)> | null;
     /**
      * JSON Web Token
      */
@@ -115,7 +115,7 @@ export type ErrorModel = {
     /**
      * Optional list of individual error details
      */
-    errors?: Array<ErrorDetail>;
+    errors?: Array<ErrorDetail> | null;
     /**
      * A URI reference that identifies the specific occurrence of the problem.
      */
@@ -140,7 +140,7 @@ export type HabitatGroup = {
      */
     readonly $schema?: string;
     depends: OptionalHabitatRecord;
-    elements: Array<HabitatRecord>;
+    elements: Array<HabitatRecord> | null;
     exclusive_elements: boolean;
     id: string;
     /**
@@ -159,7 +159,7 @@ export type HabitatGroupInput = {
      * Habitat tag that this group is a refinement of
      */
     depends?: string;
-    elements?: Array<HabitatInput>;
+    elements?: Array<HabitatInput> | null;
     exclusive_elements?: boolean;
     /**
      * Name for the group of habitat tags
@@ -185,7 +185,7 @@ export type HabitatInput = {
     /**
      * List of habitat labels this habitat is incompatible with.
      */
-    incompatible?: Array<(string)>;
+    incompatible?: Array<(string)> | null;
     /**
      * A short label for the habitat.
      */
@@ -198,7 +198,7 @@ export type HabitatRecord = {
      */
     description?: string;
     id: string;
-    incompatible?: Array<HabitatRecord>;
+    incompatible?: Array<HabitatRecord> | null;
     /**
      * A short label for the habitat.
      */
@@ -285,7 +285,7 @@ export type Institution = {
     /**
      * Known members of this institution
      */
-    people?: Array<PersonUser>;
+    people?: Array<PersonUser> | null;
 };
 
 export type InstitutionInner = {
@@ -369,7 +369,7 @@ export type OptionalHabitatRecord = {
      */
     description?: string;
     id: string;
-    incompatible?: Array<HabitatRecord>;
+    incompatible?: Array<HabitatRecord> | null;
     /**
      * A short label for the habitat.
      */
@@ -430,7 +430,7 @@ export type Person = {
     first_name: string;
     full_name: string;
     id: string;
-    institutions: Array<InstitutionInner>;
+    institutions: Array<InstitutionInner> | null;
     last_name: string;
     meta: Meta;
     role?: UserRole;
@@ -446,7 +446,7 @@ export type PersonInput = {
     comment?: string;
     contact?: string;
     first_name: string;
-    institutions: Array<(string)>;
+    institutions: Array<(string)> | null;
     last_name: string;
 };
 
@@ -465,7 +465,7 @@ export type PersonUpdate = {
     comment?: string | null;
     contact?: string | null;
     first_name?: string;
-    institutions?: Array<(string)>;
+    institutions?: Array<(string)> | null;
     last_name?: string;
 };
 
@@ -575,7 +575,7 @@ export type Site = {
     code: string;
     coordinates: Coordinates;
     country: Country;
-    datasets: Array<SiteDatasetInner>;
+    datasets: Array<SiteDatasetInner> | null;
     description: string;
     id: string;
     locality?: string;
@@ -591,14 +591,17 @@ export type SiteDataset = {
     description: string;
     id: string;
     label: string;
-    maintainers: Array<PersonUser>;
-    sites: Array<SiteItem>;
+    maintainers: Array<PersonUser> | null;
+    meta: Meta;
+    sites: Array<SiteItem> | null;
+    slug: string;
 };
 
 export type SiteDatasetInner = {
     description: string;
     id: string;
     label: string;
+    slug: string;
 };
 
 export type SiteDatasetInput = {
@@ -611,15 +614,15 @@ export type SiteDatasetInput = {
     /**
      * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
      */
-    maintainers: Array<(string)>;
+    maintainers: Array<(string)> | null;
     /**
      * New sites to include in the dataset
      */
-    new_sites?: Array<SiteInput>;
+    new_sites?: Array<SiteInput> | null;
     /**
      * Existing site codes to include in the dataset
      */
-    sites?: Array<(string)>;
+    sites?: Array<(string)> | null;
 };
 
 export type SiteInput = {
@@ -629,7 +632,7 @@ export type SiteInput = {
      */
     altitude?: number;
     /**
-     * A short unique uppercase alphanumeric code to identify the site
+     * A short unique uppercase alphanumeric identifier
      */
     code: string;
     /**
@@ -694,8 +697,7 @@ export type TaxonUpdate = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    GBIF_ID?: number;
-    authorship?: string;
+    authorship?: string | null;
     code?: string;
     name?: string;
     parent?: string;
@@ -711,7 +713,7 @@ export type TaxonWithLineage = {
     GBIF_ID?: number;
     anchor: boolean;
     authorship?: string;
-    children?: Array<Taxon>;
+    children?: Array<Taxon> | null;
     children_count: number;
     code: string;
     comment?: string;
@@ -747,7 +749,7 @@ export type TaxonWithRelatives = {
     GBIF_ID?: number;
     anchor: boolean;
     authorship?: string;
-    children?: Array<Taxon>;
+    children?: Array<Taxon> | null;
     children_count: number;
     code: string;
     comment?: string;
@@ -767,7 +769,7 @@ export type Taxonomy = {
     GBIF_ID?: number;
     anchor: boolean;
     authorship?: string;
-    children?: Array<Taxonomy>;
+    children?: Array<Taxonomy> | null;
     children_count: number;
     code: string;
     comment?: string;
@@ -838,9 +840,36 @@ export type GetAccessPointsData = {
     };
 };
 
-export type GetAccessPointsResponse = Array<(string)>;
+export type GetAccessPointsResponse = Array<(string)> | null;
 
 export type GetAccessPointsError = unknown;
+
+export type ListSiteDatasetsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListSiteDatasetsResponse = Array<SiteDataset> | null;
+
+export type ListSiteDatasetsError = ErrorModel;
+
+export type CreateSiteDatasetData = {
+    body: SiteDatasetInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateSiteDatasetResponse = SiteDataset;
+
+export type CreateSiteDatasetError = ErrorModel;
 
 export type ListHabitatGroupsData = {
     headers?: {
@@ -851,7 +880,7 @@ export type ListHabitatGroupsData = {
     };
 };
 
-export type ListHabitatGroupsResponse = Array<HabitatGroup>;
+export type ListHabitatGroupsResponse = Array<HabitatGroup> | null;
 
 export type ListHabitatGroupsError = ErrorModel;
 
@@ -911,7 +940,7 @@ export type ListCountriesData = {
     };
 };
 
-export type ListCountriesResponse = Array<Country>;
+export type ListCountriesResponse = Array<Country> | null;
 
 export type ListCountriesError = ErrorModel;
 
@@ -924,23 +953,9 @@ export type ListSitesData = {
     };
 };
 
-export type ListSitesResponse = Array<Site>;
+export type ListSitesResponse = Array<Site> | null;
 
 export type ListSitesError = ErrorModel;
-
-export type CreateSiteDatasetData = {
-    body: SiteDatasetInput;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type CreateSiteDatasetResponse = SiteDataset;
-
-export type CreateSiteDatasetError = ErrorModel;
 
 export type GetSiteData = {
     body: Site;
@@ -1073,7 +1088,7 @@ export type ListAnchorsData = {
     };
 };
 
-export type ListAnchorsResponse = Array<TaxonWithParentRef>;
+export type ListAnchorsResponse = Array<TaxonWithParentRef> | null;
 
 export type ListAnchorsError = ErrorModel;
 
@@ -1120,7 +1135,7 @@ export type ListInstitutionsData = {
     };
 };
 
-export type ListInstitutionsResponse = Array<Institution>;
+export type ListInstitutionsResponse = Array<Institution> | null;
 
 export type ListInstitutionsError = ErrorModel;
 
@@ -1180,7 +1195,7 @@ export type ListPersonsData = {
     };
 };
 
-export type ListPersonsResponse = Array<Person>;
+export type ListPersonsResponse = Array<Person> | null;
 
 export type ListPersonsError = ErrorModel;
 
@@ -1378,7 +1393,7 @@ export type ListTaxaData = {
     };
 };
 
-export type ListTaxaResponse = Array<TaxonWithParentRef>;
+export type ListTaxaResponse = Array<TaxonWithParentRef> | null;
 
 export type ListTaxaError = ErrorModel;
 
@@ -1447,11 +1462,47 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<(string)>;
+                '200': Array<(string)> | null;
                 /**
                  * Error
                  */
                 default: ErrorModel;
+            };
+        };
+    };
+    '/datasets': {
+        get: {
+            req: ListSiteDatasetsData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': Array<SiteDataset> | null;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+        post: {
+            req: CreateSiteDatasetData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': SiteDataset;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
             };
         };
     };
@@ -1462,7 +1513,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<HabitatGroup>;
+                '200': Array<HabitatGroup> | null;
                 /**
                  * Unprocessable Entity
                  */
@@ -1534,7 +1585,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<Country>;
+                '200': Array<Country> | null;
                 /**
                  * Unprocessable Entity
                  */
@@ -1553,24 +1604,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<Site>;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: CreateSiteDatasetData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': SiteDataset;
+                '200': Array<Site> | null;
                 /**
                  * Unprocessable Entity
                  */
@@ -1818,7 +1852,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<TaxonWithParentRef>;
+                '200': Array<TaxonWithParentRef> | null;
                 /**
                  * Unprocessable Entity
                  */
@@ -1882,7 +1916,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<Institution>;
+                '200': Array<Institution> | null;
                 /**
                  * Unprocessable Entity
                  */
@@ -1966,7 +2000,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<Person>;
+                '200': Array<Person> | null;
                 /**
                  * Unprocessable Entity
                  */
@@ -2229,7 +2263,7 @@ export type $OpenApiTs = {
                 /**
                  * OK
                  */
-                '200': Array<TaxonWithParentRef>;
+                '200': Array<TaxonWithParentRef> | null;
                 /**
                  * Unprocessable Entity
                  */
