@@ -1,34 +1,12 @@
 <template>
   <FormDialog
     title="Import sites"
-    v-model="open"
+    v-model="isOpen"
     btn-text="Upload"
+    :fullscreen="sm"
     @submit="() => (file != undefined ? importFile(file, options) : null)"
   >
-    <v-row>
-      <v-col>
-        <v-select
-          label="Existing codes"
-          v-model="options.existing"
-          item-value="label"
-          item-title="label"
-          :items="existing"
-        >
-          <template #item="{ item, props }">
-            <v-list-item :title="item.raw.label" :subtitle="item.raw.description" v-bind="props" />
-          </template>
-        </v-select>
-      </v-col>
-      <v-col>
-        <CoordPrecisionPicker
-          v-model="options.defaultPrecision"
-          label="Default coord precision"
-          clearable
-          placeholder="None"
-          persistent-placeholder
-        />
-      </v-col>
-    </v-row>
+    <SiteImportSettings v-model="options.import" />
 
     <div class="d-flex align-center text-h7">
       <span class="text-no-wrap my-3 mr-3"> Parsing options: </span>
@@ -61,66 +39,44 @@
 </template>
 
 <script setup lang="ts">
-import { Coordinates, CoordinatesPrecision, SiteInput } from '@/api'
+import { Coordinates, SiteInput } from '@/api'
 import { ParseConfig, ParseError, ParseLocalConfig, parse } from 'papaparse'
 import { ref, watch, watchEffect } from 'vue'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
 import ParserOptions from '../toolkit/import/ParserOptions.vue'
 import SiteTableExpandedRow from './SiteTableExpandedRow.vue'
 
-import type { Object } from 'ts-toolbelt'
-import CoordPrecisionPicker from './CoordPrecisionPicker.vue'
+import SiteImportSettings, { ImportSettings } from './SiteImportSettings.vue'
 import SiteStatusIcon from './SiteStatusIcon.vue'
+import { useDisplay } from 'vuetify'
 
-export type SiteRecord = SiteInput & { existing: boolean; row: number }
-export type ParsedItem = Partial<Omit<SiteRecord, 'coordinates'> & Coordinates>
+const { sm } = useDisplay()
 
-type CSVTransforms<T extends object> = Partial<{ [k in keyof T]: (v: string) => T[k] }>
+export type ParsedItem = Partial<
+  Record<keyof (Omit<SiteInput, 'coordinates'> & Coordinates), string>
+> & { existing: boolean; row: number }
+
+type CSVTransforms<T extends object> = {
+  [k in keyof T]?: (v: string) => T[k] | string
+}
 type Transforms = CSVTransforms<ParsedItem>
 
 const transforms: Transforms = {
   existing(v: string) {
     return v === 'true'
-  },
-  code(v: string) {
-    return v ?? ''
-  },
-  altitude(v: string): number | undefined {
-    if (v == '') return undefined
-    return Number(v)
-  },
-  latitude(v: string) {
-    return v ? Number(v) : NaN
-  },
-  longitude(v: string) {
-    return v ? Number(v) : NaN
   }
 }
 
-const existing = [
-  {
-    label: 'Restrict',
-    description: 'Entirely disallow the use of existing codes'
-  },
-  {
-    label: 'Omit',
-    description: 'Omit existing codes from the dataset'
-  },
-  {
-    label: 'Include',
-    description: 'Include existing codes in the dataset'
-  }
-] as const
-
 type Options = {
-  existing: (typeof existing)[number]['label']
-  defaultPrecision?: CoordinatesPrecision
+  import: ImportSettings
   config: ParseConfig
 }
 
 const options = ref<Options>({
-  existing: 'Include',
-  defaultPrecision: undefined,
+  import: {
+    existing: 'Include',
+    defaultPrecision: undefined
+  },
   config: {
     quoteChar: undefined,
     newline: undefined,
@@ -132,15 +88,15 @@ const options = ref<Options>({
     }
   }
 })
-const open = defineModel<boolean>('open')
+const isOpen = defineModel<boolean>('open', { default: false })
 const props = defineProps<{ file?: File }>()
 
 const headers = ref<DataTableHeader[]>([
   { title: 'Status', key: 'existing', width: 0, align: 'center' },
   { title: 'Code', key: 'code' },
   { title: 'Name', key: 'name' },
-  { title: 'Latitude', key: 'coordinates.latitude' },
-  { title: 'Longitude', key: 'coordinates.longitude' },
+  { title: 'Latitude', key: 'latitude' },
+  { title: 'Longitude', key: 'longitude' },
   { title: 'Altitude (m)', key: 'altitude' }
 ])
 
@@ -148,7 +104,8 @@ const preview = ref<ParsedItem[]>([])
 
 const emit = defineEmits<{
   ready: [file: File, config: ParseConfig]
-  parseChunk: [items: ProcessedItem[], errors: ParseError[]]
+  parseChunk: [items: SiteRecord[], errors: ParseError[]]
+  complete: []
 }>()
 
 watch(
@@ -175,7 +132,7 @@ function loadPreview(file: File, { config }: Options) {
     complete(results) {
       const errors = results.errors
       console.log(errors)
-      preview.value = results.data.map(processItem)
+      preview.value = results.data
     }
   }
   parse(file, cfg)
@@ -186,9 +143,8 @@ function importFile(file: File, { config }: Options) {
     ...config,
     chunkSize: 1000,
     complete() {
-      console.log('COMPLETE')
-      open.value = false
-      console.log(open.value)
+      isOpen.value = false
+      emit('complete')
     },
     chunk({ data, errors }) {
       const items = data.map(processItem)
@@ -198,22 +154,33 @@ function importFile(file: File, { config }: Options) {
   parse(file, cfg)
 }
 
-export type ProcessedItem = Object.Partial<SiteInput, 'deep'> & { exists?: boolean }
+export type ProcessedItem<T extends Record<string, unknown>> = {
+  [k in keyof T]: T[k] extends Record<string, unknown>
+    ? ProcessedItem<T[k]>
+    : T[k] | string | undefined
+}
+export type SiteRecord = ProcessedItem<SiteInput & { exists: boolean }>
 
-function processItem(item: ParsedItem): ProcessedItem {
+function numberTransform(v: string | undefined): number | string | undefined {
+  if (v === undefined || v === '') return undefined
+  const n = Number(v)
+  return isNaN(n) ? v : n
+}
+
+function processItem(item: ParsedItem): SiteRecord {
   return {
-    code: item.code,
-    coordinates: {
-      latitude: item.latitude,
-      longitude: item.longitude,
-      precision: item.precision ?? options.value.defaultPrecision
-    },
-    country_code: item.country_code,
     name: item.name,
-    altitude: item.altitude,
-    description: item.description,
+    code: item.code,
+    exists: item.existing,
+    coordinates: {
+      latitude: numberTransform(item.latitude),
+      longitude: numberTransform(item.longitude),
+      precision: item.precision ?? options.value.import.defaultPrecision
+    },
+    altitude: numberTransform(item.altitude),
     locality: item.locality,
-    exists: item.existing
+    country_code: item.country_code,
+    description: item.description
   }
 }
 </script>

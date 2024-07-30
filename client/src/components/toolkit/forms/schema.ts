@@ -177,6 +177,14 @@ export function useSchema<T extends Schema>(schema: T) {
       rules.push((value: any) => s.enum?.includes(value) || 'Invalid value')
     }
 
+    // Regex
+    if (s?.pattern !== undefined) {
+      const regex = new RegExp(`${s.pattern}`)
+      rules.push((value: string) => {
+        return regex.test(value) || `Invalid format`
+      })
+    }
+
     // Custom
     if (s?.format == "country-code") {
       rules.push((value: string) => useCountries().findCountry(value) !== undefined || `Invalid country code`)

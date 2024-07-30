@@ -129,12 +129,12 @@
 
 <script setup lang="ts">
 import { $Coordinates, Coordinates } from '@/api'
+import { useFocus } from '@vueuse/core'
+import { onMounted, ref } from 'vue'
 import { useSpreadsheet } from '.'
 import { Errors } from '../toolkit/validation'
 import CoordPrecisionPicker from './CoordPrecisionPicker.vue'
 import ErrorTooltip from './ErrorTooltip.vue'
-import { onMounted, ref, watch } from 'vue'
-import { useActiveElement, useFocus } from '@vueuse/core'
 
 const s = ref()
 const sites = ref(['kanar'])
@@ -144,12 +144,6 @@ type Item = Partial<Coordinates> & { errors?: Errors<ObjectPaths<Coordinates>> }
 const spreadsheet = ref()
 const { focused } = useFocus(spreadsheet)
 onMounted(() => (focused.value = true))
-const activeElement = useActiveElement()
-
-watch(activeElement, (el) => {
-  console.log('focus changed to', el)
-  console.log('focus changed to', focused.value)
-})
 
 const {
   items,

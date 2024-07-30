@@ -40,6 +40,13 @@ export const routeGroups: RouterItem[] = [
     component: HomeView
   },
   {
+    icon: "mdi-folder-table",
+    label: "Datasets",
+    path: '/datasets',
+    name: 'datasets',
+    component: () => import('../views/datasets/DatasetsView.vue')
+  },
+  {
     icon: "mdi-graph",
     label: "Taxonomy",
     path: '/taxonomy',

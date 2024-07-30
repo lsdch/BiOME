@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="open" fullscreen>
+  <v-dialog v-model="isOpen" fullscreen>
     <SitesMap
       ref="map"
       closable
@@ -12,7 +12,7 @@
         fillOpacity: 1,
         radius: 8
       }"
-      @close="open = false"
+      @close="isOpen = false"
     >
       <template #marker="{ item }">
         <l-popup class="site-popup">
@@ -41,6 +41,7 @@
       </template>
     </SitesMap>
   </v-dialog>
+  <slot name="activator" :open :close></slot>
 </template>
 
 <script setup lang="ts">
@@ -49,18 +50,27 @@ import { computed } from 'vue'
 import { ImportItem } from '.'
 import { Geocoordinates } from '../maps'
 import SitesMap from '../maps/SitesMap.vue'
+import { RecordElement } from './SiteTabularImport.vue'
 
-const open = defineModel<boolean>('open', { default: false })
+const isOpen = defineModel<boolean>('open', { default: false })
 
-const props = defineProps<{ sites: ImportItem[] }>()
+const props = defineProps<{ sites: RecordElement[] }>()
 
-type MapItem = ImportItem & Geocoordinates
+type MapItem = Omit<RecordElement, 'coordinates'> & Geocoordinates
 
 const mapItems = computed<MapItem[]>(() => {
   return props.sites.filter(
     (s) => s.coordinates && s.coordinates.latitude && s.coordinates.longitude
   ) as MapItem[]
 })
+
+function open() {
+  isOpen.value = true
+}
+
+function close() {
+  isOpen.value = false
+}
 </script>
 
 <style lang="scss">

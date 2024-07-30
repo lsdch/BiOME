@@ -8,7 +8,7 @@
     :max-bounds="latLngBounds(latLng(90, -360), latLng(-90, 360))"
     :max-bounds-viscosity="1.0"
     :min-zoom="2"
-    :max-zoom="12"
+    :max-zoom="18"
     @ready="onReady"
     :options="{
       gestureHandling: true,
@@ -17,6 +17,7 @@
       zoomSnap: 0.5
     }"
   >
+    <LControlScale position="bottomleft" metric :imperial="false" />
     <LControl position="topright" class="ma-0 d-flex justify-end">
       <v-btn
         v-if="closable"
@@ -64,19 +65,39 @@
       :opacity="0.75"
       :visible="false"
     />
+    <LMarkerClusterGroup v-if="clustered" remove-outside-visible-bounds show-coverage-on-hover>
+      <LCircleMarker
+        v-for="(item, key) in items"
+        :key
+        :lat-lng="[item.coordinates.latitude, item.coordinates.longitude]"
+        v-bind="marker"
+      >
+        <slot name="marker" :item />
+      </LCircleMarker>
+    </LMarkerClusterGroup>
     <LCircleMarker
+      v-else
       v-for="(item, key) in items"
       :key
       :latLng="[item.coordinates.latitude, item.coordinates.longitude]"
       v-bind="marker"
     >
-      <slot name="marker" :item></slot>
+      <slot name="marker" :item />
     </LCircleMarker>
+    <slot :map></slot>
   </l-map>
 </template>
 
 <script setup lang="ts" generic="SiteItem extends Geocoordinates">
-import { LCircleMarker, LControl, LControlLayers, LMap, LTileLayer } from '@vue-leaflet/vue-leaflet'
+import {
+  LCircleMarker,
+  LControl,
+  LControlLayers,
+  LControlScale,
+  LMap,
+  LMarker,
+  LTileLayer
+} from '@vue-leaflet/vue-leaflet'
 import L, {
   CircleMarkerOptions,
   latLng,
@@ -91,6 +112,7 @@ import 'leaflet/dist/leaflet.css'
 import { ref, watch } from 'vue'
 import { Geocoordinates } from '.'
 import { onKeyStroke, useFullscreen } from '@vueuse/core'
+import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 
 const zoom = ref(1)
 const map = ref<HTMLElement>()
@@ -110,6 +132,7 @@ const props = withDefaults(
     bounds?: [LatLngExpression, LatLngExpression]
     autoFit?: boolean
     closable?: boolean
+    clustered?: boolean
   }>(),
   {
     bounds: () => [latLng(90, -360), latLng(-90, 360)]

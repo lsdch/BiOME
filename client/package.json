@@ -50,6 +50,7 @@
     "vue-advanced-cropper": "^2.8.9",
     "vue-component-type-helpers": "^1.8.27",
     "vue-debounce": "^5.0.0",
+    "vue-leaflet-markercluster": "^0.6.1",
     "vue-router": "^4.3.3",
     "vuetify": "^3.6.10"
   },

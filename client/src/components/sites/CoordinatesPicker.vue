@@ -26,11 +26,12 @@
 
 <script setup lang="ts">
 import { $Coordinates, Coordinates } from '@/api'
+import { ParsedElement } from '.'
+import { useSchema } from '../toolkit/forms/form'
 import NumberInput from '../toolkit/ui/NumberInput.vue'
 import CoordPrecisionPicker from './CoordPrecisionPicker.vue'
-import { useForm, useSchema } from '../toolkit/forms/form'
 
-const model = defineModel<Coordinates>({ required: true })
+const model = defineModel<ParsedElement<Coordinates>>({ required: true })
 
 const { schema } = useSchema($Coordinates)
 </script>

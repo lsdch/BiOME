@@ -29,6 +29,11 @@ export function roleIcon(role?: UserRole) {
 
 export const orderedUserRoles: UserRole[] = ['Visitor', 'Contributor', 'Maintainer', 'Admin'] as const
 
-export function isGranted(user: User, role: UserRole) {
+interface UserStatus {
+  role: UserRole
+  is_active: boolean
+}
+
+export function isGranted(user: UserStatus, role: UserRole) {
   return orderedUserRoles.indexOf(user.role) >= orderedUserRoles.indexOf(role)
 }

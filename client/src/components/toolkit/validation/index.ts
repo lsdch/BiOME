@@ -11,9 +11,8 @@ export type Errors<Paths extends string> = Partial<{
  * Index error messages by location
  */
 export function indexErrors<Paths extends string>(errors: ErrorDetail[]) {
-  return Object.fromEntries(
-    errors.flatMap(({ location, message }) =>
-      location === undefined ? [] : [[location, message]]
-    )
-  ) as Errors<Paths>
+  const errorsByLocation = errors.flatMap(({ location, message }) =>
+    location === undefined ? [] : [[location, message]]
+  )
+  return errorsByLocation.length ? Object.fromEntries(errorsByLocation) as Errors<Paths> : undefined
 }

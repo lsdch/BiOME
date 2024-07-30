@@ -4,10 +4,9 @@
     label="Country"
     :items="items"
     item-title="name"
-    chips
     filter-mode="some"
     :custom-filter="
-      (_, q, item) => {
+      (_: any, q: string, item: any) => {
         const { code, name }: Country = item?.raw
         if (q == '') return true
         return (

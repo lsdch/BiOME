@@ -98,6 +98,9 @@ importers:
       vue-debounce:
         specifier: ^5.0.0
         version: 5.0.0(vue@3.4.29(typescript@5.3.3))
+      vue-leaflet-markercluster:
+        specifier: ^0.6.1
+        version: 0.6.1(@vue-leaflet/vue-leaflet@0.10.1(@types/leaflet@1.9.12)(leaflet@1.9.4)(typescript@5.3.3))(typescript@5.3.3)
       vue-router:
         specifier: ^4.3.3
         version: 4.3.3(vue@3.4.29(typescript@5.3.3))
@@ -4328,6 +4331,11 @@ packages:
     engines: {node: ^14.17.0 || >=16.0.0}
     peerDependencies:
       eslint: '>=6.0.0'
+
+  vue-leaflet-markercluster@0.6.1:
+    resolution: {integrity: sha512-jdU1k7qRb7R4o7kNjcH6hQkw9P0UPUdXcfGcpvFIpWPCeVbkTMo2vK2wIHtZexScw2Pa+tYjsZlYxrOHOR6+gA==}
+    peerDependencies:
+      '@vue-leaflet/vue-leaflet': ^0.10.1
 
   vue-router@4.3.3:
     resolution: {integrity: sha512-8Q+u+WP4N2SXY38FDcF2H1dUEbYVHVPtPCPZj/GTZx8RCbiB8AtJP9+YIxn4Vs0svMTNQcLIzka4GH7Utkx9xQ==}
@@ -9243,6 +9251,13 @@ snapshots:
       semver: 7.6.2
     transitivePeerDependencies:
       - supports-color
+
+  vue-leaflet-markercluster@0.6.1(@vue-leaflet/vue-leaflet@0.10.1(@types/leaflet@1.9.12)(leaflet@1.9.4)(typescript@5.3.3))(typescript@5.3.3):
+    dependencies:
+      '@vue-leaflet/vue-leaflet': 0.10.1(@types/leaflet@1.9.12)(leaflet@1.9.4)(typescript@5.3.3)
+      vue: 3.4.29(typescript@5.3.3)
+    transitivePeerDependencies:
+      - typescript
 
   vue-router@4.3.3(vue@3.4.29(typescript@5.3.3)):
     dependencies:

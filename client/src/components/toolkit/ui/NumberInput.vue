@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-const model = defineModel<number>()
+const model = defineModel<number | string>()
 const props = defineProps<{ float?: boolean | number; min?: number; max?: number }>()
 
 function filterInput(event: KeyboardEvent) {

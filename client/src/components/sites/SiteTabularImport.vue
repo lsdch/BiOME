@@ -18,19 +18,17 @@
     show-select
     show-expand
     :row-props="
-      ({ item }: Record<'item', Item> & {}) => ({
-        class: Object.keys(item.errors ?? {}).length > 0 ? 'error-row' : undefined
+      ({ item }: Record<'item', RecordElement> & {}) => ({
+        class: item.errors ? 'error-row' : undefined
       })
     "
   >
     <template #[`toolbar-append-actions`]>
-      <v-btn
-        color="primary"
-        variant="plain"
-        icon="mdi-tune-vertical"
-        @click="settingsDialog = true"
-      />
-      <SiteImportSettingsDialog v-model="settingsDialog" />
+      <SiteImportSettingsDialog>
+        <template #activator="{ open }">
+          <v-btn color="primary" variant="plain" icon="mdi-tune-vertical" @click="open" />
+        </template>
+      </SiteImportSettingsDialog>
     </template>
 
     <!-- Columns -->
@@ -39,9 +37,10 @@
       :key="i"
       #[`item.${header.key}`]="{ value, item, column }"
     >
-      <v-tooltip v-if="column.key !== null && item.errors[column.key] !== undefined">
+      <v-tooltip v-if="column.key !== null && item.errors?.[column.key] !== undefined">
         <template #activator="{ props }">
-          <span class="text-error" v-bind="props">{{ value }}</span>
+          <span v-if="value" class="text-error" v-bind="props">{{ value }}</span>
+          <v-icon v-else icon="mdi-alert-outline" v-bind="props" color="error"></v-icon>
         </template>
         {{ item.errors[column.key] }}
       </v-tooltip>
@@ -60,21 +59,20 @@
     <template #[`header.errors`]="props">
       <IconTableHeader v-bind="props" icon="mdi-alert-circle-outline" color="error" />
     </template>
-    <template #[`item.errors`]="{ value, item }">
+    <template #[`item.errors`]="{ value, toggleExpand, internalItem }">
       <v-chip
         v-if="value > 0"
         color="error"
         size="small"
         rounded
-        @click="debug ? console.log(item.errors) : null"
-        >{{ value }}</v-chip
-      >
-      <v-icon v-else color="success">mdi-check</v-icon>
+        :text="`${value}`"
+        @click="toggleExpand(internalItem)"
+      />
+      <v-icon v-else color="success" icon="mdi-check" />
     </template>
 
     <template #expanded-row="{ item }">
       <SiteTableExpandedRow :offset="2" :item="item" :errors="item.errors" />
-      <!-- <tr> {{ item.errors }} </tr> -->
     </template>
 
     <!-- Empty table -->
@@ -101,13 +99,19 @@
         @click="removeItems(selected)"
       />
       <v-spacer />
-      <v-btn
-        color="primary"
-        text="preview"
-        prepend-icon="mdi-map"
-        variant="plain"
-        @click="showPreview = true"
-      />
+
+      <SitesMapPreview :sites="itemsPreview">
+        <template #activator="{ open }">
+          <v-btn
+            color="primary"
+            text="preview"
+            prepend-icon="mdi-map"
+            variant="plain"
+            @click="open"
+          />
+        </template>
+      </SitesMapPreview>
+
       <v-spacer />
     </template>
 
@@ -119,7 +123,6 @@
         :model-value="dialog"
         @success="
           (item) => {
-            console.log(item)
             return onSuccess(validateItem(item))
           }
         "
@@ -127,8 +130,15 @@
       />
     </template>
   </CRUDTable>
-  <SitesMapPreview v-model:open="showPreview" :sites="itemsPreview" />
-  <SiteImportDialog v-model:open="importDialog" :file="importedFile" @parse-chunk="addItems" />
+
+  <div>Errors:{{ result.errorCount }} Valid sites : {{ result.validSites.length }}</div>
+
+  <SiteImportDialog
+    v-model:open="importDialog"
+    :file="importedFile"
+    @parse-chunk="addItems"
+    @complete="importedFile = undefined"
+  />
 </template>
 
 <script setup lang="ts">
@@ -136,40 +146,54 @@ import { $SiteInput } from '@/api'
 import DropZone from '@/components/toolkit/import/DropZone.vue'
 import { ParseError } from 'papaparse'
 import { computed, ref } from 'vue'
-import { ImportItem } from '.'
 import { useSchema } from '../toolkit/forms/schema'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
-import { indexErrors } from '../toolkit/validation'
+import { Errors, indexErrors } from '../toolkit/validation'
 import SiteFormDialog from './SiteFormDialog.vue'
-import SiteImportDialog, { ProcessedItem } from './SiteImportDialog.vue'
+import SiteImportDialog, { SiteRecord } from './SiteImportDialog.vue'
 import SiteImportSettingsDialog from './SiteImportSettingsDialog.vue'
 import SiteStatusIcon from './SiteStatusIcon.vue'
 import SiteTableExpandedRow from './SiteTableExpandedRow.vue'
 import SitesMapPreview from './SitesMapPreview.vue'
 
-const showPreview = ref(false)
+/**
+ * RecordElement is a parsed CSV line before any validation is applied
+ */
+export type RecordElement = SiteRecord & {
+  id: string
+  errors?: Errors<ObjectPaths<SiteRecord>>
+}
 
-type Item = ImportItem
+const model = defineModel<RecordElement[]>({ default: [] })
 
-const model = ref<Item[]>([])
+/**
+ * Selected sites codes
+ */
+const selected = ref<string[]>([])
+
+/**
+ * Subset of records that can be previewed, i.e. have valid geospatial coordinates
+ */
 const itemsPreview = computed(() => {
   return model.value.filter(({ coordinates }) => {
     return (
-      coordinates !== undefined &&
       validate('coordinates', 'latitude')(coordinates.latitude) === true &&
       validate('coordinates', 'longitude')(coordinates.longitude) === true
     )
   })
 })
 
-const selected = ref<string[]>([])
-const debug = ref(false)
-const settingsDialog = ref(false)
-
-const emit = defineEmits<{
-  ready: [sites: Item[]]
-}>()
+const result = computed(() => {
+  return model.value.reduce<{ errorCount: number; validSites: RecordElement[] }>(
+    (acc, site) => {
+      if (site.errors) acc.errorCount += 1
+      else acc.validSites.push(site)
+      return acc
+    },
+    { errorCount: 0, validSites: [] }
+  )
+})
 
 /**
  * Item ID generator
@@ -206,36 +230,23 @@ const headers: CRUDTableHeaders = [
     width: 0,
     align: 'center',
     value(item) {
-      return Object.keys(item.errors).length ?? 0
+      return item.errors ? Object.keys(item.errors).length ?? 0 : 0
     }
   }
 ]
 
 const { schema, validate, paths, validateAll } = useSchema($SiteInput)
 
-function validateItem(item: Item) {
-  item.errors = indexErrors(validateAll(item))
-  return item
+function validateItem(item: SiteRecord): RecordElement {
+  return {
+    id: id.next().value,
+    ...item,
+    errors: indexErrors(validateAll(item))
+  }
 }
 
-function addItems(items: ProcessedItem[], parseErrors: ParseError[]) {
-  const toAdd = items.map<Item>((item: ProcessedItem): Item => {
-    return validateItem({
-      id: id.next().value,
-      code: item.code,
-      name: item.name,
-      altitude: item.altitude,
-      description: item.description,
-      locality: item.locality,
-      coordinates: {
-        latitude: item.coordinates?.latitude,
-        longitude: item.coordinates?.longitude,
-        precision: item.coordinates?.precision
-      },
-      country_code: item.country_code,
-      exists: item.exists
-    })
-  })
+function addItems(items: SiteRecord[], parseErrors: ParseError[]) {
+  const toAdd = items.map<RecordElement>(validateItem)
   model.value.unshift(...toAdd)
 }
 

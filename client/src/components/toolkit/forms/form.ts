@@ -71,12 +71,13 @@ export function useForm<
       model.value = dataModel.initial
     } else {
       const it = toValue(item)
-      model.value = Object.fromEntries(
-        Object.keys(toValue(model)).map(
-          (k: keyof (ItemType | ItemInputType)) =>
-            [k, dataModel.transformers?.[k]?.(it[k]) ?? it[k]]
-        )
-      ) as ItemInputType
+      model.value = it
+      //   Object.fromEntries(
+      //   Object.keys(toValue(model)).map(
+      //     (k: keyof (ItemType | ItemInputType)) =>
+      //       [k, dataModel.transformers?.[k]?.(it[k]) ?? it[k]]
+      //   )
+      // ) as ItemInputType
     }
   })
 

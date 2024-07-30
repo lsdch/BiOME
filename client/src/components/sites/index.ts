@@ -275,3 +275,9 @@ export type ImportItem = DeepPartial<SiteInput> & {
   id: string
   errors?: Errors<ObjectPaths<SiteInput> | 'exists'>
 }
+
+export type ParsedElement<T extends Record<string, unknown>> = {
+  [k in keyof T]: T[k] extends Record<string, unknown>
+  ? ParsedElement<T[k]>
+  : T[k] | string | undefined
+}

@@ -25,7 +25,7 @@
         <v-row>
           <v-col>
             <v-text-field
-              v-model="model.altitude"
+              v-model.number="model.altitude"
               v-bind="field('altitude')"
               label="Altitude"
               suffix="m"
@@ -40,10 +40,18 @@
         <CoordinatesPicker v-model="model.coordinates" />
         <v-row>
           <v-col cols="12" sm="4">
-            <CountryPicker v-model="model.country_code" item-value="code" />
+            <CountryPicker
+              v-model="model.country_code"
+              item-value="code"
+              v-bind="field('country_code')"
+            />
           </v-col>
           <v-col>
-            <v-text-field label="Nearest locality" />
+            <v-text-field
+              label="Nearest locality"
+              v-model="model.locality"
+              v-bind="field('locality')"
+            />
           </v-col>
         </v-row>
         <v-row>
@@ -62,37 +70,34 @@
 </template>
 
 <script setup lang="ts">
-import { $SiteInput, SiteInput, SiteItem } from '@/api'
+import { $SiteInput } from '@/api'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
 import { FormEmits, FormProps, useForm } from '@/components/toolkit/forms/form'
-import CountryPicker from '../toolkit/forms/CountryPicker.vue'
-import NumberInput from '../toolkit/ui/NumberInput.vue'
-import CoordinatesPicker from './CoordinatesPicker.vue'
+import { nextTick, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify'
-import { ref, watch } from 'vue'
 import { VForm } from 'vuetify/components'
-import { nextTick } from 'vue'
-import { ImportItem } from '.'
+import CountryPicker from '../toolkit/forms/CountryPicker.vue'
+import CoordinatesPicker from './CoordinatesPicker.vue'
+import { SiteRecord } from './SiteImportDialog.vue'
 
 const { smAndDown } = useDisplay()
 
-type Item = ImportItem
-const initial: Item = {
-  id: '',
+const initial: SiteRecord = {
   name: '',
   code: '',
   coordinates: {
     precision: '<100m',
-    latitude: 0,
-    longitude: 0
+    latitude: undefined,
+    longitude: undefined
   },
-  country_code: ''
+  country_code: '',
+  exists: false
 }
 
 const dialog = defineModel<boolean>()
 const form = ref<InstanceType<typeof VForm> | null>(null)
-const props = defineProps<FormProps<Item>>()
-const emit = defineEmits<FormEmits<Item>>()
+const props = defineProps<FormProps<SiteRecord>>()
+const emit = defineEmits<FormEmits<SiteRecord>>()
 const { loading, field, errorHandler, model } = useForm(props, $SiteInput, {
   initial,
   transformers: {}
