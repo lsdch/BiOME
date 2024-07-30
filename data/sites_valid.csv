@@ -1,0 +1,5 @@
+code,name,latitude,longitude,altitude,locality,country_code,existing,description
+KANAR,Station Kanar,42.0516,26.651,356,Grenoble,FR,,
+TEST,Station test,68.06,21.451,650,,GB,,
+SITE1,Site 1,25.3658,54.24,,,DZ,,A short description of the site
+SITEVALID,Site Valid,45.2354,56.6545,452,Tokyo,JP,,
