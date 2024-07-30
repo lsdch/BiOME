@@ -11,16 +11,11 @@ import (
 	"darco/proto/db"
 	mw "darco/proto/middlewares"
 	"darco/proto/models/location"
-	"darco/proto/models/validations"
 	"darco/proto/router"
 	"darco/proto/services/email"
-	"reflect"
-	"strings"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/gin-gonic/gin"
-	"github.com/gin-gonic/gin/binding"
-	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -85,20 +80,20 @@ func setupRouter() *gin.Engine {
 	return r
 }
 
-func setupValidators() {
-	if engine, ok := binding.Validator.Engine().(*validator.Validate); ok {
-		validations.RegisterValidators(engine)
-		// Use json names
-		engine.RegisterTagNameFunc(func(fld reflect.StructField) string {
-			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
-			// skip if tag key says it should be ignored
-			if name == "-" {
-				return ""
-			}
-			return name
-		})
-	}
-}
+// func setupValidators() {
+// 	if engine, ok := binding.Validator.Engine().(*validator.Validate); ok {
+// 		validations.RegisterValidators(engine)
+// 		// Use json names
+// 		engine.RegisterTagNameFunc(func(fld reflect.StructField) string {
+// 			name := strings.SplitN(fld.Tag.Get("json"), ",", 2)[0]
+// 			// skip if tag key says it should be ignored
+// 			if name == "-" {
+// 				return ""
+// 			}
+// 			return name
+// 		})
+// 	}
+// }
 
 func main() {
 
@@ -107,7 +102,7 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
-	setupValidators()
+	// setupValidators()
 
 	if err := email.LoadTemplates("templates/**"); err != nil {
 		log.Fatalf("Failed to load email templates: %v", err)
