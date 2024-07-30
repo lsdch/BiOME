@@ -78,7 +78,6 @@ func setupRoutes(r *gin.Engine, basePath string) *gin.RouterGroup {
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(gin.Recovery())
-	r.Use(mw.ErrorHandler)
 	r.Use(mw.AuthenticationMiddleware)
 
 	ginAPI := setupRoutes(r, "/api/v1")
