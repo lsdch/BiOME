@@ -21,7 +21,7 @@ export function useGuards() {
         if (store.isAuthenticated) {
           return store.isGranted(role) ? true : denyAccess(`Access requires ${role} privileges`)
         } else {
-          return { name: 'login', query: { redirect: route.name } }
+          return { name: 'login', query: { redirect: route.path } }
         }
       },
     }

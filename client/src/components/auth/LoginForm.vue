@@ -73,7 +73,7 @@ const target = useRouteQuery<string | 'home'>('redirect', 'home')
 
 function redirect() {
   // Using replace to overwrite router history
-  router.replace({ name: target.value })
+  router.replace({ path: target.value })
   return
 }
 
