@@ -923,7 +923,7 @@ export const $OptionalUserInner = {
         }
     },
     required: ['id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
-    type: 'object'
+    type: ['object', 'null']
 } as const;
 
 export const $PasswordInput = {
@@ -1001,7 +1001,7 @@ export const $Person = {
             '$ref': '#/components/schemas/OptionalUserInner'
         }
     },
-    required: ['institutions', 'meta', 'id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
+    required: ['institutions', 'meta', 'user', 'id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
     type: 'object'
 } as const;
 
@@ -1144,7 +1144,7 @@ export const $PersonUser = {
             '$ref': '#/components/schemas/OptionalUserInner'
         }
     },
-    required: ['id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
+    required: ['user', 'id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
     type: 'object'
 } as const;
 
@@ -1464,6 +1464,35 @@ export const $SiteDatasetInput = {
         }
     },
     required: ['label', 'maintainers'],
+    type: 'object'
+} as const;
+
+export const $SiteDatasetUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SiteDatasetUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        description: {
+            type: ['string', 'null']
+        },
+        label: {
+            maxLength: 32,
+            minLength: 4,
+            type: 'string'
+        },
+        maintainers: {
+            description: 'Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.',
+            items: {
+                type: 'string'
+            },
+            type: ['array', 'null']
+        }
+    },
     type: 'object'
 } as const;
 
@@ -2025,6 +2054,35 @@ export const $UserCredentials = {
         }
     },
     required: ['identifier', 'password'],
+    type: 'object'
+} as const;
+
+export const $UserInner = {
+    additionalProperties: false,
+    properties: {
+        email: {
+            format: 'email',
+            type: 'string'
+        },
+        email_confirmed: {
+            type: 'boolean'
+        },
+        id: {
+            contentEncoding: 'base64',
+            format: 'uuid',
+            type: 'string'
+        },
+        is_active: {
+            type: 'boolean'
+        },
+        login: {
+            type: 'string'
+        },
+        role: {
+            '$ref': '#/components/schemas/UserRole'
+        }
+    },
+    required: ['id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
     type: 'object'
 } as const;
 

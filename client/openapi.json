@@ -1176,7 +1176,10 @@
 					"email_confirmed",
 					"is_active"
 				],
-				"type": "object"
+				"type": [
+					"object",
+					"null"
+				]
 			},
 			"PasswordInput": {
 				"additionalProperties": false,
@@ -1265,6 +1268,7 @@
 				"required": [
 					"institutions",
 					"meta",
+					"user",
 					"id",
 					"full_name",
 					"alias",
@@ -1435,6 +1439,7 @@
 					}
 				},
 				"required": [
+					"user",
 					"id",
 					"full_name",
 					"alias",
@@ -1830,6 +1835,42 @@
 					"label",
 					"maintainers"
 				],
+				"type": "object"
+			},
+			"SiteDatasetUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SiteDatasetUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"label": {
+						"maxLength": 32,
+						"minLength": 4,
+						"type": "string"
+					},
+					"maintainers": {
+						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					}
+				},
 				"type": "object"
 			},
 			"SiteInput": {
@@ -2572,6 +2613,41 @@
 				],
 				"type": "object"
 			},
+			"UserInner": {
+				"additionalProperties": false,
+				"properties": {
+					"email": {
+						"format": "email",
+						"type": "string"
+					},
+					"email_confirmed": {
+						"type": "boolean"
+					},
+					"id": {
+						"contentEncoding": "base64",
+						"format": "uuid",
+						"type": "string"
+					},
+					"is_active": {
+						"type": "boolean"
+					},
+					"login": {
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/UserRole"
+					}
+				},
+				"required": [
+					"id",
+					"email",
+					"login",
+					"role",
+					"email_confirmed",
+					"is_active"
+				],
+				"type": "object"
+			},
 			"UserInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -3040,9 +3116,19 @@
 									"type": "string"
 								}
 							},
+							"Partitioned": {
+								"schema": {
+									"type": "boolean"
+								}
+							},
 							"Path": {
 								"schema": {
 									"type": "string"
+								}
+							},
+							"Quoted": {
+								"schema": {
+									"type": "boolean"
 								}
 							},
 							"Raw": {
@@ -3610,6 +3696,88 @@
 			}
 		},
 		"/datasets/{slug}": {
+			"patch": {
+				"description": "Update properties of a site dataset",
+				"operationId": "UpdateSiteDataset",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "slug",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SiteDatasetUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SiteDataset"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update site dataset",
+				"tags": [
+					"Location"
+				]
+			},
 			"post": {
 				"description": "Get infos for a site dataset",
 				"operationId": "GetSiteDataset",
@@ -5590,16 +5758,6 @@
 						}
 					}
 				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/Site"
-							}
-						}
-					},
-					"required": true
-				},
 				"responses": {
 					"200": {
 						"content": {

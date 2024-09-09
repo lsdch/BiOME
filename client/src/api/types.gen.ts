@@ -408,7 +408,7 @@ export type OptionalUserInner = {
     is_active: boolean;
     login: string;
     role: UserRole;
-};
+} | null;
 
 export type PasswordInput = {
     /**
@@ -434,7 +434,7 @@ export type Person = {
     last_name: string;
     meta: Meta;
     role?: UserRole;
-    user?: OptionalUserInner;
+    user: OptionalUserInner;
 };
 
 export type PersonInput = {
@@ -478,7 +478,7 @@ export type PersonUser = {
     id: string;
     last_name: string;
     role?: UserRole;
-    user?: OptionalUserInner;
+    user: OptionalUserInner;
 };
 
 export type RegisterInputBody = {
@@ -623,6 +623,19 @@ export type SiteDatasetInput = {
      * Existing site codes to include in the dataset
      */
     sites?: Array<(string)> | null;
+};
+
+export type SiteDatasetUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    description?: string | null;
+    label?: string;
+    /**
+     * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
+     */
+    maintainers?: Array<(string)> | null;
 };
 
 export type SiteInput = {
@@ -811,6 +824,15 @@ export type UserCredentials = {
     password: string;
 };
 
+export type UserInner = {
+    email: string;
+    email_confirmed: boolean;
+    id: string;
+    is_active: boolean;
+    login: string;
+    role: UserRole;
+};
+
 export type UserInput = {
     /**
      * A URL to the JSON Schema for this object.
@@ -870,6 +892,23 @@ export type CreateSiteDatasetData = {
 export type CreateSiteDatasetResponse = SiteDataset;
 
 export type CreateSiteDatasetError = ErrorModel;
+
+export type UpdateSiteDatasetData = {
+    body: SiteDatasetUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        slug: string;
+    };
+};
+
+export type UpdateSiteDatasetResponse = SiteDataset;
+
+export type UpdateSiteDatasetError = ErrorModel;
 
 export type GetSiteDatasetData = {
     headers?: {
@@ -974,7 +1013,6 @@ export type ListSitesResponse = Array<Site> | null;
 export type ListSitesError = ErrorModel;
 
 export type GetSiteData = {
-    body: Site;
     headers?: {
         /**
          * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -1523,6 +1561,23 @@ export type $OpenApiTs = {
         };
     };
     '/datasets/{slug}': {
+        patch: {
+            req: UpdateSiteDatasetData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': SiteDataset;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
         post: {
             req: GetSiteDatasetData;
             res: {
