@@ -35,7 +35,7 @@
             />
           </v-col>
           <v-col cols="12" sm="6">
-            <ActivableField v-model="taxon.code">
+            <ActivableField v-model="taxon.code" activable="Maintainer">
               <template #default="{ proxy, active, props, save, cancel, isPristine }">
                 <v-text-field
                   label="Code"
@@ -77,7 +77,11 @@
         </div>
 
         <div>
-          <ActivableField v-model="taxon.comment">
+          <ActivableField
+            v-model="taxon.comment"
+            v-if="taxon.comment || isGranted('Maintainer')"
+            activable="Maintainer"
+          >
             <template #default="{ proxy, active, props, actions, isPristine }">
               <v-textarea
                 v-model="proxy.value"

@@ -9,6 +9,8 @@
 </template>
 
 <script setup lang="ts" generic="Value">
+import { UserRole } from '@/api'
+import { useUserStore } from '@/stores/user'
 import { computed, ref } from 'vue'
 import { VConfirmEdit } from 'vuetify/components'
 
@@ -16,7 +18,11 @@ const confirmEdit = ref<VConfirmEdit>()
 
 const model = defineModel<Value>()
 
+const props = defineProps<{ activable?: true | UserRole }>()
+
 const active = ref(false)
+
+const { isGranted } = useUserStore()
 
 function save() {
   confirmEdit.value!.save()
@@ -26,10 +32,14 @@ function cancel() {
   confirmEdit.value!.cancel()
 }
 
+const isActivable = computed(() => {
+  return props.activable === true || (!!props.activable && isGranted(props.activable))
+})
+
 const slotProps = computed(() => {
   return {
     onfocus() {
-      active.value = true
+      active.value = isActivable.value
     },
     readonly: !active.value
   }
