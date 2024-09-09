@@ -1,7 +1,9 @@
-import { ErrorDetail } from "@/api"
+import { ErrorDetail, ErrorModel } from "@/api"
+import { handleErrors, ResponseBody } from "@/api/responses"
 import * as Schemas from "@/api/schemas.gen"
 import { useCountries } from "@/stores/countries"
 import { List, Union } from "ts-toolbelt"
+import { reactive, ref } from "vue"
 
 
 type SchemaModule = typeof import("@/api/schemas.gen")
@@ -130,6 +132,20 @@ export function getSchema<T extends Schema>(schema: T | undefined, ...path: Sche
   else return { schema: undefined, required: false }
 }
 
+function joinPath<T extends Schema>(path: SchemaPaths<T, "Terminal">) {
+  return path.reduce((acc: string, p) => {
+    let suffix = String(p)
+    if (acc.length !== 0 && typeof p === 'string') {
+      suffix = `.${suffix}`
+    } else if (typeof p === "number") {
+      suffix = `[${suffix}]`
+    }
+    return `${acc}${suffix}`
+  }, '')
+}
+
+export type ErrorBinding = { errorMessages?: string[] | undefined }
+export type FieldBinding = ErrorBinding & SchemaBinding
 
 export type SchemaBinding = {
   hint?: string,
@@ -234,5 +250,63 @@ export function useSchema<T extends Schema>(schema: T) {
     }
   }
 
-  return { schema: bindSchema, validate, paths: paths(schema), validateAll }
+  /**
+   * Input validation errors indexed by their object path in the API request body
+   */
+  const errors = ref<Record<string, string[]>>({})
+
+  /**
+   * Collects error messages indexed by their object path in an API request body,
+   * so that they can be consumed by `bindErrors` or `field`.
+   */
+  function _errorHandler(body: ErrorModel) {
+    body.errors?.forEach(({ location, message }) => {
+      if (location === undefined || message === undefined) return
+      if (location.startsWith('body.')) {
+        const loc = location.replace('body.', '')
+        errors.value[loc].push(message)
+      }
+    })
+  }
+  function errorHandler<D>(e: ResponseBody<D, ErrorModel>) {
+    return handleErrors<D, ErrorModel>(_errorHandler)(e)
+  }
+
+  /**
+   * Binds remote error messages to an input form element.
+   * Errors must be caught using `errorHandler` function.
+   *
+   * @param path The object property path for the field
+   */
+  function bindErrors(...path: SchemaPaths<T, "Terminal">): ErrorBinding {
+    const strPath = joinPath(path)
+    errors.value[strPath] = reactive([])
+    return {
+      errorMessages: errors.value[strPath]
+    }
+  }
+
+  /**
+   * Binds validation rules and remote error messages to an input form element,
+   * using the provided OpenAPI schema.
+   * Errors must be caught using `errorHandler` function.
+   *
+   * @example `<v-text-field v-model="model.someArray[0].someProperty" v-bind="field('someArray', 0, 'someProperty')"/>
+   * @param path The object property path for the field
+   * @returns Field bindings to be passed to form element using `v-bind`
+   */
+  function field(...path: SchemaPaths<T, "Terminal">): FieldBinding {
+    return {
+      ...bindSchema(...path),
+      ...bindErrors(...path),
+    }
+  }
+
+  return {
+    schema: bindSchema,
+    field,
+    errorHandler,
+    validate, validateAll,
+    paths: paths(schema),
+  }
 }

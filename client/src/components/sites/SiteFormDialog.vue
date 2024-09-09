@@ -72,7 +72,7 @@
 <script setup lang="ts">
 import { $SiteInput } from '@/api'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
-import { FormEmits, FormProps, useForm } from '@/components/toolkit/forms/form'
+import { FormEmits, FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
 import { nextTick, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify'
 import { VForm } from 'vuetify/components'
@@ -98,10 +98,10 @@ const dialog = defineModel<boolean>()
 const form = ref<InstanceType<typeof VForm> | null>(null)
 const props = defineProps<FormProps<SiteRecord>>()
 const emit = defineEmits<FormEmits<SiteRecord>>()
-const { loading, field, errorHandler, model } = useForm(props, $SiteInput, {
-  initial,
-  transformers: {}
-})
+
+const { loading, model } = useForm(props, { initial, transformers: {} })
+
+const { field } = useSchema($SiteInput)
 
 // watch(
 //   () => props.edit,

@@ -103,7 +103,7 @@ import PersonPicker from '@/components/people/PersonPicker.vue'
 import { isGranted } from '@/components/people/userRole'
 import SiteDatasetPrimer from '@/components/sites/SiteDatasetPrimer.vue'
 import SiteTabularImport, { RecordElement } from '@/components/sites/SiteTabularImport.vue'
-import { FormProps, useForm } from '@/components/toolkit/forms/form'
+import { FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
 import { useUserStore } from '@/stores/user'
 import { computed, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify'
@@ -140,7 +140,9 @@ const initial: SiteDatasetInput = {
   label: '',
   maintainers: []
 }
-const { field, model } = useForm(props, $SiteDatasetInput, { initial })
+const { model } = useForm(props, { initial })
+
+const { field } = useSchema($SiteDatasetInput)
 
 const datasetCreated = ref<SiteDataset>()
 

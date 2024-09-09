@@ -82,12 +82,12 @@
 <script setup lang="ts">
 import { $TaxonInput, Taxon, TaxonInput, TaxonWithRelatives, TaxonomyService } from '@/api'
 import { Ref, computed, ref, watch } from 'vue'
-import { useForm, type FormEmits, type FormProps } from '../toolkit/forms/form'
+import { useDisplay } from 'vuetify'
+import { useForm, useSchema, type FormEmits, type FormProps } from '../toolkit/forms/form'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
 import { childRank } from './rank'
 import StatusPicker from './StatusPicker.vue'
 import TaxonPicker from './TaxonPicker.vue'
-import { useDisplay } from 'vuetify'
 
 const { xs } = useDisplay()
 
@@ -107,7 +107,9 @@ const initial: TaxonInput = {
   code: ''
 }
 
-const { loading, model, field, errorHandler } = useForm(props, $TaxonInput, { initial })
+const { loading, model } = useForm(props, { initial })
+
+const { field, errorHandler } = useSchema($TaxonInput)
 
 watch(
   () => props.parent,

@@ -85,7 +85,7 @@
 <script setup lang="ts">
 import { $HabitatGroupInput, HabitatGroup, HabitatGroupInput, LocationService } from '@/api'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { FormEmits, FormProps, useForm } from '../toolkit/forms/form'
+import { FormEmits, FormProps, useForm, useSchema } from '../toolkit/forms/form'
 
 const dialog = defineModel<boolean>()
 const props = defineProps<FormProps<HabitatGroup>>()
@@ -97,7 +97,8 @@ const initial: HabitatGroupInput = {
   elements: [{ label: '', description: '' }]
 }
 
-const { field, errorHandler, model, loading } = useForm(props, $HabitatGroupInput, { initial })
+const { model, loading } = useForm(props, { initial })
+const { field, errorHandler } = useSchema($HabitatGroupInput)
 
 function addElement() {
   model.value.elements?.unshift({ label: '', description: '' }) ||

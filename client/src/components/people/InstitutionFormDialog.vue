@@ -68,12 +68,18 @@ const DEFAULT: InstitutionInput = { code: '', name: '', kind: 'Lab' }
 </script>
 
 <script setup lang="ts">
-import { $InstitutionInput, Institution, InstitutionInput, PeopleService } from '@/api'
+import {
+  $Institution,
+  $InstitutionInput,
+  Institution,
+  InstitutionInput,
+  PeopleService
+} from '@/api'
 import { computed } from 'vue'
 import { VForm } from 'vuetify/components'
 import { enumAsString } from '../toolkit/enums'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { useForm, type FormEmits, type FormProps } from '../toolkit/forms/form'
+import { useForm, useSchema, type FormEmits, type FormProps } from '../toolkit/forms/form'
 import { institutionKindOptions, kindIcon } from './institutionKind'
 
 const dialog = defineModel<boolean>()
@@ -89,9 +95,8 @@ async function submit() {
   await req.then(errorHandler).then((inst) => emit('success', inst))
 }
 
-const { errorHandler, field, loading, model } = useForm(props, $InstitutionInput, {
-  initial: DEFAULT
-})
+const { loading, model } = useForm(props, { initial: DEFAULT })
+const { errorHandler, field } = useSchema($InstitutionInput)
 
 defineExpose({
   submit
@@ -99,4 +104,3 @@ defineExpose({
 </script>
 
 <style scoped></style>
-../toolkit/forms/form

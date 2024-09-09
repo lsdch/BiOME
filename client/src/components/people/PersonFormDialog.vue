@@ -63,7 +63,7 @@ const DEFAULT: PersonInput = {
 <script setup lang="ts">
 import { $PersonInput, Institution, PeopleService, Person, PersonInput } from '@/api'
 import { handleErrors } from '@/api/responses'
-import { FormEmits, FormProps, useForm } from '@/components/toolkit/forms/form'
+import { FormEmits, FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
 import { ref } from 'vue'
 import { VForm } from 'vuetify/components'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
@@ -73,12 +73,15 @@ import PersonFormFields from './PersonFormFields.vue'
 const dialog = defineModel<boolean>()
 const props = defineProps<FormProps<Person>>()
 const emit = defineEmits<FormEmits<Person>>()
-const { loading, field, errorHandler, model } = useForm(props, $PersonInput, {
+const { loading, model } = useForm(props, {
   initial: DEFAULT,
   transformers: {
     institutions: (v) => v.map(({ code }) => code) ?? []
   }
 })
+
+const { field, errorHandler } = useSchema($PersonInput)
+
 const nameBindings = ref({
   firstName: field('first_name'),
   lastName: field('last_name')
