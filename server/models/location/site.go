@@ -72,7 +72,14 @@ func ListSites(db edgedb.Executor) ([]Site, error) {
 
 func GetSite(db edgedb.Executor, identifier string) (Site, error) {
 	var site Site
-	err := db.QuerySingle(context.Background(), `select location::Site { ** } filter .code = $0`, &site, identifier)
+	err := db.QuerySingle(context.Background(),
+		`select location::Site {
+			name, code, description,
+			coordinates, locality, country: { * },
+			altitude, access_point,
+			datasets: { * }
+		} filter .code = <str>$0`,
+		&site, identifier)
 	return site, err
 }
 
