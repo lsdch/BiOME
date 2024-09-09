@@ -16,20 +16,14 @@ type GetInputInterface[Item any, ID any] interface {
 	IdentifierInput[ID] // The identifier of the item to get
 }
 
-type GetInput[Item any, ID any] struct {
-	Body Item
-}
-
 type GetByCodeHandlerInput[Item any] struct {
-	resolvers.AuthRequired
+	resolvers.AuthResolver
 	CodeInput
-	GetInput[Item, string]
 }
 
 type GetByIDHandlerInput[Item any] struct {
-	resolvers.AuthRequired
+	resolvers.AuthResolver
 	UUIDInput
-	GetInput[Item, edgedb.UUID]
 }
 
 type GetHandlerOutput[Item any] struct {
