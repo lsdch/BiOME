@@ -2,6 +2,7 @@ package people
 
 import (
 	"context"
+	"darco/proto/db"
 	"darco/proto/models"
 	_ "embed"
 	"encoding/json"
@@ -79,15 +80,15 @@ type InstitutionUpdate struct {
 //go:embed queries/update_institution.edgeql
 var institutionUpdateQuery string
 
-func (inst InstitutionUpdate) Update(db edgedb.Executor, code string) (id edgedb.UUID, err error) {
+func (inst InstitutionUpdate) Update(e edgedb.Executor, code string) (id edgedb.UUID, err error) {
 
-	query := models.UpdateQuery{
+	query := db.UpdateQuery{
 		Frame: `with module people, data := <json>$1
 			select(update Institution filter .code = <str>$0
 			set {
 				%s
 			}).id`,
-		Set: map[models.OptionalNullable]models.FieldMapping{
+		Set: map[models.OptionalNullable]db.FieldMapping{
 			inst.Name:        {Field: "name", Value: "<str>data['name']"},
 			inst.Code:        {Field: "code", Value: "<str>data['code']"},
 			inst.Description: {Field: "description", Value: "<str>data['description']"},
@@ -96,6 +97,6 @@ func (inst InstitutionUpdate) Update(db edgedb.Executor, code string) (id edgedb
 	}
 	args, _ := json.Marshal(inst)
 	logrus.Debugf("Updating institution %s with %+v", code, inst)
-	err = db.QuerySingle(context.Background(), query.Query(), &id, code, args)
+	err = e.QuerySingle(context.Background(), query.Query(), &id, code, args)
 	return
 }

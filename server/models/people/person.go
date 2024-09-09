@@ -32,7 +32,7 @@ type PersonInner struct {
 // PersonUser is PersonInner with optional user informations attached
 type PersonUser struct {
 	PersonInner `edgedb:"$inline" json:",inline"`
-	User        OptionalUserInner `edgedb:"user" json:"user,omitempty"`
+	User        models.Optional[UserInner] `edgedb:"user" json:"user"`
 }
 
 // Person is the complete informations about a person, including related entities

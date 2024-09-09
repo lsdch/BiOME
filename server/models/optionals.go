@@ -3,11 +3,36 @@ package models
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"reflect"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/edgedb/edgedb-go"
 )
+
+type Optional[T any] struct {
+	edgedb.Optional `json:"-"`
+	Value           T `edgedb:"$inline"`
+}
+
+func (o *Optional[T]) MarshalJSON() ([]byte, error) {
+	if o.Missing() {
+		return []byte("null"), nil
+	}
+	return json.Marshal(o.Value)
+}
+
+func (o *Optional[T]) Schema(r huma.Registry) *huma.Schema {
+	contentName := huma.DefaultSchemaNamer(reflect.TypeOf(o.Value), "")
+	name := fmt.Sprintf("Optional%s", contentName)
+	if r.Map()[name] == nil {
+		s := *r.Schema(reflect.TypeOf(o.Value), false, "")
+		s.Nullable = true
+		r.Map()[name] = &s
+	}
+	return &huma.Schema{Ref: fmt.Sprintf("#/components/schemas/%s", name)}
+}
 
 type OptionalNullable interface {
 	HasValue() bool

@@ -2,6 +2,7 @@ package location
 
 import (
 	"context"
+	"darco/proto/db"
 	"darco/proto/models"
 	"darco/proto/models/people"
 	"encoding/json"
@@ -95,14 +96,14 @@ type HabitatGroupUpdate struct {
 // 	return &s
 // }
 
-func (u HabitatGroupUpdate) Update(db edgedb.Executor, label string) (id edgedb.UUID, err error) {
+func (u HabitatGroupUpdate) Update(e edgedb.Executor, label string) (id edgedb.UUID, err error) {
 	data, _ := json.Marshal(u)
-	query := models.UpdateQuery{
+	query := db.UpdateQuery{
 		Frame: `with item := <json>$1,
 		select (update location::HabitatGroup filter .label = <str>$0 set {
 			%s
 		}).id`,
-		Set: map[models.OptionalNullable]models.FieldMapping{
+		Set: map[models.OptionalNullable]db.FieldMapping{
 			u.Depends:   {Field: "depends", Value: "(select location::Habitat filter .label = <str>item['depends'])"},
 			u.Label:     {Field: "label", Value: "<str>item['label']"},
 			u.Exclusive: {Field: "exclusive", Value: "<bool>item['exclusive_elements']"},
@@ -110,6 +111,6 @@ func (u HabitatGroupUpdate) Update(db edgedb.Executor, label string) (id edgedb.
 	}
 	logrus.Infof("Value: %+v", u)
 	logrus.Infof("Query: %v", query.Query())
-	err = db.QuerySingle(context.Background(), query.Query(), &id, label, data)
+	err = e.QuerySingle(context.Background(), query.Query(), &id, label, data)
 	return
 }
