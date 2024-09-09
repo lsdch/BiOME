@@ -26,7 +26,12 @@
     <v-spacer />
 
     <!-- Toggle large searchbar component -->
-    <v-tooltip v-if="xs || togglableSearch" left activator="parent" text="Toggle search">
+    <v-tooltip
+      v-if="hasSlotContent($slots.search) && (xs || togglableSearch)"
+      left
+      activator="parent"
+      text="Toggle search"
+    >
       <template #activator="{ props }">
         <v-btn
           v-bind="props"
@@ -58,6 +63,7 @@
 import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import { ToolbarProps } from '.'
+import { hasSlotContent } from '../vue-utils'
 
 const { xs, smAndUp } = useDisplay()
 
