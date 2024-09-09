@@ -3,7 +3,9 @@ package sites
 import (
 	"context"
 	"darco/proto/controllers"
+	"darco/proto/db"
 	"darco/proto/models/location"
+	"darco/proto/models/people"
 	"darco/proto/resolvers"
 	"darco/proto/router"
 	"net/http"
@@ -46,6 +48,42 @@ func RegisterDatasetRoutes(r router.Router) {
 			Summary:     "List site datasets",
 			Description: "List all site datasets",
 		}, controllers.ListHandler(location.ListSiteDatasets))
+
+	router.Register(datasets_API, "UpdateSiteDataset",
+		huma.Operation{
+			Path:        "/{slug}",
+			Method:      http.MethodPatch,
+			Summary:     "Update site dataset",
+			Description: "Update properties of a site dataset",
+		}, controllers.UpdateHandler[*UpdateSiteDatasetInput](location.FindDataset))
+}
+
+type UpdateSiteDatasetInput struct {
+	resolvers.AuthRequired
+	Slug string `path:"slug"`
+	controllers.UpdateInput[location.SiteDatasetUpdate, string, string]
+}
+
+func (u UpdateSiteDatasetInput) Identifier() string {
+	return u.Slug
+}
+
+func (u *UpdateSiteDatasetInput) Resolve(ctx huma.Context) []error {
+	if err := u.AuthRequired.Resolve(ctx); err != nil {
+		return err
+	}
+	dataset, err := location.FindDataset(u.DB(), u.Slug)
+	if err != nil {
+		if db.IsNoData(err) {
+			return []error{huma.Error404NotFound("Item not found", err)}
+		}
+		return []error{err}
+	}
+	if !(dataset.IsMaintainer(u.UserInner) || u.User.Role.IsGreaterEqual(people.Admin)) {
+		return []error{huma.Error403Forbidden("Access restricted to admins or dataset maintainers")}
+	}
+
+	return nil
 }
 
 type CreateSiteDatasetInput struct {

@@ -36,6 +36,15 @@ func FindDataset(db edgedb.Executor, slug string) (*SiteDataset, error) {
 	return &dataset, err
 }
 
+func (d *SiteDataset) IsMaintainer(user people.UserInner) bool {
+	for _, u := range d.Maintainers {
+		if u.ID == user.ID {
+			return true
+		}
+	}
+	return false
+}
+
 func (d *SiteDataset) AddSites(db edgedb.Executor, site_ids []edgedb.UUID) (*SiteDataset, error) {
 	err := db.QuerySingle(context.Background(),
 		`with module location,
@@ -78,17 +87,11 @@ func ListSiteDatasets(db edgedb.Executor) ([]SiteDataset, error) {
 	return datasets, err
 }
 
-type SiteDatasetInput struct {
-	Label       string                       `json:"label" minLength:"4" maxLength:"32"`
-	Description models.OptionalInput[string] `json:"description,omitempty"`
-	Maintainers []string                     `json:"maintainers" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
-	Sites       []string                     `json:"sites,omitempty" doc:"Existing site codes to include in the dataset"`
-	NewSites    []SiteInput                  `json:"new_sites,omitempty" doc:"New sites to include in the dataset"`
-}
+type DatasetMaintainers []string
 
-func (i *SiteDatasetInput) ValidateMaintainers(edb edgedb.Executor) ([]edgedb.UUID, []error) {
+func (dm DatasetMaintainers) Validate(edb edgedb.Executor) ([]edgedb.UUID, []error) {
 	checker := db.DBProperty{Object: "people::Person", Property: "alias"}
-	maintainers, absents := checker.ExistAll(edb, i.Maintainers)
+	maintainers, absents := checker.ExistAll(edb, dm)
 	if errs := []error{}; absents != nil {
 		for _, v := range absents {
 			errs = append(errs, v.ErrorDetail("maintainers"))
@@ -96,6 +99,14 @@ func (i *SiteDatasetInput) ValidateMaintainers(edb edgedb.Executor) ([]edgedb.UU
 		return nil, errs
 	}
 	return maintainers, nil
+}
+
+type SiteDatasetInput struct {
+	Label       string                       `json:"label" minLength:"4" maxLength:"32"`
+	Description models.OptionalInput[string] `json:"description,omitempty"`
+	Maintainers DatasetMaintainers           `json:"maintainers" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
+	Sites       []string                     `json:"sites,omitempty" doc:"Existing site codes to include in the dataset"`
+	NewSites    []SiteInput                  `json:"new_sites,omitempty" doc:"New sites to include in the dataset"`
 }
 
 func (i *SiteDatasetInput) ValidateExistingSites(edb edgedb.Executor) ([]edgedb.UUID, []error) {
@@ -123,7 +134,7 @@ func (s *SiteDatasetInput) ValidateNewSites(edb edgedb.Executor) []error {
 }
 
 func (i *SiteDatasetInput) Validate(edb edgedb.Executor) (*SiteDatasetInputValidated, []error) {
-	maintainers, errsMaintainers := i.ValidateMaintainers(edb)
+	maintainers, errsMaintainers := i.Maintainers.Validate(edb)
 	sites, errsSites := i.ValidateExistingSites(edb)
 	errsNewSites := i.ValidateNewSites(edb)
 	errs := slices.Concat(errsMaintainers, errsSites, errsNewSites)
@@ -191,4 +202,27 @@ func (i *SiteDatasetInputValidated) Create(db *edgedb.Client) (*SiteDataset, err
 		return nil
 	})
 	return &created, err
+}
+
+type SiteDatasetUpdate struct {
+	Label       models.OptionalInput[string]             `json:"label,omitempty" minLength:"4" maxLength:"32"`
+	Description models.OptionalNull[string]              `json:"description,omitempty"`
+	Maintainers models.OptionalInput[DatasetMaintainers] `json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
+}
+
+func (u SiteDatasetUpdate) Update(e edgedb.Executor, slug string) (new_slug string, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: `with item := <json>$1,
+		select (update location::SiteDataset filter .slug = <str>$0 set {
+			%s
+		}).slug`,
+		Set: map[models.OptionalNullable]db.FieldMapping{
+			u.Label:       {Field: "label", Value: "<str>item['label']"},
+			u.Description: {Field: "description", Value: "<str>item['description']"},
+			u.Maintainers: {Field: "maintainers", Value: "(select people::Person filter .alias in <str>item['maintainers'])"},
+		},
+	}
+	err = e.QuerySingle(context.Background(), query.Query(), &new_slug, slug, data)
+	return
 }
