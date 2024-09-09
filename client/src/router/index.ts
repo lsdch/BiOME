@@ -163,6 +163,11 @@ function router() {
         },
         component: () => import("../views/location/SiteImportView.vue")
       }),
+      {
+        path: "/sites/:code",
+        name: "site-item",
+        component: () => import('@/views/location/SiteItemView.vue')
+      },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       guardRole('Admin', {
         path: '/settings',

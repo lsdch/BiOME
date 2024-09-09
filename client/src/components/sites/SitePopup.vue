@@ -2,7 +2,16 @@
   <l-popup class="site-popup" :options>
     <div class="text-subtitle-1 text-no-wrap">{{ item.name }}</div>
     <div class="text-overline text-secondary">
-      {{ item.code }}
+      <v-btn
+        block
+        color="primary"
+        prepend-icon="mdi-identifier"
+        variant="text"
+        :text="item.code"
+        class="px-0"
+        :rounded="0"
+        :to="{ name: 'site-item', params: { code: item.code } }"
+      />
     </div>
     <v-divider />
     <div class="d-flex align-center my-2">
