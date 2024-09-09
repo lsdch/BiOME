@@ -24,6 +24,14 @@ func (i CodeInput) Identifier() string {
 	return i.Code
 }
 
+type SlugInput struct {
+	Slug string `path:"slug"`
+}
+
+func (i SlugInput) Identifier() string {
+	return i.Slug
+}
+
 // Implementation assertions
 var _ IdentifierInput[edgedb.UUID] = (*UUIDInput)(nil)
 var _ IdentifierInput[string] = (*CodeInput)(nil)
