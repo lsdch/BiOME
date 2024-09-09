@@ -88,7 +88,7 @@ func (i *OwnerOr[R, O]) Resolve(ctx huma.Context) []error {
 		return []error{
 			huma.Error401Unauthorized(
 				fmt.Sprintf(
-					"Access restricted to the ressource creator or %s users",
+					"Access restricted to the ressource owner/maintainer or %s users",
 					i.AccessResolver.RoleRequired(),
 				),
 			),

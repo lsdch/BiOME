@@ -39,7 +39,7 @@ func (p *AuthResolver) AuthUser() (*people.User, bool) {
 
 func (p *AuthResolver) DB() *edgedb.Client {
 	if p.User != nil {
-		return db.WithCurrentUser(p.ID)
+		return db.WithCurrentUser(p.User.ID)
 	} else {
 		return db.Client()
 	}
