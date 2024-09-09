@@ -77,7 +77,7 @@ export const routeGroups: RouterItem[] = [
     label: "Locations", icon: "mdi-map-marker-circle", routes: [
       {
         label: "Sites",
-        path: "/location/sites",
+        path: "/sites",
         name: "sites",
         icon: "mdi-map-marker-radius",
         component: () => import("@/views/location/SitesView.vue"),
