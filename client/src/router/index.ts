@@ -164,6 +164,11 @@ function router() {
         component: () => import("../views/location/SiteImportView.vue")
       }),
       {
+        path: "/datasets/:slug",
+        name: "dataset-item",
+        component: () => import('@/views/datasets/DatasetItemView.vue')
+      },
+      {
         path: "/sites/:code",
         name: "site-item",
         component: () => import('@/views/location/SiteItemView.vue')
