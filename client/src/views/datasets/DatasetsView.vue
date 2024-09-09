@@ -1,11 +1,15 @@
 <template>
   <v-progress-linear v-if="loading" indeterminate />
-  <TableToolbar title="Datasets"></TableToolbar>
-  <v-container>
+  <TableToolbar title="Datasets" icon="mdi-folder-table">
+    <template #search>
+      <v-inline-search-bar label="Search" v-model="search" />
+    </template>
+  </TableToolbar>
+  <v-container fluid>
     <v-row>
-      <v-col v-if="!datasets" class="text-center">There are currently no datasets</v-col>
-      <v-col v-for="(dataset, key) in datasets" :key>
-        <DatasetCard :dataset />
+      <v-col v-if="!filteredDatasets?.length" class="text-center">No datasets to display</v-col>
+      <v-col v-for="(dataset, key) in filteredDatasets" :key sm="6" md="4">
+        <DatasetCard :dataset :to="{ name: 'dataset-item', params: { slug: dataset.slug } }" />
       </v-col>
     </v-row>
   </v-container>
@@ -15,11 +19,17 @@
 import { ErrorModel, LocationService } from '@/api'
 import DatasetCard from '@/components/datasets/DatasetCard.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const loading = ref(true)
 const datasets = ref(await fetch())
 const error = ref<ErrorModel>()
+
+const search = ref<string>()
+
+const filteredDatasets = computed(() => {
+  return datasets.value?.filter((d) => d.label.toLowerCase().includes(search.value ?? ''))
+})
 
 async function fetch() {
   loading.value = true
