@@ -212,17 +212,20 @@ type SiteDatasetUpdate struct {
 
 func (u SiteDatasetUpdate) Update(e edgedb.Executor, slug string) (new_slug string, err error) {
 	data, _ := json.Marshal(u)
-	query := db.UpdateQuery{
+	query := db.UpdateQuery[SiteDatasetUpdate, string, string]{
 		Frame: `with item := <json>$1,
 		select (update location::SiteDataset filter .slug = <str>$0 set {
 			%s
 		}).slug`,
-		Set: map[models.OptionalNullable]db.FieldMapping{
-			u.Label:       {Field: "label", Value: "<str>item['label']"},
-			u.Description: {Field: "description", Value: "<str>item['description']"},
-			u.Maintainers: {Field: "maintainers", Value: "(select people::Person filter .alias in <str>item['maintainers'])"},
+		Mappings: map[string]string{
+			"label":       "<str>item['label']",
+			"description": "<str>item['description']",
+			"maintainers": `(
+				select people::Person
+				filter .alias in <str>json_array_unpack(item['maintainers']))
+			`,
 		},
 	}
-	err = e.QuerySingle(context.Background(), query.Query(), &new_slug, slug, data)
+	err = e.QuerySingle(context.Background(), query.Query(u), &new_slug, slug, data)
 	return
 }

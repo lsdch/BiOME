@@ -82,21 +82,21 @@ var institutionUpdateQuery string
 
 func (inst InstitutionUpdate) Update(e edgedb.Executor, code string) (id edgedb.UUID, err error) {
 
-	query := db.UpdateQuery{
+	query := db.UpdateQuery[InstitutionUpdate, string, edgedb.UUID]{
 		Frame: `with module people, data := <json>$1
 			select(update Institution filter .code = <str>$0
 			set {
 				%s
 			}).id`,
-		Set: map[models.OptionalNullable]db.FieldMapping{
-			inst.Name:        {Field: "name", Value: "<str>data['name']"},
-			inst.Code:        {Field: "code", Value: "<str>data['code']"},
-			inst.Description: {Field: "description", Value: "<str>data['description']"},
-			inst.Kind:        {Field: "kind", Value: "<InstitutionKind>data['kind']"},
+		Mappings: map[string]string{
+			"name":        "<str>data['name']",
+			"code":        "<str>data['code']",
+			"description": "<str>data['description']",
+			"kind":        "<InstitutionKind>data['kind']",
 		},
 	}
 	args, _ := json.Marshal(inst)
 	logrus.Debugf("Updating institution %s with %+v", code, inst)
-	err = e.QuerySingle(context.Background(), query.Query(), &id, code, args)
+	err = e.QuerySingle(context.Background(), query.Query(inst), &id, code, args)
 	return
 }

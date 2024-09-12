@@ -3,6 +3,7 @@ package db
 import (
 	"darco/proto/models"
 	"fmt"
+	"reflect"
 	"strings"
 )
 
@@ -19,21 +20,38 @@ func (f FieldMapping) String(isNull bool) string {
 	}
 }
 
-type UpdateQuery struct {
-	Frame string
-	Set   map[models.OptionalNullable]FieldMapping
+type UpdateQuery[Item models.Updatable[ID, Updated], ID any, Updated any] struct {
+	Frame    string
+	Mappings map[string]string
 }
 
-func (q UpdateQuery) Fragments() []string {
+func (q UpdateQuery[Item, ID, Updated]) Fragments(item Item) []string {
 	var fragments []string
-	for opt, fragment := range q.Set {
-		if opt.HasValue() {
-			fragments = append(fragments, fragment.String(opt.IsNull()))
+
+	itemType := reflect.TypeOf(item)
+	itemValue := reflect.ValueOf(item)
+	for i := range itemType.NumField() {
+		f := itemType.Field(i)
+		v := itemValue.Field(i)
+		jsonField := strings.Split(f.Tag.Get("json"), ",")[0]
+		if jsonField == "" {
+			continue
+		}
+		if f.Type.Implements(reflect.TypeFor[models.OptionalNullable]()) {
+			value := v.Interface().(models.OptionalNullable)
+			if !value.HasValue() {
+				continue
+			}
+			fragment := fmt.Sprintf("%s := {}", jsonField)
+			if !value.IsNull() {
+				fragment = fmt.Sprintf("%s := %s", jsonField, q.Mappings[jsonField])
+			}
+			fragments = append(fragments, fragment)
 		}
 	}
 	return fragments
 }
 
-func (q UpdateQuery) Query() string {
-	return fmt.Sprintf(q.Frame, strings.Join(q.Fragments(), ",\n"))
+func (q UpdateQuery[Item, ID, Updated]) Query(item Item) string {
+	return fmt.Sprintf(q.Frame, strings.Join(q.Fragments(item), ",\n"))
 }
