@@ -28,6 +28,16 @@ func RegisterRoutes(r router.Router) {
 			Description: "Get site infos using its code",
 		}, controllers.GetByCodeHandler(location.GetSite))
 
+	router.Register(sites_API, "UpdateSite",
+		huma.Operation{
+			Path:        "/{code}",
+			Method:      http.MethodPatch,
+			Summary:     "Update site",
+			Description: "Update site infos using its code",
+		},
+		controllers.UpdateByCodeHandler[location.SiteUpdate](location.GetSite),
+	)
+
 	huma.Register(r.API, huma.Operation{
 		Path:    "/access-points",
 		Method:  http.MethodGet,

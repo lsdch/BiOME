@@ -95,7 +95,10 @@ var siteInsertQueryTmpl = template.Must(
 				longitude := <float32>{{.Json}}['coordinates']['longitude']
 			),
 			locality := <str>json_get({{.Json}}, 'locality'),
-			country := (select assert_exists(location::Country filter .code = <str>{{.Json}}['country_code'])),
+			country := (
+				select assert_exists(location::Country
+				filter .code = <str>{{.Json}}['country_code'])
+			),
 			altitude := <int32>json_get({{.Json}}, 'altitude')
 		{{ "}" }}
 	`))
@@ -127,4 +130,43 @@ func ListAccessPoints(db edgedb.Executor) ([]string, error) {
 		&accessPoints,
 	)
 	return accessPoints, err
+}
+
+type SiteUpdate struct {
+	Name        models.OptionalInput[string]      `json:"name" minLength:"4"`
+	Code        models.OptionalInput[string]      `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
+	Description models.OptionalNull[string]       `json:"description,omitempty"`
+	Coordinates models.OptionalInput[Coordinates] `json:"coordinates" doc:"Site coordinates in decimal degrees"`
+	Altitude    models.OptionalNull[int32]        `json:"altitude,omitempty" doc:"Site altitude in meters"`
+	Locality    models.OptionalNull[string]       `json:"locality,omitempty" doc:"Nearest populated place"`
+	CountryCode models.OptionalInput[string]      `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	AccessPoint models.OptionalNull[string]       `json:"access_point,omitempty"`
+}
+
+func (u SiteUpdate) Update(e edgedb.Executor, code string) (id string, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery[SiteUpdate, string, string]{
+		Frame: `with item := <json>$1,
+		select (update location::Site filter .code = <str>$0 set {
+			%s
+		}).code`,
+		Mappings: map[string]string{
+			"name":        "<str>item['name']",
+			"code":        "<str>item['code']",
+			"description": "<str>item['description']",
+			"coordinates": `(
+				precision := <location::CoordinatesPrecision>item['coordinates']['precision'],
+				latitude := <float32>item['coordinates']['latitude'],
+				longitude := <float32>item['coordinates']['longitude']
+			)`,
+			"altitude": "<int32>item['altitude']",
+			"locality": "<str>item['locality']",
+			"country": `(
+				select assert_exists(location::Country
+				filter .code = <str>{{.Json}}['country_code'])
+			)`,
+		},
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &id, code, data)
+	return
 }
