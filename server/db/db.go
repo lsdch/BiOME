@@ -46,5 +46,5 @@ func WithCurrentUser(userID edgedb.UUID) *edgedb.Client {
 // IsNoData returns true if error is edgedb.NoDataError
 func IsNoData(err error) bool {
 	var edbErr edgedb.Error
-	return errors.As(err, &edbErr) && edbErr.Category(edgedb.NoDataError)
+	return err != nil && errors.As(err, &edbErr) && edbErr.Category(edgedb.NoDataError)
 }

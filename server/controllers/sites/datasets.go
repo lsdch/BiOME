@@ -47,7 +47,9 @@ func RegisterDatasetRoutes(r router.Router) {
 			Method:      http.MethodGet,
 			Summary:     "List site datasets",
 			Description: "List all site datasets",
-		}, controllers.ListHandler(location.ListSiteDatasets))
+		}, controllers.ListHandler[*struct {
+			resolvers.AuthResolver
+		}](location.ListSiteDatasets))
 
 	router.Register(datasets_API, "UpdateSiteDataset",
 		huma.Operation{

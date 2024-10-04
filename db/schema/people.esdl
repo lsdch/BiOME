@@ -70,10 +70,11 @@ module people {
     optional property role := .user.role;
   }
 
+
   scalar type UserRole extending enum<Visitor, Contributor, Maintainer, Admin>;
 
-  type User {
 
+  type User {
     required login: str {
       constraint exclusive;
       constraint min_len_value(5);
@@ -92,70 +93,58 @@ module people {
       );
     };
 
-    required email_confirmed: bool {
-      default := false
-    };
-
     required role: UserRole {
       default := UserRole.Visitor;
     };
 
-    identity: Person {
+    required identity: Person {
       constraint exclusive;
       on target delete restrict;
       on source delete allow;
     };
-
-    is_active := (.email_confirmed and exists .identity);
   }
 
-  alias ActiveUser := (select User filter .is_active);
-  alias InactiveUser := (select User filter not .is_active);
-
   type PendingUserRequest {
-    required user: User {
-      constraint exclusive;
-      on target delete delete source;
-      on source delete allow;
-    };
+    required email: str;
     required identity: tuple<
       first_name: str,
       last_name: str,
       institution: str
     >;
-    required motive: str;
+    motive: str;
     required created_on: datetime {
       rewrite insert using (datetime_of_statement());
     };
+    required email_verified: bool {
+      default := false
+    };
   }
 
-  type UserInvitation {
-    required identity: Person;
-    required role: UserRole;
-    required dest: str;
+  # Tokens are one-time consumables to grant rights on some operations
+  abstract type Token {
     required token: str {
       constraint exclusive;
     };
     required expires: datetime;
+  }
+
+  type UserInvitation extending Token {
+    required identity: Person;
+    required role: UserRole;
+    required email: str;
     required issued_by: User {
       default := (global default::current_user);
     };
   }
 
-  # AccountToken is a consumable token that confirms that some operation
-  # on an account is allowed.
-  abstract type AccountToken {
-    required token: str {
-      constraint exclusive;
-    };
-    required expires: datetime;
+  type PasswordReset extending Token {
     required user: User {
       delegated constraint exclusive;
       on target delete delete source;
     };
-  }
+  };
 
-  type PasswordReset extending AccountToken;
-
-  type EmailConfirmation extending AccountToken;
+  type EmailConfirmation extending Token {
+    required email: str;
+  };
 }

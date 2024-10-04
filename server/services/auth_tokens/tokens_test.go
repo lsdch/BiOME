@@ -1,9 +1,9 @@
-package tokens_test
+package auth_tokens_test
 
 import (
 	"darco/proto/models/people"
 	"darco/proto/models/settings"
-	"darco/proto/services/tokens"
+	"darco/proto/services/auth_tokens"
 	"darco/proto/tests"
 	"testing"
 
@@ -14,12 +14,12 @@ import (
 
 func TestJWT(t *testing.T) {
 	user := tests.FakeData[people.User](t)
-	token, err := tokens.GenerateToken(
+	token, err := auth_tokens.GenerateToken(
 		user.ID,
 		settings.Security().AuthTokenDuration(),
 	)
 	require.NoError(t, err)
-	id, err := tokens.ValidateToken(token)
+	id, err := auth_tokens.ValidateToken(token)
 	require.NoError(t, err)
 	uuid, err := edgedb.ParseUUID(id.(string))
 	require.NoError(t, err)

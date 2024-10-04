@@ -77,9 +77,6 @@ type InstitutionUpdate struct {
 	Kind        models.OptionalNull[InstitutionKind] `json:"kind,omitempty" example:"Lab"`
 }
 
-//go:embed queries/update_institution.edgeql
-var institutionUpdateQuery string
-
 func (inst InstitutionUpdate) Update(e edgedb.Executor, code string) (id edgedb.UUID, err error) {
 
 	query := db.UpdateQuery[InstitutionUpdate, string, edgedb.UUID]{

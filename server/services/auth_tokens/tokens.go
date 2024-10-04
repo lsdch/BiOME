@@ -1,4 +1,4 @@
-package tokens
+package auth_tokens
 
 import (
 	"darco/proto/models/settings"

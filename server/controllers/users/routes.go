@@ -1,6 +1,9 @@
 package accounts
 
 import (
+	"darco/proto/controllers"
+	"darco/proto/models/people"
+	"darco/proto/resolvers"
 	"darco/proto/router"
 	"fmt"
 	"net/http"
@@ -110,6 +113,27 @@ func RegisterRoutes(r router.Router) {
 			Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 		}, ResendEmailConfirmation(confirmEmailPath))
 
+	router.Register(accountAPI, "ListPendingUserRequests",
+		huma.Operation{
+			Path:        "/pending",
+			Method:      http.MethodGet,
+			Summary:     "List pending user requests",
+			Description: "Lists all account requests pending validation from an administrator",
+		}, controllers.ListHandler[*struct {
+			resolvers.AccessRestricted[resolvers.Admin]
+		}](people.ListPendingUserRequests))
+
+	router.Register(accountAPI, "GetPendingUserRequest",
+		huma.Operation{
+			Path:        "/pending/{email}",
+			Method:      http.MethodGet,
+			Summary:     "Get pending user request",
+			Description: "Get account requests pending validation using the associated email",
+		}, controllers.GetHandler[*struct {
+			resolvers.AuthResolver
+			controllers.StrIdentifier `path:"email" format:"email"`
+		}](people.GetPendingUserRequest))
+
 	router.Register(accountAPI, "Register",
 		huma.Operation{
 			Path:    "/register",
@@ -120,7 +144,6 @@ func RegisterRoutes(r router.Router) {
 				confirmEmailPath,
 			),
 			DefaultStatus: http.StatusCreated,
-			Errors:        []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 		}, Register(confirmEmailPath))
 
 	InvitationClaimPath = router.Register(accountAPI, "ClaimInvitation",
@@ -129,6 +152,5 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodPost,
 			Summary:     "Claim invitation",
 			Description: "Register an account with pre-assigned role and identity, using an invitation token",
-			Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 		}, ClaimInvitation)
 }

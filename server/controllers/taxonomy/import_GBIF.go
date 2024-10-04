@@ -47,7 +47,9 @@ func RegisterImportRoutes(r router.Router) {
 			Summary:     "List GBIF anchor clades",
 			Tags:        []string{APItag},
 			Errors:      []int{http.StatusInternalServerError},
-		}, controllers.ListHandler(func(db edgedb.Executor) ([]taxonomy.TaxonWithParentRef, error) {
+		}, controllers.ListHandler[*struct {
+			resolvers.AuthResolver
+		}](func(db edgedb.Executor) ([]taxonomy.TaxonWithParentRef, error) {
 			return taxonomy.ListTaxa(db, taxonomy.ListFilters{IsAnchor: edgedb.NewOptionalBool(true)})
 		}))
 

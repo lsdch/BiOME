@@ -10,30 +10,22 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestActivationAuthentication(t *testing.T) {
+func TestAuthentication(t *testing.T) {
 	db := db.Client()
-	input := FakePendingUserInput(t)
-	p, err := input.Register(db)
-	user := p.User
-	require.NoError(t, err)
-	assert.Falsef(t, user.EmailConfirmed, "New user email must not be already confirmed when first created.")
+	user := FakeUserAccount(t, users.Contributor)
 
+	userPwd := "test account password"
+	require.NoError(t, user.SetPassword(db, userPwd))
 	var credentials = users.UserCredentials{
-		Identifier: input.User.Email,
-		Password:   input.User.Password,
+		Identifier: user.Email,
+		Password:   userPwd,
 	}
 
-	_, auth_err := credentials.Authenticate(db)
-	require.Errorf(t, auth_err, "Inactive user should not be able to authenticate.")
-	assert.Equal(t, auth_err.Message, users.AccountInactive)
-
-	require.NoError(t, user.SetEmailConfirmed(db, true))
-	person, err := FakePersonInput(t).Create(db)
-	require.NoError(t, err)
-	require.NoError(t, user.SetIdentity(db, &person.PersonInner))
-	auth_user, err := credentials.Authenticate(db)
-	assert.Nil(t, err)
-	assert.Equal(t, user, *auth_user)
+	t.Run("Valid credentials", func(t *testing.T) {
+		auth_user, err := credentials.Authenticate(db)
+		assert.NoError(t, err)
+		assert.Equal(t, user.ID, auth_user.ID)
+	})
 
 	var invalidCredentials = []users.UserCredentials{
 		{"invalid.identifier", "whateverpassword"},
@@ -44,9 +36,8 @@ func TestActivationAuthentication(t *testing.T) {
 		t.Run(
 			fmt.Sprintf("Invalid creds %s:%s", creds.Identifier, creds.Password),
 			func(t *testing.T) {
-				u, err := creds.Authenticate(db)
+				_, err := creds.Authenticate(db)
 				require.Error(t, err)
-				assert.Nil(t, u)
 			})
 	}
 }

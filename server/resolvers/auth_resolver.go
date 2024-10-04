@@ -3,7 +3,7 @@ package resolvers
 import (
 	"darco/proto/db"
 	"darco/proto/models/people"
-	"darco/proto/services/tokens"
+	"darco/proto/services/auth_tokens"
 	"net/http"
 	"strings"
 
@@ -67,7 +67,7 @@ func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 		return
 	}
 
-	sub, err := tokens.ValidateToken(accessToken)
+	sub, err := auth_tokens.ValidateToken(accessToken)
 	if err != nil {
 		logrus.Debugf("Auth middleware: Invalid token received [%v]", err)
 		return
@@ -87,7 +87,7 @@ func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 
 	logrus.Debugf("Auth middleware: User authenticated %+v", currentUser)
 	p.AuthToken = accessToken
-	p.User = currentUser
+	p.User = &currentUser
 }
 
 var _ UserResolver = (*AuthResolver)(nil)

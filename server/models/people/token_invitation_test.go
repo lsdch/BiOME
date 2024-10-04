@@ -13,7 +13,7 @@ import (
 
 func SetupAuthAdminUser(t *testing.T) edgedb.Executor {
 	client := db.Client()
-	user := SetupUser(t)
+	user := FakeUserAccount(t, people.Admin)
 	require.NoError(t, user.SetRole(client, people.Admin))
 	auth_client := client.WithGlobals(map[string]interface{}{
 		"current_user_id": user.ID,
@@ -56,7 +56,7 @@ func TestClaimInvitation(t *testing.T) {
 		people.InvitationOptions{Role: people.Maintainer},
 	).Save(auth_client)
 	require.NoError(t, err)
-	u, err := input.ClaimInvitationToken(client, invitation.Token)
+	u, err := input.RegisterWithToken(client, invitation.Token)
 	require.NoError(t, err)
 	assert.Equal(t, person.ID, u.Person.ID)
 	assert.Equal(t, invitation.Role, u.Role)

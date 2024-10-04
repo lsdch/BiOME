@@ -12,10 +12,13 @@ import (
 )
 
 type EmailData struct {
-	To       string
-	Subject  string
+	// Email address of the recipient
+	To      string
+	Subject string
+	// Template file name for the body of the email
 	Template string
-	Data     interface{}
+	// Template variables
+	Data map[string]any
 }
 
 func (emailData *EmailData) Body() (*bytes.Buffer, error) {
@@ -50,7 +53,7 @@ func AdminEmailAddress() string {
 	return ""
 }
 
-func Send(from string, email *EmailData) (err error) {
+func (email *EmailData) Send(from string) (err error) {
 	body, err := email.Body()
 	if err != nil {
 		return err

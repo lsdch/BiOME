@@ -5,7 +5,7 @@ import (
 	"darco/proto/db"
 	users "darco/proto/models/people"
 	"darco/proto/resolvers"
-	"darco/proto/services/tokens"
+	"darco/proto/services/auth_tokens"
 	"fmt"
 	"net/http"
 	"slices"
@@ -96,7 +96,7 @@ func Login(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
 	if authError != nil {
 		return nil, authError
 	}
-	return createSession(user, input.Host)
+	return createSession(&user, input.Host)
 }
 
 type LogoutOutput struct {
@@ -106,8 +106,8 @@ type LogoutOutput struct {
 func Logout(ctx context.Context, input *struct{}) (*LogoutOutput, error) {
 	return &LogoutOutput{
 		SetCookie: []*http.Cookie{
-			{Name: tokens.AUTH_TOKEN_COOKIE, MaxAge: -1, Value: "", Path: "/", HttpOnly: true, Secure: true},
-			{Name: tokens.REFRESH_TOKEN_COOKIE, MaxAge: -1, Value: "", Path: "/", HttpOnly: true, Secure: true},
+			{Name: auth_tokens.AUTH_TOKEN_COOKIE, MaxAge: -1, Value: "", Path: "/", HttpOnly: true, Secure: true},
+			{Name: auth_tokens.REFRESH_TOKEN_COOKIE, MaxAge: -1, Value: "", Path: "/", HttpOnly: true, Secure: true},
 		},
 	}, nil
 }

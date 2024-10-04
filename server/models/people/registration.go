@@ -2,57 +2,75 @@ package people
 
 import (
 	"context"
+	"darco/proto/db"
+	"darco/proto/models/tokens"
+	"darco/proto/services/email"
 	_ "embed"
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"time"
 
 	"github.com/edgedb/edgedb-go"
-	"github.com/sirupsen/logrus"
 )
+
+type EmailField struct {
+	Email string `edgedb:"email" json:"email" format:"email" fake:"{email}"`
+}
 
 type UserInput struct {
 	Login         string `edgedb:"login" json:"login" binding:"login,required,unique_login" fake:"{username}"`
-	Email         string `edgedb:"email" json:"email" binding:"email,required,unique_email" format:"email" fake:"{email}"`
+	EmailField    `edgedb:"$inline" json:",inline"`
 	PasswordInput `json:",inline"`
-} // @name UserInput
+}
 
-func (u UserInput) Save(db edgedb.Executor, role UserRole) (*User, error) {
+func (u UserInput) Create(db edgedb.Executor, role UserRole, identity PersonInner) (*User, error) {
 	var user User
 	input, _ := json.Marshal(u)
 	err := db.QuerySingle(context.Background(),
 		`with module people,
-		user := <json>$0
-		insert User {
-			login := <str>user['login'],
-			email := <str>user['email'],
-			password := <str>user['password'],
+		data := <json>$0,
+		user := (insert User {
+			login := <str>data['login'],
+			email := <str>data['email'],
+			password := <str>data['password'],
 			role := <UserRole>$1,
-		}`,
-		&user, input, role,
+      identity := assert_single((select Person filter .id = <uuid>$2))
+		}),
+    select user { ** }`,
+		&user, input, role, identity.ID,
 	)
 	return &user, err
-
 }
 
-type InnerPendingUserRequest struct {
-	Person struct {
-		PersonIdentity `edgedb:"$inline" json:",inline"`
-		Institution    string `edgedb:"institution" json:"institution,omitempty" fake:"{word}"`
-	} `json:"identity" edgedb:"identity"`
-	Motive string `json:"motive" edgedb:"motive" fake:"{sentence:10}"`
-} // @name InnerPendingUserRequest
+var InvalidTokenError = fmt.Errorf("Invalid token")
+
+func (u UserInput) RegisterWithToken(db edgedb.Executor, token tokens.Token) (*User, error) {
+	invitation, err := ValidateInvitationToken(db, token)
+	if err != nil {
+		return nil, InvalidTokenError
+	}
+	user, err := u.Create(db, invitation.Role, invitation.Person)
+	if err != nil {
+		return nil, fmt.Errorf("User registration failed: %w", err)
+	}
+	return user, nil
+}
 
 type PendingUserRequestInput struct {
-	User                    UserInput `json:"user"`
-	InnerPendingUserRequest `json:",inline"`
-} // @name PendingUserRequestInput
+	EmailField `json:",inline" edgedb:"$inline"`
+	Person     struct {
+		PersonIdentity `edgedb:"$inline" json:",inline"`
+		Institution    string `json:"institution,omitempty" edgedb:"institution" fake:"{word}"`
+	} `json:"identity" edgedb:"identity"`
+	Motive string `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
+}
 
 //go:embed queries/register_pending_user.edgeql
 var registerPendingUserQuery string
 
-// Creates an inactive user without identity, and an account request
-// with personal informations which can be validated by an admin.
+// Creates a request for a user account which can be validated by and admin
+// to send an invitation to create an account
 func (u *PendingUserRequestInput) Register(db edgedb.Executor) (*PendingUserRequest, error) {
 	args, _ := json.Marshal(u)
 	var pendingUser PendingUserRequest
@@ -61,11 +79,16 @@ func (u *PendingUserRequestInput) Register(db edgedb.Executor) (*PendingUserRequ
 }
 
 type PendingUserRequest struct {
-	ID                      edgedb.UUID `edgedb:"id"`
-	User                    User        `json:"user" edgedb:"user"`
-	InnerPendingUserRequest `json:",inline" edgedb:"$inline"`
-	CreatedOn               time.Time `json:"created_on" edgedb:"created_on"`
-} // @name PendingUserRequest
+	ID         edgedb.UUID `edgedb:"id"`
+	EmailField `json:",inline" edgedb:"$inline"`
+	Person     struct {
+		PersonIdentity `edgedb:"$inline" json:",inline"`
+		Institution    edgedb.OptionalStr `json:"institution,omitempty" edgedb:"institution"`
+	} `json:"identity" edgedb:"identity"`
+	Motive        edgedb.OptionalStr `json:"motive,omitempty" edgedb:"motive"`
+	CreatedOn     time.Time          `json:"created_on" edgedb:"created_on"`
+	EmailVerified bool               `edgedb:"email_verified" json:"email_verified"`
+}
 
 func (p *PendingUserRequest) Delete(db edgedb.Executor) error {
 	return db.Execute(context.Background(),
@@ -74,56 +97,97 @@ func (p *PendingUserRequest) Delete(db edgedb.Executor) error {
 	)
 }
 
-// Validate an inactive user by setting their identity to an existing person.
-// PendingUserRequest is deleted in the database afterwards.
-// All operations are done within a database transaction.
-func (p *PendingUserRequest) Validate(db *edgedb.Client, person *PersonInner, role UserRole) (*User, error) {
-	var (
-		user *User
-		err  error
+func (p *PendingUserRequest) SetEmailVerified(db edgedb.Executor, isVerified bool) error {
+	err := db.Execute(context.Background(),
+		`update <people::PendingUserRequest><uuid>$0 set { email_verified := <bool>$1 }`,
+		p.ID, isVerified,
 	)
-	db.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
-		user, err = p.ValidateTx(tx, person, role)
+	if err != nil {
 		return err
-	})
-	return user, err
+	}
+	p.EmailVerified = true
+	return nil
 }
 
-// Like [*PendingUserRequest.ValidateTx] but the transaction executor is provided as argument
-func (p *PendingUserRequest) ValidateTx(tx *edgedb.Tx, person *PersonInner, role UserRole) (*User, error) {
-	if err := p.User.SetIdentity(tx, person); err != nil {
-		return nil, err
-	}
-	if err := p.User.SetRole(tx, role); err != nil {
-		return nil, err
-	}
-	if err := p.Delete(tx); err != nil {
-		return nil, err
-	}
-	logrus.Infof(
-		"Pending user request validated for user '%+v'.\nAssigned identity %+v",
-		p.User.IsActive, p.User.Person,
+func ListPendingUserRequests(db edgedb.Executor) ([]PendingUserRequest, error) {
+	var items = []PendingUserRequest{}
+	err := db.Query(context.Background(),
+		`select people::PendingUserRequest { ** } order by .created_on desc;`,
+		&items,
 	)
-	return &p.User, nil
+	return items, err
+}
+
+func GetPendingUserRequest(db edgedb.Executor, email string) (*PendingUserRequest, error) {
+	var req PendingUserRequest
+	err := db.QuerySingle(context.Background(),
+		`select people::PendingUserRequest { ** } filter .email = <str>$0;`,
+		&req, email,
+	)
+	return &req, err
 }
 
 // SendConfirmationEmail sends a confirmation email to the user with a verification token.
 // It generates a confirmation token, and sends an email with the confirmation link.
 // The confirmation token is included as a query parameter in the URL.
-func (user *User) SendConfirmationEmail(db *edgedb.Client, target url.URL) error {
-	token, err := user.CreateAccountToken(db, EmailConfirmationToken)
-	if err != nil {
+func (p *PendingUserRequest) SendConfirmationEmail(db *edgedb.Client, target url.URL) error {
+	emailToken := tokens.NewEmailVerificationToken(p.Email)
+
+	if err := emailToken.Save(db); err != nil {
 		return err
 	}
+
 	params := target.Query()
-	params.Set("token", string(token))
+	params.Set("token", string(emailToken.Token))
 	target.RawQuery = params.Encode()
 
-	return user.SendEmail(
-		"Activation of your account",
-		"email_verification.html",
-		map[string]any{
-			"Name": user.Person.FirstName,
+	return (&email.EmailData{
+		To:       emailToken.Email,
+		Subject:  "Please verify your email address",
+		Template: "email_verification.html",
+		Data: map[string]any{
+			"Name": p.Person.FirstName,
 			"URL":  target.String(),
-		})
+		},
+	}).Send(email.AdminEmailAddress())
+}
+
+// VerifyEmail attempts to match a token to an EmailVerification entry
+// in the database.
+// If successful, the token is consumed and the associated account request
+// is marked as verified.
+func VerifyEmail(edb *edgedb.Client, token tokens.Token) (ok bool, err error) {
+	db_token, err := tokens.RetrieveEmailToken(edb, token)
+	if err != nil {
+		// Token not found is just an invalid token
+		if db.IsNoData(err) {
+			return false, nil
+		}
+		return false, err
+	}
+
+	if !db_token.IsValid() {
+		return false, nil
+	}
+
+	// Consume token and set email verified
+	txErr := edb.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+		pending_user, err := GetPendingUserRequest(edb, db_token.Email)
+		if err != nil {
+			return err
+		}
+		if err := pending_user.SetEmailVerified(edb, true); err != nil {
+			return err
+		}
+		if err := db_token.Consume(edb); err != nil {
+			return err
+		}
+		return nil
+	})
+	if txErr != nil {
+		return false, txErr
+	}
+
+	// Email successfully verified
+	return true, nil
 }

@@ -26,7 +26,6 @@ func SetupPerson(t *testing.T, db edgedb.Executor) people.Person {
 func TestPerson(t *testing.T) {
 	client := db.Client()
 	t.Run("Create person", func(t *testing.T) {
-		t.Parallel()
 		input := FakePersonInput(t)
 		alias := input.GenerateAlias()
 		p, err := input.Create(client)
@@ -35,7 +34,6 @@ func TestPerson(t *testing.T) {
 	})
 
 	t.Run("Delete person", func(t *testing.T) {
-		t.Parallel()
 		p := SetupPerson(t, client)
 		deleted, err := p.Delete(client)
 		require.NoError(t, err)
@@ -43,7 +41,6 @@ func TestPerson(t *testing.T) {
 	})
 
 	t.Run("Find person", func(t *testing.T) {
-		t.Parallel()
 		p := SetupPerson(t, client)
 		found, err := people.FindPerson(client, p.ID)
 		require.NoError(t, err)
@@ -51,7 +48,6 @@ func TestPerson(t *testing.T) {
 	})
 
 	t.Run("List persons", func(t *testing.T) {
-		t.Parallel()
 		_ = SetupPerson(t, client)
 		persons, err := people.ListPersons(client)
 		require.NoError(t, err)
@@ -59,7 +55,6 @@ func TestPerson(t *testing.T) {
 	})
 
 	t.Run("Update person", func(t *testing.T) {
-		t.Parallel()
 		p := SetupPerson(t, client)
 		u := tests.FakeData[people.PersonUpdate](t)
 		u.FirstName.IsSet = true

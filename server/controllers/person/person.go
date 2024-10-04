@@ -41,7 +41,9 @@ func RegisterRoutes(r router.Router) {
 			Summary: "List persons",
 			Errors:  []int{500},
 		},
-		controllers.ListHandler(people.ListPersons),
+		controllers.ListHandler[*struct {
+			resolvers.AuthResolver
+		}](people.ListPersons),
 	)
 
 	router.Register(personsAPI, "CreatePerson",

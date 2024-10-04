@@ -119,6 +119,13 @@ module location {
       on target delete allow;
       on source delete allow;
     };
-    required multi maintainers: people::Person;
+    required multi maintainers: people::Person {
+      # edgedb error: SchemaDefinitionError:
+      # cannot specify a rewrite for link 'maintainers' of object type 'location::SiteDataset' because it is multi
+      # Hint: this is a temporary implementation restriction
+
+      # rewrite insert using (global default::current_user.identity union .maintainers);
+      # rewrite update using (.maintainers union .meta.created_by_user.identity);
+    };
   }
 }

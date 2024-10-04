@@ -3,7 +3,7 @@ package people
 import (
 	"context"
 	"darco/proto/models/settings"
-	"fmt"
+	"darco/proto/models/tokens"
 	"net/url"
 
 	"github.com/edgedb/edgedb-go"
@@ -14,16 +14,15 @@ import (
 type UpdatePasswordInput struct {
 	Password    string        `json:"password" binding:"required"` // Old password
 	NewPassword PasswordInput `json:"new_password" binding:"required"`
-} // @name NewPasswordInput
+}
 
 type PasswordInput struct {
-	Password   string `json:"password" binding:"required"`
-	ConfirmPwd string `json:"password_confirmation" binding:"eqfield=Password,required"`
-} //@name PasswordInput
+	Password   string `json:"password"`
+	ConfirmPwd string `json:"password_confirmation"`
+}
 
-// The raw string value of a password after it has successfully passed all validation checks.
-type validatedPassword struct {
-	value string
+func (p PasswordInput) ValidateEqual() bool {
+	return p.Password == p.ConfirmPwd
 }
 
 type PasswordSensitiveInfos struct {
@@ -33,7 +32,7 @@ type PasswordSensitiveInfos struct {
 	LastName  string
 }
 
-func (p *PasswordSensitiveInfos) Slice() []string {
+func (p *PasswordSensitiveInfos) ToSlice() []string {
 	return []string{p.Email, p.Login, p.FirstName, p.LastName}
 }
 
@@ -41,15 +40,9 @@ func (p *PasswordSensitiveInfos) Slice() []string {
 // Strength score ranges from 1 to 5.
 //
 // Returns error if password is too weak.
-func ValidatePasswordStrength(p PasswordSensitiveInfos, pwd string, strength int) (*validatedPassword, error) {
-	score := zxcvbn.PasswordStrength(pwd, p.Slice()).Score
-	if score < strength {
-		return nil, fmt.Errorf(
-			"new password has strength score %d, at least %d is required",
-			score, strength,
-		)
-	}
-	return &validatedPassword{pwd}, nil
+func validatePasswordStrength(p PasswordSensitiveInfos, pwd string, strength int) bool {
+	score := zxcvbn.PasswordStrength(pwd, p.ToSlice()).Score
+	return score > strength
 }
 
 // Checks that a password matches the hashed password for a user.
@@ -60,44 +53,42 @@ func (user *User) PasswordMatch(db edgedb.Executor, pwd string) bool {
 			and .password = ext::pgcrypto::crypt(<str>$1, .password)
 		);`
 	if err := db.QuerySingle(context.Background(), query, &match, user.ID, pwd); err != nil {
-		logrus.Fatalf("Password matching query failed: %v", err)
+		logrus.Errorf("Password matching query failed: %v", err)
 	}
 	return match
 }
 
 // Sets the password of a user.
 // Returns string error if password is not strong enough.
-func (user *User) SetPassword(db edgedb.Executor, pwd string) error {
-	maybeValidPwd, err := ValidatePasswordStrength(
-		user.PasswordSensitiveInfos(), pwd, int(settings.Security().MinPasswordStrength),
+func (user *User) ValidatePasswordStrength(db edgedb.Executor, pwd string) bool {
+	strongEnough := validatePasswordStrength(
+		user.PasswordSensitiveInfos(),
+		string(pwd),
+		int(settings.Security().MinPasswordStrength),
 	)
-	if err != nil {
-		return err
-	}
-	user.setPassword(db, *maybeValidPwd)
-	return nil
+	return strongEnough
+
 }
 
 // Sets the password for a user in DB.
-// The query failing indicates a programming error, which results in a fatal error.
-func (user *User) setPassword(db edgedb.Executor, pwd validatedPassword) {
-	if err := db.Execute(context.Background(),
+func (user *User) SetPassword(db edgedb.Executor, pwd string) error {
+	return db.Execute(context.Background(),
 		`update (<people::User><uuid>$0) set { password := <str>$1 }`,
-		user.ID, pwd.value,
-	); err != nil {
-		logrus.Fatalf(
-			`Query failed while attempting to set password for user %v.\nError: %v`,
-			user.ID, err,
-		)
-	}
+		user.ID, pwd,
+	)
 }
 
+// RequestPasswordReset creates a password reset token in the DB and sends it
+// to the e-mail registered for the user account.
+// It can then be used to set a new password for the account.
 func (user *User) RequestPasswordReset(db *edgedb.Client, target url.URL) error {
-	token, err := user.CreateAccountToken(db, PasswordResetToken)
-	if err != nil {
+
+	token := tokens.NewPwdResetToken(user.ID)
+	if err := token.Save(db); err != nil {
 		return err
 	}
-	target.RawQuery = url.QueryEscape(string(token))
+
+	target.RawQuery = url.QueryEscape(string(token.Token))
 	return user.SendEmail(
 		"Reset your account password",
 		"email_password_reset.html",

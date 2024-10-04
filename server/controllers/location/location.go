@@ -20,7 +20,9 @@ func RegisterRoutes(r router.Router) {
 			Path:    "/countries",
 			Method:  http.MethodGet,
 			Summary: "List countries",
-		}, controllers.ListHandler(location.ListCountries))
+		}, controllers.ListHandler[*struct {
+			resolvers.AuthResolver
+		}](location.ListCountries))
 
 	habitatsAPI := r.RouteGroup("/habitats").
 		WithTags([]string{"Location", "Habitats"})
@@ -30,7 +32,9 @@ func RegisterRoutes(r router.Router) {
 			Path:    "/",
 			Method:  http.MethodGet,
 			Summary: "List habitats",
-		}, controllers.ListHandler(location.ListHabitatGroups))
+		}, controllers.ListHandler[*struct {
+			resolvers.AuthResolver
+		}](location.ListHabitatGroups))
 
 	router.Register(habitatsAPI, "CreateHabitatGroup",
 		huma.Operation{

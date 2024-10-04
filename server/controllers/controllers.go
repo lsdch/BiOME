@@ -8,6 +8,12 @@ type IdentifierInput[T any] interface {
 	Identifier() T
 }
 
+type StrIdentifier string
+
+func (i StrIdentifier) Identifier() string {
+	return string(i)
+}
+
 type UUIDInput struct {
 	ID edgedb.UUID `path:"id" format:"uuid"`
 }
@@ -35,3 +41,8 @@ func (i SlugInput) Identifier() string {
 // Implementation assertions
 var _ IdentifierInput[edgedb.UUID] = (*UUIDInput)(nil)
 var _ IdentifierInput[string] = (*CodeInput)(nil)
+
+// A simple response output that carries a message
+type Message struct {
+	Body string
+}

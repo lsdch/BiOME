@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 
 	"github.com/edgedb/edgedb-go"
-	"github.com/sirupsen/logrus"
 )
 
 type UserInner struct {
@@ -17,7 +16,6 @@ type UserInner struct {
 	Password       string      `edgedb:"password" json:"-"`
 	Role           UserRole    `edgedb:"role" json:"role" binding:"required"`
 	EmailConfirmed bool        `edgedb:"email_confirmed" json:"email_confirmed" binding:"required"`
-	IsActive       bool        `edgedb:"is_active" json:"is_active" binding:"required"`
 }
 
 type OptionalUserInner struct {
@@ -28,7 +26,7 @@ type OptionalUserInner struct {
 type User struct {
 	UserInner `edgedb:"$inline" json:",inline"`
 	Person    OptionalPerson `edgedb:"identity" json:"identity" binding:"required"`
-} //@name User
+}
 
 type OptionalUser struct {
 	edgedb.Optional
@@ -62,18 +60,7 @@ func (user *User) SendEmail(subject string, template_file string, data map[strin
 		Data:     data,
 	}
 
-	return email.Send(email.AdminEmailAddress(), emailData)
-}
-
-func (user *User) SetEmailConfirmed(db *edgedb.Client, active bool) error {
-	logrus.Infof("Confirm email address '%s' for user '%s'",
-		user.Login, user.Email,
-	)
-	return db.QuerySingle(context.Background(),
-		`select (update (<people::User><uuid>$0)
-			set { email_confirmed := <bool>$1 }
-		) { *, identity: { * }};`,
-		user, user.ID, active)
+	return emailData.Send(email.AdminEmailAddress())
 }
 
 // Custom user marshaller that obfuscates password
@@ -98,31 +85,27 @@ func DeleteUser(db edgedb.Executor, uuid edgedb.UUID) (*User, error) {
 	return &user, err
 }
 
-// Convenience function to retrieve a user using a database query with arguments.
-func find(db *edgedb.Client, query string, args ...interface{}) (*User, error) {
-	var user User
-	if err := db.QuerySingle(context.Background(), query, &user, args...); err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
 // Find a user by UUID
 //
 // Returns edgedb.NoDataError if nothing matches
-func FindID(db *edgedb.Client, uuid edgedb.UUID) (*User, error) {
-	return find(db,
+func FindID(db *edgedb.Client, uuid edgedb.UUID) (user User, err error) {
+	err = db.QuerySingle(context.Background(),
 		`select (<people::User><uuid>$0) { * , identity: { * } } limit 1`,
+		&user,
 		edgedb.UUID(uuid),
 	)
+	return
 }
 
 // Find a user by login or email
 //
 // Returns edgedb.NoDataError if nothing matches
-func Find(db *edgedb.Client, identifier string) (*User, error) {
-	return find(db,
+func Find(db *edgedb.Client, identifier string) (user User, err error) {
+	err = db.QuerySingle(context.Background(),
 		`select people::User { * , identity: { * } }
 		filter .email = <str>$0 or .login = <str>$0 limit 1`,
-		identifier)
+		&user,
+		identifier,
+	)
+	return
 }

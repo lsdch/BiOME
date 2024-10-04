@@ -3,6 +3,7 @@ package institution
 import (
 	"darco/proto/controllers"
 	"darco/proto/models/people"
+	"darco/proto/resolvers"
 	"darco/proto/router"
 	"net/http"
 
@@ -22,7 +23,9 @@ func RegisterRoutes(r router.Router) {
 			Summary: "List institutions",
 			Errors:  []int{500},
 		},
-		controllers.ListHandler(people.ListInstitutions),
+		controllers.ListHandler[*struct {
+			resolvers.AuthResolver
+		}](people.ListInstitutions),
 	)
 
 	router.Register(institutionsAPI, "CreateInstitution",

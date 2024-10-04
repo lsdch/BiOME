@@ -3,7 +3,8 @@ package accounts
 import (
 	"context"
 	"darco/proto/db"
-	users "darco/proto/models/people"
+	"darco/proto/models/people"
+	"darco/proto/models/tokens"
 	"darco/proto/resolvers"
 	"net/url"
 
@@ -11,86 +12,101 @@ import (
 )
 
 type ValidatePasswordTokenInput struct {
-	Token string `path:"token"`
+	Token tokens.Token `query:"token"`
 }
 
 func ValidatePasswordToken(ctx context.Context, input *ValidatePasswordTokenInput) (*struct{}, error) {
-	_, tokenValid := users.ValidateAccountToken(
+	token, err := tokens.RetrievePwdResetToken(
 		db.Client(),
-		users.Token(input.Token),
-		users.PasswordResetToken,
+		tokens.Token(input.Token),
 	)
-	if !tokenValid {
-		return nil, huma.Error400BadRequest("Invalid token")
+	if db.IsNoData(err) || !token.IsValid() {
+		return nil, huma.Error422UnprocessableEntity("Invalid token")
 	}
+	if err != nil {
+		return nil, err
+	}
+
+	// Respond with HTTP 204: token is valid
 	return nil, nil
 }
 
 type UpdatePasswordInput struct {
 	resolvers.AuthRequired
-	Body users.UpdatePasswordInput `required:"true"`
+	Body people.UpdatePasswordInput `required:"true"`
 }
 
 func (i *UpdatePasswordInput) Resolve(ctx huma.Context) []error {
-	if errs := i.AuthRequired.Resolve(ctx); errs != nil {
+	errs := i.AuthRequired.Resolve(ctx)
+	if errs != nil {
 		return errs
 	}
+	// Verify current password
 	if !i.User.PasswordMatch(i.DB(), i.Body.Password) {
-		return []error{&huma.ErrorDetail{
+		errs = append(errs, &huma.ErrorDetail{
 			Message:  "Invalid password",
 			Location: "password",
 			Value:    i.Body.Password,
-		}}
+		})
 	}
-	return nil
+	// Check password strength
+	if !i.User.ValidatePasswordStrength(
+		i.DB(), i.Body.NewPassword.Password,
+	) {
+		errs = append(errs, &huma.ErrorDetail{
+			Message:  "Password is too weak",
+			Location: "new_password.password",
+			Value:    i.Body.NewPassword.Password,
+		})
+	}
+	// Check password confirmation
+	if !i.Body.NewPassword.ValidateEqual() {
+		errs = append(errs, &huma.ErrorDetail{
+			Message:  "Passwords do not match",
+			Location: "new_password.password_confirmation",
+			Value:    i.Body.NewPassword.ConfirmPwd,
+		})
+	}
+
+	return errs
 }
 
 func UpdatePassword(ctx context.Context, input *UpdatePasswordInput) (*struct{}, error) {
-	if err := input.User.SetPassword(
-		input.DB(),
-		input.Body.NewPassword.Password,
-	); err != nil {
-		return nil, huma.Error400BadRequest("New password rejected",
-			&huma.ErrorDetail{
-				Message:  "Password is too weak",
-				Location: "new_password.password",
-			})
-	}
-	return nil, nil
+	err := input.User.SetPassword(input.DB(), input.Body.NewPassword.Password)
+	return nil, err
 }
 
 type PasswordResetInput struct {
-	Token users.Token         `path:"token"`
-	Body  users.PasswordInput `required:"true"`
-	*users.User
+	Token tokens.Token         `query:"token"`
+	Body  people.PasswordInput `required:"true"`
+	*people.User
 }
 
 func (i *PasswordResetInput) Resolve(ctx huma.Context) []error {
-	user, tokenValid := users.ValidateAccountToken(
-		db.Client(),
-		i.Token,
-		users.PasswordResetToken)
-	if !tokenValid {
-		return []error{huma.Error400BadRequest("Invalid token")}
+
+	resetToken, err := tokens.RetrievePwdResetToken(db.Client(), i.Token)
+	if db.IsNoData(err) || !resetToken.IsValid() {
+		return []error{&huma.ErrorDetail{Message: "Invalid token"}}
 	}
-	i.User = user
+	if err != nil {
+		return []error{err}
+	}
+	user, err := people.FindID(db.Client(), resetToken.UserID)
+	if err != nil {
+		return []error{err}
+	}
+	i.User = &user
 	return nil
 }
 
 func PasswordReset(ctx context.Context, input *PasswordResetInput) (*struct{}, error) {
-	if err := input.User.SetPassword(db.Client(), input.Body.Password); err != nil {
-		return nil, &huma.ErrorDetail{
-			Message:  "Password is too weak",
-			Location: "password",
-		}
-	}
-	return nil, nil
+	return nil, input.User.SetPassword(db.Client(), input.Body.Password)
 }
 
 type RequestPasswordResetInput struct {
 	resolvers.HostResolver
 	Body struct {
-		Email   string   `json:"email" binding:"required,email" format:"email"`
+		Email   string   `json:"email" format:"email"`
 		Handler *url.URL `json:"handler,omitempty" doc:"A URL where a form to set the new password is available"`
 	}
 }
@@ -99,9 +115,9 @@ type RequestPasswordResetHandler func(context.Context, *RequestPasswordResetInpu
 
 func RequestPasswordReset(defaultHandlerPath string) RequestPasswordResetHandler {
 	return func(ctx context.Context, input *RequestPasswordResetInput) (*struct{}, error) {
-		user, err := users.Find(db.Client(), input.Body.Email)
+		user, err := people.Find(db.Client(), input.Body.Email)
 		if err != nil {
-			return nil, huma.Error400BadRequest("Unknown email address", err)
+			return nil, huma.Error422UnprocessableEntity("Unknown email address", err)
 		}
 
 		var targetURL = input.GenerateURL(defaultHandlerPath)

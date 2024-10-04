@@ -3,7 +3,7 @@ package middlewares
 import (
 	"darco/proto/db"
 	"darco/proto/models/people"
-	"darco/proto/services/tokens"
+	"darco/proto/services/auth_tokens"
 	"strings"
 
 	"github.com/edgedb/edgedb-go"
@@ -21,7 +21,7 @@ const (
 func AuthenticationMiddleware(ctx *gin.Context) {
 
 	var access_token string
-	cookie, err := ctx.Cookie(tokens.AUTH_TOKEN_COOKIE)
+	cookie, err := ctx.Cookie(auth_tokens.AUTH_TOKEN_COOKIE)
 
 	ctx.Set(CTX_CURRENT_USER_KEY, nil)
 	ctx.Set(CTX_DATABASE_KEY, db.Client())
@@ -39,7 +39,7 @@ func AuthenticationMiddleware(ctx *gin.Context) {
 		return
 	}
 
-	sub, err := tokens.ValidateToken(access_token)
+	sub, err := auth_tokens.ValidateToken(access_token)
 	if err != nil {
 		logrus.Debugf("Auth middleware: Invalid token received")
 		return

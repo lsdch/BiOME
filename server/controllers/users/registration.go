@@ -2,9 +2,11 @@ package accounts
 
 import (
 	"context"
+	"darco/proto/controllers"
 	"darco/proto/db"
 	"darco/proto/models/people"
 	users "darco/proto/models/people"
+	"darco/proto/models/tokens"
 	_ "darco/proto/models/validations"
 	"darco/proto/resolvers"
 	"darco/proto/router"
@@ -28,25 +30,12 @@ type RegisterInput struct {
 	}
 }
 
-func sendConfirmationEmail(user *users.User, target url.URL) (*struct{}, error) {
-	if err := user.SendConfirmationEmail(db.Client(), target); err != nil {
-		msg := fmt.Sprintf(
-			"Failed to send account confirmation email to '%s'.",
-			user.Email,
-		)
-		logrus.Errorf("%s Error: %v", msg, err)
-		return nil, huma.Error500InternalServerError(msg, err)
-	}
-
-	return nil, nil
-}
-
-func Register(confirmEmailPath string) router.Endpoint[RegisterInput, struct{}] {
-	return func(ctx context.Context, input *RegisterInput) (*struct{}, error) {
+func Register(confirmEmailPath string) router.Endpoint[RegisterInput, controllers.Message] {
+	return func(ctx context.Context, input *RegisterInput) (*controllers.Message, error) {
 		logrus.Infof("Attempting to create account for %s %s (%s)",
 			input.Body.Person.FirstName,
 			input.Body.Person.LastName,
-			input.Body.User.Email,
+			input.Body.Email,
 		)
 
 		pending, err := input.Body.Register(db.Client())
@@ -58,50 +47,51 @@ func Register(confirmEmailPath string) router.Endpoint[RegisterInput, struct{}] 
 		if input.Body.Handler.Host != "" {
 			target = input.Body.Handler
 		}
-		return sendConfirmationEmail(&pending.User, target)
+		if err := pending.SendConfirmationEmail(db.Client(), target); err != nil {
+			return nil, huma.Error500InternalServerError("Failed to send verification email", err)
+		}
+		return &controllers.Message{
+			Body: "Account request created and email with verification token was sent",
+		}, nil
+
 	}
 }
 
 type ConfirmEmailInput struct {
 	resolvers.HostResolver
 	Token string `query:"token"`
-	*users.User
+	*users.PendingUserRequest
 }
 
 func (i *ConfirmEmailInput) Resolve(ctx huma.Context) []error {
 	if errs := i.HostResolver.Resolve(ctx); errs != nil {
 		return errs
 	}
-	user, tokenValid := users.ValidateAccountToken(
-		db.Client(),
-		users.Token(i.Token),
-		users.EmailConfirmationToken,
-	)
-	if !tokenValid {
-		return []error{&huma.ErrorDetail{
-			Message: "Invalid token",
-		}}
+
+	token, err := tokens.RetrieveEmailToken(db.Client(), tokens.Token(i.Token))
+	if db.IsNoData(err) || !token.IsValid() {
+		return []error{&huma.ErrorDetail{Message: "Invalid token"}}
+	}
+	if err != nil {
+		return []error{err}
 	}
 
-	if user.EmailConfirmed {
-		return []error{&huma.ErrorDetail{
-			Message: "Account is already verified",
-		}}
+	accountRequest, err := people.GetPendingUserRequest(db.Client(), token.Email)
+	if db.IsNoData(err) {
+		return []error{fmt.Errorf("No pending account request associated to this email found")}
 	}
 
-	i.User = user
+	i.PendingUserRequest = accountRequest
+
 	return nil
 }
 
-func ConfirmEmail(ctx context.Context, input *ConfirmEmailInput) (*LoginOutput, error) {
-	if err := input.User.SetEmailConfirmed(db.Client(), true); err != nil {
+func ConfirmEmail(ctx context.Context, input *ConfirmEmailInput) (*struct{ Message string }, error) {
+
+	if err := input.PendingUserRequest.SetEmailVerified(db.Client(), true); err != nil {
 		return nil, huma.Error500InternalServerError("Email confirmation failed", err)
 	}
-	return createSession(
-		input.User,
-		input.Host,
-		"Email confirmation successful",
-	)
+	return &struct{ Message string }{"Email successfully verified"}, nil
 }
 
 type ResendEmailConfirmationInput struct {
@@ -110,11 +100,11 @@ type ResendEmailConfirmationInput struct {
 		Email                string `json:"email" format:"email"`
 		EmailVerificationURL `json:",inline"`
 	}
-	*users.User
+	*users.PendingUserRequest
 }
 
 func (i *ResendEmailConfirmationInput) Resolve(ctx huma.Context) []error {
-	user, err := users.Find(db.Client(), i.Body.Email)
+	pending, err := users.GetPendingUserRequest(db.Client(), i.Body.Email)
 	if err != nil {
 		return []error{&huma.ErrorDetail{
 			Message:  "Unknown e-mail address",
@@ -122,35 +112,38 @@ func (i *ResendEmailConfirmationInput) Resolve(ctx huma.Context) []error {
 			Value:    i.Body.Email,
 		}}
 	}
-	if user.EmailConfirmed {
+	if pending.EmailVerified {
 		return []error{&huma.ErrorDetail{
 			Message:  "E-mail was already verified",
 			Location: "email",
 			Value:    i.Body.Email,
 		}}
 	}
-	i.User = user
+	i.PendingUserRequest = pending
 	return nil
 }
 
-func ResendEmailConfirmation(confirmEmailPath string) router.Endpoint[ResendEmailConfirmationInput, struct{}] {
-	return func(ctx context.Context, input *ResendEmailConfirmationInput) (*struct{}, error) {
+func ResendEmailConfirmation(confirmEmailPath string) router.Endpoint[ResendEmailConfirmationInput, controllers.Message] {
+	return func(ctx context.Context, input *ResendEmailConfirmationInput) (*controllers.Message, error) {
 		target := input.GenerateURL(confirmEmailPath)
 		if input.Body.Handler.Host != "" {
 			target = input.Body.Handler
 		}
-		return sendConfirmationEmail(input.User, target)
+		if err := input.PendingUserRequest.SendConfirmationEmail(db.Client(), target); err != nil {
+			return nil, huma.Error500InternalServerError("Failed to send verification email", err)
+		}
+		return &controllers.Message{Body: "Verification email was sent"}, nil
 	}
 }
 
 type ClaimInvitationInput struct {
 	resolvers.HostResolver
-	Token people.Token `path:"token"`
+	Token tokens.Token `path:"token"`
 	Body  people.UserInput
 }
 
 func ClaimInvitation(ctx context.Context, input *ClaimInvitationInput) (*LoginOutput, error) {
-	user, err := input.Body.ClaimInvitationToken(db.Client(), input.Token)
+	user, err := input.Body.RegisterWithToken(db.Client(), input.Token)
 	switch {
 	case errors.Is(err, people.InvalidTokenError):
 		return nil, huma.Error422UnprocessableEntity("Invalid invitation token")
