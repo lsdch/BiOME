@@ -67,7 +67,7 @@ const vuetify = createVuetify({
     VTextField: { variant: "outlined" },
     VSelect: { variant: "outlined" },
     VAutocomplete: { variant: "outlined" },
-    VTextArea: { variant: "outlined" },
+    VTextarea: { variant: "outlined" },
     VNumberInput: { variant: "outlined" },
     VInlineSearchBar: {
       density: "compact",
