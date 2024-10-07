@@ -18,7 +18,7 @@
         @click="emit('submit')"
       />
     </v-row>
-    <v-divider />
+    <v-divider class="mb-3" />
     <slot />
   </v-form>
 </template>

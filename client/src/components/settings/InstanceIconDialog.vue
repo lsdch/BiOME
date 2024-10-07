@@ -62,18 +62,21 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { SettingsService } from '@/api'
+import { errorFeedback } from '@/api/responses'
+import { useObjectUrl } from '@vueuse/core'
+import mime from 'mime'
+import { computed, ref } from 'vue'
 import { CircleStencil, Coordinates, Cropper, CropperResult } from 'vue-advanced-cropper'
 import 'vue-advanced-cropper/dist/style.css'
 import { useDisplay } from 'vuetify'
-import InstanceIconPreviews from './InstanceIconPreviews.vue'
-import { computed, watch } from 'vue'
-import { SettingsService } from '@/api'
-import mime from 'mime'
 import { useInstanceSettings } from '.'
+import InstanceIconPreviews from './InstanceIconPreviews.vue'
 
 const { smAndDown, mdAndUp } = useDisplay()
 const { ICON_PATH } = useInstanceSettings()
+
+const emit = defineEmits<{ uploaded: [] }>()
 
 const defaultCoordinates: Coordinates = {
   width: 500,
@@ -90,35 +93,27 @@ function updatePreview(c: CropperResult) {
 }
 
 const imgFile = ref<File | undefined>(undefined)
-const uploadedImg = ref<string | undefined>(undefined)
-
-watch(imgFile, () => {
-  if (uploadedImg.value) {
-    URL.revokeObjectURL(uploadedImg.value)
-  }
-  if (imgFile.value) {
-    uploadedImg.value = URL.createObjectURL(imgFile.value)
-  } else {
-    uploadedImg.value = undefined
-  }
-})
-
+const imgTmpURL = useObjectUrl(imgFile)
 const imgSrc = computed(() => {
-  return uploadedImg.value ?? ICON_PATH
+  return imgTmpURL.value ?? ICON_PATH
 })
 
-function saveIcon() {
-  result.value?.canvas?.toBlob((blob) => {
-    if (blob !== null) {
-      const file = new File([blob], 'icon', { type: mimeType.value })
-      SettingsService.setAppIcon({ body: { icon: file } })
-    }
-  }, mimeType.value)
-}
-
+// Icon mime type
 const mimeType = computed(
   () => imgFile.value?.type ?? (mime.getType(ICON_PATH) || 'application/octet-stream')
 )
+
+function saveIcon() {
+  result.value?.canvas?.toBlob(async (blob) => {
+    if (blob !== null) {
+      const file = new File([blob], 'icon', { type: mimeType.value })
+      await SettingsService.setAppIcon({ body: { icon: file } })
+        .then(errorFeedback('Failed to upload new icon'))
+        .then(() => emit('uploaded'))
+        .finally(() => (model.value = false))
+    }
+  }, mimeType.value)
+}
 </script>
 
 <style lang="scss">
