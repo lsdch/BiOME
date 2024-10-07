@@ -201,9 +201,23 @@ export function useSchema<T extends Schema>(schema: T) {
       })
     }
 
-    // Custom
-    if (s?.format == "country-code") {
-      rules.push((value: string) => useCountries().findCountry(value) !== undefined || `Invalid country code`)
+    // Formats
+    switch (s?.format) {
+
+      case "email":
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        rules.push((value: string) => {
+          return emailRegex.test(value) || "Invalid email format"
+        })
+
+      // Custom
+      case "country-code":
+        rules.push((value: string) =>
+          useCountries().findCountry(value) !== undefined || `Invalid country code`)
+        break;
+
+      default:
+        break;
     }
 
     return rules
