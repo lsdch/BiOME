@@ -10,7 +10,7 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 // Create app instance
-const { settings } = await import('./components/settings/').then(s => s.useInstanceSettings())
+const settings = await import('./components/settings/').then(s => s.initInstanceSettings())
 const app = createApp(App, { settings })
 
 // Setup pinia stores

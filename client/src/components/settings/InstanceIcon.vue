@@ -1,14 +1,13 @@
 <template>
   <v-img
     id="instance-icon"
-    :src="`${ICON_PATH}?cacheKey=${renderKey}`"
     :width="120"
     :aspect-ratio="1"
     :max-width="120"
     alt="alt"
     rounded="circle"
     :class="['border-lg', iconHover ? 'border-primary border-opacity-100' : 'border-opacity-10']"
-    :key="renderKey"
+    v-bind="iconImgProps"
   >
     <v-overlay
       v-model="iconHover"
@@ -28,20 +27,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, render } from 'vue'
+import { ref } from 'vue'
 import { useInstanceSettings } from '.'
 import InstanceIconDialog from './InstanceIconDialog.vue'
 
-const { ICON_PATH } = useInstanceSettings()
+const { iconImgProps, reloadIcon } = useInstanceSettings()
 
 const iconHover = ref(false)
 const dialogOpen = ref(false)
 
-const renderKey = ref(0)
 const emit = defineEmits<{ changed: [] }>()
 
 function onIconUploaded() {
-  renderKey.value++
+  reloadIcon()
   emit('changed')
 }
 </script>
