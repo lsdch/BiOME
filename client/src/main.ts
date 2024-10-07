@@ -1,96 +1,33 @@
+// Setup API client
+import { client } from "@/api/services.gen"
+import { servers } from "../openapi.json"
+
+// ❗ Use dynamic imports for anything relying on the client in the main script
+// so that the updated config is used
+client.setConfig({ baseUrl: `${servers[0].url}` })
 
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'
-import "./styles/main.scss"
 
-// Vuetify
-import '@mdi/font/css/materialdesignicons.css'
-import 'vuetify/styles'
-
-import { createPinia, setActivePinia } from 'pinia'
-import { createVuetify, type ThemeDefinition } from 'vuetify'
-import { md3 } from 'vuetify/blueprints'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
-import { aliases, mdi } from 'vuetify/iconsets/mdi'
-
-
-const light: ThemeDefinition = {
-  dark: false,
-  colors: {
-    primary: '#1071B0',
-  },
-}
-
-const dark: ThemeDefinition = {
-  dark: true,
-  colors: {
-    primary: '#057C9D',
-  }
-}
-
-import { VNumberInput } from 'vuetify/labs/VNumberInput'
-import { VTextField } from 'vuetify/components'
-import { VTreeview } from 'vuetify/labs/VTreeview'
-
-import { useUserStore } from './stores/user'
-import { useInstanceSettings } from './components/settings/'
-import { useCountries } from './stores/countries'
-
-const vuetify = createVuetify({
-  blueprint: md3,
-  components: {
-    ...components,
-    VNumberInput,
-    VTreeview
-  },
-  aliases: {
-    VInlineSearchBar: VTextField,
-  },
-  directives,
-  icons: {
-    defaultSet: 'mdi',
-    aliases,
-    sets: { mdi }
-  },
-  display: {
-    mobileBreakpoint: 'sm',
-  },
-  theme: {
-    defaultTheme: "light",
-    themes: {
-      light, dark
-    }
-  },
-  defaults: {
-    VTextField: { variant: "outlined" },
-    VSelect: { variant: "outlined" },
-    VAutocomplete: { variant: "outlined" },
-    VTextarea: { variant: "outlined" },
-    VNumberInput: { variant: "outlined" },
-    VInlineSearchBar: {
-      density: "compact",
-      clearable: true,
-      hideDetails: true,
-      color: "primary",
-      variant: "outlined",
-      prependInnerIcon: "mdi-magnify"
-    }
-  }
-})
-
-const { settings } = useInstanceSettings()
+// Create app instance
+const { settings } = await import('./components/settings/').then(s => s.useInstanceSettings())
 const app = createApp(App, { settings })
 
+// Setup pinia stores
+import { createPinia, setActivePinia } from 'pinia'
 const pinia = createPinia()
 setActivePinia(pinia)
 app.use(pinia)
 
-await useUserStore().getUser()
-await useCountries().fetch()
+await import('./stores/user').then(s => s.useUserStore().getUser())
+await import('./stores/countries').then(s => s.useCountries().fetch())
 
-app.use(router())
+// Setup router
+import setupRouter from './router'
+app.use(setupRouter(settings))
+
+// Setup vuetify
+import vuetify from "./vuetify"
 app.use(vuetify)
 
 

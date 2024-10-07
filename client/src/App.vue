@@ -40,7 +40,7 @@ import colors from 'vuetify/util/colors'
 import AccountNavMenu from '@/components/navbar/AccountNavMenu.vue'
 import SettingsMenu from '@/components/navbar/SettingsMenu.vue'
 
-import { client } from '@hey-api/client-fetch'
+import { client } from '@/api/services.gen'
 import { useDisplay } from 'vuetify'
 import { ErrorDetail, InstanceSettings } from './api'
 import ConfirmDialog from './components/toolkit/ui/ConfirmDialog.vue'
@@ -80,6 +80,7 @@ const snackbar = ref<{ open: boolean; title: string; errors: ErrorDetail[] }>({
   title: '',
   errors: []
 })
+
 client.interceptors.response.use(async (response) => {
   if (response.status === 401) {
     const body = await response.json()

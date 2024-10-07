@@ -6,7 +6,12 @@ const config: UserConfig = defineConfig({
   output: {
     path: "src/api",
     format: "prettier",
-    lint: "eslint"
+    lint: "eslint",
+  },
+  schemas: {
+    name(name, schema) {
+      return `$${name}`
+    },
   },
   services: {
     asClass: true,
@@ -14,7 +19,7 @@ const config: UserConfig = defineConfig({
   types: {
     dates: true,
     name: "PascalCase",
-  }
+  },
 })
 
 export default config
