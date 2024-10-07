@@ -1,3 +1,5 @@
+import { useFeedback } from "@/stores/feedback";
+
 export type ResponseBody<Data = unknown, Error = unknown> = {
   data: Data;
   error: undefined;
@@ -26,6 +28,19 @@ export function handleErrors<D, E>(handler: (err: E) => any) {
     return new Promise<D>((resolve, reject) => {
       if (error != undefined) {
         handler(error)
+        return reject()
+      }
+      return resolve(data!)
+    })
+  }
+}
+
+export function errorFeedback<Data, Error>(message: string) {
+  return ({ data, error }: ResponseBody<Data, Error>) => {
+    const { feedback } = useFeedback()
+    return new Promise<Data>((resolve, reject) => {
+      if (error != undefined) {
+        feedback({ message, type: "error" })
         return reject()
       }
       return resolve(data!)

@@ -94,7 +94,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -332,7 +331,6 @@
 						"type": "boolean"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -478,7 +476,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -679,7 +676,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -738,7 +734,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -992,7 +987,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -1046,7 +1040,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -1103,7 +1096,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -1155,7 +1147,6 @@
 						"type": "boolean"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -1216,7 +1207,6 @@
 						"type": "string"
 					},
 					"ID": {
-						"contentEncoding": "base64",
 						"type": "string"
 					},
 					"created_on": {
@@ -1343,7 +1333,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -1505,7 +1494,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -1753,7 +1741,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -1796,7 +1783,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -1846,7 +1832,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -2037,7 +2022,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -2167,7 +2151,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -2373,7 +2356,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -2451,7 +2433,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -2544,7 +2525,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -2636,7 +2616,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -2721,7 +2700,6 @@
 						"type": "boolean"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -2781,7 +2759,6 @@
 						"type": "boolean"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -2852,7 +2829,6 @@
 						"type": "string"
 					},
 					"id": {
-						"contentEncoding": "base64",
 						"format": "uuid",
 						"type": "string"
 					},
@@ -5165,7 +5141,6 @@
 						"name": "id",
 						"required": true,
 						"schema": {
-							"contentEncoding": "base64",
 							"format": "uuid",
 							"type": "string"
 						}
@@ -5249,7 +5224,6 @@
 						"name": "id",
 						"required": true,
 						"schema": {
-							"contentEncoding": "base64",
 							"format": "uuid",
 							"type": "string"
 						}
@@ -5346,7 +5320,6 @@
 						"name": "id",
 						"required": true,
 						"schema": {
-							"contentEncoding": "base64",
 							"format": "uuid",
 							"type": "string"
 						}

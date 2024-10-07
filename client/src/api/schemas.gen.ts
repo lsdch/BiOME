@@ -69,7 +69,6 @@ export const $Country = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -266,7 +265,6 @@ export const $HabitatGroup = {
             type: 'boolean'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -378,7 +376,6 @@ export const $HabitatRecord = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -539,7 +536,6 @@ export const $Institution = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -582,7 +578,6 @@ export const $InstitutionInner = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -786,7 +781,6 @@ export const $OptionalHabitatRecord = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -830,7 +824,6 @@ export const $OptionalPerson = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -874,7 +867,6 @@ export const $OptionalTaxon = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -909,7 +901,6 @@ export const $OptionalUserInner = {
             type: 'boolean'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -956,7 +947,6 @@ export const $PendingUserRequest = {
             type: 'string'
         },
         ID: {
-            contentEncoding: 'base64',
             type: 'string'
         },
         created_on: {
@@ -1070,7 +1060,6 @@ export const $Person = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -1201,7 +1190,6 @@ export const $PersonUser = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -1407,7 +1395,6 @@ export const $Site = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -1440,7 +1427,6 @@ export const $SiteDataset = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -1477,7 +1463,6 @@ export const $SiteDatasetInner = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -1636,7 +1621,6 @@ export const $SiteItem = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -1732,7 +1716,6 @@ export const $Taxon = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -1882,7 +1865,6 @@ export const $TaxonWithLineage = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -1939,7 +1921,6 @@ export const $TaxonWithParentRef = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -2006,7 +1987,6 @@ export const $TaxonWithRelatives = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -2073,7 +2053,6 @@ export const $Taxonomy = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -2138,7 +2117,6 @@ export const $User = {
             type: 'boolean'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -2188,7 +2166,6 @@ export const $UserInner = {
             type: 'boolean'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },
@@ -2244,7 +2221,6 @@ export const $UserShortIdentity = {
             type: 'string'
         },
         id: {
-            contentEncoding: 'base64',
             format: 'uuid',
             type: 'string'
         },

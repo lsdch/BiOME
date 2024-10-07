@@ -172,7 +172,7 @@ export type HabitatGroupUpdate = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    depends: string | null;
+    depends: (string) | null;
     exclusive_elements?: boolean;
     label?: string;
 };
@@ -260,7 +260,7 @@ export type InstanceSettingsInput = {
      * Whether requests to contribute to the database can be made.
      */
     allow_contributor_signup: boolean;
-    description: string | null;
+    description: (string) | null;
     /**
      * The name of this database platform
      */
@@ -315,8 +315,8 @@ export type InstitutionUpdate = {
      */
     readonly $schema?: string;
     code?: string;
-    description?: string | null;
-    kind?: InstitutionKind | null;
+    description?: (string) | null;
+    kind?: (InstitutionKind) | null;
     name?: string;
 };
 
@@ -489,8 +489,8 @@ export type PersonUpdate = {
      */
     readonly $schema?: string;
     alias?: string;
-    comment?: string | null;
-    contact?: string | null;
+    comment?: (string) | null;
+    contact?: (string) | null;
     first_name?: string;
     institutions?: Array<(string)> | null;
     last_name?: string;
@@ -517,7 +517,7 @@ export type RegisterInputBody = {
     /**
      * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
      */
-    verification_url: string | null;
+    verification_url: (string) | null;
 };
 
 export type RequestPasswordResetInputBody = {
@@ -541,7 +541,7 @@ export type ResendEmailConfirmationInputBody = {
     /**
      * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
      */
-    verification_url: string | null;
+    verification_url: (string) | null;
 };
 
 export type SecuritySettings = {
@@ -655,7 +655,7 @@ export type SiteDatasetUpdate = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    description?: string | null;
+    description?: (string) | null;
     label?: string;
     /**
      * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
@@ -703,11 +703,11 @@ export type SiteUpdate = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    access_point?: string | null;
+    access_point?: (string) | null;
     /**
      * Site altitude in meters
      */
-    altitude?: number | null;
+    altitude?: (number) | null;
     /**
      * A short unique uppercase alphanumeric identifier
      */
@@ -717,11 +717,11 @@ export type SiteUpdate = {
      */
     coordinates: Coordinates;
     country_code: string;
-    description?: string | null;
+    description?: (string) | null;
     /**
      * Nearest populated place
      */
-    locality?: string | null;
+    locality?: (string) | null;
     name: string;
 };
 
@@ -762,7 +762,7 @@ export type TaxonUpdate = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    authorship?: string | null;
+    authorship?: (string) | null;
     code?: string;
     name?: string;
     parent?: string;
@@ -849,7 +849,7 @@ export type Taxonomy = {
 /**
  * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
  */
-export type Url = string | null;
+export type Url = (string) | null;
 
 export type UpdatePasswordInput = {
     /**
@@ -915,9 +915,9 @@ export type GetAccessPointsData = {
     };
 };
 
-export type GetAccessPointsResponse = Array<(string)> | null;
+export type GetAccessPointsResponse = (Array<(string)> | null);
 
-export type GetAccessPointsError = unknown;
+export type GetAccessPointsError = (ErrorModel);
 
 export type ListSiteDatasetsData = {
     headers?: {
@@ -928,9 +928,9 @@ export type ListSiteDatasetsData = {
     };
 };
 
-export type ListSiteDatasetsResponse = Array<SiteDataset> | null;
+export type ListSiteDatasetsResponse = (Array<SiteDataset> | null);
 
-export type ListSiteDatasetsError = ErrorModel;
+export type ListSiteDatasetsError = (ErrorModel);
 
 export type CreateSiteDatasetData = {
     body: SiteDatasetInput;
@@ -942,9 +942,9 @@ export type CreateSiteDatasetData = {
     };
 };
 
-export type CreateSiteDatasetResponse = SiteDataset;
+export type CreateSiteDatasetResponse = (SiteDataset);
 
-export type CreateSiteDatasetError = ErrorModel;
+export type CreateSiteDatasetError = (ErrorModel);
 
 export type UpdateSiteDatasetData = {
     body: SiteDatasetUpdate;
@@ -959,9 +959,9 @@ export type UpdateSiteDatasetData = {
     };
 };
 
-export type UpdateSiteDatasetResponse = SiteDataset;
+export type UpdateSiteDatasetResponse = (SiteDataset);
 
-export type UpdateSiteDatasetError = ErrorModel;
+export type UpdateSiteDatasetError = (ErrorModel);
 
 export type GetSiteDatasetData = {
     headers?: {
@@ -975,9 +975,9 @@ export type GetSiteDatasetData = {
     };
 };
 
-export type GetSiteDatasetResponse = SiteDataset;
+export type GetSiteDatasetResponse = (SiteDataset);
 
-export type GetSiteDatasetError = ErrorModel;
+export type GetSiteDatasetError = (ErrorModel);
 
 export type ListHabitatGroupsData = {
     headers?: {
@@ -988,9 +988,9 @@ export type ListHabitatGroupsData = {
     };
 };
 
-export type ListHabitatGroupsResponse = Array<HabitatGroup> | null;
+export type ListHabitatGroupsResponse = (Array<HabitatGroup> | null);
 
-export type ListHabitatGroupsError = ErrorModel;
+export type ListHabitatGroupsError = (ErrorModel);
 
 export type CreateHabitatGroupData = {
     body: HabitatGroupInput;
@@ -1002,9 +1002,9 @@ export type CreateHabitatGroupData = {
     };
 };
 
-export type CreateHabitatGroupResponse = HabitatGroup;
+export type CreateHabitatGroupResponse = (HabitatGroup);
 
-export type CreateHabitatGroupError = ErrorModel;
+export type CreateHabitatGroupError = (ErrorModel);
 
 export type DeleteHabitatGroupData = {
     headers?: {
@@ -1018,9 +1018,9 @@ export type DeleteHabitatGroupData = {
     };
 };
 
-export type DeleteHabitatGroupResponse = HabitatGroup;
+export type DeleteHabitatGroupResponse = (HabitatGroup);
 
-export type DeleteHabitatGroupError = ErrorModel;
+export type DeleteHabitatGroupError = (ErrorModel);
 
 export type UpdateHabitatGroupData = {
     body: HabitatGroupUpdate;
@@ -1035,9 +1035,9 @@ export type UpdateHabitatGroupData = {
     };
 };
 
-export type UpdateHabitatGroupResponse = HabitatGroup;
+export type UpdateHabitatGroupResponse = (HabitatGroup);
 
-export type UpdateHabitatGroupError = ErrorModel;
+export type UpdateHabitatGroupError = (ErrorModel);
 
 export type ListCountriesData = {
     headers?: {
@@ -1048,9 +1048,9 @@ export type ListCountriesData = {
     };
 };
 
-export type ListCountriesResponse = Array<Country> | null;
+export type ListCountriesResponse = (Array<Country> | null);
 
-export type ListCountriesError = ErrorModel;
+export type ListCountriesError = (ErrorModel);
 
 export type ListSitesData = {
     headers?: {
@@ -1061,9 +1061,9 @@ export type ListSitesData = {
     };
 };
 
-export type ListSitesResponse = Array<Site> | null;
+export type ListSitesResponse = (Array<Site> | null);
 
-export type ListSitesError = ErrorModel;
+export type ListSitesError = (ErrorModel);
 
 export type GetSiteData = {
     headers?: {
@@ -1077,9 +1077,9 @@ export type GetSiteData = {
     };
 };
 
-export type GetSiteResponse = Site;
+export type GetSiteResponse = (Site);
 
-export type GetSiteError = ErrorModel;
+export type GetSiteError = (ErrorModel);
 
 export type UpdateSiteData = {
     body: SiteUpdate;
@@ -1094,9 +1094,9 @@ export type UpdateSiteData = {
     };
 };
 
-export type UpdateSiteResponse = Site;
+export type UpdateSiteResponse = (Site);
 
-export type UpdateSiteError = ErrorModel;
+export type UpdateSiteError = (ErrorModel);
 
 export type CurrentUserData = {
     headers?: {
@@ -1107,9 +1107,9 @@ export type CurrentUserData = {
     };
 };
 
-export type CurrentUserResponse2 = CurrentUserResponse | void;
+export type CurrentUserResponse2 = (CurrentUserResponse | void);
 
-export type CurrentUserError = ErrorModel;
+export type CurrentUserError = (ErrorModel);
 
 export type ConfirmEmailData = {
     query?: {
@@ -1117,37 +1117,37 @@ export type ConfirmEmailData = {
     };
 };
 
-export type ConfirmEmailResponse = string;
+export type ConfirmEmailResponse = (string);
 
-export type ConfirmEmailError = ErrorModel;
+export type ConfirmEmailError = (ErrorModel);
 
 export type ResendEmailConfirmationData = {
     body: ResendEmailConfirmationInputBody;
 };
 
-export type ResendEmailConfirmationResponse = string;
+export type ResendEmailConfirmationResponse = (string);
 
-export type ResendEmailConfirmationError = ErrorModel;
+export type ResendEmailConfirmationError = (ErrorModel);
 
 export type RequestPasswordResetData = {
     body: RequestPasswordResetInputBody;
 };
 
-export type RequestPasswordResetResponse = void;
+export type RequestPasswordResetResponse = (void);
 
-export type RequestPasswordResetError = ErrorModel;
+export type RequestPasswordResetError = (ErrorModel);
 
 export type LoginData = {
     body: UserCredentials;
 };
 
-export type LoginResponse = AuthenticationResponse;
+export type LoginResponse = (AuthenticationResponse);
 
-export type LoginError = ErrorModel;
+export type LoginError = (ErrorModel);
 
-export type LogoutResponse = string;
+export type LogoutResponse = (string);
 
-export type LogoutError = ErrorModel;
+export type LogoutError = (ErrorModel);
 
 export type UpdatePasswordData = {
     body: UpdatePasswordInput;
@@ -1159,9 +1159,9 @@ export type UpdatePasswordData = {
     };
 };
 
-export type UpdatePasswordResponse = void;
+export type UpdatePasswordResponse = (void);
 
-export type UpdatePasswordError = ErrorModel;
+export type UpdatePasswordError = (ErrorModel);
 
 export type ValidatePasswordTokenData = {
     query?: {
@@ -1169,9 +1169,9 @@ export type ValidatePasswordTokenData = {
     };
 };
 
-export type ValidatePasswordTokenResponse = void;
+export type ValidatePasswordTokenResponse = (void);
 
-export type ValidatePasswordTokenError = ErrorModel;
+export type ValidatePasswordTokenError = (ErrorModel);
 
 export type ResetPasswordData = {
     body: PasswordInput;
@@ -1180,9 +1180,9 @@ export type ResetPasswordData = {
     };
 };
 
-export type ResetPasswordResponse = void;
+export type ResetPasswordResponse = (void);
 
-export type ResetPasswordError = ErrorModel;
+export type ResetPasswordError = (ErrorModel);
 
 export type ListPendingUserRequestsData = {
     headers?: {
@@ -1193,9 +1193,9 @@ export type ListPendingUserRequestsData = {
     };
 };
 
-export type ListPendingUserRequestsResponse = Array<PendingUserRequest> | null;
+export type ListPendingUserRequestsResponse = (Array<PendingUserRequest> | null);
 
-export type ListPendingUserRequestsError = ErrorModel;
+export type ListPendingUserRequestsError = (ErrorModel);
 
 export type GetPendingUserRequestData = {
     headers?: {
@@ -1206,17 +1206,17 @@ export type GetPendingUserRequestData = {
     };
 };
 
-export type GetPendingUserRequestResponse = PendingUserRequest;
+export type GetPendingUserRequestResponse = (PendingUserRequest);
 
-export type GetPendingUserRequestError = ErrorModel;
+export type GetPendingUserRequestError = (ErrorModel);
 
 export type RegisterData = {
     body: RegisterInputBody;
 };
 
-export type RegisterResponse = string;
+export type RegisterResponse = (string);
 
-export type RegisterError = ErrorModel;
+export type RegisterError = (ErrorModel);
 
 export type ClaimInvitationData = {
     body: UserInput;
@@ -1225,9 +1225,9 @@ export type ClaimInvitationData = {
     };
 };
 
-export type ClaimInvitationResponse = AuthenticationResponse;
+export type ClaimInvitationResponse = (AuthenticationResponse);
 
-export type ClaimInvitationError = ErrorModel;
+export type ClaimInvitationError = (ErrorModel);
 
 export type ListAnchorsData = {
     headers?: {
@@ -1238,9 +1238,9 @@ export type ListAnchorsData = {
     };
 };
 
-export type ListAnchorsResponse = Array<TaxonWithParentRef> | null;
+export type ListAnchorsResponse = (Array<TaxonWithParentRef> | null);
 
-export type ListAnchorsError = ErrorModel;
+export type ListAnchorsError = (ErrorModel);
 
 export type ImportGbifData = {
     body: ImportRequestGbif;
@@ -1252,11 +1252,11 @@ export type ImportGbifData = {
     };
 };
 
-export type ImportGbifResponse = void;
+export type ImportGbifResponse = (void);
 
-export type ImportGbifError = unknown;
+export type ImportGbifError = (ErrorModel);
 
-export type MonitorGbifResponse = Array<({
+export type MonitorGbifResponse = (Array<({
     data: {
         [key: string]: ImportProcess;
     };
@@ -1272,9 +1272,9 @@ export type MonitorGbifResponse = Array<({
      * The retry time in milliseconds.
      */
     retry?: number;
-})>;
+})>);
 
-export type MonitorGbifError = unknown;
+export type MonitorGbifError = (ErrorModel);
 
 export type ListInstitutionsData = {
     headers?: {
@@ -1285,9 +1285,9 @@ export type ListInstitutionsData = {
     };
 };
 
-export type ListInstitutionsResponse = Array<Institution> | null;
+export type ListInstitutionsResponse = (Array<Institution> | null);
 
-export type ListInstitutionsError = ErrorModel;
+export type ListInstitutionsError = (ErrorModel);
 
 export type CreateInstitutionData = {
     body: InstitutionInput;
@@ -1299,9 +1299,9 @@ export type CreateInstitutionData = {
     };
 };
 
-export type CreateInstitutionResponse = Institution;
+export type CreateInstitutionResponse = (Institution);
 
-export type CreateInstitutionError = ErrorModel;
+export type CreateInstitutionError = (ErrorModel);
 
 export type DeleteInstitutionData = {
     headers?: {
@@ -1315,9 +1315,9 @@ export type DeleteInstitutionData = {
     };
 };
 
-export type DeleteInstitutionResponse = Institution;
+export type DeleteInstitutionResponse = (Institution);
 
-export type DeleteInstitutionError = ErrorModel;
+export type DeleteInstitutionError = (ErrorModel);
 
 export type UpdateInstitutionData = {
     body: InstitutionUpdate;
@@ -1332,9 +1332,9 @@ export type UpdateInstitutionData = {
     };
 };
 
-export type UpdateInstitutionResponse = Institution;
+export type UpdateInstitutionResponse = (Institution);
 
-export type UpdateInstitutionError = ErrorModel;
+export type UpdateInstitutionError = (ErrorModel);
 
 export type ListPersonsData = {
     headers?: {
@@ -1345,9 +1345,9 @@ export type ListPersonsData = {
     };
 };
 
-export type ListPersonsResponse = Array<Person> | null;
+export type ListPersonsResponse = (Array<Person> | null);
 
-export type ListPersonsError = ErrorModel;
+export type ListPersonsError = (ErrorModel);
 
 export type CreatePersonData = {
     body: PersonInput;
@@ -1359,9 +1359,9 @@ export type CreatePersonData = {
     };
 };
 
-export type CreatePersonResponse = Person;
+export type CreatePersonResponse = (Person);
 
-export type CreatePersonError = ErrorModel;
+export type CreatePersonError = (ErrorModel);
 
 export type DeletePersonData = {
     headers?: {
@@ -1375,9 +1375,9 @@ export type DeletePersonData = {
     };
 };
 
-export type DeletePersonResponse = Person;
+export type DeletePersonResponse = (Person);
 
-export type DeletePersonError = ErrorModel;
+export type DeletePersonError = (ErrorModel);
 
 export type UpdatePersonData = {
     body: PersonUpdate;
@@ -1392,9 +1392,9 @@ export type UpdatePersonData = {
     };
 };
 
-export type UpdatePersonResponse = Person;
+export type UpdatePersonResponse = (Person);
 
-export type UpdatePersonError = ErrorModel;
+export type UpdatePersonError = (ErrorModel);
 
 export type InvitePersonData = {
     body: InvitationInput;
@@ -1409,9 +1409,9 @@ export type InvitePersonData = {
     };
 };
 
-export type InvitePersonResponse = InvitationLink;
+export type InvitePersonResponse = (InvitationLink);
 
-export type InvitePersonError = ErrorModel;
+export type InvitePersonError = (ErrorModel);
 
 export type EmailSettingsData = {
     headers?: {
@@ -1422,9 +1422,9 @@ export type EmailSettingsData = {
     };
 };
 
-export type EmailSettingsResponse = EmailSettings;
+export type EmailSettingsResponse = (EmailSettings);
 
-export type EmailSettingsError = ErrorModel;
+export type EmailSettingsError = (ErrorModel);
 
 export type UpdateEmailSettingsData = {
     body: EmailSettingsInput;
@@ -1436,9 +1436,9 @@ export type UpdateEmailSettingsData = {
     };
 };
 
-export type UpdateEmailSettingsResponse = EmailSettings;
+export type UpdateEmailSettingsResponse = (EmailSettings);
 
-export type UpdateEmailSettingsError = ErrorModel;
+export type UpdateEmailSettingsError = (ErrorModel);
 
 export type TestSmtpData = {
     body: EmailSettingsInput;
@@ -1450,11 +1450,14 @@ export type TestSmtpData = {
     };
 };
 
-export type TestSmtpResponse = boolean;
+export type TestSmtpResponse = (boolean);
 
-export type TestSmtpError = ErrorModel;
+export type TestSmtpError = (ErrorModel);
 
 export type SetAppIconData = {
+    body?: {
+        icon: (Blob | File);
+    };
     headers?: {
         /**
          * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -1463,13 +1466,13 @@ export type SetAppIconData = {
     };
 };
 
-export type SetAppIconResponse = string;
+export type SetAppIconResponse = (string);
 
-export type SetAppIconError = ErrorModel;
+export type SetAppIconError = (ErrorModel);
 
-export type InstanceSettingsResponse = InstanceSettings;
+export type InstanceSettingsResponse = (InstanceSettings);
 
-export type InstanceSettingsError = ErrorModel;
+export type InstanceSettingsError = (ErrorModel);
 
 export type UpdateInstanceSettingsData = {
     body: InstanceSettingsInput;
@@ -1481,9 +1484,9 @@ export type UpdateInstanceSettingsData = {
     };
 };
 
-export type UpdateInstanceSettingsResponse = InstanceSettings;
+export type UpdateInstanceSettingsResponse = (InstanceSettings);
 
-export type UpdateInstanceSettingsError = ErrorModel;
+export type UpdateInstanceSettingsError = (ErrorModel);
 
 export type SecuritySettingsData = {
     headers?: {
@@ -1494,9 +1497,9 @@ export type SecuritySettingsData = {
     };
 };
 
-export type SecuritySettingsResponse = SecuritySettings;
+export type SecuritySettingsResponse = (SecuritySettings);
 
-export type SecuritySettingsError = ErrorModel;
+export type SecuritySettingsError = (ErrorModel);
 
 export type UpdateSecuritySettingsData = {
     body: SecuritySettingsInput;
@@ -1508,9 +1511,9 @@ export type UpdateSecuritySettingsData = {
     };
 };
 
-export type UpdateSecuritySettingsResponse = SecuritySettings;
+export type UpdateSecuritySettingsResponse = (SecuritySettings);
 
-export type UpdateSecuritySettingsError = ErrorModel;
+export type UpdateSecuritySettingsError = (ErrorModel);
 
 export type GetTaxonomyData = {
     headers?: {
@@ -1528,9 +1531,9 @@ export type GetTaxonomyData = {
     };
 };
 
-export type GetTaxonomyResponse = Taxonomy;
+export type GetTaxonomyResponse = (Taxonomy);
 
-export type GetTaxonomyError = ErrorModel;
+export type GetTaxonomyError = (ErrorModel);
 
 export type ListTaxaData = {
     query?: {
@@ -1543,9 +1546,9 @@ export type ListTaxaData = {
     };
 };
 
-export type ListTaxaResponse = Array<TaxonWithParentRef> | null;
+export type ListTaxaResponse = (Array<TaxonWithParentRef> | null);
 
-export type ListTaxaError = ErrorModel;
+export type ListTaxaError = (ErrorModel);
 
 export type CreateTaxonData = {
     body: TaxonInput;
@@ -1557,9 +1560,9 @@ export type CreateTaxonData = {
     };
 };
 
-export type CreateTaxonResponse = TaxonWithRelatives;
+export type CreateTaxonResponse = (TaxonWithRelatives);
 
-export type CreateTaxonError = ErrorModel;
+export type CreateTaxonError = (ErrorModel);
 
 export type DeleteTaxonData = {
     headers?: {
@@ -1573,9 +1576,9 @@ export type DeleteTaxonData = {
     };
 };
 
-export type DeleteTaxonResponse = TaxonWithRelatives;
+export type DeleteTaxonResponse = (TaxonWithRelatives);
 
-export type DeleteTaxonError = ErrorModel;
+export type DeleteTaxonError = (ErrorModel);
 
 export type GetTaxonData = {
     path: {
@@ -1583,9 +1586,9 @@ export type GetTaxonData = {
     };
 };
 
-export type GetTaxonResponse = TaxonWithLineage;
+export type GetTaxonResponse = (TaxonWithLineage);
 
-export type GetTaxonError = ErrorModel;
+export type GetTaxonError = (ErrorModel);
 
 export type UpdateTaxonData = {
     body: TaxonUpdate;
@@ -1600,1018 +1603,6 @@ export type UpdateTaxonData = {
     };
 };
 
-export type UpdateTaxonResponse = TaxonWithLineage;
+export type UpdateTaxonResponse = (TaxonWithLineage);
 
-export type UpdateTaxonError = ErrorModel;
-
-export type $OpenApiTs = {
-    '/access-points': {
-        get: {
-            req: GetAccessPointsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<(string)> | null;
-                /**
-                 * Error
-                 */
-                default: ErrorModel;
-            };
-        };
-    };
-    '/datasets': {
-        get: {
-            req: ListSiteDatasetsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<SiteDataset> | null;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: CreateSiteDatasetData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': SiteDataset;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/datasets/{slug}': {
-        patch: {
-            req: UpdateSiteDatasetData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': SiteDataset;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: GetSiteDatasetData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': SiteDataset;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/habitats': {
-        get: {
-            req: ListHabitatGroupsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<HabitatGroup> | null;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: CreateHabitatGroupData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': HabitatGroup;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/habitats/{code}': {
-        delete: {
-            req: DeleteHabitatGroupData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': HabitatGroup;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        patch: {
-            req: UpdateHabitatGroupData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': HabitatGroup;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/locations/countries': {
-        get: {
-            req: ListCountriesData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<Country> | null;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/sites': {
-        get: {
-            req: ListSitesData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<Site> | null;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/sites/{code}': {
-        get: {
-            req: GetSiteData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Site;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        patch: {
-            req: UpdateSiteData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Site;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account': {
-        get: {
-            req: CurrentUserData;
-            res: {
-                /**
-                 * The currently authenticated user
-                 */
-                '200': CurrentUserResponse;
-                /**
-                 * No active user session
-                 */
-                '204': void;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/email-confirmation': {
-        get: {
-            req: ConfirmEmailData;
-            res: {
-                /**
-                 * No Content
-                 */
-                '204': string;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/email-confirmation/resend': {
-        post: {
-            req: ResendEmailConfirmationData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': string;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/forgotten-password': {
-        post: {
-            req: RequestPasswordResetData;
-            res: {
-                /**
-                 * No Content
-                 */
-                '204': void;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/login': {
-        post: {
-            req: LoginData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': AuthenticationResponse;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/logout': {
-        post: {
-            res: {
-                /**
-                 * No Content
-                 */
-                '204': string;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/password': {
-        post: {
-            req: UpdatePasswordData;
-            res: {
-                /**
-                 * No Content
-                 */
-                '204': void;
-                /**
-                 * Unauthorized
-                 */
-                '401': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/password-reset/{token}': {
-        get: {
-            req: ValidatePasswordTokenData;
-            res: {
-                /**
-                 * No Content
-                 */
-                '204': void;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: ResetPasswordData;
-            res: {
-                /**
-                 * No Content
-                 */
-                '204': void;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/pending': {
-        get: {
-            req: ListPendingUserRequestsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<PendingUserRequest> | null;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/pending/{email}': {
-        get: {
-            req: GetPendingUserRequestData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': PendingUserRequest;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/register': {
-        post: {
-            req: RegisterData;
-            res: {
-                /**
-                 * Created
-                 */
-                '201': string;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/account/register/{token}': {
-        post: {
-            req: ClaimInvitationData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': AuthenticationResponse;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/anchors/': {
-        get: {
-            req: ListAnchorsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<TaxonWithParentRef> | null;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/import/taxonomy': {
-        put: {
-            req: ImportGbifData;
-            res: {
-                /**
-                 * No Content
-                 */
-                '204': void;
-                /**
-                 * Error
-                 */
-                default: ErrorModel;
-            };
-        };
-    };
-    '/import/taxonomy/monitor': {
-        get: {
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<({
-    data: {
-        [key: string]: ImportProcess;
-    };
-    /**
-     * The event name.
-     */
-    event: "state";
-    /**
-     * The event ID.
-     */
-    id?: number;
-    /**
-     * The retry time in milliseconds.
-     */
-    retry?: number;
-})>;
-                /**
-                 * Error
-                 */
-                default: ErrorModel;
-            };
-        };
-    };
-    '/institutions': {
-        get: {
-            req: ListInstitutionsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<Institution> | null;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: CreateInstitutionData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Institution;
-                /**
-                 * Bad Request
-                 */
-                '400': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/institutions/{code}': {
-        delete: {
-            req: DeleteInstitutionData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Institution;
-                /**
-                 * Bad Request
-                 */
-                '400': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        patch: {
-            req: UpdateInstitutionData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Institution;
-                /**
-                 * Bad Request
-                 */
-                '400': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/persons': {
-        get: {
-            req: ListPersonsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<Person> | null;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: CreatePersonData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Person;
-                /**
-                 * Bad Request
-                 */
-                '400': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/persons/{id}': {
-        delete: {
-            req: DeletePersonData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Person;
-                /**
-                 * Bad Request
-                 */
-                '400': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        patch: {
-            req: UpdatePersonData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Person;
-                /**
-                 * Bad Request
-                 */
-                '400': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/persons/{id}/invite': {
-        post: {
-            req: InvitePersonData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': InvitationLink;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/settings/emailing': {
-        get: {
-            req: EmailSettingsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': EmailSettings;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: UpdateEmailSettingsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': EmailSettings;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/settings/emailing/test-dial': {
-        post: {
-            req: TestSmtpData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': boolean;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/settings/icon': {
-        post: {
-            req: SetAppIconData;
-            res: {
-                /**
-                 * No Content
-                 */
-                '204': string;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/settings/instance': {
-        get: {
-            res: {
-                /**
-                 * OK
-                 */
-                '200': InstanceSettings;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: UpdateInstanceSettingsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': InstanceSettings;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/settings/security': {
-        get: {
-            req: SecuritySettingsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': SecuritySettings;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: UpdateSecuritySettingsData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': SecuritySettings;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/taxonomy': {
-        get: {
-            req: GetTaxonomyData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Taxonomy;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/taxonomy/taxa': {
-        get: {
-            req: ListTaxaData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': Array<TaxonWithParentRef> | null;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        post: {
-            req: CreateTaxonData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': TaxonWithRelatives;
-                /**
-                 * Bad Request
-                 */
-                '400': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-    '/taxonomy/taxa/{code}': {
-        delete: {
-            req: DeleteTaxonData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': TaxonWithRelatives;
-                /**
-                 * Unauthorized
-                 */
-                '401': ErrorModel;
-                /**
-                 * Not Found
-                 */
-                '404': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        get: {
-            req: GetTaxonData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': TaxonWithLineage;
-                /**
-                 * Not Found
-                 */
-                '404': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-        patch: {
-            req: UpdateTaxonData;
-            res: {
-                /**
-                 * OK
-                 */
-                '200': TaxonWithLineage;
-                /**
-                 * Bad Request
-                 */
-                '400': ErrorModel;
-                /**
-                 * Unauthorized
-                 */
-                '401': ErrorModel;
-                /**
-                 * Not Found
-                 */
-                '404': ErrorModel;
-                /**
-                 * Unprocessable Entity
-                 */
-                '422': ErrorModel;
-                /**
-                 * Internal Server Error
-                 */
-                '500': ErrorModel;
-            };
-        };
-    };
-};
+export type UpdateTaxonError = (ErrorModel);
