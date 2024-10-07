@@ -1,5 +1,5 @@
 <template>
-  <v-dialog v-model="model.open" :fullscreen="smAndDown" :max-width="1000">
+  <v-dialog v-model="model" :fullscreen="smAndDown" :max-width="1000">
     <v-card flat :rounded="0">
       <v-toolbar flat dark>
         <v-card-title>
@@ -7,7 +7,7 @@
           App icon
         </v-card-title>
         <v-spacer />
-        <v-btn color="secondary" text="Cancel" @click="model.open = false" />
+        <v-btn color="secondary" text="Cancel" @click="model = false" />
         <v-btn
           color="primary"
           prepend-icon="mdi-floppy"
@@ -70,8 +70,10 @@ import InstanceIconPreviews from './InstanceIconPreviews.vue'
 import { computed, watch } from 'vue'
 import { SettingsService } from '@/api'
 import mime from 'mime'
+import { useInstanceSettings } from '.'
 
 const { smAndDown, mdAndUp } = useDisplay()
+const { ICON_PATH } = useInstanceSettings()
 
 const defaultCoordinates: Coordinates = {
   width: 500,
@@ -80,10 +82,7 @@ const defaultCoordinates: Coordinates = {
   left: 100
 }
 
-const model = defineModel<{
-  open: boolean
-  iconSrc?: string
-}>({ default: { open: false } })
+const model = defineModel<boolean>({ default: false })
 
 const result = ref<CropperResult>()
 function updatePreview(c: CropperResult) {
@@ -105,21 +104,20 @@ watch(imgFile, () => {
 })
 
 const imgSrc = computed(() => {
-  return uploadedImg.value ?? model.value.iconSrc
+  return uploadedImg.value ?? ICON_PATH
 })
 
 function saveIcon() {
   result.value?.canvas?.toBlob((blob) => {
     if (blob !== null) {
       const file = new File([blob], 'icon', { type: mimeType.value })
-      SettingsService.setAppIcon({ formData: { icon: file } })
+      SettingsService.setAppIcon({ body: { icon: file } })
     }
   }, mimeType.value)
 }
 
 const mimeType = computed(
-  () =>
-    imgFile.value?.type ?? (mime.getType(model.value.iconSrc ?? '') || 'application/octet-stream')
+  () => imgFile.value?.type ?? (mime.getType(ICON_PATH) || 'application/octet-stream')
 )
 </script>
 

@@ -1,5 +1,5 @@
 <template>
-  <div :class="`d-flex ${xs ? 'flex-column' : 'flex-row'}`">
+  <div :class="['bg-surface d-flex', xs ? 'flex-column' : 'flex-row']">
     <v-tabs v-model="tab" color="primary" slider-color="primary" :direction="direction">
       <v-tab
         value="instance"

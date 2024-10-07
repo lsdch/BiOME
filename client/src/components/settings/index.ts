@@ -11,6 +11,8 @@ const settings = ref<InstanceSettings>(
 
 export function useInstanceSettings() {
 
+  const ICON_PATH = '/api/v1/assets/app_icon.png' as const
+
   async function reload() {
     settings.value = await SettingsService.instanceSettings()
       .then(handleErrors((err) => {
@@ -19,5 +21,5 @@ export function useInstanceSettings() {
     return settings.value
   }
 
-  return { settings: settings.value, reload }
+  return { settings: settings.value, reload, ICON_PATH }
 }

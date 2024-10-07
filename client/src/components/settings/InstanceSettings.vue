@@ -1,27 +1,8 @@
 <template>
-  <SettingsForm
-    :get="SettingsService.instanceSettings"
-    :update="SettingsService.updateInstanceSettings"
-    #="{ model }"
-  >
+  <SettingsForm @reset="reloadSettings" @submit="submit">
     <v-row>
       <v-col cols="12" sm="3" class="px-3 d-flex align-center justify-center">
-        <v-avatar :class="iconHover ? 'avatar-hover' : ''" :size="120" variant="elevated">
-          <img :src="img" :width="120" alt="alt" />
-          <v-overlay
-            @click="openIconDialog"
-            v-model="iconHover"
-            open-on-hover
-            :close-delay="200"
-            class="align-center justify-center cursor-pointer font-weight-black text-white"
-            contained
-            activator="parent"
-            scrim="primary"
-          >
-            <!-- <v-icon>mdi-pencil</v-icon><br /> -->
-            Change <br />icon
-          </v-overlay>
-        </v-avatar>
+        <IconEditor />
       </v-col>
       <v-col cols="12" sm="9" variant="text" class="pt-8 d-flex flex-column justify-center">
         <v-text-field
@@ -30,6 +11,7 @@
           class="pb-4"
           hint="The name that is displayed in the navbar and front page"
           persistent-hint
+          v-bind="field('name')"
         />
         <v-text-field
           v-model="model.description"
@@ -38,6 +20,7 @@
           hint="A short description of the database purpose to be displayed on the front page."
           persistent-hint
           clearable
+          v-bind="field('description')"
         />
       </v-col>
     </v-row>
@@ -58,29 +41,32 @@
       hint="If enabled, visitors may apply for an account with Contributor privileges."
       persistent-hint
     />
-    <InstanceIconDialog v-model="dialog" />
   </SettingsForm>
 </template>
 
 <script setup lang="ts">
-import { SettingsService } from '@/api'
+import { $InstanceSettingsInput, SettingsService } from '@/api'
 import { ref } from 'vue'
-import InstanceIconDialog from './InstanceIconDialog.vue'
+import { useInstanceSettings } from '.'
+import { useSchema } from '../toolkit/forms/schema'
+import IconEditor from './InstanceIcon.vue'
 import SettingsForm from './SettingsForm.vue'
 
-const img = '/api/v1/assets/app_icon.png'
-const iconHover = ref(false)
-const dialog = ref({
-  open: false,
-  iconSrc: img
-})
-function openIconDialog() {
-  dialog.value.open = true
+const { settings, reload } = useInstanceSettings()
+
+const model = ref(settings)
+
+const { field, errorHandler } = useSchema($InstanceSettingsInput)
+
+async function reloadSettings() {
+  model.value = await reload()
+}
+
+async function submit() {
+  await SettingsService.updateInstanceSettings({ body: model.value })
+    .then(errorHandler)
+    .then(() => reloadSettings)
 }
 </script>
 
-<style scoped>
-.avatar-hover {
-  border: 3px solid rgb(0, 112, 177);
-}
-</style>
+<style scoped></style>

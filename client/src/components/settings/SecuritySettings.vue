@@ -1,10 +1,5 @@
 <template>
-  <SettingsForm
-    :get="SettingsService.securitySettings"
-    :update="SettingsService.updateSecuritySettings"
-    :schema="$SecuritySettings"
-    #="{ model, schema }"
-  >
+  <SettingsForm @reset="reloadSettings" @submit="submit">
     <v-row>
       <v-col>
         <v-card
@@ -21,7 +16,7 @@
               :max="5"
               :ticks="{ 3: 'Medium', 4: 'Strong', 5: 'Very strong' }"
               show-ticks="always"
-              v-bind="schema('min_password_strength')"
+              v-bind="field('min_password_strength')"
             />
           </v-card-text>
         </v-card>
@@ -35,7 +30,7 @@
           label="Authentication token secret key"
           prepend-inner-icon="mdi-key"
           readonly
-          v-bind="schema('jwt_secret_key')"
+          v-bind="field('jwt_secret_key')"
         >
           <template #append-inner>
             <v-btn
@@ -56,7 +51,7 @@
           class="flex-grow-0"
           label="User session lifetime (minutes)"
           :step="15"
-          v-bind="schema('auth_token_lifetime')"
+          v-bind="field('auth_token_lifetime')"
         />
       </v-col>
     </v-row>
@@ -66,7 +61,7 @@
           v-model="model.account_token_lifetime"
           label="Account token lifetime (hours)"
           :step="1"
-          v-bind="schema('account_token_lifetime')"
+          v-bind="field('account_token_lifetime')"
         />
       </v-col>
     </v-row>
@@ -74,19 +69,48 @@
 </template>
 
 <script setup lang="ts">
-import { $SecuritySettings, SettingsService } from '@/api'
+import { $SecuritySettingsInput, SettingsService } from '@/api'
+import { handleErrors } from '@/api/responses'
+import { useFeedback } from '@/stores/feedback'
+import { useClipboard } from '@vueuse/core'
 import { ref } from 'vue'
+import { useSchema } from '../toolkit/forms/schema'
 import NumberInput from '../toolkit/ui/NumberInput.vue'
 import SettingsForm from './SettingsForm.vue'
+
+const { feedback } = useFeedback()
+
+async function fetch() {
+  return SettingsService.securitySettings().then(
+    handleErrors((err) => {
+      feedback({ message: 'Failed to retrieve security settings', type: 'error' })
+      console.error(err)
+    })
+  )
+}
+
+async function reloadSettings() {
+  model.value = await fetch()
+}
+
+async function submit() {
+  return SettingsService.updateSecuritySettings({ body: model.value })
+    .then(errorHandler)
+    .then(() => feedback({ message: 'Settings updated', type: 'success' }))
+}
+
+const model = ref(await fetch())
+
+const { field, errorHandler } = useSchema($SecuritySettingsInput)
 
 const copySecretKeyinitial = {
   icon: 'mdi-content-copy',
   color: 'primary'
 }
 const copySecretKey = ref(copySecretKeyinitial)
-
+const { copy } = useClipboard()
 async function toClipboard(text: string) {
-  await navigator.clipboard.writeText(text)
+  await copy(text)
   copySecretKey.value = {
     icon: 'mdi-check-circle',
     color: 'success'
