@@ -17,6 +17,7 @@ func (i *HostResolver) Resolve(ctx huma.Context) []error {
 	return nil
 }
 
+// Generates a URL for the provided path on the API backend
 func (i *HostResolver) GenerateURL(path string) url.URL {
 	return url.URL{
 		Host:   i.Host,

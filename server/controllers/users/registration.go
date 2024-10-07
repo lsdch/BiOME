@@ -13,39 +13,48 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"reflect"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/sirupsen/logrus"
 )
 
-type EmailVerificationURL struct {
-	Handler url.URL `json:"handler,omitempty" doc:"A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter."`
+type TokenVerificationURL url.URL
+
+func (u TokenVerificationURL) Schema(r huma.Registry) *huma.Schema {
+	s := r.Schema(reflect.TypeFor[url.URL](), false, "")
+	s.Description = "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter."
+	return s
+}
+
+func (u TokenVerificationURL) URL() url.URL {
+	return url.URL(u)
 }
 
 type RegisterInput struct {
 	resolvers.HostResolver
 	Body struct {
-		people.PendingUserRequestInput `json:",inline"`
-		EmailVerificationURL           `json:",inline"`
+		Data                 people.PendingUserRequestInput `json:"data"`
+		EmailVerificationURL TokenVerificationURL           `json:"verification_url"`
 	}
 }
 
 func Register(confirmEmailPath string) router.Endpoint[RegisterInput, controllers.Message] {
 	return func(ctx context.Context, input *RegisterInput) (*controllers.Message, error) {
 		logrus.Infof("Attempting to create account for %s %s (%s)",
-			input.Body.Person.FirstName,
-			input.Body.Person.LastName,
-			input.Body.Email,
+			input.Body.Data.Person.FirstName,
+			input.Body.Data.Person.LastName,
+			input.Body.Data.Email,
 		)
 
-		pending, err := input.Body.Register(db.Client())
+		pending, err := input.Body.Data.Register(db.Client())
 		if err != nil {
 			return nil, huma.Error500InternalServerError("Failed to register new account", err)
 		}
 
 		target := input.GenerateURL(confirmEmailPath)
-		if input.Body.Handler.Host != "" {
-			target = input.Body.Handler
+		if input.Body.EmailVerificationURL.Host != "" {
+			target = input.Body.EmailVerificationURL.URL()
 		}
 		if err := pending.SendConfirmationEmail(db.Client(), target); err != nil {
 			return nil, huma.Error500InternalServerError("Failed to send verification email", err)
@@ -97,8 +106,8 @@ func ConfirmEmail(ctx context.Context, input *ConfirmEmailInput) (*struct{ Messa
 type ResendEmailConfirmationInput struct {
 	resolvers.HostResolver
 	Body struct {
-		Email                string `json:"email" format:"email"`
-		EmailVerificationURL `json:",inline"`
+		Email                string               `json:"email" format:"email"`
+		EmailVerificationURL TokenVerificationURL `json:"verification_url"`
 	}
 	*users.PendingUserRequest
 }
@@ -126,8 +135,8 @@ func (i *ResendEmailConfirmationInput) Resolve(ctx huma.Context) []error {
 func ResendEmailConfirmation(confirmEmailPath string) router.Endpoint[ResendEmailConfirmationInput, controllers.Message] {
 	return func(ctx context.Context, input *ResendEmailConfirmationInput) (*controllers.Message, error) {
 		target := input.GenerateURL(confirmEmailPath)
-		if input.Body.Handler.Host != "" {
-			target = input.Body.Handler
+		if input.Body.EmailVerificationURL.Host != "" {
+			target = input.Body.EmailVerificationURL.URL()
 		}
 		if err := input.PendingUserRequest.SendConfirmationEmail(db.Client(), target); err != nil {
 			return nil, huma.Error500InternalServerError("Failed to send verification email", err)
