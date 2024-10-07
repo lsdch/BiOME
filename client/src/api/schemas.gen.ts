@@ -683,7 +683,8 @@ export const $InvitationInput = {
             readOnly: true,
             type: 'string'
         },
-        dest: {
+        email: {
+            description: 'E-mail address of the recipient of the invitation',
             format: 'email',
             type: 'string'
         },
@@ -697,7 +698,7 @@ export const $InvitationInput = {
             '$ref': '#/components/schemas/UserRole'
         }
     },
-    required: ['dest', 'role'],
+    required: ['email', 'role'],
     type: 'object'
 } as const;
 
@@ -912,9 +913,6 @@ export const $OptionalUserInner = {
             format: 'uuid',
             type: 'string'
         },
-        is_active: {
-            type: 'boolean'
-        },
         login: {
             type: 'string'
         },
@@ -922,7 +920,7 @@ export const $OptionalUserInner = {
             '$ref': '#/components/schemas/UserRole'
         }
     },
-    required: ['id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
+    required: ['id', 'email', 'login', 'role', 'email_confirmed'],
     type: ['object', 'null']
 } as const;
 
@@ -944,6 +942,102 @@ export const $PasswordInput = {
         }
     },
     required: ['password', 'password_confirmation'],
+    type: 'object'
+} as const;
+
+export const $PendingUserRequest = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/PendingUserRequest.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        ID: {
+            contentEncoding: 'base64',
+            type: 'string'
+        },
+        created_on: {
+            format: 'date-time',
+            type: 'string'
+        },
+        email: {
+            format: 'email',
+            type: 'string'
+        },
+        email_verified: {
+            type: 'boolean'
+        },
+        identity: {
+            '$ref': '#/components/schemas/PendingUserRequestPersonStruct'
+        },
+        motive: {
+            type: 'string'
+        }
+    },
+    required: ['ID', 'identity', 'created_on', 'email_verified', 'email'],
+    type: 'object'
+} as const;
+
+export const $PendingUserRequestInput = {
+    additionalProperties: false,
+    properties: {
+        email: {
+            format: 'email',
+            type: 'string'
+        },
+        identity: {
+            '$ref': '#/components/schemas/PendingUserRequestInputPersonStruct'
+        },
+        motive: {
+            type: 'string'
+        }
+    },
+    required: ['identity', 'email'],
+    type: 'object'
+} as const;
+
+export const $PendingUserRequestInputPersonStruct = {
+    additionalProperties: false,
+    properties: {
+        first_name: {
+            maxLength: 32,
+            minLength: 2,
+            type: 'string'
+        },
+        institution: {
+            type: 'string'
+        },
+        last_name: {
+            maxLength: 32,
+            minLength: 2,
+            type: 'string'
+        }
+    },
+    required: ['first_name', 'last_name'],
+    type: 'object'
+} as const;
+
+export const $PendingUserRequestPersonStruct = {
+    additionalProperties: false,
+    properties: {
+        first_name: {
+            maxLength: 32,
+            minLength: 2,
+            type: 'string'
+        },
+        institution: {
+            type: 'string'
+        },
+        last_name: {
+            maxLength: 32,
+            minLength: 2,
+            type: 'string'
+        }
+    },
+    required: ['first_name', 'last_name'],
     type: 'object'
 } as const;
 
@@ -1046,27 +1140,6 @@ export const $PersonInput = {
     type: 'object'
 } as const;
 
-export const $PersonStruct = {
-    additionalProperties: false,
-    properties: {
-        first_name: {
-            maxLength: 32,
-            minLength: 2,
-            type: 'string'
-        },
-        institution: {
-            type: 'string'
-        },
-        last_name: {
-            maxLength: 32,
-            minLength: 2,
-            type: 'string'
-        }
-    },
-    required: ['first_name', 'last_name'],
-    type: 'object'
-} as const;
-
 export const $PersonUpdate = {
     additionalProperties: false,
     properties: {
@@ -1158,21 +1231,16 @@ export const $RegisterInputBody = {
             readOnly: true,
             type: 'string'
         },
-        handler: {
-            '$ref': '#/components/schemas/URL',
-            description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.'
+        data: {
+            '$ref': '#/components/schemas/PendingUserRequestInput'
         },
-        identity: {
-            '$ref': '#/components/schemas/PersonStruct'
-        },
-        motive: {
-            type: 'string'
-        },
-        user: {
-            '$ref': '#/components/schemas/UserInput'
+        verification_url: {
+            description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
+            format: 'uri',
+            type: ['string', 'null']
         }
     },
-    required: ['user', 'identity', 'motive'],
+    required: ['data', 'verification_url'],
     type: 'object'
 } as const;
 
@@ -1213,12 +1281,13 @@ export const $ResendEmailConfirmationInputBody = {
             format: 'email',
             type: 'string'
         },
-        handler: {
-            '$ref': '#/components/schemas/URL',
-            description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.'
+        verification_url: {
+            description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
+            format: 'uri',
+            type: ['string', 'null']
         }
     },
-    required: ['email'],
+    required: ['email', 'verification_url'],
     type: 'object'
 } as const;
 
@@ -1580,6 +1649,59 @@ export const $SiteItem = {
         }
     },
     required: ['id', 'name', 'code', 'description', 'coordinates', 'country'],
+    type: 'object'
+} as const;
+
+export const $SiteUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SiteUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        access_point: {
+            type: ['string', 'null']
+        },
+        altitude: {
+            description: 'Site altitude in meters',
+            format: 'int32',
+            type: ['integer', 'null']
+        },
+        code: {
+            description: 'A short unique uppercase alphanumeric identifier',
+            examples: ['SITE89'],
+            maxLength: 10,
+            minLength: 4,
+            pattern: '[A-Z0-9]+',
+            patternDescription: 'alphanum',
+            type: 'string'
+        },
+        coordinates: {
+            '$ref': '#/components/schemas/Coordinates',
+            description: 'Site coordinates in decimal degrees'
+        },
+        country_code: {
+            examples: ['FR'],
+            format: 'country-code',
+            pattern: '[A-Z]{2}',
+            type: 'string'
+        },
+        description: {
+            type: ['string', 'null']
+        },
+        locality: {
+            description: 'Nearest populated place',
+            type: ['string', 'null']
+        },
+        name: {
+            minLength: 4,
+            type: 'string'
+        }
+    },
+    required: ['name', 'code', 'coordinates', 'country_code'],
     type: 'object'
 } as const;
 
@@ -1979,6 +2101,7 @@ export const $Taxonomy = {
 } as const;
 
 export const $URL = {
+    description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
     format: 'uri',
     type: ['string', 'null']
 } as const;
@@ -2022,9 +2145,6 @@ export const $User = {
         identity: {
             '$ref': '#/components/schemas/OptionalPerson'
         },
-        is_active: {
-            type: 'boolean'
-        },
         login: {
             type: 'string'
         },
@@ -2032,7 +2152,7 @@ export const $User = {
             '$ref': '#/components/schemas/UserRole'
         }
     },
-    required: ['identity', 'id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
+    required: ['identity', 'id', 'email', 'login', 'role', 'email_confirmed'],
     type: 'object'
 } as const;
 
@@ -2072,9 +2192,6 @@ export const $UserInner = {
             format: 'uuid',
             type: 'string'
         },
-        is_active: {
-            type: 'boolean'
-        },
         login: {
             type: 'string'
         },
@@ -2082,7 +2199,7 @@ export const $UserInner = {
             '$ref': '#/components/schemas/UserRole'
         }
     },
-    required: ['id', 'email', 'login', 'role', 'email_confirmed', 'is_active'],
+    required: ['id', 'email', 'login', 'role', 'email_confirmed'],
     type: 'object'
 } as const;
 

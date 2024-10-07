@@ -325,7 +325,10 @@ export type InvitationInput = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    dest: string;
+    /**
+     * E-mail address of the recipient of the invitation
+     */
+    email: string;
     /**
      * A URL template with a {token} parameter, which implements the UI to validate the invitation token and fill a registration form.
      */
@@ -405,7 +408,6 @@ export type OptionalUserInner = {
     email: string;
     email_confirmed: boolean;
     id: string;
-    is_active: boolean;
     login: string;
     role: UserRole;
 } | null;
@@ -417,6 +419,37 @@ export type PasswordInput = {
     readonly $schema?: string;
     password: string;
     password_confirmation: string;
+};
+
+export type PendingUserRequest = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    ID: string;
+    created_on: Date;
+    email: string;
+    email_verified: boolean;
+    identity: PendingUserRequestPersonStruct;
+    motive?: string;
+};
+
+export type PendingUserRequestInput = {
+    email: string;
+    identity: PendingUserRequestInputPersonStruct;
+    motive?: string;
+};
+
+export type PendingUserRequestInputPersonStruct = {
+    first_name: string;
+    institution?: string;
+    last_name: string;
+};
+
+export type PendingUserRequestPersonStruct = {
+    first_name: string;
+    institution?: string;
+    last_name: string;
 };
 
 export type Person = {
@@ -450,12 +483,6 @@ export type PersonInput = {
     last_name: string;
 };
 
-export type PersonStruct = {
-    first_name: string;
-    institution?: string;
-    last_name: string;
-};
-
 export type PersonUpdate = {
     /**
      * A URL to the JSON Schema for this object.
@@ -486,13 +513,11 @@ export type RegisterInputBody = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
+    data: PendingUserRequestInput;
     /**
      * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
      */
-    handler?: Url;
-    identity: PersonStruct;
-    motive: string;
-    user: UserInput;
+    verification_url: string | null;
 };
 
 export type RequestPasswordResetInputBody = {
@@ -516,7 +541,7 @@ export type ResendEmailConfirmationInputBody = {
     /**
      * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
      */
-    handler?: Url;
+    verification_url: string | null;
 };
 
 export type SecuritySettings = {
@@ -673,6 +698,33 @@ export type SiteItem = {
     name: string;
 };
 
+export type SiteUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    access_point?: string | null;
+    /**
+     * Site altitude in meters
+     */
+    altitude?: number | null;
+    /**
+     * A short unique uppercase alphanumeric identifier
+     */
+    code: string;
+    /**
+     * Site coordinates in decimal degrees
+     */
+    coordinates: Coordinates;
+    country_code: string;
+    description?: string | null;
+    /**
+     * Nearest populated place
+     */
+    locality?: string | null;
+    name: string;
+};
+
 export type Taxon = {
     GBIF_ID?: number;
     anchor: boolean;
@@ -794,6 +846,9 @@ export type Taxonomy = {
     status: TaxonStatus;
 };
 
+/**
+ * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
+ */
 export type Url = string | null;
 
 export type UpdatePasswordInput = {
@@ -810,7 +865,6 @@ export type User = {
     email_confirmed: boolean;
     id: string;
     identity: OptionalPerson;
-    is_active: boolean;
     login: string;
     role: UserRole;
 };
@@ -828,7 +882,6 @@ export type UserInner = {
     email: string;
     email_confirmed: boolean;
     id: string;
-    is_active: boolean;
     login: string;
     role: UserRole;
 };
@@ -1028,6 +1081,23 @@ export type GetSiteResponse = Site;
 
 export type GetSiteError = ErrorModel;
 
+export type UpdateSiteData = {
+    body: SiteUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateSiteResponse = Site;
+
+export type UpdateSiteError = ErrorModel;
+
 export type CurrentUserData = {
     headers?: {
         /**
@@ -1047,7 +1117,7 @@ export type ConfirmEmailData = {
     };
 };
 
-export type ConfirmEmailResponse = AuthenticationResponse;
+export type ConfirmEmailResponse = string;
 
 export type ConfirmEmailError = ErrorModel;
 
@@ -1055,7 +1125,7 @@ export type ResendEmailConfirmationData = {
     body: ResendEmailConfirmationInputBody;
 };
 
-export type ResendEmailConfirmationResponse = void;
+export type ResendEmailConfirmationResponse = string;
 
 export type ResendEmailConfirmationError = ErrorModel;
 
@@ -1094,8 +1164,8 @@ export type UpdatePasswordResponse = void;
 export type UpdatePasswordError = ErrorModel;
 
 export type ValidatePasswordTokenData = {
-    path: {
-        token: string;
+    query?: {
+        token?: string;
     };
 };
 
@@ -1105,8 +1175,8 @@ export type ValidatePasswordTokenError = ErrorModel;
 
 export type ResetPasswordData = {
     body: PasswordInput;
-    path: {
-        token: string;
+    query?: {
+        token?: string;
     };
 };
 
@@ -1114,11 +1184,37 @@ export type ResetPasswordResponse = void;
 
 export type ResetPasswordError = ErrorModel;
 
+export type ListPendingUserRequestsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListPendingUserRequestsResponse = Array<PendingUserRequest> | null;
+
+export type ListPendingUserRequestsError = ErrorModel;
+
+export type GetPendingUserRequestData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type GetPendingUserRequestResponse = PendingUserRequest;
+
+export type GetPendingUserRequestError = ErrorModel;
+
 export type RegisterData = {
     body: RegisterInputBody;
 };
 
-export type RegisterResponse = unknown;
+export type RegisterResponse = string;
 
 export type RegisterError = ErrorModel;
 
@@ -1724,6 +1820,23 @@ export type $OpenApiTs = {
                 '500': ErrorModel;
             };
         };
+        patch: {
+            req: UpdateSiteData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': Site;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
     };
     '/account': {
         get: {
@@ -1753,9 +1866,9 @@ export type $OpenApiTs = {
             req: ConfirmEmailData;
             res: {
                 /**
-                 * OK
+                 * No Content
                  */
-                '200': AuthenticationResponse;
+                '204': string;
                 /**
                  * Unprocessable Entity
                  */
@@ -1772,9 +1885,9 @@ export type $OpenApiTs = {
             req: ResendEmailConfirmationData;
             res: {
                 /**
-                 * No Content
+                 * OK
                  */
-                '204': void;
+                '200': string;
                 /**
                  * Unprocessable Entity
                  */
@@ -1897,6 +2010,44 @@ export type $OpenApiTs = {
             };
         };
     };
+    '/account/pending': {
+        get: {
+            req: ListPendingUserRequestsData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': Array<PendingUserRequest> | null;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+    };
+    '/account/pending/{email}': {
+        get: {
+            req: GetPendingUserRequestData;
+            res: {
+                /**
+                 * OK
+                 */
+                '200': PendingUserRequest;
+                /**
+                 * Unprocessable Entity
+                 */
+                '422': ErrorModel;
+                /**
+                 * Internal Server Error
+                 */
+                '500': ErrorModel;
+            };
+        };
+    };
     '/account/register': {
         post: {
             req: RegisterData;
@@ -1904,7 +2055,7 @@ export type $OpenApiTs = {
                 /**
                  * Created
                  */
-                '201': unknown;
+                '201': string;
                 /**
                  * Unprocessable Entity
                  */
