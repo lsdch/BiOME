@@ -105,12 +105,11 @@ module people {
   }
 
   type PendingUserRequest {
-    required email: str;
-    required identity: tuple<
-      first_name: str,
-      last_name: str,
-      institution: str
-    >;
+    required email: str {
+      constraint exclusive;
+    };
+    required identity: tuple<first_name: str, last_name: str>;
+    institution: str;
     motive: str;
     required created_on: datetime {
       rewrite insert using (datetime_of_statement());
@@ -145,6 +144,8 @@ module people {
   };
 
   type EmailConfirmation extending Token {
-    required email: str;
+    required email: str {
+      constraint exclusive;
+    };
   };
 }

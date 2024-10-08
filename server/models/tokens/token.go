@@ -29,12 +29,12 @@ type TokenRecord struct {
 	Expires time.Time   `edgedb:"expires"`
 }
 
-func (token *TokenRecord) IsValid() bool {
+func (token TokenRecord) IsValid() bool {
 	return token.Expires.After(time.Now())
 }
 
 // Deletes token from the database
-func (token *TokenRecord) Consume(db edgedb.Executor) (err error) {
+func (token TokenRecord) Consume(db edgedb.Executor) (err error) {
 	deleteQuery := `delete people::Token filter .id = <uuid>$0`
 	if err = db.Execute(context.Background(), deleteQuery, token.ID); err != nil {
 		logrus.Errorf("Database error %v (query: %s)", err, deleteQuery)

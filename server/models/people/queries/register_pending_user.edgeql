@@ -7,8 +7,8 @@ select (
     identity := (
       first_name := str_trim(<str>identity['first_name']),
       last_name := str_trim(<str>identity['last_name']),
-      institution := str_trim(<str>json_get(identity, 'institution')),
     ),
+    institution := str_trim(<str>json_get(identity, 'institution')),
     motive := str_trim(<str>json_get(data, 'motive'))
   }
 ) { * };

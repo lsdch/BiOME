@@ -61,9 +61,9 @@ type PendingUserRequestInput struct {
 	EmailField `json:",inline" edgedb:"$inline"`
 	Person     struct {
 		PersonIdentity `edgedb:"$inline" json:",inline"`
-		Institution    string `json:"institution,omitempty" edgedb:"institution" fake:"{word}"`
 	} `json:"identity" edgedb:"identity"`
-	Motive string `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
+	Institution string `json:"institution,omitempty" edgedb:"institution" fake:"{word}"`
+	Motive      string `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
 }
 
 //go:embed queries/register_pending_user.edgeql
@@ -83,8 +83,8 @@ type PendingUserRequest struct {
 	EmailField `json:",inline" edgedb:"$inline"`
 	Person     struct {
 		PersonIdentity `edgedb:"$inline" json:",inline"`
-		Institution    edgedb.OptionalStr `json:"institution,omitempty" edgedb:"institution"`
 	} `json:"identity" edgedb:"identity"`
+	Institution   edgedb.OptionalStr `json:"institution,omitempty" edgedb:"institution"`
 	Motive        edgedb.OptionalStr `json:"motive,omitempty" edgedb:"motive"`
 	CreatedOn     time.Time          `json:"created_on" edgedb:"created_on"`
 	EmailVerified bool               `edgedb:"email_verified" json:"email_verified"`

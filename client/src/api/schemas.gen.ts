@@ -936,6 +936,30 @@ export const $PasswordInput = {
     type: 'object'
 } as const;
 
+export const $PasswordResetRequest = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/PasswordResetRequest.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        email: {
+            format: 'email',
+            type: 'string'
+        },
+        handler: {
+            description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
+            format: 'uri',
+            type: 'string'
+        }
+    },
+    required: ['email'],
+    type: 'object'
+} as const;
+
 export const $PendingUserRequest = {
     additionalProperties: false,
     properties: {
@@ -963,6 +987,9 @@ export const $PendingUserRequest = {
         identity: {
             '$ref': '#/components/schemas/PendingUserRequestPersonStruct'
         },
+        institution: {
+            type: 'string'
+        },
         motive: {
             type: 'string'
         }
@@ -981,6 +1008,9 @@ export const $PendingUserRequestInput = {
         identity: {
             '$ref': '#/components/schemas/PendingUserRequestInputPersonStruct'
         },
+        institution: {
+            type: 'string'
+        },
         motive: {
             type: 'string'
         }
@@ -995,9 +1025,6 @@ export const $PendingUserRequestInputPersonStruct = {
         first_name: {
             maxLength: 32,
             minLength: 2,
-            type: 'string'
-        },
-        institution: {
             type: 'string'
         },
         last_name: {
@@ -1016,9 +1043,6 @@ export const $PendingUserRequestPersonStruct = {
         first_name: {
             maxLength: 32,
             minLength: 2,
-            type: 'string'
-        },
-        institution: {
             type: 'string'
         },
         last_name: {
@@ -1225,33 +1249,10 @@ export const $RegisterInputBody = {
         verification_url: {
             description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
             format: 'uri',
-            type: ['string', 'null']
+            type: 'string'
         }
     },
     required: ['data', 'verification_url'],
-    type: 'object'
-} as const;
-
-export const $RequestPasswordResetInputBody = {
-    additionalProperties: false,
-    properties: {
-        '$schema': {
-            description: 'A URL to the JSON Schema for this object.',
-            examples: ['/api/v1/schemas/RequestPasswordResetInputBody.json'],
-            format: 'uri',
-            readOnly: true,
-            type: 'string'
-        },
-        email: {
-            format: 'email',
-            type: 'string'
-        },
-        handler: {
-            '$ref': '#/components/schemas/URL',
-            description: 'A URL where a form to set the new password is available'
-        }
-    },
-    required: ['email'],
     type: 'object'
 } as const;
 
@@ -1272,7 +1273,7 @@ export const $ResendEmailConfirmationInputBody = {
         verification_url: {
             description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
             format: 'uri',
-            type: ['string', 'null']
+            type: 'string'
         }
     },
     required: ['email', 'verification_url'],
@@ -2082,7 +2083,7 @@ export const $Taxonomy = {
 export const $URL = {
     description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
     format: 'uri',
-    type: ['string', 'null']
+    type: 'string'
 } as const;
 
 export const $UpdatePasswordInput = {

@@ -12,24 +12,10 @@ import (
 	"darco/proto/router"
 	"errors"
 	"fmt"
-	"net/url"
-	"reflect"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/sirupsen/logrus"
 )
-
-type TokenVerificationURL url.URL
-
-func (u TokenVerificationURL) Schema(r huma.Registry) *huma.Schema {
-	s := r.Schema(reflect.TypeFor[url.URL](), false, "")
-	s.Description = "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter."
-	return s
-}
-
-func (u TokenVerificationURL) URL() url.URL {
-	return url.URL(u)
-}
 
 type RegisterInput struct {
 	resolvers.HostResolver
@@ -69,36 +55,16 @@ func Register(confirmEmailPath string) router.Endpoint[RegisterInput, controller
 type ConfirmEmailInput struct {
 	resolvers.HostResolver
 	Token string `query:"token"`
-	*users.PendingUserRequest
-}
-
-func (i *ConfirmEmailInput) Resolve(ctx huma.Context) []error {
-	if errs := i.HostResolver.Resolve(ctx); errs != nil {
-		return errs
-	}
-
-	token, err := tokens.RetrieveEmailToken(db.Client(), tokens.Token(i.Token))
-	if db.IsNoData(err) || !token.IsValid() {
-		return []error{&huma.ErrorDetail{Message: "Invalid token"}}
-	}
-	if err != nil {
-		return []error{err}
-	}
-
-	accountRequest, err := people.GetPendingUserRequest(db.Client(), token.Email)
-	if db.IsNoData(err) {
-		return []error{fmt.Errorf("No pending account request associated to this email found")}
-	}
-
-	i.PendingUserRequest = accountRequest
-
-	return nil
 }
 
 func ConfirmEmail(ctx context.Context, input *ConfirmEmailInput) (*struct{ Message string }, error) {
 
-	if err := input.PendingUserRequest.SetEmailVerified(db.Client(), true); err != nil {
-		return nil, huma.Error500InternalServerError("Email confirmation failed", err)
+	ok, err := people.VerifyEmail(db.Client(), tokens.Token(input.Token))
+	if err != nil {
+		return nil, err
+	}
+	if !ok {
+		return nil, huma.Error422UnprocessableEntity("Token is invalid or expired")
 	}
 	return &struct{ Message string }{"Email successfully verified"}, nil
 }
@@ -109,39 +75,22 @@ type ResendEmailConfirmationInput struct {
 		Email                string               `json:"email" format:"email"`
 		EmailVerificationURL TokenVerificationURL `json:"verification_url"`
 	}
-	*users.PendingUserRequest
 }
 
-func (i *ResendEmailConfirmationInput) Resolve(ctx huma.Context) []error {
-	pending, err := users.GetPendingUserRequest(db.Client(), i.Body.Email)
-	if err != nil {
-		return []error{&huma.ErrorDetail{
-			Message:  "Unknown e-mail address",
-			Location: "email",
-			Value:    i.Body.Email,
-		}}
-	}
-	if pending.EmailVerified {
-		return []error{&huma.ErrorDetail{
-			Message:  "E-mail was already verified",
-			Location: "email",
-			Value:    i.Body.Email,
-		}}
-	}
-	i.PendingUserRequest = pending
-	return nil
-}
-
-func ResendEmailConfirmation(confirmEmailPath string) router.Endpoint[ResendEmailConfirmationInput, controllers.Message] {
-	return func(ctx context.Context, input *ResendEmailConfirmationInput) (*controllers.Message, error) {
+func ResendEmailConfirmation(confirmEmailPath string) router.Endpoint[ResendEmailConfirmationInput, struct{}] {
+	return func(ctx context.Context, input *ResendEmailConfirmationInput) (*struct{}, error) {
 		target := input.GenerateURL(confirmEmailPath)
 		if input.Body.EmailVerificationURL.Host != "" {
 			target = input.Body.EmailVerificationURL.URL()
 		}
-		if err := input.PendingUserRequest.SendConfirmationEmail(db.Client(), target); err != nil {
+		pending, err := users.GetPendingUserRequest(db.Client(), input.Body.Email)
+		if err != nil {
+			return nil, nil
+		}
+		if err := pending.SendConfirmationEmail(db.Client(), target); err != nil {
 			return nil, huma.Error500InternalServerError("Failed to send verification email", err)
 		}
-		return &controllers.Message{Body: "Verification email was sent"}, nil
+		return nil, nil
 	}
 }
 

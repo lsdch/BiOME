@@ -13,7 +13,7 @@ type HostResolver struct {
 
 func (i *HostResolver) Resolve(ctx huma.Context) []error {
 	i.URL = ctx.URL()
-	i.Host = ctx.URL().Host
+	i.Host = ctx.Host()
 	return nil
 }
 
@@ -21,7 +21,7 @@ func (i *HostResolver) Resolve(ctx huma.Context) []error {
 func (i *HostResolver) GenerateURL(path string) url.URL {
 	return url.URL{
 		Host:   i.Host,
-		Scheme: i.URL.Scheme,
+		Scheme: "http",
 		Path:   path,
 	}
 }

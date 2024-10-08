@@ -1194,6 +1194,33 @@
 				],
 				"type": "object"
 			},
+			"PasswordResetRequest": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/PasswordResetRequest.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"email": {
+						"format": "email",
+						"type": "string"
+					},
+					"handler": {
+						"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
+						"format": "uri",
+						"type": "string"
+					}
+				},
+				"required": [
+					"email"
+				],
+				"type": "object"
+			},
 			"PendingUserRequest": {
 				"additionalProperties": false,
 				"properties": {
@@ -1223,6 +1250,9 @@
 					"identity": {
 						"$ref": "#/components/schemas/PendingUserRequestPersonStruct"
 					},
+					"institution": {
+						"type": "string"
+					},
 					"motive": {
 						"type": "string"
 					}
@@ -1246,6 +1276,9 @@
 					"identity": {
 						"$ref": "#/components/schemas/PendingUserRequestInputPersonStruct"
 					},
+					"institution": {
+						"type": "string"
+					},
 					"motive": {
 						"type": "string"
 					}
@@ -1262,9 +1295,6 @@
 					"first_name": {
 						"maxLength": 32,
 						"minLength": 2,
-						"type": "string"
-					},
-					"institution": {
 						"type": "string"
 					},
 					"last_name": {
@@ -1285,9 +1315,6 @@
 					"first_name": {
 						"maxLength": 32,
 						"minLength": 2,
-						"type": "string"
-					},
-					"institution": {
 						"type": "string"
 					},
 					"last_name": {
@@ -1539,41 +1566,12 @@
 					"verification_url": {
 						"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
 						"format": "uri",
-						"type": [
-							"string",
-							"null"
-						]
+						"type": "string"
 					}
 				},
 				"required": [
 					"data",
 					"verification_url"
-				],
-				"type": "object"
-			},
-			"RequestPasswordResetInputBody": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/RequestPasswordResetInputBody.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"email": {
-						"format": "email",
-						"type": "string"
-					},
-					"handler": {
-						"$ref": "#/components/schemas/URL",
-						"description": "A URL where a form to set the new password is available"
-					}
-				},
-				"required": [
-					"email"
 				],
 				"type": "object"
 			},
@@ -1596,10 +1594,7 @@
 					"verification_url": {
 						"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
 						"format": "uri",
-						"type": [
-							"string",
-							"null"
-						]
+						"type": "string"
 					}
 				},
 				"required": [
@@ -2659,10 +2654,7 @@
 			"URL": {
 				"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
 				"format": "uri",
-				"type": [
-					"string",
-					"null"
-				]
+				"type": "string"
 			},
 			"UpdatePasswordInput": {
 				"additionalProperties": false,
@@ -3068,15 +3060,8 @@
 					"required": true
 				},
 				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "string"
-								}
-							}
-						},
-						"description": "OK"
+					"204": {
+						"description": "No Content"
 					},
 					"422": {
 						"content": {
@@ -3113,7 +3098,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/RequestPasswordResetInputBody"
+								"$ref": "#/components/schemas/PasswordResetRequest"
 							}
 						}
 					},
@@ -5619,7 +5604,7 @@
 						"multipart/form-data": {
 							"encoding": {
 								"icon": {
-									"contentType": "image/png"
+									"contentType": "image/png,image/jpeg"
 								}
 							},
 							"schema": {

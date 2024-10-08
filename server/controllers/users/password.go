@@ -6,7 +6,6 @@ import (
 	"darco/proto/models/people"
 	"darco/proto/models/tokens"
 	"darco/proto/resolvers"
-	"net/url"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -106,9 +105,9 @@ func PasswordReset(ctx context.Context, input *PasswordResetInput) (*struct{}, e
 type RequestPasswordResetInput struct {
 	resolvers.HostResolver
 	Body struct {
-		Email   string   `json:"email" format:"email"`
-		Handler *url.URL `json:"handler,omitempty" doc:"A URL where a form to set the new password is available"`
-	}
+		Email   string               `json:"email" format:"email"`
+		Handler TokenVerificationURL `json:"handler,omitempty" doc:"A URL where a form to set the new password is available"`
+	} `nameHint:"PasswordResetRequest"`
 }
 
 type RequestPasswordResetHandler func(context.Context, *RequestPasswordResetInput) (*struct{}, error)
@@ -121,8 +120,8 @@ func RequestPasswordReset(defaultHandlerPath string) RequestPasswordResetHandler
 		}
 
 		var targetURL = input.GenerateURL(defaultHandlerPath)
-		if input.Body.Handler != nil {
-			targetURL = *input.Body.Handler
+		if input.Body.Handler.Host == "" {
+			targetURL = input.Body.Handler.URL()
 		}
 
 		if err = user.RequestPasswordReset(db.Client(), targetURL); err != nil {

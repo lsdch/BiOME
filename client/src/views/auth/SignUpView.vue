@@ -45,7 +45,7 @@
           <v-col>
             <v-text-field
               label="Institution"
-              v-model="model.identity.institution"
+              v-model="model.institution"
               placeholder="(Optional) The institution your attached to, e.g. your lab or association"
             />
           </v-col>
@@ -85,7 +85,8 @@ const registrationDone = ref(false)
 const model = ref<PendingUserRequestInput>({
   email: '',
   motive: undefined,
-  identity: { first_name: '', last_name: '', institution: undefined }
+  identity: { first_name: '', last_name: '' },
+  institution: undefined
 })
 
 const { field, errorHandler } = useSchema($PendingUserRequestInput)

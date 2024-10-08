@@ -421,6 +421,18 @@ export type PasswordInput = {
     password_confirmation: string;
 };
 
+export type PasswordResetRequest = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    email: string;
+    /**
+     * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
+     */
+    handler?: string;
+};
+
 export type PendingUserRequest = {
     /**
      * A URL to the JSON Schema for this object.
@@ -431,24 +443,24 @@ export type PendingUserRequest = {
     email: string;
     email_verified: boolean;
     identity: PendingUserRequestPersonStruct;
+    institution?: string;
     motive?: string;
 };
 
 export type PendingUserRequestInput = {
     email: string;
     identity: PendingUserRequestInputPersonStruct;
+    institution?: string;
     motive?: string;
 };
 
 export type PendingUserRequestInputPersonStruct = {
     first_name: string;
-    institution?: string;
     last_name: string;
 };
 
 export type PendingUserRequestPersonStruct = {
     first_name: string;
-    institution?: string;
     last_name: string;
 };
 
@@ -517,19 +529,7 @@ export type RegisterInputBody = {
     /**
      * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
      */
-    verification_url: (string) | null;
-};
-
-export type RequestPasswordResetInputBody = {
-    /**
-     * A URL to the JSON Schema for this object.
-     */
-    readonly $schema?: string;
-    email: string;
-    /**
-     * A URL where a form to set the new password is available
-     */
-    handler?: Url;
+    verification_url: string;
 };
 
 export type ResendEmailConfirmationInputBody = {
@@ -541,7 +541,7 @@ export type ResendEmailConfirmationInputBody = {
     /**
      * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
      */
-    verification_url: (string) | null;
+    verification_url: string;
 };
 
 export type SecuritySettings = {
@@ -849,7 +849,7 @@ export type Taxonomy = {
 /**
  * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
  */
-export type Url = (string) | null;
+export type Url = string;
 
 export type UpdatePasswordInput = {
     /**
@@ -1125,12 +1125,12 @@ export type ResendEmailConfirmationData = {
     body: ResendEmailConfirmationInputBody;
 };
 
-export type ResendEmailConfirmationResponse = (string);
+export type ResendEmailConfirmationResponse = (void);
 
 export type ResendEmailConfirmationError = (ErrorModel);
 
 export type RequestPasswordResetData = {
-    body: RequestPasswordResetInputBody;
+    body: PasswordResetRequest;
 };
 
 export type RequestPasswordResetResponse = (void);
