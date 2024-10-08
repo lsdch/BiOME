@@ -69,7 +69,7 @@ onBeforeMount(() => {
   if (isAuthenticated) redirect()
 })
 
-const target = useRouteQuery<string | 'home'>('redirect', 'home')
+const target = useRouteQuery<string | 'home'>('redirect', '/')
 
 function redirect() {
   // Using replace to overwrite router history
