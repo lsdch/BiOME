@@ -13,7 +13,7 @@ type emailVerificationToken struct {
 
 func (t emailVerificationToken) Save(db edgedb.Executor) error {
 	return db.Execute(context.Background(),
-		`insert people::EmailConfirmation {
+		`insert tokens::EmailConfirmation {
 			email := <str>$0,
 			token := <str>$1,
 			expires := <datetime>$2,
@@ -30,7 +30,7 @@ func NewEmailVerificationToken(email string) emailVerificationToken {
 func RetrieveEmailToken(db edgedb.Executor, token Token) (emailVerificationToken, error) {
 	var db_token emailVerificationToken
 	err := db.QuerySingle(context.Background(),
-		`select people::EmailConfirmation { * } filter .token = <str>$0`,
+		`select tokens::EmailConfirmation { * } filter .token = <str>$0`,
 		&db_token, token,
 	)
 	return db_token, err

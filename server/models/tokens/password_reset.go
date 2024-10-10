@@ -13,7 +13,7 @@ type pwdResetToken struct {
 
 func (t pwdResetToken) Save(db edgedb.Executor) error {
 	return db.Execute(context.Background(),
-		`insert people::PasswordReset {
+		`insert tokens::PasswordReset {
 			user := (select(<people::User><uuid>$0)),
 			token := <str>$1,
 			expires := <str>$2,
@@ -30,7 +30,7 @@ func NewPwdResetToken(userID edgedb.UUID) pwdResetToken {
 func RetrievePwdResetToken(db edgedb.Executor, token Token) (pwdResetToken, error) {
 	var db_token pwdResetToken
 	err := db.QuerySingle(context.Background(),
-		`select people::PasswordReset { token, expires, user_id: user.id} } filter .token = <str>$0`,
+		`select tokens::PasswordReset { token, expires, user_id: user.id} } filter .token = <str>$0`,
 		&db_token, token,
 	)
 	return db_token, err

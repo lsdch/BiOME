@@ -118,34 +118,4 @@ module people {
       default := false
     };
   }
-
-  # Tokens are one-time consumables to grant rights on some operations
-  abstract type Token {
-    required token: str {
-      constraint exclusive;
-    };
-    required expires: datetime;
-  }
-
-  type UserInvitation extending Token {
-    required identity: Person;
-    required role: UserRole;
-    required email: str;
-    required issued_by: User {
-      default := (global default::current_user);
-    };
-  }
-
-  type PasswordReset extending Token {
-    required user: User {
-      delegated constraint exclusive;
-      on target delete delete source;
-    };
-  };
-
-  type EmailConfirmation extending Token {
-    required email: str {
-      constraint exclusive;
-    };
-  };
 }

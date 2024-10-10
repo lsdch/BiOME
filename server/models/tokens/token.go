@@ -35,7 +35,7 @@ func (token TokenRecord) IsValid() bool {
 
 // Deletes token from the database
 func (token TokenRecord) Consume(db edgedb.Executor) (err error) {
-	deleteQuery := `delete people::Token filter .id = <uuid>$0`
+	deleteQuery := `delete tokens::Token filter .id = <uuid>$0`
 	if err = db.Execute(context.Background(), deleteQuery, token.ID); err != nil {
 		logrus.Errorf("Database error %v (query: %s)", err, deleteQuery)
 		return

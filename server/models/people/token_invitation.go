@@ -32,7 +32,7 @@ func (i InvitationInput) Save(db edgedb.Executor) (Invitation, error) {
 	var invitation Invitation
 	err := db.QuerySingle(context.Background(),
 		`with module people
-		select (insert UserInvitation {
+		select (insert tokens::UserInvitation {
 			identity := (select Person filter .id = <uuid>$0),
 			role := <UserRole>$1,
 			token := <str>$2,
@@ -80,7 +80,7 @@ func (i *Invitation) Send(target url.URL) (*url.URL, error) {
 func ValidateInvitationToken(db edgedb.Executor, token tokens.Token) (Invitation, error) {
 	var invitation Invitation
 	err := db.QuerySingle(context.Background(),
-		`select people::UserInvitation { ** } filter .token = <str>$0`,
+		`select tokens::UserInvitation { ** } filter .token = <str>$0`,
 		&invitation, token,
 	)
 	return invitation, err
