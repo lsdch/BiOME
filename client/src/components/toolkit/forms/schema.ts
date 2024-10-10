@@ -209,7 +209,7 @@ export function useSchema<T extends Schema>(schema: T) {
         rules.push((value: string) => {
           return emailRegex.test(value) || "Invalid email format"
         })
-
+        break;
       // Custom
       case "country-code":
         rules.push((value: string) =>
