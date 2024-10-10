@@ -15,6 +15,7 @@
                 @click="mode = Mode.PasswordReset"
               />
               <v-btn
+                v-if="settings.allow_contributor_signup"
                 size="large"
                 color="primary"
                 text="Register"
@@ -45,6 +46,7 @@
 import { Ref, ref } from 'vue'
 import LoginForm from '@/components/auth/LoginForm.vue'
 import PasswordResetForm from '@/components/auth/PasswordResetRequestForm.vue'
+import { useInstanceSettings } from '@/components/settings'
 
 enum Mode {
   Login,
@@ -52,6 +54,8 @@ enum Mode {
 }
 
 const mode: Ref<Mode> = ref(Mode.Login)
+
+const { settings } = useInstanceSettings()
 </script>
 
 <style lang="less"></style>
