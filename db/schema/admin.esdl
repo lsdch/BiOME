@@ -42,20 +42,10 @@ module admin {
       constraint min_value(3);
       constraint max_value(5);
     };
-    required auth_token_lifetime: int32 {
-      annotation description := "Validity period for an authentication token in minutes";
-      constraint min_value(5);
-      default := 15;
-    };
     required refresh_token_lifetime: int32 {
       annotation description := "Validity period for a session refresh token in days";
       constraint min_value(1);
       default := 1;
-    };
-    required account_token_lifetime: int32 {
-      annotation description := "Validity period for an account operation token in hours";
-      constraint min_value(1);
-      default := 24;
     };
     required jwt_secret_key: str {
       constraint min_len_value(32);

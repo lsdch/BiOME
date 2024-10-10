@@ -1,6 +1,7 @@
 package main
 
 import (
+	"darco/proto/config"
 	"darco/proto/db"
 	mw "darco/proto/middlewares"
 	"darco/proto/models/location"
@@ -76,6 +77,12 @@ func setupRouter() *gin.Engine {
 }
 
 func main() {
+
+	if config, err := config.LoadConfig(".", "config"); err != nil {
+		log.Fatalf("Failed to load config file: %v", err)
+	} else {
+		logrus.Infof("Loaded backend configuration: %+v", config)
+	}
 
 	gin.ForceConsoleColor()
 	if gin.Mode() == gin.DebugMode {

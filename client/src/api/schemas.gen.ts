@@ -1290,23 +1290,6 @@ export const $SecuritySettings = {
             readOnly: true,
             type: 'string'
         },
-        account_token_lifetime: {
-            description: 'Account manipulation token lifetime in hours',
-            format: 'int32',
-            minimum: 2,
-            type: 'integer'
-        },
-        auth_token_lifetime: {
-            description: 'JWT session lifetime in minutes',
-            format: 'int32',
-            minimum: 15,
-            type: 'integer'
-        },
-        jwt_secret_key: {
-            description: 'Used to verify session tokens. Changing it will revoke all currently active user sessions.',
-            minLength: 32,
-            type: 'string'
-        },
         min_password_strength: {
             description: 'The level of complexity required for account passwords.',
             format: 'int32',
@@ -1315,13 +1298,13 @@ export const $SecuritySettings = {
             type: 'integer'
         },
         refresh_token_lifetime: {
-            description: 'User session lifetime in days',
+            description: 'User session lifetime in hours',
             format: 'int32',
             minimum: 1,
             type: 'integer'
         }
     },
-    required: ['min_password_strength', 'auth_token_lifetime', 'refresh_token_lifetime', 'account_token_lifetime', 'jwt_secret_key'],
+    required: ['min_password_strength', 'refresh_token_lifetime'],
     type: 'object'
 } as const;
 
@@ -1335,23 +1318,6 @@ export const $SecuritySettingsInput = {
             readOnly: true,
             type: 'string'
         },
-        account_token_lifetime: {
-            description: 'Account manipulation token lifetime in hours',
-            format: 'int32',
-            minimum: 2,
-            type: 'integer'
-        },
-        auth_token_lifetime: {
-            description: 'JWT session lifetime in minutes',
-            format: 'int32',
-            minimum: 15,
-            type: 'integer'
-        },
-        jwt_secret_key: {
-            description: 'Used to verify session tokens. Changing it will revoke all currently active user sessions.',
-            minLength: 32,
-            type: 'string'
-        },
         min_password_strength: {
             description: 'The level of complexity required for account passwords.',
             format: 'int32',
@@ -1360,13 +1326,13 @@ export const $SecuritySettingsInput = {
             type: 'integer'
         },
         refresh_token_lifetime: {
-            description: 'User session lifetime in days',
+            description: 'User session lifetime in hours',
             format: 'int32',
             minimum: 1,
             type: 'integer'
         }
     },
-    required: ['min_password_strength', 'auth_token_lifetime', 'refresh_token_lifetime', 'account_token_lifetime', 'jwt_secret_key'],
+    required: ['min_password_strength', 'refresh_token_lifetime'],
     type: 'object'
 } as const;
 

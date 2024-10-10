@@ -10,14 +10,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestAuthTokenDuration(t *testing.T) {
-	assert.GreaterOrEqual(t, settings.Security().AuthTokenDuration().Seconds(), 1.)
-}
-
-func TestAccountTokenDuration(t *testing.T) {
-	assert.GreaterOrEqual(t, settings.Security().AccountTokenDuration().Hours(), 1.)
-}
-
 func TestSecuritySave(t *testing.T) {
 	input := tests.FakeData[settings.SecuritySettingsInput](t)
 	s, err := input.Save(db.Client())

@@ -24,44 +24,11 @@
     </v-row>
     <v-row>
       <v-col>
-        <v-text-field
-          v-model="model.jwt_secret_key"
-          class="flex-grow-1"
-          label="Authentication token secret key"
-          prepend-inner-icon="mdi-key"
-          readonly
-          v-bind="field('jwt_secret_key')"
-        >
-          <template #append-inner>
-            <v-btn
-              variant="plain"
-              v-bind="copySecretKey"
-              @click="toClipboard(model.jwt_secret_key)"
-            />
-            <v-btn variant="plain" icon="mdi-refresh" />
-          </template>
-        </v-text-field>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" sm="6"> </v-col>
-      <v-col cols="12" sm="6">
         <NumberInput
-          v-model="model.auth_token_lifetime"
-          class="flex-grow-0"
-          label="User session lifetime (minutes)"
-          :step="15"
-          v-bind="field('auth_token_lifetime')"
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <NumberInput
-          v-model="model.account_token_lifetime"
-          label="Account token lifetime (hours)"
+          v-model="model.refresh_token_lifetime"
+          label="User session lifetime (hours)"
           :step="1"
-          v-bind="field('account_token_lifetime')"
+          v-bind="field('refresh_token_lifetime')"
         />
       </v-col>
     </v-row>
@@ -102,23 +69,6 @@ async function submit() {
 const model = ref(await fetch())
 
 const { field, errorHandler } = useSchema($SecuritySettingsInput)
-
-const copySecretKeyinitial = {
-  icon: 'mdi-content-copy',
-  color: 'primary'
-}
-const copySecretKey = ref(copySecretKeyinitial)
-const { copy } = useClipboard()
-async function toClipboard(text: string) {
-  await copy(text)
-  copySecretKey.value = {
-    icon: 'mdi-check-circle',
-    color: 'success'
-  }
-  setTimeout(() => {
-    copySecretKey.value = copySecretKeyinitial
-  }, 2000)
-}
 </script>
 
 <style scoped></style>

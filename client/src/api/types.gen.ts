@@ -550,23 +550,11 @@ export type SecuritySettings = {
      */
     readonly $schema?: string;
     /**
-     * Account manipulation token lifetime in hours
-     */
-    account_token_lifetime: number;
-    /**
-     * JWT session lifetime in minutes
-     */
-    auth_token_lifetime: number;
-    /**
-     * Used to verify session tokens. Changing it will revoke all currently active user sessions.
-     */
-    jwt_secret_key: string;
-    /**
      * The level of complexity required for account passwords.
      */
     min_password_strength: number;
     /**
-     * User session lifetime in days
+     * User session lifetime in hours
      */
     refresh_token_lifetime: number;
 };
@@ -577,23 +565,11 @@ export type SecuritySettingsInput = {
      */
     readonly $schema?: string;
     /**
-     * Account manipulation token lifetime in hours
-     */
-    account_token_lifetime: number;
-    /**
-     * JWT session lifetime in minutes
-     */
-    auth_token_lifetime: number;
-    /**
-     * Used to verify session tokens. Changing it will revoke all currently active user sessions.
-     */
-    jwt_secret_key: string;
-    /**
      * The level of complexity required for account passwords.
      */
     min_password_strength: number;
     /**
-     * User session lifetime in days
+     * User session lifetime in hours
      */
     refresh_token_lifetime: number;
 };

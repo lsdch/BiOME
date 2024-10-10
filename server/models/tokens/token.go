@@ -2,7 +2,7 @@ package tokens
 
 import (
 	"context"
-	"darco/proto/models/settings"
+	"darco/proto/config"
 	"time"
 
 	"github.com/edgedb/edgedb-go"
@@ -53,6 +53,6 @@ func GenerateTokenStr(length int) Token {
 func GenerateToken(length int) TokenRecord {
 	return TokenRecord{
 		Token:   GenerateTokenStr(length),
-		Expires: time.Now().Add(settings.Security().AccountTokenDuration()),
+		Expires: time.Now().Add(config.Get().AccountTokenDuration()),
 	}
 }

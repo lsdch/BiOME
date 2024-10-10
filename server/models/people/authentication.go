@@ -2,7 +2,7 @@ package people
 
 import (
 	"context"
-	"darco/proto/models/settings"
+	"darco/proto/config"
 	"darco/proto/services/auth_tokens"
 	"net/http"
 
@@ -40,7 +40,7 @@ func Current(db *edgedb.Client) (user User, err error) {
 
 func (user *User) GenerateJWT() (string, error) {
 	return auth_tokens.GenerateToken(user.ID,
-		settings.Security().AuthTokenDuration())
+		config.Get().AuthTokenDuration())
 }
 
 func (user *User) JWTCookie(jwt string, domain string) http.Cookie {
@@ -49,7 +49,7 @@ func (user *User) JWTCookie(jwt string, domain string) http.Cookie {
 		Value:    jwt,
 		Path:     "/",
 		Domain:   domain,
-		MaxAge:   settings.Security().CookieMaxAge(),
+		MaxAge:   int(config.Get().AuthTokenDuration().Seconds()),
 		Secure:   true,
 		HttpOnly: true,
 	}
