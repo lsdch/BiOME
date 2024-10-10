@@ -642,7 +642,6 @@
 					}
 				},
 				"required": [
-					"description",
 					"name",
 					"public",
 					"allow_contributor_signup"

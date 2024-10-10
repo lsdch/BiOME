@@ -2,6 +2,7 @@ package settings
 
 import (
 	"context"
+	"darco/proto/models"
 	"encoding/json"
 
 	"github.com/edgedb/edgedb-go"
@@ -15,7 +16,7 @@ type InstanceSettingsInner struct {
 
 type InstanceSettingsInput struct {
 	InstanceSettingsInner `edgedb:"$inline" json:",inline"`
-	Description           *string `json:"description,omitnil"`
+	Description           models.OptionalNull[string] `json:"description,omitempty"`
 }
 
 type InstanceSettings struct {
@@ -24,7 +25,7 @@ type InstanceSettings struct {
 	Description           edgedb.OptionalStr `edgedb:"description" json:"description"`
 }
 
-func (input *InstanceSettingsInner) Save(db edgedb.Executor) (*InstanceSettings, error) {
+func (input *InstanceSettingsInput) Save(db edgedb.Executor) (*InstanceSettings, error) {
 	jsonData, _ := json.Marshal(input)
 	var s InstanceSettings
 	if err := db.QuerySingle(context.Background(),

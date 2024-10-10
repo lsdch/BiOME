@@ -260,7 +260,7 @@ export type InstanceSettingsInput = {
      * Whether requests to contribute to the database can be made.
      */
     allow_contributor_signup: boolean;
-    description: (string) | null;
+    description?: (string) | null;
     /**
      * The name of this database platform
      */

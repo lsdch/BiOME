@@ -5,6 +5,8 @@ import (
 	"darco/proto/db"
 	"darco/proto/models/settings"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 func TestGetSettings(t *testing.T) {
@@ -12,6 +14,7 @@ func TestGetSettings(t *testing.T) {
 }
 
 func TestInitSettings(t *testing.T) {
-	db.Client().Execute(context.Background(), `delete admin::Settings;`)
+	err := db.Client().Execute(context.Background(), `delete admin::Settings;`)
+	require.NoError(t, err)
 	settings.Get()
 }

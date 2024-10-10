@@ -511,7 +511,7 @@ export const $InstanceSettingsInput = {
             type: 'boolean'
         }
     },
-    required: ['description', 'name', 'public', 'allow_contributor_signup'],
+    required: ['name', 'public', 'allow_contributor_signup'],
     type: 'object'
 } as const;
 
