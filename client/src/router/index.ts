@@ -6,7 +6,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useGuards } from './guards'
 
-import routes from './routes'
+import routes, { accountRoutes } from './routes'
 import { navRouteDefinitions } from './nav'
 
 export * from './nav'
@@ -47,39 +47,10 @@ function setupRouter(settings: InstanceSettings) {
         }
       },
       {
-        path: '/login',
-        name: 'login',
-        component: () => import('../views/auth/LoginView.vue'),
-        // meta: { hideNavbar: true }
-      },
-      {
-        path: '/signup',
-        name: 'signup',
-        component: () => import('../views/auth/SignUpView.vue'),
-        // meta: { hideNavbar: true }
-      },
-      {
-        path: '/password-reset',
-        name: 'password-reset',
-        component: () => import('../views/auth/PasswordResetView.vue'),
-        meta: { hideNavbar: true }
-      },
-      {
-        path: '/email-confirmation',
-        name: 'email-confirmation',
-        component: () => import('../views/auth/EmailConfirmation.vue'),
-        meta: { hideNavbar: true }
-      },
-      {
         path: "/init",
         name: "init",
         component: () => import("../views/InitialSetup.vue"),
         meta: { hideNavbar: true }
-      },
-      {
-        path: "/account",
-        name: "account",
-        component: () => import("../views/AccountView.vue")
       },
       guardRole('Admin', {
         path: "/taxonomy/import",
@@ -124,3 +95,8 @@ function setupRouter(settings: InstanceSettings) {
 }
 
 export default setupRouter
+
+
+export function requestLogin() {
+
+}

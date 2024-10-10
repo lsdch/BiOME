@@ -14,6 +14,17 @@ function denyAccess(msg: string) {
 }
 
 export function useGuards() {
+
+  function guardAuth<T extends RouteRecordRaw>(route: T): T {
+    return {
+      ...route,
+      beforeEnter: () => {
+        const store = useUserStore()
+        return store.isAuthenticated || { name: 'login', query: { redirect: route.path } }
+      },
+    }
+  }
+
   function guardRole<T extends RouteRecordRaw>(role: UserRole, route: T): T {
     return {
       ...route,
@@ -36,5 +47,5 @@ export function useGuards() {
     }
   }
 
-  return { guardRole, routeWithGuard }
+  return { guardAuth, guardRole, routeWithGuard }
 }
