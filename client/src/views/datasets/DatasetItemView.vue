@@ -47,6 +47,7 @@
                 users="Contributor"
                 return-objects
                 v-bind="schema('maintainers')"
+                clearable
               />
               <div class="d-flex justify-end">
                 <v-btn

@@ -68,13 +68,7 @@ const DEFAULT: InstitutionInput = { code: '', name: '', kind: 'Lab' }
 </script>
 
 <script setup lang="ts">
-import {
-  $Institution,
-  $InstitutionInput,
-  Institution,
-  InstitutionInput,
-  PeopleService
-} from '@/api'
+import { $InstitutionInput, Institution, InstitutionInput, PeopleService } from '@/api'
 import { computed } from 'vue'
 import { VForm } from 'vuetify/components'
 import { enumAsString } from '../toolkit/enums'

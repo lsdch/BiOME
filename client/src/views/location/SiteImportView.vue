@@ -44,6 +44,7 @@
                   :items="maintainers"
                   multiple
                   persistent-hint
+                  clearable
                 >
                   <template #prepend-inner>
                     <v-chip
