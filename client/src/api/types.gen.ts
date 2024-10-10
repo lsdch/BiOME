@@ -554,7 +554,7 @@ export type SecuritySettings = {
      */
     account_token_lifetime: number;
     /**
-     * User session lifetime in minutes
+     * JWT session lifetime in minutes
      */
     auth_token_lifetime: number;
     /**
@@ -565,6 +565,10 @@ export type SecuritySettings = {
      * The level of complexity required for account passwords.
      */
     min_password_strength: number;
+    /**
+     * User session lifetime in days
+     */
+    refresh_token_lifetime: number;
 };
 
 export type SecuritySettingsInput = {
@@ -577,7 +581,7 @@ export type SecuritySettingsInput = {
      */
     account_token_lifetime: number;
     /**
-     * User session lifetime in minutes
+     * JWT session lifetime in minutes
      */
     auth_token_lifetime: number;
     /**
@@ -588,6 +592,10 @@ export type SecuritySettingsInput = {
      * The level of complexity required for account passwords.
      */
     min_password_strength: number;
+    /**
+     * User session lifetime in days
+     */
+    refresh_token_lifetime: number;
 };
 
 export type Site = {

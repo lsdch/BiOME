@@ -1297,7 +1297,7 @@ export const $SecuritySettings = {
             type: 'integer'
         },
         auth_token_lifetime: {
-            description: 'User session lifetime in minutes',
+            description: 'JWT session lifetime in minutes',
             format: 'int32',
             minimum: 15,
             type: 'integer'
@@ -1313,9 +1313,15 @@ export const $SecuritySettings = {
             maximum: 5,
             minimum: 3,
             type: 'integer'
+        },
+        refresh_token_lifetime: {
+            description: 'User session lifetime in days',
+            format: 'int32',
+            minimum: 1,
+            type: 'integer'
         }
     },
-    required: ['min_password_strength', 'auth_token_lifetime', 'account_token_lifetime', 'jwt_secret_key'],
+    required: ['min_password_strength', 'auth_token_lifetime', 'refresh_token_lifetime', 'account_token_lifetime', 'jwt_secret_key'],
     type: 'object'
 } as const;
 
@@ -1336,7 +1342,7 @@ export const $SecuritySettingsInput = {
             type: 'integer'
         },
         auth_token_lifetime: {
-            description: 'User session lifetime in minutes',
+            description: 'JWT session lifetime in minutes',
             format: 'int32',
             minimum: 15,
             type: 'integer'
@@ -1352,9 +1358,15 @@ export const $SecuritySettingsInput = {
             maximum: 5,
             minimum: 3,
             type: 'integer'
+        },
+        refresh_token_lifetime: {
+            description: 'User session lifetime in days',
+            format: 'int32',
+            minimum: 1,
+            type: 'integer'
         }
     },
-    required: ['min_password_strength', 'auth_token_lifetime', 'account_token_lifetime', 'jwt_secret_key'],
+    required: ['min_password_strength', 'auth_token_lifetime', 'refresh_token_lifetime', 'account_token_lifetime', 'jwt_secret_key'],
     type: 'object'
 } as const;
 

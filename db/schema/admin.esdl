@@ -47,6 +47,11 @@ module admin {
       constraint min_value(5);
       default := 15;
     };
+    required refresh_token_lifetime: int32 {
+      annotation description := "Validity period for a session refresh token in days";
+      constraint min_value(1);
+      default := 1;
+    };
     required account_token_lifetime: int32 {
       annotation description := "Validity period for an account operation token in hours";
       constraint min_value(1);
