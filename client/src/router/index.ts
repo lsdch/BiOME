@@ -1,107 +1,40 @@
+import { InstanceSettings, UserRole } from '@/api'
 import NotFound from '@/components/navigation/NotFound.vue'
 import { nextTick } from "vue"
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import { useGuards } from './guards'
-import { useInstanceSettings } from '@/components/settings'
+
+import routes from './routes'
+import { navRouteDefinitions } from './nav'
+
+export * from './nav'
 
 
-// Default app title to display
-const { settings } = useInstanceSettings()
-function makeTitle(title: string) {
-  return `${settings.name} | ${title}`
-}
-
-export type RouteDefinition = RouteRecordRaw & {
+export type RouteNavDefinition = {
   label: string
-  icon?: string
+  icon: string
+  granted?: UserRole
 }
 
-type Route = RouteDefinition & { icon: string, routes?: undefined }
+export type RouteDefinition = RouteRecordRaw & RouteNavDefinition
 
-type RouteGroup = {
-  readonly label: string
-  readonly icon: string
-  readonly routes: RouteDefinition[]
-}
+
+type Route = RouteDefinition & { routes?: undefined }
+
+type RouteGroup = Readonly<RouteNavDefinition & { routes: RouteDefinition[] }>
 
 export type RouterItem = Route | RouteGroup
 
+const { guardRole } = useGuards()
 
 
-/** Route definitions meant to be displayed in navigation components */
-export const routeGroups: RouterItem[] = [
-  {
-    label: "Home",
-    path: '/',
-    name: 'home',
-    icon: "mdi-home",
-    component: HomeView
-  },
-  {
-    icon: "mdi-folder-table",
-    label: "Datasets",
-    path: '/datasets',
-    name: 'datasets',
-    component: () => import('../views/datasets/DatasetsView.vue')
-  },
-  {
-    icon: "mdi-graph",
-    label: "Taxonomy",
-    path: '/taxonomy',
-    name: 'taxonomy',
-    component: () => import('../views/taxonomy/TaxonomyView.vue')
-  },
-  {
-    label: "People",
-    icon: "mdi-account-group",
-    routes: [
-      {
-        label: "Persons",
-        path: "/people",
-        name: "people",
-        icon: "mdi-account",
-        component: () => import("../views/people/PersonView.vue")
-      },
-      {
-        label: "Institutions",
-        path: "/people/institutions",
-        name: "institutions",
-        icon: "mdi-domain",
-        component: () => import("../views/people/InstitutionView.vue")
-      }
-    ]
-  },
-  {
-    label: "Locations", icon: "mdi-map-marker-circle", routes: [
-      {
-        label: "Sites",
-        path: "/sites",
-        name: "sites",
-        icon: "mdi-map-marker-radius",
-        component: () => import("@/views/location/SitesView.vue"),
-        meta: {
-          drawer: {
-            temporary: true
-          }
-        }
-      },
-      {
-        label: "Habitats",
-        path: "/location/habitats",
-        name: "habitats",
-        icon: "mdi-image-filter-hdr-outline",
-        component: () => import("@/views/location/HabitatsView.vue")
-      },
-    ]
+function setupRouter(settings: InstanceSettings) {
+  function makeTitle(title: string) {
+    return `${settings.name} | ${title}`
   }
-]
 
-
-
-function router() {
-  const { guardRole } = useGuards()
   const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
@@ -126,7 +59,7 @@ function router() {
         // meta: { hideNavbar: true }
       },
       {
-        path: '/password-reset/:token',
+        path: '/password-reset',
         name: 'password-reset',
         component: () => import('../views/auth/PasswordResetView.vue'),
         meta: { hideNavbar: true }
@@ -174,21 +107,8 @@ function router() {
         component: () => import('@/views/location/SiteItemView.vue')
       },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
-      guardRole('Admin', {
-        path: '/settings',
-        name: "app-settings",
-        component: () => import("@/views/settings/AdminSettings.vue")
-      }),
-      ...routeGroups.reduce((acc, current) => {
-        if (current.routes) {
-          return acc.concat(current.routes)
-        } else {
-          acc.unshift(current as RouteDefinition)
-          return acc
-        }
-      },
-        new Array<RouteDefinition>)
-
+      ...Object.values(routes),
+      ...navRouteDefinitions
     ]
   })
 
@@ -202,4 +122,5 @@ function router() {
 
   return router
 }
-export default router
+
+export default setupRouter

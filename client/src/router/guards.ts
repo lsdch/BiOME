@@ -2,6 +2,7 @@ import { UserRole } from "@/api";
 import { useFeedback } from "@/stores/feedback";
 import { useUserStore } from "@/stores/user";
 import { RouteRecordRaw } from "vue-router";
+import { RouteNavDefinition } from ".";
 
 
 
@@ -13,11 +14,11 @@ function denyAccess(msg: string) {
 }
 
 export function useGuards() {
-  const store = useUserStore()
-  function guardRole(role: UserRole, route: RouteRecordRaw & { name: string }): RouteRecordRaw {
+  function guardRole<T extends RouteRecordRaw>(role: UserRole, route: T): T {
     return {
       ...route,
       beforeEnter: () => {
+        const store = useUserStore()
         if (store.isAuthenticated) {
           return store.isGranted(role) ? true : denyAccess(`Access requires ${role} privileges`)
         } else {
@@ -27,5 +28,13 @@ export function useGuards() {
     }
   }
 
-  return { guardRole }
+  function routeWithGuard(role: UserRole, route: RouteRecordRaw & { name: string }, nav: RouteNavDefinition) {
+    return {
+      ...guardRole(role, route),
+      ...nav,
+      granted: role
+    }
+  }
+
+  return { guardRole, routeWithGuard }
 }
