@@ -33,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { PasswordInput, PersonStruct } from '@/api'
+import { PasswordInput, PersonIdentity } from '@/api'
 import { zxcvbn } from '@zxcvbn-ts/core'
 import { computed, defineModel } from 'vue'
 import PasswordField from '../toolkit/ui/PasswordField.vue'
@@ -44,7 +44,7 @@ const MIN_PWD_STRENGTH = 3
 const props = defineProps<{
   email?: string
   login?: string
-  identity?: PersonStruct
+  identity?: PersonIdentity
 }>()
 
 const model = defineModel<PasswordInput>({

@@ -1006,7 +1006,7 @@ export const $PendingUserRequestInput = {
             type: 'string'
         },
         identity: {
-            '$ref': '#/components/schemas/PendingUserRequestInputPersonStruct'
+            '$ref': '#/components/schemas/PersonIdentity'
         },
         institution: {
             type: 'string'
@@ -1016,24 +1016,6 @@ export const $PendingUserRequestInput = {
         }
     },
     required: ['identity', 'email'],
-    type: 'object'
-} as const;
-
-export const $PendingUserRequestInputPersonStruct = {
-    additionalProperties: false,
-    properties: {
-        first_name: {
-            maxLength: 32,
-            minLength: 2,
-            type: 'string'
-        },
-        last_name: {
-            maxLength: 32,
-            minLength: 2,
-            type: 'string'
-        }
-    },
-    required: ['first_name', 'last_name'],
     type: 'object'
 } as const;
 
@@ -1109,6 +1091,24 @@ export const $Person = {
         }
     },
     required: ['institutions', 'meta', 'user', 'id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
+    type: 'object'
+} as const;
+
+export const $PersonIdentity = {
+    additionalProperties: false,
+    properties: {
+        first_name: {
+            maxLength: 32,
+            minLength: 2,
+            type: 'string'
+        },
+        last_name: {
+            maxLength: 32,
+            minLength: 2,
+            type: 'string'
+        }
+    },
+    required: ['first_name', 'last_name'],
     type: 'object'
 } as const;
 

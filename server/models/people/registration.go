@@ -58,12 +58,10 @@ func (u UserInput) RegisterWithToken(db edgedb.Executor, token tokens.Token) (*U
 }
 
 type PendingUserRequestInput struct {
-	EmailField `json:",inline" edgedb:"$inline"`
-	Person     struct {
-		PersonIdentity `edgedb:"$inline" json:",inline"`
-	} `json:"identity" edgedb:"identity"`
-	Institution string `json:"institution,omitempty" edgedb:"institution" fake:"{word}"`
-	Motive      string `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
+	EmailField  `json:",inline" edgedb:"$inline"`
+	Person      PersonIdentity `json:"identity" edgedb:"identity"`
+	Institution string         `json:"institution,omitempty" edgedb:"institution" fake:"{word}"`
+	Motive      string         `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
 }
 
 //go:embed queries/register_pending_user.edgeql

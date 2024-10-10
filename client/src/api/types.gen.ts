@@ -449,14 +449,9 @@ export type PendingUserRequest = {
 
 export type PendingUserRequestInput = {
     email: string;
-    identity: PendingUserRequestInputPersonStruct;
+    identity: PersonIdentity;
     institution?: string;
     motive?: string;
-};
-
-export type PendingUserRequestInputPersonStruct = {
-    first_name: string;
-    last_name: string;
 };
 
 export type PendingUserRequestPersonStruct = {
@@ -480,6 +475,11 @@ export type Person = {
     meta: Meta;
     role?: UserRole;
     user: OptionalUserInner;
+};
+
+export type PersonIdentity = {
+    first_name: string;
+    last_name: string;
 };
 
 export type PersonInput = {
