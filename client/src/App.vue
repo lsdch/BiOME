@@ -19,7 +19,9 @@
     <NavigationDrawer v-model="drawer" :temporary="drawerTemporary || smAndDown" />
     <v-main>
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
-      <RouterView />
+      <Suspense>
+        <RouterView />
+      </Suspense>
     </v-main>
     <ErrorSnackbar v-model="snackbar.open" :title="snackbar.title" :errors="snackbar.errors" />
     <FeedbackSnackbar />
