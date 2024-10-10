@@ -1,3 +1,8 @@
+
+/**
+ * Pretty format for enum terms.
+ * @example "SomeEnumTerm" --> "Some enum term"
+ */
 export function enumAsString(v: string) {
   const lowercase = v.split(/(?=[A-Z])/).join(' ').toLowerCase()
   return lowercase[0].toUpperCase() + lowercase.slice(1)
