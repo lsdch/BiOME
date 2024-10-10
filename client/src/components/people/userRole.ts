@@ -1,4 +1,4 @@
-import { User, UserRole } from "@/api"
+import { UserRole } from "@/api"
 
 export function roleIcon(role?: UserRole) {
   switch (role) {
@@ -31,7 +31,6 @@ export const orderedUserRoles: UserRole[] = ['Visitor', 'Contributor', 'Maintain
 
 interface UserStatus {
   role: UserRole
-  is_active: boolean
 }
 
 export function isGranted(user: UserStatus, role: UserRole) {
