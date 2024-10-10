@@ -51,6 +51,7 @@ import { useInstanceSettings } from '.'
 import { useSchema } from '../toolkit/forms/schema'
 import IconEditor from './InstanceIcon.vue'
 import SettingsForm from './SettingsForm.vue'
+import { useFeedback } from '@/stores/feedback'
 
 const { settings, reload } = useInstanceSettings()
 
@@ -62,10 +63,15 @@ async function reloadSettings() {
   model.value = await reload()
 }
 
+const { feedback } = useFeedback()
+
 async function submit() {
   await SettingsService.updateInstanceSettings({ body: model.value })
     .then(errorHandler)
-    .then(() => reloadSettings)
+    .then(() => {
+      reloadSettings()
+      feedback({ message: 'Updated settings', type: 'success' })
+    })
 }
 </script>
 
