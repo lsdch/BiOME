@@ -88,7 +88,7 @@ func DeleteUser(db edgedb.Executor, uuid edgedb.UUID) (*User, error) {
 // Find a user by UUID
 //
 // Returns edgedb.NoDataError if nothing matches
-func FindID(db *edgedb.Client, uuid edgedb.UUID) (user User, err error) {
+func FindID(db edgedb.Executor, uuid edgedb.UUID) (user User, err error) {
 	err = db.QuerySingle(context.Background(),
 		`select (<people::User><uuid>$0) { * , identity: { * } } limit 1`,
 		&user,

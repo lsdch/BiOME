@@ -43,7 +43,7 @@ import colors from 'vuetify/util/colors'
 import AccountNavMenu from '@/components/navbar/AccountNavMenu.vue'
 import SettingsMenu from '@/components/navbar/SettingsMenu.vue'
 
-import { client } from '@/api/services.gen'
+import { AccountService, client } from '@/api/services.gen'
 import { useDisplay } from 'vuetify'
 import { ErrorDetail, InstanceSettings } from './api'
 import ConfirmDialog from './components/toolkit/ui/ConfirmDialog.vue'
@@ -51,6 +51,7 @@ import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { useAppConfirmDialog } from './composables'
 import AppIcon from './components/icons/AppIcon.vue'
+import { useUserStore } from './stores/user'
 
 const loading = ref(false)
 
@@ -86,10 +87,8 @@ const snackbar = ref<{ open: boolean; title: string; errors: ErrorDetail[] }>({
 })
 
 client.interceptors.response.use(async (response) => {
-  if (response.status === 401) {
-    const body = await response.json()
+  if (response.status === 403) {
     snackbar.value.title = 'Access denied'
-    snackbar.value.errors = body.errors
     snackbar.value.open = true
   }
   return response

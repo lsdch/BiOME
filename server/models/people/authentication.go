@@ -3,8 +3,10 @@ package people
 import (
 	"context"
 	"darco/proto/config"
+	"darco/proto/models/tokens"
 	"darco/proto/services/auth_tokens"
 	"net/http"
+	"time"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -38,9 +40,17 @@ func Current(db *edgedb.Client) (user User, err error) {
 	return
 }
 
-func (user *User) GenerateJWT() (string, error) {
-	return auth_tokens.GenerateToken(user.ID,
-		config.Get().AuthTokenDuration())
+func (user *User) GenerateJWT() (tokens.TokenRecord, error) {
+	lifetime :=
+		config.Get().AuthTokenDuration()
+	token, err := auth_tokens.NewJWT(user.ID, lifetime)
+	if err != nil {
+		return tokens.TokenRecord{}, err
+	}
+	return tokens.TokenRecord{
+		Token:   tokens.Token(token),
+		Expires: time.Now().Add(lifetime),
+	}, nil
 }
 
 func (user *User) JWTCookie(jwt string, domain string) http.Cookie {

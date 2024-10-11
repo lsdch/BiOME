@@ -18,7 +18,7 @@ func secretKey() []byte {
 }
 
 // Generates a session token for an authenticated user
-func GenerateToken(payload interface{}, lifetime time.Duration) (string, error) {
+func NewJWT(payload interface{}, lifetime time.Duration) (string, error) {
 	claims := jwt.MapClaims{
 		"sub": payload,
 		"iat": time.Now().Unix(),
@@ -34,7 +34,7 @@ func GenerateToken(payload interface{}, lifetime time.Duration) (string, error) 
 	return signedToken, nil
 }
 
-func ValidateToken(token string) (interface{}, error) {
+func ValidateJWT(token string) (interface{}, error) {
 	tok, err := jwt.Parse(token,
 		func(jwtToken *jwt.Token) (interface{}, error) {
 			if _, ok := jwtToken.Method.(*jwt.SigningMethodHMAC); !ok {

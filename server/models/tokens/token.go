@@ -2,7 +2,9 @@ package tokens
 
 import (
 	"context"
+	"crypto/sha256"
 	"darco/proto/config"
+	"encoding/hex"
 	"time"
 
 	"github.com/edgedb/edgedb-go"
@@ -13,6 +15,11 @@ import (
 // A confirmation token generated as a random string.
 // Used to validate email addresses or password reset requests.
 type Token string
+
+func (t Token) Hash() string {
+	h := sha256.New()
+	return hex.EncodeToString(h.Sum([]byte(t)))
+}
 
 func (t Token) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(t), nil
@@ -50,9 +57,9 @@ func generateTokenStr(length int) Token {
 
 // Generates a token with expiration date attached.
 // It is NOT saved in the database yet.
-func GenerateToken() TokenRecord {
+func GenerateToken(duration time.Duration) TokenRecord {
 	return TokenRecord{
 		Token:   generateTokenStr(int(config.Get().GeneratedTokenLength)),
-		Expires: time.Now().Add(config.Get().AccountTokenDuration()),
+		Expires: time.Now().Add(duration),
 	}
 }

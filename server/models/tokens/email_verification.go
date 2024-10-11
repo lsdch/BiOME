@@ -2,6 +2,7 @@ package tokens
 
 import (
 	"context"
+	"darco/proto/config"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -23,7 +24,7 @@ func (t emailVerificationToken) Save(db edgedb.Executor) error {
 func NewEmailVerificationToken(email string) emailVerificationToken {
 	return emailVerificationToken{
 		Email:       email,
-		TokenRecord: GenerateToken(),
+		TokenRecord: GenerateToken(config.Get().AccountTokenDuration()),
 	}
 }
 

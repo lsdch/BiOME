@@ -3,18 +3,25 @@ package accounts
 import (
 	"context"
 	"darco/proto/db"
+	"darco/proto/models"
 	users "darco/proto/models/people"
+	"darco/proto/models/tokens"
 	"darco/proto/resolvers"
 	"darco/proto/services/auth_tokens"
 	"fmt"
 	"net/http"
 	"slices"
+	"time"
 
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
 type AuthTokenResponse struct {
-	Token string `json:"token" doc:"JSON Web Token" example:"xxxxx.yyyyy.zzzzz"`
+	AuthToken        string    `json:"auth_token" doc:"JSON Web Token" example:"xxxxx.yyyyy.zzzzz"`
+	RefreshToken     string    `json:"refresh_token" doc:"Session refresh token"`
+	AuthTokenExpires time.Time `json:"auth_token_expiration" doc:"Time at which auth token expires"`
 }
 
 type CurrentUserInput struct {
@@ -37,7 +44,7 @@ func CurrentUser(ctx context.Context, input *CurrentUserInput) (*CurrentUserOutp
 			Status: http.StatusOK,
 			Body: CurrentUserResponse{
 				User:              input.User,
-				AuthTokenResponse: AuthTokenResponse{Token: input.AuthToken},
+				AuthTokenResponse: AuthTokenResponse{AuthToken: input.AuthToken},
 			},
 		}, nil
 	} else {
@@ -55,7 +62,7 @@ type LoginInput struct {
 type AuthenticationResponse struct {
 	Messages          []string `json:"messages"`
 	AuthTokenResponse `json:",inline"`
-	User              *users.User
+	User              *users.User `json:"user"`
 }
 
 type LoginOutput struct {
@@ -63,16 +70,25 @@ type LoginOutput struct {
 	Body          AuthenticationResponse
 }
 
-func createSession(user *users.User, domain string, messages ...string) (*LoginOutput, error) {
-	logrus.Infof("Starting user session for: %s [%v]", user.Person.FullName, user.ID)
+type SessionParameters struct {
+	Domain       string
+	RefreshToken tokens.SessionRefreshToken
+}
+
+func createSession(db edgedb.Executor, params SessionParameters, messages ...string) (*LoginOutput, error) {
+	user, err := users.FindID(db, params.RefreshToken.UserID)
+	if err != nil {
+		return nil, err
+	}
+	logrus.Infof("Starting user session for: %s [%v]", user.Person.FullName, user.Role)
 	token, err := user.GenerateJWT()
 	if err != nil {
-		respError := fmt.Errorf("Failed to generate session token: %w", err)
+		respError := fmt.Errorf("Failed to generate session token: %v", err)
 		logrus.Error(respError)
 		return nil, respError
 	}
 
-	cookie := user.JWTCookie(token, domain)
+	cookie := user.JWTCookie(string(token.Token), params.Domain)
 	logrus.Debugf("Set JWT session cookie: %+v", cookie)
 
 	return &LoginOutput{
@@ -85,29 +101,87 @@ func createSession(user *users.User, domain string, messages ...string) (*LoginO
 				)},
 				messages,
 			),
-			AuthTokenResponse: AuthTokenResponse{Token: token},
-			User:              user,
+			AuthTokenResponse: AuthTokenResponse{
+				AuthToken:        string(token.Token),
+				RefreshToken:     string(params.RefreshToken.Token),
+				AuthTokenExpires: token.Expires,
+			},
+			User: &user,
 		},
 	}, nil
 }
 
 func Login(ctx context.Context, input *LoginInput) (*LoginOutput, error) {
 	user, authError := input.Body.Authenticate(db.Client())
+	if db.IsNoData(authError) {
+		return nil, huma.Error401Unauthorized("Invalid credentials")
+	}
 	if authError != nil {
 		return nil, authError
 	}
-	return createSession(&user, input.Host)
+	refreshToken, err := tokens.CreateSessionRefreshToken(db.Client(), user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to generate refresh token: %v", err)
+	}
+	return createSession(db.Client(),
+		SessionParameters{
+			Domain:       input.HostResolver.Host,
+			RefreshToken: refreshToken,
+		})
+}
+
+type LogoutInput struct {
+	Body struct {
+		RefreshToken models.OptionalInput[string] `json:"refresh_token,omitempty"`
+	}
 }
 
 type LogoutOutput struct {
 	SetCookie []*http.Cookie `header:"Set-Cookie"`
 }
 
-func Logout(ctx context.Context, input *struct{}) (*LogoutOutput, error) {
+func Logout(ctx context.Context, input *LogoutInput) (*LogoutOutput, error) {
+	token, ok := input.Body.RefreshToken.Get()
+	if ok {
+		_ = tokens.DropSessionToken(db.Client(), tokens.Token(token))
+	}
 	return &LogoutOutput{
 		SetCookie: []*http.Cookie{
 			{Name: auth_tokens.AUTH_TOKEN_COOKIE, MaxAge: -1, Value: "", Path: "/", HttpOnly: true, Secure: true},
 			{Name: auth_tokens.REFRESH_TOKEN_COOKIE, MaxAge: -1, Value: "", Path: "/", HttpOnly: true, Secure: true},
 		},
 	}, nil
+}
+
+type RefreshTokenBody struct {
+	Token string `json:"refresh_token"`
+}
+
+type RefreshSessionInput struct {
+	resolvers.HostResolver
+	Body RefreshTokenBody
+}
+
+func RefreshSession(ctx context.Context, input *RefreshSessionInput) (*LoginOutput, error) {
+	token, err := tokens.RetrieveSessionRefreshToken(
+		db.Client(),
+		tokens.Token(input.Body.Token),
+	)
+	if db.IsNoData(err) || !token.IsValid() {
+		return nil, huma.Error401Unauthorized("Invalid token")
+	}
+	if err != nil {
+		return nil, err
+	}
+	newToken, err := token.Rotate(db.Client())
+	if err != nil {
+		return nil, err
+	}
+
+	return createSession(db.Client(),
+		SessionParameters{
+			Domain:       input.Host,
+			RefreshToken: newToken,
+		},
+	)
 }

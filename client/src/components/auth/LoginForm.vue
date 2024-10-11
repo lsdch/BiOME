@@ -43,10 +43,10 @@
 </template>
 
 <script setup lang="ts">
-import { AccountService, ErrorModel, UserCredentials } from '@/api'
+import { UserCredentials } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { useRouteQuery } from '@vueuse/router'
-import { Ref, onBeforeMount, reactive, ref } from 'vue'
+import { onBeforeMount, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PasswordField from '../toolkit/ui/PasswordField.vue'
 
@@ -57,19 +57,15 @@ const formData: UserCredentials = reactive({
 
 const loading = ref(false)
 
-const errors: Ref<ErrorModel | undefined> = ref(undefined)
-
 defineEmits<{ (event: 'sendConfirmation'): void }>()
 
 const router = useRouter()
-
-const { getUser, isAuthenticated } = useUserStore()
+const { getUser, isAuthenticated, login, error } = useUserStore()
+const target = useRouteQuery<string | 'home'>('redirect', '/')
 
 onBeforeMount(() => {
   if (isAuthenticated) redirect()
 })
-
-const target = useRouteQuery<string | 'home'>('redirect', '/')
 
 function redirect() {
   // Using replace to overwrite router history
@@ -79,14 +75,11 @@ function redirect() {
 
 async function submit() {
   loading.value = true
-  await AccountService.login({ body: formData })
-    .then(async ({ data: _, error }) => {
+  await login(formData)
+    .then(() => {
       if (error !== undefined) {
-        errors.value = error
         return
       }
-      errors.value = undefined
-      await getUser()
       redirect()
     })
     .finally(() => {

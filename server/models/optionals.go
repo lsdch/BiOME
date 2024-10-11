@@ -80,6 +80,10 @@ type OptionalInput[T any] struct {
 	Value T
 }
 
+func (o OptionalInput[T]) Get() (T, bool) {
+	return o.Value, o.IsSet
+}
+
 func (o OptionalInput[T]) HasValue() bool {
 	return o.IsSet
 }

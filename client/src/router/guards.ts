@@ -28,9 +28,10 @@ export function useGuards() {
   function guardRole<T extends RouteRecordRaw>(role: UserRole, route: T): T {
     return {
       ...route,
-      beforeEnter: () => {
+      beforeEnter: async () => {
         const store = useUserStore()
         if (store.isAuthenticated) {
+          await store.refreshAsNeeded()
           return store.isGranted(role) ? true : denyAccess(`Access requires ${role} privileges`)
         } else {
           return { name: 'login', query: { redirect: route.path } }

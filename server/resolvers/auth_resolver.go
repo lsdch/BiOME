@@ -54,8 +54,6 @@ func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 	p.AuthToken = ""
 	var accessToken string
 
-	logrus.Debugf("Session cookie: %+v", p.Session)
-
 	if p.AuthTokenHeader != "" {
 		accessToken = strings.TrimPrefix(p.AuthTokenHeader, "Bearer ")
 	} else {
@@ -67,7 +65,7 @@ func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 		return
 	}
 
-	sub, err := auth_tokens.ValidateToken(accessToken)
+	sub, err := auth_tokens.ValidateJWT(accessToken)
 	if err != nil {
 		logrus.Debugf("Auth middleware: Invalid token received [%v]", err)
 		return
@@ -85,7 +83,11 @@ func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 		return
 	}
 
-	logrus.Debugf("Auth middleware: User authenticated %+v", currentUser)
+	logrus.Debugf(
+		"Auth middleware: authenticated %s [%s]",
+		currentUser.Person.FullName, currentUser.Role,
+	)
+
 	p.AuthToken = accessToken
 	p.User = &currentUser
 }

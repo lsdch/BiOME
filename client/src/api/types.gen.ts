@@ -5,12 +5,20 @@ export type AuthenticationResponse = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    User: User;
-    messages: Array<(string)> | null;
     /**
      * JSON Web Token
      */
-    token: string;
+    auth_token: string;
+    /**
+     * Time at which auth token expires
+     */
+    auth_token_expiration: Date;
+    messages: Array<(string)> | null;
+    /**
+     * Session refresh token
+     */
+    refresh_token: string;
+    user: User;
 };
 
 export type Coordinates = {
@@ -38,7 +46,15 @@ export type CurrentUserResponse = {
     /**
      * JSON Web Token
      */
-    token: string;
+    auth_token: string;
+    /**
+     * Time at which auth token expires
+     */
+    auth_token_expiration: Date;
+    /**
+     * Session refresh token
+     */
+    refresh_token: string;
     user: User;
 };
 
@@ -358,6 +374,14 @@ export type Lineage = {
     subspecies?: OptionalTaxon;
 };
 
+export type LogoutInputBody = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    refresh_token?: string;
+};
+
 export type Meta = {
     created: Date;
     created_by?: UserShortIdentity;
@@ -520,6 +544,14 @@ export type PersonUser = {
     user: OptionalUserInner;
 };
 
+export type RefreshTokenBody = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    refresh_token: string;
+};
+
 export type RegisterInputBody = {
     /**
      * A URL to the JSON Schema for this object.
@@ -550,6 +582,10 @@ export type SecuritySettings = {
      */
     readonly $schema?: string;
     /**
+     * Invitation token lifetime in days
+     */
+    invitation_token_lifetime: number;
+    /**
      * The level of complexity required for account passwords.
      */
     min_password_strength: number;
@@ -564,6 +600,10 @@ export type SecuritySettingsInput = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
+    /**
+     * Invitation token lifetime in days
+     */
+    invitation_token_lifetime: number;
     /**
      * The level of complexity required for account passwords.
      */
@@ -1129,6 +1169,10 @@ export type LoginResponse = (AuthenticationResponse);
 
 export type LoginError = (ErrorModel);
 
+export type LogoutData = {
+    body: LogoutInputBody;
+};
+
 export type LogoutResponse = (string);
 
 export type LogoutError = (ErrorModel);
@@ -1193,6 +1237,14 @@ export type GetPendingUserRequestData = {
 export type GetPendingUserRequestResponse = (PendingUserRequest);
 
 export type GetPendingUserRequestError = (ErrorModel);
+
+export type RefreshSessionData = {
+    body: RefreshTokenBody;
+};
+
+export type RefreshSessionResponse = (AuthenticationResponse);
+
+export type RefreshSessionError = (ErrorModel);
 
 export type RegisterData = {
     body: RegisterInputBody;

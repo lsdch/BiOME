@@ -29,4 +29,10 @@ module tokens {
       constraint exclusive;
     };
   };
+
+  type SessionRefreshToken extending Token {
+    required user: people::User {
+      on target delete delete source;
+    };
+  }
 }

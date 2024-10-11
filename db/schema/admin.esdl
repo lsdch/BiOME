@@ -43,10 +43,15 @@ module admin {
       constraint max_value(5);
     };
     required refresh_token_lifetime: int32 {
-      annotation description := "Validity period for a session refresh token in days";
+      annotation description := "Validity period for a session refresh token in hours";
       constraint min_value(1);
       default := 1;
     };
+    required invitation_token_lifetime: int32 {
+      annotation description := "Validity period for an account invitation in days";
+      constraint min_value(1);
+      default := 7;
+    }
     required jwt_secret_key: str {
       constraint min_len_value(32);
     };

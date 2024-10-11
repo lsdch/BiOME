@@ -58,6 +58,14 @@ func RegisterRoutes(r router.Router) {
 			Description: "Logout from current user session by revoking session cookies",
 		}, Logout)
 
+	router.Register(accountAPI, "RefreshSession",
+		huma.Operation{
+			Path:        "/refresh",
+			Method:      http.MethodPost,
+			Summary:     "Refresh auth token",
+			Description: "Refresh session using refresh token",
+		}, RefreshSession)
+
 	router.Register(accountAPI, "UpdatePassword",
 		huma.Operation{
 			Path:        "/password",

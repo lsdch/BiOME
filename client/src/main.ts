@@ -19,8 +19,20 @@ const pinia = createPinia()
 setActivePinia(pinia)
 app.use(pinia)
 
-await import('./stores/user').then(s => s.useUserStore().getUser())
 await import('./stores/countries').then(s => s.useCountries().fetch())
+await import('./stores/user').then(async ({ useUserStore }) => {
+  const { refresh, isAuthenticated, sessionExpired, getUser } = useUserStore()
+  await getUser()
+  client.interceptors.request.use(async (request) => {
+    if (isAuthenticated && sessionExpired && !request.headers.has('noAuthRefresh')) {
+      await refresh()
+    }
+    return request
+  })
+})
+
+
+
 
 // Setup router
 import setupRouter from './router'

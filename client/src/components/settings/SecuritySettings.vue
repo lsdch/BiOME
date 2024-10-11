@@ -32,6 +32,16 @@
         />
       </v-col>
     </v-row>
+    <v-row>
+      <v-col>
+        <NumberInput
+          v-model="model.invitation_token_lifetime"
+          label="User invitation lifetime (days)"
+          :step="1"
+          v-bind="field('invitation_token_lifetime')"
+        />
+      </v-col>
+    </v-row>
   </SettingsForm>
 </template>
 

@@ -2,6 +2,7 @@ package tokens
 
 import (
 	"context"
+	"darco/proto/config"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -16,14 +17,14 @@ func (t pwdResetToken) Save(db edgedb.Executor) error {
 		`insert tokens::PasswordReset {
 			user := (select(<people::User><uuid>$0)),
 			token := <str>$1,
-			expires := <str>$2,
+			expires := <datetime>$2,
 		}`, t.UserID, t.Token, t.Expires)
 }
 
 func NewPwdResetToken(userID edgedb.UUID) pwdResetToken {
 	return pwdResetToken{
 		UserID:      userID,
-		TokenRecord: GenerateToken(),
+		TokenRecord: GenerateToken(config.Get().AccountTokenDuration()),
 	}
 }
 

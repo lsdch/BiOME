@@ -108,7 +108,15 @@ func ClaimInvitation(ctx context.Context, input *ClaimInvitationInput) (*LoginOu
 	case err != nil:
 		return nil, huma.Error500InternalServerError("Registration failed due to an internal server error", err)
 	}
-	return createSession(user, input.Host,
+	refreshToken, err := tokens.CreateSessionRefreshToken(db.Client(), user.ID)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to generate refresh token: %v", err)
+	}
+	return createSession(db.Client(),
+		SessionParameters{
+			Domain:       input.Host,
+			RefreshToken: refreshToken,
+		},
 		fmt.Sprintf("Account created with role %s", user.Role),
 	)
 }

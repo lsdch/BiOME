@@ -10,8 +10,15 @@ export const $AuthenticationResponse = {
             readOnly: true,
             type: 'string'
         },
-        User: {
-            '$ref': '#/components/schemas/User'
+        auth_token: {
+            description: 'JSON Web Token',
+            examples: ['xxxxx.yyyyy.zzzzz'],
+            type: 'string'
+        },
+        auth_token_expiration: {
+            description: 'Time at which auth token expires',
+            format: 'date-time',
+            type: 'string'
         },
         messages: {
             items: {
@@ -19,13 +26,15 @@ export const $AuthenticationResponse = {
             },
             type: ['array', 'null']
         },
-        token: {
-            description: 'JSON Web Token',
-            examples: ['xxxxx.yyyyy.zzzzz'],
+        refresh_token: {
+            description: 'Session refresh token',
             type: 'string'
+        },
+        user: {
+            '$ref': '#/components/schemas/User'
         }
     },
-    required: ['messages', 'User', 'token'],
+    required: ['messages', 'user', 'auth_token', 'refresh_token', 'auth_token_expiration'],
     type: 'object'
 } as const;
 
@@ -91,16 +100,25 @@ export const $CurrentUserResponse = {
             readOnly: true,
             type: 'string'
         },
-        token: {
+        auth_token: {
             description: 'JSON Web Token',
             examples: ['xxxxx.yyyyy.zzzzz'],
+            type: 'string'
+        },
+        auth_token_expiration: {
+            description: 'Time at which auth token expires',
+            format: 'date-time',
+            type: 'string'
+        },
+        refresh_token: {
+            description: 'Session refresh token',
             type: 'string'
         },
         user: {
             '$ref': '#/components/schemas/User'
         }
     },
-    required: ['user', 'token'],
+    required: ['user', 'auth_token', 'refresh_token', 'auth_token_expiration'],
     type: 'object'
 } as const;
 
@@ -747,6 +765,23 @@ export const $Lineage = {
     type: 'object'
 } as const;
 
+export const $LogoutInputBody = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/LogoutInputBody.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        refresh_token: {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $Meta = {
     additionalProperties: false,
     properties: {
@@ -1233,6 +1268,24 @@ export const $PersonUser = {
     type: 'object'
 } as const;
 
+export const $RefreshTokenBody = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/RefreshTokenBody.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        refresh_token: {
+            type: 'string'
+        }
+    },
+    required: ['refresh_token'],
+    type: 'object'
+} as const;
+
 export const $RegisterInputBody = {
     additionalProperties: false,
     properties: {
@@ -1290,6 +1343,12 @@ export const $SecuritySettings = {
             readOnly: true,
             type: 'string'
         },
+        invitation_token_lifetime: {
+            description: 'Invitation token lifetime in days',
+            format: 'int32',
+            minimum: 1,
+            type: 'integer'
+        },
         min_password_strength: {
             description: 'The level of complexity required for account passwords.',
             format: 'int32',
@@ -1304,7 +1363,7 @@ export const $SecuritySettings = {
             type: 'integer'
         }
     },
-    required: ['min_password_strength', 'refresh_token_lifetime'],
+    required: ['min_password_strength', 'refresh_token_lifetime', 'invitation_token_lifetime'],
     type: 'object'
 } as const;
 
@@ -1318,6 +1377,12 @@ export const $SecuritySettingsInput = {
             readOnly: true,
             type: 'string'
         },
+        invitation_token_lifetime: {
+            description: 'Invitation token lifetime in days',
+            format: 'int32',
+            minimum: 1,
+            type: 'integer'
+        },
         min_password_strength: {
             description: 'The level of complexity required for account passwords.',
             format: 'int32',
@@ -1332,7 +1397,7 @@ export const $SecuritySettingsInput = {
             type: 'integer'
         }
     },
-    required: ['min_password_strength', 'refresh_token_lifetime'],
+    required: ['min_password_strength', 'refresh_token_lifetime', 'invitation_token_lifetime'],
     type: 'object'
 } as const;
 

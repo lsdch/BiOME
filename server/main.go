@@ -3,7 +3,6 @@ package main
 import (
 	"darco/proto/config"
 	"darco/proto/db"
-	mw "darco/proto/middlewares"
 	"darco/proto/models/location"
 	"darco/proto/models/settings"
 	"darco/proto/router"
@@ -69,7 +68,6 @@ func setupRoutes(r *gin.Engine, basePath string) *gin.RouterGroup {
 func setupRouter() *gin.Engine {
 	r := gin.Default()
 	r.Use(gin.Recovery())
-	r.Use(mw.AuthenticationMiddleware)
 
 	ginAPI := setupRoutes(r, "/api/v1")
 	ginAPI.Static("/assets/", "./assets")

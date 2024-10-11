@@ -13,8 +13,17 @@
 						"readOnly": true,
 						"type": "string"
 					},
-					"User": {
-						"$ref": "#/components/schemas/User"
+					"auth_token": {
+						"description": "JSON Web Token",
+						"examples": [
+							"xxxxx.yyyyy.zzzzz"
+						],
+						"type": "string"
+					},
+					"auth_token_expiration": {
+						"description": "Time at which auth token expires",
+						"format": "date-time",
+						"type": "string"
 					},
 					"messages": {
 						"items": {
@@ -25,18 +34,20 @@
 							"null"
 						]
 					},
-					"token": {
-						"description": "JSON Web Token",
-						"examples": [
-							"xxxxx.yyyyy.zzzzz"
-						],
+					"refresh_token": {
+						"description": "Session refresh token",
 						"type": "string"
+					},
+					"user": {
+						"$ref": "#/components/schemas/User"
 					}
 				},
 				"required": [
 					"messages",
-					"User",
-					"token"
+					"user",
+					"auth_token",
+					"refresh_token",
+					"auth_token_expiration"
 				],
 				"type": "object"
 			},
@@ -123,11 +134,20 @@
 						"readOnly": true,
 						"type": "string"
 					},
-					"token": {
+					"auth_token": {
 						"description": "JSON Web Token",
 						"examples": [
 							"xxxxx.yyyyy.zzzzz"
 						],
+						"type": "string"
+					},
+					"auth_token_expiration": {
+						"description": "Time at which auth token expires",
+						"format": "date-time",
+						"type": "string"
+					},
+					"refresh_token": {
+						"description": "Session refresh token",
 						"type": "string"
 					},
 					"user": {
@@ -136,7 +156,9 @@
 				},
 				"required": [
 					"user",
-					"token"
+					"auth_token",
+					"refresh_token",
+					"auth_token_expiration"
 				],
 				"type": "object"
 			},
@@ -950,6 +972,24 @@
 				},
 				"type": "object"
 			},
+			"LogoutInputBody": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/LogoutInputBody.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"refresh_token": {
+						"type": "string"
+					}
+				},
+				"type": "object"
+			},
 			"Meta": {
 				"additionalProperties": false,
 				"properties": {
@@ -1547,6 +1587,27 @@
 				],
 				"type": "object"
 			},
+			"RefreshTokenBody": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/RefreshTokenBody.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"refresh_token": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"refresh_token"
+				],
+				"type": "object"
+			},
 			"RegisterInputBody": {
 				"additionalProperties": false,
 				"properties": {
@@ -1614,6 +1675,12 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"invitation_token_lifetime": {
+						"description": "Invitation token lifetime in days",
+						"format": "int32",
+						"minimum": 1,
+						"type": "integer"
+					},
 					"min_password_strength": {
 						"description": "The level of complexity required for account passwords.",
 						"format": "int32",
@@ -1630,7 +1697,8 @@
 				},
 				"required": [
 					"min_password_strength",
-					"refresh_token_lifetime"
+					"refresh_token_lifetime",
+					"invitation_token_lifetime"
 				],
 				"type": "object"
 			},
@@ -1646,6 +1714,12 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"invitation_token_lifetime": {
+						"description": "Invitation token lifetime in days",
+						"format": "int32",
+						"minimum": 1,
+						"type": "integer"
+					},
 					"min_password_strength": {
 						"description": "The level of complexity required for account passwords.",
 						"format": "int32",
@@ -1662,7 +1736,8 @@
 				},
 				"required": [
 					"min_password_strength",
-					"refresh_token_lifetime"
+					"refresh_token_lifetime",
+					"invitation_token_lifetime"
 				],
 				"type": "object"
 			},
@@ -3172,6 +3247,16 @@
 			"post": {
 				"description": "Logout from current user session by revoking session cookies",
 				"operationId": "Logout",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LogoutInputBody"
+							}
+						}
+					},
+					"required": true
+				},
 				"responses": {
 					"204": {
 						"description": "No Content",
@@ -3254,6 +3339,16 @@
 								}
 							}
 						}
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
 					},
 					"500": {
 						"content": {
@@ -3582,6 +3677,66 @@
 					}
 				},
 				"summary": "Get pending user request",
+				"tags": [
+					"Account"
+				]
+			}
+		},
+		"/account/refresh": {
+			"post": {
+				"description": "Refresh session using refresh token",
+				"operationId": "RefreshSession",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RefreshTokenBody"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthenticationResponse"
+								}
+							}
+						},
+						"description": "OK",
+						"headers": {
+							"Set-Cookie": {
+								"schema": {
+									"description": "Session cookie storing JWT",
+									"type": "string"
+								}
+							}
+						}
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Refresh auth token",
 				"tags": [
 					"Account"
 				]
