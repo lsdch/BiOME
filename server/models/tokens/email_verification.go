@@ -23,7 +23,7 @@ func (t emailVerificationToken) Save(db edgedb.Executor) error {
 func NewEmailVerificationToken(email string) emailVerificationToken {
 	return emailVerificationToken{
 		Email:       email,
-		TokenRecord: GenerateToken(20),
+		TokenRecord: GenerateToken(),
 	}
 }
 

@@ -23,7 +23,7 @@ func (t pwdResetToken) Save(db edgedb.Executor) error {
 func NewPwdResetToken(userID edgedb.UUID) pwdResetToken {
 	return pwdResetToken{
 		UserID:      userID,
-		TokenRecord: GenerateToken(20),
+		TokenRecord: GenerateToken(),
 	}
 }
 

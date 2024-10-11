@@ -44,15 +44,15 @@ func (token TokenRecord) Consume(db edgedb.Executor) (err error) {
 }
 
 // Generates a token string with the given length
-func GenerateTokenStr(length int) Token {
+func generateTokenStr(length int) Token {
 	return Token(randstr.String(length))
 }
 
 // Generates a token with expiration date attached.
 // It is NOT saved in the database yet.
-func GenerateToken(length int) TokenRecord {
+func GenerateToken() TokenRecord {
 	return TokenRecord{
-		Token:   GenerateTokenStr(length),
+		Token:   generateTokenStr(int(config.Get().GeneratedTokenLength)),
 		Expires: time.Now().Add(config.Get().AccountTokenDuration()),
 	}
 }

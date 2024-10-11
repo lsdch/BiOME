@@ -11,11 +11,13 @@ import (
 type Config struct {
 	AuthTokenLifetimeMinutes  uint `mapstructure:"JWT_LIFETIME_MINUTES"`
 	AccountTokenLifetimeHours uint `mapstructure:"ACCOUNT_TOKEN_LIFETIME_HOURS"`
+	GeneratedTokenLength      uint `mapstructure:"TOKEN_LENGTH"`
 }
 
 var cfg = Config{
 	AuthTokenLifetimeMinutes:  30,
 	AccountTokenLifetimeHours: 24,
+	GeneratedTokenLength:      32,
 }
 
 func LoadConfig(dir string, name string) (Config, error) {

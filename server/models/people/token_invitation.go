@@ -46,7 +46,7 @@ func (i InvitationInput) Save(db edgedb.Executor) (Invitation, error) {
 }
 
 func (p *Person) CreateInvitation(options InvitationOptions) InvitationInput {
-	token := tokens.GenerateToken(20)
+	token := tokens.GenerateToken()
 
 	return InvitationInput{
 		Person:            p.PersonInner,
