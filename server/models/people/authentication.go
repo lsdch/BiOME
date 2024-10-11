@@ -62,5 +62,6 @@ func (user *User) JWTCookie(jwt string, domain string) http.Cookie {
 		MaxAge:   int(config.Get().AuthTokenDuration().Seconds()),
 		Secure:   true,
 		HttpOnly: true,
+		SameSite: http.SameSiteLaxMode,
 	}
 }
