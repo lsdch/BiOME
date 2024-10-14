@@ -40,6 +40,7 @@ export const useUserStore = defineStore("user", () => {
    */
   async function getUser() {
     error.value = undefined
+    await refreshAsNeeded()
     await AccountService.currentUser()
       .then(({ data, error: err, response }) => {
         if (err != undefined) {
@@ -81,7 +82,7 @@ export const useUserStore = defineStore("user", () => {
   }
 
   async function refreshAsNeeded() {
-    if (isAuthenticated.value && sessionExpired.value) {
+    if (sessionExpired.value) {
       return await refresh()
     }
   }
