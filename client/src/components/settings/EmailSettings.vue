@@ -14,42 +14,65 @@
           />
         </template>
       </SettingsFormActions>
-      <v-container>
-        <v-row>
-          <v-col class="d-flex">
-            <v-text-field
-              class="flex-grow-1"
-              v-model.trim="proxy.value.host"
-              label="SMTP Host"
-              v-bind="field('host')"
-              rounded="e-0"
-            />
-            <v-number-input
-              :min-width="100"
-              rounded="s-0"
-              class="flex-grow-0"
-              v-model.number="proxy.value.port"
-              label="SMTP Port"
-              :min="1"
-              v-bind="field('port')"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-text-field v-model.trim="proxy.value.user" label="User" v-bind="field('user')" />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <PasswordField
-              v-model="proxy.value.password"
-              label="Password"
-              v-bind="field('password')"
-            />
-          </v-col>
-        </v-row>
-      </v-container>
+      <v-card title="Sender identity for automated e-mails" flat>
+        <v-container>
+          <v-row>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model.trim="proxy.value.from_name"
+                label="From identity"
+                v-bind="field('from_name')"
+              />
+            </v-col>
+            <v-col cols="12" md="6">
+              <v-text-field
+                v-model.trim="proxy.value.from_address"
+                label="From address"
+                v-bind="field('from_address')"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card>
+      <v-divider />
+      <v-card title="SMTP server configuration" flat>
+        <v-container>
+          <v-row>
+            <v-col class="d-flex">
+              <v-text-field
+                class="flex-grow-1"
+                v-model.trim="proxy.value.host"
+                label="SMTP Host"
+                v-bind="field('host')"
+                rounded="e-0"
+              />
+              <v-number-input
+                :min-width="100"
+                rounded="s-0"
+                class="flex-grow-0"
+                v-model.number="proxy.value.port"
+                label="SMTP Port"
+                :min="1"
+                v-bind="field('port')"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field v-model.trim="proxy.value.user" label="User" v-bind="field('user')" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <PasswordField
+                v-model="proxy.value.password"
+                label="Password"
+                v-bind="field('password')"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
+      </v-card>
     </template>
   </v-confirm-edit>
 </template>
