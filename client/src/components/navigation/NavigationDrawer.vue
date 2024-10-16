@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer v-model="drawer" v-bind="$attrs">
+  <v-navigation-drawer v-model="drawer" :location="mobile ? 'top' : 'start'" v-bind="$attrs">
     <v-list density="compact" nav open-strategy="single">
       <template v-for="group in navRoutes" :key="group.label">
         <!-- Route -->
@@ -44,6 +44,9 @@
 import { RouteDefinition, navRoutes } from '@/router'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
+import { useDisplay } from 'vuetify'
+
+const { mobile } = useDisplay()
 
 const router = useRouter()
 const drawer = defineModel<boolean>({ default: true })
