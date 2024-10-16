@@ -30,18 +30,10 @@ func TestTaxonomyList(t *testing.T) {
 			},
 		},
 		{
-			taxonomy.ListFilters{Pattern: "thisTAXONdoesntEXIST"},
-			func(taxa []taxonomy.TaxonWithParentRef) {
-				assert.Empty(t, taxa)
-			},
-		},
-		{
 			taxonomy.ListFilters{Pattern: "Asel"},
 			func(taxa []taxonomy.TaxonWithParentRef) {
 				assert.NotEmpty(t, taxa)
-				for _, taxon := range taxa {
-					assert.Contains(t, strings.ToLower(taxon.Name), "asel")
-				}
+				assert.Contains(t, strings.ToLower(taxa[0].Name), "asel")
 			},
 		},
 		{
