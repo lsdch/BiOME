@@ -21,6 +21,8 @@ module admin {
   }
 
   type EmailSettings {
+    required from_name: str;
+    required from_address: str;
     required host: str;
     required user: str;
     required password: str;

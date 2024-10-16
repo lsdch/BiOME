@@ -73,7 +73,7 @@ func (i *Invitation) Send(target url.URL) (*url.URL, error) {
 			"Role":       i.Role,
 			"URL":        target.String(),
 		},
-	}).Send(email.AdminEmailAddress())
+	}).Send(settings.Email().FromHeader())
 	return &target, sendError
 }
 

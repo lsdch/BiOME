@@ -3,6 +3,7 @@ package people
 import (
 	"context"
 	"darco/proto/db"
+	"darco/proto/models/settings"
 	"darco/proto/models/tokens"
 	"darco/proto/services/email"
 	_ "embed"
@@ -147,7 +148,7 @@ func (p *PendingUserRequest) SendConfirmationEmail(db *edgedb.Client, target url
 			"Name": p.Person.FirstName,
 			"URL":  target.String(),
 		},
-	}).Send(email.AdminEmailAddress())
+	}).Send(settings.Email().FromHeader())
 }
 
 // VerifyEmail attempts to match a token to an EmailVerification entry

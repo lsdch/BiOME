@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/k3a/html2text"
-	"github.com/sirupsen/logrus"
 	"gopkg.in/gomail.v2"
 )
 
@@ -45,12 +44,6 @@ func LoadTemplates(pattern string) (err error) {
 		templates = *parsedTemplates
 	})
 	return
-}
-
-func AdminEmailAddress() string {
-	// DarCo Admin <admin@darco.instance.edu>
-	logrus.Fatalf("Not implemented")
-	return ""
 }
 
 func (email *EmailData) Send(from string) (err error) {

@@ -63,6 +63,8 @@ export type EmailSettings = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
+    from_address: string;
+    from_name: string;
     /**
      * SMTP domain that handles email sending
      */
@@ -86,6 +88,8 @@ export type EmailSettingsInput = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
+    from_address: string;
+    from_name: string;
     /**
      * SMTP domain that handles email sending
      */

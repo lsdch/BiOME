@@ -1,4 +1,4 @@
-package main
+package email
 
 import (
 	"darco/proto/models/settings"
@@ -22,16 +22,20 @@ func loadEmailConfig(path string) (settings.EmailSettingsInput, error) {
 	return config, err
 }
 
+type EmailSetupArgs struct {
+	NoAuto bool
+	Skip   bool
+}
+
 type EmailSetup struct {
 	settings.EmailSettingsInput
 	connectionOK bool
-	noAuto       bool
-	skip         bool
+	EmailSetupArgs
 }
 
-var SMTP_CONFIG_PATH = "./config/email.yaml"
+const SMTP_CONFIG_PATH = "./config/email.yaml"
 
-func setupEmailConfig(db edgedb.Executor) {
+func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) {
 	var emailConfig settings.EmailSettingsInput
 	_, err := os.Stat(SMTP_CONFIG_PATH)
 	if err != nil && errors.Is(err, fs.ErrNotExist) {
@@ -52,15 +56,14 @@ func setupEmailConfig(db edgedb.Executor) {
 	var setup = EmailSetup{
 		EmailSettingsInput: emailConfig,
 		connectionOK:       false,
-		noAuto:             false,
-		skip:               false,
+		EmailSetupArgs:     args,
 	}
 	_, err = tea.NewProgram(initialModel(&setup)).Run()
 	if err != nil {
 		logrus.Fatalf("SMTP configuration error: %v", err)
 	}
 
-	if setup.skip {
+	if setup.Skip {
 		logrus.Infof("SMTP configuration skipped.")
 		return
 	}

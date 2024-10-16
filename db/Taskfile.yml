@@ -24,13 +24,19 @@ tasks:
     deps: [install]
     run: once
 
+  config-email:
+    interactive: true
+    dir: seeds
+    cmds:
+      - go run ./cmd/email
+
   seed:
     interactive: true
     dir: seeds
     cmds:
       - cmd: echo "Seeding database..."
         silent: true
-      - go run .
+      - go run ./cmd/seed/
       - edgedb branch drop {{.TEST_DB_NAME}} --non-interactive
       - edgedb branch create {{.TEST_DB_NAME}} --copy-data
     deps: [migrate]

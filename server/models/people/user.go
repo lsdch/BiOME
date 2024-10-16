@@ -2,6 +2,7 @@ package people
 
 import (
 	"context"
+	"darco/proto/models/settings"
 	"darco/proto/services/email"
 	_ "embed"
 	"encoding/json"
@@ -60,7 +61,7 @@ func (user *User) SendEmail(subject string, template_file string, data map[strin
 		Data:     data,
 	}
 
-	return emailData.Send(email.AdminEmailAddress())
+	return emailData.Send(settings.Email().FromHeader())
 }
 
 // Custom user marshaller that obfuscates password

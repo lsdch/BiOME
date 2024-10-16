@@ -132,6 +132,13 @@ export const $EmailSettings = {
             readOnly: true,
             type: 'string'
         },
+        from_address: {
+            format: 'email',
+            type: 'string'
+        },
+        from_name: {
+            type: 'string'
+        },
         host: {
             description: 'SMTP domain that handles email sending',
             format: 'hostname',
@@ -153,7 +160,7 @@ export const $EmailSettings = {
             type: 'string'
         }
     },
-    required: ['host', 'port', 'user', 'password'],
+    required: ['from_name', 'from_address', 'host', 'port', 'user', 'password'],
     type: 'object'
 } as const;
 
@@ -167,6 +174,13 @@ export const $EmailSettingsInput = {
             readOnly: true,
             type: 'string'
         },
+        from_address: {
+            format: 'email',
+            type: 'string'
+        },
+        from_name: {
+            type: 'string'
+        },
         host: {
             description: 'SMTP domain that handles email sending',
             format: 'hostname',
@@ -188,7 +202,7 @@ export const $EmailSettingsInput = {
             type: 'string'
         }
     },
-    required: ['host', 'port', 'user', 'password'],
+    required: ['from_name', 'from_address', 'host', 'port', 'user', 'password'],
     type: 'object'
 } as const;
 

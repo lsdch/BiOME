@@ -174,6 +174,13 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"from_address": {
+						"format": "email",
+						"type": "string"
+					},
+					"from_name": {
+						"type": "string"
+					},
 					"host": {
 						"description": "SMTP domain that handles email sending",
 						"format": "hostname",
@@ -196,6 +203,8 @@
 					}
 				},
 				"required": [
+					"from_name",
+					"from_address",
 					"host",
 					"port",
 					"user",
@@ -215,6 +224,13 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"from_address": {
+						"format": "email",
+						"type": "string"
+					},
+					"from_name": {
+						"type": "string"
+					},
 					"host": {
 						"description": "SMTP domain that handles email sending",
 						"format": "hostname",
@@ -237,6 +253,8 @@
 					}
 				},
 				"required": [
+					"from_name",
+					"from_address",
 					"host",
 					"port",
 					"user",

@@ -1,4 +1,4 @@
-package main
+package email
 
 import (
 	"fmt"
@@ -65,7 +65,7 @@ type Button struct {
 
 func newBtn(label string) Button {
 	return Button{
-		focused: focusedStyle.Copy().Render(
+		focused: focusedStyle.Render(
 			fmt.Sprintf("[ %s ]", label),
 		),
 		blurred: fmt.Sprintf("[ %s ]",
@@ -109,7 +109,7 @@ func initialModel(s *EmailSetup) *model {
 		inputs:      []textinput.Model{host, port, user, password},
 		data:        s,
 		spinner:     spinner.New(spinner.WithSpinner(spinner.Points)),
-		testInitial: !s.noAuto && s != nil && s.User != "" && s.Password != "" && s.Host != "" && s.Port != 0,
+		testInitial: !s.NoAuto && s != nil && s.User != "" && s.Password != "" && s.Host != "" && s.Port != 0,
 		focusIndex:  0,
 		focusShift:  false,
 	}
@@ -164,7 +164,6 @@ func (m *model) TestConnection() {
 	}
 	m.testingConnection = false
 	m.data.connectionOK = true
-	return
 }
 
 func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -192,7 +191,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case tea.KeyEnter, tea.KeyUp, tea.KeyDown, tea.KeyLeft, tea.KeyRight:
 			if msg.Type == tea.KeyEnter && m.focusIndex == len(m.inputs) {
 				if m.focusShift {
-					m.data.skip = true
+					m.data.Skip = true
 					return m, tea.Quit
 				} else {
 					m.testingConnection = true

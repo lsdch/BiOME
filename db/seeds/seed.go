@@ -1,11 +1,8 @@
-package main
+package seeds
 
 import (
 	"context"
-	"darco/proto/db"
-	"darco/proto/models/location"
 	"embed"
-	"flag"
 	"fmt"
 
 	"github.com/edgedb/edgedb-go"
@@ -49,42 +46,4 @@ func Seed(tx *edgedb.Tx, entity string) error {
 		return err
 	}
 	return nil
-}
-
-var entities = []string{
-	"institutions",
-	"persons",
-	"users",
-}
-
-func main() {
-
-	database := flag.String("db", "", "The name of the database to seed")
-	flag.Parse()
-
-	client := db.Connect(edgedb.Options{Database: *database})
-
-	setupEmailConfig(client)
-
-	logrus.Infof("Seeding habitats")
-	if err := location.InitialHabitatsSetup(client); err != nil {
-		logrus.Fatalf("Failed to seed habitats: %v", err)
-	}
-
-	if err := seedTaxonomyGBIF(client); err != nil {
-		logrus.Errorf("Failed to load Asellidae taxonomy: %v", err)
-		return
-	}
-
-	client.Tx(context.Background(),
-		func(ctx context.Context, tx *edgedb.Tx) error {
-			for _, entity := range entities {
-				logrus.Infof("Seeding %s", entity)
-				err := Seed(tx, entity)
-				if err != nil {
-					return err
-				}
-			}
-			return nil
-		})
 }
