@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <v-app-bar id="app-bar" color="primary" v-if="!$route.meta.hideNavbar">
+    <v-app-bar id="app-bar" color="primary" v-if="!$route.meta.hideNavbar" density="compact">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <v-app-bar-title :to="$router.resolve({ name: 'home' })">
         <AppIcon :max-width="40" />
@@ -43,15 +43,14 @@ import colors from 'vuetify/util/colors'
 import AccountNavMenu from '@/components/navbar/AccountNavMenu.vue'
 import SettingsMenu from '@/components/navbar/SettingsMenu.vue'
 
-import { AccountService, client } from '@/api/services.gen'
+import { client } from '@/api/services.gen'
 import { useDisplay } from 'vuetify'
 import { ErrorDetail, InstanceSettings } from './api'
+import AppIcon from './components/icons/AppIcon.vue'
 import ConfirmDialog from './components/toolkit/ui/ConfirmDialog.vue'
 import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { useAppConfirmDialog } from './composables'
-import AppIcon from './components/icons/AppIcon.vue'
-import { useUserStore } from './stores/user'
 
 const loading = ref(false)
 
