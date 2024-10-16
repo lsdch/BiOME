@@ -36,7 +36,7 @@ func (s SecuritySettings) RefreshTokenDuration() time.Duration {
 
 func (s SecuritySettings) InvitationTokenDuration() time.Duration {
 	d, err := time.ParseDuration(
-		fmt.Sprintf("%dd", s.InvitationTokenLifetimeDays),
+		fmt.Sprintf("%dh", s.InvitationTokenLifetimeDays*24),
 	)
 	if err != nil {
 		logrus.Fatalf("Failed to parse token duration: %v", err)
