@@ -11,24 +11,25 @@
           <v-col cols="12" sm="3" class="px-3 d-flex align-center justify-center">
             <IconEditor />
           </v-col>
-          <v-col cols="12" sm="9" variant="text" class="pt-8 d-flex flex-column justify-center">
-            <v-text-field
-              v-model="proxy.value.name"
-              label="Instance name"
-              class="pb-4"
-              hint="The name that is displayed in the navbar and front page"
-              persistent-hint
-              v-bind="field('name')"
-            />
-            <v-text-field
-              v-model="proxy.value.description"
-              label="Instance description"
-              class="mb-5"
-              hint="A short description of the database purpose to be displayed on the front page."
-              persistent-hint
-              clearable
-              v-bind="field('description')"
-            />
+          <v-col cols="12" sm="9" variant="text" class="d-flex align-center">
+            <div class="w-100">
+              <v-text-field
+                v-model="proxy.value.name"
+                label="Instance name"
+                class="pb-4"
+                hint="The name that is displayed in the navbar and front page"
+                persistent-hint
+                v-bind="field('name')"
+              />
+              <v-text-field
+                v-model="proxy.value.description"
+                label="Instance description"
+                hint="A short description of the database purpose to be displayed on the front page."
+                persistent-hint
+                clearable
+                v-bind="field('description')"
+              />
+            </div>
           </v-col>
         </v-row>
         <v-divider />
