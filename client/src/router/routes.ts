@@ -38,9 +38,16 @@ export default {
   settings: guardRole('Admin', {
     label: 'Settings',
     icon: 'mdi-tools',
-    path: '/settings',
+    path: '/settings/:category',
     name: "app-settings",
-    component: () => import("@/views/settings/AdminSettings.vue")
+    params: { category: "instance" },
+    component: () => import("@/views/settings/AdminSettings.vue"),
+    props: true,
+    meta: {
+      drawer: {
+        temporary: true
+      }
+    }
   }),
   ...accountRoutes
 }

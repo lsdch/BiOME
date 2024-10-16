@@ -1,59 +1,61 @@
 <template>
-  <SettingsForm @reset="reloadSettings" @submit="submit">
-    <v-row>
-      <v-col>
-        <v-card
-          class="flex-grow-1"
-          :max-width="600"
-          subtitle="Minimum password strength"
-          variant="text"
-        >
-          <v-card-text>
-            <v-slider
-              v-model="model.min_password_strength"
-              :step="1"
-              :min="3"
-              :max="5"
-              :ticks="{ 3: 'Medium', 4: 'Strong', 5: 'Very strong' }"
-              show-ticks="always"
-              v-bind="field('min_password_strength')"
-            />
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <NumberInput
-          v-model="model.refresh_token_lifetime"
-          label="User session lifetime (hours)"
-          :step="1"
-          v-bind="field('refresh_token_lifetime')"
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <NumberInput
-          v-model="model.invitation_token_lifetime"
-          label="User invitation lifetime (days)"
-          :step="1"
-          v-bind="field('invitation_token_lifetime')"
-        />
-      </v-col>
-    </v-row>
-  </SettingsForm>
+  <v-confirm-edit v-model="model">
+    <template #default="{ isPristine, save, cancel, model: proxy, actions: _ }">
+      <SettingsFormActions
+        :model-value="!isPristine"
+        @reset="reloadSettings().then(cancel)"
+        @submit="save(), submit()"
+      />
+      <v-container>
+        <v-row>
+          <v-col>
+            <v-list class="settings-list">
+              <v-list-item title="Minimum password strength">
+                <v-slider
+                  class="mx-4"
+                  v-model="proxy.value.min_password_strength"
+                  :step="1"
+                  :min="3"
+                  :max="5"
+                  :thumb-size="15"
+                  :ticks="{ 3: 'Medium', 4: 'Strong', 5: 'Very strong' }"
+                  show-ticks="always"
+                  v-bind="field('min_password_strength')"
+                />
+              </v-list-item>
+              <v-divider />
+              <v-list-item title="User session lifetime">
+                <DaysHoursInput
+                  v-model="proxy.value.refresh_token_lifetime"
+                  v-bind="field('refresh_token_lifetime')"
+                />
+              </v-list-item>
+              <v-divider />
+              <v-list-item title="Registration settings">
+                <VNumberInput
+                  v-model="proxy.value.invitation_token_lifetime"
+                  label="User invitation lifetime (days)"
+                  :step="1"
+                  v-bind="field('invitation_token_lifetime')"
+                  control-variant="stacked"
+                />
+              </v-list-item>
+            </v-list>
+          </v-col>
+        </v-row>
+      </v-container>
+    </template>
+  </v-confirm-edit>
 </template>
 
 <script setup lang="ts">
 import { $SecuritySettingsInput, SettingsService } from '@/api'
 import { handleErrors } from '@/api/responses'
 import { useFeedback } from '@/stores/feedback'
-import { useClipboard } from '@vueuse/core'
 import { ref } from 'vue'
 import { useSchema } from '../toolkit/forms/schema'
-import NumberInput from '../toolkit/ui/NumberInput.vue'
-import SettingsForm from './SettingsForm.vue'
+import DaysHoursInput from './DaysHoursInput.vue'
+import SettingsFormActions from './SettingsFormActions.vue'
 
 const { feedback } = useFeedback()
 
@@ -81,4 +83,14 @@ const model = ref(await fetch())
 const { field, errorHandler } = useSchema($SecuritySettingsInput)
 </script>
 
-<style scoped></style>
+<style lang="scss">
+.settings-list {
+  .v-list-item-title {
+    margin-top: 10px;
+    margin-bottom: 20px;
+  }
+}
+.v-slider-track__tick-label {
+  font-size: small;
+}
+</style>

@@ -36,7 +36,7 @@ function setupRouter(settings: InstanceSettings) {
   }
 
   const router = createRouter({
-    history: createWebHistory(import.meta.env.BASE_URL),
+    history: createWebHistory(),
     routes: [
       {
         path: '/docs/api',
@@ -95,8 +95,3 @@ function setupRouter(settings: InstanceSettings) {
 }
 
 export default setupRouter
-
-
-export function requestLogin() {
-
-}

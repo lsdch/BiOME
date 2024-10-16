@@ -1,87 +1,79 @@
 <template>
-  <div :class="['bg-surface d-flex', xs ? 'flex-column' : 'flex-row']">
-    <v-tabs v-model="tab" color="primary" slider-color="primary" :direction="direction">
-      <v-tab
-        value="instance"
-        text="Instance"
-        prepend-icon="mdi-application-settings-outline"
-        tile
-        :rounded="false"
-        href="#instance"
+  <v-bottom-navigation v-if="mobile" mandatory>
+    <v-btn
+      v-for="{ title, icon, category } in subroutes"
+      :value="category"
+      :key="category"
+      :text="title"
+      :prepend-icon="icon"
+      :to="resolveSubroute(category)"
+      color="primary"
+    />
+  </v-bottom-navigation>
+  <v-navigation-drawer v-else permanent :width="150">
+    <v-list nav>
+      <v-list-subheader>Settings</v-list-subheader>
+      <v-list-item
+        v-for="{ title, icon, category } in subroutes"
+        :key="category"
+        :title
+        color="primary"
+        :prepend-icon="icon"
+        :to="resolveSubroute(category)"
       />
-      <v-tab
-        value="security"
-        text="Security"
-        :tile="true"
-        prepend-icon="mdi-security"
-        :rounded="false"
-        href="#security"
-      />
-      <v-tab
-        value="email"
-        text="E-mail"
-        prepend-icon="mdi-email"
-        tile
-        :rounded="false"
-        href="#email"
-      />
-    </v-tabs>
-    <v-container>
-      <v-row>
-        <v-col>
-          <Suspense>
-            <template #default>
-              <v-window v-model="tab" class="pa-3" :direction="direction">
-                <v-window-item value="instance">
-                  <InstanceSettings />
-                </v-window-item>
-                <v-window-item value="security">
-                  <SecuritySettings />
-                </v-window-item>
-                <v-window-item value="email">
-                  <EmailSettings />
-                </v-window-item>
-              </v-window>
-            </template>
-            <template #fallback>
-              <v-skeleton-loader type="article, article, article"> </v-skeleton-loader>
-            </template>
-          </Suspense>
-        </v-col>
-      </v-row>
-    </v-container>
+    </v-list>
+  </v-navigation-drawer>
+  <div class="bg-surface d-flex fill-height flex-column">
+    <Suspense>
+      <template #default>
+        <component :is="component" />
+      </template>
+      <template #fallback>
+        <v-skeleton-loader type="article, article, article" />
+      </template>
+    </Suspense>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import EmailSettings from '@/components/settings/EmailSettings.vue'
 import InstanceSettings from '@/components/settings/InstanceSettings.vue'
 import SecuritySettings from '@/components/settings/SecuritySettings.vue'
-import EmailSettings from '@/components/settings/EmailSettings.vue'
-import { useDisplay } from 'vuetify'
 import { computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { watch } from 'vue'
+import { useDisplay } from 'vuetify'
 
-const { xs } = useDisplay()
+import NotFound from '@/components/navigation/NotFound.vue'
+import routes from '@/router/routes'
+import { useRouter } from 'vue-router'
+
+const { mobile, xs } = useDisplay()
 
 type SettingsTab = 'instance' | 'security' | 'email'
 
-const direction = computed(() => {
-  return xs.value ? 'horizontal' : 'vertical'
-})
+const { resolve } = useRouter()
 
-const route = useRoute()
-function hashToTab(hash: string) {
-  return hash.startsWith('#') ? (hash.slice(1) as SettingsTab) : 'instance'
+const props = defineProps<{ category: SettingsTab }>()
+function resolveSubroute(category: string) {
+  return resolve({ name: routes.settings.name, params: { category } })
 }
-const tab = ref(hashToTab(route.hash))
-watch(
-  () => route.hash,
-  (hash: string) => {
-    tab.value = hashToTab(hash)
+const subroutes = [
+  { title: 'Instance', category: 'instance', icon: 'mdi-application-settings-outline' },
+  { title: 'Security', category: 'security', icon: 'mdi-security' },
+  { title: 'E-mailing', category: 'email', icon: 'mdi-email' }
+]
+
+const component = computed(() => {
+  switch (props.category) {
+    case 'instance':
+      return InstanceSettings
+    case 'security':
+      return SecuritySettings
+    case 'email':
+      return EmailSettings
+    default:
+      return NotFound
   }
-)
+})
 </script>
 
 <style scoped></style>

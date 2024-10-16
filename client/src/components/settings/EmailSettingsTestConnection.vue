@@ -1,7 +1,8 @@
 <template>
   <v-btn
-    :text="testing ? 'Testing connection...' : btnProps.text"
+    :text="testing ? 'Dialing...' : btnProps.text"
     variant="text"
+    size="small"
     :readonly="connectionOK !== undefined"
     :color="btnProps.color"
     :prepend-icon="btnProps.prependIcon"
@@ -12,20 +13,19 @@
 
 <script setup lang="ts">
 import { EmailSettingsInput, SettingsService } from '@/api'
-import { errorFeedback } from '@/api/responses'
-import { computed, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const props = defineProps<{ settings: EmailSettingsInput }>()
 
 const testing = defineModel<boolean>('testing', { default: false })
 const connectionOK = defineModel<boolean | undefined>('connectionOK', { default: undefined })
 
-const abortController = new AbortController()
+const abortController = ref(new AbortController())
 
 watch(
   () => props.settings,
   () => {
-    abortController.abort()
+    abortController.value.abort()
     testing.value = false
     connectionOK.value = undefined
   },
@@ -57,12 +57,11 @@ const btnProps = computed(() => {
 
 async function testConnection(settings: EmailSettingsInput) {
   testing.value = true
-  const ok = await SettingsService.testSmtp({
+  const { data: ok, error } = await SettingsService.testSmtp({
     body: settings,
-    signal: abortController.signal
-  }).then(errorFeedback('Failed to test connection'))
-  connectionOK.value = ok
-  testing.value = false
+    signal: abortController.value.signal
+  }).finally(() => (testing.value = false))
+  connectionOK.value = !error && ok
 }
 </script>
 

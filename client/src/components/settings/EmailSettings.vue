@@ -1,21 +1,34 @@
 <template>
-  <SettingsForm @submit="submit" @reset="reload">
-    <template #prepend-toolbar>
-      <EmailSettingsTestConnection
-        :settings="model"
-        v-model:testing="status.testing"
-        v-model:connectionOK="status.connectionOK"
-      />
-    </template>
-    <template #default>
+  <v-confirm-edit v-model="model">
+    <template #default="{ isPristine, save, cancel, model: proxy, actions: _ }">
+      <SettingsFormActions
+        :model-value="!isPristine"
+        @submit="save(), submit()"
+        @reset="reload().then(cancel)"
+      >
+        <template #prepend>
+          <EmailSettingsTestConnection
+            :settings="proxy.value"
+            v-model:testing="status.testing"
+            v-model:connectionOK="status.connectionOK"
+          />
+        </template>
+      </SettingsFormActions>
       <v-container>
         <v-row>
-          <v-col cols="12" sm="8">
-            <v-text-field v-model.trim="model.host" label="SMTP Host" v-bind="field('host')" />
-          </v-col>
-          <v-col cols="12" sm="4">
-            <NumberInput
-              v-model.number="model.port"
+          <v-col class="d-flex">
+            <v-text-field
+              class="flex-grow-1"
+              v-model.trim="proxy.value.host"
+              label="SMTP Host"
+              v-bind="field('host')"
+              rounded="e-0"
+            />
+            <v-number-input
+              :min-width="100"
+              rounded="s-0"
+              class="flex-grow-0"
+              v-model.number="proxy.value.port"
               label="SMTP Port"
               :min="1"
               v-bind="field('port')"
@@ -24,29 +37,32 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-text-field v-model.trim="model.user" label="User" v-bind="field('user')" />
+            <v-text-field v-model.trim="proxy.value.user" label="User" v-bind="field('user')" />
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <PasswordField v-model="model.password" label="Password" v-bind="field('password')" />
+            <PasswordField
+              v-model="proxy.value.password"
+              label="Password"
+              v-bind="field('password')"
+            />
           </v-col>
         </v-row>
       </v-container>
     </template>
-  </SettingsForm>
+  </v-confirm-edit>
 </template>
 
 <script setup lang="ts">
 import { $EmailSettingsInput, SettingsService } from '@/api'
 import { errorFeedback } from '@/api/responses'
 import PasswordField from '@/components/toolkit/ui/PasswordField.vue'
+import { useFeedback } from '@/stores/feedback'
 import { ref } from 'vue'
 import { useSchema } from '../toolkit/forms/schema'
-import NumberInput from '../toolkit/ui/NumberInput.vue'
 import EmailSettingsTestConnection from './EmailSettingsTestConnection.vue'
-import SettingsForm from './SettingsForm.vue'
-import { useFeedback } from '@/stores/feedback'
+import SettingsFormActions from './SettingsFormActions.vue'
 
 const status = ref<{
   testing: boolean

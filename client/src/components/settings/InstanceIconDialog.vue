@@ -16,11 +16,11 @@
           @click="saveIcon"
         />
       </v-toolbar>
-      <v-container fluid>
-        <v-row>
-          <v-col cols="12" md="8">
-            <div class="d-flex flex-column mx-auto" style="max-width: 500px">
-              <v-responsive :aspect-ratio="1" :max-width="500" :max-height="500">
+      <v-container class="fill-height pa-0" fluid>
+        <v-row class="fill-height">
+          <v-col class="d-flex align-center" cols="12" sm="8">
+            <div class="d-flex flex-column align-center mx-auto" style="max-width: 300px">
+              <v-responsive :aspect-ratio="1" :max-width="300" :max-height="300">
                 <cropper
                   class="cropper icon-cropper"
                   @change="updatePreview"
@@ -47,11 +47,12 @@
               />
             </div>
           </v-col>
+          <v-divider vertical></v-divider>
           <v-col>
             <div class="h-100 d-flex flex-column align-center justify-space-between">
               <InstanceIconPreviews
                 :result="result"
-                :direction="mdAndUp ? 'vertical' : 'horizontal'"
+                :direction="smAndUp ? 'vertical' : 'horizontal'"
               />
             </div>
           </v-col>
@@ -73,7 +74,7 @@ import { useDisplay } from 'vuetify'
 import { useInstanceSettings } from '.'
 import InstanceIconPreviews from './InstanceIconPreviews.vue'
 
-const { smAndDown, mdAndUp } = useDisplay()
+const { smAndDown, smAndUp } = useDisplay()
 const { ICON_PATH } = useInstanceSettings()
 
 const emit = defineEmits<{ uploaded: [] }>()
