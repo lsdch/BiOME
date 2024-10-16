@@ -59,7 +59,14 @@ export default createVuetify({
     VSelect: { variant: "outlined" },
     VAutocomplete: { variant: "outlined" },
     VTextarea: { variant: "outlined" },
-    VNumberInput: { variant: "outlined" },
+    VNumberInput: {
+      variant: "outlined",
+      controlVariant: "stacked",
+      VBtn: {
+        color: undefined,
+        rounded: 0
+      }
+    },
     VInlineSearchBar: {
       density: "compact",
       clearable: true,
