@@ -45,7 +45,7 @@ module admin {
     required refresh_token_lifetime: int32 {
       annotation description := "Validity period for a session refresh token in hours";
       constraint min_value(1);
-      default := 1;
+      default := 24 * 30;
     };
     required invitation_token_lifetime: int32 {
       annotation description := "Validity period for an account invitation in days";
