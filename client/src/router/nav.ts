@@ -22,13 +22,6 @@ export const navRoutes: RouterItem[] = [
     component: () => import('../views/datasets/DatasetsView.vue')
   },
   {
-    icon: "mdi-graph",
-    label: "Taxonomy",
-    path: '/taxonomy',
-    name: 'taxonomy',
-    component: () => import('../views/taxonomy/TaxonomyView.vue')
-  },
-  {
     label: "People",
     icon: "mdi-account-group",
     routes: [
@@ -70,6 +63,13 @@ export const navRoutes: RouterItem[] = [
         component: () => import("@/views/location/HabitatsView.vue")
       },
     ]
+  },
+  {
+    icon: "mdi-family-tree",
+    label: "Taxonomy",
+    path: '/taxonomy',
+    name: 'taxonomy',
+    component: () => import('../views/taxonomy/TaxonomyView.vue')
   },
   {
     label: "Admin",
