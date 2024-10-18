@@ -23,6 +23,7 @@
               <div class="text-h5 d-flex justify-space-between align-center">
                 {{ dataset.label }}
                 <v-btn
+                  v-if="isUserMaintainer"
                   color="primary"
                   icon="mdi-pencil"
                   variant="plain"
@@ -119,16 +120,7 @@
       </template>
     </v-confirm-edit>
 
-    <v-row>
-      <v-col>
-        <SitesMap v-show="!(lgAndUp || mobile)" :items="dataset.sites ?? undefined">
-          <template #marker="{ item }">
-            <SitePopup :item />
-          </template>
-        </SitesMap>
-      </v-col>
-    </v-row>
-    <v-bottom-navigation :active="mobile">
+    <v-bottom-navigation :active="!lgAndUp">
       <v-dialog v-model="mobileMap" fullscreen>
         <SitesMap :items="dataset.sites ?? undefined" closable @close="toggleMobileMap(false)">
           <template #marker="{ item }">
@@ -136,7 +128,7 @@
           </template>
         </SitesMap>
         <template #activator>
-          <v-btn color="primary" icon="mdi-map" @click="toggleMobileMap(true)" />
+          <v-btn color="primary" prepend-icon="mdi-map" @click="toggleMobileMap(true)" text="Map" />
         </template>
       </v-dialog>
     </v-bottom-navigation>
@@ -150,21 +142,23 @@ import PersonPicker from '@/components/people/PersonPicker.vue'
 import SitePopup from '@/components/sites/SitePopup.vue'
 import { useSchema } from '@/components/toolkit/forms/form'
 import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
+import { useFeedback } from '@/stores/feedback'
+import { useUserStore } from '@/stores/user'
 import { useToggle } from '@vueuse/core'
 import { computed, reactive, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 
+const { user } = useUserStore()
+
 const [editing, toggleEdit] = useToggle(false)
 
 const [mobileMap, toggleMobileMap] = useToggle(false)
 
-const { smAndDown, mdAndDown, lgAndUp, mobile } = useDisplay()
+const { lgAndUp } = useDisplay()
 
 const { params } = useRoute()
 const slug = params.slug as string
-
-const fullscreenActive = computed(() => !!document.fullscreenElement)
 
 const { data: dataset, error } = toRefs(reactive(await fetch()))
 
@@ -173,6 +167,12 @@ async function fetch() {
 }
 
 const { schema, errorHandler } = useSchema($SiteDatasetUpdate)
+
+const { feedback } = useFeedback()
+
+const isUserMaintainer = computed(() => {
+  return !!dataset.value?.maintainers?.find(({ id }) => user?.identity.id === id)
+})
 
 async function submit() {
   if (!dataset.value) return
@@ -184,7 +184,11 @@ async function submit() {
   }
   await LocationService.updateSiteDataset({ path: { slug }, body })
     .then(errorHandler)
-    .then((updated) => (dataset.value = updated))
+    .then((updated) => {
+      dataset.value = updated
+      toggleEdit(false)
+      feedback({ type: 'success', message: 'Updated dataset infos' })
+    })
 }
 </script>
 
