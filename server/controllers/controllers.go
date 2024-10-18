@@ -1,6 +1,9 @@
 package controllers
 
 import (
+	"reflect"
+
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 )
 
@@ -12,6 +15,10 @@ type StrIdentifier string
 
 func (i StrIdentifier) Identifier() string {
 	return string(i)
+}
+
+func (o StrIdentifier) Schema(r huma.Registry) *huma.Schema {
+	return r.Schema(reflect.TypeOf(""), true, "")
 }
 
 type UUIDInput struct {

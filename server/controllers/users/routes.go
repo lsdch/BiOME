@@ -135,11 +135,22 @@ func RegisterRoutes(r router.Router) {
 			Path:        "/pending/{email}",
 			Method:      http.MethodGet,
 			Summary:     "Get pending user request",
-			Description: "Get account requests pending validation using the associated email",
+			Description: "Get account request pending validation using the associated email",
 		}, controllers.GetHandler[*struct {
-			resolvers.AuthResolver
+			resolvers.AccessRestricted[resolvers.Admin]
 			controllers.StrIdentifier `path:"email" format:"email"`
 		}](people.GetPendingUserRequest))
+
+	router.Register(accountAPI, "DeletePendingUserRequest",
+		huma.Operation{
+			Path:        "/pending/{email}",
+			Method:      http.MethodDelete,
+			Summary:     "Delete pending user request",
+			Description: "Delete account request pending validation using the associated email",
+		}, controllers.DeleteHandler[*struct {
+			controllers.StrIdentifier `path:"email" format:"email"`
+			resolvers.AccessRestricted[resolvers.Admin]
+		}](people.DeletePendingUserRequest))
 
 	router.Register(accountAPI, "Register",
 		huma.Operation{

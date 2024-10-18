@@ -127,6 +127,15 @@ func GetPendingUserRequest(db edgedb.Executor, email string) (*PendingUserReques
 	return &req, err
 }
 
+func DeletePendingUserRequest(db edgedb.Executor, email string) (deleted PendingUserRequest, err error) {
+	err = db.Execute(context.Background(),
+		`select (delete people::PendingUserRequest filter .email = <str>$0) { ** };`,
+		&deleted,
+		email,
+	)
+	return
+}
+
 // SendConfirmationEmail sends a confirmation email to the user with a verification token.
 // It generates a confirmation token, and sends an email with the confirmation link.
 // The confirmation token is included as a query parameter in the URL.

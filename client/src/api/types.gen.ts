@@ -1244,6 +1244,19 @@ export type ListPendingUserRequestsResponse = (Array<PendingUserRequest> | null)
 
 export type ListPendingUserRequestsError = (ErrorModel);
 
+export type DeletePendingUserRequestData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type DeletePendingUserRequestResponse = (PendingUserRequest);
+
+export type DeletePendingUserRequestError = (ErrorModel);
+
 export type GetPendingUserRequestData = {
     headers?: {
         /**
