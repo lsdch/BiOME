@@ -16,9 +16,14 @@ tasks:
     cmd: go install github.com/cosmtrek/air@latest
     status: [command -v air >/dev/null 2>&1]
 
+  install-templ:
+    internal: true
+    cmd: go install github.com/a-h/templ/cmd/templ@latest
+    status: [command -v templ >/dev/null 2>&1]
+
   install:
     cmd: go get
-    deps: [install-linter, install-air]
+    deps: [install-linter, install-air, install-templ]
 
   start:
     deps: [db:init, install]

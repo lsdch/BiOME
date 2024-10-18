@@ -975,9 +975,11 @@ export const $PasswordInput = {
             type: 'string'
         },
         password: {
+            description: 'Your new password',
             type: 'string'
         },
         password_confirmation: {
+            description: 'New password confirmation',
             type: 'string'
         }
     },
@@ -2157,6 +2159,7 @@ export const $UpdatePasswordInput = {
             '$ref': '#/components/schemas/PasswordInput'
         },
         password: {
+            description: 'Your current password',
             type: 'string'
         }
     },
@@ -2256,9 +2259,11 @@ export const $UserInput = {
             type: 'string'
         },
         password: {
+            description: 'Your new password',
             type: 'string'
         },
         password_confirmation: {
+            description: 'New password confirmation',
             type: 'string'
         }
     },

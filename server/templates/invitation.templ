@@ -1,0 +1,34 @@
+package email_templates
+
+import (
+	"fmt"
+	"net/url"
+)
+
+type InvitationData struct {
+	Name       string
+	IssuerName string
+	App        string
+	Role       string
+	URL        url.URL
+}
+
+func (d InvitationData) Subject() string {
+	return fmt.Sprintf("Invitation to register on %s", d.App)
+}
+
+templ invitationContent(d InvitationData) {
+	<p>Hi { d.Name },</p>
+	<p>
+		You have been invited by { d.IssuerName } to create an account on { d.App } with
+		role '{ string(d.Role) }'.
+	</p>
+	<p>
+		Please click this <a href={ templ.URL(d.URL.String()) }>link</a> to register, or paste this URL
+		in your browser: { string(templ.URL(d.URL.String())) }
+	</p>
+}
+
+templ Invitation(d InvitationData) {
+	@Base(d.Subject(), invitationContent(d))
+}

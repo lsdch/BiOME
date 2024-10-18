@@ -40,7 +40,7 @@ const router = useRouter()
 
 const state = ref<PasswordResetRequest>({
   email: '',
-  handler: router.resolve('password-reset').fullPath
+  handler: window.location.origin + router.resolve('password-reset').fullPath
 })
 const { field } = useSchema($PasswordResetRequest)
 

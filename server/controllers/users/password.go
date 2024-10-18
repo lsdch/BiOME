@@ -120,7 +120,7 @@ func RequestPasswordReset(defaultHandlerPath string) RequestPasswordResetHandler
 		}
 
 		var targetURL = input.GenerateURL(defaultHandlerPath)
-		if input.Body.Handler.Host == "" {
+		if input.Body.Handler.Host != "" {
 			targetURL = input.Body.Handler.URL()
 		}
 

@@ -1239,9 +1239,11 @@
 						"type": "string"
 					},
 					"password": {
+						"description": "Your new password",
 						"type": "string"
 					},
 					"password_confirmation": {
+						"description": "New password confirmation",
 						"type": "string"
 					}
 				},
@@ -2738,6 +2740,7 @@
 						"$ref": "#/components/schemas/PasswordInput"
 					},
 					"password": {
+						"description": "Your current password",
 						"type": "string"
 					}
 				},
@@ -2856,9 +2859,11 @@
 						"type": "string"
 					},
 					"password": {
+						"description": "Your new password",
 						"type": "string"
 					},
 					"password_confirmation": {
+						"description": "New password confirmation",
 						"type": "string"
 					}
 				},

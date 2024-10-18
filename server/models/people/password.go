@@ -4,6 +4,7 @@ import (
 	"context"
 	"darco/proto/models/settings"
 	"darco/proto/models/tokens"
+	email_templates "darco/proto/templates"
 	"net/url"
 
 	"github.com/edgedb/edgedb-go"
@@ -12,13 +13,13 @@ import (
 )
 
 type UpdatePasswordInput struct {
-	Password    string        `json:"password" binding:"required"` // Old password
-	NewPassword PasswordInput `json:"new_password" binding:"required"`
+	Password    string        `json:"password" doc:"Your current password"`
+	NewPassword PasswordInput `json:"new_password"`
 }
 
 type PasswordInput struct {
-	Password   string `json:"password"`
-	ConfirmPwd string `json:"password_confirmation"`
+	Password   string `json:"password" doc:"Your new password"`
+	ConfirmPwd string `json:"password_confirmation" doc:"New password confirmation"`
 }
 
 func (p PasswordInput) ValidateEqual() bool {
@@ -87,13 +88,14 @@ func (user *User) RequestPasswordReset(db *edgedb.Client, target url.URL) error 
 	if err := token.Save(db); err != nil {
 		return err
 	}
+	query := target.Query()
+	query.Add("token", string(token.Token))
+	target.RawQuery = query.Encode()
 
-	target.RawQuery = url.QueryEscape(string(token.Token))
-	return user.SendEmail(
-		"Reset your account password",
-		"email_password_reset.html",
-		map[string]interface{}{
-			"Name": user.Person.FirstName,
-			"URL":  target.String(),
-		})
+	logrus.Debugf("Sending password reset email to %s", user.Person.FullName)
+	template := email_templates.PasswordReset(email_templates.PasswordResetData{
+		Name: user.Person.FirstName,
+		URL:  target,
+	})
+	return user.SendEmail("Reset your account password", template)
 }

@@ -1,0 +1,26 @@
+package email_templates
+
+import "net/url"
+
+type EmailVerificationData struct {
+	Name string
+	URL  url.URL
+}
+
+func (d EmailVerificationData) Subject() string {
+	return "Verify your email address"
+}
+
+templ emailVerificationContent(d EmailVerificationData) {
+	<p>Hi { d.Name },</p>
+	<p>
+		Please click this <a href={ templ.URL(d.URL.String()) }>link</a> to verify your account.
+	</p>
+	<p>
+		Alternatively, you can paste this URL in your browser: { string(templ.URL(d.URL.String())) }
+	</p>
+}
+
+templ EmailVerification(d EmailVerificationData) {
+	@Base(d.Subject(), emailVerificationContent(d))
+}

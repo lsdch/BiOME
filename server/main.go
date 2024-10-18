@@ -6,7 +6,6 @@ import (
 	"darco/proto/models/location"
 	"darco/proto/models/settings"
 	"darco/proto/router"
-	"darco/proto/services/email"
 	"fmt"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -85,10 +84,6 @@ func main() {
 	gin.ForceConsoleColor()
 	if gin.Mode() == gin.DebugMode {
 		log.SetLevel(log.DebugLevel)
-	}
-
-	if err := email.LoadTemplates("templates/**"); err != nil {
-		log.Fatalf("Failed to load email templates: %v", err)
 	}
 
 	if err := location.SetupCountries(db.Client()); err != nil {

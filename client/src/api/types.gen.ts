@@ -445,7 +445,13 @@ export type PasswordInput = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
+    /**
+     * Your new password
+     */
     password: string;
+    /**
+     * New password confirmation
+     */
     password_confirmation: string;
 };
 
@@ -885,6 +891,9 @@ export type UpdatePasswordInput = {
      */
     readonly $schema?: string;
     new_password: PasswordInput;
+    /**
+     * Your current password
+     */
     password: string;
 };
 
@@ -921,7 +930,13 @@ export type UserInput = {
     readonly $schema?: string;
     email: string;
     login: string;
+    /**
+     * Your new password
+     */
     password: string;
+    /**
+     * New password confirmation
+     */
     password_confirmation: string;
 };
 

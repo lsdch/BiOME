@@ -7,6 +7,7 @@ import (
 	_ "embed"
 	"encoding/json"
 
+	"github.com/a-h/templ"
 	"github.com/edgedb/edgedb-go"
 )
 
@@ -53,12 +54,12 @@ func (user *User) PasswordSensitiveInfos() PasswordSensitiveInfos {
 	}
 }
 
-func (user *User) SendEmail(subject string, template_file string, data map[string]any) error {
+func (user *User) SendEmail(subject string, template templ.Component) error {
 	emailData := &email.EmailData{
 		To:       user.Email,
+		From:     settings.Email().FromHeader(),
 		Subject:  subject,
-		Template: template_file,
-		Data:     data,
+		Template: template,
 	}
 
 	return emailData.Send(settings.Email().FromHeader())

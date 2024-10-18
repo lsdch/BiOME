@@ -6,6 +6,7 @@ import (
 	"darco/proto/models/settings"
 	"darco/proto/models/tokens"
 	"darco/proto/services/email"
+	email_templates "darco/proto/templates"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -140,14 +141,16 @@ func (p *PendingUserRequest) SendConfirmationEmail(db *edgedb.Client, target url
 	params.Set("token", string(emailToken.Token))
 	target.RawQuery = params.Encode()
 
+	templateData := email_templates.EmailVerificationData{
+		Name: p.Person.FirstName,
+		URL:  target,
+	}
+
 	return (&email.EmailData{
 		To:       emailToken.Email,
-		Subject:  "Please verify your email address",
-		Template: "email_verification.html",
-		Data: map[string]any{
-			"Name": p.Person.FirstName,
-			"URL":  target.String(),
-		},
+		From:     settings.Email().FromHeader(),
+		Subject:  templateData.Subject(),
+		Template: email_templates.EmailVerification(templateData),
 	}).Send(settings.Email().FromHeader())
 }
 

@@ -5,7 +5,7 @@ import (
 	"darco/proto/models/settings"
 	"darco/proto/models/tokens"
 	"darco/proto/services/email"
-	"fmt"
+	email_templates "darco/proto/templates"
 	"net/url"
 
 	"github.com/edgedb/edgedb-go"
@@ -62,17 +62,19 @@ func (i *Invitation) Send(target url.URL) (*url.URL, error) {
 	params.Set("token", string(i.Token))
 	target.RawQuery = params.Encode()
 
+	templateData := email_templates.InvitationData{
+		Name:       i.Person.FirstName,
+		IssuerName: i.IssuedBy.Person.FullName,
+		App:        settings.Instance().Name,
+		Role:       string(i.Role),
+		URL:        target,
+	}
+
 	sendError := (&email.EmailData{
 		To:       i.Email,
-		Subject:  fmt.Sprintf("Invitation to create an account on %s", settings.Instance().Name),
-		Template: "invitation.html",
-		Data: map[string]any{
-			"Name":       i.Person.FullName,
-			"IssuerName": i.IssuedBy.Person.FullName,
-			"App":        settings.Instance().Name,
-			"Role":       i.Role,
-			"URL":        target.String(),
-		},
+		From:     settings.Email().FromHeader(),
+		Subject:  templateData.Subject(),
+		Template: email_templates.Invitation(templateData),
 	}).Send(settings.Email().FromHeader())
 	return &target, sendError
 }

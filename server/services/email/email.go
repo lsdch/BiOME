@@ -2,48 +2,29 @@ package email
 
 import (
 	"bytes"
+	"context"
 	"darco/proto/models/settings"
-	"html/template"
-	"sync"
 
+	"github.com/a-h/templ"
 	"github.com/k3a/html2text"
 	"gopkg.in/gomail.v2"
 )
 
 type EmailData struct {
 	// Email address of the recipient
-	To      string
+	To string
+	// Email 'From' header
+	From string
+	// Email subject
 	Subject string
-	// Template file name for the body of the email
-	Template string
-	// Template variables
-	Data map[string]any
+	// Email template
+	Template templ.Component
 }
 
 func (emailData *EmailData) Body() (*bytes.Buffer, error) {
 	var body bytes.Buffer
-	err := templates.ExecuteTemplate(&body, emailData.Template, &emailData.Data)
-	if err != nil {
-		return nil, err
-	}
-	return &body, nil
-}
-
-var (
-	once      sync.Once
-	templates template.Template
-)
-
-func LoadTemplates(pattern string) (err error) {
-	once.Do(func() {
-		parsedTemplates, tplErr := template.ParseGlob(pattern)
-		if tplErr != nil {
-			err = tplErr
-			return
-		}
-		templates = *parsedTemplates
-	})
-	return
+	err := emailData.Template.Render(context.Background(), &body)
+	return &body, err
 }
 
 func (email *EmailData) Send(from string) (err error) {
