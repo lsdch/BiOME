@@ -1268,9 +1268,6 @@
 						"readOnly": true,
 						"type": "string"
 					},
-					"ID": {
-						"type": "string"
-					},
 					"created_on": {
 						"format": "date-time",
 						"type": "string"
@@ -1281,6 +1278,9 @@
 					},
 					"email_verified": {
 						"type": "boolean"
+					},
+					"id": {
+						"type": "string"
 					},
 					"identity": {
 						"$ref": "#/components/schemas/PendingUserRequestPersonStruct"
@@ -1293,7 +1293,7 @@
 					}
 				},
 				"required": [
-					"ID",
+					"id",
 					"identity",
 					"created_on",
 					"email_verified",

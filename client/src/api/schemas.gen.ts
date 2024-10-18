@@ -1021,9 +1021,6 @@ export const $PendingUserRequest = {
             readOnly: true,
             type: 'string'
         },
-        ID: {
-            type: 'string'
-        },
         created_on: {
             format: 'date-time',
             type: 'string'
@@ -1035,6 +1032,9 @@ export const $PendingUserRequest = {
         email_verified: {
             type: 'boolean'
         },
+        id: {
+            type: 'string'
+        },
         identity: {
             '$ref': '#/components/schemas/PendingUserRequestPersonStruct'
         },
@@ -1045,7 +1045,7 @@ export const $PendingUserRequest = {
             type: 'string'
         }
     },
-    required: ['ID', 'identity', 'created_on', 'email_verified', 'email'],
+    required: ['id', 'identity', 'created_on', 'email_verified', 'email'],
     type: 'object'
 } as const;
 

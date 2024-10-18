@@ -79,7 +79,7 @@ func (u *PendingUserRequestInput) Register(db edgedb.Executor) (*PendingUserRequ
 }
 
 type PendingUserRequest struct {
-	ID         edgedb.UUID `edgedb:"id"`
+	ID         edgedb.UUID `edgedb:"id" json:"id"`
 	EmailField `json:",inline" edgedb:"$inline"`
 	Person     struct {
 		PersonIdentity `edgedb:"$inline" json:",inline"`

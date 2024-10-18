@@ -472,10 +472,10 @@ export type PendingUserRequest = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    ID: string;
     created_on: Date;
     email: string;
     email_verified: boolean;
+    id: string;
     identity: PendingUserRequestPersonStruct;
     institution?: string;
     motive?: string;
