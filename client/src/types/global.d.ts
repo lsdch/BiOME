@@ -40,4 +40,8 @@ declare global {
   type DeepPartial<T extends {}> = {
     [K in keyof T]?: DeepPartial<T[K]>
   }
+
+  type PartialTips<T extends {}> = {
+    [K in keyof T]?: T[K] extends {} ? PartialTips<T[K]> : T[K]
+  }
 }
