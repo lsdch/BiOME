@@ -8,7 +8,7 @@
   <v-container fluid>
     <v-row>
       <v-col v-if="!filteredDatasets?.length" class="text-center">No datasets to display</v-col>
-      <v-col v-for="(dataset, key) in filteredDatasets" :key sm="6" md="4">
+      <v-col v-for="(dataset, key) in filteredDatasets" :key sm="6">
         <DatasetCard :dataset :to="{ name: 'dataset-item', params: { slug: dataset.slug } }" />
       </v-col>
     </v-row>

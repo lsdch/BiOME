@@ -6,23 +6,17 @@ const router = useRouter()
 </script>
 
 <template>
-  <v-container class="dashboard">
-    <DashBoard />
-
-    <v-footer>
+  <div class="d-flex flex-column justify-space-between fill-height">
+    <v-container>
+      <DashBoard />
+    </v-container>
+    <v-footer class="flex-grow-1">
       <v-row justify="center">
         <v-btn variant="text"> About </v-btn>
         <v-btn variant="text" :to="router.resolve({ name: 'api-docs' })"> API Docs </v-btn>
       </v-row>
     </v-footer>
-  </v-container>
+  </div>
 </template>
 
-<style scoped lang="less">
-.dashboard {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-  justify-content: space-between;
-}
-</style>
+<style scoped lang="less"></style>
