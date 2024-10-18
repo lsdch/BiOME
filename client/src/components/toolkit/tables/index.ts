@@ -30,6 +30,10 @@ export type ToolbarProps = {
    * Disable common filters such as owned items
    */
   noFilters?: boolean
+  /**
+   * Used to check whether a reload event listener is bound to the toolbar
+   */
+  onReload?: Function
 }
 
 export type TableProps<ItemType> = {
@@ -56,11 +60,11 @@ export type TableProps<ItemType> = {
   /**
    * API call to populate table items
    */
-  fetchItems?: () => RequestResult<ItemType[], ErrorModel>
+  fetchItems?: () => RequestResult<ItemType[], ErrorModel, false>
   /**
    * API call to delete an item
    */
-  delete?: (item: ItemType) => RequestResult<ItemType, ErrorModel>
+  delete?: (item: ItemType) => RequestResult<ItemType, ErrorModel, false>
   /**
    * Reload all items after deleting one
    */

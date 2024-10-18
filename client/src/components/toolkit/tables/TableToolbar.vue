@@ -2,11 +2,16 @@
   <v-toolbar flat dense extension-height="auto">
     <!-- Top left icon -->
     <template v-if="icon" #prepend>
-      <v-tooltip>
+      <v-tooltip :disabled="!onReload">
         <template #activator="{ props, isActive }">
           <v-avatar color="secondary" variant="outlined" v-bind="props">
-            <v-icon dark color="secondary-darken-1" @click="emit('reload')">
-              {{ isActive ? 'mdi-reload' : icon }}
+            <v-icon
+              :class="{ 'cursor-default': !onReload }"
+              dark
+              color="secondary-darken-1"
+              @click="emit('reload')"
+            >
+              {{ isActive && onReload ? 'mdi-reload' : icon }}
             </v-icon>
           </v-avatar>
         </template>
