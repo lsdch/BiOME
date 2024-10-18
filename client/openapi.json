@@ -3163,7 +3163,7 @@
 		},
 		"/account/forgotten-password": {
 			"post": {
-				"description": "Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset/{token}`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.",
+				"description": "Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.",
 				"operationId": "RequestPasswordReset",
 				"requestBody": {
 					"content": {
@@ -3469,7 +3469,7 @@
 				]
 			}
 		},
-		"/account/password-reset/{token}": {
+		"/account/password-reset": {
 			"get": {
 				"description": "Verifies that the password token is valid and can be used to reset a password",
 				"operationId": "ValidatePasswordToken",
@@ -3478,6 +3478,7 @@
 						"explode": false,
 						"in": "query",
 						"name": "token",
+						"required": true,
 						"schema": {
 							"type": "string"
 						}
@@ -3521,6 +3522,7 @@
 						"explode": false,
 						"in": "query",
 						"name": "token",
+						"required": true,
 						"schema": {
 							"type": "string"
 						}

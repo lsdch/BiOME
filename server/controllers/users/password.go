@@ -11,7 +11,7 @@ import (
 )
 
 type ValidatePasswordTokenInput struct {
-	Token tokens.Token `query:"token"`
+	Token tokens.Token `query:"token" required:"true"`
 }
 
 func ValidatePasswordToken(ctx context.Context, input *ValidatePasswordTokenInput) (*struct{}, error) {
@@ -19,7 +19,7 @@ func ValidatePasswordToken(ctx context.Context, input *ValidatePasswordTokenInpu
 		db.Client(),
 		tokens.Token(input.Token),
 	)
-	if db.IsNoData(err) || !token.IsValid() {
+	if db.IsNoData(err) || (err == nil && !token.IsValid()) {
 		return nil, huma.Error422UnprocessableEntity("Invalid token")
 	}
 	if err != nil {
@@ -76,7 +76,7 @@ func UpdatePassword(ctx context.Context, input *UpdatePasswordInput) (*struct{},
 }
 
 type PasswordResetInput struct {
-	Token tokens.Token         `query:"token"`
+	Token tokens.Token         `query:"token" required:"true"`
 	Body  people.PasswordInput `required:"true"`
 	*people.User
 }

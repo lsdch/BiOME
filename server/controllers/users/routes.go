@@ -77,17 +77,16 @@ func RegisterRoutes(r router.Router) {
 
 	pwdResetPath := router.Register(accountAPI, "ResetPassword",
 		huma.Operation{
-			Path:        "/password-reset/{token}",
+			Path:        "/password-reset/",
 			Method:      http.MethodPost,
 			Summary:     "Reset password",
 			Description: "Set a new password using a previously issued reset token",
-			Errors:      []int{http.StatusUnprocessableEntity},
 		},
 		PasswordReset)
 
 	router.Register(accountAPI, "ValidatePasswordToken",
 		huma.Operation{
-			Path:        "password-reset/{token}",
+			Path:        "password-reset/",
 			Method:      http.MethodGet,
 			Summary:     "Validate password token",
 			Description: "Verifies that the password token is valid and can be used to reset a password",

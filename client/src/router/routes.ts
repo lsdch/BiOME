@@ -19,13 +19,11 @@ export const accountRoutes = {
     path: '/password-reset',
     name: 'password-reset',
     component: () => import('../views/auth/PasswordResetView.vue'),
-    meta: { hideNavbar: true }
   },
   verifyEmail: {
     path: '/verify-email',
     name: 'verify-email',
     component: () => import('../views/auth/EmailConfirmation.vue'),
-    meta: { hideNavbar: true }
   },
   account: guardAuth({
     path: "/account",

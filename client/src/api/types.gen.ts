@@ -1211,8 +1211,8 @@ export type UpdatePasswordResponse = (void);
 export type UpdatePasswordError = (ErrorModel);
 
 export type ValidatePasswordTokenData = {
-    query?: {
-        token?: string;
+    query: {
+        token: string;
     };
 };
 
@@ -1222,8 +1222,8 @@ export type ValidatePasswordTokenError = (ErrorModel);
 
 export type ResetPasswordData = {
     body: PasswordInput;
-    query?: {
-        token?: string;
+    query: {
+        token: string;
     };
 };
 

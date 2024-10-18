@@ -2,7 +2,6 @@
   <v-container class="fill-height">
     <v-row :align="smAndDown ? 'baseline' : 'center'">
       <v-col lg="6" offset-lg="3">
-        <HomeLinkTitle />
         <v-card
           :variant="smAndDown ? 'flat' : 'elevated'"
           :disabled="status === Status.ValidationPending"
@@ -44,19 +43,22 @@
 </template>
 
 <script setup lang="ts">
-import { ApiError, AccountService, PasswordInput } from '@/api'
+import { AccountService, PasswordInput } from '@/api'
 import PasswordFields from '@/components/auth/PasswordFields.vue'
-import HomeLinkTitle from '@/components/navigation/HomeLinkTitle.vue'
-import { onBeforeMount } from 'vue'
-import { ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRouteQuery } from '@vueuse/router'
+import { onBeforeMount, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 
 const { smAndDown } = useDisplay()
 
-const route = useRoute()
 const router = useRouter()
-const token = route.params.token.toString()
+const token = useRouteQuery<string | undefined>('token', undefined, {
+  transform(v) {
+    if (Array.isArray(v)) return undefined
+    return v
+  }
+})
 
 const state = ref<PasswordInput>({
   password: '',
@@ -75,47 +77,38 @@ enum Status {
 const status = ref(Status.ValidationPending)
 
 onBeforeMount(() => {
-  validateToken(token)
+  if (token.value === undefined) router.replace({ name: 'home' })
+  else validateToken(token.value)
 })
 
 async function validateToken(token: string) {
-  AccountService.validatePasswordToken({ token })
-    .then(() => {
+  AccountService.validatePasswordToken({ query: { token } }).then(({ error }) => {
+    if (error?.status === 500) {
+      status.value = Status.ServerError
+    } else if (error) {
+      status.value = Status.InvalidToken
+    } else {
       status.value = Status.TokenOK
-    })
-    .catch((err: ApiError) => {
-      switch (err.status) {
-        case 400:
-          status.value = Status.InvalidToken
-          break
-
-        default:
-          status.value = Status.ServerError
-          break
-      }
-    })
+    }
+  })
 }
 
 async function submit() {
   loading.value = true
-  AccountService.resetPassword({ token, body: state.value })
-    .then(() => {
-      status.value = Status.PasswordResetDone
+  AccountService.resetPassword({ query: { token: token.value as string }, body: state.value })
+    .then(({ error }) => {
+      if (error?.status === 500) {
+        status.value = Status.ServerError
+      } else if (error) {
+        status.value = Status.InvalidToken
+      } else {
+        status.value = Status.PasswordResetDone
+      }
       setTimeout(() => {
-        router.push({ name: 'login' })
+        router.replace({ name: 'login' })
       }, 3000)
     })
-    .catch((err: ApiError) => {
-      switch (err.status) {
-        case 400:
-          status.value = Status.InvalidToken
-          break
-
-        default:
-          status.value = Status.ServerError
-          break
-      }
-    })
+    .finally(() => (loading.value = false))
 }
 </script>
 

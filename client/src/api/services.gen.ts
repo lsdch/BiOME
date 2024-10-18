@@ -181,7 +181,7 @@ export class AccountService {
     
     /**
      * Request password reset
-     * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset/{token}`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
+     * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
      */
     public static requestPasswordReset<ThrowOnError extends boolean = false>(options: Options<RequestPasswordResetData, ThrowOnError>) {
         return (options?.client ?? client).post<RequestPasswordResetResponse, RequestPasswordResetError, ThrowOnError>({
@@ -227,10 +227,10 @@ export class AccountService {
      * Validate password token
      * Verifies that the password token is valid and can be used to reset a password
      */
-    public static validatePasswordToken<ThrowOnError extends boolean = false>(options?: Options<ValidatePasswordTokenData, ThrowOnError>) {
+    public static validatePasswordToken<ThrowOnError extends boolean = false>(options: Options<ValidatePasswordTokenData, ThrowOnError>) {
         return (options?.client ?? client).get<ValidatePasswordTokenResponse, ValidatePasswordTokenError, ThrowOnError>({
             ...options,
-            url: '/account/password-reset/{token}'
+            url: '/account/password-reset'
         });
     }
     
@@ -241,7 +241,7 @@ export class AccountService {
     public static resetPassword<ThrowOnError extends boolean = false>(options: Options<ResetPasswordData, ThrowOnError>) {
         return (options?.client ?? client).post<ResetPasswordResponse, ResetPasswordError, ThrowOnError>({
             ...options,
-            url: '/account/password-reset/{token}'
+            url: '/account/password-reset'
         });
     }
     
