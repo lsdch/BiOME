@@ -1,5 +1,5 @@
 <template>
-  <v-chip label variant="text" v-bind="$attrs">
+  <v-chip label color="#777" variant="text" v-bind="$attrs">
     <template v-slot:prepend>
       <v-icon color="#777" class="mr-3" size="small" :icon="icon" />
     </template>
