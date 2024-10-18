@@ -25,7 +25,7 @@ function icon(item: UserRole) {
 }
 
 const hints: Record<UserRole, string> = {
-  Visitor: 'Visitors have eadonly access to the platform content',
+  Visitor: 'Visitors have readonly access to the platform content',
   Contributor: 'Contributors may submit content and modify their own submissions',
   Maintainer: 'Maintainers have rights to manage most of the content',
   Admin: 'Admins have full read/write access'
