@@ -22,6 +22,9 @@ type ListItemHandler[Item any, Input resolvers.AuthDBProvider] func(ctx context.
 func ListHandler[Input resolvers.AuthDBProvider, Item any](listFn FetchItemList[Item]) ListItemHandler[Item, Input] {
 	return func(ctx context.Context, input Input) (*ListHandlerOutput[Item], error) {
 		items, err := listFn(input.DB())
+		if items == nil {
+			items = []Item{}
+		}
 		if err != nil {
 			return nil, huma.Error500InternalServerError("Failed to retrieve item list", err)
 		}

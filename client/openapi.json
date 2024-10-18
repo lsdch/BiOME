@@ -29,10 +29,7 @@
 						"items": {
 							"type": "string"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"refresh_token": {
 						"description": "Session refresh token",
@@ -303,10 +300,7 @@
 						"items": {
 							"$ref": "#/components/schemas/ErrorDetail"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"instance": {
 						"description": "A URI reference that identifies the specific occurrence of the problem.",
@@ -362,10 +356,7 @@
 						"items": {
 							"$ref": "#/components/schemas/HabitatRecord"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"exclusive_elements": {
 						"type": "boolean"
@@ -418,10 +409,7 @@
 						"items": {
 							"$ref": "#/components/schemas/HabitatInput"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"exclusive_elements": {
 						"type": "boolean"
@@ -488,10 +476,7 @@
 						"items": {
 							"type": "string"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"label": {
 						"description": "A short label for the habitat.",
@@ -523,10 +508,7 @@
 						"items": {
 							"$ref": "#/components/schemas/HabitatRecord"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"label": {
 						"description": "A short label for the habitat.",
@@ -740,10 +722,7 @@
 						"items": {
 							"$ref": "#/components/schemas/PersonUser"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					}
 				},
 				"required": [
@@ -1051,10 +1030,7 @@
 						"items": {
 							"$ref": "#/components/schemas/HabitatRecord"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"label": {
 						"description": "A short label for the habitat.",
@@ -1406,10 +1382,7 @@
 						"items": {
 							"$ref": "#/components/schemas/InstitutionInner"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"last_name": {
 						"maxLength": 32,
@@ -1491,10 +1464,7 @@
 						"items": {
 							"type": "string"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"last_name": {
 						"maxLength": 32,
@@ -1545,10 +1515,7 @@
 						"items": {
 							"type": "string"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"last_name": {
 						"maxLength": 32,
@@ -1795,10 +1762,7 @@
 						"items": {
 							"$ref": "#/components/schemas/SiteDatasetInner"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"description": {
 						"type": "string"
@@ -1856,10 +1820,7 @@
 						"items": {
 							"$ref": "#/components/schemas/PersonUser"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
@@ -1868,10 +1829,7 @@
 						"items": {
 							"$ref": "#/components/schemas/SiteItem"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"slug": {
 						"type": "string"
@@ -1938,30 +1896,21 @@
 						"items": {
 							"type": "string"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"new_sites": {
 						"description": "New sites to include in the dataset",
 						"items": {
 							"$ref": "#/components/schemas/SiteInput"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"sites": {
 						"description": "Existing site codes to include in the dataset",
 						"items": {
 							"type": "string"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					}
 				},
 				"required": [
@@ -1998,10 +1947,7 @@
 						"items": {
 							"type": "string"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					}
 				},
 				"type": "object"
@@ -2400,10 +2346,7 @@
 						"items": {
 							"$ref": "#/components/schemas/Taxon"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"children_count": {
 						"format": "int64",
@@ -2569,10 +2512,7 @@
 						"items": {
 							"$ref": "#/components/schemas/Taxon"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"children_count": {
 						"format": "int64",
@@ -2660,10 +2600,7 @@
 						"items": {
 							"$ref": "#/components/schemas/Taxonomy"
 						},
-						"type": [
-							"array",
-							"null"
-						]
+						"type": "array"
 					},
 					"children_count": {
 						"format": "int64",
@@ -2969,10 +2906,7 @@
 									"items": {
 										"type": "string"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},
@@ -3605,10 +3539,7 @@
 									"items": {
 										"$ref": "#/components/schemas/PendingUserRequest"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},
@@ -3988,10 +3919,7 @@
 									"items": {
 										"$ref": "#/components/schemas/TaxonWithParentRef"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},
@@ -4060,10 +3988,7 @@
 									"items": {
 										"$ref": "#/components/schemas/SiteDataset"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},
@@ -4361,10 +4286,7 @@
 									"items": {
 										"$ref": "#/components/schemas/HabitatGroup"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},
@@ -4787,10 +4709,7 @@
 									"items": {
 										"$ref": "#/components/schemas/Institution"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},
@@ -5119,10 +5038,7 @@
 									"items": {
 										"$ref": "#/components/schemas/Country"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},
@@ -5191,10 +5107,7 @@
 									"items": {
 										"$ref": "#/components/schemas/Person"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},
@@ -6158,10 +6071,7 @@
 									"items": {
 										"$ref": "#/components/schemas/Site"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},
@@ -6495,10 +6405,7 @@
 									"items": {
 										"$ref": "#/components/schemas/TaxonWithParentRef"
 									},
-									"type": [
-										"array",
-										"null"
-									]
+									"type": "array"
 								}
 							}
 						},

@@ -75,6 +75,8 @@ func setupRouter() *gin.Engine {
 
 func main() {
 
+	huma.DefaultArrayNullable = false
+
 	if config, err := config.LoadConfig(".", "config"); err != nil {
 		log.Fatalf("Failed to load config file: %v", err)
 	} else {

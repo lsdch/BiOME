@@ -24,7 +24,7 @@ export const $AuthenticationResponse = {
             items: {
                 type: 'string'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         refresh_token: {
             description: 'Session refresh token',
@@ -244,7 +244,7 @@ export const $ErrorModel = {
             items: {
                 '$ref': '#/components/schemas/ErrorDetail'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         instance: {
             description: 'A URI reference that identifies the specific occurrence of the problem.',
@@ -291,7 +291,7 @@ export const $HabitatGroup = {
             items: {
                 '$ref': '#/components/schemas/HabitatRecord'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         exclusive_elements: {
             type: 'boolean'
@@ -332,7 +332,7 @@ export const $HabitatGroupInput = {
             items: {
                 '$ref': '#/components/schemas/HabitatInput'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         exclusive_elements: {
             type: 'boolean'
@@ -386,7 +386,7 @@ export const $HabitatInput = {
             items: {
                 type: 'string'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         label: {
             description: 'A short label for the habitat.',
@@ -415,7 +415,7 @@ export const $HabitatRecord = {
             items: {
                 '$ref': '#/components/schemas/HabitatRecord'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         label: {
             description: 'A short label for the habitat.',
@@ -589,7 +589,7 @@ export const $Institution = {
             items: {
                 '$ref': '#/components/schemas/PersonUser'
             },
-            type: ['array', 'null']
+            type: 'array'
         }
     },
     required: ['meta', 'id', 'name', 'code', 'kind'],
@@ -837,7 +837,7 @@ export const $OptionalHabitatRecord = {
             items: {
                 '$ref': '#/components/schemas/HabitatRecord'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         label: {
             description: 'A short label for the habitat.',
@@ -1124,7 +1124,7 @@ export const $Person = {
             items: {
                 '$ref': '#/components/schemas/InstitutionInner'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         last_name: {
             maxLength: 32,
@@ -1192,7 +1192,7 @@ export const $PersonInput = {
             items: {
                 type: 'string'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         last_name: {
             maxLength: 32,
@@ -1232,7 +1232,7 @@ export const $PersonUpdate = {
             items: {
                 type: 'string'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         last_name: {
             maxLength: 32,
@@ -1449,7 +1449,7 @@ export const $Site = {
             items: {
                 '$ref': '#/components/schemas/SiteDatasetInner'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         description: {
             type: 'string'
@@ -1497,7 +1497,7 @@ export const $SiteDataset = {
             items: {
                 '$ref': '#/components/schemas/PersonUser'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         meta: {
             '$ref': '#/components/schemas/Meta'
@@ -1506,7 +1506,7 @@ export const $SiteDataset = {
             items: {
                 '$ref': '#/components/schemas/SiteItem'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         slug: {
             type: 'string'
@@ -1560,21 +1560,21 @@ export const $SiteDatasetInput = {
             items: {
                 type: 'string'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         new_sites: {
             description: 'New sites to include in the dataset',
             items: {
                 '$ref': '#/components/schemas/SiteInput'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         sites: {
             description: 'Existing site codes to include in the dataset',
             items: {
                 type: 'string'
             },
-            type: ['array', 'null']
+            type: 'array'
         }
     },
     required: ['label', 'maintainers'],
@@ -1604,7 +1604,7 @@ export const $SiteDatasetUpdate = {
             items: {
                 type: 'string'
             },
-            type: ['array', 'null']
+            type: 'array'
         }
     },
     type: 'object'
@@ -1911,7 +1911,7 @@ export const $TaxonWithLineage = {
             items: {
                 '$ref': '#/components/schemas/Taxon'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         children_count: {
             format: 'int64',
@@ -2033,7 +2033,7 @@ export const $TaxonWithRelatives = {
             items: {
                 '$ref': '#/components/schemas/Taxon'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         children_count: {
             format: 'int64',
@@ -2099,7 +2099,7 @@ export const $Taxonomy = {
             items: {
                 '$ref': '#/components/schemas/Taxonomy'
             },
-            type: ['array', 'null']
+            type: 'array'
         },
         children_count: {
             format: 'int64',

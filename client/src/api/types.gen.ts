@@ -13,7 +13,7 @@ export type AuthenticationResponse = {
      * Time at which auth token expires
      */
     auth_token_expiration: Date;
-    messages: Array<(string)> | null;
+    messages: Array<(string)>;
     /**
      * Session refresh token
      */
@@ -135,7 +135,7 @@ export type ErrorModel = {
     /**
      * Optional list of individual error details
      */
-    errors?: Array<ErrorDetail> | null;
+    errors?: Array<ErrorDetail>;
     /**
      * A URI reference that identifies the specific occurrence of the problem.
      */
@@ -160,7 +160,7 @@ export type HabitatGroup = {
      */
     readonly $schema?: string;
     depends: OptionalHabitatRecord;
-    elements: Array<HabitatRecord> | null;
+    elements: Array<HabitatRecord>;
     exclusive_elements: boolean;
     id: string;
     /**
@@ -179,7 +179,7 @@ export type HabitatGroupInput = {
      * Habitat tag that this group is a refinement of
      */
     depends?: string;
-    elements?: Array<HabitatInput> | null;
+    elements?: Array<HabitatInput>;
     exclusive_elements?: boolean;
     /**
      * Name for the group of habitat tags
@@ -205,7 +205,7 @@ export type HabitatInput = {
     /**
      * List of habitat labels this habitat is incompatible with.
      */
-    incompatible?: Array<(string)> | null;
+    incompatible?: Array<(string)>;
     /**
      * A short label for the habitat.
      */
@@ -218,7 +218,7 @@ export type HabitatRecord = {
      */
     description?: string;
     id: string;
-    incompatible?: Array<HabitatRecord> | null;
+    incompatible?: Array<HabitatRecord>;
     /**
      * A short label for the habitat.
      */
@@ -305,7 +305,7 @@ export type Institution = {
     /**
      * Known members of this institution
      */
-    people?: Array<PersonUser> | null;
+    people?: Array<PersonUser>;
 };
 
 export type InstitutionInner = {
@@ -400,7 +400,7 @@ export type OptionalHabitatRecord = {
      */
     description?: string;
     id: string;
-    incompatible?: Array<HabitatRecord> | null;
+    incompatible?: Array<HabitatRecord>;
     /**
      * A short label for the habitat.
      */
@@ -504,7 +504,7 @@ export type Person = {
     first_name: string;
     full_name: string;
     id: string;
-    institutions: Array<InstitutionInner> | null;
+    institutions: Array<InstitutionInner>;
     last_name: string;
     meta: Meta;
     role?: UserRole;
@@ -525,7 +525,7 @@ export type PersonInput = {
     comment?: string;
     contact?: string;
     first_name: string;
-    institutions: Array<(string)> | null;
+    institutions: Array<(string)>;
     last_name: string;
 };
 
@@ -538,7 +538,7 @@ export type PersonUpdate = {
     comment?: (string) | null;
     contact?: (string) | null;
     first_name?: string;
-    institutions?: Array<(string)> | null;
+    institutions?: Array<(string)>;
     last_name?: string;
 };
 
@@ -634,7 +634,7 @@ export type Site = {
     code: string;
     coordinates: Coordinates;
     country: Country;
-    datasets: Array<SiteDatasetInner> | null;
+    datasets: Array<SiteDatasetInner>;
     description: string;
     id: string;
     locality?: string;
@@ -650,9 +650,9 @@ export type SiteDataset = {
     description: string;
     id: string;
     label: string;
-    maintainers: Array<PersonUser> | null;
+    maintainers: Array<PersonUser>;
     meta: Meta;
-    sites: Array<SiteItem> | null;
+    sites: Array<SiteItem>;
     slug: string;
 };
 
@@ -673,15 +673,15 @@ export type SiteDatasetInput = {
     /**
      * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
      */
-    maintainers: Array<(string)> | null;
+    maintainers: Array<(string)>;
     /**
      * New sites to include in the dataset
      */
-    new_sites?: Array<SiteInput> | null;
+    new_sites?: Array<SiteInput>;
     /**
      * Existing site codes to include in the dataset
      */
-    sites?: Array<(string)> | null;
+    sites?: Array<(string)>;
 };
 
 export type SiteDatasetUpdate = {
@@ -694,7 +694,7 @@ export type SiteDatasetUpdate = {
     /**
      * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
      */
-    maintainers?: Array<(string)> | null;
+    maintainers?: Array<(string)>;
 };
 
 export type SiteInput = {
@@ -812,7 +812,7 @@ export type TaxonWithLineage = {
     GBIF_ID?: number;
     anchor: boolean;
     authorship?: string;
-    children?: Array<Taxon> | null;
+    children?: Array<Taxon>;
     children_count: number;
     code: string;
     comment?: string;
@@ -848,7 +848,7 @@ export type TaxonWithRelatives = {
     GBIF_ID?: number;
     anchor: boolean;
     authorship?: string;
-    children?: Array<Taxon> | null;
+    children?: Array<Taxon>;
     children_count: number;
     code: string;
     comment?: string;
@@ -868,7 +868,7 @@ export type Taxonomy = {
     GBIF_ID?: number;
     anchor: boolean;
     authorship?: string;
-    children?: Array<Taxonomy> | null;
+    children?: Array<Taxonomy>;
     children_count: number;
     code: string;
     comment?: string;
@@ -958,7 +958,7 @@ export type GetAccessPointsData = {
     };
 };
 
-export type GetAccessPointsResponse = (Array<(string)> | null);
+export type GetAccessPointsResponse = (Array<(string)>);
 
 export type GetAccessPointsError = (ErrorModel);
 
@@ -971,7 +971,7 @@ export type ListSiteDatasetsData = {
     };
 };
 
-export type ListSiteDatasetsResponse = (Array<SiteDataset> | null);
+export type ListSiteDatasetsResponse = (Array<SiteDataset>);
 
 export type ListSiteDatasetsError = (ErrorModel);
 
@@ -1031,7 +1031,7 @@ export type ListHabitatGroupsData = {
     };
 };
 
-export type ListHabitatGroupsResponse = (Array<HabitatGroup> | null);
+export type ListHabitatGroupsResponse = (Array<HabitatGroup>);
 
 export type ListHabitatGroupsError = (ErrorModel);
 
@@ -1091,7 +1091,7 @@ export type ListCountriesData = {
     };
 };
 
-export type ListCountriesResponse = (Array<Country> | null);
+export type ListCountriesResponse = (Array<Country>);
 
 export type ListCountriesError = (ErrorModel);
 
@@ -1104,7 +1104,7 @@ export type ListSitesData = {
     };
 };
 
-export type ListSitesResponse = (Array<Site> | null);
+export type ListSitesResponse = (Array<Site>);
 
 export type ListSitesError = (ErrorModel);
 
@@ -1240,7 +1240,7 @@ export type ListPendingUserRequestsData = {
     };
 };
 
-export type ListPendingUserRequestsResponse = (Array<PendingUserRequest> | null);
+export type ListPendingUserRequestsResponse = (Array<PendingUserRequest>);
 
 export type ListPendingUserRequestsError = (ErrorModel);
 
@@ -1306,7 +1306,7 @@ export type ListAnchorsData = {
     };
 };
 
-export type ListAnchorsResponse = (Array<TaxonWithParentRef> | null);
+export type ListAnchorsResponse = (Array<TaxonWithParentRef>);
 
 export type ListAnchorsError = (ErrorModel);
 
@@ -1353,7 +1353,7 @@ export type ListInstitutionsData = {
     };
 };
 
-export type ListInstitutionsResponse = (Array<Institution> | null);
+export type ListInstitutionsResponse = (Array<Institution>);
 
 export type ListInstitutionsError = (ErrorModel);
 
@@ -1413,7 +1413,7 @@ export type ListPersonsData = {
     };
 };
 
-export type ListPersonsResponse = (Array<Person> | null);
+export type ListPersonsResponse = (Array<Person>);
 
 export type ListPersonsError = (ErrorModel);
 
@@ -1614,7 +1614,7 @@ export type ListTaxaData = {
     };
 };
 
-export type ListTaxaResponse = (Array<TaxonWithParentRef> | null);
+export type ListTaxaResponse = (Array<TaxonWithParentRef>);
 
 export type ListTaxaError = (ErrorModel);
 
