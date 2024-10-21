@@ -60,10 +60,11 @@ func (u UserInput) RegisterWithToken(db edgedb.Executor, token tokens.Token) (*U
 }
 
 type PendingUserRequestInput struct {
-	EmailField  `json:",inline" edgedb:"$inline"`
-	Person      PersonIdentity `json:"identity" edgedb:"identity"`
-	Institution string         `json:"institution,omitempty" edgedb:"institution" fake:"{word}"`
-	Motive      string         `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
+	EmailField     `json:",inline" edgedb:"$inline"`
+	PersonIdentity `edgedb:"$inline" json:",inline"`
+	FullName       string `edgedb:"full_name" json:"full_name"`
+	Institution    string `json:"institution,omitempty" edgedb:"institution" fake:"{word}"`
+	Motive         string `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
 }
 
 //go:embed queries/register_pending_user.edgeql
@@ -79,15 +80,14 @@ func (u *PendingUserRequestInput) Register(db edgedb.Executor) (*PendingUserRequ
 }
 
 type PendingUserRequest struct {
-	ID         edgedb.UUID `edgedb:"id" json:"id"`
-	EmailField `json:",inline" edgedb:"$inline"`
-	Person     struct {
-		PersonIdentity `edgedb:"$inline" json:",inline"`
-	} `json:"identity" edgedb:"identity"`
-	Institution   edgedb.OptionalStr `json:"institution,omitempty" edgedb:"institution"`
-	Motive        edgedb.OptionalStr `json:"motive,omitempty" edgedb:"motive"`
-	CreatedOn     time.Time          `json:"created_on" edgedb:"created_on"`
-	EmailVerified bool               `edgedb:"email_verified" json:"email_verified"`
+	ID             edgedb.UUID `edgedb:"id" json:"id"`
+	EmailField     `json:",inline" edgedb:"$inline"`
+	PersonIdentity `edgedb:"$inline" json:",inline"`
+	FullName       string             `edgedb:"full_name" json:"full_name"`
+	Institution    edgedb.OptionalStr `json:"institution,omitempty" edgedb:"institution"`
+	Motive         edgedb.OptionalStr `json:"motive,omitempty" edgedb:"motive"`
+	CreatedOn      time.Time          `json:"created_on" edgedb:"created_on"`
+	EmailVerified  bool               `edgedb:"email_verified" json:"email_verified"`
 }
 
 func (p *PendingUserRequest) Delete(db edgedb.Executor) error {
@@ -151,7 +151,7 @@ func (p *PendingUserRequest) SendConfirmationEmail(db *edgedb.Client, target url
 	target.RawQuery = params.Encode()
 
 	templateData := email_templates.EmailVerificationData{
-		Name: p.Person.FirstName,
+		Name: p.FirstName,
 		URL:  target,
 	}
 

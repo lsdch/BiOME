@@ -1279,13 +1279,23 @@
 					"email_verified": {
 						"type": "boolean"
 					},
+					"first_name": {
+						"maxLength": 32,
+						"minLength": 2,
+						"type": "string"
+					},
+					"full_name": {
+						"type": "string"
+					},
 					"id": {
 						"type": "string"
 					},
-					"identity": {
-						"$ref": "#/components/schemas/PendingUserRequestPersonStruct"
-					},
 					"institution": {
+						"type": "string"
+					},
+					"last_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"motive": {
@@ -1294,10 +1304,12 @@
 				},
 				"required": [
 					"id",
-					"identity",
+					"full_name",
 					"created_on",
 					"email_verified",
-					"email"
+					"email",
+					"first_name",
+					"last_name"
 				],
 				"type": "object"
 			},
@@ -1308,10 +1320,20 @@
 						"format": "email",
 						"type": "string"
 					},
-					"identity": {
-						"$ref": "#/components/schemas/PersonIdentity"
+					"first_name": {
+						"maxLength": 32,
+						"minLength": 2,
+						"type": "string"
+					},
+					"full_name": {
+						"type": "string"
 					},
 					"institution": {
+						"type": "string"
+					},
+					"last_name": {
+						"maxLength": 32,
+						"minLength": 2,
 						"type": "string"
 					},
 					"motive": {
@@ -1319,26 +1341,8 @@
 					}
 				},
 				"required": [
-					"identity",
-					"email"
-				],
-				"type": "object"
-			},
-			"PendingUserRequestPersonStruct": {
-				"additionalProperties": false,
-				"properties": {
-					"first_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					},
-					"last_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					}
-				},
-				"required": [
+					"full_name",
+					"email",
 					"first_name",
 					"last_name"
 				],
@@ -1408,26 +1412,6 @@
 					"alias",
 					"contact",
 					"comment",
-					"first_name",
-					"last_name"
-				],
-				"type": "object"
-			},
-			"PersonIdentity": {
-				"additionalProperties": false,
-				"properties": {
-					"first_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					},
-					"last_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					}
-				},
-				"required": [
 					"first_name",
 					"last_name"
 				],

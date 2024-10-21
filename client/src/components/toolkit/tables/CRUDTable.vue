@@ -20,7 +20,6 @@
       <template #top>
         <TableToolbar
           ref="toolbar"
-          v-model="items"
           v-model:search="searchTerm"
           v-bind="toolbar"
           @reload="loadItems().then(() => feedback.show('Data reloaded'))"

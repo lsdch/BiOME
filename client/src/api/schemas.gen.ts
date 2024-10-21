@@ -1032,20 +1032,30 @@ export const $PendingUserRequest = {
         email_verified: {
             type: 'boolean'
         },
+        first_name: {
+            maxLength: 32,
+            minLength: 2,
+            type: 'string'
+        },
+        full_name: {
+            type: 'string'
+        },
         id: {
             type: 'string'
         },
-        identity: {
-            '$ref': '#/components/schemas/PendingUserRequestPersonStruct'
-        },
         institution: {
+            type: 'string'
+        },
+        last_name: {
+            maxLength: 32,
+            minLength: 2,
             type: 'string'
         },
         motive: {
             type: 'string'
         }
     },
-    required: ['id', 'identity', 'created_on', 'email_verified', 'email'],
+    required: ['id', 'full_name', 'created_on', 'email_verified', 'email', 'first_name', 'last_name'],
     type: 'object'
 } as const;
 
@@ -1056,35 +1066,27 @@ export const $PendingUserRequestInput = {
             format: 'email',
             type: 'string'
         },
-        identity: {
-            '$ref': '#/components/schemas/PersonIdentity'
-        },
-        institution: {
-            type: 'string'
-        },
-        motive: {
-            type: 'string'
-        }
-    },
-    required: ['identity', 'email'],
-    type: 'object'
-} as const;
-
-export const $PendingUserRequestPersonStruct = {
-    additionalProperties: false,
-    properties: {
         first_name: {
             maxLength: 32,
             minLength: 2,
+            type: 'string'
+        },
+        full_name: {
+            type: 'string'
+        },
+        institution: {
             type: 'string'
         },
         last_name: {
             maxLength: 32,
             minLength: 2,
             type: 'string'
+        },
+        motive: {
+            type: 'string'
         }
     },
-    required: ['first_name', 'last_name'],
+    required: ['full_name', 'email', 'first_name', 'last_name'],
     type: 'object'
 } as const;
 
@@ -1142,24 +1144,6 @@ export const $Person = {
         }
     },
     required: ['institutions', 'meta', 'user', 'id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
-    type: 'object'
-} as const;
-
-export const $PersonIdentity = {
-    additionalProperties: false,
-    properties: {
-        first_name: {
-            maxLength: 32,
-            minLength: 2,
-            type: 'string'
-        },
-        last_name: {
-            maxLength: 32,
-            minLength: 2,
-            type: 'string'
-        }
-    },
-    required: ['first_name', 'last_name'],
     type: 'object'
 } as const;
 

@@ -1,42 +1,55 @@
 <template>
   <v-card hover @click="toggleActive()" :ripple="false">
+    <template #prepend>
+      <v-checkbox v-model="selected" density="compact" hide-details @click.stop />
+    </template>
     <template #append>
       <v-btn color="" variant="plain" :icon="active ? 'mdi-chevron-up' : 'mdi-chevron-down'" />
     </template>
-    <template #title> {{ item.identity.first_name }} {{ item.identity.last_name }} </template>
+    <template #title> {{ item.full_name }} </template>
     <template #subtitle>
       {{ item.email }}
-      <v-icon
-        size="small"
-        v-bind="
-          item.email_verified
-            ? {
-                icon: 'mdi-check-circle',
-                color: 'success'
-              }
-            : {
-                icon: 'mdi-clock',
-                color: 'warning'
-              }
-        "
-      />
+      <v-tooltip>
+        <template #activator="{ props }">
+          <v-icon
+            size="small"
+            v-bind="
+              item.email_verified
+                ? {
+                    ...props,
+                    icon: 'mdi-check-circle',
+                    color: 'success'
+                  }
+                : {
+                    ...props,
+                    icon: 'mdi-clock',
+                    color: 'warning'
+                  }
+            "
+          />
+        </template>
+        {{ item.email_verified ? 'Verified' : 'Not verified' }}
+      </v-tooltip>
     </template>
-    <div v-show="active">
+    <template #text>
+      <div v-show="active">
+        <div v-if="item.institution">Institution: {{ item.institution }}</div>
+        <div class="font-italic">
+          {{ item.motive ?? 'No motive provided.' }}
+        </div>
+      </div>
+    </template>
+    <v-divider></v-divider>
+    <template #actions>
+      <ItemDateChip :date="item.created_on" icon="mdi-calendar-clock" />
       <v-btn
-        class="ml-3"
+        class="ms-auto"
         color="primary"
         text="Invite"
         prepend-icon="mdi-account-plus"
         variant="plain"
         @click.stop="emit('invite', item)"
       />
-      <v-list>
-        <v-list-item title="Institution" :subtitle="item.institution"></v-list-item>
-        <v-list-item title="Motivations" :subtitle="item.motive"></v-list-item>
-      </v-list>
-    </div>
-    <template #actions>
-      <ItemDateChip :date="item.created_on" icon="mdi-calendar-clock" />
     </template>
   </v-card>
 </template>
@@ -47,12 +60,11 @@ import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
 import { useToggle } from '@vueuse/core'
 
 defineProps<{ item: PendingUserRequest }>()
+const selected = defineModel<boolean>('selected')
 
 const [active, toggleActive] = useToggle(false)
 
-const emit = defineEmits<{
-  invite: [item: PendingUserRequest]
-}>()
+const emit = defineEmits<{ invite: [item: PendingUserRequest] }>()
 </script>
 
 <style scoped></style>

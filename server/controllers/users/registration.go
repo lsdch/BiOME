@@ -28,8 +28,8 @@ type RegisterInput struct {
 func Register(confirmEmailPath string) router.Endpoint[RegisterInput, controllers.Message] {
 	return func(ctx context.Context, input *RegisterInput) (*controllers.Message, error) {
 		logrus.Infof("Attempting to create account for %s %s (%s)",
-			input.Body.Data.Person.FirstName,
-			input.Body.Data.Person.LastName,
+			input.Body.Data.FirstName,
+			input.Body.Data.LastName,
 			input.Body.Data.Email,
 		)
 

@@ -475,22 +475,21 @@ export type PendingUserRequest = {
     created_on: Date;
     email: string;
     email_verified: boolean;
+    first_name: string;
+    full_name: string;
     id: string;
-    identity: PendingUserRequestPersonStruct;
     institution?: string;
+    last_name: string;
     motive?: string;
 };
 
 export type PendingUserRequestInput = {
     email: string;
-    identity: PersonIdentity;
-    institution?: string;
-    motive?: string;
-};
-
-export type PendingUserRequestPersonStruct = {
     first_name: string;
+    full_name: string;
+    institution?: string;
     last_name: string;
+    motive?: string;
 };
 
 export type Person = {
@@ -509,11 +508,6 @@ export type Person = {
     meta: Meta;
     role?: UserRole;
     user: OptionalUserInner;
-};
-
-export type PersonIdentity = {
-    first_name: string;
-    last_name: string;
 };
 
 export type PersonInput = {

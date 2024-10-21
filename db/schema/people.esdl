@@ -108,14 +108,16 @@ module people {
     required email: str {
       constraint exclusive;
     };
-    required identity: tuple<first_name: str, last_name: str>;
+    required first_name: str;
+    required last_name: str;
+    required full_name := .first_name ++ " " ++ .last_name;
     institution: str;
     motive: str;
     required created_on: datetime {
       rewrite insert using (datetime_of_statement());
     };
     required email_verified: bool {
-      default := false
+      default := false;
     };
   }
 }
