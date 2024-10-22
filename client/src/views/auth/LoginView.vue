@@ -2,8 +2,7 @@
   <v-container>
     <v-row>
       <v-col lg="6" offset-lg="3">
-        <!-- <HomeLinkTitle /> -->
-        <v-card variant="flat">
+        <v-card>
           <v-card-text v-if="mode === Mode.Login">
             <LoginForm />
             <div class="d-flex justify-space-between align-center">
