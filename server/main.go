@@ -83,10 +83,11 @@ func main() {
 		logrus.Infof("Loaded backend configuration: %+v", config)
 	}
 
-	gin.ForceConsoleColor()
 	if gin.Mode() == gin.DebugMode {
 		log.SetLevel(log.DebugLevel)
 	}
+	// Disable logging all routes
+	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {}
 
 	if err := location.SetupCountries(db.Client()); err != nil {
 		logrus.Fatalf("Failed to setup countries in database: %v", err)
