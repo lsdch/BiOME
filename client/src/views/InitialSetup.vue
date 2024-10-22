@@ -19,8 +19,7 @@
               persistent-hint
             />
           </template>
-          <template v-slot:item.2> <SignUpForm /> </template>
-          <template v-slot:item.3>
+          <template v-slot:item.2>
             <AnchorTaxonPicker />
           </template>
         </v-stepper>
@@ -30,7 +29,6 @@
 </template>
 
 <script setup lang="ts">
-import SignUpForm from '@/components/auth/SignUpForm.vue'
 import AnchorTaxonPicker from '@/components/taxonomy/imports/AnchorTaxonPicker.vue'
 const stepper_items = ['General configuration', 'Admin account', 'Backbone taxonomy']
 </script>
