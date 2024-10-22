@@ -3,14 +3,17 @@
     <v-app-bar id="app-bar" color="primary" v-if="!$route.meta.hideNavbar" density="compact">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
       <v-app-bar-title :to="$router.resolve({ name: 'home' })">
-        <AppIcon :max-width="40" />
         <v-btn
-          class="app-title"
+          class="app-title opacity-100"
           variant="plain"
           :ripple="false"
           :to="{ name: 'home' }"
           :text="settings.name"
-        />
+        >
+          <template #prepend>
+            <AppIcon :size="30" />
+          </template>
+        </v-btn>
       </v-app-bar-title>
       <v-spacer />
       <SettingsMenu />

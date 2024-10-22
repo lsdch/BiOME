@@ -1,6 +1,6 @@
 <template>
-  <v-avatar color="white" border="md">
-    <v-img :aspect-ratio="1" rounded="circle" v-bind="iconImgProps" :max-width></v-img>
+  <v-avatar color="white" border="md" :size>
+    <v-img :aspect-ratio="1" rounded="circle" v-bind="iconImgProps" :size></v-img>
   </v-avatar>
 </template>
 
@@ -8,7 +8,7 @@
 import { useInstanceSettings } from '../settings'
 const { iconImgProps } = useInstanceSettings()
 
-defineProps<{ maxWidth?: number }>()
+defineProps<{ size?: number }>()
 </script>
 
 <style scoped></style>
