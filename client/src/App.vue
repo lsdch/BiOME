@@ -20,7 +20,7 @@
       <AccountNavMenu />
     </v-app-bar>
     <NavigationDrawer v-model="drawer" :temporary="drawerTemporary || smAndDown" />
-    <v-main>
+    <v-main id="main" class="bg-main">
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <Suspense>
         <RouterView />
@@ -98,6 +98,13 @@ client.interceptors.response.use(async (response) => {
 </script>
 
 <style>
+#main {
+  background: initial;
+  background-image: radial-gradient(#64646433 1px, transparent 0px);
+  background-size: 25px 25px;
+  background-position: -10px -10px;
+}
+
 .app-title {
   color: white;
   font-weight: bold;
