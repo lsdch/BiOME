@@ -6,9 +6,11 @@
           :variant="smAndDown ? 'flat' : 'elevated'"
           :disabled="status === Status.ValidationPending"
           :loading="status === Status.ValidationPending ? 'primary' : false"
+          :title="
+            status == Status.TokenOK ? 'Please set up a new password for your account' : undefined
+          "
         >
           <v-card-text v-if="status === Status.TokenOK">
-            <p class="mb-3">Please set up a new password for your account</p>
             <v-form @submit.prevent="submit">
               <PasswordFields v-model="state" :user-inputs="[]" />
               <v-btn block type="submit" text="Confirm" :rounded="false" :loading="loading" />
