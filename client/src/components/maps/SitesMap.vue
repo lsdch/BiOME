@@ -154,7 +154,14 @@ const props = withDefaults(
   }>(),
   {
     bounds: () => [latLng(90, -360), latLng(-90, 360)],
-    fitPad: 0
+    fitPad: 0,
+    marker: () => ({
+      color: 'white',
+      fill: true,
+      fillColor: 'orangered',
+      fillOpacity: 1,
+      radius: 8
+    })
   }
 )
 

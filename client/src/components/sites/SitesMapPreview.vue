@@ -1,19 +1,6 @@
 <template>
   <v-dialog v-model="isOpen" fullscreen>
-    <SitesMap
-      ref="map"
-      closable
-      auto-fit
-      :items="mapItems"
-      :marker="{
-        color: 'white',
-        fill: true,
-        fillColor: 'orangered',
-        fillOpacity: 1,
-        radius: 8
-      }"
-      @close="isOpen = false"
-    >
+    <SitesMap ref="map" closable auto-fit :items="mapItems" @close="isOpen = false">
       <template #marker="{ item }">
         <l-popup class="site-popup">
           <div class="text-subtitle-1 text-no-wrap">{{ item.name }}</div>
