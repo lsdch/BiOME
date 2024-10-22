@@ -15,7 +15,12 @@
           <v-col cols="12" md="6">
             <v-list>
               <v-list-item title="Code" :subtitle="site.code"></v-list-item>
-              <v-list-item title="Description" :subtitle="site.description"></v-list-item>
+              <v-list-item title="Description">
+                <v-list-item-subtitle
+                  :class="{ 'font-italic': !site.description }"
+                  v-text="site.description ?? 'No description'"
+                />
+              </v-list-item>
             </v-list>
           </v-col>
           <v-col cols="12" md="6" style="height: 50vh; min-height: 500px">
