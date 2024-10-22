@@ -128,7 +128,7 @@ func GetPendingUserRequest(db edgedb.Executor, email string) (*PendingUserReques
 }
 
 func DeletePendingUserRequest(db edgedb.Executor, email string) (deleted PendingUserRequest, err error) {
-	err = db.Execute(context.Background(),
+	err = db.QuerySingle(context.Background(),
 		`select (delete people::PendingUserRequest filter .email = <str>$0) { ** };`,
 		&deleted,
 		email,
