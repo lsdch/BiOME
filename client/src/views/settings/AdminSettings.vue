@@ -10,7 +10,7 @@
       color="primary"
     />
   </v-bottom-navigation>
-  <v-navigation-drawer v-else permanent :width="150">
+  <v-navigation-drawer v-else permanent :width="200">
     <v-list nav>
       <v-list-subheader>Settings</v-list-subheader>
       <v-list-item
@@ -24,14 +24,16 @@
     </v-list>
   </v-navigation-drawer>
   <div class="bg-surface d-flex fill-height flex-column">
-    <Suspense>
-      <template #default>
-        <component :is="component" />
-      </template>
-      <template #fallback>
-        <v-skeleton-loader type="article, article, article" />
-      </template>
-    </Suspense>
+    <v-container :max-width="1200">
+      <Suspense>
+        <template #default>
+          <component :is="component" />
+        </template>
+        <template #fallback>
+          <v-skeleton-loader type="article, article, article" />
+        </template>
+      </Suspense>
+    </v-container>
   </div>
 </template>
 
