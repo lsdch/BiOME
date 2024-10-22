@@ -1,4 +1,5 @@
 
+import { Ref } from 'vue';
 import { VDataTable } from 'vuetify/components'
 import { VIcon } from 'vuetify/components/VIcon';
 
@@ -20,6 +21,8 @@ declare global {
     // See original definition of FilterFunction type:
     // https://github.com/vuetifyjs/vuetify/blob/21241e1762734f639b4ee421e00735d3754181c8/packages/vuetify/src/composables/filter.ts#L19-L19
     readonly filter?: (value: any, query: string, item?: any) => boolean
+
+    hide?: Ref<boolean>
   };
   type CRUDTableHeaders = CRUDTableHeader[]
 

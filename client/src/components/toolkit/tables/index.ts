@@ -98,10 +98,13 @@ export function useTable<ItemType extends { id: string }>(
     onClose: () => { }
   })
 
-  const processedHeaders: ComputedRef<CRUDTableHeaders> = computed((): CRUDTableHeader[] => {
-    return props.showActions && currentUser !== undefined && currentUser.role !== "Visitor"
+  const processedHeaders = computed((): CRUDTableHeader[] => {
+    const headersWithActions = props.showActions && currentUser !== undefined && currentUser.role !== "Visitor"
       ? props.headers.concat([{ title: 'Actions', key: 'actions', sortable: false, align: 'end' }])
       : props.headers
+    return headersWithActions.filter(({ hide }) => {
+      return !hide?.value
+    })
   })
 
   const loading = ref(props.fetchItems !== undefined)
