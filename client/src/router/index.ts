@@ -31,8 +31,8 @@ const { guardRole } = useGuards()
 
 
 function setupRouter(settings: InstanceSettings) {
-  function makeTitle(title: string) {
-    return `${settings.name} | ${title}`
+  function makeTitle(subtitle?: string) {
+    return subtitle ? `${settings.name} | ${subtitle}` : settings.name
   }
 
   const router = createRouter({
@@ -87,7 +87,7 @@ function setupRouter(settings: InstanceSettings) {
     // Use next tick to handle router history correctly
     // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
     nextTick(() => {
-      document.title = to.meta?.title ?? settings.name;
+      document.title = to.meta?.title ?? makeTitle(to.meta.subtitle);
     });
   });
 

@@ -1,34 +1,38 @@
+import { RouteRecord, RouteRecordRaw } from "vue-router"
 import { useGuards } from "./guards"
 
 const { guardRole, guardAuth } = useGuards()
 
-export const accountRoutes = {
+export const accountRoutes: Record<string, RouteRecordRaw> = {
   login: {
     path: '/login',
     name: 'login',
     component: () => import('../views/auth/LoginView.vue'),
-    // meta: { hideNavbar: true }
+    meta: { subtitle: "Login" }
   },
   signup: {
     path: '/signup',
     name: 'signup',
     component: () => import('../views/auth/SignUpView.vue'),
-    // meta: { hideNavbar: true }
+    meta: { subtitle: "Account request" }
   },
   pwdReset: {
     path: '/password-reset',
     name: 'password-reset',
     component: () => import('../views/auth/PasswordResetView.vue'),
+    meta: { subtitle: "Password reset" }
   },
   verifyEmail: {
     path: '/verify-email',
     name: 'verify-email',
     component: () => import('../views/auth/EmailVerificationView.vue'),
+    meta: { subtitle: "E-mail verification" }
   },
   account: guardAuth({
     path: "/account",
     name: "account",
-    component: () => import("../views/AccountView.vue")
+    component: () => import("../views/AccountView.vue"),
+    meta: { subtitle: "Account infos" }
   }),
 }
 
@@ -42,6 +46,7 @@ export default {
     component: () => import("@/views/settings/AdminSettings.vue"),
     props: true,
     meta: {
+      subtitle: "Settings",
       drawer: {
         temporary: true
       }

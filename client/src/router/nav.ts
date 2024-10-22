@@ -12,14 +12,16 @@ export const navRoutes: RouterItem[] = [
     path: '/',
     name: 'home',
     icon: "mdi-home",
-    component: HomeView
+    component: HomeView,
+    meta: { subtitle: "Home" }
   },
   {
     icon: "mdi-folder-table",
     label: "Datasets",
     path: '/datasets',
     name: 'datasets',
-    component: () => import('../views/datasets/DatasetsView.vue')
+    component: () => import('../views/datasets/DatasetsView.vue'),
+    meta: { subtitle: "Datasets" }
   },
   {
     label: "People",
@@ -30,14 +32,16 @@ export const navRoutes: RouterItem[] = [
         path: "/people",
         name: "people",
         icon: "mdi-account",
-        component: () => import("../views/people/PersonView.vue")
+        component: () => import("../views/people/PersonView.vue"),
+        meta: { subtitle: "Persons" }
       },
       {
         label: "Institutions",
         path: "/people/institutions",
         name: "institutions",
         icon: "mdi-domain",
-        component: () => import("../views/people/InstitutionView.vue")
+        component: () => import("../views/people/InstitutionView.vue"),
+        meta: { subtitle: "Institutions" }
       }
     ]
   },
@@ -50,9 +54,8 @@ export const navRoutes: RouterItem[] = [
         icon: "mdi-map-marker-radius",
         component: () => import("@/views/location/SitesView.vue"),
         meta: {
-          drawer: {
-            temporary: true
-          }
+          subtitle: "Sites",
+          drawer: { temporary: true }
         }
       },
       {
@@ -60,7 +63,8 @@ export const navRoutes: RouterItem[] = [
         path: "/location/habitats",
         name: "habitats",
         icon: "mdi-image-filter-hdr-outline",
-        component: () => import("@/views/location/HabitatsView.vue")
+        component: () => import("@/views/location/HabitatsView.vue"),
+        meta: { subtitle: "Habitats" }
       },
     ]
   },
@@ -69,7 +73,8 @@ export const navRoutes: RouterItem[] = [
     label: "Taxonomy",
     path: '/taxonomy',
     name: 'taxonomy',
-    component: () => import('../views/taxonomy/TaxonomyView.vue')
+    component: () => import('../views/taxonomy/TaxonomyView.vue'),
+    meta: { subtitle: "Taxonomy" }
   },
   {
     label: "Admin",
@@ -82,6 +87,7 @@ export const navRoutes: RouterItem[] = [
           name: "account-requests",
           icon: "mdi-account-plus",
           component: () => import("@/views/registration/AccountsPendingView.vue"),
+          meta: { subtitle: "Account requests" }
         }),
       routes.settings,
     ]
