@@ -118,26 +118,28 @@
                   <slot name="expanded-row-inject" v-bind="{ item }"> </slot>
                   <v-divider v-show="$slots['expanded-row-inject']" />
                 </div>
-                <div class="d-flex flex-wrap">
-                  <ItemDateChip
-                    v-if="item.meta?.created"
-                    icon="created"
-                    :date="item.meta.created"
-                  />
-                  <ItemDateChip
-                    v-if="item.meta?.modified"
-                    icon="updated"
-                    :date="item.meta.modified"
-                  />
-                  <v-spacer />
-                  <v-btn
-                    prepend-icon="mdi-identifier"
-                    variant="plain"
-                    class="text-caption"
-                    @click="copyUUID(item)"
-                    :text="item.id"
-                  />
-                </div>
+                <slot name="expanded-row-footer" v-bind="{ item }">
+                  <div class="d-flex flex-wrap">
+                    <ItemDateChip
+                      v-if="item.meta?.created"
+                      icon="created"
+                      :date="item.meta.created"
+                    />
+                    <ItemDateChip
+                      v-if="item.meta?.modified"
+                      icon="updated"
+                      :date="item.meta.modified"
+                    />
+                    <v-spacer />
+                    <v-btn
+                      prepend-icon="mdi-identifier"
+                      variant="plain"
+                      class="text-caption"
+                      @click="copyUUID(item)"
+                      :text="item.id"
+                    />
+                  </div>
+                </slot>
               </div>
             </td>
           </tr>
@@ -208,6 +210,7 @@ defineSlots<
     }): any
     search(): any
     'expanded-row-inject': (props: { item: ItemType }) => any
+    'expanded-row-footer': (props: { item: ItemType }) => any
     'toolbar-prepend-actions': () => any
     'toolbar-append-actions': () => any
     form(props: UnwrapRef<typeof form>): any
