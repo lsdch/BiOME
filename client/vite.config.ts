@@ -26,7 +26,7 @@ export default defineConfig({
     },
     watch: {
       awaitWriteFinish: true,
-      ignored: "openapi.json"
+      ignored: path.resolve("openapi.json")
     }
   },
   plugins: [
@@ -48,6 +48,7 @@ export default defineConfig({
         run: 'echo "✨ Generating API client" && pnpm run gen-client',
         delay: 0,
         logs: ['streamData', 'streamError']
+
       }
     ])
   ],
