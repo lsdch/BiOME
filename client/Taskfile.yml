@@ -7,9 +7,11 @@ tasks:
     status: [command -v pnpm >/dev/null 2>&1]
 
   install:
+    desc: "Install pnpm"
     deps: [install-pnpm]
     cmd: pnpm i
 
   start:
+    desc: "Start client dev server"
     deps: [install-client]
     cmd: pnpm dev --host

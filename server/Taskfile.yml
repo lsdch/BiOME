@@ -2,6 +2,7 @@ version: 3
 
 includes:
   db:
+    internal: true
     taskfile: ../db
     dir: ../db
 
@@ -22,13 +23,16 @@ tasks:
     status: [command -v templ >/dev/null 2>&1]
 
   install:
+    desc: "Install tools for backend dev environment"
     cmd: go get
     deps: [install-linter, install-air, install-templ]
 
   start:
+    desc: "Start backend dev server"
     deps: [db:init, install]
     cmds: [air]
 
   lint:
+    desc: "Run golangci-lint"
     cmd: golangci-lint run --fast --print-issued-lines=false --out-format=colored-line-number --issues-exit-code=0
     deps: [install-linter]

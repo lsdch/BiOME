@@ -17,7 +17,14 @@ includes:
 output: group
 
 tasks:
+  sync:
+    desc: "Install dependencies and apply migrations"
+    deps:
+      - task: server:install
+      - task: client:install
+      - task: db:migrate
   setup:
+    desc: "Install dependencies, apply migrations and seed database content"
     cmds:
       - task: db:seed
     deps:
@@ -25,4 +32,5 @@ tasks:
       - task: client:install
         silent: true
   lint:
+    desc: "Run golangci-lint"
     deps: [server:lint]

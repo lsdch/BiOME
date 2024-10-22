@@ -5,16 +5,19 @@ vars:
 
 tasks:
   install:
+    desc: "Install EdgeDB CLI"
     cmds: [curl https://sh.edgedb.com --proto '=https' -sSf1 | sh]
     status: [command -v edgedb >/dev/null 2>&1]
 
   init-testing:
+    desc: "Create testing database branch"
     dir: ..
     cmd: edgedb branch create {{.TEST_DB_NAME}} --copy-data
     status:
       - edgedb branch list | grep "{{.TEST_DB_NAME}}"
 
   init:
+    desc: "Create database instance"
     dir: ..
     interactive: true
     cmds:
@@ -25,12 +28,14 @@ tasks:
     run: once
 
   config-email:
+    desc: "Run email settings configuration utility"
     interactive: true
     dir: seeds
     cmds:
       - go run ./cmd/email
 
   seed:
+    desc: "Initialize local database instance with initial content"
     interactive: true
     dir: seeds
     cmds:
@@ -42,6 +47,7 @@ tasks:
     deps: [migrate]
 
   reset:
+    desc: "Wipe database and reset initial seed"
     dir: ..
     interactive: true
     prompt: This will wipe existing databases and re-run all migrations and seeds. Continue ?
@@ -50,11 +56,13 @@ tasks:
       - task: seed
 
   migration:
+    desc: "Extract database migration from current changes in schema"
     dir: ..
     interactive: true
     cmd: edgedb migration create
 
   migrate:
+    desc: "Apply pending database migrations"
     dir: ..
     cmds:
       - edgedb migrate
