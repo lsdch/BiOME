@@ -20,9 +20,9 @@ kill_delay = "0s"
 log = "build-errors.log"
 poll = false
 poll_interval = 0
-post_cmd = ["cd ../client && pnpm gen-client"]
+post_cmd = []
 # run code generation
-pre_cmd = ["go generate", "templ generate"]
+pre_cmd = ["go generate", "templ generate", "cd ../client && pnpm gen-client"]
 rerun = false
 rerun_delay = 500
 send_interrupt = true
