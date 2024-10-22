@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <HomeLinkTitle />
+    <!-- <HomeLinkTitle /> -->
 
     <v-row>
       <v-col cols="12" lg="6" offset-lg="3" class="text-center">
@@ -33,12 +33,8 @@
 </template>
 
 <script setup lang="ts">
-import { ApiError, AccountService, EmailConfirmationError } from '@/api'
-import HomeLinkTitle from '@/components/navigation/HomeLinkTitle.vue'
-import { Ref } from 'vue'
-import { ref } from 'vue'
-import { onMounted } from 'vue'
-import { computed } from 'vue'
+import { AccountService, ApiError, EmailConfirmationError } from '@/api'
+import { computed, onMounted, Ref, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
