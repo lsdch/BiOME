@@ -1,6 +1,7 @@
 <template>
   <CRUDTable
     class="fill-height"
+    expand-on-click
     :headers
     entity-name="Account request"
     :toolbar="{
@@ -14,27 +15,62 @@
     "
     show-actions="delete"
   >
+    <!-- Email column -->
+    <template #item.email="{ value }">
+      <a :href="`mailto:${value}`" @click.stop> {{ value }}</a>
+    </template>
+
+    <!-- Email verified column -->
+    <template #header.email_verified="slotProps">
+      <IconTableHeader icon="mdi-email-check" class="justify-center" v-bind="slotProps" />
+    </template>
     <template #[`item.email_verified`]="{ value }">
       <v-icon
         :icon="value ? 'mdi-check-circle' : 'mdi-clock'"
         :color="value ? 'success' : 'warning'"
       />
     </template>
+
+    <!-- Institution column -->
+    <template #item.institution="{ value }">
+      <span :class="{ 'font-italic': !value }">
+        {{ value ?? 'N/A' }}
+      </span>
+    </template>
+
     <template #[`expanded-row-inject`]="{ item }">
-      <div class="mx-5 my-3 d-flex align-start">
-        <div class="font-italic">
-          {{ item.motive ?? 'No motive provided.' }}
+      <div class="mx-5 my-2">
+        <div v-if="mobile" class="my-1 d-flex align-center">
+          <v-icon icon="mdi-domain" size="small" />
+          <span class="font-weight-bold mx-1">Institution: </span>
+          <span>
+            {{ item.institution ?? 'N/A' }}
+          </span>
         </div>
+        <div class="font-weight-bold">Motive:</div>
+        <div class="my-1 font-italic">
+          {{ item.motive ? `"${item.motive}"` : 'No motive provided.' }}
+        </div>
+      </div>
+    </template>
+    <template #expanded-row-footer="{ item }">
+      <div class="d-flex align-center">
+        <ItemDateChip icon="created" :date="item.created_on" />
+        <v-spacer></v-spacer>
         <v-btn
           class="ml-auto"
           color="primary"
           text="Send invitation"
           prepend-icon="mdi-account-plus"
           variant="plain"
+          density="compact"
           @click="showInvitationForm(item)"
         />
       </div>
     </template>
+
+    <!-- Disable export btn -->
+    <template #footer.prepend />
   </CRUDTable>
   <InvitationFormDialog v-model="dialogOpen" v-bind="formContent" />
 </template>
@@ -48,12 +84,17 @@ import AccountsPendingCard from './AccountsPendingCard.vue'
 import { useToggle } from '@vueuse/core'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
+import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
+import { useDisplay } from 'vuetify'
+
+const { mobile } = useDisplay()
 
 const headers: CRUDTableHeader[] = [
   { title: 'Name', key: 'full_name' },
   { title: 'E-mail', key: 'email' },
   { title: 'E-mail verified', key: 'email_verified', align: 'center' },
-  { title: 'Institution', key: 'institution' }
+  { title: 'Institution', key: 'institution', hide: mobile }
 ]
 
 const [dialogOpen, toggleInvitationDialog] = useToggle(false)
@@ -75,14 +116,6 @@ function showInvitationForm(item: PendingUserRequest) {
   formContent.value.pending = item
   toggleInvitationDialog(true)
 }
-
-const items = ref(
-  await AccountService.listPendingUserRequests().then(
-    handleErrors((err) => {
-      console.error('Failed to retrieve pending account requests:', err)
-    })
-  )
-)
 </script>
 
 <style scoped></style>

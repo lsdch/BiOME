@@ -1071,9 +1071,6 @@ export const $PendingUserRequestInput = {
             minLength: 2,
             type: 'string'
         },
-        full_name: {
-            type: 'string'
-        },
         institution: {
             type: 'string'
         },
@@ -1086,7 +1083,7 @@ export const $PendingUserRequestInput = {
             type: 'string'
         }
     },
-    required: ['full_name', 'email', 'first_name', 'last_name'],
+    required: ['email', 'first_name', 'last_name'],
     type: 'object'
 } as const;
 
@@ -1299,22 +1296,20 @@ export const $RegisterInputBody = {
         data: {
             '$ref': '#/components/schemas/PendingUserRequestInput'
         },
-        verification_url: {
-            description: 'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
-            format: 'uri',
+        verification_path: {
             type: 'string'
         }
     },
-    required: ['data', 'verification_url'],
+    required: ['data', 'verification_path'],
     type: 'object'
 } as const;
 
-export const $ResendEmailConfirmationInputBody = {
+export const $ResendEmailVerificationInputBody = {
     additionalProperties: false,
     properties: {
         '$schema': {
             description: 'A URL to the JSON Schema for this object.',
-            examples: ['/api/v1/schemas/ResendEmailConfirmationInputBody.json'],
+            examples: ['/api/v1/schemas/ResendEmailVerificationInputBody.json'],
             format: 'uri',
             readOnly: true,
             type: 'string'

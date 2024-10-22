@@ -19,16 +19,12 @@
           <v-col cols="12" sm="6">
             <v-text-field
               label="First name"
-              v-model="model.identity.first_name"
-              v-bind="field('identity', 'first_name')"
+              v-model="model.first_name"
+              v-bind="field('first_name')"
             />
           </v-col>
           <v-col cols="12" sm="6">
-            <v-text-field
-              label="Last name"
-              v-model="model.identity.last_name"
-              v-bind="field('identity', 'last_name')"
-            />
+            <v-text-field label="Last name" v-model="model.last_name" v-bind="field('last_name')" />
           </v-col>
         </v-row>
         <v-row>
@@ -79,20 +75,27 @@
 <script setup lang="ts">
 import { $PendingUserRequestInput, AccountService, PendingUserRequestInput } from '@/api'
 import { useSchema } from '@/components/toolkit/forms/schema'
+import { accountRoutes } from '@/router/routes'
 import { ref } from 'vue'
 
 const registrationDone = ref(false)
 const model = ref<PendingUserRequestInput>({
   email: '',
   motive: undefined,
-  identity: { first_name: '', last_name: '' },
+  first_name: '',
+  last_name: '',
   institution: undefined
 })
 
 const { field, errorHandler } = useSchema($PendingUserRequestInput)
 
 function submit() {
-  AccountService.register({ body: { data: model.value, verification_url: '' } })
+  AccountService.register({
+    body: {
+      data: model.value,
+      verification_path: accountRoutes.verifyEmail.path
+    }
+  })
     .then(errorHandler)
     .then(() => (registrationDone.value = true))
 }

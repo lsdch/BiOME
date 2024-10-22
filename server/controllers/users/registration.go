@@ -14,14 +14,15 @@ import (
 	"fmt"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
 type RegisterInput struct {
 	resolvers.HostResolver
 	Body struct {
-		Data                 people.PendingUserRequestInput `json:"data"`
-		EmailVerificationURL TokenVerificationURL           `json:"verification_url"`
+		Data             people.PendingUserRequestInput `json:"data"`
+		VerificationPath string                         `json:"verification_path"`
 	}
 }
 
@@ -32,22 +33,22 @@ func Register(confirmEmailPath string) router.Endpoint[RegisterInput, controller
 			input.Body.Data.LastName,
 			input.Body.Data.Email,
 		)
+		err := db.Client().Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+			pending, err := input.Body.Data.Register(db.Client())
+			if err != nil {
+				return fmt.Errorf("Failed to create account request: %v", err)
+			}
 
-		pending, err := input.Body.Data.Register(db.Client())
-		if err != nil {
-			return nil, huma.Error500InternalServerError("Failed to register new account", err)
-		}
+			target := input.OriginPath(input.Body.VerificationPath)
+			if err := pending.SendConfirmationEmail(db.Client(), target); err != nil {
+				return fmt.Errorf("Failed to send verification email: %v", err)
+			}
+			return nil
+		})
 
-		target := input.GenerateURL(confirmEmailPath)
-		if input.Body.EmailVerificationURL.Host != "" {
-			target = input.Body.EmailVerificationURL.URL()
-		}
-		if err := pending.SendConfirmationEmail(db.Client(), target); err != nil {
-			return nil, huma.Error500InternalServerError("Failed to send verification email", err)
-		}
 		return &controllers.Message{
 			Body: "Account request created and email with verification token was sent",
-		}, nil
+		}, err
 
 	}
 }
@@ -69,7 +70,7 @@ func ConfirmEmail(ctx context.Context, input *ConfirmEmailInput) (*struct{ Messa
 	return &struct{ Message string }{"Email successfully verified"}, nil
 }
 
-type ResendEmailConfirmationInput struct {
+type ResendEmailVerificationInput struct {
 	resolvers.HostResolver
 	Body struct {
 		Email                string               `json:"email" format:"email"`
@@ -77,8 +78,8 @@ type ResendEmailConfirmationInput struct {
 	}
 }
 
-func ResendEmailConfirmation(confirmEmailPath string) router.Endpoint[ResendEmailConfirmationInput, struct{}] {
-	return func(ctx context.Context, input *ResendEmailConfirmationInput) (*struct{}, error) {
+func ResendEmailVerification(confirmEmailPath string) router.Endpoint[ResendEmailVerificationInput, struct{}] {
+	return func(ctx context.Context, input *ResendEmailVerificationInput) (*struct{}, error) {
 		target := input.GenerateURL(confirmEmailPath)
 		if input.Body.EmailVerificationURL.Host != "" {
 			target = input.Body.EmailVerificationURL.URL()

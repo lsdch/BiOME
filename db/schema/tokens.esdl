@@ -24,9 +24,10 @@ module tokens {
     };
   };
 
-  type EmailConfirmation extending Token {
-    required email: str {
+  type EmailVerification extending Token {
+    required user_request: people::PendingUserRequest {
       constraint exclusive;
+      on target delete delete source;
     };
   };
 

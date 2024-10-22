@@ -14,8 +14,10 @@ type emailVerificationToken struct {
 
 func (t emailVerificationToken) Save(db edgedb.Executor) error {
 	return db.Execute(context.Background(),
-		`insert tokens::EmailConfirmation {
-			email := <str>$0,
+		`insert tokens::EmailVerification {
+			user_request := (
+				select people::PendingUserRequest filter .email = <str>$0
+			),
 			token := <str>$1,
 			expires := <datetime>$2,
 		}`, t.Email, t.Token, t.Expires)
@@ -31,7 +33,7 @@ func NewEmailVerificationToken(email string) emailVerificationToken {
 func RetrieveEmailToken(db edgedb.Executor, token Token) (emailVerificationToken, error) {
 	var db_token emailVerificationToken
 	err := db.QuerySingle(context.Background(),
-		`select tokens::EmailConfirmation { * } filter .token = <str>$0`,
+		`select tokens::EmailVerification { *, email := .user_request.email } filter .token = <str>$0`,
 		&db_token, token,
 	)
 	return db_token, err

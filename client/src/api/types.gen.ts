@@ -486,7 +486,6 @@ export type PendingUserRequest = {
 export type PendingUserRequestInput = {
     email: string;
     first_name: string;
-    full_name: string;
     institution?: string;
     last_name: string;
     motive?: string;
@@ -562,13 +561,10 @@ export type RegisterInputBody = {
      */
     readonly $schema?: string;
     data: PendingUserRequestInput;
-    /**
-     * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
-     */
-    verification_url: string;
+    verification_path: string;
 };
 
-export type ResendEmailConfirmationInputBody = {
+export type ResendEmailVerificationInputBody = {
     /**
      * A URL to the JSON Schema for this object.
      */
@@ -1158,13 +1154,13 @@ export type ConfirmEmailResponse = (string);
 
 export type ConfirmEmailError = (ErrorModel);
 
-export type ResendEmailConfirmationData = {
-    body: ResendEmailConfirmationInputBody;
+export type ResendEmailVerificationData = {
+    body: ResendEmailVerificationInputBody;
 };
 
-export type ResendEmailConfirmationResponse = (void);
+export type ResendEmailVerificationResponse = (void);
 
-export type ResendEmailConfirmationError = (ErrorModel);
+export type ResendEmailVerificationError = (ErrorModel);
 
 export type RequestPasswordResetData = {
     body: PasswordResetRequest;

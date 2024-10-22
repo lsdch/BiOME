@@ -62,7 +62,6 @@ func (u UserInput) RegisterWithToken(db edgedb.Executor, token tokens.Token) (*U
 type PendingUserRequestInput struct {
 	EmailField     `json:",inline" edgedb:"$inline"`
 	PersonIdentity `edgedb:"$inline" json:",inline"`
-	FullName       string `edgedb:"full_name" json:"full_name"`
 	Institution    string `json:"institution,omitempty" edgedb:"institution" fake:"{word}"`
 	Motive         string `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
 }

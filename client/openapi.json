@@ -1325,9 +1325,6 @@
 						"minLength": 2,
 						"type": "string"
 					},
-					"full_name": {
-						"type": "string"
-					},
 					"institution": {
 						"type": "string"
 					},
@@ -1341,7 +1338,6 @@
 					}
 				},
 				"required": [
-					"full_name",
 					"email",
 					"first_name",
 					"last_name"
@@ -1594,25 +1590,23 @@
 					"data": {
 						"$ref": "#/components/schemas/PendingUserRequestInput"
 					},
-					"verification_url": {
-						"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
-						"format": "uri",
+					"verification_path": {
 						"type": "string"
 					}
 				},
 				"required": [
 					"data",
-					"verification_url"
+					"verification_path"
 				],
 				"type": "object"
 			},
-			"ResendEmailConfirmationInputBody": {
+			"ResendEmailVerificationInputBody": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/ResendEmailConfirmationInputBody.json"
+							"/api/v1/schemas/ResendEmailVerificationInputBody.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -3037,12 +3031,12 @@
 		"/account/email-confirmation/resend": {
 			"post": {
 				"description": "Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.",
-				"operationId": "ResendEmailConfirmation",
+				"operationId": "ResendEmailVerification",
 				"requestBody": {
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/ResendEmailConfirmationInputBody"
+								"$ref": "#/components/schemas/ResendEmailVerificationInputBody"
 							}
 						}
 					},

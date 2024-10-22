@@ -23,7 +23,7 @@ export const accountRoutes = {
   verifyEmail: {
     path: '/verify-email',
     name: 'verify-email',
-    component: () => import('../views/auth/EmailConfirmation.vue'),
+    component: () => import('../views/auth/EmailVerificationView.vue'),
   },
   account: guardAuth({
     path: "/account",

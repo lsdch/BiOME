@@ -111,14 +111,14 @@ func RegisterRoutes(r router.Router) {
 			Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 		}, ConfirmEmail)
 
-	router.Register(accountAPI, "ResendEmailConfirmation",
+	router.Register(accountAPI, "ResendEmailVerification",
 		huma.Operation{
 			Path:        "/email-confirmation/resend",
 			Method:      http.MethodPost,
 			Summary:     "Resend e-mail verification link",
 			Description: "Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.",
 			Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
-		}, ResendEmailConfirmation(confirmEmailPath))
+		}, ResendEmailVerification(confirmEmailPath))
 
 	router.Register(accountAPI, "ListPendingUserRequests",
 		huma.Operation{
