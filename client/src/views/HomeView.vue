@@ -10,7 +10,7 @@ const router = useRouter()
     <v-container>
       <DashBoard />
     </v-container>
-    <v-footer class="flex-grow-1">
+    <v-footer class="flex-grow-0">
       <v-row justify="center">
         <v-btn variant="text"> About </v-btn>
         <v-btn variant="text" :to="router.resolve({ name: 'api-docs' })"> API Docs </v-btn>
