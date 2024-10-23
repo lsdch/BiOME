@@ -30,7 +30,7 @@ export const useUserStore = defineStore("user", () => {
     error.value = err
     if (err) {
       clearSession()
-      return
+      return err
     }
     startSession(data)
   }

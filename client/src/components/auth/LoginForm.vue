@@ -1,7 +1,7 @@
 <template>
   <v-form @submit.prevent="submit">
     <v-text-field
-      v-model="formData.identifier"
+      v-model="credentials.identifier"
       name="login"
       label="Account"
       placeholder="Login or email"
@@ -9,26 +9,14 @@
       prepend-inner-icon="mdi-account"
     />
     <PasswordField
-      v-model="formData.password"
+      v-model="credentials.password"
       label="Password"
       name="password"
       prepend-inner-icon="mdi-lock"
     />
-    <!-- <div v-if="errors" class="mb-3 w-100 text-center">
-      <v-alert v-if="errors == 'ConfirmationSent'" type="info" variant="outlined">
-        A new activation link was sent to your email address.
-      </v-alert>
-      <v-alert v-else-if="errors == 'ServerError'" type="error" variant="outlined">
-        An error occurred on the server.
-      </v-alert>
-      <span v-else-if="errors?.reason == 'InvalidCredentials'" class="text-red">
-        Invalid credentials
-      </span>
-      <v-alert v-else-if="errors?.reason == 'Inactive'" type="warning" variant="outlined">
-        Your email was not confirmed yet, please check your inbox<br />
-        or <a href="#" @click="resendConfirmation">request another confirmation link</a> if needed.
-      </v-alert>
-    </div> -->
+    <div v-if="error?.status === 401" class="text-red text-center mb-3">Invalid credentials</div>
+    <div v-else-if="error" class="text-red">An error occurred on the server</div>
+
     <v-btn
       block
       type="submit"
@@ -43,25 +31,26 @@
 </template>
 
 <script setup lang="ts">
-import { UserCredentials } from '@/api'
+import { ErrorModel, UserCredentials } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { useRouteQuery } from '@vueuse/router'
 import { onBeforeMount, reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import PasswordField from '../toolkit/ui/PasswordField.vue'
+import { useToggle } from '@vueuse/core'
 
-const formData: UserCredentials = reactive({
+const credentials: UserCredentials = reactive({
   identifier: '',
   password: ''
 })
 
-const loading = ref(false)
+const error = ref<ErrorModel>()
 
-defineEmits<{ (event: 'sendConfirmation'): void }>()
+const [loading, toggleLoading] = useToggle(false)
 
 const router = useRouter()
-const { getUser, isAuthenticated, login, error } = useUserStore()
-const target = useRouteQuery<string | 'home'>('redirect', '/')
+const target = useRouteQuery<string>('redirect', '/')
+const { isAuthenticated, login } = useUserStore()
 
 onBeforeMount(() => {
   if (isAuthenticated) redirect()
@@ -74,36 +63,14 @@ function redirect() {
 }
 
 async function submit() {
-  loading.value = true
-  await login(formData)
-    .then(() => {
-      if (error !== undefined) {
-        return
-      }
-      redirect()
+  toggleLoading(true)
+  await login(credentials)
+    .then((err) => {
+      error.value = err
+      if (err === undefined) redirect()
     })
-    .finally(() => {
-      loading.value = false
-    })
+    .finally(() => toggleLoading(false))
 }
-
-// function resendConfirmation() {
-//   AccountService.resendEmailConfirmation(state)
-//     .then(() => {
-//       errors.value = 'ConfirmationSent'
-//     })
-//     .catch((err: ApiError) => {
-//       switch (err.status) {
-//         case 400:
-//           errors.value = err.body
-//           break
-
-//         default:
-//           errors.value = 'ServerError'
-//           break
-//       }
-//     })
-// }
 </script>
 
 <style scoped></style>
