@@ -46,7 +46,9 @@ const props = defineProps<{
   users?: boolean | UserRole
 }>()
 
-const allPersons = ref<Person[]>(await fetch())
+const allPersons = ref<Person[]>([])
+
+onMounted(fetch)
 
 async function fetch() {
   loading.value = true
