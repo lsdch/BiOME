@@ -7,10 +7,8 @@ import (
 
 	_ "embed"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/edgedb/edgedb-go"
 	"github.com/goccy/go-yaml"
-	"github.com/sirupsen/logrus"
 )
 
 type HabitatInner struct {
@@ -78,7 +76,6 @@ func InitialHabitatsSetup(db *edgedb.Client) error {
 	if err := yaml.Unmarshal([]byte(habitatsYaml), &input); err != nil {
 		return err
 	}
-	spew.Dump("Habitat inputs: %+v", input)
 	return db.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
 		return ImportHabitats(tx, input)
 	})
@@ -86,8 +83,6 @@ func InitialHabitatsSetup(db *edgedb.Client) error {
 
 func ImportHabitats(tx *edgedb.Tx, habitats []HabitatGroupInput) error {
 	items, _ := json.MarshalIndent(habitats, "", "  ")
-
-	logrus.Infof("%s", items)
 
 	err := tx.Execute(context.Background(),
 		`with module location,

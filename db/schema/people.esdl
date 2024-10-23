@@ -88,7 +88,7 @@ module people {
       annotation description := "Password hashing is done within the database, raw password must be used when creating/updating.";
       rewrite insert, update using (
         if __specified__.password
-        then ext::pgcrypto::crypt(.password, ext::pgcrypto::gen_salt('des'))
+        then ext::pgcrypto::crypt(.password, ext::pgcrypto::gen_salt('bf', 10))
         else .password
       );
     };

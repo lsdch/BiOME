@@ -4,7 +4,6 @@ for item in json_array_unpack(data) union (
     login := <str>item['login'],
     email := <str>item['email'],
     password := <str>item['password'],
-    email_confirmed := true,
     role := <UserRole>item['role'],
     identity := (
       insert Person {
