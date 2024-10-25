@@ -114,7 +114,7 @@ import {
   LMap,
   LTileLayer
 } from '@vue-leaflet/vue-leaflet'
-import { onKeyStroke, useFullscreen, useThrottleFn } from '@vueuse/core'
+import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
 import L, {
   CircleMarkerOptions,
   latLng,
@@ -167,18 +167,14 @@ const props = withDefaults(
 
 const mapBounds = ref(L.latLngBounds(...props.bounds))
 
-defineExpose({ fitBounds })
-
 watch(
   () => props.items,
   (items) => {
     if (props.autoFit && items) fitBounds(items)
-  },
-  { immediate: true }
+  }
 )
 
 function onReady(mapInstance: Map) {
-  console.log('Map ready')
   // nextTick(fitBounds)
   setTimeout(fitBounds, 200)
 }
@@ -187,7 +183,8 @@ function onVisible(visible: boolean) {
   if (visible) fitBounds()
 }
 
-function fitBounds(items: SiteItem[] = props.items ?? []) {
+const fitBounds = useDebounceFn((items: SiteItem[] = props.items ?? []) => {
+  console.log('[Map] Fit bounds')
   const minMaxCoords = items.reduce(
     (
       acc: { sw: LatLngLiteral; ne: LatLngLiteral } | null,
@@ -219,7 +216,9 @@ function fitBounds(items: SiteItem[] = props.items ?? []) {
     minMaxCoords.ne.lng += props.fitPad
     mapBounds.value = latLngBounds(minMaxCoords.sw, minMaxCoords.ne).pad(0.1)
   }
-}
+}, 200)
+
+defineExpose({ fitBounds })
 </script>
 
 <style lang="scss">
