@@ -7,147 +7,90 @@
     </v-row>
   </v-container>
   <v-container v-else-if="dataset" class="fill-height bg-surface align-stretch flex-column" fluid>
-    <v-confirm-edit v-model="dataset">
-      <template v-slot:default="{ model: proxy, save, cancel, isPristine, actions: _ }">
-        <v-row
-          :class="['justify-start align-start flex-wrap flex-grow-0', { 'fill-height': lgAndUp }]"
-        >
-          <v-col cols="12" lg="6" class="align-self-start">
-            <v-text-field
-              v-if="editing"
-              v-model="proxy.value.label"
-              label="Label"
-              v-bind="schema('label')"
-            />
-            <div v-else>
-              <div class="text-h5 d-flex justify-space-between align-center">
-                {{ dataset.label }}
-                <v-btn
-                  v-if="isUserMaintainer"
-                  color="primary"
-                  icon="mdi-pencil"
-                  variant="plain"
-                  @click="toggleEdit(true)"
-                />
-              </div>
-              <v-divider class="my-3" />
-            </div>
+    <v-row :class="['justify-start align-start flex-wrap flex-grow-0', { 'fill-height': lgAndUp }]">
+      <v-col v-if="editing" cols="12" lg="6" class="align-self-start">
+        <DatasetEditForm
+          v-model="dataset"
+          @cancel="toggleEdit(false)"
+          @updated="toggleEdit(false)"
+        />
+      </v-col>
+      <v-col v-else cols="12" lg="6" class="align-self-start">
+        <div class="text-h5 d-flex justify-space-between align-center">
+          {{ dataset.label }}
+          <v-btn
+            v-if="isUserMaintainer"
+            color="primary"
+            icon="mdi-pencil"
+            variant="plain"
+            @click="toggleEdit(true)"
+          />
+        </div>
+        <v-divider class="my-3" />
 
-            <!-- EDIT -->
-            <div v-if="editing">
-              <v-textarea
-                v-model="proxy.value.description"
-                label="Description"
-                variant="outlined"
-                v-bind="schema('description')"
-              />
-              <PersonPicker
-                label="Maintainers"
-                v-model="proxy.value.maintainers"
-                multiple
-                users="Contributor"
-                return-objects
-                v-bind="schema('maintainers')"
-                clearable
-              />
-              <div class="d-flex justify-end">
-                <v-btn
-                  color="primary"
-                  class="mx-3"
-                  @click="
-                    () => {
-                      save()
-                      submit()
-                    }
-                  "
-                  :disabled="isPristine"
-                  text="Save"
-                />
-                <v-btn
-                  color=""
-                  @click="
-                    () => {
-                      cancel()
-                      toggleEdit(false)
-                    }
-                  "
-                  text="Cancel"
-                />
-              </div>
-            </div>
-
-            <!-- SHOW  -->
-            <v-list v-else>
-              <v-list-item
-                title="Description"
-                :subtitle="dataset.description || 'No description'"
-                :class="{ empty: !dataset.description }"
-              />
-              <v-list-item title="Maintainers">
-                <template #subtitle>
-                  <v-chip v-for="(maintainer, key) in dataset.maintainers" :key>
-                    {{ maintainer.full_name }}
-                  </v-chip>
-                </template>
-              </v-list-item>
-            </v-list>
-            <v-divider class="my-3"></v-divider>
-            <div>
-              <v-icon class="mx-2">mdi-map-marker</v-icon>
-              <span class="text-overline"> {{ dataset.sites?.length }} sites </span>
-            </div>
-            <div>
-              <ItemDateChip
-                v-if="dataset.meta?.created"
-                icon="created"
-                :date="dataset.meta.created"
-              />
-              <ItemDateChip
-                v-if="dataset.meta?.modified"
-                icon="updated"
-                :date="dataset.meta.modified"
-              />
-            </div>
-          </v-col>
-          <v-col cols="12" lg="6" class="align-self-stretch flex-grow-1 w-100">
-            <SitesMap :items="dataset.sites ?? undefined" v-if="lgAndUp">
+        <v-list>
+          <v-list-item
+            title="Description"
+            :subtitle="dataset.description || 'No description'"
+            :class="{ empty: !dataset.description }"
+          />
+          <v-list-item title="Maintainers">
+            <template #subtitle>
+              <v-chip v-for="(maintainer, key) in dataset.maintainers" :key>
+                {{ maintainer.full_name }}
+              </v-chip>
+            </template>
+          </v-list-item>
+        </v-list>
+        <v-divider class="my-3"></v-divider>
+        <div>
+          <v-icon class="mx-2">mdi-map-marker</v-icon>
+          <span class="text-overline"> {{ dataset.sites?.length }} sites </span>
+        </div>
+        <div>
+          <ItemDateChip v-if="dataset.meta?.created" icon="created" :date="dataset.meta.created" />
+          <ItemDateChip
+            v-if="dataset.meta?.modified"
+            icon="updated"
+            :date="dataset.meta.modified"
+          />
+        </div>
+      </v-col>
+      <v-col cols="12" lg="6" class="align-self-stretch flex-grow-1 w-100">
+        <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!lgAndUp">
+          <template #="{ isDialog }">
+            <SitesMap
+              :items="dataset.sites ?? undefined"
+              :closable="isDialog"
+              @close="toggleMobileMap(false)"
+            >
               <template #marker="{ item }">
                 <SitePopup :item />
               </template>
             </SitesMap>
-          </v-col>
-        </v-row>
-      </template>
-    </v-confirm-edit>
+          </template>
+        </ResponsiveDialog>
+      </v-col>
+    </v-row>
 
     <v-bottom-navigation :active="!lgAndUp">
-      <v-dialog v-model="mobileMap" fullscreen>
-        <SitesMap :items="dataset.sites ?? undefined" closable @close="toggleMobileMap(false)">
-          <template #marker="{ item }">
-            <SitePopup :item />
-          </template>
-        </SitesMap>
-        <template #activator>
-          <v-btn color="primary" prepend-icon="mdi-map" @click="toggleMobileMap(true)" text="Map" />
-        </template>
-      </v-dialog>
+      <v-btn color="primary" prepend-icon="mdi-map" @click="toggleMobileMap(true)" text="Map" />
     </v-bottom-navigation>
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { $SiteDatasetUpdate, LocationService, SiteDatasetUpdate } from '@/api'
+import { LocationService } from '@/api'
 import SitesMap from '@/components/maps/SitesMap.vue'
-import PersonPicker from '@/components/people/PersonPicker.vue'
 import SitePopup from '@/components/sites/SitePopup.vue'
-import { useSchema } from '@/components/toolkit/forms/form'
 import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
-import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import { useToggle } from '@vueuse/core'
 import { computed, reactive, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
+import DatasetEditForm from './DatasetEditForm.vue'
+import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 
 const { user } = useUserStore()
 
@@ -166,30 +109,9 @@ async function fetch() {
   return await LocationService.getSiteDataset({ path: { slug } })
 }
 
-const { schema, errorHandler } = useSchema($SiteDatasetUpdate)
-
-const { feedback } = useFeedback()
-
 const isUserMaintainer = computed(() => {
   return !!dataset.value?.maintainers?.find(({ id }) => user?.identity.id === id)
 })
-
-async function submit() {
-  if (!dataset.value) return
-  const { label, description } = dataset.value
-  const body: SiteDatasetUpdate = {
-    label,
-    description,
-    maintainers: dataset.value?.maintainers?.map(({ alias }) => alias) || null
-  }
-  await LocationService.updateSiteDataset({ path: { slug }, body })
-    .then(errorHandler)
-    .then((updated) => {
-      dataset.value = updated
-      toggleEdit(false)
-      feedback({ type: 'success', message: 'Updated dataset infos' })
-    })
-}
 </script>
 
 <style lang="scss">
