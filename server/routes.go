@@ -1,6 +1,7 @@
 package main
 
 import (
+	"darco/proto/controllers/events"
 	"darco/proto/controllers/institution"
 	"darco/proto/controllers/location"
 	"darco/proto/controllers/person"
@@ -21,4 +22,5 @@ func registerRoutes(router router.Router) {
 	settings.RegisterRoutes(router)
 	sites.RegisterRoutes(router)
 	sites.RegisterDatasetRoutes(router)
+	events.RegisterRoutes(router)
 }

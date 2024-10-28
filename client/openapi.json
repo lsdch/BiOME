@@ -1413,6 +1413,51 @@
 				],
 				"type": "object"
 			},
+			"PersonInner": {
+				"additionalProperties": false,
+				"properties": {
+					"alias": {
+						"type": "string"
+					},
+					"comment": {
+						"type": "string"
+					},
+					"contact": {
+						"format": "email",
+						"type": "string"
+					},
+					"first_name": {
+						"maxLength": 32,
+						"minLength": 2,
+						"type": "string"
+					},
+					"full_name": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"last_name": {
+						"maxLength": 32,
+						"minLength": 2,
+						"type": "string"
+					},
+					"role": {
+						"$ref": "#/components/schemas/UserRole"
+					}
+				},
+				"required": [
+					"id",
+					"full_name",
+					"alias",
+					"contact",
+					"comment",
+					"first_name",
+					"last_name"
+				],
+				"type": "object"
+			},
 			"PersonInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -1551,6 +1596,154 @@
 					"comment",
 					"first_name",
 					"last_name"
+				],
+				"type": "object"
+			},
+			"Program": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Program.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"end_year": {
+						"examples": [
+							2025
+						],
+						"format": "int64",
+						"type": "integer"
+					},
+					"funding_agencies": {
+						"items": {
+							"$ref": "#/components/schemas/InstitutionInner"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"managers": {
+						"items": {
+							"$ref": "#/components/schemas/PersonInner"
+						},
+						"minItems": 1,
+						"type": "array"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"start_year": {
+						"examples": [
+							2019
+						],
+						"format": "int64",
+						"minimum": 1900,
+						"type": "integer"
+					}
+				},
+				"required": [
+					"id",
+					"label",
+					"code",
+					"managers",
+					"funding_agencies",
+					"start_year",
+					"end_year",
+					"description",
+					"meta"
+				],
+				"type": "object"
+			},
+			"ProgramInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ProgramInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"examples": [
+							"PHD_ALICE"
+						],
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"end_year": {
+						"examples": [
+							2025
+						],
+						"format": "int32",
+						"type": "integer"
+					},
+					"funding_agencies": {
+						"examples": [
+							[
+								"CNRS"
+							]
+						],
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"label": {
+						"examples": [
+							"Alice's PhD"
+						],
+						"type": "string"
+					},
+					"managers": {
+						"examples": [
+							[
+								"adoe",
+								"fmalard"
+							]
+						],
+						"items": {
+							"type": "string"
+						},
+						"minItems": 1,
+						"type": "array"
+					},
+					"start_year": {
+						"examples": [
+							2022
+						],
+						"format": "int32",
+						"minimum": 1900,
+						"type": "integer"
+					}
+				},
+				"required": [
+					"label",
+					"code",
+					"managers",
+					"funding_agencies",
+					"start_year",
+					"end_year",
+					"description"
 				],
 				"type": "object"
 			},
@@ -2844,7 +3037,7 @@
 			"email": "louis.duchemin@univ-lyon1.fr",
 			"name": "Louis Duchemin"
 		},
-		"description": " API",
+		"description": "DarCo API",
 		"title": "DarCo API",
 		"version": "1.0"
 	},
@@ -5464,6 +5657,147 @@
 				"tags": [
 					"People",
 					"Person"
+				]
+			}
+		},
+		"/programs": {
+			"get": {
+				"operationId": "ListPrograms",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Program"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List programs",
+				"tags": [
+					"Events"
+				]
+			},
+			"post": {
+				"operationId": "CreateProgram",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ProgramInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Program"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create program",
+				"tags": [
+					"Events"
 				]
 			}
 		},

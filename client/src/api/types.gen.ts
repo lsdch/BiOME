@@ -509,6 +509,17 @@ export type Person = {
     user: OptionalUserInner;
 };
 
+export type PersonInner = {
+    alias: string;
+    comment: string;
+    contact: string;
+    first_name: string;
+    full_name: string;
+    id: string;
+    last_name: string;
+    role?: UserRole;
+};
+
 export type PersonInput = {
     /**
      * A URL to the JSON Schema for this object.
@@ -545,6 +556,36 @@ export type PersonUser = {
     last_name: string;
     role?: UserRole;
     user: OptionalUserInner;
+};
+
+export type Program = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code: string;
+    description: string;
+    end_year: number;
+    funding_agencies: Array<InstitutionInner>;
+    id: string;
+    label: string;
+    managers: Array<PersonInner>;
+    meta: Meta;
+    start_year: number;
+};
+
+export type ProgramInput = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code: string;
+    description: string;
+    end_year: number;
+    funding_agencies: Array<(string)>;
+    label: string;
+    managers: Array<(string)>;
+    start_year: number;
 };
 
 export type RefreshTokenBody = {
@@ -1470,6 +1511,33 @@ export type InvitePersonData = {
 export type InvitePersonResponse = (InvitationLink);
 
 export type InvitePersonError = (ErrorModel);
+
+export type ListProgramsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListProgramsResponse = (Array<Program>);
+
+export type ListProgramsError = (ErrorModel);
+
+export type CreateProgramData = {
+    body: ProgramInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateProgramResponse = (Program);
+
+export type CreateProgramError = (ErrorModel);
 
 export type EmailSettingsData = {
     headers?: {

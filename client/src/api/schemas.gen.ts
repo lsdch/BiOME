@@ -1144,6 +1144,44 @@ export const $Person = {
     type: 'object'
 } as const;
 
+export const $PersonInner = {
+    additionalProperties: false,
+    properties: {
+        alias: {
+            type: 'string'
+        },
+        comment: {
+            type: 'string'
+        },
+        contact: {
+            format: 'email',
+            type: 'string'
+        },
+        first_name: {
+            maxLength: 32,
+            minLength: 2,
+            type: 'string'
+        },
+        full_name: {
+            type: 'string'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        last_name: {
+            maxLength: 32,
+            minLength: 2,
+            type: 'string'
+        },
+        role: {
+            '$ref': '#/components/schemas/UserRole'
+        }
+    },
+    required: ['id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
+    type: 'object'
+} as const;
+
 export const $PersonInput = {
     additionalProperties: false,
     properties: {
@@ -1262,6 +1300,112 @@ export const $PersonUser = {
         }
     },
     required: ['user', 'id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
+    type: 'object'
+} as const;
+
+export const $Program = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Program.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        end_year: {
+            examples: [2025],
+            format: 'int64',
+            type: 'integer'
+        },
+        funding_agencies: {
+            items: {
+                '$ref': '#/components/schemas/InstitutionInner'
+            },
+            type: 'array'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        label: {
+            type: 'string'
+        },
+        managers: {
+            items: {
+                '$ref': '#/components/schemas/PersonInner'
+            },
+            minItems: 1,
+            type: 'array'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        start_year: {
+            examples: [2019],
+            format: 'int64',
+            minimum: 1900,
+            type: 'integer'
+        }
+    },
+    required: ['id', 'label', 'code', 'managers', 'funding_agencies', 'start_year', 'end_year', 'description', 'meta'],
+    type: 'object'
+} as const;
+
+export const $ProgramInput = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/ProgramInput.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            examples: ['PHD_ALICE'],
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        end_year: {
+            examples: [2025],
+            format: 'int32',
+            type: 'integer'
+        },
+        funding_agencies: {
+            examples: [['CNRS']],
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        label: {
+            examples: ["Alice's PhD"],
+            type: 'string'
+        },
+        managers: {
+            items: {
+                type: 'string'
+            },
+            minItems: 1,
+            type: 'array'
+        },
+        start_year: {
+            examples: [2022],
+            format: 'int32',
+            minimum: 1900,
+            type: 'integer'
+        }
+    },
+    required: ['label', 'code', 'managers', 'funding_agencies', 'start_year', 'end_year', 'description'],
     type: 'object'
 } as const;
 

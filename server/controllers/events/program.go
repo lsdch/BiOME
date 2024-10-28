@@ -1,0 +1,34 @@
+package events
+
+import (
+	"darco/proto/controllers"
+	"darco/proto/models/events"
+	"darco/proto/resolvers"
+	"darco/proto/router"
+	"net/http"
+
+	"github.com/danielgtaylor/huma/v2"
+)
+
+func registerProgramRoutes(r router.Router) {
+	programsAPI := r.RouteGroup("/programs").
+		WithTags([]string{"Events"})
+
+	router.Register(programsAPI, "ListPrograms",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodGet,
+			Summary: "List programs",
+		},
+		controllers.ListHandler[*struct {
+			resolvers.AuthResolver
+		}](events.ListPrograms))
+
+	router.Register(programsAPI, "CreateProgram",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodPost,
+			Summary: "Create program",
+		},
+		controllers.CreateHandler[events.ProgramInput, events.Program])
+}
