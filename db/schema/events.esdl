@@ -1,4 +1,4 @@
-module event {
+module events {
 
   type Program extending default::Auditable {
     required label: str { constraint exclusive };
@@ -7,10 +7,10 @@ module event {
     required multi managers: people::Person;
     multi funding_agencies: people::Institution;
 
-    start_year: int16 {
+    start_year: int32 {
       constraint min_value(1900);
     };
-    end_year: int16;
+    end_year: int32;
     constraint expression on (.start_year <= .end_year);
 
     description: str;

@@ -12,7 +12,7 @@ module occurrence {
   }
 
   abstract type Occurrence extending default::Auditable {
-    required sampling: event::Sampling;
+    required sampling: events::Sampling;
     required identification: Identification {
       constraint exclusive;
       on source delete delete target;

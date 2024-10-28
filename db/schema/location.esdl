@@ -93,7 +93,7 @@ module location {
 
     access_point: str;
 
-    multi link events := .<site[is event::Event];
+    multi link events := .<site[is events::Event];
     multi datasets := .<sites[is SiteDataset];
 
     imported_in: SiteDataset {
