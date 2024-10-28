@@ -1,10 +1,10 @@
 <template>
-  <v-progress-linear v-if="loading" indeterminate />
   <TableToolbar title="Datasets" icon="mdi-folder-table">
     <template #search>
       <v-inline-search-bar label="Search" v-model="search" />
     </template>
   </TableToolbar>
+  <v-progress-linear v-if="loading" indeterminate />
   <v-container fluid>
     <v-row>
       <v-col v-if="!filteredDatasets?.length" class="text-center">No datasets to display</v-col>
@@ -19,9 +19,10 @@
 import { ErrorModel, LocationService } from '@/api'
 import DatasetCard from '@/components/datasets/DatasetCard.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
+import { useToggle } from '@vueuse/core'
 import { computed, ref } from 'vue'
 
-const loading = ref(true)
+const [loading, toggleLoading] = useToggle(true)
 const datasets = ref(await fetch())
 const error = ref<ErrorModel>()
 
@@ -33,8 +34,9 @@ const filteredDatasets = computed(() => {
 
 async function fetch() {
   loading.value = true
-  const { data, error: err } = await LocationService.listSiteDatasets()
-  loading.value = false
+  const { data, error: err } = await LocationService.listSiteDatasets().finally(() =>
+    toggleLoading(false)
+  )
   if (err !== undefined) {
     error.value = err
     return undefined

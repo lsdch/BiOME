@@ -1,68 +1,27 @@
 <template>
-  <v-dialog
-    persistent
-    scrollable
-    v-model="dialog"
-    v-bind="$attrs"
-    :max-width="maxWidth ?? 1000"
-    :fullscreen="fullscreen ?? xs"
-  >
-    <!-- Expose activator slot -->
-    <template #activator="slotData">
-      <slot name="activator" v-bind="slotData"></slot>
+  <CardDialog v-model="dialog" v-bind="props">
+    <template #append>
+      <v-btn
+        color="primary"
+        type="submit"
+        @click="emit('submit')"
+        :loading="loading"
+        :text="btnText"
+      />
     </template>
-
-    <v-card flat :rounded="false">
-      <v-toolbar dark dense flat class="position-sticky">
-        <v-toolbar-title class="font-weight-bold"> {{ title }} </v-toolbar-title>
-        <template #append>
-          <v-btn
-            color="primary"
-            type="submit"
-            @click="emit('submit')"
-            :loading="loading"
-            :text="btnText"
-          />
-          <v-btn color="grey" @click="close" text="Cancel" />
-        </template>
-      </v-toolbar>
-      <v-card-text>
-        <!-- Default form slot -->
-        <slot></slot>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
+  </CardDialog>
 </template>
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
-import { onBeforeMount, useSlots } from 'vue'
-import { useDisplay } from 'vuetify'
-import { VDialog } from 'vuetify/components'
+import CardDialog, { CardDialogProps } from './CardDialog.vue'
 
-const { xs } = useDisplay()
 const dialog = defineModel<boolean>({ default: false })
 
-const emit = defineEmits<{ submit: []; close: [] }>()
+const emit = defineEmits<{ submit: [] }>()
 
-withDefaults(
-  defineProps<{
-    title: string
-    loading?: boolean
-    fullscreen?: boolean
-    maxWidth?: number
-    btnText?: string
-  }>(),
-  { btnText: 'Submit' }
-)
-
-function close() {
-  dialog.value = false
-  emit('close')
-}
-
-const slots = useSlots()
-onBeforeMount(() => {
-  if (!slots.default) console.error('No content provided in FormDialog slot.')
+const props = withDefaults(defineProps<CardDialogProps & { btnText?: string }>(), {
+  btnText: 'Submit',
+  closeText: 'Cancel'
 })
 </script>
 

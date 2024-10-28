@@ -59,15 +59,17 @@
       <v-col cols="12" lg="6" class="align-self-stretch flex-grow-1 w-100">
         <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!lgAndUp">
           <template #="{ isDialog }">
-            <SitesMap
-              :items="dataset.sites ?? undefined"
-              :closable="isDialog"
-              @close="toggleMobileMap(false)"
-            >
-              <template #marker="{ item }">
-                <SitePopup :item />
-              </template>
-            </SitesMap>
+            <v-card class="fill-height" :rounded="!mobileMap">
+              <SitesMap
+                :items="dataset.sites ?? undefined"
+                :closable="isDialog"
+                @close="toggleMobileMap(false)"
+              >
+                <template #marker="{ item }">
+                  <SitePopup :item />
+                </template>
+              </SitesMap>
+            </v-card>
           </template>
         </ResponsiveDialog>
       </v-col>
