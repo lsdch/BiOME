@@ -1,5 +1,10 @@
 <template>
-  <div ref="map" class="fill-height" v-element-visibility="onVisible">
+  <div
+    ref="map"
+    class="fill-height"
+    v-element-visibility="onVisible"
+    @mouseleave="cursorCoordinates = undefined"
+  >
     <l-map
       v-model:zoom="zoom"
       v-bind="$attrs"
@@ -11,6 +16,11 @@
       :min-zoom="2"
       :max-zoom="18"
       @ready="onReady"
+      @mousemove="
+        ({ latlng }: LeafletMouseEvent) => {
+          cursorCoordinates = latlng
+        }
+      "
       :options="{
         gestureHandling: true,
         worldCopyJump: true,
@@ -19,6 +29,13 @@
       }"
     >
       <LControlScale position="bottomright" metric :imperial="false" />
+      <LControl position="bottomright">
+        <code v-if="cursorCoordinates">
+          <div>Lat: {{ cursorCoordinates.lat.toFixed(5) }}</div>
+          <div>Lng: {{ cursorCoordinates.lng.toFixed(5) }}</div>
+        </code>
+      </LControl>
+
       <LControl position="topright" class="ma-0 d-flex justify-end">
         <v-btn
           v-if="closable"
@@ -121,7 +138,8 @@ import L, {
   latLngBounds,
   LatLngExpression,
   LatLngLiteral,
-  type Map
+  type Map,
+  type LeafletMouseEvent
 } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 import { ref, watch } from 'vue'
@@ -132,6 +150,8 @@ import { vElementVisibility } from '@vueuse/components'
 
 const zoom = ref(1)
 const map = ref<HTMLElement>()
+
+const cursorCoordinates = ref<LatLngLiteral>()
 
 const { isFullscreen, enter, exit, toggle } = useFullscreen(map, {})
 onKeyStroke('Escape', exit)
