@@ -16,25 +16,16 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-autocomplete
+            <InstitutionPicker
               label="Institutions (optional)"
               v-model="model.institutions"
-              :items="institutions"
               item-color="primary"
               chips
               closable-chips
               multiple
-              :item-props="({ code, name }: Institution) => ({ title: code, subtitle: name })"
               item-value="code"
               v-bind="field('institutions')"
-              prepend-inner-icon="mdi-domain"
-            >
-              <template v-slot:chip="{ item, props }">
-                <InstitutionKindChip :kind="item.raw.kind" v-bind="props" size="x-small">
-                  {{ item.raw.code }}
-                </InstitutionKindChip>
-              </template>
-            </v-autocomplete>
+            />
           </v-col>
         </v-row>
         <v-row>
@@ -61,13 +52,12 @@ const DEFAULT: PersonInput = {
 </script>
 
 <script setup lang="ts">
-import { $PersonInput, Institution, PeopleService, Person, PersonInput } from '@/api'
-import { handleErrors } from '@/api/responses'
+import { $PersonInput, PeopleService, Person, PersonInput } from '@/api'
 import { FormEmits, FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
 import { ref } from 'vue'
 import { VForm } from 'vuetify/components'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import InstitutionKindChip from './InstitutionKindChip.vue'
+import InstitutionPicker from './InstitutionPicker.vue'
 import PersonFormFields from './PersonFormFields.vue'
 
 const dialog = defineModel<boolean>()
@@ -86,15 +76,6 @@ const nameBindings = ref({
   firstName: field('first_name'),
   lastName: field('last_name')
 })
-
-/**
- * List of known institutions from the DB
- */
-const institutions = ref<Institution[]>(
-  await PeopleService.listInstitutions().then(
-    handleErrors((err) => console.error('Failed to fetch institutions: ', err))
-  )
-)
 
 async function submit() {
   const data = model.value
