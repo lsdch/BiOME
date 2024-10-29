@@ -59,7 +59,7 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodPatch,
 			Summary: "Update taxon",
 			Errors:  []int{http.StatusBadRequest, http.StatusUnauthorized, http.StatusNotFound},
-		}, controllers.UpdateByCodeHandler[taxonomy.TaxonUpdate](taxonomy.FindByID))
+		}, controllers.UpdateByCodeHandler[taxonomy.TaxonUpdate])
 
 	router.Register(taxaAPI, "DeleteTaxon",
 		huma.Operation{

@@ -96,13 +96,13 @@ type HabitatGroupUpdate struct {
 // 	return &s
 // }
 
-func (u HabitatGroupUpdate) Update(e edgedb.Executor, label string) (id edgedb.UUID, err error) {
+func (u HabitatGroupUpdate) Update(e edgedb.Executor, label string) (updated HabitatGroup, err error) {
 	data, _ := json.Marshal(u)
-	query := db.UpdateQuery[HabitatGroupUpdate, string, edgedb.UUID]{
+	query := db.UpdateQuery{
 		Frame: `with item := <json>$1,
 		select (update location::HabitatGroup filter .label = <str>$0 set {
 			%s
-		}).id`,
+		}) { **, elements := habitats {*} }`,
 		Mappings: map[string]string{
 			"depends":   "(select location::Habitat filter .label = <str>item['depends'])",
 			"label":     "<str>item['label']",
@@ -111,6 +111,7 @@ func (u HabitatGroupUpdate) Update(e edgedb.Executor, label string) (id edgedb.U
 	}
 	logrus.Infof("Value: %+v", u)
 	logrus.Infof("Query: %v", query.Query(u))
-	err = e.QuerySingle(context.Background(), query.Query(u), &id, label, data)
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, label, data)
+	updated.Meta.Update(e)
 	return
 }

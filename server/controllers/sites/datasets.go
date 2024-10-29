@@ -57,13 +57,13 @@ func RegisterDatasetRoutes(r router.Router) {
 			Method:      http.MethodPatch,
 			Summary:     "Update site dataset",
 			Description: "Update properties of a site dataset",
-		}, controllers.UpdateHandler[*UpdateSiteDatasetInput](location.FindDataset))
+		}, controllers.UpdateHandler[*UpdateSiteDatasetInput])
 }
 
 type UpdateSiteDatasetInput struct {
 	resolvers.AuthRequired
 	Slug string `path:"slug"`
-	controllers.UpdateInput[location.SiteDatasetUpdate, string, string]
+	controllers.UpdateInput[location.SiteDatasetUpdate, string, location.SiteDataset]
 }
 
 func (u UpdateSiteDatasetInput) Identifier() string {

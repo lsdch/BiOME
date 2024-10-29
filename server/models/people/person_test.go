@@ -59,11 +59,9 @@ func TestPerson(t *testing.T) {
 		u := tests.FakeData[people.PersonUpdate](t)
 		u.FirstName.IsSet = true
 		json, _ := json.Marshal(u)
-		id, err := u.Update(client, p.ID)
+		updated, err := u.Update(client, p.ID)
 		require.NoErrorf(t, err, "%s", json)
-		assert.Equal(t, p.ID, id)
-		p, err = people.FindPerson(client, p.ID)
-		require.NoError(t, err)
-		assert.Equal(t, p.FirstName, u.FirstName.Value)
+		assert.Equal(t, p.ID, updated.ID)
+		assert.Equal(t, u.FirstName.Value, updated.FirstName)
 	})
 }

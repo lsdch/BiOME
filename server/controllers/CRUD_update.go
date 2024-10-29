@@ -4,20 +4,19 @@ import (
 	"context"
 	"darco/proto/models"
 	"darco/proto/resolvers"
-	"darco/proto/router"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
-type UpdateInputInterface[Item models.Updatable[ID, UpdatedID], ID any, UpdatedID any] interface {
+type UpdateInputInterface[Item models.Updatable[ID, Updated], ID any, Updated any] interface {
 	resolvers.AuthDBProvider
 	IdentifierInput[ID] // The identifier of the item to update
 	Item() Item         // The update payload
 }
 
-type UpdateInput[Item models.Updatable[ID, UpdatedID], ID any, UpdatedID any] struct {
+type UpdateInput[Item models.Updatable[ID, Updated], ID any, Updated any] struct {
 	Body Item
 }
 
@@ -42,51 +41,30 @@ type UpdateHandlerOutput[Updated any] struct {
 }
 
 func UpdateHandler[
-	OperationInput UpdateInputInterface[Item, ID, UpdatedID],
-	Item models.Updatable[ID, UpdatedID],
+	OperationInput UpdateInputInterface[Item, ID, Updated],
+	Item models.Updatable[ID, Updated],
 	ID any,
-	UpdatedID any,
 	Updated any,
-](
-	find models.ItemFinder[UpdatedID, Updated],
-) func(context.Context, OperationInput) (*UpdateHandlerOutput[Updated], error) {
-	return func(ctx context.Context, input OperationInput) (*UpdateHandlerOutput[Updated], error) {
-		uuid, err := input.Item().Update(
-			input.DB(),
-			input.Identifier(),
-		)
-		if err != nil {
-			logrus.Errorf("Item update failed: %+v", err)
-			return nil, huma.Error500InternalServerError("Item update failed", err)
-		}
-
-		updated, err := find(input.DB(), uuid)
-		if err != nil {
-			logrus.Errorf("Failed to retrieve updated item: %v", err)
-			return nil, huma.Error500InternalServerError("Failed to retrieve updated item", err)
-		}
-
-		logrus.Infof("Item updated: %+v", updated)
-		return &UpdateHandlerOutput[Updated]{Body: updated}, nil
+](ctx context.Context, input OperationInput) (*UpdateHandlerOutput[Updated], error) {
+	updated, err := input.Item().Update(
+		input.DB(),
+		input.Identifier(),
+	)
+	if err != nil {
+		logrus.Errorf("Item update failed: %+v", err)
+		return nil, huma.Error500InternalServerError("Item update failed", err)
 	}
+
+	logrus.Infof("Item updated: %+v", updated)
+	return &UpdateHandlerOutput[Updated]{Body: updated}, nil
 }
 
-func UpdateByIDHandler[Item models.Updatable[edgedb.UUID, UpdatedID], Updated any, UpdatedID any](
-	find models.ItemFinder[UpdatedID, Updated],
-) router.Endpoint[
-	UpdateByIDHandlerInput[Item, UpdatedID],
-	UpdateHandlerOutput[Updated],
-] {
-	return UpdateHandler[*UpdateByIDHandlerInput[Item, UpdatedID]](find)
+func UpdateByIDHandler[Item models.Updatable[edgedb.UUID, Updated], Updated any](ctx context.Context, input *UpdateByIDHandlerInput[Item, Updated]) (*UpdateHandlerOutput[Updated], error) {
+	return UpdateHandler(ctx, input)
 }
 
-func UpdateByCodeHandler[Item models.Updatable[string, UpdatedID], Updated any, UpdatedID any](
-	find models.ItemFinder[UpdatedID, Updated],
-) router.Endpoint[
-	UpdateByCodeHandlerInput[Item, UpdatedID],
-	UpdateHandlerOutput[Updated],
-] {
-	return UpdateHandler[*UpdateByCodeHandlerInput[Item, UpdatedID]](find)
+func UpdateByCodeHandler[Item models.Updatable[string, Updated], Updated any](ctx context.Context, input *UpdateByCodeHandlerInput[Item, Updated]) (*UpdateHandlerOutput[Updated], error) {
+	return UpdateHandler(ctx, input)
 }
 
 // Implementation assertions

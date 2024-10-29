@@ -419,6 +419,10 @@ export type OptionalPerson = {
 };
 
 export type OptionalTaxon = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
     GBIF_ID?: number;
     anchor: boolean;
     authorship?: string;
@@ -586,6 +590,20 @@ export type ProgramInput = {
     label: string;
     managers: Array<(string)>;
     start_year?: number;
+};
+
+export type ProgramUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code?: string;
+    description?: (string) | null;
+    end_year?: (number) | null;
+    funding_agencies?: Array<(string)> | null;
+    label?: string;
+    managers?: Array<(string)> | null;
+    start_year?: (number) | null;
 };
 
 export type RefreshTokenBody = {
@@ -791,6 +809,10 @@ export type SiteUpdate = {
 };
 
 export type Taxon = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
     GBIF_ID?: number;
     anchor: boolean;
     authorship?: string;
@@ -1539,6 +1561,23 @@ export type CreateProgramResponse = (Program);
 
 export type CreateProgramError = (ErrorModel);
 
+export type UpdateProgramData = {
+    body: ProgramUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateProgramResponse = (Program);
+
+export type UpdateProgramError = (ErrorModel);
+
 export type EmailSettingsData = {
     headers?: {
         /**
@@ -1729,6 +1768,6 @@ export type UpdateTaxonData = {
     };
 };
 
-export type UpdateTaxonResponse = (TaxonWithLineage);
+export type UpdateTaxonResponse = (Taxon);
 
 export type UpdateTaxonError = (ErrorModel);

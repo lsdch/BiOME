@@ -2,10 +2,12 @@ package taxonomy
 
 import (
 	"context"
+	"darco/proto/db"
 	"darco/proto/models"
 	"darco/proto/models/people"
 	_ "embed"
 	"encoding/json"
+	"fmt"
 	"slices"
 	"strconv"
 	"strings"
@@ -194,9 +196,7 @@ func ListTaxa(db edgedb.Executor, filters ListFilters) ([]TaxonWithParentRef, er
 	return taxa, err
 }
 
-func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonWithLineage, err error) {
-	query := `
-		select taxonomy::Taxon { *,
+const TAXON_LINEAGE_SHAPE = `{ *,
 			meta: { * },
 			parent : { *, meta: { * } },
 			children : { *, meta: { * } },
@@ -207,29 +207,20 @@ func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonWithLineage, err e
 			family: { *, meta: { * } },
 			genus: { *, meta: { * } },
 			species: { *, meta: { * } },
-		}
-		filter .id = <uuid>$0;
-	`
+		}`
+
+func FindByID(db edgedb.Executor, id edgedb.UUID) (taxon TaxonWithLineage, err error) {
+	query := fmt.Sprintf(
+		`select taxonomy::Taxon %s filter .id = <uuid>$0;`,
+		TAXON_LINEAGE_SHAPE)
 	err = db.QuerySingle(context.Background(), query, &taxon, id)
 	return taxon, err
 }
 
 func FindByCode(db edgedb.Executor, code string) (taxon TaxonWithLineage, err error) {
-	query := `
-		select taxonomy::Taxon { *,
-			meta : { * },
-			parent : { *, meta: { * } },
-			children : { *, meta: { * } },
-			kingdom: { *, meta: { * } },
-			phylum: { *, meta: { * } },
-			class: { *, meta: { * } },
-			order: { *, meta: { * } },
-			family: { *, meta: { * } },
-			genus: { *, meta: { * } },
-			species: { *, meta: { * } },
-		}
-		filter .code = <str>$0;
-	`
+	query := fmt.Sprintf(
+		`select taxonomy::Taxon %s filter .code = <str>$0;`,
+		TAXON_LINEAGE_SHAPE)
 	err = db.QuerySingle(context.Background(), query, &taxon, code)
 	return taxon, err
 }
@@ -260,11 +251,24 @@ type TaxonUpdate struct {
 	Parent     models.OptionalInput[string]      `json:"parent,omitempty"` // parent code
 }
 
-//go:embed queries/update_taxon.edgeql
-var updateTaxonCmd string
-
-func (taxon TaxonUpdate) Update(db edgedb.Executor, code string) (uuid edgedb.UUID, err error) {
-	args, _ := json.Marshal(taxon)
-	err = db.QuerySingle(context.Background(), updateTaxonCmd, &uuid, code, args)
-	return uuid, err
+func (u TaxonUpdate) Update(e edgedb.Executor, code string) (updated Taxon, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: fmt.Sprintf(`with item := <json>$1,
+		select (update taxonomy::Taxon filter .code = <str>$0 set {
+			%s
+		}) %s`, "%s", TAXON_LINEAGE_SHAPE),
+		Mappings: map[string]string{
+			"name":       "<str>item['name']",
+			"code":       "<str>item['code']",
+			"status":     "<taxonomy::TaxonStatus>item['status']",
+			"rank":       "<taxonomy::Rank>item['rank']",
+			"authorship": "<str>item['authorship']",
+			"parent": `(
+				select detached taxonomy::Taxon filter .code = <str>item['parent']
+			)`,
+		},
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
+	return
 }

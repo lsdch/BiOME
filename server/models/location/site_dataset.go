@@ -210,13 +210,13 @@ type SiteDatasetUpdate struct {
 	Maintainers models.OptionalInput[DatasetMaintainers] `json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
 
-func (u SiteDatasetUpdate) Update(e edgedb.Executor, slug string) (new_slug string, err error) {
+func (u SiteDatasetUpdate) Update(e edgedb.Executor, slug string) (updated SiteDataset, err error) {
 	data, _ := json.Marshal(u)
-	query := db.UpdateQuery[SiteDatasetUpdate, string, string]{
+	query := db.UpdateQuery{
 		Frame: `with item := <json>$1,
 		select (update location::SiteDataset filter .slug = <str>$0 set {
 			%s
-		}).slug`,
+		}) { **, sites: {*, country: { * }}}`,
 		Mappings: map[string]string{
 			"label":       "<str>item['label']",
 			"description": "<str>item['description']",
@@ -226,6 +226,7 @@ func (u SiteDatasetUpdate) Update(e edgedb.Executor, slug string) (new_slug stri
 			`,
 		},
 	}
-	err = e.QuerySingle(context.Background(), query.Query(u), &new_slug, slug, data)
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, slug, data)
+	updated.Meta.Update(e)
 	return
 }

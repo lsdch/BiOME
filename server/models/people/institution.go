@@ -77,14 +77,14 @@ type InstitutionUpdate struct {
 	Kind        models.OptionalNull[InstitutionKind] `json:"kind,omitempty" example:"Lab"`
 }
 
-func (inst InstitutionUpdate) Update(e edgedb.Executor, code string) (id edgedb.UUID, err error) {
+func (inst InstitutionUpdate) Update(e edgedb.Executor, code string) (updated Institution, err error) {
 
-	query := db.UpdateQuery[InstitutionUpdate, string, edgedb.UUID]{
+	query := db.UpdateQuery{
 		Frame: `with module people, data := <json>$1
-			select(update Institution filter .code = <str>$0
-			set {
-				%s
-			}).id`,
+			select(
+				update Institution filter .code = <str>$0 set {
+					%s
+				}) { *, people:{ *, user: { * } }, meta:{ * } }`,
 		Mappings: map[string]string{
 			"name":        "<str>data['name']",
 			"code":        "<str>data['code']",
@@ -94,6 +94,7 @@ func (inst InstitutionUpdate) Update(e edgedb.Executor, code string) (id edgedb.
 	}
 	args, _ := json.Marshal(inst)
 	logrus.Debugf("Updating institution %s with %+v", code, inst)
-	err = e.QuerySingle(context.Background(), query.Query(inst), &id, code, args)
+	err = e.QuerySingle(context.Background(), query.Query(inst), &updated, code, args)
+	updated.Meta.Update(e)
 	return
 }

@@ -10,10 +10,8 @@ type Creatable[CreatedItem any] interface {
 }
 
 // Updatable items can be updated in the database
-type Updatable[ID any, UpdatedID any] interface {
-	// Returning [edgedb.UUID] because of a bug in edgedb
-	// which do not return up-to-date items after `select (update ... )` statement
-	Update(db edgedb.Executor, id ID) (UpdatedID, error)
+type Updatable[ID any, Updated any] interface {
+	Update(db edgedb.Executor, id ID) (Updated, error)
 }
 
 // ItemFinder functions fetch an item from the database using an identifier having a generic type

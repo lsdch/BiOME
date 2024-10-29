@@ -40,7 +40,7 @@ type Person struct {
 	PersonUser   `edgedb:"$inline" json:",inline"`
 	Institutions []InstitutionInner `json:"institutions" edgedb:"institutions"`
 	Meta         Meta               `json:"meta" edgedb:"meta"`
-} // @name Person
+}
 
 type OptionalPerson struct {
 	edgedb.Optional
@@ -121,18 +121,32 @@ func (person PersonInput) Create(db edgedb.Executor) (created Person, err error)
 type PersonUpdate struct {
 	FirstName    models.OptionalInput[string]   `json:"first_name,omitempty" minLength:"2" maxLength:"32"`
 	LastName     models.OptionalInput[string]   `json:"last_name,omitempty" minLength:"2" maxLength:"32"`
-	Contact      models.OptionalNull[string]    `json:"contact,omitempty" binding:"omitnil,nullemail" `
-	Institutions models.OptionalInput[[]string] `json:"institutions,omitempty" binding:"omitnil,exist_all=people::Institution.code" fakesize:"3"` // Institution codes
-	Alias        models.OptionalInput[string]   `json:"alias,omitempty" binding:"omitnil,min=3"`
-	Comment      models.OptionalNull[string]    `json:"comment,omitempty" binding:"omitnil"`
+	Contact      models.OptionalNull[string]    `json:"contact,omitempty" `
+	Institutions models.OptionalInput[[]string] `json:"institutions,omitempty" fakesize:"3"` // Institution codes
+	Alias        models.OptionalInput[string]   `json:"alias,omitempty"`
+	Comment      models.OptionalNull[string]    `json:"comment,omitempty"`
 }
 
-//go:embed queries/update_person.edgeql
-var personUpdateQuery string
-
-func (person PersonUpdate) Update(db edgedb.Executor, id edgedb.UUID) (uuid edgedb.UUID, err error) {
-	logrus.Infof("Updating person %+v", person)
-	args, _ := json.Marshal(person)
-	err = db.Execute(context.Background(), personUpdateQuery, id, args)
-	return id, err
+func (u PersonUpdate) Update(e edgedb.Executor, id edgedb.UUID) (updated Person, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: `with item := <json>$1,
+		select (update people::Person filter .id = <uuid>$0 set {
+			%s
+		}) { ** }`,
+		Mappings: map[string]string{
+			"first_name": "<str>item['first_name']",
+			"last_name":  "<str>item['last_name']",
+			"contact":    "<str>item['contact']",
+			"alias":      "<str>item['alias']",
+			"comment":    "<str>item['comment']",
+			"institutions": `(
+				select people::Institution
+				filter .code in array_unpack(<array<str>>item['institutions'])
+			)`,
+		},
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, id, data)
+	updated.Meta.Update(e)
+	return
 }

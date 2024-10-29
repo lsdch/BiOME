@@ -1099,6 +1099,15 @@
 			"OptionalTaxon": {
 				"additionalProperties": false,
 				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Taxon.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
 					"GBIF_ID": {
 						"examples": [
 							2206247
@@ -1740,6 +1749,90 @@
 				],
 				"type": "object"
 			},
+			"ProgramUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ProgramUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"examples": [
+							"PHD_ALICE"
+						],
+						"type": "string"
+					},
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"end_year": {
+						"examples": [
+							2025
+						],
+						"format": "int32",
+						"type": [
+							"integer",
+							"null"
+						]
+					},
+					"funding_agencies": {
+						"examples": [
+							[
+								"CNRS"
+							]
+						],
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"label": {
+						"examples": [
+							"Alice's PhD"
+						],
+						"type": "string"
+					},
+					"managers": {
+						"examples": [
+							[
+								"adoe",
+								"fmalard"
+							]
+						],
+						"items": {
+							"type": "string"
+						},
+						"minItems": 1,
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"start_year": {
+						"examples": [
+							2022
+						],
+						"format": "int32",
+						"minimum": 1900,
+						"type": [
+							"integer",
+							"null"
+						]
+					}
+				},
+				"type": "object"
+			},
 			"RefreshTokenBody": {
 				"additionalProperties": false,
 				"properties": {
@@ -2294,6 +2387,15 @@
 			"Taxon": {
 				"additionalProperties": false,
 				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Taxon.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
 					"GBIF_ID": {
 						"examples": [
 							2206247
@@ -5794,6 +5896,89 @@
 				]
 			}
 		},
+		"/programs/{code}": {
+			"patch": {
+				"operationId": "UpdateProgram",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ProgramUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Program"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create program",
+				"tags": [
+					"Events"
+				]
+			}
+		},
 		"/settings/emailing": {
 			"get": {
 				"operationId": "EmailSettings",
@@ -7026,7 +7211,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/TaxonWithLineage"
+									"$ref": "#/components/schemas/Taxon"
 								}
 							}
 						},

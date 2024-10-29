@@ -892,6 +892,13 @@ export const $OptionalPerson = {
 export const $OptionalTaxon = {
     additionalProperties: false,
     properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Taxon.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
         GBIF_ID: {
             examples: [2206247],
             format: 'int64',
@@ -1410,6 +1417,57 @@ export const $ProgramInput = {
     type: 'object'
 } as const;
 
+export const $ProgramUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/ProgramUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            examples: ['PHD_ALICE'],
+            type: 'string'
+        },
+        description: {
+            type: ['string', 'null']
+        },
+        end_year: {
+            examples: [2025],
+            format: 'int32',
+            type: ['integer', 'null']
+        },
+        funding_agencies: {
+            examples: [['CNRS']],
+            items: {
+                type: 'string'
+            },
+            type: ['array', 'null']
+        },
+        label: {
+            examples: ["Alice's PhD"],
+            type: 'string'
+        },
+        managers: {
+            examples: [['adoe', 'fmalard']],
+            items: {
+                type: 'string'
+            },
+            minItems: 1,
+            type: ['array', 'null']
+        },
+        start_year: {
+            examples: [2022],
+            format: 'int32',
+            minimum: 1900,
+            type: ['integer', 'null']
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $RefreshTokenBody = {
     additionalProperties: false,
     properties: {
@@ -1876,6 +1934,13 @@ export const $SiteUpdate = {
 export const $Taxon = {
     additionalProperties: false,
     properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Taxon.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
         GBIF_ID: {
             examples: [2206247],
             format: 'int64',

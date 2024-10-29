@@ -1,9 +1,11 @@
 package people
 
 import (
+	"context"
 	"time"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/sirupsen/logrus"
 )
 
 type UserShortIdentity struct {
@@ -22,6 +24,12 @@ type Meta struct {
 	LastUpdated time.Time               `edgedb:"lastUpdated" json:"last_updated"`
 	CreatedBy   UserShortIdentity       `json:"created_by,omitempty" edgedb:"created_by"`
 	UpdatedBy   UserShortIdentity       `json:"updated_by,omitempty" edgedb:"updated_by"`
+}
+
+func (m *Meta) Update(db edgedb.Executor) {
+	if err := db.QuerySingle(context.Background(), `select <Meta><uuid>$0 { * }`, m, m.ID); err != nil {
+		logrus.Errorf("Failed to fetch updated Meta infos: %v", err)
+	}
 }
 
 type MetaWithUser struct {

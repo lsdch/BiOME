@@ -61,7 +61,7 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodPatch,
 			Summary: "Update person",
 			Errors:  []int{400, 500},
-		}, controllers.UpdateByIDHandler[people.PersonUpdate](people.FindPerson))
+		}, controllers.UpdateByIDHandler[people.PersonUpdate])
 
 	router.Register(personsAPI, "DeletePerson",
 		huma.Operation{

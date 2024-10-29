@@ -43,7 +43,7 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodPatch,
 			Summary: "Update institution",
 			Errors:  []int{400, 500},
-		}, controllers.UpdateByCodeHandler[people.InstitutionUpdate](people.FindInstitution))
+		}, controllers.UpdateByCodeHandler[people.InstitutionUpdate])
 
 	router.Register(institutionsAPI, "DeleteInstitution",
 		huma.Operation{

@@ -20,12 +20,12 @@ func (f FieldMapping) String(isNull bool) string {
 	}
 }
 
-type UpdateQuery[Item models.Updatable[ID, Updated], ID any, Updated any] struct {
+type UpdateQuery struct {
 	Frame    string
 	Mappings map[string]string
 }
 
-func (q UpdateQuery[Item, ID, Updated]) Fragments(item Item) []string {
+func (q UpdateQuery) Fragments(item any) []string {
 	var fragments []string
 
 	itemType := reflect.TypeOf(item)
@@ -52,6 +52,6 @@ func (q UpdateQuery[Item, ID, Updated]) Fragments(item Item) []string {
 	return fragments
 }
 
-func (q UpdateQuery[Item, ID, Updated]) Query(item Item) string {
+func (q UpdateQuery) Query(item any) string {
 	return fmt.Sprintf(q.Frame, strings.Join(q.Fragments(item), ",\n"))
 }

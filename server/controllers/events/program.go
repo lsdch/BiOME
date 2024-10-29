@@ -31,4 +31,12 @@ func registerProgramRoutes(r router.Router) {
 			Summary: "Create program",
 		},
 		controllers.CreateHandler[events.ProgramInput, events.Program])
+
+	router.Register(programsAPI, "UpdateProgram",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodPatch,
+			Summary: "Create program",
+		},
+		controllers.UpdateByCodeHandler[events.ProgramUpdate])
 }

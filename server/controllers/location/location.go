@@ -55,7 +55,7 @@ func RegisterRoutes(r router.Router) {
 			Path:    "/{code}",
 			Method:  http.MethodPatch,
 			Summary: "Update habitat group",
-		}, controllers.UpdateByCodeHandler[location.HabitatGroupUpdate](location.FindHabitatGroup))
+		}, controllers.UpdateByCodeHandler[location.HabitatGroupUpdate])
 
 }
 

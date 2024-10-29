@@ -38,7 +38,7 @@ func RegisterRoutes(r router.Router) {
 			Summary:     "Update site",
 			Description: "Update site infos using its code",
 		},
-		controllers.UpdateByCodeHandler[location.SiteUpdate](location.GetSite),
+		controllers.UpdateByCodeHandler[location.SiteUpdate],
 	)
 
 	huma.Register(r.API, huma.Operation{

@@ -143,13 +143,13 @@ type SiteUpdate struct {
 	AccessPoint models.OptionalNull[string]       `json:"access_point,omitempty"`
 }
 
-func (u SiteUpdate) Update(e edgedb.Executor, code string) (id string, err error) {
+func (u SiteUpdate) Update(e edgedb.Executor, code string) (updated Site, err error) {
 	data, _ := json.Marshal(u)
-	query := db.UpdateQuery[SiteUpdate, string, string]{
+	query := db.UpdateQuery{
 		Frame: `with item := <json>$1,
 		select (update location::Site filter .code = <str>$0 set {
 			%s
-		}).code`,
+		}) { *, datasets: { * }, meta: { * }, country: { * } }`,
 		Mappings: map[string]string{
 			"name":        "<str>item['name']",
 			"code":        "<str>item['code']",
@@ -167,6 +167,7 @@ func (u SiteUpdate) Update(e edgedb.Executor, code string) (id string, err error
 			)`,
 		},
 	}
-	err = e.QuerySingle(context.Background(), query.Query(u), &id, code, data)
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
+	updated.Meta.Update(e)
 	return
 }
