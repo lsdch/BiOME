@@ -75,6 +75,7 @@ import { enumAsString } from '../toolkit/enums'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
 import { useForm, useSchema, type FormEmits, type FormProps } from '../toolkit/forms/form'
 import { institutionKindOptions, kindIcon } from './institutionKind'
+import { useToggle } from '@vueuse/core'
 
 const dialog = defineModel<boolean>()
 const props = defineProps<FormProps<Institution>>()
@@ -82,14 +83,20 @@ const emit = defineEmits<FormEmits<Institution>>()
 
 const title = computed(() => (props.edit ? `Edit ${props.edit.code}` : 'Create institution'))
 
+const [loading, toggleLoading] = useToggle(false)
+
 async function submit() {
+  toggleLoading(true)
   const req = props.edit
     ? PeopleService.updateInstitution({ path: { code: props.edit.code }, body: model.value })
     : PeopleService.createInstitution({ body: model.value })
-  await req.then(errorHandler).then((inst) => emit('success', inst))
+  await req
+    .then(errorHandler)
+    .then((inst) => emit('success', inst))
+    .finally(() => toggleLoading(false))
 }
 
-const { loading, model } = useForm(props, { initial: DEFAULT })
+const { model } = useForm(props, { initial: DEFAULT })
 const { errorHandler, field } = useSchema($InstitutionInput)
 
 defineExpose({

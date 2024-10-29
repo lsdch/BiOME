@@ -37,11 +37,19 @@ export const navRoutes: RouterItem[] = [
       },
       {
         label: "Institutions",
-        path: "/people/institutions",
+        path: "/institutions",
         name: "institutions",
         icon: "mdi-domain",
         component: () => import("../views/people/InstitutionView.vue"),
         meta: { subtitle: "Institutions" }
+      },
+      {
+        label: "Programs",
+        path: "/programs",
+        name: "programs",
+        icon: "mdi-notebook",
+        component: () => import("@/views/events/ProgramsView.vue"),
+        meta: { subtitle: "Programs" }
       }
     ]
   },

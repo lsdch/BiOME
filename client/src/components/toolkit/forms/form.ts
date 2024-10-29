@@ -17,18 +17,6 @@ export type FormEmits<ItemType> = {
   (evt: "success", item: ItemType): void
 }
 
-function joinPath<T extends Schema>(path: SchemaPaths<T, "Terminal">) {
-  return path.reduce((acc: string, p) => {
-    let suffix = String(p)
-    if (acc.length !== 0 && typeof p === 'string') {
-      suffix = `.${suffix}`
-    } else if (typeof p === "number") {
-      suffix = `[${suffix}]`
-    }
-    return `${acc}${suffix}`
-  }, '')
-}
-
 export type ErrorBinding = { errorMessages?: string[] | undefined }
 export type FieldBinding = ErrorBinding & SchemaBinding
 
@@ -60,8 +48,6 @@ export function useForm<
   const model = ref(dataModel.initial) as Ref<ItemInputType>
   const mode = computed<Mode>(() => props.edit == undefined ? 'Create' : 'Edit')
 
-  const loading = ref(false)
-
   watch(() => props.edit, (item) => {
     if (item === undefined) {
       model.value = dataModel.initial
@@ -77,6 +63,12 @@ export function useForm<
     }
   })
 
+  function formTitle(objectName: string) {
+    return computed(() => {
+      `${mode.value} ${objectName}`
+    })
+  }
 
-  return { loading, model, mode }
+
+  return { model, mode, formTitle }
 }

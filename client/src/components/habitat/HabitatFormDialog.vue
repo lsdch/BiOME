@@ -86,6 +86,7 @@
 import { $HabitatGroupInput, HabitatGroup, HabitatGroupInput, LocationService } from '@/api'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
 import { FormEmits, FormProps, useForm, useSchema } from '../toolkit/forms/form'
+import { useToggle } from '@vueuse/core'
 
 const dialog = defineModel<boolean>()
 const props = defineProps<FormProps<HabitatGroup>>()
@@ -97,7 +98,7 @@ const initial: HabitatGroupInput = {
   elements: [{ label: '', description: '' }]
 }
 
-const { model, loading } = useForm(props, { initial })
+const { model } = useForm(props, { initial })
 const { field, errorHandler } = useSchema($HabitatGroupInput)
 
 function addElement() {
@@ -105,13 +106,17 @@ function addElement() {
     (model.value.elements = [{ label: '', description: '' }])
 }
 
+const [loading, toggleLoading] = useToggle(false)
+
 async function submit() {
+  toggleLoading(true)
   await LocationService.createHabitatGroup({ body: model.value })
     .then(errorHandler)
     .then((created) => {
       emit('success', created)
       dialog.value = false
     })
+    .finally(() => toggleLoading(false))
 }
 </script>
 

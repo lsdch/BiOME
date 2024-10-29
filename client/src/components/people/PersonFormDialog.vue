@@ -1,5 +1,5 @@
 <template>
-  <FormDialog v-model="dialog" title="Create person" :loading="loading" @submit="submit">
+  <FormDialog v-model="dialog" title="Create person" :loading @submit="submit">
     <v-form @submit.prevent="submit">
       <v-container fluid>
         <PersonFormFields v-model="model" :bindings="nameBindings" />
@@ -59,11 +59,12 @@ import { VForm } from 'vuetify/components'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
 import InstitutionPicker from './InstitutionPicker.vue'
 import PersonFormFields from './PersonFormFields.vue'
+import { useToggle } from '@vueuse/core'
 
 const dialog = defineModel<boolean>()
 const props = defineProps<FormProps<Person>>()
 const emit = defineEmits<FormEmits<Person>>()
-const { loading, model } = useForm(props, {
+const { model } = useForm(props, {
   initial: DEFAULT,
   transformers: {
     institutions: (v) => v.map(({ code }) => code) ?? []
@@ -77,13 +78,19 @@ const nameBindings = ref({
   lastName: field('last_name')
 })
 
+const [loading, toggleLoading] = useToggle(false)
+
 async function submit() {
+  toggleLoading(true)
   const data = model.value
   const request = props.edit
     ? PeopleService.updatePerson({ path: { id: props.edit.id }, body: data })
     : PeopleService.createPerson({ body: data })
 
-  return await request.then(errorHandler).then((person) => emit('success', person))
+  return await request
+    .then(errorHandler)
+    .then((person) => emit('success', person))
+    .finally(() => toggleLoading(false))
 }
 </script>
 

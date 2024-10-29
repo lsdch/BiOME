@@ -1,11 +1,5 @@
 <template>
-  <FormDialog
-    :loading="loading"
-    v-model="dialog"
-    title="Create taxon"
-    @submit="submit"
-    :fullscreen="xs"
-  >
+  <FormDialog :loading v-model="dialog" title="Create taxon" @submit="submit" :fullscreen="xs">
     <v-form @submit.prevent="submit" class="pb-5">
       <v-row>
         <v-col cols="12" sm="6">
@@ -88,6 +82,7 @@ import FormDialog from '../toolkit/forms/FormDialog.vue'
 import { childRank } from './rank'
 import StatusPicker from './StatusPicker.vue'
 import TaxonPicker from './TaxonPicker.vue'
+import { useToggle } from '@vueuse/core'
 
 const { xs } = useDisplay()
 
@@ -107,7 +102,7 @@ const initial: TaxonInput = {
   code: ''
 }
 
-const { loading, model } = useForm(props, { initial })
+const { model } = useForm(props, { initial })
 
 const { field, errorHandler } = useSchema($TaxonInput)
 
@@ -126,28 +121,13 @@ const generatedCode = computed(() => {
   return model.value.name.replace(/\s/g, '_')
 })
 
-const taxa: Ref<Taxon[]> = ref(
-  await TaxonomyService.listTaxa()
-    .then(({ data: taxa, error }) => {
-      if (error !== undefined) {
-        // TODO: better error handling
-        console.error('Failed to fetch taxa', error)
-        return []
-      }
-      return taxa
-    })
-    .finally(() => {
-      loading.value = false
-    })
-)
-const candidateParents = computed(() => {
-  return taxa.value.filter(
-    ({ rank }) => rank == 'Class' || rank == 'Family' || rank == 'Genus' || rank == 'Species'
-  )
-})
+const [loading, toggleLoading] = useToggle(false)
 
 async function submit() {
-  const data = await TaxonomyService.createTaxon({ body: model.value }).then(errorHandler)
+  toggleLoading(true)
+  const data = await TaxonomyService.createTaxon({ body: model.value })
+    .then(errorHandler)
+    .finally(() => toggleLoading(false))
   emit('success', data)
   dialog.value = false
 }

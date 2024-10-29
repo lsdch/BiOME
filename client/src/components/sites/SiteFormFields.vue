@@ -64,7 +64,7 @@ const props = defineProps<{ edit?: Site }>()
 
 const initial: PartialTips<SiteInput> = { coordinates: {} }
 
-const { loading, model } = useForm(props, { initial, transformers: {} })
+const { model } = useForm(props, { initial, transformers: {} })
 
 const { field } = toRefs(computed(() => useSchema(props.edit ? $SiteUpdate : $SiteInput)))
 </script>

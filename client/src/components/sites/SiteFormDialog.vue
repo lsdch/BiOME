@@ -79,6 +79,7 @@ import { VForm } from 'vuetify/components'
 import CountryPicker from '../toolkit/forms/CountryPicker.vue'
 import CoordinatesPicker from './CoordinatesPicker.vue'
 import { SiteRecord } from './SiteImportDialog.vue'
+import { useToggle } from '@vueuse/core'
 
 const { smAndDown } = useDisplay()
 
@@ -99,18 +100,17 @@ const form = ref<InstanceType<typeof VForm> | null>(null)
 const props = defineProps<FormProps<SiteRecord>>()
 const emit = defineEmits<FormEmits<SiteRecord>>()
 
-const { loading, model } = useForm(props, { initial, transformers: {} })
+const { model } = useForm(props, { initial, transformers: {} })
 
 const { field } = useSchema($SiteInput)
 
-// watch(
-//   () => props.edit,
-//   () => nextTick(() => form.value?.validate())
-// )
-
 watch(dialog, () => nextTick(() => form.value?.validate()))
 
+const [loading, toggleLoading] = useToggle(false)
+
 async function submit() {
+  toggleLoading(true)
+  // TODO: implement request
   emit('success', model.value)
 }
 </script>
