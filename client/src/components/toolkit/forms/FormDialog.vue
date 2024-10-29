@@ -9,6 +9,9 @@
         :text="btnText"
       />
     </template>
+
+    <!-- Default slot -->
+    <slot />
   </CardDialog>
 </template>
 
