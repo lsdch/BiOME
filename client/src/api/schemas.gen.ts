@@ -1354,7 +1354,7 @@ export const $Program = {
             type: 'integer'
         }
     },
-    required: ['id', 'label', 'code', 'managers', 'funding_agencies', 'start_year', 'end_year', 'description', 'meta'],
+    required: ['id', 'label', 'code', 'managers', 'funding_agencies', 'meta'],
     type: 'object'
 } as const;
 
@@ -1392,6 +1392,7 @@ export const $ProgramInput = {
             type: 'string'
         },
         managers: {
+            examples: [['adoe', 'fmalard']],
             items: {
                 type: 'string'
             },
@@ -1405,7 +1406,7 @@ export const $ProgramInput = {
             type: 'integer'
         }
     },
-    required: ['label', 'code', 'managers', 'funding_agencies', 'start_year', 'end_year', 'description'],
+    required: ['label', 'code', 'managers'],
     type: 'object'
 } as const;
 

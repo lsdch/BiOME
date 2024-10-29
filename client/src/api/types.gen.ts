@@ -564,14 +564,14 @@ export type Program = {
      */
     readonly $schema?: string;
     code: string;
-    description: string;
-    end_year: number;
+    description?: string;
+    end_year?: number;
     funding_agencies: Array<InstitutionInner>;
     id: string;
     label: string;
     managers: Array<PersonInner>;
     meta: Meta;
-    start_year: number;
+    start_year?: number;
 };
 
 export type ProgramInput = {
@@ -580,12 +580,12 @@ export type ProgramInput = {
      */
     readonly $schema?: string;
     code: string;
-    description: string;
-    end_year: number;
-    funding_agencies: Array<(string)>;
+    description?: string;
+    end_year?: number;
+    funding_agencies?: Array<(string)>;
     label: string;
     managers: Array<(string)>;
-    start_year: number;
+    start_year?: number;
 };
 
 export type RefreshTokenBody = {

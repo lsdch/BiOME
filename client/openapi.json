@@ -1662,9 +1662,6 @@
 					"code",
 					"managers",
 					"funding_agencies",
-					"start_year",
-					"end_year",
-					"description",
 					"meta"
 				],
 				"type": "object"
@@ -1739,11 +1736,7 @@
 				"required": [
 					"label",
 					"code",
-					"managers",
-					"funding_agencies",
-					"start_year",
-					"end_year",
-					"description"
+					"managers"
 				],
 				"type": "object"
 			},

@@ -15,9 +15,9 @@ type Program struct {
 	Code            string                    `edgedb:"code" json:"code"`
 	Managers        []people.PersonInner      `edgedb:"managers" json:"managers" minItems:"1"`
 	FundingAgencies []people.InstitutionInner `edgedb:"funding_agencies" json:"funding_agencies"`
-	StartYear       edgedb.OptionalInt32      `edgedb:"start_year" json:"start_year" minimum:"1900" example:"2019"`
-	EndYear         edgedb.OptionalInt32      `edgedb:"end_year" json:"end_year" example:"2025"`
-	Description     edgedb.OptionalStr        `edgedb:"description" json:"description"`
+	StartYear       edgedb.OptionalInt32      `edgedb:"start_year" json:"start_year,omitempty" minimum:"1900" example:"2019"`
+	EndYear         edgedb.OptionalInt32      `edgedb:"end_year" json:"end_year,omitempty" example:"2025"`
+	Description     edgedb.OptionalStr        `edgedb:"description" json:"description,omitempty"`
 	Meta            people.Meta               `edgedb:"meta" json:"meta"`
 }
 
@@ -28,13 +28,13 @@ func ListPrograms(db edgedb.Executor) ([]Program, error) {
 }
 
 type ProgramInput struct {
-	Label           string                       `edgedb:"label" json:"label" example:"Alice's PhD"`
-	Code            string                       `edgedb:"code" json:"code" example:"PHD_ALICE"`
-	Managers        []string                     `edgedb:"managers" json:"managers" minItems:"1" example:"[\"adoe\",\"fmalard\"]"`
-	FundingAgencies []string                     `edgedb:"funding_agencies" json:"funding_agencies" example:"[\"CNRS\"]"`
-	StartYear       models.OptionalInput[int32]  `edgedb:"start_year" json:"start_year" minimum:"1900" example:"2022"`
-	EndYear         models.OptionalInput[int32]  `edgedb:"end_year" json:"end_year" example:"2025"`
-	Description     models.OptionalInput[string] `edgedb:"description" json:"description"`
+	Label           string                         `edgedb:"label" json:"label" example:"Alice's PhD"`
+	Code            string                         `edgedb:"code" json:"code" example:"PHD_ALICE"`
+	Managers        []string                       `edgedb:"managers" json:"managers" minItems:"1" example:"[\"adoe\",\"fmalard\"]"`
+	FundingAgencies models.OptionalInput[[]string] `edgedb:"funding_agencies,omitempty" json:"funding_agencies,omitempty" example:"[\"CNRS\"]"`
+	StartYear       models.OptionalInput[int32]    `edgedb:"start_year" json:"start_year,omitempty" minimum:"1900" example:"2022"`
+	EndYear         models.OptionalInput[int32]    `edgedb:"end_year" json:"end_year,omitempty" example:"2025"`
+	Description     models.OptionalInput[string]   `edgedb:"description" json:"description,omitempty"`
 }
 
 func (i ProgramInput) Create(db edgedb.Executor) (created Program, err error) {
@@ -52,12 +52,12 @@ func (i ProgramInput) Create(db edgedb.Executor) (created Program, err error) {
 				and .kind = people::FundingAgency
 			),
 		select(insert events::Program {
-			label := data['label'],
-			code := data['code'],
+			label := <str>data['label'],
+			code := <str>data['code'],
 			managers := managers,
 			funding_agencies := institutions,
-			start_year := <datetime>json_get(data, 'start_year'),
-			end_year := <datetime>json_get(data, 'end_year'),
+			start_year := <int32>json_get(data, 'start_year'),
+			end_year := <int32>json_get(data, 'end_year'),
 			description := <str>json_get(data, 'description')
 		}) { ** };`,
 		&created, args)
