@@ -16,6 +16,7 @@ var entities = []string{
 	"institutions",
 	"persons",
 	"users",
+	"programs",
 }
 
 func main() {

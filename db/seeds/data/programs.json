@@ -1,0 +1,15 @@
+[
+  {
+    "label": "Mock ANR",
+    "code": "MOCK_ANR",
+    "managers": [
+      "madmin"
+    ],
+    "funding_agencies": [
+      "ANR"
+    ],
+    "start_year": 2023,
+    "end_year": 2025,
+    "description": "A mock research project."
+  }
+]
