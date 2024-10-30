@@ -58,8 +58,8 @@ function setupRouter(settings: InstanceSettings) {
         component: () => import("../views/taxonomy/GBIFImportView.vue")
       }),
       guardRole('Contributor', {
-        path: "/location/import-sites",
-        name: "import-sites",
+        path: "/import/dataset",
+        name: "import-dataset",
         meta: {
           drawer: {
             temporary: true

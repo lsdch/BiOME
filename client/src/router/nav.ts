@@ -24,6 +24,53 @@ export const navRoutes: RouterItem[] = [
     meta: { subtitle: "Datasets" }
   },
   {
+    label: "Sampling",
+    icon: "mdi-package-down",
+    routes: [
+      {
+        label: "Sites",
+        path: "/sites",
+        name: "sites",
+        icon: "mdi-map-marker-circle",
+        component: () => import("@/views/location/SitesView.vue"),
+        meta: {
+          subtitle: "Sites",
+          drawer: { temporary: true }
+        }
+      },
+      {
+        label: "Habitats",
+        path: "/habitats",
+        name: "habitats",
+        icon: "mdi-image-filter-hdr-outline",
+        component: () => import("@/views/location/HabitatsView.vue"),
+        meta: { subtitle: "Habitats" }
+      },
+      {
+        label: "Abiotic parameters",
+        path: "/abiotic-parameters",
+        name: "abiotic-parameters",
+        icon: "mdi-gauge",
+        component: () => import("@/views/sampling/AbioticParametersView.vue"),
+        meta: { subtitle: "Abiotic parameters" }
+      },
+      {
+        label: "Methods",
+        path: "/sampling-methods",
+        name: "sampling-methods",
+        icon: "mdi-hook",
+        component: () => import("@/views/sampling/SamplingMethodsView.vue")
+      },
+      {
+        label: "Fixatives",
+        path: "/fixatives",
+        name: "fixatives",
+        icon: "mdi-snowflake",
+        component: () => import("@/views/sampling/FixativesView.vue")
+      }
+    ]
+  },
+  {
     label: "People",
     icon: "mdi-account-group",
     routes: [
@@ -51,29 +98,6 @@ export const navRoutes: RouterItem[] = [
         component: () => import("@/views/events/ProgramsView.vue"),
         meta: { subtitle: "Programs" }
       }
-    ]
-  },
-  {
-    label: "Locations", icon: "mdi-map-marker-circle", routes: [
-      {
-        label: "Sites",
-        path: "/sites",
-        name: "sites",
-        icon: "mdi-map-marker-radius",
-        component: () => import("@/views/location/SitesView.vue"),
-        meta: {
-          subtitle: "Sites",
-          drawer: { temporary: true }
-        }
-      },
-      {
-        label: "Habitats",
-        path: "/location/habitats",
-        name: "habitats",
-        icon: "mdi-image-filter-hdr-outline",
-        component: () => import("@/views/location/HabitatsView.vue"),
-        meta: { subtitle: "Habitats" }
-      },
     ]
   },
   {
