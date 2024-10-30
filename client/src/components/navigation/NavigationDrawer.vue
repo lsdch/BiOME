@@ -1,5 +1,10 @@
 <template>
-  <v-navigation-drawer v-model="drawer" :location="mobile ? 'top' : 'start'" v-bind="$attrs">
+  <v-navigation-drawer
+    id="main-nav-drawer"
+    v-model="drawer"
+    :location="mobile ? 'top' : 'start'"
+    v-bind="$attrs"
+  >
     <v-list density="compact" nav open-strategy="single">
       <template v-for="group in navRoutes" :key="group.label">
         <!-- Route -->
@@ -57,4 +62,11 @@ function isRouteActive(route: RouteDefinition) {
 const { isGranted } = useUserStore()
 </script>
 
-<style scoped></style>
+<style lang="scss">
+@use 'vuetify';
+#main-nav-drawer {
+  .v-list-group__items .v-list-item {
+    padding-inline-start: var(--indent-padding) !important;
+  }
+}
+</style>
