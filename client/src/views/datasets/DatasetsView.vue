@@ -3,6 +3,9 @@
     <template #search>
       <v-inline-search-bar label="Search" v-model="search" />
     </template>
+    <template #append>
+      <v-btn text="Import" :to="{ name: 'import-dataset' }" />
+    </template>
   </TableToolbar>
   <v-progress-linear v-if="loading" indeterminate />
   <v-container fluid>
