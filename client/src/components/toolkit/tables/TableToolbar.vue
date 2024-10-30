@@ -26,13 +26,19 @@
 
     <v-toolbar-title style="min-width: 150px">{{ title }}</v-toolbar-title>
 
-    <slot v-if="smAndUp && !togglableSearch" name="search" class="flex-grow-1" />
+    <slot
+      v-if="(smAndUp && togglableSearch === undefined) || !togglableSearch"
+      name="search"
+      class="flex-grow-1"
+    />
 
     <v-spacer />
 
     <!-- Toggle large searchbar component -->
     <v-tooltip
-      v-if="hasSlotContent($slots.search) && (xs || togglableSearch)"
+      v-if="
+        hasSlotContent($slots.search) && ((togglableSearch === undefined && xs) || togglableSearch)
+      "
       left
       activator="parent"
       text="Toggle search"
@@ -54,7 +60,7 @@
     <slot name="append-actions" />
 
     <!-- Search bar slot with default searchbar -->
-    <template v-if="togglableSearch || xs" #extension>
+    <template v-if="togglableSearch || (togglableSearch === undefined && xs)" #extension>
       <v-expand-transition>
         <div class="w-100 px-3" v-show="toggleSearch" transition="slide-y-transition">
           <slot name="search" class="flex-grow-1"> </slot>
