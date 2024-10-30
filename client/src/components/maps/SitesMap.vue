@@ -30,10 +30,14 @@
     >
       <LControlScale position="bottomright" metric :imperial="false" />
       <LControl position="bottomright">
-        <code v-if="cursorCoordinates">
-          <div>Lat: {{ cursorCoordinates.lat.toFixed(5) }}</div>
-          <div>Lng: {{ cursorCoordinates.lng.toFixed(5) }}</div>
-        </code>
+        <v-card v-if="cursorCoordinates" class="coordinates-control">
+          <template #text>
+            <code>
+              <div>Lat: {{ cursorCoordinates.lat.toFixed(5) }}</div>
+              <div>Lng: {{ cursorCoordinates.lng.toFixed(5) }}</div>
+            </code>
+          </template>
+        </v-card>
       </LControl>
 
       <LControl position="topright" class="ma-0 d-flex justify-end">
@@ -245,5 +249,12 @@ defineExpose({ fitBounds })
 @use 'vuetify';
 .leaflet-container {
   background-color: rgb(var(--v-theme-surface));
+}
+
+.coordinates-control {
+  background-color: rgb(var(--v-theme-surface), 0.5);
+  code * {
+    opacity: 1;
+  }
 }
 </style>
