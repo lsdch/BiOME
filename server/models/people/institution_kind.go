@@ -1,6 +1,6 @@
 package people
 
-type InstitutionKind string // @name InstitutionKind
+type InstitutionKind string
 
 //generate:enum
 const (

@@ -1,0 +1,46 @@
+[
+  {
+    "label": "Sight",
+    "code": "SIGHT"
+  },
+  {
+    "label": "Dredging",
+    "code": "DREDGE"
+  },
+  {
+    "label": "Phreatobiological net",
+    "code": "PHREA_NET"
+  },
+  {
+    "label": "Drift filtering",
+    "code": "DRIFT_FILTER"
+  },
+  {
+    "label": "Roots washing",
+    "code": "ROOT_WASH"
+  },
+  {
+    "label": "Trap",
+    "code": "TRAP"
+  },
+  {
+    "label": "Bait trap",
+    "code": "BAIT"
+  },
+  {
+    "label": "Pumping",
+    "code": "PUMP"
+  },
+  {
+    "label": "Bou-Rouch pump",
+    "code": "BOU_ROUCH"
+  },
+  {
+    "label": "Karaman-Chappuis probe",
+    "code": "KCP"
+  },
+  {
+    "label": "Surber net",
+    "code": "SURBER"
+  }
+]

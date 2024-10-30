@@ -36,7 +36,15 @@ func registerProgramRoutes(r router.Router) {
 		huma.Operation{
 			Path:    "/{code}",
 			Method:  http.MethodPatch,
-			Summary: "Create program",
+			Summary: "Update program",
 		},
 		controllers.UpdateByCodeHandler[events.ProgramUpdate])
+
+	router.Register(programsAPI, "DeleteProgram",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodDelete,
+			Summary: "Delete program",
+		},
+		controllers.DeleteByCodeHandler(events.DeleteProgram))
 }

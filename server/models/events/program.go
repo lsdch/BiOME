@@ -10,15 +10,19 @@ import (
 	"github.com/edgedb/edgedb-go"
 )
 
+type ProgramInner struct {
+	ID          edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
+	Label       string               `edgedb:"label" json:"label"`
+	Code        string               `edgedb:"code" json:"code"`
+	StartYear   edgedb.OptionalInt32 `edgedb:"start_year" json:"start_year,omitempty" minimum:"1900" example:"2019"`
+	EndYear     edgedb.OptionalInt32 `edgedb:"end_year" json:"end_year,omitempty" example:"2025"`
+	Description edgedb.OptionalStr   `edgedb:"description" json:"description,omitempty"`
+}
+
 type Program struct {
-	ID              edgedb.UUID               `edgedb:"id" json:"id" format:"uuid"`
-	Label           string                    `edgedb:"label" json:"label"`
-	Code            string                    `edgedb:"code" json:"code"`
+	ProgramInner    `edgedb:"$inline" json:",inline"`
 	Managers        []people.PersonInner      `edgedb:"managers" json:"managers" minItems:"1"`
 	FundingAgencies []people.InstitutionInner `edgedb:"funding_agencies" json:"funding_agencies"`
-	StartYear       edgedb.OptionalInt32      `edgedb:"start_year" json:"start_year,omitempty" minimum:"1900" example:"2019"`
-	EndYear         edgedb.OptionalInt32      `edgedb:"end_year" json:"end_year,omitempty" example:"2025"`
-	Description     edgedb.OptionalStr        `edgedb:"description" json:"description,omitempty"`
 	Meta            people.Meta               `edgedb:"meta" json:"meta"`
 }
 
@@ -106,5 +110,14 @@ func (u ProgramUpdate) Update(e edgedb.Executor, code string) (updated Program, 
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
 	updated.Meta.Update(e)
+	return
+}
+
+func DeleteProgram(db edgedb.Executor, code string) (deleted Program, err error) {
+	err = db.QuerySingle(context.Background(),
+		`select (
+			 delete events::Program filter .code = <str>$0
+		 ) { ** };`,
+		&deleted, code)
 	return
 }

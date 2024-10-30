@@ -1,0 +1,12 @@
+[
+  {
+    "label": "Water Temperature",
+    "code": "WATER-TEMP",
+    "unit": "°C"
+  },
+  {
+    "label": "Conductivity",
+    "code": "CONDUCTIVITY",
+    "unit": "µS/cm"
+  }
+]

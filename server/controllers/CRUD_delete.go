@@ -46,7 +46,7 @@ type DeleteByCodeHandlerInput struct {
 func DeleteByCodeHandler[Item any](
 	deleteItem ItemDelete[string, Item],
 ) router.Endpoint[DeleteByCodeHandlerInput, DeleteHandlerOutput[Item]] {
-	return DeleteHandler[*DeleteByCodeHandlerInput, Item, string](deleteItem)
+	return DeleteHandler[*DeleteByCodeHandlerInput](deleteItem)
 }
 
 type DeleteByIDHandlerInput struct {
@@ -57,5 +57,5 @@ type DeleteByIDHandlerInput struct {
 func DeleteByIDHandler[Item any](
 	deleteItem ItemDelete[edgedb.UUID, Item],
 ) router.Endpoint[DeleteByIDHandlerInput, DeleteHandlerOutput[Item]] {
-	return DeleteHandler[*DeleteByIDHandlerInput, Item, edgedb.UUID](deleteItem)
+	return DeleteHandler[*DeleteByIDHandlerInput](deleteItem)
 }

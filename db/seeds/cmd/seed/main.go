@@ -17,6 +17,9 @@ var entities = []string{
 	"persons",
 	"users",
 	"programs",
+	"sampling_methods",
+	"fixatives",
+	"abiotic",
 }
 
 func main() {

@@ -1,0 +1,30 @@
+[
+  {
+    "label": "Alcohol",
+    "code": "ALCOHOL"
+  },
+  {
+    "label": "Other",
+    "code": "OTHER"
+  },
+  {
+    "label": "Cryo-conservation",
+    "code": "CRYO"
+  },
+  {
+    "label": "Formaldehyde",
+    "code": "FORMOL"
+  },
+  {
+    "label": "RNA Later",
+    "code": "RNA-L"
+  },
+  {
+    "label": "Silica",
+    "code": "SILICA"
+  },
+  {
+    "label": "None",
+    "code": "NONE"
+  }
+]

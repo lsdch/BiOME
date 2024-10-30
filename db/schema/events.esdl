@@ -83,12 +83,13 @@ module events {
 
       constraint exclusive;
       rewrite insert using (
-        (select
+        if (select exists Sampling filter Sampling.code = __subject__.generated_code)
+        then (select
           .generated_code ++ "_" ++
           <str>(select count(Sampling) filter Sampling.code = __subject__.generated_code
-        ) if (select exists Sampling filter Sampling.code = __subject__.generated_code)
-          else .generated_code)
-      )
+        ))
+        else .generated_code
+      );
     };
 
     # WARNING : during migration, remove pseudo-field when no sampling was performed
@@ -104,7 +105,9 @@ module events {
 
     sampling_duration: duration;
 
-    required is_donation: bool;
+    required is_donation: bool {
+      default := false;
+    };
 
     comments: str;
 

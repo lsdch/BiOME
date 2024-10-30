@@ -35,7 +35,7 @@ module default {
       annotation title := "An expressive, unique, user-generated uppercase alphanumeric code";
       constraint exclusive;
       constraint min_len_value(2);
-      constraint max_len_value(8);
+      constraint max_len_value(12);
     };
     description: str;
   }
