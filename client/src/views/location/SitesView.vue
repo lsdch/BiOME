@@ -1,14 +1,17 @@
 <template>
   <div class="fill-height w-100 d-flex">
-    <div class="map-toolbar">
+    <v-navigation-drawer v-model="drawer" :location="xs ? 'top' : 'left'">
       <DatasetPicker />
-    </div>
+    </v-navigation-drawer>
     <div class="fill-height w-100 d-flex flex-column">
-      <v-toolbar>
-        <v-toolbar-title> Sites </v-toolbar-title>
-        <v-spacer />
-        <v-btn text="Import sites" :to="{ name: 'import-sites' }"></v-btn>
-      </v-toolbar>
+      <TableToolbar title="Sites" icon="mdi-map-marker" :togglable-search="false">
+        <template #search>
+          <v-btn icon="mdi-menu" variant="tonal" v-if="xs" @click="toggleDrawer(true)" />
+        </template>
+        <template #append>
+          <v-btn text="Import sites" :to="{ name: 'import-dataset' }"></v-btn>
+        </template>
+      </TableToolbar>
       <SitesMap ref="map" :items="sites" clustered>
         <template #marker="{ item }">
           <SitePopup :item :options="{ keepInView: false, autoPan: false }"></SitePopup>
@@ -26,6 +29,13 @@ import { LocationService } from '@/api'
 import 'vue-leaflet-markercluster/dist/style.css'
 import SitePopup from '@/components/sites/SitePopup.vue'
 import DatasetPicker from '@/components/sites/DatasetPicker.vue'
+import { useToggle } from '@vueuse/core'
+import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
+import { useDisplay } from 'vuetify'
+
+const { xs } = useDisplay()
+
+const [drawer, toggleDrawer] = useToggle(true)
 
 const sites = ref(
   (await LocationService.listSites().then(({ data, error }) => {
