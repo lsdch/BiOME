@@ -1,7 +1,14 @@
 <template>
   <div class="fill-height w-100 d-flex">
     <v-navigation-drawer v-model="drawer" :location="xs ? 'top' : 'left'">
-      <DatasetPicker />
+      <v-list-subheader class="px-2"> Filters </v-list-subheader>
+      <v-divider></v-divider>
+      <div class="mt-3 px-2">
+        <DatasetPicker density="compact" />
+        <CountryPicker density="compact" />
+        <TaxonPicker density="compact" />
+        <v-select label="Sampled" clearable density="compact" />
+      </div>
     </v-navigation-drawer>
     <div class="fill-height w-100 d-flex flex-column">
       <TableToolbar title="Sites" icon="mdi-map-marker" :togglable-search="false">
@@ -32,6 +39,8 @@ import DatasetPicker from '@/components/sites/DatasetPicker.vue'
 import { useToggle } from '@vueuse/core'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useDisplay } from 'vuetify'
+import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
+import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 
 const { xs } = useDisplay()
 
