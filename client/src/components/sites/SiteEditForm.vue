@@ -1,39 +1,41 @@
 <template>
   <v-form>
-    <v-row>
-      <v-col>
-        <v-text-field v-model="model.name" label="Name" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-text-field v-model="model.code" label="Code" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-textarea v-model="model.description" label="Description" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" sm="4">
-        <NumberInput v-model="model.coordinates.latitude" label="Latitude" float />
-      </v-col>
-      <v-col cols="12" sm="4">
-        <NumberInput v-model="model.coordinates.longitude" label="Longitude" float />
-      </v-col>
-      <v-col cols="12" sm="4">
-        <CoordPrecisionPicker v-model="model.coordinates.precision" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col cols="12" sm="8">
-        <v-text-field label="Locality" v-model="model.locality" />
-      </v-col>
-      <v-col cols="12" sm="4">
-        <CountryPicker v-model="model.country" />
-      </v-col>
-    </v-row>
+    <v-container>
+      <v-row>
+        <v-col>
+          <v-text-field v-model="model.name" label="Name" />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-text-field v-model="model.code" label="Code" />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-textarea v-model="model.description" label="Description" />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12" sm="4">
+          <NumberInput v-model="model.coordinates.latitude" label="Latitude" float />
+        </v-col>
+        <v-col cols="12" sm="4">
+          <NumberInput v-model="model.coordinates.longitude" label="Longitude" float />
+        </v-col>
+        <v-col cols="12" sm="4">
+          <CoordPrecisionPicker v-model="model.coordinates.precision" />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12" sm="8">
+          <v-text-field label="Locality" v-model="model.locality" />
+        </v-col>
+        <v-col cols="12" sm="4">
+          <CountryPicker v-model="model.country" />
+        </v-col>
+      </v-row>
+    </v-container>
   </v-form>
 </template>
 
