@@ -42,11 +42,12 @@ func (i AbioticParameterInput) Create(e edgedb.Executor) (created AbioticParamet
 }
 
 type AbioticMeasurement struct {
+	ID    edgedb.UUID      `edgedb:"id" json:"id" format:"uuid"`
 	Param AbioticParameter `edgedb:"param" json:"param"`
 	Value float32          `edgedb:"value" json:"value"`
 }
 
 type AbioticMeasurementInput struct {
-	Param string  `edgedb:"param" json:"param"` // Parameter code
-	Value float32 `edgedb:"value" json:"value"`
+	Param string  `json:"param"` // Parameter code
+	Value float32 `json:"value"`
 }

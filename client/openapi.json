@@ -1,6 +1,28 @@
 {
 	"components": {
 		"schemas": {
+			"AbioticMeasurement": {
+				"additionalProperties": false,
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"param": {
+						"$ref": "#/components/schemas/AbioticParameter"
+					},
+					"value": {
+						"format": "float",
+						"type": "number"
+					}
+				},
+				"required": [
+					"id",
+					"param",
+					"value"
+				],
+				"type": "object"
+			},
 			"AbioticParameter": {
 				"additionalProperties": false,
 				"properties": {
@@ -232,6 +254,33 @@
 				],
 				"type": "object"
 			},
+			"DatePrecision": {
+				"enum": [
+					"Year",
+					"Month",
+					"Day",
+					"Unknown"
+				],
+				"title": "DatePrecision",
+				"type": "string"
+			},
+			"DateWithPrecision": {
+				"additionalProperties": false,
+				"properties": {
+					"date": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"precision": {
+						"$ref": "#/components/schemas/DatePrecision"
+					}
+				},
+				"required": [
+					"date",
+					"precision"
+				],
+				"type": "object"
+			},
 			"EmailSettings": {
 				"additionalProperties": false,
 				"properties": {
@@ -410,6 +459,62 @@
 				},
 				"type": "object"
 			},
+			"Event": {
+				"additionalProperties": false,
+				"properties": {
+					"abiotic_measurements": {
+						"items": {
+							"$ref": "#/components/schemas/AbioticMeasurement"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"performed_by": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"minLength": 1,
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
+					"programs": {
+						"items": {
+							"$ref": "#/components/schemas/ProgramInner"
+						},
+						"type": "array"
+					},
+					"samplings": {
+						"items": {
+							"$ref": "#/components/schemas/Sampling"
+						},
+						"type": "array"
+					},
+					"site_code": {
+						"type": "string"
+					},
+					"spotting": {
+						"$ref": "#/components/schemas/OptionalSpotting"
+					}
+				},
+				"required": [
+					"id",
+					"site_code",
+					"performed_by",
+					"performed_on",
+					"abiotic_measurements",
+					"samplings",
+					"meta"
+				],
+				"type": "object"
+			},
 			"Fixative": {
 				"additionalProperties": false,
 				"properties": {
@@ -472,6 +577,43 @@
 				"required": [
 					"label",
 					"code"
+				],
+				"type": "object"
+			},
+			"Habitat": {
+				"additionalProperties": false,
+				"properties": {
+					"description": {
+						"description": "Optional habitat description",
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"incompatible": {
+						"items": {
+							"$ref": "#/components/schemas/HabitatRecord"
+						},
+						"type": "array"
+					},
+					"label": {
+						"description": "A short label for the habitat.",
+						"examples": [
+							"Lotic"
+						],
+						"maxLength": 32,
+						"minLength": 3,
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					}
+				},
+				"required": [
+					"meta",
+					"id",
+					"label"
 				],
 				"type": "object"
 			},
@@ -1234,6 +1376,32 @@
 				],
 				"type": "object"
 			},
+			"OptionalSpotting": {
+				"additionalProperties": false,
+				"properties": {
+					"comments": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"target_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"target_taxa"
+				],
+				"type": [
+					"object",
+					"null"
+				]
+			},
 			"OptionalTaxon": {
 				"additionalProperties": false,
 				"properties": {
@@ -1813,6 +1981,45 @@
 				],
 				"type": "object"
 			},
+			"ProgramInner": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"end_year": {
+						"examples": [
+							2025
+						],
+						"format": "int64",
+						"type": "integer"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"start_year": {
+						"examples": [
+							2019
+						],
+						"format": "int64",
+						"minimum": 1900,
+						"type": "integer"
+					}
+				},
+				"required": [
+					"id",
+					"label",
+					"code"
+				],
+				"type": "object"
+			},
 			"ProgramInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -2045,6 +2252,62 @@
 				],
 				"type": "object"
 			},
+			"Sampling": {
+				"additionalProperties": false,
+				"properties": {
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"code": {
+						"type": "string"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int64",
+						"type": "integer"
+					},
+					"fixatives": {
+						"items": {
+							"$ref": "#/components/schemas/Fixative"
+						},
+						"type": "array"
+					},
+					"habitats": {
+						"items": {
+							"$ref": "#/components/schemas/Habitat"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"methods": {
+						"items": {
+							"$ref": "#/components/schemas/SamplingMethod"
+						},
+						"type": "array"
+					},
+					"target": {
+						"$ref": "#/components/schemas/SamplingTarget"
+					}
+				},
+				"required": [
+					"id",
+					"code",
+					"fixatives",
+					"target",
+					"habitats",
+					"access_points"
+				],
+				"type": "object"
+			},
 			"SamplingMethod": {
 				"additionalProperties": false,
 				"properties": {
@@ -2109,6 +2372,34 @@
 					"code"
 				],
 				"type": "object"
+			},
+			"SamplingTarget": {
+				"additionalProperties": false,
+				"properties": {
+					"kind": {
+						"$ref": "#/components/schemas/SamplingTargetKind"
+					},
+					"target_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"kind",
+					"target_taxa"
+				],
+				"type": "object"
+			},
+			"SamplingTargetKind": {
+				"enum": [
+					"Community",
+					"Unknown",
+					"Taxa"
+				],
+				"title": "SamplingTargetKind",
+				"type": "string"
 			},
 			"SecuritySettings": {
 				"additionalProperties": false,
@@ -2227,6 +2518,12 @@
 					"description": {
 						"type": "string"
 					},
+					"events": {
+						"items": {
+							"$ref": "#/components/schemas/Event"
+						},
+						"type": "array"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -2244,6 +2541,7 @@
 				},
 				"required": [
 					"datasets",
+					"events",
 					"meta",
 					"id",
 					"name",
@@ -2415,9 +2713,6 @@
 			"SiteInput": {
 				"additionalProperties": false,
 				"properties": {
-					"access_point": {
-						"type": "string"
-					},
 					"altitude": {
 						"description": "Site altitude in meters",
 						"format": "int32",
@@ -2524,12 +2819,6 @@
 						"readOnly": true,
 						"type": "string"
 					},
-					"access_point": {
-						"type": [
-							"string",
-							"null"
-						]
-					},
 					"altitude": {
 						"description": "Site altitude in meters",
 						"format": "int32",
@@ -2584,6 +2873,29 @@
 					"code",
 					"coordinates",
 					"country_code"
+				],
+				"type": "object"
+			},
+			"Spotting": {
+				"additionalProperties": false,
+				"properties": {
+					"comments": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"target_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"target_taxa"
 				],
 				"type": "object"
 			},

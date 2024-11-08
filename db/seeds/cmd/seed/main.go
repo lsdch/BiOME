@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	"darco/proto/db"
-	"darco/proto/models/location"
+	"darco/proto/models/events"
 	"flag"
 	"seeds"
 	"seeds/email"
@@ -13,6 +13,7 @@ import (
 )
 
 var entities = []string{
+	"countries",
 	"institutions",
 	"persons",
 	"users",
@@ -20,6 +21,7 @@ var entities = []string{
 	"sampling_methods",
 	"fixatives",
 	"abiotic",
+	"datasets",
 }
 
 func main() {
@@ -32,7 +34,7 @@ func main() {
 	email.SetupEmailConfig(client, email.EmailSetupArgs{})
 
 	logrus.Infof("Seeding habitats")
-	if err := location.InitialHabitatsSetup(client); err != nil {
+	if err := events.InitialHabitatsSetup(client); err != nil {
 		logrus.Fatalf("Failed to seed habitats: %v", err)
 	}
 

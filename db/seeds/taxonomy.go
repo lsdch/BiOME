@@ -24,7 +24,7 @@ func SeedTaxonomyGBIF(db *edgedb.Client) error {
 				logrus.Fatalf("Failed to import taxonomy: %v", p.Error)
 			}
 		})
-	_ = bar.Clear()
+	_ = bar.Close()
 
 	logrus.Infof("Taxonomy setup done: %d taxa imported", total)
 	return err

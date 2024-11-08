@@ -1,0 +1,134 @@
+[
+  {
+    "label": "Seed dataset",
+    "slug": "seed",
+    "description": "Database seed dataset for testing purposes.",
+    "maintainers": [
+      "madmin",
+      "fmalard"
+    ],
+    "sites": [
+      {
+        "name": "La Doua Pond",
+        "code": "DOUA_POND",
+        "locality": "Villeurbanne",
+        "country_code": "FR",
+        "description": "Pond next to LEHNA in La Doua",
+        "coordinates": {
+          "latitude": 45.77987027602316,
+          "longitude": 4.867957950368035,
+          "precision": "<100m"
+        },
+        "events": [
+          {
+            "performed_on": {
+              "precision": "Month",
+              "date": "2021-03-01T00:00:00Z"
+            },
+            "programs": [
+              "DARCO"
+            ],
+            "performed_by": [
+              "fmalard"
+            ],
+            "spotting": {
+              "target_taxa": [
+                "Asellus_aquaticus"
+              ]
+            }
+          },
+          {
+            "performed_on": {
+              "precision": "Day",
+              "date": "2021-12-14T00:00:00Z"
+            },
+            "programs": [
+              "DARCO"
+            ],
+            "performed_by": [
+              "fmalard"
+            ],
+            "abiotic_measurements": [
+              {
+                "param": "WATER-TEMP",
+                "value": 19
+              },
+              {
+                "param": "CONDUCTIVITY",
+                "value": 6.9
+              }
+            ],
+            "samplings": [
+              {
+                "code": "DOUA_POND_202112.1",
+                "fixatives": [
+                  "CRYO"
+                ],
+                "methods": [
+                  "BOU-ROUCH",
+                  "TRAP"
+                ],
+                "target": {
+                  "kind": "Taxa",
+                  "target_taxa": [
+                    "Proasellus"
+                  ]
+                },
+                "is_donation": false,
+                "duration": 90,
+                "comments": "Trapping Proasellus"
+              }
+            ]
+          },
+          {
+            "performed_on": {
+              "precision": "Day",
+              "date": "2021-12-03T00:00:00Z"
+            },
+            "programs": [
+              "DARCO"
+            ],
+            "performed_by": [
+              "fmalard"
+            ],
+            "abiotic_measurements": [
+              {
+                "param": "WATER-TEMP",
+                "value": 15
+              }
+            ],
+            "samplings": [
+              {
+                "code": "DOUA_POND_202112.2",
+                "fixatives": [
+                  "ALCOHOL"
+                ],
+                "methods": [
+                  "BAIT"
+                ],
+                "habitats": [
+                  "Surface",
+                  "Aquatic",
+                  "Freshwater",
+                  "Lentic"
+                ],
+                "access_points": [
+                  "Pond"
+                ],
+                "target": {
+                  "kind": "Taxa",
+                  "target_taxa": [
+                    "Asellidae"
+                  ]
+                },
+                "is_donation": false,
+                "duration": 120,
+                "comments": "Fishing for Asellidae"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]

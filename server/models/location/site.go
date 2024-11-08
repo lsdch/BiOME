@@ -5,6 +5,7 @@ import (
 	"context"
 	"darco/proto/db"
 	"darco/proto/models"
+	"darco/proto/models/events"
 	"darco/proto/models/people"
 	"darco/proto/models/validations"
 	"encoding/json"
@@ -30,7 +31,6 @@ type SiteInput struct {
 	Altitude    models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
 	Locality    models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
 	CountryCode string                       `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
-	AccessPoint models.OptionalInput[string] `json:"access_point,omitempty"`
 }
 
 func (i *SiteInput) Validate(edb edgedb.Executor) validations.ValidationErrors {
@@ -61,12 +61,20 @@ type SiteItem struct {
 type Site struct {
 	SiteItem `edgedb:"$inline" json:",inline"`
 	Datasets []SiteDatasetInner `edgedb:"datasets" json:"datasets"`
+	Events   []events.Event     `edgedb:"events" json:"events"`
 	Meta     people.Meta        `edgedb:"meta" json:"meta"`
 }
 
 func ListSites(db edgedb.Executor) ([]Site, error) {
 	var sites []Site
-	err := db.Query(context.Background(), `select location::Site { *, datasets: { * }, meta: { * }, country: { * } }`, &sites)
+	err := db.Query(context.Background(),
+		`select location::Site {
+			*,
+			datasets: { * },
+			meta: { * },
+			country: { * },
+			events: { * } order by .performed_on.date desc
+		}`, &sites)
 	return sites, err
 }
 
@@ -74,10 +82,17 @@ func GetSite(db edgedb.Executor, identifier string) (Site, error) {
 	var site Site
 	err := db.QuerySingle(context.Background(),
 		`select location::Site {
-			name, code, description,
-			coordinates, locality, country: { * },
-			altitude, access_point,
-			datasets: { * }
+			*,
+			country: { * },
+			datasets: { * },
+			meta: { * },
+			events: { *,
+				programs: { * },
+				performed_by: { * },
+				spotting: { *, target_taxa: { * } },
+				abiotic_measurements: { *, param: { * }  },
+				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
+			} order by .performed_on.date desc
 		} filter .code = <str>$0`,
 		&site, identifier)
 	return site, err
@@ -140,7 +155,6 @@ type SiteUpdate struct {
 	Altitude    models.OptionalNull[int32]        `json:"altitude,omitempty" doc:"Site altitude in meters"`
 	Locality    models.OptionalNull[string]       `json:"locality,omitempty" doc:"Nearest populated place"`
 	CountryCode models.OptionalInput[string]      `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
-	AccessPoint models.OptionalNull[string]       `json:"access_point,omitempty"`
 }
 
 func (u SiteUpdate) Update(e edgedb.Executor, code string) (updated Site, err error) {

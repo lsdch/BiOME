@@ -11,6 +11,11 @@ import path from 'path'
 export default defineConfig({
   optimizeDeps: {
     exclude: ['leaflet.fullscreen'],
+    esbuildOptions: {
+      define: {
+        global: 'globalThis'
+      }
+    }
   },
   server: {
     proxy: {
@@ -54,7 +59,8 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      stream: 'stream-browserify'
     }
   }
 })

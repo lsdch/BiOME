@@ -7,7 +7,6 @@ import (
 	"darco/proto/models/taxonomy"
 	"darco/proto/models/vocabulary"
 	"encoding/json"
-	"time"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -41,26 +40,27 @@ func (i SamplingMethodInput) Create(db edgedb.Executor) (created SamplingMethod,
 }
 
 type SamplingTarget struct {
-	Kind       SamplingTargetKind    `edgedb:"kind" json:"kind"`
-	TargetTaxa []taxonomy.TaxonInner `edgedb:"target_taxa" json:"target_taxa"`
+	Kind       SamplingTargetKind `edgedb:"sampling_target" json:"kind"`
+	TargetTaxa []taxonomy.Taxon   `edgedb:"target_taxa" json:"target_taxa"`
 }
 
 type Sampling struct {
-	Code       string                `edgedb:"code" json:"code"`
-	Methods    []SamplingMethod      `edgedb:"methods" json:"methods,omitempty"`
-	Fixatives  []vocabulary.Fixative `edgedb:"fixatives" json:"fixatives"`
-	Target     SamplingTarget        `edgedb:"target" json:"target"`
-	Duration   edgedb.Duration       `edgedb:"sampling_duration" json:"duration"`
-	IsDonation bool                  `edgedb:"is_donation" json:"is_donation"`
-	Comments   edgedb.OptionalStr    `edgedb:"comments" json:"comments"`
+	ID           edgedb.UUID           `edgedb:"id" json:"id" format:"uuid"`
+	Code         string                `edgedb:"code" json:"code"`
+	Methods      []SamplingMethod      `edgedb:"methods" json:"methods,omitempty"`
+	Fixatives    []vocabulary.Fixative `edgedb:"fixatives" json:"fixatives"`
+	Target       SamplingTarget        `edgedb:"$inline" json:"target"`
+	Duration     edgedb.OptionalInt32  `edgedb:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Habitats     []Habitat             `edgedb:"habitats" json:"habitats"`
+	AccessPoints []string              `edgedb:"access_points" json:"access_points"`
+	Comments     edgedb.OptionalStr    `edgedb:"comments" json:"comments,omitempty"`
 }
 
 type SamplingInput struct {
-	Code       models.OptionalInput[string]        `edgedb:"code" json:"code,omitempty"`
-	Methods    models.OptionalInput[[]string]      `edgedb:"methods" json:"methods,omitempty"`
-	Fixatives  models.OptionalInput[[]string]      `edgedb:"fixatives" json:"fixatives"`
-	Target     SamplingTarget                      `edgedb:"target" json:"target"`
-	Duration   models.OptionalInput[time.Duration] `edgedb:"duration" json:"duration,omitempty"`
-	IsDonation bool                                `edgedb:"is_donation" json:"is_donation"`
-	Comments   models.OptionalInput[string]        `edgedb:"comments" json:"comments"`
+	Code      models.OptionalInput[string]   `edgedb:"code" json:"code,omitempty"`
+	Methods   models.OptionalInput[[]string] `edgedb:"methods" json:"methods,omitempty"`
+	Fixatives models.OptionalInput[[]string] `edgedb:"fixatives" json:"fixatives"`
+	Target    SamplingTarget                 `edgedb:"target" json:"target"`
+	Duration  models.OptionalInput[int32]    `edgedb:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Comments  models.OptionalInput[string]   `edgedb:"comments" json:"comments"`
 }

@@ -34,9 +34,30 @@ module events {
     };
     multi programs: Program;
 
-    multi spottings := .<event[is Spotting];
+    dataset: location::SiteDataset;
+
+    spotting := .<event[is Spotting];
     multi abiotic_measurements := .<event[is AbioticMeasurement];
     multi samplings := .<event[is Sampling];
+
+    trigger event_update after update for each
+    when(
+      <int32>datetime_get(__new__.performed_on.date, 'year') !=
+      <int32>datetime_get(__old__.performed_on.date, 'year') or
+      <int32>datetime_get(__new__.performed_on.date, 'month') !=
+      <int32>datetime_get(__old__.performed_on.date, 'month')
+    ) do (
+        insert SamplingCodeIndex {
+        site := __new__.site,
+        year := <int32>datetime_get(__new__.performed_on.date, 'year'),
+        month := <int32>datetime_get(__new__.performed_on.date, 'month'),
+        count := count(__new__.samplings)
+      } unless conflict on ((.site, .year, .month)) else (
+        update SamplingCodeIndex set {
+          count := .count + <int32>count(__new__.samplings)
+        }
+      )
+    );
   }
 
   # Several actions may have been performed during an event
@@ -51,7 +72,12 @@ module events {
   }
 
   type Spotting extending Action {
+    overloaded required event: Event {
+      on target delete delete source;
+      constraint exclusive;
+    }
     multi target_taxa: taxonomy::Taxon;
+    comments: str;
   }
 
   type AbioticParameter extending default::Vocabulary, default::Auditable {
@@ -68,29 +94,95 @@ module events {
 
   type SamplingMethod extending default::Vocabulary, default::Auditable;
 
+  # function sampling_code(e: Event, i: int32) -> str using (
+  #   with
+  #     number_suffix := (
+  #       <int32>((select SamplingCodeIndex
+  #         filter .site = e.site
+  #         and .year = <int32>datetime_get(e.performed_on.date, 'year')
+  #         and .month = <int32>datetime_get(e.performed_on.date, 'month')
+  #       ).count ?? 1) + i
+  #     ),
+  #     date_suffix := (select assert_single(
+  #       if(e.performed_on.precision = date::DatePrecision.Unknown)
+  #       then "UNK"
+  #       else if (e.performed_on.precision = date::DatePrecision.Year)
+  #       then <str>datetime_get(e.performed_on.date, 'year')
+  #       else (
+  #         <str>datetime_get(e.performed_on.date, 'year') ++
+  #         str_pad_start(<str>datetime_get(e.performed_on.date, 'month'), 2, "0")
+  #       )
+  #     )),
+  #     base := assert_single(e.site.code ++ "_" ++ date_suffix)
+  #   select assert_exists(assert_single(base ++ "." ++ <str>number_suffix))
+  # );
+
+  type SamplingCodeIndex {
+    required site: location::Site;
+    required year: int32;
+    required month: int32;
+    required count: int32;
+    constraint exclusive on ((.site, .year, .month));
+    index on ((.site, .year, .month));
+  }
+
   type Sampling extending Action {
 
-    property generated_code := (
-      select .event.site.code ++
-      "_" ++ <str>datetime_get(.event.performed_on.date, 'year') ++
-      <str>datetime_get(.event.performed_on.date, 'month')
+    trigger index_insert after insert for each do (
+      insert SamplingCodeIndex {
+        site := __new__.event.site,
+        year := <int32>datetime_get(__new__.event.performed_on.date, 'year'),
+        month := <int32>datetime_get(__new__.event.performed_on.date, 'month'),
+        count := 1
+      } unless conflict on ((.site, .year, .month)) else (
+        update SamplingCodeIndex set {
+          count := .count + 1
+        }
+      )
     );
 
     required code : str {
-      annotation title := "Unique sampling identifier, auto-generated at sampling creation.";
-      annotation description := "Format : SITE_YEARMONTH_NUMBER. The NUMBER suffix is not appended if the site and month tuple is unique.";
-      annotation default::example := "SOMESITE_202301 ; SOMESITE_202301_1";
-
       constraint exclusive;
-      rewrite insert using (
-        if (select exists Sampling filter Sampling.code = __subject__.generated_code)
-        then (select
-          .generated_code ++ "_" ++
-          <str>(select count(Sampling) filter Sampling.code = __subject__.generated_code
-        ))
-        else .generated_code
-      );
     };
+
+    # required code : str {
+    #   annotation description := "Format : SITE_YEARMONTH.NUMBER. The NUMBER suffix is not appended if the site and month tuple is unique.";
+    #   annotation default::example := "SOMESITE_202301 ; SOMESITE_202301.1";
+
+    #   default := "";
+    #   constraint exclusive;
+    #   rewrite insert, update using (
+    #     select (
+    #       if (__specified__.code)
+    #       then __subject__.code
+    #       else sampling_code(__subject__)
+    #       # .generated_code ++ "." ++
+    #       # <str>(select count(
+    #       #   detached Sampling filter .generated_code = __subject__.generated_code
+    #       # ))
+    #     )
+    #   );
+
+    #   # rewrite insert, update using (
+    #   #   with collisions := (
+    #   #     select count(detached Sampling filter .generated_code = __subject__.generated_code)
+    #   #   ),
+    #   #   select (
+    #   #     if ( collisions > 0)
+    #   #     then (select .generated_code ++ "." ++ <str>collisions)
+    #   #     else (select .generated_code)
+    #   #   )
+    #   #   # ),
+    #   #   # select (
+    #   #   #   if (select exists Sampling filter Sampling.code = generated_code)
+    #   #   #   then (
+    #   #   #     select generated_code ++ "_" ++
+    #   #   #     <str>(select count(Sampling) filter Sampling.code = generated_code)
+    #   #   #   )
+    #   #   #   else (select generated_code)
+    #   #   # )
+    #   # );
+    # };
 
     # WARNING : during migration, remove pseudo-field when no sampling was performed
     multi methods: SamplingMethod;
@@ -103,13 +195,12 @@ module events {
       # constraint expression on (exists .target_taxa) except (.sampling_target != SamplingTarget.Taxa);
     };
 
-    sampling_duration: duration;
-
-    required is_donation: bool {
-      default := false;
-    };
+    sampling_duration: int32;
 
     comments: str;
+
+    multi habitats: location::Habitat;
+    multi access_points: str;
 
     multi link samples := .<sampling[is samples::BioMaterial];
     multi link reports := .<sampling[is occurrence::OccurrenceReport];

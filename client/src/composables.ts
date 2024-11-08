@@ -1,5 +1,6 @@
 import { useConfirmDialog } from "@vueuse/core"
 import { ref } from "vue"
+import { DateWithPrecision } from "./api"
 
 
 export type ConfirmDialogContent<P> = {

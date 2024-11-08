@@ -85,16 +85,22 @@ module location {
         (.latitude <= 90 and .latitude >= -90
         and .longitude <= 180 and .longitude >= -180)
       );
+      rewrite insert, update using ((
+        precision:= __subject__.coordinates.precision,
+        latitude := <float32>round(<decimal>__subject__.coordinates.latitude, 5),
+        longitude := <float32>round(<decimal>__subject__.coordinates.longitude, 5)
+      ));
     };
 
     altitude: int32 {
       annotation title := "The site elevation in meters";
     };
 
-    access_point: str;
-
     multi link events := .<site[is events::Event];
-    multi datasets := .<sites[is SiteDataset];
+    multi datasets : SiteDataset {
+      on target delete allow;
+      on source delete allow;
+    };
 
     imported_in: SiteDataset {
       on target delete allow;
@@ -115,10 +121,7 @@ module location {
     };
 
     description: str;
-    multi sites: Site {
-      on target delete allow;
-      on source delete allow;
-    };
+    multi link sites := .<datasets[is Site];
     required multi maintainers: people::Person {
       # edgedb error: SchemaDefinitionError:
       # cannot specify a rewrite for link 'maintainers' of object type 'location::SiteDataset' because it is multi

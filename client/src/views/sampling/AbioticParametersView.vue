@@ -2,8 +2,8 @@
   <CRUDTable
     class="fill-height"
     :headers
-    entity-name="Fixatives"
-    :toolbar="{ title: 'Fixatives', icon: 'mdi-gauge' }"
+    entity-name="Abiotic parameter"
+    :toolbar="{ title: 'Abiotic parameters', icon: 'mdi-gauge' }"
     :fetch-items="SamplingService.listAbioticParameters"
     show-actions
   >

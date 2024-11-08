@@ -3,7 +3,7 @@
     class="fill-height"
     :headers
     entity-name="Sampling method"
-    :toolbar="{ title: 'Sampling methods' }"
+    :toolbar="{ title: 'Sampling methods', icon: 'mdi-hook' }"
     :fetch-items="SamplingService.listSamplingMethods"
     show-actions
   />

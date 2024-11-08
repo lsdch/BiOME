@@ -1,4 +1,4 @@
-import { Taxonomy, TaxonRank, TaxonStatus } from '@/api'
+import { Taxon, Taxonomy, TaxonRank, TaxonStatus } from '@/api'
 import TaxonomyItem from './TaxonomyItem.vue'
 
 export function FTaxaNestedList(props: { items: Taxonomy[]; rank: TaxonRank }) {

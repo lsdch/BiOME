@@ -2,8 +2,8 @@
   <CRUDTable
     class="fill-height"
     :headers
-    entity-name="Fixatives"
-    :toolbar="{ title: 'Fixatives' }"
+    entity-name="Fixative"
+    :toolbar="{ title: 'Fixatives', icon: 'mdi-snowflake' }"
     :fetch-items="SamplingService.listFixatives"
     show-actions
   />

@@ -20,10 +20,16 @@
           <v-btn color="grey" @click="close" :text="closeText" />
         </template>
       </v-toolbar>
-      <v-card-text>
-        <!-- Default form slot -->
-        <slot />
-      </v-card-text>
+      <slot>
+        <v-card-text>
+          <!-- Default form slot -->
+          <slot name="text" />
+        </v-card-text>
+      </slot>
+      <v-divider></v-divider>
+      <template #actions>
+        <slot name="actions" />
+      </template>
     </v-card>
   </v-dialog>
 </template>

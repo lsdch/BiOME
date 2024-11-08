@@ -28,5 +28,11 @@
     "code": "ANR",
     "description": "National French research founding agency.",
     "kind": "FundingAgency"
+  },
+  {
+    "name": "biodiversa+",
+    "code": "BIODIVERSA",
+    "description": "European biodiversity partnership",
+    "kind": "FundingAgency"
   }
 ]

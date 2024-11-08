@@ -19,7 +19,7 @@
     - label: Freshwater
     - label: Saltwater
     - label: Brackish water
-      description: More saline than freshwater, yet not as mush as seawater
+      description: More saline than freshwater, yet not as much as seawater
 
 - label: Aquifer
   depends: Subsurface

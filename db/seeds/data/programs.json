@@ -11,5 +11,19 @@
     "start_year": 2023,
     "end_year": 2025,
     "description": "A mock research project."
+  },
+  {
+    "label": "DarCo",
+    "code": "DARCO",
+    "managers": [
+      "madmin",
+      "fmalard"
+    ],
+    "funding_agencies": [
+      "BIODIVERSA"
+    ],
+    "start_year": 2023,
+    "end_year": 2026,
+    "description": "The vertical dimension of conservation: A cost-effective plan to incorporate subterranean ecosystems in post-2020 biodiversity and climate change agendas"
   }
 ]

@@ -16,17 +16,21 @@ type DateWithPrecision struct {
 }
 
 type Event struct {
-	SiteCode    string              `edgedb:"site_code" json:"site_code"`
-	PerformedBy []people.PersonUser `edgedb:"performed_by" json:"performed_by" minLength:"1"`
-	PerformedOn DateWithPrecision   `edgedb:"performed_on" json:"performed_on"`
-	Programs    []ProgramInner      `edgedb:"programs" json:"programs,omitempty"`
-	Meta        people.Meta         `edgedb:"meta" json:"meta"`
+	ID                  edgedb.UUID               `edgedb:"id" json:"id" format:"uuid"`
+	SiteCode            string                    `edgedb:"site_code" json:"site_code"`
+	PerformedBy         []people.PersonUser       `edgedb:"performed_by" json:"performed_by" minLength:"1"`
+	PerformedOn         DateWithPrecision         `edgedb:"performed_on" json:"performed_on"`
+	Programs            []ProgramInner            `edgedb:"programs" json:"programs,omitempty"`
+	AbioticMeasurements []AbioticMeasurement      `edgedb:"abiotic_measurements" json:"abiotic_measurements"`
+	Samplings           []Sampling                `edgedb:"samplings" json:"samplings"`
+	Spotting            models.Optional[Spotting] `edgedb:"spotting" json:"spotting,omitempty"`
+	Meta                people.Meta               `edgedb:"meta" json:"meta"`
 }
 
 func ListEvents(db edgedb.Executor) ([]Event, error) {
 	var items = []Event{}
 	err := db.Query(context.Background(),
-		`select events::Event { ** };`,
+		`select events::Event { **, site_code := .site.code };`,
 		&items)
 	return items, err
 }

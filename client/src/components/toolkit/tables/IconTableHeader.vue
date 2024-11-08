@@ -1,14 +1,19 @@
 <template>
-  <div class="d-flex flex-no-wrap">
+  <div class="d-flex flex-no-wrap justify-center">
     <template v-if="expanded">
       {{ column.title }}
     </template>
-    <v-icon
-      v-else
-      :title="column.title"
-      :color="color ?? (isSorted(column) ? 'primary' : 'secondary')"
-      :icon="icon"
-    />
+    <v-tooltip v-else location="top">
+      <template #activator="{ props }">
+        <v-icon
+          v-bind="props"
+          :title="column.title"
+          :color="color ?? (isSorted(column) ? 'primary' : undefined)"
+          :icon="icon"
+        />
+      </template>
+      {{ column.title }}
+    </v-tooltip>
     <v-icon v-if="isSorted(column)" :icon="getSortIcon(column)" />
   </div>
 </template>
