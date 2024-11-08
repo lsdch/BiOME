@@ -2,7 +2,7 @@ package events
 
 import (
 	"darco/proto/controllers"
-	"darco/proto/models/events"
+	"darco/proto/models/occurrence"
 	"darco/proto/models/vocabulary"
 	"darco/proto/resolvers"
 	"darco/proto/router"
@@ -27,7 +27,7 @@ func registerSamplingRoutes(r router.Router) {
 		},
 		controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](events.ListSamplingMethods))
+		}](occurrence.ListSamplingMethods))
 
 	router.Register(samplingMethodsAPI, "CreateSamplingMethod",
 		huma.Operation{
@@ -35,7 +35,7 @@ func registerSamplingRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Create sampling method",
 		},
-		controllers.CreateHandler[events.SamplingMethodInput])
+		controllers.CreateHandler[occurrence.SamplingMethodInput])
 
 	/**
 	 * FIXATIVES
@@ -75,7 +75,7 @@ func registerSamplingRoutes(r router.Router) {
 		},
 		controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](events.ListAbioticParameters))
+		}](occurrence.ListAbioticParameters))
 
 	router.Register(abioticAPI, "CreateAbioticParameter",
 		huma.Operation{
@@ -83,6 +83,6 @@ func registerSamplingRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Create abiotic parameter",
 		},
-		controllers.CreateHandler[events.AbioticParameterInput])
+		controllers.CreateHandler[occurrence.AbioticParameterInput])
 
 }

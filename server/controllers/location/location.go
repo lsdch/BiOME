@@ -2,8 +2,8 @@ package location
 
 import (
 	"darco/proto/controllers"
-	"darco/proto/models/events"
 	"darco/proto/models/location"
+	"darco/proto/models/occurrence"
 	"darco/proto/resolvers"
 	"darco/proto/router"
 	"fmt"
@@ -35,42 +35,42 @@ func RegisterRoutes(r router.Router) {
 			Summary: "List habitats",
 		}, controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](events.ListHabitatGroups))
+		}](occurrence.ListHabitatGroups))
 
 	router.Register(habitatsAPI, "CreateHabitatGroup",
 		huma.Operation{
 			Path:    "/",
 			Method:  http.MethodPost,
 			Summary: "Create habitat group",
-		}, controllers.CreateHandler[events.HabitatGroupInput])
+		}, controllers.CreateHandler[occurrence.HabitatGroupInput])
 
 	router.Register(habitatsAPI, "DeleteHabitatGroup",
 		huma.Operation{
 			Path:    "/{code}",
 			Method:  http.MethodDelete,
 			Summary: "Delete habitat group",
-		}, controllers.DeleteByCodeHandler(events.DeleteHabitatGroup))
+		}, controllers.DeleteByCodeHandler(occurrence.DeleteHabitatGroup))
 
 	router.Register(habitatsAPI, "UpdateHabitatGroup",
 		huma.Operation{
 			Path:    "/{code}",
 			Method:  http.MethodPatch,
 			Summary: "Update habitat group",
-		}, controllers.UpdateByCodeHandler[events.HabitatGroupUpdate])
+		}, controllers.UpdateByCodeHandler[occurrence.HabitatGroupUpdate])
 
 }
 
 type HabitatGroupInput[R resolvers.RoleSpecifier] struct {
 	resolvers.AccessRestricted[R]
 	controllers.CodeInput
-	HabitatGroup events.HabitatGroup
+	HabitatGroup occurrence.HabitatGroup
 }
 type HabitatGroupOutput struct {
-	Body events.HabitatGroup
+	Body occurrence.HabitatGroup
 }
 
 func (i *HabitatGroupInput[R]) Resolve(ctx huma.Context) []error {
-	group, err := events.FindHabitatGroup(i.DB(), i.Code)
+	group, err := occurrence.FindHabitatGroup(i.DB(), i.Code)
 	if err != nil {
 		return []error{huma.Error404NotFound(fmt.Sprintf("Habitat group '%s' does not exist", i.Code))}
 	}

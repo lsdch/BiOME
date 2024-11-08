@@ -2,7 +2,7 @@ package events
 
 import (
 	"darco/proto/controllers"
-	"darco/proto/models/events"
+	"darco/proto/models/occurrence"
 	"darco/proto/resolvers"
 	"darco/proto/router"
 	"net/http"
@@ -22,7 +22,7 @@ func registerProgramRoutes(r router.Router) {
 		},
 		controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](events.ListPrograms))
+		}](occurrence.ListPrograms))
 
 	router.Register(programsAPI, "CreateProgram",
 		huma.Operation{
@@ -30,7 +30,7 @@ func registerProgramRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Create program",
 		},
-		controllers.CreateHandler[events.ProgramInput, events.Program])
+		controllers.CreateHandler[occurrence.ProgramInput, occurrence.Program])
 
 	router.Register(programsAPI, "UpdateProgram",
 		huma.Operation{
@@ -38,7 +38,7 @@ func registerProgramRoutes(r router.Router) {
 			Method:  http.MethodPatch,
 			Summary: "Update program",
 		},
-		controllers.UpdateByCodeHandler[events.ProgramUpdate])
+		controllers.UpdateByCodeHandler[occurrence.ProgramUpdate])
 
 	router.Register(programsAPI, "DeleteProgram",
 		huma.Operation{
@@ -46,5 +46,5 @@ func registerProgramRoutes(r router.Router) {
 			Method:  http.MethodDelete,
 			Summary: "Delete program",
 		},
-		controllers.DeleteByCodeHandler(events.DeleteProgram))
+		controllers.DeleteByCodeHandler(occurrence.DeleteProgram))
 }

@@ -1,11 +1,11 @@
-package location
+package occurrence
 
 import (
 	"bytes"
 	"context"
 	"darco/proto/db"
 	"darco/proto/models"
-	"darco/proto/models/events"
+	"darco/proto/models/location"
 	"darco/proto/models/people"
 	"darco/proto/models/validations"
 	"encoding/json"
@@ -18,9 +18,9 @@ import (
 )
 
 type Coordinates struct {
-	Precision CoordinatesPrecision `edgedb:"precision" json:"precision" doc:"Where the coordinates point to"`
-	Latitude  float32              `edgedb:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"39.1137"`
-	Longitude float32              `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"9.5064"`
+	Precision location.CoordinatesPrecision `edgedb:"precision" json:"precision" doc:"Where the coordinates point to"`
+	Latitude  float32                       `edgedb:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"39.1137"`
+	Longitude float32                       `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"9.5064"`
 }
 
 type SiteInput struct {
@@ -54,14 +54,14 @@ type SiteItem struct {
 	Coordinates Coordinates          `edgedb:"coordinates" json:"coordinates"`
 	Altitude    edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
 	Locality    edgedb.OptionalStr   `edgedb:"locality" json:"locality,omitempty"`
-	Country     Country              `edgedb:"country" json:"country"`
+	Country     location.Country     `edgedb:"country" json:"country"`
 	AccessPoint edgedb.OptionalStr   `edgedb:"access_point" json:"access_point,omitempty"`
 }
 
 type Site struct {
 	SiteItem `edgedb:"$inline" json:",inline"`
 	Datasets []SiteDatasetInner `edgedb:"datasets" json:"datasets"`
-	Events   []events.Event     `edgedb:"events" json:"events"`
+	Events   []Event            `edgedb:"events" json:"events"`
 	Meta     people.Meta        `edgedb:"meta" json:"meta"`
 }
 

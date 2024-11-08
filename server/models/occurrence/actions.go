@@ -1,4 +1,4 @@
-package events
+package occurrence
 
 import (
 	"darco/proto/models/taxonomy"

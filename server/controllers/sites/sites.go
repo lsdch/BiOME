@@ -2,7 +2,7 @@ package sites
 
 import (
 	"darco/proto/controllers"
-	"darco/proto/models/location"
+	"darco/proto/models/occurrence"
 	"darco/proto/resolvers"
 	"darco/proto/router"
 	"net/http"
@@ -21,7 +21,7 @@ func RegisterRoutes(r router.Router) {
 			Description: "List all registered sites",
 		}, controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](location.ListSites))
+		}](occurrence.ListSites))
 
 	router.Register(sites_API, "GetSite",
 		huma.Operation{
@@ -29,7 +29,7 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodGet,
 			Summary:     "Get site",
 			Description: "Get site infos using its code",
-		}, controllers.GetByCodeHandler(location.GetSite))
+		}, controllers.GetByCodeHandler(occurrence.GetSite))
 
 	router.Register(sites_API, "UpdateSite",
 		huma.Operation{
@@ -38,7 +38,7 @@ func RegisterRoutes(r router.Router) {
 			Summary:     "Update site",
 			Description: "Update site infos using its code",
 		},
-		controllers.UpdateByCodeHandler[location.SiteUpdate],
+		controllers.UpdateByCodeHandler[occurrence.SiteUpdate],
 	)
 
 	huma.Register(r.API, huma.Operation{
@@ -48,5 +48,5 @@ func RegisterRoutes(r router.Router) {
 		Tags:    sites_API.Tags,
 	}, controllers.ListHandler[*struct {
 		resolvers.AuthResolver
-	}](location.ListAccessPoints))
+	}](occurrence.ListAccessPoints))
 }

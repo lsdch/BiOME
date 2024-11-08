@@ -1,4 +1,4 @@
-package events
+package occurrence
 
 type SamplingTargetKind string
 

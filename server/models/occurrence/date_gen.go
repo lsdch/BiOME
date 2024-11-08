@@ -1,6 +1,6 @@
 // This file is auto-generated *DO NOT EDIT*
 
-package events
+package occurrence
 
 
 import (
