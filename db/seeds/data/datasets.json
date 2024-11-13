@@ -60,7 +60,6 @@
             ],
             "samplings": [
               {
-                "code": "DOUA_POND_202112.1",
                 "fixatives": [
                   "CRYO"
                 ],
@@ -99,7 +98,6 @@
             ],
             "samplings": [
               {
-                "code": "DOUA_POND_202112.2",
                 "fixatives": [
                   "ALCOHOL"
                 ],

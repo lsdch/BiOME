@@ -2261,9 +2261,6 @@
 						},
 						"type": "array"
 					},
-					"code": {
-						"type": "string"
-					},
 					"comments": {
 						"type": "string"
 					},
@@ -2300,7 +2297,6 @@
 				},
 				"required": [
 					"id",
-					"code",
 					"fixatives",
 					"target",
 					"habitats",

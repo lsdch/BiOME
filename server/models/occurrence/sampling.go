@@ -46,7 +46,6 @@ type SamplingTarget struct {
 
 type Sampling struct {
 	ID           edgedb.UUID           `edgedb:"id" json:"id" format:"uuid"`
-	Code         string                `edgedb:"code" json:"code"`
 	Methods      []SamplingMethod      `edgedb:"methods" json:"methods,omitempty"`
 	Fixatives    []vocabulary.Fixative `edgedb:"fixatives" json:"fixatives"`
 	Target       SamplingTarget        `edgedb:"$inline" json:"target"`
@@ -57,7 +56,6 @@ type Sampling struct {
 }
 
 type SamplingInput struct {
-	Code      models.OptionalInput[string]   `edgedb:"code" json:"code,omitempty"`
 	Methods   models.OptionalInput[[]string] `edgedb:"methods" json:"methods,omitempty"`
 	Fixatives models.OptionalInput[[]string] `edgedb:"fixatives" json:"fixatives"`
 	Target    SamplingTarget                 `edgedb:"target" json:"target"`

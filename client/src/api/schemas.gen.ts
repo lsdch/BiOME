@@ -1830,9 +1830,6 @@ export const $Sampling = {
             },
             type: 'array'
         },
-        code: {
-            type: 'string'
-        },
         comments: {
             type: 'string'
         },
@@ -1867,7 +1864,7 @@ export const $Sampling = {
             '$ref': '#/components/schemas/SamplingTarget'
         }
     },
-    required: ['id', 'code', 'fixatives', 'target', 'habitats', 'access_points'],
+    required: ['id', 'fixatives', 'target', 'habitats', 'access_points'],
     type: 'object'
 } as const;
 

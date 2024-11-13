@@ -737,7 +737,6 @@ export type ResendEmailVerificationInputBody = {
 
 export type Sampling = {
     access_points: Array<(string)>;
-    code: string;
     comments?: string;
     /**
      * Sampling duration in minutes

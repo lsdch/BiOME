@@ -16,6 +16,21 @@ module events {
     description: str;
   }
 
+  function event_code(e: Event) -> str using (
+    with
+      date_suffix := (select assert_single(
+        if(e.performed_on.precision = date::DatePrecision.Unknown)
+        then "UNK"
+        else if (e.performed_on.precision = date::DatePrecision.Year)
+        then <str>datetime_get(e.performed_on.date, 'year')
+        else (
+          <str>datetime_get(e.performed_on.date, 'year') ++
+          str_pad_start(<str>datetime_get(e.performed_on.date, 'month'), 2, "0")
+        )
+      )),
+    select (e.site.code ++ "_" ++ date_suffix)
+  );
+
   type Event extending default::Auditable {
     required site: location::Site {
       on source delete allow;
@@ -40,24 +55,6 @@ module events {
     multi abiotic_measurements := .<event[is AbioticMeasurement];
     multi samplings := .<event[is Sampling];
 
-    trigger event_update after update for each
-    when(
-      <int32>datetime_get(__new__.performed_on.date, 'year') !=
-      <int32>datetime_get(__old__.performed_on.date, 'year') or
-      <int32>datetime_get(__new__.performed_on.date, 'month') !=
-      <int32>datetime_get(__old__.performed_on.date, 'month')
-    ) do (
-        insert SamplingCodeIndex {
-        site := __new__.site,
-        year := <int32>datetime_get(__new__.performed_on.date, 'year'),
-        month := <int32>datetime_get(__new__.performed_on.date, 'month'),
-        count := count(__new__.samplings)
-      } unless conflict on ((.site, .year, .month)) else (
-        update SamplingCodeIndex set {
-          count := .count + <int32>count(__new__.samplings)
-        }
-      )
-    );
   }
 
   # Several actions may have been performed during an event
@@ -94,95 +91,7 @@ module events {
 
   type SamplingMethod extending default::Vocabulary, default::Auditable;
 
-  # function sampling_code(e: Event, i: int32) -> str using (
-  #   with
-  #     number_suffix := (
-  #       <int32>((select SamplingCodeIndex
-  #         filter .site = e.site
-  #         and .year = <int32>datetime_get(e.performed_on.date, 'year')
-  #         and .month = <int32>datetime_get(e.performed_on.date, 'month')
-  #       ).count ?? 1) + i
-  #     ),
-  #     date_suffix := (select assert_single(
-  #       if(e.performed_on.precision = date::DatePrecision.Unknown)
-  #       then "UNK"
-  #       else if (e.performed_on.precision = date::DatePrecision.Year)
-  #       then <str>datetime_get(e.performed_on.date, 'year')
-  #       else (
-  #         <str>datetime_get(e.performed_on.date, 'year') ++
-  #         str_pad_start(<str>datetime_get(e.performed_on.date, 'month'), 2, "0")
-  #       )
-  #     )),
-  #     base := assert_single(e.site.code ++ "_" ++ date_suffix)
-  #   select assert_exists(assert_single(base ++ "." ++ <str>number_suffix))
-  # );
-
-  type SamplingCodeIndex {
-    required site: location::Site;
-    required year: int32;
-    required month: int32;
-    required count: int32;
-    constraint exclusive on ((.site, .year, .month));
-    index on ((.site, .year, .month));
-  }
-
   type Sampling extending Action {
-
-    trigger index_insert after insert for each do (
-      insert SamplingCodeIndex {
-        site := __new__.event.site,
-        year := <int32>datetime_get(__new__.event.performed_on.date, 'year'),
-        month := <int32>datetime_get(__new__.event.performed_on.date, 'month'),
-        count := 1
-      } unless conflict on ((.site, .year, .month)) else (
-        update SamplingCodeIndex set {
-          count := .count + 1
-        }
-      )
-    );
-
-    required code : str {
-      constraint exclusive;
-    };
-
-    # required code : str {
-    #   annotation description := "Format : SITE_YEARMONTH.NUMBER. The NUMBER suffix is not appended if the site and month tuple is unique.";
-    #   annotation default::example := "SOMESITE_202301 ; SOMESITE_202301.1";
-
-    #   default := "";
-    #   constraint exclusive;
-    #   rewrite insert, update using (
-    #     select (
-    #       if (__specified__.code)
-    #       then __subject__.code
-    #       else sampling_code(__subject__)
-    #       # .generated_code ++ "." ++
-    #       # <str>(select count(
-    #       #   detached Sampling filter .generated_code = __subject__.generated_code
-    #       # ))
-    #     )
-    #   );
-
-    #   # rewrite insert, update using (
-    #   #   with collisions := (
-    #   #     select count(detached Sampling filter .generated_code = __subject__.generated_code)
-    #   #   ),
-    #   #   select (
-    #   #     if ( collisions > 0)
-    #   #     then (select .generated_code ++ "." ++ <str>collisions)
-    #   #     else (select .generated_code)
-    #   #   )
-    #   #   # ),
-    #   #   # select (
-    #   #   #   if (select exists Sampling filter Sampling.code = generated_code)
-    #   #   #   then (
-    #   #   #     select generated_code ++ "_" ++
-    #   #   #     <str>(select count(Sampling) filter Sampling.code = generated_code)
-    #   #   #   )
-    #   #   #   else (select generated_code)
-    #   #   # )
-    #   # );
-    # };
 
     # WARNING : during migration, remove pseudo-field when no sampling was performed
     multi methods: SamplingMethod;
@@ -215,29 +124,4 @@ module events {
       )
     );
   }
-
-  # type EventDataset extending default::Auditable {
-  #   required name: str {
-  #     constraint min_len_value(4);
-  #     constraint max_len_value(40);
-  #   };
-
-  #   multi samplings: Sampling {
-  #     on target delete allow;
-  #   };
-  #   multi abiotic_measurements: AbioticMeasurement {
-  #     on target delete allow;
-  #   };
-  #   multi spottings: Spotting {
-  #     on target delete allow;
-  #   };
-
-  #   required multi maintainers: people::Person {
-  #     on target delete restrict;
-  #   };
-  #   multi published_in: reference::Article {
-  #     on target delete allow;
-  #   };
-  #   comments: str;
-  # }
 }

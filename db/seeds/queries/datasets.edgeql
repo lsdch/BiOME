@@ -72,7 +72,6 @@ for item in json_array_unpack(data) union (
         for sampling in json_array_unpack(json_get(event, 'samplings')) union (
         insert events::Sampling {
           event := e,
-          code := <str>sampling['code'],
           fixatives := (
             select default::Conservation
             filter .code in <str>json_array_unpack(json_get(sampling, 'fixatives'))

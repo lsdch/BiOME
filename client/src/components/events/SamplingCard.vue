@@ -43,12 +43,6 @@
         <v-list-item title="Comments" :subtitle="sampling.comments" />
       </v-list>
     </v-card-text>
-    <v-divider></v-divider>
-    <template #actions>
-      <code class="ma-auto text-caption font-weight-thin">
-        {{ sampling.code }}
-      </code>
-    </template>
   </v-card>
 </template>
 

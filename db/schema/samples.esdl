@@ -5,7 +5,7 @@ module samples {
       constraint exclusive;
       annotation description := "Format like 'taxon_code|sampling_code'";
       rewrite insert, update using (
-        .identification.taxon.code ++ "|" ++ .sampling.code
+        .identification.taxon.code ++ "|" ++ events::event_code(.sampling.event)
       )
     };
 
