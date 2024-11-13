@@ -14,7 +14,11 @@
 
     <v-card flat :rounded="false">
       <v-toolbar dark dense flat class="position-sticky">
-        <v-toolbar-title class="font-weight-bold"> {{ title }} </v-toolbar-title>
+        <template #title>
+          <slot name="title">
+            <v-toolbar-title class="font-weight-bold"> {{ title }} </v-toolbar-title>
+          </slot>
+        </template>
         <template #append>
           <slot name="append" />
           <v-btn color="grey" @click="close" :text="closeText" />
@@ -45,7 +49,7 @@ const dialog = defineModel<boolean>({ default: false })
 const emit = defineEmits<{ close: [] }>()
 
 export type CardDialogProps = {
-  title: string
+  title?: string
   loading?: boolean
   fullscreen?: boolean
   maxWidth?: number

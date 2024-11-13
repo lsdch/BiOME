@@ -1,5 +1,8 @@
 <template>
-  <CardDialog :title v-model="open" :fullscreen="smAndDown">
+  <CardDialog v-model="open" :fullscreen="smAndDown">
+    <template #title>
+      <slot name="title" />
+    </template>
     <v-tabs v-model="tab" color="primary" center-active class="overflow-visible">
       <v-tab value="sampling" prepend-icon="mdi-package-down">
         <span v-if="!mobile || tab === 'sampling'"> Samplings </span>
@@ -14,7 +17,7 @@
         <v-badge color="primary" inline :content="event?.spotting?.target_taxa.length ?? 0" />
       </v-tab>
     </v-tabs>
-    <v-tabs-window v-model="tab" class="overflow-y-auto">
+    <v-tabs-window v-model="tab" class="overflow-y-auto event-action-text">
       <v-tabs-window-item value="sampling">
         <v-container fluid>
           <v-row>
@@ -122,6 +125,9 @@ const title = computed(() =>
 </script>
 
 <style lang="scss">
+.event-action-text {
+  min-height: 50vh;
+}
 .sampling-card {
   .v-card-item {
     padding-top: 0px;
