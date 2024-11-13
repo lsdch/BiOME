@@ -479,6 +479,33 @@ export const $FixativeInput = {
     type: 'object'
 } as const;
 
+export const $Gene = {
+    additionalProperties: false,
+    properties: {
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        is_delimiter_MOTU: {
+            type: 'boolean'
+        },
+        label: {
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        }
+    },
+    required: ['is_delimiter_MOTU', 'meta', 'id', 'label', 'code'],
+    type: 'object'
+} as const;
+
 export const $Habitat = {
     additionalProperties: false,
     properties: {

@@ -52,17 +52,10 @@ module seq {
   }
 
 
-  type Gene extending default::Auditable {
-    required name: str {
-      annotation default::example := "cytochrome oxydase";
-      constraint exclusive;
-    };
-    required code: str {
-      annotation default::example := "COI";
-      constraint exclusive;
-    };
-    description: str;
-    required motu: bool; # TODO : discuss with Florian
+  type Gene extending default::Vocabulary, default::Auditable {
+    required motu: bool {
+      default := false;
+    }; # TODO : discuss with Florian
   }
 
   abstract type Primer extending default::Auditable {

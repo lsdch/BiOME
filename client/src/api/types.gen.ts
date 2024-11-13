@@ -225,6 +225,15 @@ export type FixativeInput = {
     label: string;
 };
 
+export type Gene = {
+    code: string;
+    description?: string;
+    id: string;
+    is_delimiter_MOTU: boolean;
+    label: string;
+    meta: Meta;
+};
+
 export type Habitat = {
     /**
      * Optional habitat description
@@ -1625,6 +1634,19 @@ export type MonitorGbifResponse = (Array<({
 })>);
 
 export type MonitorGbifError = (ErrorModel);
+
+export type ListGenesData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListGenesResponse = (Array<Gene>);
+
+export type ListGenesError = (ErrorModel);
 
 export type ListInstitutionsData = {
     headers?: {

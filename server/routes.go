@@ -5,6 +5,7 @@ import (
 	"darco/proto/controllers/institution"
 	"darco/proto/controllers/location"
 	"darco/proto/controllers/person"
+	"darco/proto/controllers/sequences"
 	"darco/proto/controllers/settings"
 	"darco/proto/controllers/sites"
 	"darco/proto/controllers/taxonomy"
@@ -23,4 +24,5 @@ func registerRoutes(router router.Router) {
 	sites.RegisterRoutes(router)
 	sites.RegisterDatasetRoutes(router)
 	events.RegisterRoutes(router)
+	sequences.RegisterRoutes(router)
 }

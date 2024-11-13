@@ -22,7 +22,7 @@ type ListItemHandler[Item any, Input resolvers.AuthDBProvider] func(ctx context.
 func ListHandler[Input resolvers.AuthDBProvider, Item any](listFn FetchItemList[Item]) ListItemHandler[Item, Input] {
 	return func(ctx context.Context, input Input) (*ListHandlerOutput[Item], error) {
 		items, err := listFn(input.DB())
-		if items == nil {
+		if len(items) == 0 {
 			items = []Item{}
 		}
 		if err != nil {

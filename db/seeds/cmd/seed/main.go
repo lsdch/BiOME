@@ -21,6 +21,7 @@ var entities = []string{
 	"sampling_methods",
 	"fixatives",
 	"abiotic",
+	"genes",
 	"datasets",
 }
 
