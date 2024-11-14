@@ -153,7 +153,7 @@ module seq {
     };
     required identification: occurrence::Identification;
 
-    multi published_in: reference::Article;
+    multi published_in: references::Article;
     required multi assembled_by: people::Person;
     required multi chromatograms: Chromatogram;
     required specimen: samples::Specimen;

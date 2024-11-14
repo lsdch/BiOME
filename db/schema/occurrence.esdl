@@ -2,7 +2,8 @@ module occurrence {
 
   type Identification extending default::Auditable {
     required taxon: taxonomy::Taxon;
-    required identified_by: people::Person;
+
+    identified_by: people::Person; # might be unknown
     required identified_on: tuple<date: datetime, precision: date::DatePrecision>{
       constraint date::required_unless_unknown(__subject__.date, __subject__.precision);
       rewrite insert, update using (
@@ -23,29 +24,21 @@ module occurrence {
 
 
 
-  scalar type QuantityType extending enum<Exact, Unknown, One, Several, Ten, Tens, Hundred>;
+  scalar type QuantityType extending enum<Unknown, One, Several, Ten, Tens, Hundred>;
 
   type OccurrenceReport extending Occurrence {
     reported_by: people::Person;
-    reference: reference::Article;
+    reference: references::Article;
 
     original_link: str; # link to original database
 
-    specimen_available : tuple<collection: str, item: str> {
+    voucher : tuple<collection: str, item: str> {
       constraint exclusive;
     };
 
-    required quantity : tuple<precision: QuantityType, exact: int16> {
-      constraint expression on (
-        (.precision = QuantityType.Exact and .exact > 0) or
-        (.precision != QuantityType.Exact)
-      );
-      rewrite insert, update using (
-        ((precision := __subject__.quantity.precision, exact := -1))
-        if __subject__.quantity.precision != QuantityType.Exact
-        else __subject__.quantity
-      )
-    };
+    required quantity: QuantityType;
+    content_description: str;
+
     multi link sequences := .<source_sample[is seq::ExternalSequence];
   }
 }

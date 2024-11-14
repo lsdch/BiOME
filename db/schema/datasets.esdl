@@ -10,7 +10,7 @@ module datasets {
   type MOTUDataset extending default::Auditable {
     required label: str;
     multi link MOTUs := .<dataset[is MOTU];
-    published_in: reference::Article;
+    published_in: references::Article;
     required multi generated_by: people::Person;
     comments: str;
   }

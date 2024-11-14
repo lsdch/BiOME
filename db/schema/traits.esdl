@@ -1,3 +1,14 @@
+module traits {
+  type QualitativeTrait {
+    required name: str;
+    required multi modalities: str;
+  }
+
+  type QualitativeTraitTag {
+    required trait: QualitativeTrait;
+    required tag: str;
+  }
+}
 
 # module traits {
 #   scalar type Category extending enum<Morphology, Physiology, Ecology, Behaviour, LifeHistory, HabitatPref>;
@@ -29,7 +40,7 @@
 
 #   abstract type SpeciesTrait {
 #     required species: taxonomy::Taxon;
-#     reference: reference::Article;
+#     reference: references::Article;
 #     expert_opinion: people::Person;
 #     constraint expression on (exists .reference or exists .expert_opinion);
 #   }

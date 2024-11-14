@@ -16,7 +16,7 @@ module samples {
       )
     };
     required multi sorted_by: people::Person;
-    multi published_in: reference::Article;
+    multi published_in: references::Article;
     multi link content := .<biomat[is Sample];
     multi link specimens := .<biomat[is Specimen];
     multi link bundles := .<biomat[is BundledSpecimens];

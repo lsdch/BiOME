@@ -52,17 +52,5 @@ module default {
   }
 }
 
-module reference {
-  type Article extending default::Auditable {
-    required multi authors: str;
-    required year: int16 {
-      constraint min_value(1000);
-    };
-    required title: str;
-    journal: str;
-    # TODO : add verbatim field ?
-    doi: str;
-    comments: str;
-   }
-}
+
 
