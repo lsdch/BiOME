@@ -47,10 +47,11 @@ onMounted(fetch)
 const [loading, toggleLoading] = useToggle(true)
 async function fetch() {
   toggleLoading(true)
-  const data = await PeopleService.listInstitutions()
-    .then(handleErrors((err) => console.error('Failed to fetch institutions: ', err)))
-    .finally(() => toggleLoading(false))
+  const data = await PeopleService.listInstitutions().then(
+    handleErrors((err) => console.error('Failed to fetch institutions: ', err))
+  )
   items.value = props.kinds ? data.filter(({ kind }) => props.kinds?.includes(kind)) : data
+  toggleLoading(false)
 }
 </script>
 
