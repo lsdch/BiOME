@@ -19,36 +19,6 @@ module location {
     select Country { *, sites_count := count(.sites) }
   );
 
-  type Habitat extending default::Auditable {
-    required label: str {
-      constraint exclusive;
-    };
-    description: str;
-
-    required in_group: HabitatGroup {
-      on target delete delete source;
-    };
-
-    multi incompatible_from: Habitat {
-      on target delete allow;
-    };
-    incompatible := (
-      .incompatible_from
-      union .<incompatible_from[is Habitat]
-      union (.in_group.elements if .in_group.exclusive_elements else {})
-    )
-  }
-
-  type HabitatGroup extending default::Auditable {
-    required label: str {
-      constraint exclusive;
-    };
-    depends: Habitat;
-    required exclusive_elements: bool {
-      default := true;
-    };
-    elements := .<in_group[is Habitat];
-  }
 
   # <100m: Coordinates of site position
   # <1Km: Nearest small locality

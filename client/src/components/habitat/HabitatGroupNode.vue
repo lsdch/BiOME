@@ -9,7 +9,15 @@
     >
       {{ sideLabel }}
     </legend>
-    <div :class="[selected ? 'selected' : '', 'group-node flex-grow-1 bg-surface']">
+    <div
+      :class="[
+        'group-node flex-grow-1 bg-surface',
+        {
+          selected,
+          'text-error': selected && data.exclusive_elements
+        }
+      ]"
+    >
       <HabitatElement v-for="(habitat, index) in data.elements" :key="index" :habitat="habitat" />
 
       <Handle :position="Position.Left" type="target" style="visibility: hidden" />
@@ -76,7 +84,6 @@ const emit = defineEmits<{
 
 const { startHandle, status } = useConnection()
 
-// const sideLabel = computed(() => (props.data.elements.length > 1 ? props.data.label : undefined))
 const sideLabel = computed(() => props.data.label)
 </script>
 

@@ -19,7 +19,10 @@ const pinia = createPinia()
 setActivePinia(pinia)
 app.use(pinia)
 
+// Initialize countries store
 await import('./stores/countries').then(s => s.useCountries().fetch())
+
+// Setup authentication using refresh token
 await import('./stores/user').then(async ({ useUserStore }) => {
   const { refresh, isAuthenticated, sessionExpired, getUser } = useUserStore()
   await getUser()

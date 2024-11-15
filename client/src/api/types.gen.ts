@@ -297,10 +297,6 @@ export type HabitatInput = {
      */
     description?: string;
     /**
-     * List of habitat labels this habitat is incompatible with.
-     */
-    incompatible?: Array<(string)>;
-    /**
      * A short label for the habitat.
      */
     label: string;

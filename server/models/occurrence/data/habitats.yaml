@@ -45,10 +45,7 @@
       description: Presence of fissures that facilitate the movement and absorption of water
     - label: Karst
       description: Presence of cavities formed from the dissolution of soluble rocks
-      incompatible: [Fissured]
     - label: Alluvial
       description: Loose soil or sediment
-      incompatible: [Karst, Porous, Fissured]
     - label: Hyporheic zone
       description: Region where there is mixing of shallow groundwater and surface water
-      incompatible: [Alluvial, Karst, Fissured, Porous]

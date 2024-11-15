@@ -77,6 +77,16 @@ const selection = ref<ConnectedHabitat>()
 
 export function useHabitatGraph(groups?: HabitatGroup[]) {
 
+  // Graph initialization
+  if (groups) {
+    if (habitatGraph.value == undefined)
+      habitatGraph.value = buildGraph(groups)
+    else
+      console.info("Habitats graph is already initialized.")
+  } else if (habitatGraph.value == undefined)
+    console.error("Habitat graph was never initialized, useHabitatGraph must be called with an argument the first time")
+
+
   function select(habitat: ConnectedHabitat) {
     selection.value = habitat
   }
@@ -85,30 +95,10 @@ export function useHabitatGraph(groups?: HabitatGroup[]) {
     return computed(() => habitat.id === selection.value?.id)
   }
 
-  function isIncompatibleWithSelection(habitat: ConnectedHabitat) {
-    return computed(() => {
-      return (selection.value?.incompatible?.find(({ id }) => id === habitat.id)) ||
-        (
-          selection.value?.group.label == habitat.group.label &&
-          selection.value?.id !== habitat.id &&
-          habitat.group.exclusive_elements
-        )
-    })
-  }
-
   function buildGraph(groups: HabitatGroup[]) {
     habitatGraph.value = indexGroups(groups)
     return habitatGraph.value
   }
 
-  // Graph initialization
-  if (groups) {
-    if (habitatGraph.value == undefined)
-      habitatGraph.value = buildGraph(groups)
-    else
-      console.error("Graph is already initialized. Did you call useHabitatGraph with an argument multiple times ?")
-  } else if (habitatGraph.value == undefined)
-    console.error("Graph was never initialized, useHabitatGraph must be called with an argument")
-
-  return { selection, select, isSelected, isIncompatibleWithSelection, addGroup, buildGraph, habitatGraph: habitatGraph.value as HabitatsGraph }
+  return { selection, select, isSelected, addGroup, habitatGraph: habitatGraph.value as HabitatsGraph }
 }

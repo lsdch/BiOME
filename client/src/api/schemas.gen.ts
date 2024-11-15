@@ -644,14 +644,6 @@ export const $HabitatInput = {
             description: 'Optional habitat description',
             type: 'string'
         },
-        incompatible: {
-            description: 'List of habitat labels this habitat is incompatible with.',
-            examples: [['Lentic']],
-            items: {
-                type: 'string'
-            },
-            type: 'array'
-        },
         label: {
             description: 'A short label for the habitat.',
             examples: ['Lotic'],

@@ -86,7 +86,7 @@ for item in json_array_unpack(data) union (
             filter .code in <str>json_array_unpack(json_get(sampling, 'target', 'target_taxa'))
           ),
           habitats := (
-            select location::Habitat
+            select sampling::Habitat
             filter .label in <str>json_array_unpack(json_get(sampling, 'habitats'))
           ),
           access_points := <str>json_array_unpack(json_get(sampling, 'access_points')),

@@ -35,14 +35,13 @@ type Habitat struct {
 
 type HabitatInput struct {
 	HabitatInner `json:",inline"`
-	Description  *string  `json:"description,omitempty" doc:"Optional habitat description"`
-	Incompatible []string `json:"incompatible,omitempty" doc:"List of habitat labels this habitat is incompatible with." example:"Lentic"`
+	Description  *string `json:"description,omitempty" doc:"Optional habitat description"`
 }
 
 func ListHabitats(db edgedb.Executor) ([]Habitat, error) {
 	var habitats []Habitat
 	err := db.Query(context.Background(),
-		`select location::Habitat { *, meta: { * }, incompatible: { * } }`,
+		`select sampling::Habitat { *, meta: { * }, incompatible: { * } }`,
 		&habitats)
 	return habitats, err
 }
@@ -52,16 +51,12 @@ func (i HabitatInput) Create(db edgedb.Executor) (Habitat, error) {
 	habitat, _ := json.Marshal(i)
 	err := db.QuerySingle(context.Background(),
 		`with data := <json>$0
- 			select (insert location::Habitat {
+ 			select (insert sampling::Habitat {
 				label := <str>data['label'],
 				description := <str>data['description'],
 				depends := (
-					select detached location::Habitat
+					select detached sampling::Habitat
 					filter .label in <str>json_array_unpack(data['depends'])
-				),
-				incompatibleFrom := (
-					select detached location::Habitat
-					filter .label in <str>json_array_unpack(data['incompatible'])
 				)
 			}) { *, depends: { * }, meta: { * }, incompatible: { * }`,
 		&created, habitat)
@@ -85,7 +80,8 @@ func ImportHabitats(tx *edgedb.Tx, habitats []HabitatGroupInput) error {
 	items, _ := json.MarshalIndent(habitats, "", "  ")
 
 	err := tx.Execute(context.Background(),
-		`with module location,
+		`#edgeql
+			with module sampling,
 			items := json_array_unpack(<json>$0),
 			for item in items union (
 				with habitatGroup := (insert HabitatGroup {
@@ -104,23 +100,16 @@ func ImportHabitats(tx *edgedb.Tx, habitats []HabitatGroupInput) error {
 		return err
 	}
 
+	// Link habitat dependencies
 	return tx.Execute(context.Background(),
-		`with module location,
+		`#edgeql
+		with module sampling,
 		items := json_array_unpack(<json>$0),
 		select (for item in items union (
 			(update HabitatGroup filter .label = <str>item['label'] set {
 				depends := assert_single((
 					select Habitat filter .label = <str>json_get(item, 'depends')
 				))
-			}) union (
-				for habitat in json_array_unpack(item['elements']) union (
-					update Habitat filter .label = <str>habitat['label'] set {
-						incompatible_from := (
-							select detached Habitat
-							filter .label in <str>json_array_unpack(json_get(habitat, 'incompatible'))
-						)
-					}
-				)
-			)
+			})
 		));`, items)
 }

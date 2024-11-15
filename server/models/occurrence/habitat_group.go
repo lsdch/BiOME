@@ -31,7 +31,7 @@ type HabitatGroupInput struct {
 func (g HabitatGroupInput) Create(db edgedb.Executor) (created HabitatGroup, err error) {
 	data, _ := json.Marshal(g)
 	err = db.QuerySingle(context.Background(),
-		`with module location,
+		`with module sampling,
 		data := <json>$0,
 		newGroup := (insert HabitatGroup {
 			label := <str>data['label'],
@@ -52,9 +52,9 @@ func FindHabitatGroup[ID string | edgedb.UUID](db edgedb.Executor, id ID) (*Habi
 	query, err := func() (string, error) {
 		switch any(id).(type) {
 		case edgedb.UUID:
-			return `select location::HabitatGroup { ** } filter .id = <uuid>$0`, nil
+			return `select sampling::HabitatGroup { ** } filter .id = <uuid>$0`, nil
 		case string:
-			return `select location::HabitatGroup { ** } filter .label = <str>$0`, nil
+			return `select sampling::HabitatGroup { ** } filter .label = <str>$0`, nil
 		}
 		return ``, fmt.Errorf("Invalid identifier type for find argument")
 	}()
@@ -69,14 +69,14 @@ func FindHabitatGroup[ID string | edgedb.UUID](db edgedb.Executor, id ID) (*Habi
 func ListHabitatGroups(db edgedb.Executor) ([]HabitatGroup, error) {
 	var groups []HabitatGroup
 	err := db.Query(context.Background(),
-		`select location::HabitatGroup { *, depends: { * }, elements: { *, incompatible : { * } } }`,
+		`select sampling::HabitatGroup { *, depends: { * }, elements: { *, incompatible : { * } } }`,
 		&groups)
 	return groups, err
 }
 
 func DeleteHabitatGroup(db edgedb.Executor, label string) (deleted HabitatGroup, err error) {
 	query := `select(
-			delete location::HabitatGroup filter .label = <str>$0
+			delete sampling::HabitatGroup filter .label = <str>$0
 		){ ** };`
 	err = db.QuerySingle(context.Background(), query, &deleted, label)
 	return
@@ -100,11 +100,11 @@ func (u HabitatGroupUpdate) Update(e edgedb.Executor, label string) (updated Hab
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `with item := <json>$1,
-		select (update location::HabitatGroup filter .label = <str>$0 set {
+		select (update sampling::HabitatGroup filter .label = <str>$0 set {
 			%s
 		}) { **, elements := habitats {*} }`,
 		Mappings: map[string]string{
-			"depends":   "(select location::Habitat filter .label = <str>item['depends'])",
+			"depends":   "(select sampling::Habitat filter .label = <str>item['depends'])",
 			"label":     "<str>item['label']",
 			"exclusive": "<bool>item['exclusive_elements']",
 		},

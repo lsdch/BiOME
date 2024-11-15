@@ -1,9 +1,12 @@
 <template>
   <div
     :class="[
-      textClass,
       'habitat-item text-no-wrap',
-      { connecting, 'text-success font-weight-bold': endHandle?.handleId === habitat.id }
+      {
+        connecting,
+        'text-success font-weight-bold': endHandle?.handleId === habitat.id,
+        'text-primary': isSelected(habitat).value
+      }
     ]"
     @click="select(habitat)"
   >
@@ -25,7 +28,7 @@ import { ConnectedHabitat, useHabitatGraph } from './habitat_graph'
 
 const props = defineProps<{ habitat: ConnectedHabitat }>()
 
-const { isSelected, isIncompatibleWithSelection, select } = useHabitatGraph()
+const { isSelected, select } = useHabitatGraph()
 const { startHandle, endHandle } = useConnection()
 
 const connecting = computed(() => {
@@ -35,12 +38,6 @@ const connecting = computed(() => {
     props.habitat.dependencies?.find(({ group: { id } }) => id === startHandle.value?.nodeId) ===
       undefined
   )
-})
-
-const textClass = computed(() => {
-  if (isSelected(props.habitat).value) return 'text-primary'
-  if (isIncompatibleWithSelection(props.habitat).value) return 'text-error'
-  return ''
 })
 </script>
 

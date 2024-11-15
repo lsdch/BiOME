@@ -93,11 +93,11 @@
 </template>
 
 <script setup lang="ts">
-/* these are necessary styles for vue flow */
+/* necessary styles for vue flow */
 import '@vue-flow/core/dist/style.css'
-/* this contains the default theme, these are optional styles */
+/* optional styles: default theme for vue flow  */
 import '@vue-flow/core/dist/theme-default.css'
-// import default controls styles
+
 import { HabitatGroup, LocationService } from '@/api'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
@@ -146,6 +146,14 @@ const data = await LocationService.listHabitatGroups().then(({ data, error }) =>
   return data
 })
 
+const graphContainer = ref(null)
+const { elementX: x, elementY: y } = useMouseInElement(graphContainer)
+const creationPos = ref({ x: 0, y: 0 })
+
+const { selection, habitatGraph, addGroup } = useHabitatGraph(data)
+
+const { nodes, edges } = toRefs(reactive(collectGraphElements(data)))
+
 const selectedGroups = computed<HabitatGroup[]>(() => {
   return getSelectedNodes.value.map(({ data }) => data)
 })
@@ -160,7 +168,8 @@ const form = ref<{ open: boolean; edit?: ConnectedGroup }>({
 })
 
 const connection = useConnection()
-
+const { askConfirm } = useAppConfirmDialog()
+const { feedback } = useFeedback()
 const {
   fitView,
   getSelectedNodes,
@@ -172,8 +181,6 @@ const {
   getSelectedEdges,
   removeEdges
 } = useVueFlow()
-
-const { askConfirm } = useAppConfirmDialog()
 
 onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitatID }) => {
   const group = habitatGraph.groups[groupID]
@@ -211,8 +218,6 @@ onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitat
     .finally(() => endConnection()) ??
     console.error('Failed to inject confirmation dialog in component')
 })
-
-const { feedback } = useFeedback()
 
 function askDeleteEdge(edge: GraphEdge) {
   const group: string = edge.targetNode.data.label
@@ -281,10 +286,6 @@ async function deleteGroups(groups: HabitatGroup[]) {
     })
 }
 
-const graphContainer = ref(null)
-const { elementX: x, elementY: y } = useMouseInElement(graphContainer)
-const creationPos = ref({ x: 0, y: 0 })
-
 function onPaneClick({ layerX, layerY }: MouseEvent) {
   selection.value = undefined
   form.value.edit = undefined
@@ -293,10 +294,6 @@ function onPaneClick({ layerX, layerY }: MouseEvent) {
     form.value.open = true
   }
 }
-
-const { selection, habitatGraph, addGroup } = useHabitatGraph(data)
-
-const { nodes, edges } = toRefs(reactive(collectGraphElements(data)))
 
 function addCreatedNode(group: HabitatGroup) {
   creating.value = false

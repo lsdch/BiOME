@@ -108,7 +108,7 @@ module events {
 
     comments: str;
 
-    multi habitats: location::Habitat;
+    multi habitats: sampling::Habitat;
     multi access_points: str;
 
     multi link samples := .<sampling[is samples::BioMaterial];
