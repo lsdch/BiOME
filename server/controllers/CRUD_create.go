@@ -4,8 +4,6 @@ import (
 	"context"
 	"darco/proto/models"
 	"darco/proto/resolvers"
-
-	"github.com/danielgtaylor/huma/v2"
 )
 
 type CreateInputBody[Item models.Creatable[Created], Created any] interface {
@@ -39,8 +37,8 @@ func CreateHandlerWithInput[
 	Created any,
 ](ctx context.Context, input Input) (*CreateHandlerOutput[Created], error) {
 	created, err := input.Item().Create(input.DB())
-	if err != nil {
-		return nil, huma.Error500InternalServerError("Item creation failed", err)
+	if err = StatusError(err); err != nil {
+		return nil, err
 	}
 	return &CreateHandlerOutput[Created]{Body: created}, nil
 }

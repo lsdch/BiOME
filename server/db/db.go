@@ -48,3 +48,8 @@ func IsNoData(err error) bool {
 	var edbErr edgedb.Error
 	return err != nil && errors.As(err, &edbErr) && edbErr.Category(edgedb.NoDataError)
 }
+
+func IsConstraintViolation(err error) (ok bool, edbErr edgedb.Error) {
+	ok = err != nil && errors.As(err, &edbErr) && edbErr.Category(edgedb.ConstraintViolationError)
+	return ok, edbErr
+}

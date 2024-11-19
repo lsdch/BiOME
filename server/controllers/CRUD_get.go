@@ -2,12 +2,10 @@ package controllers
 
 import (
 	"context"
-	"darco/proto/db"
 	"darco/proto/models"
 	"darco/proto/resolvers"
 	"darco/proto/router"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 )
 
@@ -39,8 +37,8 @@ func GetHandler[
 ) func(context.Context, OperationInput) (*GetHandlerOutput[Item], error) {
 	return func(ctx context.Context, input OperationInput) (*GetHandlerOutput[Item], error) {
 		item, err := find(input.DB(), input.Identifier())
-		if db.IsNoData(err) {
-			return nil, huma.Error404NotFound("Item not found", err)
+		if err = StatusError(err); err != nil {
+			return nil, err
 		}
 		return &GetHandlerOutput[Item]{Body: item}, err
 	}

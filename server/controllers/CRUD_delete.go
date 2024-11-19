@@ -5,7 +5,6 @@ import (
 	"darco/proto/resolvers"
 	"darco/proto/router"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
@@ -28,10 +27,10 @@ func DeleteHandler[
 ](deleteItem ItemDelete[ID, Item]) func(context.Context, OperationInput) (*DeleteHandlerOutput[Item], error) {
 	return func(ctx context.Context, input OperationInput) (*DeleteHandlerOutput[Item], error) {
 		deleted, err := deleteItem(input.DB(), input.Identifier())
-		if err != nil {
-			return nil, huma.Error500InternalServerError("Item deletion failed", err)
+		if err = StatusError(err); err != nil {
+			return nil, err
 		}
-		logrus.Debugf("Delete item %+v", deleted)
+		logrus.Debugf("Deleted item %+v", deleted)
 		return &DeleteHandlerOutput[Item]{
 			Body: deleted,
 		}, nil

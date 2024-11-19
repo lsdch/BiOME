@@ -1,10 +1,12 @@
 package controllers
 
 import (
+	"darco/proto/db"
 	"reflect"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
+	"github.com/sirupsen/logrus"
 )
 
 type IdentifierInput[T any] interface {
@@ -52,4 +54,21 @@ var _ IdentifierInput[string] = (*CodeInput)(nil)
 // A simple response output that carries a message
 type Message struct {
 	Body string
+}
+
+// StatusError transforms errors resulting from DB calls into Huma status errors
+func StatusError(err error) huma.StatusError {
+	if err == nil {
+		return nil
+	}
+	if db.IsNoData(err) {
+		return huma.Error404NotFound("Item not found", err)
+	}
+	if isConstraintErr, constraintErr := db.IsConstraintViolation(err); isConstraintErr {
+		return huma.Error422UnprocessableEntity("Invalid input", constraintErr)
+	}
+
+	// Other errors are HTTP 500
+	logrus.Errorf("Server error: %v", err)
+	return huma.Error500InternalServerError("Server error", err)
 }

@@ -5,7 +5,6 @@ import (
 	"darco/proto/models"
 	"darco/proto/resolvers"
 
-	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
@@ -50,9 +49,8 @@ func UpdateHandler[
 		input.DB(),
 		input.Identifier(),
 	)
-	if err != nil {
-		logrus.Errorf("Item update failed: %+v", err)
-		return nil, huma.Error500InternalServerError("Item update failed", err)
+	if err = StatusError(err); err != nil {
+		return nil, err
 	}
 
 	logrus.Infof("Item updated: %+v", updated)
