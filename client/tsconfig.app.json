@@ -16,6 +16,11 @@
     "skipLibCheck": true,
     "noErrorTruncation": true,
     "composite": true,
+    "lib": [
+      "ES2023",
+      "ESNext",
+      "DOM"
+    ],
     "baseUrl": ".",
     "paths": {
       "@/*": [
