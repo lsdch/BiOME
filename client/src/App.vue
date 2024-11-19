@@ -23,7 +23,7 @@
     <v-main id="main" class="bg-main">
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <Suspense>
-        <RouterView />
+        <RouterView :key="$route.fullPath" />
       </Suspense>
     </v-main>
     <ErrorSnackbar v-model="snackbar.open" :title="snackbar.title" :errors="snackbar.errors" />
