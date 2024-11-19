@@ -162,7 +162,7 @@ export function useSchema<T extends Schema>(schema: T) {
 
   function makeRules({ schema: s, required }: FieldSpecification) {
     const rules: Rule[] = []
-    if (required) rules.push((value: any) => value || value === 0 ? true : "This field is required")
+    if (required) rules.push((value: any) => !!value || value === 0 ? true : "This field is required")
 
     // Strings
     if (s?.minLength !== undefined) {
@@ -190,14 +190,14 @@ export function useSchema<T extends Schema>(schema: T) {
 
     // Enum
     if (s?.enum !== undefined) {
-      rules.push((value: any) => s.enum?.includes(value) || 'Invalid value')
+      rules.push((value: any) => !value || s.enum?.includes(value) || 'Invalid value')
     }
 
     // Regex
     if (s?.pattern !== undefined) {
       const regex = new RegExp(`${s.pattern}`)
       rules.push((value: string) => {
-        return regex.test(value) || `Invalid format`
+        return !value || regex.test(value) || `Invalid format`
       })
     }
 
@@ -207,13 +207,14 @@ export function useSchema<T extends Schema>(schema: T) {
       case "email":
         const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
         rules.push((value: string) => {
-          return emailRegex.test(value) || "Invalid email format"
+          return !value || emailRegex.test(value) || "Invalid email format"
         })
         break;
       // Custom
       case "country-code":
         rules.push((value: string) =>
-          useCountries().findCountry(value) !== undefined || `Invalid country code`)
+          !value || useCountries().findCountry(value) !== undefined ||
+          `Invalid country code`)
         break;
 
       default:
@@ -268,17 +269,19 @@ export function useSchema<T extends Schema>(schema: T) {
    * Input validation errors indexed by their object path in the API request body
    */
   const errors = ref<Record<string, string[]>>({})
+  const unindexedErrors = ref<string[]>([])
 
   /**
    * Collects error messages indexed by their object path in an API request body,
    * so that they can be consumed by `bindErrors` or `field`.
    */
   function _errorHandler(body: ErrorModel) {
-    body.errors?.forEach(({ location, message }) => {
-      if (location === undefined || message === undefined) return
-      if (location.startsWith('body.')) {
-        const loc = location.replace('body.', '')
-        errors.value[loc].push(message)
+    body.errors?.forEach((e) => {
+      if (e.location === undefined)
+        unindexedErrors.value.push(e.message ?? "Invalid value")
+      else if (e.location.startsWith('body.')) {
+        const loc = e.location.replace('body.', '')
+        errors.value[loc].push(e.message ?? "Invalid value")
       }
     })
   }
@@ -322,5 +325,6 @@ export function useSchema<T extends Schema>(schema: T) {
     errorHandler,
     validate, validateAll,
     paths: paths(schema),
+    unindexedErrors,
   }
 }
