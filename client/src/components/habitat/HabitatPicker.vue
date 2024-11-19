@@ -17,6 +17,7 @@
     auto-select-first
     clear-on-select
     placeholder="Start typing to search"
+    v-bind="$attrs"
   >
     <template #chip="{ item, props }">
       <v-chip closable v-bind="props" @click:close="onDelete(item.raw)" :text="item.title" />
@@ -24,7 +25,7 @@
     <template #item="{ item, props }">
       <v-list-item
         :title="item.title"
-        :subtitle="item.raw.dependencies?.map(({ label }) => label).join(' › ')"
+        :subtitle="item.raw.dependencies.map(({ label }) => label).join(' › ')"
         v-bind="props"
       >
         <template #title="{ title }">
@@ -57,24 +58,13 @@
 </template>
 
 <script setup lang="ts">
-import { HabitatGroup, HabitatRecord, LocationService } from '@/api'
-import { computed, ref } from 'vue'
-import { ConnectedGroup, ConnectedHabitat, Dependencies, indexGroups } from './habitat_graph'
+import { HabitatGroup, LocationService } from '@/api'
 import { handleErrors } from '@/api/responses'
+import { computed, ref } from 'vue'
+import { ConnectedGroup, ConnectedHabitat, HabitatsGraph } from './habitat_graph'
 
-function addWithDependencies(habitat: ConnectedHabitat) {
-  model.value.push(
-    ...(habitat.dependencies?.map(({ id }) => habitatsGraph.value.habitats[id]) ?? []),
-    habitat
-  )
-  searchTerm.value = undefined
-}
-
-function onDelete(item: HabitatRecord & Dependencies) {
-  model.value = model.value.filter(
-    ({ dependencies }) => dependencies?.find(({ id }) => id == item.id) == undefined
-  )
-}
+const model = ref<ConnectedHabitat[]>([])
+const searchTerm = ref<string | undefined>(undefined)
 
 const habitatGroups = ref<HabitatGroup[]>(
   await LocationService.listHabitatGroups().then(
@@ -84,10 +74,18 @@ const habitatGroups = ref<HabitatGroup[]>(
   )
 )
 
-const habitatsGraph = ref(indexGroups(habitatGroups.value))
+const graph = new HabitatsGraph(habitatGroups.value, false)
 
-const model = ref<ConnectedHabitat[]>([])
-const searchTerm = ref<string | undefined>(undefined)
+function addWithDependencies(habitat: ConnectedHabitat) {
+  model.value.push(...(habitat.dependencies?.map(({ id }) => graph.habitat(id)) ?? []), habitat)
+  searchTerm.value = undefined
+}
+
+function onDelete(item: ConnectedHabitat) {
+  model.value = model.value.filter(
+    ({ dependencies }) => dependencies?.find(({ id }) => id == item.id) == undefined
+  )
+}
 
 function compatibleHabitats(habitats: ConnectedHabitat[], selected: ConnectedHabitat[]) {
   return habitats.filter(
@@ -101,7 +99,7 @@ function isGroupReachable(group: ConnectedGroup) {
 }
 
 const items = computed<ConnectedHabitat[]>(() => {
-  return Object.values(habitatsGraph.value.groups).reduce((acc: ConnectedHabitat[], g) => {
+  return Object.values(graph.groups).reduce((acc: ConnectedHabitat[], g) => {
     if (g.depends == undefined || isGroupReachable(g)) {
       acc = acc.concat(compatibleHabitats(g.elements, model.value))
     }
@@ -115,10 +113,10 @@ const items = computed<ConnectedHabitat[]>(() => {
 const quickSelect = computed(() => {
   if (searchTerm.value != undefined && searchTerm.value.length > 0) {
     const term = searchTerm.value.toLowerCase()
-    return Object.values(habitatsGraph.value.habitats)
+    return Object.values(graph.habitats)
       .filter(
         ({ label, dependencies }) =>
-          (dependencies?.length ?? 0) > 0 && label.toLowerCase().includes(term)
+          (dependencies.length ?? 0) > 0 && label.toLowerCase().includes(term)
       )
       .slice(0, 5)
   }

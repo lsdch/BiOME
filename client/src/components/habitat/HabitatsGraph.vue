@@ -1,14 +1,14 @@
 <template>
-  <div class="graph" ref="graphContainer" @keyup.esc="creating = false">
+  <div class="graph" ref="graphContainer" @keyup.esc="toggleCreating(false)">
     <VueFlow
-      :nodes="nodes"
-      :edges="edges"
+      :nodes="graph.nodes.value"
+      :edges="graph.edges.value"
       :default-viewport="{ zoom: 10 }"
       :min-zoom="0.4"
       :max-zoom="2"
       snap-to-grid
       :snap-grid="[20, 20]"
-      @nodes-initialized="layoutGraph()"
+      @nodes-initialized="layout"
       @pane-click="onPaneClick"
       connect-on-click
       :class="{ creating }"
@@ -32,7 +32,7 @@
         </div>
       </div>
       <Controls>
-        <ControlButton @click="layoutGraph()">
+        <ControlButton @click="layout">
           <v-icon class="text-black">mdi-graph</v-icon>
         </ControlButton>
       </Controls>
@@ -72,8 +72,8 @@
       </template>
     </VueFlow>
     <div
-      id="new-group-template"
       v-if="creating"
+      id="new-group-template"
       class="group-node text-overline bg-primary"
       :style="
         form.open
@@ -87,7 +87,7 @@
       v-model="form.open"
       :edit="form.edit"
       @success="addCreatedNode"
-      @close="creating = false"
+      @close="toggleCreating(false)"
     />
   </div>
 </template>
@@ -102,19 +102,9 @@ import { HabitatGroup, LocationService } from '@/api'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import '@vue-flow/controls/dist/style.css'
-import {
-  ConnectionLineType,
-  Edge,
-  GraphEdge,
-  MarkerType,
-  Node,
-  VueFlow,
-  XYPosition,
-  useConnection,
-  useVueFlow
-} from '@vue-flow/core'
-import { onKeyStroke, useMouseInElement } from '@vueuse/core'
-import { computed, nextTick, reactive, ref, toRefs } from 'vue'
+import { ConnectionLineType, GraphEdge, VueFlow, useConnection, useVueFlow } from '@vue-flow/core'
+import { onKeyStroke, useMouseInElement, useToggle } from '@vueuse/core'
+import { computed, nextTick, ref } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
 import { useLayout } from './layout'
@@ -123,20 +113,24 @@ import { mergeResponses } from '@/api/responses'
 import { useAppConfirmDialog } from '@/composables'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
-import { ConnectedGroup, registerGroup, useHabitatGraph } from './habitat_graph'
-import { NodeData } from './layout'
+import {
+  ConnectedGroup,
+  ConnectedHabitat,
+  HabitatsGraph,
+  useHabitatGraphSelection
+} from './habitat_graph'
 
 const { isGranted } = useUserStore()
 
 function handleDelete() {
-  selectedGroups.value.length
-    ? askDeleteGroups(selectedGroups.value)
-    : getSelectedEdges.value.length == 1
-      ? askDeleteEdge(getSelectedEdges.value[0])
-      : undefined
+  if (selectedGroups.value.length) askDeleteGroups(selectedGroups.value)
+  else if (getSelectedEdges.value.length == 1) askDeleteEdge(getSelectedEdges.value[0])
 }
 
 onKeyStroke('Delete', handleDelete)
+onKeyStroke('Escape', () => {
+  if (!form.value.open) creating.value = false
+})
 
 const data = await LocationService.listHabitatGroups().then(({ data, error }) => {
   if (error !== undefined) {
@@ -146,13 +140,13 @@ const data = await LocationService.listHabitatGroups().then(({ data, error }) =>
   return data
 })
 
+const graph = new HabitatsGraph(data)
+
 const graphContainer = ref(null)
 const { elementX: x, elementY: y } = useMouseInElement(graphContainer)
 const creationPos = ref({ x: 0, y: 0 })
 
-const { selection, habitatGraph, addGroup } = useHabitatGraph(data)
-
-const { nodes, edges } = toRefs(reactive(collectGraphElements(data)))
+const { selection } = useHabitatGraphSelection()
 
 const selectedGroups = computed<HabitatGroup[]>(() => {
   return getSelectedNodes.value.map(({ data }) => data)
@@ -161,7 +155,7 @@ const selectedGroups = computed<HabitatGroup[]>(() => {
 /**
  * Creation mode: cursor displays as a node template to place on the graph
  */
-const creating = ref(false)
+const [creating, toggleCreating] = useToggle(false)
 const form = ref<{ open: boolean; edit?: ConnectedGroup }>({
   open: false,
   edit: undefined
@@ -170,21 +164,13 @@ const form = ref<{ open: boolean; edit?: ConnectedGroup }>({
 const connection = useConnection()
 const { askConfirm } = useAppConfirmDialog()
 const { feedback } = useFeedback()
-const {
-  fitView,
-  getSelectedNodes,
-  project,
-  onConnect,
-  updateNodeInternals,
-  updateNodeData,
-  endConnection,
-  getSelectedEdges,
-  removeEdges
-} = useVueFlow()
+const { fitView, getSelectedNodes, onConnect, endConnection, getSelectedEdges } = useVueFlow()
 
-onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitatID }) => {
-  const group = habitatGraph.groups[groupID]
-  const habitat = habitatGraph.habitats[dependHabitatID!]
+onConnect(({ source, target: dependGroupID, targetHandle }) => {
+  connectGroupHabitat(graph.group(source), graph.habitat(targetHandle!))
+})
+
+function connectGroupHabitat(group: ConnectedGroup, habitat: ConnectedHabitat) {
   askConfirm({
     title: 'Confirm connection',
     message: `Set group ${group.label} as a refinement of ${habitat.label} ?`
@@ -196,94 +182,14 @@ onConnect(({ source: groupID, target: dependGroupID, targetHandle: dependHabitat
         body: { depends: habitat.label }
       }).then(({ data: updated, error }) => {
         if (error !== undefined) {
-          // TODO: error handling
           console.error('Error:', error)
           return
         }
-        edges.value.push({
-          id: `e-${dependHabitatID}-${groupID}`,
-          target: groupID,
-          source: dependGroupID,
-          sourceHandle: dependHabitatID,
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20
-          }
-        })
-        registerGroup(updated, habitatGraph)
-        updateNodeData(groupID, { depends: habitatGraph.habitats[dependHabitatID!] })
+        graph.addEdge(habitat, updated)
       })
     })
     .finally(() => endConnection()) ??
     console.error('Failed to inject confirmation dialog in component')
-})
-
-function askDeleteEdge(edge: GraphEdge) {
-  const group: string = edge.targetNode.data.label
-  askConfirm({ title: `Drop dependency of '${group}'?` }).then(async ({ isCanceled }) => {
-    if (isCanceled) return console.info('Dependency drop canceled')
-    else {
-      const { data: updated, error } = await LocationService.updateHabitatGroup({
-        path: { code: group },
-        body: { depends: null }
-      })
-      if (error !== undefined) {
-        //TODO: handle error
-        console.error('Error: ', error)
-        return
-      }
-      registerGroup(updated, habitatGraph)
-      updateNodeData(updated.id, { depends: null })
-      removeEdges(edge)
-      edges.value = edges.value.filter(({ id }) => id !== edge.id)
-      feedback({ type: 'success', message: `Dropped dependency for '${group}'` })
-    }
-  })
-}
-
-function askDeleteGroups(groups: HabitatGroup[]) {
-  const title =
-    groups.length === 1
-      ? `Delete habitat group ${groups[0].label} ?`
-      : groups.length > 0
-        ? `Delete ${groups.length} habitat groups ?`
-        : null
-  if (title !== null)
-    askConfirm({
-      title,
-      message: 'All terms in group and their references in the database will be deleted.'
-    }).then(({ isCanceled }) =>
-      isCanceled ? console.info('Group deletion cancelled') : deleteGroups(groups)
-    ) ?? console.error('No confirm dialog provider')
-}
-
-async function deleteGroups(groups: HabitatGroup[]) {
-  await Promise.all(
-    groups.map((group) => LocationService.deleteHabitatGroup({ path: { code: group.label } }))
-  )
-    .then(mergeResponses)
-    .then(({ data, error }) => {
-      if (error !== undefined) {
-        // TODO: better error handling
-        feedback({
-          type: 'error',
-          message: `Failed to delete habitat group(s)`
-        })
-        return
-      }
-      blockLayout.value = true
-      nodes.value = nodes.value.filter(
-        ({ id }) => !data.find(({ id: deletedID }) => deletedID === id)
-      )
-      feedback({
-        type: 'success',
-        message:
-          data.length > 1
-            ? `Deleted ${data.length} habitat group`
-            : `Deleted habitat group ${data[0].label}`
-      })
-    })
 }
 
 function onPaneClick({ layerX, layerY }: MouseEvent) {
@@ -295,82 +201,82 @@ function onPaneClick({ layerX, layerY }: MouseEvent) {
   }
 }
 
+function askDeleteEdge(edge: GraphEdge) {
+  const group: string = edge.targetNode.data.label
+  askConfirm({ title: `Drop dependency of '${group}'?` }).then(async ({ isCanceled }) => {
+    if (isCanceled) return console.info('Dependency drop canceled')
+    else {
+      const { data: updated, error } = await LocationService.updateHabitatGroup({
+        path: { code: group },
+        body: { depends: null }
+      })
+      if (error !== undefined) {
+        feedback({ type: 'error', message: 'Failed to remove dependency.' })
+        console.error(error)
+        return
+      }
+      graph.updateGroup(updated)
+      graph.removeEdge(edge)
+      feedback({ type: 'success', message: `Dropped dependency for '${group}'` })
+    }
+  })
+}
+
+async function askDeleteGroups(groups: HabitatGroup[]) {
+  if (groups.length === 0) return
+  const title =
+    groups.length === 1
+      ? `Delete habitat group ${groups[0].label} ?`
+      : `Delete ${groups.length} habitat groups ?`
+  askConfirm({
+    title,
+    message: 'All terms in group and their references in the database will be deleted.'
+  }).then(async ({ isCanceled }) => {
+    if (isCanceled) {
+      console.info('Group deletion cancelled')
+      return
+    }
+    return await deleteHandler(groups)
+  }) ?? console.error('No confirm dialog provider')
+
+  async function deleteHandler(groups: HabitatGroup[]) {
+    await Promise.all(
+      groups.map((group) => LocationService.deleteHabitatGroup({ path: { code: group.label } }))
+    )
+      .then(mergeResponses)
+      .then(({ data, error }) => {
+        if (error !== undefined) {
+          feedback({
+            type: 'error',
+            message: `Failed to delete habitat group(s)`
+          })
+          console.error(error)
+          return
+        }
+        blockLayout.value = true
+        graph.deleteGroups(data)
+        feedback({
+          type: 'success',
+          message:
+            data.length > 1
+              ? `Deleted ${data.length} habitat group`
+              : `Deleted habitat group ${data[0].label}`
+        })
+      })
+  }
+}
+
+const { blockLayout } = useLayout()
 function addCreatedNode(group: HabitatGroup) {
-  creating.value = false
+  toggleCreating(false)
   blockLayout.value = true
-  addGroup(group, habitatGraph)
-  nodes.value.push(
-    createNode(habitatGraph.groups[group.id], {
-      cluster: group.id,
-      position: project(creationPos.value),
-      type: 'group'
-    })
-  )
+  graph.addGroup(group)
   feedback({ type: 'success', message: `Created habitat group: ${group.label}` })
 }
 
-function createNode(
-  group: ConnectedGroup,
-  options: Partial<Node<NodeData>> & {
-    cluster: string
-    position: XYPosition
-    type: 'group' | 'habitat'
-  }
-): Node<NodeData> {
-  const { id, label } = group
-  return {
-    id,
-    label,
-    data:
-      options.type === 'group'
-        ? { ...group, cluster: options.cluster }
-        : { ...group, cluster: options.cluster },
-    ...options
-  }
-}
-
-function edgeId({ label, depends }: HabitatGroup) {
-  return `edge-${depends?.label}-${label}`
-}
-
-function collectGraphElements(groups: HabitatGroup[]) {
-  return groups.reduce<{ nodes: Node<NodeData>[]; edges: Edge[] }>(
-    (acc, group) => {
-      const { id, depends } = group
-      acc.nodes.push(
-        createNode(habitatGraph.groups[group.id], {
-          cluster: id,
-          type: 'group',
-          position: { x: 0, y: 0 }
-        })
-      )
-      if (depends) {
-        acc.edges.push({
-          id: edgeId(group),
-          source: habitatGraph.habitats[depends.id].group.id,
-          sourceHandle: depends.id,
-          target: id,
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            width: 20,
-            height: 20
-          }
-        })
-      }
-      return acc
-    },
-    { nodes: [], edges: [] }
-  )
-}
-
-const { layout, blockLayout } = useLayout()
-async function layoutGraph() {
-  nodes.value = layout(nodes.value, edges.value, 'LR')
-  nextTick(() => {
-    // Update wrt new handle positions
-    updateNodeInternals()
-    fitView()
-  })
+async function layout() {
+  graph.layout()
+  nextTick(fitView)
 }
 </script>
 

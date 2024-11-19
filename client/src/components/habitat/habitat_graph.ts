@@ -1,92 +1,190 @@
 import { HabitatGroup, HabitatRecord } from "@/api"
-import { computed, ref } from "vue"
+import { Edge, GraphEdge, MarkerType, Node, useVueFlow } from "@vue-flow/core"
+import { computed, nextTick, Ref, ref } from "vue"
+import { useLayout } from "./layout"
 
-export type Dependencies = { dependencies?: (HabitatRecord & { group: HabitatGroup })[] }
-export type ConnectedHabitat = HabitatRecord & Dependencies & {
+
+export type UpstreamData = {
+  upstreamGroups: Set<UUID>
+  dependencies: HabitatRecord[]
+}
+
+export type ConnectedGroup = HabitatGroup & UpstreamData & {
+  depends?: ConnectedHabitat | null,
+  elements: ConnectedHabitat[],
+  cluster: string
+}
+
+export type ConnectedHabitat = HabitatRecord & UpstreamData & {
   group: HabitatGroup
 }
-export type ConnectedGroup = HabitatGroup & Dependencies & { depends?: ConnectedHabitat | null, elements: ConnectedHabitat[] }
-export type HabitatsGraph = {
-  groups: { [k: string]: ConnectedGroup }
-  habitats: Record<string, ConnectedHabitat>
-}
 
-function addGroup(group: HabitatGroup, graph: HabitatsGraph) {
-  graph.groups[group.id] = {
-    ...group,
-    depends: group.depends ? graph.habitats[group.depends.id] : null,
-    elements: group.elements.map((habitat) => {
-      const h = { ...habitat, group }
-      graph.habitats[h.id] = h
-      return h
-    })
+type UUID = string
+
+
+const { layout, blockLayout } = useLayout()
+const {
+  updateNodeInternals,
+  updateNodeData,
+  removeEdges,
+} = useVueFlow()
+
+export class HabitatsGraph {
+  groups: Record<UUID, ConnectedGroup> = {};
+  habitats: Record<UUID, ConnectedHabitat> = {};
+  nodes: Ref<Node<ConnectedGroup>[]> = ref([]);
+  edges: Ref<Edge[]> = ref([]);
+  withNodes = true
+
+
+  constructor(groupDefinitions: HabitatGroup[], withNodes = true) {
+    this.withNodes = withNodes
+    groupDefinitions.forEach(this._addGroup, this)
+    this.updateDependencies()
+    if (this.withNodes) this.buildEdges()
   }
-  return graph
-}
 
-export function registerGroup(group: HabitatGroup, graph: HabitatsGraph) {
-  addGroup(group, graph)
-  if (group.depends) {
-    const depends = graph.habitats[group.depends.id]
-    updateDependencies(graph, group.id, [depends].concat(depends.dependencies ?? []))
+  async layout() {
+    this.nodes.value = layout(this.nodes.value, this.edges.value, 'LR')
+    // Update wrt new handle positions
+    nextTick(updateNodeInternals)
   }
-}
 
-function updateDependencies(
-  graph: HabitatsGraph,
-  groupID: string,
-  dependencies: (HabitatRecord & { group: HabitatGroup })[]
-) {
-  graph.groups[groupID].dependencies = dependencies
-  graph.groups[groupID].elements = graph.groups[groupID].elements.map((habitat) => {
-    graph.habitats[habitat.id].dependencies = graph.groups[groupID].dependencies
-    return graph.habitats[habitat.id]
-  })
-}
+  parentGroup(habitat: ConnectedHabitat): ConnectedGroup {
+    return this.groups[habitat.group.id]
+  }
+  group(id: UUID): ConnectedGroup {
+    return this.groups[id]
+  }
+  habitat(id: UUID): ConnectedHabitat {
+    return this.habitats[id]
+  }
 
-/**
-* Indexes groups and their children habitats by UUID,
-* adding references to their groups and dependencies
-* so they can be used as a graph-like structure
-*/
-export function indexGroups(groups: HabitatGroup[]) {
-  const index = groups.reduce<HabitatsGraph>(
-    (acc: HabitatsGraph, group) => addGroup(group, acc),
-    { groups: {}, habitats: {} }
-  )
-  // Index dependencies on each element up to the root node
-  function collectDepends(group: HabitatGroup): (HabitatRecord & { group: HabitatGroup })[] {
-    if (group.depends == undefined) return []
-    else {
-      const deps = collectDepends(index.habitats[group.depends.id].group)
-      deps.push(index.habitats[group.depends.id])
-      return deps
+  /**
+   * Update the dependency chain of each group
+   * This is useful to know which habitats can be connected to a group when
+   * setting its requirement
+   */
+  updateDependencies() {
+    const visited = new Set()
+    const self = this
+    for (const id in this.groups) {
+      update(this.groups[id])
+    }
+
+    function update(group: ConnectedGroup) {
+      if (!group.depends) {
+        group.upstreamGroups = new Set()
+        group.dependencies = []
+      } else {
+        const upstreamGroup = self.parentGroup(self.habitat(group.depends.id))
+        update(upstreamGroup)
+        if (!visited.has(group.id)) {
+          group.upstreamGroups = (
+            new Set([group.depends.group.id]).union(upstreamGroup.upstreamGroups)
+          )
+          group.dependencies = upstreamGroup.dependencies.concat([group.depends])
+          visited.add(group.id)
+        }
+      }
+      // Update upstream groups for all habitats contained in group
+      group.elements.forEach(h => {
+        self.habitat(h.id).upstreamGroups = group.upstreamGroups
+        self.habitat(h.id).dependencies = group.dependencies
+      })
     }
   }
-  for (const key in index.groups) {
-    updateDependencies(index, key, collectDepends(index.groups[key]))
+
+  private _addGroup(group: HabitatGroup) {
+    const createNode = this.withNodes && !this.groups[group.id]
+    this.groups[group.id] = {
+      ...group,
+      depends: group.depends ? this.habitats[group.depends.id] : null,
+      cluster: group.id,
+      upstreamGroups: new Set(),
+      dependencies: [],
+      elements: group.elements.map((habitat) => {
+        const h: ConnectedHabitat = {
+          ...habitat, group,
+          upstreamGroups: new Set(group.id),
+          dependencies: []
+        }
+        this.habitats[h.id] = h
+        return h
+      })
+    }
+
+    if (createNode) this.nodes.value.push({
+      id: group.id,
+      label: group.label,
+      data: this.groups[group.id],
+      position: { x: 0, y: 0 },
+      type: "group"
+    })
   }
-  return index
+
+  addGroup(group: HabitatGroup) {
+    this._addGroup(group)
+    this.updateDependencies()
+  }
+
+  updateGroup(group: HabitatGroup) {
+    this.addGroup(group)
+    updateNodeData(group.id, group)
+  }
+
+  buildEdges() {
+    this.edges.value = []
+    Object.values(this.groups).forEach((group) => {
+      if (!!group.depends)
+        this.addEdge(this.habitat(group.depends.id), group)
+    })
+  }
+
+  addEdge(from: ConnectedHabitat, to: HabitatGroup) {
+    const fromGroup = this.parentGroup(from)
+    this.edges.value.push({
+      id: `edge-${from.id}-${to.id}`,
+      target: to.id,
+      source: fromGroup.id,
+      sourceHandle: from.id,
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 20,
+        height: 20
+      }
+    })
+    this.updateGroup(to)
+  }
+
+  removeEdge(edge: GraphEdge) {
+    // remove from vue flow internal state
+    removeEdges(edge)
+    // remove from edges state
+    this.edges.value = this.edges.value.filter(({ id }) => id !== edge.id)
+  }
+
+
+
+  deleteGroups(groups: HabitatGroup[]) {
+    this.nodes.value = this.nodes.value.filter(
+      ({ id }) => !groups.find(({ id: deletedID }) => deletedID === id)
+    )
+    groups.forEach(group => {
+      group.elements.forEach(h => {
+        delete this.habitats[h.id]
+      })
+      delete this.groups[group.id]
+    })
+  }
 }
 
-// State management
 
-const habitatGraph = ref<HabitatsGraph>()
 const selection = ref<ConnectedHabitat>()
 
 
-export function useHabitatGraph(groups?: HabitatGroup[]) {
 
-  // Graph initialization
-  if (groups) {
-    if (habitatGraph.value == undefined)
-      habitatGraph.value = buildGraph(groups)
-    else
-      console.info("Habitats graph is already initialized.")
-  } else if (habitatGraph.value == undefined)
-    console.error("Habitat graph was never initialized, useHabitatGraph must be called with an argument the first time")
-
-
+export function useHabitatGraphSelection() {
   function select(habitat: ConnectedHabitat) {
     selection.value = habitat
   }
@@ -94,11 +192,5 @@ export function useHabitatGraph(groups?: HabitatGroup[]) {
   function isSelected(habitat: ConnectedHabitat) {
     return computed(() => habitat.id === selection.value?.id)
   }
-
-  function buildGraph(groups: HabitatGroup[]) {
-    habitatGraph.value = indexGroups(groups)
-    return habitatGraph.value
-  }
-
-  return { selection, select, isSelected, addGroup, habitatGraph: habitatGraph.value as HabitatsGraph }
+  return { selection, select, isSelected }
 }
