@@ -1,6 +1,6 @@
 <template>
   <FormDialog :loading v-model="dialog" title="Create taxon" @submit="submit" :fullscreen="xs">
-    <v-form @submit.prevent="submit" class="pb-5">
+    <v-container>
       <v-row>
         <v-col cols="12" sm="6">
           <v-text-field
@@ -33,6 +33,7 @@
           />
         </v-col>
       </v-row>
+      {{ unindexedErrors }}
       <v-row>
         <v-col cols="12" sm="6">
           <v-text-field v-model.trim="model.name" label="Name" v-bind="field('name')" />
@@ -69,20 +70,20 @@
           ></v-textarea>
         </v-col>
       </v-row>
-    </v-form>
+    </v-container>
   </FormDialog>
 </template>
 
 <script setup lang="ts">
 import { $TaxonInput, Taxon, TaxonInput, TaxonWithRelatives, TaxonomyService } from '@/api'
-import { Ref, computed, ref, watch } from 'vue'
+import { useToggle } from '@vueuse/core'
+import { computed, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify'
-import { useForm, useSchema, type FormEmits, type FormProps } from '../toolkit/forms/form'
+import { useSchema, type FormEmits, type FormProps } from '../toolkit/forms/form'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
 import { childRank } from './rank'
 import StatusPicker from './StatusPicker.vue'
 import TaxonPicker from './TaxonPicker.vue'
-import { useToggle } from '@vueuse/core'
 
 const { xs } = useDisplay()
 
@@ -102,9 +103,9 @@ const initial: TaxonInput = {
   code: ''
 }
 
-const { model } = useForm(props, { initial })
+const model = ref(initial)
 
-const { field, errorHandler } = useSchema($TaxonInput)
+const { field, errorHandler, unindexedErrors } = useSchema($TaxonInput)
 
 watch(
   () => props.parent,
@@ -126,6 +127,7 @@ const [loading, toggleLoading] = useToggle(false)
 async function submit() {
   toggleLoading(true)
   const data = await TaxonomyService.createTaxon({ body: model.value })
+    // .then(handleErrors(console.log))
     .then(errorHandler)
     .finally(() => toggleLoading(false))
   emit('success', data)
