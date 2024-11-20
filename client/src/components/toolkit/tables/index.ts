@@ -6,6 +6,7 @@ import { HttpStatusCode } from "axios"
 import { ComputedRef, MaybeRef, ModelRef, computed, onMounted, ref } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
+import { triggerRef } from "vue"
 
 
 
@@ -147,6 +148,7 @@ export function useTable<ItemType extends { id: string }>(
           console.info('Edited item', item, ` at index ${index}`)
           items.value.splice(index, 1)
           items.value.unshift(item)
+          triggerRef(items) // required to trigger recomputation of depending properties
           feedback.value.show(props.itemRepr ? `${props.itemRepr(item)} updated` : 'Item updated', 'success')
         },
         // Reject
@@ -169,10 +171,11 @@ export function useTable<ItemType extends { id: string }>(
         (item): void => {
           console.info('Created item', item)
           items.value.unshift(item)
+          triggerRef(items)
           feedback.value.show(props.itemRepr ? `${props.itemRepr(item)} registered` : 'Item registered', 'success')
         },
         // Reject
-        () => { console.info('Item creation was cancelled') }
+        () => { console.log('Item creation was cancelled') }
       ).finally(() => {
         form.value.dialog = false
       })
@@ -181,15 +184,13 @@ export function useTable<ItemType extends { id: string }>(
       const message = props.itemRepr
         ? `Are you sure you want to delete ${props.itemRepr(item)} ?`
         : 'Are you sure you want to delete this item ?'
-      console.log(item)
       await askConfirm({
         title: "Confirm deletion",
         message,
         payload: item
       }).then(({ isCanceled, data }) => {
-        console.log(data)
         if (isCanceled)
-          console.info("Item deletion canceled")
+          console.log("Item deletion canceled")
         else if (data !== undefined)
           executeDelete(data)
       })
@@ -201,11 +202,12 @@ export function useTable<ItemType extends { id: string }>(
       console.error('Item to delete is undefined. Aborting.')
       return
     }
-    console.log(`Deleting item`, item)
-    const index = items.value.indexOf(item)
-
+    const index = items.value.findIndex(({ id }) => item.id === id)
+    if (index === -1) console.error("Failed to find item index")
+    console.log(`Deleting item at index ${index}`, item)
     if (props.delete == undefined) {
       items.value.splice(index, 1)
+      triggerRef(items)
     } else {
       const { error } = await props.delete(item)
       if (error != undefined) {
@@ -224,6 +226,7 @@ export function useTable<ItemType extends { id: string }>(
         }
       } else {
         items.value.splice(index, 1)
+        triggerRef(items);
         feedback.value.show('Item successfully deleted.', 'success')
         if (props.reloadOnDelete) {
           await loadItems()
