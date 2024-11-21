@@ -48,7 +48,7 @@ import NotFound from '@/components/navigation/NotFound.vue'
 import routes from '@/router/routes'
 import { useRouter } from 'vue-router'
 
-const { mobile, xs } = useDisplay()
+const { mobile } = useDisplay()
 
 type SettingsTab = 'instance' | 'security' | 'email'
 

@@ -96,7 +96,7 @@ module location {
       # edgedb error: SchemaDefinitionError:
       # cannot specify a rewrite for link 'maintainers' of object type 'location::SiteDataset' because it is multi
       # Hint: this is a temporary implementation restriction
-
+      # Currently handling this in the application layer
       # rewrite insert using (global default::current_user.identity union .maintainers);
       # rewrite update using (.maintainers union .meta.created_by_user.identity);
     };

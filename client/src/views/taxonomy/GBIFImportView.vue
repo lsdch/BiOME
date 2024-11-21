@@ -17,7 +17,6 @@
 
 <script setup lang="ts">
 import ImportGBIF from '@/components/taxonomy/imports/ImportGBIF.vue'
-import { RouterLink } from 'vue-router'
 </script>
 
 <style scoped></style>

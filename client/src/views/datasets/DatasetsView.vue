@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { ErrorModel, LocationService } from '@/api'
+import { LocationService } from '@/api'
 import DatasetCard from '@/components/datasets/DatasetCard.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useToggle } from '@vueuse/core'
@@ -27,7 +27,6 @@ import { computed, ref } from 'vue'
 
 const [loading, toggleLoading] = useToggle(true)
 const datasets = ref(await fetch())
-const error = ref<ErrorModel>()
 
 const search = ref<string>()
 
@@ -36,15 +35,11 @@ const filteredDatasets = computed(() => {
 })
 
 async function fetch() {
-  loading.value = true
-  const { data, error: err } = await LocationService.listSiteDatasets().finally(() =>
+  toggleLoading(true)
+  const { data, error } = await LocationService.listSiteDatasets().finally(() =>
     toggleLoading(false)
   )
-  if (err !== undefined) {
-    error.value = err
-    return undefined
-  }
-  return data
+  return error ? console.error(error) : data
 }
 </script>
 
