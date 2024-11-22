@@ -174,18 +174,18 @@ export function useSchema<T extends Schema>(schema: T) {
 
     // Numbers
     if ((s?.type == 'number' || s?.type == "integer")) {
-      rules.push((value?: number) => {
-        if (value === undefined) return true
+      rules.push((value?: string | number) => {
+        if (value === undefined || value === null || value === "") return true
         if (s.type == "integer") return Number.isInteger(value) || `Must be an integer number`
         if (s.type == "number" && s.format == "float") return (Number.isFinite(value) && !Number.isInteger(value)) || `Must be a decimal number`
         return Number.isFinite(value) || `Must be a number`
       })
     }
     if (s?.maximum !== undefined) {
-      rules.push((value: number) => (value <= s.maximum!) || `Maximum value is ${s.maximum!}`)
+      rules.push((value: number) => (value === undefined || value === null) || (value <= s.maximum!) || `Maximum value is ${s.maximum!}`)
     }
     if (s?.minimum !== undefined) {
-      rules.push((value: number) => (value >= s.minimum!) || `Minimum value is ${s.minimum!}`)
+      rules.push((value: number) => (value === undefined || value === null) || (value >= s.minimum!) || `Minimum value is ${s.minimum!}`)
     }
 
     // Enum
