@@ -1,58 +1,65 @@
 <template>
   <FormDialog title="Register program" v-model="open" v-bind="$attrs" @submit="submit" :loading>
-    <v-row>
-      <v-col>
-        <v-text-field label="Label" v-model="model.label" v-bind="field('label')" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-text-field label="Code" v-model="model.code" v-bind="field('code')" />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col class="d-flex">
-        <v-number-input
-          label="Start year"
-          v-model="model.start_year"
-          v-bind="field('start_year')"
-          rounded="e-0"
-        />
-        <v-number-input
-          label="End year"
-          v-model="model.end_year"
-          v-bind="field('end_year')"
-          rounded="s-0"
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <InstitutionPicker
-          label="Funding agencies"
-          v-model="model.funding_agencies"
-          chips
-          closable-chips
-          item-value="code"
-          multiple
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <PersonPicker
-          label="Managers"
-          v-model="model.managers"
-          v-bind="field('managers')"
-          multiple
-        />
-      </v-col>
-    </v-row>
-    <v-row>
-      <v-col>
-        <v-textarea label="Description" v-model="model.description" v-bind="field('description')" />
-      </v-col>
-    </v-row>
+    <v-container>
+      <v-row>
+        <v-col>
+          <v-text-field label="Label" v-model="model.label" v-bind="field('label')" />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-text-field label="Code" v-model="model.code" v-bind="field('code')" />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col class="d-flex">
+          <v-number-input
+            label="Start year"
+            v-model="model.start_year"
+            v-bind="field('start_year')"
+            rounded="e-0"
+          />
+          <v-number-input
+            label="End year"
+            v-model="model.end_year"
+            v-bind="field('end_year')"
+            rounded="s-0"
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <InstitutionPicker
+            label="Funding agencies"
+            v-model="model.funding_agencies"
+            chips
+            closable-chips
+            item-value="code"
+            multiple
+            clearable
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <PersonPicker
+            label="Managers"
+            v-model="model.managers"
+            v-bind="field('managers')"
+            multiple
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-textarea
+            label="Description"
+            v-model="model.description"
+            v-bind="field('description')"
+          />
+        </v-col>
+      </v-row>
+    </v-container>
   </FormDialog>
 </template>
 
