@@ -93,12 +93,12 @@
 
 <script setup lang="ts">
 import {
-  $SiteDatasetInput,
+  $DatasetInput,
   Coordinates,
   LocationService,
   PeopleService,
-  SiteDataset,
-  SiteDatasetInput
+  Dataset,
+  DatasetInput
 } from '@/api'
 import PersonPicker from '@/components/people/PersonPicker.vue'
 import { isGranted } from '@/components/people/userRole'
@@ -135,20 +135,20 @@ const { mobile } = useDisplay()
 const step = ref(1)
 const validitySteps = ref([undefined, true, undefined])
 
-const props = defineProps<FormProps<SiteDatasetInput>>()
+const props = defineProps<FormProps<DatasetInput>>()
 
-const initial: SiteDatasetInput = {
+const initial: DatasetInput = {
   label: '',
   maintainers: []
 }
 const { model } = useForm(props, { initial })
 
-const { field } = useSchema($SiteDatasetInput)
+const { field } = useSchema($DatasetInput)
 
-const datasetCreated = ref<SiteDataset>()
+const datasetCreated = ref<Dataset>()
 
 async function submit() {
-  const { data, error } = await LocationService.createSiteDataset({ body: model.value })
+  const { data, error } = await LocationService.createDataset({ body: model.value })
   if (error) {
     console.error(error)
     return
@@ -177,7 +177,7 @@ watch(
   { immediate: true }
 )
 
-type ImportData = Required<Pick<SiteDatasetInput, 'new_sites' | 'sites'>>
+type ImportData = Required<Pick<DatasetInput, 'new_sites' | 'sites'>>
 
 function bindSites() {
   if (result.value.errorCount) {

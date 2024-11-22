@@ -88,6 +88,61 @@ export type CurrentUserResponse = {
     user: User;
 };
 
+export type Dataset = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    description: string;
+    id: string;
+    label: string;
+    maintainers: Array<PersonUser>;
+    meta: Meta;
+    sites: Array<SiteItem>;
+    slug: string;
+};
+
+export type DatasetInner = {
+    description: string;
+    id: string;
+    label: string;
+    slug: string;
+};
+
+export type DatasetInput = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    description?: string;
+    label: string;
+    /**
+     * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
+     */
+    maintainers: Array<(string)>;
+    /**
+     * New sites to include in the dataset
+     */
+    new_sites?: Array<SiteInput>;
+    /**
+     * Existing site codes to include in the dataset
+     */
+    sites?: Array<(string)>;
+};
+
+export type DatasetUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    description?: (string) | null;
+    label?: string;
+    /**
+     * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
+     */
+    maintainers?: Array<(string)>;
+};
+
 export type DatePrecision = 'Year' | 'Month' | 'Day' | 'Unknown';
 
 export type DateWithPrecision = {
@@ -841,68 +896,13 @@ export type Site = {
     code: string;
     coordinates: Coordinates;
     country: Country;
-    datasets: Array<SiteDatasetInner>;
+    datasets: Array<DatasetInner>;
     description: string;
     events: Array<Event>;
     id: string;
     locality?: string;
     meta: Meta;
     name: string;
-};
-
-export type SiteDataset = {
-    /**
-     * A URL to the JSON Schema for this object.
-     */
-    readonly $schema?: string;
-    description: string;
-    id: string;
-    label: string;
-    maintainers: Array<PersonUser>;
-    meta: Meta;
-    sites: Array<SiteItem>;
-    slug: string;
-};
-
-export type SiteDatasetInner = {
-    description: string;
-    id: string;
-    label: string;
-    slug: string;
-};
-
-export type SiteDatasetInput = {
-    /**
-     * A URL to the JSON Schema for this object.
-     */
-    readonly $schema?: string;
-    description?: string;
-    label: string;
-    /**
-     * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
-     */
-    maintainers: Array<(string)>;
-    /**
-     * New sites to include in the dataset
-     */
-    new_sites?: Array<SiteInput>;
-    /**
-     * Existing site codes to include in the dataset
-     */
-    sites?: Array<(string)>;
-};
-
-export type SiteDatasetUpdate = {
-    /**
-     * A URL to the JSON Schema for this object.
-     */
-    readonly $schema?: string;
-    description?: (string) | null;
-    label?: string;
-    /**
-     * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
-     */
-    maintainers?: Array<(string)>;
 };
 
 export type SiteInput = {
@@ -1259,66 +1259,6 @@ export type GetAccessPointsResponse = (Array<(string)>);
 
 export type GetAccessPointsError = (ErrorModel);
 
-export type ListSiteDatasetsData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ListSiteDatasetsResponse = (Array<SiteDataset>);
-
-export type ListSiteDatasetsError = (ErrorModel);
-
-export type CreateSiteDatasetData = {
-    body: SiteDatasetInput;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type CreateSiteDatasetResponse = (SiteDataset);
-
-export type CreateSiteDatasetError = (ErrorModel);
-
-export type UpdateSiteDatasetData = {
-    body: SiteDatasetUpdate;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-    path: {
-        slug: string;
-    };
-};
-
-export type UpdateSiteDatasetResponse = (SiteDataset);
-
-export type UpdateSiteDatasetError = (ErrorModel);
-
-export type GetSiteDatasetData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-    path: {
-        slug: string;
-    };
-};
-
-export type GetSiteDatasetResponse = (SiteDataset);
-
-export type GetSiteDatasetError = (ErrorModel);
-
 export type ListCountriesData = {
     headers?: {
         /**
@@ -1580,6 +1520,66 @@ export type MonitorGbifResponse = (Array<({
 })>);
 
 export type MonitorGbifError = (ErrorModel);
+
+export type ListDatasetsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListDatasetsResponse = (Array<Dataset>);
+
+export type ListDatasetsError = (ErrorModel);
+
+export type CreateDatasetData = {
+    body: DatasetInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateDatasetResponse = (Dataset);
+
+export type CreateDatasetError = (ErrorModel);
+
+export type UpdateDatasetData = {
+    body: DatasetUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        slug: string;
+    };
+};
+
+export type UpdateDatasetResponse = (Dataset);
+
+export type UpdateDatasetError = (ErrorModel);
+
+export type GetDatasetData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        slug: string;
+    };
+};
+
+export type GetDatasetResponse = (Dataset);
+
+export type GetDatasetError = (ErrorModel);
 
 export type ListGenesData = {
     headers?: {

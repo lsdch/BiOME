@@ -202,6 +202,143 @@ export const $CurrentUserResponse = {
     type: 'object'
 } as const;
 
+export const $Dataset = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Dataset.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        label: {
+            type: 'string'
+        },
+        maintainers: {
+            items: {
+                '$ref': '#/components/schemas/PersonUser'
+            },
+            type: 'array'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        sites: {
+            items: {
+                '$ref': '#/components/schemas/SiteItem'
+            },
+            type: 'array'
+        },
+        slug: {
+            type: 'string'
+        }
+    },
+    required: ['sites', 'maintainers', 'meta', 'id', 'label', 'slug', 'description'],
+    type: 'object'
+} as const;
+
+export const $DatasetInner = {
+    additionalProperties: false,
+    properties: {
+        description: {
+            type: 'string'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        label: {
+            type: 'string'
+        },
+        slug: {
+            type: 'string'
+        }
+    },
+    required: ['id', 'label', 'slug', 'description'],
+    type: 'object'
+} as const;
+
+export const $DatasetInput = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/DatasetInput.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        label: {
+            maxLength: 32,
+            minLength: 4,
+            type: 'string'
+        },
+        maintainers: {
+            description: 'Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.',
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        new_sites: {
+            description: 'New sites to include in the dataset',
+            items: {
+                '$ref': '#/components/schemas/SiteInput'
+            },
+            type: 'array'
+        },
+        sites: {
+            description: 'Existing site codes to include in the dataset',
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        }
+    },
+    required: ['label', 'maintainers'],
+    type: 'object'
+} as const;
+
+export const $DatasetUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/DatasetUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        description: {
+            type: ['string', 'null']
+        },
+        label: {
+            maxLength: 32,
+            minLength: 4,
+            type: 'string'
+        },
+        maintainers: {
+            description: 'Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.',
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $DatePrecision = {
     enum: ['Year', 'Month', 'Day', 'Unknown'],
     title: 'DatePrecision',
@@ -2094,7 +2231,7 @@ export const $Site = {
         },
         datasets: {
             items: {
-                '$ref': '#/components/schemas/SiteDatasetInner'
+                '$ref': '#/components/schemas/DatasetInner'
             },
             type: 'array'
         },
@@ -2123,143 +2260,6 @@ export const $Site = {
         }
     },
     required: ['datasets', 'events', 'meta', 'id', 'name', 'code', 'description', 'coordinates', 'country'],
-    type: 'object'
-} as const;
-
-export const $SiteDataset = {
-    additionalProperties: false,
-    properties: {
-        '$schema': {
-            description: 'A URL to the JSON Schema for this object.',
-            examples: ['/api/v1/schemas/SiteDataset.json'],
-            format: 'uri',
-            readOnly: true,
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        id: {
-            format: 'uuid',
-            type: 'string'
-        },
-        label: {
-            type: 'string'
-        },
-        maintainers: {
-            items: {
-                '$ref': '#/components/schemas/PersonUser'
-            },
-            type: 'array'
-        },
-        meta: {
-            '$ref': '#/components/schemas/Meta'
-        },
-        sites: {
-            items: {
-                '$ref': '#/components/schemas/SiteItem'
-            },
-            type: 'array'
-        },
-        slug: {
-            type: 'string'
-        }
-    },
-    required: ['sites', 'maintainers', 'meta', 'id', 'label', 'slug', 'description'],
-    type: 'object'
-} as const;
-
-export const $SiteDatasetInner = {
-    additionalProperties: false,
-    properties: {
-        description: {
-            type: 'string'
-        },
-        id: {
-            format: 'uuid',
-            type: 'string'
-        },
-        label: {
-            type: 'string'
-        },
-        slug: {
-            type: 'string'
-        }
-    },
-    required: ['id', 'label', 'slug', 'description'],
-    type: 'object'
-} as const;
-
-export const $SiteDatasetInput = {
-    additionalProperties: false,
-    properties: {
-        '$schema': {
-            description: 'A URL to the JSON Schema for this object.',
-            examples: ['/api/v1/schemas/SiteDatasetInput.json'],
-            format: 'uri',
-            readOnly: true,
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        label: {
-            maxLength: 32,
-            minLength: 4,
-            type: 'string'
-        },
-        maintainers: {
-            description: 'Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.',
-            items: {
-                type: 'string'
-            },
-            type: 'array'
-        },
-        new_sites: {
-            description: 'New sites to include in the dataset',
-            items: {
-                '$ref': '#/components/schemas/SiteInput'
-            },
-            type: 'array'
-        },
-        sites: {
-            description: 'Existing site codes to include in the dataset',
-            items: {
-                type: 'string'
-            },
-            type: 'array'
-        }
-    },
-    required: ['label', 'maintainers'],
-    type: 'object'
-} as const;
-
-export const $SiteDatasetUpdate = {
-    additionalProperties: false,
-    properties: {
-        '$schema': {
-            description: 'A URL to the JSON Schema for this object.',
-            examples: ['/api/v1/schemas/SiteDatasetUpdate.json'],
-            format: 'uri',
-            readOnly: true,
-            type: 'string'
-        },
-        description: {
-            type: ['string', 'null']
-        },
-        label: {
-            maxLength: 32,
-            minLength: 4,
-            type: 'string'
-        },
-        maintainers: {
-            description: 'Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.',
-            items: {
-                type: 'string'
-            },
-            type: 'array'
-        }
-    },
     type: 'object'
 } as const;
 

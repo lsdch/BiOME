@@ -60,9 +60,9 @@ type SiteItem struct {
 
 type Site struct {
 	SiteItem `edgedb:"$inline" json:",inline"`
-	Datasets []SiteDatasetInner `edgedb:"datasets" json:"datasets"`
-	Events   []Event            `edgedb:"events" json:"events"`
-	Meta     people.Meta        `edgedb:"meta" json:"meta"`
+	Datasets []DatasetInner `edgedb:"datasets" json:"datasets"`
+	Events   []Event        `edgedb:"events" json:"events"`
+	Meta     people.Meta    `edgedb:"meta" json:"meta"`
 }
 
 func ListSites(db edgedb.Executor) ([]Site, error) {

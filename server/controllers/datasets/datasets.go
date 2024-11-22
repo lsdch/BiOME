@@ -1,4 +1,4 @@
-package sites
+package datasets
 
 import (
 	"context"
@@ -13,35 +13,35 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
-type GetSiteDatasetInput struct {
+type GetDatasetInput struct {
 	resolvers.AuthResolver
 	Slug string `path:"slug"`
 }
 
-func (i GetSiteDatasetInput) Identifier() string {
+func (i GetDatasetInput) Identifier() string {
 	return i.Slug
 }
 
-func RegisterDatasetRoutes(r router.Router) {
-	datasets_API := r.RouteGroup("/datasets").WithTags([]string{"Location"})
+func RegisterRoutes(r router.Router) {
+	datasets_API := r.RouteGroup("/datasets").WithTags([]string{"Datasets"})
 
-	router.Register(datasets_API, "GetSiteDataset",
+	router.Register(datasets_API, "GetDataset",
 		huma.Operation{
 			Path:        "/{slug}",
 			Method:      http.MethodPost,
 			Summary:     "Get site dataset",
 			Description: "Get infos for a site dataset",
-		}, controllers.GetHandler[*GetSiteDatasetInput](occurrence.FindDataset))
+		}, controllers.GetHandler[*GetDatasetInput](occurrence.FindDataset))
 
-	router.Register(datasets_API, "CreateSiteDataset",
+	router.Register(datasets_API, "CreateDataset",
 		huma.Operation{
 			Path:        "/",
 			Method:      http.MethodPost,
 			Summary:     "Create site dataset",
 			Description: "Create a new site dataset with new or existing sites",
-		}, CreateSiteDataset)
+		}, CreateDataset)
 
-	router.Register(datasets_API, "ListSiteDatasets",
+	router.Register(datasets_API, "ListDatasets",
 		huma.Operation{
 			Path:        "/",
 			Method:      http.MethodGet,
@@ -49,28 +49,28 @@ func RegisterDatasetRoutes(r router.Router) {
 			Description: "List all site datasets",
 		}, controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](occurrence.ListSiteDatasets))
+		}](occurrence.ListDatasets))
 
-	router.Register(datasets_API, "UpdateSiteDataset",
+	router.Register(datasets_API, "UpdateDataset",
 		huma.Operation{
 			Path:        "/{slug}",
 			Method:      http.MethodPatch,
 			Summary:     "Update site dataset",
 			Description: "Update properties of a site dataset",
-		}, controllers.UpdateHandler[*UpdateSiteDatasetInput])
+		}, controllers.UpdateHandler[*UpdateDatasetInput])
 }
 
-type UpdateSiteDatasetInput struct {
+type UpdateDatasetInput struct {
 	resolvers.AuthRequired
 	Slug string `path:"slug"`
-	controllers.UpdateInput[occurrence.SiteDatasetUpdate, string, occurrence.SiteDataset]
+	controllers.UpdateInput[occurrence.DatasetUpdate, string, occurrence.Dataset]
 }
 
-func (u UpdateSiteDatasetInput) Identifier() string {
+func (u UpdateDatasetInput) Identifier() string {
 	return u.Slug
 }
 
-func (u *UpdateSiteDatasetInput) Resolve(ctx huma.Context) []error {
+func (u *UpdateDatasetInput) Resolve(ctx huma.Context) []error {
 	if err := u.AuthRequired.Resolve(ctx); err != nil {
 		return err
 	}
@@ -88,15 +88,15 @@ func (u *UpdateSiteDatasetInput) Resolve(ctx huma.Context) []error {
 	return nil
 }
 
-type CreateSiteDatasetInput struct {
-	Body occurrence.SiteDatasetInput
+type CreateDatasetInput struct {
+	Body occurrence.DatasetInput
 	resolvers.AccessRestricted[resolvers.Contributor]
 }
-type CreateSiteDatasetOutput struct {
-	Body occurrence.SiteDataset
+type CreateDatasetOutput struct {
+	Body occurrence.Dataset
 }
 
-func CreateSiteDataset(ctx context.Context, input *CreateSiteDatasetInput) (*CreateSiteDatasetOutput, error) {
+func CreateDataset(ctx context.Context, input *CreateDatasetInput) (*CreateDatasetOutput, error) {
 	dataset, errs := input.Body.Validate(input.DB())
 	if errs != nil {
 		return nil, huma.Error422UnprocessableEntity("Invalid input", errs...)
@@ -105,5 +105,5 @@ func CreateSiteDataset(ctx context.Context, input *CreateSiteDatasetInput) (*Cre
 	if err != nil {
 		return nil, huma.Error500InternalServerError("Failed to create dataset", err)
 	}
-	return &CreateSiteDatasetOutput{Body: *created}, nil
+	return &CreateDatasetOutput{Body: *created}, nil
 }

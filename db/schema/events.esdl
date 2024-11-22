@@ -49,7 +49,7 @@ module events {
     };
     multi programs: Program;
 
-    dataset: location::SiteDataset;
+    dataset: datasets::Dataset;
 
     spotting := .<event[is Spotting];
     multi abiotic_measurements := .<event[is AbioticMeasurement];

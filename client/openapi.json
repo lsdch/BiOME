@@ -254,6 +254,164 @@
 				],
 				"type": "object"
 			},
+			"Dataset": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Dataset.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"sites": {
+						"items": {
+							"$ref": "#/components/schemas/SiteItem"
+						},
+						"type": "array"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"sites",
+					"maintainers",
+					"meta",
+					"id",
+					"label",
+					"slug",
+					"description"
+				],
+				"type": "object"
+			},
+			"DatasetInner": {
+				"additionalProperties": false,
+				"properties": {
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"label",
+					"slug",
+					"description"
+				],
+				"type": "object"
+			},
+			"DatasetInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/DatasetInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"label": {
+						"maxLength": 32,
+						"minLength": 4,
+						"type": "string"
+					},
+					"maintainers": {
+						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"new_sites": {
+						"description": "New sites to include in the dataset",
+						"items": {
+							"$ref": "#/components/schemas/SiteInput"
+						},
+						"type": "array"
+					},
+					"sites": {
+						"description": "Existing site codes to include in the dataset",
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"label",
+					"maintainers"
+				],
+				"type": "object"
+			},
+			"DatasetUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/DatasetUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"label": {
+						"maxLength": 32,
+						"minLength": 4,
+						"type": "string"
+					},
+					"maintainers": {
+						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"type": "object"
+			},
 			"DatePrecision": {
 				"enum": [
 					"Year",
@@ -2559,7 +2717,7 @@
 					},
 					"datasets": {
 						"items": {
-							"$ref": "#/components/schemas/SiteDatasetInner"
+							"$ref": "#/components/schemas/DatasetInner"
 						},
 						"type": "array"
 					},
@@ -2598,164 +2756,6 @@
 					"coordinates",
 					"country"
 				],
-				"type": "object"
-			},
-			"SiteDataset": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/SiteDataset.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"maintainers": {
-						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"sites": {
-						"items": {
-							"$ref": "#/components/schemas/SiteItem"
-						},
-						"type": "array"
-					},
-					"slug": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"sites",
-					"maintainers",
-					"meta",
-					"id",
-					"label",
-					"slug",
-					"description"
-				],
-				"type": "object"
-			},
-			"SiteDatasetInner": {
-				"additionalProperties": false,
-				"properties": {
-					"description": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"slug": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"id",
-					"label",
-					"slug",
-					"description"
-				],
-				"type": "object"
-			},
-			"SiteDatasetInput": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/SiteDatasetInput.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"label": {
-						"maxLength": 32,
-						"minLength": 4,
-						"type": "string"
-					},
-					"maintainers": {
-						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"new_sites": {
-						"description": "New sites to include in the dataset",
-						"items": {
-							"$ref": "#/components/schemas/SiteInput"
-						},
-						"type": "array"
-					},
-					"sites": {
-						"description": "Existing site codes to include in the dataset",
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"label",
-					"maintainers"
-				],
-				"type": "object"
-			},
-			"SiteDatasetUpdate": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/SiteDatasetUpdate.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"description": {
-						"type": [
-							"string",
-							"null"
-						]
-					},
-					"label": {
-						"maxLength": 32,
-						"minLength": 4,
-						"type": "string"
-					},
-					"maintainers": {
-						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					}
-				},
 				"type": "object"
 			},
 			"SiteInput": {
@@ -4925,7 +4925,7 @@
 		"/datasets": {
 			"get": {
 				"description": "List all site datasets",
-				"operationId": "ListSiteDatasets",
+				"operationId": "ListDatasets",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -4956,7 +4956,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/SiteDataset"
+										"$ref": "#/components/schemas/Dataset"
 									},
 									"type": "array"
 								}
@@ -4987,12 +4987,12 @@
 				},
 				"summary": "List site datasets",
 				"tags": [
-					"Location"
+					"Datasets"
 				]
 			},
 			"post": {
 				"description": "Create a new site dataset with new or existing sites",
-				"operationId": "CreateSiteDataset",
+				"operationId": "CreateDataset",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -5021,7 +5021,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SiteDatasetInput"
+								"$ref": "#/components/schemas/DatasetInput"
 							}
 						}
 					},
@@ -5032,7 +5032,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/SiteDataset"
+									"$ref": "#/components/schemas/Dataset"
 								}
 							}
 						},
@@ -5061,14 +5061,14 @@
 				},
 				"summary": "Create site dataset",
 				"tags": [
-					"Location"
+					"Datasets"
 				]
 			}
 		},
 		"/datasets/{slug}": {
 			"patch": {
 				"description": "Update properties of a site dataset",
-				"operationId": "UpdateSiteDataset",
+				"operationId": "UpdateDataset",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -5105,7 +5105,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SiteDatasetUpdate"
+								"$ref": "#/components/schemas/DatasetUpdate"
 							}
 						}
 					},
@@ -5116,7 +5116,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/SiteDataset"
+									"$ref": "#/components/schemas/Dataset"
 								}
 							}
 						},
@@ -5145,12 +5145,12 @@
 				},
 				"summary": "Update site dataset",
 				"tags": [
-					"Location"
+					"Datasets"
 				]
 			},
 			"post": {
 				"description": "Get infos for a site dataset",
-				"operationId": "GetSiteDataset",
+				"operationId": "GetDataset",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -5188,7 +5188,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/SiteDataset"
+									"$ref": "#/components/schemas/Dataset"
 								}
 							}
 						},
@@ -5217,7 +5217,7 @@
 				},
 				"summary": "Get site dataset",
 				"tags": [
-					"Location"
+					"Datasets"
 				]
 			}
 		},

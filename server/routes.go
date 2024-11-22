@@ -1,6 +1,7 @@
 package main
 
 import (
+	"darco/proto/controllers/datasets"
 	"darco/proto/controllers/events"
 	"darco/proto/controllers/habitats"
 	"darco/proto/controllers/institution"
@@ -23,7 +24,7 @@ func registerRoutes(router router.Router) {
 	taxonomy.RegisterImportRoutes(router)
 	settings.RegisterRoutes(router)
 	sites.RegisterRoutes(router)
-	sites.RegisterDatasetRoutes(router)
+	datasets.RegisterRoutes(router)
 	events.RegisterRoutes(router)
 	sequences.RegisterRoutes(router)
 	habitats.RegisterRoutes(router)

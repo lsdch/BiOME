@@ -11,22 +11,22 @@
 </template>
 
 <script setup lang="ts">
-import { LocationService, SiteDataset } from '@/api'
+import { Dataset, DatasetsService } from '@/api'
 import { handleErrors } from '@/api/responses'
 import { onMounted, ref } from 'vue'
 
-const model = defineModel<SiteDataset>()
+const model = defineModel<Dataset>()
 withDefaults(defineProps<{ label?: string }>(), { label: 'Dataset' })
 
 const loading = ref<boolean>()
 
-const items = ref<SiteDataset[]>()
+const items = ref<Dataset[]>()
 
 onMounted(async () => (items.value = (await fetch()) ?? []))
 
 async function fetch() {
   loading.value = true
-  return LocationService.listSiteDatasets()
+  return DatasetsService.listDatasets()
     .then(handleErrors((err) => console.error(err)))
     .finally(() => (loading.value = false))
 }

@@ -15,10 +15,10 @@
 </template>
 
 <script setup lang="ts">
-import { SiteDataset } from '@/api'
+import { Dataset } from '@/api'
 import ItemDateChip from '../toolkit/ItemDateChip.vue'
 
-defineProps<{ dataset: SiteDataset }>()
+defineProps<{ dataset: Dataset }>()
 </script>
 
 <style scoped></style>

@@ -4,6 +4,7 @@ module occurrence {
     required taxon: taxonomy::Taxon;
 
     identified_by: people::Person; # might be unknown
+
     required identified_on: tuple<date: datetime, precision: date::DatePrecision>{
       constraint date::required_unless_unknown(__subject__.date, __subject__.precision);
       rewrite insert, update using (
@@ -31,10 +32,8 @@ module occurrence {
     reference: references::Article;
 
     original_link: str; # link to original database
-
-    voucher : tuple<collection: str, item: str> {
-      constraint exclusive;
-    };
+    in_collection: str;
+    multi item_voucher: str;
 
     required quantity: QuantityType;
     content_description: str;

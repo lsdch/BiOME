@@ -67,38 +67,17 @@ module location {
     };
 
     multi link events := .<site[is events::Event];
-    multi datasets : SiteDataset {
+    multi datasets : datasets::Dataset {
       on target delete allow;
       on source delete allow;
     };
 
-    imported_in: SiteDataset {
+    imported_in: datasets::Dataset {
       on target delete allow;
       on source delete allow;
       rewrite insert using (
-        if count(.datasets) = 1 then assert_single(.datasets) else <SiteDataset>{}
+        if count(.datasets) = 1 then assert_single(.datasets) else <datasets::Dataset>{}
       );
-    };
-  }
-
-  type SiteDataset extending default::Auditable {
-    required label: str {
-      constraint min_len_value(4);
-      constraint max_len_value(40);
-    }
-    required slug: str {
-      constraint exclusive;
-    };
-
-    description: str;
-    multi link sites := .<datasets[is Site];
-    required multi maintainers: people::Person {
-      # edgedb error: SchemaDefinitionError:
-      # cannot specify a rewrite for link 'maintainers' of object type 'location::SiteDataset' because it is multi
-      # Hint: this is a temporary implementation restriction
-      # Currently handling this in the application layer
-      # rewrite insert using (global default::current_user.identity union .maintainers);
-      # rewrite update using (.maintainers union .meta.created_by_user.identity);
     };
   }
 }

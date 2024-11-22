@@ -82,17 +82,17 @@
 </template>
 
 <script setup lang="ts">
-import { LocationService } from '@/api'
+import { DatasetsService } from '@/api'
 import SitesMap from '@/components/maps/SitesMap.vue'
 import SitePopup from '@/components/sites/SitePopup.vue'
 import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
+import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useToggle } from '@vueuse/core'
 import { computed, reactive, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import DatasetEditForm from './DatasetEditForm.vue'
-import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 
 const { user } = useUserStore()
 
@@ -108,7 +108,7 @@ const slug = params.slug as string
 const { data: dataset, error } = toRefs(reactive(await fetch()))
 
 async function fetch() {
-  return await LocationService.getSiteDataset({ path: { slug } })
+  return await DatasetsService.getDataset({ path: { slug } })
 }
 
 const isUserMaintainer = computed(() => {

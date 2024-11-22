@@ -32,29 +32,29 @@
 </template>
 
 <script setup lang="ts">
-import { $SiteDatasetUpdate, LocationService, SiteDataset, SiteDatasetUpdate } from '@/api'
+import { $DatasetUpdate, Dataset, DatasetUpdate, DatasetsService } from '@/api'
 import PersonPicker from '@/components/people/PersonPicker.vue'
 import { useSchema } from '@/components/toolkit/forms/schema'
 import { useFeedback } from '@/stores/feedback'
 
-const dataset = defineModel<SiteDataset>()
-const { schema, errorHandler } = useSchema($SiteDatasetUpdate)
+const dataset = defineModel<Dataset>()
+const { schema, errorHandler } = useSchema($DatasetUpdate)
 const { feedback } = useFeedback()
 
 const emit = defineEmits<{
   cancel: []
-  updated: [dataset: SiteDataset]
+  updated: [dataset: Dataset]
 }>()
 
 async function submit() {
   if (!dataset.value) return
   const { label, description } = dataset.value
-  const body: SiteDatasetUpdate = {
+  const body: DatasetUpdate = {
     label,
     description,
     maintainers: dataset.value?.maintainers?.map(({ alias }) => alias) || null
   }
-  await LocationService.updateSiteDataset({ path: { slug: dataset.value.slug }, body })
+  await DatasetsService.updateDataset({ path: { slug: dataset.value.slug }, body })
     .then(errorHandler)
     .then((updated) => {
       dataset.value = updated

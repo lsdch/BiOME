@@ -19,7 +19,7 @@
 </template>
 
 <script setup lang="ts">
-import { LocationService } from '@/api'
+import { DatasetsService } from '@/api'
 import DatasetCard from '@/components/datasets/DatasetCard.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useToggle } from '@vueuse/core'
@@ -36,9 +36,7 @@ const filteredDatasets = computed(() => {
 
 async function fetch() {
   toggleLoading(true)
-  const { data, error } = await LocationService.listSiteDatasets().finally(() =>
-    toggleLoading(false)
-  )
+  const { data, error } = await DatasetsService.listDatasets().finally(() => toggleLoading(false))
   return error ? console.error(error) : data
 }
 </script>
