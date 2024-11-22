@@ -46,7 +46,9 @@ func (q UpdateQuery) Fragments(item any) []string {
 			if !value.IsNull() {
 				fragment = fmt.Sprintf("%s := %s", jsonField, q.Mappings[jsonField])
 			}
-			fragments = append(fragments, fragment)
+			if _, ok := q.Mappings[jsonField]; ok {
+				fragments = append(fragments, fragment)
+			}
 		}
 	}
 	return fragments
