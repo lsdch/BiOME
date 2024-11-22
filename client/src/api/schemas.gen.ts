@@ -596,6 +596,7 @@ export const $HabitatGroupInput = {
             items: {
                 '$ref': '#/components/schemas/HabitatInput'
             },
+            minItems: 1,
             type: 'array'
         },
         exclusive_elements: {
@@ -609,7 +610,7 @@ export const $HabitatGroupInput = {
             type: 'string'
         }
     },
-    required: ['label'],
+    required: ['label', 'elements'],
     type: 'object'
 } as const;
 
@@ -623,6 +624,18 @@ export const $HabitatGroupUpdate = {
             readOnly: true,
             type: 'string'
         },
+        create_tags: {
+            items: {
+                '$ref': '#/components/schemas/HabitatInput'
+            },
+            type: 'array'
+        },
+        delete_tags: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
         depends: {
             type: ['string', 'null']
         },
@@ -631,9 +644,14 @@ export const $HabitatGroupUpdate = {
         },
         label: {
             type: 'string'
+        },
+        update_tags: {
+            additionalProperties: {
+                '$ref': '#/components/schemas/HabitatUpdate'
+            },
+            type: 'object'
         }
     },
-    required: ['depends'],
     type: 'object'
 } as const;
 
@@ -682,6 +700,19 @@ export const $HabitatRecord = {
         }
     },
     required: ['id', 'label'],
+    type: 'object'
+} as const;
+
+export const $HabitatUpdate = {
+    additionalProperties: false,
+    properties: {
+        description: {
+            type: ['string', 'null']
+        },
+        label: {
+            type: 'string'
+        }
+    },
     type: 'object'
 } as const;
 

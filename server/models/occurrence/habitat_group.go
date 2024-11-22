@@ -7,6 +7,7 @@ import (
 	"darco/proto/models/people"
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
@@ -21,29 +22,95 @@ type HabitatGroup struct {
 	Meta      people.Meta                    `edgedb:"meta" json:"meta"`
 }
 
+func (g *HabitatGroup) AddHabitat(e edgedb.Executor, h HabitatInput) error {
+	data, _ := json.Marshal(h)
+	var new_habitat HabitatRecord
+	err := e.QuerySingle(context.Background(),
+		`#edgeql
+			with data := <json>$1,
+			select (insert sampling::Habitat {
+				label := <str>data['label'],
+				description := <str>json_get(data, 'description'),
+				in_group := (assert_single(assert_exists(
+					(select <sampling::HabitatGroup><uuid>$0)
+				)))
+			}) { id, label, description, incompatible: { * } }
+		`, &new_habitat, g.ID, data)
+	if err != nil {
+		return err
+	}
+	g.Elements = append(g.Elements, new_habitat)
+	return nil
+}
+
+func (g *HabitatGroup) DeleteHabitat(e edgedb.Executor, label string) error {
+	err := e.Execute(context.Background(),
+		`#edgeql
+			delete assert_exists(sampling::Habitat filter .label = <str>$0)
+		`, label,
+	)
+	if err != nil {
+		return err
+	}
+	g.Elements = slices.DeleteFunc(g.Elements, func(elt HabitatRecord) bool {
+		return elt.Label == label
+	})
+	return nil
+}
+
+func (g *HabitatGroup) UpdateHabitat(e edgedb.Executor, label string, h HabitatUpdate) error {
+	data, _ := json.Marshal(h)
+	query := db.UpdateQuery{
+		Frame: `#edgeql
+			with data := <json>$1,
+      select (update assert_exists(sampling::Habitat filter .label = <str>$0) set {
+        %s
+      }) { *, incompatible: { * } }
+		`,
+		Mappings: map[string]string{
+			"label":       "<str>data['label']",
+			"description": "<str>data['description']",
+		},
+	}
+	var updated HabitatRecord
+	err := e.QuerySingle(context.Background(), query.Query(h), &updated, label, data)
+	if err != nil {
+		return err
+	}
+	indexToReplace := slices.IndexFunc(g.Elements, func(elt HabitatRecord) bool {
+		return elt.Label == label
+	})
+	g.Elements[indexToReplace] = updated
+	return nil
+}
+
 type HabitatGroupInput struct {
 	Label     string         `json:"label" doc:"Name for the group of habitat tags" example:"Water flow" minLength:"3" maxLength:"32"`
 	Depends   string         `json:"depends,omitempty" doc:"Habitat tag that this group is a refinement of" example:"Aquatic, Surface"`
 	Exclusive *bool          `json:"exclusive_elements,omitempty"`
-	Elements  []HabitatInput `json:"elements,omitempty"`
+	Elements  []HabitatInput `json:"elements" minItems:"1"`
 }
 
 func (g HabitatGroupInput) Create(db edgedb.Executor) (created HabitatGroup, err error) {
 	data, _ := json.Marshal(g)
 	err = db.QuerySingle(context.Background(),
-		`with module sampling,
-		data := <json>$0,
-		newGroup := (insert HabitatGroup {
-			label := <str>data['label'],
-			exclusive_elements := <bool>json_get(data, 'exclusive_elements') ?? true,
-		}),
-		habitats := (for habitat in json_array_unpack(json_get(data, 'elements')) union (insert Habitat {
-				label := <str>habitat['label'],
-				description := <str>json_get(habitat, 'description'),
-				in_group := newGroup
-			})
-		),
-		select newGroup { **, elements := habitats {*} }`, &created, data,
+		`#edgeql
+
+			with module sampling,
+			data := <json>$0,
+			newGroup := (insert HabitatGroup {
+				label := <str>data['label'],
+				exclusive_elements := <bool>json_get(data, 'exclusive_elements') ?? true
+			}),
+			habitats := (for habitat in json_array_unpack(json_get(data, 'elements')) union (insert Habitat {
+					label := <str>habitat['label'],
+					description := <str>json_get(habitat, 'description'),
+					in_group := newGroup
+				})
+			),
+			select newGroup { **, elements := habitats {*} }
+
+		`, &created, data,
 	)
 	return
 }
@@ -83,35 +150,69 @@ func DeleteHabitatGroup(db edgedb.Executor, label string) (deleted HabitatGroup,
 }
 
 type HabitatGroupUpdate struct {
-	Label     models.OptionalInput[string] `json:"label,omitempty"`
-	Depends   models.OptionalNull[string]  `json:"depends"`
-	Exclusive models.OptionalInput[bool]   `json:"exclusive_elements,omitempty"`
+	Label      models.OptionalInput[string]                   `json:"label,omitempty"`
+	Depends    models.OptionalNull[string]                    `json:"depends,omitempty"`
+	Exclusive  models.OptionalInput[bool]                     `json:"exclusive_elements,omitempty"`
+	CreateTags models.OptionalInput[[]HabitatInput]           `json:"create_tags,omitempty"`
+	UpdateTags models.OptionalInput[map[string]HabitatUpdate] `json:"update_tags,omitempty"`
+	DeleteTags models.OptionalInput[[]string]                 `json:"delete_tags,omitempty"`
 }
-
-// func (t HabitatGroupUpdate) Schema(r huma.Registry) *huma.Schema {
-// 	s := *r.Schema(reflect.TypeFor[HabitatGroupInput](), false, "")
-// 	delete(s.Properties, "elements")
-// 	s.Required = []string{}
-// 	r.Map()["HabitatGroupUpdate"] = &s
-// 	return &s
-// }
 
 func (u HabitatGroupUpdate) Update(e edgedb.Executor, label string) (updated HabitatGroup, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
-		Frame: `with item := <json>$1,
-		select (update sampling::HabitatGroup filter .label = <str>$0 set {
-			%s
-		}) { **, elements := habitats {*} }`,
+		Frame: `#edgeql
+			with item := <json>$1,
+			select (
+				update sampling::HabitatGroup filter .label = <str>$0 set {
+					%s # update clauses
+				}
+			) { ** }
+		`,
 		Mappings: map[string]string{
-			"depends":   "(select sampling::Habitat filter .label = <str>item['depends'])",
-			"label":     "<str>item['label']",
-			"exclusive": "<bool>item['exclusive_elements']",
+			"depends":            "(select sampling::Habitat filter .label = <str>item['depends'])",
+			"label":              "<str>item['label']",
+			"exclusive_elements": "<bool>item['exclusive_elements']",
 		},
 	}
 	logrus.Infof("Value: %+v", u)
 	logrus.Infof("Query: %v", query.Query(u))
-	err = e.QuerySingle(context.Background(), query.Query(u), &updated, label, data)
-	updated.Meta.Update(e)
-	return
+	return updated, e.(*edgedb.Client).Tx(
+		context.Background(),
+		func(ctx context.Context, tx *edgedb.Tx) (err error) {
+			if err = tx.QuerySingle(
+				context.Background(),
+				query.Query(u),
+				&updated, label, data,
+			); err != nil {
+				return err
+			}
+			if inputs, create := u.CreateTags.Get(); create {
+				for _, input := range inputs {
+					logrus.Debugf("Adding habitat: %+v", input)
+					if err = updated.AddHabitat(tx, input); err != nil {
+						return err
+					}
+				}
+			}
+			if labels, delete := u.DeleteTags.Get(); delete {
+				for _, label := range labels {
+					logrus.Debugf("Deleting habitat %s", label)
+					if err = updated.DeleteHabitat(tx, label); err != nil {
+						return err
+					}
+				}
+			}
+			if inputs, update := u.UpdateTags.Get(); update {
+				for label, input := range inputs {
+					logrus.Debugf("Updating habitat %s : %+v", label, input)
+					if err = updated.UpdateHabitat(tx, label, input); err != nil {
+						return err
+					}
+				}
+			}
+
+			updated.Meta.Update(tx)
+			return nil
+		})
 }

@@ -25,7 +25,7 @@ type UUID = string
 const { layout, blockLayout } = useLayout()
 const {
   updateNodeInternals,
-  updateNodeData,
+  updateNode,
   removeEdges,
 } = useVueFlow()
 
@@ -129,8 +129,9 @@ export class HabitatsGraph {
   }
 
   updateGroup(group: HabitatGroup) {
+    console.log("Update node: ", group)
     this.addGroup(group)
-    updateNodeData(group.id, group)
+    updateNode(group.id, { data: group, id: group.id, label: group.label })
   }
 
   buildEdges() {

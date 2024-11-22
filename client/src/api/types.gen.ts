@@ -273,7 +273,7 @@ export type HabitatGroupInput = {
      * Habitat tag that this group is a refinement of
      */
     depends?: string;
-    elements?: Array<HabitatInput>;
+    elements: Array<HabitatInput>;
     exclusive_elements?: boolean;
     /**
      * Name for the group of habitat tags
@@ -286,9 +286,14 @@ export type HabitatGroupUpdate = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    depends: (string) | null;
+    create_tags?: Array<HabitatInput>;
+    delete_tags?: Array<(string)>;
+    depends?: (string) | null;
     exclusive_elements?: boolean;
     label?: string;
+    update_tags?: {
+        [key: string]: HabitatUpdate;
+    };
 };
 
 export type HabitatInput = {
@@ -313,6 +318,11 @@ export type HabitatRecord = {
      * A short label for the habitat.
      */
     label: string;
+};
+
+export type HabitatUpdate = {
+    description?: (string) | null;
+    label?: string;
 };
 
 export type ImportProcess = {
@@ -1309,66 +1319,6 @@ export type GetSiteDatasetResponse = (SiteDataset);
 
 export type GetSiteDatasetError = (ErrorModel);
 
-export type ListHabitatGroupsData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ListHabitatGroupsResponse = (Array<HabitatGroup>);
-
-export type ListHabitatGroupsError = (ErrorModel);
-
-export type CreateHabitatGroupData = {
-    body: HabitatGroupInput;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type CreateHabitatGroupResponse = (HabitatGroup);
-
-export type CreateHabitatGroupError = (ErrorModel);
-
-export type DeleteHabitatGroupData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-    path: {
-        code: string;
-    };
-};
-
-export type DeleteHabitatGroupResponse = (HabitatGroup);
-
-export type DeleteHabitatGroupError = (ErrorModel);
-
-export type UpdateHabitatGroupData = {
-    body: HabitatGroupUpdate;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-    path: {
-        code: string;
-    };
-};
-
-export type UpdateHabitatGroupResponse = (HabitatGroup);
-
-export type UpdateHabitatGroupError = (ErrorModel);
-
 export type ListCountriesData = {
     headers?: {
         /**
@@ -1643,6 +1593,66 @@ export type ListGenesData = {
 export type ListGenesResponse = (Array<Gene>);
 
 export type ListGenesError = (ErrorModel);
+
+export type ListHabitatGroupsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListHabitatGroupsResponse = (Array<HabitatGroup>);
+
+export type ListHabitatGroupsError = (ErrorModel);
+
+export type CreateHabitatGroupData = {
+    body: HabitatGroupInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateHabitatGroupResponse = (HabitatGroup);
+
+export type CreateHabitatGroupError = (ErrorModel);
+
+export type DeleteHabitatGroupData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteHabitatGroupResponse = (HabitatGroup);
+
+export type DeleteHabitatGroupError = (ErrorModel);
+
+export type UpdateHabitatGroupData = {
+    body: HabitatGroupUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateHabitatGroupResponse = (HabitatGroup);
+
+export type UpdateHabitatGroupError = (ErrorModel);
 
 export type ListInstitutionsData = {
     headers?: {

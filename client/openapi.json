@@ -721,6 +721,7 @@
 						"items": {
 							"$ref": "#/components/schemas/HabitatInput"
 						},
+						"minItems": 1,
 						"type": "array"
 					},
 					"exclusive_elements": {
@@ -737,7 +738,8 @@
 					}
 				},
 				"required": [
-					"label"
+					"label",
+					"elements"
 				],
 				"type": "object"
 			},
@@ -753,6 +755,18 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"create_tags": {
+						"items": {
+							"$ref": "#/components/schemas/HabitatInput"
+						},
+						"type": "array"
+					},
+					"delete_tags": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
 					"depends": {
 						"type": [
 							"string",
@@ -764,11 +778,14 @@
 					},
 					"label": {
 						"type": "string"
+					},
+					"update_tags": {
+						"additionalProperties": {
+							"$ref": "#/components/schemas/HabitatUpdate"
+						},
+						"type": "object"
 					}
 				},
-				"required": [
-					"depends"
-				],
 				"type": "object"
 			},
 			"HabitatInput": {
@@ -824,6 +841,21 @@
 					"id",
 					"label"
 				],
+				"type": "object"
+			},
+			"HabitatUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"label": {
+						"type": "string"
+					}
+				},
 				"type": "object"
 			},
 			"ImportProcess": {
@@ -5462,7 +5494,6 @@
 				},
 				"summary": "List habitats",
 				"tags": [
-					"Location",
 					"Habitats"
 				]
 			},
@@ -5536,7 +5567,6 @@
 				},
 				"summary": "Create habitat group",
 				"tags": [
-					"Location",
 					"Habitats"
 				]
 			}
@@ -5610,7 +5640,6 @@
 				},
 				"summary": "Delete habitat group",
 				"tags": [
-					"Location",
 					"Habitats"
 				]
 			},
@@ -5692,7 +5721,6 @@
 				},
 				"summary": "Update habitat group",
 				"tags": [
-					"Location",
 					"Habitats"
 				]
 			}

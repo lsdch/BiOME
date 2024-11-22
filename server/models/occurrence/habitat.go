@@ -2,6 +2,7 @@ package occurrence
 
 import (
 	"context"
+	"darco/proto/models"
 	"darco/proto/models/people"
 	"encoding/json"
 
@@ -38,14 +39,6 @@ type HabitatInput struct {
 	Description  *string `json:"description,omitempty" doc:"Optional habitat description"`
 }
 
-func ListHabitats(db edgedb.Executor) ([]Habitat, error) {
-	var habitats []Habitat
-	err := db.Query(context.Background(),
-		`select sampling::Habitat { *, meta: { * }, incompatible: { * } }`,
-		&habitats)
-	return habitats, err
-}
-
 func (i HabitatInput) Create(db edgedb.Executor) (Habitat, error) {
 	var created Habitat
 	habitat, _ := json.Marshal(i)
@@ -54,13 +47,22 @@ func (i HabitatInput) Create(db edgedb.Executor) (Habitat, error) {
  			select (insert sampling::Habitat {
 				label := <str>data['label'],
 				description := <str>data['description'],
-				depends := (
-					select detached sampling::Habitat
-					filter .label in <str>json_array_unpack(data['depends'])
-				)
-			}) { *, depends: { * }, meta: { * }, incompatible: { * }`,
+			}) { *, meta: { * }, incompatible: { * } }`,
 		&created, habitat)
 	return created, err
+}
+
+type HabitatUpdate struct {
+	Label       models.OptionalInput[string] `json:"label,omitempty"`
+	Description models.OptionalNull[string]  `json:"description,omitempty"`
+}
+
+func ListHabitats(db edgedb.Executor) ([]Habitat, error) {
+	var habitats []Habitat
+	err := db.Query(context.Background(),
+		`select sampling::Habitat { *, meta: { * }, incompatible: { * } }`,
+		&habitats)
+	return habitats, err
 }
 
 //go:embed data/habitats.yaml

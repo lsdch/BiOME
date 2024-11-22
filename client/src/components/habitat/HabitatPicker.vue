@@ -58,7 +58,7 @@
 </template>
 
 <script setup lang="ts">
-import { HabitatGroup, LocationService } from '@/api'
+import { HabitatGroup, HabitatsService } from '@/api'
 import { handleErrors } from '@/api/responses'
 import { computed, ref } from 'vue'
 import { ConnectedGroup, ConnectedHabitat, HabitatsGraph } from './habitat_graph'
@@ -67,7 +67,7 @@ const model = ref<ConnectedHabitat[]>([])
 const searchTerm = ref<string | undefined>(undefined)
 
 const habitatGroups = ref<HabitatGroup[]>(
-  await LocationService.listHabitatGroups().then(
+  await HabitatsService.listHabitatGroups().then(
     handleErrors((err) => {
       console.error('Failed to fetch habitat groups: ', err)
     })

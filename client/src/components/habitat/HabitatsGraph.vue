@@ -86,7 +86,8 @@
     <HabitatFormDialog
       v-model="form.open"
       :edit="form.edit"
-      @success="addCreatedNode"
+      @created="addCreatedNode"
+      @updated="updateNode"
       @close="toggleCreating(false)"
     />
   </div>
@@ -98,7 +99,7 @@ import '@vue-flow/core/dist/style.css'
 /* optional styles: default theme for vue flow  */
 import '@vue-flow/core/dist/theme-default.css'
 
-import { HabitatGroup, LocationService } from '@/api'
+import { HabitatGroup, HabitatsService } from '@/api'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import '@vue-flow/controls/dist/style.css'
@@ -132,7 +133,7 @@ onKeyStroke('Escape', () => {
   if (!form.value.open) creating.value = false
 })
 
-const data = await LocationService.listHabitatGroups().then(({ data, error }) => {
+const data = await HabitatsService.listHabitatGroups().then(({ data, error }) => {
   if (error !== undefined) {
     console.error('Failed to fetch habitat groups: ', error)
     return []
@@ -164,7 +165,8 @@ const form = ref<{ open: boolean; edit?: ConnectedGroup }>({
 const connection = useConnection()
 const { askConfirm } = useAppConfirmDialog()
 const { feedback } = useFeedback()
-const { fitView, getSelectedNodes, onConnect, endConnection, getSelectedEdges } = useVueFlow()
+const { fitView, getSelectedNodes, onConnect, endConnection, getSelectedEdges, updateNodeData } =
+  useVueFlow()
 
 onConnect(({ source, target: dependGroupID, targetHandle }) => {
   connectGroupHabitat(graph.group(source), graph.habitat(targetHandle!))
@@ -177,7 +179,7 @@ function connectGroupHabitat(group: ConnectedGroup, habitat: ConnectedHabitat) {
   })
     .then(async ({ isCanceled }) => {
       if (isCanceled) return
-      await LocationService.updateHabitatGroup({
+      await HabitatsService.updateHabitatGroup({
         path: { code: group.label },
         body: { depends: habitat.label }
       }).then(({ data: updated, error }) => {
@@ -206,7 +208,7 @@ function askDeleteEdge(edge: GraphEdge) {
   askConfirm({ title: `Drop dependency of '${group}'?` }).then(async ({ isCanceled }) => {
     if (isCanceled) return console.info('Dependency drop canceled')
     else {
-      const { data: updated, error } = await LocationService.updateHabitatGroup({
+      const { data: updated, error } = await HabitatsService.updateHabitatGroup({
         path: { code: group },
         body: { depends: null }
       })
@@ -241,7 +243,7 @@ async function askDeleteGroups(groups: HabitatGroup[]) {
 
   async function deleteHandler(groups: HabitatGroup[]) {
     await Promise.all(
-      groups.map((group) => LocationService.deleteHabitatGroup({ path: { code: group.label } }))
+      groups.map((group) => HabitatsService.deleteHabitatGroup({ path: { code: group.label } }))
     )
       .then(mergeResponses)
       .then(({ data, error }) => {
@@ -272,6 +274,12 @@ function addCreatedNode(group: HabitatGroup) {
   blockLayout.value = true
   graph.addGroup(group)
   feedback({ type: 'success', message: `Created habitat group: ${group.label}` })
+}
+
+function updateNode(group: HabitatGroup) {
+  graph.updateGroup(group)
+  updateNodeData(group.id, group)
+  feedback({ type: 'success', message: `Updated habitat group: ${group.label}` })
 }
 
 async function layout() {

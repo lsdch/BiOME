@@ -6,6 +6,7 @@ import (
 	"darco/proto/resolvers"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/kr/pretty"
 	"github.com/sirupsen/logrus"
 )
 
@@ -53,7 +54,7 @@ func UpdateHandler[
 		return nil, err
 	}
 
-	logrus.Infof("Item updated: %+v", updated)
+	logrus.Infof("Item updated: %# v", pretty.Formatter(updated))
 	return &UpdateHandlerOutput[Updated]{Body: updated}, nil
 }
 
