@@ -14,7 +14,17 @@
     prepend-inner-icon="mdi-domain"
     v-bind="$attrs"
   >
-    <template v-slot:chip="{ item, props }">
+    <template #item="{ item, props }">
+      <v-list-item v-bind="props">
+        <template #prepend="{ isSelected }">
+          <v-checkbox :model-value="isSelected" hide-details />
+        </template>
+        <template #append>
+          <InstitutionKindChip :kind="item.raw.kind" />
+        </template>
+      </v-list-item>
+    </template>
+    <template #chip="{ item, props }">
       <InstitutionKindChip :kind="item.raw.kind" v-bind="props" size="small">
         {{ item.raw.code }}
       </InstitutionKindChip>
