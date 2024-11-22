@@ -8,18 +8,23 @@ const config: UserConfig = defineConfig({
     format: "prettier",
     lint: "eslint",
   },
-  schemas: {
-    name(name, schema) {
-      return `$${name}`
+  plugins: [
+    {
+      name: "@hey-api/schemas",
+      nameBuilder(name, schema) {
+        return `$${name}`
+      },
     },
-  },
-  services: {
-    asClass: true,
-  },
-  types: {
-    dates: true,
-    name: "PascalCase",
-  },
+    {
+      name: "@hey-api/typescript",
+      style: "PascalCase"
+    },
+    {
+      name: "@hey-api/sdk",
+      asClass: true,
+    },
+    { name: "@hey-api/transformers", dates: true },
+  ],
 })
 
 export default config

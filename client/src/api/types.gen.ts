@@ -1003,6 +1003,26 @@ export type TaxonInput = {
     status: TaxonStatus;
 };
 
+export type Taxonomy = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    GBIF_ID?: number;
+    anchor: boolean;
+    authorship?: string;
+    children?: Array<Taxonomy>;
+    children_count: number;
+    code: string;
+    comment?: string;
+    id: string;
+    meta: Meta;
+    name: string;
+    parent?: OptionalTaxon;
+    rank: TaxonRank;
+    status: TaxonStatus;
+};
+
 export type TaxonRank = 'Kingdom' | 'Phylum' | 'Class' | 'Order' | 'Family' | 'Genus' | 'Species' | 'Subspecies';
 
 export type TaxonStatus = 'Accepted' | 'Unreferenced' | 'Unclassified';
@@ -1076,31 +1096,6 @@ export type TaxonWithRelatives = {
     status: TaxonStatus;
 };
 
-export type Taxonomy = {
-    /**
-     * A URL to the JSON Schema for this object.
-     */
-    readonly $schema?: string;
-    GBIF_ID?: number;
-    anchor: boolean;
-    authorship?: string;
-    children?: Array<Taxonomy>;
-    children_count: number;
-    code: string;
-    comment?: string;
-    id: string;
-    meta: Meta;
-    name: string;
-    parent?: OptionalTaxon;
-    rank: TaxonRank;
-    status: TaxonStatus;
-};
-
-/**
- * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
- */
-export type Url = string;
-
 export type UpdatePasswordInput = {
     /**
      * A URL to the JSON Schema for this object.
@@ -1112,6 +1107,11 @@ export type UpdatePasswordInput = {
      */
     password: string;
 };
+
+/**
+ * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
+ */
+export type Url = string;
 
 export type User = {
     email: string;
@@ -1164,159 +1164,6 @@ export type UserShortIdentity = {
     login: string;
     name: string;
 };
-
-export type ListAbioticParametersData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ListAbioticParametersResponse = (Array<AbioticParameter>);
-
-export type ListAbioticParametersError = (ErrorModel);
-
-export type CreateAbioticParameterData = {
-    body: AbioticParameterInput;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type CreateAbioticParameterResponse = (AbioticParameter);
-
-export type CreateAbioticParameterError = (ErrorModel);
-
-export type ListFixativesData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ListFixativesResponse = (Array<Fixative>);
-
-export type ListFixativesError = (ErrorModel);
-
-export type CreateFixativeData = {
-    body: FixativeInput;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type CreateFixativeResponse = (Fixative);
-
-export type CreateFixativeError = (ErrorModel);
-
-export type ListSamplingMethodsData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ListSamplingMethodsResponse = (Array<SamplingMethod>);
-
-export type ListSamplingMethodsError = (ErrorModel);
-
-export type CreateSamplingMethodData = {
-    body: SamplingMethodInput;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type CreateSamplingMethodResponse = (SamplingMethod);
-
-export type CreateSamplingMethodError = (ErrorModel);
-
-export type GetAccessPointsData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type GetAccessPointsResponse = (Array<(string)>);
-
-export type GetAccessPointsError = (ErrorModel);
-
-export type ListCountriesData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ListCountriesResponse = (Array<Country>);
-
-export type ListCountriesError = (ErrorModel);
-
-export type ListSitesData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ListSitesResponse = (Array<Site>);
-
-export type ListSitesError = (ErrorModel);
-
-export type GetSiteData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-    path: {
-        code: string;
-    };
-};
-
-export type GetSiteResponse = (Site);
-
-export type GetSiteError = (ErrorModel);
-
-export type UpdateSiteData = {
-    body: SiteUpdate;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-    path: {
-        code: string;
-    };
-};
-
-export type UpdateSiteResponse = (Site);
-
-export type UpdateSiteError = (ErrorModel);
 
 export type CurrentUserData = {
     headers?: {
@@ -1474,7 +1321,7 @@ export type ClaimInvitationResponse = (AuthenticationResponse);
 
 export type ClaimInvitationError = (ErrorModel);
 
-export type ListAnchorsData = {
+export type ListCountriesData = {
     headers?: {
         /**
          * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -1483,43 +1330,9 @@ export type ListAnchorsData = {
     };
 };
 
-export type ListAnchorsResponse = (Array<TaxonWithParentRef>);
+export type ListCountriesResponse = (Array<Country>);
 
-export type ListAnchorsError = (ErrorModel);
-
-export type ImportGbifData = {
-    body: ImportRequestGbif;
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type ImportGbifResponse = (void);
-
-export type ImportGbifError = (ErrorModel);
-
-export type MonitorGbifResponse = (Array<({
-    data: {
-        [key: string]: ImportProcess;
-    };
-    /**
-     * The event name.
-     */
-    event: "state";
-    /**
-     * The event ID.
-     */
-    id?: number;
-    /**
-     * The retry time in milliseconds.
-     */
-    retry?: number;
-})>);
-
-export type MonitorGbifError = (ErrorModel);
+export type ListCountriesError = (ErrorModel);
 
 export type ListDatasetsData = {
     headers?: {
@@ -1581,7 +1394,7 @@ export type GetDatasetResponse = (Dataset);
 
 export type GetDatasetError = (ErrorModel);
 
-export type ListGenesData = {
+export type ListProgramsData = {
     headers?: {
         /**
          * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -1590,9 +1403,56 @@ export type ListGenesData = {
     };
 };
 
-export type ListGenesResponse = (Array<Gene>);
+export type ListProgramsResponse = (Array<Program>);
 
-export type ListGenesError = (ErrorModel);
+export type ListProgramsError = (ErrorModel);
+
+export type CreateProgramData = {
+    body: ProgramInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateProgramResponse = (Program);
+
+export type CreateProgramError = (ErrorModel);
+
+export type DeleteProgramData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteProgramResponse = (Program);
+
+export type DeleteProgramError = (ErrorModel);
+
+export type UpdateProgramData = {
+    body: ProgramUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateProgramResponse = (Program);
+
+export type UpdateProgramError = (ErrorModel);
 
 export type ListHabitatGroupsData = {
     headers?: {
@@ -1714,6 +1574,65 @@ export type UpdateInstitutionResponse = (Institution);
 
 export type UpdateInstitutionError = (ErrorModel);
 
+export type GetAccessPointsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type GetAccessPointsResponse = (Array<(string)>);
+
+export type GetAccessPointsError = (ErrorModel);
+
+export type ListSitesData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListSitesResponse = (Array<Site>);
+
+export type ListSitesError = (ErrorModel);
+
+export type GetSiteData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type GetSiteResponse = (Site);
+
+export type GetSiteError = (ErrorModel);
+
+export type UpdateSiteData = {
+    body: SiteUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateSiteResponse = (Site);
+
+export type UpdateSiteError = (ErrorModel);
+
 export type ListPersonsData = {
     headers?: {
         /**
@@ -1791,7 +1710,7 @@ export type InvitePersonResponse = (InvitationLink);
 
 export type InvitePersonError = (ErrorModel);
 
-export type ListProgramsData = {
+export type ListAbioticParametersData = {
     headers?: {
         /**
          * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -1800,12 +1719,12 @@ export type ListProgramsData = {
     };
 };
 
-export type ListProgramsResponse = (Array<Program>);
+export type ListAbioticParametersResponse = (Array<AbioticParameter>);
 
-export type ListProgramsError = (ErrorModel);
+export type ListAbioticParametersError = (ErrorModel);
 
-export type CreateProgramData = {
-    body: ProgramInput;
+export type CreateAbioticParameterData = {
+    body: AbioticParameterInput;
     headers?: {
         /**
          * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -1814,42 +1733,76 @@ export type CreateProgramData = {
     };
 };
 
-export type CreateProgramResponse = (Program);
+export type CreateAbioticParameterResponse = (AbioticParameter);
 
-export type CreateProgramError = (ErrorModel);
+export type CreateAbioticParameterError = (ErrorModel);
 
-export type DeleteProgramData = {
+export type ListFixativesData = {
     headers?: {
         /**
          * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
          */
         Authorization?: string;
     };
-    path: {
-        code: string;
-    };
 };
 
-export type DeleteProgramResponse = (Program);
+export type ListFixativesResponse = (Array<Fixative>);
 
-export type DeleteProgramError = (ErrorModel);
+export type ListFixativesError = (ErrorModel);
 
-export type UpdateProgramData = {
-    body: ProgramUpdate;
+export type CreateFixativeData = {
+    body: FixativeInput;
     headers?: {
         /**
          * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
          */
         Authorization?: string;
     };
-    path: {
-        code: string;
+};
+
+export type CreateFixativeResponse = (Fixative);
+
+export type CreateFixativeError = (ErrorModel);
+
+export type ListSamplingMethodsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
     };
 };
 
-export type UpdateProgramResponse = (Program);
+export type ListSamplingMethodsResponse = (Array<SamplingMethod>);
 
-export type UpdateProgramError = (ErrorModel);
+export type ListSamplingMethodsError = (ErrorModel);
+
+export type CreateSamplingMethodData = {
+    body: SamplingMethodInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateSamplingMethodResponse = (SamplingMethod);
+
+export type CreateSamplingMethodError = (ErrorModel);
+
+export type ListGenesData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListGenesResponse = (Array<Gene>);
+
+export type ListGenesError = (ErrorModel);
 
 export type EmailSettingsData = {
     headers?: {
@@ -2044,3 +1997,719 @@ export type UpdateTaxonData = {
 export type UpdateTaxonResponse = (Taxon);
 
 export type UpdateTaxonError = (ErrorModel);
+
+export type ListAnchorsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListAnchorsResponse = (Array<TaxonWithParentRef>);
+
+export type ListAnchorsError = (ErrorModel);
+
+export type ImportGbifData = {
+    body: ImportRequestGbif;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ImportGbifResponse = (void);
+
+export type ImportGbifError = (ErrorModel);
+
+export type MonitorGbifResponse = (Array<({
+    data: {
+        [key: string]: ImportProcess;
+    };
+    /**
+     * The event name.
+     */
+    event: "state";
+    /**
+     * The event ID.
+     */
+    id?: number;
+    /**
+     * The retry time in milliseconds.
+     */
+    retry?: number;
+})>);
+
+export type MonitorGbifError = (ErrorModel);
+
+export type LoginResponseTransformer = (data: any) => Promise<LoginResponse>;
+
+export type AuthenticationResponseModelResponseTransformer = (data: any) => AuthenticationResponse;
+
+export const AuthenticationResponseModelResponseTransformer: AuthenticationResponseModelResponseTransformer = data => {
+    if (data?.auth_token_expiration) {
+        data.auth_token_expiration = new Date(data.auth_token_expiration);
+    }
+    return data;
+};
+
+export const LoginResponseTransformer: LoginResponseTransformer = async (data) => {
+    AuthenticationResponseModelResponseTransformer(data);
+    return data;
+};
+
+export type ListPendingUserRequestsResponseTransformer = (data: any) => Promise<ListPendingUserRequestsResponse>;
+
+export type PendingUserRequestModelResponseTransformer = (data: any) => PendingUserRequest;
+
+export const PendingUserRequestModelResponseTransformer: PendingUserRequestModelResponseTransformer = data => {
+    if (data?.created_on) {
+        data.created_on = new Date(data.created_on);
+    }
+    return data;
+};
+
+export const ListPendingUserRequestsResponseTransformer: ListPendingUserRequestsResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(PendingUserRequestModelResponseTransformer);
+    }
+    return data;
+};
+
+export type DeletePendingUserRequestResponseTransformer = (data: any) => Promise<DeletePendingUserRequestResponse>;
+
+export const DeletePendingUserRequestResponseTransformer: DeletePendingUserRequestResponseTransformer = async (data) => {
+    PendingUserRequestModelResponseTransformer(data);
+    return data;
+};
+
+export type GetPendingUserRequestResponseTransformer = (data: any) => Promise<GetPendingUserRequestResponse>;
+
+export const GetPendingUserRequestResponseTransformer: GetPendingUserRequestResponseTransformer = async (data) => {
+    PendingUserRequestModelResponseTransformer(data);
+    return data;
+};
+
+export type RefreshSessionResponseTransformer = (data: any) => Promise<RefreshSessionResponse>;
+
+export const RefreshSessionResponseTransformer: RefreshSessionResponseTransformer = async (data) => {
+    AuthenticationResponseModelResponseTransformer(data);
+    return data;
+};
+
+export type ClaimInvitationResponseTransformer = (data: any) => Promise<ClaimInvitationResponse>;
+
+export const ClaimInvitationResponseTransformer: ClaimInvitationResponseTransformer = async (data) => {
+    AuthenticationResponseModelResponseTransformer(data);
+    return data;
+};
+
+export type ListDatasetsResponseTransformer = (data: any) => Promise<ListDatasetsResponse>;
+
+export type DatasetModelResponseTransformer = (data: any) => Dataset;
+
+export type MetaModelResponseTransformer = (data: any) => Meta;
+
+export const MetaModelResponseTransformer: MetaModelResponseTransformer = data => {
+    if (data?.created) {
+        data.created = new Date(data.created);
+    }
+    if (data?.last_updated) {
+        data.last_updated = new Date(data.last_updated);
+    }
+    if (data?.modified) {
+        data.modified = new Date(data.modified);
+    }
+    return data;
+};
+
+export const DatasetModelResponseTransformer: DatasetModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const ListDatasetsResponseTransformer: ListDatasetsResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(DatasetModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateDatasetResponseTransformer = (data: any) => Promise<CreateDatasetResponse>;
+
+export const CreateDatasetResponseTransformer: CreateDatasetResponseTransformer = async (data) => {
+    DatasetModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateDatasetResponseTransformer = (data: any) => Promise<UpdateDatasetResponse>;
+
+export const UpdateDatasetResponseTransformer: UpdateDatasetResponseTransformer = async (data) => {
+    DatasetModelResponseTransformer(data);
+    return data;
+};
+
+export type GetDatasetResponseTransformer = (data: any) => Promise<GetDatasetResponse>;
+
+export const GetDatasetResponseTransformer: GetDatasetResponseTransformer = async (data) => {
+    DatasetModelResponseTransformer(data);
+    return data;
+};
+
+export type ListProgramsResponseTransformer = (data: any) => Promise<ListProgramsResponse>;
+
+export type ProgramModelResponseTransformer = (data: any) => Program;
+
+export const ProgramModelResponseTransformer: ProgramModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const ListProgramsResponseTransformer: ListProgramsResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(ProgramModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateProgramResponseTransformer = (data: any) => Promise<CreateProgramResponse>;
+
+export const CreateProgramResponseTransformer: CreateProgramResponseTransformer = async (data) => {
+    ProgramModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteProgramResponseTransformer = (data: any) => Promise<DeleteProgramResponse>;
+
+export const DeleteProgramResponseTransformer: DeleteProgramResponseTransformer = async (data) => {
+    ProgramModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateProgramResponseTransformer = (data: any) => Promise<UpdateProgramResponse>;
+
+export const UpdateProgramResponseTransformer: UpdateProgramResponseTransformer = async (data) => {
+    ProgramModelResponseTransformer(data);
+    return data;
+};
+
+export type ListHabitatGroupsResponseTransformer = (data: any) => Promise<ListHabitatGroupsResponse>;
+
+export type HabitatGroupModelResponseTransformer = (data: any) => HabitatGroup;
+
+export type OptionalHabitatRecordModelResponseTransformer = (data: any) => OptionalHabitatRecord;
+
+export type HabitatRecordModelResponseTransformer = (data: any) => HabitatRecord;
+
+export const HabitatRecordModelResponseTransformer: HabitatRecordModelResponseTransformer = data => {
+    if (Array.isArray(data?.incompatible)) {
+        data.incompatible.forEach(HabitatRecordModelResponseTransformer);
+    }
+    return data;
+};
+
+export const OptionalHabitatRecordModelResponseTransformer: OptionalHabitatRecordModelResponseTransformer = data => {
+    if (Array.isArray(data?.incompatible)) {
+        data.incompatible.forEach(HabitatRecordModelResponseTransformer);
+    }
+    return data;
+};
+
+export const HabitatGroupModelResponseTransformer: HabitatGroupModelResponseTransformer = data => {
+    if (data?.depends) {
+        OptionalHabitatRecordModelResponseTransformer(data.depends);
+    }
+    if (Array.isArray(data?.elements)) {
+        data.elements.forEach(HabitatRecordModelResponseTransformer);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const ListHabitatGroupsResponseTransformer: ListHabitatGroupsResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(HabitatGroupModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateHabitatGroupResponseTransformer = (data: any) => Promise<CreateHabitatGroupResponse>;
+
+export const CreateHabitatGroupResponseTransformer: CreateHabitatGroupResponseTransformer = async (data) => {
+    HabitatGroupModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteHabitatGroupResponseTransformer = (data: any) => Promise<DeleteHabitatGroupResponse>;
+
+export const DeleteHabitatGroupResponseTransformer: DeleteHabitatGroupResponseTransformer = async (data) => {
+    HabitatGroupModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateHabitatGroupResponseTransformer = (data: any) => Promise<UpdateHabitatGroupResponse>;
+
+export const UpdateHabitatGroupResponseTransformer: UpdateHabitatGroupResponseTransformer = async (data) => {
+    HabitatGroupModelResponseTransformer(data);
+    return data;
+};
+
+export type ListInstitutionsResponseTransformer = (data: any) => Promise<ListInstitutionsResponse>;
+
+export type InstitutionModelResponseTransformer = (data: any) => Institution;
+
+export const InstitutionModelResponseTransformer: InstitutionModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const ListInstitutionsResponseTransformer: ListInstitutionsResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(InstitutionModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateInstitutionResponseTransformer = (data: any) => Promise<CreateInstitutionResponse>;
+
+export const CreateInstitutionResponseTransformer: CreateInstitutionResponseTransformer = async (data) => {
+    InstitutionModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteInstitutionResponseTransformer = (data: any) => Promise<DeleteInstitutionResponse>;
+
+export const DeleteInstitutionResponseTransformer: DeleteInstitutionResponseTransformer = async (data) => {
+    InstitutionModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateInstitutionResponseTransformer = (data: any) => Promise<UpdateInstitutionResponse>;
+
+export const UpdateInstitutionResponseTransformer: UpdateInstitutionResponseTransformer = async (data) => {
+    InstitutionModelResponseTransformer(data);
+    return data;
+};
+
+export type ListSitesResponseTransformer = (data: any) => Promise<ListSitesResponse>;
+
+export type SiteModelResponseTransformer = (data: any) => Site;
+
+export type EventModelResponseTransformer = (data: any) => Event;
+
+export type AbioticMeasurementModelResponseTransformer = (data: any) => AbioticMeasurement;
+
+export type AbioticParameterModelResponseTransformer = (data: any) => AbioticParameter;
+
+export const AbioticParameterModelResponseTransformer: AbioticParameterModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const AbioticMeasurementModelResponseTransformer: AbioticMeasurementModelResponseTransformer = data => {
+    if (data?.param) {
+        AbioticParameterModelResponseTransformer(data.param);
+    }
+    return data;
+};
+
+export type DateWithPrecisionModelResponseTransformer = (data: any) => DateWithPrecision;
+
+export const DateWithPrecisionModelResponseTransformer: DateWithPrecisionModelResponseTransformer = data => {
+    if (data?.date) {
+        data.date = new Date(data.date);
+    }
+    return data;
+};
+
+export type SamplingModelResponseTransformer = (data: any) => Sampling;
+
+export type FixativeModelResponseTransformer = (data: any) => Fixative;
+
+export const FixativeModelResponseTransformer: FixativeModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export type HabitatModelResponseTransformer = (data: any) => Habitat;
+
+export const HabitatModelResponseTransformer: HabitatModelResponseTransformer = data => {
+    if (Array.isArray(data?.incompatible)) {
+        data.incompatible.forEach(HabitatRecordModelResponseTransformer);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export type SamplingMethodModelResponseTransformer = (data: any) => SamplingMethod;
+
+export const SamplingMethodModelResponseTransformer: SamplingMethodModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget;
+
+export type TaxonModelResponseTransformer = (data: any) => Taxon;
+
+export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = data => {
+    if (Array.isArray(data?.target_taxa)) {
+        data.target_taxa.forEach(TaxonModelResponseTransformer);
+    }
+    return data;
+};
+
+export const SamplingModelResponseTransformer: SamplingModelResponseTransformer = data => {
+    if (Array.isArray(data?.fixatives)) {
+        data.fixatives.forEach(FixativeModelResponseTransformer);
+    }
+    if (Array.isArray(data?.habitats)) {
+        data.habitats.forEach(HabitatModelResponseTransformer);
+    }
+    if (Array.isArray(data?.methods)) {
+        data.methods.forEach(SamplingMethodModelResponseTransformer);
+    }
+    if (data?.target) {
+        SamplingTargetModelResponseTransformer(data.target);
+    }
+    return data;
+};
+
+export type OptionalSpottingModelResponseTransformer = (data: any) => OptionalSpotting;
+
+export const OptionalSpottingModelResponseTransformer: OptionalSpottingModelResponseTransformer = data => {
+    if (Array.isArray(data?.target_taxa)) {
+        data.target_taxa.forEach(TaxonModelResponseTransformer);
+    }
+    return data;
+};
+
+export const EventModelResponseTransformer: EventModelResponseTransformer = data => {
+    if (Array.isArray(data?.abiotic_measurements)) {
+        data.abiotic_measurements.forEach(AbioticMeasurementModelResponseTransformer);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (data?.performed_on) {
+        DateWithPrecisionModelResponseTransformer(data.performed_on);
+    }
+    if (Array.isArray(data?.samplings)) {
+        data.samplings.forEach(SamplingModelResponseTransformer);
+    }
+    if (data?.spotting) {
+        OptionalSpottingModelResponseTransformer(data.spotting);
+    }
+    return data;
+};
+
+export const SiteModelResponseTransformer: SiteModelResponseTransformer = data => {
+    if (Array.isArray(data?.events)) {
+        data.events.forEach(EventModelResponseTransformer);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const ListSitesResponseTransformer: ListSitesResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(SiteModelResponseTransformer);
+    }
+    return data;
+};
+
+export type GetSiteResponseTransformer = (data: any) => Promise<GetSiteResponse>;
+
+export const GetSiteResponseTransformer: GetSiteResponseTransformer = async (data) => {
+    SiteModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateSiteResponseTransformer = (data: any) => Promise<UpdateSiteResponse>;
+
+export const UpdateSiteResponseTransformer: UpdateSiteResponseTransformer = async (data) => {
+    SiteModelResponseTransformer(data);
+    return data;
+};
+
+export type ListPersonsResponseTransformer = (data: any) => Promise<ListPersonsResponse>;
+
+export type PersonModelResponseTransformer = (data: any) => Person;
+
+export const PersonModelResponseTransformer: PersonModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const ListPersonsResponseTransformer: ListPersonsResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(PersonModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreatePersonResponseTransformer = (data: any) => Promise<CreatePersonResponse>;
+
+export const CreatePersonResponseTransformer: CreatePersonResponseTransformer = async (data) => {
+    PersonModelResponseTransformer(data);
+    return data;
+};
+
+export type DeletePersonResponseTransformer = (data: any) => Promise<DeletePersonResponse>;
+
+export const DeletePersonResponseTransformer: DeletePersonResponseTransformer = async (data) => {
+    PersonModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdatePersonResponseTransformer = (data: any) => Promise<UpdatePersonResponse>;
+
+export const UpdatePersonResponseTransformer: UpdatePersonResponseTransformer = async (data) => {
+    PersonModelResponseTransformer(data);
+    return data;
+};
+
+export type ListAbioticParametersResponseTransformer = (data: any) => Promise<ListAbioticParametersResponse>;
+
+export const ListAbioticParametersResponseTransformer: ListAbioticParametersResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(AbioticParameterModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateAbioticParameterResponseTransformer = (data: any) => Promise<CreateAbioticParameterResponse>;
+
+export const CreateAbioticParameterResponseTransformer: CreateAbioticParameterResponseTransformer = async (data) => {
+    AbioticParameterModelResponseTransformer(data);
+    return data;
+};
+
+export type ListFixativesResponseTransformer = (data: any) => Promise<ListFixativesResponse>;
+
+export const ListFixativesResponseTransformer: ListFixativesResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(FixativeModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateFixativeResponseTransformer = (data: any) => Promise<CreateFixativeResponse>;
+
+export const CreateFixativeResponseTransformer: CreateFixativeResponseTransformer = async (data) => {
+    FixativeModelResponseTransformer(data);
+    return data;
+};
+
+export type ListSamplingMethodsResponseTransformer = (data: any) => Promise<ListSamplingMethodsResponse>;
+
+export const ListSamplingMethodsResponseTransformer: ListSamplingMethodsResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(SamplingMethodModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateSamplingMethodResponseTransformer = (data: any) => Promise<CreateSamplingMethodResponse>;
+
+export const CreateSamplingMethodResponseTransformer: CreateSamplingMethodResponseTransformer = async (data) => {
+    SamplingMethodModelResponseTransformer(data);
+    return data;
+};
+
+export type ListGenesResponseTransformer = (data: any) => Promise<ListGenesResponse>;
+
+export type GeneModelResponseTransformer = (data: any) => Gene;
+
+export const GeneModelResponseTransformer: GeneModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const ListGenesResponseTransformer: ListGenesResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(GeneModelResponseTransformer);
+    }
+    return data;
+};
+
+export type GetTaxonomyResponseTransformer = (data: any) => Promise<GetTaxonomyResponse>;
+
+export type TaxonomyModelResponseTransformer = (data: any) => Taxonomy;
+
+export type OptionalTaxonModelResponseTransformer = (data: any) => OptionalTaxon;
+
+export const OptionalTaxonModelResponseTransformer: OptionalTaxonModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const TaxonomyModelResponseTransformer: TaxonomyModelResponseTransformer = data => {
+    if (Array.isArray(data?.children)) {
+        data.children.forEach(TaxonomyModelResponseTransformer);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (data?.parent) {
+        OptionalTaxonModelResponseTransformer(data.parent);
+    }
+    return data;
+};
+
+export const GetTaxonomyResponseTransformer: GetTaxonomyResponseTransformer = async (data) => {
+    TaxonomyModelResponseTransformer(data);
+    return data;
+};
+
+export type ListTaxaResponseTransformer = (data: any) => Promise<ListTaxaResponse>;
+
+export type TaxonWithParentRefModelResponseTransformer = (data: any) => TaxonWithParentRef;
+
+export const TaxonWithParentRefModelResponseTransformer: TaxonWithParentRefModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const ListTaxaResponseTransformer: ListTaxaResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(TaxonWithParentRefModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateTaxonResponseTransformer = (data: any) => Promise<CreateTaxonResponse>;
+
+export type TaxonWithRelativesModelResponseTransformer = (data: any) => TaxonWithRelatives;
+
+export const TaxonWithRelativesModelResponseTransformer: TaxonWithRelativesModelResponseTransformer = data => {
+    if (Array.isArray(data?.children)) {
+        data.children.forEach(TaxonModelResponseTransformer);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (data?.parent) {
+        OptionalTaxonModelResponseTransformer(data.parent);
+    }
+    return data;
+};
+
+export const CreateTaxonResponseTransformer: CreateTaxonResponseTransformer = async (data) => {
+    TaxonWithRelativesModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteTaxonResponseTransformer = (data: any) => Promise<DeleteTaxonResponse>;
+
+export const DeleteTaxonResponseTransformer: DeleteTaxonResponseTransformer = async (data) => {
+    TaxonWithRelativesModelResponseTransformer(data);
+    return data;
+};
+
+export type GetTaxonResponseTransformer = (data: any) => Promise<GetTaxonResponse>;
+
+export type TaxonWithLineageModelResponseTransformer = (data: any) => TaxonWithLineage;
+
+export type LineageModelResponseTransformer = (data: any) => Lineage;
+
+export const LineageModelResponseTransformer: LineageModelResponseTransformer = data => {
+    if (data?.class) {
+        OptionalTaxonModelResponseTransformer(data.class);
+    }
+    if (data?.family) {
+        OptionalTaxonModelResponseTransformer(data.family);
+    }
+    if (data?.genus) {
+        OptionalTaxonModelResponseTransformer(data.genus);
+    }
+    if (data?.kingdom) {
+        OptionalTaxonModelResponseTransformer(data.kingdom);
+    }
+    if (data?.order) {
+        OptionalTaxonModelResponseTransformer(data.order);
+    }
+    if (data?.phylum) {
+        OptionalTaxonModelResponseTransformer(data.phylum);
+    }
+    if (data?.species) {
+        OptionalTaxonModelResponseTransformer(data.species);
+    }
+    if (data?.subspecies) {
+        OptionalTaxonModelResponseTransformer(data.subspecies);
+    }
+    return data;
+};
+
+export const TaxonWithLineageModelResponseTransformer: TaxonWithLineageModelResponseTransformer = data => {
+    if (Array.isArray(data?.children)) {
+        data.children.forEach(TaxonModelResponseTransformer);
+    }
+    if (data?.lineage) {
+        LineageModelResponseTransformer(data.lineage);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (data?.parent) {
+        OptionalTaxonModelResponseTransformer(data.parent);
+    }
+    return data;
+};
+
+export const GetTaxonResponseTransformer: GetTaxonResponseTransformer = async (data) => {
+    TaxonWithLineageModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateTaxonResponseTransformer = (data: any) => Promise<UpdateTaxonResponse>;
+
+export const UpdateTaxonResponseTransformer: UpdateTaxonResponseTransformer = async (data) => {
+    TaxonModelResponseTransformer(data);
+    return data;
+};
+
+export type ListAnchorsResponseTransformer = (data: any) => Promise<ListAnchorsResponse>;
+
+export const ListAnchorsResponseTransformer: ListAnchorsResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(TaxonWithParentRefModelResponseTransformer);
+    }
+    return data;
+};

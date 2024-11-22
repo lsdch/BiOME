@@ -1,5 +1,5 @@
 // Setup API client
-import { client } from "@/api/services.gen"
+import { client } from "@/api"
 import { servers } from "../openapi.json"
 
 // ❗ Use dynamic imports for anything relying on the client in the main script
