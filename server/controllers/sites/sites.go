@@ -40,13 +40,4 @@ func RegisterRoutes(r router.Router) {
 		},
 		controllers.UpdateByCodeHandler[occurrence.SiteUpdate],
 	)
-
-	huma.Register(r.API, huma.Operation{
-		Path:    "/access-points",
-		Method:  http.MethodGet,
-		Summary: "List access points",
-		Tags:    sites_API.Tags,
-	}, controllers.ListHandler[*struct {
-		resolvers.AuthResolver
-	}](occurrence.ListAccessPoints))
 }

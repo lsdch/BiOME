@@ -1589,19 +1589,6 @@ export type UpdateInstitutionResponse = (Institution);
 
 export type UpdateInstitutionError = (ErrorModel);
 
-export type GetAccessPointsData = {
-    headers?: {
-        /**
-         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-         */
-        Authorization?: string;
-    };
-};
-
-export type GetAccessPointsResponse = (Array<(string)>);
-
-export type GetAccessPointsError = (ErrorModel);
-
 export type ListSitesData = {
     headers?: {
         /**
@@ -1751,6 +1738,19 @@ export type CreateAbioticParameterData = {
 export type CreateAbioticParameterResponse = (AbioticParameter);
 
 export type CreateAbioticParameterError = (ErrorModel);
+
+export type GetAccessPointsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type GetAccessPointsResponse = (Array<(string)>);
+
+export type GetAccessPointsError = (ErrorModel);
 
 export type ListFixativesData = {
     headers?: {

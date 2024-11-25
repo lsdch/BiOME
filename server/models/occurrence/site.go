@@ -138,15 +138,6 @@ func (i *SiteInput) Create(db edgedb.Executor) (*Site, error) {
 	return &created, err
 }
 
-func ListAccessPoints(db edgedb.Executor) ([]string, error) {
-	var accessPoints []string
-	err := db.Query(context.Background(),
-		`select distinct location::Site.access_point order by .`,
-		&accessPoints,
-	)
-	return accessPoints, err
-}
-
 type SiteUpdate struct {
 	Name        models.OptionalInput[string]      `json:"name" minLength:"4"`
 	Code        models.OptionalInput[string]      `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`

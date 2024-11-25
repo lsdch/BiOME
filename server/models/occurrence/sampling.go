@@ -62,3 +62,12 @@ type SamplingInput struct {
 	Duration  models.OptionalInput[int32]    `edgedb:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
 	Comments  models.OptionalInput[string]   `edgedb:"comments" json:"comments"`
 }
+
+func ListAccessPoints(db edgedb.Executor) ([]string, error) {
+	var accessPoints []string
+	err := db.Query(context.Background(),
+		`select distinct events::Sampling.access_point order by .`,
+		&accessPoints,
+	)
+	return accessPoints, err
+}
