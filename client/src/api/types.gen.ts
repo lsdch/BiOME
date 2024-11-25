@@ -281,12 +281,27 @@ export type FixativeInput = {
 };
 
 export type Gene = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
     code: string;
     description?: string;
     id: string;
-    is_delimiter_MOTU: boolean;
+    is_MOTU_delimiter: boolean;
     label: string;
     meta: Meta;
+};
+
+export type GeneInput = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code: string;
+    description?: string;
+    is_MOTU_delimiter?: boolean;
+    label: string;
 };
 
 export type Habitat = {
@@ -1804,6 +1819,20 @@ export type ListGenesResponse = (Array<Gene>);
 
 export type ListGenesError = (ErrorModel);
 
+export type CreateGeneData = {
+    body: GeneInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateGeneResponse = (Gene);
+
+export type CreateGeneError = (ErrorModel);
+
 export type EmailSettingsData = {
     headers?: {
         /**
@@ -2562,6 +2591,13 @@ export const ListGenesResponseTransformer: ListGenesResponseTransformer = async 
     if (Array.isArray(data)) {
         data.forEach(GeneModelResponseTransformer);
     }
+    return data;
+};
+
+export type CreateGeneResponseTransformer = (data: any) => Promise<CreateGeneResponse>;
+
+export const CreateGeneResponseTransformer: CreateGeneResponseTransformer = async (data) => {
+    GeneModelResponseTransformer(data);
     return data;
 };
 

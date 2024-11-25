@@ -23,4 +23,12 @@ func RegisterRoutes(r router.Router) {
 			resolvers.AuthResolver
 		}](sequences.ListGenes),
 	)
+
+	router.Register(genesAPI, "CreateGene",
+		huma.Operation{Path: "/",
+			Method:  http.MethodPost,
+			Summary: "Create gene",
+		},
+		controllers.CreateHandler[sequences.GeneInput],
+	)
 }

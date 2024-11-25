@@ -741,6 +741,15 @@
 			"Gene": {
 				"additionalProperties": false,
 				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Gene.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
 					"code": {
 						"type": "string"
 					},
@@ -751,7 +760,7 @@
 						"format": "uuid",
 						"type": "string"
 					},
-					"is_delimiter_MOTU": {
+					"is_MOTU_delimiter": {
 						"type": "boolean"
 					},
 					"label": {
@@ -762,9 +771,41 @@
 					}
 				},
 				"required": [
-					"is_delimiter_MOTU",
+					"is_MOTU_delimiter",
 					"meta",
 					"id",
+					"label",
+					"code"
+				],
+				"type": "object"
+			},
+			"GeneInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/GeneInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"is_MOTU_delimiter": {
+						"default": false,
+						"type": "boolean"
+					},
+					"label": {
+						"type": "string"
+					}
+				},
+				"required": [
 					"label",
 					"code"
 				],
@@ -5425,6 +5466,79 @@
 					}
 				},
 				"summary": "List genes",
+				"tags": [
+					"Sequences"
+				]
+			},
+			"post": {
+				"operationId": "CreateGene",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/GeneInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Gene"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create gene",
 				"tags": [
 					"Sequences"
 				]

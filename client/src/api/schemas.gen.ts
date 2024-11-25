@@ -619,6 +619,13 @@ export const $FixativeInput = {
 export const $Gene = {
     additionalProperties: false,
     properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Gene.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
         code: {
             type: 'string'
         },
@@ -629,7 +636,7 @@ export const $Gene = {
             format: 'uuid',
             type: 'string'
         },
-        is_delimiter_MOTU: {
+        is_MOTU_delimiter: {
             type: 'boolean'
         },
         label: {
@@ -639,7 +646,35 @@ export const $Gene = {
             '$ref': '#/components/schemas/Meta'
         }
     },
-    required: ['is_delimiter_MOTU', 'meta', 'id', 'label', 'code'],
+    required: ['is_MOTU_delimiter', 'meta', 'id', 'label', 'code'],
+    type: 'object'
+} as const;
+
+export const $GeneInput = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/GeneInput.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        is_MOTU_delimiter: {
+            default: false,
+            type: 'boolean'
+        },
+        label: {
+            type: 'string'
+        }
+    },
+    required: ['label', 'code'],
     type: 'object'
 } as const;
 
