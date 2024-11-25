@@ -9,7 +9,7 @@ const formats: Record<DatePrecision, string> = {
 }
 
 export function formatDateWithPrecision({ date, precision }: DateWithPrecision, format?: string) {
-  return DateTime.fromISO(date as unknown as string)
+  return DateTime.fromJSDate(date)
     .setLocale('en-gb')
     .toFormat(format ?? formats[precision])
 }
