@@ -137,6 +137,12 @@ module seq {
 
   abstract type Sequence {
     required code: str { constraint exclusive };
+
+    # optional human readable label; use NCBI 'DEFINITION' field when applicable
+    label: str;
+
+    sequence: str;
+
     required gene: Gene;
     comments: str;
 
@@ -172,6 +178,7 @@ module seq {
 
     required type: ExternalSeqType;
     source_sample: occurrence::OccurrenceReport;
+    reference: references::Article;
 
     accession_number: str {
       annotation description := "NCBI accession number of the original sequence.";

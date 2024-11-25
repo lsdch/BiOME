@@ -3,6 +3,12 @@ module occurrence {
   type Identification extending default::Auditable {
     required taxon: taxonomy::Taxon;
 
+    # Defines whether this occurrence is the first scientific description of
+    # the taxon
+    required is_type: bool {
+      default := false;
+    };
+
     identified_by: people::Person; # might be unknown
 
     required identified_on: tuple<date: datetime, precision: date::DatePrecision>{
