@@ -3,46 +3,50 @@
     <template #prepend>
       <code class="top-tag bg-success"> {{ cornerTag }} </code>
     </template>
-    <v-card-text>
-      <v-list density="compact">
-        <v-list-item title="Targets" prepend-icon="mdi-bullseye">
-          <v-chip
-            v-if="sampling.target.kind === 'Unknown'"
-            :text="sampling.target.kind"
-            prepend-icon="mdi-help-circle"
-          />
-          <v-chip
-            v-else-if="sampling.target.kind === 'Community'"
-            :text="sampling.target.kind"
-            prepend-icon="mdi-grid"
-          />
-          <v-chip
-            v-else-if="sampling.target.kind === 'Taxa'"
-            v-for="taxon in sampling.target.target_taxa"
-            :text="taxon.name"
-            rounded
-          />
-        </v-list-item>
-        <v-list-item title="Duration" prepend-icon="mdi-update">
-          <code>
-            {{ Duration.fromObject({ minutes: sampling.duration }).toFormat("hh'h' mm'm'") }}
-          </code>
-        </v-list-item>
-        <v-list-item title="Fixatives" prepend-icon="mdi-snowflake">
-          <v-chip v-for="f in sampling.fixatives" :text="f.label" />
-        </v-list-item>
-        <v-list-item title="Methods" prepend-icon="mdi-hook">
-          <v-chip v-for="m in sampling.methods" :text="m.label" />
-        </v-list-item>
-        <v-list-item title="Habitat">
-          <v-chip v-for="h in sampling.habitats" :text="h.label" :title="h.description" />
-        </v-list-item>
-        <v-list-item title="Access points">
-          <v-chip v-for="access in sampling.access_points" :text="access" />
-        </v-list-item>
-        <v-list-item title="Comments" :subtitle="sampling.comments" />
-      </v-list>
-    </v-card-text>
+    <v-list density="compact">
+      <v-list-item title="Targets" prepend-icon="mdi-bullseye">
+        <v-chip
+          v-if="sampling.target.kind === 'Unknown'"
+          :text="sampling.target.kind"
+          prepend-icon="mdi-help-circle"
+        />
+        <v-chip
+          v-else-if="sampling.target.kind === 'Community'"
+          :text="sampling.target.kind"
+          prepend-icon="mdi-grid"
+        />
+        <v-chip
+          v-else-if="sampling.target.kind === 'Taxa'"
+          v-for="taxon in sampling.target.target_taxa"
+          :text="taxon.name"
+          rounded
+        />
+      </v-list-item>
+      <v-list-item title="Duration" prepend-icon="mdi-update">
+        <code>
+          {{ Duration.fromObject({ minutes: sampling.duration }).toFormat("hh'h' mm'm'") }}
+        </code>
+      </v-list-item>
+      <v-list-item title="Fixatives" prepend-icon="mdi-snowflake">
+        <v-chip v-for="f in sampling.fixatives" :text="f.label" />
+      </v-list-item>
+      <v-list-item title="Methods" prepend-icon="mdi-hook">
+        <v-chip v-for="m in sampling.methods" :text="m.label" />
+      </v-list-item>
+      <v-list-item title="Habitat">
+        <v-list-item-subtitle v-if="sampling.habitats.length == 0" class="font-italic">
+          Unknown
+        </v-list-item-subtitle>
+        <v-chip v-for="h in sampling.habitats" :text="h.label" :title="h.description" />
+      </v-list-item>
+      <v-list-item title="Access points">
+        <v-list-item-subtitle v-if="sampling.access_points.length == 0" class="font-italic">
+          Unknown
+        </v-list-item-subtitle>
+        <v-chip v-for="access in sampling.access_points" :text="access" />
+      </v-list-item>
+      <v-list-item title="Comments" :subtitle="sampling.comments" />
+    </v-list>
   </v-card>
 </template>
 
@@ -64,6 +68,9 @@ defineProps<{ sampling: Sampling; cornerTag: string }>()
       border-bottom-right-radius: 25%;
       font-weight: bold;
     }
+  }
+  .v-list-item__prepend > .v-icon ~ .v-list-item__spacer {
+    width: 16px;
   }
 }
 </style>
