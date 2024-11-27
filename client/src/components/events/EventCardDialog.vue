@@ -30,7 +30,11 @@
       </v-tab>
       <v-tab value="spotting" prepend-icon="mdi-binoculars">
         <span v-if="!mobile || tab === 'spotting'"> Spotting </span>
-        <v-badge color="primary" inline :content="props.event?.spotting?.target_taxa.length ?? 0" />
+        <v-badge
+          color="primary"
+          inline
+          :content="props.event?.spotting?.target_taxa?.length ?? 0"
+        />
       </v-tab>
     </v-tabs>
     <v-tabs-window v-model="tab" class="overflow-y-auto event-action-text">
@@ -90,15 +94,7 @@
       </v-tabs-window-item>
 
       <v-tabs-window-item value="spotting">
-        <v-list>
-          <v-list-item title="Taxa">
-            <v-chip v-for="t in props.event?.spotting?.target_taxa" :text="t.name" />
-          </v-list-item>
-          <v-list-item
-            title="Comments"
-            :subtitle="props.event?.spotting?.comments || 'None'"
-          ></v-list-item>
-        </v-list>
+        <EventSpotting v-if="event" :event :spotting="event.spotting" />
       </v-tabs-window-item>
     </v-tabs-window>
 
@@ -138,6 +134,7 @@ import AbioticParameterPicker from './AbioticParameterPicker.vue'
 import SamplingCard from './SamplingCard.vue'
 import SamplingFormDialog from './SamplingFormDialog.vue'
 import { ref } from 'vue'
+import EventSpotting from './EventSpotting.vue'
 
 const [samplingDialog, toggleSamplingDialog] = useToggle(false)
 const editingSampling = ref<Sampling>()

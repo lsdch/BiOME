@@ -554,10 +554,10 @@ export const $Event = {
             '$ref': '#/components/schemas/SiteInfo'
         },
         spotting: {
-            '$ref': '#/components/schemas/OptionalSpotting'
+            '$ref': '#/components/schemas/Spotting'
         }
     },
-    required: ['id', 'site', 'performed_by', 'performed_on', 'abiotic_measurements', 'samplings', 'meta'],
+    required: ['id', 'site', 'performed_by', 'performed_on', 'abiotic_measurements', 'samplings', 'spotting', 'meta'],
     type: 'object'
 } as const;
 
@@ -1348,27 +1348,6 @@ export const $OptionalPerson = {
     type: 'object'
 } as const;
 
-export const $OptionalSpotting = {
-    additionalProperties: false,
-    properties: {
-        comments: {
-            type: 'string'
-        },
-        id: {
-            format: 'uuid',
-            type: 'string'
-        },
-        target_taxa: {
-            items: {
-                '$ref': '#/components/schemas/Taxon'
-            },
-            type: 'array'
-        }
-    },
-    required: ['id', 'target_taxa'],
-    type: ['object', 'null']
-} as const;
-
 export const $OptionalTaxon = {
     additionalProperties: false,
     properties: {
@@ -1424,11 +1403,6 @@ export const $OptionalTaxon = {
     },
     required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
     type: ['object', 'null']
-} as const;
-
-export const $OptionalUUID = {
-    additionalProperties: false,
-    type: 'object'
 } as const;
 
 export const $OptionalUserInner = {
@@ -2577,11 +2551,14 @@ export const $SiteUpdate = {
 export const $Spotting = {
     additionalProperties: false,
     properties: {
-        comments: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Spotting.json'],
+            format: 'uri',
+            readOnly: true,
             type: 'string'
         },
-        id: {
-            format: 'uuid',
+        comments: {
             type: 'string'
         },
         target_taxa: {
@@ -2591,7 +2568,29 @@ export const $Spotting = {
             type: 'array'
         }
     },
-    required: ['id', 'target_taxa'],
+    type: 'object'
+} as const;
+
+export const $SpottingUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SpottingUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        comments: {
+            type: ['string', 'null']
+        },
+        target_taxa: {
+            items: {
+                type: 'string'
+            },
+            type: ['array', 'null']
+        }
+    },
     type: 'object'
 } as const;
 
@@ -3137,8 +3136,8 @@ export const $UserShortIdentity = {
             type: 'string'
         },
         id: {
-            '$ref': '#/components/schemas/OptionalUUID',
-            format: 'uuid'
+            format: 'uuid',
+            type: 'string'
         },
         login: {
             type: 'string'
@@ -3147,5 +3146,6 @@ export const $UserShortIdentity = {
             type: 'string'
         }
     },
+    required: ['id', 'login', 'name', 'alias'],
     type: ['object', 'null']
 } as const;

@@ -14,6 +14,7 @@ func RegisterRoutes(r router.Router) {
 
 	registerProgramRoutes(r)
 	registerSamplingRoutes(r)
+	registerEventsRoutes(r)
 
 	huma.Register(r.API, huma.Operation{
 		Path:    "/access-points",
@@ -24,6 +25,4 @@ func RegisterRoutes(r router.Router) {
 		resolvers.AuthResolver
 	}](occurrence.ListAccessPoints))
 
-	// eventsAPI := r.RouteGroup("/events").
-	// 	WithTags([]string{"Account"})
 }

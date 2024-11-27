@@ -21,15 +21,15 @@ type SiteInfo struct {
 }
 
 type Event struct {
-	ID                  edgedb.UUID               `edgedb:"id" json:"id" format:"uuid"`
-	Site                SiteInfo                  `edgedb:"site" json:"site"`
-	PerformedBy         []people.PersonUser       `edgedb:"performed_by" json:"performed_by" minLength:"1"`
-	PerformedOn         DateWithPrecision         `edgedb:"performed_on" json:"performed_on"`
-	Programs            []ProgramInner            `edgedb:"programs" json:"programs,omitempty"`
-	AbioticMeasurements []AbioticMeasurement      `edgedb:"abiotic_measurements" json:"abiotic_measurements"`
-	Samplings           []Sampling                `edgedb:"samplings" json:"samplings"`
-	Spotting            models.Optional[Spotting] `edgedb:"spotting" json:"spotting,omitempty"`
-	Meta                people.Meta               `edgedb:"meta" json:"meta"`
+	ID                  edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
+	Site                SiteInfo             `edgedb:"site" json:"site"`
+	PerformedBy         []people.PersonUser  `edgedb:"performed_by" json:"performed_by" minLength:"1"`
+	PerformedOn         DateWithPrecision    `edgedb:"performed_on" json:"performed_on"`
+	Programs            []ProgramInner       `edgedb:"programs" json:"programs,omitempty"`
+	AbioticMeasurements []AbioticMeasurement `edgedb:"abiotic_measurements" json:"abiotic_measurements"`
+	Samplings           []Sampling           `edgedb:"samplings" json:"samplings"`
+	Spotting            Spotting             `edgedb:"spotting" json:"spotting"`
+	Meta                people.Meta          `edgedb:"meta" json:"meta"`
 }
 
 func (e *Event) AddSampling(db edgedb.Executor, sampling SamplingInput) error {

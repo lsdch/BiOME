@@ -255,7 +255,7 @@ export type Event = {
     programs?: Array<ProgramInner>;
     samplings: Array<Sampling>;
     site: SiteInfo;
-    spotting?: OptionalSpotting;
+    spotting: Spotting;
 };
 
 export type Fixative = {
@@ -588,12 +588,6 @@ export type OptionalPerson = {
     role?: UserRole;
 };
 
-export type OptionalSpotting = {
-    comments?: string;
-    id: string;
-    target_taxa: Array<Taxon>;
-} | null;
-
 export type OptionalTaxon = {
     /**
      * A URL to the JSON Schema for this object.
@@ -619,10 +613,6 @@ export type OptionalUserInner = {
     login: string;
     role: UserRole;
 } | null;
-
-export type OptionalUuid = {
-    [key: string]: unknown;
-};
 
 export type PasswordInput = {
     /**
@@ -1032,9 +1022,21 @@ export type SiteUpdate = {
 };
 
 export type Spotting = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
     comments?: string;
-    id: string;
-    target_taxa: Array<Taxon>;
+    target_taxa?: Array<Taxon>;
+};
+
+export type SpottingUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    comments?: (string) | null;
+    target_taxa?: Array<(string)> | null;
 };
 
 export type Taxon = {
@@ -1225,10 +1227,10 @@ export type UserInput = {
 export type UserRole = 'Visitor' | 'Contributor' | 'Maintainer' | 'Admin';
 
 export type UserShortIdentity = {
-    alias?: string;
-    id?: OptionalUuid;
-    login?: string;
-    name?: string;
+    alias: string;
+    id: string;
+    login: string;
+    name: string;
 } | null;
 
 export type CurrentUserData = {
@@ -1459,6 +1461,23 @@ export type GetDatasetData = {
 export type GetDatasetResponse = (Dataset);
 
 export type GetDatasetError = (ErrorModel);
+
+export type UpdateSpottingData = {
+    body: SpottingUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        id: string;
+    };
+};
+
+export type UpdateSpottingResponse = (Spotting);
+
+export type UpdateSpottingError = (ErrorModel);
 
 export type ListProgramsData = {
     headers?: {
@@ -2288,6 +2307,31 @@ export const GetDatasetResponseTransformer: GetDatasetResponseTransformer = asyn
     return data;
 };
 
+export type UpdateSpottingResponseTransformer = (data: any) => Promise<UpdateSpottingResponse>;
+
+export type SpottingModelResponseTransformer = (data: any) => Spotting;
+
+export type TaxonModelResponseTransformer = (data: any) => Taxon;
+
+export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const SpottingModelResponseTransformer: SpottingModelResponseTransformer = data => {
+    if (Array.isArray(data?.target_taxa)) {
+        data.target_taxa.forEach(TaxonModelResponseTransformer);
+    }
+    return data;
+};
+
+export const UpdateSpottingResponseTransformer: UpdateSpottingResponseTransformer = async (data) => {
+    SpottingModelResponseTransformer(data);
+    return data;
+};
+
 export type ListProgramsResponseTransformer = (data: any) => Promise<ListProgramsResponse>;
 
 export type ProgramModelResponseTransformer = (data: any) => Program;
@@ -2496,15 +2540,6 @@ export const SamplingMethodModelResponseTransformer: SamplingMethodModelResponse
 
 export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget;
 
-export type TaxonModelResponseTransformer = (data: any) => Taxon;
-
-export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = data => {
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    return data;
-};
-
 export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = data => {
     if (Array.isArray(data?.target_taxa)) {
         data.target_taxa.forEach(TaxonModelResponseTransformer);
@@ -2531,15 +2566,6 @@ export const SamplingModelResponseTransformer: SamplingModelResponseTransformer 
     return data;
 };
 
-export type OptionalSpottingModelResponseTransformer = (data: any) => OptionalSpotting;
-
-export const OptionalSpottingModelResponseTransformer: OptionalSpottingModelResponseTransformer = data => {
-    if (Array.isArray(data?.target_taxa)) {
-        data.target_taxa.forEach(TaxonModelResponseTransformer);
-    }
-    return data;
-};
-
 export const EventModelResponseTransformer: EventModelResponseTransformer = data => {
     if (Array.isArray(data?.abiotic_measurements)) {
         data.abiotic_measurements.forEach(AbioticMeasurementModelResponseTransformer);
@@ -2554,7 +2580,7 @@ export const EventModelResponseTransformer: EventModelResponseTransformer = data
         data.samplings.forEach(SamplingModelResponseTransformer);
     }
     if (data?.spotting) {
-        OptionalSpottingModelResponseTransformer(data.spotting);
+        SpottingModelResponseTransformer(data.spotting);
     }
     return data;
 };
