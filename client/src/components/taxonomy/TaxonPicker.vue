@@ -7,7 +7,6 @@
     cache-items
     required
     :items
-    return-object
     item-title="name"
     variant="outlined"
     @update:search="fetch"
@@ -31,7 +30,7 @@ import { Taxon, TaxonomyService, TaxonRank } from '@/api'
 import { useDebounceFn } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 
-const model = defineModel<Taxon>()
+const model = defineModel<any>()
 
 const props = withDefaults(
   defineProps<{
