@@ -1,5 +1,5 @@
 import { ErrorModel } from "@/api"
-import { useAppConfirmDialog } from "@/composables"
+import { useAppConfirmDialog } from "@/composables/confirm_dialog"
 import { useUserStore } from "@/stores/user"
 import { RequestResult } from "@hey-api/client-fetch"
 import { HttpStatusCode } from "axios"
@@ -14,7 +14,7 @@ export type ToolbarProps = {
   /**
    * Table toolbar title
    */
-  title: string
+  title?: string
   /**
    * Table icon
    */
@@ -49,7 +49,7 @@ export type TableProps<ItemType> = {
   /**
    * Table toolbar configuration
    */
-  toolbar: ToolbarProps
+  toolbar?: ToolbarProps
   /**
    * Display column with update/delete controls
    */

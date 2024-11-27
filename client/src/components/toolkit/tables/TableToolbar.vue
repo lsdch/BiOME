@@ -1,5 +1,5 @@
 <template>
-  <v-toolbar flat dense extension-height="auto">
+  <v-toolbar flat dense extension-height="auto" class="px-3">
     <!-- Top left icon -->
     <template v-if="icon" #prepend>
       <v-tooltip :disabled="!onReload">
@@ -24,7 +24,7 @@
       <slot name="append"></slot>
     </template>
 
-    <v-toolbar-title style="min-width: 150px">{{ title }}</v-toolbar-title>
+    <v-toolbar-title v-if="title !== undefined" style="min-width: 150px" :text="title" />
 
     <slot
       v-if="(smAndUp && togglableSearch === undefined) || !togglableSearch"
@@ -86,4 +86,3 @@ const emit = defineEmits<{ reload: [] }>()
 </script>
 
 <style scoped></style>
-&

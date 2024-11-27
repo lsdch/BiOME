@@ -49,12 +49,16 @@
           <!-- Right toolbar actions -->
           <template #append>
             <SortLastUpdatedBtn
-              v-if="!toolbar.noSort"
+              v-if="!toolbar?.noSort"
               sort-key="meta.last_updated"
               :sort-by="sortBy"
               @click="toggleSort('meta.last_updated')"
             />
-            <TableFilterMenu v-if="!toolbar.noFilters" v-model="tableFilters" :user="currentUser" />
+            <TableFilterMenu
+              v-if="!toolbar?.noFilters"
+              v-model="tableFilters"
+              :user="currentUser"
+            />
           </template>
 
           <!-- Searchbar -->
