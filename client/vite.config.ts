@@ -2,6 +2,7 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import vuetify from 'vite-plugin-vuetify'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import mkcert from "vite-plugin-mkcert"
 import { watchAndRun } from 'vite-plugin-watch-and-run'
@@ -42,6 +43,7 @@ export default defineConfig({
         }
       }
     }),
+    vuetify(),
     vueJsx(),
     mkcert(),
     // Generate API client when OpenAPI spec changes
@@ -52,8 +54,7 @@ export default defineConfig({
         watch: path.resolve('openapi.json'),
         run: 'echo "✨ Generating API client" && pnpm run gen-client',
         delay: 0,
-        logs: ['streamData', 'streamError']
-
+        logs: ['streamData', 'streamError'],
       }
     ])
   ],
