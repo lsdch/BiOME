@@ -1,24 +1,9 @@
-import { LocationService, SiteInput } from "@/api";
-import { handleErrors } from "@/api/responses";
+import { SiteInput } from "@/api";
 import { onKeyDown, onKeyStroke, useDebouncedRefHistory, useEventListener, useKeyModifier, useMagicKeys, whenever } from "@vueuse/core";
 import { parse } from "papaparse";
 import { computed, Ref, ref } from "vue";
 import { Schema, useSchema } from "../toolkit/forms/schema";
 import { Errors, indexErrors } from "../toolkit/validation";
-
-export async function useAccessPoints() {
-  const accessPoints = ref(await fetch())
-
-  function fetch() {
-    return LocationService.getAccessPoints().then(handleErrors(err => console.error("Failed to fetch access points", err)))
-  }
-
-  async function refresh() {
-    accessPoints.value = await fetch()
-  }
-
-  return { refresh, accessPoints }
-}
 
 
 export type Selection = {

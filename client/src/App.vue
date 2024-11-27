@@ -52,7 +52,7 @@ import AppIcon from './components/icons/AppIcon.vue'
 import ConfirmDialog from './components/toolkit/ui/ConfirmDialog.vue'
 import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
-import { useAppConfirmDialog } from './composables'
+import { useAppConfirmDialog } from './composables/confirm_dialog'
 
 const loading = ref(false)
 

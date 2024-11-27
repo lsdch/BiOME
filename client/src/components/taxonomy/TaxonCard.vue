@@ -181,7 +181,7 @@ import {
   TaxonWithRelatives
 } from '@/api'
 import { handleErrors } from '@/api/responses'
-import { useAppConfirmDialog } from '@/composables'
+import { useAppConfirmDialog } from '@/composables/confirm_dialog'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import moment from 'moment'
