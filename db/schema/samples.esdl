@@ -1,5 +1,9 @@
 module samples {
 
+  type Fixative extending default::Vocabulary, default::Auditable {
+    annotation description := "Describes a conservation method for a sample."
+  };
+
   type BioMaterial extending occurrence::Occurrence {
     required code : str {
       constraint exclusive;
@@ -28,7 +32,7 @@ module samples {
   abstract type Sample extending default::Auditable {
     required biomat: BioMaterial;
     required type: ContentType;
-    required conservation: default::Conservation;
+    required conservation: Fixative;
 
     required number: int16 {
       annotation description := "Incremental number that discriminates between tubes having the same type in a bio material lot. Used to generate the tube code.";

@@ -95,7 +95,7 @@ module events {
 
     # WARNING : during migration, remove pseudo-field when no sampling was performed
     multi methods: SamplingMethod;
-    multi fixatives: default::Conservation; # TODO : what is the relation with conservation of samples down the stream ?
+    multi fixatives: samples::Fixative; # TODO : what is the relation with conservation of samples down the stream ?
 
     required sampling_target: SamplingTarget;
     multi target_taxa: taxonomy::Taxon {
@@ -104,6 +104,7 @@ module events {
       # constraint expression on (exists .target_taxa) except (.sampling_target != SamplingTarget.Taxa);
     };
 
+    # sampling duration in minutes
     sampling_duration: int32;
 
     comments: str;

@@ -27,12 +27,13 @@ func (g *HabitatGroup) AddHabitat(e edgedb.Executor, h HabitatInput) error {
 	var new_habitat HabitatRecord
 	err := e.QuerySingle(context.Background(),
 		`#edgeql
-			with data := <json>$1,
+      with data := <json>$1,
 			select (insert sampling::Habitat {
 				label := <str>data['label'],
 				description := <str>json_get(data, 'description'),
 				in_group := (assert_single(assert_exists(
 					(select <sampling::HabitatGroup><uuid>$0)
+
 				)))
 			}) { id, label, description, incompatible: { * } }
 		`, &new_habitat, g.ID, data)

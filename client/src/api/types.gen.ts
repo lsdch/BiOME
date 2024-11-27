@@ -254,7 +254,7 @@ export type Event = {
     performed_on: DateWithPrecision;
     programs?: Array<ProgramInner>;
     samplings: Array<Sampling>;
-    site_code: string;
+    site: SiteInfo;
     spotting?: OptionalSpotting;
 };
 
@@ -620,6 +620,10 @@ export type OptionalUserInner = {
     role: UserRole;
 } | null;
 
+export type OptionalUuid = {
+    [key: string]: unknown;
+};
+
 export type PasswordInput = {
     /**
      * A URL to the JSON Schema for this object.
@@ -821,6 +825,10 @@ export type ResendEmailVerificationInputBody = {
 };
 
 export type Sampling = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
     access_points: Array<(string)>;
     comments?: string;
     /**
@@ -830,8 +838,28 @@ export type Sampling = {
     fixatives: Array<Fixative>;
     habitats: Array<Habitat>;
     id: string;
-    methods?: Array<SamplingMethod>;
+    meta: Meta;
+    methods: Array<SamplingMethod>;
     target: SamplingTarget;
+};
+
+export type SamplingInput = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    access_points?: Array<(string)>;
+    comments?: string;
+    /**
+     * Sampling duration in minutes
+     */
+    duration?: number;
+    event_id: string;
+    fixatives?: Array<(string)>;
+    habitats?: Array<(string)>;
+    methods?: Array<(string)>;
+    target_kind: SamplingTargetKind;
+    target_taxa?: Array<(string)>;
 };
 
 export type SamplingMethod = {
@@ -858,10 +886,28 @@ export type SamplingMethodInput = {
 
 export type SamplingTarget = {
     kind: SamplingTargetKind;
-    target_taxa: Array<Taxon>;
+    target_taxa?: Array<Taxon>;
 };
 
 export type SamplingTargetKind = 'Community' | 'Unknown' | 'Taxa';
+
+export type SamplingUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    access_points?: Array<(string)> | null;
+    comments?: (string) | null;
+    /**
+     * Sampling duration in minutes
+     */
+    duration?: (number) | null;
+    fixatives?: Array<(string)> | null;
+    habitats?: Array<(string)> | null;
+    methods?: Array<(string)> | null;
+    target_kind?: SamplingTargetKind;
+    target_taxa?: Array<(string)> | null;
+};
 
 export type SecuritySettings = {
     /**
@@ -917,6 +963,11 @@ export type Site = {
     id: string;
     locality?: string;
     meta: Meta;
+    name: string;
+};
+
+export type SiteInfo = {
+    code: string;
     name: string;
 };
 
@@ -1174,11 +1225,11 @@ export type UserInput = {
 export type UserRole = 'Visitor' | 'Contributor' | 'Maintainer' | 'Admin';
 
 export type UserShortIdentity = {
-    alias: string;
-    id: string;
-    login: string;
-    name: string;
-};
+    alias?: string;
+    id?: OptionalUuid;
+    login?: string;
+    name?: string;
+} | null;
 
 export type CurrentUserData = {
     headers?: {
@@ -1806,6 +1857,53 @@ export type CreateSamplingMethodResponse = (SamplingMethod);
 
 export type CreateSamplingMethodError = (ErrorModel);
 
+export type CreateSamplingData = {
+    body: SamplingInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateSamplingResponse = (Sampling);
+
+export type CreateSamplingError = (ErrorModel);
+
+export type DeleteSamplingData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        id: string;
+    };
+};
+
+export type DeleteSamplingResponse = (Sampling);
+
+export type DeleteSamplingError = (ErrorModel);
+
+export type UpdateSamplingData = {
+    body: SamplingUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        id: string;
+    };
+};
+
+export type UpdateSamplingResponse = (Sampling);
+
+export type UpdateSamplingError = (ErrorModel);
+
 export type ListGenesData = {
     headers?: {
         /**
@@ -2421,6 +2519,9 @@ export const SamplingModelResponseTransformer: SamplingModelResponseTransformer 
     if (Array.isArray(data?.habitats)) {
         data.habitats.forEach(HabitatModelResponseTransformer);
     }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
     if (Array.isArray(data?.methods)) {
         data.methods.forEach(SamplingMethodModelResponseTransformer);
     }
@@ -2573,6 +2674,27 @@ export type CreateSamplingMethodResponseTransformer = (data: any) => Promise<Cre
 
 export const CreateSamplingMethodResponseTransformer: CreateSamplingMethodResponseTransformer = async (data) => {
     SamplingMethodModelResponseTransformer(data);
+    return data;
+};
+
+export type CreateSamplingResponseTransformer = (data: any) => Promise<CreateSamplingResponse>;
+
+export const CreateSamplingResponseTransformer: CreateSamplingResponseTransformer = async (data) => {
+    SamplingModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteSamplingResponseTransformer = (data: any) => Promise<DeleteSamplingResponse>;
+
+export const DeleteSamplingResponseTransformer: DeleteSamplingResponseTransformer = async (data) => {
+    SamplingModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateSamplingResponseTransformer = (data: any) => Promise<UpdateSamplingResponse>;
+
+export const UpdateSamplingResponseTransformer: UpdateSamplingResponseTransformer = async (data) => {
+    SamplingModelResponseTransformer(data);
     return data;
 };
 

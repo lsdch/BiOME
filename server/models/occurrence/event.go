@@ -15,9 +15,14 @@ type DateWithPrecision struct {
 	Precision DatePrecision `edgedb:"precision" json:"precision"`
 }
 
+type SiteInfo struct {
+	Name string `edgedb:"name" json:"name"`
+	Code string `edgedb:"code" json:"code"`
+}
+
 type Event struct {
 	ID                  edgedb.UUID               `edgedb:"id" json:"id" format:"uuid"`
-	SiteCode            string                    `edgedb:"site_code" json:"site_code"`
+	Site                SiteInfo                  `edgedb:"site" json:"site"`
 	PerformedBy         []people.PersonUser       `edgedb:"performed_by" json:"performed_by" minLength:"1"`
 	PerformedOn         DateWithPrecision         `edgedb:"performed_on" json:"performed_on"`
 	Programs            []ProgramInner            `edgedb:"programs" json:"programs,omitempty"`
@@ -25,6 +30,16 @@ type Event struct {
 	Samplings           []Sampling                `edgedb:"samplings" json:"samplings"`
 	Spotting            models.Optional[Spotting] `edgedb:"spotting" json:"spotting,omitempty"`
 	Meta                people.Meta               `edgedb:"meta" json:"meta"`
+}
+
+func (e *Event) AddSampling(db edgedb.Executor, sampling SamplingInput) error {
+	sampling.EventID = e.ID
+	created, err := sampling.Create(db)
+	if err != nil {
+		return err
+	}
+	e.Samplings = append(e.Samplings, created)
+	return nil
 }
 
 func ListEvents(db edgedb.Executor) ([]Event, error) {

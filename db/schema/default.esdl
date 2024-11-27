@@ -40,10 +40,6 @@ module default {
     description: str;
   }
 
-  type Conservation extending Vocabulary, Auditable {
-    annotation description := "Describes a conservation method for a sample."
-  };
-
   type Picture {
     legend: str;
     required path: str {

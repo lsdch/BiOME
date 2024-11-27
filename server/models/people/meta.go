@@ -2,8 +2,10 @@ package people
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
@@ -14,6 +16,18 @@ type UserShortIdentity struct {
 	Login string      `edgedb:"login" json:"login"`
 	Name  string      `json:"name" edgedb:"name"`
 	Alias string      `json:"alias" edgedb:"alias"`
+}
+
+func (u *UserShortIdentity) MarshalJSON() ([]byte, error) {
+	if u.Missing() {
+		return []byte("null"), nil
+	}
+	return json.Marshal(*u)
+}
+
+func (t UserShortIdentity) TransformSchema(r huma.Registry, s *huma.Schema) *huma.Schema {
+	s.Nullable = true
+	return s
 }
 
 // Metadata attached to an item in the database that track updates of the item.

@@ -655,8 +655,8 @@
 						},
 						"type": "array"
 					},
-					"site_code": {
-						"type": "string"
+					"site": {
+						"$ref": "#/components/schemas/SiteInfo"
 					},
 					"spotting": {
 						"$ref": "#/components/schemas/OptionalSpotting"
@@ -664,7 +664,7 @@
 				},
 				"required": [
 					"id",
-					"site_code",
+					"site",
 					"performed_by",
 					"performed_on",
 					"abiotic_measurements",
@@ -2506,6 +2506,15 @@
 			"Sampling": {
 				"additionalProperties": false,
 				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Sampling.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
 					"access_points": {
 						"items": {
 							"type": "string"
@@ -2536,6 +2545,9 @@
 						"format": "uuid",
 						"type": "string"
 					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
 					"methods": {
 						"items": {
 							"$ref": "#/components/schemas/SamplingMethod"
@@ -2548,10 +2560,75 @@
 				},
 				"required": [
 					"id",
-					"fixatives",
 					"target",
+					"methods",
+					"fixatives",
 					"habitats",
-					"access_points"
+					"access_points",
+					"meta"
+				],
+				"type": "object"
+			},
+			"SamplingInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SamplingInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int32",
+						"type": "integer"
+					},
+					"event_id": {
+						"type": "string"
+					},
+					"fixatives": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"habitats": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"methods": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"target_kind": {
+						"$ref": "#/components/schemas/SamplingTargetKind"
+					},
+					"target_taxa": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"event_id",
+					"target_kind"
 				],
 				"type": "object"
 			},
@@ -2634,8 +2711,7 @@
 					}
 				},
 				"required": [
-					"kind",
-					"target_taxa"
+					"kind"
 				],
 				"type": "object"
 			},
@@ -2647,6 +2723,83 @@
 				],
 				"title": "SamplingTargetKind",
 				"type": "string"
+			},
+			"SamplingUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SamplingUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"comments": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int32",
+						"type": [
+							"integer",
+							"null"
+						]
+					},
+					"fixatives": {
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"habitats": {
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"methods": {
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"target_kind": {
+						"$ref": "#/components/schemas/SamplingTargetKind"
+					},
+					"target_taxa": {
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					}
+				},
+				"type": "object"
 			},
 			"SecuritySettings": {
 				"additionalProperties": false,
@@ -2796,6 +2949,22 @@
 					"description",
 					"coordinates",
 					"country"
+				],
+				"type": "object"
+			},
+			"SiteInfo": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"code"
 				],
 				"type": "object"
 			},
@@ -3715,7 +3884,10 @@
 					"name",
 					"alias"
 				],
-				"type": "object"
+				"type": [
+					"object",
+					"null"
+				]
 			}
 		},
 		"securitySchemes": {
@@ -7209,6 +7381,237 @@
 					}
 				},
 				"summary": "Create sampling method",
+				"tags": [
+					"Sampling"
+				]
+			}
+		},
+		"/samplings": {
+			"post": {
+				"operationId": "CreateSampling",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SamplingInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Sampling"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create sampling action",
+				"tags": [
+					"Sampling"
+				]
+			}
+		},
+		"/samplings/{id}": {
+			"delete": {
+				"operationId": "DeleteSampling",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Sampling"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Deletesampling action",
+				"tags": [
+					"Sampling"
+				]
+			},
+			"patch": {
+				"operationId": "UpdateSampling",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SamplingUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Sampling"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update sampling action",
 				"tags": [
 					"Sampling"
 				]

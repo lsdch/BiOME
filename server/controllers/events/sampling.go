@@ -14,6 +14,36 @@ import (
 func registerSamplingRoutes(r router.Router) {
 
 	/**
+	 * Samplings
+	 */
+	samplingAPI := r.RouteGroup("/samplings").
+		WithTags([]string{"Sampling"})
+
+	router.Register(samplingAPI, "CreateSampling",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodPost,
+			Summary: "Create sampling action",
+		},
+		controllers.CreateHandler[occurrence.SamplingInput])
+
+	router.Register(samplingAPI, "UpdateSampling",
+		huma.Operation{
+			Path:    "/{id}",
+			Method:  http.MethodPatch,
+			Summary: "Update sampling action",
+		},
+		controllers.UpdateByIDHandler[occurrence.SamplingUpdate])
+
+	router.Register(samplingAPI, "DeleteSampling",
+		huma.Operation{
+			Path:    "/{id}",
+			Method:  http.MethodDelete,
+			Summary: "Deletesampling action",
+		},
+		controllers.DeleteByIDHandler(occurrence.DeleteSampling))
+
+	/**
 	 * Sampling methods
 	 */
 	samplingMethodsAPI := r.RouteGroup("/sampling-methods").

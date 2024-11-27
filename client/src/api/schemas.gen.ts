@@ -550,14 +550,14 @@ export const $Event = {
             },
             type: 'array'
         },
-        site_code: {
-            type: 'string'
+        site: {
+            '$ref': '#/components/schemas/SiteInfo'
         },
         spotting: {
             '$ref': '#/components/schemas/OptionalSpotting'
         }
     },
-    required: ['id', 'site_code', 'performed_by', 'performed_on', 'abiotic_measurements', 'samplings', 'meta'],
+    required: ['id', 'site', 'performed_by', 'performed_on', 'abiotic_measurements', 'samplings', 'meta'],
     type: 'object'
 } as const;
 
@@ -1426,6 +1426,11 @@ export const $OptionalTaxon = {
     type: ['object', 'null']
 } as const;
 
+export const $OptionalUUID = {
+    additionalProperties: false,
+    type: 'object'
+} as const;
+
 export const $OptionalUserInner = {
     additionalProperties: false,
     properties: {
@@ -2046,6 +2051,13 @@ export const $ResendEmailVerificationInputBody = {
 export const $Sampling = {
     additionalProperties: false,
     properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Sampling.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
         access_points: {
             items: {
                 type: 'string'
@@ -2076,6 +2088,9 @@ export const $Sampling = {
             format: 'uuid',
             type: 'string'
         },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
         methods: {
             items: {
                 '$ref': '#/components/schemas/SamplingMethod'
@@ -2086,7 +2101,66 @@ export const $Sampling = {
             '$ref': '#/components/schemas/SamplingTarget'
         }
     },
-    required: ['id', 'fixatives', 'target', 'habitats', 'access_points'],
+    required: ['id', 'target', 'methods', 'fixatives', 'habitats', 'access_points', 'meta'],
+    type: 'object'
+} as const;
+
+export const $SamplingInput = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SamplingInput.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        access_points: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        comments: {
+            type: 'string'
+        },
+        duration: {
+            description: 'Sampling duration in minutes',
+            format: 'int32',
+            type: 'integer'
+        },
+        event_id: {
+            type: 'string'
+        },
+        fixatives: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        habitats: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        methods: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        target_kind: {
+            '$ref': '#/components/schemas/SamplingTargetKind'
+        },
+        target_taxa: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        }
+    },
+    required: ['event_id', 'target_kind'],
     type: 'object'
 } as const;
 
@@ -2158,7 +2232,7 @@ export const $SamplingTarget = {
             type: 'array'
         }
     },
-    required: ['kind', 'target_taxa'],
+    required: ['kind'],
     type: 'object'
 } as const;
 
@@ -2166,6 +2240,61 @@ export const $SamplingTargetKind = {
     enum: ['Community', 'Unknown', 'Taxa'],
     title: 'SamplingTargetKind',
     type: 'string'
+} as const;
+
+export const $SamplingUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SamplingUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        access_points: {
+            items: {
+                type: 'string'
+            },
+            type: ['array', 'null']
+        },
+        comments: {
+            type: ['string', 'null']
+        },
+        duration: {
+            description: 'Sampling duration in minutes',
+            format: 'int32',
+            type: ['integer', 'null']
+        },
+        fixatives: {
+            items: {
+                type: 'string'
+            },
+            type: ['array', 'null']
+        },
+        habitats: {
+            items: {
+                type: 'string'
+            },
+            type: ['array', 'null']
+        },
+        methods: {
+            items: {
+                type: 'string'
+            },
+            type: ['array', 'null']
+        },
+        target_kind: {
+            '$ref': '#/components/schemas/SamplingTargetKind'
+        },
+        target_taxa: {
+            items: {
+                type: 'string'
+            },
+            type: ['array', 'null']
+        }
+    },
+    type: 'object'
 } as const;
 
 export const $SecuritySettings = {
@@ -2295,6 +2424,20 @@ export const $Site = {
         }
     },
     required: ['datasets', 'events', 'meta', 'id', 'name', 'code', 'description', 'coordinates', 'country'],
+    type: 'object'
+} as const;
+
+export const $SiteInfo = {
+    additionalProperties: false,
+    properties: {
+        code: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        }
+    },
+    required: ['name', 'code'],
     type: 'object'
 } as const;
 
@@ -2994,8 +3137,8 @@ export const $UserShortIdentity = {
             type: 'string'
         },
         id: {
-            format: 'uuid',
-            type: 'string'
+            '$ref': '#/components/schemas/OptionalUUID',
+            format: 'uuid'
         },
         login: {
             type: 'string'
@@ -3004,6 +3147,5 @@ export const $UserShortIdentity = {
             type: 'string'
         }
     },
-    required: ['id', 'login', 'name', 'alias'],
-    type: 'object'
+    type: ['object', 'null']
 } as const;

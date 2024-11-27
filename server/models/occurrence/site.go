@@ -87,6 +87,7 @@ func GetSite(db edgedb.Executor, identifier string) (Site, error) {
 			datasets: { * },
 			meta: { * },
 			events: { *,
+				site: {name, code},
 				programs: { * },
 				performed_by: { * },
 				spotting: { *, target_taxa: { * } },

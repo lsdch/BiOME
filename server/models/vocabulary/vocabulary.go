@@ -30,7 +30,7 @@ type Fixative struct {
 func ListFixatives(db edgedb.Executor) ([]Fixative, error) {
 	var items = []Fixative{}
 	err := db.Query(context.Background(),
-		`select Conservation { ** };`,
+		`select samples::Fixative { ** } order by .label`,
 		&items)
 	return items, err
 }
@@ -42,6 +42,7 @@ type FixativeInput struct {
 func (i FixativeInput) Create(e edgedb.Executor) (created Fixative, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
-		`select (insert Conservative { ** })`, &created, data)
+		`select (insert samples::Fixative { ** })`,
+		&created, data)
 	return
 }
