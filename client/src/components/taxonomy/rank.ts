@@ -19,3 +19,11 @@ export function parentRank(rank: TaxonRank): TaxonRank | undefined {
 export function childRank(rank: TaxonRank): TaxonRank | undefined {
   return $TaxonRank.enum[$TaxonRank.enum.indexOf(rank) + 1]
 }
+
+export function ranksUpTo(rank: TaxonRank): TaxonRank[] {
+  return $TaxonRank.enum.slice($TaxonRank.enum.indexOf(rank))
+}
+
+export function ranksDownTo(rank: TaxonRank): TaxonRank[] {
+  return $TaxonRank.enum.slice(0, $TaxonRank.enum.indexOf(rank) + 1)
+}
