@@ -9,8 +9,8 @@ while [ $# -gt 0 ]; do
   esac
   shift
 done
-echo "current md5:    $(md5sum openapi.json | cut -f1 -d' ')"
-echo "reference md5:  $(cat openapi.json.md5)"
+echo "🔹 current md5:    $(md5sum openapi.json | cut -f1 -d' ')"
+echo "🔹 reference md5:  $(cat openapi.json.md5)"
 if [[ \"$(md5sum openapi.json | cut -f1 -d' ')\" != \"$(cat openapi.json.md5)\" ]] || [[ $force == "true" ]]; then
   echo $(md5sum openapi.json | cut -f1 -d' ') >openapi.json.md5
   openapi-ts -i openapi.json -o src/api
