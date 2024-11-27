@@ -11,9 +11,7 @@
     closable-chips
     :items="items"
     item-title="label"
-    item-value="label"
-    return-object
-    density="compact"
+    item-subtitle="description"
     auto-select-first
     clear-on-select
     placeholder="Start typing to search"
@@ -63,7 +61,7 @@ import { handleErrors } from '@/api/responses'
 import { computed, ref } from 'vue'
 import { ConnectedGroup, ConnectedHabitat, HabitatsGraph } from './habitat_graph'
 
-const model = ref<ConnectedHabitat[]>([])
+const model = defineModel<ConnectedHabitat[]>({ default: [] })
 const searchTerm = ref<string | undefined>(undefined)
 
 const habitatGroups = ref<HabitatGroup[]>(

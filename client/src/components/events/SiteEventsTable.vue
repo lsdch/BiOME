@@ -61,7 +61,7 @@
         @click="focusNext"
         :disabled="focusedEvent.index >= items.length - 1"
       />
-      {{ focusedEvent.item.site_code }} |
+      {{ focusedEvent.item.site.name }} |
       {{ formatDateWithPrecision(focusedEvent.item.performed_on) }}
       <v-btn
         color="primary"

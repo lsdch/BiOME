@@ -36,17 +36,13 @@
           />
           <v-list-item title="Maintainers">
             <template #subtitle>
-              <v-chip v-for="(maintainer, key) in dataset.maintainers" :key>
+              <v-chip v-for="(maintainer, key) in dataset.maintainers" class="ma-1" :key>
                 {{ maintainer.full_name }}
               </v-chip>
             </template>
           </v-list-item>
         </v-list>
-        <v-divider class="my-3"></v-divider>
-        <div>
-          <v-icon class="mx-2">mdi-map-marker</v-icon>
-          <span class="text-overline"> {{ dataset.sites?.length }} sites </span>
-        </div>
+        <v-divider class="my-3" />
         <div>
           <ItemDateChip v-if="dataset.meta?.created" icon="created" :date="dataset.meta.created" />
           <ItemDateChip
@@ -55,6 +51,8 @@
             :date="dataset.meta.modified"
           />
         </div>
+        <v-divider class="my-3" />
+        <DatasetTabs :dataset />
       </v-col>
       <v-col cols="12" lg="6" class="align-self-stretch flex-grow-1 w-100">
         <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!lgAndUp">
@@ -93,6 +91,7 @@ import { computed, reactive, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import DatasetEditForm from './DatasetEditForm.vue'
+import DatasetTabs from './DatasetTabs.vue'
 
 const { user } = useUserStore()
 

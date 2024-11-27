@@ -30,10 +30,7 @@
           <slot name="text" />
         </v-card-text>
       </slot>
-      <v-divider></v-divider>
-      <template #actions>
-        <slot name="actions" />
-      </template>
+      <!-- <v-divider></v-divider> -->
     </v-card>
   </v-dialog>
 </template>

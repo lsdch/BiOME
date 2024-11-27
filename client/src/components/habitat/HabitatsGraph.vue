@@ -111,7 +111,7 @@ import HabitatGroupNode from './HabitatGroupNode.vue'
 import { useLayout } from './layout'
 
 import { mergeResponses } from '@/api/responses'
-import { useAppConfirmDialog } from '@/composables'
+import { useAppConfirmDialog } from '@/composables/confirm_dialog'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import {

@@ -22,7 +22,13 @@
         </div>
         <v-divider class="my-3" />
         <v-list>
-          <v-list-item title="Code" :subtitle="site.code" />
+          <v-list-item title="Code">
+            <template #subtitle>
+              <code class="pb-1">
+                <span>{{ site.code }} </span></code
+              >
+            </template>
+          </v-list-item>
           <v-list-item title="Coordinates" class="pr-0">
             <template #subtitle>
               <code class="text-wrap">
@@ -66,12 +72,7 @@
             />
           </v-list-item>
           <v-list-item title="Targeted taxa">
-            <v-chip
-              v-for="t in site.events.flatMap((e) =>
-                e.samplings.flatMap((s) => s.target.target_taxa)
-              )"
-              :text="t.name"
-            />
+            <v-chip v-for="t in targeted_taxa" class="ma-1" :text="t?.name" />
           </v-list-item>
           <v-list-item title="Sampled taxa" subtitle="TODO" />
         </v-list>
@@ -158,7 +159,7 @@
 </template>
 
 <script setup lang="ts">
-import { LocationService, SiteUpdate } from '@/api'
+import { LocationService, SiteUpdate, Taxon } from '@/api'
 import { handleErrors } from '@/api/responses'
 import SiteEventsTable from '@/components/events/SiteEventsTable.vue'
 import SitesMap from '@/components/maps/SitesMap.vue'
@@ -186,6 +187,19 @@ const site = ref(
     })
   )
 )
+
+const targeted_taxa = computed(() => {
+  return Object.values(
+    site.value.events.reduce<Record<string, Taxon>>((acc, event) => {
+      event.samplings.forEach(({ target }) => {
+        target.target_taxa?.forEach((t) => {
+          acc[t.name] = t
+        })
+      })
+      return acc
+    }, {})
+  )
+})
 
 const abiotic_measurements = computed(() => {
   return (
