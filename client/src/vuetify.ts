@@ -59,6 +59,7 @@ export default createVuetify({
   defaults: {
     VChip: { rounded: true },
     VTab: { rounded: false },
+    VCombobox: { variant: "outlined" },
     VTextField: { variant: "outlined" },
     VSelect: { variant: "outlined" },
     VAutocomplete: { variant: "outlined" },
