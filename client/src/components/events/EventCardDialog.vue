@@ -36,11 +36,12 @@
     <v-tabs-window v-model="tab" class="overflow-y-auto event-action-text">
       <v-tabs-window-item value="sampling">
         <v-container fluid>
-          <v-row>
+          <v-row align-content="stretch">
             <v-col v-for="(sampling, index) in props.event?.samplings" cols="12" md="6">
               <SamplingCard
                 :sampling
                 :corner-tag="`#${index + 1} / ${props.event?.samplings.length}`"
+                class="h-100"
                 @edit="editSampling"
                 @deleted="onSamplingDelete"
               />
@@ -104,6 +105,7 @@
     <v-card-actions class="w-100 d-flex flex-column mt-auto">
       <v-divider class="w-100" />
       <v-btn
+        v-if="tab == 'sampling'"
         block
         color="primary"
         prepend-icon="mdi-plus"

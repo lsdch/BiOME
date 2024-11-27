@@ -1,7 +1,7 @@
 <template>
-  <v-card class="sampling-card border-s-lg border-success border-opacity-100" rounded="sb-0">
+  <v-card class="sampling-card" rounded="sb-0">
     <template #prepend>
-      <code class="top-tag bg-success"> {{ cornerTag }} </code>
+      <code class="top-tag"> {{ cornerTag }} </code>
     </template>
     <template #append>
       <v-btn
@@ -123,11 +123,17 @@ async function deleteSampling() {
 </script>
 
 <style lang="scss">
+@use 'vuetify';
 .sampling-card {
+  border-inline-start-width: 2px;
+  border-inline-start-style: solid;
+  border-inline-start-color: rgba(var(--v-theme-success), 0.7);
+
   .v-card-item {
     padding-top: 0px;
     padding-left: 0px;
     .top-tag {
+      background-color: rgba(var(--v-theme-success), 0.7);
       height: 45px;
       padding: 10px;
       border-bottom-right-radius: 25%;
