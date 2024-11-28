@@ -4,8 +4,8 @@ type DatePrecision string
 
 //generate:enum
 const (
-	Year    DatePrecision = "Year"
-	Month   DatePrecision = "Month"
 	Day     DatePrecision = "Day"
+	Month   DatePrecision = "Month"
+	Year    DatePrecision = "Year"
 	Unknown DatePrecision = "Unknown"
 )

@@ -143,10 +143,10 @@ export type DatasetUpdate = {
     maintainers?: Array<(string)>;
 };
 
-export type DatePrecision = 'Year' | 'Month' | 'Day' | 'Unknown';
+export type DatePrecision = 'Day' | 'Month' | 'Year' | 'Unknown';
 
 export type DateWithPrecision = {
-    date: Date;
+    date?: Date;
     precision: DatePrecision;
 };
 
@@ -247,6 +247,10 @@ export type ErrorModel = {
 };
 
 export type Event = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
     abiotic_measurements: Array<AbioticMeasurement>;
     id: string;
     meta: Meta;
@@ -256,6 +260,16 @@ export type Event = {
     samplings: Array<Sampling>;
     site: SiteInfo;
     spotting: Spotting;
+};
+
+export type EventUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    performed_by?: Array<(string)>;
+    performed_on: DateWithPrecision;
+    programs: Array<(string)> | null;
 };
 
 export type Fixative = {
@@ -1462,6 +1476,23 @@ export type GetDatasetResponse = (Dataset);
 
 export type GetDatasetError = (ErrorModel);
 
+export type UpdateEventData = {
+    body: EventUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        id: string;
+    };
+};
+
+export type UpdateEventResponse = (Event);
+
+export type UpdateEventError = (ErrorModel);
+
 export type UpdateSpottingData = {
     body: SpottingUpdate;
     headers?: {
@@ -2307,9 +2338,79 @@ export const GetDatasetResponseTransformer: GetDatasetResponseTransformer = asyn
     return data;
 };
 
-export type UpdateSpottingResponseTransformer = (data: any) => Promise<UpdateSpottingResponse>;
+export type UpdateEventResponseTransformer = (data: any) => Promise<UpdateEventResponse>;
 
-export type SpottingModelResponseTransformer = (data: any) => Spotting;
+export type EventModelResponseTransformer = (data: any) => Event;
+
+export type AbioticMeasurementModelResponseTransformer = (data: any) => AbioticMeasurement;
+
+export type AbioticParameterModelResponseTransformer = (data: any) => AbioticParameter;
+
+export const AbioticParameterModelResponseTransformer: AbioticParameterModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const AbioticMeasurementModelResponseTransformer: AbioticMeasurementModelResponseTransformer = data => {
+    if (data?.param) {
+        AbioticParameterModelResponseTransformer(data.param);
+    }
+    return data;
+};
+
+export type DateWithPrecisionModelResponseTransformer = (data: any) => DateWithPrecision;
+
+export const DateWithPrecisionModelResponseTransformer: DateWithPrecisionModelResponseTransformer = data => {
+    if (data?.date) {
+        data.date = new Date(data.date);
+    }
+    return data;
+};
+
+export type SamplingModelResponseTransformer = (data: any) => Sampling;
+
+export type FixativeModelResponseTransformer = (data: any) => Fixative;
+
+export const FixativeModelResponseTransformer: FixativeModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export type HabitatModelResponseTransformer = (data: any) => Habitat;
+
+export type HabitatRecordModelResponseTransformer = (data: any) => HabitatRecord;
+
+export const HabitatRecordModelResponseTransformer: HabitatRecordModelResponseTransformer = data => {
+    if (Array.isArray(data?.incompatible)) {
+        data.incompatible.forEach(HabitatRecordModelResponseTransformer);
+    }
+    return data;
+};
+
+export const HabitatModelResponseTransformer: HabitatModelResponseTransformer = data => {
+    if (Array.isArray(data?.incompatible)) {
+        data.incompatible.forEach(HabitatRecordModelResponseTransformer);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export type SamplingMethodModelResponseTransformer = (data: any) => SamplingMethod;
+
+export const SamplingMethodModelResponseTransformer: SamplingMethodModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget;
 
 export type TaxonModelResponseTransformer = (data: any) => Taxon;
 
@@ -2320,12 +2421,66 @@ export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = data
     return data;
 };
 
+export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = data => {
+    if (Array.isArray(data?.target_taxa)) {
+        data.target_taxa.forEach(TaxonModelResponseTransformer);
+    }
+    return data;
+};
+
+export const SamplingModelResponseTransformer: SamplingModelResponseTransformer = data => {
+    if (Array.isArray(data?.fixatives)) {
+        data.fixatives.forEach(FixativeModelResponseTransformer);
+    }
+    if (Array.isArray(data?.habitats)) {
+        data.habitats.forEach(HabitatModelResponseTransformer);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (Array.isArray(data?.methods)) {
+        data.methods.forEach(SamplingMethodModelResponseTransformer);
+    }
+    if (data?.target) {
+        SamplingTargetModelResponseTransformer(data.target);
+    }
+    return data;
+};
+
+export type SpottingModelResponseTransformer = (data: any) => Spotting;
+
 export const SpottingModelResponseTransformer: SpottingModelResponseTransformer = data => {
     if (Array.isArray(data?.target_taxa)) {
         data.target_taxa.forEach(TaxonModelResponseTransformer);
     }
     return data;
 };
+
+export const EventModelResponseTransformer: EventModelResponseTransformer = data => {
+    if (Array.isArray(data?.abiotic_measurements)) {
+        data.abiotic_measurements.forEach(AbioticMeasurementModelResponseTransformer);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (data?.performed_on) {
+        DateWithPrecisionModelResponseTransformer(data.performed_on);
+    }
+    if (Array.isArray(data?.samplings)) {
+        data.samplings.forEach(SamplingModelResponseTransformer);
+    }
+    if (data?.spotting) {
+        SpottingModelResponseTransformer(data.spotting);
+    }
+    return data;
+};
+
+export const UpdateEventResponseTransformer: UpdateEventResponseTransformer = async (data) => {
+    EventModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateSpottingResponseTransformer = (data: any) => Promise<UpdateSpottingResponse>;
 
 export const UpdateSpottingResponseTransformer: UpdateSpottingResponseTransformer = async (data) => {
     SpottingModelResponseTransformer(data);
@@ -2376,15 +2531,6 @@ export type ListHabitatGroupsResponseTransformer = (data: any) => Promise<ListHa
 export type HabitatGroupModelResponseTransformer = (data: any) => HabitatGroup;
 
 export type OptionalHabitatRecordModelResponseTransformer = (data: any) => OptionalHabitatRecord;
-
-export type HabitatRecordModelResponseTransformer = (data: any) => HabitatRecord;
-
-export const HabitatRecordModelResponseTransformer: HabitatRecordModelResponseTransformer = data => {
-    if (Array.isArray(data?.incompatible)) {
-        data.incompatible.forEach(HabitatRecordModelResponseTransformer);
-    }
-    return data;
-};
 
 export const OptionalHabitatRecordModelResponseTransformer: OptionalHabitatRecordModelResponseTransformer = data => {
     if (Array.isArray(data?.incompatible)) {
@@ -2476,114 +2622,6 @@ export const UpdateInstitutionResponseTransformer: UpdateInstitutionResponseTran
 export type ListSitesResponseTransformer = (data: any) => Promise<ListSitesResponse>;
 
 export type SiteModelResponseTransformer = (data: any) => Site;
-
-export type EventModelResponseTransformer = (data: any) => Event;
-
-export type AbioticMeasurementModelResponseTransformer = (data: any) => AbioticMeasurement;
-
-export type AbioticParameterModelResponseTransformer = (data: any) => AbioticParameter;
-
-export const AbioticParameterModelResponseTransformer: AbioticParameterModelResponseTransformer = data => {
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    return data;
-};
-
-export const AbioticMeasurementModelResponseTransformer: AbioticMeasurementModelResponseTransformer = data => {
-    if (data?.param) {
-        AbioticParameterModelResponseTransformer(data.param);
-    }
-    return data;
-};
-
-export type DateWithPrecisionModelResponseTransformer = (data: any) => DateWithPrecision;
-
-export const DateWithPrecisionModelResponseTransformer: DateWithPrecisionModelResponseTransformer = data => {
-    if (data?.date) {
-        data.date = new Date(data.date);
-    }
-    return data;
-};
-
-export type SamplingModelResponseTransformer = (data: any) => Sampling;
-
-export type FixativeModelResponseTransformer = (data: any) => Fixative;
-
-export const FixativeModelResponseTransformer: FixativeModelResponseTransformer = data => {
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    return data;
-};
-
-export type HabitatModelResponseTransformer = (data: any) => Habitat;
-
-export const HabitatModelResponseTransformer: HabitatModelResponseTransformer = data => {
-    if (Array.isArray(data?.incompatible)) {
-        data.incompatible.forEach(HabitatRecordModelResponseTransformer);
-    }
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    return data;
-};
-
-export type SamplingMethodModelResponseTransformer = (data: any) => SamplingMethod;
-
-export const SamplingMethodModelResponseTransformer: SamplingMethodModelResponseTransformer = data => {
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    return data;
-};
-
-export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget;
-
-export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = data => {
-    if (Array.isArray(data?.target_taxa)) {
-        data.target_taxa.forEach(TaxonModelResponseTransformer);
-    }
-    return data;
-};
-
-export const SamplingModelResponseTransformer: SamplingModelResponseTransformer = data => {
-    if (Array.isArray(data?.fixatives)) {
-        data.fixatives.forEach(FixativeModelResponseTransformer);
-    }
-    if (Array.isArray(data?.habitats)) {
-        data.habitats.forEach(HabitatModelResponseTransformer);
-    }
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    if (Array.isArray(data?.methods)) {
-        data.methods.forEach(SamplingMethodModelResponseTransformer);
-    }
-    if (data?.target) {
-        SamplingTargetModelResponseTransformer(data.target);
-    }
-    return data;
-};
-
-export const EventModelResponseTransformer: EventModelResponseTransformer = data => {
-    if (Array.isArray(data?.abiotic_measurements)) {
-        data.abiotic_measurements.forEach(AbioticMeasurementModelResponseTransformer);
-    }
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    if (data?.performed_on) {
-        DateWithPrecisionModelResponseTransformer(data.performed_on);
-    }
-    if (Array.isArray(data?.samplings)) {
-        data.samplings.forEach(SamplingModelResponseTransformer);
-    }
-    if (data?.spotting) {
-        SpottingModelResponseTransformer(data.spotting);
-    }
-    return data;
-};
 
 export const SiteModelResponseTransformer: SiteModelResponseTransformer = data => {
     if (Array.isArray(data?.events)) {

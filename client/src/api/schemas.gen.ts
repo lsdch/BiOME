@@ -340,7 +340,7 @@ export const $DatasetUpdate = {
 } as const;
 
 export const $DatePrecision = {
-    enum: ['Year', 'Month', 'Day', 'Unknown'],
+    enum: ['Day', 'Month', 'Year', 'Unknown'],
     title: 'DatePrecision',
     type: 'string'
 } as const;
@@ -356,7 +356,7 @@ export const $DateWithPrecision = {
             '$ref': '#/components/schemas/DatePrecision'
         }
     },
-    required: ['date', 'precision'],
+    required: ['precision'],
     type: 'object'
 } as const;
 
@@ -515,6 +515,13 @@ export const $ErrorModel = {
 export const $Event = {
     additionalProperties: false,
     properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Event.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
         abiotic_measurements: {
             items: {
                 '$ref': '#/components/schemas/AbioticMeasurement'
@@ -558,6 +565,36 @@ export const $Event = {
         }
     },
     required: ['id', 'site', 'performed_by', 'performed_on', 'abiotic_measurements', 'samplings', 'spotting', 'meta'],
+    type: 'object'
+} as const;
+
+export const $EventUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/EventUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        performed_by: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        performed_on: {
+            '$ref': '#/components/schemas/DateWithPrecision'
+        },
+        programs: {
+            items: {
+                type: 'string'
+            },
+            type: ['array', 'null']
+        }
+    },
+    required: ['performed_on', 'programs'],
     type: 'object'
 } as const;
 

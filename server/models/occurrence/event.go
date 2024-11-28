@@ -2,6 +2,7 @@ package occurrence
 
 import (
 	"context"
+	"darco/proto/db"
 	"darco/proto/models"
 	"darco/proto/models/people"
 	"encoding/json"
@@ -11,7 +12,7 @@ import (
 )
 
 type DateWithPrecision struct {
-	Date      time.Time     `edgedb:"date" json:"date"`
+	Date      time.Time     `edgedb:"date" json:"date,omitempty"`
 	Precision DatePrecision `edgedb:"precision" json:"precision"`
 }
 
@@ -77,5 +78,42 @@ func (i EventInput) Create(e edgedb.Executor) (created Event, err error) {
 				select events::Program filter .code in json_array_unpack(<array<str>>json_get(data, 'programs'))
 			)
 		})`, &created, data)
+	return
+}
+
+type EventUpdate struct {
+	PerformedBy models.OptionalInput[[]string]          `json:"performed_by,omitempty"`
+	PerformedOn models.OptionalInput[DateWithPrecision] `json:"performed_on"`
+	Programs    models.OptionalNull[[]string]           `json:"programs"`
+}
+
+func (u EventUpdate) Update(e edgedb.Executor, id edgedb.UUID) (updated Event, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: `#edgeql
+			with data := <json>$1,
+			select (update events::Event filter .id = <uuid>$0 set {
+				%s
+			}) { **, site_code := .site.code }
+		`,
+		Mappings: map[string]string{
+			"perform_by": `#edgeql
+				(
+					select people::Person
+					filter .alias in <str>json_array_unpack(data['performed_by'])
+				)`,
+			"performed_on": `#edgeql
+				(
+					date := <datetime>data['performed_on']['date'],
+					precision := <date::DatePrecision>data['performed_on']['precision']
+				)`,
+			"programs": `#edgeql
+				(
+					select events::Program
+					filter .code in <str>json_array_unpack(json_get(data, 'programs'))
+				)`,
+		},
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, id, data)
 	return
 }

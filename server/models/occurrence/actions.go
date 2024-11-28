@@ -8,7 +8,6 @@ import (
 	"encoding/json"
 
 	"github.com/edgedb/edgedb-go"
-	"github.com/sirupsen/logrus"
 )
 
 type Spotting struct {
@@ -25,7 +24,6 @@ type SpottingUpdate struct {
 
 func (u SpottingUpdate) Update(e edgedb.Executor, eventID edgedb.UUID) (updated Spotting, err error) {
 	data, _ := json.Marshal(u)
-	logrus.Infof("%s", string(data))
 	query := db.UpdateQuery{
 		Frame: `#edgeql
 			with data := <json>$1,

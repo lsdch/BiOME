@@ -13,9 +13,9 @@ import (
 
 
 var DatePrecisionValues = []DatePrecision{
-	Year,
-	Month,
 	Day,
+	Month,
+	Year,
 	Unknown,
 }
 
