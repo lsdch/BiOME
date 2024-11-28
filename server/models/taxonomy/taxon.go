@@ -251,7 +251,7 @@ type TaxonUpdate struct {
 	Parent     models.OptionalInput[string]      `json:"parent,omitempty"` // parent code
 }
 
-func (u TaxonUpdate) Update(e edgedb.Executor, code string) (updated Taxon, err error) {
+func (u TaxonUpdate) Save(e edgedb.Executor, code string) (updated Taxon, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: fmt.Sprintf(`with item := <json>$1,

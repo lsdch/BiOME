@@ -11,7 +11,7 @@ type Creatable[CreatedItem any] interface {
 
 // Updatable items can be updated in the database
 type Updatable[ID any, Updated any] interface {
-	Update(db edgedb.Executor, id ID) (Updated, error)
+	Save(db edgedb.Executor, id ID) (Updated, error)
 }
 
 // ItemFinder functions fetch an item from the database using an identifier having a generic type

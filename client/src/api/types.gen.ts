@@ -262,6 +262,16 @@ export type Event = {
     spotting: Spotting;
 };
 
+export type EventInput = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    performed_by: Array<(string)>;
+    performed_on: DateWithPrecision;
+    programs?: Array<(string)>;
+};
+
 export type EventUpdate = {
     /**
      * A URL to the JSON Schema for this object.
@@ -269,7 +279,7 @@ export type EventUpdate = {
     readonly $schema?: string;
     performed_by?: Array<(string)>;
     performed_on: DateWithPrecision;
-    programs: Array<(string)> | null;
+    programs?: Array<(string)> | null;
 };
 
 export type Fixative = {
@@ -1476,6 +1486,22 @@ export type GetDatasetResponse = (Dataset);
 
 export type GetDatasetError = (ErrorModel);
 
+export type DeleteEventData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        id: string;
+    };
+};
+
+export type DeleteEventResponse = (Event);
+
+export type DeleteEventError = (ErrorModel);
+
 export type UpdateEventData = {
     body: EventUpdate;
     headers?: {
@@ -1735,6 +1761,23 @@ export type UpdateSiteData = {
 export type UpdateSiteResponse = (Site);
 
 export type UpdateSiteError = (ErrorModel);
+
+export type CreateEventData = {
+    body: EventInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type CreateEventResponse = (Event);
+
+export type CreateEventError = (ErrorModel);
 
 export type ListPersonsData = {
     headers?: {
@@ -2338,7 +2381,7 @@ export const GetDatasetResponseTransformer: GetDatasetResponseTransformer = asyn
     return data;
 };
 
-export type UpdateEventResponseTransformer = (data: any) => Promise<UpdateEventResponse>;
+export type DeleteEventResponseTransformer = (data: any) => Promise<DeleteEventResponse>;
 
 export type EventModelResponseTransformer = (data: any) => Event;
 
@@ -2474,6 +2517,13 @@ export const EventModelResponseTransformer: EventModelResponseTransformer = data
     }
     return data;
 };
+
+export const DeleteEventResponseTransformer: DeleteEventResponseTransformer = async (data) => {
+    EventModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateEventResponseTransformer = (data: any) => Promise<UpdateEventResponse>;
 
 export const UpdateEventResponseTransformer: UpdateEventResponseTransformer = async (data) => {
     EventModelResponseTransformer(data);
@@ -2651,6 +2701,13 @@ export type UpdateSiteResponseTransformer = (data: any) => Promise<UpdateSiteRes
 
 export const UpdateSiteResponseTransformer: UpdateSiteResponseTransformer = async (data) => {
     SiteModelResponseTransformer(data);
+    return data;
+};
+
+export type CreateEventResponseTransformer = (data: any) => Promise<CreateEventResponse>;
+
+export const CreateEventResponseTransformer: CreateEventResponseTransformer = async (data) => {
+    EventModelResponseTransformer(data);
     return data;
 };
 

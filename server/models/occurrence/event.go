@@ -46,55 +46,78 @@ func (e *Event) AddSampling(db edgedb.Executor, sampling SamplingInput) error {
 func ListEvents(db edgedb.Executor) ([]Event, error) {
 	var items = []Event{}
 	err := db.Query(context.Background(),
-		`select events::Event { **, site_code := .site.code };`,
+		`#edgeql
+			select events::Event {
+				site: {name, code},
+				programs: { * },
+				performed_by: { * },
+				spotting: { *, target_taxa: { * } },
+				abiotic_measurements: { *, param: { * }  },
+				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
+			}
+		`,
 		&items)
 	return items, err
 }
 
 type EventInput struct {
-	SiteCode    string                         `json:"site_code"`
 	PerformedBy []string                       `json:"performed_by" minLength:"1"`
 	PerformedOn DateWithPrecision              `json:"performed_on"`
 	Programs    models.OptionalInput[[]string] `json:"programs,omitempty"`
 }
 
-func (i EventInput) Create(e edgedb.Executor) (created Event, err error) {
+func (i EventInput) Save(e edgedb.Executor, site_code string) (created Event, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
-		with data = <json>$0,
-		select (insert events::Event {
-			site := (
-				select location::Site filter .code = <str>data['site_code']
-			),
-			performed_by := (
-				select people::Person filter .alias = <str>data['performed_by']
-			),
-			performed_on := (
-				date := <datetime>data['performed_on']['date'],
-				precision := <date::DatePrecision>data['performed_on']['precision']
-			),
-			programs := (
-				select events::Program filter .code in json_array_unpack(<array<str>>json_get(data, 'programs'))
-			)
-		})`, &created, data)
+			with data = <json>$1,
+			select (insert events::Event {
+				site := (
+					select location::Site filter .code = <str>$0
+				),
+				performed_by := (
+					select people::Person filter .alias = <str>data['performed_by']
+				),
+				performed_on := (
+					date := <datetime>data['performed_on']['date'],
+					precision := <date::DatePrecision>data['performed_on']['precision']
+				),
+				programs := (
+					select events::Program filter .code in json_array_unpack(<array<str>>json_get(data, 'programs'))
+				)
+			}) {
+				site: {name, code},
+				programs: { * },
+				performed_by: { * },
+				spotting: { *, target_taxa: { * } },
+				abiotic_measurements: { *, param: { * }  },
+				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
+			}
+		`, &created, site_code, data)
 	return
 }
 
 type EventUpdate struct {
 	PerformedBy models.OptionalInput[[]string]          `json:"performed_by,omitempty"`
 	PerformedOn models.OptionalInput[DateWithPrecision] `json:"performed_on"`
-	Programs    models.OptionalNull[[]string]           `json:"programs"`
+	Programs    models.OptionalNull[[]string]           `json:"programs,omitempty"`
 }
 
-func (u EventUpdate) Update(e edgedb.Executor, id edgedb.UUID) (updated Event, err error) {
+func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
 			with data := <json>$1,
 			select (update events::Event filter .id = <uuid>$0 set {
 				%s
-			}) { **, site_code := .site.code }
+			}) {
+				site: {name, code},
+				programs: { * },
+				performed_by: { * },
+				spotting: { *, target_taxa: { * } },
+				abiotic_measurements: { *, param: { * }  },
+				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
+			}
 		`,
 		Mappings: map[string]string{
 			"perform_by": `#edgeql
@@ -115,5 +138,23 @@ func (u EventUpdate) Update(e edgedb.Executor, id edgedb.UUID) (updated Event, e
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, id, data)
+	return
+}
+
+func DeleteEvent(db edgedb.Executor, id edgedb.UUID) (deleted Event, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			select (
+				delete events::Event filter .id = <uuid>$0
+			) {
+				site: {name, code},
+				programs: { * },
+				performed_by: { * },
+				spotting: { *, target_taxa: { * } },
+				abiotic_measurements: { *, param: { * }  },
+				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
+			};
+		`,
+		&deleted, id)
 	return
 }

@@ -85,7 +85,7 @@ type ProgramUpdate struct {
 	Description     models.OptionalNull[string]   `json:"description,omitempty"`
 }
 
-func (u ProgramUpdate) Update(e edgedb.Executor, code string) (updated Program, err error) {
+func (u ProgramUpdate) Save(e edgedb.Executor, code string) (updated Program, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `with item := <json>$1,
@@ -109,7 +109,7 @@ func (u ProgramUpdate) Update(e edgedb.Executor, code string) (updated Program, 
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
-	updated.Meta.Update(e)
+	updated.Meta.Save(e)
 	return
 }
 

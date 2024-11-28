@@ -69,31 +69,31 @@ func (r *Router) WriteSpecJSON(outputPath string) error {
 	return err
 }
 
-func (r *Router) RouteGroup(prefix string) group {
+func (r *Router) RouteGroup(prefix string) Group {
 
-	return group{r, r.API, prefix, []string{}}
+	return Group{r, r.API, prefix, []string{}}
 }
 
-type group struct {
+type Group struct {
 	router *Router
 	API    huma.API
 	Prefix string
 	Tags   []string
 }
 
-func (g group) WithTags(tags []string) group {
+func (g Group) WithTags(tags []string) Group {
 	g.Tags = tags
 	return g
 }
 
-func (g group) RouteGroup(prefix string) group {
-	return group{router: g.router, API: g.API, Prefix: path.Join(g.Prefix, prefix), Tags: g.Tags}
+func (g Group) RouteGroup(prefix string) Group {
+	return Group{router: g.router, API: g.API, Prefix: path.Join(g.Prefix, prefix), Tags: g.Tags}
 }
 
 type Endpoint[I, O any] func(context.Context, *I) (*O, error)
 
 func Register[I, O any](
-	group group,
+	group Group,
 	operationID string,
 	op huma.Operation,
 	handler func(context.Context, *I) (*O, error),

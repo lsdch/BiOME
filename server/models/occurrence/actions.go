@@ -22,7 +22,7 @@ type SpottingUpdate struct {
 	Comments   models.OptionalNull[string]   `json:"comments,omitempty"`
 }
 
-func (u SpottingUpdate) Update(e edgedb.Executor, eventID edgedb.UUID) (updated Spotting, err error) {
+func (u SpottingUpdate) Save(e edgedb.Executor, eventID edgedb.UUID) (updated Spotting, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql

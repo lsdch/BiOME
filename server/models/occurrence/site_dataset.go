@@ -212,7 +212,7 @@ type DatasetUpdate struct {
 	Maintainers models.OptionalInput[DatasetMaintainers] `json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
 
-func (u DatasetUpdate) Update(e edgedb.Executor, slug string) (updated Dataset, err error) {
+func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated Dataset, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -231,6 +231,6 @@ func (u DatasetUpdate) Update(e edgedb.Executor, slug string) (updated Dataset, 
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, slug, data)
-	updated.Meta.Update(e)
+	updated.Meta.Save(e)
 	return
 }

@@ -59,7 +59,7 @@ func TestPerson(t *testing.T) {
 		u := tests.FakeData[people.PersonUpdate](t)
 		u.FirstName.IsSet = true
 		json, _ := json.Marshal(u)
-		updated, err := u.Update(client, p.ID)
+		updated, err := u.Save(client, p.ID)
 		require.NoErrorf(t, err, "%s", json)
 		assert.Equal(t, p.ID, updated.ID)
 		assert.Equal(t, u.FirstName.Value, updated.FirstName)

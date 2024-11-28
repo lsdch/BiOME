@@ -10,8 +10,13 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
+func SitesAPI(r router.Router) router.Group {
+	return r.RouteGroup("/sites").WithTags([]string{"Location"})
+}
+
 func RegisterRoutes(r router.Router) {
-	sites_API := r.RouteGroup("/sites").WithTags([]string{"Location"})
+
+	sites_API := SitesAPI(r)
 
 	router.Register(sites_API, "ListSites",
 		huma.Operation{
@@ -39,5 +44,15 @@ func RegisterRoutes(r router.Router) {
 			Description: "Update site infos using its code",
 		},
 		controllers.UpdateByCodeHandler[occurrence.SiteUpdate],
+	)
+
+	router.Register(sites_API, "CreateEvent",
+		huma.Operation{
+			Path:        "/{code}/events",
+			Method:      http.MethodPost,
+			Summary:     "Create event",
+			Description: "Register event on a site identified by its code",
+		},
+		controllers.UpdateByCodeHandler[occurrence.EventInput],
 	)
 }

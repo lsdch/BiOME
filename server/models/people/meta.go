@@ -40,7 +40,7 @@ type Meta struct {
 	UpdatedBy   UserShortIdentity       `json:"updated_by,omitempty" edgedb:"updated_by"`
 }
 
-func (m *Meta) Update(db edgedb.Executor) {
+func (m *Meta) Save(db edgedb.Executor) {
 	if err := db.QuerySingle(context.Background(), `select (<Meta><uuid>$0) { * }`, m, m.ID); err != nil {
 		logrus.Errorf("Failed to fetch updated Meta infos: %v", err)
 	}

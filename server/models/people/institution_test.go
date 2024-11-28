@@ -53,7 +53,7 @@ func TestUpdateInstitution(t *testing.T) {
 	input.Code.IsSet = true
 	input.Description.Null = true
 	input.Description.IsSet = true
-	updated, err := input.Update(db.Client(), inst.Code)
+	updated, err := input.Save(db.Client(), inst.Code)
 	require.NoError(t, err)
 	assert.Equal(t, input.Code.Value, updated.Code)
 }

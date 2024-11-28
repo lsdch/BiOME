@@ -124,7 +124,7 @@ type SamplingUpdate struct {
 	AccessPoints models.OptionalNull[[]string]            `json:"access_points,omitempty"`
 }
 
-func (u SamplingUpdate) Update(e edgedb.Executor, id edgedb.UUID) (updated Sampling, err error) {
+func (u SamplingUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Sampling, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql

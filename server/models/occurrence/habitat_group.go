@@ -159,7 +159,7 @@ type HabitatGroupUpdate struct {
 	DeleteTags models.OptionalInput[[]string]                 `json:"delete_tags,omitempty"`
 }
 
-func (u HabitatGroupUpdate) Update(e edgedb.Executor, label string) (updated HabitatGroup, err error) {
+func (u HabitatGroupUpdate) Save(e edgedb.Executor, label string) (updated HabitatGroup, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -213,7 +213,7 @@ func (u HabitatGroupUpdate) Update(e edgedb.Executor, label string) (updated Hab
 				}
 			}
 
-			updated.Meta.Update(tx)
+			updated.Meta.Save(tx)
 			return nil
 		})
 }

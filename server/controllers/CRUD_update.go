@@ -6,8 +6,6 @@ import (
 	"darco/proto/resolvers"
 
 	"github.com/edgedb/edgedb-go"
-	"github.com/kr/pretty"
-	"github.com/sirupsen/logrus"
 )
 
 type UpdateInputInterface[Item models.Updatable[ID, Updated], ID any, Updated any] interface {
@@ -46,7 +44,7 @@ func UpdateHandler[
 	ID any,
 	Updated any,
 ](ctx context.Context, input OperationInput) (*UpdateHandlerOutput[Updated], error) {
-	updated, err := input.Item().Update(
+	updated, err := input.Item().Save(
 		input.DB(),
 		input.Identifier(),
 	)
@@ -54,7 +52,6 @@ func UpdateHandler[
 		return nil, err
 	}
 
-	logrus.Infof("Item updated: %# v", pretty.Formatter(updated))
 	return &UpdateHandlerOutput[Updated]{Body: updated}, nil
 }
 

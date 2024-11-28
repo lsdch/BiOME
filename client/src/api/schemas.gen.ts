@@ -568,6 +568,37 @@ export const $Event = {
     type: 'object'
 } as const;
 
+export const $EventInput = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/EventInput.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        performed_by: {
+            items: {
+                type: 'string'
+            },
+            minLength: 1,
+            type: 'array'
+        },
+        performed_on: {
+            '$ref': '#/components/schemas/DateWithPrecision'
+        },
+        programs: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        }
+    },
+    required: ['performed_by', 'performed_on'],
+    type: 'object'
+} as const;
+
 export const $EventUpdate = {
     additionalProperties: false,
     properties: {
@@ -594,7 +625,7 @@ export const $EventUpdate = {
             type: ['array', 'null']
         }
     },
-    required: ['performed_on', 'programs'],
+    required: ['performed_on'],
     type: 'object'
 } as const;
 

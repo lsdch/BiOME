@@ -21,6 +21,14 @@ func registerEventsRoutes(r router.Router) {
 		},
 		controllers.UpdateByIDHandler[occurrence.EventUpdate])
 
+	router.Register(eventsAPI, "DeleteEvent",
+		huma.Operation{
+			Path:    "/{id}",
+			Method:  http.MethodDelete,
+			Summary: "Delete event",
+		},
+		controllers.DeleteByIDHandler(occurrence.DeleteEvent))
+
 	router.Register(eventsAPI, "UpdateSpotting",
 		huma.Operation{
 			Path:    "/{id}/spottings",
@@ -28,4 +36,5 @@ func registerEventsRoutes(r router.Router) {
 			Summary: "Update spotting",
 		},
 		controllers.UpdateByIDHandler[occurrence.SpottingUpdate])
+
 }

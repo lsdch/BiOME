@@ -127,7 +127,7 @@ type PersonUpdate struct {
 	Comment      models.OptionalNull[string]    `json:"comment,omitempty"`
 }
 
-func (u PersonUpdate) Update(e edgedb.Executor, id edgedb.UUID) (updated Person, err error) {
+func (u PersonUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Person, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `with item := <json>$1,
@@ -147,6 +147,6 @@ func (u PersonUpdate) Update(e edgedb.Executor, id edgedb.UUID) (updated Person,
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, id, data)
-	updated.Meta.Update(e)
+	updated.Meta.Save(e)
 	return
 }

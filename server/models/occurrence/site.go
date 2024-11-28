@@ -68,40 +68,45 @@ type Site struct {
 func ListSites(db edgedb.Executor) ([]Site, error) {
 	var sites []Site
 	err := db.Query(context.Background(),
-		`select location::Site {
-			*,
-			datasets: { * },
-			meta: { * },
-			country: { * },
-			events: { * } order by .performed_on.date desc
-		}`, &sites)
+		`#edgeql
+			select location::Site {
+				*,
+				datasets: { * },
+				meta: { * },
+				country: { * },
+				events: { * } order by .performed_on.date desc
+			}
+		`, &sites)
 	return sites, err
 }
 
 func GetSite(db edgedb.Executor, identifier string) (Site, error) {
 	var site Site
 	err := db.QuerySingle(context.Background(),
-		`select location::Site {
-			*,
-			country: { * },
-			datasets: { * },
-			meta: { * },
-			events: { *,
-				site: {name, code},
-				programs: { * },
-				performed_by: { * },
-				spotting: { *, target_taxa: { * } },
-				abiotic_measurements: { *, param: { * }  },
-				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
-			} order by .performed_on.date desc
-		} filter .code = <str>$0`,
+		`#edgeql
+			select location::Site {
+				*,
+				country: { * },
+				datasets: { * },
+				meta: { * },
+				events: { *,
+					site: {name, code},
+					programs: { * },
+					performed_by: { * },
+					spotting: { *, target_taxa: { * } },
+					abiotic_measurements: { *, param: { * }  },
+					samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
+				} order by .performed_on.date desc
+			} filter .code = <str>$0
+		`,
 		&site, identifier)
 	return site, err
 }
 
 var siteInsertQueryTmpl = template.Must(
 	template.New("siteInsertQuery").
-		Parse(`insert location::Site {{ "{" }}
+		Parse(`#edgeql
+		insert location::Site {{ "{" }}
 			name := <str>{{.Json}}['name'],
 			code := <str>{{.Json}}['code'],
 			description := <str>json_get({{.Json}}, 'description'),
@@ -130,11 +135,12 @@ func (i *SiteInput) Create(db edgedb.Executor) (*Site, error) {
 	var created Site
 	data, _ := json.Marshal(i)
 	query := fmt.Sprintf(
-		`with module location,
-		data := <json>$0,
-		coords := data['coordinates'],
-	select ( %s ) { *, country: { * }, meta: { * }, datasets: { * } }`,
-		i.InsertQuery("data"))
+		`#edgeql
+		with module location,
+			data := <json>$0,
+			coords := data['coordinates'],
+		select ( %s ) { *, country: { * }, meta: { * }, datasets: { * } }
+	`, i.InsertQuery("data"))
 	err := db.QuerySingle(context.Background(), query, &created, data)
 	return &created, err
 }
@@ -149,31 +155,35 @@ type SiteUpdate struct {
 	CountryCode models.OptionalInput[string]      `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 
-func (u SiteUpdate) Update(e edgedb.Executor, code string) (updated Site, err error) {
+func (u SiteUpdate) Save(e edgedb.Executor, code string) (updated Site, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
-		Frame: `with item := <json>$1,
-		select (update location::Site filter .code = <str>$0 set {
-			%s
-		}) { *, datasets: { * }, meta: { * }, country: { * } }`,
+		Frame: `#edgeql
+			with item := <json>$1,
+			select (update location::Site filter .code = <str>$0 set {
+				%s
+			}) { *, datasets: { * }, meta: { * }, country: { * } }
+		`,
 		Mappings: map[string]string{
 			"name":        "<str>item['name']",
 			"code":        "<str>item['code']",
 			"description": "<str>item['description']",
-			"coordinates": `(
-				precision := <location::CoordinatesPrecision>item['coordinates']['precision'],
-				latitude := <float32>item['coordinates']['latitude'],
-				longitude := <float32>item['coordinates']['longitude']
-			)`,
+			"coordinates": `#edgeql
+				(
+					precision := <location::CoordinatesPrecision>item['coordinates']['precision'],
+					latitude := <float32>item['coordinates']['latitude'],
+					longitude := <float32>item['coordinates']['longitude']
+				)`,
 			"altitude": "<int32>item['altitude']",
 			"locality": "<str>item['locality']",
-			"country": `(
-				select assert_exists(location::Country
-				filter .code = <str>{{.Json}}['country_code'])
-			)`,
+			"country": `#edgeql
+				(
+					select assert_exists(location::Country
+					filter .code = <str>{{.Json}}['country_code'])
+				)`,
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
-	updated.Meta.Update(e)
+	updated.Meta.Save(e)
 	return
 }

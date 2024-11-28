@@ -18,7 +18,7 @@ func TestMeta(t *testing.T) {
 		t.Parallel()
 		person := SetupPerson(t, client)
 		updateInput := tests.FakeData[people.PersonUpdate](t)
-		_, err := updateInput.Update(client, person.ID)
+		_, err := updateInput.Save(client, person.ID)
 		require.NoError(t, err)
 		updated, err := people.FindPerson(client, person.ID)
 		require.NoError(t, err)
