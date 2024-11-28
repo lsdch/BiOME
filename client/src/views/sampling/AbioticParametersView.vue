@@ -5,7 +5,7 @@
     entity-name="Abiotic parameter"
     :toolbar="{ title: 'Abiotic parameters', icon: 'mdi-gauge' }"
     :fetch-items="SamplingService.listAbioticParameters"
-    show-actions
+    appendActions
   >
     <template #[`item.unit`]="{ value }">
       <code>{{ value }}</code>

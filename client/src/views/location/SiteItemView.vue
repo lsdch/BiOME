@@ -87,7 +87,7 @@
             </template>
 
             <template #text>
-              <SiteEventsTable :items="site.events" />
+              <SiteEventsTable :site />
             </template>
           </v-expansion-panel>
           <v-expansion-panel class="dataset-expansion-panel">
@@ -206,6 +206,7 @@ const abiotic_measurements = computed(() => {
     site.value.events?.reduce<Record<string, AbioticData>>(
       (acc, { performed_on, abiotic_measurements }) => {
         abiotic_measurements.forEach(({ param, value }) => {
+          if (performed_on.date === undefined) return
           acc[param.code] = {
             param,
             points: [{ y: value, date: performed_on.date }].concat(

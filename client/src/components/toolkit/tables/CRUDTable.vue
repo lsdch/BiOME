@@ -17,7 +17,7 @@
       :items-per-page-options="[5, 10, 15, 20]"
     >
       <!-- Toolbar -->
-      <template #top>
+      <template #top v-if="toolbar !== false">
         <TableToolbar
           ref="toolbar"
           v-model:search="searchTerm"
@@ -71,32 +71,32 @@
       </template>
 
       <!-- Actions column -->
-      <template v-if="props.showActions" #[`header.actions`]>
-        <v-icon title="Actions" color="secondary">mdi-cog </v-icon>
+      <template #[`header.actions`]>
+        <v-icon title="Actions" icon="mdi-cog" />
       </template>
-      <template v-if="props.showActions && currentUser !== undefined" #[`item.actions`]="{ item }">
-        <slot name="actions" v-bind="{ actions, show: showActions, currentUser, item }">
+      <template v-if="currentUser !== undefined" #[`item.actions`]="{ item }">
+        <slot name="actions" v-bind="{ actions, show: appendActions, currentUser, item }">
           <CRUDItemActions
-            :show="showActions"
+            v-if="isGranted(currentUser, 'Maintainer') || isOwner(currentUser, item)"
             :item="item"
-            :actions="actions"
-            :user="currentUser"
+            @edit="actions.edit"
+            @delete="actions.delete"
           />
         </slot>
       </template>
 
       <!-- Expose VDataTable slots -->
       <template v-for="(id, index) of slotNames" #[id]="slotData" :key="index">
-        <slot :name="id" v-bind="slotData || {}" />
+        <slot :name="id" v-bind="{ ...slotData, actions }" />
       </template>
 
       <!-- <template v-for="header in processedHeaders" #[`header.${header.key}`]="data">
         <slot :name="`header.${header.key}`" v-bind="data" />
-      </template>
+      </template> -->
 
       <template v-for="header in processedHeaders" #[`item.${header.key}`]="data">
-        <slot :name="`item.${header.key}`" v-bind="data" />
-      </template> -->
+        <slot :name="`item.${header.key}`" v-bind="{ ...data, actions }" />
+      </template>
 
       <!-- Table footer -->
       <template #[`footer.prepend`]>
@@ -182,6 +182,7 @@ import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableFilterMenu from './TableFilterMenu.vue'
 import TableToolbar from './TableToolbar.vue'
 import { useDisplay } from 'vuetify'
+import { isGranted } from '@/components/people/userRole'
 
 type Props = TableProps<ItemType> & {
   filter?: (item: ItemType) => boolean
@@ -194,7 +195,7 @@ const slots = useSlots()
 // Assert type here to prevent errors in template when exposing VDataTable slots
 const slotNames = Object.keys(slots) as 'default'[]
 
-const items = defineModel<ItemType[]>({ default: [] })
+const items = defineModel<ItemType[]>('items', { default: [] })
 const selected = defineModel<string[]>('selected', { default: [] })
 const searchTerm = defineModel<string>('search')
 const props = defineProps<Props>()
@@ -208,7 +209,7 @@ defineSlots<
   VDataTable['$slots'] & {
     actions(bind: {
       actions: typeof actions
-      show: typeof props.showActions
+      show: typeof props.appendActions
       item: ItemType
       currentUser: typeof currentUser
     }): any

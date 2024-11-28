@@ -13,7 +13,7 @@
     :search="filters.term"
     :filter="filter"
     filter-mode="some"
-    show-actions
+    appendActions
     :filter-keys="['code', 'name', 'kind']"
   >
     <template #search>

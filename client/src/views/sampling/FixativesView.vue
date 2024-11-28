@@ -5,7 +5,7 @@
     entity-name="Fixative"
     :toolbar="{ title: 'Fixatives', icon: 'mdi-snowflake' }"
     :fetch-items="SamplingService.listFixatives"
-    show-actions
+    appendActions
   />
 </template>
 

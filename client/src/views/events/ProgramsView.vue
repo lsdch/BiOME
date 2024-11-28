@@ -8,7 +8,7 @@
       icon: 'mdi-notebook'
     }"
     :fetch-items="EventsService.listPrograms"
-    show-actions
+    appendActions
   >
     <template #[`item.funding_agencies`]="{ value }">
       <InstitutionKindChip

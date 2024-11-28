@@ -13,7 +13,7 @@
       icon: 'mdi-account'
     }"
     filter-mode="some"
-    show-actions
+    appendActions
   >
     <template #search>
       <PersonFilters v-model="filters" />

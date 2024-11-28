@@ -5,7 +5,7 @@
     entity-name="Gene"
     :toolbar="{ title: 'Genes registry', icon: 'mdi-tag' }"
     :fetch-items="SequencesService.listGenes"
-    show-actions
+    appendActions
   />
 </template>
 

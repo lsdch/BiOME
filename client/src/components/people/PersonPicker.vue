@@ -10,7 +10,7 @@
     auto-select-first
     clear-on-select
     :loading="loading"
-    :itemValue
+    :item-value
     v-bind="$attrs"
   >
     <template v-for="(_, name) in $slots" #[name]="slotData">
@@ -48,7 +48,7 @@ const props = defineProps<{
 
 const allPersons = ref<Person[]>([])
 
-onMounted(fetch)
+onMounted(async () => (allPersons.value = await fetch()))
 
 async function fetch() {
   loading.value = true

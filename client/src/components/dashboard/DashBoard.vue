@@ -1,6 +1,11 @@
 <template>
   <v-row>
     <v-col>
+      <DateWithPrecisionField />
+    </v-col>
+  </v-row>
+  <v-row>
+    <v-col>
       <HabitatPicker />
     </v-col>
   </v-row>
@@ -16,6 +21,7 @@
 </template>
 
 <script setup lang="ts">
+import DateWithPrecisionField from '../events/DateWithPrecisionField.vue'
 import HabitatPicker from '../habitat/HabitatPicker.vue'
 </script>
 

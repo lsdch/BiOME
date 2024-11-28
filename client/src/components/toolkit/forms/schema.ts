@@ -156,6 +156,13 @@ export type SchemaBinding = {
   rules: ((value: any) => true | string)[]
 }
 
+export function patternRule(pattern: string, errMessage = "Invalid format") {
+  const regex = new RegExp(pattern)
+  return (value: string) => {
+    return !value || regex.test(value) || errMessage
+  }
+}
+
 export function useSchema<T extends Schema>(schema: T) {
 
   type Rule = ((v: any) => true | string)
@@ -195,10 +202,7 @@ export function useSchema<T extends Schema>(schema: T) {
 
     // Regex
     if (s?.pattern !== undefined) {
-      const regex = new RegExp(`${s.pattern}`)
-      rules.push((value: string) => {
-        return !value || regex.test(value) || `Invalid format`
-      })
+      rules.push(patternRule(s.pattern))
     }
 
     // Formats

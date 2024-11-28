@@ -5,7 +5,7 @@
     entity-name="Sampling method"
     :toolbar="{ title: 'Sampling methods', icon: 'mdi-hook' }"
     :fetch-items="SamplingService.listSamplingMethods"
-    show-actions
+    appendActions
   />
 </template>
 

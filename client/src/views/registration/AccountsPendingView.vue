@@ -13,7 +13,7 @@
       (item: PendingUserRequest) =>
         AccountService.deletePendingUserRequest({ path: { email: item.email } })
     "
-    show-actions="delete"
+    appendActions="delete"
   >
     <!-- Email column -->
     <template #item.email="{ value }">

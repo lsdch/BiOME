@@ -49,11 +49,11 @@ export type TableProps<ItemType> = {
   /**
    * Table toolbar configuration
    */
-  toolbar?: ToolbarProps
+  toolbar?: ToolbarProps | false
   /**
    * Display column with update/delete controls
    */
-  showActions?: boolean | "delete" | "edit"
+  appendActions?: boolean | "delete" | "edit"
   /**
    * Short string representation of a table item to display in UI
    */
@@ -100,7 +100,7 @@ export function useTable<ItemType extends { id: string }>(
   })
 
   const processedHeaders = computed((): CRUDTableHeader[] => {
-    const headersWithActions = props.showActions && currentUser !== undefined && currentUser.role !== "Visitor"
+    const headersWithActions = props.appendActions && currentUser !== undefined && currentUser.role !== "Visitor"
       ? props.headers.concat([{ title: 'Actions', key: 'actions', sortable: false, align: 'end' }])
       : props.headers
     return headersWithActions.filter(({ hide }) => {

@@ -14,7 +14,7 @@
       noSort: true,
       noFilters: true
     }"
-    show-actions="edit"
+    appendActions="edit"
     show-select
     show-expand
     :row-props="
@@ -230,7 +230,7 @@ const headers: CRUDTableHeaders = [
     width: 0,
     align: 'center',
     value(item) {
-      return item.errors ? Object.keys(item.errors).length ?? 0 : 0
+      return item.errors ? (Object.keys(item.errors).length ?? 0) : 0
     }
   }
 ]
