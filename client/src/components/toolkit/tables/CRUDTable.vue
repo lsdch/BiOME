@@ -94,9 +94,9 @@
         <slot :name="`header.${header.key}`" v-bind="data" />
       </template> -->
 
-      <template v-for="header in processedHeaders" #[`item.${header.key}`]="data">
+      <!-- <template v-for="header in processedHeaders" #[`item.${header.key}`]="data">
         <slot :name="`item.${header.key}`" v-bind="{ ...data, actions }" />
-      </template>
+      </template> -->
 
       <!-- Table footer -->
       <template #[`footer.prepend`]>

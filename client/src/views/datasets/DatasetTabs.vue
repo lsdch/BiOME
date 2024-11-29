@@ -8,7 +8,7 @@
     </v-tabs>
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="sites" key="sites">
-        <CRUDTable :headers v-model="dataset.sites" entityName="Site" density="compact">
+        <CRUDTable :headers v-model:items="dataset.sites" entityName="Site" density="compact">
           <template #[`item.name`]="{ item }: { item: Site }">
             <RouterLink :to="{ name: 'site-item', params: { code: item.code } }">
               {{ item.name }}

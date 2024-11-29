@@ -15,7 +15,7 @@
   "compilerOptions": {
     "skipLibCheck": true,
     "noErrorTruncation": true,
-    "composite": true,
+    "composite": false,
     "lib": [
       "ES2023",
       "ESNext",
