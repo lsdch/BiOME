@@ -108,7 +108,7 @@ func (p *PersonIdentity) GenerateAlias() string {
 //go:embed queries/create_person.edgeql
 var personCreateQuery string
 
-func (person PersonInput) Create(db edgedb.Executor) (created Person, err error) {
+func (person PersonInput) Save(db edgedb.Executor) (created Person, err error) {
 	logrus.Infof("Creating person %+v", person)
 	if !person.Alias.IsSet {
 		person.Alias.Value = person.GenerateAlias()

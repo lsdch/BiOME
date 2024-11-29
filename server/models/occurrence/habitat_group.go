@@ -92,7 +92,7 @@ type HabitatGroupInput struct {
 	Elements  []HabitatInput `json:"elements" minItems:"1"`
 }
 
-func (g HabitatGroupInput) Create(db edgedb.Executor) (created HabitatGroup, err error) {
+func (g HabitatGroupInput) Save(db edgedb.Executor) (created HabitatGroup, err error) {
 	data, _ := json.Marshal(g)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql

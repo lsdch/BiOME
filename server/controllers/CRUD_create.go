@@ -6,12 +6,12 @@ import (
 	"darco/proto/resolvers"
 )
 
-type CreateInputBody[Item models.Creatable[Created], Created any] interface {
+type CreateInputBody[Item models.Persistable[Created], Created any] interface {
 	resolvers.AuthDBProvider
 	Item() Item
 }
 
-type CreateHandlerInput[Item models.Creatable[Created], Created any] struct {
+type CreateHandlerInput[Item models.Persistable[Created], Created any] struct {
 	resolvers.AuthRequired
 	Body Item
 }
@@ -25,7 +25,7 @@ type CreateHandlerOutput[Created any] struct {
 }
 
 func CreateHandler[
-	Item models.Creatable[Created],
+	Item models.Persistable[Created],
 	Created any,
 ](ctx context.Context, input *CreateHandlerInput[Item, Created]) (*CreateHandlerOutput[Created], error) {
 	return CreateHandlerWithInput(ctx, input)
@@ -33,10 +33,10 @@ func CreateHandler[
 
 func CreateHandlerWithInput[
 	Input CreateInputBody[Item, Created],
-	Item models.Creatable[Created],
+	Item models.Persistable[Created],
 	Created any,
 ](ctx context.Context, input Input) (*CreateHandlerOutput[Created], error) {
-	created, err := input.Item().Create(input.DB())
+	created, err := input.Item().Save(input.DB())
 	if err = StatusError(err); err != nil {
 		return nil, err
 	}

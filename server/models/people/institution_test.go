@@ -13,7 +13,7 @@ import (
 
 func SetupInstitution(t *testing.T) people.Institution {
 	var input = tests.FakeData[people.InstitutionInput](t)
-	inst, err := input.Create(db.Client())
+	inst, err := input.Save(db.Client())
 	require.NoError(t, err)
 	return inst
 }
@@ -21,7 +21,7 @@ func SetupInstitution(t *testing.T) people.Institution {
 func TestCreateInstitution(t *testing.T) {
 	var input = tests.FakeData[people.InstitutionInput](t)
 	fmt.Printf("%+v\n", input)
-	inst, err := input.Create(db.Client())
+	inst, err := input.Save(db.Client())
 	require.NoError(t, err)
 	assert.Equal(t, input.Name, inst.Name)
 }

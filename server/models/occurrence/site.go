@@ -131,7 +131,7 @@ func (i *SiteInput) InsertQuery(jsonVar string) string {
 	return query.String()
 }
 
-func (i *SiteInput) Create(db edgedb.Executor) (*Site, error) {
+func (i *SiteInput) Save(db edgedb.Executor) (*Site, error) {
 	var created Site
 	data, _ := json.Marshal(i)
 	query := fmt.Sprintf(

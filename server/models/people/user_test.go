@@ -14,9 +14,9 @@ import (
 // Generates a fake activated user account
 func FakeUserAccount(t *testing.T, role people.UserRole) *people.User {
 	p := tests.FakeData[people.UserInput](t)
-	person, err := FakePersonInput(t).Create(db.Client())
+	person, err := FakePersonInput(t).Save(db.Client())
 	require.NoError(t, err)
-	user, err := p.Create(
+	user, err := p.Save(
 		db.Client(),
 		people.Contributor,
 		person.PersonInner,

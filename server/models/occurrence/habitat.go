@@ -39,7 +39,7 @@ type HabitatInput struct {
 	Description  *string `json:"description,omitempty" doc:"Optional habitat description"`
 }
 
-func (i HabitatInput) Create(db edgedb.Executor) (Habitat, error) {
+func (i HabitatInput) Save(db edgedb.Executor) (Habitat, error) {
 	var created Habitat
 	habitat, _ := json.Marshal(i)
 	err := db.QuerySingle(context.Background(),

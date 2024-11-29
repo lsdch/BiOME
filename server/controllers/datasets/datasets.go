@@ -101,7 +101,7 @@ func CreateDataset(ctx context.Context, input *CreateDatasetInput) (*CreateDatas
 	if errs != nil {
 		return nil, huma.Error422UnprocessableEntity("Invalid input", errs...)
 	}
-	created, err := dataset.Create(input.DB())
+	created, err := dataset.Save(input.DB())
 	if err != nil {
 		return nil, huma.Error500InternalServerError("Failed to create dataset", err)
 	}

@@ -35,7 +35,7 @@ type Event struct {
 
 func (e *Event) AddSampling(db edgedb.Executor, sampling SamplingInput) error {
 	sampling.EventID = e.ID
-	created, err := sampling.Create(db)
+	created, err := sampling.Save(db)
 	if err != nil {
 		return err
 	}

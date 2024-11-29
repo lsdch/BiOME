@@ -63,5 +63,5 @@ func GetByCodeHandler[Item any](
 }
 
 // Implementation assertions
-var _ UpdateInputInterface[models.Updatable[string, any], string, any] = (*UpdateByCodeHandlerInput[models.Updatable[string, any], any])(nil)
-var _ UpdateInputInterface[models.Updatable[edgedb.UUID, any], edgedb.UUID, any] = (*UpdateByIDHandlerInput[models.Updatable[edgedb.UUID, any], any])(nil)
+var _ UpdateInputInterface[models.PersistableWithID[string, any], string, any] = (*UpdateByCodeHandlerInput[models.PersistableWithID[string, any], any])(nil)
+var _ UpdateInputInterface[models.PersistableWithID[edgedb.UUID, any], edgedb.UUID, any] = (*UpdateByIDHandlerInput[models.PersistableWithID[edgedb.UUID, any], any])(nil)

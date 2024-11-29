@@ -28,7 +28,7 @@ type AbioticParameterInput struct {
 	Unit                       string `json:"unit"`
 }
 
-func (i AbioticParameterInput) Create(e edgedb.Executor) (created AbioticParameter, err error) {
+func (i AbioticParameterInput) Save(e edgedb.Executor) (created AbioticParameter, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`with data = <json>$0,

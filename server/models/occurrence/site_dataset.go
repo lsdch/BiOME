@@ -162,7 +162,7 @@ type DatasetInputValidated struct {
 	NewSites    []SiteInput                  `json:"new_sites"`
 }
 
-func (i *DatasetInputValidated) Create(db *edgedb.Client) (*Dataset, error) {
+func (i *DatasetInputValidated) Save(db *edgedb.Client) (*Dataset, error) {
 	var created Dataset
 	m, _ := json.Marshal(i)
 

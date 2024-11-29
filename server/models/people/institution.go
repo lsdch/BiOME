@@ -64,7 +64,7 @@ func (inst Institution) Delete(db edgedb.Executor) (Institution, error) {
 //go:embed queries/create_institution.edgeql
 var institutionCreateQuery string
 
-func (inst InstitutionInput) Create(db edgedb.Executor) (created Institution, err error) {
+func (inst InstitutionInput) Save(db edgedb.Executor) (created Institution, err error) {
 	args, _ := json.Marshal(inst)
 	err = db.QuerySingle(context.Background(), institutionCreateQuery, &created, args)
 	return

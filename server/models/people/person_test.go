@@ -18,7 +18,7 @@ func FakePersonInput(t *testing.T) *people.PersonInput {
 }
 
 func SetupPerson(t *testing.T, db edgedb.Executor) people.Person {
-	p, err := FakePersonInput(t).Create(db)
+	p, err := FakePersonInput(t).Save(db)
 	require.NoError(t, err)
 	return p
 }
@@ -28,7 +28,7 @@ func TestPerson(t *testing.T) {
 	t.Run("Create person", func(t *testing.T) {
 		input := FakePersonInput(t)
 		alias := input.GenerateAlias()
-		p, err := input.Create(client)
+		p, err := input.Save(client)
 		require.NoError(t, err)
 		assert.Equal(t, p.Alias, alias)
 	})

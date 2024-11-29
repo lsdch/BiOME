@@ -35,7 +35,7 @@ func TestPendingUser(t *testing.T) {
 	// 	client := db.Client()
 	// 	pendingUser, err := FakePendingUserInput(t).Register(client)
 	// 	require.NoError(t, err)
-	// 	person, err := FakePersonInput(t).Create(client)
+	// 	person, err := FakePersonInput(t).Save(client)
 	// 	require.NoError(t, err)
 	// 	role := people.Contributor
 	// 	u, err := pendingUser.Validate(client, &person.PersonInner, role)

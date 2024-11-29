@@ -49,7 +49,7 @@ type ProgramInput struct {
 	Description     models.OptionalInput[string]   `json:"description,omitempty"`
 }
 
-func (i ProgramInput) Create(db edgedb.Executor) (created Program, err error) {
+func (i ProgramInput) Save(db edgedb.Executor) (created Program, err error) {
 	args, _ := json.Marshal(i)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql

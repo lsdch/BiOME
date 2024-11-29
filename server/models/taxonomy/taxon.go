@@ -236,7 +236,7 @@ func Delete(db edgedb.Executor, code string) (taxon TaxonWithRelatives, err erro
 //go:embed queries/create_taxon.edgeql
 var createTaxonCmd string
 
-func (taxon TaxonInput) Create(db edgedb.Executor) (created TaxonWithRelatives, err error) {
+func (taxon TaxonInput) Save(db edgedb.Executor) (created TaxonWithRelatives, err error) {
 	args, _ := json.Marshal(taxon)
 	err = db.QuerySingle(context.Background(), createTaxonCmd, &created, args)
 	return created, err

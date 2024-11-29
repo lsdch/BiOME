@@ -26,7 +26,7 @@ type UserInput struct {
 	PasswordInput `json:",inline"`
 }
 
-func (u UserInput) Create(db edgedb.Executor, role UserRole, identity PersonInner) (*User, error) {
+func (u UserInput) Save(db edgedb.Executor, role UserRole, identity PersonInner) (*User, error) {
 	var user User
 	input, _ := json.Marshal(u)
 	err := db.QuerySingle(context.Background(),
@@ -52,7 +52,7 @@ func (u UserInput) RegisterWithToken(db edgedb.Executor, token tokens.Token) (*U
 	if err != nil {
 		return nil, InvalidTokenError
 	}
-	user, err := u.Create(db, invitation.Role, invitation.Person)
+	user, err := u.Save(db, invitation.Role, invitation.Person)
 	if err != nil {
 		return nil, fmt.Errorf("User registration failed: %w", err)
 	}

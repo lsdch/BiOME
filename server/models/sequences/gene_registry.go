@@ -28,7 +28,7 @@ type GeneInput struct {
 	IsMOTUDelimiter            bool `json:"is_MOTU_delimiter,omitempty" default:"false"`
 }
 
-func (i GeneInput) Create(e edgedb.Executor) (created Gene, err error) {
+func (i GeneInput) Save(e edgedb.Executor) (created Gene, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql

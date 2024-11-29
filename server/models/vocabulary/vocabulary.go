@@ -39,7 +39,7 @@ type FixativeInput struct {
 	VocabularyInput `json:",inline"`
 }
 
-func (i FixativeInput) Create(e edgedb.Executor) (created Fixative, err error) {
+func (i FixativeInput) Save(e edgedb.Executor) (created Fixative, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`select (insert samples::Fixative { ** })`,

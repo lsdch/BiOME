@@ -30,7 +30,7 @@ type SamplingMethodInput struct {
 	vocabulary.VocabularyInput `json:",inline"`
 }
 
-func (i SamplingMethodInput) Create(db edgedb.Executor) (created SamplingMethod, err error) {
+func (i SamplingMethodInput) Save(db edgedb.Executor) (created SamplingMethod, err error) {
 	data, _ := json.Marshal(i)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
@@ -72,7 +72,7 @@ type SamplingInput struct {
 	AccessPoints []string           `json:"access_points,omitempty"`
 }
 
-func (i SamplingInput) Create(e edgedb.Executor) (created Sampling, err error) {
+func (i SamplingInput) Save(e edgedb.Executor) (created Sampling, err error) {
 	data, _ := json.Marshal(i)
 	logrus.Debugf("data: %s", string(data))
 	err = e.QuerySingle(context.Background(),
