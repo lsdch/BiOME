@@ -1,82 +1,84 @@
 <template>
-  <v-container v-if="error">
-    <v-row>
-      <v-col>
-        {{ error }}
-      </v-col>
-    </v-row>
-  </v-container>
-  <v-container v-else-if="dataset" class="fill-height bg-surface align-stretch flex-column" fluid>
-    <v-row :class="['justify-start align-start flex-wrap flex-grow-0', { 'fill-height': lgAndUp }]">
-      <v-col v-if="editing" cols="12" lg="6" class="align-self-start">
-        <DatasetEditForm
-          v-model="dataset"
-          @cancel="toggleEdit(false)"
-          @updated="toggleEdit(false)"
-        />
-      </v-col>
-      <v-col v-else cols="12" lg="6" class="align-self-start">
-        <div class="text-h5 d-flex justify-space-between align-center">
-          {{ dataset.label }}
-          <v-btn
-            v-if="isUserMaintainer"
-            color="primary"
-            icon="mdi-pencil"
-            variant="plain"
-            @click="toggleEdit(true)"
+  <v-layout class="fill-height bg-surface">
+    <PageErrors v-if="error !== undefined" :error />
+    <v-container v-else-if="dataset" class="align-stretch flex-column" fluid>
+      <v-row
+        :class="['justify-start align-start flex-wrap flex-grow-0', { 'fill-height': lgAndUp }]"
+      >
+        <v-col v-if="editing" cols="12" lg="6" class="align-self-start">
+          <DatasetEditForm
+            v-model="dataset"
+            @cancel="toggleEdit(false)"
+            @updated="toggleEdit(false)"
           />
-        </div>
-        <v-divider class="my-3" />
+        </v-col>
+        <v-col v-else cols="12" lg="6" class="align-self-start">
+          <div class="text-h5 d-flex justify-space-between align-center">
+            {{ dataset.label }}
+            <v-btn
+              v-if="isUserMaintainer"
+              color="primary"
+              icon="mdi-pencil"
+              variant="plain"
+              @click="toggleEdit(true)"
+            />
+          </div>
+          <v-divider class="my-3" />
 
-        <v-list>
-          <v-list-item
-            title="Description"
-            :subtitle="dataset.description || 'No description'"
-            :class="{ empty: !dataset.description }"
-          />
-          <v-list-item title="Maintainers">
-            <template #subtitle>
-              <v-chip v-for="(maintainer, key) in dataset.maintainers" class="ma-1" :key>
-                {{ maintainer.full_name }}
-              </v-chip>
+          <v-list>
+            <v-list-item
+              title="Description"
+              :subtitle="dataset.description || 'No description'"
+              :class="{ empty: !dataset.description }"
+            />
+            <v-list-item title="Maintainers">
+              <template #subtitle>
+                <v-chip v-for="(maintainer, key) in dataset.maintainers" class="ma-1" :key>
+                  {{ maintainer.full_name }}
+                </v-chip>
+              </template>
+            </v-list-item>
+          </v-list>
+          <v-divider class="my-3" />
+          <div>
+            <ItemDateChip
+              v-if="dataset.meta?.created"
+              icon="created"
+              :date="dataset.meta.created"
+            />
+            <ItemDateChip
+              v-if="dataset.meta?.modified"
+              icon="updated"
+              :date="dataset.meta.modified"
+            />
+          </div>
+          <v-divider class="my-3" />
+          <DatasetTabs :dataset />
+        </v-col>
+        <v-col cols="12" lg="6" class="align-self-stretch flex-grow-1 w-100">
+          <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!lgAndUp">
+            <template #="{ isDialog }">
+              <v-card class="fill-height" :rounded="!mobileMap">
+                <SitesMap
+                  :items="dataset.sites ?? undefined"
+                  :closable="isDialog"
+                  @close="toggleMobileMap(false)"
+                >
+                  <template #marker="{ item }">
+                    <SitePopup :item />
+                  </template>
+                </SitesMap>
+              </v-card>
             </template>
-          </v-list-item>
-        </v-list>
-        <v-divider class="my-3" />
-        <div>
-          <ItemDateChip v-if="dataset.meta?.created" icon="created" :date="dataset.meta.created" />
-          <ItemDateChip
-            v-if="dataset.meta?.modified"
-            icon="updated"
-            :date="dataset.meta.modified"
-          />
-        </div>
-        <v-divider class="my-3" />
-        <DatasetTabs :dataset />
-      </v-col>
-      <v-col cols="12" lg="6" class="align-self-stretch flex-grow-1 w-100">
-        <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!lgAndUp">
-          <template #="{ isDialog }">
-            <v-card class="fill-height" :rounded="!mobileMap">
-              <SitesMap
-                :items="dataset.sites ?? undefined"
-                :closable="isDialog"
-                @close="toggleMobileMap(false)"
-              >
-                <template #marker="{ item }">
-                  <SitePopup :item />
-                </template>
-              </SitesMap>
-            </v-card>
-          </template>
-        </ResponsiveDialog>
-      </v-col>
-    </v-row>
+          </ResponsiveDialog>
+        </v-col>
+      </v-row>
 
-    <v-bottom-navigation :active="!lgAndUp">
-      <v-btn color="primary" prepend-icon="mdi-map" @click="toggleMobileMap(true)" text="Map" />
-    </v-bottom-navigation>
-  </v-container>
+      <v-bottom-navigation :active="!lgAndUp">
+        <v-btn color="primary" prepend-icon="mdi-map" @click="toggleMobileMap(true)" text="Map" />
+      </v-bottom-navigation>
+    </v-container>
+  </v-layout>
 </template>
 
 <script setup lang="ts">
@@ -92,6 +94,8 @@ import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import DatasetEditForm from './DatasetEditForm.vue'
 import DatasetTabs from './DatasetTabs.vue'
+import PageErrorWrapper from '@/components/toolkit/ui/PageErrors.vue'
+import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
 
 const { user } = useUserStore()
 
