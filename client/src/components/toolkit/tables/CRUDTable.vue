@@ -169,8 +169,8 @@
 import { Meta } from '@/api'
 import { useClipboard } from '@vueuse/core'
 import { Ref, UnwrapRef, computed, ref, useSlots } from 'vue'
-import { ComponentProps } from 'vue-component-type-helpers'
-import { type VDataTable } from 'vuetify/components'
+import { ComponentProps, ComponentEmit } from 'vue-component-type-helpers'
+import { VDataTable } from 'vuetify/components'
 import { TableProps, useTable } from '.'
 import CRUDFeedback from '../CRUDFeedback.vue'
 import ExportDialog from '../ExportDialog.vue'
@@ -199,11 +199,18 @@ const items = defineModel<ItemType[]>('items', { default: [] })
 const selected = defineModel<string[]>('selected', { default: [] })
 const searchTerm = defineModel<string>('search')
 const props = defineProps<Props>()
+const emit = defineEmits<{
+  itemCreated: [item: ItemType, index: number]
+  itemEdited: [item: ItemType, index: number]
+}>()
 
 const { currentUser, actions, feedback, form, processedHeaders, loading, loadItems } = useTable(
   items,
-  props
+  props,
+  emit
 )
+
+defineExpose({ form, actions })
 
 defineSlots<
   VDataTable['$slots'] & {

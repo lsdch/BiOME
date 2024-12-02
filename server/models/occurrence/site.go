@@ -95,7 +95,8 @@ func GetSite(db edgedb.Executor, identifier string) (Site, error) {
 					performed_by: { * },
 					spotting: { *, target_taxa: { * } },
 					abiotic_measurements: { *, param: { * }  },
-					samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
+					samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } },
+					meta: { * }
 				} order by .performed_on.date desc
 			} filter .code = <str>$0
 		`,

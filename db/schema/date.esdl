@@ -13,4 +13,17 @@ module date {
       datetime_truncate(value.date, 'days') if value.precision = DatePrecision.Day else
       <datetime>{}
   );
+
+  function from_json_with_precision(value: json) -> tuple<date:datetime, precision:DatePrecision>
+  using (assert_exists((
+    date := (
+      if exists value['date'] then to_datetime(
+        <int64>json_get(value, 'date', 'year'),
+        <int64>json_get(value, 'date', 'month'),
+        <int64>json_get(value, 'date', 'day'),
+        0, 0, 0, 'UTC'
+      ) else <datetime>{}
+    ),
+    precision := <date::DatePrecision>value['precision']
+  )));
 }

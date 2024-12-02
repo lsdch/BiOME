@@ -112,12 +112,12 @@
       <v-list class="d-flex justify-space-between w-100">
         <v-list-item title="Performed by">
           <template #subtitle>
-            <v-chip v-for="p in props.event?.performed_by" :text="p.full_name" />
+            <v-chip v-for="p in props.event?.performed_by" class="ma-1" :text="p.full_name" />
           </template>
         </v-list-item>
         <v-list-item title="Programs">
           <template #subtitle>
-            <v-chip v-for="p in props.event?.programs" :text="p.label" />
+            <v-chip v-for="p in props.event?.programs" class="ma-1" :text="p.label" />
           </template>
         </v-list-item>
       </v-list>

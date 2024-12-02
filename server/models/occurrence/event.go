@@ -16,6 +16,17 @@ type DateWithPrecision struct {
 	Precision DatePrecision `edgedb:"precision" json:"precision"`
 }
 
+type CompositeDate struct {
+	Day   int32 `json:"day,omitempty" minimum:"1" maximum:"31" default:"1"`
+	Month int32 `json:"month,omitempty" minimum:"1" maximum:"12" default:"1"`
+	Year  int32 `json:"year,omitempty" minimum:"1500" maximum:"3000"`
+}
+
+type DateWithPrecisionInput struct {
+	Date      CompositeDate `json:"date"`
+	Precision DatePrecision `json:"precision"`
+}
+
 type SiteInfo struct {
 	Name string `edgedb:"name" json:"name"`
 	Code string `edgedb:"code" json:"code"`
@@ -54,6 +65,7 @@ func ListEvents(db edgedb.Executor) ([]Event, error) {
 				spotting: { *, target_taxa: { * } },
 				abiotic_measurements: { *, param: { * }  },
 				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
+				meta: { * }
 			}
 		`,
 		&items)
@@ -62,7 +74,7 @@ func ListEvents(db edgedb.Executor) ([]Event, error) {
 
 type EventInput struct {
 	PerformedBy []string                       `json:"performed_by" minLength:"1"`
-	PerformedOn DateWithPrecision              `json:"performed_on"`
+	PerformedOn DateWithPrecisionInput         `json:"performed_on"`
 	Programs    models.OptionalInput[[]string] `json:"programs,omitempty"`
 }
 
@@ -70,37 +82,36 @@ func (i EventInput) Save(e edgedb.Executor, site_code string) (created Event, er
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
-			with data = <json>$1,
+			with data := <json>$1,
 			select (insert events::Event {
 				site := (
 					select location::Site filter .code = <str>$0
 				),
 				performed_by := (
-					select people::Person filter .alias = <str>data['performed_by']
+					select people::Person filter .alias = <str>json_array_unpack(data['performed_by'])
 				),
-				performed_on := (
-					date := <datetime>data['performed_on']['date'],
-					precision := <date::DatePrecision>data['performed_on']['precision']
-				),
+				performed_on := date::from_json_with_precision(data['performed_on']),
 				programs := (
-					select events::Program filter .code in json_array_unpack(<array<str>>json_get(data, 'programs'))
+					select events::Program filter .code in <str>json_array_unpack(json_get(data, 'programs'))
 				)
 			}) {
+				*,
 				site: {name, code},
 				programs: { * },
 				performed_by: { * },
 				spotting: { *, target_taxa: { * } },
 				abiotic_measurements: { *, param: { * }  },
-				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
+				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } },
+				meta: { * }
 			}
 		`, &created, site_code, data)
 	return
 }
 
 type EventUpdate struct {
-	PerformedBy models.OptionalInput[[]string]          `json:"performed_by,omitempty"`
-	PerformedOn models.OptionalInput[DateWithPrecision] `json:"performed_on"`
-	Programs    models.OptionalNull[[]string]           `json:"programs,omitempty"`
+	PerformedBy models.OptionalInput[[]string]               `json:"performed_by,omitempty"`
+	PerformedOn models.OptionalInput[DateWithPrecisionInput] `json:"performed_on"`
+	Programs    models.OptionalNull[[]string]                `json:"programs,omitempty"`
 }
 
 func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err error) {
@@ -111,6 +122,7 @@ func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err
 			select (update events::Event filter .id = <uuid>$0 set {
 				%s
 			}) {
+				*,
 				site: {name, code},
 				programs: { * },
 				performed_by: { * },
@@ -126,10 +138,8 @@ func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err
 					filter .alias in <str>json_array_unpack(data['performed_by'])
 				)`,
 			"performed_on": `#edgeql
-				(
-					date := <datetime>data['performed_on']['date'],
-					precision := <date::DatePrecision>data['performed_on']['precision']
-				)`,
+				date::from_json_with_precision(data['performed_on'])
+			`,
 			"programs": `#edgeql
 				(
 					select events::Program

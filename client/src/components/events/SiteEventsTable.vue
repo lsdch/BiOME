@@ -1,12 +1,17 @@
 <template>
   <CRUDTable
+    ref="events-table"
     :items="site.events"
     :headers
     entityName="Events"
     :delete="({ id }) => EventsService.deleteEvent({ path: { id } })"
+    @item-created="(item, index) => toggleFocus(index, item, 'sampling')"
+    @click:row="
+      (_: PointerEvent, { index, item }: RowClick) => toggleFocus(index, item, 'sampling')
+    "
   >
     <!-- HEADERS -->
-    <template #header.performed_on>
+    <template #header.corner>
       <div class="d-flex justify-space-between align-center mr-3">
         <v-btn
           color="primary"
@@ -14,9 +19,8 @@
           text="Add event"
           prepend-icon="mdi-plus"
           class="mb-3"
-          @click="createEventDialog = true"
+          @click="eventsTable?.actions.create()"
         />
-        Date
       </div>
     </template>
     <template #header.samplings="props">
@@ -30,8 +34,8 @@
     </template>
 
     <!-- ITEMS -->
-    <template #item.performed_on="{ value }: { value: DateWithPrecision }">
-      {{ formatDateWithPrecision(value) }}
+    <template #item.performed_on="{ item }">
+      {{ formatDateWithPrecision(item.performed_on) }}
     </template>
 
     <template #item.samplings="{ value, item, index }">
@@ -41,7 +45,7 @@
         :text="value.toString()"
         size="small"
         density="compact"
-        @click="toggleFocus(index, item, 'sampling')"
+        @click.stop="toggleFocus(index, item, 'sampling')"
       />
     </template>
     <template #item.abiotic_measurements="{ value, item, index }">
@@ -51,7 +55,7 @@
         :text="value.toString()"
         size="small"
         density="compact"
-        @click="toggleFocus(index, item, 'abiotic')"
+        @click.stop="toggleFocus(index, item, 'abiotic')"
       />
     </template>
     <template #item.spotting="{ value, item, index }">
@@ -61,17 +65,18 @@
         :text="value.toString()"
         size="small"
         density="compact"
-        @click="toggleFocus(index, item, 'spotting')"
+        @click.stop="toggleFocus(index, item, 'spotting')"
       />
     </template>
+
+    <!-- Event form -->
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <!-- Event form -->
       <EventFormDialog
-        :model-value="dialog || createEventDialog"
-        :edit="createEventDialog ? undefined : editItem"
+        :model-value="dialog"
+        :edit="editItem"
         :site
-        @close="onClose(), (createEventDialog = false)"
-        :onSuccess
+        @close="onClose()"
+        @success="onSuccess"
       />
     </template>
   </CRUDTable>
@@ -104,28 +109,40 @@
 </template>
 
 <script setup lang="ts">
-import { DateWithPrecision, EventsService, Site, type Event } from '@/api'
-import { ref } from 'vue'
+import { EventsService, Site, type Event } from '@/api'
+import { ref, useTemplateRef } from 'vue'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
 import { formatDateWithPrecision } from '../toolkit/utils'
 import EventCardDialog, { EventAction } from './EventCardDialog.vue'
 import EventFormDialog from './EventFormDialog.vue'
+import { ComponentExposed } from 'vue-component-type-helpers'
+
+type RowClick = {
+  index: number
+  item: Event
+}
 
 const focusedEvent = ref<{ index: number; item: Event }>()
 const eventTab = ref<EventAction>()
 const showEventDetails = ref(false)
 
-const props = defineProps<{ site: Site }>()
+const eventsTable = useTemplateRef<ComponentExposed<typeof CRUDTable>>('events-table')
 
-const createEventDialog = ref(false)
+const props = defineProps<{ site: Site }>()
 
 const headers: CRUDTableHeader<Event>[] = [
   {
-    key: 'performed_on',
-    title: 'Date',
-    headerProps: { class: 'v-data-table-column--align-center' },
-    cellProps: { class: 'v-data-table-column--align-end' }
+    title: 'Events',
+    key: 'corner',
+    children: [
+      {
+        key: 'performed_on',
+        title: 'Date',
+        value: 'performed_on.date',
+        align: 'end'
+      }
+    ]
   },
   {
     title: 'Actions',

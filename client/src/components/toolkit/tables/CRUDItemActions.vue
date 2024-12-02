@@ -4,13 +4,13 @@
     v-if="show && show != 'delete'"
     color="primary"
     icon="mdi-pencil"
-    @click="emit('edit', item)"
+    @click.stop="emit('edit', item)"
   />
   <v-icon
     v-if="show && show != 'edit'"
     color="primary"
     icon="mdi-delete"
-    @click="emit('delete', item)"
+    @click.stop="emit('delete', item)"
   />
 </template>
 

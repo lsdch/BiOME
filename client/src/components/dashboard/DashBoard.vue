@@ -1,15 +1,5 @@
 <template>
   <v-row>
-    <v-col>
-      <DateWithPrecisionField />
-    </v-col>
-  </v-row>
-  <v-row>
-    <v-col>
-      <HabitatPicker />
-    </v-col>
-  </v-row>
-  <v-row>
     <v-col cols="12" md="6">
       <v-skeleton-loader class="mx-auto border" max-width="300" type="card-avatar, actions" />
     </v-col>
@@ -20,9 +10,6 @@
   </v-row>
 </template>
 
-<script setup lang="ts">
-import DateWithPrecisionField from '../events/DateWithPrecisionField.vue'
-import HabitatPicker from '../habitat/HabitatPicker.vue'
-</script>
+<script setup lang="ts"></script>
 
 <style scoped></style>

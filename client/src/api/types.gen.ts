@@ -51,6 +51,12 @@ export type AuthenticationResponse = {
     user: User;
 };
 
+export type CompositeDate = {
+    day?: number;
+    month?: number;
+    year?: number;
+};
+
 export type Coordinates = {
     latitude: number;
     longitude: number;
@@ -147,6 +153,11 @@ export type DatePrecision = 'Day' | 'Month' | 'Year' | 'Unknown';
 
 export type DateWithPrecision = {
     date?: Date;
+    precision: DatePrecision;
+};
+
+export type DateWithPrecisionInput = {
+    date: CompositeDate;
     precision: DatePrecision;
 };
 
@@ -268,7 +279,7 @@ export type EventInput = {
      */
     readonly $schema?: string;
     performed_by: Array<(string)>;
-    performed_on: DateWithPrecision;
+    performed_on: DateWithPrecisionInput;
     programs?: Array<(string)>;
 };
 
@@ -278,7 +289,7 @@ export type EventUpdate = {
      */
     readonly $schema?: string;
     performed_by?: Array<(string)>;
-    performed_on: DateWithPrecision;
+    performed_on: DateWithPrecisionInput;
     programs?: Array<(string)> | null;
 };
 

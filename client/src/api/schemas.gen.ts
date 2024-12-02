@@ -118,6 +118,33 @@ export const $AuthenticationResponse = {
     type: 'object'
 } as const;
 
+export const $CompositeDate = {
+    additionalProperties: false,
+    properties: {
+        day: {
+            default: 1,
+            format: 'int32',
+            maximum: 31,
+            minimum: 1,
+            type: 'integer'
+        },
+        month: {
+            default: 1,
+            format: 'int32',
+            maximum: 12,
+            minimum: 1,
+            type: 'integer'
+        },
+        year: {
+            format: 'int32',
+            maximum: 3000,
+            minimum: 1500,
+            type: 'integer'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $Coordinates = {
     additionalProperties: false,
     properties: {
@@ -360,6 +387,20 @@ export const $DateWithPrecision = {
     type: 'object'
 } as const;
 
+export const $DateWithPrecisionInput = {
+    additionalProperties: false,
+    properties: {
+        date: {
+            '$ref': '#/components/schemas/CompositeDate'
+        },
+        precision: {
+            '$ref': '#/components/schemas/DatePrecision'
+        }
+    },
+    required: ['date', 'precision'],
+    type: 'object'
+} as const;
+
 export const $EmailSettings = {
     additionalProperties: false,
     properties: {
@@ -586,7 +627,7 @@ export const $EventInput = {
             type: 'array'
         },
         performed_on: {
-            '$ref': '#/components/schemas/DateWithPrecision'
+            '$ref': '#/components/schemas/DateWithPrecisionInput'
         },
         programs: {
             items: {
@@ -616,7 +657,7 @@ export const $EventUpdate = {
             type: 'array'
         },
         performed_on: {
-            '$ref': '#/components/schemas/DateWithPrecision'
+            '$ref': '#/components/schemas/DateWithPrecisionInput'
         },
         programs: {
             items: {

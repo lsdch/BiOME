@@ -3,10 +3,9 @@ import { useAppConfirmDialog } from "@/composables/confirm_dialog"
 import { useUserStore } from "@/stores/user"
 import { RequestResult } from "@hey-api/client-fetch"
 import { HttpStatusCode } from "axios"
-import { ComputedRef, MaybeRef, ModelRef, computed, onMounted, ref } from "vue"
+import { MaybeRef, ModelRef, computed, onMounted, ref, triggerRef } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
-import { triggerRef } from "vue"
 
 
 
@@ -72,7 +71,10 @@ export type TableProps<ItemType> = {
   reloadOnDelete?: boolean
 }
 
-
+export type TableEmits<ItemType> = (
+  ((evt: "itemCreated", item: ItemType, index: number) => void) &
+  ((evt: "itemEdited", item: ItemType, index: number) => void)
+)
 
 type FormSlotScope<ItemType extends { id: string }> = {
   dialog: boolean,
@@ -85,7 +87,8 @@ type FormSlotScope<ItemType extends { id: string }> = {
 
 export function useTable<ItemType extends { id: string }>(
   items: ModelRef<ItemType[]>,
-  props: TableProps<ItemType>
+  props: TableProps<ItemType>,
+  emit: TableEmits<ItemType>
 ) {
 
   const { user: currentUser } = useUserStore()
@@ -150,9 +153,14 @@ export function useTable<ItemType extends { id: string }>(
           items.value.unshift(item)
           triggerRef(items) // required to trigger recomputation of depending properties
           feedback.value.show(props.itemRepr ? `${props.itemRepr(item)} updated` : 'Item updated', 'success')
+          emit('itemEdited', item, index)
+          return { item, index }
         },
         // Reject
-        () => { console.info('Item edition was cancelled') }
+        () => {
+          console.info('Item edition was cancelled')
+          return
+        }
       ).finally(() => {
         form.value.dialog = false
       })
@@ -168,14 +176,19 @@ export function useTable<ItemType extends { id: string }>(
         }
       }).then(
         // Resolve
-        (item): void => {
+        (item) => {
           console.info('Created item', item)
           items.value.unshift(item)
           triggerRef(items)
           feedback.value.show(props.itemRepr ? `${props.itemRepr(item)} registered` : 'Item registered', 'success')
+          emit('itemCreated', item, 0)
+          return { item, index: 0 }
         },
         // Reject
-        () => { console.log('Item creation was cancelled') }
+        () => {
+          console.log('Item creation was cancelled')
+          return undefined
+        }
       ).finally(() => {
         form.value.dialog = false
       })
@@ -184,15 +197,17 @@ export function useTable<ItemType extends { id: string }>(
       const message = props.itemRepr
         ? `Are you sure you want to delete ${props.itemRepr(item)} ?`
         : 'Are you sure you want to delete this item ?'
-      await askConfirm({
+      return await askConfirm({
         title: "Confirm deletion",
         message,
         payload: item
       }).then(({ isCanceled, data }) => {
-        if (isCanceled)
+        if (isCanceled) {
           console.log("Item deletion canceled")
+          return undefined
+        }
         else if (data !== undefined)
-          executeDelete(data)
+          return executeDelete(data)
       })
     }
   }
@@ -224,6 +239,7 @@ export function useTable<ItemType extends { id: string }>(
           case HttpStatusCode.InternalServerError:
             feedback.value.show('An unexpected error occurred.', 'error')
         }
+        return undefined
       } else {
         items.value.splice(index, 1)
         triggerRef(items);
@@ -231,6 +247,7 @@ export function useTable<ItemType extends { id: string }>(
         if (props.reloadOnDelete) {
           await loadItems()
         }
+        return { item, index }
       }
     }
   }
@@ -254,6 +271,6 @@ export function useTable<ItemType extends { id: string }>(
 
   return {
     currentUser, feedback, actions, form, processedHeaders,
-    loading, loadItems, loadingFailed
+    loading, loadItems, loadingFailed,
   }
 }
