@@ -666,7 +666,6 @@ export const $EventUpdate = {
             type: ['array', 'null']
         }
     },
-    required: ['performed_on'],
     type: 'object'
 } as const;
 
@@ -2653,7 +2652,6 @@ export const $SiteUpdate = {
             type: 'string'
         }
     },
-    required: ['name', 'code', 'coordinates', 'country_code'],
     type: 'object'
 } as const;
 

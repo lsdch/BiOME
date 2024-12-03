@@ -96,18 +96,22 @@ type TaxonomyQuery struct {
 func GetTaxonomyChildren(db edgedb.Executor, parent Taxonomy) ([]Taxonomy, error) {
 	var children []Taxonomy
 	if parent.Code == "ROOT" {
-		query := `with module taxonomy,
-	select Taxon { *, meta: {*} }
-	filter .rank = Rank.Kingdom
-	order by .name;`
+		query := `#edgeql
+			with module taxonomy,
+			select Taxon { *, meta: {*} }
+			filter .rank = Rank.Kingdom
+			order by .name;
+		`
 		if err := db.Query(context.Background(), query, &children); err != nil {
 			return nil, err
 		}
 	} else {
-		query := `with module taxonomy,
-	select Taxon { *, meta: {*}, parent: { * } }
-	filter .parent.code = <str>$0
-	order by .name;`
+		query := `#edgeql
+			with module taxonomy,
+			select Taxon { *, meta: {*}, parent: { * } }
+			filter .parent.code = <str>$0
+			order by .name
+		`
 		if err := db.Query(context.Background(), query, &children, parent.Code); err != nil {
 			return nil, err
 		}
@@ -138,7 +142,8 @@ func GetTaxonomy(db edgedb.Executor, q TaxonomyQuery) (*Taxonomy, error) {
 
 	if q.Identifier != "" {
 		maybeUUID, _ := edgedb.ParseUUID(q.Identifier)
-		query := `with module taxonomy,
+		query := `#edgeql
+			with module taxonomy,
 			select assert_single(
 				Taxon { *, meta: {*}, parent: { * } }
 				filter .code = <str>$0 or .id = <uuid>$1
@@ -173,22 +178,25 @@ func ListTaxa(db edgedb.Executor, filters ListFilters) ([]TaxonWithParentRef, er
 		limit    = "{}"
 	)
 	if filters.Pattern != "" {
-		order_by = "ext::pg_trgm::word_similarity_dist(pattern, .name)"
+		order_by = `#edgeql
+			ext::pg_trgm::word_similarity_dist(pattern, .name)
+		`
 	}
 	if filters.Limit > 0 {
 		limit = strconv.FormatInt(filters.Limit, 10)
 	}
-	query := `with module taxonomy,
-				pattern := <str>$0,
-				rank := <Rank>(<str>$1 if len(<str>$1) > 0 else <str>{}),
-				status := <TaxonStatus>(<str>$2 if len(<str>$2) > 0 else <str>{}),
-				is_anchor := <optional bool>$3,
-				parent := <optional str>$4
-			select Taxon { *, meta: {*}, parent_code := .parent.code }
-			filter (.rank = rank if exists rank else true)
-			and (.status = status if exists status else true)
-			and (.anchor = is_anchor if exists is_anchor else true)
-			and (.parent.code ilike parent if len(parent) > 0 else true)` +
+	query := `#edgeql
+		with module taxonomy,
+			pattern := <str>$0,
+			rank := <Rank>(<str>$1 if len(<str>$1) > 0 else <str>{}),
+			status := <TaxonStatus>(<str>$2 if len(<str>$2) > 0 else <str>{}),
+			is_anchor := <optional bool>$3,
+			parent := <optional str>$4
+		select Taxon { *, meta: {*}, parent_code := .parent.code }
+		filter (.rank = rank if exists rank else true)
+		and (.status = status if exists status else true)
+		and (.anchor = is_anchor if exists is_anchor else true)
+		and (.parent.code ilike parent if len(parent) > 0 else true)` +
 		"order by " + order_by + " then .rank asc then .name asc " +
 		"limit " + limit
 	err := db.Query(context.Background(), query, &taxa,
@@ -196,7 +204,8 @@ func ListTaxa(db edgedb.Executor, filters ListFilters) ([]TaxonWithParentRef, er
 	return taxa, err
 }
 
-const TAXON_LINEAGE_SHAPE = `{ *,
+const TAXON_LINEAGE_SHAPE = `#edgeql
+		{ *,
 			meta: { * },
 			parent : { *, meta: { * } },
 			children : { *, meta: { * } },
@@ -226,10 +235,11 @@ func FindByCode(db edgedb.Executor, code string) (taxon TaxonWithLineage, err er
 }
 
 func Delete(db edgedb.Executor, code string) (taxon TaxonWithRelatives, err error) {
-	query := `select (
-		delete taxonomy::Taxon filter .code = <str>$0
-	) { *, meta: { * }, parent : { * , meta: { * }}, children : { * , meta: { * }} };`
-	err = db.QuerySingle(context.Background(), query, &taxon, code)
+	err = db.QuerySingle(context.Background(), `#edgeql
+		select (
+			delete taxonomy::Taxon filter .code = <str>$0
+		) { *, meta: { * }, parent : { * , meta: { * }}, children : { * , meta: { * }} }
+	`, &taxon, code)
 	return
 }
 
@@ -243,30 +253,33 @@ func (taxon TaxonInput) Save(db edgedb.Executor) (created TaxonWithRelatives, er
 }
 
 type TaxonUpdate struct {
-	Name       models.OptionalInput[string]      `json:"name,omitempty"`
-	Code       models.OptionalInput[string]      `json:"code,omitempty"`
-	Status     models.OptionalInput[TaxonStatus] `json:"status,omitempty"`
-	Authorship models.OptionalNull[string]       `json:"authorship,omitempty"`
-	Rank       models.OptionalInput[TaxonRank]   `json:"rank,omitempty"`
-	Parent     models.OptionalInput[string]      `json:"parent,omitempty"` // parent code
+	Name       models.OptionalInput[string]      `edgedb:"name" json:"name,omitempty"`
+	Code       models.OptionalInput[string]      `edgedb:"code" json:"code,omitempty"`
+	Status     models.OptionalInput[TaxonStatus] `edgedb:"status" json:"status,omitempty"`
+	Authorship models.OptionalNull[string]       `edgedb:"authorship" json:"authorship,omitempty"`
+	Rank       models.OptionalInput[TaxonRank]   `edgedb:"rank" json:"rank,omitempty"`
+	Parent     models.OptionalInput[string]      `edgedb:"parent" json:"parent,omitempty"` // parent code
 }
 
 func (u TaxonUpdate) Save(e edgedb.Executor, code string) (updated Taxon, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
-		Frame: fmt.Sprintf(`with item := <json>$1,
-		select (update taxonomy::Taxon filter .code = <str>$0 set {
-			%s
-		}) %s`, "%s", TAXON_LINEAGE_SHAPE),
+		Frame: fmt.Sprintf(`#edgeql
+			with item := <json>$1,
+			select (update taxonomy::Taxon filter .code = <str>$0 set {
+				%s
+			}) %s`,
+			"%s", TAXON_LINEAGE_SHAPE),
 		Mappings: map[string]string{
 			"name":       "<str>item['name']",
 			"code":       "<str>item['code']",
 			"status":     "<taxonomy::TaxonStatus>item['status']",
 			"rank":       "<taxonomy::Rank>item['rank']",
 			"authorship": "<str>item['authorship']",
-			"parent": `(
-				select detached taxonomy::Taxon filter .code = <str>item['parent']
-			)`,
+			"parent": `#edgeql
+				(
+					select detached taxonomy::Taxon filter .code = <str>item['parent']
+				)`,
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)

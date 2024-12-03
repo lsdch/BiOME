@@ -58,8 +58,9 @@ func generateSecretKeyJWT() string {
 func (s *SecuritySettings) RefreshSecretKey(db edgedb.Executor) error {
 	secretKey := generateSecretKeyJWT()
 	if err := db.Execute(context.Background(),
-		`update admin::SecuritySettings set { jwt_secret_key := <str>$0 }`,
-		secretKey,
+		`#edgeql
+			update admin::SecuritySettings set { jwt_secret_key := <str>$0 }
+		`, secretKey,
 	); err != nil {
 		return err
 	}
@@ -72,12 +73,14 @@ func (input *SecuritySettingsInput) Save(db edgedb.Executor) (*SecuritySettings,
 	jsonData, _ := json.Marshal(input)
 	var s SecuritySettings
 	if err := db.QuerySingle(context.Background(),
-		`with data := <json>$0
+		`#edgeql
+			with data := <json>$0
 			select (update admin::SecuritySettings set {
 				min_password_strength := <int32>data['min_password_strength'],
 				refresh_token_lifetime := <int32>data['refresh_token_lifetime'],
 				invitation_token_lifetime := <int32>data['invitation_token_lifetime'],
-			}) { * } limit 1`, &s, jsonData,
+			}) { * } limit 1
+		`, &s, jsonData,
 	); err != nil {
 		return nil, err
 	}

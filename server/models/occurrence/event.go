@@ -109,9 +109,9 @@ func (i EventInput) Save(e edgedb.Executor, site_code string) (created Event, er
 }
 
 type EventUpdate struct {
-	PerformedBy models.OptionalInput[[]string]               `json:"performed_by,omitempty"`
-	PerformedOn models.OptionalInput[DateWithPrecisionInput] `json:"performed_on"`
-	Programs    models.OptionalNull[[]string]                `json:"programs,omitempty"`
+	PerformedBy models.OptionalInput[[]string]               `edgedb:"performed_by" json:"performed_by,omitempty"`
+	PerformedOn models.OptionalInput[DateWithPrecisionInput] `edgedb:"performed_on" json:"performed_on,omitempty"`
+	Programs    models.OptionalNull[[]string]                `edgedb:"programs" json:"programs,omitempty"`
 }
 
 func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err error) {

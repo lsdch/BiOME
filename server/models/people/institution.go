@@ -36,24 +36,28 @@ type Institution struct {
 
 func FindInstitution(db edgedb.Executor, uuid edgedb.UUID) (inst Institution, err error) {
 	err = db.QuerySingle(context.Background(),
-		`select people::Institution { *, people:{ *, user: { * } }, meta:{ * } }
-			filter .id = <uuid>$0;`,
-		&inst, uuid)
+		`#edgeql
+			select people::Institution { *, people:{ *, user: { * } }, meta:{ * } }
+			filter .id = <uuid>$0;
+		`, &inst, uuid)
 	return inst, err
 }
 
 func ListInstitutions(db edgedb.Executor) (institutions []Institution, err error) {
 	err = db.Query(context.Background(),
-		`select people::Institution { *, people:{ * }, meta:{ * } } order by .code;`,
-		&institutions)
+		`#edgeql
+			select people::Institution { *, people:{ * }, meta:{ * } } order by .code;
+		`, &institutions)
 	return
 }
 
 func DeleteInstitution(db edgedb.Executor, code string) (inst Institution, err error) {
 	err = db.QuerySingle(context.Background(),
-		`select(
-			delete people::Institution filter .code = <str>$0 limit 1
-		) { *, people:{ * }, meta: { * }};`, &inst, code)
+		`#edgeql
+			select(
+				delete people::Institution filter .code = <str>$0 limit 1
+			) { *, people:{ * }, meta: { * }};
+		`, &inst, code)
 	return
 }
 
@@ -71,20 +75,21 @@ func (inst InstitutionInput) Save(db edgedb.Executor) (created Institution, err 
 }
 
 type InstitutionUpdate struct {
-	Name        models.OptionalInput[string]         `json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
-	Code        models.OptionalInput[string]         `json:"code,omitempty" example:"LEHNA"`
-	Description models.OptionalNull[string]          `json:"description,omitempty" example:"Where this database was born."`
-	Kind        models.OptionalNull[InstitutionKind] `json:"kind,omitempty" example:"Lab"`
+	Name        models.OptionalInput[string]         `edgedb:"name" json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
+	Code        models.OptionalInput[string]         `edgedb:"code" json:"code,omitempty" example:"LEHNA"`
+	Description models.OptionalNull[string]          `edgedb:"description" json:"description,omitempty" example:"Where this database was born."`
+	Kind        models.OptionalNull[InstitutionKind] `edgedb:"kind" json:"kind,omitempty" example:"Lab"`
 }
 
 func (inst InstitutionUpdate) Save(e edgedb.Executor, code string) (updated Institution, err error) {
 
 	query := db.UpdateQuery{
-		Frame: `with module people, data := <json>$1
+		Frame: `#edgeql
+			with module people, data := <json>$1
 			select(
-				update Institution filter .code = <str>$0 set {
-					%s
-				}) { *, people:{ *, user: { * } }, meta:{ * } }`,
+				update Institution filter .code = <str>$0 set { %s }
+			) { *, people:{ *, user: { * } }, meta:{ * } }
+		`,
 		Mappings: map[string]string{
 			"name":        "<str>data['name']",
 			"code":        "<str>data['code']",

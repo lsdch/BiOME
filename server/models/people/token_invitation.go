@@ -31,14 +31,16 @@ type Invitation struct {
 func (i InvitationInput) Save(db edgedb.Executor) (Invitation, error) {
 	var invitation Invitation
 	err := db.QuerySingle(context.Background(),
-		`with module people
-		select (insert tokens::UserInvitation {
-			identity := (select Person filter .id = <uuid>$0),
-			role := <UserRole>$1,
-			token := <str>$2,
-			expires := <datetime>$3,
-			email := <str>$4
-		}) { ** }`,
+		`#edgeql
+			with module people
+			select (insert tokens::UserInvitation {
+				identity := (select Person filter .id = <uuid>$0),
+				role := <UserRole>$1,
+				token := <str>$2,
+				expires := <datetime>$3,
+				email := <str>$4
+			}) { ** }
+		`,
 		&invitation,
 		i.Person.ID, i.Role, i.Token, i.Expires, i.Email,
 	)
@@ -82,8 +84,9 @@ func (i *Invitation) Send(target url.URL) (*url.URL, error) {
 func ValidateInvitationToken(db edgedb.Executor, token tokens.Token) (Invitation, error) {
 	var invitation Invitation
 	err := db.QuerySingle(context.Background(),
-		`select tokens::UserInvitation { ** } filter .token = <str>$0`,
-		&invitation, token,
+		`#edgeql
+			select tokens::UserInvitation { ** } filter .token = <str>$0
+		`, &invitation, token,
 	)
 	return invitation, err
 }

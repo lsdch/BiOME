@@ -29,15 +29,16 @@ func (input *InstanceSettingsInput) Save(db edgedb.Executor) (*InstanceSettings,
 	jsonData, _ := json.Marshal(input)
 	var s InstanceSettings
 	if err := db.QuerySingle(context.Background(),
-		`with data := <json>$0
+		`#edgeql
+			with data := <json>$0
 			select (update admin::InstanceSettings set {
 				name := <str>data['name'],
 				description := <str>json_get(data, 'description') ?? <str>{},
 				public := <bool>data['public'],
 				allow_contributor_signup := <bool>data['allow_contributor_signup']
-			}) { * } limit 1`,
-		&s,
-		jsonData,
+			}) { * } limit 1
+		`,
+		&s, jsonData,
 	); err != nil {
 		return nil, err
 	}

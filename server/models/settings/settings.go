@@ -18,12 +18,14 @@ type Settings struct {
 func init() {
 	secretKey := generateSecretKeyJWT()
 	if err := db.Client().Execute(context.Background(),
-		`with module admin,
+		`#edgeql
+			with module admin,
 			security := (select SecuritySettings limit 1) ?? (insert SecuritySettings {
 				jwt_secret_key := <str>$0
 			}),
 			instance := (select InstanceSettings limit 1) ?? (insert InstanceSettings{}),
-			select(<str>{});`,
+			select(<str>{});
+		`,
 		secretKey); err != nil {
 		logrus.Fatalf("Failed to initialize settings or get existing ones: %v", err)
 	}

@@ -48,23 +48,27 @@ type OptionalPerson struct {
 }
 
 func FindPerson(db edgedb.Executor, id edgedb.UUID) (person Person, err error) {
-	query := `select people::Person { *, ** } filter .id = <uuid>$0;`
-	err = db.QuerySingle(context.Background(), query, &person, id)
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+		select people::Person { *, ** } filter .id = <uuid>$0;
+		`, &person, id)
 	return person, err
 }
 
 func ListPersons(db edgedb.Executor) (people []Person, err error) {
 	err = db.Query(context.Background(),
-		`select people::Person { ** } order by .last_name;`,
-		&people)
+		`#edgeql
+			select people::Person { ** } order by .last_name;
+		`, &people)
 	return
 }
 
 func DeletePerson(db edgedb.Executor, id edgedb.UUID) (deleted Person, err error) {
 	logrus.Infof("Deleting person: %v", id)
-	query := `select(
-		delete (<people::Person><uuid>$0)
-	){ ** };`
+	query := `#edgeql
+		select(
+			delete (<people::Person><uuid>$0)
+		){ ** };`
 	err = db.QuerySingle(context.Background(), query, &deleted, id)
 	return
 }
@@ -90,11 +94,12 @@ func (p *PersonIdentity) GenerateAlias() string {
 	alias := strings.ToLower(fmt.Sprintf("%s%s", first_initial, p.LastName))
 
 	var conflicts int64
-	query := `select (count (people::Person
-			filter str_trim(.alias, "0123456789") = <str>$0
-		))`
 	if err := db.Client().QuerySingle(context.Background(),
-		query, &conflicts, alias,
+		`#edgeql
+			select (count (people::Person
+				filter str_trim(.alias, "0123456789") = <str>$0
+			))
+		`, &conflicts, alias,
 	); err != nil {
 		logrus.Errorf("Error while checking for Person.alias duplicates: %v", err)
 		return ""
@@ -119,31 +124,34 @@ func (person PersonInput) Save(db edgedb.Executor) (created Person, err error) {
 }
 
 type PersonUpdate struct {
-	FirstName    models.OptionalInput[string]   `json:"first_name,omitempty" minLength:"2" maxLength:"32"`
-	LastName     models.OptionalInput[string]   `json:"last_name,omitempty" minLength:"2" maxLength:"32"`
-	Contact      models.OptionalNull[string]    `json:"contact,omitempty" `
-	Institutions models.OptionalInput[[]string] `json:"institutions,omitempty" fakesize:"3"` // Institution codes
-	Alias        models.OptionalInput[string]   `json:"alias,omitempty"`
-	Comment      models.OptionalNull[string]    `json:"comment,omitempty"`
+	FirstName    models.OptionalInput[string]   `edgedb:"first_name" json:"first_name,omitempty" minLength:"2" maxLength:"32"`
+	LastName     models.OptionalInput[string]   `edgedb:"last_name" json:"last_name,omitempty" minLength:"2" maxLength:"32"`
+	Contact      models.OptionalNull[string]    `edgedb:"contact" json:"contact,omitempty" `
+	Institutions models.OptionalInput[[]string] `edgedb:"institutions" json:"institutions,omitempty" fakesize:"3"` // Institution codes
+	Alias        models.OptionalInput[string]   `edgedb:"alias" json:"alias,omitempty"`
+	Comment      models.OptionalNull[string]    `edgedb:"comment" json:"comment,omitempty"`
 }
 
 func (u PersonUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Person, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
-		Frame: `with item := <json>$1,
-		select (update people::Person filter .id = <uuid>$0 set {
-			%s
-		}) { ** }`,
+		Frame: `#edgeql
+			with item := <json>$1,
+			select (update people::Person filter .id = <uuid>$0 set {
+				%s
+			}) { ** }
+		`,
 		Mappings: map[string]string{
 			"first_name": "<str>item['first_name']",
 			"last_name":  "<str>item['last_name']",
 			"contact":    "<str>item['contact']",
 			"alias":      "<str>item['alias']",
 			"comment":    "<str>item['comment']",
-			"institutions": `(
-				select people::Institution
-				filter .code in array_unpack(<array<str>>item['institutions'])
-			)`,
+			"institutions": `#edgeql
+				(
+					select people::Institution
+					filter .code in array_unpack(<array<str>>item['institutions'])
+				)`,
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, id, data)

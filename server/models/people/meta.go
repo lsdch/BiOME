@@ -41,7 +41,9 @@ type Meta struct {
 }
 
 func (m *Meta) Save(db edgedb.Executor) {
-	if err := db.QuerySingle(context.Background(), `select (<Meta><uuid>$0) { * }`, m, m.ID); err != nil {
+	if err := db.QuerySingle(context.Background(),
+		`select (<Meta><uuid>$0) { * }`, m, m.ID,
+	); err != nil {
 		logrus.Errorf("Failed to fetch updated Meta infos: %v", err)
 	}
 }

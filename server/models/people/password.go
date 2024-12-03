@@ -49,10 +49,12 @@ func validatePasswordStrength(p PasswordSensitiveInfos, pwd string, strength int
 // Checks that a password matches the hashed password for a user.
 func (user *User) PasswordMatch(db edgedb.Executor, pwd string) bool {
 	var match bool
-	query := `select exists (select people::User
+	query := `#edgeql
+		select exists (select people::User
 			filter .id = <uuid>$0
 			and .password = ext::pgcrypto::crypt(<str>$1, .password)
-		);`
+		)
+	`
 	if err := db.QuerySingle(context.Background(), query, &match, user.ID, pwd); err != nil {
 		logrus.Errorf("Password matching query failed: %v", err)
 	}

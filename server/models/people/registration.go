@@ -30,16 +30,18 @@ func (u UserInput) Save(db edgedb.Executor, role UserRole, identity PersonInner)
 	var user User
 	input, _ := json.Marshal(u)
 	err := db.QuerySingle(context.Background(),
-		`with module people,
-		data := <json>$0,
-		user := (insert User {
-			login := <str>data['login'],
-			email := <str>data['email'],
-			password := <str>data['password'],
-			role := <UserRole>$1,
-      identity := assert_single((select Person filter .id = <uuid>$2))
-		}),
-    select user { ** }`,
+		`#edgeql
+			with module people,
+			data := <json>$0,
+			user := (insert User {
+				login := <str>data['login'],
+				email := <str>data['email'],
+				password := <str>data['password'],
+				role := <UserRole>$1,
+				identity := assert_single((select Person filter .id = <uuid>$2))
+			}),
+			select user { ** }
+		`,
 		&user, input, role, identity.ID,
 	)
 	return &user, err
@@ -91,15 +93,17 @@ type PendingUserRequest struct {
 
 func (p *PendingUserRequest) Delete(db edgedb.Executor) error {
 	return db.Execute(context.Background(),
-		`delete <people::PendingUserRequest><uuid>$0;`,
-		p.ID,
+		`#edgeql
+			delete <people::PendingUserRequest><uuid>$0;
+		`, p.ID,
 	)
 }
 
 func (p *PendingUserRequest) SetEmailVerified(db edgedb.Executor, isVerified bool) error {
 	err := db.Execute(context.Background(),
-		`update <people::PendingUserRequest><uuid>$0 set { email_verified := <bool>$1 }`,
-		p.ID, isVerified,
+		`#edgeql
+			update <people::PendingUserRequest><uuid>$0 set { email_verified := <bool>$1 }
+		`, p.ID, isVerified,
 	)
 	if err != nil {
 		return err
@@ -111,8 +115,9 @@ func (p *PendingUserRequest) SetEmailVerified(db edgedb.Executor, isVerified boo
 func ListPendingUserRequests(db edgedb.Executor) ([]PendingUserRequest, error) {
 	var items = []PendingUserRequest{}
 	err := db.Query(context.Background(),
-		`select people::PendingUserRequest { ** } order by .created_on desc;`,
-		&items,
+		`#edgeql
+			select people::PendingUserRequest { ** } order by .created_on desc;
+		`, &items,
 	)
 	return items, err
 }
@@ -120,17 +125,18 @@ func ListPendingUserRequests(db edgedb.Executor) ([]PendingUserRequest, error) {
 func GetPendingUserRequest(db edgedb.Executor, email string) (*PendingUserRequest, error) {
 	var req PendingUserRequest
 	err := db.QuerySingle(context.Background(),
-		`select people::PendingUserRequest { ** } filter .email = <str>$0;`,
-		&req, email,
+		`#edgeql
+			select people::PendingUserRequest { ** } filter .email = <str>$0;
+		`, &req, email,
 	)
 	return &req, err
 }
 
 func DeletePendingUserRequest(db edgedb.Executor, email string) (deleted PendingUserRequest, err error) {
 	err = db.QuerySingle(context.Background(),
-		`select (delete people::PendingUserRequest filter .email = <str>$0) { ** };`,
-		&deleted,
-		email,
+		`#edgeql
+			select (delete people::PendingUserRequest filter .email = <str>$0) { ** }
+		`, &deleted, email,
 	)
 	return
 }

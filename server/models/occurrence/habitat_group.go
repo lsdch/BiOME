@@ -120,9 +120,11 @@ func FindHabitatGroup[ID string | edgedb.UUID](db edgedb.Executor, id ID) (*Habi
 	query, err := func() (string, error) {
 		switch any(id).(type) {
 		case edgedb.UUID:
-			return `select sampling::HabitatGroup { ** } filter .id = <uuid>$0`, nil
+			return `#edgeql
+				select sampling::HabitatGroup { ** } filter .id = <uuid>$0`, nil
 		case string:
-			return `select sampling::HabitatGroup { ** } filter .label = <str>$0`, nil
+			return `#edgeql
+				select sampling::HabitatGroup { ** } filter .label = <str>$0`, nil
 		}
 		return ``, fmt.Errorf("Invalid identifier type for find argument")
 	}()
@@ -137,13 +139,17 @@ func FindHabitatGroup[ID string | edgedb.UUID](db edgedb.Executor, id ID) (*Habi
 func ListHabitatGroups(db edgedb.Executor) ([]HabitatGroup, error) {
 	var groups []HabitatGroup
 	err := db.Query(context.Background(),
-		`select sampling::HabitatGroup { *, depends: { * }, elements: { *, incompatible : { * } } }`,
+		`#edgeql
+		select sampling::HabitatGroup {
+			*, depends: { * }, elements: { *, incompatible : { * } }
+		}`,
 		&groups)
 	return groups, err
 }
 
 func DeleteHabitatGroup(db edgedb.Executor, label string) (deleted HabitatGroup, err error) {
-	query := `select(
+	query := `#edgeql
+		select(
 			delete sampling::HabitatGroup filter .label = <str>$0
 		){ ** };`
 	err = db.QuerySingle(context.Background(), query, &deleted, label)
@@ -151,9 +157,9 @@ func DeleteHabitatGroup(db edgedb.Executor, label string) (deleted HabitatGroup,
 }
 
 type HabitatGroupUpdate struct {
-	Label      models.OptionalInput[string]                   `json:"label,omitempty"`
-	Depends    models.OptionalNull[string]                    `json:"depends,omitempty"`
-	Exclusive  models.OptionalInput[bool]                     `json:"exclusive_elements,omitempty"`
+	Label      models.OptionalInput[string]                   `edgedb:"label" json:"label,omitempty"`
+	Depends    models.OptionalNull[string]                    `edgedb:"depends" json:"depends,omitempty"`
+	Exclusive  models.OptionalInput[bool]                     `edgedb:"exclusive_elements" json:"exclusive_elements,omitempty"`
 	CreateTags models.OptionalInput[[]HabitatInput]           `json:"create_tags,omitempty"`
 	UpdateTags models.OptionalInput[map[string]HabitatUpdate] `json:"update_tags,omitempty"`
 	DeleteTags models.OptionalInput[[]string]                 `json:"delete_tags,omitempty"`

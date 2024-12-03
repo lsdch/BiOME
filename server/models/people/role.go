@@ -25,8 +25,9 @@ const (
 
 func (u *User) SetRole(db edgedb.Executor, role UserRole) error {
 	if err := db.Execute(context.Background(),
-		`update people::User set { role := <people::UserRole>$0 }`,
-		string(role),
+		`#edgeql
+			update people::User set { role := <people::UserRole>$0 }
+		`, string(role),
 	); err != nil {
 		return fmt.Errorf("Failed to set user role: %w", err)
 	}

@@ -43,18 +43,20 @@ func (i HabitatInput) Save(db edgedb.Executor) (Habitat, error) {
 	var created Habitat
 	habitat, _ := json.Marshal(i)
 	err := db.QuerySingle(context.Background(),
-		`with data := <json>$0
+		`#edgeql
+			with data := <json>$0
  			select (insert sampling::Habitat {
 				label := <str>data['label'],
 				description := <str>data['description'],
-			}) { *, meta: { * }, incompatible: { * } }`,
+			}) { *, meta: { * }, incompatible: { * } }
+		`,
 		&created, habitat)
 	return created, err
 }
 
 type HabitatUpdate struct {
-	Label       models.OptionalInput[string] `json:"label,omitempty"`
-	Description models.OptionalNull[string]  `json:"description,omitempty"`
+	Label       models.OptionalInput[string] `edgedb:"label" json:"label,omitempty"`
+	Description models.OptionalNull[string]  `edgedb:"description" json:"description,omitempty"`
 }
 
 func ListHabitats(db edgedb.Executor) ([]Habitat, error) {

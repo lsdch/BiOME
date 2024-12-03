@@ -790,9 +790,6 @@
 						]
 					}
 				},
-				"required": [
-					"performed_on"
-				],
 				"type": "object"
 			},
 			"Fixative": {
@@ -3222,12 +3219,6 @@
 						"type": "string"
 					}
 				},
-				"required": [
-					"name",
-					"code",
-					"coordinates",
-					"country_code"
-				],
 				"type": "object"
 			},
 			"Spotting": {

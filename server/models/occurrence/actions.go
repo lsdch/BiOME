@@ -18,8 +18,8 @@ type Spotting struct {
 }
 
 type SpottingUpdate struct {
-	TargetTaxa models.OptionalNull[[]string] `json:"target_taxa,omitempty"`
-	Comments   models.OptionalNull[string]   `json:"comments,omitempty"`
+	TargetTaxa models.OptionalNull[[]string] `edgedb:"target_taxa" json:"target_taxa,omitempty"`
+	Comments   models.OptionalNull[string]   `edgedb:"comments" json:"comments,omitempty"`
 }
 
 func (u SpottingUpdate) Save(e edgedb.Executor, eventID edgedb.UUID) (updated Spotting, err error) {

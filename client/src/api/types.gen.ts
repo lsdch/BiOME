@@ -289,7 +289,7 @@ export type EventUpdate = {
      */
     readonly $schema?: string;
     performed_by?: Array<(string)>;
-    performed_on: DateWithPrecisionInput;
+    performed_on?: DateWithPrecisionInput;
     programs?: Array<(string)> | null;
 };
 
@@ -1042,18 +1042,18 @@ export type SiteUpdate = {
     /**
      * A short unique uppercase alphanumeric identifier
      */
-    code: string;
+    code?: string;
     /**
      * Site coordinates in decimal degrees
      */
-    coordinates: Coordinates;
-    country_code: string;
+    coordinates?: Coordinates;
+    country_code?: string;
     description?: (string) | null;
     /**
      * Nearest populated place
      */
     locality?: (string) | null;
-    name: string;
+    name?: string;
 };
 
 export type Spotting = {

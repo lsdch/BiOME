@@ -207,9 +207,9 @@ func (i *DatasetInputValidated) Save(db *edgedb.Client) (*Dataset, error) {
 }
 
 type DatasetUpdate struct {
-	Label       models.OptionalInput[string]             `json:"label,omitempty" minLength:"4" maxLength:"32"`
-	Description models.OptionalNull[string]              `json:"description,omitempty"`
-	Maintainers models.OptionalInput[DatasetMaintainers] `json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
+	Label       models.OptionalInput[string]             `edgedb:"label" json:"label,omitempty" minLength:"4" maxLength:"32"`
+	Description models.OptionalNull[string]              `edgedb:"description" json:"description,omitempty"`
+	Maintainers models.OptionalInput[DatasetMaintainers] `edgedb:"maintainers" json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
 
 func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated Dataset, err error) {

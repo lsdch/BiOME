@@ -35,12 +35,13 @@ func (t HashedSessionRefreshToken) Rotate(db *edgedb.Client) (newToken SessionRe
 func CreateSessionRefreshToken(db edgedb.Executor, userID edgedb.UUID) (SessionRefreshToken, error) {
 	token := GenerateToken(settings.Security().RefreshTokenDuration())
 	err := db.Execute(context.Background(),
-		`insert tokens::SessionRefreshToken {
-			user := (select(<people::User><uuid>$0)),
-			token := <str>$1,
-			expires := <datetime>$2,
-		}`,
-		userID, token.Token.Hash(), token.Expires)
+		`#edgeql
+			insert tokens::SessionRefreshToken {
+				user := (select(<people::User><uuid>$0)),
+				token := <str>$1,
+				expires := <datetime>$2,
+			}
+		`, userID, token.Token.Hash(), token.Expires)
 	return SessionRefreshToken{
 		UserID:      userID,
 		TokenRecord: token,
@@ -51,8 +52,10 @@ func CreateSessionRefreshToken(db edgedb.Executor, userID edgedb.UUID) (SessionR
 // Returns error if no token matches.
 func RetrieveSessionRefreshToken(edb edgedb.Executor, token Token) (sessionToken HashedSessionRefreshToken, err error) {
 	err = edb.QuerySingle(context.Background(),
-		`select tokens::SessionRefreshToken { *, user_id := .user.id }
-			filter .token = <str>$0 limit 1`,
+		`#edgeql
+			select tokens::SessionRefreshToken { *, user_id := .user.id }
+			filter .token = <str>$0 limit 1
+		`,
 		&sessionToken,
 		token.Hash(),
 	)
@@ -61,6 +64,8 @@ func RetrieveSessionRefreshToken(edb edgedb.Executor, token Token) (sessionToken
 
 func DropSessionToken(edb edgedb.Executor, token Token) error {
 	return edb.Execute(context.Background(),
-		`delete tokens::SessionRefreshToken filter .token = <str>0 limit 1;`,
+		`#edgeql
+			delete tokens::SessionRefreshToken filter .token = <str>0 limit 1;
+		`,
 		string(token))
 }

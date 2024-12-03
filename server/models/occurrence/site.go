@@ -147,13 +147,13 @@ func (i *SiteInput) Save(db edgedb.Executor) (*Site, error) {
 }
 
 type SiteUpdate struct {
-	Name        models.OptionalInput[string]      `json:"name" minLength:"4"`
-	Code        models.OptionalInput[string]      `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
-	Description models.OptionalNull[string]       `json:"description,omitempty"`
-	Coordinates models.OptionalInput[Coordinates] `json:"coordinates" doc:"Site coordinates in decimal degrees"`
-	Altitude    models.OptionalNull[int32]        `json:"altitude,omitempty" doc:"Site altitude in meters"`
-	Locality    models.OptionalNull[string]       `json:"locality,omitempty" doc:"Nearest populated place"`
-	CountryCode models.OptionalInput[string]      `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	Name        models.OptionalInput[string]      `edgedb:"name" json:"name,omitempty" minLength:"4"`
+	Code        models.OptionalInput[string]      `edgedb:"code" json:"code,omitempty" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
+	Description models.OptionalNull[string]       `edgedb:"description" json:"description,omitempty"`
+	Coordinates models.OptionalInput[Coordinates] `edgedb:"coordinates" json:"coordinates,omitempty" doc:"Site coordinates in decimal degrees"`
+	Altitude    models.OptionalNull[int32]        `edgedb:"altitude" json:"altitude,omitempty" doc:"Site altitude in meters"`
+	Locality    models.OptionalNull[string]       `edgedb:"locality" json:"locality,omitempty" doc:"Nearest populated place"`
+	CountryCode models.OptionalInput[string]      `edgedb:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 
 func (u SiteUpdate) Save(e edgedb.Executor, code string) (updated Site, err error) {
@@ -180,7 +180,7 @@ func (u SiteUpdate) Save(e edgedb.Executor, code string) (updated Site, err erro
 			"country": `#edgeql
 				(
 					select assert_exists(location::Country
-					filter .code = <str>{{.Json}}['country_code'])
+					filter .code = <str>item['country_code'])
 				)`,
 		},
 	}

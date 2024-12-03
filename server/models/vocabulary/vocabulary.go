@@ -22,6 +22,12 @@ type VocabularyInput struct {
 	Description models.OptionalInput[string] `json:"description,omitempty"`
 }
 
+type VocabularyUpdate struct {
+	Label       models.OptionalInput[string] `edgedb:"label" json:"label,omitempty"`
+	Code        models.OptionalInput[string] `edgedb:"code" json:"code,omitempty"`
+	Description models.OptionalNull[string]  `edgedb:"description" json:"description,omitempty"`
+}
+
 type Fixative struct {
 	Vocabulary `edgedb:"$inline" json:",inline"`
 	Meta       people.Meta `edgedb:"meta" json:"meta"`

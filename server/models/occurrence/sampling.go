@@ -114,14 +114,14 @@ func (i SamplingInput) Save(e edgedb.Executor) (created Sampling, err error) {
 }
 
 type SamplingUpdate struct {
-	TargetKind   models.OptionalInput[SamplingTargetKind] `json:"target_kind,omitempty"`
-	TargetTaxa   models.OptionalNull[[]string]            `json:"target_taxa,omitempty"`
-	Methods      models.OptionalNull[[]string]            `json:"methods,omitempty"`
-	Fixatives    models.OptionalNull[[]string]            `json:"fixatives,omitempty"`
-	Duration     models.OptionalNull[int32]               `json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Comments     models.OptionalNull[string]              `json:"comments,omitempty"`
-	Habitats     models.OptionalNull[[]string]            `json:"habitats,omitempty"`
-	AccessPoints models.OptionalNull[[]string]            `json:"access_points,omitempty"`
+	TargetKind   models.OptionalInput[SamplingTargetKind] `edgedb:"target_kind" json:"target_kind,omitempty"`
+	TargetTaxa   models.OptionalNull[[]string]            `edgedb:"target_taxa" json:"target_taxa,omitempty"`
+	Methods      models.OptionalNull[[]string]            `edgedb:"methods" json:"methods,omitempty"`
+	Fixatives    models.OptionalNull[[]string]            `edgedb:"fixatives" json:"fixatives,omitempty"`
+	Duration     models.OptionalNull[int32]               `edgedb:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Comments     models.OptionalNull[string]              `edgedb:"comments" json:"comments,omitempty"`
+	Habitats     models.OptionalNull[[]string]            `edgedb:"habitats" json:"habitats,omitempty"`
+	AccessPoints models.OptionalNull[[]string]            `edgedb:"access_points" json:"access_points,omitempty"`
 }
 
 func (u SamplingUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Sampling, err error) {

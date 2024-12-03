@@ -37,11 +37,12 @@ type OptionalUser struct {
 
 func (user *User) SetIdentity(db edgedb.Executor, person *PersonInner) error {
 	return db.QuerySingle(context.Background(),
-		`with module people
+		`#edgeql
+			with module people
 			select (update (<User><uuid>$0) set {
 				identity := assert_single((select Person filter .id = <uuid>$1))
-			}) { *, identity: { * }}`,
-		user, user.ID, person.ID,
+			}) { *, identity: { * }}
+		`, user, user.ID, person.ID,
 	)
 }
 

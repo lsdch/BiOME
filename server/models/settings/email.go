@@ -34,7 +34,8 @@ func (e *EmailSettingsInput) Save(db edgedb.Executor) (*EmailSettings, error) {
 	jsonData, _ := json.Marshal(e)
 	var emailSettings EmailSettings
 	if err := db.QuerySingle(context.Background(),
-		`with data := <json>$0,
+		`#edgeql
+			with data := <json>$0,
 			settings := (select admin::EmailSettings limit 1)
 			select (if exists settings
 				then (update admin::EmailSettings set {
@@ -53,9 +54,9 @@ func (e *EmailSettingsInput) Save(db edgedb.Executor) (*EmailSettings, error) {
 					password := <str>data['password'],
 					port := <int32>data['port'],
 				})
-			) { * } limit 1`,
-		&emailSettings,
-		jsonData,
+			) { * } limit 1
+		`,
+		&emailSettings, jsonData,
 	); err != nil {
 		return nil, err
 	}

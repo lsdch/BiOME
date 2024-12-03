@@ -2,6 +2,7 @@ package occurrence
 
 import (
 	"context"
+	"darco/proto/models"
 	"darco/proto/models/people"
 	"darco/proto/models/vocabulary"
 	"encoding/json"
@@ -31,21 +32,25 @@ type AbioticParameterInput struct {
 func (i AbioticParameterInput) Save(e edgedb.Executor) (created AbioticParameter, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
-		`with data = <json>$0,
-		select (insert events::AbioticParameter {
-			 label := <str>data['label'],
-			 code := <str>data['code'],
-			 description := <str>json_get(data, 'description'),
-			 unit := <str>data['unit']
-		})`, &created, data)
+		`#edgeql
+			with data = <json>$0,
+			select (insert events::AbioticParameter {
+				label := <str>data['label'],
+				code := <str>data['code'],
+				description := <str>json_get(data, 'description'),
+				unit := <str>data['unit']
+			}) { ** }
+		`, &created, data)
 	return
 }
 
 func DeleteAbioticParameter(db edgedb.Executor, label string) (deleted AbioticParameter, err error) {
 	err = db.QuerySingle(context.Background(),
-		`select (
-			 delete events::AbioticParameter filter .label = <str>$0
-		 ) { ** };`,
+		`#edgeql
+			select (
+				delete events::AbioticParameter filter .label = <str>$0
+			) { ** }
+		`,
 		&deleted, label)
 	return
 }

@@ -21,10 +21,12 @@ type UserCredentials struct {
 // Return edgedb.NoData error if credentials are invalid.
 func (creds *UserCredentials) Authenticate(db *edgedb.Client) (user User, err error) {
 	err = db.QuerySingle(context.Background(),
-		`select people::User { *, identity: { * } }
+		`#edgeql
+			select people::User { *, identity: { * } }
 			filter (.email = <str>$0 or .login = <str>$0)
 			and .password = ext::pgcrypto::crypt(<str>$1, .password)
-			limit 1`,
+			limit 1
+		`,
 		&user,
 		creds.Identifier, creds.Password,
 	)
@@ -34,7 +36,9 @@ func (creds *UserCredentials) Authenticate(db *edgedb.Client) (user User, err er
 // Returns currently authenticated user or edgedb.NoDataError if not authenticated
 func Current(db *edgedb.Client) (user User, err error) {
 	err = db.QuerySingle(context.Background(),
-		`select (global current_user) { * , identity: { * } } limit 1`,
+		`#edgeql
+			select (global current_user) { * , identity: { * } } limit 1
+		`,
 		&user,
 	)
 	return
