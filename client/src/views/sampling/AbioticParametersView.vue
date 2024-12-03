@@ -5,17 +5,29 @@
     entity-name="Abiotic parameter"
     :toolbar="{ title: 'Abiotic parameters', icon: 'mdi-gauge' }"
     :fetch-items="SamplingService.listAbioticParameters"
+    :delete="
+      ({ code }: AbioticParameter) => SamplingService.deleteAbioticParameter({ path: { code } })
+    "
     appendActions
   >
     <template #[`item.unit`]="{ value }">
       <code>{{ value }}</code>
     </template>
+    <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
+      <AbioticParameterFormDialog
+        :model-value="dialog"
+        @close="onClose"
+        @success="onSuccess"
+        :edit="editItem"
+      />
+    </template>
   </CRUDTable>
 </template>
 
 <script setup lang="ts">
-import { SamplingService } from '@/api'
+import { AbioticParameter, SamplingService } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import AbioticParameterFormDialog from '@/components/events/AbioticParameterFormDialog.vue'
 
 const headers: CRUDTableHeader[] = [
   { key: 'code', title: 'Code', cellProps: { class: 'text-overline' } },

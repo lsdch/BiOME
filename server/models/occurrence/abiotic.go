@@ -2,6 +2,7 @@ package occurrence
 
 import (
 	"context"
+	"darco/proto/db"
 	"darco/proto/models"
 	"darco/proto/models/people"
 	"darco/proto/models/vocabulary"
@@ -41,6 +42,28 @@ func (i AbioticParameterInput) Save(e edgedb.Executor) (created AbioticParameter
 				unit := <str>data['unit']
 			}) { ** }
 		`, &created, data)
+	return
+}
+
+type AbioticParameterUpdate struct {
+	vocabulary.VocabularyUpdate `edgedb:"$inline" json:",inline"`
+	Unit                        models.OptionalInput[string] `edgedb:"unit" json:"unit"`
+}
+
+func (u AbioticParameterUpdate) Save(e edgedb.Executor, code string) (updated AbioticParameter, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: `#edgeql
+			with item := <json>$1,
+			select (update events::AbioticParameter filter .code = <str>$0 set {
+				%s
+			}) { ** }
+		`,
+		Mappings: u.FieldMappingsWith("item", map[string]string{
+			"unit": "<str>item['unit']",
+		}),
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
 	return
 }
 

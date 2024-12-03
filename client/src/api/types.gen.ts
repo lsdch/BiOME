@@ -30,6 +30,17 @@ export type AbioticParameterInput = {
     unit: string;
 };
 
+export type AbioticParameterUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code?: string;
+    description?: (string) | null;
+    label?: string;
+    unit: string;
+};
+
 export type AuthenticationResponse = {
     /**
      * A URL to the JSON Schema for this object.
@@ -1910,6 +1921,23 @@ export type DeleteAbioticParameterResponse = (AbioticParameter);
 
 export type DeleteAbioticParameterError = (ErrorModel);
 
+export type UpdateAbioticParameterData = {
+    body: AbioticParameterUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateAbioticParameterResponse = (AbioticParameter);
+
+export type UpdateAbioticParameterError = (ErrorModel);
+
 export type GetAccessPointsData = {
     headers?: {
         /**
@@ -2796,6 +2824,13 @@ export const CreateAbioticParameterResponseTransformer: CreateAbioticParameterRe
 export type DeleteAbioticParameterResponseTransformer = (data: any) => Promise<DeleteAbioticParameterResponse>;
 
 export const DeleteAbioticParameterResponseTransformer: DeleteAbioticParameterResponseTransformer = async (data) => {
+    AbioticParameterModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateAbioticParameterResponseTransformer = (data: any) => Promise<UpdateAbioticParameterResponse>;
+
+export const UpdateAbioticParameterResponseTransformer: UpdateAbioticParameterResponseTransformer = async (data) => {
     AbioticParameterModelResponseTransformer(data);
     return data;
 };

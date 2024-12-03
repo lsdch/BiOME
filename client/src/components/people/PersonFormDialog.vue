@@ -1,5 +1,5 @@
 <template>
-  <FormDialog v-model="dialog" title="Create person" :loading @submit="submit">
+  <FormDialog v-model="dialog" :title="`${mode} person`" :loading @submit="submit">
     <v-container fluid>
       <v-row>
         <v-col cols="12" sm="6">

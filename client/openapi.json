@@ -96,6 +96,39 @@
 				],
 				"type": "object"
 			},
+			"AbioticParameterUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/AbioticParameterUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"label": {
+						"type": "string"
+					},
+					"unit": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"unit"
+				],
+				"type": "object"
+			},
 			"AuthenticationResponse": {
 				"additionalProperties": false,
 				"properties": {
@@ -4241,6 +4274,87 @@
 					}
 				},
 				"summary": "Delete abiotic parameter",
+				"tags": [
+					"Sampling"
+				]
+			},
+			"patch": {
+				"operationId": "UpdateAbioticParameter",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/AbioticParameterUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AbioticParameter"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update abiotic parameter",
 				"tags": [
 					"Sampling"
 				]

@@ -32,6 +32,14 @@ func registerAbioticParameterRoutes(r router.Router) {
 		},
 		controllers.CreateHandler[occurrence.AbioticParameterInput])
 
+	router.Register(abioticAPI, "UpdateAbioticParameter",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodPatch,
+			Summary: "Update abiotic parameter",
+		},
+		controllers.UpdateByCodeHandler[occurrence.AbioticParameterUpdate])
+
 	router.Register(abioticAPI, "DeleteAbioticParameter",
 		huma.Operation{
 			Path:    "/{code}",

@@ -5,6 +5,8 @@ import (
 	"darco/proto/models"
 	"darco/proto/models/people"
 	"encoding/json"
+	"fmt"
+	"maps"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -26,6 +28,21 @@ type VocabularyUpdate struct {
 	Label       models.OptionalInput[string] `edgedb:"label" json:"label,omitempty"`
 	Code        models.OptionalInput[string] `edgedb:"code" json:"code,omitempty"`
 	Description models.OptionalNull[string]  `edgedb:"description" json:"description,omitempty"`
+}
+
+// FieldMappingsWith defines Vocabulary field mappings to be used with db.UpdateQuery.
+// Variadic parameters allow adding extra mappings,
+// e.g. when VocularyUpdate is embedded in another struct
+func (v VocabularyUpdate) FieldMappingsWith(jsonItem string, extend ...map[string]string) map[string]string {
+	m := map[string]string{
+		"label":       fmt.Sprintf("<str>%s['label']", jsonItem),
+		"code":        fmt.Sprintf("<str>%s['code']", jsonItem),
+		"description": fmt.Sprintf("<str>%s['description']", jsonItem),
+	}
+	for _, e := range extend {
+		maps.Copy(m, e)
+	}
+	return m
 }
 
 type Fixative struct {

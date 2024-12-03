@@ -80,6 +80,33 @@ export const $AbioticParameterInput = {
     type: 'object'
 } as const;
 
+export const $AbioticParameterUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/AbioticParameterUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: ['string', 'null']
+        },
+        label: {
+            type: 'string'
+        },
+        unit: {
+            type: 'string'
+        }
+    },
+    required: ['unit'],
+    type: 'object'
+} as const;
+
 export const $AuthenticationResponse = {
     additionalProperties: false,
     properties: {
