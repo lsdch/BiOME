@@ -82,7 +82,9 @@ module events {
   };
 
   type AbioticMeasurement extending Action {
-    required param: AbioticParameter;
+    required param: AbioticParameter {
+      on target delete delete source;
+    };
     required value: float32;
     constraint exclusive on ((.event, .param))
   }

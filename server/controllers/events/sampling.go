@@ -39,7 +39,7 @@ func registerSamplingRoutes(r router.Router) {
 		huma.Operation{
 			Path:    "/{id}",
 			Method:  http.MethodDelete,
-			Summary: "Deletesampling action",
+			Summary: "Delete sampling action",
 		},
 		controllers.DeleteByIDHandler(occurrence.DeleteSampling))
 
@@ -90,29 +90,5 @@ func registerSamplingRoutes(r router.Router) {
 			Summary: "Create fixative",
 		},
 		controllers.CreateHandler[vocabulary.FixativeInput])
-
-	/**
-	 * Abiotic parameters
-	 */
-	abioticAPI := r.RouteGroup("/abiotic").
-		WithTags([]string{"Sampling"})
-
-	router.Register(abioticAPI, "ListAbioticParameters",
-		huma.Operation{
-			Path:    "/",
-			Method:  http.MethodGet,
-			Summary: "List abiotic parameters",
-		},
-		controllers.ListHandler[*struct {
-			resolvers.AuthResolver
-		}](occurrence.ListAbioticParameters))
-
-	router.Register(abioticAPI, "CreateAbioticParameter",
-		huma.Operation{
-			Path:    "/",
-			Method:  http.MethodPost,
-			Summary: "Create abiotic parameter",
-		},
-		controllers.CreateHandler[occurrence.AbioticParameterInput])
 
 }

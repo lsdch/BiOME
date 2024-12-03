@@ -41,6 +41,15 @@ func (i AbioticParameterInput) Save(e edgedb.Executor) (created AbioticParameter
 	return
 }
 
+func DeleteAbioticParameter(db edgedb.Executor, label string) (deleted AbioticParameter, err error) {
+	err = db.QuerySingle(context.Background(),
+		`select (
+			 delete events::AbioticParameter filter .label = <str>$0
+		 ) { ** };`,
+		&deleted, label)
+	return
+}
+
 type AbioticMeasurement struct {
 	ID    edgedb.UUID      `edgedb:"id" json:"id" format:"uuid"`
 	Param AbioticParameter `edgedb:"param" json:"param"`
@@ -50,4 +59,15 @@ type AbioticMeasurement struct {
 type AbioticMeasurementInput struct {
 	Param string  `json:"param"` // Parameter code
 	Value float32 `json:"value"`
+}
+
+func DeleteAbioticMeasurement(db edgedb.Executor, id edgedb.UUID) (deleted AbioticMeasurement, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			select (
+				delete events::AbioticMeasurement filter .id = <uuid>$0
+			) { ** }
+		`,
+		&deleted, id)
+	return
 }

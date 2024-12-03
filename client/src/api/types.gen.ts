@@ -1894,6 +1894,22 @@ export type CreateAbioticParameterResponse = (AbioticParameter);
 
 export type CreateAbioticParameterError = (ErrorModel);
 
+export type DeleteAbioticParameterData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteAbioticParameterResponse = (AbioticParameter);
+
+export type DeleteAbioticParameterError = (ErrorModel);
+
 export type GetAccessPointsData = {
     headers?: {
         /**
@@ -2773,6 +2789,13 @@ export const ListAbioticParametersResponseTransformer: ListAbioticParametersResp
 export type CreateAbioticParameterResponseTransformer = (data: any) => Promise<CreateAbioticParameterResponse>;
 
 export const CreateAbioticParameterResponseTransformer: CreateAbioticParameterResponseTransformer = async (data) => {
+    AbioticParameterModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteAbioticParameterResponseTransformer = (data: any) => Promise<DeleteAbioticParameterResponse>;
+
+export const DeleteAbioticParameterResponseTransformer: DeleteAbioticParameterResponseTransformer = async (data) => {
     AbioticParameterModelResponseTransformer(data);
     return data;
 };
