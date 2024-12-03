@@ -8,6 +8,7 @@
       icon: 'mdi-notebook'
     }"
     :fetch-items="EventsService.listPrograms"
+    :delete="({ code }: Program) => EventsService.deleteProgram({ path: { code } })"
     appendActions
   >
     <template #[`item.funding_agencies`]="{ value }">
@@ -28,13 +29,20 @@
 
     <!-- Form dialog -->
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <ProgramFormDialog :open="dialog" @close="onClose" :mode :fullscreen="xs" :edit="editItem" />
+      <ProgramFormDialog
+        :open="dialog"
+        @close="onClose"
+        @success="onSuccess"
+        :mode
+        :fullscreen="xs"
+        :edit="editItem"
+      />
     </template>
   </CRUDTable>
 </template>
 
 <script setup lang="ts">
-import { EventsService } from '@/api'
+import { EventsService, Program } from '@/api'
 import ProgramFormDialog from '@/components/events/ProgramFormDialog.vue'
 import InstitutionKindChip from '@/components/people/InstitutionKindChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'

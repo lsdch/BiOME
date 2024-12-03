@@ -34,7 +34,7 @@ func (i AbioticParameterInput) Save(e edgedb.Executor) (created AbioticParameter
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
-			with data = <json>$0,
+			with data := <json>$0,
 			select (insert events::AbioticParameter {
 				label := <str>data['label'],
 				code := <str>data['code'],
@@ -67,14 +67,14 @@ func (u AbioticParameterUpdate) Save(e edgedb.Executor, code string) (updated Ab
 	return
 }
 
-func DeleteAbioticParameter(db edgedb.Executor, label string) (deleted AbioticParameter, err error) {
+func DeleteAbioticParameter(db edgedb.Executor, code string) (deleted AbioticParameter, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (
-				delete events::AbioticParameter filter .label = <str>$0
+				delete events::AbioticParameter filter .code = <str>$0
 			) { ** }
 		`,
-		&deleted, label)
+		&deleted, code)
 	return
 }
 

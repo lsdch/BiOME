@@ -751,6 +751,29 @@ export const $FixativeInput = {
     type: 'object'
 } as const;
 
+export const $FixativeUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/FixativeUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: ['string', 'null']
+        },
+        label: {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $Gene = {
     additionalProperties: false,
     properties: {

@@ -4,7 +4,7 @@
     :items="site.events"
     :headers
     entityName="Events"
-    :delete="({ id }) => EventsService.deleteEvent({ path: { id } })"
+    :delete="({ id }: Event) => EventsService.deleteEvent({ path: { id } })"
     @item-created="(item, index) => toggleFocus(index, item, 'sampling')"
     @click:row="
       (_: PointerEvent, { index, item }: RowClick) => toggleFocus(index, item, 'sampling')

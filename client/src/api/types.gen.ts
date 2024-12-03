@@ -326,6 +326,16 @@ export type FixativeInput = {
     label: string;
 };
 
+export type FixativeUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code?: string;
+    description?: (string) | null;
+    label?: string;
+};
+
 export type Gene = {
     /**
      * A URL to the JSON Schema for this object.
@@ -1978,6 +1988,39 @@ export type CreateFixativeResponse = (Fixative);
 
 export type CreateFixativeError = (ErrorModel);
 
+export type DeleteFixativeData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteFixativeResponse = (Fixative);
+
+export type DeleteFixativeError = (ErrorModel);
+
+export type UpdateFixativeData = {
+    body: FixativeUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateFixativeResponse = (Fixative);
+
+export type UpdateFixativeError = (ErrorModel);
+
 export type ListSamplingMethodsData = {
     headers?: {
         /**
@@ -2847,6 +2890,20 @@ export const ListFixativesResponseTransformer: ListFixativesResponseTransformer 
 export type CreateFixativeResponseTransformer = (data: any) => Promise<CreateFixativeResponse>;
 
 export const CreateFixativeResponseTransformer: CreateFixativeResponseTransformer = async (data) => {
+    FixativeModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteFixativeResponseTransformer = (data: any) => Promise<DeleteFixativeResponse>;
+
+export const DeleteFixativeResponseTransformer: DeleteFixativeResponseTransformer = async (data) => {
+    FixativeModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateFixativeResponseTransformer = (data: any) => Promise<UpdateFixativeResponse>;
+
+export const UpdateFixativeResponseTransformer: UpdateFixativeResponseTransformer = async (data) => {
     FixativeModelResponseTransformer(data);
     return data;
 };

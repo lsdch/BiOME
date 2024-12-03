@@ -167,8 +167,8 @@
 
 <script setup lang="ts" generic="ItemType extends { id: string; meta?: Meta }">
 import { Meta } from '@/api'
-import { useClipboard } from '@vueuse/core'
-import { Ref, UnwrapRef, computed, ref, useSlots } from 'vue'
+import { useArrayFilter, useClipboard } from '@vueuse/core'
+import { Ref, UnwrapRef, computed, getCurrentInstance, reactive, ref, useSlots } from 'vue'
 import { ComponentProps, ComponentEmit } from 'vue-component-type-helpers'
 import { VDataTable } from 'vuetify/components'
 import { TableProps, useTable } from '.'
@@ -195,7 +195,8 @@ const slots = useSlots()
 // Assert type here to prevent errors in template when exposing VDataTable slots
 const slotNames = Object.keys(slots) as 'default'[]
 
-const items = defineModel<ItemType[]>('items', { default: [] })
+const items = defineModel<ItemType[]>('items', { default: () => reactive([]) })
+// const items = ref<ItemType[]>([])
 const selected = defineModel<string[]>('selected', { default: [] })
 const searchTerm = defineModel<string>('search')
 const props = defineProps<Props>()
@@ -251,12 +252,8 @@ function ownedItemFilter(item: ItemType) {
     : true
 }
 
-const filteredItems = computed(() => {
-  return props.filter || tableFilters.value.ownedItems
-    ? items.value.filter((item) => {
-        return (props.filter ? props.filter(item) : true) && ownedItemFilter(item)
-      })
-    : items.value
+const filteredItems = useArrayFilter(items as Ref<ItemType[]>, (item) => {
+  return (props.filter ? props.filter(item) : true) && ownedItemFilter(item)
 })
 
 const exportDialog: Ref<{
@@ -277,7 +274,7 @@ function exportTSV() {
     open: true,
     loading: true,
     props: {
-      items: items.value,
+      items: items.value ?? [],
       namePrefix: props.entityName
     }
   }

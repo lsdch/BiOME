@@ -1,10 +1,7 @@
 package vocabulary
 
 import (
-	"context"
 	"darco/proto/models"
-	"darco/proto/models/people"
-	"encoding/json"
 	"fmt"
 	"maps"
 
@@ -43,29 +40,4 @@ func (v VocabularyUpdate) FieldMappingsWith(jsonItem string, extend ...map[strin
 		maps.Copy(m, e)
 	}
 	return m
-}
-
-type Fixative struct {
-	Vocabulary `edgedb:"$inline" json:",inline"`
-	Meta       people.Meta `edgedb:"meta" json:"meta"`
-}
-
-func ListFixatives(db edgedb.Executor) ([]Fixative, error) {
-	var items = []Fixative{}
-	err := db.Query(context.Background(),
-		`select samples::Fixative { ** } order by .label`,
-		&items)
-	return items, err
-}
-
-type FixativeInput struct {
-	VocabularyInput `json:",inline"`
-}
-
-func (i FixativeInput) Save(e edgedb.Executor) (created Fixative, err error) {
-	data, _ := json.Marshal(i)
-	err = e.QuerySingle(context.Background(),
-		`select (insert samples::Fixative { ** })`,
-		&created, data)
-	return
 }

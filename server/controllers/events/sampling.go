@@ -91,4 +91,20 @@ func registerSamplingRoutes(r router.Router) {
 		},
 		controllers.CreateHandler[vocabulary.FixativeInput])
 
+	router.Register(fixativesAPI, "UpdateFixative",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodPatch,
+			Summary: "Update fixative",
+		},
+		controllers.UpdateByCodeHandler[vocabulary.FixativeUpdate])
+
+	router.Register(fixativesAPI, "DeleteFixative",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodDelete,
+			Summary: "Delete fixative",
+		},
+		controllers.DeleteByCodeHandler(vocabulary.DeleteFixative))
+
 }

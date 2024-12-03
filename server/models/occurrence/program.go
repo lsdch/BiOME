@@ -55,7 +55,7 @@ func (i ProgramInput) Save(db edgedb.Executor) (created Program, err error) {
 	args, _ := json.Marshal(i)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
-			data := <json>$0,
+			with data := <json>$0,
 			managers := (
 				select people::Person
 				filter .alias in array_unpack(<array<str>>json_get(data, 'managers'))
@@ -108,7 +108,7 @@ func (u ProgramUpdate) Save(e edgedb.Executor, code string) (updated Program, er
 			"funding_agencies": `#edgeql
 				(
 					select people::Institution
-					filter .code in array_unpack(<array<str>>json_get(data, 'funding_agencies'))
+					filter .code in array_unpack(<array<str>>json_get(item, 'funding_agencies'))
 				)`,
 		},
 	}

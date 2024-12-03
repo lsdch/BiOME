@@ -46,6 +46,7 @@
             label="Managers"
             v-model="model.managers"
             v-bind="field('managers')"
+            item-value="alias"
             multiple
           />
         </v-col>
@@ -86,7 +87,7 @@ const initial: ProgramInput = {
 const { field, errorHandler } = useSchema($ProgramInput)
 const { model, makeRequest } = useForm(props, {
   initial,
-  updateTransformer({ funding_agencies, managers, meta, $schema, ...rest }): ProgramUpdate {
+  updateTransformer({ id, funding_agencies, managers, meta, $schema, ...rest }): ProgramUpdate {
     return {
       ...rest,
       funding_agencies: funding_agencies.map(({ code }) => code),
