@@ -360,6 +360,17 @@ export type GeneInput = {
     label: string;
 };
 
+export type GeneUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code?: string;
+    description?: (string) | null;
+    is_MOTU_delimiter?: boolean;
+    label?: string;
+};
+
 export type Habitat = {
     /**
      * Optional habitat description
@@ -2165,6 +2176,39 @@ export type CreateGeneResponse = (Gene);
 
 export type CreateGeneError = (ErrorModel);
 
+export type DeleteGeneData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteGeneResponse = (Gene);
+
+export type DeleteGeneError = (ErrorModel);
+
+export type UpdateGeneData = {
+    body: GeneUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateGeneResponse = (Gene);
+
+export type UpdateGeneError = (ErrorModel);
+
 export type EmailSettingsData = {
     headers?: {
         /**
@@ -3023,6 +3067,20 @@ export const ListGenesResponseTransformer: ListGenesResponseTransformer = async 
 export type CreateGeneResponseTransformer = (data: any) => Promise<CreateGeneResponse>;
 
 export const CreateGeneResponseTransformer: CreateGeneResponseTransformer = async (data) => {
+    GeneModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteGeneResponseTransformer = (data: any) => Promise<DeleteGeneResponse>;
+
+export const DeleteGeneResponseTransformer: DeleteGeneResponseTransformer = async (data) => {
+    GeneModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateGeneResponseTransformer = (data: any) => Promise<UpdateGeneResponse>;
+
+export const UpdateGeneResponseTransformer: UpdateGeneResponseTransformer = async (data) => {
     GeneModelResponseTransformer(data);
     return data;
 };

@@ -104,7 +104,7 @@ export function useTable<ItemType extends { id: string }>(
 
   const processedHeaders = computed((): CRUDTableHeader[] => {
     const headersWithActions = props.appendActions && currentUser !== undefined && currentUser.role !== "Visitor"
-      ? props.headers.concat([{ title: 'Actions', key: 'actions', sortable: false, align: 'end' }])
+      ? props.headers.concat([{ title: 'Actions', key: 'actions', sortable: false, align: 'center', width: 0, cellProps: { class: 'text-no-wrap' } }])
       : props.headers
     return headersWithActions.filter(({ hide }) => {
       return !hide?.value

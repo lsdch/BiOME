@@ -836,6 +836,32 @@ export const $GeneInput = {
     type: 'object'
 } as const;
 
+export const $GeneUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/GeneUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: ['string', 'null']
+        },
+        is_MOTU_delimiter: {
+            type: 'boolean'
+        },
+        label: {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $Habitat = {
     additionalProperties: false,
     properties: {

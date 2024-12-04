@@ -31,4 +31,20 @@ func RegisterRoutes(r router.Router) {
 		},
 		controllers.CreateHandler[sequences.GeneInput],
 	)
+
+	router.Register(genesAPI, "UpdateGene",
+		huma.Operation{Path: "/{code}",
+			Method:  http.MethodPatch,
+			Summary: "Update gene",
+		},
+		controllers.UpdateByCodeHandler[sequences.GeneUpdate],
+	)
+
+	router.Register(genesAPI, "DeleteGene",
+		huma.Operation{Path: "/{code}",
+			Method:  http.MethodDelete,
+			Summary: "Delete gene",
+		},
+		controllers.DeleteByCodeHandler(sequences.DeleteGene),
+	)
 }

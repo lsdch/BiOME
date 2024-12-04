@@ -2,6 +2,8 @@ package sequences
 
 import (
 	"context"
+	"darco/proto/db"
+	"darco/proto/models"
 	"darco/proto/models/people"
 	"darco/proto/models/vocabulary"
 	"encoding/json"
@@ -32,13 +34,46 @@ func (i GeneInput) Save(e edgedb.Executor) (created Gene, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
-			with data = <json>$0,
+			with data := <json>$0,
 			select (insert seq::Gene {
 				label := <str>data['label'],
 				code := <str>data['code'],
-				description := <str>json_get(data, 'description')
-				motu := <bool>json_get(data, "is_MOTU_delimiter")
-			})
+				description := <str>json_get(data, 'description'),
+				motu := <bool>json_get(data, "is_MOTU_delimiter") ?? false
+			}) { ** }
 		`, &created, data)
+	return
+}
+
+type GeneUpdate struct {
+	vocabulary.VocabularyUpdate `edgedb:"$inline" json:",inline"`
+	IsMOTUDelimiter             models.OptionalInput[bool] `edgedb:"motu" json:"is_MOTU_delimiter,omitempty"`
+}
+
+func (u GeneUpdate) Save(e edgedb.Executor, code string) (updated Gene, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: `#edgeql
+			with item := <json>$1,
+			select (update seq::Gene filter .code = <str>$0 set {
+				%s
+			}) { ** }
+		`,
+		Mappings: u.FieldMappingsWith("item", map[string]string{
+			"motu": "<bool>json_get(item, 'is_MOTU_delimiter')",
+		}),
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
+	return
+}
+
+func DeleteGene(db edgedb.Executor, code string) (deleted Gene, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			select (
+				delete seq::Gene filter .code = <str>$0
+		 	) { ** }
+		`,
+		&deleted, code)
 	return
 }
