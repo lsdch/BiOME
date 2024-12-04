@@ -15,6 +15,8 @@ module tokens {
     required issued_by: people::User {
       default := (global default::current_user);
     };
+
+    index on (.email);
   }
 
   type PasswordReset extending Token {

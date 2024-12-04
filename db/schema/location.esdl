@@ -35,13 +35,11 @@ module location {
       constraint exclusive;
       constraint min_len_value(4);
       constraint max_len_value(10);
-    }
-    description: str;
+    };
 
-    # required multi habitat_tags: Habitat {
-    #   annotation title := "A list of descriptors for the habitat that was targeted.";
-    #   on target delete allow;
-    # };
+    index on (.code);
+
+    description: str;
 
     locality: str;
     required country: Country;

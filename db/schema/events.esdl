@@ -3,6 +3,7 @@ module events {
   type Program extending default::Auditable {
     required label: str { constraint exclusive };
     required code: str { constraint exclusive };
+    index on ((.code, .label));
 
     required multi managers: people::Person;
     multi funding_agencies: people::Institution;

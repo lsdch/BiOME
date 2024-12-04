@@ -130,8 +130,6 @@ module taxonomy {
 
     comment: str;
 
-    index on (.name);
-    index on (.rank);
-    index on (.status);
+    index on ((.name, .code, .rank, .status));
   }
 }

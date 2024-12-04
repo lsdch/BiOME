@@ -38,6 +38,8 @@ module default {
       constraint max_len_value(12);
     };
     description: str;
+
+    index on ((.code, .label));
   }
 
   type Picture {

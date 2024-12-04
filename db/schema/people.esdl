@@ -23,7 +23,7 @@ module people {
 
     multi link people := .<institutions[is Person];
 
-    index on (.code);
+    index on ((.code, .name));
   }
 
   type Person extending default::Auditable {
@@ -56,7 +56,9 @@ module people {
         select (default_alias ++ suffix)
         )
       );
-    }
+    };
+
+    index on ((.alias, .first_name, .last_name));
 
     contact: str {
       rewrite insert, update using (default::null_if_empty(.contact));
@@ -84,6 +86,8 @@ module people {
       constraint exclusive;
     };
 
+    index on ((.email, .login));
+
     required password: str {
       annotation description := "Password hashing is done within the database, raw password must be used when creating/updating.";
       rewrite insert, update using (
@@ -108,6 +112,7 @@ module people {
     required email: str {
       constraint exclusive;
     };
+    index on (.email);
     required first_name: str;
     required last_name: str;
     required full_name := .first_name ++ " " ++ .last_name;

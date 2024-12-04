@@ -13,6 +13,8 @@ module samples {
       )
     };
 
+    index on (.code);
+
     required created_on: tuple<date: datetime, precision: date::DatePrecision> {
       constraint date::required_unless_unknown(.date, .precision);
       rewrite insert, update using (

@@ -8,6 +8,7 @@ module datasets {
     required slug: str {
       constraint exclusive;
     };
+    index on (.slug);
 
     description: str;
     multi link sites := .<datasets[is location::Site];

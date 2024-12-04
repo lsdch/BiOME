@@ -3,6 +3,7 @@ module sampling {
     required label: str {
       constraint exclusive;
     };
+    index on (.label);
 
     description: str;
 
@@ -17,6 +18,8 @@ module sampling {
     required label: str {
       constraint exclusive;
     };
+    index on (.label);
+
     depends: Habitat;
     required exclusive_elements: bool {
       default := true;
