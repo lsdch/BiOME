@@ -26,20 +26,47 @@ func ListSamplingMethods(db edgedb.Executor) ([]SamplingMethod, error) {
 	return items, err
 }
 
-type SamplingMethodInput struct {
-	vocabulary.VocabularyInput `json:",inline"`
-}
+type SamplingMethodInput vocabulary.VocabularyInput
 
 func (i SamplingMethodInput) Save(db edgedb.Executor) (created SamplingMethod, err error) {
 	data, _ := json.Marshal(i)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
+			with data := <json>$0
 			select (insert events::SamplingMethod {
 				label := <str>data['label'],
 				code := <str>data['code'],
 				description := <str>json_get(data, 'description'),
 			}) { ** }
 		`, &created, data)
+	return
+}
+
+type SamplingMethodUpdate vocabulary.VocabularyUpdate
+
+func (u SamplingMethodUpdate) Save(e edgedb.Executor, code string) (updated SamplingMethod, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: `#edgeql
+			with item := <json>$1,
+			select (update events::SamplingMethod filter .code = <str>$0 set {
+				%s
+			}) { ** }
+		`,
+		Mappings: vocabulary.VocabularyUpdate(u).FieldMappingsWith("item"),
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
+	return
+}
+
+func DeleteSamplingMethod(db edgedb.Executor, code string) (deleted SamplingMethod, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			select (
+				delete events::SamplingMethod filter .code = <str>$0
+			) { ** }
+		`,
+		&deleted, code)
 	return
 }
 

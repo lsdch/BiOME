@@ -44,30 +44,6 @@ func registerSamplingRoutes(r router.Router) {
 		controllers.DeleteByIDHandler(occurrence.DeleteSampling))
 
 	/**
-	 * Sampling methods
-	 */
-	samplingMethodsAPI := r.RouteGroup("/sampling-methods").
-		WithTags([]string{"Sampling"})
-
-	router.Register(samplingMethodsAPI, "ListSamplingMethods",
-		huma.Operation{
-			Path:    "/",
-			Method:  http.MethodGet,
-			Summary: "List sampling methods",
-		},
-		controllers.ListHandler[*struct {
-			resolvers.AuthResolver
-		}](occurrence.ListSamplingMethods))
-
-	router.Register(samplingMethodsAPI, "CreateSamplingMethod",
-		huma.Operation{
-			Path:    "/",
-			Method:  http.MethodPost,
-			Summary: "Create sampling method",
-		},
-		controllers.CreateHandler[occurrence.SamplingMethodInput])
-
-	/**
 	 * FIXATIVES
 	 */
 	fixativesAPI := r.RouteGroup("/fixatives").

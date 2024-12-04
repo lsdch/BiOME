@@ -2351,6 +2351,29 @@ export const $SamplingMethodInput = {
     type: 'object'
 } as const;
 
+export const $SamplingMethodUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SamplingMethodUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: ['string', 'null']
+        },
+        label: {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $SamplingTarget = {
     additionalProperties: false,
     properties: {

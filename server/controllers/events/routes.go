@@ -16,6 +16,7 @@ func RegisterRoutes(r router.Router) {
 	registerSamplingRoutes(r)
 	registerEventsRoutes(r)
 	registerAbioticParameterRoutes(r)
+	registerSamplingMethodsRoutes(r)
 
 	huma.Register(r.API, huma.Operation{
 		Path:    "/access-points",

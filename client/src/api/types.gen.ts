@@ -930,6 +930,16 @@ export type SamplingMethodInput = {
     label: string;
 };
 
+export type SamplingMethodUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code?: string;
+    description?: (string) | null;
+    label?: string;
+};
+
 export type SamplingTarget = {
     kind: SamplingTargetKind;
     target_taxa?: Array<Taxon>;
@@ -2048,6 +2058,39 @@ export type CreateSamplingMethodResponse = (SamplingMethod);
 
 export type CreateSamplingMethodError = (ErrorModel);
 
+export type DeleteSamplingMethodData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteSamplingMethodResponse = (SamplingMethod);
+
+export type DeleteSamplingMethodError = (ErrorModel);
+
+export type UpdateSamplingMethodData = {
+    body: SamplingMethodUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateSamplingMethodResponse = (SamplingMethod);
+
+export type UpdateSamplingMethodError = (ErrorModel);
+
 export type CreateSamplingData = {
     body: SamplingInput;
     headers?: {
@@ -2920,6 +2963,20 @@ export const ListSamplingMethodsResponseTransformer: ListSamplingMethodsResponse
 export type CreateSamplingMethodResponseTransformer = (data: any) => Promise<CreateSamplingMethodResponse>;
 
 export const CreateSamplingMethodResponseTransformer: CreateSamplingMethodResponseTransformer = async (data) => {
+    SamplingMethodModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteSamplingMethodResponseTransformer = (data: any) => Promise<DeleteSamplingMethodResponse>;
+
+export const DeleteSamplingMethodResponseTransformer: DeleteSamplingMethodResponseTransformer = async (data) => {
+    SamplingMethodModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateSamplingMethodResponseTransformer = (data: any) => Promise<UpdateSamplingMethodResponse>;
+
+export const UpdateSamplingMethodResponseTransformer: UpdateSamplingMethodResponseTransformer = async (data) => {
     SamplingMethodModelResponseTransformer(data);
     return data;
 };
