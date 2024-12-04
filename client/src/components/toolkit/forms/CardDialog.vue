@@ -13,7 +13,7 @@
     </template>
 
     <v-card flat :rounded="false">
-      <v-toolbar dark dense flat class="position-sticky">
+      <v-toolbar class="position-sticky">
         <template #title>
           <slot name="title">
             <v-toolbar-title class="font-weight-bold"> {{ title }} </v-toolbar-title>
@@ -21,7 +21,7 @@
         </template>
         <template #append>
           <slot name="append" />
-          <v-btn color="grey" @click="close" :text="closeText" />
+          <v-btn class="ml-1" color="grey" @click="close" :text="closeText" />
         </template>
       </v-toolbar>
       <slot>

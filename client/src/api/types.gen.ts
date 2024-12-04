@@ -1040,6 +1040,10 @@ export type SiteInfo = {
 
 export type SiteInput = {
     /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    /**
      * Site altitude in meters
      */
     altitude?: number;
@@ -1781,6 +1785,20 @@ export type ListSitesData = {
 export type ListSitesResponse = (Array<Site>);
 
 export type ListSitesError = (ErrorModel);
+
+export type CreateSiteData = {
+    body: SiteInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateSiteResponse = (Site);
+
+export type CreateSiteError = (ErrorModel);
 
 export type GetSiteData = {
     headers?: {
@@ -2872,6 +2890,13 @@ export const ListSitesResponseTransformer: ListSitesResponseTransformer = async 
     if (Array.isArray(data)) {
         data.forEach(SiteModelResponseTransformer);
     }
+    return data;
+};
+
+export type CreateSiteResponseTransformer = (data: any) => Promise<CreateSiteResponse>;
+
+export const CreateSiteResponseTransformer: CreateSiteResponseTransformer = async (data) => {
+    SiteModelResponseTransformer(data);
     return data;
 };
 

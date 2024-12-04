@@ -1,8 +1,6 @@
 <template>
   <div class="bg-surface fill-height">
-    <SiteEditForm v-if="editing" :site />
     <v-container
-      v-else
       fluid
       id="item-view-container"
       :class="['align-start fill-height w-100', { large: lgAndUp, small: smAndDown }]"
@@ -77,6 +75,8 @@
           <v-list-item title="Sampled taxa" subtitle="TODO" />
         </v-list>
       </div>
+
+      <SiteFormDialog :edit="site" v-model="editDialog"></SiteFormDialog>
 
       <div id="panels">
         <v-expansion-panels>
@@ -159,11 +159,10 @@
 </template>
 
 <script setup lang="ts">
-import { LocationService, SiteUpdate, Taxon } from '@/api'
+import { LocationService, Taxon } from '@/api'
 import { handleErrors } from '@/api/responses'
 import SiteEventsTable from '@/components/events/SiteEventsTable.vue'
 import SitesMap from '@/components/maps/SitesMap.vue'
-import SiteEditForm from '@/components/sites/SiteEditForm.vue'
 import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 import { useToggle } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -171,11 +170,12 @@ import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
+import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
 
-const { smAndDown, mdAndUp, lgAndUp } = useDisplay()
+const { smAndDown, lgAndUp } = useDisplay()
 
 const [mapActive, toggleMap] = useToggle(false)
-const [editing, toggleEdit] = useToggle(false)
+const [editDialog, toggleEdit] = useToggle(false)
 
 const route = useRoute()
 const code = route.params['code'] as string
@@ -220,20 +220,6 @@ const abiotic_measurements = computed(() => {
     ) ?? {}
   )
 })
-
-async function submit() {
-  const { name, code, description, coordinates, locality, altitude } = site.value
-  const updatedSite: SiteUpdate = {
-    name,
-    code,
-    coordinates,
-    locality,
-    altitude,
-    description,
-    country_code: site.value.country.code
-  }
-  return await LocationService.updateSite({ body: updatedSite, path: { code } })
-}
 </script>
 
 <style lang="scss">

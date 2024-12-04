@@ -36,6 +36,14 @@ func RegisterRoutes(r router.Router) {
 			Description: "Get site infos using its code",
 		}, controllers.GetByCodeHandler(occurrence.GetSite))
 
+	router.Register(sites_API, "CreateSite",
+		huma.Operation{
+			Path:        "/",
+			Method:      http.MethodPost,
+			Summary:     "Create site",
+			Description: "Create site infos using its code",
+		}, controllers.CreateHandler[occurrence.SiteInput])
+
 	router.Register(sites_API, "UpdateSite",
 		huma.Operation{
 			Path:        "/{code}",

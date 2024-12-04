@@ -2625,6 +2625,13 @@ export const $SiteInfo = {
 export const $SiteInput = {
     additionalProperties: false,
     properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SiteInput.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
         altitude: {
             description: 'Site altitude in meters',
             format: 'int32',

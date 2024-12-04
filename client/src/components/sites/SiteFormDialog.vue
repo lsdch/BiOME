@@ -1,118 +1,115 @@
 <template>
-  <FormDialog
-    v-model="dialog"
-    title="Create person"
-    :loading="loading"
-    @submit="submit"
-    :fullscreen="smAndDown"
-  >
-    <v-form ref="form" @submit.prevent="submit">
-      <v-container fluid>
-        <v-row>
-          <v-col cols="12" sm="4" md="3">
-            <v-text-field
-              v-model.trim="model.code"
-              label="Code"
-              class="input-overline"
-              v-bind="field('code')"
-              @input="() => (model.code = model.code?.toUpperCase())"
-            />
-          </v-col>
-          <v-col cols="12" sm="8" md="9">
-            <v-text-field v-model.trim="model.name" label="Name" v-bind="field('name')" />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-text-field
-              v-model.number="model.altitude"
-              v-bind="field('altitude')"
-              label="Altitude"
-              suffix="m"
-            />
-          </v-col>
-        </v-row>
-
-        <div class="d-flex justify-space-between align-center mb-2">
-          <span class="text-subtitle-1"> Coordinates </span>
-          <span class="text-caption">WGS84 decimal degrees</span>
-        </div>
-        <CoordinatesPicker v-model="model.coordinates" />
-        <v-row>
-          <v-col cols="12" sm="4">
-            <CountryPicker
-              v-model="model.country_code"
-              item-value="code"
-              v-bind="field('country_code')"
-            />
-          </v-col>
-          <v-col>
-            <v-text-field
-              label="Nearest locality"
-              v-model="model.locality"
-              v-bind="field('locality')"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-textarea
-              v-model.trim="model.description"
-              label="Description"
-              variant="outlined"
-              v-bind="field('description')"
-            />
-          </v-col>
-        </v-row>
-      </v-container>
-    </v-form>
+  <FormDialog v-model="dialog" :title="`${mode} site`" :loading @submit="submit">
+    <v-container fluid>
+      <v-row>
+        <v-col>
+          <v-text-field v-model="model.name" label="Name" v-bind="field('name')" />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-text-field
+            v-model="model.code"
+            label="Code"
+            v-bind="field('code')"
+            @input="() => (model.code = model.code?.toUpperCase())"
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-textarea
+            v-model="model.description"
+            label="Description"
+            v-bind="field('description')"
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12" sm="4">
+          <v-number-input
+            v-model="model.coordinates!.latitude"
+            label="Latitude"
+            float
+            v-bind="field('coordinates', 'latitude')"
+          />
+        </v-col>
+        <v-col cols="12" sm="4">
+          <v-number-input
+            v-model="model.coordinates!.longitude"
+            label="Longitude"
+            float
+            v-bind="field('coordinates', 'longitude')"
+          />
+        </v-col>
+        <v-col cols="12" sm="4">
+          <CoordPrecisionPicker
+            v-model="model.coordinates!.precision"
+            v-bind="field('coordinates', 'precision')"
+          />
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12" sm="8">
+          <v-text-field label="Locality" v-model="model.locality" v-bind="field('locality')" />
+        </v-col>
+        <v-col cols="12" sm="4">
+          <CountryPicker
+            v-model="model.country_code"
+            item-value="code"
+            v-bind="field('country_code')"
+          />
+        </v-col>
+      </v-row>
+    </v-container>
   </FormDialog>
 </template>
 
 <script setup lang="ts">
-import { $SiteInput } from '@/api'
-import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
+import { Site, SiteInput, SiteUpdate, $SiteInput, $SiteUpdate, LocationService } from '@/api'
+import CoordPrecisionPicker from '@/components/sites/CoordPrecisionPicker.vue'
+import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import { FormEmits, FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
-import { nextTick, ref, watch } from 'vue'
-import { useDisplay } from 'vuetify'
-import { VForm } from 'vuetify/components'
-import CountryPicker from '../toolkit/forms/CountryPicker.vue'
-import CoordinatesPicker from './CoordinatesPicker.vue'
-import { SiteRecord } from './SiteImportDialog.vue'
-import { useToggle } from '@vueuse/core'
-
-const { smAndDown } = useDisplay()
-
-const initial: SiteRecord = {
-  name: '',
-  code: '',
-  coordinates: {
-    precision: '<100m',
-    latitude: undefined,
-    longitude: undefined
-  },
-  country_code: '',
-  exists: false
-}
+import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
+import { reactiveComputed, useToggle } from '@vueuse/core'
 
 const dialog = defineModel<boolean>()
-const form = ref<InstanceType<typeof VForm> | null>(null)
-const props = defineProps<FormProps<SiteRecord>>()
-const emit = defineEmits<FormEmits<SiteRecord>>()
+const props = defineProps<FormProps<Site>>()
+const emit = defineEmits<FormEmits<Site>>()
 
-const { model } = useForm(props, { initial, transformers: {} })
+const initial: SiteInput = {
+  code: '',
+  coordinates: { precision: '<100m', latitude: 0, longitude: 0 },
+  country_code: '',
+  name: ''
+}
 
-const { field } = useSchema($SiteInput)
+const { model, mode, makeRequest } = useForm(props, {
+  initial,
+  updateTransformer({ id, meta, $schema, events, datasets, country, ...rest }): SiteUpdate {
+    return {
+      ...rest,
+      country_code: country.code
+    }
+  }
+})
 
-watch(dialog, () => nextTick(() => form.value?.validate()))
+const { field, errorHandler } = reactiveComputed(() =>
+  useSchema(mode.value === 'Create' ? $SiteInput : $SiteUpdate)
+)
 
 const [loading, toggleLoading] = useToggle(false)
 
 async function submit() {
   toggleLoading(true)
-  // TODO: implement request
-  emit('success', model.value)
+  return await makeRequest({
+    create: LocationService.createSite,
+    edit: ({ code }, body) => LocationService.updateSite({ path: { code }, body })
+  })
+    .then(errorHandler)
+    .then((item) => emit('success', item))
+    .finally(() => toggleLoading(false))
 }
 </script>
 
-<style scoped></style>
+<style scoped lang="scss"></style>

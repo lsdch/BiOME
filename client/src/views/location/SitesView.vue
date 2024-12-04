@@ -16,7 +16,22 @@
           <v-btn icon="mdi-menu" variant="tonal" v-if="xs" @click="toggleDrawer(true)" />
         </template>
         <template #append>
-          <v-btn text="Import sites" :to="{ name: 'import-dataset' }"></v-btn>
+          <v-btn
+            text="Create site"
+            class="mx-1"
+            prepend-icon="mdi-plus"
+            variant="tonal"
+            @click="toggleCreate(true)"
+          />
+          <SiteFormDialog v-model="createDialog" @success="(site) => sites.unshift(site)" />
+
+          <v-btn
+            text="Import sites"
+            class="mx-1"
+            prepend-icon="mdi-upload"
+            variant="tonal"
+            :to="{ name: 'import-dataset' }"
+          />
         </template>
       </TableToolbar>
       <SitesMap ref="map" :items="sites" clustered>
@@ -41,10 +56,12 @@ import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useDisplay } from 'vuetify'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
+import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
 
 const { xs } = useDisplay()
 
 const [drawer, toggleDrawer] = useToggle(true)
+const [createDialog, toggleCreate] = useToggle(false)
 
 const sites = ref(
   (await LocationService.listSites().then(({ data, error }) => {

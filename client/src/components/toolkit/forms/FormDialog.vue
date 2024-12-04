@@ -1,15 +1,15 @@
 <template>
-  <v-form>
-    <template #="{ isValid }">
+  <v-form @submit="emit('submit')">
+    <template #="{ isValid, isDisabled }">
       <CardDialog v-model="dialog" v-bind="{ ...$props, ...$attrs }">
         <template #append>
           <v-btn
             color="primary"
             type="submit"
-            @click="emit('submit')"
+            variant="flat"
             :loading="loading"
             :text="btnText"
-            :disabled="!isValid.value"
+            :disabled="!isValid.value || isDisabled.value"
           />
         </template>
 

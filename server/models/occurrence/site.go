@@ -125,14 +125,14 @@ var siteInsertQueryTmpl = template.Must(
 		{{ "}" }}
 	`))
 
-func (i *SiteInput) InsertQuery(jsonVar string) string {
+func (i SiteInput) InsertQuery(jsonVar string) string {
 	var query bytes.Buffer
 	_ = siteInsertQueryTmpl.Execute(&query, struct{ Json string }{jsonVar})
 	logrus.Infof("%s", query.String())
 	return query.String()
 }
 
-func (i *SiteInput) Save(db edgedb.Executor) (*Site, error) {
+func (i SiteInput) Save(db edgedb.Executor) (*Site, error) {
 	var created Site
 	data, _ := json.Marshal(i)
 	query := fmt.Sprintf(
