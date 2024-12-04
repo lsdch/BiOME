@@ -15,6 +15,7 @@ module taxonomy {
     };
 
     required name: str {
+      constraint exclusive;
       constraint min_len_value(4);
     };
 

@@ -29,21 +29,54 @@ module occurrence {
     comments: str;
   }
 
+  abstract type BioMaterial extending Occurrence {
+    required code : str {
+      constraint exclusive;
+      annotation description := "Format like 'taxon_code|sampling_code'";
+      # rewrite insert, update using ((
+      #   .identification.taxon.code ++ "|" ++ events::event_code(.sampling.event)
+      # ));
+    };
+    index on (.code);
 
+    multi published_in: references::Article;
+  };
+
+  type InternalBioMat extending BioMaterial {
+    multi link content := .<biomat[is samples::Sample];
+    multi link specimens := .<biomat[is samples::Specimen];
+    multi link bundles := .<biomat[is samples::BundledSpecimens];
+    multi link identified_taxa := (
+      select distinct .specimens.identification.taxon ?? .identification.taxon
+    );
+  }
 
   scalar type QuantityType extending enum<Unknown, One, Several, Ten, Tens, Hundred>;
 
-  type OccurrenceReport extending Occurrence {
-    reported_by: people::Person;
-    reference: references::Article;
-
+  type ExternalBioMat extending BioMaterial {
     original_link: str; # link to original database
-    in_collection: str;
-    multi item_voucher: str;
+
+    in_collection: str; # name of a collection where the specimen can be found
+    multi item_vouchers: str; # specimen identifier(s) within the collection
 
     required quantity: QuantityType;
     content_description: str;
 
     multi link sequences := .<source_sample[is seq::ExternalSequence];
   }
+
+  alias BioMaterialWithType := (
+    select BioMaterial {
+      *,
+      published_in: { * },
+      sampling: { * },
+      identification: { * },
+      meta: { * },
+      type := (
+        if (BioMaterial is InternalBioMat) then "Internal"
+        else if (BioMaterial is ExternalBioMat) then "External"
+        else "Unknown"
+      )
+    }
+  )
 }

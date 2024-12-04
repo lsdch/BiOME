@@ -177,7 +177,7 @@ module seq {
   type ExternalSequence extending Sequence, occurrence::Occurrence, default::Auditable {
 
     required type: ExternalSeqType;
-    source_sample: occurrence::OccurrenceReport;
+    source_sample: occurrence::ExternalBioMat;
     reference: references::Article;
 
     accession_number: str {

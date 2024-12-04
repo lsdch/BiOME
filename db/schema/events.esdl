@@ -115,8 +115,8 @@ module events {
     multi habitats: sampling::Habitat;
     multi access_points: str;
 
-    multi link samples := .<sampling[is samples::BioMaterial];
-    multi link reports := .<sampling[is occurrence::OccurrenceReport];
+    multi link samples := .<sampling[is occurrence::InternalBioMat];
+    multi link reports := .<sampling[is occurrence::ExternalBioMat];
     multi link external_seqs := .<sampling[is seq::ExternalSequence];
 
     multi link occurring_taxa := (

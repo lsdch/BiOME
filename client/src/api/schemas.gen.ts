@@ -107,6 +107,46 @@ export const $AbioticParameterUpdate = {
     type: 'object'
 } as const;
 
+export const $Article = {
+    additionalProperties: false,
+    properties: {
+        authors: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        comments: {
+            type: 'string'
+        },
+        doi: {
+            type: 'string'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        journal: {
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        title: {
+            type: 'string'
+        },
+        verbatim: {
+            type: 'string'
+        },
+        year: {
+            format: 'int32',
+            type: 'integer'
+        }
+    },
+    required: ['id', 'authors', 'year', 'title', 'journal', 'verbatim', 'doi', 'comments', 'meta'],
+    type: 'object'
+} as const;
+
 export const $AuthenticationResponse = {
     additionalProperties: false,
     properties: {
@@ -143,6 +183,58 @@ export const $AuthenticationResponse = {
     },
     required: ['messages', 'user', 'auth_token', 'refresh_token', 'auth_token_expiration'],
     type: 'object'
+} as const;
+
+export const $BioMaterial = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/BioMaterial.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        comments: {
+            type: 'string'
+        },
+        external: {
+            '$ref': '#/components/schemas/OptionalExternalBioMatSpecific'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        identification: {
+            '$ref': '#/components/schemas/Identification'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        reference: {
+            items: {
+                '$ref': '#/components/schemas/Article'
+            },
+            type: 'array'
+        },
+        sampling: {
+            '$ref': '#/components/schemas/Sampling'
+        },
+        type: {
+            '$ref': '#/components/schemas/BioMaterialType'
+        }
+    },
+    required: ['code', 'type', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    type: 'object'
+} as const;
+
+export const $BioMaterialType = {
+    enum: ['Internal', 'External'],
+    title: 'BioMaterialType',
+    type: 'string'
 } as const;
 
 export const $CompositeDate = {
@@ -696,6 +788,32 @@ export const $EventUpdate = {
     type: 'object'
 } as const;
 
+export const $ExternalBioMatSpecific = {
+    additionalProperties: false,
+    properties: {
+        archive: {
+            '$ref': '#/components/schemas/SpecimenVoucher'
+        },
+        comments: {
+            type: 'string'
+        },
+        content_description: {
+            type: 'string'
+        },
+        original_link: {
+            type: 'string'
+        },
+        original_taxon: {
+            type: 'string'
+        },
+        quantity: {
+            '$ref': '#/components/schemas/Quantity'
+        }
+    },
+    required: ['quantity', 'archive', 'comments'],
+    type: 'object'
+} as const;
+
 export const $Fixative = {
     additionalProperties: false,
     properties: {
@@ -1069,6 +1187,33 @@ export const $HabitatUpdate = {
             type: 'string'
         }
     },
+    type: 'object'
+} as const;
+
+export const $Identification = {
+    additionalProperties: false,
+    properties: {
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        identified_by: {
+            '$ref': '#/components/schemas/OptionalPerson'
+        },
+        identified_on: {
+            '$ref': '#/components/schemas/DateWithPrecision'
+        },
+        is_type: {
+            type: 'boolean'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        taxon: {
+            '$ref': '#/components/schemas/Taxon'
+        }
+    },
+    required: ['id', 'taxon', 'identified_by', 'identified_on', 'is_type', 'meta'],
     type: 'object'
 } as const;
 
@@ -1463,6 +1608,32 @@ export const $Meta = {
     },
     required: ['created', 'last_updated'],
     type: 'object'
+} as const;
+
+export const $OptionalExternalBioMatSpecific = {
+    additionalProperties: false,
+    properties: {
+        archive: {
+            '$ref': '#/components/schemas/SpecimenVoucher'
+        },
+        comments: {
+            type: 'string'
+        },
+        content_description: {
+            type: 'string'
+        },
+        original_link: {
+            type: 'string'
+        },
+        original_taxon: {
+            type: 'string'
+        },
+        quantity: {
+            '$ref': '#/components/schemas/Quantity'
+        }
+    },
+    required: ['quantity', 'archive', 'comments'],
+    type: ['object', 'null']
 } as const;
 
 export const $OptionalHabitatRecord = {
@@ -2143,6 +2314,12 @@ export const $ProgramUpdate = {
     type: 'object'
 } as const;
 
+export const $Quantity = {
+    enum: ['Unknown', 'One', 'Several', 'Dozen', 'Tens', 'Hundred'],
+    title: 'Quantity',
+    type: 'string'
+} as const;
+
 export const $RefreshTokenBody = {
     additionalProperties: false,
     properties: {
@@ -2758,6 +2935,23 @@ export const $SiteUpdate = {
             type: 'string'
         }
     },
+    type: 'object'
+} as const;
+
+export const $SpecimenVoucher = {
+    additionalProperties: false,
+    properties: {
+        collection: {
+            type: 'string'
+        },
+        vouchers: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        }
+    },
+    required: ['collection', 'vouchers'],
     type: 'object'
 } as const;
 

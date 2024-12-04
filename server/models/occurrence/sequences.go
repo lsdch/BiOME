@@ -23,11 +23,11 @@ type Sequence struct {
 }
 
 type ExternalSequence struct {
-	Occurrence         `edgedb:"$inline" json:",inline"`
-	Sequence           `edgedb:"$inline" json:",inline"`
-	References         []references.Article `edgedb:"references" json:"references"`
-	SourceSample       OccurrenceReport     `edgedb:"source_sample" json:"source_sample"`
-	AccessionNumber    edgedb.OptionalStr   `edgedb:"accession_number" json:"accession_number"`
-	SpecimenIdentifier string               `edgedb:"specimen_identifier" json:"specimen_identifier"`
-	OriginalTaxon      edgedb.OptionalStr   `edgedb:"original_taxon" json:"original_taxon"`
+	Occurrence `edgedb:"$inline" json:",inline"`
+	Sequence   `edgedb:"$inline" json:",inline"`
+	References []references.Article `edgedb:"references" json:"references"`
+	// SourceSample            `edgedb:"source_sample" json:"source_sample"`
+	AccessionNumber    edgedb.OptionalStr `edgedb:"accession_number" json:"accession_number"`
+	SpecimenIdentifier string             `edgedb:"specimen_identifier" json:"specimen_identifier"`
+	OriginalTaxon      edgedb.OptionalStr `edgedb:"original_taxon" json:"original_taxon"`
 }

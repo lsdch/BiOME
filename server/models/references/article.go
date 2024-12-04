@@ -7,6 +7,7 @@ import (
 )
 
 type Article struct {
+	ID       edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
 	Authors  []string           `edgedb:"authors" json:"authors"`
 	Year     int32              `edgedb:"year" json:"year"`
 	Title    string             `edgedb:"title" json:"title"`

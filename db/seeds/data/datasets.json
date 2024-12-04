@@ -75,7 +75,26 @@
                 },
                 "is_donation": false,
                 "duration": 90,
-                "comments": "Trapping Proasellus"
+                "comments": "Trapping Proasellus",
+                "external_biomat": [
+                  {
+                    "quantity": "One",
+                    "in_collection": "Some museum",
+                    "item_vouchers": [
+                      "ItemA",
+                      "ItemB"
+                    ],
+                    "identification": {
+                      "identified_on": {
+                        "precision": "Day",
+                        "date": "2021-12-16T00:00:00Z"
+                      },
+                      "taxon": "Proasellus cavaticus",
+                      "identifed_by": "fmalard"
+                    },
+                    "comments": "Seed external bio-material"
+                  }
+                ]
               }
             ]
           },

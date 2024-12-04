@@ -41,6 +41,18 @@ export type AbioticParameterUpdate = {
     unit: string;
 };
 
+export type Article = {
+    authors: Array<(string)>;
+    comments: string;
+    doi: string;
+    id: string;
+    journal: string;
+    meta: Meta;
+    title: string;
+    verbatim: string;
+    year: number;
+};
+
 export type AuthenticationResponse = {
     /**
      * A URL to the JSON Schema for this object.
@@ -61,6 +73,24 @@ export type AuthenticationResponse = {
     refresh_token: string;
     user: User;
 };
+
+export type BioMaterial = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code: string;
+    comments: string;
+    external?: OptionalExternalBioMatSpecific;
+    id: string;
+    identification: Identification;
+    meta: Meta;
+    reference?: Array<Article>;
+    sampling: Sampling;
+    type: BioMaterialType;
+};
+
+export type BioMaterialType = 'Internal' | 'External';
 
 export type CompositeDate = {
     day?: number;
@@ -304,6 +334,15 @@ export type EventUpdate = {
     programs?: Array<(string)> | null;
 };
 
+export type ExternalBioMatSpecific = {
+    archive: SpecimenVoucher;
+    comments: string;
+    content_description?: string;
+    original_link?: string;
+    original_taxon?: string;
+    quantity: Quantity;
+};
+
 export type Fixative = {
     /**
      * A URL to the JSON Schema for this object.
@@ -460,6 +499,15 @@ export type HabitatRecord = {
 export type HabitatUpdate = {
     description?: (string) | null;
     label?: string;
+};
+
+export type Identification = {
+    id: string;
+    identified_by: OptionalPerson;
+    identified_on: DateWithPrecision;
+    is_type: boolean;
+    meta: Meta;
+    taxon: Taxon;
 };
 
 export type ImportProcess = {
@@ -630,6 +678,15 @@ export type Meta = {
     modified?: Date;
     updated_by?: UserShortIdentity;
 };
+
+export type OptionalExternalBioMatSpecific = {
+    archive: SpecimenVoucher;
+    comments: string;
+    content_description?: string;
+    original_link?: string;
+    original_taxon?: string;
+    quantity: Quantity;
+} | null;
 
 export type OptionalHabitatRecord = {
     /**
@@ -851,6 +908,8 @@ export type ProgramUpdate = {
     managers?: Array<(string)> | null;
     start_year?: (number) | null;
 };
+
+export type Quantity = 'Unknown' | 'One' | 'Several' | 'Dozen' | 'Tens' | 'Hundred';
 
 export type RefreshTokenBody = {
     /**
@@ -1100,6 +1159,11 @@ export type SiteUpdate = {
      */
     locality?: (string) | null;
     name?: string;
+};
+
+export type SpecimenVoucher = {
+    collection: string;
+    vouchers: Array<(string)>;
 };
 
 export type Spotting = {
@@ -1926,6 +1990,35 @@ export type InvitePersonData = {
 export type InvitePersonResponse = (InvitationLink);
 
 export type InvitePersonError = (ErrorModel);
+
+export type ListBioMaterialData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListBioMaterialResponse = (Array<BioMaterial>);
+
+export type ListBioMaterialError = (ErrorModel);
+
+export type DeleteBioMaterialData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteBioMaterialResponse = (BioMaterial);
+
+export type DeleteBioMaterialError = (ErrorModel);
 
 export type ListAbioticParametersData = {
     headers?: {
@@ -2957,6 +3050,64 @@ export type UpdatePersonResponseTransformer = (data: any) => Promise<UpdatePerso
 
 export const UpdatePersonResponseTransformer: UpdatePersonResponseTransformer = async (data) => {
     PersonModelResponseTransformer(data);
+    return data;
+};
+
+export type ListBioMaterialResponseTransformer = (data: any) => Promise<ListBioMaterialResponse>;
+
+export type BioMaterialModelResponseTransformer = (data: any) => BioMaterial;
+
+export type IdentificationModelResponseTransformer = (data: any) => Identification;
+
+export const IdentificationModelResponseTransformer: IdentificationModelResponseTransformer = data => {
+    if (data?.identified_on) {
+        DateWithPrecisionModelResponseTransformer(data.identified_on);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (data?.taxon) {
+        TaxonModelResponseTransformer(data.taxon);
+    }
+    return data;
+};
+
+export type ArticleModelResponseTransformer = (data: any) => Article;
+
+export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransformer = data => {
+    if (data?.identification) {
+        IdentificationModelResponseTransformer(data.identification);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (Array.isArray(data?.reference)) {
+        data.reference.forEach(ArticleModelResponseTransformer);
+    }
+    if (data?.sampling) {
+        SamplingModelResponseTransformer(data.sampling);
+    }
+    return data;
+};
+
+export const ListBioMaterialResponseTransformer: ListBioMaterialResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(BioMaterialModelResponseTransformer);
+    }
+    return data;
+};
+
+export type DeleteBioMaterialResponseTransformer = (data: any) => Promise<DeleteBioMaterialResponse>;
+
+export const DeleteBioMaterialResponseTransformer: DeleteBioMaterialResponseTransformer = async (data) => {
+    BioMaterialModelResponseTransformer(data);
     return data;
 };
 

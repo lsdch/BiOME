@@ -1,6 +1,7 @@
 package main
 
 import (
+	"darco/proto/controllers/biomaterial"
 	"darco/proto/controllers/datasets"
 	"darco/proto/controllers/events"
 	"darco/proto/controllers/habitats"
@@ -28,4 +29,5 @@ func registerRoutes(router router.Router) {
 	events.RegisterRoutes(router)
 	sequences.RegisterRoutes(router)
 	habitats.RegisterRoutes(router)
+	biomaterial.RegisterRoutes(router)
 }

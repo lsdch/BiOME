@@ -1,6 +1,6 @@
 with data := <json>$0
 for item in json_array_unpack(data) union (
-  with dataset := (insert location::SiteDataset {
+  with dataset := (insert datasets::Dataset {
     label := <str>item['label'],
     slug := <str>item['slug'],
     description := <str>json_get(item, 'description'),
@@ -70,31 +70,56 @@ for item in json_array_unpack(data) union (
 
       samplings := (
         for sampling in json_array_unpack(json_get(event, 'samplings')) union (
-        insert events::Sampling {
-          event := e,
-          fixatives := (
-            select samples::Fixative
-            filter .code in <str>json_array_unpack(json_get(sampling, 'fixatives'))
-          ),
-          methods := (
-            select events::SamplingMethod
-            filter .code in <str>json_array_unpack(json_get(sampling, 'methods'))
-          ),
-          sampling_target := <events::SamplingTarget>sampling['target']['kind'],
-          target_taxa := (
-            select taxonomy::Taxon
-            filter .code in <str>json_array_unpack(json_get(sampling, 'target', 'target_taxa'))
-          ),
-          habitats := (
-            select sampling::Habitat
-            filter .label in <str>json_array_unpack(json_get(sampling, 'habitats'))
-          ),
-          access_points := <str>json_array_unpack(json_get(sampling, 'access_points')),
-          sampling_duration := (
-            <int32>json_get(sampling, 'duration')
-          ),
-          comments := <str>json_get(sampling, 'comments')
-        }
+        with s := (
+          insert events::Sampling {
+            event := e,
+            fixatives := (
+              select samples::Fixative
+              filter .code in <str>json_array_unpack(json_get(sampling, 'fixatives'))
+            ),
+            methods := (
+              select events::SamplingMethod
+              filter .code in <str>json_array_unpack(json_get(sampling, 'methods'))
+            ),
+            sampling_target := <events::SamplingTarget>sampling['target']['kind'],
+            target_taxa := (
+              select taxonomy::Taxon
+              filter .code in <str>json_array_unpack(json_get(sampling, 'target', 'target_taxa'))
+            ),
+            habitats := (
+              select sampling::Habitat
+              filter .label in <str>json_array_unpack(json_get(sampling, 'habitats'))
+            ),
+            access_points := <str>json_array_unpack(json_get(sampling, 'access_points')),
+            sampling_duration := (
+              <int32>json_get(sampling, 'duration')
+            ),
+            comments := <str>json_get(sampling, 'comments')
+          }
+        ),
+        extbiomats := (for extbm in json_array_unpack(json_get(sampling, 'external_biomat')) union (
+          insert occurrence::ExternalBioMat {
+            sampling := s,
+            code := "sdfgsdfhqdgsijkngsjnlkjn",
+            quantity := <occurrence::QuantityType>extbm['quantity'],
+            content_description := <str>json_get(extbm, "content_description"),
+            in_collection := <str>json_get(extbm, "in_collection"),
+            item_vouchers := <str>json_array_unpack(json_get(extbm, "item_vouchers")),
+            original_link := <str>json_get(extbm, "original_link"),
+            comments := <str>json_get(extbm, "comments"),
+            identification := (
+              insert occurrence::Identification {
+                taxon := (select taxonomy::Taxon filter .name = <str>extbm['identification']['taxon']),
+                identified_by := (select people::Person filter .alias = <str>json_get(extbm, 'identification', 'identified_by')),
+                identified_on := ((
+                  date := <datetime>extbm['identification']['identified_on']['date'],
+                  precision := <date::DatePrecision>extbm['identification']['identified_on']['precision'],
+                ))
+              }
+            )
+          }
+        )),
+        select s
       )),
       select e
     )),

@@ -4,35 +4,10 @@ module samples {
     annotation description := "Describes a conservation method for a sample."
   };
 
-  type BioMaterial extending occurrence::Occurrence {
-    required code : str {
-      constraint exclusive;
-      annotation description := "Format like 'taxon_code|sampling_code'";
-      rewrite insert, update using (
-        .identification.taxon.code ++ "|" ++ events::event_code(.sampling.event)
-      )
-    };
-
-    index on (.code);
-
-    required created_on: tuple<date: datetime, precision: date::DatePrecision> {
-      constraint date::required_unless_unknown(.date, .precision);
-      rewrite insert, update using (
-        (date := date::rewrite_date(.created_on), precision :=.created_on.precision)
-      )
-    };
-    required multi sorted_by: people::Person;
-    multi published_in: references::Article;
-    multi link content := .<biomat[is Sample];
-    multi link specimens := .<biomat[is Specimen];
-    multi link bundles := .<biomat[is BundledSpecimens];
-    multi link identified_taxa := (select distinct .specimens.identification.taxon ?? .identification.taxon);
-  }
-
   type ContentType extending default::Vocabulary, default::Auditable;
 
   abstract type Sample extending default::Auditable {
-    required biomat: BioMaterial;
+    required biomat: occurrence::InternalBioMat;
     required type: ContentType;
     required conservation: Fixative;
 
