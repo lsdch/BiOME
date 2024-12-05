@@ -13,7 +13,7 @@
               {{ event.site.name }}
             </template>
             <template #subtitle>
-              {{ formatDateWithPrecision(event.performed_on) }}
+              {{ DateWithPrecision.format(event.performed_on) }}
             </template>
           </v-card>
         </v-col>
@@ -120,17 +120,17 @@ import {
   SamplingService,
   SamplingUpdate
 } from '@/api'
+import { DateWithPrecision } from '@/api/adapters'
+import { reactiveComputed, useToggle } from '@vueuse/core'
 import HabitatPicker from '../habitat/HabitatPicker.vue'
 import FixativePicker from '../samples/FixativePicker.vue'
 import { ranksUpTo } from '../taxonomy/rank'
 import TaxonPicker from '../taxonomy/TaxonPicker.vue'
 import { FormProps, useForm, useSchema } from '../toolkit/forms/form'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { formatDateWithPrecision } from '../toolkit/utils'
 import AccessPointsPicker from './AccessPointsPicker.vue'
 import HoursMinutesInput from './HoursMinutesInput.vue'
 import SamplingMethodPicker from './SamplingMethodPicker.vue'
-import { reactiveComputed, useToggle } from '@vueuse/core'
 
 const dialog = defineModel<boolean>()
 const [loading, toggleLoading] = useToggle(false)

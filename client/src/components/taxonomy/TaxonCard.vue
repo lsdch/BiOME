@@ -1,6 +1,6 @@
 <template>
   <v-bottom-sheet v-model="open" :inset="mdAndUp" content-class="rounded-0">
-    <v-card :rounded="false">
+    <v-card :rounded="false" :title="taxon.name" :subtitle="taxon.authorship">
       <template #prepend>
         <LinkIconGBIF v-if="taxon.GBIF_ID" :GBIF_ID="taxon.GBIF_ID" variant="text" />
         <FTaxonStatusIndicator v-else :status="taxon.status" />
@@ -15,13 +15,6 @@
           prepend-icon="mdi-pencil-outline"
         />
         <v-btn variant="text" icon="mdi-close" @click="open = false" />
-      </template>
-
-      <template #title>
-        {{ taxon.name }}
-      </template>
-      <template #subtitle>
-        {{ taxon.authorship }}
       </template>
 
       <template #text>
@@ -115,6 +108,7 @@
                 class="text-body-2"
                 variant="text"
                 :text="v?.name"
+                :title="v?.rank"
                 @click="emit('navigate', v!)"
               />
               <v-icon>mdi-chevron-right</v-icon>

@@ -35,7 +35,7 @@
 
     <!-- ITEMS -->
     <template #item.performed_on="{ item }">
-      {{ formatDateWithPrecision(item.performed_on) }}
+      {{ DateWithPrecision.format(item.performed_on) }}
     </template>
 
     <template #item.samplings="{ value, item, index }">
@@ -97,7 +97,7 @@
         :disabled="focusedEvent.index >= site.events.length - 1"
       />
       {{ focusedEvent.item.site.name }} |
-      {{ formatDateWithPrecision(focusedEvent.item.performed_on) }}
+      {{ DateWithPrecision.format(focusedEvent.item.performed_on) }}
       <v-btn
         color="primary"
         icon="mdi-arrow-right"
@@ -111,12 +111,12 @@
 <script setup lang="ts">
 import { EventsService, Site, type Event } from '@/api'
 import { ref, useTemplateRef } from 'vue'
+import { ComponentExposed } from 'vue-component-type-helpers'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
-import { formatDateWithPrecision } from '../toolkit/utils'
 import EventCardDialog, { EventAction } from './EventCardDialog.vue'
 import EventFormDialog from './EventFormDialog.vue'
-import { ComponentExposed } from 'vue-component-type-helpers'
+import { DateWithPrecision } from '@/api/adapters'
 
 type RowClick = {
   index: number

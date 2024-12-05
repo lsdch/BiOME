@@ -48,7 +48,8 @@ func ListBioMaterials(db edgedb.Executor) ([]BioMaterial, error) {
 		`#edgeql
 			select occurrence::BioMaterialWithType {
         **,
-        external:= [is occurrence::ExternalBioMat]{
+				identification: { **, identified_by: { * } },
+        external := [is occurrence::ExternalBioMat]{
           original_link,
           in_collection,
           item_vouchers,

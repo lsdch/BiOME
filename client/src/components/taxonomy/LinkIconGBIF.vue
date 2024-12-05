@@ -10,6 +10,7 @@
     v-bind="$attrs"
     :size="size"
     icon
+    title="GBIF record"
     :href="`https://www.gbif.org/species/${GBIF_ID}`"
     target="_blank"
   >

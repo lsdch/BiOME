@@ -71,6 +71,19 @@ export const navRoutes: RouterItem[] = [
     ]
   },
   {
+    label: "Samples",
+    icon: "mdi-package-variant",
+    routes: [
+      {
+        label: "Bio material",
+        path: "/bio-material",
+        name: "bio-material",
+        icon: "mdi-package-variant",
+        component: () => import("@/views/samples/BioMaterialView.vue")
+      },
+    ]
+  },
+  {
     label: "Sequences",
     icon: "mdi-dna",
     routes: [
