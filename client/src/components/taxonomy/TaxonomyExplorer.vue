@@ -119,9 +119,17 @@ import {
 } from '@/api'
 import { handleErrors } from '@/api/responses'
 import { refDebounced } from '@vueuse/core'
-import { computed, onMounted, ref } from 'vue'
+import { useRouteHash } from '@vueuse/router'
+import { computed, nextTick, onMounted, ref, useTemplateRef } from 'vue'
 import { useDisplay } from 'vuetify'
-import { maxRankDisplay, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
+import {
+  maxRankDisplay,
+  scrollToTaxon,
+  showTaxon,
+  useRankFoldState,
+  useTaxonFoldState,
+  useTaxonSelection
+} from '.'
 import IconGBIF from '../icons/IconGBIF.vue'
 import TableToolbar from '../toolkit/tables/TableToolbar.vue'
 import { FTaxaNestedList } from './functionals'
@@ -130,6 +138,7 @@ import StatusPicker from './StatusPicker.vue'
 import TaxonCard from './TaxonCard.vue'
 import TaxonFormDialog from './TaxonFormDialog.vue'
 import TaxonRankPicker from './TaxonRankPicker.vue'
+import { useRoute, useRouter } from 'vue-router'
 
 const { smAndDown } = useDisplay()
 
@@ -142,9 +151,10 @@ function addDescendant(taxon: Taxon) {
   parentTaxon.value = taxon
 }
 
-const { selected, onSelect } = useTaxonSelection()
+const taxonHash = useRouteHash(undefined)
+
+const { selected, onSelect, select } = useTaxonSelection()
 onSelect((taxon) => {
-  console.log('trigger')
   showTaxonCard.value = true
 })
 
@@ -165,7 +175,12 @@ const { toggleFold, isFolded, unfold } = useRankFoldState()
 
 const loading = ref(false)
 const items = ref<Taxonomy>()
-onMounted(async () => (items.value = await fetch()))
+onMounted(async () => {
+  items.value = await fetch()
+  nextTick(() => {
+    if (taxonHash.value) scrollToTaxon(taxonHash.value.replace('#', ''))
+  })
+})
 
 const filterStatus = ref<TaxonStatus>()
 const searchTerm = ref<string>()

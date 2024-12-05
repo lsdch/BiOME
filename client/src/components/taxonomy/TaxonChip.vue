@@ -8,6 +8,7 @@
       :subtitle="taxon.authorship"
       class="bg-surface-light"
       density="compact"
+      :to="{ name: 'taxonomy', hash: `#${taxon.name}` }"
     >
       <template #prepend>
         <LinkIconGBIF
@@ -18,6 +19,16 @@
         />
         <FTaxonStatusIndicator v-else :status="taxon.status" />
       </template>
+      <!-- <template #append>
+            <v-btn
+              icon="mdi-link-variant"
+              :to="{ name: 'taxonomy', hash: `#${taxon.name}` }"
+              variant="plain"
+            />
+          </template>
+        </v-card-item>
+      </template> -->
+
       <v-card-text>
         <div class="d-flex justify-space-between">
           <v-chip :text="taxon.status" class="ma-1" />
@@ -33,7 +44,7 @@ import { Taxon } from '@/api'
 import LinkIconGBIF from './LinkIconGBIF.vue'
 import { FTaxonStatusIndicator } from './functionals'
 
-defineProps<{ taxon: Taxon }>()
+const props = defineProps<{ taxon: Taxon }>()
 </script>
 
 <style scoped lang="scss"></style>

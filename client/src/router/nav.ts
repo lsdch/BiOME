@@ -132,6 +132,12 @@ export const navRoutes: RouterItem[] = [
     path: '/taxonomy',
     name: 'taxonomy',
     component: () => import('../views/taxonomy/TaxonomyView.vue'),
+    beforeEnter: (to, from) => {
+      if (from.path === to.path) {
+        return false
+      }
+      return true
+    },
     meta: { subtitle: "Taxonomy" }
   },
   {

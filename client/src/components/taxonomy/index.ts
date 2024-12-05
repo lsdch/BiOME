@@ -2,6 +2,8 @@ import { Taxon, Taxonomy, TaxonRank } from "@/api";
 import { createEventHook, useEventBus, useLocalStorage } from "@vueuse/core";
 import { nextTick, reactive, Reactive, ref, ToRefs, toRefs } from "vue";
 import { childRank, parentRank } from "./rank";
+import { useRouteHash } from "@vueuse/router";
+import { useRoute, useRouter } from "vue-router";
 
 
 export const maxRankDisplay = useLocalStorage<TaxonRank>('max-taxon-rank', 'Kingdom')
@@ -11,13 +13,16 @@ const selectHook = createEventHook<Taxon>()
 
 export function useTaxonSelection() {
 
-  function select(taxon: Taxon) {
+  function select(taxon: Taxon, prevent = false) {
     selectedTaxon.value = taxon
+    history.replaceState(null, '', `#${taxon.name}`)
     selectHook.trigger(taxon)
   }
 
   function drop() {
     selectedTaxon.value = undefined
+    history.replaceState(null, '', ``)
+    // location.hash = ""
   }
 
 
@@ -42,6 +47,17 @@ async function unfoldTaxon(taxonID: string) {
 
 }
 
+export async function showTaxon(taxon: Taxonomy) {
+  if (taxon.parent) await unfoldTaxon(taxon.parent.id)
+  return nextTick(() =>
+    scrollToTaxon(taxon.name)
+  )
+}
+
+export function scrollToTaxon(name: string) {
+  document.getElementById(name)!.scrollIntoView({ block: 'center' })
+}
+
 export function useTaxonFoldState(taxon: Taxonomy, initial?: boolean) {
   if (!(taxon.id in taxonFoldState))
     taxonFoldState[taxon.id] = toRefs(reactive({ expanded: initial ?? true, parent: taxon.parent?.id }))
@@ -61,10 +77,13 @@ export function useTaxonFoldState(taxon: Taxonomy, initial?: boolean) {
 
   async function show() {
     if (taxon.parent) await unfoldTaxon(taxon.parent.id)
-    document.getElementById(`${taxon.name}`)!.scrollIntoView({ block: 'center' })
+    nextTick(() =>
+      scrollToTaxon(taxon.name)
+    )
   }
 
-  return { expanded: state.expanded, fold, unfold, show, toggleFold }
+
+  return { expanded: state.expanded, fold, unfold, show, toggleFold, scrollToTaxon }
 }
 
 const rankFoldState = ref<{ [k in TaxonRank]: boolean | undefined }>({

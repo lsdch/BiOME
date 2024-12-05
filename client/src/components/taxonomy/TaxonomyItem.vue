@@ -6,7 +6,7 @@
     :style="{ 'grid-column': item.rank }"
     :id="item.name"
   >
-    <div class="taxon-item">
+    <div :class="['taxon-item', { hilight }]">
       <FTaxonStatusIndicator :status="item.status" />
       <span class="mr-3 text-no-wrap cursor-pointer" @click="select(item)">
         {{ item.name }}
@@ -36,23 +36,26 @@
 <script setup lang="ts">
 import { Taxonomy } from '@/api'
 import { useElementVisibility } from '@vueuse/core'
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import { maxRankDisplay, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
 import { FTaxaNestedList, FTaxonStatusIndicator } from './functionals'
 import { isAscendant } from './rank'
-
-watch(maxRankDisplay, (rank) => {
-  if (isAscendant(props.item.rank, rank)) {
-    expanded.value = true
-  }
-})
+import { onMounted } from 'vue'
 
 const props = defineProps<{ item: Taxonomy }>()
 
-const { select } = useTaxonSelection()
+const { select, selected } = useTaxonSelection()
+const hilight = computed(() => {
+  return props.item.id === selected.value?.id
+})
+
+onMounted(() => {
+  if (`#${props.item.name}` === location.hash) select(props.item, true)
+})
 
 const { onFold: onRankFold, onUnfold: onRankUnfold, isFolded: isRankFolded } = useRankFoldState()
 const { expanded, toggleFold } = useTaxonFoldState(props.item, !isRankFolded(props.item.rank))
+
 // const expanded = ref(!isRankFolded(props.item.rank))
 // const toggleFold = useToggle(expanded)
 onRankFold((rank) => {
@@ -60,6 +63,12 @@ onRankFold((rank) => {
 })
 onRankUnfold((rank) => {
   if (rank == props.item.rank) expanded.value = true
+})
+
+watch(maxRankDisplay, (rank) => {
+  if (isAscendant(props.item.rank, rank)) {
+    expanded.value = true
+  }
 })
 
 async function toggleAndScroll() {
@@ -80,6 +89,13 @@ const containerVisible = useElementVisibility(container)
 
 <style scoped lang="scss">
 @use 'vuetify';
+
+.taxon-item.hilight {
+  background-color: rgb(var(--v-theme-surface-light));
+  padding: 3px;
+  border-radius: 15px;
+}
+
 .taxon-item-container {
   padding: 0.3rem;
   /* border-right: thin solid rgba(var(--v-border-color), var(--v-border-opacity)); */
