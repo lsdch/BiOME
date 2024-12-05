@@ -70,7 +70,7 @@
             />
           </v-list-item>
           <v-list-item title="Targeted taxa">
-            <v-chip v-for="t in targeted_taxa" class="ma-1" :text="t?.name" />
+            <TaxonChip v-for="taxon in targeted_taxa" class="ma-1" :taxon />
           </v-list-item>
           <v-list-item title="Sampled taxa" subtitle="TODO" />
         </v-list>
@@ -171,6 +171,7 @@ import { useDisplay } from 'vuetify'
 import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
 import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
+import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 
 const { smAndDown, lgAndUp } = useDisplay()
 

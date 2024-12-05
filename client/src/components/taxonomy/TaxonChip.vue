@@ -1,7 +1,7 @@
 <template>
   <v-menu location="top start" origin="top start" transition="scale-transition">
     <template #activator="{ props }">
-      <v-chip :text="taxon.name" v-bind="props"> </v-chip>
+      <v-chip :text="taxon.name" v-bind="{ ...props, ...$attrs }"> </v-chip>
     </template>
     <v-card
       :title="taxon.name"
@@ -20,8 +20,8 @@
       </template>
       <v-card-text>
         <div class="d-flex justify-space-between">
-          <v-chip :text="taxon.status" />
-          <v-chip :text="taxon.rank" />
+          <v-chip :text="taxon.status" class="ma-1" />
+          <v-chip :text="taxon.rank" class="ma-1" />
         </div>
       </v-card-text>
     </v-card>
