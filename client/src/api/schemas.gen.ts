@@ -2432,11 +2432,23 @@ export const $Sampling = {
             },
             type: 'array'
         },
+        occurring_taxa: {
+            items: {
+                '$ref': '#/components/schemas/Taxon'
+            },
+            type: 'array'
+        },
+        samples: {
+            items: {
+                '$ref': '#/components/schemas/BioMaterial'
+            },
+            type: 'array'
+        },
         target: {
             '$ref': '#/components/schemas/SamplingTarget'
         }
     },
-    required: ['id', 'target', 'methods', 'fixatives', 'habitats', 'access_points', 'meta'],
+    required: ['id', 'target', 'methods', 'fixatives', 'habitats', 'access_points', 'samples', 'occurring_taxa', 'meta'],
     type: 'object'
 } as const;
 

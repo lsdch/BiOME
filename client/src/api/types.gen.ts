@@ -956,6 +956,8 @@ export type Sampling = {
     id: string;
     meta: Meta;
     methods: Array<SamplingMethod>;
+    occurring_taxa: Array<Taxon>;
+    samples: Array<BioMaterial>;
     target: SamplingTarget;
 };
 
@@ -2749,8 +2751,6 @@ export const SamplingMethodModelResponseTransformer: SamplingMethodModelResponse
     return data;
 };
 
-export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget;
-
 export type TaxonModelResponseTransformer = (data: any) => Taxon;
 
 export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = data => {
@@ -2759,6 +2759,50 @@ export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = data
     }
     return data;
 };
+
+export type BioMaterialModelResponseTransformer = (data: any) => BioMaterial;
+
+export type IdentificationModelResponseTransformer = (data: any) => Identification;
+
+export const IdentificationModelResponseTransformer: IdentificationModelResponseTransformer = data => {
+    if (data?.identified_on) {
+        DateWithPrecisionModelResponseTransformer(data.identified_on);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (data?.taxon) {
+        TaxonModelResponseTransformer(data.taxon);
+    }
+    return data;
+};
+
+export type ArticleModelResponseTransformer = (data: any) => Article;
+
+export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransformer = data => {
+    if (data?.identification) {
+        IdentificationModelResponseTransformer(data.identification);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (Array.isArray(data?.reference)) {
+        data.reference.forEach(ArticleModelResponseTransformer);
+    }
+    if (data?.sampling) {
+        SamplingModelResponseTransformer(data.sampling);
+    }
+    return data;
+};
+
+export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget;
 
 export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = data => {
     if (Array.isArray(data?.target_taxa)) {
@@ -2779,6 +2823,12 @@ export const SamplingModelResponseTransformer: SamplingModelResponseTransformer 
     }
     if (Array.isArray(data?.methods)) {
         data.methods.forEach(SamplingMethodModelResponseTransformer);
+    }
+    if (Array.isArray(data?.occurring_taxa)) {
+        data.occurring_taxa.forEach(TaxonModelResponseTransformer);
+    }
+    if (Array.isArray(data?.samples)) {
+        data.samples.forEach(BioMaterialModelResponseTransformer);
     }
     if (data?.target) {
         SamplingTargetModelResponseTransformer(data.target);
@@ -3054,48 +3104,6 @@ export const UpdatePersonResponseTransformer: UpdatePersonResponseTransformer = 
 };
 
 export type ListBioMaterialResponseTransformer = (data: any) => Promise<ListBioMaterialResponse>;
-
-export type BioMaterialModelResponseTransformer = (data: any) => BioMaterial;
-
-export type IdentificationModelResponseTransformer = (data: any) => Identification;
-
-export const IdentificationModelResponseTransformer: IdentificationModelResponseTransformer = data => {
-    if (data?.identified_on) {
-        DateWithPrecisionModelResponseTransformer(data.identified_on);
-    }
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    if (data?.taxon) {
-        TaxonModelResponseTransformer(data.taxon);
-    }
-    return data;
-};
-
-export type ArticleModelResponseTransformer = (data: any) => Article;
-
-export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = data => {
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    return data;
-};
-
-export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransformer = data => {
-    if (data?.identification) {
-        IdentificationModelResponseTransformer(data.identification);
-    }
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    if (Array.isArray(data?.reference)) {
-        data.reference.forEach(ArticleModelResponseTransformer);
-    }
-    if (data?.sampling) {
-        SamplingModelResponseTransformer(data.sampling);
-    }
-    return data;
-};
 
 export const ListBioMaterialResponseTransformer: ListBioMaterialResponseTransformer = async (data) => {
     if (Array.isArray(data)) {

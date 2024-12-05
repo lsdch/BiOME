@@ -2955,6 +2955,18 @@
 						},
 						"type": "array"
 					},
+					"occurring_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					},
+					"samples": {
+						"items": {
+							"$ref": "#/components/schemas/BioMaterial"
+						},
+						"type": "array"
+					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTarget"
 					}
@@ -2966,6 +2978,8 @@
 					"fixatives",
 					"habitats",
 					"access_points",
+					"samples",
+					"occurring_taxa",
 					"meta"
 				],
 				"type": "object"

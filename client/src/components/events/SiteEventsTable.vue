@@ -141,6 +141,14 @@ const headers: CRUDTableHeader<Event>[] = [
         title: 'Date',
         value: 'performed_on.date',
         align: 'end'
+      },
+      {
+        key: 'samples',
+        title: 'Samples',
+        align: 'end',
+        value(item: Event) {
+          return item.samplings.reduce((total, { samples }) => total + samples.length, 0)
+        }
       }
     ]
   },

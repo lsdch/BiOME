@@ -72,7 +72,9 @@
           <v-list-item title="Targeted taxa">
             <TaxonChip v-for="taxon in targeted_taxa" class="ma-1" :taxon />
           </v-list-item>
-          <v-list-item title="Sampled taxa" subtitle="TODO" />
+          <v-list-item title="Sampled taxa">
+            <TaxonChip v-for="taxon in occurring_taxa" class="ma-1" :taxon />
+          </v-list-item>
         </v-list>
       </div>
 
@@ -194,6 +196,19 @@ const targeted_taxa = computed(() => {
     site.value.events.reduce<Record<string, Taxon>>((acc, event) => {
       event.samplings.forEach(({ target }) => {
         target.target_taxa?.forEach((t) => {
+          acc[t.name] = t
+        })
+      })
+      return acc
+    }, {})
+  )
+})
+
+const occurring_taxa = computed(() => {
+  return Object.values(
+    site.value.events.reduce<Record<string, Taxon>>((acc, event) => {
+      event.samplings.forEach(({ occurring_taxa }) => {
+        occurring_taxa?.forEach((t) => {
           acc[t.name] = t
         })
       })

@@ -76,15 +76,17 @@ type SamplingTarget struct {
 }
 
 type Sampling struct {
-	ID           edgedb.UUID           `edgedb:"id" json:"id" format:"uuid"`
-	Target       SamplingTarget        `edgedb:"$inline" json:"target"`
-	Duration     edgedb.OptionalInt32  `edgedb:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Methods      []SamplingMethod      `edgedb:"methods" json:"methods"`
-	Fixatives    []vocabulary.Fixative `edgedb:"fixatives" json:"fixatives"`
-	Habitats     []Habitat             `edgedb:"habitats" json:"habitats"`
-	AccessPoints []string              `edgedb:"access_points" json:"access_points"`
-	Comments     edgedb.OptionalStr    `edgedb:"comments" json:"comments,omitempty"`
-	Meta         people.Meta           `edgedb:"meta" json:"meta"`
+	ID            edgedb.UUID           `edgedb:"id" json:"id" format:"uuid"`
+	Target        SamplingTarget        `edgedb:"$inline" json:"target"`
+	Duration      edgedb.OptionalInt32  `edgedb:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Methods       []SamplingMethod      `edgedb:"methods" json:"methods"`
+	Fixatives     []vocabulary.Fixative `edgedb:"fixatives" json:"fixatives"`
+	Habitats      []Habitat             `edgedb:"habitats" json:"habitats"`
+	AccessPoints  []string              `edgedb:"access_points" json:"access_points"`
+	Samples       []BioMaterial         `edgedb:"samples" json:"samples"`
+	OccurringTaxa []taxonomy.Taxon      `edgedb:"occurring_taxa" json:"occurring_taxa"`
+	Comments      edgedb.OptionalStr    `edgedb:"comments" json:"comments,omitempty"`
+	Meta          people.Meta           `edgedb:"meta" json:"meta"`
 }
 
 type SamplingInput struct {

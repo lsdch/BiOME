@@ -21,7 +21,18 @@
         @click="emit('edit', sampling)"
       />
     </template>
+
     <v-list density="compact">
+      <v-divider></v-divider>
+      <v-list-item title="Samples" prepend-icon="mdi-package-variant">
+        <v-chip
+          v-for="sample in sampling.samples"
+          :text="sample.identification.taxon.name"
+          :title="sample.type"
+          class="ma-1"
+        />
+      </v-list-item>
+      <v-divider></v-divider>
       <v-list-item title="Targets" prepend-icon="mdi-bullseye">
         <v-chip
           v-if="sampling.target.kind === 'Unknown'"
@@ -43,6 +54,7 @@
           rounded
         />
       </v-list-item>
+
       <v-list-item title="Duration" prepend-icon="mdi-update">
         <code>
           {{ Duration.fromObject({ minutes: sampling.duration }).toFormat("hh'h' mm'm'") }}

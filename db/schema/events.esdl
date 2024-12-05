@@ -115,16 +115,18 @@ module events {
     multi habitats: sampling::Habitat;
     multi access_points: str;
 
-    multi link samples := .<sampling[is occurrence::InternalBioMat];
-    multi link reports := .<sampling[is occurrence::ExternalBioMat];
+    multi link samples := .<sampling[is occurrence::BioMaterial];
     multi link external_seqs := .<sampling[is seq::ExternalSequence];
 
     multi link occurring_taxa := (
-      with ext_samples_no_seqs := (select .reports filter not exists .sequences)
+      with ext_samples_no_seqs := (
+        select .samples[is occurrence::ExternalBioMat]
+        filter not exists [is occurrence::ExternalBioMat].sequences
+      )
       select distinct (
         ext_samples_no_seqs.identification.taxon union
         .external_seqs.identification.taxon union
-        .samples.identified_taxa
+        .samples[is occurrence::InternalBioMat].identified_taxa
       )
     );
   }
