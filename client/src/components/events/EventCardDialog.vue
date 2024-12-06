@@ -115,7 +115,7 @@
         </v-list-item>
         <v-list-item title="Programs">
           <template #subtitle>
-            <v-chip v-for="p in props.event?.programs" class="ma-1" :text="p.label" />
+            <ProgramChip v-for="program in props.event?.programs" class="ma-1" :program />
           </template>
         </v-list-item>
       </v-list>
@@ -134,6 +134,7 @@ import SamplingFormDialog from './SamplingFormDialog.vue'
 import { ref } from 'vue'
 import EventSpotting from './EventSpotting.vue'
 import PersonChip from '../people/PersonChip.vue'
+import ProgramChip from './ProgramChip.vue'
 
 const [samplingDialog, toggleSamplingDialog] = useToggle(false)
 const editingSampling = ref<Sampling>()
