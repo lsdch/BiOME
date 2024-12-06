@@ -38,6 +38,10 @@
       {{ DateWithPrecision.format(item.performed_on) }}
     </template>
 
+    <template #item.samples="{ value }: { value: BioMaterial[] }">
+      <v-chip v-for="s in value" :text="s.identification.taxon.name"></v-chip>
+    </template>
+
     <template #item.samplings="{ value, item, index }">
       <v-chip
         v-if="value"
@@ -109,14 +113,14 @@
 </template>
 
 <script setup lang="ts">
-import { EventsService, Site, type Event } from '@/api'
+import { BioMaterial, EventsService, Site, type Event } from '@/api'
+import { DateWithPrecision } from '@/api/adapters'
 import { ref, useTemplateRef } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
 import EventCardDialog, { EventAction } from './EventCardDialog.vue'
 import EventFormDialog from './EventFormDialog.vue'
-import { DateWithPrecision } from '@/api/adapters'
 
 type RowClick = {
   index: number
@@ -147,7 +151,7 @@ const headers: CRUDTableHeader<Event>[] = [
         title: 'Samples',
         align: 'end',
         value(item: Event) {
-          return item.samplings.reduce((total, { samples }) => total + samples.length, 0)
+          return item.samplings.flatMap(({ samples }) => samples)
         }
       }
     ]
