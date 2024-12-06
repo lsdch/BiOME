@@ -1,5 +1,9 @@
 @use "vuetify";
 
+.font-monospace {
+  font-family: monospace;
+}
+
 .input-overline input {
   @extend .text-overline;
   text-transform: none;
