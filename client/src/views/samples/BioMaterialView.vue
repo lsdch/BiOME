@@ -23,7 +23,7 @@
       <TaxonChip :taxon />
     </template>
     <template #item.identification.identified_by="{ value }: { value: PersonInner }">
-      <v-chip :text="value.full_name" />
+      <PersonChip :person="value" />
     </template>
     <template #item.identification.identified_on="{ value }">
       {{ DateWithPrecision.format(value) }}
@@ -81,6 +81,7 @@
 <script setup lang="ts">
 import { BioMaterial, BioMaterialType, PersonInner, SamplesService, Taxon } from '@/api'
 import { DateWithPrecision } from '@/api/adapters'
+import PersonChip from '@/components/people/PersonChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { DateTime } from 'luxon'

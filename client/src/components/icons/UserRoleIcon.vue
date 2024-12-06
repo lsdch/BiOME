@@ -1,12 +1,12 @@
 <template>
-  <v-icon v-bind="{ ...$attrs, ...roleIcon(role) }" />
+  <v-icon v-bind="{ ...$attrs, ...roleIcon(role) }" :title="role" />
 </template>
 
 <script setup lang="ts">
 import { UserRole } from '@/api'
 import { roleIcon } from '../people/userRole'
 
-defineProps<{ role: UserRole }>()
+defineProps<{ role?: UserRole }>()
 </script>
 
 <style scoped></style>

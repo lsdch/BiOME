@@ -111,9 +111,7 @@
       />
       <v-list class="d-flex justify-space-between w-100">
         <v-list-item title="Performed by">
-          <template #subtitle>
-            <v-chip v-for="p in props.event?.performed_by" class="ma-1" :text="p.full_name" />
-          </template>
+          <PersonChip v-for="p in props.event?.performed_by" class="ma-1" :person="p" />
         </v-list-item>
         <v-list-item title="Programs">
           <template #subtitle>
@@ -135,6 +133,7 @@ import SamplingCard from './SamplingCard.vue'
 import SamplingFormDialog from './SamplingFormDialog.vue'
 import { ref } from 'vue'
 import EventSpotting from './EventSpotting.vue'
+import PersonChip from '../people/PersonChip.vue'
 
 const [samplingDialog, toggleSamplingDialog] = useToggle(false)
 const editingSampling = ref<Sampling>()

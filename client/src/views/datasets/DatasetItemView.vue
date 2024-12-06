@@ -33,9 +33,12 @@
             />
             <v-list-item title="Maintainers">
               <template #subtitle>
-                <v-chip v-for="(maintainer, key) in dataset.maintainers" class="ma-1" :key>
-                  {{ maintainer.full_name }}
-                </v-chip>
+                <PersonChip
+                  v-for="(maintainer, key) in dataset.maintainers"
+                  :person="maintainer"
+                  class="ma-1"
+                  :key
+                />
               </template>
             </v-list-item>
           </v-list>
@@ -86,6 +89,7 @@ import { DatasetsService } from '@/api'
 import SitesMap from '@/components/maps/SitesMap.vue'
 import SitePopup from '@/components/sites/SitePopup.vue'
 import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
+import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
 import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useToggle } from '@vueuse/core'
@@ -94,8 +98,7 @@ import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import DatasetEditForm from './DatasetEditForm.vue'
 import DatasetTabs from './DatasetTabs.vue'
-import PageErrorWrapper from '@/components/toolkit/ui/PageErrors.vue'
-import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
+import PersonChip from '@/components/people/PersonChip.vue'
 
 const { user } = useUserStore()
 
