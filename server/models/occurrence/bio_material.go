@@ -42,12 +42,18 @@ type BioMaterial struct {
 	External   models.Optional[ExternalBioMatSpecific] `edgedb:"external" json:"external,omitempty"`
 }
 
-func ListBioMaterials(db edgedb.Executor) ([]BioMaterial, error) {
-	var items = []BioMaterial{}
+type BioMaterialWithSite struct {
+	BioMaterial `edgedb:"$inline" json:",inline"`
+	Event       EventInner `edgedb:"event" json:"event"`
+}
+
+func ListBioMaterials(db edgedb.Executor) ([]BioMaterialWithSite, error) {
+	var items = []BioMaterialWithSite{}
 	err := db.Query(context.Background(),
 		`#edgeql
 			select occurrence::BioMaterialWithType {
         **,
+				event := .sampling.event { *, site: {name, code} },
 				identification: { **, identified_by: { * } },
         external := [is occurrence::ExternalBioMat]{
           original_link,

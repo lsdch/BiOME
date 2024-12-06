@@ -4,7 +4,7 @@
     density="compact"
     :delete="(person: Person) => PeopleService.deletePerson({ path: { id: person.id } })"
     :fetch-items="() => PeopleService.listPersons()"
-    :filter="filter"
+    :filter
     :search="filters.term"
     entityName="Person"
     :itemRepr="(p: Person) => p.full_name"

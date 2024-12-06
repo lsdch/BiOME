@@ -86,11 +86,24 @@ export type BioMaterial = {
     identification: Identification;
     meta: Meta;
     reference?: Array<Article>;
-    sampling: Sampling;
+    sampling: SamplingInner;
     type: BioMaterialType;
 };
 
 export type BioMaterialType = 'Internal' | 'External';
+
+export type BioMaterialWithSite = {
+    code: string;
+    comments: string;
+    event: EventInner;
+    external?: OptionalExternalBioMatSpecific;
+    id: string;
+    identification: Identification;
+    meta: Meta;
+    reference?: Array<Article>;
+    sampling: SamplingInner;
+    type: BioMaterialType;
+};
 
 export type CompositeDate = {
     day?: number;
@@ -312,6 +325,12 @@ export type Event = {
     samplings: Array<Sampling>;
     site: SiteInfo;
     spotting: Spotting;
+};
+
+export type EventInner = {
+    id: string;
+    performed_on: DateWithPrecision;
+    site: SiteInfo;
 };
 
 export type EventInput = {
@@ -958,6 +977,20 @@ export type Sampling = {
     methods: Array<SamplingMethod>;
     occurring_taxa: Array<Taxon>;
     samples: Array<BioMaterial>;
+    target: SamplingTarget;
+};
+
+export type SamplingInner = {
+    access_points: Array<(string)>;
+    comments?: string;
+    /**
+     * Sampling duration in minutes
+     */
+    duration?: number;
+    fixatives: Array<Fixative>;
+    habitats: Array<Habitat>;
+    id: string;
+    methods: Array<SamplingMethod>;
     target: SamplingTarget;
 };
 
@@ -2002,7 +2035,7 @@ export type ListBioMaterialData = {
     };
 };
 
-export type ListBioMaterialResponse = (Array<BioMaterial>);
+export type ListBioMaterialResponse = (Array<BioMaterialWithSite>);
 
 export type ListBioMaterialError = (ErrorModel);
 
@@ -2786,6 +2819,33 @@ export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = 
     return data;
 };
 
+export type SamplingInnerModelResponseTransformer = (data: any) => SamplingInner;
+
+export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget;
+
+export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = data => {
+    if (Array.isArray(data?.target_taxa)) {
+        data.target_taxa.forEach(TaxonModelResponseTransformer);
+    }
+    return data;
+};
+
+export const SamplingInnerModelResponseTransformer: SamplingInnerModelResponseTransformer = data => {
+    if (Array.isArray(data?.fixatives)) {
+        data.fixatives.forEach(FixativeModelResponseTransformer);
+    }
+    if (Array.isArray(data?.habitats)) {
+        data.habitats.forEach(HabitatModelResponseTransformer);
+    }
+    if (Array.isArray(data?.methods)) {
+        data.methods.forEach(SamplingMethodModelResponseTransformer);
+    }
+    if (data?.target) {
+        SamplingTargetModelResponseTransformer(data.target);
+    }
+    return data;
+};
+
 export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransformer = data => {
     if (data?.identification) {
         IdentificationModelResponseTransformer(data.identification);
@@ -2797,16 +2857,7 @@ export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransf
         data.reference.forEach(ArticleModelResponseTransformer);
     }
     if (data?.sampling) {
-        SamplingModelResponseTransformer(data.sampling);
-    }
-    return data;
-};
-
-export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget;
-
-export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = data => {
-    if (Array.isArray(data?.target_taxa)) {
-        data.target_taxa.forEach(TaxonModelResponseTransformer);
+        SamplingInnerModelResponseTransformer(data.sampling);
     }
     return data;
 };
@@ -3105,9 +3156,39 @@ export const UpdatePersonResponseTransformer: UpdatePersonResponseTransformer = 
 
 export type ListBioMaterialResponseTransformer = (data: any) => Promise<ListBioMaterialResponse>;
 
+export type BioMaterialWithSiteModelResponseTransformer = (data: any) => BioMaterialWithSite;
+
+export type EventInnerModelResponseTransformer = (data: any) => EventInner;
+
+export const EventInnerModelResponseTransformer: EventInnerModelResponseTransformer = data => {
+    if (data?.performed_on) {
+        DateWithPrecisionModelResponseTransformer(data.performed_on);
+    }
+    return data;
+};
+
+export const BioMaterialWithSiteModelResponseTransformer: BioMaterialWithSiteModelResponseTransformer = data => {
+    if (data?.event) {
+        EventInnerModelResponseTransformer(data.event);
+    }
+    if (data?.identification) {
+        IdentificationModelResponseTransformer(data.identification);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (Array.isArray(data?.reference)) {
+        data.reference.forEach(ArticleModelResponseTransformer);
+    }
+    if (data?.sampling) {
+        SamplingInnerModelResponseTransformer(data.sampling);
+    }
+    return data;
+};
+
 export const ListBioMaterialResponseTransformer: ListBioMaterialResponseTransformer = async (data) => {
     if (Array.isArray(data)) {
-        data.forEach(BioMaterialModelResponseTransformer);
+        data.forEach(BioMaterialWithSiteModelResponseTransformer);
     }
     return data;
 };

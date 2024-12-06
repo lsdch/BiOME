@@ -32,11 +32,15 @@ type SiteInfo struct {
 	Code string `edgedb:"code" json:"code"`
 }
 
+type EventInner struct {
+	ID          edgedb.UUID       `edgedb:"id" json:"id" format:"uuid"`
+	Site        SiteInfo          `edgedb:"site" json:"site"`
+	PerformedOn DateWithPrecision `edgedb:"performed_on" json:"performed_on"`
+}
+
 type Event struct {
-	ID                  edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
-	Site                SiteInfo             `edgedb:"site" json:"site"`
+	EventInner          `edgedb:"$inline" json:",inline"`
 	PerformedBy         []people.PersonUser  `edgedb:"performed_by" json:"performed_by" minLength:"1"`
-	PerformedOn         DateWithPrecision    `edgedb:"performed_on" json:"performed_on"`
 	Programs            []ProgramInner       `edgedb:"programs" json:"programs,omitempty"`
 	AbioticMeasurements []AbioticMeasurement `edgedb:"abiotic_measurements" json:"abiotic_measurements"`
 	Samplings           []Sampling           `edgedb:"samplings" json:"samplings"`

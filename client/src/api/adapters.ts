@@ -28,6 +28,11 @@ export namespace DateWithPrecision {
     Year: 'yyyy',
     Unknown: "'Unknown'"
   }
+  export function compare(a: DateWithPrecision, b: DateWithPrecision) {
+    return (DateWithPrecision.toDateTime(b) ?? 0) > (DateWithPrecision.toDateTime(a) ?? 0)
+      ? -1
+      : 1
+  }
 
   export function toInput({ date, precision }: DateWithPrecision): DateWithPrecisionInput {
     return { date: CompositeDate.fromDateWithPrecision({ date, precision }), precision }

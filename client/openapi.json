@@ -263,7 +263,7 @@
 						"type": "array"
 					},
 					"sampling": {
-						"$ref": "#/components/schemas/Sampling"
+						"$ref": "#/components/schemas/SamplingInner"
 					},
 					"type": {
 						"$ref": "#/components/schemas/BioMaterialType"
@@ -287,6 +287,56 @@
 				],
 				"title": "BioMaterialType",
 				"type": "string"
+			},
+			"BioMaterialWithSite": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"event": {
+						"$ref": "#/components/schemas/EventInner"
+					},
+					"external": {
+						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"reference": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingInner"
+					},
+					"type": {
+						"$ref": "#/components/schemas/BioMaterialType"
+					}
+				},
+				"required": [
+					"event",
+					"code",
+					"type",
+					"meta",
+					"id",
+					"sampling",
+					"identification",
+					"comments"
+				],
+				"type": "object"
 			},
 			"CompositeDate": {
 				"additionalProperties": false,
@@ -858,14 +908,35 @@
 					}
 				},
 				"required": [
-					"id",
-					"site",
 					"performed_by",
-					"performed_on",
 					"abiotic_measurements",
 					"samplings",
 					"spotting",
-					"meta"
+					"meta",
+					"id",
+					"site",
+					"performed_on"
+				],
+				"type": "object"
+			},
+			"EventInner": {
+				"additionalProperties": false,
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
+					"site": {
+						"$ref": "#/components/schemas/SiteInfo"
+					}
+				},
+				"required": [
+					"id",
+					"site",
+					"performed_on"
 				],
 				"type": "object"
 			},
@@ -2972,15 +3043,68 @@
 					}
 				},
 				"required": [
+					"samples",
+					"occurring_taxa",
+					"meta",
 					"id",
 					"target",
 					"methods",
 					"fixatives",
 					"habitats",
-					"access_points",
-					"samples",
-					"occurring_taxa",
-					"meta"
+					"access_points"
+				],
+				"type": "object"
+			},
+			"SamplingInner": {
+				"additionalProperties": false,
+				"properties": {
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int64",
+						"type": "integer"
+					},
+					"fixatives": {
+						"items": {
+							"$ref": "#/components/schemas/Fixative"
+						},
+						"type": "array"
+					},
+					"habitats": {
+						"items": {
+							"$ref": "#/components/schemas/Habitat"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"methods": {
+						"items": {
+							"$ref": "#/components/schemas/SamplingMethod"
+						},
+						"type": "array"
+					},
+					"target": {
+						"$ref": "#/components/schemas/SamplingTarget"
+					}
+				},
+				"required": [
+					"id",
+					"target",
+					"methods",
+					"fixatives",
+					"habitats",
+					"access_points"
 				],
 				"type": "object"
 			},
@@ -5818,7 +5942,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/BioMaterial"
+										"$ref": "#/components/schemas/BioMaterialWithSite"
 									},
 									"type": "array"
 								}

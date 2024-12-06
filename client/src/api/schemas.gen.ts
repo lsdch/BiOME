@@ -221,7 +221,7 @@ export const $BioMaterial = {
             type: 'array'
         },
         sampling: {
-            '$ref': '#/components/schemas/Sampling'
+            '$ref': '#/components/schemas/SamplingInner'
         },
         type: {
             '$ref': '#/components/schemas/BioMaterialType'
@@ -235,6 +235,48 @@ export const $BioMaterialType = {
     enum: ['Internal', 'External'],
     title: 'BioMaterialType',
     type: 'string'
+} as const;
+
+export const $BioMaterialWithSite = {
+    additionalProperties: false,
+    properties: {
+        code: {
+            type: 'string'
+        },
+        comments: {
+            type: 'string'
+        },
+        event: {
+            '$ref': '#/components/schemas/EventInner'
+        },
+        external: {
+            '$ref': '#/components/schemas/OptionalExternalBioMatSpecific'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        identification: {
+            '$ref': '#/components/schemas/Identification'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        reference: {
+            items: {
+                '$ref': '#/components/schemas/Article'
+            },
+            type: 'array'
+        },
+        sampling: {
+            '$ref': '#/components/schemas/SamplingInner'
+        },
+        type: {
+            '$ref': '#/components/schemas/BioMaterialType'
+        }
+    },
+    required: ['event', 'code', 'type', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    type: 'object'
 } as const;
 
 export const $CompositeDate = {
@@ -724,7 +766,25 @@ export const $Event = {
             '$ref': '#/components/schemas/Spotting'
         }
     },
-    required: ['id', 'site', 'performed_by', 'performed_on', 'abiotic_measurements', 'samplings', 'spotting', 'meta'],
+    required: ['performed_by', 'abiotic_measurements', 'samplings', 'spotting', 'meta', 'id', 'site', 'performed_on'],
+    type: 'object'
+} as const;
+
+export const $EventInner = {
+    additionalProperties: false,
+    properties: {
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        performed_on: {
+            '$ref': '#/components/schemas/DateWithPrecision'
+        },
+        site: {
+            '$ref': '#/components/schemas/SiteInfo'
+        }
+    },
+    required: ['id', 'site', 'performed_on'],
     type: 'object'
 } as const;
 
@@ -2448,7 +2508,54 @@ export const $Sampling = {
             '$ref': '#/components/schemas/SamplingTarget'
         }
     },
-    required: ['id', 'target', 'methods', 'fixatives', 'habitats', 'access_points', 'samples', 'occurring_taxa', 'meta'],
+    required: ['samples', 'occurring_taxa', 'meta', 'id', 'target', 'methods', 'fixatives', 'habitats', 'access_points'],
+    type: 'object'
+} as const;
+
+export const $SamplingInner = {
+    additionalProperties: false,
+    properties: {
+        access_points: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        comments: {
+            type: 'string'
+        },
+        duration: {
+            description: 'Sampling duration in minutes',
+            format: 'int64',
+            type: 'integer'
+        },
+        fixatives: {
+            items: {
+                '$ref': '#/components/schemas/Fixative'
+            },
+            type: 'array'
+        },
+        habitats: {
+            items: {
+                '$ref': '#/components/schemas/Habitat'
+            },
+            type: 'array'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        methods: {
+            items: {
+                '$ref': '#/components/schemas/SamplingMethod'
+            },
+            type: 'array'
+        },
+        target: {
+            '$ref': '#/components/schemas/SamplingTarget'
+        }
+    },
+    required: ['id', 'target', 'methods', 'fixatives', 'habitats', 'access_points'],
     type: 'object'
 } as const;
 
