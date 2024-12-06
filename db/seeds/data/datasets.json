@@ -76,8 +76,23 @@
                 "is_donation": false,
                 "duration": 90,
                 "comments": "Trapping Proasellus",
+                "internal_biomat": [
+                  {
+                    "code": "A_aquaticus|LA_DOUA_202112",
+                    "identification": {
+                      "identified_on": {
+                        "precision": "Month",
+                        "date": "2022-02-01T00:00:00Z"
+                      },
+                      "taxon": "Asellus aquaticus",
+                      "identified_by": "fmalard"
+                    },
+                    "comments": "Seed internal bio-material"
+                  }
+                ],
                 "external_biomat": [
                   {
+                    "code": "P_cavaticus|LA_DOUA_202112",
                     "quantity": "One",
                     "in_collection": "Some museum",
                     "item_vouchers": [

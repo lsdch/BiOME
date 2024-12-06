@@ -39,7 +39,7 @@
     </template>
 
     <template #item.samples="{ value }: { value: BioMaterial[] }">
-      <v-chip v-for="s in value" :text="s.identification.taxon.name"></v-chip>
+      <v-chip v-for="s in value" class="ma-1" :text="s.identification.taxon.name"></v-chip>
     </template>
 
     <template #item.samplings="{ value, item, index }">

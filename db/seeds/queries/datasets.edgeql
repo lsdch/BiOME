@@ -97,10 +97,27 @@ for item in json_array_unpack(data) union (
             comments := <str>json_get(sampling, 'comments')
           }
         ),
+        intbiomats := (for intbm in json_array_unpack(json_get(sampling, 'internal_biomat')) union (
+          insert occurrence::InternalBioMat {
+            sampling := s,
+            code := <str>intbm['code'],
+            comments := <str>json_get(intbm, "comments"),
+            identification := (
+              insert occurrence::Identification {
+                taxon := (select taxonomy::Taxon filter .name = <str>intbm['identification']['taxon']),
+                identified_by := (select people::Person filter .alias = <str>json_get(intbm, 'identification', 'identified_by')),
+                identified_on := ((
+                  date := <datetime>intbm['identification']['identified_on']['date'],
+                  precision := <date::DatePrecision>intbm['identification']['identified_on']['precision'],
+                ))
+              }
+            )
+          }
+        )),
         extbiomats := (for extbm in json_array_unpack(json_get(sampling, 'external_biomat')) union (
           insert occurrence::ExternalBioMat {
             sampling := s,
-            code := "sdfgsdfhqdgsijkngsjnlkjn",
+            code := <str>extbm['code'],
             quantity := <occurrence::QuantityType>extbm['quantity'],
             content_description := <str>json_get(extbm, "content_description"),
             in_collection := <str>json_get(extbm, "in_collection"),

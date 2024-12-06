@@ -32,7 +32,7 @@ module occurrence {
   abstract type BioMaterial extending Occurrence {
     required code : str {
       constraint exclusive;
-      annotation description := "Format like 'taxon_code|sampling_code'";
+      annotation description := "Format like 'taxon_short_code|sampling_code'";
       # rewrite insert, update using ((
       #   .identification.taxon.code ++ "|" ++ events::event_code(.sampling.event)
       # ));
