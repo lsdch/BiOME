@@ -23,6 +23,14 @@ func RegisterRoutes(r router.Router) {
 			resolvers.AuthResolver
 		}](occurrence.ListBioMaterials))
 
+	router.Register(biomat_API, "GetBioMaterial",
+		huma.Operation{
+			Path:        "/{code}",
+			Method:      http.MethodGet,
+			Summary:     "Get bio-material",
+			Description: "Both internal and external",
+		}, controllers.GetByCodeHandler(occurrence.GetBioMaterial))
+
 	router.Register(biomat_API, "DeleteBioMaterial",
 		huma.Operation{
 			Path:        "/{code}",

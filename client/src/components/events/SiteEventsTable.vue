@@ -39,7 +39,13 @@
     </template>
 
     <template #item.samples="{ value }: { value: BioMaterial[] }">
-      <v-chip v-for="s in value" class="ma-1" :text="s.identification.taxon.name"></v-chip>
+      <v-chip
+        v-for="s in value"
+        class="ma-1"
+        :text="s.identification.taxon.name"
+        label
+        :to="{ name: 'biomat-item', params: { code: s.code } }"
+      ></v-chip>
     </template>
 
     <template #item.samplings="{ value, item, index }">

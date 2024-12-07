@@ -77,6 +77,12 @@ function setupRouter(settings: InstanceSettings) {
         name: "site-item",
         component: () => import('@/views/location/SiteItemView.vue')
       },
+      {
+        path: "/bio-material/:code",
+        name: "biomat-item",
+        component: () => import('@/views/samples/BiomatItemView.vue'),
+        props: true
+      },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       ...Object.values(routes),
       ...navRouteDefinitions

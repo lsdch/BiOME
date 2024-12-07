@@ -27,6 +27,10 @@
         :active="!!search.type"
       />
     </template>
+
+    <template #item.code="{ value }">
+      <RouterLink :text="value" :to="{ name: 'biomat-item', params: { code: value } }" />
+    </template>
     <template #item.event.site="{ value: { code, name } }: { value: SiteInfo }">
       <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name" />
     </template>

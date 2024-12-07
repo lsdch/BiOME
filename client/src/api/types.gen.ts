@@ -92,7 +92,11 @@ export type BioMaterial = {
 
 export type BioMaterialType = 'Internal' | 'External';
 
-export type BioMaterialWithSite = {
+export type BioMaterialWithDetails = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
     code: string;
     comments: string;
     event: EventInner;
@@ -101,7 +105,7 @@ export type BioMaterialWithSite = {
     identification: Identification;
     meta: Meta;
     reference?: Array<Article>;
-    sampling: SamplingInner;
+    sampling: Sampling;
     type: BioMaterialType;
 };
 
@@ -2035,7 +2039,7 @@ export type ListBioMaterialData = {
     };
 };
 
-export type ListBioMaterialResponse = (Array<BioMaterialWithSite>);
+export type ListBioMaterialResponse = (Array<BioMaterialWithDetails>);
 
 export type ListBioMaterialError = (ErrorModel);
 
@@ -2054,6 +2058,22 @@ export type DeleteBioMaterialData = {
 export type DeleteBioMaterialResponse = (BioMaterial);
 
 export type DeleteBioMaterialError = (ErrorModel);
+
+export type GetBioMaterialData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type GetBioMaterialResponse = (BioMaterialWithDetails);
+
+export type GetBioMaterialError = (ErrorModel);
 
 export type ListAbioticParametersData = {
     headers?: {
@@ -3156,7 +3176,7 @@ export const UpdatePersonResponseTransformer: UpdatePersonResponseTransformer = 
 
 export type ListBioMaterialResponseTransformer = (data: any) => Promise<ListBioMaterialResponse>;
 
-export type BioMaterialWithSiteModelResponseTransformer = (data: any) => BioMaterialWithSite;
+export type BioMaterialWithDetailsModelResponseTransformer = (data: any) => BioMaterialWithDetails;
 
 export type EventInnerModelResponseTransformer = (data: any) => EventInner;
 
@@ -3167,7 +3187,7 @@ export const EventInnerModelResponseTransformer: EventInnerModelResponseTransfor
     return data;
 };
 
-export const BioMaterialWithSiteModelResponseTransformer: BioMaterialWithSiteModelResponseTransformer = data => {
+export const BioMaterialWithDetailsModelResponseTransformer: BioMaterialWithDetailsModelResponseTransformer = data => {
     if (data?.event) {
         EventInnerModelResponseTransformer(data.event);
     }
@@ -3181,14 +3201,14 @@ export const BioMaterialWithSiteModelResponseTransformer: BioMaterialWithSiteMod
         data.reference.forEach(ArticleModelResponseTransformer);
     }
     if (data?.sampling) {
-        SamplingInnerModelResponseTransformer(data.sampling);
+        SamplingModelResponseTransformer(data.sampling);
     }
     return data;
 };
 
 export const ListBioMaterialResponseTransformer: ListBioMaterialResponseTransformer = async (data) => {
     if (Array.isArray(data)) {
-        data.forEach(BioMaterialWithSiteModelResponseTransformer);
+        data.forEach(BioMaterialWithDetailsModelResponseTransformer);
     }
     return data;
 };
@@ -3197,6 +3217,13 @@ export type DeleteBioMaterialResponseTransformer = (data: any) => Promise<Delete
 
 export const DeleteBioMaterialResponseTransformer: DeleteBioMaterialResponseTransformer = async (data) => {
     BioMaterialModelResponseTransformer(data);
+    return data;
+};
+
+export type GetBioMaterialResponseTransformer = (data: any) => Promise<GetBioMaterialResponse>;
+
+export const GetBioMaterialResponseTransformer: GetBioMaterialResponseTransformer = async (data) => {
+    BioMaterialWithDetailsModelResponseTransformer(data);
     return data;
 };
 

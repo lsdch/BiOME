@@ -3,12 +3,15 @@
     <v-container
       fluid
       id="item-view-container"
-      :class="['align-start fill-height w-100', { large: lgAndUp, small: smAndDown }]"
+      :class="['align-start fill-height w-100', { large: xlAndUp, small: mdAndDown }]"
     >
-      <div id="info-container">
-        <div class="text-h6 d-flex align-center">
-          <v-icon icon="mdi-map-marker-radius" />
-          {{ site.name }}
+      <v-card
+        id="info-container"
+        :title="site.name"
+        :subtitle="site.code"
+        prepend-icon="mdi-map-marker-radius"
+      >
+        <template #append>
           <v-btn
             class="ml-auto"
             color="primary"
@@ -17,16 +20,14 @@
             variant="tonal"
             @click="toggleEdit(true)"
           />
-        </div>
+        </template>
+        <!-- <div class="text-h6 d-flex align-center">
+          <v-icon icon="mdi-map-marker-radius" />
+          {{ site.name }}
+
+        </div> -->
         <v-divider class="my-3" />
         <v-list>
-          <v-list-item title="Code">
-            <template #subtitle>
-              <code class="pb-1">
-                <span>{{ site.code }} </span></code
-              >
-            </template>
-          </v-list-item>
           <v-list-item title="Coordinates" class="pr-0">
             <template #subtitle>
               <code class="text-wrap">
@@ -39,6 +40,7 @@
                 density="compact"
                 prepend-icon="mdi-crosshairs-question"
                 :text="site.coordinates.precision"
+                title="Precision"
               />
             </template>
             <template #append>
@@ -76,7 +78,7 @@
             <TaxonChip v-for="taxon in occurring_taxa" class="ma-1" :taxon />
           </v-list-item>
         </v-list>
-      </div>
+      </v-card>
 
       <SiteFormDialog :edit="site" v-model="editDialog"></SiteFormDialog>
 
@@ -175,7 +177,7 @@ import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
 import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 
-const { smAndDown, lgAndUp } = useDisplay()
+const { smAndDown, lgAndUp, mdAndDown, xlAndUp } = useDisplay()
 
 const [mapActive, toggleMap] = useToggle(false)
 const [editDialog, toggleEdit] = useToggle(false)

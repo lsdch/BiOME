@@ -237,9 +237,16 @@ export const $BioMaterialType = {
     type: 'string'
 } as const;
 
-export const $BioMaterialWithSite = {
+export const $BioMaterialWithDetails = {
     additionalProperties: false,
     properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/BioMaterialWithDetails.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
         code: {
             type: 'string'
         },
@@ -269,7 +276,7 @@ export const $BioMaterialWithSite = {
             type: 'array'
         },
         sampling: {
-            '$ref': '#/components/schemas/SamplingInner'
+            '$ref': '#/components/schemas/Sampling'
         },
         type: {
             '$ref': '#/components/schemas/BioMaterialType'

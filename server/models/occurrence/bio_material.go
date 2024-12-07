@@ -33,22 +33,53 @@ const (
 	External BioMaterialType = "External"
 )
 
-type BioMaterial struct {
-	Occurrence `edgedb:"$inline" json:",inline"`
-	Code       string                                  `edgedb:"code" json:"code"`
-	References []references.Article                    `edgedb:"published_in" json:"reference,omitempty"`
-	Type       BioMaterialType                         `edgedb:"type" json:"type"`
-	Meta       people.Meta                             `edgedb:"meta" json:"meta"`
-	External   models.Optional[ExternalBioMatSpecific] `edgedb:"external" json:"external,omitempty"`
+type GenericBioMaterial[SamplingType any] struct {
+	GenericOccurrence[SamplingType] `edgedb:"$inline" json:",inline"`
+	Code                            string                                  `edgedb:"code" json:"code"`
+	Type                            BioMaterialType                         `edgedb:"type" json:"type"`
+	References                      []references.Article                    `edgedb:"published_in" json:"reference,omitempty"`
+	External                        models.Optional[ExternalBioMatSpecific] `edgedb:"external" json:"external,omitempty"`
+	Meta                            people.Meta                             `edgedb:"meta" json:"meta"`
 }
 
-type BioMaterialWithSite struct {
-	BioMaterial `edgedb:"$inline" json:",inline"`
-	Event       EventInner `edgedb:"event" json:"event"`
+type BioMaterial GenericBioMaterial[SamplingInner]
+
+type BioMaterialWithDetails struct {
+	GenericBioMaterial[Sampling] `edgedb:"$inline" json:",inline"`
+	Event                        EventInner `edgedb:"event" json:"event"`
 }
 
-func ListBioMaterials(db edgedb.Executor) ([]BioMaterialWithSite, error) {
-	var items = []BioMaterialWithSite{}
+func GetBioMaterial(db edgedb.Executor, code string) (biomat BioMaterialWithDetails, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+		select occurrence::BioMaterialWithType {
+			**,
+			sampling: {
+				*,
+				target_taxa: { * },
+				fixatives: { * },
+				methods: { * },
+				habitats: { * },
+				samples: { **, identification: { **, identified_by: { * } } },
+				occurring_taxa: { * }
+			},
+			event := .sampling.event { *, site: {name, code} },
+			identification: { **, identified_by: { * } },
+			external := [is occurrence::ExternalBioMat]{
+				original_link,
+				in_collection,
+				item_vouchers,
+				quantity,
+				content_description
+			}
+		} filter .code = <str>$0
+	`,
+		&biomat, code)
+	return biomat, err
+}
+
+func ListBioMaterials(db edgedb.Executor) ([]BioMaterialWithDetails, error) {
+	var items = []BioMaterialWithDetails{}
 	err := db.Query(context.Background(),
 		`#edgeql
 			select occurrence::BioMaterialWithType {

@@ -8,6 +8,12 @@ a {
   font-family: monospace;
 }
 
+// .v-list.no-indent {
+//   .v-list-group__items .v-list-item {
+//     padding-inline-start: 32px !important;
+//   }
+// }
+
 .input-overline input {
   @extend .text-overline;
   text-transform: none;

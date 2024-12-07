@@ -288,9 +288,18 @@
 				"title": "BioMaterialType",
 				"type": "string"
 			},
-			"BioMaterialWithSite": {
+			"BioMaterialWithDetails": {
 				"additionalProperties": false,
 				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/BioMaterialWithDetails.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
 					"code": {
 						"type": "string"
 					},
@@ -320,7 +329,7 @@
 						"type": "array"
 					},
 					"sampling": {
-						"$ref": "#/components/schemas/SamplingInner"
+						"$ref": "#/components/schemas/Sampling"
 					},
 					"type": {
 						"$ref": "#/components/schemas/BioMaterialType"
@@ -5942,7 +5951,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/BioMaterialWithSite"
+										"$ref": "#/components/schemas/BioMaterialWithDetails"
 									},
 									"type": "array"
 								}
@@ -6046,6 +6055,78 @@
 					}
 				},
 				"summary": "Delete bio-material",
+				"tags": [
+					"Samples"
+				]
+			},
+			"get": {
+				"description": "Both internal and external",
+				"operationId": "GetBioMaterial",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BioMaterialWithDetails"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Get bio-material",
 				"tags": [
 					"Samples"
 				]

@@ -124,7 +124,8 @@
                 </div>
                 <slot name="expanded-row-footer" v-bind="{ item }">
                   <div class="d-flex flex-wrap">
-                    <ItemDateChip
+                    <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" />
+                    <!-- <ItemDateChip
                       v-if="item.meta?.created"
                       icon="created"
                       :date="item.meta.created"
@@ -133,7 +134,7 @@
                       v-if="item.meta?.modified"
                       icon="updated"
                       :date="item.meta.modified"
-                    />
+                    /> -->
                     <v-spacer />
                     <v-btn
                       prepend-icon="mdi-identifier"
@@ -183,6 +184,7 @@ import TableFilterMenu from './TableFilterMenu.vue'
 import TableToolbar from './TableToolbar.vue'
 import { useDisplay } from 'vuetify'
 import { isGranted } from '@/components/people/userRole'
+import MetaChip from '../MetaChip.vue'
 
 type Props = TableProps<ItemType> & {
   filter?: (item: ItemType) => boolean

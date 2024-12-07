@@ -44,16 +44,7 @@
           </v-list>
           <v-divider class="my-3" />
           <div>
-            <ItemDateChip
-              v-if="dataset.meta?.created"
-              icon="created"
-              :date="dataset.meta.created"
-            />
-            <ItemDateChip
-              v-if="dataset.meta?.modified"
-              icon="updated"
-              :date="dataset.meta.modified"
-            />
+            <MetaChip :meta="dataset.meta" />
           </div>
           <v-divider class="my-3" />
           <DatasetTabs :dataset />
@@ -99,6 +90,7 @@ import { useDisplay } from 'vuetify'
 import DatasetEditForm from './DatasetEditForm.vue'
 import DatasetTabs from './DatasetTabs.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
+import MetaChip from '@/components/toolkit/MetaChip.vue'
 
 const { user } = useUserStore()
 
