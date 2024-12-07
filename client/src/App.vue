@@ -8,7 +8,7 @@
           variant="plain"
           :ripple="false"
           :to="{ name: 'home' }"
-          :text="settings.name"
+          :text="xs ? undefined : settings.name"
         >
           <template #prepend>
             <AppIcon :size="30" />
@@ -56,7 +56,7 @@ import { useAppConfirmDialog } from './composables/confirm_dialog'
 
 const loading = ref(false)
 
-const { smAndDown } = useDisplay()
+const { smAndDown, xs } = useDisplay()
 
 const drawer = ref(!smAndDown.value)
 const drawerTemporary = ref<boolean>()
