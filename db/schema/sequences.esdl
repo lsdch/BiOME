@@ -151,13 +151,18 @@ module seq {
     };
   }
 
-  type AssembledSequence extending Sequence, default::Auditable {
+  type AssembledSequence extending Sequence, occurrence::Occurrence {
+    overloaded required sampling: events::Sampling {
+      rewrite insert, update using (
+        select .specimen.biomat.sampling
+      );
+    };
     required alignmentCode: str { constraint exclusive };
     accession_number: str {
       annotation description := "The NCBI accession number, if the sequence was uploaded.";
       constraint exclusive;
     };
-    required identification: occurrence::Identification;
+    # required identification: occurrence::Identification;
 
     multi published_in: references::Article;
     required multi assembled_by: people::Person;
@@ -174,11 +179,11 @@ module seq {
     annotation description := "The sequence origin. 'PERSCOM' is 'Personal communication', 'Legacy' indicates the sequence originates from the lab but could not be registered as such due to missing required metadata.";
   };
 
-  type ExternalSequence extending Sequence, occurrence::Occurrence, default::Auditable {
+  type ExternalSequence extending Sequence, occurrence::Occurrence {
 
     required type: ExternalSeqType;
     source_sample: occurrence::ExternalBioMat;
-    reference: references::Article;
+    reference: references::Article; # TODO: move this to Occurrence schema
 
     accession_number: str {
       annotation description := "NCBI accession number of the original sequence.";
@@ -186,7 +191,7 @@ module seq {
       constraint min_len_value(6);
       constraint max_len_value(12);
     };
-    constraint expression on (exists .accession_number) except (.type != ExternalSeqType.NCBI);
+    # constraint expression on ((exists .accession_number)) except (.type != ExternalSeqType.NCBI);
 
     required specimen_identifier: str {
       annotation description := "An identifier for the organism from which the sequence was produced, provided in the original source";
