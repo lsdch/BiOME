@@ -12,18 +12,26 @@
       <slot name="activator" v-bind="slotData"></slot>
     </template>
 
-    <v-card flat :rounded="false">
-      <v-toolbar class="position-sticky">
+    <v-card flat :rounded="false" :title :subtitle>
+      <!-- <v-toolbar class="position-sticky">
         <template #title>
           <slot name="title">
             <v-toolbar-title class="font-weight-bold"> {{ title }} </v-toolbar-title>
           </slot>
         </template>
-        <template #append>
-          <slot name="append" />
-          <v-btn class="ml-1" color="grey" @click="close" :text="closeText" />
-        </template>
-      </v-toolbar>
+      </v-toolbar> -->
+      <template
+        v-for="(id, index) of Object.keys(slots).filter((k) => k !== 'append')"
+        #[id]="slotData"
+        :key="index"
+      >
+        <slot :name="id" v-bind="slotData ?? {}" />
+      </template>
+      <template #append>
+        <slot name="append" />
+        <v-btn class="ml-1" color="grey" @click="close" :text="closeText" variant="plain" />
+      </template>
+      <v-divider />
       <slot>
         <v-card-text>
           <!-- Default form slot -->
@@ -47,6 +55,7 @@ const emit = defineEmits<{ close: [] }>()
 
 export type CardDialogProps = {
   title?: string
+  subtitle?: string
   loading?: boolean
   fullscreen?: boolean
   maxWidth?: number

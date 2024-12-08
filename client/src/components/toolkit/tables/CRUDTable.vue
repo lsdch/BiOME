@@ -168,23 +168,22 @@
 
 <script setup lang="ts" generic="ItemType extends { id: string; meta?: Meta }">
 import { Meta } from '@/api'
+import { isGranted } from '@/components/people/userRole'
 import { useArrayFilter, useClipboard } from '@vueuse/core'
-import { Ref, UnwrapRef, computed, getCurrentInstance, reactive, ref, useSlots } from 'vue'
-import { ComponentProps, ComponentEmit } from 'vue-component-type-helpers'
+import { Ref, UnwrapRef, reactive, ref, useSlots } from 'vue'
+import { ComponentProps } from 'vue-component-type-helpers'
+import { useDisplay } from 'vuetify'
 import { VDataTable } from 'vuetify/components'
 import { TableProps, useTable } from '.'
 import CRUDFeedback from '../CRUDFeedback.vue'
 import ExportDialog from '../ExportDialog.vue'
-import ItemDateChip from '../ItemDateChip.vue'
 import { isOwner } from '../meta'
+import MetaChip from '../MetaChip.vue'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDItemActions from './CRUDItemActions.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableFilterMenu from './TableFilterMenu.vue'
 import TableToolbar from './TableToolbar.vue'
-import { useDisplay } from 'vuetify'
-import { isGranted } from '@/components/people/userRole'
-import MetaChip from '../MetaChip.vue'
 
 type Props = TableProps<ItemType> & {
   filter?: (item: ItemType) => boolean

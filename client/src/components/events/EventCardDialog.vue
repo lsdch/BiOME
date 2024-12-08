@@ -1,7 +1,11 @@
 <template>
-  <CardDialog v-model="open" :fullscreen="smAndDown">
-    <template #title>
+  <CardDialog v-model="open" :fullscreen="smAndDown" :title="event?.site.name">
+    <!-- :subtitle="event ? DateWithPrecision.format(event!.performed_on) : undefined" -->
+    <!-- <template #title>
       <slot name="title" />
+    </template> -->
+    <template #subtitle>
+      <slot name="subtitle" />
     </template>
 
     <SamplingFormDialog
@@ -135,6 +139,8 @@ import { ref } from 'vue'
 import EventSpotting from './EventSpotting.vue'
 import PersonChip from '../people/PersonChip.vue'
 import ProgramChip from './ProgramChip.vue'
+import { DateTime } from 'luxon'
+import { DateWithPrecision } from '@/api/adapters'
 
 const [samplingDialog, toggleSamplingDialog] = useToggle(false)
 const editingSampling = ref<Sampling>()

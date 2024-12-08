@@ -99,19 +99,26 @@
     @next="focusedEvent && focusItem(focusedEvent.index + 1)"
     @prev="focusedEvent && focusItem(focusedEvent.index - 1)"
   >
-    <template v-if="focusedEvent" #title>
+    <template v-if="focusedEvent" #subtitle>
       <v-btn
         color="primary"
         icon="mdi-arrow-left"
         @click="focusNext"
+        size="small"
+        variant="text"
+        density="compact"
         :disabled="focusedEvent.index >= site.events.length - 1"
       />
-      {{ focusedEvent.item.site.name }} |
       {{ DateWithPrecision.format(focusedEvent.item.performed_on) }}
+      <!-- {{ focusedEvent.item.site.name }} |
+      {{ DateWithPrecision.format(focusedEvent.item.performed_on) }} -->
       <v-btn
         color="primary"
         icon="mdi-arrow-right"
         @click="focusPrev"
+        size="small"
+        variant="text"
+        density="compact"
         :disabled="focusedEvent.index <= 0"
       />
     </template>
