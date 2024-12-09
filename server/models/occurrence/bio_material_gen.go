@@ -12,35 +12,35 @@ import (
 
 
 
-var BioMaterialTypeValues = []BioMaterialType{
+var BioMaterialCategoryValues = []BioMaterialCategory{
 	Internal,
 	External,
 }
 
 // Register enum in OpenAPI specification
-func (u BioMaterialType) Schema(r huma.Registry) *huma.Schema {
-  if r.Map()["BioMaterialType"] == nil {
-    schemaRef := r.Schema(reflect.TypeOf(""), true, "BioMaterialType")
-    schemaRef.Title = "BioMaterialType"
-    for _, v := range BioMaterialTypeValues {
+func (u BioMaterialCategory) Schema(r huma.Registry) *huma.Schema {
+  if r.Map()["BioMaterialCategory"] == nil {
+    schemaRef := r.Schema(reflect.TypeOf(""), true, "BioMaterialCategory")
+    schemaRef.Title = "BioMaterialCategory"
+    for _, v := range BioMaterialCategoryValues {
       schemaRef.Enum = append(schemaRef.Enum, string(v))
     }
-    r.Map()["BioMaterialType"] = schemaRef
+    r.Map()["BioMaterialCategory"] = schemaRef
   }
 
-	return &huma.Schema{Ref: "#/components/schemas/BioMaterialType"}
+	return &huma.Schema{Ref: "#/components/schemas/BioMaterialCategory"}
 }
 
-func (m *BioMaterialType) Fake(f *gofakeit.Faker) (any, error) {
-	return string(BioMaterialTypeValues[f.IntN(len(BioMaterialTypeValues) - 1)]), nil
+func (m *BioMaterialCategory) Fake(f *gofakeit.Faker) (any, error) {
+	return string(BioMaterialCategoryValues[f.IntN(len(BioMaterialCategoryValues) - 1)]), nil
 }
 
 // EdgeDB Marshalling
-func (m BioMaterialType) MarshalEdgeDBStr() ([]byte, error) {
+func (m BioMaterialCategory) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }
 
-func (m *BioMaterialType) UnmarshalEdgeDBStr(data []byte) error {
-	*m = BioMaterialType(string(data))
+func (m *BioMaterialCategory) UnmarshalEdgeDBStr(data []byte) error {
+	*m = BioMaterialCategory(string(data))
 	return nil
 }

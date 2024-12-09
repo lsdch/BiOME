@@ -79,6 +79,7 @@ export type BioMaterial = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
+    category: BioMaterialCategory;
     code: string;
     comments: string;
     external?: OptionalExternalBioMatSpecific;
@@ -88,16 +89,16 @@ export type BioMaterial = {
     meta: Meta;
     reference?: Array<Article>;
     sampling: SamplingInner;
-    type: BioMaterialType;
 };
 
-export type BioMaterialType = 'Internal' | 'External';
+export type BioMaterialCategory = 'Internal' | 'External';
 
 export type BioMaterialWithDetails = {
     /**
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
+    category: BioMaterialCategory;
     code: string;
     comments: string;
     event: EventInner;
@@ -108,7 +109,6 @@ export type BioMaterialWithDetails = {
     meta: Meta;
     reference?: Array<Article>;
     sampling: Sampling;
-    type: BioMaterialType;
 };
 
 export type CompositeDate = {

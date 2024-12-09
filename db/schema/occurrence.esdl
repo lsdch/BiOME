@@ -72,7 +72,7 @@ module occurrence {
       sampling: { * },
       identification: { * },
       meta: { * },
-      type := (
+      category := (
         if (BioMaterial is InternalBioMat) then "Internal"
         else if (BioMaterial is ExternalBioMat) then "External"
         else "Unknown"

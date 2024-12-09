@@ -237,6 +237,9 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"category": {
+						"$ref": "#/components/schemas/BioMaterialCategory"
+					},
 					"code": {
 						"type": "string"
 					},
@@ -267,14 +270,11 @@
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInner"
-					},
-					"type": {
-						"$ref": "#/components/schemas/BioMaterialType"
 					}
 				},
 				"required": [
 					"code",
-					"type",
+					"category",
 					"is_type",
 					"meta",
 					"id",
@@ -284,12 +284,12 @@
 				],
 				"type": "object"
 			},
-			"BioMaterialType": {
+			"BioMaterialCategory": {
 				"enum": [
 					"Internal",
 					"External"
 				],
-				"title": "BioMaterialType",
+				"title": "BioMaterialCategory",
 				"type": "string"
 			},
 			"BioMaterialWithDetails": {
@@ -303,6 +303,9 @@
 						"format": "uri",
 						"readOnly": true,
 						"type": "string"
+					},
+					"category": {
+						"$ref": "#/components/schemas/BioMaterialCategory"
 					},
 					"code": {
 						"type": "string"
@@ -337,15 +340,12 @@
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/Sampling"
-					},
-					"type": {
-						"$ref": "#/components/schemas/BioMaterialType"
 					}
 				},
 				"required": [
 					"event",
 					"code",
-					"type",
+					"category",
 					"is_type",
 					"meta",
 					"id",

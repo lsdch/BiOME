@@ -25,18 +25,18 @@ type ExternalBioMatSpecific struct {
 	Comments           edgedb.OptionalStr `edgedb:"comments" json:"comments"`
 }
 
-type BioMaterialType string
+type BioMaterialCategory string
 
 //generate:enum
 const (
-	Internal BioMaterialType = "Internal"
-	External BioMaterialType = "External"
+	Internal BioMaterialCategory = "Internal"
+	External BioMaterialCategory = "External"
 )
 
 type GenericBioMaterial[SamplingType any] struct {
 	GenericOccurrence[SamplingType] `edgedb:"$inline" json:",inline"`
 	Code                            string                                  `edgedb:"code" json:"code"`
-	Type                            BioMaterialType                         `edgedb:"type" json:"type"`
+	Category                        BioMaterialCategory                     `edgedb:"category" json:"category"`
 	IsType                          bool                                    `edgedb:"is_type" json:"is_type"`
 	References                      []references.Article                    `edgedb:"published_in" json:"reference,omitempty"`
 	External                        models.Optional[ExternalBioMatSpecific] `edgedb:"external" json:"external,omitempty"`

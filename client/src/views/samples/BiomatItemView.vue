@@ -25,10 +25,10 @@
               prependIcon: 'mdi-arrow-collapse-all',
               color: 'warning'
             }
-          }[item.type]
+          }[item.category]
         "
       >
-        {{ item.type }} bio-material
+        {{ item.category }} bio-material
       </v-chip>
       <v-chip
         v-if="item.is_type"
@@ -99,7 +99,7 @@
                     <v-chip
                       v-for="sample in item.sampling.samples.filter(({ id }) => id !== item!.id)"
                       :text="sample.identification.taxon.name"
-                      :title="sample.type"
+                      :title="sample.category"
                       class="ma-1"
                       :to="{ name: 'biomat-item', params: { code: sample.code } }"
                       label
@@ -155,7 +155,6 @@ import { DateWithPrecision } from '@/api/adapters'
 import SamplingListItems from '@/components/events/SamplingListItems.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
-import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
 import MetaChip from '@/components/toolkit/MetaChip.vue'
 import { useFetchItem } from '@/composables/fetch_items'
 

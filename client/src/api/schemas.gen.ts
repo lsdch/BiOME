@@ -195,6 +195,9 @@ export const $BioMaterial = {
             readOnly: true,
             type: 'string'
         },
+        category: {
+            '$ref': '#/components/schemas/BioMaterialCategory'
+        },
         code: {
             type: 'string'
         },
@@ -225,18 +228,15 @@ export const $BioMaterial = {
         },
         sampling: {
             '$ref': '#/components/schemas/SamplingInner'
-        },
-        type: {
-            '$ref': '#/components/schemas/BioMaterialType'
         }
     },
-    required: ['code', 'type', 'is_type', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['code', 'category', 'is_type', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 
-export const $BioMaterialType = {
+export const $BioMaterialCategory = {
     enum: ['Internal', 'External'],
-    title: 'BioMaterialType',
+    title: 'BioMaterialCategory',
     type: 'string'
 } as const;
 
@@ -249,6 +249,9 @@ export const $BioMaterialWithDetails = {
             format: 'uri',
             readOnly: true,
             type: 'string'
+        },
+        category: {
+            '$ref': '#/components/schemas/BioMaterialCategory'
         },
         code: {
             type: 'string'
@@ -283,12 +286,9 @@ export const $BioMaterialWithDetails = {
         },
         sampling: {
             '$ref': '#/components/schemas/Sampling'
-        },
-        type: {
-            '$ref': '#/components/schemas/BioMaterialType'
         }
     },
-    required: ['event', 'code', 'type', 'is_type', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['event', 'code', 'category', 'is_type', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 

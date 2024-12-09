@@ -13,8 +13,8 @@
     <template #search="">
       <v-inline-search-bar v-model="search.term" label="Search term" class="mx-1" />
       <v-select
-        :items="$BioMaterialType.enum"
-        v-model="search.type"
+        :items="$BioMaterialCategory.enum"
+        v-model="search.category"
         label="Type"
         hide-details
         placeholder="Any"
@@ -23,18 +23,20 @@
         class="mx-1"
         clearable
         persistent-clear
-        :color="search.type ? 'primary' : undefined"
-        :active="!!search.type"
-        :prepend-inner-icon="search.type ? BioMaterialType.props[search.type].icon : undefined"
+        :color="search.category ? 'primary' : undefined"
+        :active="!!search.category"
+        :prepend-inner-icon="
+          search.category ? BioMaterialCategory.props[search.category].icon : undefined
+        "
         :max-width="300"
       >
         <template #item="{ item, props }">
           <v-list-item
             v-bind="{
               ...props,
-              ...BioMaterialType.props[item.raw]
+              ...BioMaterialCategory.props[item.raw]
             }"
-            :class="`text-${BioMaterialType.props[item.raw].color}`"
+            :class="`text-${BioMaterialCategory.props[item.raw].color}`"
           ></v-list-item>
         </template>
         <template #append>
@@ -63,7 +65,11 @@
             density="compact"
             class="mx-1"
           />
-          <v-icon v-bind="BioMaterialType.props[item.type]" :title="item.type" class="mx-1" />
+          <v-icon
+            v-bind="BioMaterialCategory.props[item.category]"
+            :title="item.category"
+            class="mx-1"
+          />
         </span>
       </span>
     </template>
@@ -140,7 +146,7 @@
 <script setup lang="ts">
 import {
   $BioMaterial,
-  $BioMaterialType,
+  $BioMaterialCategory,
   BioMaterial,
   PersonInner,
   SamplesService,
@@ -148,7 +154,7 @@ import {
   SiteInfo,
   Taxon
 } from '@/api'
-import { BioMaterialType, DateWithPrecision } from '@/api/adapters'
+import { BioMaterialCategory, DateWithPrecision } from '@/api/adapters'
 import SamplingCard from '@/components/events/SamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
@@ -162,7 +168,7 @@ const focusSampling = {
 
 type BiomatTableFilters = {
   term?: string
-  type?: BioMaterialType
+  category?: BioMaterialCategory
   nomenclaturalType?: boolean
 }
 
@@ -175,14 +181,14 @@ function nomenclaturalTypeFilter({ is_type }: BioMaterial) {
   return is_type
 }
 const filter = computed(() => {
-  const { type, nomenclaturalType } = search.value
-  switch (type) {
+  const { category, nomenclaturalType } = search.value
+  switch (category) {
     case undefined:
     case null:
       return nomenclaturalType ? nomenclaturalTypeFilter : undefined
     default:
       return (item: BioMaterial) =>
-        item.type === type && (nomenclaturalType ? nomenclaturalTypeFilter(item) : true)
+        item.category === category && (nomenclaturalType ? nomenclaturalTypeFilter(item) : true)
   }
 })
 
