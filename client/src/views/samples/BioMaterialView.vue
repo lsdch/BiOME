@@ -25,38 +25,57 @@
         persistent-clear
         :color="search.type ? 'primary' : undefined"
         :active="!!search.type"
-      />
+        :prepend-inner-icon="search.type ? BioMaterialType.props[search.type].icon : undefined"
+        :max-width="300"
+      >
+        <template #item="{ item, props }">
+          <v-list-item
+            v-bind="{
+              ...props,
+              ...BioMaterialType.props[item.raw]
+            }"
+            :class="`text-${BioMaterialType.props[item.raw].color}`"
+          ></v-list-item>
+        </template>
+        <template #append>
+          <v-btn
+            :active="search.nomenclaturalType"
+            active-color="primary"
+            @click="toggleNomenclaturalType()"
+            icon="mdi-star-four-points"
+            size="small"
+            rounded="sm"
+            title="Show only nomenclatural type material"
+          ></v-btn>
+        </template>
+      </v-select>
     </template>
 
-    <template #item.code="{ value }">
-      <RouterLink :text="value" :to="{ name: 'biomat-item', params: { code: value } }" />
+    <template #item.code="{ value, item }: { value: string; item: BioMaterial }">
+      <span class="d-flex justify-space-between align-center">
+        <RouterLink :text="value" :to="{ name: 'biomat-item', params: { code: value } }" />
+        <span class="text-right">
+          <v-icon
+            v-if="item.is_type"
+            icon="mdi-star-four-points"
+            size="small"
+            title="This is a nomenclatural type material"
+            density="compact"
+            class="mx-1"
+          />
+          <v-icon v-bind="BioMaterialType.props[item.type]" :title="item.type" class="mx-1" />
+        </span>
+      </span>
     </template>
-    <template #item.event.site="{ value: { code, name } }: { value: SiteInfo }">
+    <template
+      #item.event.site="{ value: { code, name }, item }: { value: SiteInfo; item: BioMaterial }"
+    >
       <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name" />
     </template>
     <template #item.event.performed_on="{ value }: { value: DateWithPrecision }">
       <span>{{ DateWithPrecision.format(value) }}</span>
     </template>
-    <template #item.type="{ value }: { value: BioMaterialType }">
-      <v-icon
-        v-bind="
-          {
-            Internal: { icon: 'mdi-cube-scan', color: 'primary' },
-            External: { icon: 'mdi-open-in-new', color: 'warning' }
-          }[value]
-        "
-        :title="value"
-      />
-    </template>
-    <template #item.is_type="{ value }: { value: boolean }">
-      <v-icon
-        v-if="value"
-        icon="mdi-star-four-points"
-        size="small"
-        title="This is a nomenclatural type"
-        density="compact"
-      />
-    </template>
+
     <template
       #item.identification.taxon="{ value: taxon, item }: { value: Taxon; item: BioMaterial }"
     >
@@ -123,14 +142,13 @@ import {
   $BioMaterial,
   $BioMaterialType,
   BioMaterial,
-  BioMaterialType,
   PersonInner,
   SamplesService,
   SamplingInner,
   SiteInfo,
   Taxon
 } from '@/api'
-import { DateWithPrecision } from '@/api/adapters'
+import { BioMaterialType, DateWithPrecision } from '@/api/adapters'
 import SamplingCard from '@/components/events/SamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
@@ -145,26 +163,32 @@ const focusSampling = {
 type BiomatTableFilters = {
   term?: string
   type?: BioMaterialType
+  nomenclaturalType?: boolean
 }
 
 const search = ref<BiomatTableFilters>({})
+function toggleNomenclaturalType(value?: boolean) {
+  search.value.nomenclaturalType = value ?? !search.value.nomenclaturalType
+}
+
+function nomenclaturalTypeFilter({ is_type }: BioMaterial) {
+  return is_type
+}
 const filter = computed(() => {
-  const { type } = search.value
+  const { type, nomenclaturalType } = search.value
   switch (type) {
     case undefined:
     case null:
-      return () => true
+      return nomenclaturalType ? nomenclaturalTypeFilter : undefined
     default:
-      return (item: BioMaterial) => item.type === type
+      return (item: BioMaterial) =>
+        item.type === type && (nomenclaturalType ? nomenclaturalTypeFilter(item) : true)
   }
 })
 
 const headers: CRUDTableHeader[] = [
   {
-    children: [
-      { key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } },
-      { key: 'type', title: 'Category', width: 0, align: 'center' }
-    ]
+    children: [{ key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } }]
   },
   {
     title: 'Sampling',
@@ -181,7 +205,6 @@ const headers: CRUDTableHeader[] = [
     align: 'center',
     headerProps: { class: 'border-s' },
     children: [
-      { key: 'is_type', title: 'Nom. type', width: 0, align: 'center' },
       {
         key: 'identification.taxon',
         title: 'Taxon',
