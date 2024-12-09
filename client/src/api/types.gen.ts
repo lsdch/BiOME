@@ -530,7 +530,6 @@ export type Identification = {
     id: string;
     identified_by: OptionalPerson;
     identified_on: DateWithPrecision;
-    is_type: boolean;
     meta: Meta;
     taxon: Taxon;
 };

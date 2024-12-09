@@ -1276,9 +1276,6 @@ export const $Identification = {
         identified_on: {
             '$ref': '#/components/schemas/DateWithPrecision'
         },
-        is_type: {
-            type: 'boolean'
-        },
         meta: {
             '$ref': '#/components/schemas/Meta'
         },
@@ -1286,7 +1283,7 @@ export const $Identification = {
             '$ref': '#/components/schemas/Taxon'
         }
     },
-    required: ['id', 'taxon', 'identified_by', 'identified_on', 'is_type', 'meta'],
+    required: ['id', 'taxon', 'identified_by', 'identified_on', 'meta'],
     type: 'object'
 } as const;
 

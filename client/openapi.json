@@ -1508,9 +1508,6 @@
 					"identified_on": {
 						"$ref": "#/components/schemas/DateWithPrecision"
 					},
-					"is_type": {
-						"type": "boolean"
-					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
@@ -1523,7 +1520,6 @@
 					"taxon",
 					"identified_by",
 					"identified_on",
-					"is_type",
 					"meta"
 				],
 				"type": "object"
