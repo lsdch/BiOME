@@ -16,6 +16,7 @@
           :GBIF_ID="taxon.GBIF_ID"
           variant="tonal"
           size="x-small"
+          @click.stop
         />
         <FTaxonStatusIndicator v-else :status="taxon.status" />
       </template>
