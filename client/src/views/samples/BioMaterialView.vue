@@ -48,7 +48,18 @@
         :title="value"
       />
     </template>
-    <template #item.identification.taxon="{ value: taxon }: { value: Taxon }">
+    <template #item.is_type="{ value }: { value: boolean }">
+      <v-icon
+        v-if="value"
+        icon="mdi-star-four-points"
+        size="small"
+        title="This is a nomenclatural type"
+        density="compact"
+      />
+    </template>
+    <template
+      #item.identification.taxon="{ value: taxon, item }: { value: Taxon; item: BioMaterial }"
+    >
       <TaxonChip :taxon size="small" />
     </template>
     <template #item.identification.identified_by="{ value }: { value: PersonInner }">
@@ -152,7 +163,7 @@ const headers: CRUDTableHeader[] = [
   {
     children: [
       { key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } },
-      { key: 'type', title: 'Type', width: 0, align: 'center' }
+      { key: 'type', title: 'Category', width: 0, align: 'center' }
     ]
   },
   {
@@ -170,6 +181,7 @@ const headers: CRUDTableHeader[] = [
     align: 'center',
     headerProps: { class: 'border-s' },
     children: [
+      { key: 'is_type', title: 'Nom. type', width: 0, align: 'center' },
       {
         key: 'identification.taxon',
         title: 'Taxon',

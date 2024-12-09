@@ -3,12 +3,6 @@ module occurrence {
   type Identification extending default::Auditable {
     required taxon: taxonomy::Taxon;
 
-    # Defines whether this occurrence is the first scientific description of
-    # the taxon
-    required is_type: bool {
-      default := false;
-    };
-
     identified_by: people::Person; # might be unknown
 
     required identified_on: tuple<date: datetime, precision: date::DatePrecision>{
@@ -25,7 +19,7 @@ module occurrence {
       constraint exclusive;
       on source delete delete target;
     };
-    # required multi link identifications := (select .identification);
+
     comments: str;
   }
 
@@ -38,6 +32,12 @@ module occurrence {
       # ));
     };
     index on (.code);
+
+    # Defines whether this occurrence is the first scientific description of
+    # the taxon
+    required is_type: bool {
+      default := false;
+    };
 
     multi published_in: references::Article;
   };

@@ -102,6 +102,7 @@ for item in json_array_unpack(data) union (
             sampling := s,
             code := <str>intbm['code'],
             comments := <str>json_get(intbm, "comments"),
+            is_type := <bool>json_get(intbm, "is_type")?? false,
             identification := (
               insert occurrence::Identification {
                 taxon := (select taxonomy::Taxon filter .name = <str>intbm['identification']['taxon']),
@@ -124,6 +125,7 @@ for item in json_array_unpack(data) union (
             item_vouchers := <str>json_array_unpack(json_get(extbm, "item_vouchers")),
             original_link := <str>json_get(extbm, "original_link"),
             comments := <str>json_get(extbm, "comments"),
+            is_type := <bool>json_get(extbm, "is_type") ?? false,
             identification := (
               insert occurrence::Identification {
                 taxon := (select taxonomy::Taxon filter .name = <str>extbm['identification']['taxon']),

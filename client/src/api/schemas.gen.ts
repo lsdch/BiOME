@@ -211,6 +211,9 @@ export const $BioMaterial = {
         identification: {
             '$ref': '#/components/schemas/Identification'
         },
+        is_type: {
+            type: 'boolean'
+        },
         meta: {
             '$ref': '#/components/schemas/Meta'
         },
@@ -227,7 +230,7 @@ export const $BioMaterial = {
             '$ref': '#/components/schemas/BioMaterialType'
         }
     },
-    required: ['code', 'type', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['code', 'type', 'is_type', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 
@@ -266,6 +269,9 @@ export const $BioMaterialWithDetails = {
         identification: {
             '$ref': '#/components/schemas/Identification'
         },
+        is_type: {
+            type: 'boolean'
+        },
         meta: {
             '$ref': '#/components/schemas/Meta'
         },
@@ -282,7 +288,7 @@ export const $BioMaterialWithDetails = {
             '$ref': '#/components/schemas/BioMaterialType'
         }
     },
-    required: ['event', 'code', 'type', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['event', 'code', 'type', 'is_type', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 

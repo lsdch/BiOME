@@ -79,6 +79,7 @@
                 "internal_biomat": [
                   {
                     "code": "A_aquaticus|LA_DOUA_202112",
+                    "is_type": true,
                     "identification": {
                       "identified_on": {
                         "precision": "Month",

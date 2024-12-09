@@ -84,6 +84,7 @@ export type BioMaterial = {
     external?: OptionalExternalBioMatSpecific;
     id: string;
     identification: Identification;
+    is_type: boolean;
     meta: Meta;
     reference?: Array<Article>;
     sampling: SamplingInner;
@@ -103,6 +104,7 @@ export type BioMaterialWithDetails = {
     external?: OptionalExternalBioMatSpecific;
     id: string;
     identification: Identification;
+    is_type: boolean;
     meta: Meta;
     reference?: Array<Article>;
     sampling: Sampling;

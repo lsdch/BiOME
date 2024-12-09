@@ -253,6 +253,9 @@
 					"identification": {
 						"$ref": "#/components/schemas/Identification"
 					},
+					"is_type": {
+						"type": "boolean"
+					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
@@ -272,6 +275,7 @@
 				"required": [
 					"code",
 					"type",
+					"is_type",
 					"meta",
 					"id",
 					"sampling",
@@ -319,6 +323,9 @@
 					"identification": {
 						"$ref": "#/components/schemas/Identification"
 					},
+					"is_type": {
+						"type": "boolean"
+					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
@@ -339,6 +346,7 @@
 					"event",
 					"code",
 					"type",
+					"is_type",
 					"meta",
 					"id",
 					"sampling",

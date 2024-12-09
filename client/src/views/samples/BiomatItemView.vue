@@ -10,7 +10,36 @@
     <template #append>
       <v-btn color="primary" icon="mdi-pencil" variant="tonal" size="small" />
     </template>
-    <template #subtitle> {{ item.type }} bio-material </template>
+    <template #subtitle>
+      <v-chip
+        class="mx-1"
+        size="small"
+        label
+        v-bind="
+          {
+            Internal: {
+              prependIcon: 'mdi-cube-scan',
+              color: 'primary'
+            },
+            External: {
+              prependIcon: 'mdi-arrow-collapse-all',
+              color: 'warning'
+            }
+          }[item.type]
+        "
+      >
+        {{ item.type }} bio-material
+      </v-chip>
+      <v-chip
+        v-if="item.is_type"
+        class="mx-1"
+        prepend-icon="mdi-star-four-points"
+        size="small"
+        label
+      >
+        Nomenclatural type
+      </v-chip>
+    </template>
     <template #actions>
       <v-spacer></v-spacer>
       <MetaChip :meta="item.meta"></MetaChip>
