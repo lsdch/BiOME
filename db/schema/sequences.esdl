@@ -151,12 +151,19 @@ module seq {
     };
   }
 
-  type AssembledSequence extending Sequence, occurrence::Occurrence {
-    overloaded required sampling: events::Sampling {
+  type AssembledSequence extending Sequence {
+    required sampling: events::Sampling {
       rewrite insert, update using (
         select .specimen.biomat.sampling
       );
     };
+
+    required identification: occurrence::Identification {
+      constraint exclusive;
+      on source delete delete target;
+    };
+
+
     required alignmentCode: str { constraint exclusive };
     accession_number: str {
       annotation description := "The NCBI accession number, if the sequence was uploaded.";
