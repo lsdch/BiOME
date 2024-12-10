@@ -45,7 +45,8 @@
         :text="s.identification.taxon.name"
         label
         :to="{ name: 'biomat-item', params: { code: s.code } }"
-      ></v-chip>
+        size="small"
+      />
     </template>
 
     <template #item.samplings="{ value, item, index }">
