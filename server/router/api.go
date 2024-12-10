@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"darco/proto/models/occurrence"
+	"darco/proto/services/crossref"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -13,6 +14,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/caltechlibrary/crossrefapi"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humagin"
 	"github.com/edgedb/edgedb-go"
@@ -27,17 +29,23 @@ type Router struct {
 	config   huma.Config
 }
 
+func SchemaNamer(t reflect.Type, hint string) string {
+	return huma.DefaultSchemaNamer(t, hint)
+}
+
 func New(r *gin.Engine, basePath string, config huma.Config) Router {
 	baseAPI := r.Group(basePath)
 	API := humagin.NewWithGroup(r, baseAPI, config)
 
-	registry := huma.NewMapRegistry("#/components/schemas/", huma.DefaultSchemaNamer)
+	registry := huma.NewMapRegistry("#/components/schemas/", SchemaNamer)
 	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalStr](), reflect.TypeOf(""))
 	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalInt32](), reflect.TypeOf(0))
 	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalBool](), reflect.TypeOf(true))
 	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalDateTime](), reflect.TypeFor[time.Time]())
 	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalDuration](), reflect.TypeFor[edgedb.Duration]())
 	registry.RegisterTypeAlias(reflect.TypeFor[occurrence.OptionalHabitatRecord](), reflect.TypeFor[occurrence.HabitatRecord]())
+
+	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.Person](), reflect.TypeFor[crossref.CrossRefPerson]())
 	API.OpenAPI().Components.Schemas = registry
 
 	return Router{

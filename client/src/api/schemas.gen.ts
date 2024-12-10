@@ -110,11 +110,21 @@ export const $AbioticParameterUpdate = {
 export const $Article = {
     additionalProperties: false,
     properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Article.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
         authors: {
             items: {
                 type: 'string'
             },
             type: 'array'
+        },
+        code: {
+            type: 'string'
         },
         comments: {
             type: 'string'
@@ -143,7 +153,113 @@ export const $Article = {
             type: 'integer'
         }
     },
-    required: ['id', 'authors', 'year', 'title', 'journal', 'verbatim', 'doi', 'comments', 'meta'],
+    required: ['id', 'code', 'authors', 'year', 'meta'],
+    type: 'object'
+} as const;
+
+export const $ArticleInput = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/ArticleInput.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        authors: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        code: {
+            type: 'string'
+        },
+        comments: {
+            type: 'string'
+        },
+        doi: {
+            type: 'string'
+        },
+        journal: {
+            type: 'string'
+        },
+        title: {
+            type: 'string'
+        },
+        verbatim: {
+            type: 'string'
+        },
+        year: {
+            format: 'int32',
+            minimum: 1500,
+            type: 'integer'
+        }
+    },
+    required: ['authors', 'year'],
+    type: 'object'
+} as const;
+
+export const $ArticleUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/ArticleUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        authors: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        code: {
+            type: 'string'
+        },
+        comments: {
+            type: ['string', 'null']
+        },
+        doi: {
+            type: ['string', 'null']
+        },
+        journal: {
+            type: ['string', 'null']
+        },
+        title: {
+            type: ['string', 'null']
+        },
+        verbatim: {
+            type: ['string', 'null']
+        },
+        year: {
+            format: 'int32',
+            minimum: 1500,
+            type: 'integer'
+        }
+    },
+    type: 'object'
+} as const;
+
+export const $Assertion = {
+    additionalProperties: false,
+    properties: {
+        group: {
+            '$ref': '#/components/schemas/Group'
+        },
+        label: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        value: {
+            type: 'string'
+        }
+    },
     type: 'object'
 } as const;
 
@@ -292,6 +408,22 @@ export const $BioMaterialWithDetails = {
     type: 'object'
 } as const;
 
+export const $ClinicalTrailNumber = {
+    additionalProperties: false,
+    properties: {
+        'clinical-trail-number': {
+            type: 'string'
+        },
+        registry: {
+            type: 'string'
+        },
+        type: {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $CompositeDate = {
     additionalProperties: false,
     properties: {
@@ -314,6 +446,22 @@ export const $CompositeDate = {
             maximum: 3000,
             minimum: 1500,
             type: 'integer'
+        }
+    },
+    type: 'object'
+} as const;
+
+export const $ContentDomain = {
+    additionalProperties: false,
+    properties: {
+        'crossmark-restriction': {
+            type: 'boolean'
+        },
+        domain: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
         }
     },
     type: 'object'
@@ -368,6 +516,43 @@ export const $Country = {
         }
     },
     required: ['id', 'name', 'code'],
+    type: 'object'
+} as const;
+
+export const $CrossRefPerson = {
+    additionalProperties: false,
+    properties: {
+        ORCID: {
+            type: 'string'
+        },
+        affiliation: {
+            items: {
+                '$ref': '#/components/schemas/Organization'
+            },
+            type: 'array'
+        },
+        'authenticated-orcid': {
+            type: 'boolean'
+        },
+        family: {
+            type: 'string'
+        },
+        given: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        prefix: {
+            type: 'string'
+        },
+        sequence: {
+            type: 'string'
+        },
+        suffix: {
+            type: 'string'
+        }
+    },
     type: 'object'
 } as const;
 
@@ -540,10 +725,47 @@ export const $DatasetUpdate = {
     type: 'object'
 } as const;
 
+export const $DateObject = {
+    additionalProperties: false,
+    properties: {
+        'date-parts': {
+            items: {
+                items: {
+                    format: 'int64',
+                    type: 'integer'
+                },
+                type: 'array'
+            },
+            type: 'array'
+        },
+        'date-time': {
+            type: 'string'
+        },
+        timestamp: {
+            format: 'int64',
+            type: 'integer'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $DatePrecision = {
     enum: ['Day', 'Month', 'Year', 'Unknown'],
     title: 'DatePrecision',
     type: 'string'
+} as const;
+
+export const $DateRange = {
+    additionalProperties: false,
+    properties: {
+        'end-date': {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        'start-date': {
+            '$ref': '#/components/schemas/DateObject'
+        }
+    },
+    type: 'object'
 } as const;
 
 export const $DateWithPrecision = {
@@ -965,6 +1187,28 @@ export const $FixativeUpdate = {
     type: 'object'
 } as const;
 
+export const $Funder = {
+    additionalProperties: false,
+    properties: {
+        DOI: {
+            type: 'string'
+        },
+        award: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        'doi-asserted-by': {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $Gene = {
     additionalProperties: false,
     properties: {
@@ -1047,6 +1291,19 @@ export const $GeneUpdate = {
             type: 'boolean'
         },
         label: {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
+export const $Group = {
+    additionalProperties: false,
+    properties: {
+        label: {
+            type: 'string'
+        },
+        name: {
             type: 'string'
         }
     },
@@ -1284,6 +1541,34 @@ export const $Identification = {
         }
     },
     required: ['id', 'taxon', 'identified_by', 'identified_on', 'meta'],
+    type: 'object'
+} as const;
+
+export const $Identifier = {
+    additionalProperties: false,
+    properties: {
+        'asserted-by': {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        'id-type': {
+            type: 'string'
+        },
+        label: {
+            type: 'string'
+        },
+        name: {
+            type: 'string'
+        },
+        type: {
+            type: 'string'
+        },
+        value: {
+            type: 'string'
+        }
+    },
     type: 'object'
 } as const;
 
@@ -1606,6 +1891,36 @@ export const $InvitationLink = {
     type: 'object'
 } as const;
 
+export const $JournalIssue = {
+    additionalProperties: false,
+    properties: {
+        issue: {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
+export const $License = {
+    additionalProperties: false,
+    properties: {
+        URL: {
+            type: 'string'
+        },
+        'content-version': {
+            type: 'string'
+        },
+        'delay-in-days': {
+            format: 'int64',
+            type: 'integer'
+        },
+        start: {
+            '$ref': '#/components/schemas/DateObject'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $Lineage = {
     additionalProperties: false,
     properties: {
@@ -1637,6 +1952,25 @@ export const $Lineage = {
     type: 'object'
 } as const;
 
+export const $Link = {
+    additionalProperties: false,
+    properties: {
+        URL: {
+            type: 'string'
+        },
+        'content-type': {
+            type: 'string'
+        },
+        'content-version': {
+            type: 'string'
+        },
+        'intended-application': {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $LogoutInputBody = {
     additionalProperties: false,
     properties: {
@@ -1648,6 +1982,294 @@ export const $LogoutInputBody = {
             type: 'string'
         },
         refresh_token: {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
+export const $Message = {
+    additionalProperties: false,
+    properties: {
+        URL: {
+            type: 'string'
+        },
+        abstract: {
+            type: 'string'
+        },
+        accepted: {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        'alternative-id': {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        approved: {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        archive: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        'article-number': {
+            type: 'string'
+        },
+        assertion: {
+            items: {
+                '$ref': '#/components/schemas/Assertion'
+            },
+            type: 'array'
+        },
+        author: {
+            items: {
+                '$ref': '#/components/schemas/CrossRefPerson'
+            },
+            type: 'array'
+        },
+        chair: {
+            items: {
+                '$ref': '#/components/schemas/CrossRefPerson'
+            },
+            type: 'array'
+        },
+        'clinical-trail-number': {
+            '$ref': '#/components/schemas/ClinicalTrailNumber'
+        },
+        'component-number': {
+            type: 'string'
+        },
+        'container-title': {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        'content-created': {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        'content-domain': {
+            '$ref': '#/components/schemas/ContentDomain'
+        },
+        'content-updated': {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        created: {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        degree: {
+            type: 'string'
+        },
+        deposited: {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        doi: {
+            type: 'string'
+        },
+        'edition-number': {
+            type: 'string'
+        },
+        editor: {
+            items: {
+                '$ref': '#/components/schemas/CrossRefPerson'
+            },
+            type: 'array'
+        },
+        'free-to-read': {
+            '$ref': '#/components/schemas/DateRange'
+        },
+        funder: {
+            items: {
+                '$ref': '#/components/schemas/Funder'
+            },
+            type: 'array'
+        },
+        'group-title': {
+            type: 'string'
+        },
+        indexed: {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        institution: {
+            items: {
+                '$ref': '#/components/schemas/Organization'
+            },
+            type: 'array'
+        },
+        isbn: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        'isbn-type': {
+            items: {
+                '$ref': '#/components/schemas/Identifier'
+            },
+            type: 'array'
+        },
+        issn: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        'issn-type': {
+            items: {
+                '$ref': '#/components/schemas/Identifier'
+            },
+            type: 'array'
+        },
+        issue: {
+            type: 'string'
+        },
+        issued: {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        'journal-issue': {
+            '$ref': '#/components/schemas/JournalIssue'
+        },
+        language: {
+            type: 'string'
+        },
+        license: {
+            items: {
+                '$ref': '#/components/schemas/License'
+            },
+            type: 'array'
+        },
+        link: {
+            items: {
+                '$ref': '#/components/schemas/Link'
+            },
+            type: 'array'
+        },
+        member: {
+            type: 'string'
+        },
+        'original-title': {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        page: {
+            type: 'string'
+        },
+        'part-number': {
+            type: 'string'
+        },
+        posted: {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        prefix: {
+            type: 'string'
+        },
+        published: {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        'published-online': {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        'published-other': {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        'published-print': {
+            '$ref': '#/components/schemas/DateObject'
+        },
+        publisher: {
+            type: 'string'
+        },
+        'publisher-location': {
+            type: 'string'
+        },
+        reference: {
+            items: {
+                '$ref': '#/components/schemas/Reference'
+            },
+            type: 'array'
+        },
+        'reference-count': {
+            format: 'int64',
+            type: 'integer'
+        },
+        relation: {
+            additionalProperties: {
+                items: {
+                    '$ref': '#/components/schemas/Property'
+                },
+                type: 'array'
+            },
+            type: 'object'
+        },
+        review: {
+            '$ref': '#/components/schemas/Review'
+        },
+        score: {
+            format: 'int64',
+            type: 'integer'
+        },
+        'short-container-title': {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        'short-title': {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        source: {
+            type: 'string'
+        },
+        'standards-body': {
+            items: {
+                '$ref': '#/components/schemas/Organization'
+            },
+            type: 'array'
+        },
+        subject: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        subtitle: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        title: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        translator: {
+            items: {
+                '$ref': '#/components/schemas/CrossRefPerson'
+            },
+            type: 'array'
+        },
+        type: {
+            type: 'string'
+        },
+        'update-policy': {
+            type: 'string'
+        },
+        'updated-to': {
+            items: {
+                '$ref': '#/components/schemas/Updated'
+            },
+            type: 'array'
+        },
+        volume: {
             type: 'string'
         }
     },
@@ -1853,6 +2475,40 @@ export const $OptionalUserInner = {
     },
     required: ['id', 'email', 'login', 'role', 'email_confirmed'],
     type: ['object', 'null']
+} as const;
+
+export const $Organization = {
+    additionalProperties: false,
+    properties: {
+        acronym: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        department: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        id: {
+            items: {
+                '$ref': '#/components/schemas/Identifier'
+            },
+            type: 'array'
+        },
+        name: {
+            type: 'string'
+        },
+        place: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        }
+    },
+    type: 'object'
 } as const;
 
 export const $PasswordInput = {
@@ -2384,10 +3040,96 @@ export const $ProgramUpdate = {
     type: 'object'
 } as const;
 
+export const $Property = {
+    additionalProperties: false,
+    properties: {
+        'asserted-by': {
+            type: 'string'
+        },
+        id: {
+            type: 'string'
+        },
+        'id-type': {
+            type: 'string'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $Quantity = {
     enum: ['Unknown', 'One', 'Several', 'Dozen', 'Tens', 'Hundred'],
     title: 'Quantity',
     type: 'string'
+} as const;
+
+export const $Reference = {
+    additionalProperties: false,
+    properties: {
+        'article-title': {
+            type: 'string'
+        },
+        author: {
+            type: 'string'
+        },
+        component: {
+            type: 'string'
+        },
+        doi: {
+            type: 'string'
+        },
+        'doi-asserted-by': {
+            type: 'string'
+        },
+        edition: {
+            type: 'string'
+        },
+        'first-page': {
+            type: 'string'
+        },
+        isbn: {
+            type: 'string'
+        },
+        'isbn-type': {
+            type: 'string'
+        },
+        issn: {
+            type: 'string'
+        },
+        'issn-type': {
+            type: 'string'
+        },
+        issue: {
+            type: 'string'
+        },
+        'journal-title': {
+            type: 'string'
+        },
+        key: {
+            type: 'string'
+        },
+        'series-title': {
+            type: 'string'
+        },
+        'standard-designator': {
+            type: 'string'
+        },
+        'standards-body': {
+            type: 'string'
+        },
+        unstructured: {
+            type: 'string'
+        },
+        volume: {
+            type: 'string'
+        },
+        'volume-title': {
+            type: 'string'
+        },
+        year: {
+            type: 'string'
+        }
+    },
+    type: 'object'
 } as const;
 
 export const $RefreshTokenBody = {
@@ -2450,6 +3192,34 @@ export const $ResendEmailVerificationInputBody = {
         }
     },
     required: ['email', 'verification_url'],
+    type: 'object'
+} as const;
+
+export const $Review = {
+    additionalProperties: false,
+    properties: {
+        'competing-interest-statement': {
+            type: 'string'
+        },
+        language: {
+            type: 'string'
+        },
+        recommendation: {
+            type: 'string'
+        },
+        'revision-round': {
+            type: 'string'
+        },
+        'running-number': {
+            type: 'string'
+        },
+        stage: {
+            type: 'string'
+        },
+        type: {
+            type: 'string'
+        }
+    },
     type: 'object'
 } as const;
 
@@ -3555,6 +4325,25 @@ export const $UpdatePasswordInput = {
     type: 'object'
 } as const;
 
+export const $Updated = {
+    additionalProperties: false,
+    properties: {
+        doi: {
+            type: 'string'
+        },
+        label: {
+            type: 'string'
+        },
+        type: {
+            type: 'string'
+        },
+        updated: {
+            '$ref': '#/components/schemas/DateObject'
+        }
+    },
+    type: 'object'
+} as const;
+
 export const $User = {
     additionalProperties: false,
     properties: {
@@ -3684,4 +4473,30 @@ export const $UserShortIdentity = {
     },
     required: ['id', 'login', 'name', 'alias'],
     type: ['object', 'null']
+} as const;
+
+export const $Works = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Works.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        message: {
+            '$ref': '#/components/schemas/Message'
+        },
+        'message-type': {
+            type: 'string'
+        },
+        'message-version': {
+            type: 'string'
+        },
+        status: {
+            type: 'string'
+        }
+    },
+    type: 'object'
 } as const;

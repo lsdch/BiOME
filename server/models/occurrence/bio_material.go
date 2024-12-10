@@ -119,3 +119,27 @@ func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterial, er
 		&deleted, code)
 	return
 }
+
+type BioMaterialInput struct {
+	OccurrenceInput `edgedb:"$inline" json:",inline"`
+	Code            string                     `edgedb:"code" json:"code"`
+	Category        BioMaterialCategory        `edgedb:"category" json:"category"`
+	IsType          models.OptionalInput[bool] `edgedb:"is_type" json:"is_type" default:"false"`
+	// Category dependent field
+}
+
+type InternalBioMatInput struct {
+	BioMaterialInput `edgedb:"$inline" json:",inline"`
+	// TODO: Internal-specific fields
+}
+
+type ExternalBioMatInput struct {
+	BioMaterialInput   `edgedb:"$inline" json:",inline"`
+	OriginalLink       models.OptionalInput[string] `edgedb:"original_link" json:"original_link,omitempty"`
+	OriginalTaxon      models.OptionalInput[string] `edgedb:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           specimen.Quantity            `edgedb:"quantity" json:"quantity"`
+	ContentDescription models.OptionalInput[string] `edgedb:"content_description" json:"content_description,omitempty"`
+	Collection         models.OptionalInput[string] `edgedb:"in_collection" json:"collection,omitempty"`
+	Item               []string                     `edgedb:"item_vouchers" json:"vouchers,omitempty"`
+	Comments           models.OptionalInput[string] `edgedb:"comments" json:"comments,omitempty"`
+}

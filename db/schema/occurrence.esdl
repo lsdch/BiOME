@@ -43,7 +43,7 @@ module occurrence {
   };
 
   type InternalBioMat extending BioMaterial {
-    multi link content := .<biomat[is samples::Sample];
+    # multi link content := .<biomat[is samples::Sample];
     multi link specimens := .<biomat[is samples::Specimen];
     multi link bundles := .<biomat[is samples::BundledSpecimens];
     multi link identified_taxa := (
@@ -68,7 +68,7 @@ module occurrence {
   alias BioMaterialWithType := (
     select BioMaterial {
       *,
-      published_in: { * },
+      # published_in: { * },
       sampling: { * },
       identification: { * },
       meta: { * },

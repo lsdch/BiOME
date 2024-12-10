@@ -22,18 +22,7 @@ module samples {
       )
     };
     property tube := (.type.code ++ <str>.number);
-    # required tube: tuple<number: int16, code: str> {
-    #   rewrite insert using (
-    #     with biomat := __subject__.biomat,
-    #     type := __subject__.type,
-    #     number := (select 1 + (
-    #       max(Sample.tube.number
-    #         filter Sample.biomat = biomat
-    #         and Sample.type = type
-    #       ) ?? 0))
-    #     select (number := number, code := .type.code ++ <str>number)
-    #   );
-    # }
+
     comments: str;
   }
 

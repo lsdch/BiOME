@@ -10,11 +10,11 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func SeedTaxonomyGBIF(db *edgedb.Client) error {
+func SeedTaxonomyGBIF(db *edgedb.Tx) error {
 	bar := progressbar.Default(-1, "Importing Asellidae taxonomy from GBIF")
 	_ = db.Execute(context.Background(), "delete taxonomy::Taxon")
 	var total int
-	err := gbif.ImportTaxon(db,
+	err := gbif.ImportTaxonTx(db,
 		gbif.ImportRequestGBIF{Key: 4574, Children: true},
 		func(p *gbif.ImportProcess) {
 			total = p.Imported

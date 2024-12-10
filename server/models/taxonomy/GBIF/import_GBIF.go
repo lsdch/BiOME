@@ -212,8 +212,7 @@ type ImportRequestGBIF struct {
 	Children bool `json:"children" doc:"Import whole clade, including the taxon descendants"`
 }
 
-func ImportTaxon(db *edgedb.Client, request ImportRequestGBIF, monitor func(p *ImportProcess)) (err error) {
-
+func ImportTaxonTx(tx *edgedb.Tx, request ImportRequestGBIF, monitor func(p *ImportProcess)) (err error) {
 	taxon, err := fetchTaxon(request.Key)
 	if err != nil {
 		return
@@ -221,28 +220,31 @@ func ImportTaxon(db *edgedb.Client, request ImportRequestGBIF, monitor func(p *I
 
 	tracker := NewProgressTracker(&taxon, monitor)
 
-	return db.Tx(context.Background(),
-		func(ctx context.Context, tx *edgedb.Tx) error {
-			parents, err := fetchParents(request.Key)
-			if err != nil {
-				return tracker.Errorf("failed to fetch parent taxa of %s[%d] from GBIF\n%w", taxon.Name, taxon.Key, err)
-			}
+	parents, err := fetchParents(request.Key)
+	if err != nil {
+		return tracker.Errorf("failed to fetch parent taxa of %s[%d] from GBIF\n%w", taxon.Name, taxon.Key, err)
+	}
 
-			insert_count, err := upsertTaxa(tx, append(parents, taxon))
-			if err != nil {
-				return tracker.Errorf("failed to insert a parent of taxon %s[%d] \n%w",
-					taxon.Name, taxon.Key, err)
-			}
-			tracker.Progress(insert_count)
+	insert_count, err := upsertTaxa(tx, append(parents, taxon))
+	if err != nil {
+		return tracker.Errorf("failed to insert a parent of taxon %s[%d] \n%w",
+			taxon.Name, taxon.Key, err)
+	}
+	tracker.Progress(insert_count)
 
-			if request.Children {
-				err := importChildren(tx, request.Key, tracker)
-				if err != nil {
-					return tracker.Errorf("failed to import children of taxon %s[%d]\b%w", taxon.Name, taxon.Key, err)
-				}
-			}
+	if request.Children {
+		err := importChildren(tx, request.Key, tracker)
+		if err != nil {
+			return tracker.Errorf("failed to import children of taxon %s[%d]\b%w", taxon.Name, taxon.Key, err)
+		}
+	}
 
-			tracker.Terminate()
-			return nil
-		})
+	tracker.Terminate()
+	return nil
+}
+
+func ImportTaxon(db *edgedb.Client, request ImportRequestGBIF, monitor func(p *ImportProcess)) (err error) {
+	return db.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+		return ImportTaxonTx(tx, request, monitor)
+	})
 }

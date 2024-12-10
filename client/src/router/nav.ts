@@ -141,6 +141,13 @@ export const navRoutes: RouterItem[] = [
     meta: { subtitle: "Taxonomy" }
   },
   {
+    label: "Bibliography",
+    icon: 'mdi-newspaper-variant-multiple',
+    name: "bibliography",
+    path: '/articles',
+    component: () => import('@/views/references/ArticlesView.vue')
+  },
+  {
     label: "Admin",
     icon: "mdi-cog",
     routes: [

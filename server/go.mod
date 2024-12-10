@@ -7,6 +7,7 @@ go 1.23.2
 require (
 	github.com/a-h/templ v0.2.778
 	github.com/brianvoe/gofakeit/v7 v7.0.4
+	github.com/caltechlibrary/crossrefapi v1.0.7
 	github.com/danielgtaylor/huma/v2 v2.24.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/edgedb/edgedb-go v0.17.2
@@ -17,7 +18,6 @@ require (
 	github.com/gosimple/slug v1.14.0
 	github.com/json-iterator/go v1.1.12
 	github.com/k3a/html2text v1.2.1
-	github.com/kr/pretty v0.3.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
@@ -33,6 +33,7 @@ require (
 require (
 	github.com/bytedance/sonic v1.12.3 // indirect
 	github.com/bytedance/sonic/loader v0.2.1 // indirect
+	github.com/caltechlibrary/doitools v0.0.2 // indirect
 	github.com/certifi/gocertifi v0.0.0-20210507211836-431795d63e8d // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
 	github.com/cloudwego/iasm v0.2.0 // indirect
@@ -48,7 +49,6 @@ require (
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.8 // indirect
-	github.com/kr/text v0.2.0 // indirect
 	github.com/leodido/go-urn v1.4.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

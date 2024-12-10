@@ -34,7 +34,7 @@ func (creds *UserCredentials) Authenticate(db *edgedb.Client) (user User, err er
 }
 
 // Returns currently authenticated user or edgedb.NoDataError if not authenticated
-func Current(db *edgedb.Client) (user User, err error) {
+func Current(db edgedb.Executor) (user User, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (global current_user) { * , identity: { * } } limit 1

@@ -17,6 +17,7 @@ var entities = []string{
 	"institutions",
 	"persons",
 	"users",
+	"articles",
 	"programs",
 	"sampling_methods",
 	"fixatives",
@@ -32,29 +33,32 @@ func main() {
 
 	client := db.Connect(edgedb.Options{Database: *database})
 
-	email.SetupEmailConfig(client, email.EmailSetupArgs{})
+	err := client.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+		if err := email.SetupEmailConfig(client, email.EmailSetupArgs{}); err != nil {
+			return err
+		}
 
-	logrus.Infof("Seeding habitats")
-	if err := occurrence.InitialHabitatsSetup(client); err != nil {
-		logrus.Fatalf("Failed to seed habitats: %v", err)
-	}
+		logrus.Infof("Seeding habitats")
+		if err := occurrence.InitialHabitatsSetup(tx); err != nil {
+			logrus.Fatalf("Failed to seed habitats: %v", err)
+		}
 
-	if err := seeds.SeedTaxonomyGBIF(client); err != nil {
-		logrus.Errorf("Failed to load Asellidae taxonomy: %v", err)
-		return
-	}
+		if err := seeds.SeedTaxonomyGBIF(tx); err != nil {
+			logrus.Errorf("Failed to load Asellidae taxonomy: %v", err)
+			return err
+		}
 
-	err := client.Tx(context.Background(),
-		func(ctx context.Context, tx *edgedb.Tx) error {
-			for _, entity := range entities {
-				logrus.Infof("Seeding %s", entity)
-				err := seeds.Seed(tx, entity)
-				if err != nil {
-					return err
-				}
+		for _, entity := range entities {
+			logrus.Infof("Seeding %s", entity)
+			err := seeds.Seed(tx, entity)
+			if err != nil {
+				return err
 			}
-			return nil
-		})
+		}
+
+		return nil
+	})
+
 	if err != nil {
 		logrus.Errorf("Seeding failed: %v", err)
 	}

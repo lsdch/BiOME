@@ -70,14 +70,12 @@ func ListHabitats(db edgedb.Executor) ([]Habitat, error) {
 //go:embed data/habitats.yaml
 var habitatsYaml string
 
-func InitialHabitatsSetup(db *edgedb.Client) error {
+func InitialHabitatsSetup(tx *edgedb.Tx) error {
 	var input []HabitatGroupInput
 	if err := yaml.Unmarshal([]byte(habitatsYaml), &input); err != nil {
 		return err
 	}
-	return db.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
-		return ImportHabitats(tx, input)
-	})
+	return ImportHabitats(tx, input)
 }
 
 func ImportHabitats(tx *edgedb.Tx, habitats []HabitatGroupInput) error {

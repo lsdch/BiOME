@@ -42,15 +42,57 @@ export type AbioticParameterUpdate = {
 };
 
 export type Article = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
     authors: Array<(string)>;
-    comments: string;
-    doi: string;
+    code: string;
+    comments?: string;
+    doi?: string;
     id: string;
-    journal: string;
+    journal?: string;
     meta: Meta;
-    title: string;
-    verbatim: string;
+    title?: string;
+    verbatim?: string;
     year: number;
+};
+
+export type ArticleInput = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    authors: Array<(string)>;
+    code?: string;
+    comments?: string;
+    doi?: string;
+    journal?: string;
+    title?: string;
+    verbatim?: string;
+    year: number;
+};
+
+export type ArticleUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    authors?: Array<(string)>;
+    code?: string;
+    comments?: (string) | null;
+    doi?: (string) | null;
+    journal?: (string) | null;
+    title?: (string) | null;
+    verbatim?: (string) | null;
+    year?: number;
+};
+
+export type Assertion = {
+    group?: Group;
+    label?: string;
+    name?: string;
+    value?: string;
 };
 
 export type AuthenticationResponse = {
@@ -111,10 +153,21 @@ export type BioMaterialWithDetails = {
     sampling: Sampling;
 };
 
+export type ClinicalTrailNumber = {
+    'clinical-trail-number'?: string;
+    registry?: string;
+    type?: string;
+};
+
 export type CompositeDate = {
     day?: number;
     month?: number;
     year?: number;
+};
+
+export type ContentDomain = {
+    'crossmark-restriction'?: boolean;
+    domain?: Array<(string)>;
 };
 
 export type Coordinates = {
@@ -132,6 +185,18 @@ export type Country = {
     code: string;
     id: string;
     name: string;
+};
+
+export type CrossRefPerson = {
+    ORCID?: string;
+    affiliation?: Array<Organization>;
+    'authenticated-orcid'?: boolean;
+    family?: string;
+    given?: string;
+    name?: string;
+    prefix?: string;
+    sequence?: string;
+    suffix?: string;
 };
 
 export type CurrentUserResponse = {
@@ -209,7 +274,18 @@ export type DatasetUpdate = {
     maintainers?: Array<(string)>;
 };
 
+export type DateObject = {
+    'date-parts'?: Array<Array<(number)>>;
+    'date-time'?: string;
+    timestamp?: number;
+};
+
 export type DatePrecision = 'Day' | 'Month' | 'Year' | 'Unknown';
+
+export type DateRange = {
+    'end-date'?: DateObject;
+    'start-date'?: DateObject;
+};
 
 export type DateWithPrecision = {
     date?: Date;
@@ -400,6 +476,13 @@ export type FixativeUpdate = {
     label?: string;
 };
 
+export type Funder = {
+    DOI?: string;
+    award?: Array<(string)>;
+    'doi-asserted-by'?: string;
+    name?: string;
+};
+
 export type Gene = {
     /**
      * A URL to the JSON Schema for this object.
@@ -433,6 +516,11 @@ export type GeneUpdate = {
     description?: (string) | null;
     is_MOTU_delimiter?: boolean;
     label?: string;
+};
+
+export type Group = {
+    label?: string;
+    name?: string;
 };
 
 export type Habitat = {
@@ -532,6 +620,16 @@ export type Identification = {
     identified_on: DateWithPrecision;
     meta: Meta;
     taxon: Taxon;
+};
+
+export type Identifier = {
+    'asserted-by'?: string;
+    id?: string;
+    'id-type'?: string;
+    label?: string;
+    name?: string;
+    type?: string;
+    value?: string;
 };
 
 export type ImportProcess = {
@@ -676,6 +774,17 @@ export type InvitationLink = {
     invitation_link: Url;
 };
 
+export type JournalIssue = {
+    issue?: string;
+};
+
+export type License = {
+    URL?: string;
+    'content-version'?: string;
+    'delay-in-days'?: number;
+    start?: DateObject;
+};
+
 export type Lineage = {
     class?: OptionalTaxon;
     family?: OptionalTaxon;
@@ -687,12 +796,90 @@ export type Lineage = {
     subspecies?: OptionalTaxon;
 };
 
+export type Link = {
+    URL?: string;
+    'content-type'?: string;
+    'content-version'?: string;
+    'intended-application'?: string;
+};
+
 export type LogoutInputBody = {
     /**
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
     refresh_token?: string;
+};
+
+export type Message = {
+    URL?: string;
+    abstract?: string;
+    accepted?: DateObject;
+    'alternative-id'?: Array<(string)>;
+    approved?: DateObject;
+    archive?: Array<(string)>;
+    'article-number'?: string;
+    assertion?: Array<Assertion>;
+    author?: Array<CrossRefPerson>;
+    chair?: Array<CrossRefPerson>;
+    'clinical-trail-number'?: ClinicalTrailNumber;
+    'component-number'?: string;
+    'container-title'?: Array<(string)>;
+    'content-created'?: DateObject;
+    'content-domain'?: ContentDomain;
+    'content-updated'?: DateObject;
+    created?: DateObject;
+    degree?: string;
+    deposited?: DateObject;
+    doi?: string;
+    'edition-number'?: string;
+    editor?: Array<CrossRefPerson>;
+    'free-to-read'?: DateRange;
+    funder?: Array<Funder>;
+    'group-title'?: string;
+    indexed?: DateObject;
+    institution?: Array<Organization>;
+    isbn?: Array<(string)>;
+    'isbn-type'?: Array<Identifier>;
+    issn?: Array<(string)>;
+    'issn-type'?: Array<Identifier>;
+    issue?: string;
+    issued?: DateObject;
+    'journal-issue'?: JournalIssue;
+    language?: string;
+    license?: Array<License>;
+    link?: Array<Link>;
+    member?: string;
+    'original-title'?: Array<(string)>;
+    page?: string;
+    'part-number'?: string;
+    posted?: DateObject;
+    prefix?: string;
+    published?: DateObject;
+    'published-online'?: DateObject;
+    'published-other'?: DateObject;
+    'published-print'?: DateObject;
+    publisher?: string;
+    'publisher-location'?: string;
+    reference?: Array<Reference>;
+    'reference-count'?: number;
+    relation?: {
+        [key: string]: Array<Property>;
+    };
+    review?: Review;
+    score?: number;
+    'short-container-title'?: Array<(string)>;
+    'short-title'?: Array<(string)>;
+    source?: string;
+    'standards-body'?: Array<Organization>;
+    subject?: Array<(string)>;
+    subtitle?: Array<(string)>;
+    title?: Array<(string)>;
+    translator?: Array<CrossRefPerson>;
+    type?: string;
+    'update-policy'?: string;
+    'updated-to'?: Array<Updated>;
+    volume?: string;
 };
 
 export type Meta = {
@@ -761,6 +948,14 @@ export type OptionalUserInner = {
     login: string;
     role: UserRole;
 } | null;
+
+export type Organization = {
+    acronym?: Array<(string)>;
+    department?: Array<(string)>;
+    id?: Array<Identifier>;
+    name?: string;
+    place?: Array<(string)>;
+};
 
 export type PasswordInput = {
     /**
@@ -933,7 +1128,37 @@ export type ProgramUpdate = {
     start_year?: (number) | null;
 };
 
+export type Property = {
+    'asserted-by'?: string;
+    id?: string;
+    'id-type'?: string;
+};
+
 export type Quantity = 'Unknown' | 'One' | 'Several' | 'Dozen' | 'Tens' | 'Hundred';
+
+export type Reference = {
+    'article-title'?: string;
+    author?: string;
+    component?: string;
+    doi?: string;
+    'doi-asserted-by'?: string;
+    edition?: string;
+    'first-page'?: string;
+    isbn?: string;
+    'isbn-type'?: string;
+    issn?: string;
+    'issn-type'?: string;
+    issue?: string;
+    'journal-title'?: string;
+    key?: string;
+    'series-title'?: string;
+    'standard-designator'?: string;
+    'standards-body'?: string;
+    unstructured?: string;
+    volume?: string;
+    'volume-title'?: string;
+    year?: string;
+};
 
 export type RefreshTokenBody = {
     /**
@@ -962,6 +1187,16 @@ export type ResendEmailVerificationInputBody = {
      * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
      */
     verification_url: string;
+};
+
+export type Review = {
+    'competing-interest-statement'?: string;
+    language?: string;
+    recommendation?: string;
+    'revision-round'?: string;
+    'running-number'?: string;
+    stage?: string;
+    type?: string;
 };
 
 export type Sampling = {
@@ -1349,6 +1584,13 @@ export type TaxonWithRelatives = {
     status: TaxonStatus;
 };
 
+export type Updated = {
+    doi?: string;
+    label?: string;
+    type?: string;
+    updated?: DateObject;
+};
+
 export type UpdatePasswordInput = {
     /**
      * A URL to the JSON Schema for this object.
@@ -1417,6 +1659,17 @@ export type UserShortIdentity = {
     login: string;
     name: string;
 } | null;
+
+export type Works = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    message?: Message;
+    'message-type'?: string;
+    'message-version'?: string;
+    status?: string;
+};
 
 export type CurrentUserData = {
     headers?: {
@@ -2030,6 +2283,82 @@ export type InvitePersonData = {
 export type InvitePersonResponse = (InvitationLink);
 
 export type InvitePersonError = (ErrorModel);
+
+export type CrossrefData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    query: {
+        doi: string;
+    };
+};
+
+export type CrossrefResponse = (Works);
+
+export type CrossrefError = (ErrorModel);
+
+export type ListArticlesData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListArticlesResponse = (Array<Article>);
+
+export type ListArticlesError = (ErrorModel);
+
+export type CreateArticleData = {
+    body: ArticleInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateArticleResponse = (Article);
+
+export type CreateArticleError = (ErrorModel);
+
+export type DeleteArticleData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteArticleResponse = (Article);
+
+export type DeleteArticleError = (ErrorModel);
+
+export type UpdateArticleData = {
+    body: ArticleUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateArticleResponse = (Article);
+
+export type UpdateArticleError = (ErrorModel);
 
 export type ListBioMaterialData = {
     headers?: {
@@ -3172,6 +3501,36 @@ export type UpdatePersonResponseTransformer = (data: any) => Promise<UpdatePerso
 
 export const UpdatePersonResponseTransformer: UpdatePersonResponseTransformer = async (data) => {
     PersonModelResponseTransformer(data);
+    return data;
+};
+
+export type ListArticlesResponseTransformer = (data: any) => Promise<ListArticlesResponse>;
+
+export const ListArticlesResponseTransformer: ListArticlesResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(ArticleModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateArticleResponseTransformer = (data: any) => Promise<CreateArticleResponse>;
+
+export const CreateArticleResponseTransformer: CreateArticleResponseTransformer = async (data) => {
+    ArticleModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteArticleResponseTransformer = (data: any) => Promise<DeleteArticleResponse>;
+
+export const DeleteArticleResponseTransformer: DeleteArticleResponseTransformer = async (data) => {
+    ArticleModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateArticleResponseTransformer = (data: any) => Promise<UpdateArticleResponse>;
+
+export const UpdateArticleResponseTransformer: UpdateArticleResponseTransformer = async (data) => {
+    ArticleModelResponseTransformer(data);
     return data;
 };
 

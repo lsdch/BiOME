@@ -3,6 +3,7 @@ package email
 import (
 	"darco/proto/models/settings"
 	"errors"
+	"fmt"
 	"io/fs"
 	"os"
 
@@ -35,7 +36,7 @@ type EmailSetup struct {
 
 const SMTP_CONFIG_PATH = "./config/email.yaml"
 
-func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) {
+func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) error {
 	var emailConfig settings.EmailSettingsInput
 	_, err := os.Stat(SMTP_CONFIG_PATH)
 	if err != nil && errors.Is(err, fs.ErrNotExist) {
@@ -47,7 +48,7 @@ func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) {
 	} else {
 		emailConfig, err = loadEmailConfig(SMTP_CONFIG_PATH)
 		if err != nil {
-			logrus.Fatalf("Failed to load SMTP configuration: %v", err)
+			return fmt.Errorf("Failed to load SMTP configuration: %v", err)
 		}
 		logrus.Infof("Existing SMTP configuration loaded from %s",
 			SMTP_CONFIG_PATH)
@@ -60,12 +61,12 @@ func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) {
 	}
 	_, err = tea.NewProgram(initialModel(&setup)).Run()
 	if err != nil {
-		logrus.Fatalf("SMTP configuration error: %v", err)
+		return fmt.Errorf("SMTP configuration error: %v", err)
 	}
 
 	if setup.Skip {
 		logrus.Infof("SMTP configuration skipped.")
-		return
+		return nil
 	}
 
 	if !setup.connectionOK {
@@ -74,16 +75,17 @@ func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) {
 	logrus.Infof(successStyle.Render("🟢 Connection succeeded"))
 
 	if _, err := emailConfig.Save(db); err != nil {
-		logrus.Fatalf(
+		return fmt.Errorf(
 			"Failed to save SMTP configuration in DB settings: %v",
 			err)
 	}
 
 	if setup.EmailSettingsInput.WriteYAML(SMTP_CONFIG_PATH) != nil {
-		logrus.Fatalf("Failed to write SMTP configuration to file: %v", err)
+		return fmt.Errorf("Failed to write SMTP configuration to file: %v", err)
 	}
 
 	logrus.Infof(successStyle.Render(
 		"💾 SMTP configuration saved to database and updated in config file",
 	))
+	return nil
 }

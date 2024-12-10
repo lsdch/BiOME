@@ -8,6 +8,7 @@ import (
 	"darco/proto/controllers/institution"
 	"darco/proto/controllers/location"
 	"darco/proto/controllers/person"
+	"darco/proto/controllers/references"
 	"darco/proto/controllers/sequences"
 	"darco/proto/controllers/settings"
 	"darco/proto/controllers/sites"
@@ -30,4 +31,5 @@ func registerRoutes(router router.Router) {
 	sequences.RegisterRoutes(router)
 	habitats.RegisterRoutes(router)
 	biomaterial.RegisterRoutes(router)
+	references.RegisterRoutes(router)
 }

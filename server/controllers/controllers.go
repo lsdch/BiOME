@@ -61,6 +61,9 @@ func StatusError(err error) huma.StatusError {
 	if err == nil {
 		return nil
 	}
+	if e, ok := err.(huma.StatusError); ok {
+		return e
+	}
 	if db.IsNoData(err) {
 		return huma.Error404NotFound("Item not found", err)
 	}

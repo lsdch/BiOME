@@ -62,6 +62,10 @@ export function useForm<Item extends object, ItemInput, ItemUpdate>(
 
   watch(item, (item) => model.value = initModel(item), { immediate: true })
 
+  function reset() {
+    initModel(props.edit)
+  }
+
   function makeRequest({ create, edit }: { create: CreateReq<ItemInput, Item>, edit: UpdateReq<ItemUpdate, Item> }) {
     switch (mode.value) {
       case "Create":
@@ -73,7 +77,7 @@ export function useForm<Item extends object, ItemInput, ItemUpdate>(
     }
   }
 
-  return { mode, model, makeRequest }
+  return { mode, model, makeRequest, reset }
 
   // const state = reactiveComputed(() => {
   //   if (editItem.value === undefined) {

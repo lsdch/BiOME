@@ -1,6 +1,10 @@
 package occurrence
 
-import "github.com/edgedb/edgedb-go"
+import (
+	"darco/proto/models"
+
+	"github.com/edgedb/edgedb-go"
+)
 
 type GenericOccurrence[SamplingType any] struct {
 	ID             edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
@@ -10,3 +14,9 @@ type GenericOccurrence[SamplingType any] struct {
 }
 
 type Occurrence GenericOccurrence[SamplingInner]
+
+type OccurrenceInput struct {
+	SamplingID     edgedb.UUID                  `json:"sampling_id" format:"uuid"`
+	Identification IdentificationInput          `edgedb:"identification" json:"identification"`
+	Comments       models.OptionalInput[string] `edgedb:"comments" json:"comments"`
+}
