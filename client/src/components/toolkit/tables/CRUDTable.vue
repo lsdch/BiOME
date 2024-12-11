@@ -14,6 +14,7 @@
       fixed-header
       fixed-footer
       hover
+      :mobile="mobile ?? xs"
       :items-per-page-options="[5, 10, 15, 20]"
     >
       <!-- Toolbar -->
@@ -188,6 +189,7 @@ import TableToolbar from './TableToolbar.vue'
 type Props = TableProps<ItemType> & {
   filter?: (item: ItemType) => boolean
   filterKeys?: string | string[]
+  mobile?: boolean
 }
 
 const { xs } = useDisplay()
@@ -200,7 +202,7 @@ const items = defineModel<ItemType[]>('items', { default: () => reactive([]) })
 // const items = ref<ItemType[]>([])
 const selected = defineModel<string[]>('selected', { default: [] })
 const searchTerm = defineModel<string>('search')
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {})
 const emit = defineEmits<{
   itemCreated: [item: ItemType, index: number]
   itemEdited: [item: ItemType, index: number]
