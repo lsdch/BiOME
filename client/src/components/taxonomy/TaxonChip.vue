@@ -1,7 +1,8 @@
 <template>
   <v-menu location="top start" origin="top start" transition="scale-transition">
     <template #activator="{ props }">
-      <v-chip :text="taxon.name" v-bind="{ ...props, ...$attrs }"> </v-chip>
+      <v-chip :text="short ? shortName(taxon.name) : taxon.name" v-bind="{ ...props, ...$attrs }">
+      </v-chip>
     </template>
     <v-card
       :title="taxon.name"
@@ -45,7 +46,13 @@ import { Taxon } from '@/api'
 import LinkIconGBIF from './LinkIconGBIF.vue'
 import { FTaxonStatusIndicator } from './functionals'
 
-const props = defineProps<{ taxon: Taxon }>()
+const props = defineProps<{ taxon: Taxon; short?: boolean }>()
+
+function shortName(name: string) {
+  const splitName = name.split(' ')
+  if (splitName.length === 1) return name
+  else return `${splitName[0][0]}. ${splitName.slice(1).join(' ')}`
+}
 </script>
 
 <style scoped lang="scss"></style>

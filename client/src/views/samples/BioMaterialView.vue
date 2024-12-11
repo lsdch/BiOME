@@ -86,7 +86,7 @@
     <template
       #item.identification.taxon="{ value: taxon, item }: { value: Taxon; item: BioMaterial }"
     >
-      <TaxonChip :taxon size="small" />
+      <TaxonChip :taxon size="small" short />
     </template>
     <template #item.identification.identified_by="{ value }: { value: PersonInner }">
       <PersonChip :person="value" size="small" short />
