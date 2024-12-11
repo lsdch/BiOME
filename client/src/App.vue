@@ -24,6 +24,13 @@
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <Suspense>
         <RouterView :key="$route.fullPath" />
+        <template #fallback>
+          <v-container class="fill-height d-flex align-center justify-center">
+            <v-card min-height="50%" :min-width="500">
+              <v-progress-circular indeterminate></v-progress-circular>
+            </v-card>
+          </v-container>
+        </template>
       </Suspense>
     </v-main>
     <ErrorSnackbar v-model="snackbar.open" :title="snackbar.title" :errors="snackbar.errors" />
