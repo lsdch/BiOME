@@ -148,12 +148,23 @@
             />
             <template #actions>
               <!-- :href="`https://www.google.com/maps/place/${site.coordinates.latitude}+${site.coordinates.longitude}/@${site.coordinates.latitude},${site.coordinates.longitude},10z`" -->
-              <v-btn
-                prepend-icon="mdi-google-maps"
-                color="primary"
-                :href="`https://earth.google.com/web/search/${site.coordinates.latitude},${site.coordinates.longitude}`"
-                text="See in Google Maps"
-              />
+              <v-menu>
+                <template #activator="{ props }">
+                  <v-btn prepend-icon="mdi-map" color="primary" v-bind="props" text="Open in" />
+                </template>
+                <v-list density="compact">
+                  <v-list-item
+                    title="Google Maps"
+                    prepend-icon="mdi-google-maps"
+                    :href="`http://maps.google.com/maps?&z=15&mrt=yp&t=k&q=${site.coordinates.latitude}+${site.coordinates.longitude}+(${site.name})`"
+                  ></v-list-item>
+                  <v-list-item
+                    title="Google Earth"
+                    prepend-icon="mdi-google-earth"
+                    :href="`https://earth.google.com/web/search/${site.coordinates.latitude},${site.coordinates.longitude}`"
+                  />
+                </v-list>
+              </v-menu>
             </template>
           </v-card>
         </ResponsiveDialog>
