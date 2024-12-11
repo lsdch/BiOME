@@ -9,6 +9,7 @@
     append-actions
     :search="search.term"
     :filter
+    :mobile="xs"
   >
     <template #search="">
       <v-inline-search-bar v-model="search.term" label="Search term" class="mx-1" />
@@ -88,7 +89,7 @@
       <TaxonChip :taxon size="small" />
     </template>
     <template #item.identification.identified_by="{ value }: { value: PersonInner }">
-      <PersonChip :person="value" size="small" />
+      <PersonChip :person="value" size="small" short />
     </template>
     <template #item.identification.identified_on="{ value }">
       {{ DateWithPrecision.format(value) }}
@@ -179,11 +180,9 @@ import ArticleChip from '@/components/references/ArticleChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
+import { useDisplay } from 'vuetify'
 
-const focusSampling = {
-  dialog: ref(false),
-  sampling: ref<SamplingInner>()
-}
+const { xs } = useDisplay()
 
 type BiomatTableFilters = {
   term?: string

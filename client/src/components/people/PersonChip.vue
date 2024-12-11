@@ -1,7 +1,10 @@
 <template>
   <v-menu location="top start" origin="top start" transition="scale-transition">
     <template #activator="{ props }">
-      <v-chip :text="person.full_name" v-bind="{ ...props, ...$attrs }" />
+      <v-chip
+        :text="short ? `${person.first_name[0]}. ${person.last_name}` : person.full_name"
+        v-bind="{ ...props, ...$attrs }"
+      />
     </template>
     <v-card
       :title="person.full_name"
@@ -19,10 +22,10 @@
 </template>
 
 <script setup lang="ts">
-import { PeopleService, PersonInner } from '@/api'
+import { PersonInner } from '@/api'
 import UserRoleIcon from '../icons/UserRoleIcon.vue'
 
-defineProps<{ person: PersonInner }>()
+defineProps<{ person: PersonInner; short?: boolean }>()
 </script>
 
 <style scoped lang="scss"></style>
