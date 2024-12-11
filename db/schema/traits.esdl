@@ -1,12 +1,21 @@
 module traits {
-  type QualitativeTrait {
+
+  scalar type Category extending enum<Morphology, Physiology, Ecology, Behaviour, LifeHistory, HabitatPref>;
+  scalar type TraitDefinitionScope extending enum<Specimen, Taxon>;
+
+  abstract type AbstractTrait {
+    required category: Category;
     required name: str;
-    required multi modalities: str;
+    description: str;
+    required multi scopes: TraitDefinitionScope {
+      constraint exclusive;
+    };
+    constraint exclusive on ((.category, .name));
   }
 
-  type QualitativeTraitTag {
-    required trait: QualitativeTrait;
-    required tag: str;
+  type QualitativeTrait extending AbstractTrait, default::Auditable {
+    required value: str;
+    constraint exclusive on ((.name, .value));
   }
 }
 
