@@ -2,12 +2,20 @@ version: "3"
 
 vars:
   TEST_DB_NAME: testing
+  EMPTY_DB_NAME: schema
 
 tasks:
   install:
     desc: "Install EdgeDB CLI"
     cmds: [curl https://sh.edgedb.com --proto '=https' -sSf1 | sh]
     status: [command -v edgedb >/dev/null 2>&1]
+
+  init-schema:
+    desc: Create empty schema database branch (used when resetting DB)
+    dir: ..
+    cmd: edgedb branch create {{.EMPTY_DB_NAME}}
+    status:
+      - edgedb branch list | grep "{{.EMPTY_DB_NAME}}"
 
   init-testing:
     desc: "Create testing database branch"
@@ -52,8 +60,15 @@ tasks:
     interactive: true
     prompt: This will wipe existing databases and re-run all migrations and seeds. Continue ?
     cmds:
-      - edgedb branch wipe main
+      - edgedb branch drop main --non-interactive
+      - edgedb branch switch -c main
       - task: seed
+    deps: [switch-schema]
+
+  switch-schema:
+    desc: "Switch to schema-only branch"
+    status: ["edgedb branch current 2>&1 | grep {{.EMPTY_DB_NAME}}"]
+    cmd: edgedb branch switch {{.EMPTY_DB_NAME}}
 
   migration:
     desc: "Extract database migration from current changes in schema"
@@ -68,4 +83,6 @@ tasks:
       - edgedb migrate
       - edgedb branch drop {{.TEST_DB_NAME}} --non-interactive
       - edgedb branch create {{.TEST_DB_NAME}} --copy-data
-    deps: [init, init-testing]
+      - edgedb branch drop {{.EMPTY_DB_NAME}} --non-interactive
+      - edgedb branch create {{.EMPTY_DB_NAME}}
+    deps: [init, init-testing, init-schema]

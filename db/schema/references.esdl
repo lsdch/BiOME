@@ -2,15 +2,15 @@ module references {
 
   function generate_article_code(authors: array<str>, year: int32) -> str using (
     select (
-      if count(authors) = 1
-      then str_split(authors[0], ' ')[0] ++ <str>year
-      else if count(authors) = 2
+      if len(authors) = 1
+      then str_split(authors[0], ' ')[0] ++ "_" ++ <str>year
+      else if len(authors) = 2
       then (
         array_join([
           str_split(authors[0], ' ')[0],
           str_split(authors[1], ' ')[0],
         ]
-        , "_") ++ <str>year
+        , "_") ++ "_" ++ <str>year
       )
       else str_split(authors[0], ' ')[0] ++ "_et_al_" ++ <str>year
     )

@@ -142,6 +142,9 @@ export const $Article = {
         meta: {
             '$ref': '#/components/schemas/Meta'
         },
+        original_source: {
+            type: 'boolean'
+        },
         title: {
             type: 'string'
         },
@@ -153,7 +156,7 @@ export const $Article = {
             type: 'integer'
         }
     },
-    required: ['id', 'code', 'authors', 'year', 'meta'],
+    required: ['id', 'code', 'authors', 'year', 'original_source', 'meta'],
     type: 'object'
 } as const;
 
@@ -336,7 +339,7 @@ export const $BioMaterial = {
         meta: {
             '$ref': '#/components/schemas/Meta'
         },
-        reference: {
+        published_in: {
             items: {
                 '$ref': '#/components/schemas/Article'
             },
@@ -346,7 +349,7 @@ export const $BioMaterial = {
             '$ref': '#/components/schemas/SamplingInner'
         }
     },
-    required: ['code', 'category', 'is_type', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['code', 'category', 'is_type', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 
@@ -394,7 +397,7 @@ export const $BioMaterialWithDetails = {
         meta: {
             '$ref': '#/components/schemas/Meta'
         },
-        reference: {
+        published_in: {
             items: {
                 '$ref': '#/components/schemas/Article'
             },
@@ -404,7 +407,7 @@ export const $BioMaterialWithDetails = {
             '$ref': '#/components/schemas/Sampling'
         }
     },
-    required: ['event', 'code', 'category', 'is_type', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['event', 'code', 'category', 'is_type', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 

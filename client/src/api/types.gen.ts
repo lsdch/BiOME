@@ -53,6 +53,7 @@ export type Article = {
     id: string;
     journal?: string;
     meta: Meta;
+    original_source: boolean;
     title?: string;
     verbatim?: string;
     year: number;
@@ -129,7 +130,7 @@ export type BioMaterial = {
     identification: Identification;
     is_type: boolean;
     meta: Meta;
-    reference?: Array<Article>;
+    published_in: Array<Article>;
     sampling: SamplingInner;
 };
 
@@ -149,7 +150,7 @@ export type BioMaterialWithDetails = {
     identification: Identification;
     is_type: boolean;
     meta: Meta;
-    reference?: Array<Article>;
+    published_in: Array<Article>;
     sampling: Sampling;
 };
 
@@ -3203,8 +3204,8 @@ export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransf
     if (data?.meta) {
         MetaModelResponseTransformer(data.meta);
     }
-    if (Array.isArray(data?.reference)) {
-        data.reference.forEach(ArticleModelResponseTransformer);
+    if (Array.isArray(data?.published_in)) {
+        data.published_in.forEach(ArticleModelResponseTransformer);
     }
     if (data?.sampling) {
         SamplingInnerModelResponseTransformer(data.sampling);
@@ -3557,8 +3558,8 @@ export const BioMaterialWithDetailsModelResponseTransformer: BioMaterialWithDeta
     if (data?.meta) {
         MetaModelResponseTransformer(data.meta);
     }
-    if (Array.isArray(data?.reference)) {
-        data.reference.forEach(ArticleModelResponseTransformer);
+    if (Array.isArray(data?.published_in)) {
+        data.published_in.forEach(ArticleModelResponseTransformer);
     }
     if (data?.sampling) {
         SamplingModelResponseTransformer(data.sampling);

@@ -166,6 +166,9 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
+					"original_source": {
+						"type": "boolean"
+					},
 					"title": {
 						"type": "string"
 					},
@@ -182,6 +185,7 @@
 					"code",
 					"authors",
 					"year",
+					"original_source",
 					"meta"
 				],
 				"type": "object"
@@ -395,7 +399,7 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"reference": {
+					"published_in": {
 						"items": {
 							"$ref": "#/components/schemas/Article"
 						},
@@ -409,6 +413,7 @@
 					"code",
 					"category",
 					"is_type",
+					"published_in",
 					"meta",
 					"id",
 					"sampling",
@@ -465,7 +470,7 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"reference": {
+					"published_in": {
 						"items": {
 							"$ref": "#/components/schemas/Article"
 						},
@@ -480,6 +485,7 @@
 					"code",
 					"category",
 					"is_type",
+					"published_in",
 					"meta",
 					"id",
 					"sampling",

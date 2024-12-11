@@ -9,9 +9,7 @@
     append-actions
   >
     <template #item.authors="{ value }: { value: string[] }">
-      {{
-        value.length == 1 ? value[0] : value.length == 2 ? value.join(' & ') : `${value[0]} et. al`
-      }}
+      {{ Article.shortAuthors(value) }}
     </template>
     <template #expanded-row-inject="{ item }">
       <v-card
@@ -47,7 +45,8 @@
 </template>
 
 <script setup lang="ts">
-import { Article, ReferencesService } from '@/api'
+import { ReferencesService } from '@/api'
+import { Article } from '@/api/adapters'
 import ArticleFormDialog from '@/components/references/ArticleFormDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 const headers: CRUDTableHeader[] = [

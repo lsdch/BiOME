@@ -39,7 +39,9 @@ module occurrence {
       default := false;
     };
 
-    multi published_in: references::Article;
+    multi published_in: references::Article {
+      original_source: bool;
+    };
   };
 
   type InternalBioMat extending BioMaterial {

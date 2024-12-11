@@ -103,6 +103,14 @@ for item in json_array_unpack(data) union (
             code := <str>intbm['code'],
             comments := <str>json_get(intbm, "comments"),
             is_type := <bool>json_get(intbm, "is_type")?? false,
+            published_in := (
+              with pubs := json_array_unpack(json_get(intbm, 'published_in'))
+              select assert_distinct((for p in pubs union (
+                select references::Article {
+                  @original_source := <bool>json_get(p, 'original')
+                } filter .code = <str>p['code']
+              )))
+            ),
             identification := (
               insert occurrence::Identification {
                 taxon := (select taxonomy::Taxon filter .name = <str>intbm['identification']['taxon']),
@@ -126,6 +134,14 @@ for item in json_array_unpack(data) union (
             original_link := <str>json_get(extbm, "original_link"),
             comments := <str>json_get(extbm, "comments"),
             is_type := <bool>json_get(extbm, "is_type") ?? false,
+            published_in := (
+              with pubs := json_array_unpack(json_get(extbm, 'published_in'))
+              select assert_distinct((for p in pubs union (
+                select references::Article {
+                  @original_source := <bool>json_get(p, 'original')
+                } filter .code = <str>p['code']
+              )))
+            ),
             identification := (
               insert occurrence::Identification {
                 taxon := (select taxonomy::Taxon filter .name = <str>extbm['identification']['taxon']),

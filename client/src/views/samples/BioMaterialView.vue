@@ -104,18 +104,34 @@
           </v-card>
         </v-col>
         <v-col>
-          <v-card class="fill-height">
+          <v-card
+            title="References"
+            class="fill-height small-card-title muted-title"
+            density="compact"
+          >
+            <template #append>
+              <v-btn
+                icon="mdi-link-variant"
+                :href="item.external.original_link"
+                size="x-small"
+                variant="tonal"
+              />
+            </template>
+            <v-card-text>
+              <ArticleChip
+                v-for="article in item.published_in"
+                :article
+                class="ma-1"
+                size="small"
+              />
+            </v-card-text>
+            <v-divider></v-divider>
             <v-list density="compact">
-              <v-list-subheader>Collection </v-list-subheader>
-              <v-list-item :title="item.external.archive.collection">
-                <template #append>
-                  <v-btn
-                    icon="mdi-link-variant"
-                    :href="item.external.original_link"
-                    size="small"
-                    variant="tonal"
-                  />
-                </template>
+              <v-list-item title="In collection">
+                <div>
+                  {{ item.external.archive.collection }}
+                </div>
+                Vouchers:
                 <v-chip
                   v-for="voucher in item.external.archive.vouchers"
                   size="small"
@@ -127,10 +143,12 @@
           </v-card>
         </v-col>
         <v-col>
-          <v-card class="fill-height">
+          <v-card title="Content" class="fill-height small-card-title muted-title">
             <v-list density="compact">
-              <v-list-subheader>Content</v-list-subheader>
-              <v-list-item lines="one" :subtitle="item.external.content_description">
+              <v-list-item
+                lines="one"
+                :subtitle="item.external.content_description ?? 'No further description'"
+              >
                 <template #title>
                   Quantity: <v-chip :text="item.external.quantity" size="small" />
                 </template>
@@ -157,6 +175,7 @@ import {
 import { BioMaterialCategory, DateWithPrecision } from '@/api/adapters'
 import SamplingCard from '@/components/events/SamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
+import ArticleChip from '@/components/references/ArticleChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'

@@ -1,7 +1,18 @@
-@use "vuetify";
+@use 'vuetify';
 
 a {
   text-decoration: none;
+}
+
+.v-card {
+  &.small-card-title .v-card-title {
+    font-size: 1rem;
+    text-overflow: unset;
+    text-wrap: auto;
+  }
+  &.muted-title .v-card-title {
+    opacity: var(--v-medium-emphasis-opacity);
+  }
 }
 
 .font-monospace {

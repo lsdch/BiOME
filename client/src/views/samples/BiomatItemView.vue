@@ -121,13 +121,17 @@
             </v-card>
           </v-col>
           <v-col>
-            <v-card v-if="item.external" title="Origin" prepend-icon="mdi-open-in-new">
+            <v-card v-if="item.external" title="References" prepend-icon="mdi-newspaper-variant">
               <template #append>
                 <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small"></v-btn>
               </template>
               <v-card-text>
                 <v-list>
-                  <v-list-item>
+                  <v-list-item title="Published in">
+                    <ArticleChip v-for="article in item.published_in" :article class="ma-1" />
+                  </v-list-item>
+                  <v-divider class="my-1"></v-divider>
+                  <v-list-item title="In collection">
                     <b>{{ item.external.archive.collection }}</b>
                   </v-list-item>
                   <v-list-item title="Item vouchers">
@@ -154,6 +158,7 @@ import { SamplesService } from '@/api'
 import { DateWithPrecision } from '@/api/adapters'
 import SamplingListItems from '@/components/events/SamplingListItems.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
+import ArticleChip from '@/components/references/ArticleChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import MetaChip from '@/components/toolkit/MetaChip.vue'
 import { useFetchItem } from '@/composables/fetch_items'

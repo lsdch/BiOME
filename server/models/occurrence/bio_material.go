@@ -38,7 +38,7 @@ type GenericBioMaterial[SamplingType any] struct {
 	Code                            string                                  `edgedb:"code" json:"code"`
 	Category                        BioMaterialCategory                     `edgedb:"category" json:"category"`
 	IsType                          bool                                    `edgedb:"is_type" json:"is_type"`
-	References                      []references.Article                    `edgedb:"published_in" json:"reference,omitempty"`
+	References                      []references.Article                    `edgedb:"published_in" json:"published_in"`
 	External                        models.Optional[ExternalBioMatSpecific] `edgedb:"external" json:"external,omitempty"`
 	Meta                            people.Meta                             `edgedb:"meta" json:"meta"`
 }

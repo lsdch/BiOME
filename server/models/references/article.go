@@ -11,16 +11,17 @@ import (
 )
 
 type Article struct {
-	ID       edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
-	Code     string             `edgedb:"code" json:"code"`
-	Authors  []string           `edgedb:"authors" json:"authors"`
-	Year     int32              `edgedb:"year" json:"year"`
-	Title    edgedb.OptionalStr `edgedb:"title" json:"title,omitempty"`
-	Journal  edgedb.OptionalStr `edgedb:"journal" json:"journal,omitempty"`
-	Verbatim edgedb.OptionalStr `edgedb:"verbatim" json:"verbatim,omitempty"`
-	DOI      edgedb.OptionalStr `edgedb:"doi" json:"doi,omitempty"`
-	Comments edgedb.OptionalStr `edgedb:"comments" json:"comments,omitempty"`
-	Meta     people.Meta        `edgedb:"meta" json:"meta"`
+	ID             edgedb.UUID         `edgedb:"id" json:"id" format:"uuid"`
+	Code           string              `edgedb:"code" json:"code"`
+	Authors        []string            `edgedb:"authors" json:"authors"`
+	Year           int32               `edgedb:"year" json:"year"`
+	Title          edgedb.OptionalStr  `edgedb:"title" json:"title,omitempty"`
+	Journal        edgedb.OptionalStr  `edgedb:"journal" json:"journal,omitempty"`
+	Verbatim       edgedb.OptionalStr  `edgedb:"verbatim" json:"verbatim,omitempty"`
+	DOI            edgedb.OptionalStr  `edgedb:"doi" json:"doi,omitempty"`
+	Comments       edgedb.OptionalStr  `edgedb:"comments" json:"comments,omitempty"`
+	OriginalSource edgedb.OptionalBool `edgedb:"original_source" json:"original_source"`
+	Meta           people.Meta         `edgedb:"meta" json:"meta"`
 }
 
 func ListArticles(db edgedb.Executor) ([]Article, error) {
