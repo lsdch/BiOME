@@ -202,9 +202,9 @@ const headers: CRUDTableHeader<Event>[] = [
         }
       },
       {
-        title: 'Edit',
         key: 'actions',
         align: 'center',
+        sortable: false,
         width: 0,
         cellProps: {
           class: 'text-no-wrap'
