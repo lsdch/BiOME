@@ -45,7 +45,7 @@
             </template>
             <template #append>
               <v-btn
-                v-if="smAndDown"
+                v-if="mdAndDown"
                 class="ml-3"
                 variant="tonal"
                 icon="mdi-map-marker"
