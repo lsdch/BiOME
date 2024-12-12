@@ -22,6 +22,14 @@ type Sequence struct {
 	LegacyID models.Optional[LegacySeqID] `edgedb:"legacy" json:"legacy"`
 }
 
+type ExternalSeqCategory string
+
+//generate:enum
+const (
+	NCBI    ExternalSeqCategory = "NCBI"
+	PersCom ExternalSeqCategory = "PersCom"
+)
+
 type ExternalSequence struct {
 	Occurrence `edgedb:"$inline" json:",inline"`
 	Sequence   `edgedb:"$inline" json:",inline"`

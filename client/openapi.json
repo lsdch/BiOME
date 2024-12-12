@@ -393,6 +393,12 @@
 					"identification": {
 						"$ref": "#/components/schemas/Identification"
 					},
+					"is_congruent": {
+						"type": "boolean"
+					},
+					"is_homogenous": {
+						"type": "boolean"
+					},
 					"is_type": {
 						"type": "boolean"
 					},
@@ -413,6 +419,8 @@
 					"code",
 					"category",
 					"is_type",
+					"is_homogenous",
+					"is_congruent",
 					"published_in",
 					"meta",
 					"id",
@@ -464,6 +472,12 @@
 					"identification": {
 						"$ref": "#/components/schemas/Identification"
 					},
+					"is_congruent": {
+						"type": "boolean"
+					},
+					"is_homogenous": {
+						"type": "boolean"
+					},
 					"is_type": {
 						"type": "boolean"
 					},
@@ -485,6 +499,8 @@
 					"code",
 					"category",
 					"is_type",
+					"is_homogenous",
+					"is_congruent",
 					"published_in",
 					"meta",
 					"id",
@@ -1265,6 +1281,89 @@
 				},
 				"type": "object"
 			},
+			"ExternalBioMatContent": {
+				"additionalProperties": false,
+				"properties": {
+					"sequences": {
+						"items": {
+							"$ref": "#/components/schemas/ExternalBioMatSequence"
+						},
+						"type": "array"
+					},
+					"specimen": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"specimen",
+					"sequences"
+				],
+				"type": "object"
+			},
+			"ExternalBioMatSequence": {
+				"additionalProperties": false,
+				"properties": {
+					"accession_number": {
+						"type": "string"
+					},
+					"category": {
+						"$ref": "#/components/schemas/ExternalSeqCategory"
+					},
+					"code": {
+						"type": "string"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"gene": {
+						"$ref": "#/components/schemas/Gene"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"label": {
+						"type": "string"
+					},
+					"legacy": {
+						"$ref": "#/components/schemas/OptionalLegacySeqID"
+					},
+					"original_taxon": {
+						"type": "string"
+					},
+					"references": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
+					},
+					"sequence": {
+						"type": "string"
+					},
+					"specimen_identifier": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"category",
+					"identification",
+					"comments",
+					"references",
+					"accession_number",
+					"specimen_identifier",
+					"original_taxon",
+					"code",
+					"label",
+					"sequence",
+					"gene",
+					"legacy"
+				],
+				"type": "object"
+			},
 			"ExternalBioMatSpecific": {
 				"additionalProperties": false,
 				"properties": {
@@ -1273,6 +1372,12 @@
 					},
 					"comments": {
 						"type": "string"
+					},
+					"content": {
+						"items": {
+							"$ref": "#/components/schemas/ExternalBioMatContent"
+						},
+						"type": "array"
 					},
 					"content_description": {
 						"type": "string"
@@ -1293,6 +1398,14 @@
 					"comments"
 				],
 				"type": "object"
+			},
+			"ExternalSeqCategory": {
+				"enum": [
+					"NCBI",
+					"PersCom"
+				],
+				"title": "ExternalSeqCategory",
+				"type": "string"
 			},
 			"Fixative": {
 				"additionalProperties": false,
@@ -2246,6 +2359,27 @@
 				},
 				"type": "object"
 			},
+			"LegacySeqID": {
+				"additionalProperties": false,
+				"properties": {
+					"alignment_code": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"id": {
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"id",
+					"code",
+					"alignment_code"
+				],
+				"type": "object"
+			},
 			"License": {
 				"additionalProperties": false,
 				"properties": {
@@ -2655,6 +2789,12 @@
 					"comments": {
 						"type": "string"
 					},
+					"content": {
+						"items": {
+							"$ref": "#/components/schemas/ExternalBioMatContent"
+						},
+						"type": "array"
+					},
 					"content_description": {
 						"type": "string"
 					},
@@ -2708,6 +2848,30 @@
 				"required": [
 					"id",
 					"label"
+				],
+				"type": [
+					"object",
+					"null"
+				]
+			},
+			"OptionalLegacySeqID": {
+				"additionalProperties": false,
+				"properties": {
+					"alignment_code": {
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"id": {
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"id",
+					"code",
+					"alignment_code"
 				],
 				"type": [
 					"object",

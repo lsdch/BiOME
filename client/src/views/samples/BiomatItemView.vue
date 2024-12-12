@@ -60,6 +60,35 @@
               prepend-icon="mdi-microscope"
               :subtitle="DateWithPrecision.format(item.identification.identified_on)"
             >
+              <template #append>
+                <v-tooltip
+                  :text="
+                    item.is_congruent
+                      ? 'Bio material identification matches its sequences identification'
+                      : 'Bio material identification contradicted by its sequences identification'
+                  "
+                  open-on-click
+                >
+                  <template #activator="{ props }">
+                    <v-chip
+                      v-bind="{
+                        ...props,
+                        ...(item?.is_congruent
+                          ? {
+                              color: 'success',
+                              text: 'Congruent'
+                            }
+                          : {
+                              color: 'warning',
+                              text: 'Incongruent'
+                            })
+                      }"
+                      size="small"
+                    >
+                    </v-chip>
+                  </template>
+                </v-tooltip>
+              </template>
               <v-card-text>
                 <TaxonChip :taxon="item.identification.taxon" class="my-1" />
                 <span class="text-no-wrap">
@@ -114,9 +143,46 @@
         <v-col cols="12" lg="6">
           <v-col>
             <v-card title="Content" prepend-icon="mdi-hexagon-multiple" class="fill-height">
+              <template #append>
+                <v-chip
+                  v-if="hasContentDetails"
+                  v-bind="
+                    item.is_homogenous
+                      ? {
+                          color: 'success',
+                          text: 'Homogenous'
+                        }
+                      : {
+                          color: 'warning',
+                          text: 'Heterogenous'
+                        }
+                  "
+                ></v-chip>
+              </template>
               <v-card-text v-if="item.external">
-                Specimen quantity: <v-chip :text="item.external.quantity"></v-chip>
-                <div>{{ item.external.content_description }}</div>
+                <v-list-item
+                  :subtitle="item.external.content_description ?? 'No further description'"
+                >
+                  <template #title>
+                    Specimen quantity: <v-chip :text="item.external.quantity" />
+                  </template>
+                  <template #subtitle>
+                    <div>{{ item.external.content_description ?? 'No further description' }}</div>
+                    <div v-if="item.category === 'External' && !item.external.content">
+                      No sequences registered
+                    </div>
+                  </template>
+                </v-list-item>
+                <template v-if="hasContentDetails">
+                  <v-divider class="my-3"></v-divider>
+                  <v-expansion-panels>
+                    <v-expansion-panel
+                      title="Specimens and sequences"
+                      :elevation="0"
+                      :disabled="!item.external.content"
+                    ></v-expansion-panel>
+                  </v-expansion-panels>
+                </template>
               </v-card-text>
             </v-card>
           </v-col>
@@ -162,10 +228,22 @@ import ArticleChip from '@/components/references/ArticleChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import MetaChip from '@/components/toolkit/MetaChip.vue'
 import { useFetchItem } from '@/composables/fetch_items'
+import { computed } from 'vue'
 
 const { code } = defineProps<{ code: string }>()
 
 const { item } = useFetchItem(() => SamplesService.getBioMaterial({ path: { code } }))
+
+const hasContentDetails = computed(() => {
+  switch (item.value?.category) {
+    case 'External':
+      return !!item.value.external?.content
+    case 'Internal':
+      return true // TODO
+    default:
+      return false
+  }
+})
 </script>
 
 <style scoped lang="scss"></style>

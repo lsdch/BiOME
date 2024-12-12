@@ -42,6 +42,7 @@ module occurrence {
     multi published_in: references::Article {
       original_source: bool;
     };
+
   };
 
   type InternalBioMat extending BioMaterial {
@@ -50,6 +51,19 @@ module occurrence {
     multi link bundles := .<biomat[is samples::BundledSpecimens];
     multi link identified_taxa := (
       select distinct .specimens.identification.taxon ?? .identification.taxon
+    );
+
+    required is_homogenous := (
+      select count(distinct .specimens.identification.taxon) <= 1
+    );
+
+    required is_congruent := (
+      select assert_exists(
+        .is_homogenous and (
+          (not exists .specimens) or
+          .identification.taxon in (assert_single(distinct .specimens.identification.taxon))
+        )
+      )
     );
   }
 
@@ -64,16 +78,27 @@ module occurrence {
     required quantity: QuantityType;
     content_description: str;
 
+    required is_homogenous := (
+      select count(distinct .sequences.identification.taxon) <= 1
+    );
+
+    required is_congruent := (
+      select assert_exists(
+        .is_homogenous and (
+          (not exists .sequences) or
+          .identification.taxon in (assert_single(distinct .sequences.identification.taxon))
+        )
+      )
+    );
+
     multi link sequences := .<source_sample[is seq::ExternalSequence];
   }
 
   alias BioMaterialWithType := (
     select BioMaterial {
       *,
-      # published_in: { * },
-      sampling: { * },
-      identification: { * },
-      meta: { * },
+      required is_homogenous := [is ExternalBioMat].is_homogenous ?? [is InternalBioMat].is_homogenous ?? true,
+      required is_congruent := [is ExternalBioMat].is_congruent ?? [is InternalBioMat].is_congruent ?? true,
       category := (
         if (BioMaterial is InternalBioMat) then "Internal"
         else if (BioMaterial is ExternalBioMat) then "External"

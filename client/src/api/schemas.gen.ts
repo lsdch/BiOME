@@ -333,6 +333,12 @@ export const $BioMaterial = {
         identification: {
             '$ref': '#/components/schemas/Identification'
         },
+        is_congruent: {
+            type: 'boolean'
+        },
+        is_homogenous: {
+            type: 'boolean'
+        },
         is_type: {
             type: 'boolean'
         },
@@ -349,7 +355,7 @@ export const $BioMaterial = {
             '$ref': '#/components/schemas/SamplingInner'
         }
     },
-    required: ['code', 'category', 'is_type', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['code', 'category', 'is_type', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 
@@ -391,6 +397,12 @@ export const $BioMaterialWithDetails = {
         identification: {
             '$ref': '#/components/schemas/Identification'
         },
+        is_congruent: {
+            type: 'boolean'
+        },
+        is_homogenous: {
+            type: 'boolean'
+        },
         is_type: {
             type: 'boolean'
         },
@@ -407,7 +419,7 @@ export const $BioMaterialWithDetails = {
             '$ref': '#/components/schemas/Sampling'
         }
     },
-    required: ['event', 'code', 'category', 'is_type', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['event', 'code', 'category', 'is_type', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 
@@ -1086,6 +1098,74 @@ export const $EventUpdate = {
     type: 'object'
 } as const;
 
+export const $ExternalBioMatContent = {
+    additionalProperties: false,
+    properties: {
+        sequences: {
+            items: {
+                '$ref': '#/components/schemas/ExternalBioMatSequence'
+            },
+            type: 'array'
+        },
+        specimen: {
+            type: 'string'
+        }
+    },
+    required: ['specimen', 'sequences'],
+    type: 'object'
+} as const;
+
+export const $ExternalBioMatSequence = {
+    additionalProperties: false,
+    properties: {
+        accession_number: {
+            type: 'string'
+        },
+        category: {
+            '$ref': '#/components/schemas/ExternalSeqCategory'
+        },
+        code: {
+            type: 'string'
+        },
+        comments: {
+            type: 'string'
+        },
+        gene: {
+            '$ref': '#/components/schemas/Gene'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        identification: {
+            '$ref': '#/components/schemas/Identification'
+        },
+        label: {
+            type: 'string'
+        },
+        legacy: {
+            '$ref': '#/components/schemas/OptionalLegacySeqID'
+        },
+        original_taxon: {
+            type: 'string'
+        },
+        references: {
+            items: {
+                '$ref': '#/components/schemas/Article'
+            },
+            type: 'array'
+        },
+        sequence: {
+            type: 'string'
+        },
+        specimen_identifier: {
+            type: 'string'
+        }
+    },
+    required: ['id', 'category', 'identification', 'comments', 'references', 'accession_number', 'specimen_identifier', 'original_taxon', 'code', 'label', 'sequence', 'gene', 'legacy'],
+    type: 'object'
+} as const;
+
 export const $ExternalBioMatSpecific = {
     additionalProperties: false,
     properties: {
@@ -1094,6 +1174,12 @@ export const $ExternalBioMatSpecific = {
         },
         comments: {
             type: 'string'
+        },
+        content: {
+            items: {
+                '$ref': '#/components/schemas/ExternalBioMatContent'
+            },
+            type: 'array'
         },
         content_description: {
             type: 'string'
@@ -1110,6 +1196,12 @@ export const $ExternalBioMatSpecific = {
     },
     required: ['quantity', 'archive', 'comments'],
     type: 'object'
+} as const;
+
+export const $ExternalSeqCategory = {
+    enum: ['NCBI', 'PersCom'],
+    title: 'ExternalSeqCategory',
+    type: 'string'
 } as const;
 
 export const $Fixative = {
@@ -1904,6 +1996,24 @@ export const $JournalIssue = {
     type: 'object'
 } as const;
 
+export const $LegacySeqID = {
+    additionalProperties: false,
+    properties: {
+        alignment_code: {
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        id: {
+            format: 'int32',
+            type: 'integer'
+        }
+    },
+    required: ['id', 'code', 'alignment_code'],
+    type: 'object'
+} as const;
+
 export const $License = {
     additionalProperties: false,
     properties: {
@@ -2314,6 +2424,12 @@ export const $OptionalExternalBioMatSpecific = {
         comments: {
             type: 'string'
         },
+        content: {
+            items: {
+                '$ref': '#/components/schemas/ExternalBioMatContent'
+            },
+            type: 'array'
+        },
         content_description: {
             type: 'string'
         },
@@ -2357,6 +2473,24 @@ export const $OptionalHabitatRecord = {
         }
     },
     required: ['id', 'label'],
+    type: ['object', 'null']
+} as const;
+
+export const $OptionalLegacySeqID = {
+    additionalProperties: false,
+    properties: {
+        alignment_code: {
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        id: {
+            format: 'int32',
+            type: 'integer'
+        }
+    },
+    required: ['id', 'code', 'alignment_code'],
     type: ['object', 'null']
 } as const;
 
