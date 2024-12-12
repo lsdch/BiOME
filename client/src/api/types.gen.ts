@@ -447,7 +447,7 @@ export type ExternalBioMatContent = {
 
 export type ExternalBioMatSequence = {
     accession_number: string;
-    category: ExternalSeqCategory;
+    category: ExternalSeqOrigin;
     code: string;
     comments: string;
     gene: Gene;
@@ -471,7 +471,15 @@ export type ExternalBioMatSpecific = {
     quantity: Quantity;
 };
 
-export type ExternalSeqCategory = 'NCBI' | 'PersCom';
+export type ExternalSeqOrigin = {
+    accession_required: boolean;
+    code: string;
+    description?: string;
+    id: string;
+    label: string;
+    link_template: string;
+    meta: Meta;
+};
 
 export type Fixative = {
     /**
@@ -3193,6 +3201,15 @@ export type ExternalBioMatContentModelResponseTransformer = (data: any) => Exter
 
 export type ExternalBioMatSequenceModelResponseTransformer = (data: any) => ExternalBioMatSequence;
 
+export type ExternalSeqOriginModelResponseTransformer = (data: any) => ExternalSeqOrigin;
+
+export const ExternalSeqOriginModelResponseTransformer: ExternalSeqOriginModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
 export type GeneModelResponseTransformer = (data: any) => Gene;
 
 export const GeneModelResponseTransformer: GeneModelResponseTransformer = data => {
@@ -3227,6 +3244,9 @@ export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = 
 };
 
 export const ExternalBioMatSequenceModelResponseTransformer: ExternalBioMatSequenceModelResponseTransformer = data => {
+    if (data?.category) {
+        ExternalSeqOriginModelResponseTransformer(data.category);
+    }
     if (data?.gene) {
         GeneModelResponseTransformer(data.gene);
     }

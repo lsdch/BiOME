@@ -181,14 +181,16 @@ module seq {
     constraint exclusive on ((.specimen, .is_reference)) except (not .is_reference);
   }
 
-
-  scalar type ExternalSeqType extending enum<NCBI, PERSCOM, LEGACY> {
-    annotation description := "The sequence origin. 'PERSCOM' is 'Personal communication', 'Legacy' indicates the sequence originates from the lab but could not be registered as such due to missing required metadata.";
+  type ExternalSeqOrigin extending default::Auditable, default::Vocabulary {
+    required accession_required: bool {
+      default := false
+    };
+    link_template: str;
   };
 
   type ExternalSequence extending Sequence, occurrence::Occurrence {
 
-    required type: ExternalSeqType;
+    required origin: ExternalSeqOrigin;
     source_sample: occurrence::ExternalBioMat;
     reference: references::Article; # TODO: move this to Occurrence schema
 

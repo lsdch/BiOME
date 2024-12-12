@@ -1307,7 +1307,7 @@
 						"type": "string"
 					},
 					"category": {
-						"$ref": "#/components/schemas/ExternalSeqCategory"
+						"$ref": "#/components/schemas/ExternalSeqOrigin"
 					},
 					"code": {
 						"type": "string"
@@ -1399,13 +1399,41 @@
 				],
 				"type": "object"
 			},
-			"ExternalSeqCategory": {
-				"enum": [
-					"NCBI",
-					"PersCom"
+			"ExternalSeqOrigin": {
+				"additionalProperties": false,
+				"properties": {
+					"accession_required": {
+						"type": "boolean"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"link_template": {
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					}
+				},
+				"required": [
+					"accession_required",
+					"link_template",
+					"meta",
+					"id",
+					"label",
+					"code"
 				],
-				"title": "ExternalSeqCategory",
-				"type": "string"
+				"type": "object"
 			},
 			"Fixative": {
 				"additionalProperties": false,

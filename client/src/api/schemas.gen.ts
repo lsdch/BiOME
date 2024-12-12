@@ -1122,7 +1122,7 @@ export const $ExternalBioMatSequence = {
             type: 'string'
         },
         category: {
-            '$ref': '#/components/schemas/ExternalSeqCategory'
+            '$ref': '#/components/schemas/ExternalSeqOrigin'
         },
         code: {
             type: 'string'
@@ -1198,10 +1198,34 @@ export const $ExternalBioMatSpecific = {
     type: 'object'
 } as const;
 
-export const $ExternalSeqCategory = {
-    enum: ['NCBI', 'PersCom'],
-    title: 'ExternalSeqCategory',
-    type: 'string'
+export const $ExternalSeqOrigin = {
+    additionalProperties: false,
+    properties: {
+        accession_required: {
+            type: 'boolean'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        label: {
+            type: 'string'
+        },
+        link_template: {
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        }
+    },
+    required: ['accession_required', 'link_template', 'meta', 'id', 'label', 'code'],
+    type: 'object'
 } as const;
 
 export const $Fixative = {
