@@ -66,9 +66,18 @@ tasks:
     deps: [switch-schema]
 
   switch-schema:
+    internal: true
     desc: "Switch to schema-only branch"
     status: ["edgedb branch current 2>&1 | grep {{.EMPTY_DB_NAME}}"]
     cmd: edgedb branch switch {{.EMPTY_DB_NAME}}
+    deps: [init-schema]
+
+  switch-main:
+    internal: true
+    desc: "Switch to schema-only branch"
+    status: ["edgedb branch current 2>&1 | grep main"]
+    cmd: edgedb branch switch main
+    deps: [init-schema]
 
   migration:
     desc: "Extract database migration from current changes in schema"
@@ -85,4 +94,4 @@ tasks:
       - edgedb branch create {{.TEST_DB_NAME}} --copy-data
       - edgedb branch drop {{.EMPTY_DB_NAME}} --non-interactive
       - edgedb branch create {{.EMPTY_DB_NAME}}
-    deps: [init, init-testing, init-schema]
+    deps: [init, init-testing, init-schema, switch-main]
