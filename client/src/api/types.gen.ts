@@ -447,7 +447,7 @@ export type ExternalBioMatContent = {
 
 export type ExternalBioMatSequence = {
     accession_number: string;
-    category: ExternalSeqOrigin;
+    category: SeqDb;
     code: string;
     comments: string;
     gene: Gene;
@@ -455,6 +455,7 @@ export type ExternalBioMatSequence = {
     identification: Identification;
     label: string;
     legacy: OptionalLegacySeqId;
+    origin: ExtSeqOrigin;
     original_taxon: string;
     references: Array<Article>;
     sequence: string;
@@ -471,15 +472,7 @@ export type ExternalBioMatSpecific = {
     quantity: Quantity;
 };
 
-export type ExternalSeqOrigin = {
-    accession_required: boolean;
-    code: string;
-    description?: string;
-    id: string;
-    label: string;
-    link_template: string;
-    meta: Meta;
-};
+export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom';
 
 export type Fixative = {
     /**
@@ -1396,6 +1389,41 @@ export type SecuritySettingsInput = {
      * User session lifetime in hours
      */
     refresh_token_lifetime: number;
+};
+
+export type SeqDb = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code: string;
+    description?: string;
+    id: string;
+    label: string;
+    link_template: string;
+    meta: Meta;
+};
+
+export type SeqDbInput = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code: string;
+    description?: string;
+    label: string;
+    link_template?: string;
+};
+
+export type SeqDbUpdate = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    code?: string;
+    description?: (string) | null;
+    label?: string;
+    link_template?: (string) | null;
 };
 
 export type Site = {
@@ -2755,6 +2783,66 @@ export type UpdateGeneResponse = (Gene);
 
 export type UpdateGeneError = (ErrorModel);
 
+export type ListSeqDbsData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListSeqDbsResponse = (Array<SeqDb>);
+
+export type ListSeqDbsError = (ErrorModel);
+
+export type CreateSeqDbData = {
+    body: SeqDbInput;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type CreateSeqDbResponse = (SeqDb);
+
+export type CreateSeqDbError = (ErrorModel);
+
+export type DeleteSeqDbData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteSeqDbResponse = (SeqDb);
+
+export type DeleteSeqDbError = (ErrorModel);
+
+export type UpdateSeqDbData = {
+    body: SeqDbUpdate;
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type UpdateSeqDbResponse = (SeqDb);
+
+export type UpdateSeqDbError = (ErrorModel);
+
 export type EmailSettingsData = {
     headers?: {
         /**
@@ -3201,9 +3289,9 @@ export type ExternalBioMatContentModelResponseTransformer = (data: any) => Exter
 
 export type ExternalBioMatSequenceModelResponseTransformer = (data: any) => ExternalBioMatSequence;
 
-export type ExternalSeqOriginModelResponseTransformer = (data: any) => ExternalSeqOrigin;
+export type SeqDbModelResponseTransformer = (data: any) => SeqDb;
 
-export const ExternalSeqOriginModelResponseTransformer: ExternalSeqOriginModelResponseTransformer = data => {
+export const SeqDbModelResponseTransformer: SeqDbModelResponseTransformer = data => {
     if (data?.meta) {
         MetaModelResponseTransformer(data.meta);
     }
@@ -3245,7 +3333,7 @@ export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = 
 
 export const ExternalBioMatSequenceModelResponseTransformer: ExternalBioMatSequenceModelResponseTransformer = data => {
     if (data?.category) {
-        ExternalSeqOriginModelResponseTransformer(data.category);
+        SeqDbModelResponseTransformer(data.category);
     }
     if (data?.gene) {
         GeneModelResponseTransformer(data.gene);
@@ -3835,6 +3923,36 @@ export type UpdateGeneResponseTransformer = (data: any) => Promise<UpdateGeneRes
 
 export const UpdateGeneResponseTransformer: UpdateGeneResponseTransformer = async (data) => {
     GeneModelResponseTransformer(data);
+    return data;
+};
+
+export type ListSeqDbsResponseTransformer = (data: any) => Promise<ListSeqDbsResponse>;
+
+export const ListSeqDbsResponseTransformer: ListSeqDbsResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(SeqDbModelResponseTransformer);
+    }
+    return data;
+};
+
+export type CreateSeqDbResponseTransformer = (data: any) => Promise<CreateSeqDbResponse>;
+
+export const CreateSeqDbResponseTransformer: CreateSeqDbResponseTransformer = async (data) => {
+    SeqDbModelResponseTransformer(data);
+    return data;
+};
+
+export type DeleteSeqDbResponseTransformer = (data: any) => Promise<DeleteSeqDbResponse>;
+
+export const DeleteSeqDbResponseTransformer: DeleteSeqDbResponseTransformer = async (data) => {
+    SeqDbModelResponseTransformer(data);
+    return data;
+};
+
+export type UpdateSeqDbResponseTransformer = (data: any) => Promise<UpdateSeqDbResponse>;
+
+export const UpdateSeqDbResponseTransformer: UpdateSeqDbResponseTransformer = async (data) => {
+    SeqDbModelResponseTransformer(data);
     return data;
 };
 

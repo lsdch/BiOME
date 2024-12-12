@@ -29,7 +29,7 @@ module default {
 
     required label: str {
       constraint exclusive;
-      constraint min_len_value(4);
+      constraint min_len_value(3);
     };
     required code: str {
       annotation title := "An expressive, unique, user-generated uppercase alphanumeric code";

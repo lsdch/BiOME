@@ -114,7 +114,35 @@
                       "taxon": "Proasellus cavaticus",
                       "identified_by": "fmalard"
                     },
-                    "comments": "Seed external bio-material"
+                    "comments": "Seed external bio-material",
+                    "sequences": []
+                  }
+                ],
+                "sequences": [
+                  {
+                    "origin": "DB",
+                    "code": "Pmeridianus_NORARIVE_202107_Ase108A21125_OR112654|NCBI",
+                    "label": "Asellidae sp. voucher Ase.1-08A-(21_125) cytochrome oxidase subunit 1 (COI) gene, partial cds; mitochondrial",
+                    "gene": "COI",
+                    "comments": "Seed sequence using NCBI infos",
+                    "sequence": "AACTCTATATTTTATCTTTGGCGCCTGGGCTGGAAGGGTAGGCACAGCCCTAAGAATATTAATCCGGACAGAATTAGGCCAGCCTGGGAGTTTTATCGGCAATGACCAGATTTACAATGTACTTGTAACAGCACACGCCTTTGTAATAATTTTCTTTTTAGTTATACCTGTAATAATTGGGGGGTTTGGAAATTGGTTAATTCCTCTCATATTAGGAGCCCCCGACATAGCTTTCCCCCGCATAAATAACATAAGATTTTGACTCCTACCCCCTTCCTTAACTCTTCTTCTCTCCAGGGGCTTAATTGAATCGGGTGTTGGGACTGGCTGGACAGTTTACCCTCCTTTGGCGGCAAGTATCGCGCATAGTGGCCCTGCCGTAGACCTGGGAATCTTTTCTCTCCACTTGGCAGGCGCCAGCTCTATCTTAGGGTCAGTTAACTTTATCTCTACTGTTATTAATATGCGTTCAGAGGGGATAAGATTTGACAAGGTCCCACTTTTCGTGTGATCAGTTTTTATCACAACAATTCTTCTACTTCTCTCTCTTCCGGTGCTAGCGGGGGCAATTACCATATTACTGACAGATCGAAACTTAAACACTACTTTTTTTGATCCAAGGGGCGGAGGAGACCCCATCTTATACCAACATTTATTT",
+                    "referenced_in": [
+                      {
+                        "db": "NCBI",
+                        "accession": "OR112654"
+                      }
+                    ],
+                    "published_in": "Palatov_Chertoprud_2024",
+                    "specimen_identifier": "Ase.1-08A-(21_125)",
+                    "original_taxon": "Asellidae sp.",
+                    "identification": {
+                      "identified_on": {
+                        "precision": "Year",
+                        "date": "2024-01-01T00:00:00Z"
+                      },
+                      "taxon": "Proasellus meridianus",
+                      "identified_by": "fmalard"
+                    }
                   }
                 ]
               }

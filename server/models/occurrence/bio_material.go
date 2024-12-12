@@ -5,6 +5,7 @@ import (
 	"darco/proto/models"
 	"darco/proto/models/people"
 	"darco/proto/models/references"
+	"darco/proto/models/sequences"
 	"darco/proto/models/specimen"
 
 	"github.com/edgedb/edgedb-go"
@@ -29,10 +30,11 @@ type ExternalBioMatSpecific struct {
 type ExternalBioMatSequence struct {
 	ID             edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
 	Sequence       `edgedb:"$inline" json:",inline"`
-	Category       ExternalSeqOrigin    `edgedb:"type" json:"category"`
-	Identification Identification       `edgedb:"identification" json:"identification"`
-	Comments       edgedb.OptionalStr   `edgedb:"comments" json:"comments"`
-	References     []references.Article `edgedb:"references" json:"references"`
+	Origin         sequences.ExtSeqOrigin `edgedb:"origin" json:"origin"`
+	Category       sequences.SeqDB        `edgedb:"type" json:"category"`
+	Identification Identification         `edgedb:"identification" json:"identification"`
+	Comments       edgedb.OptionalStr     `edgedb:"comments" json:"comments"`
+	References     []references.Article   `edgedb:"references" json:"references"`
 	// SourceSample            `edgedb:"source_sample" json:"source_sample"`
 	AccessionNumber    edgedb.OptionalStr `edgedb:"accession_number" json:"accession_number"`
 	SpecimenIdentifier string             `edgedb:"specimen_identifier" json:"specimen_identifier"`

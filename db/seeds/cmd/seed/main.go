@@ -23,6 +23,7 @@ var entities = []string{
 	"fixatives",
 	"abiotic",
 	"genes",
+	"seq_databases",
 	"datasets",
 }
 

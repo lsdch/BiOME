@@ -1281,6 +1281,15 @@
 				},
 				"type": "object"
 			},
+			"ExtSeqOrigin": {
+				"enum": [
+					"Lab",
+					"DB",
+					"PersCom"
+				],
+				"title": "ExtSeqOrigin",
+				"type": "string"
+			},
 			"ExternalBioMatContent": {
 				"additionalProperties": false,
 				"properties": {
@@ -1307,7 +1316,7 @@
 						"type": "string"
 					},
 					"category": {
-						"$ref": "#/components/schemas/ExternalSeqOrigin"
+						"$ref": "#/components/schemas/SeqDB"
 					},
 					"code": {
 						"type": "string"
@@ -1331,6 +1340,9 @@
 					"legacy": {
 						"$ref": "#/components/schemas/OptionalLegacySeqID"
 					},
+					"origin": {
+						"$ref": "#/components/schemas/ExtSeqOrigin"
+					},
 					"original_taxon": {
 						"type": "string"
 					},
@@ -1349,6 +1361,7 @@
 				},
 				"required": [
 					"id",
+					"origin",
 					"category",
 					"identification",
 					"comments",
@@ -1396,42 +1409,6 @@
 					"quantity",
 					"archive",
 					"comments"
-				],
-				"type": "object"
-			},
-			"ExternalSeqOrigin": {
-				"additionalProperties": false,
-				"properties": {
-					"accession_required": {
-						"type": "boolean"
-					},
-					"code": {
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"link_template": {
-						"type": "string"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					}
-				},
-				"required": [
-					"accession_required",
-					"link_template",
-					"meta",
-					"id",
-					"label",
-					"code"
 				],
 				"type": "object"
 			},
@@ -4425,6 +4402,111 @@
 					"refresh_token_lifetime",
 					"invitation_token_lifetime"
 				],
+				"type": "object"
+			},
+			"SeqDB": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SeqDB.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"link_template": {
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					}
+				},
+				"required": [
+					"link_template",
+					"meta",
+					"id",
+					"label",
+					"code"
+				],
+				"type": "object"
+			},
+			"SeqDBInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SeqDBInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"link_template": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"label",
+					"code"
+				],
+				"type": "object"
+			},
+			"SeqDBUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SeqDBUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"label": {
+						"type": "string"
+					},
+					"link_template": {
+						"type": [
+							"string",
+							"null"
+						]
+					}
+				},
 				"type": "object"
 			},
 			"Site": {
@@ -10690,6 +10772,301 @@
 				"summary": "Update sampling action",
 				"tags": [
 					"Sampling"
+				]
+			}
+		},
+		"/seq-databases": {
+			"get": {
+				"operationId": "ListSeqDBs",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/SeqDB"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List external sequence databases",
+				"tags": [
+					"Sequences"
+				]
+			},
+			"post": {
+				"operationId": "CreateSeqDB",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SeqDBInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SeqDB"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create external sequence database",
+				"tags": [
+					"Sequences"
+				]
+			}
+		},
+		"/seq-databases/{code}": {
+			"delete": {
+				"operationId": "DeleteSeqDB",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SeqDB"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Delete external sequence database",
+				"tags": [
+					"Sequences"
+				]
+			},
+			"patch": {
+				"operationId": "UpdateSeqDB",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SeqDBUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SeqDB"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update external sequence database",
+				"tags": [
+					"Sequences"
 				]
 			}
 		},

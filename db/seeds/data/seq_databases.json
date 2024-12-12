@@ -1,0 +1,8 @@
+[
+  {
+    "code": "NCBI",
+    "label": "NCBI GenBank",
+    "description": "NCBI GenBank sequence repository",
+    "link_template": "https://www.ncbi.nlm.nih.gov/nuccore/{accession}"
+  }
+]

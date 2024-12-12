@@ -181,26 +181,35 @@ module seq {
     constraint exclusive on ((.specimen, .is_reference)) except (not .is_reference);
   }
 
-  type ExternalSeqOrigin extending default::Auditable, default::Vocabulary {
-    required accession_required: bool {
-      default := false
-    };
+  type SeqDB extending default::Auditable, default::Vocabulary {
     link_template: str;
   };
 
+  type SeqReference {
+    required db: SeqDB {
+      on target delete delete source;
+    };
+    required accession: str {
+      constraint min_len_value(3);
+      constraint max_len_value(32);
+    };
+    constraint exclusive on ((.db, .accession));
+  };
+
+  scalar type ExtSeqOrigin extending enum<Lab, PersCom, DB>;
+
   type ExternalSequence extending Sequence, occurrence::Occurrence {
 
-    required origin: ExternalSeqOrigin;
+    required origin: ExtSeqOrigin;
     source_sample: occurrence::ExternalBioMat;
-    reference: references::Article; # TODO: move this to Occurrence schema
+    published_in: references::Article; # TODO: move this to Occurrence schema
 
-    accession_number: str {
-      annotation description := "NCBI accession number of the original sequence.";
+    multi referenced_in: SeqReference {
       constraint exclusive;
-      constraint min_len_value(6);
-      constraint max_len_value(12);
     };
-    # constraint expression on ((exists .accession_number)) except (.type != ExternalSeqType.NCBI);
+    # 🚧 enforce required references when origin = DB in the application layer
+    # the following statement is not supported by EdgeDB
+    # constraint expression on (.has_references) except (.origin != ExtSeqOrigin.DB);
 
     required specimen_identifier: str {
       annotation description := "An identifier for the organism from which the sequence was produced, provided in the original source";

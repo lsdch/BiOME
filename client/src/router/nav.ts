@@ -88,11 +88,25 @@ export const navRoutes: RouterItem[] = [
     icon: "mdi-dna",
     routes: [
       {
+        label: "Sequences",
+        path: "/sequences",
+        name: "sequences",
+        icon: "mdi-dna",
+        component: () => import("@/views/sequences/SequencesView.vue")
+      },
+      {
         label: "Genes",
         path: "/genes",
         name: "genes",
         icon: "mdi-tag",
         component: () => import("@/views/sequences/GenesView.vue")
+      },
+      {
+        label: "Seq. databases",
+        path: "/seq-databases",
+        name: "seq-databases",
+        icon: "mdi-database-sync",
+        component: () => import("@/views/sequences/SeqDatabasesView.vue")
       }
     ]
   },

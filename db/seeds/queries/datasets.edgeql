@@ -154,6 +154,43 @@ for item in json_array_unpack(data) union (
             )
           }
         )),
+        ext_sequences := (for extseq in json_array_unpack(json_get(sampling, 'sequences')) union (
+          insert seq::ExternalSequence {
+            sampling:= s,
+            code := <str>extseq['code'],
+            origin := <seq::ExtSeqOrigin>extseq['origin'],
+            label := <str>json_get(extseq, 'label'),
+            gene := (
+              select seq::Gene filter .code = <str>extseq['gene']
+            ),
+            comments := <str>json_get(extseq, 'comments'),
+            sequence := <str>json_get(extseq, 'sequence'),
+            referenced_in := (
+              for ref in json_array_unpack(json_get(extseq, 'referenced_in')) union (
+                insert seq::SeqReference {
+                  accession := <str>ref['accession'],
+                  db := (select seq::SeqDB filter .code = <str>ref['db'])
+                }
+              )
+            ),
+            published_in := (
+              select assert_single(references::Article filter .code in <str>json_get(extseq, 'published_in'))
+            ),
+            specimen_identifier := <str>json_get(extseq, 'specimen_identifier'),
+            original_taxon := <str>json_get(extseq, 'original_taxon'),
+            identification := (
+              insert occurrence::Identification {
+                taxon := (select taxonomy::Taxon filter .name = <str>extseq['identification']['taxon']),
+                identified_by := (select people::Person filter .alias = <str>json_get(extseq, 'identification', 'identified_by')),
+                identified_on := ((
+                  date := <datetime>extseq['identification']['identified_on']['date'],
+                  precision := <date::DatePrecision>extseq['identification']['identified_on']['precision'],
+                ))
+              }
+            )
+          }
+        )
+        )
         select s
       )),
       select e

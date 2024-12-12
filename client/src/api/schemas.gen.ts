@@ -1098,6 +1098,12 @@ export const $EventUpdate = {
     type: 'object'
 } as const;
 
+export const $ExtSeqOrigin = {
+    enum: ['Lab', 'DB', 'PersCom'],
+    title: 'ExtSeqOrigin',
+    type: 'string'
+} as const;
+
 export const $ExternalBioMatContent = {
     additionalProperties: false,
     properties: {
@@ -1122,7 +1128,7 @@ export const $ExternalBioMatSequence = {
             type: 'string'
         },
         category: {
-            '$ref': '#/components/schemas/ExternalSeqOrigin'
+            '$ref': '#/components/schemas/SeqDB'
         },
         code: {
             type: 'string'
@@ -1146,6 +1152,9 @@ export const $ExternalBioMatSequence = {
         legacy: {
             '$ref': '#/components/schemas/OptionalLegacySeqID'
         },
+        origin: {
+            '$ref': '#/components/schemas/ExtSeqOrigin'
+        },
         original_taxon: {
             type: 'string'
         },
@@ -1162,7 +1171,7 @@ export const $ExternalBioMatSequence = {
             type: 'string'
         }
     },
-    required: ['id', 'category', 'identification', 'comments', 'references', 'accession_number', 'specimen_identifier', 'original_taxon', 'code', 'label', 'sequence', 'gene', 'legacy'],
+    required: ['id', 'origin', 'category', 'identification', 'comments', 'references', 'accession_number', 'specimen_identifier', 'original_taxon', 'code', 'label', 'sequence', 'gene', 'legacy'],
     type: 'object'
 } as const;
 
@@ -1195,36 +1204,6 @@ export const $ExternalBioMatSpecific = {
         }
     },
     required: ['quantity', 'archive', 'comments'],
-    type: 'object'
-} as const;
-
-export const $ExternalSeqOrigin = {
-    additionalProperties: false,
-    properties: {
-        accession_required: {
-            type: 'boolean'
-        },
-        code: {
-            type: 'string'
-        },
-        description: {
-            type: 'string'
-        },
-        id: {
-            format: 'uuid',
-            type: 'string'
-        },
-        label: {
-            type: 'string'
-        },
-        link_template: {
-            type: 'string'
-        },
-        meta: {
-            '$ref': '#/components/schemas/Meta'
-        }
-    },
-    required: ['accession_required', 'link_template', 'meta', 'id', 'label', 'code'],
     type: 'object'
 } as const;
 
@@ -3780,6 +3759,93 @@ export const $SecuritySettingsInput = {
         }
     },
     required: ['min_password_strength', 'refresh_token_lifetime', 'invitation_token_lifetime'],
+    type: 'object'
+} as const;
+
+export const $SeqDB = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SeqDB.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        label: {
+            type: 'string'
+        },
+        link_template: {
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        }
+    },
+    required: ['link_template', 'meta', 'id', 'label', 'code'],
+    type: 'object'
+} as const;
+
+export const $SeqDBInput = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SeqDBInput.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: 'string'
+        },
+        label: {
+            type: 'string'
+        },
+        link_template: {
+            type: 'string'
+        }
+    },
+    required: ['label', 'code'],
+    type: 'object'
+} as const;
+
+export const $SeqDBUpdate = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SeqDBUpdate.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        code: {
+            type: 'string'
+        },
+        description: {
+            type: ['string', 'null']
+        },
+        label: {
+            type: 'string'
+        },
+        link_template: {
+            type: ['string', 'null']
+        }
+    },
     type: 'object'
 } as const;
 
