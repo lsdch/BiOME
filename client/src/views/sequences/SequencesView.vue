@@ -1,5 +1,137 @@
-<template></template>
+<template>
+  <CRUDTable
+    class="fill-height"
+    :headers
+    :toolbar="{
+      title: 'Sequences',
+      icon: 'mdi-dna'
+    }"
+    entity-name="Sequence"
+    :fetch-items="SequencesService.listSequences"
+    :delete="({ code }: Sequence) => SequencesService.deleteSequence({ path: { code } })"
+    :mobile="xs"
+    :filter
+    :search="search.term"
+    append-actions
+  >
+    <template #search="">
+      <v-inline-search-bar v-model="search.term" label="Search term" class="mx-1" />
+      <OccurrenceCategorySelect v-model="search.category" />
+    </template>
 
-<script setup lang="ts"></script>
+    <template #item.code="{ value, item }: { value: string; item: BioMaterial }">
+      <span class="d-flex justify-space-between align-center">
+        <!-- Using zero-width spaces for better line breaks -->
+        <RouterLink
+          :text="value.replace(']', ']\u200B').replace('[', '\u200B[')"
+          :to="{ name: 'sequence', params: { code: value } }"
+        />
+        <span class="text-right">
+          <v-icon
+            v-bind="OccurrenceCategory.props[item.category]"
+            :title="item.category"
+            class="mx-1"
+          />
+        </span>
+      </span>
+    </template>
+    <template #item.gene="{ value: gene }: { value: Gene }">
+      <GeneChip :gene size="small" />
+    </template>
+    <template
+      #item.event.site="{ value: { code, name }, item }: { value: SiteInfo; item: BioMaterial }"
+    >
+      <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name" />
+    </template>
+    <template #item.event.performed_on="{ value }: { value: DateWithPrecision }">
+      <span>{{ DateWithPrecision.format(value) }}</span>
+    </template>
+
+    <template
+      #item.identification.taxon="{ value: taxon, item }: { value: Taxon; item: BioMaterial }"
+    >
+      <TaxonChip :taxon size="small" short />
+    </template>
+    <template #item.identification.identified_by="{ value }: { value: PersonInner }">
+      <PersonChip :person="value" size="small" short />
+    </template>
+    <template #item.identification.identified_on="{ value }">
+      {{ DateWithPrecision.format(value) }}
+    </template>
+  </CRUDTable>
+</template>
+
+<script setup lang="ts">
+import { BioMaterial, Gene, PersonInner, Sequence, SequencesService, SiteInfo, Taxon } from '@/api'
+import { DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
+import PersonChip from '@/components/people/PersonChip.vue'
+import GeneChip from '@/components/sequences/GeneChip.vue'
+import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
+import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { computed, ref } from 'vue'
+import { useDisplay } from 'vuetify'
+
+const { xs } = useDisplay()
+
+type SeqTableFilters = {
+  term?: string
+  category?: OccurrenceCategory
+}
+
+const search = ref<SeqTableFilters>({})
+
+const filter = computed(() => {
+  const { category } = search.value
+  switch (category) {
+    case undefined:
+    case null:
+      return undefined
+    default:
+      return (item: Sequence) => item.category === category
+  }
+})
+
+const headers: CRUDTableHeader[] = [
+  {
+    children: [
+      { key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } },
+      { key: 'gene', title: 'Gene', width: 0 }
+    ]
+  },
+  {
+    title: 'Sampling',
+    align: 'center',
+    headerProps: { class: 'border-s' },
+    children: [
+      { key: 'event.site', title: 'Site' },
+      { key: 'event.performed_on', title: 'Date', align: 'end', sort: DateWithPrecision.compare }
+    ]
+  },
+  {
+    key: 'identification',
+    title: 'Identification',
+    align: 'center',
+    headerProps: { class: 'border-s' },
+    children: [
+      {
+        key: 'identification.taxon',
+        title: 'Taxon',
+        align: 'center',
+        sort(a: { name: string }, b: { name: string }) {
+          return a.name.localeCompare(b.name)
+        }
+      },
+      { key: 'identification.identified_by', title: 'Done by', align: 'center' },
+      {
+        key: 'identification.identified_on',
+        title: 'Date',
+        align: 'end',
+        sort: DateWithPrecision.compare
+      }
+    ]
+  }
+]
+</script>
 
 <style scoped lang="scss"></style>

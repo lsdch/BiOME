@@ -6,6 +6,14 @@ import (
 	"github.com/edgedb/edgedb-go"
 )
 
+type OccurrenceCategory string
+
+//generate:enum
+const (
+	Internal OccurrenceCategory = "Internal"
+	External OccurrenceCategory = "External"
+)
+
 type GenericOccurrence[SamplingType any] struct {
 	ID             edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
 	Sampling       SamplingType       `edgedb:"sampling" json:"sampling"`

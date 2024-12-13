@@ -49,8 +49,9 @@ func main() {
 			return err
 		}
 
+		logrus.Infof("Seeding...")
 		for _, entity := range entities {
-			logrus.Infof("Seeding %s", entity)
+			logrus.Infof("• %s", entity)
 			err := seeds.Seed(tx, entity)
 			if err != nil {
 				return err

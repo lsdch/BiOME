@@ -135,7 +135,7 @@ module seq {
     multi link sequences := .<chromatograms[is AssembledSequence]
   }
 
-  abstract type Sequence {
+  abstract type Sequence extending default::Auditable {
     required code: str { constraint exclusive };
 
     # optional human readable label; use NCBI 'DEFINITION' field when applicable
@@ -239,4 +239,23 @@ module seq {
       annotation description := "The verbatim identification provided in the original source.";
     };
   }
+
+  alias SequenceWithType := (
+    select Sequence {
+      *,
+      required sampling := assert_exists(
+        [is AssembledSequence].sampling ??
+        [is ExternalSequence].sampling
+      ),
+      required identification := assert_exists(
+        [is AssembledSequence].identification ??
+        [is ExternalSequence].identification
+      ),
+      required category := (
+        if (Sequence is AssembledSequence) then "Internal"
+        else if (Sequence is ExternalSequence) then "External"
+        else "Unknown"
+      )
+    }
+  );
 }

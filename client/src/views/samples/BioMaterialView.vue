@@ -13,33 +13,7 @@
   >
     <template #search="">
       <v-inline-search-bar v-model="search.term" label="Search term" class="mx-1" />
-      <v-select
-        :items="$BioMaterialCategory.enum"
-        v-model="search.category"
-        label="Type"
-        hide-details
-        placeholder="Any"
-        persistent-placeholder
-        density="compact"
-        class="mx-1"
-        clearable
-        persistent-clear
-        :color="search.category ? 'primary' : undefined"
-        :active="!!search.category"
-        :prepend-inner-icon="
-          search.category ? BioMaterialCategory.props[search.category].icon : undefined
-        "
-        :max-width="300"
-      >
-        <template #item="{ item, props }">
-          <v-list-item
-            v-bind="{
-              ...props,
-              ...BioMaterialCategory.props[item.raw]
-            }"
-            :class="`text-${BioMaterialCategory.props[item.raw].color}`"
-          ></v-list-item>
-        </template>
+      <OccurrenceCategorySelect v-model="search.category">
         <template #append>
           <v-btn
             :active="search.nomenclaturalType"
@@ -51,7 +25,7 @@
             title="Show only nomenclatural type material"
           ></v-btn>
         </template>
-      </v-select>
+      </OccurrenceCategorySelect>
     </template>
 
     <template #item.code="{ value, item }: { value: string; item: BioMaterial }">
@@ -67,7 +41,7 @@
             class="mx-1"
           />
           <v-icon
-            v-bind="BioMaterialCategory.props[item.category]"
+            v-bind="OccurrenceCategory.props[item.category]"
             :title="item.category"
             class="mx-1"
           />
@@ -164,20 +138,18 @@
 
 <script setup lang="ts">
 import {
-  $BioMaterial,
-  $BioMaterialCategory,
+  $OccurrenceCategory,
   BioMaterial,
   PersonInner,
   SamplesService,
-  SamplingInner,
   SiteInfo,
   Taxon
 } from '@/api'
-import { BioMaterialCategory, DateWithPrecision } from '@/api/adapters'
-import SamplingCard from '@/components/events/SamplingCard.vue'
+import { DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
+import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
@@ -186,7 +158,7 @@ const { xs } = useDisplay()
 
 type BiomatTableFilters = {
   term?: string
-  category?: BioMaterialCategory
+  category?: OccurrenceCategory
   nomenclaturalType?: boolean
 }
 

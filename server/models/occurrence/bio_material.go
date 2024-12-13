@@ -30,7 +30,7 @@ type ExternalBioMatSpecific struct {
 
 type ExternalBioMatSequence struct {
 	ID             edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
-	Sequence       `edgedb:"$inline" json:",inline"`
+	SequenceInner  `edgedb:"$inline" json:",inline"`
 	Origin         sequences.ExtSeqOrigin `edgedb:"origin" json:"origin"`
 	Category       sequences.SeqDB        `edgedb:"type" json:"category"`
 	Identification Identification         `edgedb:"identification" json:"identification"`
@@ -47,14 +47,6 @@ type ExternalBioMatContent struct {
 	Sequences []ExternalBioMatSequence `edgedb:"sequences" json:"sequences"`
 }
 
-type BioMaterialCategory string
-
-//generate:enum
-const (
-	Internal BioMaterialCategory = "Internal"
-	External BioMaterialCategory = "External"
-)
-
 type CodeHistory struct {
 	Code string    `edgedb:"code" json:"code"`
 	Time time.Time `edgedb:"time" json:"time"`
@@ -64,7 +56,7 @@ type GenericBioMaterial[SamplingType any] struct {
 	GenericOccurrence[SamplingType] `edgedb:"$inline" json:",inline"`
 	Code                            string                                  `edgedb:"code" json:"code"`
 	CodeHistory                     []CodeHistory                           `edgedb:"code_history" json:"code_history,omitempty"`
-	Category                        BioMaterialCategory                     `edgedb:"category" json:"category"`
+	Category                        OccurrenceCategory                      `edgedb:"category" json:"category"`
 	IsType                          bool                                    `edgedb:"is_type" json:"is_type"`
 	IsHomogenous                    bool                                    `edgedb:"is_homogenous" json:"is_homogenous"`
 	IsCongruent                     bool                                    `edgedb:"is_congruent" json:"is_congruent"`
@@ -159,7 +151,7 @@ func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterial, er
 type BioMaterialInput struct {
 	OccurrenceInput `edgedb:"$inline" json:",inline"`
 	Code            string                     `edgedb:"code" json:"code"`
-	Category        BioMaterialCategory        `edgedb:"category" json:"category"`
+	Category        OccurrenceCategory         `edgedb:"category" json:"category"`
 	IsType          models.OptionalInput[bool] `edgedb:"is_type" json:"is_type" default:"false"`
 	// Category dependent field
 }

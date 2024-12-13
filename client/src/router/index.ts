@@ -83,6 +83,12 @@ function setupRouter(settings: InstanceSettings) {
         component: () => import('@/views/samples/BiomatItemView.vue'),
         props: true
       },
+      {
+        path: "/sequences/:code",
+        name: "sequence",
+        component: () => import('@/views/sequences/SeqItemView.vue'),
+        props: true
+      },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       ...Object.values(routes),
       ...navRouteDefinitions

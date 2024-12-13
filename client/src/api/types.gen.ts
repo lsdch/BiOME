@@ -122,7 +122,7 @@ export type BioMaterial = {
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    category: BioMaterialCategory;
+    category: OccurrenceCategory;
     code: string;
     code_history?: Array<CodeHistory>;
     comments: string;
@@ -137,14 +137,12 @@ export type BioMaterial = {
     sampling: SamplingInner;
 };
 
-export type BioMaterialCategory = 'Internal' | 'External';
-
 export type BioMaterialWithDetails = {
     /**
      * A URL to the JSON Schema for this object.
      */
     readonly $schema?: string;
-    category: BioMaterialCategory;
+    category: OccurrenceCategory;
     code: string;
     code_history?: Array<CodeHistory>;
     comments: string;
@@ -482,6 +480,14 @@ export type ExternalBioMatSpecific = {
 };
 
 export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom';
+
+export type ExtSeqSpecifics = {
+    origin: ExtSeqOrigin;
+    original_taxon: string;
+    published_in?: OptionalArticle;
+    referenced_in?: Array<SeqReference>;
+    specimen_identifier: string;
+};
 
 export type Fixative = {
     /**
@@ -935,6 +941,26 @@ export type Meta = {
     updated_by?: UserShortIdentity;
 };
 
+export type OccurrenceCategory = 'Internal' | 'External';
+
+export type OptionalArticle = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    authors: Array<(string)>;
+    code: string;
+    comments?: string;
+    doi?: string;
+    id: string;
+    journal?: string;
+    meta: Meta;
+    original_source: boolean;
+    title?: string;
+    verbatim?: string;
+    year: number;
+} | null;
+
 export type OptionalExternalBioMatSpecific = {
     archive: SpecimenVoucher;
     comments: string;
@@ -943,6 +969,14 @@ export type OptionalExternalBioMatSpecific = {
     original_link?: string;
     original_taxon?: string;
     quantity: Quantity;
+} | null;
+
+export type OptionalExtSeqSpecifics = {
+    origin: ExtSeqOrigin;
+    original_taxon: string;
+    published_in?: OptionalArticle;
+    referenced_in?: Array<SeqReference>;
+    specimen_identifier: string;
 } | null;
 
 export type OptionalHabitatRecord = {
@@ -1435,6 +1469,33 @@ export type SeqDbUpdate = {
     description?: (string) | null;
     label?: string;
     link_template?: (string) | null;
+};
+
+export type SeqReference = {
+    accession: string;
+    db: SeqDb;
+    id: string;
+    is_origin: boolean;
+};
+
+export type Sequence = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    category: OccurrenceCategory;
+    code: string;
+    comments: string;
+    event: EventInner;
+    external?: OptionalExtSeqSpecifics;
+    gene: Gene;
+    id: string;
+    identification: Identification;
+    label: string;
+    legacy: OptionalLegacySeqId;
+    meta: Meta;
+    sampling: SamplingInner;
+    sequence: string;
 };
 
 export type Site = {
@@ -2854,6 +2915,35 @@ export type UpdateSeqDbResponse = (SeqDb);
 
 export type UpdateSeqDbError = (ErrorModel);
 
+export type ListSequencesData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type ListSequencesResponse = (Array<Sequence>);
+
+export type ListSequencesError = (ErrorModel);
+
+export type DeleteSequenceData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type DeleteSequenceResponse = (Sequence);
+
+export type DeleteSequenceError = (ErrorModel);
+
 export type EmailSettingsData = {
     headers?: {
         /**
@@ -3979,6 +4069,76 @@ export type UpdateSeqDbResponseTransformer = (data: any) => Promise<UpdateSeqDbR
 
 export const UpdateSeqDbResponseTransformer: UpdateSeqDbResponseTransformer = async (data) => {
     SeqDbModelResponseTransformer(data);
+    return data;
+};
+
+export type ListSequencesResponseTransformer = (data: any) => Promise<ListSequencesResponse>;
+
+export type SequenceModelResponseTransformer = (data: any) => Sequence;
+
+export type OptionalExtSeqSpecificsModelResponseTransformer = (data: any) => OptionalExtSeqSpecifics;
+
+export type OptionalArticleModelResponseTransformer = (data: any) => OptionalArticle;
+
+export const OptionalArticleModelResponseTransformer: OptionalArticleModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
+export type SeqReferenceModelResponseTransformer = (data: any) => SeqReference;
+
+export const SeqReferenceModelResponseTransformer: SeqReferenceModelResponseTransformer = data => {
+    if (data?.db) {
+        SeqDbModelResponseTransformer(data.db);
+    }
+    return data;
+};
+
+export const OptionalExtSeqSpecificsModelResponseTransformer: OptionalExtSeqSpecificsModelResponseTransformer = data => {
+    if (data?.published_in) {
+        OptionalArticleModelResponseTransformer(data.published_in);
+    }
+    if (Array.isArray(data?.referenced_in)) {
+        data.referenced_in.forEach(SeqReferenceModelResponseTransformer);
+    }
+    return data;
+};
+
+export const SequenceModelResponseTransformer: SequenceModelResponseTransformer = data => {
+    if (data?.event) {
+        EventInnerModelResponseTransformer(data.event);
+    }
+    if (data?.external) {
+        OptionalExtSeqSpecificsModelResponseTransformer(data.external);
+    }
+    if (data?.gene) {
+        GeneModelResponseTransformer(data.gene);
+    }
+    if (data?.identification) {
+        IdentificationModelResponseTransformer(data.identification);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (data?.sampling) {
+        SamplingInnerModelResponseTransformer(data.sampling);
+    }
+    return data;
+};
+
+export const ListSequencesResponseTransformer: ListSequencesResponseTransformer = async (data) => {
+    if (Array.isArray(data)) {
+        data.forEach(SequenceModelResponseTransformer);
+    }
+    return data;
+};
+
+export type DeleteSequenceResponseTransformer = (data: any) => Promise<DeleteSequenceResponse>;
+
+export const DeleteSequenceResponseTransformer: DeleteSequenceResponseTransformer = async (data) => {
+    SequenceModelResponseTransformer(data);
     return data;
 };
 

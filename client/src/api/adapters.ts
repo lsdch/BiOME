@@ -2,7 +2,7 @@
 
 import { DateTime } from "luxon"
 import {
-  BioMaterialCategory as TBioMaterialCategory,
+  OccurrenceCategory as TOccurrenceCategory,
   CompositeDate as CompositeDateType,
   DatePrecision,
   DateWithPrecisionInput,
@@ -57,10 +57,10 @@ export namespace DateWithPrecision {
   }
 }
 
-export type BioMaterialCategory = TBioMaterialCategory
-export namespace BioMaterialCategory {
+export type OccurrenceCategory = TOccurrenceCategory
+export namespace OccurrenceCategory {
 
-  export const props: Record<BioMaterialCategory, { icon: string, color: string, prependIcon: string }> = {
+  export const props: Record<OccurrenceCategory, { icon: string, color: string, prependIcon: string }> = {
     Internal: {
       icon: 'mdi-cube-scan',
       prependIcon: 'mdi-cube-scan',
@@ -73,7 +73,7 @@ export namespace BioMaterialCategory {
     }
   }
 
-  export function icon(t: BioMaterialCategory) {
+  export function icon(t: OccurrenceCategory) {
     return props[t].icon
   }
 }

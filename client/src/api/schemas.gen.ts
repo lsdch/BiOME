@@ -315,7 +315,7 @@ export const $BioMaterial = {
             type: 'string'
         },
         category: {
-            '$ref': '#/components/schemas/BioMaterialCategory'
+            '$ref': '#/components/schemas/OccurrenceCategory'
         },
         code: {
             type: 'string'
@@ -365,12 +365,6 @@ export const $BioMaterial = {
     type: 'object'
 } as const;
 
-export const $BioMaterialCategory = {
-    enum: ['Internal', 'External'],
-    title: 'BioMaterialCategory',
-    type: 'string'
-} as const;
-
 export const $BioMaterialWithDetails = {
     additionalProperties: false,
     properties: {
@@ -382,7 +376,7 @@ export const $BioMaterialWithDetails = {
             type: 'string'
         },
         category: {
-            '$ref': '#/components/schemas/BioMaterialCategory'
+            '$ref': '#/components/schemas/OccurrenceCategory'
         },
         code: {
             type: 'string'
@@ -1135,6 +1129,32 @@ export const $ExtSeqOrigin = {
     enum: ['Lab', 'DB', 'PersCom'],
     title: 'ExtSeqOrigin',
     type: 'string'
+} as const;
+
+export const $ExtSeqSpecifics = {
+    additionalProperties: false,
+    properties: {
+        origin: {
+            '$ref': '#/components/schemas/ExtSeqOrigin'
+        },
+        original_taxon: {
+            type: 'string'
+        },
+        published_in: {
+            '$ref': '#/components/schemas/OptionalArticle'
+        },
+        referenced_in: {
+            items: {
+                '$ref': '#/components/schemas/SeqReference'
+            },
+            type: 'array'
+        },
+        specimen_identifier: {
+            type: 'string'
+        }
+    },
+    required: ['origin', 'specimen_identifier', 'original_taxon'],
+    type: 'object'
 } as const;
 
 export const $ExternalBioMatContent = {
@@ -2449,6 +2469,91 @@ export const $Meta = {
     },
     required: ['created', 'last_updated'],
     type: 'object'
+} as const;
+
+export const $OccurrenceCategory = {
+    enum: ['Internal', 'External'],
+    title: 'OccurrenceCategory',
+    type: 'string'
+} as const;
+
+export const $OptionalArticle = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Article.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        authors: {
+            items: {
+                type: 'string'
+            },
+            type: 'array'
+        },
+        code: {
+            type: 'string'
+        },
+        comments: {
+            type: 'string'
+        },
+        doi: {
+            type: 'string'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        journal: {
+            type: 'string'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        original_source: {
+            type: 'boolean'
+        },
+        title: {
+            type: 'string'
+        },
+        verbatim: {
+            type: 'string'
+        },
+        year: {
+            format: 'int32',
+            type: 'integer'
+        }
+    },
+    required: ['id', 'code', 'authors', 'year', 'original_source', 'meta'],
+    type: ['object', 'null']
+} as const;
+
+export const $OptionalExtSeqSpecifics = {
+    additionalProperties: false,
+    properties: {
+        origin: {
+            '$ref': '#/components/schemas/ExtSeqOrigin'
+        },
+        original_taxon: {
+            type: 'string'
+        },
+        published_in: {
+            '$ref': '#/components/schemas/OptionalArticle'
+        },
+        referenced_in: {
+            items: {
+                '$ref': '#/components/schemas/SeqReference'
+            },
+            type: 'array'
+        },
+        specimen_identifier: {
+            type: 'string'
+        }
+    },
+    required: ['origin', 'specimen_identifier', 'original_taxon'],
+    type: ['object', 'null']
 } as const;
 
 export const $OptionalExternalBioMatSpecific = {
@@ -3885,6 +3990,82 @@ export const $SeqDBUpdate = {
             type: ['string', 'null']
         }
     },
+    type: 'object'
+} as const;
+
+export const $SeqReference = {
+    additionalProperties: false,
+    properties: {
+        accession: {
+            type: 'string'
+        },
+        db: {
+            '$ref': '#/components/schemas/SeqDB'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        is_origin: {
+            type: 'boolean'
+        }
+    },
+    required: ['id', 'db', 'accession', 'is_origin'],
+    type: 'object'
+} as const;
+
+export const $Sequence = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/Sequence.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        category: {
+            '$ref': '#/components/schemas/OccurrenceCategory'
+        },
+        code: {
+            type: 'string'
+        },
+        comments: {
+            type: 'string'
+        },
+        event: {
+            '$ref': '#/components/schemas/EventInner'
+        },
+        external: {
+            '$ref': '#/components/schemas/OptionalExtSeqSpecifics'
+        },
+        gene: {
+            '$ref': '#/components/schemas/Gene'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        identification: {
+            '$ref': '#/components/schemas/Identification'
+        },
+        label: {
+            type: 'string'
+        },
+        legacy: {
+            '$ref': '#/components/schemas/OptionalLegacySeqID'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        sampling: {
+            '$ref': '#/components/schemas/SamplingInner'
+        },
+        sequence: {
+            type: 'string'
+        }
+    },
+    required: ['category', 'event', 'meta', 'id', 'sampling', 'identification', 'comments', 'code', 'label', 'sequence', 'gene', 'legacy'],
     type: 'object'
 } as const;
 
