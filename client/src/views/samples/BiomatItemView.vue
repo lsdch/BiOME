@@ -108,6 +108,14 @@
               prepend-icon="mdi-package-down"
               :subtitle="DateWithPrecision.format(item.event.performed_on)"
             >
+              <template #append>
+                <v-btn
+                  icon="mdi-pencil"
+                  variant="tonal"
+                  size="small"
+                  @click="toggleSamplingEdit(true)"
+                />
+              </template>
               <v-card-text>
                 <v-list density="compact">
                   <v-list-item
@@ -217,18 +225,28 @@
     </v-card-text>
     <v-divider></v-divider>
   </v-card>
+  <SamplingFormDialog
+    v-if="item"
+    v-model="samplingEdit"
+    :edit="item.sampling"
+    :event="item.event"
+  />
 </template>
 
 <script setup lang="ts">
 import { SamplesService } from '@/api'
 import { DateWithPrecision } from '@/api/adapters'
+import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 import SamplingListItems from '@/components/events/SamplingListItems.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import MetaChip from '@/components/toolkit/MetaChip.vue'
 import { useFetchItem } from '@/composables/fetch_items'
+import { useToggle } from '@vueuse/core'
 import { computed } from 'vue'
+
+const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
 

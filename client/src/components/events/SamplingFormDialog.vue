@@ -114,7 +114,7 @@ import {
   $SamplingInput,
   $SamplingTargetKind,
   $SamplingUpdate,
-  Event,
+  EventInner,
   Sampling,
   SamplingInput,
   SamplingService,
@@ -142,7 +142,7 @@ const emit = defineEmits<{
 
 const props = defineProps<
   FormProps<Sampling> & {
-    event: Event
+    event: EventInner
   }
 >()
 
