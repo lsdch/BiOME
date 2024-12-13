@@ -98,9 +98,19 @@ for item in json_array_unpack(data) union (
           }
         ),
         intbiomats := (for intbm in json_array_unpack(json_get(sampling, 'internal_biomat')) union (
+          with identification := (
+            insert occurrence::Identification {
+              taxon := (select taxonomy::Taxon filter .name = <str>intbm['identification']['taxon']),
+              identified_by := (select people::Person filter .alias = <str>json_get(intbm, 'identification', 'identified_by')),
+              identified_on := ((
+                date := <datetime>intbm['identification']['identified_on']['date'],
+                precision := <date::DatePrecision>intbm['identification']['identified_on']['precision'],
+              ))
+            }
+          )
           insert occurrence::InternalBioMat {
             sampling := s,
-            code := <str>intbm['code'],
+            code := ((identification.taxon.code) ++ "[" ++ (s.code) ++ "]"),
             comments := <str>json_get(intbm, "comments"),
             is_type := <bool>json_get(intbm, "is_type")?? false,
             published_in := (
@@ -111,22 +121,23 @@ for item in json_array_unpack(data) union (
                 } filter .code = <str>p['code']
               )))
             ),
-            identification := (
-              insert occurrence::Identification {
-                taxon := (select taxonomy::Taxon filter .name = <str>intbm['identification']['taxon']),
-                identified_by := (select people::Person filter .alias = <str>json_get(intbm, 'identification', 'identified_by')),
-                identified_on := ((
-                  date := <datetime>intbm['identification']['identified_on']['date'],
-                  precision := <date::DatePrecision>intbm['identification']['identified_on']['precision'],
-                ))
-              }
-            )
+            identification := identification
           }
         )),
         extbiomats := (for extbm in json_array_unpack(json_get(sampling, 'external_biomat')) union (
+          with identification := (
+            insert occurrence::Identification {
+              taxon := (select taxonomy::Taxon filter .name = <str>extbm['identification']['taxon']),
+              identified_by := (select people::Person filter .alias = <str>json_get(extbm, 'identification', 'identified_by')),
+              identified_on := ((
+                date := <datetime>extbm['identification']['identified_on']['date'],
+                precision := <date::DatePrecision>extbm['identification']['identified_on']['precision'],
+              ))
+            }
+          )
           insert occurrence::ExternalBioMat {
             sampling := s,
-            code := <str>extbm['code'],
+            code := ((identification.taxon.code) ++ "[" ++ (s.code) ++ "]"),
             quantity := <occurrence::QuantityType>extbm['quantity'],
             content_description := <str>json_get(extbm, "content_description"),
             in_collection := <str>json_get(extbm, "in_collection"),
@@ -142,16 +153,7 @@ for item in json_array_unpack(data) union (
                 } filter .code = <str>p['code']
               )))
             ),
-            identification := (
-              insert occurrence::Identification {
-                taxon := (select taxonomy::Taxon filter .name = <str>extbm['identification']['taxon']),
-                identified_by := (select people::Person filter .alias = <str>json_get(extbm, 'identification', 'identified_by')),
-                identified_on := ((
-                  date := <datetime>extbm['identification']['identified_on']['date'],
-                  precision := <date::DatePrecision>extbm['identification']['identified_on']['precision'],
-                ))
-              }
-            )
+            identification := identification
           }
         )),
         ext_sequences := (for extseq in json_array_unpack(json_get(sampling, 'sequences')) union (
@@ -169,6 +171,7 @@ for item in json_array_unpack(data) union (
               for ref in json_array_unpack(json_get(extseq, 'referenced_in')) union (
                 insert seq::SeqReference {
                   accession := <str>ref['accession'],
+                  is_origin := <bool>json_get(ref, 'is_origin') ?? false,
                   db := (select seq::SeqDB filter .code = <str>ref['db'])
                 }
               )

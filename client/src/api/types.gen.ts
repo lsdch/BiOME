@@ -124,6 +124,7 @@ export type BioMaterial = {
     readonly $schema?: string;
     category: BioMaterialCategory;
     code: string;
+    code_history?: Array<CodeHistory>;
     comments: string;
     external?: OptionalExternalBioMatSpecific;
     id: string;
@@ -145,6 +146,7 @@ export type BioMaterialWithDetails = {
     readonly $schema?: string;
     category: BioMaterialCategory;
     code: string;
+    code_history?: Array<CodeHistory>;
     comments: string;
     event: EventInner;
     external?: OptionalExternalBioMatSpecific;
@@ -162,6 +164,11 @@ export type ClinicalTrailNumber = {
     'clinical-trail-number'?: string;
     registry?: string;
     type?: string;
+};
+
+export type CodeHistory = {
+    code: string;
+    time: Date;
 };
 
 export type CompositeDate = {
@@ -404,6 +411,7 @@ export type Event = {
      */
     readonly $schema?: string;
     abiotic_measurements: Array<AbioticMeasurement>;
+    code: string;
     id: string;
     meta: Meta;
     performed_by: Array<PersonUser>;
@@ -415,6 +423,7 @@ export type Event = {
 };
 
 export type EventInner = {
+    code: string;
     id: string;
     performed_on: DateWithPrecision;
     site: SiteInfo;
@@ -1248,6 +1257,7 @@ export type Sampling = {
      */
     readonly $schema?: string;
     access_points: Array<(string)>;
+    code: string;
     comments?: string;
     /**
      * Sampling duration in minutes
@@ -1265,6 +1275,7 @@ export type Sampling = {
 
 export type SamplingInner = {
     access_points: Array<(string)>;
+    code: string;
     comments?: string;
     /**
      * Sampling duration in minutes
@@ -3283,6 +3294,15 @@ export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = data
 
 export type BioMaterialModelResponseTransformer = (data: any) => BioMaterial;
 
+export type CodeHistoryModelResponseTransformer = (data: any) => CodeHistory;
+
+export const CodeHistoryModelResponseTransformer: CodeHistoryModelResponseTransformer = data => {
+    if (data?.time) {
+        data.time = new Date(data.time);
+    }
+    return data;
+};
+
 export type OptionalExternalBioMatSpecificModelResponseTransformer = (data: any) => OptionalExternalBioMatSpecific;
 
 export type ExternalBioMatContentModelResponseTransformer = (data: any) => ExternalBioMatContent;
@@ -3389,6 +3409,9 @@ export const SamplingInnerModelResponseTransformer: SamplingInnerModelResponseTr
 };
 
 export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransformer = data => {
+    if (Array.isArray(data?.code_history)) {
+        data.code_history.forEach(CodeHistoryModelResponseTransformer);
+    }
     if (data?.external) {
         OptionalExternalBioMatSpecificModelResponseTransformer(data.external);
     }
@@ -3743,6 +3766,9 @@ export const EventInnerModelResponseTransformer: EventInnerModelResponseTransfor
 };
 
 export const BioMaterialWithDetailsModelResponseTransformer: BioMaterialWithDetailsModelResponseTransformer = data => {
+    if (Array.isArray(data?.code_history)) {
+        data.code_history.forEach(CodeHistoryModelResponseTransformer);
+    }
     if (data?.event) {
         EventInnerModelResponseTransformer(data.event);
     }

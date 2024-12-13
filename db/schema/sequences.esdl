@@ -193,12 +193,33 @@ module seq {
       constraint min_len_value(3);
       constraint max_len_value(32);
     };
+    required is_origin: bool {
+      default := false;
+    };
+
+    required code := ( .db.code ++ ":" ++ .accession );
+
     constraint exclusive on ((.db, .accession));
   };
 
   scalar type ExtSeqOrigin extending enum<Lab, PersCom, DB>;
 
   type ExternalSequence extending Sequence, occurrence::Occurrence {
+
+    overloaded required code: str {
+      constraint exclusive;
+      rewrite update using (
+        with suffix := (
+          if .origin = ExtSeqOrigin.Lab then "lab"
+          else if .origin = ExtSeqOrigin.PersCom then "perscom"
+          else (
+            with sources := (select .referenced_in filter .is_origin).code
+            select array_join(array_agg(sources), "|")
+          )
+        )
+        select .identification.taxon.code ++ "[" ++ .sampling.code ++ "]" ++ .specimen_identifier ++ "|" ++ suffix
+      );
+    }
 
     required origin: ExtSeqOrigin;
     source_sample: occurrence::ExternalBioMat;

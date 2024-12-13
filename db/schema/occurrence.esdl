@@ -24,14 +24,38 @@ module occurrence {
   }
 
   abstract type BioMaterial extending Occurrence {
+
     required code : str {
       constraint exclusive;
-      annotation description := "Format like 'taxon_short_code|sampling_code'";
-      # rewrite insert, update using ((
-      #   .identification.taxon.code ++ "|" ++ events::event_code(.sampling.event)
-      # ));
+      annotation description := "Format like 'taxon_short_code[sampling_code]'";
+      rewrite update using (
+        if __specified__.code then .code # allow manual overwrite
+        else .identification.taxon.code ++ "[" ++ .sampling.code ++ "]"
+      );
+
+      # 🚧 unsupported feature for now
+      # > error: default expression cannot refer to links of inserted object
+      # > this is a tempory implementation restriction
+      # 🔗 see also: https://github.com/edgedb/edgedb/issues/7384
+      # -----
+      # default := gen_biomat_code(.identification, .sampling)
+      # rewrite insert, update using (
+      #   if re_test(r'^\d+$', .code)  then (
+      #     .identification.taxon.code ++ "|" ++ events::event_code(.sampling.event)
+      #   )
+      #   else .code
+      # );
     };
     index on (.code);
+
+    code_history: array<tuple<code: str, time: datetime>> {
+      readonly := true;
+      rewrite update using (
+        if __old__.code != .code then
+        __old__.code_history ++ [(code := __old__.code, time := datetime_of_statement())]
+        else .code_history
+      );
+    }
 
     # Defines whether this occurrence is the first scientific description of
     # the taxon

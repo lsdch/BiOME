@@ -22,6 +22,23 @@
         "events": [
           {
             "performed_on": {
+              "precision": "Day",
+              "date": "2021-12-03T00:00:00Z"
+            },
+            "programs": [
+              "DARCO"
+            ],
+            "performed_by": [
+              "fmalard"
+            ],
+            "spotting": {
+              "target_taxa": [
+                "Proasellus"
+              ]
+            }
+          },
+          {
+            "performed_on": {
               "precision": "Month",
               "date": "2021-03-01T00:00:00Z"
             },
@@ -78,7 +95,6 @@
                 "comments": "Trapping Proasellus",
                 "internal_biomat": [
                   {
-                    "code": "A_aquaticus|LA_DOUA_202112",
                     "is_type": true,
                     "identification": {
                       "identified_on": {
@@ -93,7 +109,6 @@
                 ],
                 "external_biomat": [
                   {
-                    "code": "P_cavaticus|LA_DOUA_202112",
                     "quantity": "One",
                     "in_collection": "Some museum",
                     "item_vouchers": [
@@ -129,6 +144,7 @@
                     "referenced_in": [
                       {
                         "db": "NCBI",
+                        "is_origin": true,
                         "accession": "OR112654"
                       }
                     ],
@@ -191,6 +207,32 @@
                 "is_donation": false,
                 "duration": 120,
                 "comments": "Fishing for Asellidae"
+              },
+              {
+                "fixatives": [
+                  "CRYO"
+                ],
+                "methods": [
+                  "BAIT"
+                ],
+                "habitats": [
+                  "Surface",
+                  "Aquatic",
+                  "Freshwater",
+                  "Lentic"
+                ],
+                "access_points": [
+                  "Pond"
+                ],
+                "target": {
+                  "kind": "Taxa",
+                  "target_taxa": [
+                    "Proasellus"
+                  ]
+                },
+                "is_donation": false,
+                "duration": 120,
+                "comments": "Sampling code collision test"
               }
             ]
           }

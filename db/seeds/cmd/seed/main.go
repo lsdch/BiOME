@@ -57,6 +57,15 @@ func main() {
 			}
 		}
 
+		logrus.Infof("Postprocessing...")
+		logrus.Infof("• generate sequence codes")
+		if err := tx.Execute(context.Background(),
+			`#edgeql
+				update seq::Sequence set {};
+			`); err != nil {
+			return err
+		}
+
 		return nil
 	})
 

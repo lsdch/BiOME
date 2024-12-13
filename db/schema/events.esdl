@@ -17,22 +17,19 @@ module events {
     description: str;
   }
 
-  function event_code(e: Event) -> str using (
-    with
-      date_suffix := (select assert_single(
-        if(e.performed_on.precision = date::DatePrecision.Unknown)
-        then "UNK"
-        else if (e.performed_on.precision = date::DatePrecision.Year)
-        then <str>datetime_get(e.performed_on.date, 'year')
-        else (
-          <str>datetime_get(e.performed_on.date, 'year') ++
-          str_pad_start(<str>datetime_get(e.performed_on.date, 'month'), 2, "0")
-        )
-      )),
-    select (e.site.code ++ "_" ++ date_suffix)
-  );
-
   type Event extending default::Auditable {
+
+    required code := (
+      with
+        date := .performed_on.date,
+        precision := .performed_on.precision
+      select .site.code ++ "|" ++ (
+        if precision = date::DatePrecision.Unknown then "undated"
+        else if precision = date::DatePrecision.Year then <str>datetime_get(date, 'year')
+        else <str>datetime_get(date, 'year') ++ "-" ++ <str>datetime_get(date, 'month')
+      )
+    );
+
     required site: location::Site {
       on source delete allow;
       on target delete delete source;
@@ -94,7 +91,27 @@ module events {
 
   type SamplingMethod extending default::Vocabulary, default::Auditable;
 
+  scalar type SamplingNumber extending sequence;
+
   type Sampling extending Action {
+
+    required number: SamplingNumber {
+      readonly := true;
+    };
+
+    required single code := (
+      with
+        id := .id,
+        event := .event,
+        sisters := (
+          select detached events::Sampling
+          filter .event.code = event.code
+          order by .number
+        ),
+        rank := (select assert_single(enumerate(sisters) filter .1.id = id).0),
+        suffix := (if count(sisters) > 1 then '.' ++ <str>(rank + 1) else '')
+        select assert_single(assert_exists(event.code ++ suffix))
+    );
 
     # WARNING : during migration, remove pseudo-field when no sampling was performed
     multi methods: SamplingMethod;

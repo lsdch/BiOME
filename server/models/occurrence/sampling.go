@@ -77,6 +77,8 @@ type SamplingTarget struct {
 
 type SamplingInner struct {
 	ID           edgedb.UUID           `edgedb:"id" json:"id" format:"uuid"`
+	Number       int64                 `edgedb:"number" json:"-"`
+	Code         string                `edgedb:"code" json:"code"`
 	Target       SamplingTarget        `edgedb:"$inline" json:"target"`
 	Duration     edgedb.OptionalInt32  `edgedb:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
 	Methods      []SamplingMethod      `edgedb:"methods" json:"methods"`

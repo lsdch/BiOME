@@ -7,6 +7,7 @@ import (
 	"darco/proto/models/references"
 	"darco/proto/models/sequences"
 	"darco/proto/models/specimen"
+	"time"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -54,9 +55,15 @@ const (
 	External BioMaterialCategory = "External"
 )
 
+type CodeHistory struct {
+	Code string    `edgedb:"code" json:"code"`
+	Time time.Time `edgedb:"time" json:"time"`
+}
+
 type GenericBioMaterial[SamplingType any] struct {
 	GenericOccurrence[SamplingType] `edgedb:"$inline" json:",inline"`
 	Code                            string                                  `edgedb:"code" json:"code"`
+	CodeHistory                     []CodeHistory                           `edgedb:"code_history" json:"code_history,omitempty"`
 	Category                        BioMaterialCategory                     `edgedb:"category" json:"category"`
 	IsType                          bool                                    `edgedb:"is_type" json:"is_type"`
 	IsHomogenous                    bool                                    `edgedb:"is_homogenous" json:"is_homogenous"`

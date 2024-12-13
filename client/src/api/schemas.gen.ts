@@ -320,6 +320,12 @@ export const $BioMaterial = {
         code: {
             type: 'string'
         },
+        code_history: {
+            items: {
+                '$ref': '#/components/schemas/CodeHistory'
+            },
+            type: 'array'
+        },
         comments: {
             type: 'string'
         },
@@ -381,6 +387,12 @@ export const $BioMaterialWithDetails = {
         code: {
             type: 'string'
         },
+        code_history: {
+            items: {
+                '$ref': '#/components/schemas/CodeHistory'
+            },
+            type: 'array'
+        },
         comments: {
             type: 'string'
         },
@@ -436,6 +448,21 @@ export const $ClinicalTrailNumber = {
             type: 'string'
         }
     },
+    type: 'object'
+} as const;
+
+export const $CodeHistory = {
+    additionalProperties: false,
+    properties: {
+        code: {
+            type: 'string'
+        },
+        time: {
+            format: 'date-time',
+            type: 'string'
+        }
+    },
+    required: ['code', 'time'],
     type: 'object'
 } as const;
 
@@ -980,6 +1007,9 @@ export const $Event = {
             },
             type: 'array'
         },
+        code: {
+            type: 'string'
+        },
         id: {
             format: 'uuid',
             type: 'string'
@@ -1016,13 +1046,16 @@ export const $Event = {
             '$ref': '#/components/schemas/Spotting'
         }
     },
-    required: ['performed_by', 'abiotic_measurements', 'samplings', 'spotting', 'meta', 'id', 'site', 'performed_on'],
+    required: ['performed_by', 'abiotic_measurements', 'samplings', 'spotting', 'meta', 'id', 'site', 'code', 'performed_on'],
     type: 'object'
 } as const;
 
 export const $EventInner = {
     additionalProperties: false,
     properties: {
+        code: {
+            type: 'string'
+        },
         id: {
             format: 'uuid',
             type: 'string'
@@ -1034,7 +1067,7 @@ export const $EventInner = {
             '$ref': '#/components/schemas/SiteInfo'
         }
     },
-    required: ['id', 'site', 'performed_on'],
+    required: ['id', 'site', 'code', 'performed_on'],
     type: 'object'
 } as const;
 
@@ -3379,6 +3412,9 @@ export const $Sampling = {
             },
             type: 'array'
         },
+        code: {
+            type: 'string'
+        },
         comments: {
             type: 'string'
         },
@@ -3428,7 +3464,7 @@ export const $Sampling = {
             '$ref': '#/components/schemas/SamplingTarget'
         }
     },
-    required: ['samples', 'occurring_taxa', 'meta', 'id', 'target', 'methods', 'fixatives', 'habitats', 'access_points'],
+    required: ['samples', 'occurring_taxa', 'meta', 'id', 'code', 'target', 'methods', 'fixatives', 'habitats', 'access_points'],
     type: 'object'
 } as const;
 
@@ -3440,6 +3476,9 @@ export const $SamplingInner = {
                 type: 'string'
             },
             type: 'array'
+        },
+        code: {
+            type: 'string'
         },
         comments: {
             type: 'string'
@@ -3475,7 +3514,7 @@ export const $SamplingInner = {
             '$ref': '#/components/schemas/SamplingTarget'
         }
     },
-    required: ['id', 'target', 'methods', 'fixatives', 'habitats', 'access_points'],
+    required: ['id', 'code', 'target', 'methods', 'fixatives', 'habitats', 'access_points'],
     type: 'object'
 } as const;
 

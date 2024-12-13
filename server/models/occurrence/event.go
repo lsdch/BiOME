@@ -35,6 +35,7 @@ type SiteInfo struct {
 type EventInner struct {
 	ID          edgedb.UUID       `edgedb:"id" json:"id" format:"uuid"`
 	Site        SiteInfo          `edgedb:"site" json:"site"`
+	Code        string            `edgedb:"code" json:"code"`
 	PerformedOn DateWithPrecision `edgedb:"performed_on" json:"performed_on"`
 }
 

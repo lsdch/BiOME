@@ -380,6 +380,12 @@
 					"code": {
 						"type": "string"
 					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
 					"comments": {
 						"type": "string"
 					},
@@ -456,6 +462,12 @@
 					"code": {
 						"type": "string"
 					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
 					"comments": {
 						"type": "string"
 					},
@@ -523,6 +535,23 @@
 						"type": "string"
 					}
 				},
+				"type": "object"
+			},
+			"CodeHistory": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"time": {
+						"format": "date-time",
+						"type": "string"
+					}
+				},
+				"required": [
+					"code",
+					"time"
+				],
 				"type": "object"
 			},
 			"CompositeDate": {
@@ -1144,6 +1173,9 @@
 						},
 						"type": "array"
 					},
+					"code": {
+						"type": "string"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -1188,6 +1220,7 @@
 					"meta",
 					"id",
 					"site",
+					"code",
 					"performed_on"
 				],
 				"type": "object"
@@ -1195,6 +1228,9 @@
 			"EventInner": {
 				"additionalProperties": false,
 				"properties": {
+					"code": {
+						"type": "string"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -1209,6 +1245,7 @@
 				"required": [
 					"id",
 					"site",
+					"code",
 					"performed_on"
 				],
 				"type": "object"
@@ -3952,6 +3989,9 @@
 						},
 						"type": "array"
 					},
+					"code": {
+						"type": "string"
+					},
 					"comments": {
 						"type": "string"
 					},
@@ -4006,6 +4046,7 @@
 					"occurring_taxa",
 					"meta",
 					"id",
+					"code",
 					"target",
 					"methods",
 					"fixatives",
@@ -4022,6 +4063,9 @@
 							"type": "string"
 						},
 						"type": "array"
+					},
+					"code": {
+						"type": "string"
 					},
 					"comments": {
 						"type": "string"
@@ -4059,6 +4103,7 @@
 				},
 				"required": [
 					"id",
+					"code",
 					"target",
 					"methods",
 					"fixatives",
