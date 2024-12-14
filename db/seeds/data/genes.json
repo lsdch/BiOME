@@ -6,5 +6,9 @@
   {
     "label": "16S RNA",
     "code": "16S"
+  },
+  {
+    "label": "28S RNA",
+    "code": "28S"
   }
 ]

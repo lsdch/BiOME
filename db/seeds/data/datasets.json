@@ -130,7 +130,33 @@
                       "identified_by": "fmalard"
                     },
                     "comments": "Seed external bio-material",
-                    "sequences": []
+                    "sequences": [
+                      {
+                        "origin": "Lab",
+                        "code": "Pcavaticus[DOUA_POND|2021-12]spec1|lab",
+                        "label": "Proasellus cavaticus external seed sequence",
+                        "gene": "COI",
+                        "comments": "Seed external sequence",
+                        "specimen_identifier": "spec1",
+                        "referenced_in": [
+                          {
+                            "db": "NCBI",
+                            "is_origin": false,
+                            "accession": "KY623873"
+                          }
+                        ],
+                        "original_taxon": "Proasellus sp.",
+                        "identification": {
+                          "identified_on": {
+                            "precision": "Day",
+                            "date": "2024-09-15T00:00:00Z"
+                          },
+                          "taxon": "Proasellus cavaticus",
+                          "identified_by": "fmalard"
+                        },
+                        "sequence": "CAACCTGGCAGCTTTATTGGTAACGATCAAATCTATAACGTAATTGTGACTGCGCACGCTTTTGTTATAATTTTTTTTTTGGTGATACCCGTTATAATCGGCGGGTTTGGAAACTGACTTATCCCGCTTATGCTCGGGGCCCCCGATATAGCTTTCCCGCGTATAAACAACATGAGATTCTGGCTTCTGCCCCCATCTCTTACGCTACTCCTCTCTAGCGGGCTTATTGAGAGAGGGGTAGGAACCGGGTGGACAGTATACCCACCACTGGCAGCAAGAATCGCCCACAGGGGCCCCGCTGTAGACCTAGCCATTTTCTCGCTACACCTCGCTGGGGCTAGGTCTATTTTAGGTTCCGTAAATTTTATCTCAACTGTAATCAACATGCGGTCTGAGGGAATAAGATTCGATAAAGTCCCCTTGTTTGTTTGATCTGTCTTTATTACCACATTTCTCCTCCTGCTTTCGCTACCTGTCTTAGCCGGGGCTATCACCATACTTTTAACAGACCGCAACTTAAATACTTCATTTTTTGACCCC"
+                      }
+                    ]
                   }
                 ],
                 "sequences": [
