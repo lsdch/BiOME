@@ -23,7 +23,7 @@ const dark: ThemeDefinition = {
   dark: true,
   colors: {
     main: '#161616',
-    primary: '#057C9D',
+    primary: '#0693b9',
   }
 }
 
