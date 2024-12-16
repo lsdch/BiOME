@@ -1,7 +1,7 @@
 <template>
   <v-menu location="top start" origin="top start" transition="scale-transition">
     <template #activator="{ props }">
-      <v-chip :text="gene.code" v-bind="{ ...props, ...$attrs }" />
+      <v-chip :text="gene.code" class="font-monospace" v-bind="{ ...props, ...$attrs }" />
     </template>
     <v-card :title="gene.label" class="bg-surface-light" density="compact">
       <template #subtitle>
