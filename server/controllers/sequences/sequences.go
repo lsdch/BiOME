@@ -27,6 +27,14 @@ func RegisterRoutes(r router.Router) {
 		}](occurrence.ListSequences),
 	)
 
+	router.Register(seqAPI, "GetSequence",
+		huma.Operation{Path: "/{code}",
+			Method:  http.MethodGet,
+			Summary: "Get sequence",
+		},
+		controllers.GetByCodeHandler(occurrence.GetSequence),
+	)
+
 	router.Register(seqAPI, "DeleteSequence",
 		huma.Operation{Path: "/{code}",
 			Method:  http.MethodDelete,

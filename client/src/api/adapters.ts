@@ -8,7 +8,8 @@ import {
   DateWithPrecisionInput,
   DateWithPrecision as DateWithPrecisionType,
   Article as TArticle,
-  ExtSeqOrigin as TExtSeqOrigin
+  ExtSeqOrigin as TExtSeqOrigin,
+  SeqReference as TSeqReference
 } from "./types.gen"
 
 export type CompositeDate = CompositeDateType
@@ -105,5 +106,12 @@ export namespace ExtSeqOrigin {
       case 'PersCom':
         return 'mdi-email'
     }
+  }
+}
+
+export type SeqReference = TSeqReference
+export namespace SeqReference {
+  export function link({ accession, db }: SeqReference) {
+    return db.link_template?.replace("{accession}", accession)
   }
 }

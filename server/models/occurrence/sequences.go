@@ -33,13 +33,51 @@ type ExtSeqSpecifics struct {
 	SourceSample       models.Optional[BioMaterial]        `edgedb:"source_sample" json:"source_sample"`
 }
 
-type Sequence struct {
-	Occurrence    `edgedb:"$inline" json:",inline"`
-	SequenceInner `edgedb:"$inline" json:",inline"`
-	Category      OccurrenceCategory               `edgedb:"category" json:"category"`
-	Event         EventInner                       `edgedb:"event" json:"event"`
-	External      models.Optional[ExtSeqSpecifics] `edgedb:"external" json:"external,omitempty"`
-	Meta          people.Meta                      `edgedb:"meta" json:"meta"`
+type GenericSequence[SamplingType any] struct {
+	GenericOccurrence[SamplingType] `edgedb:"$inline" json:",inline"`
+	SequenceInner                   `edgedb:"$inline" json:",inline"`
+	Category                        OccurrenceCategory               `edgedb:"category" json:"category"`
+	Event                           EventInner                       `edgedb:"event" json:"event"`
+	External                        models.Optional[ExtSeqSpecifics] `edgedb:"external" json:"external,omitempty"`
+	Meta                            people.Meta                      `edgedb:"meta" json:"meta"`
+}
+
+type Sequence GenericSequence[SamplingInner]
+
+type SequenceWithDetails GenericSequence[Sampling]
+
+func GetSequence(db edgedb.Executor, code string) (seq SequenceWithDetails, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			select seq::SequenceWithType {
+				**,
+				gene: { * },
+				required event := .sampling.event { *, site: {name, code} },
+				sampling: {
+					*,
+					target_taxa: { * },
+					fixatives: { * },
+					methods: { * },
+					habitats: { * },
+					samples: { **, identification: { **, identified_by: { * } } },
+					occurring_taxa: { * }
+				},
+				identification: { **, identified_by: { * } },
+				external := [is seq::ExternalSequence]{
+					origin,
+					referenced_in: { ** },
+					published_in: { ** },
+					specimen_identifier,
+					original_taxon,
+					source_sample : {
+						[is occurrence::BioMaterial].*,
+						identification: { ** }
+					}
+				}
+			} filter .code = <str>$0
+		`,
+		&seq, code)
+	return
 }
 
 func ListSequences(db edgedb.Executor) ([]Sequence, error) {
@@ -54,7 +92,7 @@ func ListSequences(db edgedb.Executor) ([]Sequence, error) {
 				external := [is seq::ExternalSequence]{
 					origin,
 					referenced_in: { ** },
-					published_in,
+					published_in: { ** },
 					specimen_identifier,
 					original_taxon,
 				}
@@ -77,7 +115,7 @@ func DeleteSequence(db edgedb.Executor, code string) (deleted Sequence, err erro
 				external := [is seq::ExternalSequence]{
 					origin,
 					referenced_in: { ** },
-					published_in,
+					published_in: { ** },
 					specimen_identifier,
 					original_taxon,
 				}

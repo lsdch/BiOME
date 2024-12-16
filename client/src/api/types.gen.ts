@@ -1470,7 +1470,7 @@ export type SeqDb = {
     description?: string;
     id: string;
     label: string;
-    link_template: string;
+    link_template?: string;
     meta: Meta;
 };
 
@@ -1520,6 +1520,26 @@ export type Sequence = {
     legacy: OptionalLegacySeqId;
     meta: Meta;
     sampling: SamplingInner;
+    sequence: string;
+};
+
+export type SequenceWithDetails = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    category: OccurrenceCategory;
+    code: string;
+    comments: string;
+    event: EventInner;
+    external?: OptionalExtSeqSpecifics;
+    gene: Gene;
+    id: string;
+    identification: Identification;
+    label: string;
+    legacy: OptionalLegacySeqId;
+    meta: Meta;
+    sampling: Sampling;
     sequence: string;
 };
 
@@ -2969,6 +2989,22 @@ export type DeleteSequenceResponse = (Sequence);
 
 export type DeleteSequenceError = (ErrorModel);
 
+export type GetSequenceData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+    path: {
+        code: string;
+    };
+};
+
+export type GetSequenceResponse = (SequenceWithDetails);
+
+export type GetSequenceError = (ErrorModel);
+
 export type EmailSettingsData = {
     headers?: {
         /**
@@ -4191,6 +4227,37 @@ export type DeleteSequenceResponseTransformer = (data: any) => Promise<DeleteSeq
 
 export const DeleteSequenceResponseTransformer: DeleteSequenceResponseTransformer = async (data) => {
     SequenceModelResponseTransformer(data);
+    return data;
+};
+
+export type GetSequenceResponseTransformer = (data: any) => Promise<GetSequenceResponse>;
+
+export type SequenceWithDetailsModelResponseTransformer = (data: any) => SequenceWithDetails;
+
+export const SequenceWithDetailsModelResponseTransformer: SequenceWithDetailsModelResponseTransformer = data => {
+    if (data?.event) {
+        EventInnerModelResponseTransformer(data.event);
+    }
+    if (data?.external) {
+        OptionalExtSeqSpecificsModelResponseTransformer(data.external);
+    }
+    if (data?.gene) {
+        GeneModelResponseTransformer(data.gene);
+    }
+    if (data?.identification) {
+        IdentificationModelResponseTransformer(data.identification);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (data?.sampling) {
+        SamplingModelResponseTransformer(data.sampling);
+    }
+    return data;
+};
+
+export const GetSequenceResponseTransformer: GetSequenceResponseTransformer = async (data) => {
+    SequenceWithDetailsModelResponseTransformer(data);
     return data;
 };
 

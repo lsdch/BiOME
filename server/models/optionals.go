@@ -16,7 +16,7 @@ type Optional[T any] struct {
 	Value           T `edgedb:"$inline"`
 }
 
-func (o *Optional[T]) MarshalJSON() ([]byte, error) {
+func (o Optional[T]) MarshalJSON() ([]byte, error) {
 	if o.Missing() {
 		return []byte("null"), nil
 	}

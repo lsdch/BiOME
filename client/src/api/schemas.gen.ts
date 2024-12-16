@@ -4015,7 +4015,7 @@ export const $SeqDB = {
             '$ref': '#/components/schemas/Meta'
         }
     },
-    required: ['link_template', 'meta', 'id', 'label', 'code'],
+    required: ['meta', 'id', 'label', 'code'],
     type: 'object'
 } as const;
 
@@ -4139,6 +4139,61 @@ export const $Sequence = {
         },
         sampling: {
             '$ref': '#/components/schemas/SamplingInner'
+        },
+        sequence: {
+            type: 'string'
+        }
+    },
+    required: ['category', 'event', 'meta', 'id', 'sampling', 'identification', 'comments', 'code', 'label', 'sequence', 'gene', 'legacy'],
+    type: 'object'
+} as const;
+
+export const $SequenceWithDetails = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/SequenceWithDetails.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        category: {
+            '$ref': '#/components/schemas/OccurrenceCategory'
+        },
+        code: {
+            type: 'string'
+        },
+        comments: {
+            type: 'string'
+        },
+        event: {
+            '$ref': '#/components/schemas/EventInner'
+        },
+        external: {
+            '$ref': '#/components/schemas/OptionalExtSeqSpecifics'
+        },
+        gene: {
+            '$ref': '#/components/schemas/Gene'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        identification: {
+            '$ref': '#/components/schemas/Identification'
+        },
+        label: {
+            type: 'string'
+        },
+        legacy: {
+            '$ref': '#/components/schemas/OptionalLegacySeqID'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        sampling: {
+            '$ref': '#/components/schemas/Sampling'
         },
         sequence: {
             type: 'string'

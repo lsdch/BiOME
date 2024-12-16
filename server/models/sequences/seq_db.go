@@ -13,7 +13,7 @@ import (
 
 type SeqDB struct {
 	vocabulary.Vocabulary `edgedb:"$inline" json:",inline"`
-	LinkTemplate          edgedb.OptionalStr `edgedb:"link_template" json:"link_template"`
+	LinkTemplate          edgedb.OptionalStr `edgedb:"link_template" json:"link_template,omitempty"`
 	Meta                  people.Meta        `edgedb:"meta" json:"meta"`
 }
 
