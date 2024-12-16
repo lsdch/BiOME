@@ -237,10 +237,9 @@
 </template>
 
 <script setup lang="ts">
-import { ExternalBioMatSequence, SamplesService } from '@/api'
+import { SamplesService } from '@/api'
 import { DateWithPrecision, ExtSeqOrigin } from '@/api/adapters'
 import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
-import SamplingListItems from '@/components/events/SamplingListItems.vue'
 import OccurrenceSamplingCard from '@/components/occurrence/OccurrenceSamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'
@@ -255,7 +254,9 @@ const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
 
-const { item } = useFetchItem(() => SamplesService.getBioMaterial({ path: { code } }))
+const { item, fetch } = useFetchItem(() => SamplesService.getBioMaterial({ path: { code } }))
+
+item.value = await fetch()
 
 const hasContentDetails = computed(() => {
   switch (item.value?.category) {

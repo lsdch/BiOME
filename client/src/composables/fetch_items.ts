@@ -3,7 +3,7 @@ import { RequestResult } from "@hey-api/client-fetch";
 import { useToggle } from "@vueuse/core";
 import { onMounted, ref, Ref } from "vue";
 
-export function useFetchItem<T>(fetchItem: () => RequestResult<T, ErrorModel, false>) {
+export function useFetchItem<T>(fetchItem: () => RequestResult<T, ErrorModel, false>, options = { immediate: false }) {
   const [loading, toggleLoading] = useToggle(false)
 
   const item = ref<T>()
@@ -21,7 +21,7 @@ export function useFetchItem<T>(fetchItem: () => RequestResult<T, ErrorModel, fa
   }
 
   onMounted(async () => {
-    item.value = await fetch()
+    if (options.immediate) item.value = await fetch()
   })
 
   return { loading, item, fetch, error }
