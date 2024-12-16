@@ -68,6 +68,8 @@
                       : 'Bio material identification contradicted by its sequences identification'
                   "
                   open-on-click
+                  location="end"
+                  origin="center"
                 >
                   <template #activator="{ props }">
                     <v-chip
@@ -152,20 +154,34 @@
           <v-col>
             <v-card title="Content" prepend-icon="mdi-hexagon-multiple" class="fill-height">
               <template #append>
-                <v-chip
-                  v-if="hasContentDetails"
-                  v-bind="
+                <v-tooltip
+                  :text="
                     item.is_homogenous
-                      ? {
-                          color: 'success',
-                          text: 'Homogenous'
-                        }
-                      : {
-                          color: 'warning',
-                          text: 'Heterogenous'
-                        }
+                      ? 'Sequences all identify a single taxon'
+                      : 'Sequences identify different taxa'
                   "
-                ></v-chip>
+                  open-on-click
+                  location="end"
+                  origin="end"
+                >
+                  <template #activator="{ props }">
+                    <v-chip
+                      v-if="hasContentDetails"
+                      v-bind="{
+                        ...props,
+                        ...(item.is_homogenous
+                          ? {
+                              color: 'success',
+                              text: 'Homogenous'
+                            }
+                          : {
+                              color: 'warning',
+                              text: 'Heterogenous'
+                            })
+                      }"
+                    ></v-chip>
+                  </template>
+                </v-tooltip>
               </template>
               <v-card-text v-if="item.external">
                 <v-list-item
@@ -185,10 +201,39 @@
                   <v-divider class="my-3"></v-divider>
                   <v-expansion-panels>
                     <v-expansion-panel
-                      title="Specimens and sequences"
+                      title="Sequences by specimen"
                       :elevation="0"
                       :disabled="!item.external.content"
-                    ></v-expansion-panel>
+                    >
+                      <template #text>
+                        <v-treeview
+                          :items="
+                            item.external.content?.map(({ specimen, sequences }) => ({
+                              code: specimen,
+                              sequences
+                            }))
+                          "
+                          item-children="sequences"
+                          item-title="code"
+                          open-on-click
+                        >
+                          <template #title="{ title }">
+                            <code>{{ title }}</code>
+                          </template>
+                          <template #item="{ item }">
+                            <v-treeview-item
+                              :title="item.identification.taxon.name"
+                              :subtitle="item.label"
+                              :prepend-icon="ExtSeqOrigin.icon(item.origin)"
+                            >
+                              <template #append>
+                                <GeneChip :gene="item.gene" size="small" />
+                              </template>
+                            </v-treeview-item>
+                          </template>
+                        </v-treeview>
+                      </template>
+                    </v-expansion-panel>
                   </v-expansion-panels>
                 </template>
               </v-card-text>
@@ -234,12 +279,13 @@
 </template>
 
 <script setup lang="ts">
-import { SamplesService } from '@/api'
-import { DateWithPrecision } from '@/api/adapters'
+import { ExternalBioMatSequence, SamplesService } from '@/api'
+import { DateWithPrecision, ExtSeqOrigin } from '@/api/adapters'
 import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 import SamplingListItems from '@/components/events/SamplingListItems.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'
+import GeneChip from '@/components/sequences/GeneChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import MetaChip from '@/components/toolkit/MetaChip.vue'
 import { useFetchItem } from '@/composables/fetch_items'

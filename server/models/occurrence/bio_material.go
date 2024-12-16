@@ -31,11 +31,11 @@ type ExternalBioMatSpecific struct {
 type ExternalBioMatSequence struct {
 	ID             edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
 	SequenceInner  `edgedb:"$inline" json:",inline"`
-	Origin         sequences.ExtSeqOrigin `edgedb:"origin" json:"origin"`
-	Category       sequences.SeqDB        `edgedb:"type" json:"category"`
-	Identification Identification         `edgedb:"identification" json:"identification"`
-	Comments       edgedb.OptionalStr     `edgedb:"comments" json:"comments"`
-	References     []references.Article   `edgedb:"references" json:"references"`
+	Origin         sequences.ExtSeqOrigin   `edgedb:"origin" json:"origin"`
+	ReferencedIn   []sequences.SeqReference `edgedb:"referenced_in" json:"referenced_in"`
+	Identification Identification           `edgedb:"identification" json:"identification"`
+	Comments       edgedb.OptionalStr       `edgedb:"comments" json:"comments"`
+	PublishedIn    []references.Article     `edgedb:"published_in" json:"published_in"`
 	// SourceSample            `edgedb:"source_sample" json:"source_sample"`
 	AccessionNumber    edgedb.OptionalStr `edgedb:"accession_number" json:"accession_number"`
 	SpecimenIdentifier string             `edgedb:"specimen_identifier" json:"specimen_identifier"`
@@ -58,6 +58,7 @@ type GenericBioMaterial[SamplingType any] struct {
 	CodeHistory                     []CodeHistory                           `edgedb:"code_history" json:"code_history,omitempty"`
 	Category                        OccurrenceCategory                      `edgedb:"category" json:"category"`
 	IsType                          bool                                    `edgedb:"is_type" json:"is_type"`
+	HasSequences                    bool                                    `edgedb:"has_sequences" json:"has_sequences"`
 	IsHomogenous                    bool                                    `edgedb:"is_homogenous" json:"is_homogenous"`
 	IsCongruent                     bool                                    `edgedb:"is_congruent" json:"is_congruent"`
 	References                      []references.Article                    `edgedb:"published_in" json:"published_in"`
@@ -92,7 +93,12 @@ func GetBioMaterial(db edgedb.Executor, code string) (biomat BioMaterialWithDeta
 				content := (
 					select (group .sequences by .specimen_identifier) {
 						specimen := .key.specimen_identifier,
-						sequences := .elements { * }
+						sequences := .elements {
+							*,
+							referenced_in: { ** },
+							gene: { ** },
+							identification: { ** }
+						}
 					}
 				),
 				original_link,

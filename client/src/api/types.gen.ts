@@ -127,6 +127,7 @@ export type BioMaterial = {
     code_history?: Array<CodeHistory>;
     comments: string;
     external?: OptionalExternalBioMatSpecific;
+    has_sequences: boolean;
     id: string;
     identification: Identification;
     is_congruent: boolean;
@@ -148,6 +149,7 @@ export type BioMaterialWithDetails = {
     comments: string;
     event: EventInner;
     external?: OptionalExternalBioMatSpecific;
+    has_sequences: boolean;
     id: string;
     identification: Identification;
     is_congruent: boolean;
@@ -454,7 +456,6 @@ export type ExternalBioMatContent = {
 
 export type ExternalBioMatSequence = {
     accession_number: string;
-    category: SeqDb;
     code: string;
     comments: string;
     gene: Gene;
@@ -464,7 +465,8 @@ export type ExternalBioMatSequence = {
     legacy: OptionalLegacySeqId;
     origin: ExtSeqOrigin;
     original_taxon: string;
-    references: Array<Article>;
+    published_in: Array<Article>;
+    referenced_in: Array<SeqReference>;
     sequence: string;
     specimen_identifier: string;
 };
@@ -486,6 +488,7 @@ export type ExtSeqSpecifics = {
     original_taxon: string;
     published_in?: OptionalArticle;
     referenced_in?: Array<SeqReference>;
+    source_sample: OptionalBioMaterial;
     specimen_identifier: string;
 };
 
@@ -961,6 +964,27 @@ export type OptionalArticle = {
     year: number;
 } | null;
 
+export type OptionalBioMaterial = {
+    /**
+     * A URL to the JSON Schema for this object.
+     */
+    readonly $schema?: string;
+    category: OccurrenceCategory;
+    code: string;
+    code_history?: Array<CodeHistory>;
+    comments: string;
+    external?: OptionalExternalBioMatSpecific;
+    has_sequences: boolean;
+    id: string;
+    identification: Identification;
+    is_congruent: boolean;
+    is_homogenous: boolean;
+    is_type: boolean;
+    meta: Meta;
+    published_in: Array<Article>;
+    sampling: SamplingInner;
+} | null;
+
 export type OptionalExternalBioMatSpecific = {
     archive: SpecimenVoucher;
     comments: string;
@@ -976,6 +1000,7 @@ export type OptionalExtSeqSpecifics = {
     original_taxon: string;
     published_in?: OptionalArticle;
     referenced_in?: Array<SeqReference>;
+    source_sample: OptionalBioMaterial;
     specimen_identifier: string;
 } | null;
 
@@ -3399,15 +3424,6 @@ export type ExternalBioMatContentModelResponseTransformer = (data: any) => Exter
 
 export type ExternalBioMatSequenceModelResponseTransformer = (data: any) => ExternalBioMatSequence;
 
-export type SeqDbModelResponseTransformer = (data: any) => SeqDb;
-
-export const SeqDbModelResponseTransformer: SeqDbModelResponseTransformer = data => {
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    return data;
-};
-
 export type GeneModelResponseTransformer = (data: any) => Gene;
 
 export const GeneModelResponseTransformer: GeneModelResponseTransformer = data => {
@@ -3441,18 +3457,36 @@ export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = 
     return data;
 };
 
-export const ExternalBioMatSequenceModelResponseTransformer: ExternalBioMatSequenceModelResponseTransformer = data => {
-    if (data?.category) {
-        SeqDbModelResponseTransformer(data.category);
+export type SeqReferenceModelResponseTransformer = (data: any) => SeqReference;
+
+export type SeqDbModelResponseTransformer = (data: any) => SeqDb;
+
+export const SeqDbModelResponseTransformer: SeqDbModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
     }
+    return data;
+};
+
+export const SeqReferenceModelResponseTransformer: SeqReferenceModelResponseTransformer = data => {
+    if (data?.db) {
+        SeqDbModelResponseTransformer(data.db);
+    }
+    return data;
+};
+
+export const ExternalBioMatSequenceModelResponseTransformer: ExternalBioMatSequenceModelResponseTransformer = data => {
     if (data?.gene) {
         GeneModelResponseTransformer(data.gene);
     }
     if (data?.identification) {
         IdentificationModelResponseTransformer(data.identification);
     }
-    if (Array.isArray(data?.references)) {
-        data.references.forEach(ArticleModelResponseTransformer);
+    if (Array.isArray(data?.published_in)) {
+        data.published_in.forEach(ArticleModelResponseTransformer);
+    }
+    if (Array.isArray(data?.referenced_in)) {
+        data.referenced_in.forEach(SeqReferenceModelResponseTransformer);
     }
     return data;
 };
@@ -4087,11 +4121,26 @@ export const OptionalArticleModelResponseTransformer: OptionalArticleModelRespon
     return data;
 };
 
-export type SeqReferenceModelResponseTransformer = (data: any) => SeqReference;
+export type OptionalBioMaterialModelResponseTransformer = (data: any) => OptionalBioMaterial;
 
-export const SeqReferenceModelResponseTransformer: SeqReferenceModelResponseTransformer = data => {
-    if (data?.db) {
-        SeqDbModelResponseTransformer(data.db);
+export const OptionalBioMaterialModelResponseTransformer: OptionalBioMaterialModelResponseTransformer = data => {
+    if (Array.isArray(data?.code_history)) {
+        data.code_history.forEach(CodeHistoryModelResponseTransformer);
+    }
+    if (data?.external) {
+        OptionalExternalBioMatSpecificModelResponseTransformer(data.external);
+    }
+    if (data?.identification) {
+        IdentificationModelResponseTransformer(data.identification);
+    }
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    if (Array.isArray(data?.published_in)) {
+        data.published_in.forEach(ArticleModelResponseTransformer);
+    }
+    if (data?.sampling) {
+        SamplingInnerModelResponseTransformer(data.sampling);
     }
     return data;
 };
@@ -4102,6 +4151,9 @@ export const OptionalExtSeqSpecificsModelResponseTransformer: OptionalExtSeqSpec
     }
     if (Array.isArray(data?.referenced_in)) {
         data.referenced_in.forEach(SeqReferenceModelResponseTransformer);
+    }
+    if (data?.source_sample) {
+        OptionalBioMaterialModelResponseTransformer(data.source_sample);
     }
     return data;
 };

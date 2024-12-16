@@ -7,7 +7,8 @@ import {
   DatePrecision,
   DateWithPrecisionInput,
   DateWithPrecision as DateWithPrecisionType,
-  Article as TArticle
+  Article as TArticle,
+  ExtSeqOrigin as TExtSeqOrigin
 } from "./types.gen"
 
 export type CompositeDate = CompositeDateType
@@ -89,5 +90,20 @@ export namespace Article {
 
   export function linkDOI({ doi }: Article) {
     return `https://doi.org/${doi}`
+  }
+}
+
+
+export type ExtSeqOrigin = TExtSeqOrigin
+export namespace ExtSeqOrigin {
+  export function icon(origin: ExtSeqOrigin) {
+    switch (origin) {
+      case "Lab":
+        return 'mdi-test-tube'
+      case 'DB':
+        return 'mdi-database-arrow-down'
+      case 'PersCom':
+        return 'mdi-email'
+    }
   }
 }

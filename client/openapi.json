@@ -392,6 +392,9 @@
 					"external": {
 						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
 					},
+					"has_sequences": {
+						"type": "boolean"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -425,6 +428,7 @@
 					"code",
 					"category",
 					"is_type",
+					"has_sequences",
 					"is_homogenous",
 					"is_congruent",
 					"published_in",
@@ -469,6 +473,9 @@
 					"external": {
 						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
 					},
+					"has_sequences": {
+						"type": "boolean"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -503,6 +510,7 @@
 					"code",
 					"category",
 					"is_type",
+					"has_sequences",
 					"is_homogenous",
 					"is_congruent",
 					"published_in",
@@ -1337,6 +1345,9 @@
 						},
 						"type": "array"
 					},
+					"source_sample": {
+						"$ref": "#/components/schemas/OptionalBioMaterial"
+					},
 					"specimen_identifier": {
 						"type": "string"
 					}
@@ -1344,7 +1355,8 @@
 				"required": [
 					"origin",
 					"specimen_identifier",
-					"original_taxon"
+					"original_taxon",
+					"source_sample"
 				],
 				"type": "object"
 			},
@@ -1372,9 +1384,6 @@
 				"properties": {
 					"accession_number": {
 						"type": "string"
-					},
-					"category": {
-						"$ref": "#/components/schemas/SeqDB"
 					},
 					"code": {
 						"type": "string"
@@ -1404,9 +1413,15 @@
 					"original_taxon": {
 						"type": "string"
 					},
-					"references": {
+					"published_in": {
 						"items": {
 							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
+					},
+					"referenced_in": {
+						"items": {
+							"$ref": "#/components/schemas/SeqReference"
 						},
 						"type": "array"
 					},
@@ -1420,10 +1435,10 @@
 				"required": [
 					"id",
 					"origin",
-					"category",
+					"referenced_in",
 					"identification",
 					"comments",
-					"references",
+					"published_in",
 					"accession_number",
 					"specimen_identifier",
 					"original_taxon",
@@ -2915,6 +2930,87 @@
 					"null"
 				]
 			},
+			"OptionalBioMaterial": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/BioMaterial.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
+					"code": {
+						"type": "string"
+					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"external": {
+						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
+					},
+					"has_sequences": {
+						"type": "boolean"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"is_congruent": {
+						"type": "boolean"
+					},
+					"is_homogenous": {
+						"type": "boolean"
+					},
+					"is_type": {
+						"type": "boolean"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingInner"
+					}
+				},
+				"required": [
+					"code",
+					"category",
+					"is_type",
+					"has_sequences",
+					"is_homogenous",
+					"is_congruent",
+					"published_in",
+					"meta",
+					"id",
+					"sampling",
+					"identification",
+					"comments"
+				],
+				"type": [
+					"object",
+					"null"
+				]
+			},
 			"OptionalExtSeqSpecifics": {
 				"additionalProperties": false,
 				"properties": {
@@ -2933,6 +3029,9 @@
 						},
 						"type": "array"
 					},
+					"source_sample": {
+						"$ref": "#/components/schemas/OptionalBioMaterial"
+					},
 					"specimen_identifier": {
 						"type": "string"
 					}
@@ -2940,7 +3039,8 @@
 				"required": [
 					"origin",
 					"specimen_identifier",
-					"original_taxon"
+					"original_taxon",
+					"source_sample"
 				],
 				"type": [
 					"object",

@@ -30,6 +30,7 @@ type ExtSeqSpecifics struct {
 	ReferencedIn       []sequences.SeqReference            `edgedb:"referenced_in" json:"referenced_in,omitempty"`
 	SpecimenIdentifier string                              `edgedb:"specimen_identifier" json:"specimen_identifier"`
 	OriginalTaxon      edgedb.OptionalStr                  `edgedb:"original_taxon" json:"original_taxon"`
+	SourceSample       models.Optional[BioMaterial]        `edgedb:"source_sample" json:"source_sample"`
 }
 
 type Sequence struct {

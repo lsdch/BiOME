@@ -332,6 +332,9 @@ export const $BioMaterial = {
         external: {
             '$ref': '#/components/schemas/OptionalExternalBioMatSpecific'
         },
+        has_sequences: {
+            type: 'boolean'
+        },
         id: {
             format: 'uuid',
             type: 'string'
@@ -361,7 +364,7 @@ export const $BioMaterial = {
             '$ref': '#/components/schemas/SamplingInner'
         }
     },
-    required: ['code', 'category', 'is_type', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['code', 'category', 'is_type', 'has_sequences', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 
@@ -396,6 +399,9 @@ export const $BioMaterialWithDetails = {
         external: {
             '$ref': '#/components/schemas/OptionalExternalBioMatSpecific'
         },
+        has_sequences: {
+            type: 'boolean'
+        },
         id: {
             format: 'uuid',
             type: 'string'
@@ -425,7 +431,7 @@ export const $BioMaterialWithDetails = {
             '$ref': '#/components/schemas/Sampling'
         }
     },
-    required: ['event', 'code', 'category', 'is_type', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    required: ['event', 'code', 'category', 'is_type', 'has_sequences', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
     type: 'object'
 } as const;
 
@@ -1149,11 +1155,14 @@ export const $ExtSeqSpecifics = {
             },
             type: 'array'
         },
+        source_sample: {
+            '$ref': '#/components/schemas/OptionalBioMaterial'
+        },
         specimen_identifier: {
             type: 'string'
         }
     },
-    required: ['origin', 'specimen_identifier', 'original_taxon'],
+    required: ['origin', 'specimen_identifier', 'original_taxon', 'source_sample'],
     type: 'object'
 } as const;
 
@@ -1179,9 +1188,6 @@ export const $ExternalBioMatSequence = {
     properties: {
         accession_number: {
             type: 'string'
-        },
-        category: {
-            '$ref': '#/components/schemas/SeqDB'
         },
         code: {
             type: 'string'
@@ -1211,9 +1217,15 @@ export const $ExternalBioMatSequence = {
         original_taxon: {
             type: 'string'
         },
-        references: {
+        published_in: {
             items: {
                 '$ref': '#/components/schemas/Article'
+            },
+            type: 'array'
+        },
+        referenced_in: {
+            items: {
+                '$ref': '#/components/schemas/SeqReference'
             },
             type: 'array'
         },
@@ -1224,7 +1236,7 @@ export const $ExternalBioMatSequence = {
             type: 'string'
         }
     },
-    required: ['id', 'origin', 'category', 'identification', 'comments', 'references', 'accession_number', 'specimen_identifier', 'original_taxon', 'code', 'label', 'sequence', 'gene', 'legacy'],
+    required: ['id', 'origin', 'referenced_in', 'identification', 'comments', 'published_in', 'accession_number', 'specimen_identifier', 'original_taxon', 'code', 'label', 'sequence', 'gene', 'legacy'],
     type: 'object'
 } as const;
 
@@ -2530,6 +2542,70 @@ export const $OptionalArticle = {
     type: ['object', 'null']
 } as const;
 
+export const $OptionalBioMaterial = {
+    additionalProperties: false,
+    properties: {
+        '$schema': {
+            description: 'A URL to the JSON Schema for this object.',
+            examples: ['/api/v1/schemas/BioMaterial.json'],
+            format: 'uri',
+            readOnly: true,
+            type: 'string'
+        },
+        category: {
+            '$ref': '#/components/schemas/OccurrenceCategory'
+        },
+        code: {
+            type: 'string'
+        },
+        code_history: {
+            items: {
+                '$ref': '#/components/schemas/CodeHistory'
+            },
+            type: 'array'
+        },
+        comments: {
+            type: 'string'
+        },
+        external: {
+            '$ref': '#/components/schemas/OptionalExternalBioMatSpecific'
+        },
+        has_sequences: {
+            type: 'boolean'
+        },
+        id: {
+            format: 'uuid',
+            type: 'string'
+        },
+        identification: {
+            '$ref': '#/components/schemas/Identification'
+        },
+        is_congruent: {
+            type: 'boolean'
+        },
+        is_homogenous: {
+            type: 'boolean'
+        },
+        is_type: {
+            type: 'boolean'
+        },
+        meta: {
+            '$ref': '#/components/schemas/Meta'
+        },
+        published_in: {
+            items: {
+                '$ref': '#/components/schemas/Article'
+            },
+            type: 'array'
+        },
+        sampling: {
+            '$ref': '#/components/schemas/SamplingInner'
+        }
+    },
+    required: ['code', 'category', 'is_type', 'has_sequences', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
+    type: ['object', 'null']
+} as const;
+
 export const $OptionalExtSeqSpecifics = {
     additionalProperties: false,
     properties: {
@@ -2548,11 +2624,14 @@ export const $OptionalExtSeqSpecifics = {
             },
             type: 'array'
         },
+        source_sample: {
+            '$ref': '#/components/schemas/OptionalBioMaterial'
+        },
         specimen_identifier: {
             type: 'string'
         }
     },
-    required: ['origin', 'specimen_identifier', 'original_taxon'],
+    required: ['origin', 'specimen_identifier', 'original_taxon', 'source_sample'],
     type: ['object', 'null']
 } as const;
 

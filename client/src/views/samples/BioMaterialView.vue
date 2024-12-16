@@ -41,6 +41,13 @@
             class="mx-1"
           />
           <v-icon
+            v-if="item.has_sequences"
+            size="small"
+            icon="mdi-dna"
+            title="Sequence(s) available"
+            class="mx-1"
+          />
+          <v-icon
             v-bind="OccurrenceCategory.props[item.category]"
             :title="item.category"
             class="mx-1"

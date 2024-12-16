@@ -29,14 +29,15 @@ const dark: ThemeDefinition = {
 
 import { VNumberInput } from 'vuetify/labs/VNumberInput'
 import { VTextField } from 'vuetify/components'
-import { VTreeview } from 'vuetify/labs/VTreeview'
+import { VTreeview, VTreeviewItem } from 'vuetify/labs/VTreeview'
 
 export default createVuetify({
   blueprint: md3,
   components: {
     ...components,
     VNumberInput,
-    VTreeview
+    VTreeview,
+    VTreeviewItem,
   },
   aliases: {
     VInlineSearchBar: VTextField,

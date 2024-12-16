@@ -121,6 +121,9 @@ module occurrence {
   alias BioMaterialWithType := (
     select BioMaterial {
       *,
+      required has_sequences := (
+        exists ([is ExternalBioMat].sequences ?? [is InternalBioMat].specimens.sequences)
+      ),
       required is_homogenous := [is ExternalBioMat].is_homogenous ?? [is InternalBioMat].is_homogenous ?? true,
       required is_congruent := [is ExternalBioMat].is_congruent ?? [is InternalBioMat].is_congruent ?? true,
       category := (
