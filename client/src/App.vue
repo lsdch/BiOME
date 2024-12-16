@@ -28,11 +28,9 @@
             <component :is="Component" />
           </div>
           <template #fallback>
-            <v-container class="fill-height d-flex align-center justify-center">
-              <v-card class="d-flex align-center justify-center" min-height="50%" :min-width="500">
-                <v-progress-circular indeterminate size="large"></v-progress-circular>
-              </v-card>
-            </v-container>
+            <v-card class="d-flex align-center justify-center fill-height w-100" flat>
+              <v-progress-circular indeterminate size="large" color="primary"></v-progress-circular>
+            </v-card>
           </template>
         </Suspense>
       </RouterView>
