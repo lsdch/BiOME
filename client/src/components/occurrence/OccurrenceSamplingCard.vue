@@ -24,24 +24,24 @@
           <SamplingListItems :sampling="item.sampling" />
         </v-list-group>
         <v-divider></v-divider>
-        <v-list-item title="Samples" prepend-icon="mdi-package-variant">
-          <v-chip
-            v-for="sample in item.sampling.samples"
-            variant="tonal"
-            :text="sample.identification.taxon.name"
-            :title="sample.category"
-            :prepend-icon="OccurrenceCategory.icon(sample.category)"
-            class="ma-1"
-            :color="sample.id === item.id ? 'success' : 'primary'"
-            :active="sample.id === item.id"
-            :disabled="sample.id === item.id"
-            :to="
-              sample.id !== item.id
-                ? { name: 'biomat-item', params: { code: sample.code } }
-                : undefined
-            "
-            label
-          />
+        <v-list-item title="Samples" prepend-icon="mdi-package-variant ">
+          <v-tooltip location="start" origin="start" open-on-click>
+            The currently viewed bio material
+            <template #activator="{ props }">
+              <v-chip
+                v-for="{ id, code, category, identification } in samples"
+                :variant="id === item.id ? 'outlined' : 'tonal'"
+                :text="identification.taxon.name"
+                :title="category"
+                :color="OccurrenceCategory.props[category].color"
+                :prepend-icon="OccurrenceCategory.icon(category)"
+                class="ma-1"
+                :to="id !== item.id ? { name: 'biomat-item', params: { code: code } } : undefined"
+                label
+                v-bind="id === item.id ? props : undefined"
+              />
+            </template>
+          </v-tooltip>
         </v-list-item>
       </v-list>
     </v-card-text>
@@ -52,11 +52,17 @@
 import { EventInner, Sampling } from '@/api'
 import { DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
 import SamplingListItems from '../events/SamplingListItems.vue'
+import { useSorted } from '@vueuse/core'
 
-defineProps<{ item: { id: string; sampling: Sampling; event: EventInner } }>()
+const { item } = defineProps<{ item: { id: string; sampling: Sampling; event: EventInner } }>()
 const emit = defineEmits<{
   edit: []
 }>()
+
+const samples = useSorted(item.sampling.samples, (a, b) => {
+  if (a.id === item.id) return -1
+  else return a.identification.taxon.name.localeCompare(b.identification.taxon.name)
+})
 </script>
 
 <style scoped lang="scss"></style>
