@@ -149,6 +149,15 @@ module seq {
     legacy: tuple<id: int32, code: str, alignment_code: str> {
       annotation description := "Legacy identifiers for retrocompatibility with data stored in GOTIT.";
     };
+
+    required category := (
+      assert_exists(
+        if (__source__ is AssembledSequence) then occurrence::OccurrenceCategory.Internal
+        else if (__source__ is ExternalSequence) then occurrence::OccurrenceCategory.External
+        else {},
+        message := "Occurrence category for seq::Sequence subtype " ++ __source__.__type__.name ++ " is undefined"
+      )
+    );
   }
 
   type AssembledSequence extending Sequence {
@@ -251,11 +260,6 @@ module seq {
         [is AssembledSequence].identification ??
         [is ExternalSequence].identification
       ),
-      required category := (
-        if (Sequence is AssembledSequence) then "Internal"
-        else if (Sequence is ExternalSequence) then "External"
-        else "Unknown"
-      )
     }
   );
 }

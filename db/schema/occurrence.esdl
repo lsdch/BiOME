@@ -23,6 +23,8 @@ module occurrence {
     comments: str;
   }
 
+  scalar type OccurrenceCategory extending enum<Internal, External>;
+
   abstract type BioMaterial extending Occurrence {
 
     required code : str {
@@ -47,6 +49,16 @@ module occurrence {
       # );
     };
     index on (.code);
+
+    required category := (
+      assert_exists((
+          if __source__ is InternalBioMat then OccurrenceCategory.Internal
+          else if __source__ is ExternalBioMat then OccurrenceCategory.External
+          else <OccurrenceCategory>{}
+        ),
+        message:= "Occurrence category for occurrence::BioMaterial subtype " ++ __source__.__type__.name ++ " is undefined"
+      )
+    );
 
     code_history: array<tuple<code: str, time: datetime>> {
       readonly := true;
@@ -126,11 +138,11 @@ module occurrence {
       ),
       required is_homogenous := [is ExternalBioMat].is_homogenous ?? [is InternalBioMat].is_homogenous ?? true,
       required is_congruent := [is ExternalBioMat].is_congruent ?? [is InternalBioMat].is_congruent ?? true,
-      category := (
-        if (BioMaterial is InternalBioMat) then "Internal"
-        else if (BioMaterial is ExternalBioMat) then "External"
-        else "Unknown"
-      )
+      # category := (
+      #   if (BioMaterial is InternalBioMat) then "Internal"
+      #   else if (BioMaterial is ExternalBioMat) then "External"
+      #   else "Unknown"
+      # )
     }
   )
 }

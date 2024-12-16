@@ -31,6 +31,7 @@ type ExternalBioMatSpecific struct {
 type ExternalBioMatSequence struct {
 	ID             edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
 	SequenceInner  `edgedb:"$inline" json:",inline"`
+	Category       OccurrenceCategory       `edgedb:"category" json:"category"`
 	Origin         sequences.ExtSeqOrigin   `edgedb:"origin" json:"origin"`
 	ReferencedIn   []sequences.SeqReference `edgedb:"referenced_in" json:"referenced_in"`
 	Identification Identification           `edgedb:"identification" json:"identification"`

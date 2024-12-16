@@ -1189,6 +1189,9 @@ export const $ExternalBioMatSequence = {
         accession_number: {
             type: 'string'
         },
+        category: {
+            '$ref': '#/components/schemas/OccurrenceCategory'
+        },
         code: {
             type: 'string'
         },
@@ -1236,7 +1239,7 @@ export const $ExternalBioMatSequence = {
             type: 'string'
         }
     },
-    required: ['id', 'origin', 'referenced_in', 'identification', 'comments', 'published_in', 'accession_number', 'specimen_identifier', 'original_taxon', 'code', 'label', 'sequence', 'gene', 'legacy'],
+    required: ['id', 'category', 'origin', 'referenced_in', 'identification', 'comments', 'published_in', 'accession_number', 'specimen_identifier', 'original_taxon', 'code', 'label', 'sequence', 'gene', 'legacy'],
     type: 'object'
 } as const;
 

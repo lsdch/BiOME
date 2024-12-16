@@ -24,7 +24,9 @@
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <RouterView :key="$route.fullPath" v-slot="{ Component }">
         <Suspense>
-          <component :is="Component" />
+          <div id="router-view-suspense-container" class="fill-height">
+            <component :is="Component" />
+          </div>
           <template #fallback>
             <v-container class="fill-height d-flex align-center justify-center">
               <v-card class="d-flex align-center justify-center" min-height="50%" :min-width="500">

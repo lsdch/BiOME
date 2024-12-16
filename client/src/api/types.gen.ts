@@ -456,6 +456,7 @@ export type ExternalBioMatContent = {
 
 export type ExternalBioMatSequence = {
     accession_number: string;
+    category: OccurrenceCategory;
     code: string;
     comments: string;
     gene: Gene;
