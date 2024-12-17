@@ -16,6 +16,7 @@ const light: ThemeDefinition = {
   colors: {
     main: '#FFFFFF',
     primary: '#1071B0',
+    warning: '#ff6600',
   },
 }
 
