@@ -183,6 +183,7 @@
                               :title="item.identification.taxon.name"
                               :subtitle="item.label"
                               :prepend-icon="ExtSeqOrigin.icon(item.origin)"
+                              :to="{ name: 'sequence', params: { code: item.code } }"
                             >
                               <template #append>
                                 <GeneChip :gene="item.gene" size="small" />

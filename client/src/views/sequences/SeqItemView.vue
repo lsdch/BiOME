@@ -32,6 +32,14 @@
       </v-chip>
       <GeneChip label size="small" :gene="item.gene" class="mx-1" prepend-icon="mdi-tag" />
       <v-chip
+        :text="item.external?.origin"
+        :prepend-icon="ExtSeqOrigin.icon(item.external!.origin)"
+        :title="ExtSeqOrigin.description(item.external!.origin)"
+        label
+        class="mx-1"
+        size="small"
+      />
+      <v-chip
         v-if="item.sequence"
         prepend-icon="mdi-chevron-right"
         text="ATCG"
@@ -75,37 +83,39 @@
               prepend-icon="mdi-microscope"
               :subtitle="DateWithPrecision.format(item.identification.identified_on)"
             >
-              <!-- <template #append>
-              <v-tooltip
-                :text="
-                  item.is_congruent
-                    ? 'Bio material identification matches its sequences identification'
-                    : 'Bio material identification contradicted by its sequences identification'
-                "
-                open-on-click
-                location="end"
-                origin="center"
-              >
-                <template #activator="{ props }">
-                  <v-chip
-                    v-bind="{
-                      ...props,
-                      ...(item?.is_congruent
-                        ? {
-                            color: 'success',
-                            text: 'Congruent'
-                          }
-                        : {
-                            color: 'warning',
-                            text: 'Incongruent'
-                          })
-                    }"
-                    size="small"
-                  >
-                  </v-chip>
-                </template>
-              </v-tooltip>
-            </template> -->
+              <template #append>
+                <v-tooltip
+                  :text="
+                    item.external?.source_sample?.identification.taxon.id ===
+                    item.identification.taxon.id
+                      ? 'Bio material identification matches its sequences identification'
+                      : 'Bio material identification contradicted by its sequences identification'
+                  "
+                  open-on-click
+                  location="end"
+                  origin="center"
+                >
+                  <template #activator="{ props }">
+                    <v-chip
+                      v-bind="{
+                        ...props,
+                        ...(item.external?.source_sample?.identification.taxon.id ===
+                        item.identification.taxon.id
+                          ? {
+                              color: 'success',
+                              text: 'Congruent'
+                            }
+                          : {
+                              color: 'warning',
+                              text: 'Incongruent'
+                            })
+                      }"
+                      size="small"
+                    >
+                    </v-chip>
+                  </template>
+                </v-tooltip>
+              </template>
               <v-card-text>
                 <TaxonChip :taxon="item.identification.taxon" class="my-1" />
                 <span class="text-no-wrap">
@@ -127,13 +137,6 @@
           <v-col cols="12">
             <v-card title="Origin sample" prepend-icon="mdi-package-variant">
               <template #subtitle>
-                <v-chip
-                  :text="item.external?.origin"
-                  :prepend-icon="ExtSeqOrigin.icon(item.external!.origin)"
-                  label
-                  class="mx-1"
-                  size="small"
-                ></v-chip>
                 <v-chip
                   v-if="item.external?.source_sample"
                   :text="item.external.source_sample.identification.taxon.name"

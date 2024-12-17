@@ -97,15 +97,18 @@ export namespace Article {
 
 export type ExtSeqOrigin = TExtSeqOrigin
 export namespace ExtSeqOrigin {
+  export const props: Record<ExtSeqOrigin, { icon: string, description: string }> = {
+    Lab: { icon: 'mdi-test-tube', description: 'Sequence was produced in the lab, but registered as external due to missing informations' },
+    DB: { icon: 'mdi-database-arrow-down', description: 'Sequence was imported from external database' },
+    PersCom: { icon: 'mdi-email', description: 'Sequence was provided as personal communication' }
+  }
+
   export function icon(origin: ExtSeqOrigin) {
-    switch (origin) {
-      case "Lab":
-        return 'mdi-test-tube'
-      case 'DB':
-        return 'mdi-database-arrow-down'
-      case 'PersCom':
-        return 'mdi-email'
-    }
+    return props[origin].icon
+  }
+
+  export function description(origin: ExtSeqOrigin) {
+    return props[origin].description
   }
 }
 
