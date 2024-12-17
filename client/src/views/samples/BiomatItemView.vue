@@ -3,10 +3,14 @@
     v-if="item"
     class="bg-surface fill-height w-100 d-flex flex-column"
     :title="item.code"
-    prepend-icon="mdi-package-variant"
     flat
     :rounded="0"
   >
+    <template #prepend>
+      <v-avatar variant="outlined">
+        <v-icon icon="mdi-package-variant"></v-icon>
+      </v-avatar>
+    </template>
     <template #append>
       <v-btn color="primary" icon="mdi-pencil" variant="tonal" size="small" />
     </template>
