@@ -1448,9 +1448,7 @@
 					"original_taxon",
 					"code",
 					"label",
-					"sequence",
-					"gene",
-					"legacy"
+					"gene"
 				],
 				"type": "object"
 			},
@@ -4870,9 +4868,7 @@
 					"comments",
 					"code",
 					"label",
-					"sequence",
-					"gene",
-					"legacy"
+					"gene"
 				],
 				"type": "object"
 			},
@@ -4939,9 +4935,7 @@
 					"comments",
 					"code",
 					"label",
-					"sequence",
-					"gene",
-					"legacy"
+					"gene"
 				],
 				"type": "object"
 			},

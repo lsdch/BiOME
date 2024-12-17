@@ -1239,7 +1239,7 @@ export const $ExternalBioMatSequence = {
             type: 'string'
         }
     },
-    required: ['id', 'category', 'origin', 'referenced_in', 'identification', 'comments', 'published_in', 'accession_number', 'specimen_identifier', 'original_taxon', 'code', 'label', 'sequence', 'gene', 'legacy'],
+    required: ['id', 'category', 'origin', 'referenced_in', 'identification', 'comments', 'published_in', 'accession_number', 'specimen_identifier', 'original_taxon', 'code', 'label', 'gene'],
     type: 'object'
 } as const;
 
@@ -4147,7 +4147,7 @@ export const $Sequence = {
             type: 'string'
         }
     },
-    required: ['category', 'event', 'meta', 'id', 'sampling', 'identification', 'comments', 'code', 'label', 'sequence', 'gene', 'legacy'],
+    required: ['category', 'event', 'meta', 'id', 'sampling', 'identification', 'comments', 'code', 'label', 'gene'],
     type: 'object'
 } as const;
 
@@ -4202,7 +4202,7 @@ export const $SequenceWithDetails = {
             type: 'string'
         }
     },
-    required: ['category', 'event', 'meta', 'id', 'sampling', 'identification', 'comments', 'code', 'label', 'sequence', 'gene', 'legacy'],
+    required: ['category', 'event', 'meta', 'id', 'sampling', 'identification', 'comments', 'code', 'label', 'gene'],
     type: 'object'
 } as const;
 

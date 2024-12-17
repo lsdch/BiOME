@@ -19,9 +19,9 @@ type LegacySeqID struct {
 type SequenceInner struct {
 	Code     string                       `edgedb:"code" json:"code"`
 	Label    edgedb.OptionalStr           `edgedb:"label" json:"label"`
-	Sequence edgedb.OptionalStr           `edgedb:"sequence" json:"sequence"`
+	Sequence edgedb.OptionalStr           `edgedb:"sequence" json:"sequence,omitempty"`
 	Gene     sequences.Gene               `edgedb:"gene" json:"gene"`
-	LegacyID models.Optional[LegacySeqID] `edgedb:"legacy" json:"legacy"`
+	LegacyID models.Optional[LegacySeqID] `edgedb:"legacy" json:"legacy,omitempty"`
 }
 
 type ExtSeqSpecifics struct {

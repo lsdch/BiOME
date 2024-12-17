@@ -463,12 +463,12 @@ export type ExternalBioMatSequence = {
     id: string;
     identification: Identification;
     label: string;
-    legacy: OptionalLegacySeqId;
+    legacy?: OptionalLegacySeqId;
     origin: ExtSeqOrigin;
     original_taxon: string;
     published_in: Array<Article>;
     referenced_in: Array<SeqReference>;
-    sequence: string;
+    sequence?: string;
     specimen_identifier: string;
 };
 
@@ -1518,10 +1518,10 @@ export type Sequence = {
     id: string;
     identification: Identification;
     label: string;
-    legacy: OptionalLegacySeqId;
+    legacy?: OptionalLegacySeqId;
     meta: Meta;
     sampling: SamplingInner;
-    sequence: string;
+    sequence?: string;
 };
 
 export type SequenceWithDetails = {
@@ -1538,10 +1538,10 @@ export type SequenceWithDetails = {
     id: string;
     identification: Identification;
     label: string;
-    legacy: OptionalLegacySeqId;
+    legacy?: OptionalLegacySeqId;
     meta: Meta;
     sampling: Sampling;
-    sequence: string;
+    sequence?: string;
 };
 
 export type Site = {
