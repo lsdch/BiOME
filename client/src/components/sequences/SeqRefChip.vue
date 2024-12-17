@@ -5,6 +5,8 @@
     target="_blank"
     v-bind="$attrs"
     :color="is_origin ? 'success' : undefined"
+    :prepend-icon="is_origin ? 'mdi-arrow-down' : undefined"
+    :title="is_origin ? 'Sequence origin' : 'External sequence reference'"
   />
 </template>
 

@@ -65,6 +65,36 @@
     <template #item.identification.identified_on="{ value }">
       {{ DateWithPrecision.format(value) }}
     </template>
+
+    <!-- ROW EXPANSION -->
+    <template #expanded-row-inject="{ item }">
+      <div class="d-flex">
+        <v-card flat>
+          <v-list>
+            <v-list-item
+              prepend-icon="mdi-package-variant"
+              title="Related bio material"
+              :subtitle="item.external?.source_sample?.code ?? 'None registered'"
+              :disabled="!item.external?.source_sample"
+              :to="
+                item.external?.source_sample?.code
+                  ? { name: 'biomat-item', params: { code: item.external?.source_sample?.code } }
+                  : undefined
+              "
+            ></v-list-item>
+            <v-list-item prepend-icon="mdi-database" title="Database references">
+              <SeqRefChip v-for="seqRef in item.external?.referenced_in" :seq-ref size="small" />
+            </v-list-item>
+          </v-list>
+        </v-card>
+        <v-divider vertical></v-divider>
+        <v-card title="Comments" prepend-icon="mdi-comment" class="small-card-title" flat>
+          <v-card-text>
+            {{ item.comments }}
+          </v-card-text>
+        </v-card>
+      </div>
+    </template>
   </CRUDTable>
 </template>
 
@@ -73,6 +103,7 @@ import { BioMaterial, Gene, PersonInner, Sequence, SequencesService, SiteInfo, T
 import { DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
 import PersonChip from '@/components/people/PersonChip.vue'
 import GeneChip from '@/components/sequences/GeneChip.vue'
+import SeqRefChip from '@/components/sequences/SeqRefChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
