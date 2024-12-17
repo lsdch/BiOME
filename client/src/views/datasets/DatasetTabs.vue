@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card v-bind="$attrs">
     <v-tabs v-model="tab">
       <v-tab value="sites" prepend-icon="mdi-map-marker">
         Sites

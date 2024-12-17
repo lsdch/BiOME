@@ -5,49 +5,65 @@
       <v-row
         :class="['justify-start align-start flex-wrap flex-grow-0', { 'fill-height': lgAndUp }]"
       >
-        <v-col v-if="editing" cols="12" lg="6" class="align-self-start">
-          <DatasetEditForm
-            v-model="dataset"
-            @cancel="toggleEdit(false)"
-            @updated="toggleEdit(false)"
-          />
-        </v-col>
-        <v-col v-else cols="12" lg="6" class="align-self-start">
-          <div class="text-h5 d-flex justify-space-between align-center">
-            {{ dataset.label }}
-            <v-btn
-              v-if="isUserMaintainer"
-              color="primary"
-              icon="mdi-pencil"
-              variant="plain"
-              @click="toggleEdit(true)"
+        <v-col cols="12" lg="6" class="fill-height">
+          <v-card v-if="editing" cols="12" lg="6" class="align-self-start">
+            <DatasetEditForm
+              v-model="dataset"
+              @cancel="toggleEdit(false)"
+              @updated="toggleEdit(false)"
             />
-          </div>
-          <v-divider class="my-3" />
+          </v-card>
+          <v-card
+            v-else
+            cols="12"
+            lg="6"
+            :title="dataset.label"
+            class="fill-height align-self-start d-flex flex-column"
+          >
+            <template #prepend>
+              <v-avatar variant="outlined">
+                <v-icon icon="mdi-folder-table"></v-icon>
+              </v-avatar>
+            </template>
+            <template #append>
+              <v-btn
+                v-if="isUserMaintainer"
+                color="primary"
+                icon="mdi-pencil"
+                variant="plain"
+                @click="toggleEdit(true)"
+              />
+            </template>
+            <template #actions>
+              <v-spacer></v-spacer>
+              <MetaChip :meta="dataset.meta" />
+            </template>
+            <v-divider class="my-3" />
 
-          <v-list>
-            <v-list-item
-              title="Description"
-              :subtitle="dataset.description || 'No description'"
-              :class="{ empty: !dataset.description }"
-            />
-            <v-list-item title="Maintainers">
-              <template #subtitle>
-                <PersonChip
-                  v-for="(maintainer, key) in dataset.maintainers"
-                  :person="maintainer"
-                  class="ma-1"
-                  :key
-                />
-              </template>
-            </v-list-item>
-          </v-list>
-          <v-divider class="my-3" />
-          <div>
-            <MetaChip :meta="dataset.meta" />
-          </div>
-          <v-divider class="my-3" />
-          <DatasetTabs :dataset />
+            <v-list>
+              <v-list-item
+                title="Description"
+                :subtitle="dataset.description || 'No description'"
+                :class="{ empty: !dataset.description }"
+              />
+              <v-list-item title="Maintainers">
+                <template #subtitle>
+                  <PersonChip
+                    v-for="(maintainer, key) in dataset.maintainers"
+                    :person="maintainer"
+                    class="ma-1"
+                    :key
+                  />
+                </template>
+              </v-list-item>
+            </v-list>
+
+            <v-divider class="my-3" />
+            <div class="flex-grow-1">
+              <DatasetTabs :dataset flat />
+            </div>
+            <v-divider></v-divider>
+          </v-card>
         </v-col>
         <v-col cols="12" lg="6" class="align-self-stretch flex-grow-1 w-100">
           <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!lgAndUp">
