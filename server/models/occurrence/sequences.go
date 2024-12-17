@@ -95,6 +95,10 @@ func ListSequences(db edgedb.Executor) ([]Sequence, error) {
 					published_in: { ** },
 					specimen_identifier,
 					original_taxon,
+					source_sample : {
+						[is occurrence::BioMaterial].*,
+						identification: { ** }
+					}
 				}
 			}
 		`,

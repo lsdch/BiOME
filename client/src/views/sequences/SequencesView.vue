@@ -19,7 +19,7 @@
       <OccurrenceCategorySelect v-model="search.category" />
     </template>
 
-    <template #item.code="{ value, item }: { value: string; item: BioMaterial }">
+    <template #item.code="{ value, item }: { value: string; item: Sequence }">
       <span class="d-flex justify-space-between align-center">
         <!-- Using zero-width spaces for better line breaks -->
         <RouterLink
@@ -32,6 +32,13 @@
             :title="item.category"
             class="mx-1"
           />
+          <v-icon
+            v-if="item.external?.source_sample"
+            class="mx-1"
+            icon="mdi-package-variant"
+            title="Has related bio-material"
+            size="small"
+          ></v-icon>
         </span>
       </span>
     </template>
