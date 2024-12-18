@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-data-table
+      id="table"
       v-bind="$attrs"
       :headers="processedHeaders"
       :items="filteredItems"
@@ -16,15 +17,20 @@
       hover
       :mobile="mobile ?? xs"
       :items-per-page-options="[5, 10, 15, 20]"
+      style="position: relative"
     >
       <!-- Toolbar -->
-      <template #top v-if="toolbar !== false">
+      <template #top v-if="toolbar">
         <TableToolbar
           ref="toolbar"
+          id="table-toolbar"
           v-model:search="searchTerm"
           v-bind="toolbar"
           @reload="loadItems().then(() => feedback.show('Data reloaded'))"
         >
+          <template #extension>
+            <slot name="toolbar-extension" />
+          </template>
           <template #[`prepend-actions`]>
             <slot name="toolbar-prepend-actions" />
           </template>
@@ -55,20 +61,28 @@
               :sort-by="sortBy"
               @click="toggleSort('meta.last_updated')"
             />
-            <TableFilterMenu
-              v-if="!toolbar?.noFilters"
-              v-model="tableFilters"
-              :user="currentUser"
-            />
           </template>
 
           <!-- Searchbar -->
-          <template #search>
-            <slot name="search">
+          <template #search="props">
+            <slot name="search" v-bind="props" :toggleMenu :menu-open="menu">
               <CRUDTableSearchBar v-model="searchTerm" />
             </slot>
           </template>
         </TableToolbar>
+      </template>
+
+      <template #body.prepend>
+        <v-menu
+          id="search-menu"
+          v-model="menu"
+          location="bottom"
+          target="#table-toolbar"
+          attach="#table table"
+          :close-on-content-click="false"
+        >
+          <slot name="menu" :toggleMenu :menuOpen="menu"> </slot>
+        </v-menu>
       </template>
 
       <!-- Actions column -->
@@ -126,16 +140,6 @@
                 <slot name="expanded-row-footer" v-bind="{ item }">
                   <div class="d-flex flex-wrap">
                     <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" />
-                    <!-- <ItemDateChip
-                      v-if="item.meta?.created"
-                      icon="created"
-                      :date="item.meta.created"
-                    />
-                    <ItemDateChip
-                      v-if="item.meta?.modified"
-                      icon="updated"
-                      :date="item.meta.modified"
-                    /> -->
                     <v-spacer />
                     <v-btn
                       prepend-icon="mdi-identifier"
@@ -170,7 +174,7 @@
 <script setup lang="ts" generic="ItemType extends { id: string; meta?: Meta }">
 import { Meta } from '@/api'
 import { isGranted } from '@/components/people/userRole'
-import { useArrayFilter, useClipboard } from '@vueuse/core'
+import { useArrayFilter, useClipboard, useToggle } from '@vueuse/core'
 import { Ref, UnwrapRef, reactive, ref, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { useDisplay } from 'vuetify'
@@ -190,6 +194,7 @@ type Props = TableProps<ItemType> & {
   filter?: (item: ItemType) => boolean
   filterKeys?: string | string[]
   mobile?: boolean
+  filterOwned?: boolean
 }
 
 const { xs } = useDisplay()
@@ -199,7 +204,6 @@ const slots = useSlots()
 const slotNames = Object.keys(slots) as 'default'[]
 
 const items = defineModel<ItemType[]>('items', { default: () => reactive([]) })
-// const items = ref<ItemType[]>([])
 const selected = defineModel<string[]>('selected', { default: [] })
 const searchTerm = defineModel<string>('search')
 const props = withDefaults(defineProps<Props>(), {})
@@ -214,6 +218,8 @@ const { currentUser, actions, feedback, form, processedHeaders, loading, loadIte
   emit
 )
 
+const [menu, toggleMenu] = useToggle(false)
+
 defineExpose({ form, actions })
 
 defineSlots<
@@ -224,7 +230,9 @@ defineSlots<
       item: ItemType
       currentUser: typeof currentUser
     }): any
-    search(): any
+    search(props: { toggleMenu: typeof toggleMenu; menuOpen: boolean }): any
+    'toolbar-extension': () => any
+    menu: (props: { toggleMenu: typeof toggleMenu; menuOpen: boolean }) => any
     'expanded-row-inject': (props: { item: ItemType }) => any
     'expanded-row-footer': (props: { item: ItemType }) => any
     'toolbar-prepend-actions': () => any
@@ -245,14 +253,8 @@ function toggleSort(sortKey: string) {
   sortBy.value?.push({ key: sortKey, order })
 }
 
-const tableFilters = ref({
-  ownedItems: false
-})
-
 function ownedItemFilter(item: ItemType) {
-  return tableFilters.value.ownedItems && currentUser !== undefined
-    ? isOwner(currentUser, item)
-    : true
+  return props.filterOwned && currentUser !== undefined ? isOwner(currentUser, item) : true
 }
 
 const filteredItems = useArrayFilter(items as Ref<ItemType[]>, (item) => {
@@ -296,6 +298,10 @@ async function copyUUID(item: ItemType) {
 </script>
 
 <style lang="less">
+#search-menu .v-overlay__content {
+  left: 0px !important;
+}
+
 tr.expanded td {
   border-left: 1px solid rgb(16, 113, 176);
 }

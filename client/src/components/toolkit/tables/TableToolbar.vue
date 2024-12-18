@@ -26,44 +26,19 @@
 
     <v-toolbar-title v-if="title !== undefined" style="min-width: 150px" :text="title" />
 
-    <slot
-      v-if="(smAndUp && togglableSearch === undefined) || !togglableSearch"
-      name="search"
-      class="flex-grow-1"
-    />
+    <slot name="search" />
 
     <v-spacer />
-
-    <!-- Toggle large searchbar component -->
-    <v-tooltip
-      v-if="
-        hasSlotContent($slots.search) && ((togglableSearch === undefined && xs) || togglableSearch)
-      "
-      left
-      activator="parent"
-      text="Toggle search"
-    >
-      <template #activator="{ props }">
-        <v-btn
-          v-bind="props"
-          size="small"
-          icon="mdi-magnify"
-          color="primary"
-          :variant="toggleSearch ? 'flat' : 'text'"
-          @click="toggleSearch = !toggleSearch"
-        />
-      </template>
-    </v-tooltip>
 
     <slot name="prepend-actions" />
     <slot name="actions" />
     <slot name="append-actions" />
 
     <!-- Search bar slot with default searchbar -->
-    <template v-if="togglableSearch || (togglableSearch === undefined && xs)" #extension>
+    <template #extension>
       <v-expand-transition>
-        <div class="w-100 px-3" v-show="toggleSearch" transition="slide-y-transition">
-          <slot name="search" class="flex-grow-1"> </slot>
+        <div class="w-100 px-3" transition="slide-y-transition">
+          <slot name="extension"> </slot>
         </div>
       </v-expand-transition>
     </template>
@@ -71,14 +46,7 @@
 </template>
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
-import { ref } from 'vue'
-import { useDisplay } from 'vuetify'
 import { ToolbarProps } from '.'
-import { hasSlotContent } from '../vue-utils'
-
-const { xs, smAndUp } = useDisplay()
-
-const toggleSearch = ref(false)
 
 defineProps<ToolbarProps>()
 

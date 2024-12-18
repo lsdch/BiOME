@@ -7,13 +7,11 @@
     placeholder="Any"
     persistent-placeholder
     density="compact"
-    class="mx-1"
     clearable
     persistent-clear
     :color="model ? 'primary' : undefined"
     :active="!!model"
     :prepend-inner-icon="model ? OccurrenceCategory.props[model].icon : undefined"
-    :max-width="300"
   >
     <template #item="{ item, props }">
       <v-list-item
@@ -23,9 +21,6 @@
         }"
         :class="`text-${OccurrenceCategory.props[item.raw].color}`"
       ></v-list-item>
-    </template>
-    <template #append>
-      <slot name="append" />
     </template>
   </v-select>
 </template>
