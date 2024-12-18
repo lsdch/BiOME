@@ -50,10 +50,6 @@ export type TableProps<ItemType> = {
    */
   toolbar?: ToolbarProps | false
   /**
-   * Display column with update/delete controls
-   */
-  appendActions?: boolean | "delete" | "edit"
-  /**
    * Short string representation of a table item to display in UI
    */
   itemRepr?: (item: ItemType) => string
@@ -103,10 +99,7 @@ export function useTable<ItemType extends { id: string }>(
   })
 
   const processedHeaders = computed((): CRUDTableHeader[] => {
-    const headersWithActions = props.appendActions && currentUser !== undefined && currentUser.role !== "Visitor"
-      ? props.headers.concat([{ title: 'Actions', key: 'actions', sortable: false, align: 'center', width: 0, cellProps: { class: 'text-no-wrap' } }])
-      : props.headers
-    return headersWithActions.filter(({ hide }) => {
+    return props.headers.filter(({ hide }) => {
       return !hide?.value
     })
   })

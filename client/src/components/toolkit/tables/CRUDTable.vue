@@ -86,7 +86,7 @@
       </template>
 
       <!-- Actions column -->
-      <template #[`header.actions`]>
+      <!-- <template #[`header.actions`]>
         <v-icon title="Actions" icon="mdi-cog" />
       </template>
       <template v-if="currentUser !== undefined" #[`item.actions`]="{ item }">
@@ -98,7 +98,7 @@
             @delete="actions.delete"
           />
         </slot>
-      </template>
+      </template> -->
 
       <!-- Expose VDataTable slots -->
       <template v-for="(id, index) of slotNames" #[id]="slotData" :key="index">
@@ -138,16 +138,43 @@
                   <v-divider v-show="$slots['expanded-row-inject']" />
                 </div>
                 <slot name="expanded-row-footer" v-bind="{ item }">
-                  <div class="d-flex flex-wrap">
+                  <div class="d-flex flex-wrap align-center">
                     <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" />
-                    <v-spacer />
                     <v-btn
-                      prepend-icon="mdi-identifier"
+                      prepend-icon="mdi-content-copy"
+                      text="UUID"
                       variant="plain"
-                      class="text-caption"
+                      size="small"
+                      rounded="sm"
+                      class="ma-1 text-caption font-monospace"
                       @click="copyUUID(item)"
-                      :text="item.id"
                     />
+                    <v-spacer />
+                    <template
+                      v-if="
+                        !!currentUser &&
+                        (isGranted(currentUser, 'Maintainer') || isOwner(currentUser, item))
+                      "
+                    >
+                      <v-btn
+                        text="Edit"
+                        color="primary"
+                        variant="tonal"
+                        size="small"
+                        class="ma-1"
+                        prepend-icon="mdi-pencil"
+                        @click="actions.edit(item)"
+                      />
+                      <v-btn
+                        text="Delete"
+                        color="error"
+                        variant="tonal"
+                        size="small"
+                        class="ma-1"
+                        prepend-icon="mdi-delete"
+                        @click="actions.delete(item)"
+                      />
+                    </template>
                   </div>
                 </slot>
               </div>
@@ -187,7 +214,6 @@ import MetaChip from '../MetaChip.vue'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDItemActions from './CRUDItemActions.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
-import TableFilterMenu from './TableFilterMenu.vue'
 import TableToolbar from './TableToolbar.vue'
 
 type Props = TableProps<ItemType> & {
@@ -224,12 +250,7 @@ defineExpose({ form, actions })
 
 defineSlots<
   VDataTable['$slots'] & {
-    actions(bind: {
-      actions: typeof actions
-      show: typeof props.appendActions
-      item: ItemType
-      currentUser: typeof currentUser
-    }): any
+    actions(bind: { actions: typeof actions; item: ItemType; currentUser: typeof currentUser }): any
     search(props: { toggleMenu: typeof toggleMenu; menuOpen: boolean }): any
     'toolbar-extension': () => any
     menu: (props: { toggleMenu: typeof toggleMenu; menuOpen: boolean }) => any
@@ -290,7 +311,7 @@ async function copyUUID(item: ItemType) {
   if (item.id === undefined) return
   try {
     await copy(item.id)
-    feedback.value.show('UUID copied to clipboard', 'primary')
+    feedback.value.show(`UUID copied to clipboard\n${item.id}`, 'primary')
   } catch (err) {
     feedback.value.show('Failed to copy UUID to clipboard', 'warning')
   }
