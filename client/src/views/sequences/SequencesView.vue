@@ -28,9 +28,17 @@
         />
         <span class="text-right">
           <v-icon
+            v-if="item.external != undefined"
+            :icon="ExtSeqOrigin.icon(item.external.origin)"
+            :title="ExtSeqOrigin.description(item.external.origin)"
+            size="small"
+            class="mx-1"
+          />
+          <v-icon
             v-bind="OccurrenceCategory.props[item.category]"
             :title="item.category"
             class="mx-1"
+            size="small"
           />
           <v-icon
             v-if="item.external?.source_sample"
@@ -68,39 +76,51 @@
 
     <!-- ROW EXPANSION -->
     <template #expanded-row-inject="{ item }">
-      <div class="d-flex">
-        <v-card flat>
-          <v-list>
-            <v-list-item
-              prepend-icon="mdi-package-variant"
-              title="Related bio material"
-              :subtitle="item.external?.source_sample?.code ?? 'None registered'"
-              :disabled="!item.external?.source_sample"
-              :to="
-                item.external?.source_sample?.code
-                  ? { name: 'biomat-item', params: { code: item.external?.source_sample?.code } }
-                  : undefined
-              "
-            ></v-list-item>
-            <v-list-item prepend-icon="mdi-database" title="Database references">
-              <SeqRefChip v-for="seqRef in item.external?.referenced_in" :seq-ref size="small" />
-            </v-list-item>
-          </v-list>
-        </v-card>
-        <v-divider vertical></v-divider>
-        <v-card title="Comments" prepend-icon="mdi-comment" class="small-card-title" flat>
-          <v-card-text>
-            {{ item.comments }}
-          </v-card-text>
-        </v-card>
-      </div>
+      <v-row class="ma-0">
+        <v-col cols="12" md="6">
+          <v-card flat class="flex-grow-1">
+            <v-list>
+              <v-list-item
+                prepend-icon="mdi-package-variant"
+                title="Related bio material"
+                :subtitle="item.external?.source_sample?.code ?? 'None registered'"
+                :disabled="!item.external?.source_sample"
+                :to="
+                  item.external?.source_sample?.code
+                    ? {
+                        name: 'biomat-item',
+                        params: { code: item.external?.source_sample?.code }
+                      }
+                    : undefined
+                "
+              ></v-list-item>
+              <v-list-item prepend-icon="mdi-database" title="Database references">
+                <SeqRefChip v-for="seqRef in item.external?.referenced_in" :seq-ref size="small" />
+              </v-list-item>
+            </v-list>
+          </v-card>
+        </v-col>
+        <v-divider :vertical="mdAndUp" class="flex-grow-0"></v-divider>
+        <v-col cols="12" md="6">
+          <v-card
+            title="Comments"
+            prepend-icon="mdi-comment"
+            class="small-card-title flex-grow-1"
+            flat
+          >
+            <v-card-text>
+              {{ item.comments }}
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
     </template>
   </CRUDTable>
 </template>
 
 <script setup lang="ts">
 import { BioMaterial, Gene, PersonInner, Sequence, SequencesService, SiteInfo, Taxon } from '@/api'
-import { DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
+import { DateWithPrecision, ExtSeqOrigin, OccurrenceCategory } from '@/api/adapters'
 import PersonChip from '@/components/people/PersonChip.vue'
 import GeneChip from '@/components/sequences/GeneChip.vue'
 import SeqRefChip from '@/components/sequences/SeqRefChip.vue'
@@ -110,7 +130,7 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
-const { xs } = useDisplay()
+const { xs, mdAndUp } = useDisplay()
 
 type SeqTableFilters = {
   term?: string
