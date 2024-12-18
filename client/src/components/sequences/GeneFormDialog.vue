@@ -3,12 +3,17 @@
     <v-container fluid>
       <v-row>
         <v-col>
-          <v-text-field label="Label" v-model="model.label" v-bind="field('label')" />
+          <v-text-field label="Label" v-model.trim="model.label" v-bind="field('label')" />
         </v-col>
       </v-row>
       <v-row>
         <v-col>
-          <v-text-field label="Code" v-model="model.code" v-bind="field('code')" />
+          <v-text-field
+            label="Code"
+            v-model.trim="model.code"
+            v-bind="field('code')"
+            class="input-font-monospace"
+          />
         </v-col>
         <v-col>
           <v-switch
@@ -23,7 +28,7 @@
         <v-col>
           <v-textarea
             label="Description"
-            v-model="model.description"
+            v-model.trim="model.description"
             v-bind="field('description')"
           />
         </v-col>
