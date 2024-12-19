@@ -7,7 +7,7 @@
     :fetch-items="SamplesService.listBioMaterial"
     :delete="({ code }: BioMaterial) => SamplesService.deleteBioMaterial({ path: { code } })"
     append-actions
-    :search="search"
+    v-model:search="search"
     :filter
     :mobile="xs"
   >
