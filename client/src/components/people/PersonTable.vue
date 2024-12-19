@@ -5,7 +5,7 @@
     :delete="(person: Person) => PeopleService.deletePerson({ path: { id: person.id } })"
     :fetch-items="() => PeopleService.listPersons()"
     :filter
-    :search="filters.term"
+    v-model:search="filters"
     entityName="Person"
     :itemRepr="(p: Person) => p.full_name"
     :toolbar="{
@@ -15,7 +15,7 @@
     filter-mode="some"
     appendActions
   >
-    <template #search>
+    <template #menu>
       <PersonFilters v-model="filters" />
     </template>
     <template #form="{ dialog, onClose, onSuccess, editItem }">
@@ -88,7 +88,7 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import InstitutionKindChip from './InstitutionKindChip.vue'
-import type { PersonFilters as Filters } from './PersonFilters.vue'
+import type { AccountStatus, PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
 import { orderedUserRoles, roleIcon } from './userRole'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
@@ -96,24 +96,18 @@ import PersonFormDialog from './PersonFormDialog.vue'
 
 const { xs, smAndUp } = useDisplay()
 
-const filters = ref<Filters>({
-  term: '',
-  status: undefined
-})
+const filters = ref<Filters>({})
+
+function filterStatus(item: Person, status: AccountStatus) {
+  return status === 'Registered user' ? Boolean(item.role) : item.role === status
+}
 
 const filter = computed(() => {
-  const { status } = filters.value
-  switch (status) {
-    case undefined:
-    case null:
-      return () => true
-    case 'Registered user':
-      return (item: Person) => Boolean(item.role)
-    case 'Unregistered':
-      return (item: Person) => !item.role
-    default:
-      return (item: Person) => item.role === status
-  }
+  console.log(filters)
+  const { status, institutions } = filters.value
+  return (item: Person) =>
+    (!status || filterStatus(item, status)) &&
+    (!institutions || item.institutions.some(({ code }) => institutions.includes(code)))
 })
 
 const headers: CRUDTableHeader[] = [
