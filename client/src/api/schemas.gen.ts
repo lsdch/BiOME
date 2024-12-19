@@ -362,6 +362,9 @@ export const $BioMaterial = {
         },
         sampling: {
             '$ref': '#/components/schemas/SamplingInner'
+        },
+        sequence_consensus: {
+            '$ref': '#/components/schemas/OptionalTaxon'
         }
     },
     required: ['code', 'category', 'is_type', 'has_sequences', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
@@ -429,6 +432,9 @@ export const $BioMaterialWithDetails = {
         },
         sampling: {
             '$ref': '#/components/schemas/Sampling'
+        },
+        sequence_consensus: {
+            '$ref': '#/components/schemas/OptionalTaxon'
         }
     },
     required: ['event', 'code', 'category', 'is_type', 'has_sequences', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],
@@ -2603,6 +2609,9 @@ export const $OptionalBioMaterial = {
         },
         sampling: {
             '$ref': '#/components/schemas/SamplingInner'
+        },
+        sequence_consensus: {
+            '$ref': '#/components/schemas/OptionalTaxon'
         }
     },
     required: ['code', 'category', 'is_type', 'has_sequences', 'is_homogenous', 'is_congruent', 'published_in', 'meta', 'id', 'sampling', 'identification', 'comments'],

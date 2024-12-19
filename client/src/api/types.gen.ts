@@ -136,6 +136,7 @@ export type BioMaterial = {
     meta: Meta;
     published_in: Array<Article>;
     sampling: SamplingInner;
+    sequence_consensus?: OptionalTaxon;
 };
 
 export type BioMaterialWithDetails = {
@@ -158,6 +159,7 @@ export type BioMaterialWithDetails = {
     meta: Meta;
     published_in: Array<Article>;
     sampling: Sampling;
+    sequence_consensus?: OptionalTaxon;
 };
 
 export type ClinicalTrailNumber = {
@@ -984,6 +986,7 @@ export type OptionalBioMaterial = {
     meta: Meta;
     published_in: Array<Article>;
     sampling: SamplingInner;
+    sequence_consensus?: OptionalTaxon;
 } | null;
 
 export type OptionalExternalBioMatSpecific = {
@@ -3569,6 +3572,15 @@ export const SamplingInnerModelResponseTransformer: SamplingInnerModelResponseTr
     return data;
 };
 
+export type OptionalTaxonModelResponseTransformer = (data: any) => OptionalTaxon;
+
+export const OptionalTaxonModelResponseTransformer: OptionalTaxonModelResponseTransformer = data => {
+    if (data?.meta) {
+        MetaModelResponseTransformer(data.meta);
+    }
+    return data;
+};
+
 export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransformer = data => {
     if (Array.isArray(data?.code_history)) {
         data.code_history.forEach(CodeHistoryModelResponseTransformer);
@@ -3587,6 +3599,9 @@ export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransf
     }
     if (data?.sampling) {
         SamplingInnerModelResponseTransformer(data.sampling);
+    }
+    if (data?.sequence_consensus) {
+        OptionalTaxonModelResponseTransformer(data.sequence_consensus);
     }
     return data;
 };
@@ -3948,6 +3963,9 @@ export const BioMaterialWithDetailsModelResponseTransformer: BioMaterialWithDeta
     if (data?.sampling) {
         SamplingModelResponseTransformer(data.sampling);
     }
+    if (data?.sequence_consensus) {
+        OptionalTaxonModelResponseTransformer(data.sequence_consensus);
+    }
     return data;
 };
 
@@ -4179,6 +4197,9 @@ export const OptionalBioMaterialModelResponseTransformer: OptionalBioMaterialMod
     if (data?.sampling) {
         SamplingInnerModelResponseTransformer(data.sampling);
     }
+    if (data?.sequence_consensus) {
+        OptionalTaxonModelResponseTransformer(data.sequence_consensus);
+    }
     return data;
 };
 
@@ -4265,15 +4286,6 @@ export const GetSequenceResponseTransformer: GetSequenceResponseTransformer = as
 export type GetTaxonomyResponseTransformer = (data: any) => Promise<GetTaxonomyResponse>;
 
 export type TaxonomyModelResponseTransformer = (data: any) => Taxonomy;
-
-export type OptionalTaxonModelResponseTransformer = (data: any) => OptionalTaxon;
-
-export const OptionalTaxonModelResponseTransformer: OptionalTaxonModelResponseTransformer = data => {
-    if (data?.meta) {
-        MetaModelResponseTransformer(data.meta);
-    }
-    return data;
-};
 
 export const TaxonomyModelResponseTransformer: TaxonomyModelResponseTransformer = data => {
     if (Array.isArray(data?.children)) {

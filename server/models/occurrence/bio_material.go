@@ -7,6 +7,7 @@ import (
 	"darco/proto/models/references"
 	"darco/proto/models/sequences"
 	"darco/proto/models/specimen"
+	"darco/proto/models/taxonomy"
 	"time"
 
 	"github.com/edgedb/edgedb-go"
@@ -62,6 +63,7 @@ type GenericBioMaterial[SamplingType any] struct {
 	HasSequences                    bool                                    `edgedb:"has_sequences" json:"has_sequences"`
 	IsHomogenous                    bool                                    `edgedb:"is_homogenous" json:"is_homogenous"`
 	IsCongruent                     bool                                    `edgedb:"is_congruent" json:"is_congruent"`
+	SequenceConsensus               models.Optional[taxonomy.Taxon]         `edgedb:"sequence_consensus" json:"sequence_consensus,omitempty"`
 	References                      []references.Article                    `edgedb:"published_in" json:"published_in"`
 	External                        models.Optional[ExternalBioMatSpecific] `edgedb:"external" json:"external,omitempty"`
 	Meta                            people.Meta                             `edgedb:"meta" json:"meta"`
@@ -79,6 +81,7 @@ func GetBioMaterial(db edgedb.Executor, code string) (biomat BioMaterialWithDeta
 		`#edgeql
 		select occurrence::BioMaterialWithType {
 			**,
+			sequence_consensus: { * },
 			sampling: {
 				*,
 				target_taxa: { * },
@@ -120,6 +123,7 @@ func ListBioMaterials(db edgedb.Executor) ([]BioMaterialWithDetails, error) {
 		`#edgeql
 			select occurrence::BioMaterialWithType {
         **,
+				sequence_consensus: { * },
 				event := .sampling.event { *, site: {name, code} },
 				identification: { **, identified_by: { * } },
         external := [is occurrence::ExternalBioMat]{

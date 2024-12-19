@@ -422,6 +422,9 @@
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInner"
+					},
+					"sequence_consensus": {
+						"$ref": "#/components/schemas/OptionalTaxon"
 					}
 				},
 				"required": [
@@ -503,6 +506,9 @@
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/Sampling"
+					},
+					"sequence_consensus": {
+						"$ref": "#/components/schemas/OptionalTaxon"
 					}
 				},
 				"required": [
@@ -2992,6 +2998,9 @@
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInner"
+					},
+					"sequence_consensus": {
+						"$ref": "#/components/schemas/OptionalTaxon"
 					}
 				},
 				"required": [

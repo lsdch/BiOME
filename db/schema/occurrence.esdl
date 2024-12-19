@@ -101,6 +101,14 @@ module occurrence {
         )
       )
     );
+
+    single sequence_consensus := (
+      select (
+        if .is_homogenous then
+          assert_single(distinct .specimens.identification.taxon)
+        else {}
+      )
+    );
   }
 
   scalar type QuantityType extending enum<Unknown, One, Several, Ten, Tens, Hundred>;
@@ -128,6 +136,14 @@ module occurrence {
     );
 
     multi link sequences := .<source_sample[is seq::ExternalSequence];
+
+    single sequence_consensus := (
+      select (
+        if .is_homogenous then
+          assert_single(distinct .sequences.identification.taxon)
+        else {}
+      )
+    );
   }
 
   alias BioMaterialWithType := (
@@ -138,6 +154,7 @@ module occurrence {
       ),
       required is_homogenous := [is ExternalBioMat].is_homogenous ?? [is InternalBioMat].is_homogenous ?? true,
       required is_congruent := [is ExternalBioMat].is_congruent ?? [is InternalBioMat].is_congruent ?? true,
+      sequence_consensus := [is ExternalBioMat].sequence_consensus ?? [is InternalBioMat].sequence_consensus,
       # category := (
       #   if (BioMaterial is InternalBioMat) then "Internal"
       #   else if (BioMaterial is ExternalBioMat) then "External"
