@@ -155,8 +155,9 @@
             </v-list>
           </v-card>
         </v-col>
-        <v-col>
+        <v-col cols="12" md="6">
           <v-card
+            flat
             title="References"
             class="fill-height small-card-title muted-title"
             density="compact"
@@ -169,18 +170,17 @@
                 variant="tonal"
               />
             </template>
-            <v-card-text>
-              <ArticleChip
-                v-for="article in item.published_in"
-                :article
-                class="ma-1"
-                size="small"
-              />
-            </v-card-text>
-            <v-divider></v-divider>
-            <v-list density="compact">
-              <v-list-item title="In collection">
-                <div>
+            <v-list>
+              <v-list-item title="Literature" prepend-icon="mdi-newspaper-variant">
+                <ArticleChip
+                  v-for="article in item.published_in"
+                  :article
+                  class="ma-1"
+                  size="small"
+                />
+              </v-list-item>
+              <v-list-item title="In collection" prepend-icon="mdi-archive">
+                <div class="font-weight-bold">
                   {{ item.external.archive.collection }}
                 </div>
                 Vouchers:
@@ -188,15 +188,20 @@
                   v-for="voucher in item.external.archive.vouchers"
                   size="small"
                   :text="voucher"
-                  class="mx-1"
+                  class="mx-1 font-monospace"
                 />
               </v-list-item>
             </v-list>
           </v-card>
         </v-col>
-        <v-col>
-          <v-card title="Content" class="fill-height small-card-title muted-title">
+        <v-divider :vertical="mdAndUp" class="flex-grow-0"></v-divider>
+        <v-col cols="12" md="6">
+          <v-card title="Content" class="fill-height small-card-title muted-title" flat>
             <v-list density="compact">
+              <v-list-item
+                title="Original identification"
+                :subtitle="item.external.original_taxon ?? 'None provided'"
+              />
               <v-list-item
                 lines="one"
                 :subtitle="item.external.content_description ?? 'No further description'"
