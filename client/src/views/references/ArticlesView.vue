@@ -7,7 +7,38 @@
     entity-name="Article"
     :toolbar="{ icon: 'mdi-newspaper-variant-multiple', title: 'Bibliography' }"
     append-actions
+    v-model:search="search"
+    :filter
   >
+    <template #menu>
+      <v-divider class="mb-2"></v-divider>
+      <v-row class="mb-2">
+        <v-col cols="12" md="8">
+          <v-list-item>
+            <v-text-field
+              class="mt-1"
+              v-model="search.author"
+              label="Author"
+              density="compact"
+              hide-details
+              clearable
+            />
+          </v-list-item>
+        </v-col>
+        <v-col cols="12" md="4">
+          <v-list-item>
+            <v-number-input
+              class="mt-1"
+              v-model="search.year"
+              label="Year"
+              density="compact"
+              hide-details
+              clearable
+            />
+          </v-list-item>
+        </v-col>
+      </v-row>
+    </template>
     <template #item.authors="{ value }: { value: string[] }">
       {{ Article.shortAuthors(value) }}
     </template>
@@ -49,6 +80,24 @@ import { ReferencesService } from '@/api'
 import { Article } from '@/api/adapters'
 import ArticleFormDialog from '@/components/references/ArticleFormDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { ref } from 'vue'
+
+type ArticleFilters = {
+  term?: string
+  year?: number
+  author?: string
+}
+
+const search = ref<ArticleFilters>({})
+
+function filter({ authors, year }: Article) {
+  const { author, year: searchYear } = search.value
+  return (
+    (!author || authors.some((a) => a.toLowerCase().includes(author.toLowerCase()))) &&
+    (!searchYear || year === searchYear)
+  )
+}
+
 const headers: CRUDTableHeader[] = [
   { key: 'authors', title: 'Authors' },
   { key: 'year', title: 'Year', width: 0 },
