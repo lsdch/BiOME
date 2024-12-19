@@ -34,7 +34,7 @@
           />
         </template>
       </TableToolbar>
-      <SitesMap ref="map" :items="sites" clustered>
+      <SitesMap ref="map" :items="sites" clustered :auto-fit="false">
         <template #marker="{ item }">
           <SitePopup :item :options="{ keepInView: false, autoPan: false }"></SitePopup>
         </template>

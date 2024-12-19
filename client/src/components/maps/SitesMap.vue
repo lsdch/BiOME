@@ -179,6 +179,7 @@ const props = withDefaults(
   {
     bounds: () => [latLng(90, -360), latLng(-90, 360)],
     fitPad: 0,
+    autoFit: true,
     marker: () => ({
       color: 'white',
       fill: true,
@@ -200,11 +201,11 @@ watch(
 
 function onReady(mapInstance: Map) {
   // nextTick(fitBounds)
-  setTimeout(fitBounds, 200)
+  if (props.autoFit) setTimeout(fitBounds, 200)
 }
 
 function onVisible(visible: boolean) {
-  if (visible) fitBounds()
+  if (visible && props.autoFit) fitBounds()
 }
 
 const fitBounds = useDebounceFn((items: SiteItem[] = props.items ?? []) => {
