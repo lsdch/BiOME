@@ -7,95 +7,59 @@
     :fetch-items="SamplesService.listBioMaterial"
     :delete="({ code }: BioMaterial) => SamplesService.deleteBioMaterial({ path: { code } })"
     append-actions
-    :search="search.term"
+    :search="search"
     :filter
     :mobile="xs"
-    :owned-filter="search.owned"
   >
-    <template #search="{ toggleMenu, menuOpen }">
-      <v-inline-search-bar v-if="mdAndUp" v-model="search.term" label="Search term" class="mx-1" />
-      <v-btn
-        icon="mdi-dots-vertical"
-        color="primary"
-        @click="toggleMenu(true)"
-        :active="menuOpen"
-        size="small"
-      ></v-btn>
-    </template>
-
-    <template #menu="{ toggleMenu }">
-      <v-card rounded="t-0">
-        <v-card-text>
-          <v-inline-search-bar v-model="search.term" label="Search term" class="mx-1" />
-        </v-card-text>
-        <v-divider></v-divider>
-        <v-row class="ma-0">
-          <v-col cols="12" md="6">
-            <v-list>
-              <v-list-item prepend-icon="mdi-package-variant">
-                <OccurrenceCategorySelect class="mt-1" v-model="search.category" label="Category" />
-              </v-list-item>
-              <v-list-item prepend-icon="mdi-family-tree">
-                <TaxonPicker
-                  label="Assigned taxon"
-                  density="compact"
-                  class="mt-1"
-                  hide-details
-                  clearable
-                />
-              </v-list-item>
-            </v-list>
-          </v-col>
-          <v-col cols="12" md="6">
-            <v-list density="compact">
-              <v-list-item prepend-icon="mdi-star-four-points">
-                <ClearableSwitch
-                  v-model="search.nomenclaturalType"
-                  class="pl-2"
-                  label="Nomenclatural type"
-                  color-true="primary"
-                  color-false="red"
-                  hint="Show only nomenclatural type material"
-                  persistent-hint
-                  density="compact"
-                />
-              </v-list-item>
-              <v-list-item prepend-icon="mdi-dna">
-                <ClearableSwitch
-                  v-model="search.hasSequences"
-                  class="pl-2"
-                  label="Sequences available"
-                  color-true="primary"
-                  color-false="red"
-                  hint="Show only bio material having registered sequences"
-                  persistent-hint
-                  density="compact"
-                />
-              </v-list-item>
-            </v-list>
-          </v-col>
-        </v-row>
-        <v-divider> </v-divider>
-        <v-list-item>
-          <template #title>
-            <v-switch
-              v-model="search.owned"
-              label="Owned items"
-              color="primary"
-              hint="Restrict the list to elements you contributed"
-              persistent-hint
-              class="ml-2"
-              density="compact"
-            />
-          </template>
-        </v-list-item>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-btn color="primary" text="OK" @click="toggleMenu(false)"></v-btn>
-          <v-spacer></v-spacer>
-          <v-btn color="" text="Clear" @click="search = {}"></v-btn>
-        </v-card-actions>
-      </v-card>
+    <template #menu>
+      <v-row class="ma-0">
+        <v-col cols="12" md="6">
+          <v-list>
+            <v-list-item prepend-icon="mdi-package-variant">
+              <OccurrenceCategorySelect class="mt-1" v-model="search.category" label="Category" />
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-family-tree">
+              <TaxonPicker
+                v-model="search.taxon"
+                item-value="name"
+                label="Assigned taxon"
+                density="compact"
+                class="mt-1"
+                hide-details
+                clearable
+              />
+            </v-list-item>
+          </v-list>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-list density="compact">
+            <v-list-item prepend-icon="mdi-star-four-points">
+              <ClearableSwitch
+                v-model="search.nomenclaturalType"
+                class="pl-2"
+                label="Nomenclatural type"
+                color-true="primary"
+                color-false="red"
+                hint="Show only nomenclatural type material"
+                persistent-hint
+                density="compact"
+              />
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-dna">
+              <ClearableSwitch
+                v-model="search.hasSequences"
+                class="pl-2"
+                label="Sequences available"
+                color-true="primary"
+                color-false="red"
+                hint="Show only bio material having registered sequences"
+                persistent-hint
+                density="compact"
+              />
+            </v-list-item>
+          </v-list>
+        </v-col>
+      </v-row>
     </template>
 
     <template #item.code="{ value, item }: { value: string; item: BioMaterial }">
@@ -246,7 +210,7 @@ type BiomatTableFilters = {
   category?: OccurrenceCategory
   nomenclaturalType?: boolean
   hasSequences?: boolean
-  owned?: boolean
+  taxon?: string
 }
 
 const search = ref<BiomatTableFilters>({})

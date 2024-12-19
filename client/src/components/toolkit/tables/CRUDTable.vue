@@ -5,7 +5,7 @@
       :headers="processedHeaders"
       :items="filteredItems"
       :loading="loading"
-      :search="searchTerm"
+      :search="search.term"
       :filter-keys="filterKeys"
       v-model="selected"
       v-model:sort-by="sortBy"
@@ -16,6 +16,7 @@
       fixed-footer
       hover
       :mobile="mobile ?? xs"
+      :density="mobile ? 'compact' : undefined"
       :items-per-page-options="[5, 10, 15, 20]"
       style="position: relative"
     >
@@ -24,7 +25,7 @@
         <TableToolbar
           ref="toolbar"
           id="table-toolbar"
-          v-model:search="searchTerm"
+          v-model:search="search.term"
           v-bind="toolbar"
           @reload="loadItems().then(() => feedback.show('Data reloaded'))"
         >
@@ -37,7 +38,11 @@
           <template #actions>
             <!-- Toggle item creation form -->
             <v-btn
-              v-if="!!currentUser && isGranted(currentUser, 'Maintainer')"
+              v-if="
+                !!currentUser &&
+                isGranted(currentUser, 'Maintainer') &&
+                hasSlotContent($slots['form'])
+              "
               style="min-width: 30px"
               variant="text"
               color="primary"
@@ -67,7 +72,24 @@
           <!-- Searchbar -->
           <template #search="props">
             <slot name="search" v-bind="props" :toggleMenu :menu-open="menu">
-              <CRUDTableSearchBar v-model="searchTerm" />
+              <CRUDTableSearchBar v-model="search.term" v-if="smAndUp" />
+
+              <v-badge
+                dot
+                :color="
+                  Object.values(search).some((v) => v !== undefined) ? 'success' : 'transparent'
+                "
+                class="mx-1"
+              >
+                <v-btn
+                  color="primary"
+                  variant="tonal"
+                  icon="mdi-menu"
+                  @click="toggleMenu(true)"
+                  :active="menu"
+                  size="small"
+                />
+              </v-badge>
             </slot>
           </template>
         </TableToolbar>
@@ -82,24 +104,34 @@
           attach="#table table"
           :close-on-content-click="false"
         >
-          <slot name="menu" :toggleMenu :menuOpen="menu"> </slot>
+          <v-card rounded="t-0">
+            <v-card-text>
+              <v-inline-search-bar v-model="search.term" label="Search term" />
+            </v-card-text>
+            <slot name="menu" :toggleMenu :menuOpen="menu"> </slot>
+            <v-divider> </v-divider>
+            <v-list-item>
+              <template #title>
+                <v-switch
+                  v-model="search.owned"
+                  label="Owned items"
+                  color="primary"
+                  hint="Restrict the list to elements you contributed"
+                  persistent-hint
+                  class="ml-2"
+                  density="compact"
+                />
+              </template>
+            </v-list-item>
+            <v-divider></v-divider>
+            <v-card-actions>
+              <v-btn color="primary" text="OK" @click="toggleMenu(false)"></v-btn>
+              <v-spacer></v-spacer>
+              <v-btn color="" text="Clear" @click="search = {}"></v-btn>
+            </v-card-actions>
+          </v-card>
         </v-menu>
       </template>
-
-      <!-- Actions column -->
-      <!-- <template #[`header.actions`]>
-        <v-icon title="Actions" icon="mdi-cog" />
-      </template>
-      <template v-if="currentUser !== undefined" #[`item.actions`]="{ item }">
-        <slot name="actions" v-bind="{ actions, show: appendActions, currentUser, item }">
-          <CRUDItemActions
-            v-if="isGranted(currentUser, 'Maintainer') || isOwner(currentUser, item)"
-            :item="item"
-            @edit="actions.edit"
-            @delete="actions.delete"
-          />
-        </slot>
-      </template> -->
 
       <!-- Expose VDataTable slots -->
       <template v-for="(id, index) of slotNames" #[id]="slotData" :key="index">
@@ -151,6 +183,8 @@
                       @click="copyUUID(item)"
                     />
                     <v-spacer />
+
+                    <!-- Item actions -->
                     <template
                       v-if="
                         !!currentUser &&
@@ -158,6 +192,7 @@
                       "
                     >
                       <v-btn
+                        v-if="actions.edit"
                         text="Edit"
                         color="primary"
                         variant="tonal"
@@ -167,6 +202,7 @@
                         @click="actions.edit(item)"
                       />
                       <v-btn
+                        v-if="actions.delete"
                         text="Delete"
                         color="error"
                         variant="tonal"
@@ -199,7 +235,14 @@
   </div>
 </template>
 
-<script setup lang="ts" generic="ItemType extends { id: string; meta?: Meta }">
+<script
+  setup
+  lang="ts"
+  generic="
+    ItemType extends { id: string; meta?: Meta },
+    Filters extends { owned?: boolean; term?: string }
+  "
+>
 import { Meta } from '@/api'
 import { isGranted } from '@/components/people/userRole'
 import { useArrayFilter, useClipboard, useToggle } from '@vueuse/core'
@@ -215,23 +258,23 @@ import MetaChip from '../MetaChip.vue'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
+import { hasSlotContent } from '../vue-utils'
 
 type Props = TableProps<ItemType> & {
   filter?: (item: ItemType) => boolean
   filterKeys?: string | string[]
   mobile?: boolean
-  filterOwned?: boolean
 }
 
-const { xs } = useDisplay()
+const { xs, smAndUp } = useDisplay()
 
-const slots = useSlots()
+const tableSlots = useSlots()
 // Assert type here to prevent errors in template when exposing VDataTable slots
-const slotNames = Object.keys(slots) as 'default'[]
+const slotNames = Object.keys(tableSlots) as 'default'[]
 
 const items = defineModel<ItemType[]>('items', { default: () => reactive([]) })
 const selected = defineModel<string[]>('selected', { default: [] })
-const searchTerm = defineModel<string>('search')
+const search = defineModel<Partial<Filters>>('search', { default: {} })
 const props = withDefaults(defineProps<Props>(), {})
 const emit = defineEmits<{
   itemCreated: [item: ItemType, index: number]
@@ -248,7 +291,7 @@ const [menu, toggleMenu] = useToggle(false)
 
 defineExpose({ form, actions })
 
-defineSlots<
+const slots = defineSlots<
   VDataTable['$slots'] & {
     actions(bind: { actions: typeof actions; item: ItemType; currentUser: typeof currentUser }): any
     search(props: { toggleMenu: typeof toggleMenu; menuOpen: boolean }): any
@@ -275,7 +318,7 @@ function toggleSort(sortKey: string) {
 }
 
 function ownedItemFilter(item: ItemType) {
-  return props.filterOwned && currentUser !== undefined ? isOwner(currentUser, item) : true
+  return search.value.owned && currentUser !== undefined ? isOwner(currentUser, item) : true
 }
 
 const filteredItems = useArrayFilter(items as Ref<ItemType[]>, (item) => {

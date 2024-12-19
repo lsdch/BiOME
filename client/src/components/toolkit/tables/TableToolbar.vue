@@ -19,20 +19,17 @@
       </v-tooltip>
     </template>
 
-    <!-- Expose toolbar append slot -->
-    <template #append>
-      <slot name="append"></slot>
-    </template>
-
     <v-toolbar-title v-if="title !== undefined" style="min-width: 150px" :text="title" />
 
     <slot name="search" />
 
-    <v-spacer />
-
     <slot name="prepend-actions" />
     <slot name="actions" />
     <slot name="append-actions" />
+    <!-- Expose toolbar append slot -->
+    <template #append>
+      <slot name="append" />
+    </template>
 
     <!-- Search bar slot with default searchbar -->
     <template #extension>

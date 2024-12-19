@@ -11,14 +11,58 @@
     :delete="({ code }: Sequence) => SequencesService.deleteSequence({ path: { code } })"
     :mobile="xs"
     :filter
-    :search="search.term"
+    :search="search"
     append-actions
   >
-    <template #search="">
-      <v-inline-search-bar v-model="search.term" label="Search term" class="mx-1" />
-      <OccurrenceCategorySelect v-model="search.category" />
+    <template #menu>
+      <v-row class="ma-0">
+        <v-col cols="12" md="6">
+          <v-list>
+            <v-list-item prepend-icon="mdi-circle-half-full">
+              <OccurrenceCategorySelect v-model="search.category" label="Category" class="mt-1" />
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-family-tree">
+              <TaxonPicker
+                v-model="search.taxon"
+                item-value="name"
+                label="Assigned taxon"
+                class="mt-1"
+                hide-details
+                clearable
+                density="compact"
+              />
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-tag">
+              <GenePicker
+                v-model="search.gene"
+                label="Gene"
+                class="mt-1"
+                hide-details
+                clearable
+                density="compact"
+                item-value="code"
+              />
+            </v-list-item>
+          </v-list>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-list>
+            <v-list-item prepend-icon="mdi-package-variant">
+              <ClearableSwitch
+                v-model="search.hasBiomaterial"
+                class="pl-2"
+                label="Has bio-material parent sample"
+                color-true="primary"
+                color-false="red"
+                hint="Internal sequences always have related bio-material"
+                persistent-hint
+                density="compact"
+              />
+            </v-list-item>
+          </v-list>
+        </v-col>
+      </v-row>
     </template>
-
     <template #item.code="{ value, item }: { value: string; item: Sequence }">
       <span class="d-flex justify-space-between align-center">
         <!-- Using zero-width spaces for better line breaks -->
@@ -123,10 +167,13 @@ import { BioMaterial, Gene, PersonInner, Sequence, SequencesService, SiteInfo, T
 import { DateWithPrecision, ExtSeqOrigin, OccurrenceCategory } from '@/api/adapters'
 import PersonChip from '@/components/people/PersonChip.vue'
 import GeneChip from '@/components/sequences/GeneChip.vue'
+import GenePicker from '@/components/sequences/GenePicker.vue'
 import SeqRefChip from '@/components/sequences/SeqRefChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
+import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
@@ -135,6 +182,9 @@ const { xs, mdAndUp } = useDisplay()
 type SeqTableFilters = {
   term?: string
   category?: OccurrenceCategory
+  hasBiomaterial?: boolean
+  gene?: string
+  taxon?: string
 }
 
 const search = ref<SeqTableFilters>({})
@@ -154,7 +204,14 @@ const headers: CRUDTableHeader[] = [
   {
     children: [
       { key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } },
-      { key: 'gene', title: 'Gene', width: 0 }
+      {
+        key: 'gene',
+        title: 'Gene',
+        width: 0,
+        sort(a: Gene, b: Gene) {
+          return a.code.localeCompare(b.code)
+        }
+      }
     ]
   },
   {
@@ -180,7 +237,7 @@ const headers: CRUDTableHeader[] = [
           return a.name.localeCompare(b.name)
         }
       },
-      { key: 'identification.identified_by', title: 'Done by', align: 'center' },
+      { key: 'identification.identified_by', title: 'Done by', align: 'center', sortable: false },
       {
         key: 'identification.identified_on',
         title: 'Date',

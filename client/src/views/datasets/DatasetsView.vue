@@ -6,18 +6,19 @@
     entity-name="Dataset"
     :toolbar="{ title: 'Datasets', icon: 'mdi-folder-table' }"
   >
-    <template #item.label="{ item }">
+    <template #item.label="{ item }: { item: Dataset }">
       <RouterLink :to="{ name: 'dataset-item', params: { slug: item.slug } }" :text="item.label" />
     </template>
   </CRUDTable>
 </template>
 
 <script setup lang="ts">
-import { DatasetsService } from '@/api'
+import { Dataset, DatasetsService } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader[] = [
   { key: 'label', title: 'Label' },
+  { key: 'description', title: 'Description' },
   {
     key: 'sites',
     title: 'Sites',
