@@ -10,14 +10,28 @@
       title: 'Institutions',
       icon: 'mdi-domain'
     }"
-    :search="filters.term"
+    v-model:search="filters"
     :filter="filter"
     filter-mode="some"
     appendActions
     :filter-keys="['code', 'name', 'kind']"
   >
-    <template #search>
-      <InstitutionFilters v-model="filters" />
+    <template #menu>
+      <v-row class="ma-0">
+        <v-col cols="12" md="6" class="pa-0">
+          <v-list-item>
+            <InstitutionKindPicker
+              v-model="filters.kind"
+              class="mt-1 mb-2"
+              label="Kind"
+              placeholder="Any"
+              density="compact"
+              hide-details
+              clearable
+            />
+          </v-list-item>
+        </v-col>
+      </v-row>
     </template>
     <template #form="{ dialog, editItem, onSuccess, onClose }">
       <InstitutionFormDialog
@@ -82,22 +96,19 @@
 </template>
 
 <script setup lang="ts">
-import { Institution, PeopleService } from '@/api'
+import { Institution, InstitutionKind, PeopleService } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import { enumAsString } from '../toolkit/enums'
-import InstitutionFilters, { Filters } from './InstitutionFilters.vue'
-import InstitutionKindChip from './InstitutionKindChip.vue'
-import { roleIcon } from './userRole'
 import InstitutionFormDialog from './InstitutionFormDialog.vue'
+import InstitutionKindChip from './InstitutionKindChip.vue'
+import InstitutionKindPicker from './InstitutionKindPicker.vue'
+import { roleIcon } from './userRole'
 
 const { mdAndUp } = useDisplay()
 
-const filters = ref<Filters>({
-  term: '',
-  kind: undefined
-})
+const filters = ref<{ term?: string; kind?: InstitutionKind }>({})
 
 const filter = computed(() => {
   return filters.value.kind ? (item: Institution) => item.kind === filters.value.kind : () => true

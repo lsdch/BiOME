@@ -9,7 +9,8 @@ import {
   DateWithPrecision as DateWithPrecisionType,
   Article as TArticle,
   ExtSeqOrigin as TExtSeqOrigin,
-  SeqReference as TSeqReference
+  SeqReference as TSeqReference,
+  InstitutionKind as TInstitutionKind
 } from "./types.gen"
 
 export type CompositeDate = CompositeDateType
@@ -116,5 +117,24 @@ export type SeqReference = TSeqReference
 export namespace SeqReference {
   export function link({ accession, db }: SeqReference) {
     return db.link_template?.replace("{accession}", accession)
+  }
+}
+
+export type InstitutionKind = TInstitutionKind
+export namespace InstitutionKind {
+  export const props: Record<InstitutionKind, { icon: string, color: string }> = {
+    Lab: { icon: 'mdi-flask', color: 'primary' },
+    FundingAgency: { icon: 'mdi-file-certificate', color: 'green' },
+    SequencingPlatform: { icon: 'mdi-dna', color: 'orange' },
+    Other: { icon: 'mdi-home-modern', color: 'grey' }
+  }
+  export function icon(kind: InstitutionKind) {
+    return props[kind].icon
+  }
+  export function color(kind: InstitutionKind) {
+    return props[kind].color
+  }
+  export function humanize(kind: InstitutionKind) {
+    return kind.replace(/([a-z])([A-Z])/g, '$1 $2').trim()
   }
 }

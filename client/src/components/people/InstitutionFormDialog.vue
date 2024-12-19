@@ -26,25 +26,12 @@
           />
         </v-col>
         <v-col cols="12" sm="6">
-          <v-select
+          <InstitutionKindPicker
             v-model="model.kind"
-            :items="institutionKindOptions"
             v-bind="field('kind')"
             label="Kind"
             variant="outlined"
-            :item-props="(item) => ({ title: enumAsString(item) })"
-          >
-            <template #prepend-inner>
-              <v-icon v-bind="kindIcon(model.kind ?? undefined)" />
-            </template>
-            <template #item="{ item, props }">
-              <v-list-item v-bind="props">
-                <template #prepend>
-                  <v-icon v-bind="kindIcon(item.value)" />
-                </template>
-              </v-list-item>
-            </template>
-          </v-select>
+          />
         </v-col>
       </v-row>
       <v-row>
@@ -71,10 +58,9 @@ import {
 } from '@/api'
 import { useToggle } from '@vueuse/core'
 import { computed } from 'vue'
-import { enumAsString } from '../toolkit/enums'
-import FormDialog from '../toolkit/forms/FormDialog.vue'
 import { useForm, useSchema, type FormEmits, type FormProps } from '../toolkit/forms/form'
-import { institutionKindOptions, kindIcon } from './institutionKind'
+import FormDialog from '../toolkit/forms/FormDialog.vue'
+import InstitutionKindPicker from './InstitutionKindPicker.vue'
 
 const dialog = defineModel<boolean>()
 const props = defineProps<FormProps<Institution>>()
