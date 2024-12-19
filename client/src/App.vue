@@ -43,6 +43,24 @@
       @confirm="confirm()"
       @cancel="cancel"
     />
+    <v-bottom-sheet
+      :model-value="true"
+      v-if="!cookiesAccepted"
+      persistent
+      :scrim="false"
+      class="rounded-0"
+      no-click-animation
+    >
+      <v-card flat :rounded="0">
+        <v-alert icon="mdi-information" rounded="0">
+          This website uses cookies to provide a better user experience. We <b>do not track</b> or
+          share your activity.
+          <template #append>
+            <v-btn color="success" text="OK" @click="cookiesAccepted = true" />
+          </template>
+        </v-alert>
+      </v-card>
+    </v-bottom-sheet>
   </v-app>
 </template>
 
@@ -62,6 +80,7 @@ import ConfirmDialog from './components/toolkit/ui/ConfirmDialog.vue'
 import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { useAppConfirmDialog } from './composables/confirm_dialog'
+import { useLocalStorage } from '@vueuse/core'
 
 const loading = ref(false)
 
@@ -103,6 +122,8 @@ client.interceptors.response.use(async (response) => {
   }
   return response
 })
+
+const cookiesAccepted = useLocalStorage('cookies-accepted', false)
 </script>
 
 <style>
