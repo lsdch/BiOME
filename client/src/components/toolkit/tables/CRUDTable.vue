@@ -2,15 +2,15 @@
   <div>
     <v-data-table
       id="table"
-      v-bind="$attrs"
       :headers="processedHeaders"
       :items="filteredItems"
       :loading="loading"
       :search="searchTerm"
       :filter-keys="filterKeys"
-      show-expand
       v-model="selected"
       v-model:sort-by="sortBy"
+      v-bind="$attrs"
+      show-expand
       must-sort
       fixed-header
       fixed-footer
@@ -37,6 +37,7 @@
           <template #actions>
             <!-- Toggle item creation form -->
             <v-btn
+              v-if="!!currentUser && isGranted(currentUser, 'Maintainer')"
               style="min-width: 30px"
               variant="text"
               color="primary"
@@ -212,7 +213,6 @@ import ExportDialog from '../ExportDialog.vue'
 import { isOwner } from '../meta'
 import MetaChip from '../MetaChip.vue'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
-import CRUDItemActions from './CRUDItemActions.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
 
