@@ -16,6 +16,7 @@ tasks:
     cmd: edgedb branch create {{.EMPTY_DB_NAME}}
     status:
       - edgedb branch list | grep "{{.EMPTY_DB_NAME}}"
+    run: once
 
   init-testing:
     desc: "Create testing database branch"
