@@ -7,9 +7,7 @@ const router = useRouter()
 
 <template>
   <div class="d-flex flex-column justify-space-between fill-height">
-    <v-container>
-      <DashBoard />
-    </v-container>
+    <DashBoard />
     <v-footer class="flex-grow-0">
       <v-row justify="center">
         <v-btn variant="text"> About </v-btn>

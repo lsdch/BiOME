@@ -949,6 +949,13 @@ export type Meta = {
 
 export type OccurrenceCategory = 'Internal' | 'External';
 
+export type OccurrenceOverviewItem = {
+    name: string;
+    occurrences: number;
+    parent_name: string;
+    rank: TaxonRank;
+};
+
 export type OptionalArticle = {
     /**
      * A URL to the JSON Schema for this object.
@@ -2405,6 +2412,19 @@ export type CreateEventData = {
 export type CreateEventResponse = (Event);
 
 export type CreateEventError = (ErrorModel);
+
+export type OccurrenceOverviewData = {
+    headers?: {
+        /**
+         * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+         */
+        Authorization?: string;
+    };
+};
+
+export type OccurrenceOverviewResponse = (Array<OccurrenceOverviewItem>);
+
+export type OccurrenceOverviewError = (ErrorModel);
 
 export type ListPersonsData = {
     headers?: {

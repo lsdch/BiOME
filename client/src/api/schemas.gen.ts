@@ -2498,6 +2498,27 @@ export const $OccurrenceCategory = {
     type: 'string'
 } as const;
 
+export const $OccurrenceOverviewItem = {
+    additionalProperties: false,
+    properties: {
+        name: {
+            type: 'string'
+        },
+        occurrences: {
+            format: 'int32',
+            type: 'integer'
+        },
+        parent_name: {
+            type: 'string'
+        },
+        rank: {
+            '$ref': '#/components/schemas/TaxonRank'
+        }
+    },
+    required: ['name', 'parent_name', 'occurrences', 'rank'],
+    type: 'object'
+} as const;
+
 export const $OptionalArticle = {
     additionalProperties: false,
     properties: {

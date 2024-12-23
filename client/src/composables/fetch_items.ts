@@ -27,7 +27,7 @@ export function useFetchItem<T>(fetchItem: () => RequestResult<T, ErrorModel, fa
   return { loading, item, fetch, error }
 }
 
-export function useFetchItems<T>(fetchItems: () => RequestResult<T[], ErrorModel, false>) {
+export function useFetchItems<T>(fetchItems: () => RequestResult<T[], ErrorModel, false>, options = { immediate: false }) {
   const loading = ref<boolean>(true)
 
   const items = ref<T[]>([])
