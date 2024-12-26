@@ -1,8 +1,8 @@
 <template>
   <v-container class="fill-height bg-surface" fluid>
-    <v-row>
+    <v-row class="w-100">
       <v-col cols="12" md="6">
-        <OccurrenceSunburst />
+        <OccurrenceSunburst></OccurrenceSunburst>
       </v-col>
       <v-col cols="12" md="6">
         <v-skeleton-loader class="mx-auto border" max-width="300" type="card-avatar, actions" />
@@ -16,10 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { useInstanceSettings } from '../settings'
 import OccurrenceSunburst from './OccurrenceSunburst.vue'
-
-const { settings } = useInstanceSettings()
 </script>
 
 <style scoped></style>

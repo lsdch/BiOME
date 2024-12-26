@@ -1,99 +1,241 @@
 <template>
-  <v-card title="Occurrence records" prepend-icon="mdi-chart-arc" variant="outlined">
+  <ActivableCardDialog
+    ref="sunburst"
+    title="Occurrences overview"
+    class="fill-height w-100"
+    v-model="fullscreen"
+    fullscreen
+    :min-height="300"
+    max-height="100vh"
+  >
     <template #append>
-      <v-menu :close-on-content-click="false" location="left">
+      <v-menu :close-on-content-click="false" location="bottom" origin="right">
         <template #activator="{ props }">
           <v-btn icon="mdi-cog" variant="plain" color="" v-bind="props"></v-btn>
         </template>
-        <v-list :width="300">
-          <v-list-item>
-            <TaxonRankPicker
-              v-model="settings.maxRank"
-              class="ma-1"
-              label="Max rank"
-              hide-details
+        <v-list :width="600" max-width="100vw">
+          <v-list-item title="Taxonomic scope">
+            <TaxonRankSlider
+              v-model="settings.scope"
+              class="pt-8 px-7"
               density="compact"
+              thumb-label="always"
             />
           </v-list-item>
           <v-list-item>
-            <v-number-input
-              density="compact"
-              class="ma-1"
-              hide-details
-              label="Max depth"
-              v-model="settings.maxDepth"
-              :max="$TaxonRank.enum.length"
-              :min="2"
-              control-variant="default"
-              clearable
-            ></v-number-input>
+            <v-switch
+              label="Use total clade occurrences"
+              v-model="settings.totalByClade"
+              color="primary"
+            ></v-switch>
           </v-list-item>
         </v-list>
       </v-menu>
+      <v-btn
+        color=""
+        :icon="fullscreen ? 'mdi-close' : 'mdi-fullscreen'"
+        @click="toggleFullscreen()"
+      ></v-btn>
     </template>
-    <v-card-text class="d-flex align-center justify-center pa-0" style="min-height: 400px">
-      <div id="occurrence-sunburst">
-        <v-progress-circular v-if="loading" indeterminate size="x-large"></v-progress-circular>
-      </div>
-    </v-card-text>
-  </v-card>
+    <!-- <v-card-text class="fill-height"> -->
+    <VChart class="chart" :option autoresize />
+    <!-- </v-card-text> -->
+  </ActivableCardDialog>
 </template>
 
 <script setup lang="ts">
-import { $TaxonRank, OccurrencesService, TaxonRank } from '@/api'
+import { OccurrencesService } from '@/api'
+import { Taxon, TaxonRank } from '@/api/adapters'
 import { useFetchItems } from '@/composables/fetch_items'
-import { Data, PlotData, newPlot } from 'plotly.js'
+import { useToggle } from '@vueuse/core'
+import { SunburstChart } from 'echarts/charts'
+import { TitleComponent, VisualMapComponent } from 'echarts/components'
+import { use } from 'echarts/core'
+import { SVGRenderer } from 'echarts/renderers'
+import { ECBasicOption, VisualMapComponentOption } from 'echarts/types/dist/shared'
 import { computed, onMounted, ref, watch } from 'vue'
-import TaxonRankPicker from '../taxonomy/TaxonRankPicker.vue'
-import { ranksUpTo } from '../taxonomy/rank'
+import VChart from 'vue-echarts'
+import ActivableCardDialog from '../toolkit/ui/ActivableCardDialog.vue'
+import TaxonRankSlider from './TaxonRankSlider.vue'
 
-const { items, fetch, loading } = useFetchItems(OccurrencesService.occurrenceOverview)
+use([SVGRenderer, TitleComponent, SunburstChart, VisualMapComponent])
 
-const settings = ref<{
-  maxRank: TaxonRank
-  maxDepth?: number
-}>({ maxRank: 'Family' })
+const [fullscreen, toggleFullscreen] = useToggle(false)
 
-const pltData = computed(() => {
-  return items.value.reduce<Data>(
-    (acc, { name, parent_name, occurrences, rank }) => {
-      if (!settings.value.maxRank || ranksUpTo(settings.value.maxRank).includes(rank)) {
-        acc.labels!.push(name)
-        acc.parents!.push(parent_name)
-        acc.values!.push(occurrences)
-      }
-      return acc
-    },
-    {
-      type: 'sunburst',
-      maxdepth: settings.value.maxDepth,
-      labels: [],
-      parents: [],
-      values: [],
-      branchvalues: 'remainder',
-      marker: { line: { width: 2 }, colorscale: 'Viridis' }
-    }
-  )
-})
-
-watch(pltData, (data) => {
-  newPlot(
-    'occurrence-sunburst',
-    [data],
-    {
-      margin: { l: 0, r: 0, b: 0, t: 0 },
-      paper_bgcolor: 'transparent',
-      plot_bgcolor: 'transparent',
-      height: 400,
-      transition: { duration: 100, easing: 'elastic' }
-    },
-    { displaylogo: false, displayModeBar: true }
-  )
+const { items, fetch, loading } = useFetchItems(OccurrencesService.occurrenceOverview, {
+  immediate: true
 })
 
 onMounted(async () => {
   items.value = await fetch()
 })
+const settings = ref<{
+  scope: TaxonRank[]
+  totalByClade: boolean
+}>({
+  scope: ['Order', 'Species'],
+  totalByClade: false
+})
+
+type SunburstData = {
+  name: string
+  children?: SunburstData[]
+  value: [number, number]
+  rank: TaxonRank
+}
+
+type SunburstIndex = Record<string, SunburstData>
+
+const data = ref<SunburstData[]>([])
+watch(items, () => (data.value = buildPlotData()))
+watch(settings, () => (data.value = buildPlotData()), { deep: true })
+
+function buildPlotData() {
+  const itemsByName = items.value.reduce<SunburstIndex>(
+    (acc, { name, occurrences, parent_name, rank }) => {
+      acc[name] = acc[name] ?? {
+        name: Taxon.shortName(name),
+        children: [],
+        value: [occurrences, occurrences]
+      }
+      acc[name].rank = rank
+
+      acc[parent_name] = acc[parent_name] ?? {
+        name: Taxon.shortName(parent_name),
+        children: [],
+        value: [0, 0],
+        rank: TaxonRank.parentRank(rank)
+      }
+      acc[parent_name].children!.push(acc[name])
+
+      return acc
+    },
+    {}
+  )
+  maxOccurrences.value = [0, 0]
+  computeTotalOccurrences(itemsByName.Animalia)
+  return trim([itemsByName.Animalia], settings.value.scope)
+}
+
+// Trims sunburst data to show only the selected ranks
+function trim(data: SunburstData[], [r1, r2]: TaxonRank[]) {
+  const children_updated = data.map((d) => {
+    if (!d.children) return d
+    d.children = trim(d.children, [r1, r2])
+    return d
+  })
+  const trimmed = children_updated.filter(({ rank }) => {
+    return !(TaxonRank.isAscendant(rank, r1) || TaxonRank.isDescendant(rank, r2))
+  })
+  if (trimmed.length === 0) {
+    return children_updated.flatMap(({ children }) => children ?? [])
+  }
+  return trimmed
+}
+
+const maxOccurrences = ref([0, 0])
+
+function computeTotalOccurrences(d: SunburstData) {
+  if (!d.children) return
+  d.children.forEach((v) => computeTotalOccurrences(v))
+  d.value[0] += d.children.reduce<number>((a, b) => a + b.value[0], 0) ?? 0
+  maxOccurrences.value = [
+    Math.max(maxOccurrences.value[0], d.value[0]),
+    Math.max(maxOccurrences.value[1], d.value[1])
+  ]
+}
+
+const visualMap = computed<VisualMapComponentOption>(() => ({
+  min: 0,
+  max: maxOccurrences.value[settings.value.totalByClade ? 0 : 1],
+  text: [maxOccurrences.value[settings.value.totalByClade ? 0 : 1].toString(), '0'],
+  dimension: settings.value.totalByClade ? 0 : 1,
+  top: 'center',
+  left: 0,
+  // Map the score column to color
+  inRange: {
+    color: ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']
+  }
+}))
+
+const option = computed<ECBasicOption>(
+  (): ECBasicOption => ({
+    // title: {
+    //   text: 'Occurrences overview',
+    //   // subtext: 'Source: https://worldcoffeeresearch.org/work/sensory-lexicon/',
+    //   textStyle: {
+    //     fontSize: 14,
+    //     align: 'center'
+    //   },
+    //   subtextStyle: {
+    //     align: 'center'
+    //   }
+    //   // sublink: 'https://worldcoffeeresearch.org/work/sensory-lexicon/'
+    // },
+    visualMap: visualMap.value,
+    series: {
+      type: 'sunburst',
+      data: data.value,
+      radius: [0, '70%'],
+      sort: undefined,
+      emphasis: {
+        focus: 'ancestor'
+      },
+      levels: [
+        {
+          label: {
+            rotate: 'tangential'
+          }
+        },
+        {
+          label: {
+            rotate: 'tangential'
+          }
+        },
+        {
+          label: {
+            rotate: 'tangential'
+          }
+        },
+        {
+          label: {
+            rotate: 'tangential'
+          }
+        },
+        {
+          label: {
+            rotate: 'tangential'
+          }
+        },
+        {
+          // itemStyle: {
+          //   borderWidth: 2
+          // },
+          label: {
+            rotate: 'tangential'
+          }
+        },
+        {
+          label: {
+            rotate: 'tangential'
+          }
+        },
+        {
+          // r0: '70%',
+          // r: '72%',
+          label: {
+            position: 'outside',
+            padding: 3,
+            silent: false
+          },
+          itemStyle: {
+            borderWidth: 3
+          }
+        }
+      ]
+    }
+  })
+)
 </script>
 
 <style scoped lang="scss"></style>

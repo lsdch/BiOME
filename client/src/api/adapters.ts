@@ -10,8 +10,11 @@ import {
   Article as TArticle,
   ExtSeqOrigin as TExtSeqOrigin,
   SeqReference as TSeqReference,
-  InstitutionKind as TInstitutionKind
+  InstitutionKind as TInstitutionKind,
+  Taxon as TTaxon,
+  TaxonRank as TTaxonRank
 } from "./types.gen"
+import { $TaxonRank } from "./schemas.gen"
 
 export type CompositeDate = CompositeDateType
 export namespace CompositeDate {
@@ -136,5 +139,47 @@ export namespace InstitutionKind {
   }
   export function humanize(kind: InstitutionKind) {
     return kind.replace(/([a-z])([A-Z])/g, '$1 $2').trim()
+  }
+}
+
+export type TaxonRank = TTaxonRank
+export namespace TaxonRank {
+  const taxonRankOrder = Object.fromEntries($TaxonRank.enum.map((rank, i) => [rank, i])) as { [k in TaxonRank]: number }
+
+  export function index(rank: TaxonRank) {
+    return taxonRankOrder[rank]
+  }
+
+  export function isDescendant(rank: TaxonRank, from: TaxonRank) {
+    return index(rank) > index(from)
+  }
+
+  export function isAscendant(rank: TaxonRank, of: TaxonRank) {
+    return index(rank) < index(of)
+  }
+
+  export function parentRank(rank: TaxonRank): TaxonRank | undefined {
+    return $TaxonRank.enum[index(rank) - 1]
+  }
+
+  export function childRank(rank: TaxonRank): TaxonRank | undefined {
+    return $TaxonRank.enum[index(rank) + 1]
+  }
+
+  export function ranksUpTo(rank: TaxonRank): TaxonRank[] {
+    return $TaxonRank.enum.slice(index(rank))
+  }
+
+  export function ranksDownTo(rank: TaxonRank): TaxonRank[] {
+    return $TaxonRank.enum.slice(0, index(rank) + 1)
+  }
+
+}
+
+export type Taxon = TTaxon
+export namespace Taxon {
+  export function shortName(name: string) {
+    const [n, ...rest] = name.split(' ')
+    return rest.length ? `${n[0]}. ${rest.join(' ')}` : n
   }
 }
