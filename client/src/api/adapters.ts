@@ -13,8 +13,10 @@ import {
   InstitutionKind as TInstitutionKind,
   Taxon as TTaxon,
   TaxonRank as TTaxonRank
-} from "./types.gen"
-import { $TaxonRank } from "./schemas.gen"
+} from "./gen/types.gen"
+import { $TaxonRank } from "./gen/schemas.gen"
+
+export * from "./gen/types.gen"
 
 export type CompositeDate = CompositeDateType
 export namespace CompositeDate {

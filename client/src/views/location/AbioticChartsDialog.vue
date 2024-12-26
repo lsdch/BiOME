@@ -4,6 +4,8 @@
       <v-select
         label="Parameter"
         v-model="item"
+        class="mt-1"
+        density="compact"
         :items="abiotic_data"
         item-title="param.label"
         return-object

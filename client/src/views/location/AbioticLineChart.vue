@@ -1,11 +1,26 @@
 <template>
-  <div id="abiotic-chart" class="abiotic-chart w-100"></div>
+  <div class="w-100">
+    <VChart class="chart" :option autoresize :init-options="{ height: 400 }" />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { AbioticParameter } from '@/api'
-import Plotly, { Config, Data, Datum, Layout, PlotData } from 'plotly.js'
-import { onMounted, ref, watch } from 'vue'
+import { AbioticParameter } from '@/api/'
+import { LineChart } from 'echarts/charts'
+import {
+  GridComponent,
+  TitleComponent,
+  TooltipComponent,
+  VisualMapComponent
+} from 'echarts/components'
+import { use } from 'echarts/core'
+import { SVGRenderer } from 'echarts/renderers'
+import { ECBasicOption } from 'echarts/types/dist/shared'
+import { DateTime } from 'luxon'
+import { computed } from 'vue'
+import VChart from 'vue-echarts'
+
+use([SVGRenderer, TitleComponent, LineChart, VisualMapComponent, GridComponent, TooltipComponent])
 
 export type AbioticDataPoint = {
   date: Date
@@ -19,101 +34,43 @@ export type AbioticData = {
 
 const props = defineProps<{ data: AbioticData }>()
 
-const config: Partial<Config> = {
-  responsive: true,
-  displayModeBar: false,
-  displaylogo: false,
-
-  modeBarButtonsToRemove: [
-    'sendDataToCloud',
-    'lasso2d',
-    'select2d',
-    'pan2d',
-    'zoom2d',
-    'zoomIn2d',
-    'zoomOut2d',
-    'autoScale2d',
-    'resetScale2d'
-  ]
-}
-
-function makePlotData(data: AbioticData): { data: Partial<Data>; layout: Partial<Layout> } {
+const option = computed<ECBasicOption>(() => {
   return {
-    data: data.points.reduce<Partial<PlotData>>(
-      (acc, { date, y }) => {
-        ;(acc.x as Datum[]).push(date)
-        ;(acc.y as Datum[]).push(y)
-
-        return acc
-      },
-      {
-        x: [],
-        y: [],
-        type: 'scatter'
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: {
+        type: 'cross'
       }
-    ),
-    layout: {
-      title: data.param.label,
-      xaxis: {
-        showline: true,
-        gridcolor: 'grey',
-        tickformat: '%d %b %Y'
-      },
-      yaxis: {
-        title: {
-          text: data.param.unit,
-          font: { weight: 800 }
+    },
+    xAxis: [
+      {
+        type: 'time',
+        position: 'bottom',
+        splitLine: {
+          show: false
         },
-        gridcolor: 'grey',
-        showline: true
-        // ticksuffix: ` ${data.param.unit}`
-      },
-      paper_bgcolor: 'rgba(0,0,0,0)',
-      plot_bgcolor: 'rgba(0,0,0,0)',
-      margin: { b: 40, l: 40, r: 10, t: 30 }
-    }
+        axisLabel: {
+          formatter(dateMs: number) {
+            return DateTime.fromMillis(dateMs).toFormat('dd\nLLL\nyyyy')
+          }
+        }
+      }
+    ],
+    yAxis: {
+      type: 'value',
+      splitLine: {
+        show: false
+      }
+    },
+    series: [
+      {
+        type: 'line',
+        showSymbol: true,
+        data: props.data.points.map(({ date, y }) => [date, y])
+      }
+    ]
   }
-}
-
-onMounted(() => {
-  const { data, layout } = makePlotData(props.data)
-  Plotly.newPlot('abiotic-chart', [data], layout, config)
 })
-
-watch(
-  () => props.data,
-  (d) => {
-    console.log('TOGGLE')
-    const { data, layout } = makePlotData(d)
-    Plotly.react('abiotic-chart', [data], layout)
-  },
-  { deep: true }
-)
-
-// const options: _DeepPartialObject<
-//   CoreChartOptions<'line'> &
-//     ElementChartOptions<'line'> &
-//     PluginChartOptions<'line'> &
-//     DatasetChartOptions<'line'> &
-//     ScaleChartOptions<'line'> &
-//     LineControllerChartOptions
-// > = {
-//   borderColor: '#08A1C3',
-//   backgroundColor: '#08A1C3',
-//   layout: {
-//     padding: 20
-//   },
-//   scales: {
-//     y: {
-//       // beginAtZero: true,
-//       ticks: {
-//         callback(value) {
-//           return `${value} °C`
-//         }
-//       }
-//     }
-//   }
-// }
 </script>
 
 <style lang="scss">

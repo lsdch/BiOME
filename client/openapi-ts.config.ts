@@ -1,20 +1,22 @@
-import { UserConfig, defineConfig } from "@hey-api/openapi-ts"
+import { UserConfig, defineConfig, defaultPlugins } from "@hey-api/openapi-ts"
 
 const config: UserConfig = defineConfig({
   client: "@hey-api/client-fetch",
   input: "./openapi.json",
   output: {
-    path: "src/api",
+    path: "src/api/gen/",
     format: "prettier",
     lint: "eslint",
   },
   plugins: [
+    ...defaultPlugins,
     {
       name: "@hey-api/schemas",
       nameBuilder(name, schema) {
         return `$${name}`
       },
     },
+    '@hey-api/transformers',
     {
       name: "@hey-api/typescript",
       style: "PascalCase"
@@ -22,6 +24,7 @@ const config: UserConfig = defineConfig({
     {
       name: "@hey-api/sdk",
       asClass: true,
+      transformer: true,
     },
     { name: "@hey-api/transformers", dates: true },
   ],

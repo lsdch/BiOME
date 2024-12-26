@@ -1,12 +1,12 @@
 import { ErrorDetail, ErrorModel } from "@/api"
 import { handleErrors, ResponseBody } from "@/api/responses"
-import * as Schemas from "@/api/schemas.gen"
+import * as Schemas from "@/api/gen/schemas.gen"
 import { useCountries } from "@/stores/countries"
 import { List, Union } from "ts-toolbelt"
 import { reactive, ref } from "vue"
 
 
-type SchemaModule = typeof import("@/api/schemas.gen")
+type SchemaModule = typeof import("@/api/gen/schemas.gen")
 
 type SchemaRefs = keyof SchemaModule extends `$${infer U}` ? `#/components/schemas/${U}` : never
 

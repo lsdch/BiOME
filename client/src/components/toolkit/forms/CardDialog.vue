@@ -21,11 +21,11 @@
         </template>
       </v-toolbar> -->
       <template
-        v-for="(id, index) of Object.keys(slots).filter((k) => k !== 'append')"
-        #[id]="slotData"
+        v-for="(name, index) of Object.keys($slots).filter((k) => k !== 'append')"
+        #[name]="slotData"
         :key="index"
       >
-        <slot :name="id" v-bind="slotData ?? {}" />
+        <slot :name v-bind="slotData ?? {}" />
       </template>
       <template #append>
         <slot name="append" />
@@ -44,7 +44,6 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, useSlots } from 'vue'
 import { useDisplay } from 'vuetify'
 import { VDialog } from 'vuetify/components'
 
@@ -68,11 +67,6 @@ function close() {
   dialog.value = false
   emit('close')
 }
-
-const slots = useSlots()
-onBeforeMount(() => {
-  if (!slots.default) console.error('No content provided in CardDialog slot.')
-})
 </script>
 
 <style scoped></style>
