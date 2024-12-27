@@ -9,11 +9,11 @@
     max-height="100vh"
   >
     <template #append>
-      <v-menu :close-on-content-click="false" location="bottom" origin="right">
+      <v-menu :close-on-content-click="false" location="bottom" origin="top center">
         <template #activator="{ props }">
           <v-btn icon="mdi-cog" variant="plain" color="" v-bind="props"></v-btn>
         </template>
-        <v-list :width="600" max-width="100vw">
+        <v-list :width="300" max-width="100vw">
           <v-list-item title="Taxonomic scope">
             <TaxonRankSlider
               v-model="settings.scope"
@@ -152,6 +152,9 @@ const visualMap = computed<VisualMapComponentOption>(() => ({
   dimension: settings.value.totalByClade ? 0 : 1,
   top: 'center',
   left: 0,
+  textStyle: {
+    color: 'rgb(var(--v-theme-on-surface))'
+  },
   // Map the score column to color
   inRange: {
     color: ['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']
