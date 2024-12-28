@@ -185,12 +185,12 @@ func (u SamplingUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Samplin
 			"methods": `#edgeql
 				(
 					select events::SamplingMethod
-					filter .label in <str>json_array_unpack(json_get(data, 'methods'))
+					filter .code in <str>json_array_unpack(json_get(data, 'methods'))
 				)`,
 			"fixatives": `#edgeql
 				(
 					select samples::Fixative
-					filter .label in <str>json_array_unpack(json_get(data, 'fixatives'))
+					filter .code in <str>json_array_unpack(json_get(data, 'fixatives'))
 				)`,
 			"sampling_duration": "<int32>json_get(data, 'duration')",
 			"comments":          "<str>json_get(data, 'comments')",

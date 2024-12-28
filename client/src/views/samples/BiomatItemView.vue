@@ -238,6 +238,12 @@
     v-model="samplingEdit"
     :edit="item.sampling"
     :event="item.event"
+    @updated="
+      (sampling) => {
+        item!.sampling = sampling
+        toggleSamplingEdit(false)
+      }
+    "
   />
 </template>
 
