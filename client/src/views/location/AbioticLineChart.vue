@@ -58,6 +58,9 @@ const option = computed<ECBasicOption>(() => {
     ],
     yAxis: {
       type: 'value',
+      axisLabel: {
+        formatter: `{value} ${props.data.param.unit}`
+      },
       splitLine: {
         show: false
       }
