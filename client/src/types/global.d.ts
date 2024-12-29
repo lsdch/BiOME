@@ -16,12 +16,12 @@ declare global {
 
   type DataTableHeader = UnwrapReadonlyArray<ReadonlyHeaders>
 
-  type CRUDTableHeader<Item = never> = Omit<DataTableHeader, 'filter'> & {
+  type CRUDTableHeader<Item extends {} = Unknown> = Omit<DataTableHeader, 'filter' | 'key'> & {
     // Allow filtering using any value type instead of string only
     // See original definition of FilterFunction type:
     // https://github.com/vuetifyjs/vuetify/blob/21241e1762734f639b4ee421e00735d3754181c8/packages/vuetify/src/composables/filter.ts#L19-L19
-    readonly filter?: (value: any, query: string, item?: any) => boolean
-
+    readonly filter?: (value: any, query: string, item?: Item) => boolean
+    key?: Exclude<(keyof Item), "$schema"> | DataTableHeader['key'];
     hide?: Ref<boolean>
   };
   type CRUDTableHeaders = CRUDTableHeader[]

@@ -3,7 +3,7 @@ import { useAppConfirmDialog } from "@/composables/confirm_dialog"
 import { useUserStore } from "@/stores/user"
 import { RequestResult } from "@hey-api/client-fetch"
 import { HttpStatusCode } from "axios"
-import { MaybeRef, ModelRef, computed, onMounted, ref, triggerRef } from "vue"
+import { ComputedRef, MaybeRef, ModelRef, computed, onMounted, ref, triggerRef } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
 
@@ -36,7 +36,7 @@ export type ToolbarProps = {
   onReload?: Function
 }
 
-export type TableProps<ItemType> = {
+export type TableProps<ItemType extends {}> = {
   /**
    * Entity name to display as title
    */
@@ -44,7 +44,7 @@ export type TableProps<ItemType> = {
   /**
    * Datatable headers definition
    */
-  headers: CRUDTableHeader[]
+  headers: CRUDTableHeader<ItemType>[]
   /**
    * Table toolbar configuration
    */
@@ -98,11 +98,11 @@ export function useTable<ItemType extends { id: string }>(
     onClose: () => { }
   })
 
-  const processedHeaders = computed((): CRUDTableHeader[] => {
+  const processedHeaders = computed((): CRUDTableHeader<ItemType>[] => {
     return props.headers.filter(({ hide }) => {
       return !hide?.value
     })
-  })
+  }) as ComputedRef<DataTableHeader[]>
 
   const loading = ref(props.fetchItems !== undefined)
   const loadingFailed = ref(false)

@@ -167,10 +167,10 @@
             <td :colspan="columns.length" class="px-0">
               <div class="d-flex flex-column h-auto">
                 <div class="flex-grow-1">
-                  <slot name="expanded-row-inject" v-bind="{ item }"> </slot>
+                  <slot name="expanded-row-inject" :item> </slot>
                   <v-divider v-show="$slots['expanded-row-inject']" />
                 </div>
-                <slot name="expanded-row-footer" v-bind="{ item }">
+                <slot name="expanded-row-footer" :item>
                   <div class="d-flex flex-wrap align-center">
                     <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" />
                     <v-btn
