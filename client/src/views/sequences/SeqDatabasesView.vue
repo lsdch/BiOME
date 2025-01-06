@@ -39,11 +39,11 @@
 </template>
 
 <script setup lang="ts">
-import { SequencesService } from '@/api'
+import { SeqDb, SequencesService } from '@/api'
 import SeqDBFormDialog from '@/components/sequences/SeqDBFormDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<SeqDb>[] = [
   { key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } },
   { key: 'label', title: 'Label' }
 ]
