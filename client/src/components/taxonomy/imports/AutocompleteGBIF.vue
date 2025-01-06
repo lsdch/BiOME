@@ -29,7 +29,6 @@
 </template>
 
 <script setup lang="ts">
-import axios from 'axios'
 import { ref, watch } from 'vue'
 import { endpointGBIF } from '.'
 import { TaxonRank } from '@/api'
@@ -59,14 +58,17 @@ const excludedRanks = ['FORM', 'VARIETY', 'UNRANKED']
 watch(searchTerm, async (val: string) => {
   if (val.length >= 3) {
     loading.value = true
-    let response = await axios.get<Item[]>(endpointGBIF('suggest'), {
-      params: {
-        q: val,
-        rank: props.rank !== 'Any' ? props.rank : undefined,
-        status: 'ACCEPTED'
-      }
-    })
-    autocompleteItems.value = response.data.filter(({ rank }) => !excludedRanks.includes(rank))
+    let response = await fetch(
+      endpointGBIF('suggest', {
+        query: {
+          q: val,
+          rank: props.rank !== 'Any' ? props.rank : undefined,
+          status: 'ACCEPTED'
+        }
+      }).toString()
+    )
+    let json: Item[] = await response.json()
+    autocompleteItems.value = json.filter(({ rank }) => !excludedRanks.includes(rank))
     loading.value = false
   } else {
     autocompleteItems.value = []

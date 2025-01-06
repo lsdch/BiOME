@@ -2,7 +2,7 @@ import { ErrorModel } from "@/api"
 import { useAppConfirmDialog } from "@/composables/confirm_dialog"
 import { useUserStore } from "@/stores/user"
 import { RequestResult } from "@hey-api/client-fetch"
-import { HttpStatusCode } from "axios"
+import { StatusCodes } from "http-status-codes"
 import { ComputedRef, MaybeRef, ModelRef, computed, onMounted, ref, triggerRef } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
@@ -220,16 +220,16 @@ export function useTable<ItemType extends { id: string }>(
       const { error } = await props.delete(item)
       if (error != undefined) {
         switch (error.status) {
-          case HttpStatusCode.NotFound:
+          case StatusCodes.NOT_FOUND:
             feedback.value.show('Deletion failed: record not found.', 'error')
             break
-          case HttpStatusCode.BadRequest:
+          case StatusCodes.BAD_REQUEST:
             feedback.value.show(`Deletion was not allowed: ${error.detail}`, 'error')
             break
-          case HttpStatusCode.Forbidden:
+          case StatusCodes.FORBIDDEN:
             feedback.value.show('You are not granted rights to modify this item.', 'error')
             break
-          case HttpStatusCode.InternalServerError:
+          case StatusCodes.INTERNAL_SERVER_ERROR:
             feedback.value.show('An unexpected error occurred.', 'error')
         }
         return undefined

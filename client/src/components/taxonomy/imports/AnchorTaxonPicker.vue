@@ -78,7 +78,7 @@
         v-if="postError"
         type="error"
         title="Invalid taxon provided as anchor"
-        :text="postError.message"
+        :text="postError.detail"
       />
     </v-card-text>
     <v-card-actions>
@@ -96,14 +96,8 @@
 </template>
 
 <script setup lang="ts">
-import type { Ref } from 'vue'
-import { ref } from 'vue'
-
-import axios, { AxiosError } from 'axios'
-
-import { watch } from 'vue'
-
-import { $TaxonRank, TaxonRank, TaxonomyGbifService } from '@/api'
+import { ref, watch } from 'vue'
+import { $TaxonRank, ErrorModel, TaxonRank, TaxonomyGbifService } from '@/api'
 import { endpointGBIF } from '.'
 import LinkIconGBIF from '../LinkIconGBIF.vue'
 import AutocompleteGBIF from './AutocompleteGBIF.vue'
@@ -131,31 +125,26 @@ const loadingTaxon = ref(false)
 
 const emit = defineEmits<{ (event: 'close'): void }>()
 
-const postError = ref<AxiosError>()
+const postError = ref<ErrorModel>()
 
 async function importAnchorTaxon(taxon: TaxonGBIF) {
-  try {
-    await TaxonomyGbifService.importGbif({
-      body: {
-        key: taxon.key,
-        children: importDescendants.value
-      }
-    })
-    emit('close')
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      postError.value = error
+  const { error } = await TaxonomyGbifService.importGbif({
+    body: {
+      key: taxon.key,
+      children: importDescendants.value
     }
+  })
+  if (error) {
+    postError.value = error
   }
+  emit('close')
 }
 
 watch(targetTaxon, async (taxon) => {
   if (taxon) {
     loadingTaxon.value = true
-    let response = await axios.get<TaxonGBIF & Record<string, unknown>>(
-      endpointGBIF(taxon.key.toString())
-    )
-    let info = response.data
+    let response = await fetch(endpointGBIF(taxon.key.toString()))
+    let info: TaxonGBIF & Record<string, unknown> = await response.json()
     info.path = $TaxonRank.enum
       .filter((rank) => rank.toLowerCase() in info)
       .map((rank) => {
