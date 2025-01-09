@@ -1,9 +1,6 @@
 import { Taxon, Taxonomy, TaxonRank } from "@/api";
 import { createEventHook, useEventBus, useLocalStorage } from "@vueuse/core";
 import { nextTick, reactive, Reactive, ref, ToRefs, toRefs } from "vue";
-import { childRank, parentRank } from "./rank";
-import { useRouteHash } from "@vueuse/router";
-import { useRoute, useRouter } from "vue-router";
 
 
 export const maxRankDisplay = useLocalStorage<TaxonRank>('max-taxon-rank', 'Kingdom')
@@ -103,14 +100,14 @@ const { emit: emitUnfold, on: onUnfold } = useEventBus<TaxonRank>('unfold')
 export function useRankFoldState() {
 
   function fold(rank: TaxonRank) {
-    const child = childRank(rank)
+    const child = TaxonRank.childRank(rank)
     if (child) fold(child)
     rankFoldState.value[rank] = false
     emitFold(rank)
   }
 
   function unfold(rank: TaxonRank) {
-    const parent = parentRank(rank)
+    const parent = TaxonRank.parentRank(rank)
     if (parent) unfold(parent)
     rankFoldState.value[rank] = true
     emitUnfold(rank)

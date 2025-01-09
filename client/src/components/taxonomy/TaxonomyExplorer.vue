@@ -43,7 +43,7 @@
       <!-- HEADERS -->
       <div
         v-for="{ rank } in headers.filter(
-          ({ rank }) => rank == maxRankDisplay || isDescendant(rank, maxRankDisplay)
+          ({ rank }) => rank == maxRankDisplay || TaxonRank.isDescendant(rank, maxRankDisplay)
         )"
         :key="rank"
         :style="{ 'grid-column': rank }"
@@ -56,7 +56,7 @@
           size="small"
           rounded="100"
           color="primary"
-          @click="rank == 'Subspecies' ? unfold(parentRank(rank)!) : toggleFold(rank)"
+          @click="rank == 'Subspecies' ? unfold(TaxonRank.parentRank(rank)!) : toggleFold(rank)"
         >
           {{ countsByRank[rank] }}
           <template #append>
@@ -120,12 +120,11 @@ import {
 import { handleErrors } from '@/api/responses'
 import { refDebounced } from '@vueuse/core'
 import { useRouteHash } from '@vueuse/router'
-import { computed, nextTick, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import {
   maxRankDisplay,
   scrollToTaxon,
-  showTaxon,
   useRankFoldState,
   useTaxonFoldState,
   useTaxonSelection
@@ -133,12 +132,10 @@ import {
 import IconGBIF from '../icons/IconGBIF.vue'
 import TableToolbar from '../toolkit/tables/TableToolbar.vue'
 import { FTaxaNestedList } from './functionals'
-import { isAscendant, isDescendant, parentRank } from './rank'
 import StatusPicker from './StatusPicker.vue'
 import TaxonCard from './TaxonCard.vue'
 import TaxonFormDialog from './TaxonFormDialog.vue'
 import TaxonRankPicker from './TaxonRankPicker.vue'
-import { useRoute, useRouter } from 'vue-router'
 
 const { smAndDown } = useDisplay()
 
@@ -270,7 +267,7 @@ const templateColumns = computed(() => {
   return $TaxonRank.enum
     .reduce((acc, rank) => {
       const name = `[${rank}${rank == 'Kingdom' ? ' start' : ''}]`
-      return `${acc} ${name} ${isAscendant(rank, maxRankDisplay.value) ? '0px' : 'auto'}`
+      return `${acc} ${name} ${TaxonRank.isAscendant(rank, maxRankDisplay.value) ? '0px' : 'auto'}`
     }, '')
     .concat(' [end]')
 })

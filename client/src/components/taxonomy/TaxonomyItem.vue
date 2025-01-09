@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="!isAscendant(item.rank, maxRankDisplay)"
+    v-if="!TaxonRank.isAscendant(item.rank, maxRankDisplay)"
     class="taxon-item-container"
     ref="container"
     :style="{ 'grid-column': item.rank }"
@@ -34,13 +34,11 @@
 </template>
 
 <script setup lang="ts">
-import { Taxonomy } from '@/api'
+import { Taxonomy, TaxonRank } from '@/api'
 import { useElementVisibility } from '@vueuse/core'
-import { computed, nextTick, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { maxRankDisplay, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
 import { FTaxaNestedList, FTaxonStatusIndicator } from './functionals'
-import { isAscendant } from './rank'
-import { onMounted } from 'vue'
 
 const props = defineProps<{ item: Taxonomy }>()
 
@@ -66,7 +64,7 @@ onRankUnfold((rank) => {
 })
 
 watch(maxRankDisplay, (rank) => {
-  if (isAscendant(props.item.rank, rank)) {
+  if (TaxonRank.isAscendant(props.item.rank, rank)) {
     expanded.value = true
   }
 })

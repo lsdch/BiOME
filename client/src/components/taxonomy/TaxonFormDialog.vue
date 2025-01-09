@@ -18,7 +18,7 @@
             @update:modelValue="
               (parent: Taxon) => {
                 model.parent = parent.code
-                model.rank = childRank(parent.rank)!
+                model.rank = TaxonRank.childRank(parent.rank)!
               }
             "
           />
@@ -75,13 +75,19 @@
 </template>
 
 <script setup lang="ts">
-import { $TaxonInput, Taxon, TaxonInput, TaxonWithRelatives, TaxonomyService } from '@/api'
+import {
+  $TaxonInput,
+  Taxon,
+  TaxonInput,
+  TaxonRank,
+  TaxonWithRelatives,
+  TaxonomyService
+} from '@/api'
 import { useToggle } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify'
 import { useSchema, type FormEmits, type FormProps } from '../toolkit/forms/form'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { childRank } from './rank'
 import StatusPicker from './StatusPicker.vue'
 import TaxonPicker from './TaxonPicker.vue'
 
@@ -111,7 +117,7 @@ watch(
   () => props.parent,
   (parent) => {
     if (parent !== undefined) {
-      model.value.rank = childRank(parent.rank)!
+      model.value.rank = TaxonRank.childRank(parent.rank)!
       model.value.parent = parent.code
     }
   },
