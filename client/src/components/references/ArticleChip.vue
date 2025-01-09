@@ -1,5 +1,11 @@
 <template>
-  <v-menu location="top start" origin="top start" transition="scale-transition">
+  <v-menu
+    location="top start"
+    origin="top start"
+    transition="scale-transition"
+    :open-on-focus="false"
+    open-on-click
+  >
     <template #activator="{ props }">
       <v-chip
         :text="Article.toString(article)"
@@ -34,7 +40,6 @@
 </template>
 
 <script setup lang="ts">
-import UserRoleIcon from '../icons/UserRoleIcon.vue'
 import { Article } from '@/api/adapters'
 
 defineProps<{ article: Article }>()
