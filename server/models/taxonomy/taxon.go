@@ -15,6 +15,11 @@ import (
 	"github.com/edgedb/edgedb-go"
 )
 
+// TaxonCode generates a code from a taxon name, replacing spaces with underscores.
+func TaxonCode(name string) string {
+	return strings.ReplaceAll(name, " ", "_")
+}
+
 type TaxonInner struct {
 	Name   string      `edgedb:"name" json:"name" example:"Asellus aquaticus" binding:"required,alpha"`
 	Status TaxonStatus `edgedb:"status" json:"status" example:"Accepted" binding:"required"`
