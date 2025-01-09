@@ -25,7 +25,7 @@ type UpdateQuery struct {
 	Mappings map[string]string
 }
 
-func (q UpdateQuery) structFragments(itemValue reflect.Value, jsonPath ...string) []string {
+func (q UpdateQuery) structFragments(itemValue reflect.Value) []string {
 	var fragments []string
 	itemType := itemValue.Type()
 	for i := range itemType.NumField() {
