@@ -29,7 +29,7 @@
   </v-autocomplete>
 </template>
 
-<script setup lang="ts" generic="ModelValue extends unknown[] | null | undefined">
+<script setup lang="ts" generic="ModelValue extends unknown | unknown[] | null | undefined">
 import { PeopleService, Person, UserRole } from '@/api'
 import { handleErrors } from '@/api/responses'
 import { computed, onMounted, ref } from 'vue'
