@@ -31,47 +31,33 @@
 
 <script setup lang="ts" generic="ModelValue extends unknown | unknown[] | null | undefined">
 import { PeopleService, Person, UserRole } from '@/api'
-import { handleErrors } from '@/api/responses'
-import { computed, onMounted, ref } from 'vue'
+import { useFetchItems } from '@/composables/fetch_items'
+import { computed } from 'vue'
 import { isGranted } from './userRole'
 
 const model = defineModel<ModelValue>()
-const loading = defineModel<boolean>('loading', { default: true })
 
-const props = defineProps<{
+const { restrict } = defineProps<{
   multiple?: boolean
   label: string
   itemValue?: keyof Person
   // Filter items by user role or account assignation
-  users?: boolean | UserRole
+  restrict?: 'users' | 'unregistered' | UserRole
 }>()
 
-const allPersons = ref<Person[]>([])
-
-onMounted(async () => (allPersons.value = await fetch()))
-
-async function fetch() {
-  loading.value = true
-  return (
-    (await PeopleService.listPersons()
-      .then(
-        handleErrors((err) => {
-          console.error('Failed to fetch persons: ', err)
-        })
-      )
-      .finally(() => (loading.value = false))) ?? []
-  )
-}
+const { items: allPersons, loading } = useFetchItems(PeopleService.listPersons)
 
 const items = computed(() => {
-  if (props.users === undefined) {
-    return allPersons.value
+  switch (restrict) {
+    case undefined:
+      return allPersons.value
+    case 'users':
+      return allPersons.value.filter(({ user }) => user)
+    case 'unregistered':
+      return allPersons.value.filter(({ user }) => !user)
+    default:
+      return allPersons.value.filter(({ user }) => user && isGranted(user, restrict))
   }
-  return props.users
-    ? allPersons.value?.filter(
-        ({ user }) => user && (props.users === true || isGranted(user, props.users as UserRole))
-      )
-    : allPersons.value?.filter(({ user }) => !user)
 })
 </script>
 

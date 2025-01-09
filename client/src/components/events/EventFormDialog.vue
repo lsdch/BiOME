@@ -13,7 +13,6 @@
             v-model="model.performed_by"
             item-value="alias"
             multiple
-            :users="undefined"
           />
         </v-col>
       </v-row>

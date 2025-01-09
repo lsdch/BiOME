@@ -7,7 +7,7 @@
     </v-row>
     <v-row>
       <v-col>
-        <PersonPicker label="Identity" :searchValue="pending?.full_name" :users="false" />
+        <PersonPicker label="Identity" :searchValue="pending?.full_name" restrict="unregistered" />
       </v-col>
       <v-col>
         <UserRolePicker v-model="model.role" />
