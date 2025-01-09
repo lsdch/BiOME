@@ -33,7 +33,6 @@
 import { PeopleService, Person, UserRole } from '@/api'
 import { useFetchItems } from '@/composables/fetch_items'
 import { computed } from 'vue'
-import { isGranted } from './userRole'
 
 const model = defineModel<ModelValue>()
 
@@ -56,7 +55,7 @@ const items = computed(() => {
     case 'unregistered':
       return allPersons.value.filter(({ user }) => !user)
     default:
-      return allPersons.value.filter(({ user }) => user && isGranted(user, restrict))
+      return allPersons.value.filter(({ user }) => user && UserRole.isGranted(user, restrict))
   }
 })
 </script>

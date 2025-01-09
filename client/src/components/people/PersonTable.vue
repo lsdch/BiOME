@@ -36,7 +36,7 @@
     </template>
 
     <template #[`item.role`]="{ value }">
-      <v-icon v-bind="roleIcon(value)" size="x-small" :title="value" />
+      <UserRole.Icon :role="value" size="x-small" :title="value" />
     </template>
 
     <template #[`item.alias`]="{ value }">
@@ -81,17 +81,16 @@
 </template>
 
 <script setup lang="ts">
-import { Institution, PeopleService, Person } from '@/api'
+import { $UserRole, Institution, PeopleService, Person } from '@/api'
 
 import { UserRole } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import InstitutionKindChip from './InstitutionKindChip.vue'
 import type { AccountStatus, PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
-import { orderedUserRoles, roleIcon } from './userRole'
-import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
 import PersonFormDialog from './PersonFormDialog.vue'
 
 const { xs, smAndUp } = useDisplay()
@@ -110,7 +109,7 @@ const filter = computed(() => {
     (!institutions || item.institutions.some(({ code }) => institutions.includes(code)))
 })
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<Person>[] = [
   {
     title: 'Role',
     key: 'role',
@@ -118,7 +117,7 @@ const headers: CRUDTableHeader[] = [
     align: 'end',
     sort(a: UserRole, b: UserRole) {
       if (a === b) return 0
-      return orderedUserRoles.indexOf(a) - orderedUserRoles.indexOf(b)
+      return $UserRole.enum.indexOf(a) - $UserRole.enum.indexOf(b)
     }
   },
   { title: 'Name', key: 'full_name' },

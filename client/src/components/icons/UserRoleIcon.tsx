@@ -1,23 +1,27 @@
-import { UserRole } from "@/api"
+import { UserRole } from '@/api/adapters'
+
+interface Props {
+  role?: UserRole
+}
 
 export function roleIcon(role?: UserRole) {
   switch (role) {
-    case "Admin":
+    case 'Admin':
       return {
         icon: 'mdi-star-cog',
         color: 'red'
       }
-    case "Maintainer":
+    case 'Maintainer':
       return {
         icon: 'mdi-star-circle',
         color: 'orange'
       }
-    case "Contributor":
+    case 'Contributor':
       return {
         icon: 'mdi-star',
         color: 'primary'
       }
-    case "Visitor":
+    case 'Visitor':
       return {
         icon: 'mdi-circle-medium',
         color: 'green'
@@ -27,12 +31,14 @@ export function roleIcon(role?: UserRole) {
   }
 }
 
-export const orderedUserRoles: UserRole[] = ['Visitor', 'Contributor', 'Maintainer', 'Admin'] as const
+export const UserRoleIcon = (props: Props, attrs?: object) => (
+  <v-icon
+    {...{
+      title: props.role,
+      ...roleIcon(props.role),
+      ...attrs
+    }}
+  />
+)
 
-interface UserStatus {
-  role: UserRole
-}
-
-export function isGranted(user: UserStatus, role: UserRole) {
-  return orderedUserRoles.indexOf(user.role) >= orderedUserRoles.indexOf(role)
-}
+export default UserRoleIcon

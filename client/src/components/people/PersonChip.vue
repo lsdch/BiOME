@@ -14,7 +14,7 @@
     >
       <template #prepend>
         <div class="d-flex flex-column align-center">
-          <UserRoleIcon :role="person.role" size="small" />
+          <UserRole.Icon :role="person.role" size="small" />
         </div>
       </template>
     </v-card>
@@ -22,8 +22,7 @@
 </template>
 
 <script setup lang="ts">
-import { PersonInner } from '@/api'
-import UserRoleIcon from '../icons/UserRoleIcon.vue'
+import { PersonInner, UserRole } from '@/api'
 
 defineProps<{ person: PersonInner; short?: boolean }>()
 </script>

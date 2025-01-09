@@ -21,11 +21,11 @@
         <v-btn
           color="primary"
           class="mx-3"
-          @click="save(), submit()"
+          @click="(save(), submit())"
           :disabled="isPristine"
           text="Save"
         />
-        <v-btn color="" @click="cancel(), emit('cancel')" text="Cancel" />
+        <v-btn color="" @click="(cancel(), emit('cancel'))" text="Cancel" />
       </div>
     </template>
   </v-confirm-edit>

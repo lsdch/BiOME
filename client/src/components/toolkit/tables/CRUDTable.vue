@@ -40,7 +40,7 @@
             <v-btn
               v-if="
                 !!currentUser &&
-                isGranted(currentUser, 'Maintainer') &&
+                UserRole.isGranted(currentUser, 'Maintainer') &&
                 hasSlotContent($slots['form'])
               "
               style="min-width: 30px"
@@ -188,7 +188,8 @@
                     <template
                       v-if="
                         !!currentUser &&
-                        (isGranted(currentUser, 'Maintainer') || isOwner(currentUser, item))
+                        (UserRole.isGranted(currentUser, 'Maintainer') ||
+                          isOwner(currentUser, item))
                       "
                     >
                       <v-btn
@@ -243,8 +244,7 @@
     Filters extends { owned?: boolean; term?: string }
   "
 >
-import { Meta } from '@/api'
-import { isGranted } from '@/components/people/userRole'
+import { Meta, UserRole } from '@/api'
 import { useArrayFilter, useClipboard, useToggle } from '@vueuse/core'
 import { Ref, UnwrapRef, reactive, ref, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'

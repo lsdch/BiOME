@@ -1,6 +1,4 @@
-import type { AuthenticationResponse, ErrorModel, User, UserCredentials, UserRole } from "@/api"
-import { AccountService } from "@/api"
-import { orderedUserRoles } from "@/components/people/userRole"
+import { AccountService, AuthenticationResponse, ErrorModel, User, UserCredentials, UserRole } from "@/api"
 import { useLocalStorage } from "@vueuse/core"
 import { defineStore } from "pinia"
 import { computed, ref } from "vue"
@@ -96,7 +94,7 @@ export const useUserStore = defineStore("user", () => {
 
   function isGranted(role: UserRole) {
     return user.value
-      ? orderedUserRoles.indexOf(user.value.role) >= orderedUserRoles.indexOf(role)
+      ? UserRole.isGranted(user.value, role)
       : false
   }
 

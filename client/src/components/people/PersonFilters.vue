@@ -47,7 +47,7 @@
 </template>
 
 <script lang="ts">
-const statuses = ['Registered user', 'Unregistered', ...orderedUserRoles] as const
+const statuses = ['Registered user', 'Unregistered', ...$UserRole.enum] as const
 export type AccountStatus = (typeof statuses)[number]
 
 export type PersonFilters = {
@@ -58,8 +58,8 @@ export type PersonFilters = {
 </script>
 
 <script setup lang="ts">
-import { UserRole } from '@/api'
-import { orderedUserRoles, roleIcon } from './userRole'
+import { $UserRole, UserRole } from '@/api'
+import { roleIcon } from '../icons/UserRoleIcon'
 import InstitutionPicker from './InstitutionPicker.vue'
 
 const model = defineModel<PersonFilters>({ required: true })

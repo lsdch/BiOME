@@ -85,7 +85,7 @@
                 {{ `@${person.alias}` }}
               </v-list-item-subtitle>
               <template #prepend>
-                <v-icon v-bind="roleIcon(person.role)" size="small" />
+                <UserRole.Icon :role="person.role" size="small" />
               </template>
             </v-list-item>
           </v-list>
@@ -96,7 +96,7 @@
 </template>
 
 <script setup lang="ts">
-import { Institution, InstitutionKind, PeopleService } from '@/api'
+import { Institution, InstitutionKind, PeopleService, UserRole } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
@@ -104,7 +104,6 @@ import { enumAsString } from '../toolkit/enums'
 import InstitutionFormDialog from './InstitutionFormDialog.vue'
 import InstitutionKindChip from './InstitutionKindChip.vue'
 import InstitutionKindPicker from './InstitutionKindPicker.vue'
-import { roleIcon } from './userRole'
 
 const { mdAndUp } = useDisplay()
 
@@ -114,18 +113,16 @@ const filter = computed(() => {
   return filters.value.kind ? (item: Institution) => item.kind === filters.value.kind : () => true
 })
 
-const headers = computed(
-  (): CRUDTableHeaders => [
-    { title: 'Short name', key: 'code' },
-    { title: 'Name', key: 'name' },
-    {
-      title: 'Kind',
-      key: 'kind',
-      value: (item: Institution) => enumAsString(item.kind)
-    },
-    { title: 'People', key: 'people', align: 'center' }
-  ]
-)
+const headers = computed((): CRUDTableHeader<Institution>[] => [
+  { title: 'Short name', key: 'code' },
+  { title: 'Name', key: 'name' },
+  {
+    title: 'Kind',
+    key: 'kind',
+    value: (item: Institution) => enumAsString(item.kind)
+  },
+  { title: 'People', key: 'people', align: 'center' }
+])
 </script>
 
 <style scoped>

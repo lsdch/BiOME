@@ -27,7 +27,7 @@
       <v-list>
         <v-list-subheader class="mb-3">
           <div class="d-flex align-center">
-            <v-icon class="mr-5" v-bind="roleIcon(user.role)" />
+            <UserRole.Icon class="mr-5" :role="user.role" />
             <div>
               <span class="text-overline">
                 {{ user.identity.full_name }}
@@ -64,12 +64,12 @@
 </template>
 
 <script setup lang="ts">
+import { UserRole } from '@/api'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
-import { useDisplay, useTheme } from 'vuetify'
-import { roleIcon } from '../people/userRole'
+import { useDisplay } from 'vuetify'
 
 const { smAndDown } = useDisplay()
 

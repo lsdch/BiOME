@@ -8,7 +8,7 @@
             <template #append>
               <v-chip :text="model.role">
                 <template #prepend>
-                  <UserRoleIcon :role="model.role" class="mr-3" />
+                  <UserRole.Icon :role="model.role" class="mr-3" />
                 </template>
               </v-chip>
             </template>
@@ -45,9 +45,8 @@
 </template>
 
 <script setup lang="ts">
+import { UserRole } from '@/api'
 import PasswordUpdate from '@/components/account/PasswordUpdate.vue'
-import UserRoleIcon from '@/components/icons/UserRoleIcon.vue'
-import { roleIcon } from '@/components/people/userRole'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useUserStore } from '@/stores/user'
 import { ref } from 'vue'
