@@ -1,4 +1,4 @@
-import { AccountService, AuthenticationResponse, ErrorModel, User, UserCredentials, UserRole } from "@/api"
+import { AccountService, AuthenticationResponse, ErrorModel, Meta, User, UserCredentials, UserRole } from "@/api"
 import { useLocalStorage } from "@vueuse/core"
 import { defineStore } from "pinia"
 import { computed, ref } from "vue"
@@ -98,6 +98,12 @@ export const useUserStore = defineStore("user", () => {
       : false
   }
 
+  function isOwner<
+    Item extends { meta?: Meta }
+  >(item: Item) {
+    return user.value && item.meta?.created_by?.id === user.value.id
+  }
+
   return {
     user, error, getUser,
     /**
@@ -111,6 +117,7 @@ export const useUserStore = defineStore("user", () => {
     refresh,
     refreshAsNeeded,
     isGranted,
+    isOwner,
     isAuthenticated,
     sessionExpired
   }

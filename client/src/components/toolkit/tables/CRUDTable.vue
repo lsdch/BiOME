@@ -189,7 +189,7 @@
                       v-if="
                         !!currentUser &&
                         (UserRole.isGranted(currentUser, 'Maintainer') ||
-                          isOwner(currentUser, item))
+                          User.isOwner(currentUser, item))
                       "
                     >
                       <v-btn
@@ -244,7 +244,7 @@
     Filters extends { owned?: boolean; term?: string }
   "
 >
-import { Meta, UserRole } from '@/api'
+import { Meta, User, UserRole } from '@/api'
 import { useArrayFilter, useClipboard, useToggle } from '@vueuse/core'
 import { Ref, UnwrapRef, reactive, ref, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
@@ -253,12 +253,11 @@ import { VDataTable } from 'vuetify/components'
 import { TableProps, useTable } from '.'
 import CRUDFeedback from '../CRUDFeedback.vue'
 import ExportDialog from '../ExportDialog.vue'
-import { isOwner } from '../meta'
 import MetaChip from '../MetaChip.vue'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
+import { hasSlotContent } from '../vue-utils'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
-import { hasSlotContent } from '../vue-utils'
 
 type Props = TableProps<ItemType> & {
   filter?: (item: ItemType) => boolean
@@ -318,7 +317,7 @@ function toggleSort(sortKey: string) {
 }
 
 function ownedItemFilter(item: ItemType) {
-  return search.value.owned && currentUser !== undefined ? isOwner(currentUser, item) : true
+  return search.value.owned && currentUser !== undefined ? User.isOwner(currentUser, item) : true
 }
 
 const filteredItems = useArrayFilter(items as Ref<ItemType[]>, (item) => {

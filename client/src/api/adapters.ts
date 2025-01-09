@@ -15,7 +15,9 @@ import {
   SeqReference as TSeqReference,
   Taxon as TTaxon,
   TaxonRank as TTaxonRank,
-  UserRole as TUserRole
+  UserRole as TUserRole,
+  User as TUser,
+  Meta
 } from "./gen/types.gen"
 
 export * from "./gen/types.gen"
@@ -200,5 +202,14 @@ export namespace UserRole {
 
   export function Icon(role?: UserRole) {
     return role ? UserRoleIcon({ role }) : null
+  }
+}
+
+export type User = TUser
+export namespace User {
+  export function isOwner<
+    Item extends { meta?: Meta }
+  >(user: User, item: Item) {
+    return item.meta?.created_by?.id === user.id
   }
 }
