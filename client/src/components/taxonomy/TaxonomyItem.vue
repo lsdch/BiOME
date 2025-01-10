@@ -37,7 +37,12 @@
 import { Taxonomy, TaxonRank } from '@/api'
 import { useElementVisibility } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
-import { maxRankDisplay, useRankFoldState, useTaxonFoldState, useTaxonSelection } from '.'
+import {
+  maxRankDisplay,
+  useRankFoldState,
+  useTaxonFoldState,
+  useTaxonSelection
+} from './composables'
 import { FTaxaNestedList, FTaxonStatusIndicator } from './functionals'
 
 const props = defineProps<{ item: Taxonomy }>()

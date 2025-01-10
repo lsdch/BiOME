@@ -10,7 +10,7 @@ const selectHook = createEventHook<Taxon>()
 
 export function useTaxonSelection() {
 
-  function select(taxon: Taxon, prevent = false) {
+  function select(taxon: Taxon) {
     selectedTaxon.value = taxon
     history.replaceState(null, '', `#${taxon.name}`)
     selectHook.trigger(taxon)
@@ -19,10 +19,7 @@ export function useTaxonSelection() {
   function drop() {
     selectedTaxon.value = undefined
     history.replaceState(null, '', ``)
-    // location.hash = ""
   }
-
-
 
   return { select, drop, selected: selectedTaxon, onSelect: selectHook.on }
 }

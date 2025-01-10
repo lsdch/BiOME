@@ -128,7 +128,7 @@ import {
   useRankFoldState,
   useTaxonFoldState,
   useTaxonSelection
-} from '.'
+} from './composables'
 import IconGBIF from '../icons/IconGBIF.vue'
 import TableToolbar from '../toolkit/tables/TableToolbar.vue'
 import { FTaxaNestedList } from './functionals'
