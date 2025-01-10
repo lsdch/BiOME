@@ -28,7 +28,7 @@ func ListArticles(db edgedb.Executor) ([]Article, error) {
 	var items = []Article{}
 	err := db.Query(context.Background(),
 		`#edgeql
-			select references::Article { ** };
+			select references::Article { ** } order by .authors[0] asc then .year desc;
 		`,
 		&items)
 	return items, err
