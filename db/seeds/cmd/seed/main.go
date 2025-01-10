@@ -62,7 +62,7 @@ func main() {
 		logrus.Infof("• generate sequence codes")
 		if err := tx.Execute(context.Background(),
 			`#edgeql
-				update seq::Sequence set {};
+				update seq::ExternalSequence set {};
 			`); err != nil {
 			return err
 		}
