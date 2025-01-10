@@ -17,9 +17,11 @@ import {
   TaxonRank as TTaxonRank,
   UserRole as TUserRole,
   User as TUser,
-  Meta
+  Meta,
+  Quantity as TQuantity
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/people/UserRoleChip"
+import QuantityChip from "@/components/occurrence/ExtBioMatQuantityChip"
 
 export * from "./gen/types.gen"
 
@@ -207,6 +209,15 @@ export namespace UserRole {
 
   export function Chip({ role }: { role?: UserRole }, context: { attrs?: object }) {
     return UserRoleChip({ role }, context)
+  }
+}
+
+
+export type Quantity = TQuantity
+export namespace Quantity {
+
+  export function Chip({ quantity }: { quantity: Quantity }, context: { attrs?: object }) {
+    return QuantityChip({ quantity }, context)
   }
 }
 
