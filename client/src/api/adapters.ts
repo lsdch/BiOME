@@ -19,6 +19,7 @@ import {
   User as TUser,
   Meta
 } from "./gen/types.gen"
+import UserRoleChip from "@/components/people/UserRoleChip"
 
 export * from "./gen/types.gen"
 
@@ -202,6 +203,10 @@ export namespace UserRole {
 
   export function Icon({ role }: { role?: UserRole }, context: { attrs?: object }) {
     return UserRoleIcon({ role }, context)
+  }
+
+  export function Chip({ role }: { role?: UserRole }, context: { attrs?: object }) {
+    return UserRoleChip({ role }, context)
   }
 }
 
