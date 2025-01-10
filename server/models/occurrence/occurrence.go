@@ -4,6 +4,7 @@ import (
 	"context"
 	"darco/proto/models"
 	"darco/proto/models/taxonomy"
+	"fmt"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -27,10 +28,36 @@ type Occurrence GenericOccurrence[SamplingInner]
 
 type OccurrenceInput struct {
 	SamplingID     edgedb.UUID                  `json:"sampling_id" format:"uuid"`
-	Identification IdentificationInput          `edgedb:"identification" json:"identification"`
-	Comments       models.OptionalInput[string] `edgedb:"comments" json:"comments"`
+	Identification IdentificationInput          `json:"identification"`
+	Comments       models.OptionalInput[string] `json:"comments"`
 }
 
+func (i OccurrenceInput) GenerateCode(db edgedb.Executor) (string, error) {
+	sampling, err := i.GetSampling(db)
+	if err != nil {
+		return "", fmt.Errorf("Sampling not found")
+	}
+	return fmt.Sprintf("%s[%s]",
+		taxonomy.TaxonCode(i.Identification.Taxon),
+		sampling.Code,
+	), nil
+}
+
+func (i OccurrenceInput) GetSampling(db edgedb.Executor) (sampling SamplingInner, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			select <events::Sampling><uuid>$0 { * }
+		`, i.SamplingID, &sampling)
+	return
+}
+
+type OccurrenceUpdate struct {
+	SamplingID     models.OptionalInput[edgedb.UUID]          `json:"sampling_id" format:"uuid"`
+	Identification models.OptionalInput[IdentificationUpdate] `edgedb:"identification" json:"identification,omitempty"`
+	Comments       models.OptionalNull[string]                `edgedb:"comments" json:"comments,omitempty"`
+}
+
+// OccurrenceOverviewItem is a representation of the occurrences count for one taxon
 type OccurrenceOverviewItem struct {
 	Name        string             `edgedb:"name" json:"name"`
 	ParentName  string             `edgedb:"parent_name" json:"parent_name"`
@@ -38,6 +65,7 @@ type OccurrenceOverviewItem struct {
 	Rank        taxonomy.TaxonRank `edgedb:"rank" json:"rank"`
 }
 
+// OccurrenceOverview returns the count of occurrences for each taxon
 func OccurrenceOverview(db edgedb.Executor) ([]OccurrenceOverviewItem, error) {
 	var items = []OccurrenceOverviewItem{}
 	err := db.Query(context.Background(),
