@@ -36,7 +36,7 @@
     </template>
 
     <template #[`item.role`]="{ value }">
-      <UserRole.Icon :role="value" size="x-small" :title="value" />
+      <UserRole.Icon :role="value" size="x-small" />
     </template>
 
     <template #[`item.alias`]="{ value }">

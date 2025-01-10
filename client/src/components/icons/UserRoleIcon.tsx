@@ -1,9 +1,5 @@
 import { UserRole } from '@/api/adapters'
 
-interface Props {
-  role?: UserRole
-}
-
 export function roleIcon(role?: UserRole) {
   switch (role) {
     case 'Admin':
@@ -31,14 +27,9 @@ export function roleIcon(role?: UserRole) {
   }
 }
 
-export const UserRoleIcon = (props: Props, attrs?: object) => (
-  <v-icon
-    {...{
-      title: props.role,
-      ...roleIcon(props.role),
-      ...attrs
-    }}
-  />
-)
+export function UserRoleIcon({ role }: { role?: UserRole }, context: { attrs?: object }) {
+  const { icon, color } = roleIcon(role)
+  return <v-icon icon={icon} color={color} title={role} {...context.attrs} />
+}
 
 export default UserRoleIcon

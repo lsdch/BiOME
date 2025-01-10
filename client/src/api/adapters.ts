@@ -200,8 +200,8 @@ export namespace UserRole {
     return $UserRole.enum.indexOf(user.role) >= $UserRole.enum.indexOf(role)
   }
 
-  export function Icon(role?: UserRole) {
-    return role ? UserRoleIcon({ role }) : null
+  export function Icon({ role }: { role?: UserRole }, context: { attrs?: object }) {
+    return UserRoleIcon({ role }, context)
   }
 }
 
