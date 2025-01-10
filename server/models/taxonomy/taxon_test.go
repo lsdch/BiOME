@@ -37,7 +37,7 @@ func TestTaxonomyList(t *testing.T) {
 			},
 		},
 		{
-			taxonomy.ListFilters{Rank: taxonomy.Genus},
+			taxonomy.ListFilters{Ranks: []taxonomy.TaxonRank{taxonomy.Genus}},
 			func(taxa []taxonomy.TaxonWithParentRef) {
 				assert.NotEmpty(t, taxa)
 				for _, taxon := range taxa {
