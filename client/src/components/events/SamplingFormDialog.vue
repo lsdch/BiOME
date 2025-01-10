@@ -35,7 +35,7 @@
             :disabled="model.target_kind !== 'Taxa'"
             label="Target taxa"
             item-value="name"
-            :ranks="ranksUpTo('Family')"
+            :ranks="TaxonRank.ranksUpTo('Family')"
             multiple
             chips
             closable-chips
@@ -120,11 +120,10 @@ import {
   SamplingService,
   SamplingUpdate
 } from '@/api'
-import { DateWithPrecision } from '@/api/adapters'
+import { DateWithPrecision, TaxonRank } from '@/api/adapters'
 import { reactiveComputed, useToggle } from '@vueuse/core'
 import HabitatPicker from '../habitat/HabitatPicker.vue'
 import FixativePicker from '../samples/FixativePicker.vue'
-import { ranksUpTo } from '../taxonomy/rank'
 import TaxonPicker from '../taxonomy/TaxonPicker.vue'
 import { FormProps, useForm, useSchema } from '../toolkit/forms/form'
 import FormDialog from '../toolkit/forms/FormDialog.vue'

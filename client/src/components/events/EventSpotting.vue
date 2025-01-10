@@ -21,7 +21,7 @@
           label="Taxa"
           v-model="model.target_taxa"
           item-value="name"
-          :ranks="ranksUpTo('Family')"
+          :ranks="TaxonRank.ranksUpTo('Family')"
           multiple
           chips
           closable-chips
@@ -54,11 +54,10 @@
 </template>
 
 <script setup lang="ts">
-import { $SpottingUpdate, Event, EventsService, Spotting, SpottingUpdate } from '@/api'
+import { $SpottingUpdate, Event, EventsService, Spotting, SpottingUpdate, TaxonRank } from '@/api'
 import { useToggle } from '@vueuse/core'
 import { ref, watch } from 'vue'
 import TaxonPicker from '../taxonomy/TaxonPicker.vue'
-import { ranksUpTo } from '../taxonomy/rank'
 import { useSchema } from '../toolkit/forms/schema'
 
 const { event } = defineProps<{ event: Event }>()
