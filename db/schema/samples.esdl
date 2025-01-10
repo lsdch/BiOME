@@ -49,7 +49,7 @@ module samples {
     }; # auto-generated
     required molecular_number: str {
       rewrite insert using (
-        <str>(select count(Specimen) filter Specimen.biomat.sampling.event.site = __subject__.biomat.sampling.event.site)
+        <str>(select count(Specimen filter Specimen.biomat.sampling.event.site = __subject__.biomat.sampling.event.site))
       );
       # is string because retrocompatibility
     };

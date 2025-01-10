@@ -49,7 +49,7 @@ type SequenceWithDetails GenericSequence[Sampling]
 func GetSequence(db edgedb.Executor, code string) (seq SequenceWithDetails, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
-			select seq::SequenceWithType {
+			select seq::Sequence {
 				**,
 				gene: { * },
 				required event := .sampling.event { *, site: {name, code} },
@@ -84,7 +84,7 @@ func ListSequences(db edgedb.Executor) ([]Sequence, error) {
 	var items = []Sequence{}
 	err := db.Query(context.Background(),
 		`#edgeql
-			select seq::SequenceWithType {
+			select seq::Sequence {
 				**,
 				gene: { * },
 				required event := .sampling.event { *, site: {name, code} },

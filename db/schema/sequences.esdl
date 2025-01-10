@@ -136,6 +136,10 @@ module seq {
   }
 
   abstract type Sequence extending default::Auditable {
+
+    required sampling: events::Sampling;
+    required identification: occurrence::Identification;
+
     required code: str { constraint exclusive };
 
     # optional human readable label; use NCBI 'DEFINITION' field when applicable
@@ -161,13 +165,13 @@ module seq {
   }
 
   type AssembledSequence extending Sequence {
-    required sampling: events::Sampling {
+    overloaded required sampling: events::Sampling {
       rewrite insert, update using (
         select .specimen.biomat.sampling
       );
     };
 
-    required identification: occurrence::Identification {
+    overloaded required identification: occurrence::Identification {
       constraint exclusive;
       on source delete delete target;
     };
@@ -248,18 +252,4 @@ module seq {
       annotation description := "The verbatim identification provided in the original source.";
     };
   }
-
-  alias SequenceWithType := (
-    select Sequence {
-      *,
-      required sampling := assert_exists(
-        [is AssembledSequence].sampling ??
-        [is ExternalSequence].sampling
-      ),
-      required identification := assert_exists(
-        [is AssembledSequence].identification ??
-        [is ExternalSequence].identification
-      ),
-    }
-  );
 }

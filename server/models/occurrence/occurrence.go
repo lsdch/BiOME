@@ -74,14 +74,14 @@ func OccurrenceOverview(db edgedb.Executor) ([]OccurrenceOverviewItem, error) {
 			occ := (
 				select occurrence::Occurrence {
 					taxon:= (
-						[is ExternalBioMat].sequence_consensus ??
-						[is InternalBioMat].sequence_consensus ??
+						[is ExternalBioMat].seq_consensus ??
+						[is InternalBioMat].seq_consensus ??
 						.identification.taxon
 					) { *, parent: { * } }
 				} filter (
 					#  ignore external bio material that has sequences
 					not (Occurrence is ExternalBioMat and not exists [is ExternalBioMat].sequences)
-					and [is ExternalBioMat].is_homogenous ?? [is InternalBioMat].is_homogenous ?? true
+					and [is ExternalBioMat].homogenous ?? [is InternalBioMat].homogenous ?? true
 				)
 			),
 			groups := (select (

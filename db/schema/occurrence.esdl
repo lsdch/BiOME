@@ -78,7 +78,6 @@ module occurrence {
     multi published_in: references::Article {
       original_source: bool;
     };
-
   };
 
   type InternalBioMat extending BioMaterial {
@@ -89,22 +88,23 @@ module occurrence {
       select distinct .specimens.identification.taxon ?? .identification.taxon
     );
 
-    required is_homogenous := (
+    required homogenous := (
       select count(distinct .specimens.identification.taxon) <= 1
     );
 
-    required is_congruent := (
+    required congruent := (
       select assert_exists(
-        .is_homogenous and (
+        .homogenous and (
           (not exists .specimens) or
           .identification.taxon in (assert_single(distinct .specimens.identification.taxon))
         )
       )
     );
 
-    single sequence_consensus := (
+    # Molecular identification,if available, and homogenous
+    single seq_consensus := (
       select (
-        if .is_homogenous then
+        if .homogenous then
           assert_single(distinct .specimens.identification.taxon)
         else {}
       )
@@ -122,13 +122,13 @@ module occurrence {
     required quantity: QuantityType;
     content_description: str;
 
-    required is_homogenous := (
+    required homogenous := (
       select count(distinct .sequences.identification.taxon) <= 1
     );
 
-    required is_congruent := (
+    required congruent := (
       select assert_exists(
-        .is_homogenous and (
+        .homogenous and (
           (not exists .sequences) or
           .identification.taxon in (assert_single(distinct .sequences.identification.taxon))
         )
@@ -137,9 +137,10 @@ module occurrence {
 
     multi link sequences := .<source_sample[is seq::ExternalSequence];
 
-    single sequence_consensus := (
+    # Molecular identification,if available, and homogenous
+    single seq_consensus := (
       select (
-        if .is_homogenous then
+        if .homogenous then
           assert_single(distinct .sequences.identification.taxon)
         else {}
       )
@@ -148,13 +149,12 @@ module occurrence {
 
   alias BioMaterialWithType := (
     select BioMaterial {
-      *,
       required has_sequences := (
         exists ([is ExternalBioMat].sequences ?? [is InternalBioMat].specimens.sequences)
       ),
-      required is_homogenous := [is ExternalBioMat].is_homogenous ?? [is InternalBioMat].is_homogenous ?? true,
-      required is_congruent := [is ExternalBioMat].is_congruent ?? [is InternalBioMat].is_congruent ?? true,
-      sequence_consensus := [is ExternalBioMat].sequence_consensus ?? [is InternalBioMat].sequence_consensus,
+      required is_homogenous := [is ExternalBioMat].homogenous ?? [is InternalBioMat].homogenous ?? true,
+      required is_congruent := [is ExternalBioMat].congruent ?? [is InternalBioMat].congruent ?? true,
+      sequence_consensus := [is ExternalBioMat].seq_consensus ?? [is InternalBioMat].seq_consensus,
       # category := (
       #   if (BioMaterial is InternalBioMat) then "Internal"
       #   else if (BioMaterial is ExternalBioMat) then "External"
