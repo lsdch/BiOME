@@ -1,5 +1,9 @@
 @use 'vuetify';
 
+.fuzzy-search-item-item b {
+  color: rgb(var(--v-theme-primary));
+}
+
 .v-bottom-sheet .v-bottom-sheet__content {
   border-radius: 0px !important;
 }

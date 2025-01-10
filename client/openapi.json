@@ -12841,9 +12841,12 @@
 					{
 						"explode": false,
 						"in": "query",
-						"name": "rank",
+						"name": "ranks",
 						"schema": {
-							"$ref": "#/components/schemas/TaxonRank"
+							"items": {
+								"$ref": "#/components/schemas/TaxonRank"
+							},
+							"type": "array"
 						}
 					},
 					{

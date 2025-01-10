@@ -168,7 +168,7 @@ func GetTaxonomy(db edgedb.Executor, q TaxonomyQuery) (*Taxonomy, error) {
 
 type ListFilters struct {
 	Pattern  string              `json:"pattern,omitempty" query:"pattern"`
-	Rank     TaxonRank           `query:"rank"`
+	Ranks    []TaxonRank         `query:"ranks"`
 	Status   TaxonStatus         `json:"status,omitempty" query:"status"`
 	IsAnchor edgedb.OptionalBool `json:"anchors_only,omitempty" query:"anchor"`
 	Parent   string              `json:"parent,omitempty" query:"parent"`
@@ -177,7 +177,10 @@ type ListFilters struct {
 
 func ListTaxa(db edgedb.Executor, filters ListFilters) ([]TaxonWithParentRef, error) {
 
-	var taxa = make([]TaxonWithParentRef, 0)
+	var taxa = []TaxonWithParentRef{}
+	if filters.Ranks == nil {
+		filters.Ranks = []TaxonRank{}
+	}
 	var (
 		order_by = ".name"
 		limit    = "{}"
@@ -193,19 +196,19 @@ func ListTaxa(db edgedb.Executor, filters ListFilters) ([]TaxonWithParentRef, er
 	query := `#edgeql
 		with module taxonomy,
 			pattern := <str>$0,
-			rank := <Rank>(<str>$1 if len(<str>$1) > 0 else <str>{}),
+			ranks := <Rank>(array_unpack(<array<str>>$1) if len(<array<str>>$1) > 0 else <str>{}),
 			status := <TaxonStatus>(<str>$2 if len(<str>$2) > 0 else <str>{}),
 			is_anchor := <optional bool>$3,
 			parent := <optional str>$4
 		select Taxon { *, meta: {*}, parent_code := .parent.code }
-		filter (.rank = rank if exists rank else true)
+		filter (.rank in ranks if exists ranks else true)
 		and (.status = status if exists status else true)
 		and (.anchor = is_anchor if exists is_anchor else true)
 		and (.parent.code ilike parent if len(parent) > 0 else true)` +
 		"order by " + order_by + " then .rank asc then .name asc " +
 		"limit " + limit
 	err := db.Query(context.Background(), query, &taxa,
-		filters.Pattern, filters.Rank, filters.Status, filters.IsAnchor, filters.Parent)
+		filters.Pattern, filters.Ranks, filters.Status, filters.IsAnchor, filters.Parent)
 	return taxa, err
 }
 

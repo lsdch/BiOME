@@ -1,24 +1,32 @@
 <template>
   <v-autocomplete
     v-model="model"
+    v-model:search="search"
     no-filter
     :label
     :loading
-    cache-items
     required
-    :items
+    :items="filteredItems"
     item-title="name"
     variant="outlined"
-    @update:search="fetch"
     clear-on-select
     auto-select-first
     placeholder="Enter search terms..."
     v-bind="$attrs"
   >
     <template #item="{ props, item }">
-      <v-list-item v-bind="props">
+      <v-list-item v-bind="props" :title="item.raw.obj.name" class="fuzzy-search-item">
+        <template #title>
+          <v-list-item-title v-html="highlight(item.raw, 'name')" />
+        </template>
+        <template #subtitle>
+          {{ item.raw.obj.authorship }}
+        </template>
         <template #append>
-          <v-chip>{{ item.raw.rank }}</v-chip>
+          <v-chip>
+            <span v-html="highlight(item.raw, 'rank')"></span>
+          </v-chip>
+          <FTaxonStatusIndicator :status="item.raw.obj.status" />
         </template>
       </v-list-item>
     </template>
@@ -26,45 +34,39 @@
 </template>
 
 <script setup lang="ts">
-import { Taxon, TaxonomyService, TaxonRank } from '@/api'
-import { useDebounceFn } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
+import { TaxonomyService, TaxonRank, TaxonWithParentRef } from '@/api'
+import { useFetchItems } from '@/composables/fetch_items'
+import { KeysDeclaration, useFuzzyItemsFilter } from '@/composables/fuzzy_search'
+import { ref } from 'vue'
+import { FTaxonStatusIndicator } from './functionals'
 
 const model = defineModel<any>()
-
-const props = withDefaults(
+const { threshold, limit, ranks } = withDefaults(
   defineProps<{
     label?: string
     ranks?: TaxonRank[]
+    threshold?: number
+    limit?: number
   }>(),
   {
-    label: 'Taxon'
+    label: 'Taxon',
+    limit: 10,
+    threshold: 0.7
   }
 )
+const search = ref('')
 
-const loading = ref(false)
+const { items, loading, error } = useFetchItems(() =>
+  // FIXME : not reactive wrt ranks prop
+  TaxonomyService.listTaxa({ query: { ranks } })
+)
 
-const items = ref<Taxon[]>()
+const keys: KeysDeclaration<TaxonWithParentRef> = ['name', 'rank', 'status']
 
-const error = ref<string>()
-
-async function _fetch(pattern?: string) {
-  loading.value = true
-  const { data, error: err } = await TaxonomyService.listTaxa({
-    query: { limit: 10, pattern }
-  }).finally(() => {
-    loading.value = false
-  })
-  if (err !== undefined) {
-    error.value = 'Failed to retrieve taxa'
-    return
-  }
-  error.value = undefined
-  items.value = props.ranks ? data.filter(({ rank }) => props.ranks?.includes(rank)) : data
-}
-
-const fetch = useDebounceFn(_fetch, 200)
-onMounted(fetch)
+const { highlight, filteredItems } = useFuzzyItemsFilter(keys, search, items, {
+  threshold,
+  limit
+})
 </script>
 
 <style scoped></style>

@@ -3165,7 +3165,7 @@ export type ListTaxaData = {
     limit?: number
     parent?: string
     pattern?: string
-    rank?: TaxonRank
+    ranks?: Array<TaxonRank>
     status?: TaxonStatus
   }
 }

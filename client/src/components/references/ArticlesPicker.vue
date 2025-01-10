@@ -29,7 +29,7 @@
       <v-list-item
         v-bind="props"
         :title="Article.shortAuthors(item.raw.obj.authors)"
-        class="article-picker-item"
+        class="fuzzy-search-item"
       >
         <template #title>
           <v-list-item-title
@@ -95,9 +95,4 @@ const { highlight, filteredItems } = useFuzzyItemsFilter(keys, searchTerms, item
 })
 </script>
 
-<style lang="scss">
-@use 'vuetify';
-.article-picker-item b {
-  color: rgb(var(--v-theme-primary));
-}
-</style>
+<style lang="scss"></style>
