@@ -117,6 +117,15 @@ export type AuthenticationResponse = {
   user: User
 }
 
+export type BibSearchResults = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  items: Array<Message>
+  total: number
+}
+
 export type BioMaterial = {
   /**
    * A URL to the JSON Schema for this object.
@@ -2511,7 +2520,7 @@ export type InvitePersonResponse = InvitationLink
 
 export type InvitePersonError = ErrorModel
 
-export type CrossrefData = {
+export type CrossRefData = {
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -2523,9 +2532,17 @@ export type CrossrefData = {
   }
 }
 
-export type CrossrefResponse = Works
+export type CrossRefResponse = Works
 
-export type CrossrefError = ErrorModel
+export type CrossRefError = ErrorModel
+
+export type CrossRefBibSearchData = {
+  body: string
+}
+
+export type CrossRefBibSearchResponse = BibSearchResults
+
+export type CrossRefBibSearchError = ErrorModel
 
 export type ListArticlesData = {
   headers?: {

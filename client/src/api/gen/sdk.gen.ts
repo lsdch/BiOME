@@ -179,9 +179,12 @@ import {
   CreatePersonResponseTransformer,
   DeletePersonResponseTransformer,
   UpdatePersonResponseTransformer,
-  type CrossrefData,
-  type CrossrefError,
-  type CrossrefResponse,
+  type CrossRefData,
+  type CrossRefError,
+  type CrossRefResponse,
+  type CrossRefBibSearchData,
+  type CrossRefBibSearchError,
+  type CrossRefBibSearchResponse,
   type ListArticlesData,
   type ListArticlesError,
   type ListArticlesResponse,
@@ -1273,10 +1276,26 @@ export class ReferencesService {
   /**
    * Retrieve article infos from DOI
    */
-  public static crossref<ThrowOnError extends boolean = false>(
-    options: OptionsLegacyParser<CrossrefData, ThrowOnError>
+  public static crossRef<ThrowOnError extends boolean = false>(
+    options: OptionsLegacyParser<CrossRefData, ThrowOnError>
   ) {
-    return (options?.client ?? client).get<CrossrefResponse, CrossrefError, ThrowOnError>({
+    return (options?.client ?? client).get<CrossRefResponse, CrossRefError, ThrowOnError>({
+      ...options,
+      url: '/crossref'
+    })
+  }
+
+  /**
+   * Retrieve article infos from query string
+   */
+  public static crossRefBibSearch<ThrowOnError extends boolean = false>(
+    options: OptionsLegacyParser<CrossRefBibSearchData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).post<
+      CrossRefBibSearchResponse,
+      CrossRefBibSearchError,
+      ThrowOnError
+    >({
       ...options,
       url: '/crossref'
     })

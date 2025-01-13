@@ -304,6 +304,31 @@ export const $AuthenticationResponse = {
   type: 'object'
 } as const
 
+export const $BibSearchResults = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/BibSearchResults.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    items: {
+      items: {
+        $ref: '#/components/schemas/Message'
+      },
+      type: 'array'
+    },
+    total: {
+      format: 'int64',
+      type: 'integer'
+    }
+  },
+  required: ['total', 'items'],
+  type: 'object'
+} as const
+
 export const $BioMaterial = {
   additionalProperties: false,
   properties: {

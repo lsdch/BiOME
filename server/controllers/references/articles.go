@@ -1,6 +1,7 @@
 package references
 
 import (
+	"context"
 	"darco/proto/controllers"
 	"darco/proto/models/references"
 	"darco/proto/resolvers"
@@ -12,7 +13,7 @@ import (
 )
 
 type SearchDoiInput struct {
-	resolvers.AuthRequired
+	resolvers.AuthResolver
 	DOI string `query:"doi" required:"true"`
 }
 
@@ -20,17 +21,43 @@ func (i SearchDoiInput) Identifier() string {
 	return i.DOI
 }
 
+type BibSearchInput struct {
+	Body string
+}
+type BibSearchOutput struct {
+	Body *crossref.BibSearchResults
+}
+
+func BibSearch(ctx context.Context, input *BibSearchInput) (*BibSearchOutput, error) {
+	res, err := crossref.BibliographicSearch(input.Body)
+	if err != nil {
+		return nil, err
+	}
+	return &BibSearchOutput{Body: res}, nil
+}
+
 func RegisterRoutes(r router.Router) {
 
 	huma.Register(r.API,
 		huma.Operation{
-			OperationID: "crossref",
+			OperationID: "CrossRef",
 			Path:        "/crossref",
 			Method:      http.MethodGet,
 			Summary:     "Retrieve article infos from DOI",
 			Tags:        []string{"References"},
 		},
 		controllers.GetHandler[*SearchDoiInput](crossref.RetrieveDOI),
+	)
+
+	huma.Register(r.API,
+		huma.Operation{
+			OperationID: "CrossRefBibSearch",
+			Path:        "/crossref",
+			Method:      http.MethodPost,
+			Summary:     "Retrieve article infos from query string",
+			Tags:        []string{"References"},
+		},
+		BibSearch,
 	)
 
 	referencesAPI := r.RouteGroup("/references").

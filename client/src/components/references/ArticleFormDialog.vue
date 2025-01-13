@@ -122,7 +122,7 @@ const crossRefError = ref<ErrorModel>()
 const hasFetched = ref(false)
 async function fetchFromDOI(doi: string) {
   toggleLoading(true)
-  const { data, error } = await ReferencesService.crossref({ query: { doi } })
+  const { data, error } = await ReferencesService.crossRef({ query: { doi } })
   if (error) {
     crossRefError.value = error
     reset()
@@ -143,7 +143,6 @@ async function fetchFromDOI(doi: string) {
 }
 
 async function submit() {
-  console.log('SUBMIt')
   toggleLoading(true)
   return await makeRequest({
     create: ({ body }) => ReferencesService.createArticle({ body: { ...body, year: body.year! } }),
