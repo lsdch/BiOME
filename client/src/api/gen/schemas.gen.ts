@@ -2455,8 +2455,8 @@ export const $Message = {
       $ref: '#/components/schemas/Review'
     },
     score: {
-      format: 'int64',
-      type: 'integer'
+      format: 'float',
+      type: 'number'
     },
     'short-container-title': {
       items: {
