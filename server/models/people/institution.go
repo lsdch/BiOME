@@ -65,12 +65,19 @@ func (inst Institution) Delete(db edgedb.Executor) (Institution, error) {
 	return DeleteInstitution(db, inst.Code)
 }
 
-//go:embed queries/create_institution.edgeql
-var institutionCreateQuery string
-
 func (inst InstitutionInput) Save(db edgedb.Executor) (created Institution, err error) {
 	args, _ := json.Marshal(inst)
-	err = db.QuerySingle(context.Background(), institutionCreateQuery, &created, args)
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+		with module people,
+  	data := <json>$0,
+		select ( insert Institution {
+			name := <str>data['name'],
+			code := <str>data['code'],
+			description := <str>json_get(data, 'description'),
+			kind := <InstitutionKind>data['kind']
+		}) { *, people:{ * }, meta:{ * } };
+	`, &created, args)
 	return
 }
 

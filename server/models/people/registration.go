@@ -3,6 +3,7 @@ package people
 import (
 	"context"
 	"darco/proto/db"
+	"darco/proto/models"
 	"darco/proto/models/settings"
 	"darco/proto/models/tokens"
 	"darco/proto/services/email"
@@ -206,4 +207,43 @@ func VerifyEmail(edb *edgedb.Client, token tokens.Token) (ok bool, err error) {
 
 	// Email successfully verified
 	return true, nil
+}
+
+type SuperAdminInput struct {
+	UserInput      `edgedb:"$inline" json:",inline"`
+	PersonIdentity `edgedb:"$inline" json:",inline"`
+	Alias          models.OptionalInput[string] `json:"alias,omitempty" fake:"-"`
+	Institution    InstitutionInput             `edgedb:"institution" json:"institution"`
+}
+
+func (i SuperAdminInput) Save(e edgedb.Executor) (created User, err error) {
+	data, _ := json.Marshal(i)
+	if !i.Alias.IsSet {
+		i.Alias.Value = i.GenerateAlias()
+	}
+	err = e.QuerySingle(context.Background(),
+		`#edgeql
+			with module people,
+			data := <json>$0,
+			user := (insert User {
+				login := <str>data['login'],
+				email := <str>data['email'],
+				password := <str>data['password'],
+				role := UserRole.Admin,
+				identity := (insert Person {
+					first_name := <str>data['first_name'],
+					last_name := <str>data['last_name'],
+					contact := <str>data['email'],
+					alias := <str>json_get(data, 'alias') ?? {},
+					institutions := (insert people::Institution {
+						name := <str>data['institution']['name'],
+						code := <str>data['institution']['code'],
+						description := <str>json_get(data['institution'], 'description'),
+						kind := <InstitutionKind>data['institution']['kind']
+					})
+				})
+			}),
+			select user { ** }
+		`, &created, data)
+	return
 }

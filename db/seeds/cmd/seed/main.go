@@ -3,7 +3,10 @@ package main
 import (
 	"context"
 	"darco/proto/db"
+	"darco/proto/models"
 	"darco/proto/models/occurrence"
+	"darco/proto/models/people"
+	"darco/proto/services/setup"
 	"flag"
 	"seeds"
 	"seeds/email"
@@ -27,6 +30,29 @@ var entities = []string{
 	"datasets",
 }
 
+var superAdmin = people.SuperAdminInput{
+	UserInput: people.UserInput{
+		Login:         "lsdch",
+		EmailField:    people.EmailField{Email: "louis.duchemin@univ-lyon1.fr"},
+		PasswordInput: people.PasswordInput{Password: "superadmin", ConfirmPwd: "superadmin"},
+	},
+	PersonIdentity: people.PersonIdentity{
+		FirstName: "Louis",
+		LastName:  "Duchemin",
+	},
+	Alias: models.OptionalInput[string]{
+		IsSet: true,
+		Value: "lsdch",
+	},
+	Institution: people.InstitutionInput{
+		InstitutionInfos: people.InstitutionInfos{
+			Name: "Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés",
+			Code: "LEHNA",
+			Kind: "Lab",
+		},
+	},
+}
+
 func main() {
 
 	database := flag.String("db", "", "The name of the database to seed")
@@ -35,11 +61,17 @@ func main() {
 	client := db.Connect(edgedb.Options{Database: *database})
 
 	err := client.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+
+		logrus.Infof("⚙ Initializing settings with superadmin account")
+		if err := setup.InitTx(tx, superAdmin); err != nil {
+			return err
+		}
+
 		if err := email.SetupEmailConfig(client, email.EmailSetupArgs{}); err != nil {
 			return err
 		}
 
-		logrus.Infof("Seeding habitats")
+		logrus.Infof("🌱 Seeding habitats")
 		if err := occurrence.InitialHabitatsSetup(tx); err != nil {
 			logrus.Fatalf("Failed to seed habitats: %v", err)
 		}
@@ -49,7 +81,7 @@ func main() {
 			return err
 		}
 
-		logrus.Infof("Seeding...")
+		logrus.Infof("🌱 Seeding...")
 		for _, entity := range entities {
 			logrus.Infof("• %s", entity)
 			err := seeds.Seed(tx, entity)
@@ -58,7 +90,7 @@ func main() {
 			}
 		}
 
-		logrus.Infof("Postprocessing...")
+		logrus.Infof("⚙ Postprocessing...")
 		logrus.Infof("• generate sequence codes")
 		if err := tx.Execute(context.Background(),
 			`#edgeql

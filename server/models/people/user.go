@@ -27,7 +27,7 @@ type OptionalUserInner struct {
 
 type User struct {
 	UserInner `edgedb:"$inline" json:",inline"`
-	Person    OptionalPerson `edgedb:"identity" json:"identity" binding:"required"`
+	Person    PersonInner `edgedb:"identity" json:"identity" binding:"required"`
 }
 
 type OptionalUser struct {

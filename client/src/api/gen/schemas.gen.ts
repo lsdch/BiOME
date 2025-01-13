@@ -5099,7 +5099,7 @@ export const $User = {
       type: 'string'
     },
     identity: {
-      $ref: '#/components/schemas/OptionalPerson'
+      $ref: '#/components/schemas/PersonInner'
     },
     login: {
       type: 'string'

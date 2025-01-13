@@ -1,11 +1,5 @@
 [
   {
-    "name": "Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés",
-    "code": "LEHNA",
-    "description": "Where this database was born!",
-    "kind": "Lab"
-  },
-  {
     "name": "Mock Eisley Laboratory of Environmental Studies",
     "code": "MELES",
     "description": "The main ecological research lab on Fakeooine.",

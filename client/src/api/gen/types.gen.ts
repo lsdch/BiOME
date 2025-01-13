@@ -1826,7 +1826,7 @@ export type User = {
   email: string
   email_confirmed: boolean
   id: string
-  identity: OptionalPerson
+  identity: PersonInner
   login: string
   role: UserRole
 }
