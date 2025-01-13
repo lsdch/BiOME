@@ -3,7 +3,6 @@
     apiDescriptionUrl="/api/v1/openapi.json"
     router="hash"
     layout="responsive"
-    basePath="/docs/api"
     tryItCredentialsPolicy="same-origin"
   />
 </template>
