@@ -7,14 +7,25 @@ import (
 	"github.com/edgedb/edgedb-go"
 )
 
-//go:embed queries/setup_countries.edgeql
-var setupCountriesCmd string
-
 //go:embed data/countries.json
 var seed []byte
 
 func SetupCountries(db *edgedb.Client) error {
-	return db.Execute(context.Background(), setupCountriesCmd, seed)
+	return db.Execute(context.Background(),
+		`#edgeql
+		with module location,
+		data := <json>$0
+		for item in json_array_unpack(data) union (
+			insert Country {
+				name := <str>item['name'],
+				code := <str>item['code']
+			}
+			unless conflict on (.code) else (
+				update Country set {
+					name := <str>item['name']
+				}
+			)
+		)`, seed)
 }
 
 type Country struct {
