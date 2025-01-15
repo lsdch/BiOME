@@ -7727,7 +7727,7 @@
 		},
 		"/crossref": {
 			"get": {
-				"operationId": "crossref",
+				"operationId": "CrossRef",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
