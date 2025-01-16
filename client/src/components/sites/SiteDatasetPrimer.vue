@@ -181,44 +181,4 @@ function setValue(row: number, col: number, value: any) {
 }
 </script>
 
-<style lang="scss">
-@use 'vuetify';
-.spreadsheet {
-  table {
-    border-collapse: collapse;
-    td.cell {
-      border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-      user-select: none;
-      box-sizing: border-box;
-      &.error-cell {
-        background-color: rgba(var(--v-theme-error), 0.2);
-      }
-      &.right-separator {
-        border-right-width: 4px;
-      }
-      &.selected {
-        outline: 1px dashed rgba(var(--v-theme-primary), 0.6);
-        outline-offset: -1px;
-        &.right {
-          border-right: 2px solid rgb(var(--v-theme-primary));
-          &.right-separator {
-            border-right-width: 4px;
-          }
-        }
-        &.left {
-          border-left: 2px solid rgb(var(--v-theme-primary)) !important;
-        }
-        &.top {
-          border-top: 2px solid rgb(var(--v-theme-primary)) !important;
-        }
-        &.bottom {
-          border-bottom: 2px solid rgb(var(--v-theme-primary)) !important;
-        }
-      }
-      &.editing {
-        background-color: rgb(var(--v-theme-surface-light));
-      }
-    }
-  }
-}
-</style>
+<style lang="scss"></style>

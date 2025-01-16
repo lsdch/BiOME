@@ -3,16 +3,16 @@
     persistent
     scrollable
     v-model="dialog"
-    v-bind="$attrs"
     :max-width="maxWidth ?? 1000"
     :fullscreen="fullscreen ?? xs"
+    v-bind="$attrs"
   >
     <!-- Expose activator slot -->
     <template #activator="slotData">
       <slot name="activator" v-bind="slotData"></slot>
     </template>
 
-    <v-card flat :rounded="false" :title :subtitle>
+    <v-card flat :rounded="false" :title :subtitle class="overflow-x-auto">
       <!-- <v-toolbar class="position-sticky">
         <template #title>
           <slot name="title">

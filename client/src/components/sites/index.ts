@@ -28,12 +28,15 @@ function* range(start: number, end: number, step = 1) {
 
 export function useSpreadsheet<Item extends {} & { errors?: Errors<string> }>(
   setValue: (row: number, col: number, value: any) => void,
-  schema?: Schema
+  options?: {
+    schema?: Schema,
+    startCol?: number,
+  }
 ) {
 
   const items: Ref<Partial<Item>[]> = ref(Array.from(Array(10), () => ({})))
 
-  const { validateAll } = schema ? useSchema(schema) : { validateAll: undefined }
+  const { validateAll } = options?.schema ? useSchema(options?.schema) : { validateAll: undefined }
 
   const selection = ref<Selection>()
   const editing = ref<{ row: number; col: number }>()
@@ -106,7 +109,7 @@ export function useSpreadsheet<Item extends {} & { errors?: Errors<string> }>(
     cell.row = Math.min(Math.max(cell.row + (row ?? 0), 0), items.value.length - 1)
 
     cell.col += col ?? 0
-    cell.col = cell.col > 2 ? 0 : cell.col < 0 ? 2 : cell.col
+    cell.col = cell.col > nCol.value ? 0 : cell.col < 0 ? nCol.value : cell.col
   }
 
   function select(row: number, col: number) {
@@ -146,22 +149,32 @@ export function useSpreadsheet<Item extends {} & { errors?: Errors<string> }>(
 
   function handlePaste(event: ClipboardEvent) {
     const pasteData = event.clipboardData?.items
+    // Return early if paste does not target at least one cell
     if (pasteData === undefined || selection.value === undefined) return
-    const sel = selection.value
+    // Recover paste data and return early if none
     const data = Array.from(pasteData)?.find((item) => item.type === 'text/plain')
-    data?.getAsString((s) => {
+    if (data === undefined) return
+
+    // Top-left selected cell is the starting point for pasting
+    const { start, end } = selection.value
+    const startRow = Math.min(start.row, end?.row ?? start.row)
+    const startCol = Math.min(start.col, end?.col ?? start.col)
+
+    data.getAsString((s) => {
       const { data } = parse<Array<string | number>>(s, {
         header: false,
         delimiter: '\t',
         dynamicTyping: true
       })
-      const startRow = Math.min(sel.start.row, sel.end?.row ?? sel.start.row)
-      const startCol = Math.min(sel.start.col, sel.end?.col ?? sel.start.col)
+
+      // Add empty rows as needed to receive paste data
       const needRows = startRow + data.length
       if (items.value.length < needRows) {
         const newRows = ref(Array.from(Array(needRows - items.value.length), () => ({})))
         items.value = items.value.concat(newRows.value)
       }
+
+      // Populate rows with data
       data.forEach((arr, index) => {
         if (arr.length == 1 && arr[0] === null) return
         arr.forEach((v, colOffset) => {
@@ -176,7 +189,7 @@ export function useSpreadsheet<Item extends {} & { errors?: Errors<string> }>(
   }
 
   /** Number of editable columns */
-  const nCol = ref(0)
+  const nCol = ref(options?.startCol ?? 0)
   /** Column ID generator */
   function colGen() {
     return (nCol.value += 1) - 1
@@ -251,7 +264,12 @@ export function useSpreadsheet<Item extends {} & { errors?: Errors<string> }>(
    */
   useEventListener(document.body, 'paste', handlePaste)
 
-  return { items, selection, editing, dragging, edit, onEdited, cellHeader, handlePaste, isSelected, isEditing, moveSelection, select, selectEnd, isEmpty }
+  return {
+    items, selection, editing, dragging,
+    edit, onEdited, cellHeader, handlePaste,
+    isSelected, isEditing,
+    moveSelection, select, selectEnd, isEmpty
+  }
 }
 
 

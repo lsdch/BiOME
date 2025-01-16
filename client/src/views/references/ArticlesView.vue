@@ -72,6 +72,17 @@
         :edit="editItem"
       />
     </template>
+    <template #footer.prepend-actions>
+      <ArticlesImportDialog v-model="importDialog" />
+      <v-btn
+        color="primary"
+        text="Import"
+        variant="plain"
+        prepend-icon="mdi-upload"
+        size="small"
+        @click="toggleImportDialog(true)"
+      />
+    </template>
   </CRUDTable>
 </template>
 
@@ -79,7 +90,9 @@
 import { ReferencesService } from '@/api'
 import { Article } from '@/api/adapters'
 import ArticleFormDialog from '@/components/references/ArticleFormDialog.vue'
+import ArticlesImportDialog from '@/components/references/ArticlesImportDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { useToggle } from '@vueuse/core'
 import { ref } from 'vue'
 
 type ArticleFilters = {
@@ -87,6 +100,8 @@ type ArticleFilters = {
   year?: number
   author?: string
 }
+
+const [importDialog, toggleImportDialog] = useToggle(false)
 
 const search = ref<ArticleFilters>({})
 
@@ -98,7 +113,7 @@ function filter({ authors, year }: Article) {
   )
 }
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<Article>[] = [
   { key: 'authors', title: 'Authors' },
   { key: 'year', title: 'Year', width: 0 },
   { key: 'journal', title: 'Journal', mobile: false }
