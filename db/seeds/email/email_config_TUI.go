@@ -157,7 +157,7 @@ func (m *model) TestConnection() {
 	_, err = m.data.Dialer().Dial()
 	if err != nil {
 		m.err = fmt.Errorf(
-			"🔴 Connection to the SMTP server failed using this configuration.",
+			"🔴 Connection to the SMTP server failed using this configuration: %v.", err,
 		)
 		m.testingConnection = false
 		return

@@ -41,7 +41,9 @@ func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) error {
 	_, err := os.Stat(SMTP_CONFIG_PATH)
 	if err != nil && errors.Is(err, fs.ErrNotExist) {
 		emailConfig = settings.EmailSettingsInput{}
-		emailConfig.WriteYAML(SMTP_CONFIG_PATH)
+		if err := emailConfig.WriteYAML(SMTP_CONFIG_PATH); err != nil {
+			return fmt.Errorf("Failed to create email config file: %v", err)
+		}
 		logrus.Infof(
 			"No existing SMTP config file. Generated empty config @ %s",
 			SMTP_CONFIG_PATH)
@@ -50,8 +52,8 @@ func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) error {
 		if err != nil {
 			return fmt.Errorf("Failed to load SMTP configuration: %v", err)
 		}
-		logrus.Infof("Existing SMTP configuration loaded from %s",
-			SMTP_CONFIG_PATH)
+		logrus.Infof("Existing SMTP configuration loaded from %s : %+v",
+			SMTP_CONFIG_PATH, emailConfig)
 	}
 
 	var setup = EmailSetup{
@@ -72,7 +74,7 @@ func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) error {
 	if !setup.connectionOK {
 		logrus.Fatalf("Connection failed")
 	}
-	logrus.Infof(successStyle.Render("🟢 Connection succeeded"))
+	logrus.Info(successStyle.Render("🟢 Connection succeeded"))
 
 	if _, err := emailConfig.Save(db); err != nil {
 		return fmt.Errorf(
@@ -84,7 +86,7 @@ func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) error {
 		return fmt.Errorf("Failed to write SMTP configuration to file: %v", err)
 	}
 
-	logrus.Infof(successStyle.Render(
+	logrus.Info(successStyle.Render(
 		"💾 SMTP configuration saved to database and updated in config file",
 	))
 	return nil

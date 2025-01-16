@@ -58,9 +58,14 @@ func main() {
 	database := flag.String("db", "", "The name of the database to seed")
 	flag.Parse()
 
+	wadSites, err := seeds.LoadSites("data/Aselloidea/sites.json", 500)
+	if err != nil {
+		logrus.Fatalf("Failed to load WAD sites: %v", err)
+	}
+
 	client := db.Connect(edgedb.Options{Database: *database})
 
-	err := client.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+	err = client.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
 
 		logrus.Infof("⚙ Initializing settings with superadmin account")
 		if err := setup.InitTx(tx, superAdmin); err != nil {
@@ -73,7 +78,8 @@ func main() {
 
 		logrus.Infof("🌱 Seeding habitats")
 		if err := occurrence.InitialHabitatsSetup(tx); err != nil {
-			logrus.Fatalf("Failed to seed habitats: %v", err)
+			logrus.Errorf("Failed to seed habitats: %v", err)
+			return err
 		}
 
 		if err := seeds.SeedTaxonomyGBIF(tx); err != nil {
@@ -96,6 +102,13 @@ func main() {
 			`#edgeql
 				update seq::ExternalSequence set {};
 			`); err != nil {
+			return err
+		}
+
+		logrus.Info("🧪 Empirical datasets")
+		logrus.Infof("🌱 Seeding WAD sampling sites")
+		if err := seeds.SeedSites(tx, *wadSites); err != nil {
+			logrus.Errorf("Failed to seed WAD sampling sites")
 			return err
 		}
 

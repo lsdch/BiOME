@@ -14,13 +14,20 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"
-	"github.com/sirupsen/logrus"
 )
 
+type LatLongCoords struct {
+	Latitude  float32 `edgedb:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"39.1137"`
+	Longitude float32 `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"9.5064"`
+}
+
+func (c LatLongCoords) LatLong() (float32, float32) {
+	return c.Latitude, c.Longitude
+}
+
 type Coordinates struct {
-	Precision location.CoordinatesPrecision `edgedb:"precision" json:"precision" doc:"Where the coordinates point to"`
-	Latitude  float32                       `edgedb:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"39.1137"`
-	Longitude float32                       `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"9.5064"`
+	Precision     location.CoordinatesPrecision `edgedb:"precision" json:"precision" doc:"Where the coordinates point to"`
+	LatLongCoords `edgedb:"$inline" json:",inline"`
 }
 
 type SiteInput struct {
@@ -31,6 +38,10 @@ type SiteInput struct {
 	Altitude    models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
 	Locality    models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
 	CountryCode string                       `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+}
+
+func (c SiteInput) LatLong() (float32, float32) {
+	return c.Coordinates.LatLong()
 }
 
 func (i *SiteInput) Validate(edb edgedb.Executor) validations.ValidationErrors {
@@ -129,8 +140,11 @@ var siteInsertQueryTmpl = template.Must(
 			),
 			locality := <str>json_get({{.Json}}, 'locality'),
 			country := (
-				select assert_exists(location::Country
-				filter .code = <str>{{.Json}}['country_code'])
+				select assert_exists(
+					location::Country
+					filter .code = <str>{{.Json}}['country_code'],
+					message := ("Invalid country code: " ++ <str>{{.Json}}['country_code'])
+				)
 			),
 			altitude := <int32>json_get({{.Json}}, 'altitude')
 		{{ "}" }}
@@ -139,7 +153,7 @@ var siteInsertQueryTmpl = template.Must(
 func (i SiteInput) InsertQuery(jsonVar string) string {
 	var query bytes.Buffer
 	_ = siteInsertQueryTmpl.Execute(&query, struct{ Json string }{jsonVar})
-	logrus.Infof("%s", query.String())
+	// logrus.Infof("%s", query.String())
 	return query.String()
 }
 

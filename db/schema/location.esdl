@@ -25,15 +25,15 @@ module location {
   # <10Km: Nearest locality
   # 10-100Km: Country/region
   # Unknown
-  scalar type CoordinatesPrecision extending enum<"<100m", "<1Km", "<10Km", "10-100Km", "Unknown">;
+  scalar type CoordinatesPrecision extending enum<"<100m", "<1km", "<10km", "10-100km", "Unknown">;
 
   type Site extending default::Auditable {
-    required name : str { constraint exclusive };
+    required name : str;
     required code : str {
       annotation title := "Site identifier";
       annotation description := "A short, unique, user-generated, alphanumeric identifier. Recommended size is 8.";
       constraint exclusive;
-      constraint min_len_value(4);
+      constraint min_len_value(3);
       constraint max_len_value(10);
     };
 
