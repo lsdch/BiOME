@@ -149,6 +149,7 @@
       <!-- Table footer -->
       <template #[`footer.prepend`]>
         <div class="d-flex align-center flex-grow-1">
+          <slot name="footer.prepend-actions"></slot>
           <v-btn
             variant="plain"
             size="small"
@@ -300,6 +301,7 @@ const slots = defineSlots<
     'expanded-row-footer': (props: { item: ItemType }) => any
     'toolbar-prepend-actions': () => any
     'toolbar-append-actions': () => any
+    'footer.prepend-actions': () => any
     form(props: UnwrapRef<typeof form>): any
   }
 >()
