@@ -2,12 +2,14 @@ package occurrence
 
 import (
 	"context"
+	"darco/proto/db"
 	"darco/proto/models"
 	"darco/proto/models/people"
 	"darco/proto/models/references"
 	"darco/proto/models/sequences"
 	"darco/proto/models/specimen"
 	"darco/proto/models/taxonomy"
+	"encoding/json"
 	"time"
 
 	"github.com/edgedb/edgedb-go"
@@ -161,10 +163,22 @@ func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterial, er
 
 type BioMaterialInput struct {
 	OccurrenceInput `edgedb:"$inline" json:",inline"`
-	Code            string                     `edgedb:"code" json:"code"`
-	Category        OccurrenceCategory         `edgedb:"category" json:"category"`
-	IsType          models.OptionalInput[bool] `edgedb:"is_type" json:"is_type" default:"false"`
-	// Category dependent field
+	Code            models.OptionalInput[string] `edgedb:"code" json:"code,omitempty"`
+	IsType          models.OptionalInput[bool]   `edgedb:"is_type" json:"is_type,omitempty"`
+}
+
+func (i BioMaterialInput) GetCode(db edgedb.Executor) (string, error) {
+	if i.Code.IsSet {
+		return i.Code.Value, nil
+	} else {
+		return i.GenerateCode(db)
+	}
+}
+
+type BioMaterialUpdate struct {
+	OccurrenceUpdate `edgedb:"$inline" json:",inline"`
+	Code             models.OptionalInput[string] `edgedb:"code" json:"code,omitempty"`
+	IsType           models.OptionalInput[bool]   `edgedb:"is_type" json:"is_type,omitempty"`
 }
 
 type InternalBioMatInput struct {
@@ -174,11 +188,113 @@ type InternalBioMatInput struct {
 
 type ExternalBioMatInput struct {
 	BioMaterialInput   `edgedb:"$inline" json:",inline"`
-	OriginalLink       models.OptionalInput[string] `edgedb:"original_link" json:"original_link,omitempty"`
-	OriginalTaxon      models.OptionalInput[string] `edgedb:"original_taxon" json:"original_taxon,omitempty"`
-	Quantity           specimen.Quantity            `edgedb:"quantity" json:"quantity"`
-	ContentDescription models.OptionalInput[string] `edgedb:"content_description" json:"content_description,omitempty"`
-	Collection         models.OptionalInput[string] `edgedb:"in_collection" json:"collection,omitempty"`
-	Item               []string                     `edgedb:"item_vouchers" json:"vouchers,omitempty"`
-	Comments           models.OptionalInput[string] `edgedb:"comments" json:"comments,omitempty"`
+	OriginalLink       models.OptionalInput[string]   `edgedb:"original_link" json:"original_link,omitempty"`
+	OriginalTaxon      models.OptionalInput[string]   `edgedb:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           specimen.Quantity              `edgedb:"quantity" json:"quantity"`
+	ContentDescription models.OptionalInput[string]   `edgedb:"content_description" json:"content_description,omitempty"`
+	Collection         models.OptionalInput[string]   `edgedb:"in_collection" json:"collection,omitempty"`
+	Item               []string                       `edgedb:"item_vouchers" json:"vouchers,omitempty"`
+	Comments           models.OptionalInput[string]   `edgedb:"comments" json:"comments,omitempty"`
+	PublishedIn        models.OptionalInput[[]string] `edgedb:"published_in" json:"published_in"`
+}
+
+func (i ExternalBioMatInput) Save(e edgedb.Executor) (created BioMaterialWithDetails, err error) {
+	data, _ := json.Marshal(i)
+	code, err := i.GetCode(e)
+	if err != nil {
+		return
+	}
+	err = e.QuerySingle(context.Background(),
+		`#edgeql
+			with data := <json>$0,
+			select (insert occurrence::ExternalBioMat {
+				original_link := <str>json_get(data, 'original_link'),
+				original_taxon := <str>json_get(data, 'original_taxon'),
+				quantity := <occurrence::QuantityType>json_get(data, 'quantity'),
+				content_description := <str>json_get(data, 'content_description'),
+				in_collection := <str>json_get(data, 'collection'),
+				item_vouchers := <str>json_array_unpack(json_get(data, 'item_vouchers')),
+				comments := <str>json_get(data, 'comments'),
+				code := <str>$1,
+        identification := (
+          insert occurrence::Identification {
+            taxon := assert_exists(
+              select taxonomy::Taxon
+              filter .code = <str>data['identification']['taxon']
+            ),
+            identified_by := assert_exists(
+              select people::Person filter .alias = <str>data['identification']['identified_by']
+            ),
+            identified_on := date::from_json_with_precision(data['identification']['identified_on']),
+          }
+        ),
+        sampling := assert_exists(
+          select (<occurrence::Sampling><uuid>data['sampling_id'])
+        ),
+        is_type := <bool>json_get(data, 'is_type'),
+			}) {
+        **,
+				sequence_consensus: { * },
+				event := .sampling.event { *, site: {name, code} },
+				identification: { **, identified_by: { * } },
+        external := [is occurrence::ExternalBioMat]{
+          original_link,
+          in_collection,
+          item_vouchers,
+          quantity,
+          content_description
+        }
+      }
+		`, &created, data, code)
+	return
+}
+
+type ExternalBioMatUpdate struct {
+	BioMaterialUpdate  `edgedb:"$inline" json:",inline"`
+	OriginalLink       models.OptionalNull[string]             `edgedb:"original_link" json:"original_link,omitempty"`
+	OriginalTaxon      models.OptionalNull[string]             `edgedb:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           models.OptionalInput[specimen.Quantity] `edgedb:"quantity" json:"quantity,omitempty"`
+	ContentDescription models.OptionalNull[string]             `edgedb:"content_description" json:"content_description,omitempty"`
+	Collection         models.OptionalNull[string]             `edgedb:"in_collection" json:"collection,omitempty"`
+	Item               models.OptionalInput[[]string]          `edgedb:"item_vouchers" json:"vouchers,omitempty"`
+	Comments           models.OptionalNull[string]             `edgedb:"comments" json:"comments,omitempty"`
+	PublishedIn        models.OptionalNull[[]string]           `edgedb:"published_in" json:"published_in"`
+}
+
+func (u ExternalBioMatUpdate) Save(e edgedb.Executor, code string) (updated BioMaterialWithDetails, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: `#edgeql
+      with item := <json>$1,
+      select (update occurrence::ExternalBioMat filter .code = <str>$0 set {
+        %s
+      }) {
+        **,
+				sequence_consensus: { * },
+				event := .sampling.event { *, site: {name, code} },
+				identification: { **, identified_by: { * } },
+        external := [is occurrence::ExternalBioMat]{
+          original_link,
+          in_collection,
+          item_vouchers,
+          quantity,
+          content_description
+        }
+      }
+    `,
+		Mappings: map[string]string{
+			"code":                "<str>item['code']", // if not explicitly provided, updated code is autogenerated
+			"original_link":       "<str>item['original_link']",
+			"original_taxon":      "<str>item['original_taxon']",
+			"quantity":            "<occurrence::QuantityType>item['quantity']",
+			"content_description": "<str>item['content_description']",
+			"in_collection":       "<str>item['collection']",
+			"item_vouchers":       "<str>json_array_unpack(item['item_vouchers'])",
+			"comments":            "<str>item['comments']",
+			"is_type":             "<bool>item['is_type']",
+			"identification":      u.Identification.Value.UpdateQuery(".identification"),
+		},
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
+	return
 }

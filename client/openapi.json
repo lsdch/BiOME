@@ -1414,6 +1414,70 @@
 				],
 				"type": "object"
 			},
+			"ExternalBioMatInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ExternalBioMatInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"collection": {
+						"type": "string"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"content_description": {
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/IdentificationInput"
+					},
+					"is_type": {
+						"type": "boolean"
+					},
+					"original_link": {
+						"type": "string"
+					},
+					"original_taxon": {
+						"type": "string"
+					},
+					"published_in": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"quantity": {
+						"$ref": "#/components/schemas/Quantity"
+					},
+					"sampling_id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"vouchers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"quantity",
+					"published_in",
+					"sampling_id",
+					"identification"
+				],
+				"type": "object"
+			},
 			"ExternalBioMatSequence": {
 				"additionalProperties": false,
 				"properties": {
@@ -1519,6 +1583,86 @@
 					"quantity",
 					"archive",
 					"comments"
+				],
+				"type": "object"
+			},
+			"ExternalBioMatUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ExternalBioMatUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"collection": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"comments": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"content_description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"identification": {
+						"$ref": "#/components/schemas/IdentificationUpdate"
+					},
+					"is_type": {
+						"type": "boolean"
+					},
+					"original_link": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"original_taxon": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"published_in": {
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"quantity": {
+						"$ref": "#/components/schemas/Quantity"
+					},
+					"sampling_id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"vouchers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"published_in",
+					"sampling_id"
 				],
 				"type": "object"
 			},
@@ -2023,6 +2167,44 @@
 					"identified_on",
 					"meta"
 				],
+				"type": "object"
+			},
+			"IdentificationInput": {
+				"additionalProperties": false,
+				"properties": {
+					"identified_by": {
+						"type": "string"
+					},
+					"identified_on": {
+						"$ref": "#/components/schemas/DateWithPrecisionInput"
+					},
+					"taxon": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"taxon",
+					"identified_by",
+					"identified_on"
+				],
+				"type": "object"
+			},
+			"IdentificationUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"identified_by": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"identified_on": {
+						"$ref": "#/components/schemas/DateWithPrecisionInput"
+					},
+					"taxon": {
+						"type": "string"
+					}
+				},
 				"type": "object"
 			},
 			"Identifier": {
@@ -7574,6 +7756,162 @@
 					}
 				},
 				"summary": "List bio-material",
+				"tags": [
+					"Samples"
+				]
+			}
+		},
+		"/bio-material/external": {
+			"patch": {
+				"operationId": "UpdateExternalBioMat",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ExternalBioMatUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BioMaterialWithDetails"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update external bio-material",
+				"tags": [
+					"Samples"
+				]
+			},
+			"post": {
+				"operationId": "CreateExternalBioMat",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ExternalBioMatInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BioMaterialWithDetails"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create external bio-material",
 				"tags": [
 					"Samples"
 				]

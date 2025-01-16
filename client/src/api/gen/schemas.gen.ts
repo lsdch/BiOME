@@ -1254,6 +1254,64 @@ export const $ExternalBioMatContent = {
   type: 'object'
 } as const
 
+export const $ExternalBioMatInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ExternalBioMatInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    collection: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    content_description: {
+      type: 'string'
+    },
+    identification: {
+      $ref: '#/components/schemas/IdentificationInput'
+    },
+    is_type: {
+      type: 'boolean'
+    },
+    original_link: {
+      type: 'string'
+    },
+    original_taxon: {
+      type: 'string'
+    },
+    published_in: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    quantity: {
+      $ref: '#/components/schemas/Quantity'
+    },
+    sampling_id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    vouchers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    }
+  },
+  required: ['quantity', 'published_in', 'sampling_id', 'identification'],
+  type: 'object'
+} as const
+
 export const $ExternalBioMatSequence = {
   additionalProperties: false,
   properties: {
@@ -1357,6 +1415,64 @@ export const $ExternalBioMatSpecific = {
     }
   },
   required: ['quantity', 'archive', 'comments'],
+  type: 'object'
+} as const
+
+export const $ExternalBioMatUpdate = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ExternalBioMatUpdate.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    collection: {
+      type: ['string', 'null']
+    },
+    comments: {
+      type: ['string', 'null']
+    },
+    content_description: {
+      type: ['string', 'null']
+    },
+    identification: {
+      $ref: '#/components/schemas/IdentificationUpdate'
+    },
+    is_type: {
+      type: 'boolean'
+    },
+    original_link: {
+      type: ['string', 'null']
+    },
+    original_taxon: {
+      type: ['string', 'null']
+    },
+    published_in: {
+      items: {
+        type: 'string'
+      },
+      type: ['array', 'null']
+    },
+    quantity: {
+      $ref: '#/components/schemas/Quantity'
+    },
+    sampling_id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    vouchers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    }
+  },
+  required: ['published_in', 'sampling_id'],
   type: 'object'
 } as const
 
@@ -1792,6 +1908,39 @@ export const $Identification = {
     }
   },
   required: ['id', 'taxon', 'identified_by', 'identified_on', 'meta'],
+  type: 'object'
+} as const
+
+export const $IdentificationInput = {
+  additionalProperties: false,
+  properties: {
+    identified_by: {
+      type: 'string'
+    },
+    identified_on: {
+      $ref: '#/components/schemas/DateWithPrecisionInput'
+    },
+    taxon: {
+      type: 'string'
+    }
+  },
+  required: ['taxon', 'identified_by', 'identified_on'],
+  type: 'object'
+} as const
+
+export const $IdentificationUpdate = {
+  additionalProperties: false,
+  properties: {
+    identified_by: {
+      type: ['string', 'null']
+    },
+    identified_on: {
+      $ref: '#/components/schemas/DateWithPrecisionInput'
+    },
+    taxon: {
+      type: 'string'
+    }
+  },
   type: 'object'
 } as const
 

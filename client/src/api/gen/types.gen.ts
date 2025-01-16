@@ -465,6 +465,25 @@ export type ExternalBioMatContent = {
   specimen: string
 }
 
+export type ExternalBioMatInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code?: string
+  collection?: string
+  comments?: string
+  content_description?: string
+  identification: IdentificationInput
+  is_type?: boolean
+  original_link?: string
+  original_taxon?: string
+  published_in: Array<string>
+  quantity: Quantity
+  sampling_id: string
+  vouchers?: Array<string>
+}
+
 export type ExternalBioMatSequence = {
   accession_number: string
   category: OccurrenceCategory
@@ -491,6 +510,25 @@ export type ExternalBioMatSpecific = {
   original_link?: string
   original_taxon?: string
   quantity: Quantity
+}
+
+export type ExternalBioMatUpdate = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code?: string
+  collection?: string | null
+  comments?: string | null
+  content_description?: string | null
+  identification?: IdentificationUpdate
+  is_type?: boolean
+  original_link?: string | null
+  original_taxon?: string | null
+  published_in: Array<string> | null
+  quantity?: Quantity
+  sampling_id: string
+  vouchers?: Array<string>
 }
 
 export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom'
@@ -680,6 +718,18 @@ export type Identification = {
   identified_on: DateWithPrecision
   meta: Meta
   taxon: Taxon
+}
+
+export type IdentificationInput = {
+  identified_by: string
+  identified_on: DateWithPrecisionInput
+  taxon: string
+}
+
+export type IdentificationUpdate = {
+  identified_by?: string | null
+  identified_on?: DateWithPrecisionInput
+  taxon?: string
 }
 
 export type Identifier = {
@@ -2617,6 +2667,37 @@ export type ListBioMaterialResponse = Array<BioMaterialWithDetails>
 
 export type ListBioMaterialError = ErrorModel
 
+export type UpdateExternalBioMatData = {
+  body: ExternalBioMatUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+}
+
+export type UpdateExternalBioMatResponse = BioMaterialWithDetails
+
+export type UpdateExternalBioMatError = ErrorModel
+
+export type CreateExternalBioMatData = {
+  body: ExternalBioMatInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+}
+
+export type CreateExternalBioMatResponse = BioMaterialWithDetails
+
+export type CreateExternalBioMatError = ErrorModel
+
 export type DeleteBioMaterialData = {
   headers?: {
     /**
@@ -4088,6 +4169,26 @@ export const ListBioMaterialResponseTransformer: ListBioMaterialResponseTransfor
   }
   return data
 }
+
+export type UpdateExternalBioMatResponseTransformer = (
+  data: any
+) => Promise<UpdateExternalBioMatResponse>
+
+export const UpdateExternalBioMatResponseTransformer: UpdateExternalBioMatResponseTransformer =
+  async (data) => {
+    BioMaterialWithDetailsModelResponseTransformer(data)
+    return data
+  }
+
+export type CreateExternalBioMatResponseTransformer = (
+  data: any
+) => Promise<CreateExternalBioMatResponse>
+
+export const CreateExternalBioMatResponseTransformer: CreateExternalBioMatResponseTransformer =
+  async (data) => {
+    BioMaterialWithDetailsModelResponseTransformer(data)
+    return data
+  }
 
 export type DeleteBioMaterialResponseTransformer = (data: any) => Promise<DeleteBioMaterialResponse>
 

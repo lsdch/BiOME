@@ -204,6 +204,12 @@ import {
   type ListBioMaterialData,
   type ListBioMaterialError,
   type ListBioMaterialResponse,
+  type UpdateExternalBioMatData,
+  type UpdateExternalBioMatError,
+  type UpdateExternalBioMatResponse,
+  type CreateExternalBioMatData,
+  type CreateExternalBioMatError,
+  type CreateExternalBioMatResponse,
   type DeleteBioMaterialData,
   type DeleteBioMaterialError,
   type DeleteBioMaterialResponse,
@@ -211,6 +217,8 @@ import {
   type GetBioMaterialError,
   type GetBioMaterialResponse,
   ListBioMaterialResponseTransformer,
+  UpdateExternalBioMatResponseTransformer,
+  CreateExternalBioMatResponseTransformer,
   DeleteBioMaterialResponseTransformer,
   GetBioMaterialResponseTransformer,
   type ListAbioticParametersData,
@@ -1382,6 +1390,40 @@ export class SamplesService {
       ...options,
       url: '/bio-material',
       responseTransformer: ListBioMaterialResponseTransformer
+    })
+  }
+
+  /**
+   * Update external bio-material
+   */
+  public static updateExternalBioMat<ThrowOnError extends boolean = false>(
+    options: OptionsLegacyParser<UpdateExternalBioMatData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).patch<
+      UpdateExternalBioMatResponse,
+      UpdateExternalBioMatError,
+      ThrowOnError
+    >({
+      ...options,
+      url: '/bio-material/external',
+      responseTransformer: UpdateExternalBioMatResponseTransformer
+    })
+  }
+
+  /**
+   * Create external bio-material
+   */
+  public static createExternalBioMat<ThrowOnError extends boolean = false>(
+    options: OptionsLegacyParser<CreateExternalBioMatData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).post<
+      CreateExternalBioMatResponse,
+      CreateExternalBioMatError,
+      ThrowOnError
+    >({
+      ...options,
+      url: '/bio-material/external',
+      responseTransformer: CreateExternalBioMatResponseTransformer
     })
   }
 

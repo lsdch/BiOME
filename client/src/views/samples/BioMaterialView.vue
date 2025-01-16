@@ -179,19 +179,21 @@
         </v-col>
       </v-row>
     </template>
+    <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
+      <BioMaterialFormDialog
+        :model-value="dialog"
+        @close="onClose"
+        @success="onSuccess"
+        :edit="editItem"
+      />
+    </template>
   </CRUDTable>
 </template>
 
 <script setup lang="ts">
-import {
-  $OccurrenceCategory,
-  BioMaterial,
-  PersonInner,
-  SamplesService,
-  SiteInfo,
-  Taxon
-} from '@/api'
+import { BioMaterial, PersonInner, SamplesService, SiteInfo, Taxon } from '@/api'
 import { DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
+import BioMaterialFormDialog from '@/components/occurrence/BioMaterialFormDialog.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
@@ -199,7 +201,6 @@ import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
-import { useToggle } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
@@ -237,7 +238,7 @@ const filter = computed(() => {
   }
 })
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<BioMaterial>[] = [
   {
     children: [{ key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } }]
   },

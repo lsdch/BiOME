@@ -31,6 +31,20 @@ func RegisterRoutes(r router.Router) {
 			Description: "Both internal and external",
 		}, controllers.GetByCodeHandler(occurrence.GetBioMaterial))
 
+	router.Register(biomat_API, "CreateExternalBioMat",
+		huma.Operation{
+			Path:    "/external",
+			Method:  http.MethodPost,
+			Summary: "Create external bio-material",
+		}, controllers.CreateHandler[occurrence.ExternalBioMatInput])
+
+	router.Register(biomat_API, "UpdateExternalBioMat",
+		huma.Operation{
+			Path:    "/external",
+			Method:  http.MethodPatch,
+			Summary: "Update external bio-material",
+		}, controllers.UpdateByCodeHandler[occurrence.ExternalBioMatUpdate])
+
 	router.Register(biomat_API, "DeleteBioMaterial",
 		huma.Operation{
 			Path:        "/{code}",
