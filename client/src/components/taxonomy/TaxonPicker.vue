@@ -41,19 +41,18 @@ import { ref } from 'vue'
 import { FTaxonStatusIndicator } from './functionals'
 
 const model = defineModel<any>()
-const { threshold, limit, ranks } = withDefaults(
-  defineProps<{
-    label?: string
-    ranks?: TaxonRank[]
-    threshold?: number
-    limit?: number
-  }>(),
-  {
-    label: 'Taxon',
-    limit: 10,
-    threshold: 0.7
-  }
-)
+const {
+  label = 'Taxon',
+  threshold = 0.7,
+  limit = 10,
+  ranks
+} = defineProps<{
+  label?: string
+  ranks?: TaxonRank[]
+  threshold?: number
+  limit?: number
+}>()
+
 const search = ref('')
 
 const { items, loading, error } = useFetchItems(() =>
