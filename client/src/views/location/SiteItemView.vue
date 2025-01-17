@@ -45,7 +45,7 @@
             </template>
             <template #append>
               <v-btn
-                v-if="mdAndDown"
+                v-if="mapAsDialog"
                 class="ml-3"
                 variant="tonal"
                 icon="mdi-map-marker"
@@ -137,7 +137,7 @@
         </v-card>
       </div>
       <div id="map-container">
-        <ResponsiveDialog :as-dialog="smAndDown" v-model:open="mapActive">
+        <ResponsiveDialog :as-dialog="mapAsDialog" v-model:open="mapActive">
           <v-card class="d-flex flex-column fill-height" :rounded="!mapActive">
             <SitesMap
               :items="[site]"
@@ -178,6 +178,8 @@ import { LocationService, Taxon } from '@/api'
 import { handleErrors } from '@/api/responses'
 import SiteEventsTable from '@/components/events/SiteEventsTable.vue'
 import SitesMap from '@/components/maps/SitesMap.vue'
+import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
+import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 import { useToggle } from '@vueuse/core'
 import { computed, ref } from 'vue'
@@ -185,10 +187,10 @@ import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
-import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
-import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 
-const { smAndDown, lgAndUp, mdAndDown, xlAndUp } = useDisplay()
+const { mdAndDown, xlAndUp } = useDisplay()
+
+const mapAsDialog = mdAndDown
 
 const [mapActive, toggleMap] = useToggle(false)
 const [editDialog, toggleEdit] = useToggle(false)
