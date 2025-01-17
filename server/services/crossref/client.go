@@ -33,20 +33,20 @@ type ConcurrentClient struct {
 // upon completion.
 func (c ConcurrentClient) Start() {
 	for {
-		if client.ActiveQueries >= client.MaxActiveQueries {
+		if c.ActiveQueries >= c.MaxActiveQueries {
 			time.Sleep(time.Millisecond * 300)
 			continue
 		}
 		var item services.ApiRequestItem[crossrefapi.CrossRefClient]
 		select {
-		case item = <-client.DoiQueue:
-		case item = <-client.QueryQueue:
+		case item = <-c.DoiQueue:
+		case item = <-c.QueryQueue:
 		}
-		client.ActiveQueries++
-		logrus.Debugf("Sending query ; interval: %d ; limit: %d; active: %d", client.RateLimitInterval, client.RateLimitLimit, client.ActiveQueries)
+		c.ActiveQueries++
+		logrus.Debugf("Sending query ; interval: %d ; limit: %d; active: %d", c.RateLimitInterval, c.RateLimitLimit, c.ActiveQueries)
 		go func() {
-			item.Execute(&client.CrossRefClient)
-			client.ActiveQueries--
+			item.Execute(&c.CrossRefClient)
+			c.ActiveQueries--
 		}()
 	}
 }
