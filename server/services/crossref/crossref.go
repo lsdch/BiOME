@@ -29,7 +29,7 @@ func RetrieveDOI(db edgedb.Executor, doi string) (*crossrefapi.Works, error) {
 	// Wait for response
 	resp := <-queueItem.Receiver
 	data, err := resp.Data, resp.Error
-	if data == nil || err == nil {
+	if data == nil || err != nil {
 		return nil, huma.Error404NotFound("No match found")
 	}
 
