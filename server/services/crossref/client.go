@@ -11,10 +11,10 @@ import (
 
 const maxConcurrentRequests = 5
 
-// ConcurrentClient wraps the CrossRef API client to provide concurrent request handling
+// CrossRefScheduler wraps the CrossRef API client to provide concurrent request handling
 // with request queuing and throttling capabilities. It manages both DOI-specific and
 // general query requests through separate queues while respecting rate limits.
-type ConcurrentClient struct {
+type CrossRefScheduler struct {
 	crossrefapi.CrossRefClient
 	DoiQueue         services.Queue[crossrefapi.Works, crossrefapi.CrossRefClient]
 	QueryQueue       services.Queue[crossrefapi.WorksQueryResponse, crossrefapi.CrossRefClient]
@@ -31,7 +31,7 @@ type ConcurrentClient struct {
 // The method runs indefinitely and spawns goroutines for each request execution.
 // Each request is processed asynchronously, and the active query count is decremented
 // upon completion.
-func (c ConcurrentClient) Start() {
+func (c CrossRefScheduler) Start() {
 	for {
 		if c.ActiveQueries >= c.MaxActiveQueries {
 			time.Sleep(time.Millisecond * 300)
@@ -51,11 +51,11 @@ func (c ConcurrentClient) Start() {
 	}
 }
 
-var client *ConcurrentClient
+var client *CrossRefScheduler
 
 // Initializes a CrossRef API client with mail-to super admin address
 // and max concurrent requests throttling
-func newClient(maxConcurrent int) *ConcurrentClient {
+func newClient(maxConcurrent int) *CrossRefScheduler {
 	appName := settings.Instance().Name
 	mailTo := settings.Get().SuperAdmin.Email
 
@@ -66,7 +66,7 @@ func newClient(maxConcurrent int) *ConcurrentClient {
 	crefClient.RateLimitInterval = 1
 	crefClient.RateLimitLimit = maxConcurrentRequests * 2
 
-	client = &ConcurrentClient{
+	client = &CrossRefScheduler{
 		CrossRefClient:   *crefClient,
 		DoiQueue:         services.NewQueue[crossrefapi.Works, crossrefapi.CrossRefClient](maxConcurrentRequests),
 		QueryQueue:       services.NewQueue[crossrefapi.WorksQueryResponse, crossrefapi.CrossRefClient](maxConcurrentRequests),
@@ -81,6 +81,6 @@ func init() {
 	go client.Start()
 }
 
-func Client() *ConcurrentClient {
+func Client() *CrossRefScheduler {
 	return client
 }
