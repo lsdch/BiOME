@@ -29,8 +29,9 @@ const dark: ThemeDefinition = {
 }
 
 import { VNumberInput } from 'vuetify/labs/VNumberInput'
-import { VTextField } from 'vuetify/components'
 import { VTreeview, VTreeviewItem } from 'vuetify/labs/VTreeview'
+
+const { VTextField } = components
 
 export default createVuetify({
   blueprint: md3,
