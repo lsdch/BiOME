@@ -7,13 +7,13 @@ go 1.23.4
 require (
 	github.com/a-h/templ v0.3.819
 	github.com/brianvoe/gofakeit/v7 v7.1.2
-	github.com/caltechlibrary/crossrefapi v1.0.8
+	github.com/caltechlibrary/crossrefapi v1.0.9
 	github.com/danielgtaylor/huma/v2 v2.27.0
 	github.com/disintegration/imaging v1.6.2
 	github.com/edgedb/edgedb-go v0.17.2
 	github.com/gin-gonic/gin v1.10.0
 	github.com/go-playground/validator/v10 v10.24.0
-	github.com/goccy/go-yaml v1.15.13
+	github.com/goccy/go-yaml v1.15.14
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/gosimple/slug v1.15.0
 	github.com/json-iterator/go v1.1.12
@@ -32,7 +32,7 @@ require (
 
 require (
 	github.com/bytedance/sonic v1.12.7 // indirect
-	github.com/bytedance/sonic/loader v0.2.2 // indirect
+	github.com/bytedance/sonic/loader v0.2.3 // indirect
 	github.com/caltechlibrary/doitools v0.0.3 // indirect
 	github.com/certifi/gocertifi v0.0.0-20210507211836-431795d63e8d // indirect
 	github.com/cloudwego/base64x v0.1.4 // indirect
@@ -79,7 +79,7 @@ require (
 	golang.org/x/sync v0.10.0 // indirect
 	golang.org/x/sys v0.29.0 // indirect
 	golang.org/x/tools v0.29.0 // indirect
-	google.golang.org/protobuf v1.36.2 // indirect
+	google.golang.org/protobuf v1.36.3 // indirect
 	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
