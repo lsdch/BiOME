@@ -35,8 +35,10 @@
         </template>
       </TableToolbar>
       <SitesMap ref="map" :items="sites" clustered :auto-fit="false">
-        <template #marker="{ item }">
-          <SitePopup :item :options="{ keepInView: false, autoPan: false }"></SitePopup>
+        <template #popup="{ item }">
+          <KeepAlive>
+            <SitePopup v-if="item" :item :options="{ keepInView: false, autoPan: false }" />
+          </KeepAlive>
         </template>
       </SitesMap>
     </div>
@@ -57,6 +59,7 @@ import { useDisplay } from 'vuetify'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
+import { LCircle } from '@vue-leaflet/vue-leaflet'
 
 const { xs } = useDisplay()
 

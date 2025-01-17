@@ -40,20 +40,27 @@ func (d SiteImportDataset) GroupByPrecision() map[location.CoordinatesPrecision]
 }
 
 func (d SiteImportDataset) FillPlaces(apiKey string) error {
-	// logrus.Infof("Input: \n %+v\n\n", d)
-	// logrus.Infof("Body: \n %+v", d.RequestBody())
-	// logrus.Exit(0)
 	client := geoapify.NewGeoapifyClient(apiKey)
 	response, err := client.BatchReverseGeocode(d.RequestBody())
 	if err != nil {
 		return err
 	}
 
-	// logrus.Infof("Geoapify response: \n %+v", response)
-
 	for i, v := range *response {
 		d[i].CountryCode = strings.ToUpper(v.CountryCode)
-		d[i].Locality.SetValue(fmt.Sprintf("%s, %s", v.City, v.State))
+		switch d[i].Coordinates.Precision {
+		case location.M100, location.KM1, location.KM10:
+			locality := v.City
+			if v.State != "" {
+				locality = locality + ", " + v.State
+			}
+			d[i].Locality.SetValue(locality)
+		case location.KM100:
+			d[i].Locality.SetValue(v.State)
+		case location.Unknown:
+			// skip
+			break
+		}
 	}
 	return nil
 }

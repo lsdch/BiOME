@@ -74,7 +74,7 @@
                   :closable="isDialog"
                   @close="toggleMobileMap(false)"
                 >
-                  <template #marker="{ item }">
+                  <template #popup="{ item }">
                     <SitePopup :item />
                   </template>
                 </SitesMap>

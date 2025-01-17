@@ -5,21 +5,30 @@
       :title="item.name"
       :subtitle="item.code"
       :to="{ name: 'site-item', params: { code: item.code } }"
-    />
+    >
+      <template #title="{ title }">
+        <span class="text-wrap">{{ title }}</span>
+      </template>
+      <template #subtitle="{ subtitle }">
+        <span class="font-monospace">{{ subtitle }}</span>
+      </template>
+    </v-list-item>
     <v-divider />
     <v-card-text>
       <div class="d-flex align-center my-2">
         <v-icon icon="mdi-crosshairs-gps" size="small" class="mr-3" />
-        <div class="coordinates">
+        <div class="coordinates font-monospace">
           <span class="label"> Lat </span>
           {{ item.coordinates.latitude }}
           <span class="label"> Lng </span>
           {{ item.coordinates.longitude }}
         </div>
+        <v-spacer></v-spacer>
+        <v-chip :text="item.coordinates.precision" size="small"></v-chip>
       </div>
-      <div v-if="item.locality || item.country.code" class="d-flex align-center my-2">
+      <div v-if="item.locality || item.country.code" class="d-flex align-center my-2 w-100">
         <v-icon icon="mdi-map-marker" size="small" class="mr-3" />
-        <div class="justify-space-between">
+        <div class="d-flex justify-space-between w-100">
           {{ item.locality }}
           <v-chip :text="item.country.code" size="small" class="ml-2" />
         </div>
@@ -33,7 +42,7 @@ import { SiteItem } from '@/api'
 import { LPopup } from '@vue-leaflet/vue-leaflet'
 import { PopupOptions } from 'leaflet'
 
-defineProps<{ item: SiteItem; options?: PopupOptions }>()
+const props = defineProps<{ item: SiteItem; options?: PopupOptions }>()
 </script>
 
 <style lang="scss">

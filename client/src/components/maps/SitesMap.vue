@@ -35,6 +35,7 @@
             <code>
               <div>Lat: {{ cursorCoordinates.lat.toFixed(5) }}</div>
               <div>Lng: {{ cursorCoordinates.lng.toFixed(5) }}</div>
+              <div>Zoom: {{ zoom.toFixed(4) }}</div>
             </code>
           </template>
         </v-card>
@@ -102,14 +103,19 @@
         :opacity="0.75"
         :visible="regions"
       />
-      <LMarkerClusterGroup v-if="clustered" remove-outside-visible-bounds show-coverage-on-hover>
+      <LMarkerClusterGroup
+        v-if="clustered"
+        remove-outside-visible-bounds
+        show-coverage-on-hover
+        :maxClusterRadius="70"
+      >
         <LCircleMarker
           v-for="(item, key) in items"
           :key
           :lat-lng="[item.coordinates.latitude, item.coordinates.longitude]"
           v-bind="marker"
+          @click="selectSite(item)"
         >
-          <slot name="marker" :item />
         </LCircleMarker>
       </LMarkerClusterGroup>
       <LCircleMarker
@@ -118,20 +124,35 @@
         :key
         :latLng="[item.coordinates.latitude, item.coordinates.longitude]"
         v-bind="marker"
+        @click="selectSite(item)"
       >
-        <slot name="marker" :item />
       </LCircleMarker>
-      <slot :map></slot>
+      <slot name="default" :map></slot>
+      <LCircle
+        v-if="selected && showRadius(selected.coordinates.precision)"
+        :lat-lng="[selected.coordinates.latitude, selected.coordinates.longitude]"
+        :radius="precisionRadius(selected.coordinates.precision)"
+        :interactive="false"
+      ></LCircle>
+
+      <!-- Shared site popup -->
+      <LLayerGroup ref="popup-layer">
+        <KeepAlive>
+          <slot name="popup" v-if="selected" :item="selected"></slot>
+        </KeepAlive>
+      </LLayerGroup>
     </l-map>
   </div>
 </template>
 
-<script setup lang="ts" generic="SiteItem extends Geocoordinates">
+<script setup lang="ts" generic="SiteItem extends { id: string } & Geocoordinates">
 import {
+  LCircle,
   LCircleMarker,
   LControl,
   LControlLayers,
   LControlScale,
+  LLayerGroup,
   LMap,
   LTileLayer
 } from '@vue-leaflet/vue-leaflet'
@@ -142,20 +163,55 @@ import L, {
   latLngBounds,
   LatLngExpression,
   LatLngLiteral,
-  type Map,
-  type LeafletMouseEvent
+  type LeafletMouseEvent,
+  type Map
 } from 'leaflet'
 import 'leaflet/dist/leaflet.css'
-import { ref, watch } from 'vue'
+import { ref, useTemplateRef, watch } from 'vue'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import { Geocoordinates } from '.'
 
+import { CoordinatesPrecision } from '@/api'
 import { vElementVisibility } from '@vueuse/components'
 
 const zoom = ref(1)
 const map = ref<HTMLElement>()
+const popupLayer = useTemplateRef<InstanceType<typeof LLayerGroup>>('popup-layer')
 
 const cursorCoordinates = ref<LatLngLiteral>()
+
+const selected = ref<SiteItem>()
+
+function selectSite(item: SiteItem) {
+  selected.value = item
+  popupLayer.value?.leafletObject?.openPopup(Geocoordinates.LatLng(item))
+}
+
+function showRadius(precision?: CoordinatesPrecision): precision is CoordinatesPrecision {
+  switch (precision) {
+    case undefined:
+    case '<100m':
+    case 'Unknown':
+      return false
+    case '<1km':
+      return zoom.value > 10
+    default:
+      return zoom.value > 6
+  }
+}
+
+function precisionRadius(precision: CoordinatesPrecision): number {
+  switch (precision) {
+    case '10-100km':
+      return 100_000
+    case '<10km':
+      return 10_000
+    case '<1km':
+      return 1000
+    default:
+      return 0
+  }
+}
 
 const { isFullscreen, enter, exit, toggle } = useFullscreen(map, {})
 onKeyStroke('Escape', exit)
@@ -189,6 +245,11 @@ const props = withDefaults(
     })
   }
 )
+
+defineSlots<{
+  default: (map?: HTMLElement) => any
+  popup: (props: { item: SiteItem }) => any
+}>()
 
 const mapBounds = ref(L.latLngBounds(...props.bounds))
 

@@ -1,7 +1,7 @@
 <template>
   <v-dialog v-model="isOpen" fullscreen>
     <SitesMap ref="map" closable auto-fit :items="mapItems" @close="isOpen = false">
-      <template #marker="{ item }">
+      <template #popup="{ item }">
         <l-popup class="site-popup">
           <div class="text-subtitle-1 text-no-wrap">{{ item.name }}</div>
           <div class="text-overline text-secondary">
