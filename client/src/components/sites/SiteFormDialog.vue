@@ -8,11 +8,11 @@
       </v-row>
       <v-row>
         <v-col>
-          <v-text-field
-            v-model="model.code"
+          <FTextField
+            v-model.upper="model.code"
             label="Code"
             v-bind="field('code')"
-            @input="() => (model.code = model.code?.toUpperCase())"
+            class="input-font-monospace"
           />
         </v-col>
       </v-row>
@@ -51,7 +51,23 @@
       </v-row>
       <v-row>
         <v-col cols="12" sm="8">
-          <v-text-field label="Locality" v-model="model.locality" v-bind="field('locality')" />
+          <div class="d-flex">
+            <v-switch v-model="model.user_defined_locality" :width="50" color="primary" />
+            <v-text-field
+              label="Locality"
+              v-model="model.locality"
+              persistent-placeholder
+              :disabled="!model.user_defined_locality"
+              :hint="
+                model.user_defined_locality
+                  ? 'User defined locality'
+                  : 'Inferred from coordinates using Geoapify'
+              "
+              persistent-hint
+              v-bind="field('locality')"
+            >
+            </v-text-field>
+          </div>
         </v-col>
         <v-col cols="12" sm="4">
           <CountryPicker
@@ -72,16 +88,18 @@ import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import { FormEmits, FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
 import { reactiveComputed, useToggle } from '@vueuse/core'
+import FTextField from '../toolkit/forms/FTextField'
 
 const dialog = defineModel<boolean>()
 const props = defineProps<FormProps<Site>>()
 const emit = defineEmits<FormEmits<Site>>()
 
 const initial: SiteInput = {
+  name: '',
   code: '',
   coordinates: { precision: '<100m', latitude: 0, longitude: 0 },
   country_code: '',
-  name: ''
+  user_defined_locality: false
 }
 
 const { model, mode, makeRequest } = useForm(props, {

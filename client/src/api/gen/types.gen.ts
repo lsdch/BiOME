@@ -1630,6 +1630,7 @@ export type Site = {
   locality?: string
   meta: Meta
   name: string
+  user_defined_locality: boolean
 }
 
 export type SiteInfo = {
@@ -1661,6 +1662,10 @@ export type SiteInput = {
    */
   locality?: string
   name: string
+  /**
+   * Signals if locality was manually entered by user, and automatically inferred from coordinates
+   */
+  user_defined_locality: boolean
 }
 
 export type SiteItem = {
@@ -1673,6 +1678,7 @@ export type SiteItem = {
   id: string
   locality?: string
   name: string
+  user_defined_locality: boolean
 }
 
 export type SiteUpdate = {
@@ -1699,6 +1705,10 @@ export type SiteUpdate = {
    */
   locality?: string | null
   name?: string
+  /**
+   * Signals whether locality was manually entered by user, and automatically inferred from coordinates
+   */
+  user_defined_locality: boolean
 }
 
 export type SpecimenVoucher = {

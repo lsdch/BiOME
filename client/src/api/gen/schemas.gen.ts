@@ -4581,6 +4581,9 @@ export const $Site = {
     name: {
       minLength: 4,
       type: 'string'
+    },
+    user_defined_locality: {
+      type: 'boolean'
     }
   },
   required: [
@@ -4592,7 +4595,8 @@ export const $Site = {
     'code',
     'description',
     'coordinates',
-    'country'
+    'country',
+    'user_defined_locality'
   ],
   type: 'object'
 } as const
@@ -4655,9 +4659,14 @@ export const $SiteInput = {
     name: {
       minLength: 4,
       type: 'string'
+    },
+    user_defined_locality: {
+      description:
+        'Signals if locality was manually entered by user, and automatically inferred from coordinates',
+      type: 'boolean'
     }
   },
-  required: ['name', 'code', 'coordinates', 'country_code'],
+  required: ['name', 'code', 'coordinates', 'user_defined_locality', 'country_code'],
   type: 'object'
 } as const
 
@@ -4695,9 +4704,20 @@ export const $SiteItem = {
     name: {
       minLength: 4,
       type: 'string'
+    },
+    user_defined_locality: {
+      type: 'boolean'
     }
   },
-  required: ['id', 'name', 'code', 'description', 'coordinates', 'country'],
+  required: [
+    'id',
+    'name',
+    'code',
+    'description',
+    'coordinates',
+    'country',
+    'user_defined_locality'
+  ],
   type: 'object'
 } as const
 
@@ -4745,8 +4765,14 @@ export const $SiteUpdate = {
     name: {
       minLength: 4,
       type: 'string'
+    },
+    user_defined_locality: {
+      description:
+        'Signals whether locality was manually entered by user, and automatically inferred from coordinates',
+      type: 'boolean'
     }
   },
+  required: ['user_defined_locality'],
   type: 'object'
 } as const
 

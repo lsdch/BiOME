@@ -5242,6 +5242,9 @@
 					"name": {
 						"minLength": 4,
 						"type": "string"
+					},
+					"user_defined_locality": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -5253,7 +5256,8 @@
 					"code",
 					"description",
 					"coordinates",
-					"country"
+					"country",
+					"user_defined_locality"
 				],
 				"type": "object"
 			},
@@ -5323,12 +5327,17 @@
 					"name": {
 						"minLength": 4,
 						"type": "string"
+					},
+					"user_defined_locality": {
+						"description": "Signals if locality was manually entered by user, and automatically inferred from coordinates",
+						"type": "boolean"
 					}
 				},
 				"required": [
 					"name",
 					"code",
 					"coordinates",
+					"user_defined_locality",
 					"country_code"
 				],
 				"type": "object"
@@ -5367,6 +5376,9 @@
 					"name": {
 						"minLength": 4,
 						"type": "string"
+					},
+					"user_defined_locality": {
+						"type": "boolean"
 					}
 				},
 				"required": [
@@ -5375,7 +5387,8 @@
 					"code",
 					"description",
 					"coordinates",
-					"country"
+					"country",
+					"user_defined_locality"
 				],
 				"type": "object"
 			},
@@ -5438,8 +5451,15 @@
 					"name": {
 						"minLength": 4,
 						"type": "string"
+					},
+					"user_defined_locality": {
+						"description": "Signals whether locality was manually entered by user, and automatically inferred from coordinates",
+						"type": "boolean"
 					}
 				},
+				"required": [
+					"user_defined_locality"
+				],
 				"type": "object"
 			},
 			"SpecimenVoucher": {

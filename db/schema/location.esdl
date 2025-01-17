@@ -43,6 +43,9 @@ module location {
 
     locality: str;
     required country: Country;
+    required user_defined_locality: bool {
+      default := false
+    };
 
     required coordinates: tuple<
       precision: CoordinatesPrecision,

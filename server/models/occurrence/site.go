@@ -31,13 +31,14 @@ type Coordinates struct {
 }
 
 type SiteInput struct {
-	Name        string                       `json:"name" minLength:"4"`
-	Code        string                       `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
-	Description models.OptionalInput[string] `json:"description,omitempty"`
-	Coordinates Coordinates                  `json:"coordinates" doc:"Site coordinates in decimal degrees"`
-	Altitude    models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
-	Locality    models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
-	CountryCode string                       `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	Name                string                       `json:"name" minLength:"4"`
+	Code                string                       `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
+	Description         models.OptionalInput[string] `json:"description,omitempty"`
+	Coordinates         Coordinates                  `json:"coordinates" doc:"Site coordinates in decimal degrees"`
+	Altitude            models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
+	Locality            models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
+	UserDefinedLocality bool                         `edgedb:"user_defined_locality" json:"user_defined_locality" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
+	CountryCode         string                       `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 
 func (c SiteInput) LatLong() (float32, float32) {
@@ -58,15 +59,16 @@ func (i *SiteInput) Validate(edb edgedb.Executor) validations.ValidationErrors {
 }
 
 type SiteItem struct {
-	ID          edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
-	Name        string               `edgedb:"name" json:"name" minLength:"4"`
-	Code        string               `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
-	Description edgedb.OptionalStr   `edgedb:"description" json:"description"`
-	Coordinates Coordinates          `edgedb:"coordinates" json:"coordinates"`
-	Altitude    edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
-	Locality    edgedb.OptionalStr   `edgedb:"locality" json:"locality,omitempty"`
-	Country     location.Country     `edgedb:"country" json:"country"`
-	AccessPoint edgedb.OptionalStr   `edgedb:"access_point" json:"access_point,omitempty"`
+	ID                  edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
+	Name                string               `edgedb:"name" json:"name" minLength:"4"`
+	Code                string               `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
+	Description         edgedb.OptionalStr   `edgedb:"description" json:"description"`
+	Coordinates         Coordinates          `edgedb:"coordinates" json:"coordinates"`
+	Altitude            edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
+	Locality            edgedb.OptionalStr   `edgedb:"locality" json:"locality,omitempty"`
+	Country             location.Country     `edgedb:"country" json:"country"`
+	AccessPoint         edgedb.OptionalStr   `edgedb:"access_point" json:"access_point,omitempty"`
+	UserDefinedLocality bool                 `edgedb:"user_defined_locality" json:"user_defined_locality"`
 }
 
 type Site struct {
@@ -172,13 +174,14 @@ func (i SiteInput) Save(db edgedb.Executor) (*Site, error) {
 }
 
 type SiteUpdate struct {
-	Name        models.OptionalInput[string]      `edgedb:"name" json:"name,omitempty" minLength:"4"`
-	Code        models.OptionalInput[string]      `edgedb:"code" json:"code,omitempty" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
-	Description models.OptionalNull[string]       `edgedb:"description" json:"description,omitempty"`
-	Coordinates models.OptionalInput[Coordinates] `edgedb:"coordinates" json:"coordinates,omitempty" doc:"Site coordinates in decimal degrees"`
-	Altitude    models.OptionalNull[int32]        `edgedb:"altitude" json:"altitude,omitempty" doc:"Site altitude in meters"`
-	Locality    models.OptionalNull[string]       `edgedb:"locality" json:"locality,omitempty" doc:"Nearest populated place"`
-	CountryCode models.OptionalInput[string]      `edgedb:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	Name                models.OptionalInput[string]      `edgedb:"name" json:"name,omitempty" minLength:"4"`
+	Code                models.OptionalInput[string]      `edgedb:"code" json:"code,omitempty" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
+	Description         models.OptionalNull[string]       `edgedb:"description" json:"description,omitempty"`
+	Coordinates         models.OptionalInput[Coordinates] `edgedb:"coordinates" json:"coordinates,omitempty" doc:"Site coordinates in decimal degrees"`
+	Altitude            models.OptionalNull[int32]        `edgedb:"altitude" json:"altitude,omitempty" doc:"Site altitude in meters"`
+	Locality            models.OptionalNull[string]       `edgedb:"locality" json:"locality,omitempty" doc:"Nearest populated place"`
+	UserDefinedLocality models.OptionalInput[bool]        `edgedb:"user_defined_locality" json:"user_defined_locality" doc:"Signals whether locality was manually entered by user, and automatically inferred from coordinates"`
+	CountryCode         models.OptionalInput[string]      `edgedb:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 
 func (u SiteUpdate) Save(e edgedb.Executor, code string) (updated Site, err error) {
