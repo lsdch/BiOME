@@ -351,6 +351,12 @@ import {
   type UpdateSecuritySettingsData,
   type UpdateSecuritySettingsError,
   type UpdateSecuritySettingsResponse,
+  type ServiceSettingsData,
+  type ServiceSettingsError,
+  type ServiceSettingsResponse,
+  type UpdateServiceSettingsData,
+  type UpdateServiceSettingsError,
+  type UpdateServiceSettingsResponse,
   type GetTaxonomyData,
   type GetTaxonomyError,
   type GetTaxonomyResponse,
@@ -2007,6 +2013,38 @@ export class SettingsService {
     >({
       ...options,
       url: '/settings/security'
+    })
+  }
+
+  /**
+   * Service settings
+   */
+  public static serviceSettings<ThrowOnError extends boolean = false>(
+    options?: OptionsLegacyParser<ServiceSettingsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ServiceSettingsResponse,
+      ServiceSettingsError,
+      ThrowOnError
+    >({
+      ...options,
+      url: '/settings/services'
+    })
+  }
+
+  /**
+   * Update service settings
+   */
+  public static updateServiceSettings<ThrowOnError extends boolean = false>(
+    options: OptionsLegacyParser<UpdateServiceSettingsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).patch<
+      UpdateServiceSettingsResponse,
+      UpdateServiceSettingsError,
+      ThrowOnError
+    >({
+      ...options,
+      url: '/settings/services'
     })
   }
 }

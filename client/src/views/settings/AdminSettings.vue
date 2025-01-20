@@ -47,10 +47,11 @@ import { useDisplay } from 'vuetify'
 import NotFound from '@/components/navigation/NotFound.vue'
 import routes from '@/router/routes'
 import { useRouter } from 'vue-router'
+import ServiceSettings from '@/components/settings/ServiceSettings.vue'
 
 const { mobile } = useDisplay()
 
-type SettingsTab = 'instance' | 'security' | 'email'
+type SettingsTab = 'instance' | 'security' | 'email' | 'services'
 
 const { resolve } = useRouter()
 
@@ -61,7 +62,8 @@ function resolveSubroute(category: string) {
 const subroutes = [
   { title: 'Instance', category: 'instance', icon: 'mdi-application-settings-outline' },
   { title: 'Security', category: 'security', icon: 'mdi-security' },
-  { title: 'E-mailing', category: 'email', icon: 'mdi-email' }
+  { title: 'E-mailing', category: 'email', icon: 'mdi-email' },
+  { title: 'Services', category: 'services', icon: 'mdi-network-pos' }
 ]
 
 const component = computed(() => {
@@ -72,6 +74,8 @@ const component = computed(() => {
       return SecuritySettings
     case 'email':
       return EmailSettings
+    case 'services':
+      return ServiceSettings
     default:
       return NotFound
   }

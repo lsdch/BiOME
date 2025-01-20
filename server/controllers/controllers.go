@@ -9,6 +9,10 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type ResponseBody[T any] struct {
+	Body T
+}
+
 type IdentifierInput[T any] interface {
 	Identifier() T
 }

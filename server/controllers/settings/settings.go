@@ -2,6 +2,7 @@ package settings
 
 import (
 	"context"
+	"darco/proto/controllers"
 	"darco/proto/models/settings"
 	"darco/proto/resolvers"
 	"darco/proto/router"
@@ -53,6 +54,26 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Update email settings",
 		}, UpdateEmailSettings)
+
+	router.Register(api, "ServiceSettings",
+		huma.Operation{
+			Path:    "/services",
+			Method:  http.MethodGet,
+			Summary: "Service settings",
+		},
+		func(ctx context.Context,
+			input *resolvers.AccessRestricted[resolvers.Admin],
+		) (*controllers.ResponseBody[settings.ServiceSettings], error) {
+			return &controllers.ResponseBody[settings.ServiceSettings]{Body: settings.Services()}, nil
+		})
+
+	router.Register(api, "UpdateServiceSettings",
+		huma.Operation{
+			Path:    "/services",
+			Method:  http.MethodPatch,
+			Summary: "Update service settings",
+		}, controllers.CreateHandler[settings.ServiceSettingsUpdate])
+
 	router.Register(api, "TestSMTP",
 		huma.Operation{
 			Path:    "/emailing/test-dial",

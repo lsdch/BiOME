@@ -35,9 +35,11 @@ module admin {
 
     email := (select EmailSettings limit 1);
 
-    required security:= assert_exists((select SecuritySettings limit 1));
+    required security := assert_exists((select SecuritySettings limit 1));
 
     required superadmin: people::User;
+
+    geoapify_api_key: str;
   }
 
   type SecuritySettings {

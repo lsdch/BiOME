@@ -1613,6 +1613,22 @@ export type SequenceWithDetails = {
   sequence?: string
 }
 
+export type ServiceSettings = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  geoapify_api_key: string
+}
+
+export type ServiceSettingsUpdate = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  geoapify_api_key: string | null
+}
+
 export type Site = {
   /**
    * A URL to the JSON Schema for this object.
@@ -3246,6 +3262,33 @@ export type UpdateSecuritySettingsData = {
 export type UpdateSecuritySettingsResponse = SecuritySettings
 
 export type UpdateSecuritySettingsError = ErrorModel
+
+export type ServiceSettingsData = {
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+}
+
+export type ServiceSettingsResponse = ServiceSettings
+
+export type ServiceSettingsError = ErrorModel
+
+export type UpdateServiceSettingsData = {
+  body: ServiceSettingsUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+}
+
+export type UpdateServiceSettingsResponse = ServiceSettings
+
+export type UpdateServiceSettingsError = ErrorModel
 
 export type GetTaxonomyData = {
   headers?: {

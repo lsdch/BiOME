@@ -6,8 +6,9 @@ import (
 	"darco/proto/models"
 	"darco/proto/models/occurrence"
 	"darco/proto/models/people"
-	"darco/proto/services/setup"
+	"darco/proto/models/settings"
 	"flag"
+	"fmt"
 	"seeds"
 	"seeds/email"
 
@@ -30,7 +31,7 @@ var entities = []string{
 	"datasets",
 }
 
-var superAdmin = people.SuperAdminInput{
+var superAdminInput = people.SuperAdminInput{
 	UserInput: people.UserInput{
 		Login:         "lsdch",
 		EmailField:    people.EmailField{Email: "louis.duchemin@univ-lyon1.fr"},
@@ -68,8 +69,13 @@ func main() {
 	err = client.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
 
 		logrus.Infof("⚙ Initializing settings with superadmin account")
-		if err := setup.InitTx(tx, superAdmin); err != nil {
-			return err
+		superAdmin, err := superAdminInput.Save(tx)
+		if err != nil {
+			return fmt.Errorf("Failed to initialize super admin account: %v", err)
+		}
+
+		if err := (settings.SettingsInput{SuperAdminID: superAdmin.ID}).Save(tx); err != nil {
+			return fmt.Errorf("Failed to initialize settings: %v", err)
 		}
 
 		if err := email.SetupEmailConfig(client, email.EmailSetupArgs{}); err != nil {

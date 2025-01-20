@@ -3,10 +3,12 @@ package settings
 import (
 	"context"
 	"darco/proto/db"
+	"encoding/json"
 	"fmt"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
 
 type SuperAdmin struct {
@@ -15,16 +17,31 @@ type SuperAdmin struct {
 }
 
 type Settings struct {
-	ID         edgedb.UUID      `edgedb:"id" json:"-"`
-	Instance   InstanceSettings `edgedb:"instance" json:"instance"`
-	Email      EmailSettings    `edgedb:"email" json:"email,omitempty"`
-	Security   SecuritySettings `edgedb:"security" json:"security"`
-	SuperAdmin SuperAdmin       `edgedb:"superadmin" json:"superadmin"`
+	ID              edgedb.UUID      `edgedb:"id" json:"-"`
+	Instance        InstanceSettings `edgedb:"instance" json:"instance"`
+	Email           EmailSettings    `edgedb:"email" json:"email,omitempty"`
+	Security        SecuritySettings `edgedb:"security" json:"security"`
+	SuperAdmin      SuperAdmin       `edgedb:"superadmin" json:"superadmin"`
+	ServiceSettings `edgedb:"$inline" json:"services"`
 }
 
 var settings = new(Settings)
 
-func Setup(db edgedb.Executor, superAdminID edgedb.UUID) error {
+type SettingsInput struct {
+	SuperAdminID   edgedb.UUID `json:"super_admin_id"`
+	GeoapifyApiKey *string     `json:"geoapify_api_key,omitempty" map_structure:"GEOAPIFY_API_KEY"`
+}
+
+func (i *SettingsInput) LoadConfig(path string) error {
+	viper.SetConfigFile(path)
+	if err := viper.ReadInConfig(); err != nil {
+		return err
+	}
+	err := viper.Unmarshal(i)
+	return err
+}
+
+func (i SettingsInput) Save(db edgedb.Executor) error {
 	secretKey := generateSecretKeyJWT()
 	if err := db.Execute(context.Background(),
 		`#edgeql
@@ -39,12 +56,22 @@ func Setup(db edgedb.Executor, superAdminID edgedb.UUID) error {
 		return fmt.Errorf("Failed to initialize settings: %v", err)
 	}
 
+	data, err := json.Marshal(i)
+	if err != nil {
+		return err
+	}
+
 	if err := db.QuerySingle(context.Background(),
 		`#edgeql
+			with data := <json>$0
 			select (insert admin::Settings {
-				superadmin := (assert_exists(<people::User><uuid>$0))
-			}) { **, superadmin: { email, name := .identity.full_name } } limit 1
-		`, settings, superAdminID,
+				superadmin := (assert_exists(<people::User><uuid>data['super_admin_id'])),
+				geoapify_api_key := <str>json_get(data, 'geoapify_api_key')
+			}) {
+				**,
+				superadmin: { email, name := .identity.full_name }
+			} limit 1
+		`, settings, data,
 	); err != nil {
 		return fmt.Errorf("Failed to initialize settings: %v", err)
 	}
@@ -79,4 +106,8 @@ func Email() EmailSettings {
 
 func Instance() InstanceSettings {
 	return Get().Instance
+}
+
+func Services() ServiceSettings {
+	return Get().ServiceSettings
 }

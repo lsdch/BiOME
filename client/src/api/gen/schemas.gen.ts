@@ -4525,6 +4525,42 @@ export const $SequenceWithDetails = {
   type: 'object'
 } as const
 
+export const $ServiceSettings = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ServiceSettings.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    geoapify_api_key: {
+      type: 'string'
+    }
+  },
+  required: ['geoapify_api_key'],
+  type: 'object'
+} as const
+
+export const $ServiceSettingsUpdate = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ServiceSettingsUpdate.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    geoapify_api_key: {
+      type: ['string', 'null']
+    }
+  },
+  required: ['geoapify_api_key'],
+  type: 'object'
+} as const
+
 export const $Site = {
   additionalProperties: false,
   properties: {
