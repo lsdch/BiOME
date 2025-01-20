@@ -11,6 +11,7 @@ import (
 	"darco/proto/controllers/person"
 	"darco/proto/controllers/references"
 	"darco/proto/controllers/sequences"
+	"darco/proto/controllers/services"
 	"darco/proto/controllers/settings"
 	"darco/proto/controllers/sites"
 	"darco/proto/controllers/taxonomy"
@@ -34,4 +35,5 @@ func registerRoutes(router router.Router) {
 	biomaterial.RegisterRoutes(router)
 	references.RegisterRoutes(router)
 	occurrences.RegisterRoutes(router)
+	services.RegisterGeoapifyRoutes(router)
 }

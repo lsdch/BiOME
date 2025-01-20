@@ -328,6 +328,9 @@ import {
   ListSequencesResponseTransformer,
   DeleteSequenceResponseTransformer,
   GetSequenceResponseTransformer,
+  type ListGeoapifyUsageData,
+  type ListGeoapifyUsageError,
+  type ListGeoapifyUsageResponse,
   type EmailSettingsData,
   type EmailSettingsError,
   type EmailSettingsResponse,
@@ -1888,6 +1891,24 @@ export class SequencesService {
       ...options,
       url: '/sequences/{code}',
       responseTransformer: GetSequenceResponseTransformer
+    })
+  }
+}
+
+export class ServicesService {
+  /**
+   * List Geoapify usage
+   */
+  public static listGeoapifyUsage<ThrowOnError extends boolean = false>(
+    options?: OptionsLegacyParser<ListGeoapifyUsageData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListGeoapifyUsageResponse,
+      ListGeoapifyUsageError,
+      ThrowOnError
+    >({
+      ...options,
+      url: '/geoapify'
     })
   }
 }

@@ -1664,6 +1664,21 @@ export const $GeneUpdate = {
   type: 'object'
 } as const
 
+export const $GeoapifyUsage = {
+  additionalProperties: false,
+  properties: {
+    date: {
+      type: 'string'
+    },
+    requests: {
+      format: 'int32',
+      type: 'integer'
+    }
+  },
+  required: ['date', 'requests'],
+  type: 'object'
+} as const
+
 export const $Group = {
   additionalProperties: false,
   properties: {

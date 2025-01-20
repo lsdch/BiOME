@@ -39,9 +39,9 @@ func (d SiteImportDataset) GroupByPrecision() map[location.CoordinatesPrecision]
 	return groups
 }
 
-func (d SiteImportDataset) FillPlaces(apiKey string) error {
+func (d SiteImportDataset) FillPlaces(db edgedb.Executor, apiKey string) error {
 	client := geoapify.NewGeoapifyClient(apiKey)
-	response, err := client.BatchReverseGeocode(d.RequestBody())
+	response, err := client.BatchReverseGeocode(db, d.RequestBody())
 	if err != nil {
 		return err
 	}

@@ -10,6 +10,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -85,7 +86,7 @@ type LatLongCoords struct {
 	Lon float32 `json:"lon"`
 }
 
-func (g *GeoapifyClient) BatchReverseGeocode(locations []LatLongCoords) (*GeoapifyResponse, error) {
+func (g *GeoapifyClient) BatchReverseGeocode(db edgedb.Executor, locations []LatLongCoords) (*GeoapifyResponse, error) {
 
 	if len(locations) > maxBatchSize {
 		return nil, fmt.Errorf("Geoapify batch request exceeds max allowed size (%d/%d)", len(locations), maxBatchSize)
@@ -126,6 +127,11 @@ func (g *GeoapifyClient) BatchReverseGeocode(locations []LatLongCoords) (*Geoapi
 		return nil, fmt.Errorf("failed to make request: %w", err)
 	}
 	defer resp.Body.Close()
+
+	_, err = TrackGeoapifyUsage(db, int32(len(locations)))
+	if err != nil {
+		return nil, fmt.Errorf("failed to track Geoapify usage: %w", err)
+	}
 
 	if resp.StatusCode != http.StatusAccepted {
 		body, _ := io.ReadAll(resp.Body)

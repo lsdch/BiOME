@@ -616,6 +616,11 @@ export type GeneUpdate = {
   label?: string
 }
 
+export type GeoapifyUsage = {
+  date: string
+  requests: number
+}
+
 export type Group = {
   label?: string
   name?: string
@@ -3160,6 +3165,19 @@ export type GetSequenceData = {
 export type GetSequenceResponse = SequenceWithDetails
 
 export type GetSequenceError = ErrorModel
+
+export type ListGeoapifyUsageData = {
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+}
+
+export type ListGeoapifyUsageResponse = Array<GeoapifyUsage>
+
+export type ListGeoapifyUsageError = ErrorModel
 
 export type EmailSettingsData = {
   headers?: {

@@ -59,12 +59,12 @@ func main() {
 	database := flag.String("db", "", "The name of the database to seed")
 	flag.Parse()
 
-	wadSites, err := seeds.LoadSites("data/Aselloidea/sites.json", 500)
+	client := db.Connect(edgedb.Options{Database: *database})
+
+	wadSites, err := seeds.LoadSites(client, "data/Aselloidea/sites.json", 500)
 	if err != nil {
 		logrus.Fatalf("Failed to load WAD sites: %v", err)
 	}
-
-	client := db.Connect(edgedb.Options{Database: *database})
 
 	err = client.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
 

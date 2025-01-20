@@ -62,4 +62,11 @@ module admin {
       constraint min_len_value(32);
     };
   }
+
+  type GeoapifyUsage {
+    required date: cal::local_date {
+      constraint exclusive;
+    };
+    required requests: int32;
+  }
 }

@@ -23,7 +23,7 @@ func loadSitesJSON(file string) occurrence.SiteImportDataset {
 	return sites
 }
 
-func LoadSites(file string, maxAmount int) (*occurrence.SiteImportDataset, error) {
+func LoadSites(db edgedb.Executor, file string, maxAmount int) (*occurrence.SiteImportDataset, error) {
 	cfg, _ := config.LoadConfig("../../server", "config")
 	logrus.Infof("Loaded config: %+v", cfg)
 
@@ -31,7 +31,7 @@ func LoadSites(file string, maxAmount int) (*occurrence.SiteImportDataset, error
 	sitesInput = sitesInput[0:maxAmount]
 
 	logrus.Infof("Making API call to Geoapify")
-	err := sitesInput.FillPlaces(cfg.GeoApifyApiKey)
+	err := sitesInput.FillPlaces(db, cfg.GeoApifyApiKey)
 	if err != nil {
 		return nil, err
 	}
