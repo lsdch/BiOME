@@ -1,17 +1,14 @@
 module datasets {
 
-  type Dataset extending default::Auditable {
+  type AbstractDataset extending default::Auditable {
     required label: str {
       constraint min_len_value(4);
       constraint max_len_value(40);
-    }
+    };
     required slug: str {
       constraint exclusive;
     };
-    index on (.slug);
-
     description: str;
-    multi link sites := .<datasets[is location::Site];
     required multi maintainers: people::Person {
       # edgedb error: SchemaDefinitionError:
       # cannot specify a rewrite for link 'maintainers' of object type 'location::SiteDataset' because it is multi
@@ -22,10 +19,16 @@ module datasets {
     };
   }
 
-  type Alignment extending default::Auditable {
-    required label: str;
+  # type SiteDataset extending AbstractDataset {
+  #   multi link sites := .<datasets[is location::Site];
+  # }
+
+  type Dataset extending AbstractDataset {
+    multi link sites := .<datasets[is location::Site];
+  }
+
+  type SeqDataset extending AbstractDataset {
     required multi sequences: seq::Sequence;
-    comments: str;
   }
 
 
@@ -41,7 +44,7 @@ module datasets {
 
   type MOTU extending default::Auditable {
     required dataset: MOTUDataset;
-    required number: int16;
+    required number: int32;
     required method: DelimitationMethod;
     required multi sequences: seq::Sequence;
   }
