@@ -9,6 +9,7 @@ import (
 )
 
 type GeoapifyUsage struct {
+	ID       edgedb.UUID      `edgedb:"id" json:"id"`
 	Date     edgedb.LocalDate `edgedb:"date" json:"date"`
 	Requests int32            `edgedb:"requests" json:"requests"`
 }
@@ -40,12 +41,12 @@ func TrackGeoapifyUsage(e edgedb.Executor, requests int32) (current GeoapifyUsag
 			select (
 				insert admin::GeoapifyUsage {
 					date := cal::to_local_date(datetime_of_transaction(), 'UTC'),
-					requests := <int32>$requests
-				} unless conflict on .date else {
-					update {
-						requests := .requests + <int32>$requests
+					requests := <int32>$0
+				} unless conflict on .date else (
+					update admin::GeoapifyUsage set {
+						requests := .requests + <int32>$0
 					}
-				}
+				)
 			) { * }
 		`, &current, requests)
 	return
