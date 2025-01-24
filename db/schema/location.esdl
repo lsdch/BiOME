@@ -68,17 +68,11 @@ module location {
     };
 
     multi link events := .<site[is events::Event];
-    multi datasets : datasets::Dataset {
-      on target delete allow;
-      on source delete allow;
-    };
+    multi datasets := .<sites[is datasets::SiteDataset];
 
-    imported_in: datasets::Dataset {
-      on target delete allow;
-      on source delete allow;
-      rewrite insert using (
-        if count(.datasets) = 1 then assert_single(.datasets) else <datasets::Dataset>{}
-      );
-    };
+    # imported_in: datasets::AbstractDataset {
+    #   on target delete allow;
+    #   on source delete allow;
+    # };
   }
 }

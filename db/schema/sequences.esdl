@@ -58,6 +58,15 @@ module seq {
     }; # TODO : discuss with Florian
   }
 
+  function geneByCode(code: str) -> Gene {
+    using (
+      select assert_exists(
+        Gene filter .code = code,
+        message := "Failed to find gene with code: " ++ code
+      )
+    );
+  };
+
   abstract type Primer extending default::Auditable {
     required label: str { constraint exclusive };
     required code: str { constraint exclusive };
@@ -135,12 +144,10 @@ module seq {
     multi link sequences := .<chromatograms[is AssembledSequence]
   }
 
-  abstract type Sequence extending default::Auditable {
+  abstract type Sequence extending default::Auditable, default::CodeIdentifier {
 
     required sampling: events::Sampling;
     required identification: occurrence::Identification;
-
-    required code: str { constraint exclusive };
 
     # optional human readable label; use NCBI 'DEFINITION' field when applicable
     label: str;
@@ -165,6 +172,7 @@ module seq {
   }
 
   type AssembledSequence extending Sequence {
+
     overloaded required sampling: events::Sampling {
       rewrite insert, update using (
         select .specimen.biomat.sampling
@@ -196,6 +204,15 @@ module seq {
 
   type SeqDB extending default::Auditable, default::Vocabulary {
     link_template: str;
+  };
+
+  function seqDbByCode(code: str) -> SeqDB {
+    using (
+      select assert_exists(
+        SeqDB filter .code = code,
+        message := "Failed to find sequence database with code: " ++ code
+      )
+    );
   };
 
   type SeqReference {
@@ -236,7 +253,6 @@ module seq {
 
     required origin: ExtSeqOrigin;
     source_sample: occurrence::ExternalBioMat;
-    published_in: references::Article; # TODO: move this to Occurrence schema
 
     multi referenced_in: SeqReference {
       constraint exclusive;

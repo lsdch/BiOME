@@ -5,6 +5,7 @@ import (
 	"darco/proto/db"
 	"darco/proto/models"
 	"darco/proto/models/people"
+	"darco/proto/models/taxonomy"
 	"encoding/json"
 	"time"
 
@@ -46,19 +47,28 @@ type Event struct {
 	Programs            []ProgramInner       `edgedb:"programs" json:"programs,omitempty"`
 	AbioticMeasurements []AbioticMeasurement `edgedb:"abiotic_measurements" json:"abiotic_measurements"`
 	Samplings           []Sampling           `edgedb:"samplings" json:"samplings"`
-	Spotting            Spotting             `edgedb:"spotting" json:"spotting"`
+	Spottings           []taxonomy.Taxon     `edgedb:"spottings" json:"spottings,omitempty"`
 	Meta                people.Meta          `edgedb:"meta" json:"meta"`
 }
 
 func (e *Event) AddSampling(db edgedb.Executor, sampling SamplingInput) error {
-	sampling.EventID = e.ID
-	created, err := sampling.Save(db)
+	created, err := sampling.Save(db, e.ID)
 	if err != nil {
 		return err
 	}
 	e.Samplings = append(e.Samplings, created)
 	return nil
 }
+
+func (e *Event) AddSpottings(db edgedb.Executor, taxa SpottingUpdate) error {
+	spottings, err := taxa.Save(db, e.ID)
+	if err != nil {
+		return err
+	}
+	e.Spottings = spottings
+	return nil
+}
+
 // AddAbioticMeasurement adds an abiotic measurement to the event.
 // If a value for a given parameter already exists, it will be overwritten.
 func (e *Event) AddAbioticMeasurement(db edgedb.Executor, measurements AbioticMeasurementInput) error {
@@ -78,7 +88,7 @@ func ListEvents(db edgedb.Executor) ([]Event, error) {
 				site: {name, code},
 				programs: { * },
 				performed_by: { * },
-				spotting: { *, target_taxa: { * } },
+				spottings: { *, target_taxa: { * } },
 				abiotic_measurements: { *, param: { * }  },
 				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
 				meta: { * }
@@ -116,7 +126,7 @@ func (i EventInput) Save(e edgedb.Executor, site_code string) (created Event, er
 				site: {name, code},
 				programs: { * },
 				performed_by: { * },
-				spotting: { *, target_taxa: { * } },
+				spottings: { * },
 				abiotic_measurements: { *, param: { * }  },
 				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } },
 				meta: { * }
@@ -129,6 +139,8 @@ type EventUpdate struct {
 	PerformedBy models.OptionalInput[[]string]               `edgedb:"performed_by" json:"performed_by,omitempty"`
 	PerformedOn models.OptionalInput[DateWithPrecisionInput] `edgedb:"performed_on" json:"performed_on,omitempty"`
 	Programs    models.OptionalNull[[]string]                `edgedb:"programs" json:"programs,omitempty"`
+	Comments    models.OptionalNull[string]                  `edgedb:"comments" json:"comments,omitempty"`
+	Spottings   models.OptionalNull[[]string]                `edgedb:"spottings" json:"spottings,omitempty"`
 }
 
 func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err error) {
@@ -143,7 +155,7 @@ func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err
 				site: {name, code},
 				programs: { * },
 				performed_by: { * },
-				spotting: { *, target_taxa: { * } },
+				spottings: { * },
 				abiotic_measurements: { *, param: { * }  },
 				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
 			}
@@ -162,6 +174,12 @@ func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err
 					select events::Program
 					filter .code in <str>json_array_unpack(json_get(data, 'programs'))
 				)`,
+			"comments": `data['comments']`,
+			"spottings": `#edgeql
+				(
+					select taxonomy::Taxon
+					filter .name in <str>json_array_unpack(data['spottings'])
+				)`,
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, id, data)
@@ -177,7 +195,7 @@ func DeleteEvent(db edgedb.Executor, id edgedb.UUID) (deleted Event, err error) 
 				site: {name, code},
 				programs: { * },
 				performed_by: { * },
-				spotting: { *, target_taxa: { * } },
+				spottings: { * },
 				abiotic_measurements: { *, param: { * }  },
 				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
 			};

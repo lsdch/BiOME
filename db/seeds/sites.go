@@ -4,42 +4,49 @@ import (
 	"darco/proto/config"
 	"darco/proto/models/occurrence"
 	"encoding/json"
+	"errors"
 	"os"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
-func loadSitesJSON(file string) occurrence.SiteImportDataset {
+func LoadSiteDatasetJSON(file string) (dataset occurrence.SiteDatasetInput) {
 	data, err := os.ReadFile(file)
 	if err != nil {
 		logrus.Fatalf("Failed to read sites JSON: %v", err)
 	}
 
-	var sites occurrence.SiteImportDataset
-	if err := json.Unmarshal(data, &sites); err != nil {
+	if err := json.Unmarshal(data, &dataset); err != nil {
 		logrus.Fatalf("Failed to parse sites JSON: %v", err)
 	}
-	return sites
+	return
 }
 
-func LoadSites(db edgedb.Executor, file string, maxAmount int) (*occurrence.SiteImportDataset, error) {
+func LoadSiteDataset(db edgedb.Executor, file string, maxAmount int) (*occurrence.SiteDatasetInput, error) {
 	cfg, _ := config.LoadConfig("../../server", "config")
 	logrus.Infof("Loaded config: %+v", cfg)
 
-	sitesInput := loadSitesJSON(file)
-	sitesInput = sitesInput[0:maxAmount]
+	dataset := LoadSiteDatasetJSON(file)
+	if maxAmount > 0 {
+		dataset.NewSites = dataset.NewSites[0:maxAmount]
+	}
 
 	logrus.Infof("Making API call to Geoapify")
-	err := sitesInput.FillPlaces(db, cfg.GeoApifyApiKey)
+	err := dataset.NewSites.FillPlaces(db, cfg.GeoApifyApiKey)
 	if err != nil {
 		return nil, err
 	}
-	logrus.Infof("SITES\n%+v\n\n", sitesInput)
-	return &sitesInput, nil
+	return &dataset, nil
+
 }
 
-func SeedSites(db edgedb.Executor, sites occurrence.SiteImportDataset) error {
-	_, err := sites.Save(db)
+func SeedSites(tx *edgedb.Tx, dataset occurrence.SiteDatasetInput) error {
+	validated, errs := dataset.Validate(tx)
+	if errs != nil {
+		return errors.Join(errs...)
+	}
+
+	_, err := validated.SaveTx(tx)
 	return err
 }

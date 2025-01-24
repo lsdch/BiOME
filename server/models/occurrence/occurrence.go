@@ -3,6 +3,7 @@ package occurrence
 import (
 	"context"
 	"darco/proto/models"
+	"darco/proto/models/references"
 	"darco/proto/models/taxonomy"
 	"fmt"
 
@@ -18,32 +19,57 @@ const (
 )
 
 type GenericOccurrence[SamplingType any] struct {
-	ID             edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
-	Sampling       SamplingType       `edgedb:"sampling" json:"sampling"`
-	Identification Identification     `edgedb:"identification" json:"identification"`
-	Comments       edgedb.OptionalStr `edgedb:"comments" json:"comments"`
+	Sampling       SamplingType                     `edgedb:"sampling" json:"sampling"`
+	Identification Identification                   `edgedb:"identification" json:"identification"`
+	PublishedIn    []references.OccurrenceReference `edgedb:"published_in" json:"published_in,omitempty"`
 }
 
-type Occurrence GenericOccurrence[SamplingInner]
-
-type OccurrenceInput struct {
-	SamplingID     edgedb.UUID                  `json:"sampling_id" format:"uuid"`
-	Identification IdentificationInput          `json:"identification"`
-	Comments       models.OptionalInput[string] `json:"comments"`
+type Occurrence struct {
+	ID                               edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
+	GenericOccurrence[SamplingInner] `edgedb:"$inline" json:",inline"`
+	Comments                         edgedb.OptionalStr `edgedb:"comments" json:"comments"`
 }
 
-func (i OccurrenceInput) GenerateCode(db edgedb.Executor) (string, error) {
+type OccurrenceElement string
+
+//generate:enum
+const (
+	BioMaterialElement OccurrenceElement = "BioMaterial"
+	SequenceElement    OccurrenceElement = "Sequence"
+)
+
+// OccurrenceWithCategory represents any occurrence with its category (internal, external) and element (biomaterial, sequence).
+// Internal sequences are not supposed to be included in this type.
+type OccurrenceWithCategory struct {
+	Occurrence        `edgedb:"$inline" json:",inline"`
+	Category          OccurrenceCategory `edgedb:"category" json:"category"`
+	OccurrenceElement OccurrenceElement  `edgedb:"element" json:"element"`
+}
+
+// OccurrenceInnerInput is meant to be embedded in other occurrence input type
+type OccurrenceInnerInput struct {
+	SamplingID     edgedb.UUID                           `json:"sampling_id" format:"uuid"`
+	Identification IdentificationInput                   `json:"identification"`
+	Comments       models.OptionalInput[string]          `json:"comments"`
+	PublishedIn    []references.OccurrenceReferenceInput `edgedb:"published_in" json:"published_in,omitempty"`
+}
+
+func (i OccurrenceInnerInput) Code(samplingCode string) string {
+	return fmt.Sprintf("%s[%s]",
+		taxonomy.TaxonCode(i.Identification.Taxon),
+		samplingCode,
+	)
+}
+
+func (i OccurrenceInnerInput) GenerateCode(db edgedb.Executor) (string, error) {
 	sampling, err := i.GetSampling(db)
 	if err != nil {
 		return "", fmt.Errorf("Sampling not found")
 	}
-	return fmt.Sprintf("%s[%s]",
-		taxonomy.TaxonCode(i.Identification.Taxon),
-		sampling.Code,
-	), nil
+	return i.Code(sampling.Code), nil
 }
 
-func (i OccurrenceInput) GetSampling(db edgedb.Executor) (sampling SamplingInner, err error) {
+func (i OccurrenceInnerInput) GetSampling(db edgedb.Executor) (sampling SamplingInner, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select <events::Sampling><uuid>$0 { * }
@@ -81,7 +107,7 @@ func OccurrenceOverview(db edgedb.Executor) ([]OccurrenceOverviewItem, error) {
 				} filter (
 					#  ignore external bio material that has sequences
 					not (Occurrence is ExternalBioMat and not exists [is ExternalBioMat].sequences)
-					and [is ExternalBioMat].homogenous ?? [is InternalBioMat].homogenous ?? true
+					and [is ExternalBioMat].is_homogenous ?? [is InternalBioMat].is_homogenous ?? true
 				)
 			),
 			groups := (select (

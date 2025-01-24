@@ -25,7 +25,7 @@ func registerSamplingRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Create sampling action",
 		},
-		controllers.CreateHandler[occurrence.SamplingInput])
+		controllers.CreateHandler[occurrence.SamplingInputWithEvent])
 
 	router.Register(samplingAPI, "UpdateSampling",
 		huma.Operation{

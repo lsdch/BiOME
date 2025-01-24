@@ -28,7 +28,7 @@ var entities = []string{
 	"abiotic",
 	"genes",
 	"seq_databases",
-	"datasets",
+	// "datasets",
 }
 
 var superAdminInput = people.SuperAdminInput{
@@ -61,9 +61,9 @@ func main() {
 
 	client := db.Connect(edgedb.Options{Database: *database})
 
-	wadSites, err := seeds.LoadSites(client, "data/Aselloidea/sites.json", 500)
+	aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json", 500)
 	if err != nil {
-		logrus.Fatalf("Failed to load WAD sites: %v", err)
+		logrus.Fatalf("Failed to load Asellidae sites: %v", err)
 	}
 
 	err = client.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
@@ -102,6 +102,17 @@ func main() {
 			}
 		}
 
+		logrus.Info("⚙ Artificial datasets")
+		datasets, err := seeds.LoadOccurrencesDatasets("data/datasets.json")
+		if err != nil {
+			logrus.Errorf("Failed to load datasets: %v", err)
+			return err
+		}
+		if err := seeds.SeedOccurrencesDatasets(tx, datasets); err != nil {
+			logrus.Errorf("Failed to seed datasets: %v", err)
+			return err
+		}
+
 		logrus.Infof("⚙ Postprocessing...")
 		logrus.Infof("• generate sequence codes")
 		if err := tx.Execute(context.Background(),
@@ -113,8 +124,8 @@ func main() {
 
 		logrus.Info("🧪 Empirical datasets")
 		logrus.Infof("🌱 Seeding WAD sampling sites")
-		if err := seeds.SeedSites(tx, *wadSites); err != nil {
-			logrus.Errorf("Failed to seed WAD sampling sites")
+		if err := seeds.SeedSites(tx, *aselloidea); err != nil {
+			logrus.Errorf("Failed to seed Aselloidea sampling sites")
 			return err
 		}
 

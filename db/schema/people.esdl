@@ -2,6 +2,15 @@
 #
 module people {
 
+  function personByAlias(alias: str) -> Person {
+    using (
+      select assert_exists(
+        Person filter .alias = alias,
+        message := "Failed to find person with alias: " ++ alias
+      )
+    );
+  };
+
   scalar type InstitutionKind extending enum<Lab, FundingAgency, SequencingPlatform, Other>;
 
   type Institution extending default::Auditable {

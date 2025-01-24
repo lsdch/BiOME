@@ -11,6 +11,9 @@ const config: UserConfig = defineConfig({
   plugins: [
     ...defaultPlugins,
     {
+      name: '@tanstack/vue-query',
+    },
+    {
       name: "@hey-api/schemas",
       nameBuilder(name, schema) {
         return `$${name}`

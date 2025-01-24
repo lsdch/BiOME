@@ -1,13 +1,12 @@
 [
   {
     "label": "Seed dataset",
-    "slug": "seed",
     "description": "Database seed dataset for testing purposes.",
     "maintainers": [
       "madmin",
       "fmalard"
     ],
-    "sites": [
+    "occurrences": [
       {
         "name": "La Doua Pond",
         "code": "DOUA_POND",
@@ -23,7 +22,11 @@
           {
             "performed_on": {
               "precision": "Day",
-              "date": "2021-12-03T00:00:00Z"
+              "date": {
+                "day": 3,
+                "month": 12,
+                "year": 2021
+              }
             },
             "programs": [
               "DARCO"
@@ -31,16 +34,17 @@
             "performed_by": [
               "fmalard"
             ],
-            "spotting": {
-              "target_taxa": [
-                "Proasellus"
-              ]
-            }
+            "spottings": [
+              "Proasellus"
+            ]
           },
           {
             "performed_on": {
               "precision": "Month",
-              "date": "2021-03-01T00:00:00Z"
+              "date": {
+                "month": 2,
+                "year": 2022
+              }
             },
             "programs": [
               "DARCO"
@@ -48,16 +52,18 @@
             "performed_by": [
               "fmalard"
             ],
-            "spotting": {
-              "target_taxa": [
-                "Asellus_aquaticus"
-              ]
-            }
+            "spottings": [
+              "Asellus aquaticus"
+            ]
           },
           {
             "performed_on": {
               "precision": "Day",
-              "date": "2021-12-14T00:00:00Z"
+              "date": {
+                "day": 14,
+                "month": 12,
+                "year": 2021
+              }
             },
             "programs": [
               "DARCO"
@@ -86,20 +92,23 @@
                 ],
                 "target": {
                   "kind": "Taxa",
-                  "target_taxa": [
+                  "taxa": [
                     "Proasellus"
                   ]
                 },
                 "is_donation": false,
                 "duration": 90,
                 "comments": "Trapping Proasellus",
-                "internal_biomat": [
+                "internal_biomats": [
                   {
                     "is_type": true,
                     "identification": {
                       "identified_on": {
                         "precision": "Month",
-                        "date": "2022-02-01T00:00:00Z"
+                        "date": {
+                          "month": 2,
+                          "year": 2022
+                        }
                       },
                       "taxon": "Asellus aquaticus",
                       "identified_by": "fmalard"
@@ -107,7 +116,7 @@
                     "comments": "Seed internal bio-material"
                   }
                 ],
-                "external_biomat": [
+                "external_biomats": [
                   {
                     "quantity": "One",
                     "in_collection": "Some museum",
@@ -124,7 +133,11 @@
                     "identification": {
                       "identified_on": {
                         "precision": "Day",
-                        "date": "2021-12-16T00:00:00Z"
+                        "date": {
+                          "day": 16,
+                          "month": 12,
+                          "year": 2021
+                        }
                       },
                       "taxon": "Proasellus cavaticus",
                       "identified_by": "fmalard"
@@ -149,7 +162,11 @@
                         "identification": {
                           "identified_on": {
                             "precision": "Day",
-                            "date": "2024-09-15T00:00:00Z"
+                            "date": {
+                              "day": 16,
+                              "month": 12,
+                              "year": 2021
+                            }
                           },
                           "taxon": "Proasellus cavaticus",
                           "identified_by": "fmalard"
@@ -174,13 +191,20 @@
                         "accession": "OR112654"
                       }
                     ],
-                    "published_in": "Palatov_Chertoprud_2024",
+                    "published_in": [
+                      {
+                        "code": "Palatov_Chertoprud_2024",
+                        "original": true
+                      }
+                    ],
                     "specimen_identifier": "Ase.1-08A-(21_125)",
                     "original_taxon": "Asellidae sp.",
                     "identification": {
                       "identified_on": {
                         "precision": "Year",
-                        "date": "2024-01-01T00:00:00Z"
+                        "date": {
+                          "year": 2024
+                        }
                       },
                       "taxon": "Proasellus meridianus",
                       "identified_by": "fmalard"
@@ -193,7 +217,11 @@
           {
             "performed_on": {
               "precision": "Day",
-              "date": "2021-12-03T00:00:00Z"
+              "date": {
+                "day": 3,
+                "month": 12,
+                "year": 2021
+              }
             },
             "programs": [
               "DARCO"
@@ -226,7 +254,7 @@
                 ],
                 "target": {
                   "kind": "Taxa",
-                  "target_taxa": [
+                  "taxa": [
                     "Asellidae"
                   ]
                 },
@@ -252,7 +280,7 @@
                 ],
                 "target": {
                   "kind": "Taxa",
-                  "target_taxa": [
+                  "taxa": [
                     "Proasellus"
                   ]
                 },

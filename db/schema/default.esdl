@@ -24,6 +24,23 @@ module default {
     select <str>{} if len(trimmed) = 0 else trimmed
   );
 
+
+  # Objects that are identifiable by a unique code, and have a history of code changes
+  abstract type CodeIdentifier {
+    required code: str {
+      constraint exclusive;
+    };
+
+    # Stores the history of code changes
+    code_history: array<tuple<code: str, time: datetime>> {
+      rewrite update using (
+        if __old__.code != .code then
+        __old__.code_history ?? [] ++ [(code := __old__.code, time := datetime_of_statement())]
+        else .code_history
+      );
+    }
+  }
+
   abstract type Vocabulary {
     annotation title := "An extensible list of terms";
 

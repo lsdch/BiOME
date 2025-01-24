@@ -47,9 +47,11 @@ module events {
     };
     multi programs: Program;
 
-    dataset: datasets::Dataset;
+    # Spotting: visiting a site without taking any samples,
+    # e.g. in preparation of future sampling
+    multi spottings: taxonomy::Taxon;
+    comments: str;
 
-    spotting := .<event[is Spotting];
     multi abiotic_measurements := .<event[is AbioticMeasurement];
     multi samplings := .<event[is Sampling];
 
@@ -57,22 +59,13 @@ module events {
 
   # Several actions may have been performed during an event
   #
-  # - Spotting: visiting a site without taking any samples, e.g. in preparation of future sampling
+
   # - Abiotic measurement: measuring environmental variables at the site
   # - Sampling: sampling for the presence of one or several target taxa
   abstract type Action extending default::Auditable {
     required event: Event {
       on target delete delete source;
     };
-  }
-
-  type Spotting extending Action {
-    overloaded required event: Event {
-      on target delete delete source;
-      constraint exclusive;
-    }
-    multi target_taxa: taxonomy::Taxon;
-    comments: str;
   }
 
   type AbioticParameter extending default::Vocabulary, default::Auditable {
@@ -103,14 +96,22 @@ module events {
       with
         id := .id,
         event := .event,
-        sisters := (
+        # siblings are all samplings of events having the same code
+        # event codes are not unique, but samplings are
+        siblings := (
           select detached events::Sampling
           filter .event.code = event.code
           order by .number
         ),
-        rank := (select assert_single(enumerate(sisters) filter .1.id = id).0),
-        suffix := (if count(sisters) > 1 then '.' ++ <str>(rank + 1) else '')
-        select assert_single(assert_exists(event.code ++ suffix))
+        # if sampling is not found in siblings, it is the last one and was probably just created
+        rank := (
+          select assert_single(enumerate(siblings) filter .1.id = id).0
+        ) ?? count(siblings),
+        suffix := (if count(siblings) > 1 then '.' ++ <str>(rank + 1) else '')
+        select assert_single(assert_exists(
+          event.code ++ suffix,
+          message := "Failed to generate sampling code. Event code: '" ++ event.code ++ "'. Suffix: '" ++ suffix ++ "'"
+        ))
     );
 
     # WARNING : during migration, remove pseudo-field when no sampling was performed

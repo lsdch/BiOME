@@ -15,15 +15,18 @@ module date {
   );
 
   function from_json_with_precision(value: json) -> tuple<date:datetime, precision:DatePrecision>
-  using (assert_exists((
-    date := (
-      if exists value['date'] then to_datetime(
-        <int64>json_get(value, 'date', 'year'),
-        <int64>json_get(value, 'date', 'month'),
-        <int64>json_get(value, 'date', 'day'),
-        0, 0, 0, 'UTC'
-      ) else <datetime>{}
+  using (assert_exists(
+    (
+      date := (
+        if exists value['date'] then to_datetime(
+          <int64>value['date']['year'],
+          <int64>json_get(value, 'date', 'month') ?? 1,
+          <int64>json_get(value, 'date', 'day') ?? 1,
+          0, 0, 0, 'UTC'
+        ) else <datetime>{}
+      ),
+      precision := <DatePrecision>value['precision']
     ),
-    precision := <date::DatePrecision>value['precision']
-  )));
+    message := "Failed to parse date with precision from JSON: " ++ to_str(value)
+  ));
 }

@@ -1,6 +1,6 @@
 module datasets {
 
-  type AbstractDataset extending default::Auditable {
+  abstract type AbstractDataset extending default::Auditable {
     required label: str {
       constraint min_len_value(4);
       constraint max_len_value(40);
@@ -9,6 +9,7 @@ module datasets {
       constraint exclusive;
     };
     description: str;
+
     required multi maintainers: people::Person {
       # edgedb error: SchemaDefinitionError:
       # cannot specify a rewrite for link 'maintainers' of object type 'location::SiteDataset' because it is multi
@@ -19,16 +20,39 @@ module datasets {
     };
   }
 
-  # type SiteDataset extending AbstractDataset {
-  #   multi link sites := .<datasets[is location::Site];
-  # }
+  type SiteDataset extending AbstractDataset {
+    multi sites: location::Site {
+      on target delete allow;
+      on source delete allow;
+    };
+  };
 
-  type Dataset extending AbstractDataset {
-    multi link sites := .<datasets[is location::Site];
+  type OccurrenceDataset extending AbstractDataset {
+    multi occurrences: occurrence::Occurrence {
+      on target delete allow;
+      on source delete allow;
+    };
+    multi sites := (.occurrences.sampling.event.site);
+
+    # Dataset is congruent if all occurrences are congruent:
+    # Morphological identification matches molecular identification
+    required is_congruent := (all(
+      (select .occurrences {
+        is_congruent := (
+          [is occurrence::ExternalBioMat].is_congruent ??
+          [is occurrence::InternalBioMat].is_congruent ??
+          true
+        )
+      }).is_congruent
+    ));
   }
 
   type SeqDataset extending AbstractDataset {
-    required multi sequences: seq::Sequence;
+    multi sequences: seq::Sequence {
+      on target delete allow;
+      on source delete allow;
+    };
+    multi sites := (.sequences.sampling.event.site)
   }
 
 

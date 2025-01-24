@@ -10,7 +10,6 @@ import (
 	"darco/proto/models/specimen"
 	"darco/proto/models/taxonomy"
 	"encoding/json"
-	"time"
 
 	"github.com/edgedb/edgedb-go"
 )
@@ -31,6 +30,8 @@ type ExternalBioMatSpecific struct {
 	Content            []ExternalBioMatContent `edgedb:"content" json:"content,omitempty"`
 }
 
+// ExternalBioMatSequence represents a sequence of an external biomaterial.
+// It is intended to be embedded in external bio material occurrence details.
 type ExternalBioMatSequence struct {
 	ID             edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
 	SequenceInner  `edgedb:"$inline" json:",inline"`
@@ -51,39 +52,64 @@ type ExternalBioMatContent struct {
 	Sequences []ExternalBioMatSequence `edgedb:"sequences" json:"sequences"`
 }
 
-type CodeHistory struct {
-	Code string    `edgedb:"code" json:"code"`
-	Time time.Time `edgedb:"time" json:"time"`
+type BioMaterialInner struct {
+	ID             edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
+	CodeIdentifier `edgedb:"$inline" json:",inline"`
+	Category       OccurrenceCategory `edgedb:"category" json:"category"`
+	IsType         bool               `edgedb:"is_type" json:"is_type"`
+	Comments       edgedb.OptionalStr `edgedb:"comments" json:"comments,omitempty"`
 }
 
 type GenericBioMaterial[SamplingType any] struct {
 	GenericOccurrence[SamplingType] `edgedb:"$inline" json:",inline"`
-	Code                            string                                  `edgedb:"code" json:"code"`
-	CodeHistory                     []CodeHistory                           `edgedb:"code_history" json:"code_history,omitempty"`
-	Category                        OccurrenceCategory                      `edgedb:"category" json:"category"`
-	IsType                          bool                                    `edgedb:"is_type" json:"is_type"`
+	BioMaterialInner                `edgedb:"$inline" json:",inline"`
 	HasSequences                    bool                                    `edgedb:"has_sequences" json:"has_sequences"`
 	IsHomogenous                    bool                                    `edgedb:"is_homogenous" json:"is_homogenous"`
 	IsCongruent                     bool                                    `edgedb:"is_congruent" json:"is_congruent"`
-	SequenceConsensus               models.Optional[taxonomy.Taxon]         `edgedb:"sequence_consensus" json:"sequence_consensus,omitempty"`
-	References                      []references.Article                    `edgedb:"published_in" json:"published_in"`
+	SequenceConsensus               models.Optional[taxonomy.Taxon]         `edgedb:"seq_consensus" json:"seq_consensus,omitempty"`
 	External                        models.Optional[ExternalBioMatSpecific] `edgedb:"external" json:"external,omitempty"`
 	Meta                            people.Meta                             `edgedb:"meta" json:"meta"`
 }
 
 type BioMaterial GenericBioMaterial[SamplingInner]
 
+func (b BioMaterial) AsOccurrence() OccurrenceWithCategory {
+	return OccurrenceWithCategory{
+		Occurrence: Occurrence{
+			ID:                b.BioMaterialInner.ID,
+			GenericOccurrence: b.GenericOccurrence,
+		},
+		Category:          b.Category,
+		OccurrenceElement: BioMaterialElement,
+	}
+}
+
 type BioMaterialWithDetails struct {
 	GenericBioMaterial[Sampling] `edgedb:"$inline" json:",inline"`
 	Event                        EventInner `edgedb:"event" json:"event"`
 }
 
+func (b BioMaterialWithDetails) AsOccurrence() OccurrenceWithCategory {
+	return OccurrenceWithCategory{
+		Occurrence: Occurrence{
+			ID: b.BioMaterialInner.ID,
+			GenericOccurrence: GenericOccurrence[SamplingInner]{
+				Sampling:       b.GenericOccurrence.Sampling.SamplingInner,
+				Identification: b.GenericOccurrence.Identification,
+			},
+			Comments: b.Comments,
+		},
+		Category:          b.Category,
+		OccurrenceElement: BioMaterialElement,
+	}
+}
+
 func GetBioMaterial(db edgedb.Executor, code string) (biomat BioMaterialWithDetails, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
-		select occurrence::BioMaterialWithType {
+		with module occurrence
+		select BioMaterialWithType {
 			**,
-			sequence_consensus: { * },
 			sampling: {
 				*,
 				target_taxa: { * },
@@ -94,8 +120,8 @@ func GetBioMaterial(db edgedb.Executor, code string) (biomat BioMaterialWithDeta
 				occurring_taxa: { * }
 			},
 			event := .sampling.event { *, site: {name, code} },
-			identification: { **, identified_by: { * } },
-			external := [is occurrence::ExternalBioMat]{
+			identification: { ** },
+			external: {
 				content := (
 					select (group .sequences by .specimen_identifier) {
 						specimen := .key.specimen_identifier,
@@ -123,12 +149,12 @@ func ListBioMaterials(db edgedb.Executor) ([]BioMaterialWithDetails, error) {
 	var items = []BioMaterialWithDetails{}
 	err := db.Query(context.Background(),
 		`#edgeql
-			select occurrence::BioMaterialWithType {
+			with module occurrence
+			select BioMaterialWithType {
         **,
-				sequence_consensus: { * },
 				event := .sampling.event { *, site: {name, code} },
 				identification: { **, identified_by: { * } },
-        external := [is occurrence::ExternalBioMat]{
+        external: {
           original_link,
           in_collection,
           item_vouchers,
@@ -144,10 +170,29 @@ func ListBioMaterials(db edgedb.Executor) ([]BioMaterialWithDetails, error) {
 func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterial, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
+		with module occurrence
 			select (
-				delete occurence::BioMaterialWithType filter .code = <str>$0
+				delete BioMaterial filter .code = <str>$0
 			) {
         **,
+				required has_sequences := (
+					exists ([is ExternalBioMat].sequences ?? [is InternalBioMat].specimens.sequences)
+				),
+				required is_homogenous := (
+					assert_exists(
+						([is ExternalBioMat].is_homogenous ?? [is InternalBioMat].is_homogenous),
+						message := "Failed to determined BioMaterial homogeneity"
+					)
+				),
+				required is_congruent := (
+					assert_exists(
+						([is ExternalBioMat].is_congruent ?? [is InternalBioMat].is_congruent),
+						message := "Failed to determined BioMaterial congruence"
+					)
+				),
+				seq_consensus := (
+					[is ExternalBioMat].seq_consensus ?? [is InternalBioMat].seq_consensus
+				) { * },
         external:= [is occurrence::ExternalBioMat]{
           original_link,
           in_collection,
@@ -162,9 +207,17 @@ func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterial, er
 }
 
 type BioMaterialInput struct {
-	OccurrenceInput `edgedb:"$inline" json:",inline"`
-	Code            models.OptionalInput[string] `edgedb:"code" json:"code,omitempty"`
-	IsType          models.OptionalInput[bool]   `edgedb:"is_type" json:"is_type,omitempty"`
+	OccurrenceInnerInput `edgedb:"$inline" json:",inline"`
+	Code                 models.OptionalInput[string] `edgedb:"code" json:"code,omitempty"`
+	IsType               models.OptionalInput[bool]   `edgedb:"is_type" json:"is_type,omitempty"`
+}
+
+func (i *BioMaterialInput) SetCode(code string) {
+	i.Code.SetValue(code)
+}
+
+func (i *BioMaterialInput) UseSamplingCode(samplingCode string) {
+	i.SetCode(i.OccurrenceInnerInput.Code(samplingCode))
 }
 
 func (i BioMaterialInput) GetCode(db edgedb.Executor) (string, error) {
@@ -186,19 +239,7 @@ type InternalBioMatInput struct {
 	// TODO: Internal-specific fields
 }
 
-type ExternalBioMatInput struct {
-	BioMaterialInput   `edgedb:"$inline" json:",inline"`
-	OriginalLink       models.OptionalInput[string]   `edgedb:"original_link" json:"original_link,omitempty"`
-	OriginalTaxon      models.OptionalInput[string]   `edgedb:"original_taxon" json:"original_taxon,omitempty"`
-	Quantity           specimen.Quantity              `edgedb:"quantity" json:"quantity"`
-	ContentDescription models.OptionalInput[string]   `edgedb:"content_description" json:"content_description,omitempty"`
-	Collection         models.OptionalInput[string]   `edgedb:"in_collection" json:"collection,omitempty"`
-	Item               []string                       `edgedb:"item_vouchers" json:"vouchers,omitempty"`
-	Comments           models.OptionalInput[string]   `edgedb:"comments" json:"comments,omitempty"`
-	PublishedIn        models.OptionalInput[[]string] `edgedb:"published_in" json:"published_in"`
-}
-
-func (i ExternalBioMatInput) Save(e edgedb.Executor) (created BioMaterialWithDetails, err error) {
+func (i InternalBioMatInput) Save(e edgedb.Executor, samplingID edgedb.UUID) (created BioMaterialWithDetails, err error) {
 	data, _ := json.Marshal(i)
 	code, err := i.GetCode(e)
 	if err != nil {
@@ -206,37 +247,121 @@ func (i ExternalBioMatInput) Save(e edgedb.Executor) (created BioMaterialWithDet
 	}
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
-			with data := <json>$0,
+			with data := <json>$1,
+			identification := data['identification'],
+			select (insert occurrence::InternalBioMat {
+				code := <str>$2,
+				identification := (
+					insert occurrence::Identification {
+						taxon := taxonomy::taxonByName(<str>identification['taxon']),
+						identified_by := people::personByAlias(<str>identification['identified_by']),
+						identified_on := date::from_json_with_precision(identification['identified_on']),
+					}
+				),
+				sampling := assert_exists((
+						select (<events::Sampling><uuid>$0)
+					),
+					message := "Failed to find sampling with ID: " ++ <str><uuid>$0
+				),
+				is_type := <bool>json_get(data, 'is_type') ?? false,
+				published_in := (
+					with pubs := json_array_unpack(json_get(data, 'published_in'))
+					select assert_distinct(
+						(for p in pubs union (
+							select references::Article {
+								@original_source := <bool>json_get(p, 'original')
+							} filter .code = <str>p['code']
+						)),
+						message := "Duplicate publication references: " ++ to_str(pubs)
+					)
+				)
+			}) {
+				*,
+				sampling: {
+					*,
+					target_taxa: { * },
+					fixatives: { * },
+					methods: { * },
+					habitats: { * },
+					samples: { **, identification: { ** } },
+					occurring_taxa: { * }
+				},
+				published_in: { *, @original_source },
+				event := .sampling.event { *, site: {name, code} },
+				identification: { **, identified_by: { * } },
+				meta: { * }
+			}
+		`, &created, samplingID, data, code)
+	return
+}
+
+type ExternalBioMatOccurrenceInput struct {
+	Sampling            edgedb.UUID `edgedb:"sampling" json:"sampling"`
+	ExternalBioMatInput `edgedb:"$inline" json:",inline"`
+}
+
+func (i ExternalBioMatOccurrenceInput) Save(e edgedb.Executor) (created BioMaterialWithDetails, err error) {
+	return i.ExternalBioMatInput.Save(e, i.Sampling)
+}
+
+type ExternalBioMatInput struct {
+	BioMaterialInput   `edgedb:"$inline" json:",inline"`
+	OriginalLink       models.OptionalInput[string] `edgedb:"original_link" json:"original_link,omitempty"`
+	Quantity           specimen.Quantity            `edgedb:"quantity" json:"quantity"`
+	ContentDescription models.OptionalInput[string] `edgedb:"content_description" json:"content_description,omitempty"`
+	Collection         models.OptionalInput[string] `edgedb:"in_collection" json:"collection,omitempty"`
+	Item               []string                     `edgedb:"item_vouchers" json:"vouchers,omitempty"`
+	Comments           models.OptionalInput[string] `edgedb:"comments" json:"comments,omitempty"`
+}
+
+func (i ExternalBioMatInput) Save(e edgedb.Executor, samplingID edgedb.UUID) (created BioMaterialWithDetails, err error) {
+	data, _ := json.Marshal(i)
+	code, err := i.GetCode(e)
+	if err != nil {
+		return
+	}
+	err = e.QuerySingle(context.Background(),
+		`#edgeql
+			with data := <json>$1,
+			identification := data['identification'],
 			select (insert occurrence::ExternalBioMat {
+				code := <str>$2,
 				original_link := <str>json_get(data, 'original_link'),
-				original_taxon := <str>json_get(data, 'original_taxon'),
 				quantity := <occurrence::QuantityType>json_get(data, 'quantity'),
 				content_description := <str>json_get(data, 'content_description'),
 				in_collection := <str>json_get(data, 'collection'),
 				item_vouchers := <str>json_array_unpack(json_get(data, 'item_vouchers')),
 				comments := <str>json_get(data, 'comments'),
-				code := <str>$1,
+				published_in := (
+					with pubs := json_array_unpack(json_get(data, 'published_in'))
+					select assert_distinct(
+						(for p in pubs union (
+							select references::Article {
+								@original_source := <bool>json_get(p, 'original')
+							} filter .code = <str>p['code']
+						)),
+						message := "Duplicate publication references: " ++ to_str(pubs)
+					)
+				),
         identification := (
           insert occurrence::Identification {
-            taxon := assert_exists(
-              select taxonomy::Taxon
-              filter .code = <str>data['identification']['taxon']
-            ),
-            identified_by := assert_exists(
-              select people::Person filter .alias = <str>data['identification']['identified_by']
-            ),
-            identified_on := date::from_json_with_precision(data['identification']['identified_on']),
+            taxon := taxonomy::taxonByName(<str>identification['taxon']),
+            identified_by := people::personByAlias(<str>identification['identified_by']),
+            identified_on := date::from_json_with_precision(identification['identified_on']),
           }
         ),
         sampling := assert_exists(
-          select (<occurrence::Sampling><uuid>data['sampling_id'])
-        ),
-        is_type := <bool>json_get(data, 'is_type'),
+					(select (<events::Sampling><uuid>$0)),
+					message := "Failed to find sampling with ID: " ++ <str><uuid>$0
+				),
+        is_type := <bool>json_get(data, 'is_type') ?? false,
 			}) {
-        **,
-				sequence_consensus: { * },
+        [is occurrence::BioMaterial].**,
+				is_homogenous,
+				is_congruent,
+				seq_consensus: { * },
 				event := .sampling.event { *, site: {name, code} },
-				identification: { **, identified_by: { * } },
+				identification: { ** },
         external := [is occurrence::ExternalBioMat]{
           original_link,
           in_collection,
@@ -245,20 +370,20 @@ func (i ExternalBioMatInput) Save(e edgedb.Executor) (created BioMaterialWithDet
           content_description
         }
       }
-		`, &created, data, code)
+		`, &created, samplingID, data, code)
 	return
 }
 
 type ExternalBioMatUpdate struct {
 	BioMaterialUpdate  `edgedb:"$inline" json:",inline"`
-	OriginalLink       models.OptionalNull[string]             `edgedb:"original_link" json:"original_link,omitempty"`
-	OriginalTaxon      models.OptionalNull[string]             `edgedb:"original_taxon" json:"original_taxon,omitempty"`
-	Quantity           models.OptionalInput[specimen.Quantity] `edgedb:"quantity" json:"quantity,omitempty"`
-	ContentDescription models.OptionalNull[string]             `edgedb:"content_description" json:"content_description,omitempty"`
-	Collection         models.OptionalNull[string]             `edgedb:"in_collection" json:"collection,omitempty"`
-	Item               models.OptionalInput[[]string]          `edgedb:"item_vouchers" json:"vouchers,omitempty"`
-	Comments           models.OptionalNull[string]             `edgedb:"comments" json:"comments,omitempty"`
-	PublishedIn        models.OptionalNull[[]string]           `edgedb:"published_in" json:"published_in"`
+	OriginalLink       models.OptionalNull[string]                                `edgedb:"original_link" json:"original_link,omitempty"`
+	OriginalTaxon      models.OptionalNull[string]                                `edgedb:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           models.OptionalInput[specimen.Quantity]                    `edgedb:"quantity" json:"quantity,omitempty"`
+	ContentDescription models.OptionalNull[string]                                `edgedb:"content_description" json:"content_description,omitempty"`
+	Collection         models.OptionalNull[string]                                `edgedb:"in_collection" json:"collection,omitempty"`
+	Item               models.OptionalInput[[]string]                             `edgedb:"item_vouchers" json:"vouchers,omitempty"`
+	Comments           models.OptionalNull[string]                                `edgedb:"comments" json:"comments,omitempty"`
+	PublishedIn        models.OptionalNull[[]references.OccurrenceReferenceInput] `edgedb:"published_in" json:"published_in"`
 }
 
 func (u ExternalBioMatUpdate) Save(e edgedb.Executor, code string) (updated BioMaterialWithDetails, err error) {
@@ -270,7 +395,7 @@ func (u ExternalBioMatUpdate) Save(e edgedb.Executor, code string) (updated BioM
         %s
       }) {
         **,
-				sequence_consensus: { * },
+				seq_consensus: { * },
 				event := .sampling.event { *, site: {name, code} },
 				identification: { **, identified_by: { * } },
         external := [is occurrence::ExternalBioMat]{
@@ -293,6 +418,17 @@ func (u ExternalBioMatUpdate) Save(e edgedb.Executor, code string) (updated BioM
 			"comments":            "<str>item['comments']",
 			"is_type":             "<bool>item['is_type']",
 			"identification":      u.Identification.Value.UpdateQuery(".identification"),
+			"published_in": `#edgeql
+					with pubs := json_array_unpack(json_get(item, 'published_in'))
+					select assert_distinct(
+						(for p in pubs union (
+							select references::Article {
+								@original_source := <bool>json_get(p, 'original')
+							} filter .code = <str>p['code']
+						)),
+						message := "Duplicate publication references: " ++ to_str(pubs)
+					)
+			`,
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)

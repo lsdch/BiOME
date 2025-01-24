@@ -34,8 +34,9 @@ await import('./stores/user').then(async ({ useUserStore }) => {
   })
 })
 
-
-
+// Setup TanStack VueQuery
+import { VueQueryPlugin } from '@tanstack/vue-query'
+app.use(VueQueryPlugin)
 
 // Setup router
 import setupRouter from './router'

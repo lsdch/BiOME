@@ -381,30 +381,28 @@ export const $BioMaterial = {
     },
     published_in: {
       items: {
-        $ref: '#/components/schemas/Article'
+        $ref: '#/components/schemas/OccurrenceReference'
       },
       type: 'array'
     },
     sampling: {
       $ref: '#/components/schemas/SamplingInner'
     },
-    sequence_consensus: {
+    seq_consensus: {
       $ref: '#/components/schemas/OptionalTaxon'
     }
   },
   required: [
-    'code',
-    'category',
-    'is_type',
     'has_sequences',
     'is_homogenous',
     'is_congruent',
-    'published_in',
     'meta',
-    'id',
     'sampling',
     'identification',
-    'comments'
+    'id',
+    'category',
+    'is_type',
+    'code'
   ],
   type: 'object'
 } as const
@@ -464,31 +462,29 @@ export const $BioMaterialWithDetails = {
     },
     published_in: {
       items: {
-        $ref: '#/components/schemas/Article'
+        $ref: '#/components/schemas/OccurrenceReference'
       },
       type: 'array'
     },
     sampling: {
       $ref: '#/components/schemas/Sampling'
     },
-    sequence_consensus: {
+    seq_consensus: {
       $ref: '#/components/schemas/OptionalTaxon'
     }
   },
   required: [
     'event',
-    'code',
-    'category',
-    'is_type',
     'has_sequences',
     'is_homogenous',
     'is_congruent',
-    'published_in',
     'meta',
-    'id',
     'sampling',
     'identification',
-    'comments'
+    'id',
+    'category',
+    'is_type',
+    'code'
   ],
   type: 'object'
 } as const
@@ -688,49 +684,6 @@ export const $CurrentUserResponse = {
   type: 'object'
 } as const
 
-export const $Dataset = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/Dataset.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    description: {
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    label: {
-      type: 'string'
-    },
-    maintainers: {
-      items: {
-        $ref: '#/components/schemas/PersonUser'
-      },
-      type: 'array'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    sites: {
-      items: {
-        $ref: '#/components/schemas/SiteItem'
-      },
-      type: 'array'
-    },
-    slug: {
-      type: 'string'
-    }
-  },
-  required: ['sites', 'maintainers', 'meta', 'id', 'label', 'slug', 'description'],
-  type: 'object'
-} as const
-
 export const $DatasetInner = {
   additionalProperties: false,
   properties: {
@@ -749,81 +702,6 @@ export const $DatasetInner = {
     }
   },
   required: ['id', 'label', 'slug', 'description'],
-  type: 'object'
-} as const
-
-export const $DatasetInput = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/DatasetInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    description: {
-      type: 'string'
-    },
-    label: {
-      maxLength: 32,
-      minLength: 4,
-      type: 'string'
-    },
-    maintainers: {
-      description:
-        'Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.',
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    new_sites: {
-      description: 'New sites to include in the dataset',
-      items: {
-        $ref: '#/components/schemas/SiteInput'
-      },
-      type: 'array'
-    },
-    sites: {
-      description: 'Existing site codes to include in the dataset',
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    }
-  },
-  required: ['label', 'maintainers'],
-  type: 'object'
-} as const
-
-export const $DatasetUpdate = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/DatasetUpdate.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    description: {
-      type: ['string', 'null']
-    },
-    label: {
-      maxLength: 32,
-      minLength: 4,
-      type: 'string'
-    },
-    maintainers: {
-      description:
-        'Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.',
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    }
-  },
   type: 'object'
 } as const
 
@@ -1071,6 +949,9 @@ export const $Event = {
     code: {
       type: 'string'
     },
+    comments: {
+      type: 'string'
+    },
     id: {
       format: 'uuid',
       type: 'string'
@@ -1103,15 +984,17 @@ export const $Event = {
     site: {
       $ref: '#/components/schemas/SiteInfo'
     },
-    spotting: {
-      $ref: '#/components/schemas/Spotting'
+    spottings: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
     }
   },
   required: [
     'performed_by',
     'abiotic_measurements',
     'samplings',
-    'spotting',
     'meta',
     'id',
     'site',
@@ -1125,6 +1008,9 @@ export const $EventInner = {
   additionalProperties: false,
   properties: {
     code: {
+      type: 'string'
+    },
+    comments: {
       type: 'string'
     },
     id: {
@@ -1183,6 +1069,9 @@ export const $EventUpdate = {
       readOnly: true,
       type: 'string'
     },
+    comments: {
+      type: ['string', 'null']
+    },
     performed_by: {
       items: {
         type: 'string'
@@ -1193,6 +1082,12 @@ export const $EventUpdate = {
       $ref: '#/components/schemas/DateWithPrecisionInput'
     },
     programs: {
+      items: {
+        type: 'string'
+      },
+      type: ['array', 'null']
+    },
+    spottings: {
       items: {
         type: 'string'
       },
@@ -1208,7 +1103,7 @@ export const $ExtSeqOrigin = {
   type: 'string'
 } as const
 
-export const $ExtSeqSpecifics = {
+export const $ExtSeqSpecificsBioMaterial = {
   additionalProperties: false,
   properties: {
     origin: {
@@ -1218,7 +1113,10 @@ export const $ExtSeqSpecifics = {
       type: 'string'
     },
     published_in: {
-      $ref: '#/components/schemas/OptionalArticle'
+      items: {
+        $ref: '#/components/schemas/OccurrenceReference'
+      },
+      type: 'array'
     },
     referenced_in: {
       items: {
@@ -1254,12 +1152,12 @@ export const $ExternalBioMatContent = {
   type: 'object'
 } as const
 
-export const $ExternalBioMatInput = {
+export const $ExternalBioMatOccurrenceInput = {
   additionalProperties: false,
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/ExternalBioMatInput.json'],
+      examples: ['/api/v1/schemas/ExternalBioMatOccurrenceInput.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -1285,17 +1183,17 @@ export const $ExternalBioMatInput = {
     original_link: {
       type: 'string'
     },
-    original_taxon: {
-      type: 'string'
-    },
     published_in: {
       items: {
-        type: 'string'
+        $ref: '#/components/schemas/OccurrenceReferenceInput'
       },
       type: 'array'
     },
     quantity: {
       $ref: '#/components/schemas/Quantity'
+    },
+    sampling: {
+      type: 'string'
     },
     sampling_id: {
       format: 'uuid',
@@ -1308,7 +1206,7 @@ export const $ExternalBioMatInput = {
       type: 'array'
     }
   },
-  required: ['quantity', 'published_in', 'sampling_id', 'identification'],
+  required: ['sampling', 'quantity', 'sampling_id', 'identification'],
   type: 'object'
 } as const
 
@@ -1323,6 +1221,12 @@ export const $ExternalBioMatSequence = {
     },
     code: {
       type: 'string'
+    },
+    code_history: {
+      items: {
+        $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
     },
     comments: {
       type: 'string'
@@ -1379,9 +1283,9 @@ export const $ExternalBioMatSequence = {
     'accession_number',
     'specimen_identifier',
     'original_taxon',
-    'code',
     'label',
-    'gene'
+    'gene',
+    'code'
   ],
   type: 'object'
 } as const
@@ -1454,7 +1358,7 @@ export const $ExternalBioMatUpdate = {
     },
     published_in: {
       items: {
-        type: 'string'
+        $ref: '#/components/schemas/OccurrenceReferenceInput'
       },
       type: ['array', 'null']
     },
@@ -1670,12 +1574,15 @@ export const $GeoapifyUsage = {
     date: {
       type: 'string'
     },
+    id: {
+      type: 'string'
+    },
     requests: {
       format: 'int32',
       type: 'integer'
     }
   },
-  required: ['date', 'requests'],
+  required: ['id', 'date', 'requests'],
   type: 'object'
 } as const
 
@@ -2743,6 +2650,74 @@ export const $OccurrenceCategory = {
   type: 'string'
 } as const
 
+export const $OccurrenceDataset = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/OccurrenceDataset.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    is_congruent: {
+      type: 'boolean'
+    },
+    label: {
+      type: 'string'
+    },
+    maintainers: {
+      items: {
+        $ref: '#/components/schemas/PersonUser'
+      },
+      type: 'array'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    occurrences: {
+      items: {
+        $ref: '#/components/schemas/OccurrenceWithCategory'
+      },
+      type: 'array'
+    },
+    sites: {
+      items: {
+        $ref: '#/components/schemas/SiteItem'
+      },
+      type: 'array'
+    },
+    slug: {
+      type: 'string'
+    }
+  },
+  required: [
+    'sites',
+    'occurrences',
+    'is_congruent',
+    'maintainers',
+    'meta',
+    'id',
+    'label',
+    'slug',
+    'description'
+  ],
+  type: 'object'
+} as const
+
+export const $OccurrenceElement = {
+  enum: ['BioMaterial', 'Sequence'],
+  title: 'OccurrenceElement',
+  type: 'string'
+} as const
+
 export const $OccurrenceOverviewItem = {
   additionalProperties: false,
   properties: {
@@ -2764,16 +2739,9 @@ export const $OccurrenceOverviewItem = {
   type: 'object'
 } as const
 
-export const $OptionalArticle = {
+export const $OccurrenceReference = {
   additionalProperties: false,
   properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/Article.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
     authors: {
       items: {
         type: 'string'
@@ -2799,6 +2767,9 @@ export const $OptionalArticle = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
+    original: {
+      type: 'boolean'
+    },
     original_source: {
       type: 'boolean'
     },
@@ -2814,7 +2785,54 @@ export const $OptionalArticle = {
     }
   },
   required: ['id', 'code', 'authors', 'year', 'original_source', 'meta'],
-  type: ['object', 'null']
+  type: 'object'
+} as const
+
+export const $OccurrenceReferenceInput = {
+  additionalProperties: false,
+  properties: {
+    code: {
+      type: 'string'
+    },
+    original: {
+      type: 'boolean'
+    }
+  },
+  required: ['code'],
+  type: 'object'
+} as const
+
+export const $OccurrenceWithCategory = {
+  additionalProperties: false,
+  properties: {
+    category: {
+      $ref: '#/components/schemas/OccurrenceCategory'
+    },
+    comments: {
+      type: 'string'
+    },
+    element: {
+      $ref: '#/components/schemas/OccurrenceElement'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    identification: {
+      $ref: '#/components/schemas/Identification'
+    },
+    published_in: {
+      items: {
+        $ref: '#/components/schemas/OccurrenceReference'
+      },
+      type: 'array'
+    },
+    sampling: {
+      $ref: '#/components/schemas/SamplingInner'
+    }
+  },
+  required: ['category', 'element', 'id', 'comments', 'sampling', 'identification'],
+  type: 'object'
 } as const
 
 export const $OptionalBioMaterial = {
@@ -2869,35 +2887,33 @@ export const $OptionalBioMaterial = {
     },
     published_in: {
       items: {
-        $ref: '#/components/schemas/Article'
+        $ref: '#/components/schemas/OccurrenceReference'
       },
       type: 'array'
     },
     sampling: {
       $ref: '#/components/schemas/SamplingInner'
     },
-    sequence_consensus: {
+    seq_consensus: {
       $ref: '#/components/schemas/OptionalTaxon'
     }
   },
   required: [
-    'code',
-    'category',
-    'is_type',
     'has_sequences',
     'is_homogenous',
     'is_congruent',
-    'published_in',
     'meta',
-    'id',
     'sampling',
     'identification',
-    'comments'
+    'id',
+    'category',
+    'is_type',
+    'code'
   ],
   type: ['object', 'null']
 } as const
 
-export const $OptionalExtSeqSpecifics = {
+export const $OptionalExtSeqSpecificsBioMaterial = {
   additionalProperties: false,
   properties: {
     origin: {
@@ -2907,7 +2923,10 @@ export const $OptionalExtSeqSpecifics = {
       type: 'string'
     },
     published_in: {
-      $ref: '#/components/schemas/OptionalArticle'
+      items: {
+        $ref: '#/components/schemas/OccurrenceReference'
+      },
+      type: 'array'
     },
     referenced_in: {
       items: {
@@ -4017,12 +4036,12 @@ export const $SamplingInner = {
   type: 'object'
 } as const
 
-export const $SamplingInput = {
+export const $SamplingInputWithEvent = {
   additionalProperties: false,
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/SamplingInput.json'],
+      examples: ['/api/v1/schemas/SamplingInputWithEvent.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -4062,17 +4081,11 @@ export const $SamplingInput = {
       },
       type: 'array'
     },
-    target_kind: {
-      $ref: '#/components/schemas/SamplingTargetKind'
-    },
-    target_taxa: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
+    target: {
+      $ref: '#/components/schemas/SamplingTargetInput'
     }
   },
-  required: ['event_id', 'target_kind'],
+  required: ['event_id', 'target'],
   type: 'object'
 } as const
 
@@ -4160,9 +4173,26 @@ export const $SamplingTarget = {
     kind: {
       $ref: '#/components/schemas/SamplingTargetKind'
     },
-    target_taxa: {
+    taxa: {
       items: {
         $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
+    }
+  },
+  required: ['kind'],
+  type: 'object'
+} as const
+
+export const $SamplingTargetInput = {
+  additionalProperties: false,
+  properties: {
+    kind: {
+      $ref: '#/components/schemas/SamplingTargetKind'
+    },
+    taxa: {
+      items: {
+        type: 'string'
       },
       type: 'array'
     }
@@ -4219,16 +4249,11 @@ export const $SamplingUpdate = {
       },
       type: ['array', 'null']
     },
-    target_kind: {
-      $ref: '#/components/schemas/SamplingTargetKind'
-    },
-    target_taxa: {
-      items: {
-        type: 'string'
-      },
-      type: ['array', 'null']
+    target: {
+      $ref: '#/components/schemas/SamplingTargetInput'
     }
   },
+  required: ['target'],
   type: 'object'
 } as const
 
@@ -4424,6 +4449,12 @@ export const $Sequence = {
     code: {
       type: 'string'
     },
+    code_history: {
+      items: {
+        $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
+    },
     comments: {
       type: 'string'
     },
@@ -4431,7 +4462,7 @@ export const $Sequence = {
       $ref: '#/components/schemas/EventInner'
     },
     external: {
-      $ref: '#/components/schemas/OptionalExtSeqSpecifics'
+      $ref: '#/components/schemas/OptionalExtSeqSpecificsBioMaterial'
     },
     gene: {
       $ref: '#/components/schemas/Gene'
@@ -4452,6 +4483,12 @@ export const $Sequence = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
+    published_in: {
+      items: {
+        $ref: '#/components/schemas/OccurrenceReference'
+      },
+      type: 'array'
+    },
     sampling: {
       $ref: '#/components/schemas/SamplingInner'
     },
@@ -4460,17 +4497,65 @@ export const $Sequence = {
     }
   },
   required: [
-    'category',
+    'id',
     'event',
     'meta',
-    'id',
     'sampling',
     'identification',
-    'comments',
-    'code',
     'label',
-    'gene'
+    'gene',
+    'category',
+    'code'
   ],
+  type: 'object'
+} as const
+
+export const $SequenceDataset = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/SequenceDataset.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    maintainers: {
+      items: {
+        $ref: '#/components/schemas/PersonUser'
+      },
+      type: 'array'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    sequences: {
+      items: {
+        $ref: '#/components/schemas/Sequence'
+      },
+      type: 'array'
+    },
+    sites: {
+      items: {
+        $ref: '#/components/schemas/SiteItem'
+      },
+      type: 'array'
+    },
+    slug: {
+      type: 'string'
+    }
+  },
+  required: ['sites', 'sequences', 'maintainers', 'meta', 'id', 'label', 'slug', 'description'],
   type: 'object'
 } as const
 
@@ -4490,6 +4575,12 @@ export const $SequenceWithDetails = {
     code: {
       type: 'string'
     },
+    code_history: {
+      items: {
+        $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
+    },
     comments: {
       type: 'string'
     },
@@ -4497,7 +4588,7 @@ export const $SequenceWithDetails = {
       $ref: '#/components/schemas/EventInner'
     },
     external: {
-      $ref: '#/components/schemas/OptionalExtSeqSpecifics'
+      $ref: '#/components/schemas/OptionalExtSeqSpecificsBioMaterial'
     },
     gene: {
       $ref: '#/components/schemas/Gene'
@@ -4518,6 +4609,12 @@ export const $SequenceWithDetails = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
+    published_in: {
+      items: {
+        $ref: '#/components/schemas/OccurrenceReference'
+      },
+      type: 'array'
+    },
     sampling: {
       $ref: '#/components/schemas/Sampling'
     },
@@ -4526,16 +4623,15 @@ export const $SequenceWithDetails = {
     }
   },
   required: [
-    'category',
+    'id',
     'event',
     'meta',
-    'id',
     'sampling',
     'identification',
-    'comments',
-    'code',
     'label',
-    'gene'
+    'gene',
+    'category',
+    'code'
   ],
   type: 'object'
 } as const
@@ -4649,6 +4745,97 @@ export const $Site = {
     'country',
     'user_defined_locality'
   ],
+  type: 'object'
+} as const
+
+export const $SiteDataset = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/SiteDataset.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    maintainers: {
+      items: {
+        $ref: '#/components/schemas/PersonUser'
+      },
+      type: 'array'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    sites: {
+      items: {
+        $ref: '#/components/schemas/SiteItem'
+      },
+      type: 'array'
+    },
+    slug: {
+      type: 'string'
+    }
+  },
+  required: ['sites', 'maintainers', 'meta', 'id', 'label', 'slug', 'description'],
+  type: 'object'
+} as const
+
+export const $SiteDatasetInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/SiteDatasetInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    label: {
+      maxLength: 32,
+      minLength: 4,
+      type: 'string'
+    },
+    maintainers: {
+      description:
+        'Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.',
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    new_sites: {
+      description: 'New sites to include in the dataset',
+      items: {
+        $ref: '#/components/schemas/SiteInput'
+      },
+      type: 'array'
+    },
+    sites: {
+      description: 'Existing site codes to include in the dataset',
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    slug: {
+      type: 'string'
+    }
+  },
+  required: ['label', 'slug', 'maintainers'],
   type: 'object'
 } as const
 
@@ -4841,52 +5028,6 @@ export const $SpecimenVoucher = {
     }
   },
   required: ['collection', 'vouchers'],
-  type: 'object'
-} as const
-
-export const $Spotting = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/Spotting.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    comments: {
-      type: 'string'
-    },
-    target_taxa: {
-      items: {
-        $ref: '#/components/schemas/Taxon'
-      },
-      type: 'array'
-    }
-  },
-  type: 'object'
-} as const
-
-export const $SpottingUpdate = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/SpottingUpdate.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    comments: {
-      type: ['string', 'null']
-    },
-    target_taxa: {
-      items: {
-        type: 'string'
-      },
-      type: ['array', 'null']
-    }
-  },
   type: 'object'
 } as const
 

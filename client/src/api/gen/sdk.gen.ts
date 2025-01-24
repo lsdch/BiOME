@@ -61,22 +61,34 @@ import {
   type ListCountriesData,
   type ListCountriesError,
   type ListCountriesResponse,
-  type ListDatasetsData,
-  type ListDatasetsError,
-  type ListDatasetsResponse,
-  type CreateDatasetData,
-  type CreateDatasetError,
-  type CreateDatasetResponse,
-  type UpdateDatasetData,
-  type UpdateDatasetError,
-  type UpdateDatasetResponse,
-  type GetDatasetData,
-  type GetDatasetError,
-  type GetDatasetResponse,
-  ListDatasetsResponseTransformer,
-  CreateDatasetResponseTransformer,
-  UpdateDatasetResponseTransformer,
-  GetDatasetResponseTransformer,
+  type ListOccurrenceDatasetsData,
+  type ListOccurrenceDatasetsError,
+  type ListOccurrenceDatasetsResponse,
+  type GetOccurrenceDatasetData,
+  type GetOccurrenceDatasetError,
+  type GetOccurrenceDatasetResponse,
+  type ListSequenceDatasetsData,
+  type ListSequenceDatasetsError,
+  type ListSequenceDatasetsResponse,
+  type GetSequenceDatasetData,
+  type GetSequenceDatasetError,
+  type GetSequenceDatasetResponse,
+  type ListSiteDatasetsData,
+  type ListSiteDatasetsError,
+  type ListSiteDatasetsResponse,
+  type CreateSiteDatasetData,
+  type CreateSiteDatasetError,
+  type CreateSiteDatasetResponse,
+  type GetSiteDatasetData,
+  type GetSiteDatasetError,
+  type GetSiteDatasetResponse,
+  ListOccurrenceDatasetsResponseTransformer,
+  GetOccurrenceDatasetResponseTransformer,
+  ListSequenceDatasetsResponseTransformer,
+  GetSequenceDatasetResponseTransformer,
+  ListSiteDatasetsResponseTransformer,
+  CreateSiteDatasetResponseTransformer,
+  GetSiteDatasetResponseTransformer,
   type DeleteEventData,
   type DeleteEventError,
   type DeleteEventResponse,
@@ -658,16 +670,92 @@ export class CountriesService {
 
 export class DatasetsService {
   /**
+   * List occurrence datasets
+   * List all occurrence datasets
+   */
+  public static listOccurrenceDatasets<ThrowOnError extends boolean = false>(
+    options?: OptionsLegacyParser<ListOccurrenceDatasetsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListOccurrenceDatasetsResponse,
+      ListOccurrenceDatasetsError,
+      ThrowOnError
+    >({
+      ...options,
+      url: '/datasets/occurrence',
+      responseTransformer: ListOccurrenceDatasetsResponseTransformer
+    })
+  }
+
+  /**
+   * Get occurrence dataset
+   * Get infos for an occurrence dataset
+   */
+  public static getOccurrenceDataset<ThrowOnError extends boolean = false>(
+    options: OptionsLegacyParser<GetOccurrenceDatasetData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      GetOccurrenceDatasetResponse,
+      GetOccurrenceDatasetError,
+      ThrowOnError
+    >({
+      ...options,
+      url: '/datasets/occurrence/{slug}',
+      responseTransformer: GetOccurrenceDatasetResponseTransformer
+    })
+  }
+
+  /**
+   * List sequence datasets
+   * List all sequence datasets
+   */
+  public static listSequenceDatasets<ThrowOnError extends boolean = false>(
+    options?: OptionsLegacyParser<ListSequenceDatasetsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListSequenceDatasetsResponse,
+      ListSequenceDatasetsError,
+      ThrowOnError
+    >({
+      ...options,
+      url: '/datasets/sequences',
+      responseTransformer: ListSequenceDatasetsResponseTransformer
+    })
+  }
+
+  /**
+   * Get sequence dataset
+   * Get infos for an sequence dataset
+   */
+  public static getSequenceDataset<ThrowOnError extends boolean = false>(
+    options: OptionsLegacyParser<GetSequenceDatasetData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      GetSequenceDatasetResponse,
+      GetSequenceDatasetError,
+      ThrowOnError
+    >({
+      ...options,
+      url: '/datasets/sequences/{slug}',
+      responseTransformer: GetSequenceDatasetResponseTransformer
+    })
+  }
+
+  /**
    * List site datasets
    * List all site datasets
    */
-  public static listDatasets<ThrowOnError extends boolean = false>(
-    options?: OptionsLegacyParser<ListDatasetsData, ThrowOnError>
+  public static listSiteDatasets<ThrowOnError extends boolean = false>(
+    options?: OptionsLegacyParser<ListSiteDatasetsData, ThrowOnError>
   ) {
-    return (options?.client ?? client).get<ListDatasetsResponse, ListDatasetsError, ThrowOnError>({
+    return (options?.client ?? client).get<
+      ListSiteDatasetsResponse,
+      ListSiteDatasetsError,
+      ThrowOnError
+    >({
       ...options,
-      url: '/datasets',
-      responseTransformer: ListDatasetsResponseTransformer
+      url: '/datasets/sites',
+      responseTransformer: ListSiteDatasetsResponseTransformer
     })
   }
 
@@ -675,35 +763,17 @@ export class DatasetsService {
    * Create site dataset
    * Create a new site dataset with new or existing sites
    */
-  public static createDataset<ThrowOnError extends boolean = false>(
-    options: OptionsLegacyParser<CreateDatasetData, ThrowOnError>
+  public static createSiteDataset<ThrowOnError extends boolean = false>(
+    options: OptionsLegacyParser<CreateSiteDatasetData, ThrowOnError>
   ) {
     return (options?.client ?? client).post<
-      CreateDatasetResponse,
-      CreateDatasetError,
+      CreateSiteDatasetResponse,
+      CreateSiteDatasetError,
       ThrowOnError
     >({
       ...options,
-      url: '/datasets',
-      responseTransformer: CreateDatasetResponseTransformer
-    })
-  }
-
-  /**
-   * Update site dataset
-   * Update properties of a site dataset
-   */
-  public static updateDataset<ThrowOnError extends boolean = false>(
-    options: OptionsLegacyParser<UpdateDatasetData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).patch<
-      UpdateDatasetResponse,
-      UpdateDatasetError,
-      ThrowOnError
-    >({
-      ...options,
-      url: '/datasets/{slug}',
-      responseTransformer: UpdateDatasetResponseTransformer
+      url: '/datasets/sites',
+      responseTransformer: CreateSiteDatasetResponseTransformer
     })
   }
 
@@ -711,13 +781,17 @@ export class DatasetsService {
    * Get site dataset
    * Get infos for a site dataset
    */
-  public static getDataset<ThrowOnError extends boolean = false>(
-    options: OptionsLegacyParser<GetDatasetData, ThrowOnError>
+  public static getSiteDataset<ThrowOnError extends boolean = false>(
+    options: OptionsLegacyParser<GetSiteDatasetData, ThrowOnError>
   ) {
-    return (options?.client ?? client).post<GetDatasetResponse, GetDatasetError, ThrowOnError>({
+    return (options?.client ?? client).get<
+      GetSiteDatasetResponse,
+      GetSiteDatasetError,
+      ThrowOnError
+    >({
       ...options,
-      url: '/datasets/{slug}',
-      responseTransformer: GetDatasetResponseTransformer
+      url: '/datasets/sites/{slug}',
+      responseTransformer: GetSiteDatasetResponseTransformer
     })
   }
 }

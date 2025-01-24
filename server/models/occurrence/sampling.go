@@ -72,7 +72,7 @@ func DeleteSamplingMethod(db edgedb.Executor, code string) (deleted SamplingMeth
 
 type SamplingTarget struct {
 	Kind       SamplingTargetKind `edgedb:"sampling_target" json:"kind"`
-	TargetTaxa []taxonomy.Taxon   `edgedb:"target_taxa" json:"target_taxa,omitempty"`
+	TargetTaxa []taxonomy.Taxon   `edgedb:"target_taxa" json:"taxa,omitempty"`
 }
 
 type SamplingInner struct {
@@ -95,27 +95,39 @@ type Sampling struct {
 	Meta          people.Meta      `edgedb:"meta" json:"meta"`
 }
 
-type SamplingInput struct {
-	EventID      edgedb.UUID        `json:"event_id"`
-	TargetKind   SamplingTargetKind `json:"target_kind"`
-	TargetTaxa   []string           `json:"target_taxa,omitempty"`
-	Methods      []string           `json:"methods,omitempty"`
-	Fixatives    []string           `json:"fixatives,omitempty"`
-	Duration     *int32             `json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Comments     *string            `json:"comments,omitempty"`
-	Habitats     []string           `json:"habitats,omitempty"`
-	AccessPoints []string           `json:"access_points,omitempty"`
+type SamplingInputWithEvent struct {
+	SamplingInput `json:",inline"`
+	EventID       edgedb.UUID `json:"event_id"`
 }
 
-func (i SamplingInput) Save(e edgedb.Executor) (created Sampling, err error) {
+func (i SamplingInputWithEvent) Save(e edgedb.Executor) (Sampling, error) {
+	return i.SamplingInput.Save(e, i.EventID)
+}
+
+type SamplingTargetInput struct {
+	Kind SamplingTargetKind `json:"kind"`
+	Taxa []string           `json:"taxa,omitempty"`
+}
+
+type SamplingInput struct {
+	Target       SamplingTargetInput `json:"target"`
+	Methods      []string            `json:"methods,omitempty"`
+	Fixatives    []string            `json:"fixatives,omitempty"`
+	Duration     *int32              `json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Comments     *string             `json:"comments,omitempty"`
+	Habitats     []string            `json:"habitats,omitempty"`
+	AccessPoints []string            `json:"access_points,omitempty"`
+}
+
+func (i SamplingInput) Save(e edgedb.Executor, eventID edgedb.UUID) (created Sampling, err error) {
 	data, _ := json.Marshal(i)
 	logrus.Debugf("data: %s", string(data))
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with module events,
-			data := <json>$0,
+			data := <json>$1,
 			select (insert events::Sampling {
-				event := (select Event filter .id = (<uuid>data['event_id'])),
+				event := (select (<Event><uuid>$0)),
 				methods := (
 					select SamplingMethod
 					filter .code in <str>json_array_unpack(json_get(data, 'methods'))
@@ -124,10 +136,10 @@ func (i SamplingInput) Save(e edgedb.Executor) (created Sampling, err error) {
 					select samples::Fixative
 					filter .code in <str>json_array_unpack(json_get(data, 'fixatives'))
 				),
-				sampling_target := <SamplingTarget>(data['target_kind']),
+				sampling_target := <SamplingTarget>(data['target']['kind']),
 				target_taxa := (
 					select taxonomy::Taxon
-					filter .name in <str>json_array_unpack(json_get(data, 'target_taxa'))
+					filter .name in <str>json_array_unpack(json_get(data, 'target', 'taxa'))
 				),
 				sampling_duration := <int32>json_get(data, 'duration'),
 				comments := <str>json_get(data, 'comments'),
@@ -144,19 +156,18 @@ func (i SamplingInput) Save(e edgedb.Executor) (created Sampling, err error) {
 				methods: { * },
 				meta: { * }
 			}
-		`, &created, data)
+		`, &created, eventID, data)
 	return
 }
 
 type SamplingUpdate struct {
-	TargetKind   models.OptionalInput[SamplingTargetKind] `edgedb:"target_kind" json:"target_kind,omitempty"`
-	TargetTaxa   models.OptionalNull[[]string]            `edgedb:"target_taxa" json:"target_taxa,omitempty"`
-	Methods      models.OptionalNull[[]string]            `edgedb:"methods" json:"methods,omitempty"`
-	Fixatives    models.OptionalNull[[]string]            `edgedb:"fixatives" json:"fixatives,omitempty"`
-	Duration     models.OptionalNull[int32]               `edgedb:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Comments     models.OptionalNull[string]              `edgedb:"comments" json:"comments,omitempty"`
-	Habitats     models.OptionalNull[[]string]            `edgedb:"habitats" json:"habitats,omitempty"`
-	AccessPoints models.OptionalNull[[]string]            `edgedb:"access_points" json:"access_points,omitempty"`
+	Target       models.OptionalInput[SamplingTargetInput] `json:"target"`
+	Methods      models.OptionalNull[[]string]             `edgedb:"methods" json:"methods,omitempty"`
+	Fixatives    models.OptionalNull[[]string]             `edgedb:"fixatives" json:"fixatives,omitempty"`
+	Duration     models.OptionalNull[int32]                `edgedb:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Comments     models.OptionalNull[string]               `edgedb:"comments" json:"comments,omitempty"`
+	Habitats     models.OptionalNull[[]string]             `edgedb:"habitats" json:"habitats,omitempty"`
+	AccessPoints models.OptionalNull[[]string]             `edgedb:"access_points" json:"access_points,omitempty"`
 }
 
 func (u SamplingUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Sampling, err error) {

@@ -134,7 +134,7 @@ export type BioMaterial = {
   category: OccurrenceCategory
   code: string
   code_history?: Array<CodeHistory>
-  comments: string
+  comments?: string
   external?: OptionalExternalBioMatSpecific
   has_sequences: boolean
   id: string
@@ -143,9 +143,9 @@ export type BioMaterial = {
   is_homogenous: boolean
   is_type: boolean
   meta: Meta
-  published_in: Array<Article>
+  published_in?: Array<OccurrenceReference>
   sampling: SamplingInner
-  sequence_consensus?: OptionalTaxon
+  seq_consensus?: OptionalTaxon
 }
 
 export type BioMaterialWithDetails = {
@@ -156,7 +156,7 @@ export type BioMaterialWithDetails = {
   category: OccurrenceCategory
   code: string
   code_history?: Array<CodeHistory>
-  comments: string
+  comments?: string
   event: EventInner
   external?: OptionalExternalBioMatSpecific
   has_sequences: boolean
@@ -166,9 +166,9 @@ export type BioMaterialWithDetails = {
   is_homogenous: boolean
   is_type: boolean
   meta: Meta
-  published_in: Array<Article>
+  published_in?: Array<OccurrenceReference>
   sampling: Sampling
-  sequence_consensus?: OptionalTaxon
+  seq_consensus?: OptionalTaxon
 }
 
 export type ClinicalTrailNumber = {
@@ -242,59 +242,11 @@ export type CurrentUserResponse = {
   user: User
 }
 
-export type Dataset = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  description: string
-  id: string
-  label: string
-  maintainers: Array<PersonUser>
-  meta: Meta
-  sites: Array<SiteItem>
-  slug: string
-}
-
 export type DatasetInner = {
   description: string
   id: string
   label: string
   slug: string
-}
-
-export type DatasetInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  description?: string
-  label: string
-  /**
-   * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
-   */
-  maintainers: Array<string>
-  /**
-   * New sites to include in the dataset
-   */
-  new_sites?: Array<SiteInput>
-  /**
-   * Existing site codes to include in the dataset
-   */
-  sites?: Array<string>
-}
-
-export type DatasetUpdate = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  description?: string | null
-  label?: string
-  /**
-   * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
-   */
-  maintainers?: Array<string>
 }
 
 export type DateObject = {
@@ -423,6 +375,7 @@ export type Event = {
   readonly $schema?: string
   abiotic_measurements: Array<AbioticMeasurement>
   code: string
+  comments?: string
   id: string
   meta: Meta
   performed_by: Array<PersonUser>
@@ -430,11 +383,12 @@ export type Event = {
   programs?: Array<ProgramInner>
   samplings: Array<Sampling>
   site: SiteInfo
-  spotting: Spotting
+  spottings?: Array<Taxon>
 }
 
 export type EventInner = {
   code: string
+  comments?: string
   id: string
   performed_on: DateWithPrecision
   site: SiteInfo
@@ -455,9 +409,11 @@ export type EventUpdate = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  comments?: string | null
   performed_by?: Array<string>
   performed_on?: DateWithPrecisionInput
   programs?: Array<string> | null
+  spottings?: Array<string> | null
 }
 
 export type ExternalBioMatContent = {
@@ -465,7 +421,7 @@ export type ExternalBioMatContent = {
   specimen: string
 }
 
-export type ExternalBioMatInput = {
+export type ExternalBioMatOccurrenceInput = {
   /**
    * A URL to the JSON Schema for this object.
    */
@@ -477,9 +433,9 @@ export type ExternalBioMatInput = {
   identification: IdentificationInput
   is_type?: boolean
   original_link?: string
-  original_taxon?: string
-  published_in: Array<string>
+  published_in?: Array<OccurrenceReferenceInput>
   quantity: Quantity
+  sampling: string
   sampling_id: string
   vouchers?: Array<string>
 }
@@ -488,6 +444,7 @@ export type ExternalBioMatSequence = {
   accession_number: string
   category: OccurrenceCategory
   code: string
+  code_history?: Array<CodeHistory>
   comments: string
   gene: Gene
   id: string
@@ -525,7 +482,7 @@ export type ExternalBioMatUpdate = {
   is_type?: boolean
   original_link?: string | null
   original_taxon?: string | null
-  published_in: Array<string> | null
+  published_in: Array<OccurrenceReferenceInput> | null
   quantity?: Quantity
   sampling_id: string
   vouchers?: Array<string>
@@ -533,10 +490,10 @@ export type ExternalBioMatUpdate = {
 
 export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom'
 
-export type ExtSeqSpecifics = {
+export type ExtSeqSpecificsBioMaterial = {
   origin: ExtSeqOrigin
   original_taxon: string
-  published_in?: OptionalArticle
+  published_in?: Array<OccurrenceReference>
   referenced_in?: Array<SeqReference>
   source_sample: OptionalBioMaterial
   specimen_identifier: string
@@ -618,6 +575,7 @@ export type GeneUpdate = {
 
 export type GeoapifyUsage = {
   date: string
+  id: string
   requests: number
 }
 
@@ -1013,6 +971,24 @@ export type Meta = {
 
 export type OccurrenceCategory = 'Internal' | 'External'
 
+export type OccurrenceDataset = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  description: string
+  id: string
+  is_congruent: boolean
+  label: string
+  maintainers: Array<PersonUser>
+  meta: Meta
+  occurrences: Array<OccurrenceWithCategory>
+  sites: Array<SiteItem>
+  slug: string
+}
+
+export type OccurrenceElement = 'BioMaterial' | 'Sequence'
+
 export type OccurrenceOverviewItem = {
   name: string
   occurrences: number
@@ -1020,11 +996,7 @@ export type OccurrenceOverviewItem = {
   rank: TaxonRank
 }
 
-export type OptionalArticle = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
+export type OccurrenceReference = {
   authors: Array<string>
   code: string
   comments?: string
@@ -1032,11 +1004,27 @@ export type OptionalArticle = {
   id: string
   journal?: string
   meta: Meta
+  original?: boolean
   original_source: boolean
   title?: string
   verbatim?: string
   year: number
-} | null
+}
+
+export type OccurrenceReferenceInput = {
+  code: string
+  original?: boolean
+}
+
+export type OccurrenceWithCategory = {
+  category: OccurrenceCategory
+  comments: string
+  element: OccurrenceElement
+  id: string
+  identification: Identification
+  published_in?: Array<OccurrenceReference>
+  sampling: SamplingInner
+}
 
 export type OptionalBioMaterial = {
   /**
@@ -1046,7 +1034,7 @@ export type OptionalBioMaterial = {
   category: OccurrenceCategory
   code: string
   code_history?: Array<CodeHistory>
-  comments: string
+  comments?: string
   external?: OptionalExternalBioMatSpecific
   has_sequences: boolean
   id: string
@@ -1055,9 +1043,9 @@ export type OptionalBioMaterial = {
   is_homogenous: boolean
   is_type: boolean
   meta: Meta
-  published_in: Array<Article>
+  published_in?: Array<OccurrenceReference>
   sampling: SamplingInner
-  sequence_consensus?: OptionalTaxon
+  seq_consensus?: OptionalTaxon
 } | null
 
 export type OptionalExternalBioMatSpecific = {
@@ -1070,10 +1058,10 @@ export type OptionalExternalBioMatSpecific = {
   quantity: Quantity
 } | null
 
-export type OptionalExtSeqSpecifics = {
+export type OptionalExtSeqSpecificsBioMaterial = {
   origin: ExtSeqOrigin
   original_taxon: string
-  published_in?: OptionalArticle
+  published_in?: Array<OccurrenceReference>
   referenced_in?: Array<SeqReference>
   source_sample: OptionalBioMaterial
   specimen_identifier: string
@@ -1422,7 +1410,7 @@ export type SamplingInner = {
   target: SamplingTarget
 }
 
-export type SamplingInput = {
+export type SamplingInputWithEvent = {
   /**
    * A URL to the JSON Schema for this object.
    */
@@ -1437,8 +1425,7 @@ export type SamplingInput = {
   fixatives?: Array<string>
   habitats?: Array<string>
   methods?: Array<string>
-  target_kind: SamplingTargetKind
-  target_taxa?: Array<string>
+  target: SamplingTargetInput
 }
 
 export type SamplingMethod = {
@@ -1475,7 +1462,12 @@ export type SamplingMethodUpdate = {
 
 export type SamplingTarget = {
   kind: SamplingTargetKind
-  target_taxa?: Array<Taxon>
+  taxa?: Array<Taxon>
+}
+
+export type SamplingTargetInput = {
+  kind: SamplingTargetKind
+  taxa?: Array<string>
 }
 
 export type SamplingTargetKind = 'Community' | 'Unknown' | 'Taxa'
@@ -1494,8 +1486,7 @@ export type SamplingUpdate = {
   fixatives?: Array<string> | null
   habitats?: Array<string> | null
   methods?: Array<string> | null
-  target_kind?: SamplingTargetKind
-  target_taxa?: Array<string> | null
+  target: SamplingTargetInput
 }
 
 export type SecuritySettings = {
@@ -1585,17 +1576,34 @@ export type Sequence = {
   readonly $schema?: string
   category: OccurrenceCategory
   code: string
-  comments: string
+  code_history?: Array<CodeHistory>
+  comments?: string
   event: EventInner
-  external?: OptionalExtSeqSpecifics
+  external?: OptionalExtSeqSpecificsBioMaterial
   gene: Gene
   id: string
   identification: Identification
   label: string
   legacy?: OptionalLegacySeqId
   meta: Meta
+  published_in?: Array<OccurrenceReference>
   sampling: SamplingInner
   sequence?: string
+}
+
+export type SequenceDataset = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  description: string
+  id: string
+  label: string
+  maintainers: Array<PersonUser>
+  meta: Meta
+  sequences: Array<Sequence>
+  sites: Array<SiteItem>
+  slug: string
 }
 
 export type SequenceWithDetails = {
@@ -1605,15 +1613,17 @@ export type SequenceWithDetails = {
   readonly $schema?: string
   category: OccurrenceCategory
   code: string
-  comments: string
+  code_history?: Array<CodeHistory>
+  comments?: string
   event: EventInner
-  external?: OptionalExtSeqSpecifics
+  external?: OptionalExtSeqSpecificsBioMaterial
   gene: Gene
   id: string
   identification: Identification
   label: string
   legacy?: OptionalLegacySeqId
   meta: Meta
+  published_in?: Array<OccurrenceReference>
   sampling: Sampling
   sequence?: string
 }
@@ -1652,6 +1662,42 @@ export type Site = {
   meta: Meta
   name: string
   user_defined_locality: boolean
+}
+
+export type SiteDataset = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  description: string
+  id: string
+  label: string
+  maintainers: Array<PersonUser>
+  meta: Meta
+  sites: Array<SiteItem>
+  slug: string
+}
+
+export type SiteDatasetInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  description?: string
+  label: string
+  /**
+   * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
+   */
+  maintainers: Array<string>
+  /**
+   * New sites to include in the dataset
+   */
+  new_sites?: Array<SiteInput>
+  /**
+   * Existing site codes to include in the dataset
+   */
+  sites?: Array<string>
+  slug: string
 }
 
 export type SiteInfo = {
@@ -1735,24 +1781,6 @@ export type SiteUpdate = {
 export type SpecimenVoucher = {
   collection: string
   vouchers: Array<string>
-}
-
-export type Spotting = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  comments?: string
-  target_taxa?: Array<Taxon>
-}
-
-export type SpottingUpdate = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  comments?: string | null
-  target_taxa?: Array<string> | null
 }
 
 export type Taxon = {
@@ -2144,7 +2172,7 @@ export type ListCountriesResponse = Array<Country>
 
 export type ListCountriesError = ErrorModel
 
-export type ListDatasetsData = {
+export type ListOccurrenceDatasetsData = {
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -2153,26 +2181,11 @@ export type ListDatasetsData = {
   }
 }
 
-export type ListDatasetsResponse = Array<Dataset>
+export type ListOccurrenceDatasetsResponse = Array<OccurrenceDataset>
 
-export type ListDatasetsError = ErrorModel
+export type ListOccurrenceDatasetsError = ErrorModel
 
-export type CreateDatasetData = {
-  body: DatasetInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreateDatasetResponse = Dataset
-
-export type CreateDatasetError = ErrorModel
-
-export type UpdateDatasetData = {
-  body: DatasetUpdate
+export type GetOccurrenceDatasetData = {
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -2184,11 +2197,24 @@ export type UpdateDatasetData = {
   }
 }
 
-export type UpdateDatasetResponse = Dataset
+export type GetOccurrenceDatasetResponse = OccurrenceDataset
 
-export type UpdateDatasetError = ErrorModel
+export type GetOccurrenceDatasetError = ErrorModel
 
-export type GetDatasetData = {
+export type ListSequenceDatasetsData = {
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+}
+
+export type ListSequenceDatasetsResponse = Array<SequenceDataset>
+
+export type ListSequenceDatasetsError = ErrorModel
+
+export type GetSequenceDatasetData = {
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -2200,9 +2226,52 @@ export type GetDatasetData = {
   }
 }
 
-export type GetDatasetResponse = Dataset
+export type GetSequenceDatasetResponse = SequenceDataset
 
-export type GetDatasetError = ErrorModel
+export type GetSequenceDatasetError = ErrorModel
+
+export type ListSiteDatasetsData = {
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+}
+
+export type ListSiteDatasetsResponse = Array<SiteDataset>
+
+export type ListSiteDatasetsError = ErrorModel
+
+export type CreateSiteDatasetData = {
+  body: SiteDatasetInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+}
+
+export type CreateSiteDatasetResponse = SiteDataset
+
+export type CreateSiteDatasetError = ErrorModel
+
+export type GetSiteDatasetData = {
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    slug: string
+  }
+}
+
+export type GetSiteDatasetResponse = SiteDataset
+
+export type GetSiteDatasetError = ErrorModel
 
 export type DeleteEventData = {
   headers?: {
@@ -2238,7 +2307,7 @@ export type UpdateEventResponse = Event
 export type UpdateEventError = ErrorModel
 
 export type UpdateSpottingData = {
-  body: SpottingUpdate
+  body: Array<string>
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -2250,7 +2319,7 @@ export type UpdateSpottingData = {
   }
 }
 
-export type UpdateSpottingResponse = Spotting
+export type UpdateSpottingResponse = Array<Taxon>
 
 export type UpdateSpottingError = ErrorModel
 
@@ -2716,7 +2785,7 @@ export type UpdateExternalBioMatResponse = BioMaterialWithDetails
 export type UpdateExternalBioMatError = ErrorModel
 
 export type CreateExternalBioMatData = {
-  body: ExternalBioMatInput
+  body: ExternalBioMatOccurrenceInput
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -2955,7 +3024,7 @@ export type UpdateSamplingMethodResponse = SamplingMethod
 export type UpdateSamplingMethodError = ErrorModel
 
 export type CreateSamplingData = {
-  body: SamplingInput
+  body: SamplingInputWithEvent
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -3524,9 +3593,11 @@ export const ClaimInvitationResponseTransformer: ClaimInvitationResponseTransfor
   return data
 }
 
-export type ListDatasetsResponseTransformer = (data: any) => Promise<ListDatasetsResponse>
+export type ListOccurrenceDatasetsResponseTransformer = (
+  data: any
+) => Promise<ListOccurrenceDatasetsResponse>
 
-export type DatasetModelResponseTransformer = (data: any) => Dataset
+export type OccurrenceDatasetModelResponseTransformer = (data: any) => OccurrenceDataset
 
 export type MetaModelResponseTransformer = (data: any) => Meta
 
@@ -3543,65 +3614,9 @@ export const MetaModelResponseTransformer: MetaModelResponseTransformer = (data)
   return data
 }
 
-export const DatasetModelResponseTransformer: DatasetModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
+export type OccurrenceWithCategoryModelResponseTransformer = (data: any) => OccurrenceWithCategory
 
-export const ListDatasetsResponseTransformer: ListDatasetsResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(DatasetModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateDatasetResponseTransformer = (data: any) => Promise<CreateDatasetResponse>
-
-export const CreateDatasetResponseTransformer: CreateDatasetResponseTransformer = async (data) => {
-  DatasetModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateDatasetResponseTransformer = (data: any) => Promise<UpdateDatasetResponse>
-
-export const UpdateDatasetResponseTransformer: UpdateDatasetResponseTransformer = async (data) => {
-  DatasetModelResponseTransformer(data)
-  return data
-}
-
-export type GetDatasetResponseTransformer = (data: any) => Promise<GetDatasetResponse>
-
-export const GetDatasetResponseTransformer: GetDatasetResponseTransformer = async (data) => {
-  DatasetModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteEventResponseTransformer = (data: any) => Promise<DeleteEventResponse>
-
-export type EventModelResponseTransformer = (data: any) => Event
-
-export type AbioticMeasurementModelResponseTransformer = (data: any) => AbioticMeasurement
-
-export type AbioticParameterModelResponseTransformer = (data: any) => AbioticParameter
-
-export const AbioticParameterModelResponseTransformer: AbioticParameterModelResponseTransformer = (
-  data
-) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const AbioticMeasurementModelResponseTransformer: AbioticMeasurementModelResponseTransformer =
-  (data) => {
-    if (data?.param) {
-      AbioticParameterModelResponseTransformer(data.param)
-    }
-    return data
-  }
+export type IdentificationModelResponseTransformer = (data: any) => Identification
 
 export type DateWithPrecisionModelResponseTransformer = (data: any) => DateWithPrecision
 
@@ -3613,7 +3628,41 @@ export const DateWithPrecisionModelResponseTransformer: DateWithPrecisionModelRe
     return data
   }
 
-export type SamplingModelResponseTransformer = (data: any) => Sampling
+export type TaxonModelResponseTransformer = (data: any) => Taxon
+
+export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = (data) => {
+  if (data?.meta) {
+    MetaModelResponseTransformer(data.meta)
+  }
+  return data
+}
+
+export const IdentificationModelResponseTransformer: IdentificationModelResponseTransformer = (
+  data
+) => {
+  if (data?.identified_on) {
+    DateWithPrecisionModelResponseTransformer(data.identified_on)
+  }
+  if (data?.meta) {
+    MetaModelResponseTransformer(data.meta)
+  }
+  if (data?.taxon) {
+    TaxonModelResponseTransformer(data.taxon)
+  }
+  return data
+}
+
+export type OccurrenceReferenceModelResponseTransformer = (data: any) => OccurrenceReference
+
+export const OccurrenceReferenceModelResponseTransformer: OccurrenceReferenceModelResponseTransformer =
+  (data) => {
+    if (data?.meta) {
+      MetaModelResponseTransformer(data.meta)
+    }
+    return data
+  }
+
+export type SamplingInnerModelResponseTransformer = (data: any) => SamplingInner
 
 export type FixativeModelResponseTransformer = (data: any) => Fixative
 
@@ -3658,16 +3707,85 @@ export const SamplingMethodModelResponseTransformer: SamplingMethodModelResponse
   return data
 }
 
-export type TaxonModelResponseTransformer = (data: any) => Taxon
+export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget
 
-export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
+export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = (
+  data
+) => {
+  if (Array.isArray(data?.taxa)) {
+    data.taxa.forEach(TaxonModelResponseTransformer)
   }
   return data
 }
 
-export type BioMaterialModelResponseTransformer = (data: any) => BioMaterial
+export const SamplingInnerModelResponseTransformer: SamplingInnerModelResponseTransformer = (
+  data
+) => {
+  if (Array.isArray(data?.fixatives)) {
+    data.fixatives.forEach(FixativeModelResponseTransformer)
+  }
+  if (Array.isArray(data?.habitats)) {
+    data.habitats.forEach(HabitatModelResponseTransformer)
+  }
+  if (Array.isArray(data?.methods)) {
+    data.methods.forEach(SamplingMethodModelResponseTransformer)
+  }
+  if (data?.target) {
+    SamplingTargetModelResponseTransformer(data.target)
+  }
+  return data
+}
+
+export const OccurrenceWithCategoryModelResponseTransformer: OccurrenceWithCategoryModelResponseTransformer =
+  (data) => {
+    if (data?.identification) {
+      IdentificationModelResponseTransformer(data.identification)
+    }
+    if (Array.isArray(data?.published_in)) {
+      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
+    }
+    if (data?.sampling) {
+      SamplingInnerModelResponseTransformer(data.sampling)
+    }
+    return data
+  }
+
+export const OccurrenceDatasetModelResponseTransformer: OccurrenceDatasetModelResponseTransformer =
+  (data) => {
+    if (data?.meta) {
+      MetaModelResponseTransformer(data.meta)
+    }
+    if (Array.isArray(data?.occurrences)) {
+      data.occurrences.forEach(OccurrenceWithCategoryModelResponseTransformer)
+    }
+    return data
+  }
+
+export const ListOccurrenceDatasetsResponseTransformer: ListOccurrenceDatasetsResponseTransformer =
+  async (data) => {
+    if (Array.isArray(data)) {
+      data.forEach(OccurrenceDatasetModelResponseTransformer)
+    }
+    return data
+  }
+
+export type GetOccurrenceDatasetResponseTransformer = (
+  data: any
+) => Promise<GetOccurrenceDatasetResponse>
+
+export const GetOccurrenceDatasetResponseTransformer: GetOccurrenceDatasetResponseTransformer =
+  async (data) => {
+    OccurrenceDatasetModelResponseTransformer(data)
+    return data
+  }
+
+export type ListSequenceDatasetsResponseTransformer = (
+  data: any
+) => Promise<ListSequenceDatasetsResponse>
+
+export type SequenceDatasetModelResponseTransformer = (data: any) => SequenceDataset
+
+export type SequenceModelResponseTransformer = (data: any) => Sequence
 
 export type CodeHistoryModelResponseTransformer = (data: any) => CodeHistory
 
@@ -3678,48 +3796,18 @@ export const CodeHistoryModelResponseTransformer: CodeHistoryModelResponseTransf
   return data
 }
 
-export type OptionalExternalBioMatSpecificModelResponseTransformer = (
+export type EventInnerModelResponseTransformer = (data: any) => EventInner
+
+export const EventInnerModelResponseTransformer: EventInnerModelResponseTransformer = (data) => {
+  if (data?.performed_on) {
+    DateWithPrecisionModelResponseTransformer(data.performed_on)
+  }
+  return data
+}
+
+export type OptionalExtSeqSpecificsBioMaterialModelResponseTransformer = (
   data: any
-) => OptionalExternalBioMatSpecific
-
-export type ExternalBioMatContentModelResponseTransformer = (data: any) => ExternalBioMatContent
-
-export type ExternalBioMatSequenceModelResponseTransformer = (data: any) => ExternalBioMatSequence
-
-export type GeneModelResponseTransformer = (data: any) => Gene
-
-export const GeneModelResponseTransformer: GeneModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export type IdentificationModelResponseTransformer = (data: any) => Identification
-
-export const IdentificationModelResponseTransformer: IdentificationModelResponseTransformer = (
-  data
-) => {
-  if (data?.identified_on) {
-    DateWithPrecisionModelResponseTransformer(data.identified_on)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (data?.taxon) {
-    TaxonModelResponseTransformer(data.taxon)
-  }
-  return data
-}
-
-export type ArticleModelResponseTransformer = (data: any) => Article
-
-export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
+) => OptionalExtSeqSpecificsBioMaterial
 
 export type SeqReferenceModelResponseTransformer = (data: any) => SeqReference
 
@@ -3741,8 +3829,39 @@ export const SeqReferenceModelResponseTransformer: SeqReferenceModelResponseTran
   return data
 }
 
+export type OptionalBioMaterialModelResponseTransformer = (data: any) => OptionalBioMaterial
+
+export type OptionalExternalBioMatSpecificModelResponseTransformer = (
+  data: any
+) => OptionalExternalBioMatSpecific
+
+export type ExternalBioMatContentModelResponseTransformer = (data: any) => ExternalBioMatContent
+
+export type ExternalBioMatSequenceModelResponseTransformer = (data: any) => ExternalBioMatSequence
+
+export type GeneModelResponseTransformer = (data: any) => Gene
+
+export const GeneModelResponseTransformer: GeneModelResponseTransformer = (data) => {
+  if (data?.meta) {
+    MetaModelResponseTransformer(data.meta)
+  }
+  return data
+}
+
+export type ArticleModelResponseTransformer = (data: any) => Article
+
+export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = (data) => {
+  if (data?.meta) {
+    MetaModelResponseTransformer(data.meta)
+  }
+  return data
+}
+
 export const ExternalBioMatSequenceModelResponseTransformer: ExternalBioMatSequenceModelResponseTransformer =
   (data) => {
+    if (Array.isArray(data?.code_history)) {
+      data.code_history.forEach(CodeHistoryModelResponseTransformer)
+    }
     if (data?.gene) {
       GeneModelResponseTransformer(data.gene)
     }
@@ -3774,37 +3893,6 @@ export const OptionalExternalBioMatSpecificModelResponseTransformer: OptionalExt
     return data
   }
 
-export type SamplingInnerModelResponseTransformer = (data: any) => SamplingInner
-
-export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget
-
-export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = (
-  data
-) => {
-  if (Array.isArray(data?.target_taxa)) {
-    data.target_taxa.forEach(TaxonModelResponseTransformer)
-  }
-  return data
-}
-
-export const SamplingInnerModelResponseTransformer: SamplingInnerModelResponseTransformer = (
-  data
-) => {
-  if (Array.isArray(data?.fixatives)) {
-    data.fixatives.forEach(FixativeModelResponseTransformer)
-  }
-  if (Array.isArray(data?.habitats)) {
-    data.habitats.forEach(HabitatModelResponseTransformer)
-  }
-  if (Array.isArray(data?.methods)) {
-    data.methods.forEach(SamplingMethodModelResponseTransformer)
-  }
-  if (data?.target) {
-    SamplingTargetModelResponseTransformer(data.target)
-  }
-  return data
-}
-
 export type OptionalTaxonModelResponseTransformer = (data: any) => OptionalTaxon
 
 export const OptionalTaxonModelResponseTransformer: OptionalTaxonModelResponseTransformer = (
@@ -3815,6 +3903,172 @@ export const OptionalTaxonModelResponseTransformer: OptionalTaxonModelResponseTr
   }
   return data
 }
+
+export const OptionalBioMaterialModelResponseTransformer: OptionalBioMaterialModelResponseTransformer =
+  (data) => {
+    if (Array.isArray(data?.code_history)) {
+      data.code_history.forEach(CodeHistoryModelResponseTransformer)
+    }
+    if (data?.external) {
+      OptionalExternalBioMatSpecificModelResponseTransformer(data.external)
+    }
+    if (data?.identification) {
+      IdentificationModelResponseTransformer(data.identification)
+    }
+    if (data?.meta) {
+      MetaModelResponseTransformer(data.meta)
+    }
+    if (Array.isArray(data?.published_in)) {
+      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
+    }
+    if (data?.sampling) {
+      SamplingInnerModelResponseTransformer(data.sampling)
+    }
+    if (data?.seq_consensus) {
+      OptionalTaxonModelResponseTransformer(data.seq_consensus)
+    }
+    return data
+  }
+
+export const OptionalExtSeqSpecificsBioMaterialModelResponseTransformer: OptionalExtSeqSpecificsBioMaterialModelResponseTransformer =
+  (data) => {
+    if (Array.isArray(data?.published_in)) {
+      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
+    }
+    if (Array.isArray(data?.referenced_in)) {
+      data.referenced_in.forEach(SeqReferenceModelResponseTransformer)
+    }
+    if (data?.source_sample) {
+      OptionalBioMaterialModelResponseTransformer(data.source_sample)
+    }
+    return data
+  }
+
+export const SequenceModelResponseTransformer: SequenceModelResponseTransformer = (data) => {
+  if (Array.isArray(data?.code_history)) {
+    data.code_history.forEach(CodeHistoryModelResponseTransformer)
+  }
+  if (data?.event) {
+    EventInnerModelResponseTransformer(data.event)
+  }
+  if (data?.external) {
+    OptionalExtSeqSpecificsBioMaterialModelResponseTransformer(data.external)
+  }
+  if (data?.gene) {
+    GeneModelResponseTransformer(data.gene)
+  }
+  if (data?.identification) {
+    IdentificationModelResponseTransformer(data.identification)
+  }
+  if (data?.meta) {
+    MetaModelResponseTransformer(data.meta)
+  }
+  if (Array.isArray(data?.published_in)) {
+    data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
+  }
+  if (data?.sampling) {
+    SamplingInnerModelResponseTransformer(data.sampling)
+  }
+  return data
+}
+
+export const SequenceDatasetModelResponseTransformer: SequenceDatasetModelResponseTransformer = (
+  data
+) => {
+  if (data?.meta) {
+    MetaModelResponseTransformer(data.meta)
+  }
+  if (Array.isArray(data?.sequences)) {
+    data.sequences.forEach(SequenceModelResponseTransformer)
+  }
+  return data
+}
+
+export const ListSequenceDatasetsResponseTransformer: ListSequenceDatasetsResponseTransformer =
+  async (data) => {
+    if (Array.isArray(data)) {
+      data.forEach(SequenceDatasetModelResponseTransformer)
+    }
+    return data
+  }
+
+export type GetSequenceDatasetResponseTransformer = (
+  data: any
+) => Promise<GetSequenceDatasetResponse>
+
+export const GetSequenceDatasetResponseTransformer: GetSequenceDatasetResponseTransformer = async (
+  data
+) => {
+  SequenceDatasetModelResponseTransformer(data)
+  return data
+}
+
+export type ListSiteDatasetsResponseTransformer = (data: any) => Promise<ListSiteDatasetsResponse>
+
+export type SiteDatasetModelResponseTransformer = (data: any) => SiteDataset
+
+export const SiteDatasetModelResponseTransformer: SiteDatasetModelResponseTransformer = (data) => {
+  if (data?.meta) {
+    MetaModelResponseTransformer(data.meta)
+  }
+  return data
+}
+
+export const ListSiteDatasetsResponseTransformer: ListSiteDatasetsResponseTransformer = async (
+  data
+) => {
+  if (Array.isArray(data)) {
+    data.forEach(SiteDatasetModelResponseTransformer)
+  }
+  return data
+}
+
+export type CreateSiteDatasetResponseTransformer = (data: any) => Promise<CreateSiteDatasetResponse>
+
+export const CreateSiteDatasetResponseTransformer: CreateSiteDatasetResponseTransformer = async (
+  data
+) => {
+  SiteDatasetModelResponseTransformer(data)
+  return data
+}
+
+export type GetSiteDatasetResponseTransformer = (data: any) => Promise<GetSiteDatasetResponse>
+
+export const GetSiteDatasetResponseTransformer: GetSiteDatasetResponseTransformer = async (
+  data
+) => {
+  SiteDatasetModelResponseTransformer(data)
+  return data
+}
+
+export type DeleteEventResponseTransformer = (data: any) => Promise<DeleteEventResponse>
+
+export type EventModelResponseTransformer = (data: any) => Event
+
+export type AbioticMeasurementModelResponseTransformer = (data: any) => AbioticMeasurement
+
+export type AbioticParameterModelResponseTransformer = (data: any) => AbioticParameter
+
+export const AbioticParameterModelResponseTransformer: AbioticParameterModelResponseTransformer = (
+  data
+) => {
+  if (data?.meta) {
+    MetaModelResponseTransformer(data.meta)
+  }
+  return data
+}
+
+export const AbioticMeasurementModelResponseTransformer: AbioticMeasurementModelResponseTransformer =
+  (data) => {
+    if (data?.param) {
+      AbioticParameterModelResponseTransformer(data.param)
+    }
+    return data
+  }
+
+export type SamplingModelResponseTransformer = (data: any) => Sampling
+
+export type BioMaterialModelResponseTransformer = (data: any) => BioMaterial
 
 export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransformer = (data) => {
   if (Array.isArray(data?.code_history)) {
@@ -3830,13 +4084,13 @@ export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransf
     MetaModelResponseTransformer(data.meta)
   }
   if (Array.isArray(data?.published_in)) {
-    data.published_in.forEach(ArticleModelResponseTransformer)
+    data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
   }
   if (data?.sampling) {
     SamplingInnerModelResponseTransformer(data.sampling)
   }
-  if (data?.sequence_consensus) {
-    OptionalTaxonModelResponseTransformer(data.sequence_consensus)
+  if (data?.seq_consensus) {
+    OptionalTaxonModelResponseTransformer(data.seq_consensus)
   }
   return data
 }
@@ -3866,15 +4120,6 @@ export const SamplingModelResponseTransformer: SamplingModelResponseTransformer 
   return data
 }
 
-export type SpottingModelResponseTransformer = (data: any) => Spotting
-
-export const SpottingModelResponseTransformer: SpottingModelResponseTransformer = (data) => {
-  if (Array.isArray(data?.target_taxa)) {
-    data.target_taxa.forEach(TaxonModelResponseTransformer)
-  }
-  return data
-}
-
 export const EventModelResponseTransformer: EventModelResponseTransformer = (data) => {
   if (Array.isArray(data?.abiotic_measurements)) {
     data.abiotic_measurements.forEach(AbioticMeasurementModelResponseTransformer)
@@ -3888,8 +4133,8 @@ export const EventModelResponseTransformer: EventModelResponseTransformer = (dat
   if (Array.isArray(data?.samplings)) {
     data.samplings.forEach(SamplingModelResponseTransformer)
   }
-  if (data?.spotting) {
-    SpottingModelResponseTransformer(data.spotting)
+  if (Array.isArray(data?.spottings)) {
+    data.spottings.forEach(TaxonModelResponseTransformer)
   }
   return data
 }
@@ -3911,7 +4156,9 @@ export type UpdateSpottingResponseTransformer = (data: any) => Promise<UpdateSpo
 export const UpdateSpottingResponseTransformer: UpdateSpottingResponseTransformer = async (
   data
 ) => {
-  SpottingModelResponseTransformer(data)
+  if (Array.isArray(data)) {
+    data.forEach(TaxonModelResponseTransformer)
+  }
   return data
 }
 
@@ -4194,15 +4441,6 @@ export type ListBioMaterialResponseTransformer = (data: any) => Promise<ListBioM
 
 export type BioMaterialWithDetailsModelResponseTransformer = (data: any) => BioMaterialWithDetails
 
-export type EventInnerModelResponseTransformer = (data: any) => EventInner
-
-export const EventInnerModelResponseTransformer: EventInnerModelResponseTransformer = (data) => {
-  if (data?.performed_on) {
-    DateWithPrecisionModelResponseTransformer(data.performed_on)
-  }
-  return data
-}
-
 export const BioMaterialWithDetailsModelResponseTransformer: BioMaterialWithDetailsModelResponseTransformer =
   (data) => {
     if (Array.isArray(data?.code_history)) {
@@ -4221,13 +4459,13 @@ export const BioMaterialWithDetailsModelResponseTransformer: BioMaterialWithDeta
       MetaModelResponseTransformer(data.meta)
     }
     if (Array.isArray(data?.published_in)) {
-      data.published_in.forEach(ArticleModelResponseTransformer)
+      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
     }
     if (data?.sampling) {
       SamplingModelResponseTransformer(data.sampling)
     }
-    if (data?.sequence_consensus) {
-      OptionalTaxonModelResponseTransformer(data.sequence_consensus)
+    if (data?.seq_consensus) {
+      OptionalTaxonModelResponseTransformer(data.seq_consensus)
     }
     return data
   }
@@ -4488,85 +4726,6 @@ export const UpdateSeqDbResponseTransformer: UpdateSeqDbResponseTransformer = as
 
 export type ListSequencesResponseTransformer = (data: any) => Promise<ListSequencesResponse>
 
-export type SequenceModelResponseTransformer = (data: any) => Sequence
-
-export type OptionalExtSeqSpecificsModelResponseTransformer = (data: any) => OptionalExtSeqSpecifics
-
-export type OptionalArticleModelResponseTransformer = (data: any) => OptionalArticle
-
-export const OptionalArticleModelResponseTransformer: OptionalArticleModelResponseTransformer = (
-  data
-) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export type OptionalBioMaterialModelResponseTransformer = (data: any) => OptionalBioMaterial
-
-export const OptionalBioMaterialModelResponseTransformer: OptionalBioMaterialModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.code_history)) {
-      data.code_history.forEach(CodeHistoryModelResponseTransformer)
-    }
-    if (data?.external) {
-      OptionalExternalBioMatSpecificModelResponseTransformer(data.external)
-    }
-    if (data?.identification) {
-      IdentificationModelResponseTransformer(data.identification)
-    }
-    if (data?.meta) {
-      MetaModelResponseTransformer(data.meta)
-    }
-    if (Array.isArray(data?.published_in)) {
-      data.published_in.forEach(ArticleModelResponseTransformer)
-    }
-    if (data?.sampling) {
-      SamplingInnerModelResponseTransformer(data.sampling)
-    }
-    if (data?.sequence_consensus) {
-      OptionalTaxonModelResponseTransformer(data.sequence_consensus)
-    }
-    return data
-  }
-
-export const OptionalExtSeqSpecificsModelResponseTransformer: OptionalExtSeqSpecificsModelResponseTransformer =
-  (data) => {
-    if (data?.published_in) {
-      OptionalArticleModelResponseTransformer(data.published_in)
-    }
-    if (Array.isArray(data?.referenced_in)) {
-      data.referenced_in.forEach(SeqReferenceModelResponseTransformer)
-    }
-    if (data?.source_sample) {
-      OptionalBioMaterialModelResponseTransformer(data.source_sample)
-    }
-    return data
-  }
-
-export const SequenceModelResponseTransformer: SequenceModelResponseTransformer = (data) => {
-  if (data?.event) {
-    EventInnerModelResponseTransformer(data.event)
-  }
-  if (data?.external) {
-    OptionalExtSeqSpecificsModelResponseTransformer(data.external)
-  }
-  if (data?.gene) {
-    GeneModelResponseTransformer(data.gene)
-  }
-  if (data?.identification) {
-    IdentificationModelResponseTransformer(data.identification)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (data?.sampling) {
-    SamplingInnerModelResponseTransformer(data.sampling)
-  }
-  return data
-}
-
 export const ListSequencesResponseTransformer: ListSequencesResponseTransformer = async (data) => {
   if (Array.isArray(data)) {
     data.forEach(SequenceModelResponseTransformer)
@@ -4589,11 +4748,14 @@ export type SequenceWithDetailsModelResponseTransformer = (data: any) => Sequenc
 
 export const SequenceWithDetailsModelResponseTransformer: SequenceWithDetailsModelResponseTransformer =
   (data) => {
+    if (Array.isArray(data?.code_history)) {
+      data.code_history.forEach(CodeHistoryModelResponseTransformer)
+    }
     if (data?.event) {
       EventInnerModelResponseTransformer(data.event)
     }
     if (data?.external) {
-      OptionalExtSeqSpecificsModelResponseTransformer(data.external)
+      OptionalExtSeqSpecificsBioMaterialModelResponseTransformer(data.external)
     }
     if (data?.gene) {
       GeneModelResponseTransformer(data.gene)
@@ -4603,6 +4765,9 @@ export const SequenceWithDetailsModelResponseTransformer: SequenceWithDetailsMod
     }
     if (data?.meta) {
       MetaModelResponseTransformer(data.meta)
+    }
+    if (Array.isArray(data?.published_in)) {
+      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
     }
     if (data?.sampling) {
       SamplingModelResponseTransformer(data.sampling)

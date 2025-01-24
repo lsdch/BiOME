@@ -1,5 +1,14 @@
 module taxonomy {
 
+  function taxonByName(name: str) -> Taxon {
+    using (
+      select assert_exists(
+        Taxon filter .name = name,
+        message := "Failed to find taxon with name: " ++ name
+      )
+    );
+  };
+
   scalar type Rank extending enum<Kingdom, Phylum, Class, Order, Family, Genus, Species, Subspecies>;
   # Ignore FORM, VARIETY, UNRANKED
 

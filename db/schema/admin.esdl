@@ -31,11 +31,17 @@ module admin {
 
   type Settings {
 
-    required instance := assert_exists((select InstanceSettings limit 1));
+    required instance := assert_exists(
+      (select InstanceSettings limit 1),
+      message := "Instance settings are not intialized. This is a fatal error and should never occur if database was properly initialized."
+    );
 
     email := (select EmailSettings limit 1);
 
-    required security := assert_exists((select SecuritySettings limit 1));
+    required security := assert_exists(
+      (select SecuritySettings limit 1),
+      message := "Security settings are not intialized. This is a fatal error and should never occur if database was properly initialized."
+    );
 
     required superadmin: people::User;
 

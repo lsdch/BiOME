@@ -45,15 +45,12 @@ func (c SiteInput) LatLong() (float32, float32) {
 	return c.Coordinates.LatLong()
 }
 
+// Validate checks if the site code is unique
 func (i *SiteInput) Validate(edb edgedb.Executor) validations.ValidationErrors {
 	codeChecker := db.DBProperty{Object: "location::Site", Property: "code"}
-	nameChecker := db.DBProperty{Object: "location::Site", Property: "name"}
 	var errs validations.ValidationErrors
 	if _, codeExists := codeChecker.Exists(edb, i.Code); codeExists {
 		errs = append(errs, &huma.ErrorDetail{Message: "Code already exists", Value: i.Code, Location: "code"})
-	}
-	if _, nameExists := nameChecker.Exists(edb, i.Name); nameExists {
-		errs = append(errs, &huma.ErrorDetail{Message: "Name already exists", Value: i.Name, Location: "name"})
 	}
 	return errs
 }
@@ -106,7 +103,7 @@ func GetSite(db edgedb.Executor, identifier string) (Site, error) {
 					site: {name, code},
 					programs: { * },
 					performed_by: { * },
-					spotting: { *, target_taxa: { * } },
+					spottings: { * },
 					abiotic_measurements: { *, param: { * }  },
 					samplings: {
 						*,

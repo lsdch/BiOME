@@ -36,7 +36,7 @@ func RegisterRoutes(r router.Router) {
 			Path:    "/external",
 			Method:  http.MethodPost,
 			Summary: "Create external bio-material",
-		}, controllers.CreateHandler[occurrence.ExternalBioMatInput])
+		}, controllers.CreateHandler[occurrence.ExternalBioMatOccurrenceInput])
 
 	router.Register(biomat_API, "UpdateExternalBioMat",
 		huma.Operation{

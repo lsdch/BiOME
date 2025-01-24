@@ -445,30 +445,28 @@
 					},
 					"published_in": {
 						"items": {
-							"$ref": "#/components/schemas/Article"
+							"$ref": "#/components/schemas/OccurrenceReference"
 						},
 						"type": "array"
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInner"
 					},
-					"sequence_consensus": {
+					"seq_consensus": {
 						"$ref": "#/components/schemas/OptionalTaxon"
 					}
 				},
 				"required": [
-					"code",
-					"category",
-					"is_type",
 					"has_sequences",
 					"is_homogenous",
 					"is_congruent",
-					"published_in",
 					"meta",
-					"id",
 					"sampling",
 					"identification",
-					"comments"
+					"id",
+					"category",
+					"is_type",
+					"code"
 				],
 				"type": "object"
 			},
@@ -529,31 +527,29 @@
 					},
 					"published_in": {
 						"items": {
-							"$ref": "#/components/schemas/Article"
+							"$ref": "#/components/schemas/OccurrenceReference"
 						},
 						"type": "array"
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/Sampling"
 					},
-					"sequence_consensus": {
+					"seq_consensus": {
 						"$ref": "#/components/schemas/OptionalTaxon"
 					}
 				},
 				"required": [
 					"event",
-					"code",
-					"category",
-					"is_type",
 					"has_sequences",
 					"is_homogenous",
 					"is_congruent",
-					"published_in",
 					"meta",
-					"id",
 					"sampling",
 					"identification",
-					"comments"
+					"id",
+					"category",
+					"is_type",
+					"code"
 				],
 				"type": "object"
 			},
@@ -777,58 +773,6 @@
 				],
 				"type": "object"
 			},
-			"Dataset": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/Dataset.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"maintainers": {
-						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"sites": {
-						"items": {
-							"$ref": "#/components/schemas/SiteItem"
-						},
-						"type": "array"
-					},
-					"slug": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"sites",
-					"maintainers",
-					"meta",
-					"id",
-					"label",
-					"slug",
-					"description"
-				],
-				"type": "object"
-			},
 			"DatasetInner": {
 				"additionalProperties": false,
 				"properties": {
@@ -852,87 +796,6 @@
 					"slug",
 					"description"
 				],
-				"type": "object"
-			},
-			"DatasetInput": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/DatasetInput.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"label": {
-						"maxLength": 32,
-						"minLength": 4,
-						"type": "string"
-					},
-					"maintainers": {
-						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"new_sites": {
-						"description": "New sites to include in the dataset",
-						"items": {
-							"$ref": "#/components/schemas/SiteInput"
-						},
-						"type": "array"
-					},
-					"sites": {
-						"description": "Existing site codes to include in the dataset",
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"label",
-					"maintainers"
-				],
-				"type": "object"
-			},
-			"DatasetUpdate": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/DatasetUpdate.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"description": {
-						"type": [
-							"string",
-							"null"
-						]
-					},
-					"label": {
-						"maxLength": 32,
-						"minLength": 4,
-						"type": "string"
-					},
-					"maintainers": {
-						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					}
-				},
 				"type": "object"
 			},
 			"DateObject": {
@@ -1211,6 +1074,9 @@
 					"code": {
 						"type": "string"
 					},
+					"comments": {
+						"type": "string"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -1243,15 +1109,17 @@
 					"site": {
 						"$ref": "#/components/schemas/SiteInfo"
 					},
-					"spotting": {
-						"$ref": "#/components/schemas/Spotting"
+					"spottings": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"performed_by",
 					"abiotic_measurements",
 					"samplings",
-					"spotting",
 					"meta",
 					"id",
 					"site",
@@ -1264,6 +1132,9 @@
 				"additionalProperties": false,
 				"properties": {
 					"code": {
+						"type": "string"
+					},
+					"comments": {
 						"type": "string"
 					},
 					"id": {
@@ -1332,6 +1203,12 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"comments": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
 					"performed_by": {
 						"items": {
 							"type": "string"
@@ -1342,6 +1219,15 @@
 						"$ref": "#/components/schemas/DateWithPrecisionInput"
 					},
 					"programs": {
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"spottings": {
 						"items": {
 							"type": "string"
 						},
@@ -1362,7 +1248,7 @@
 				"title": "ExtSeqOrigin",
 				"type": "string"
 			},
-			"ExtSeqSpecifics": {
+			"ExtSeqSpecificsBioMaterial": {
 				"additionalProperties": false,
 				"properties": {
 					"origin": {
@@ -1372,7 +1258,10 @@
 						"type": "string"
 					},
 					"published_in": {
-						"$ref": "#/components/schemas/OptionalArticle"
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceReference"
+						},
+						"type": "array"
 					},
 					"referenced_in": {
 						"items": {
@@ -1414,13 +1303,13 @@
 				],
 				"type": "object"
 			},
-			"ExternalBioMatInput": {
+			"ExternalBioMatOccurrenceInput": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/ExternalBioMatInput.json"
+							"/api/v1/schemas/ExternalBioMatOccurrenceInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1447,17 +1336,17 @@
 					"original_link": {
 						"type": "string"
 					},
-					"original_taxon": {
-						"type": "string"
-					},
 					"published_in": {
 						"items": {
-							"type": "string"
+							"$ref": "#/components/schemas/OccurrenceReferenceInput"
 						},
 						"type": "array"
 					},
 					"quantity": {
 						"$ref": "#/components/schemas/Quantity"
+					},
+					"sampling": {
+						"type": "string"
 					},
 					"sampling_id": {
 						"format": "uuid",
@@ -1471,8 +1360,8 @@
 					}
 				},
 				"required": [
+					"sampling",
 					"quantity",
-					"published_in",
 					"sampling_id",
 					"identification"
 				],
@@ -1489,6 +1378,12 @@
 					},
 					"code": {
 						"type": "string"
+					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
 					},
 					"comments": {
 						"type": "string"
@@ -1545,9 +1440,9 @@
 					"accession_number",
 					"specimen_identifier",
 					"original_taxon",
-					"code",
 					"label",
-					"gene"
+					"gene",
+					"code"
 				],
 				"type": "object"
 			},
@@ -1639,7 +1534,7 @@
 					},
 					"published_in": {
 						"items": {
-							"type": "string"
+							"$ref": "#/components/schemas/OccurrenceReferenceInput"
 						},
 						"type": [
 							"array",
@@ -1888,12 +1783,16 @@
 					"date": {
 						"type": "string"
 					},
+					"id": {
+						"type": "string"
+					},
 					"requests": {
 						"format": "int32",
 						"type": "integer"
 					}
 				},
 				"required": [
+					"id",
 					"date",
 					"requests"
 				],
@@ -3102,6 +3001,77 @@
 				"title": "OccurrenceCategory",
 				"type": "string"
 			},
+			"OccurrenceDataset": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/OccurrenceDataset.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"is_congruent": {
+						"type": "boolean"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"occurrences": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceWithCategory"
+						},
+						"type": "array"
+					},
+					"sites": {
+						"items": {
+							"$ref": "#/components/schemas/SiteItem"
+						},
+						"type": "array"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"sites",
+					"occurrences",
+					"is_congruent",
+					"maintainers",
+					"meta",
+					"id",
+					"label",
+					"slug",
+					"description"
+				],
+				"type": "object"
+			},
+			"OccurrenceElement": {
+				"enum": [
+					"BioMaterial",
+					"Sequence"
+				],
+				"title": "OccurrenceElement",
+				"type": "string"
+			},
 			"OccurrenceOverviewItem": {
 				"additionalProperties": false,
 				"properties": {
@@ -3127,18 +3097,9 @@
 				],
 				"type": "object"
 			},
-			"OptionalArticle": {
+			"OccurrenceReference": {
 				"additionalProperties": false,
 				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/Article.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
 					"authors": {
 						"items": {
 							"type": "string"
@@ -3164,6 +3125,9 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
+					"original": {
+						"type": "boolean"
+					},
 					"original_source": {
 						"type": "boolean"
 					},
@@ -3186,10 +3150,61 @@
 					"original_source",
 					"meta"
 				],
-				"type": [
-					"object",
-					"null"
-				]
+				"type": "object"
+			},
+			"OccurrenceReferenceInput": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"original": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"code"
+				],
+				"type": "object"
+			},
+			"OccurrenceWithCategory": {
+				"additionalProperties": false,
+				"properties": {
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"element": {
+						"$ref": "#/components/schemas/OccurrenceElement"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceReference"
+						},
+						"type": "array"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingInner"
+					}
+				},
+				"required": [
+					"category",
+					"element",
+					"id",
+					"comments",
+					"sampling",
+					"identification"
+				],
+				"type": "object"
 			},
 			"OptionalBioMaterial": {
 				"additionalProperties": false,
@@ -3245,37 +3260,35 @@
 					},
 					"published_in": {
 						"items": {
-							"$ref": "#/components/schemas/Article"
+							"$ref": "#/components/schemas/OccurrenceReference"
 						},
 						"type": "array"
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInner"
 					},
-					"sequence_consensus": {
+					"seq_consensus": {
 						"$ref": "#/components/schemas/OptionalTaxon"
 					}
 				},
 				"required": [
-					"code",
-					"category",
-					"is_type",
 					"has_sequences",
 					"is_homogenous",
 					"is_congruent",
-					"published_in",
 					"meta",
-					"id",
 					"sampling",
 					"identification",
-					"comments"
+					"id",
+					"category",
+					"is_type",
+					"code"
 				],
 				"type": [
 					"object",
 					"null"
 				]
 			},
-			"OptionalExtSeqSpecifics": {
+			"OptionalExtSeqSpecificsBioMaterial": {
 				"additionalProperties": false,
 				"properties": {
 					"origin": {
@@ -3285,7 +3298,10 @@
 						"type": "string"
 					},
 					"published_in": {
-						"$ref": "#/components/schemas/OptionalArticle"
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceReference"
+						},
+						"type": "array"
 					},
 					"referenced_in": {
 						"items": {
@@ -4601,13 +4617,13 @@
 				],
 				"type": "object"
 			},
-			"SamplingInput": {
+			"SamplingInputWithEvent": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/SamplingInput.json"
+							"/api/v1/schemas/SamplingInputWithEvent.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -4648,19 +4664,13 @@
 						},
 						"type": "array"
 					},
-					"target_kind": {
-						"$ref": "#/components/schemas/SamplingTargetKind"
-					},
-					"target_taxa": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
+					"target": {
+						"$ref": "#/components/schemas/SamplingTargetInput"
 					}
 				},
 				"required": [
 					"event_id",
-					"target_kind"
+					"target"
 				],
 				"type": "object"
 			},
@@ -4762,9 +4772,27 @@
 					"kind": {
 						"$ref": "#/components/schemas/SamplingTargetKind"
 					},
-					"target_taxa": {
+					"taxa": {
 						"items": {
 							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"kind"
+				],
+				"type": "object"
+			},
+			"SamplingTargetInput": {
+				"additionalProperties": false,
+				"properties": {
+					"kind": {
+						"$ref": "#/components/schemas/SamplingTargetKind"
+					},
+					"taxa": {
+						"items": {
+							"type": "string"
 						},
 						"type": "array"
 					}
@@ -4845,19 +4873,13 @@
 							"null"
 						]
 					},
-					"target_kind": {
-						"$ref": "#/components/schemas/SamplingTargetKind"
-					},
-					"target_taxa": {
-						"items": {
-							"type": "string"
-						},
-						"type": [
-							"array",
-							"null"
-						]
+					"target": {
+						"$ref": "#/components/schemas/SamplingTargetInput"
 					}
 				},
+				"required": [
+					"target"
+				],
 				"type": "object"
 			},
 			"SecuritySettings": {
@@ -5085,6 +5107,12 @@
 					"code": {
 						"type": "string"
 					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
 					"comments": {
 						"type": "string"
 					},
@@ -5092,7 +5120,7 @@
 						"$ref": "#/components/schemas/EventInner"
 					},
 					"external": {
-						"$ref": "#/components/schemas/OptionalExtSeqSpecifics"
+						"$ref": "#/components/schemas/OptionalExtSeqSpecificsBioMaterial"
 					},
 					"gene": {
 						"$ref": "#/components/schemas/Gene"
@@ -5113,6 +5141,12 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceReference"
+						},
+						"type": "array"
+					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInner"
 					},
@@ -5121,16 +5155,74 @@
 					}
 				},
 				"required": [
-					"category",
+					"id",
 					"event",
 					"meta",
-					"id",
 					"sampling",
 					"identification",
-					"comments",
-					"code",
 					"label",
-					"gene"
+					"gene",
+					"category",
+					"code"
+				],
+				"type": "object"
+			},
+			"SequenceDataset": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SequenceDataset.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"sequences": {
+						"items": {
+							"$ref": "#/components/schemas/Sequence"
+						},
+						"type": "array"
+					},
+					"sites": {
+						"items": {
+							"$ref": "#/components/schemas/SiteItem"
+						},
+						"type": "array"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"sites",
+					"sequences",
+					"maintainers",
+					"meta",
+					"id",
+					"label",
+					"slug",
+					"description"
 				],
 				"type": "object"
 			},
@@ -5152,6 +5244,12 @@
 					"code": {
 						"type": "string"
 					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
 					"comments": {
 						"type": "string"
 					},
@@ -5159,7 +5257,7 @@
 						"$ref": "#/components/schemas/EventInner"
 					},
 					"external": {
-						"$ref": "#/components/schemas/OptionalExtSeqSpecifics"
+						"$ref": "#/components/schemas/OptionalExtSeqSpecificsBioMaterial"
 					},
 					"gene": {
 						"$ref": "#/components/schemas/Gene"
@@ -5180,6 +5278,12 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceReference"
+						},
+						"type": "array"
+					},
 					"sampling": {
 						"$ref": "#/components/schemas/Sampling"
 					},
@@ -5188,16 +5292,15 @@
 					}
 				},
 				"required": [
-					"category",
+					"id",
 					"event",
 					"meta",
-					"id",
 					"sampling",
 					"identification",
-					"comments",
-					"code",
 					"label",
-					"gene"
+					"gene",
+					"category",
+					"code"
 				],
 				"type": "object"
 			},
@@ -5320,6 +5423,110 @@
 					"coordinates",
 					"country",
 					"user_defined_locality"
+				],
+				"type": "object"
+			},
+			"SiteDataset": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SiteDataset.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"sites": {
+						"items": {
+							"$ref": "#/components/schemas/SiteItem"
+						},
+						"type": "array"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"sites",
+					"maintainers",
+					"meta",
+					"id",
+					"label",
+					"slug",
+					"description"
+				],
+				"type": "object"
+			},
+			"SiteDatasetInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SiteDatasetInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"label": {
+						"maxLength": 32,
+						"minLength": 4,
+						"type": "string"
+					},
+					"maintainers": {
+						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"new_sites": {
+						"description": "New sites to include in the dataset",
+						"items": {
+							"$ref": "#/components/schemas/SiteInput"
+						},
+						"type": "array"
+					},
+					"sites": {
+						"description": "Existing site codes to include in the dataset",
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"label",
+					"slug",
+					"maintainers"
 				],
 				"type": "object"
 			},
@@ -5541,60 +5748,6 @@
 					"collection",
 					"vouchers"
 				],
-				"type": "object"
-			},
-			"Spotting": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/Spotting.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"target_taxa": {
-						"items": {
-							"$ref": "#/components/schemas/Taxon"
-						},
-						"type": "array"
-					}
-				},
-				"type": "object"
-			},
-			"SpottingUpdate": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/SpottingUpdate.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"comments": {
-						"type": [
-							"string",
-							"null"
-						]
-					},
-					"target_taxa": {
-						"items": {
-							"type": "string"
-						},
-						"type": [
-							"array",
-							"null"
-						]
-					}
-				},
 				"type": "object"
 			},
 			"Taxon": {
@@ -7955,7 +8108,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/ExternalBioMatInput"
+								"$ref": "#/components/schemas/ExternalBioMatOccurrenceInput"
 							}
 						}
 					},
@@ -8248,10 +8401,10 @@
 				]
 			}
 		},
-		"/datasets": {
+		"/datasets/occurrence": {
 			"get": {
-				"description": "List all site datasets",
-				"operationId": "ListDatasets",
+				"description": "List all occurrence datasets",
+				"operationId": "ListOccurrenceDatasets",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -8282,7 +8435,293 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/Dataset"
+										"$ref": "#/components/schemas/OccurrenceDataset"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List occurrence datasets",
+				"tags": [
+					"Datasets"
+				]
+			}
+		},
+		"/datasets/occurrence/{slug}": {
+			"get": {
+				"description": "Get infos for an occurrence dataset",
+				"operationId": "GetOccurrenceDataset",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "slug",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/OccurrenceDataset"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Get occurrence dataset",
+				"tags": [
+					"Datasets"
+				]
+			}
+		},
+		"/datasets/sequences": {
+			"get": {
+				"description": "List all sequence datasets",
+				"operationId": "ListSequenceDatasets",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/SequenceDataset"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List sequence datasets",
+				"tags": [
+					"Datasets"
+				]
+			}
+		},
+		"/datasets/sequences/{slug}": {
+			"get": {
+				"description": "Get infos for an sequence dataset",
+				"operationId": "GetSequenceDataset",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "slug",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/SequenceDataset"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Get sequence dataset",
+				"tags": [
+					"Datasets"
+				]
+			}
+		},
+		"/datasets/sites": {
+			"get": {
+				"description": "List all site datasets",
+				"operationId": "ListSiteDatasets",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/SiteDataset"
 									},
 									"type": "array"
 								}
@@ -8318,7 +8757,7 @@
 			},
 			"post": {
 				"description": "Create a new site dataset with new or existing sites",
-				"operationId": "CreateDataset",
+				"operationId": "CreateSiteDataset",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -8347,7 +8786,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/DatasetInput"
+								"$ref": "#/components/schemas/SiteDatasetInput"
 							}
 						}
 					},
@@ -8358,7 +8797,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Dataset"
+									"$ref": "#/components/schemas/SiteDataset"
 								}
 							}
 						},
@@ -8391,92 +8830,10 @@
 				]
 			}
 		},
-		"/datasets/{slug}": {
-			"patch": {
-				"description": "Update properties of a site dataset",
-				"operationId": "UpdateDataset",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "slug",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/DatasetUpdate"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Dataset"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Update site dataset",
-				"tags": [
-					"Datasets"
-				]
-			},
-			"post": {
+		"/datasets/sites/{slug}": {
+			"get": {
 				"description": "Get infos for a site dataset",
-				"operationId": "GetDataset",
+				"operationId": "GetSiteDataset",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -8514,7 +8871,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Dataset"
+									"$ref": "#/components/schemas/SiteDataset"
 								}
 							}
 						},
@@ -8743,7 +9100,10 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SpottingUpdate"
+								"items": {
+									"type": "string"
+								},
+								"type": "array"
 							}
 						}
 					},
@@ -8754,7 +9114,10 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Spotting"
+									"items": {
+										"$ref": "#/components/schemas/Taxon"
+									},
+									"type": "array"
 								}
 							}
 						},
@@ -11663,7 +12026,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SamplingInput"
+								"$ref": "#/components/schemas/SamplingInputWithEvent"
 							}
 						}
 					},

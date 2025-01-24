@@ -13,11 +13,23 @@ module occurrence {
     };
   }
 
+  # Occurrences are reports of the presence of a taxon at a specific location and time.
+  # They can be based on physical samples (BioMaterial) or molecular sequences.
+  # Internal sequences are not occurrences, but are linked to internal bio-materials,
+  # which are occurrences.
+  # External sequences are occurrences and MIGHT be linked to external bio-materials.
+  # External sequences without bio-materials are occurrences by themselves.
+  # Otherwise, their purpose is to add molecular data to an existing occurrence.
   abstract type Occurrence extending default::Auditable {
+
     required sampling: events::Sampling;
     required identification: Identification {
       constraint exclusive;
       on source delete delete target;
+    };
+
+    multi published_in: references::Article {
+      original_source: bool;
     };
 
     comments: str;
@@ -25,9 +37,9 @@ module occurrence {
 
   scalar type OccurrenceCategory extending enum<Internal, External>;
 
-  abstract type BioMaterial extending Occurrence {
+  abstract type BioMaterial extending default::CodeIdentifier, Occurrence {
 
-    required code : str {
+    overloaded required code : str {
       constraint exclusive;
       annotation description := "Format like 'taxon_short_code[sampling_code]'";
       rewrite update using (
@@ -48,7 +60,6 @@ module occurrence {
       #   else .code
       # );
     };
-    index on (.code);
 
     required category := (
       assert_exists((
@@ -60,23 +71,12 @@ module occurrence {
       )
     );
 
-    code_history: array<tuple<code: str, time: datetime>> {
-      readonly := true;
-      rewrite update using (
-        if __old__.code != .code then
-        __old__.code_history ++ [(code := __old__.code, time := datetime_of_statement())]
-        else .code_history
-      );
-    }
+
 
     # Defines whether this occurrence is the first scientific description of
     # the taxon
     required is_type: bool {
       default := false;
-    };
-
-    multi published_in: references::Article {
-      original_source: bool;
     };
   };
 
@@ -88,15 +88,19 @@ module occurrence {
       select distinct .specimens.identification.taxon ?? .identification.taxon
     );
 
-    required homogenous := (
+    required is_homogenous := (
       select count(distinct .specimens.identification.taxon) <= 1
     );
 
-    required congruent := (
+    required is_congruent := (
       select assert_exists(
-        .homogenous and (
+        .is_homogenous and (
           (not exists .specimens) or
-          .identification.taxon in (assert_single(distinct .specimens.identification.taxon))
+          .identification.taxon in (
+            assert_single(
+              distinct .specimens.identification.taxon,
+              message := "BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: " ++ <str>.id
+            ))
         )
       )
     );
@@ -104,8 +108,11 @@ module occurrence {
     # Molecular identification,if available, and homogenous
     single seq_consensus := (
       select (
-        if .homogenous then
-          assert_single(distinct .specimens.identification.taxon)
+        if .is_homogenous then
+          assert_single(
+            distinct .specimens.identification.taxon,
+            message := "BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: " ++ <str>.id
+          )
         else {}
       )
     );
@@ -122,44 +129,66 @@ module occurrence {
     required quantity: QuantityType;
     content_description: str;
 
-    required homogenous := (
+
+    multi link sequences := .<source_sample[is seq::ExternalSequence];
+
+
+    required is_homogenous := (
       select count(distinct .sequences.identification.taxon) <= 1
     );
 
-    required congruent := (
+    required is_congruent := (
       select assert_exists(
-        .homogenous and (
+        .is_homogenous and (
           (not exists .sequences) or
-          .identification.taxon in (assert_single(distinct .sequences.identification.taxon))
+          .identification.taxon in (
+            assert_single(
+              distinct .sequences.identification.taxon,
+              message := "BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: " ++ <str>.id
+            ))
         )
       )
     );
 
-    multi link sequences := .<source_sample[is seq::ExternalSequence];
-
     # Molecular identification,if available, and homogenous
     single seq_consensus := (
       select (
-        if .homogenous then
-          assert_single(distinct .sequences.identification.taxon)
+        if .is_homogenous then
+          assert_single(
+            distinct .sequences.identification.taxon,
+            message := "BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: " ++ <str>.id
+          )
         else {}
       )
     );
   }
+
+  function externalBiomatByCode(code: optional str) -> ExternalBioMat {
+    using (
+      select assert_exists(
+        ExternalBioMat filter .code = code,
+        message := "Failed to find external biomaterial with code: " ++ code
+      )
+    );
+  };
 
   alias BioMaterialWithType := (
     select BioMaterial {
       required has_sequences := (
         exists ([is ExternalBioMat].sequences ?? [is InternalBioMat].specimens.sequences)
       ),
-      required is_homogenous := [is ExternalBioMat].homogenous ?? [is InternalBioMat].homogenous ?? true,
-      required is_congruent := [is ExternalBioMat].congruent ?? [is InternalBioMat].congruent ?? true,
-      sequence_consensus := [is ExternalBioMat].seq_consensus ?? [is InternalBioMat].seq_consensus,
-      # category := (
-      #   if (BioMaterial is InternalBioMat) then "Internal"
-      #   else if (BioMaterial is ExternalBioMat) then "External"
-      #   else "Unknown"
-      # )
+      required is_homogenous := (
+        ([is ExternalBioMat].is_homogenous ?? true) and ([is ExternalBioMat].is_homogenous ?? true)
+      ),
+      required is_congruent := <bool>[is ExternalBioMat].is_congruent ?? <bool>[is InternalBioMat].is_congruent ?? true,
+      seq_consensus := <taxonomy::Taxon>[is ExternalBioMat].seq_consensus ?? <taxonomy::Taxon>[is InternalBioMat].seq_consensus,
+      external:= [is ExternalBioMat]{
+        original_link,
+        in_collection,
+        item_vouchers,
+        quantity,
+        content_description,
+      }
     }
   )
 }

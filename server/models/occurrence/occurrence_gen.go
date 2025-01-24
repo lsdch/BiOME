@@ -44,3 +44,38 @@ func (m *OccurrenceCategory) UnmarshalEdgeDBStr(data []byte) error {
 	*m = OccurrenceCategory(string(data))
 	return nil
 }
+
+
+
+var OccurrenceElementValues = []OccurrenceElement{
+	BioMaterialElement,
+	SequenceElement,
+}
+
+// Register enum in OpenAPI specification
+func (u OccurrenceElement) Schema(r huma.Registry) *huma.Schema {
+  if r.Map()["OccurrenceElement"] == nil {
+    schemaRef := r.Schema(reflect.TypeOf(""), true, "OccurrenceElement")
+    schemaRef.Title = "OccurrenceElement"
+    for _, v := range OccurrenceElementValues {
+      schemaRef.Enum = append(schemaRef.Enum, string(v))
+    }
+    r.Map()["OccurrenceElement"] = schemaRef
+  }
+
+	return &huma.Schema{Ref: "#/components/schemas/OccurrenceElement"}
+}
+
+func (m *OccurrenceElement) Fake(f *gofakeit.Faker) (any, error) {
+	return string(OccurrenceElementValues[f.IntN(len(OccurrenceElementValues) - 1)]), nil
+}
+
+// EdgeDB Marshalling
+func (m OccurrenceElement) MarshalEdgeDBStr() ([]byte, error) {
+	return []byte(m), nil
+}
+
+func (m *OccurrenceElement) UnmarshalEdgeDBStr(data []byte) error {
+	*m = OccurrenceElement(string(data))
+	return nil
+}
