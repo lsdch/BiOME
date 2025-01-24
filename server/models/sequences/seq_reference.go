@@ -9,3 +9,9 @@ type SeqReference struct {
 	IsOrigin  bool        `edgedb:"is_origin" json:"is_origin"`
 	Code      string      `edgedb:"code" json:"-"`
 }
+
+type SeqReferenceInput struct {
+	DB        string `json:"db"`
+	Accession string `json:"accession"`
+	IsOrigin  bool   `json:"is_origin"`
+}
