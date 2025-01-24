@@ -108,3 +108,17 @@ func (u ArticleUpdate) Save(e edgedb.Executor, code string) (updated Article, er
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
 	return
 }
+
+// OccurrenceReference is a reference to an article for an occurrence
+// with optional flag indicating whether the article is the original source
+type OccurrenceReference struct {
+	Article  `edgedb:"$inline" json:",inline"`
+	Original bool `edgedb:"original_source" json:"original,omitempty"`
+}
+
+// OccurrenceReferenceInput helps binding Article references to occurrences,
+// with optional original source flag
+type OccurrenceReferenceInput struct {
+	ArticleCode string                     `json:"code"`
+	Original    models.OptionalInput[bool] `json:"original,omitempty"`
+}
