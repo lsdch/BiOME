@@ -33,10 +33,11 @@ type SiteInfo struct {
 }
 
 type EventInner struct {
-	ID          edgedb.UUID       `edgedb:"id" json:"id" format:"uuid"`
-	Site        SiteInfo          `edgedb:"site" json:"site"`
-	Code        string            `edgedb:"code" json:"code"`
-	PerformedOn DateWithPrecision `edgedb:"performed_on" json:"performed_on"`
+	ID          edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
+	Site        SiteInfo           `edgedb:"site" json:"site"`
+	Code        string             `edgedb:"code" json:"code"`
+	PerformedOn DateWithPrecision  `edgedb:"performed_on" json:"performed_on"`
+	Comments    edgedb.OptionalStr `edgedb:"comments" json:"comments,omitempty"`
 }
 
 type Event struct {
@@ -56,6 +57,16 @@ func (e *Event) AddSampling(db edgedb.Executor, sampling SamplingInput) error {
 		return err
 	}
 	e.Samplings = append(e.Samplings, created)
+	return nil
+}
+// AddAbioticMeasurement adds an abiotic measurement to the event.
+// If a value for a given parameter already exists, it will be overwritten.
+func (e *Event) AddAbioticMeasurement(db edgedb.Executor, measurements AbioticMeasurementInput) error {
+	created, err := measurements.Save(db, e.ID)
+	if err != nil {
+		return err
+	}
+	e.AbioticMeasurements = append(e.AbioticMeasurements, created)
 	return nil
 }
 
