@@ -95,6 +95,7 @@ type EventInput struct {
 }
 
 func (i EventInput) Save(e edgedb.Executor, site_code string) (created Event, err error) {
+
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
@@ -104,7 +105,7 @@ func (i EventInput) Save(e edgedb.Executor, site_code string) (created Event, er
 					select location::Site filter .code = <str>$0
 				),
 				performed_by := (
-					select people::Person filter .alias = <str>json_array_unpack(data['performed_by'])
+					select people::Person filter .alias in <str>json_array_unpack(data['performed_by'])
 				),
 				performed_on := date::from_json_with_precision(data['performed_on']),
 				programs := (
