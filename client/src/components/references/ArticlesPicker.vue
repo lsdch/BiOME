@@ -68,13 +68,11 @@ import { useFuzzyItemsFilter } from '@/composables/fuzzy_search'
 import { ref } from 'vue'
 import ArticleChip from './ArticleChip.vue'
 
-const { threshold, limit } = withDefaults(
-  defineProps<{ multiple?: boolean; threshold?: number; limit?: number }>(),
-  {
-    limit: 10,
-    threshold: 0.7
-  }
-)
+const { threshold = 0.7, limit = 10 } = defineProps<{
+  multiple?: boolean
+  threshold?: number
+  limit?: number
+}>()
 
 const { items, loading } = useFetchItems(ReferencesService.listArticles)
 
