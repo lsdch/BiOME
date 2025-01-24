@@ -89,6 +89,30 @@ type AbioticMeasurementInput struct {
 	Value float32 `json:"value"`
 }
 
+// Upsert AbioticMeasurement with the given event ID
+func (u AbioticMeasurementInput) Save(e edgedb.Executor, eventID edgedb.UUID) (updated AbioticMeasurement, err error) {
+	data, _ := json.Marshal(u)
+	err = e.QuerySingle(context.Background(),
+		`#edgeql
+			with item := <json>$1,
+			param := (select events::AbioticParameter filter .code = <str>item['param']),
+			select (
+				insert events::AbioticMeasurement {
+					event := (<events::Event><uuid>$0),
+					param := param,
+					value := <float32>item['value']
+				} unless conflict on ((.event, .param)) else (
+					update events::AbioticMeasurement set {
+						param := param,
+						value := <float32>item['value']
+					}
+				)
+			) { param: { * }, value}
+		`,
+		&updated, eventID, data)
+	return
+}
+
 func DeleteAbioticMeasurement(db edgedb.Executor, id edgedb.UUID) (deleted AbioticMeasurement, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
