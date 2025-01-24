@@ -20,6 +20,14 @@ func TaxonCode(name string) string {
 	return strings.ReplaceAll(name, " ", "_")
 }
 
+func TaxonShortCode(name string) string {
+	fragments := strings.Split(name, "")
+	if len(fragments) > 1 {
+		return string(fragments[0][0]) + "_" + strings.Join(fragments[1:], "_")
+	}
+	return name
+}
+
 type TaxonInner struct {
 	Name   string      `edgedb:"name" json:"name" example:"Asellus aquaticus" binding:"required,alpha"`
 	Status TaxonStatus `edgedb:"status" json:"status" example:"Accepted" binding:"required"`
