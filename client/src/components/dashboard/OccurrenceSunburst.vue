@@ -85,7 +85,9 @@ type SunburstData = {
 type SunburstIndex = Record<string, SunburstData>
 
 const data = ref<SunburstData[]>([])
-watch(items, (items) => (data.value = items ? buildPlotData(items) : []))
+const maxOccurrences = ref([0, 0])
+
+watch(items, (items) => (data.value = items ? buildPlotData(items) : []), { immediate: true })
 watch(settings, () => (data.value = buildPlotData(items.value ?? [])), { deep: true })
 
 function buildPlotData(items: OccurrenceOverviewItem[]) {
@@ -130,8 +132,6 @@ function trim(data: SunburstData[], [r1, r2]: TaxonRank[]) {
   }
   return trimmed
 }
-
-const maxOccurrences = ref([0, 0])
 
 function computeTotalOccurrences(d: SunburstData) {
   if (!d.children) return
