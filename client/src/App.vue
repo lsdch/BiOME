@@ -20,7 +20,7 @@
       <AccountNavMenu />
     </v-app-bar>
     <NavigationDrawer v-model="drawer" :temporary="drawerTemporary || smAndDown" />
-    <v-main id="main" class="bg-main">
+    <v-main id="main" class="bg-main overflow-y-auto" max-height="100vh">
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <RouterView :key="$route.fullPath" v-slot="{ Component }">
         <Suspense>
