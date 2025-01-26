@@ -1,12 +1,18 @@
 import HomeView from '@/views/HomeView.vue';
-import { RouteDefinition, RouterItem } from '.';
+import { Divider, RouteDefinition, RouterItem } from '.';
 import routes from './routes';
 import { useGuards } from './guards';
 
 const { guardRole } = useGuards()
 
+
+
+export function isDivider(item: RouterItem | Divider): item is Divider {
+  return item === "divider"
+}
+
 /** Route definitions meant to be displayed in navigation components */
-export const navRoutes: RouterItem[] = [
+export const navRoutes: (RouterItem | Divider)[] = [
   {
     label: "Home",
     path: '/',
@@ -16,12 +22,34 @@ export const navRoutes: RouterItem[] = [
     meta: { subtitle: "Home" }
   },
   {
-    icon: "mdi-folder-table",
     label: "Datasets",
-    path: '/datasets',
-    name: 'datasets',
-    component: () => import('../views/datasets/DatasetsView.vue'),
-    meta: { subtitle: "Datasets" }
+    icon: "mdi-folder-table",
+    routes: [
+      {
+        label: "Sites",
+        path: '/datasets/sites',
+        name: 'site-datasets',
+        icon: 'mdi-map-marker-circle',
+        component: () => import('../views/datasets/SiteDatasetsView.vue'),
+        meta: { subtitle: "Site datasets" }
+      },
+      {
+        label: "Occurrences",
+        path: '/datasets/occurrences',
+        name: 'occurrence-datasets',
+        icon: 'mdi-crosshairs-gps',
+        component: () => import('../views/datasets/OccurrenceDatasetsView.vue'),
+        meta: { subtitle: "Occurrence datasets" }
+      },
+      {
+        label: "Sequences",
+        path: '/datasets/sequences',
+        name: 'seq-datasets',
+        icon: 'mdi-dna',
+        component: () => import('../views/datasets/SeqDatasetsView.vue'),
+        meta: { subtitle: "Sequence datasets" }
+      }
+    ]
   },
   {
     label: "Sampling",
@@ -44,7 +72,10 @@ export const navRoutes: RouterItem[] = [
         name: "habitats",
         icon: "mdi-image-filter-hdr-outline",
         component: () => import("@/views/location/HabitatsView.vue"),
-        meta: { subtitle: "Habitats" }
+        meta: { subtitle: "Habitats" },
+        props: {
+          density: "compact"
+        }
       },
       {
         label: "Abiotic parameters",
@@ -110,6 +141,12 @@ export const navRoutes: RouterItem[] = [
       }
     ]
   },
+  {
+    label: "DNA sequencing",
+    icon: "mdi-flask",
+    routes: []
+  },
+  "divider",
   {
     label: "People",
     icon: "mdi-account-group",
@@ -180,6 +217,9 @@ export const navRoutes: RouterItem[] = [
 ]
 
 export const navRouteDefinitions = navRoutes.reduce((acc, current) => {
+  if (isDivider(current)) {
+    return acc
+  }
   if (current.routes) {
     return acc.concat(current.routes)
   } else {

@@ -6,10 +6,11 @@
     v-bind="$attrs"
   >
     <v-list density="compact" nav open-strategy="single">
-      <template v-for="group in navRoutes" :key="group.label">
+      <template v-for="(group, key) in navRoutes" :key>
+        <v-divider v-if="isDivider(group)"></v-divider>
         <!-- Route -->
         <v-list-item
-          v-if="!group.routes"
+          v-else-if="!group.routes"
           v-show="!group.granted || isGranted(group.granted)"
           :prepend-icon="group.icon"
           :title="group.label"
@@ -38,6 +39,7 @@
             color="primary"
             :active="isRouteActive(route)"
             :prepend-icon="route.icon"
+            v-bind="route.itemProps"
           />
         </v-list-group>
       </template>
@@ -46,7 +48,7 @@
 </template>
 
 <script setup lang="ts">
-import { RouteDefinition, navRoutes } from '@/router'
+import { RouteDefinition, navRoutes, isDivider } from '@/router'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'

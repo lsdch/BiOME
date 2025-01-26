@@ -146,6 +146,9 @@
 </template>
 
 <script setup lang="ts" generic="SiteItem extends { id: string } & Geocoordinates">
+import 'leaflet/dist/leaflet.css'
+import 'vue-leaflet-markercluster/dist/style.css'
+
 import {
   LCircle,
   LCircleMarker,
@@ -166,7 +169,7 @@ import L, {
   type LeafletMouseEvent,
   type Map
 } from 'leaflet'
-import 'leaflet/dist/leaflet.css'
+
 import { ref, useTemplateRef, watch } from 'vue'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import { Geocoordinates } from '.'
@@ -226,7 +229,7 @@ const props = withDefaults(
     items?: SiteItem[]
     marker?: Omit<CircleMarkerOptions, 'dashArray'>
     bounds?: [LatLngExpression, LatLngExpression]
-    autoFit?: boolean
+    autoFit?: boolean | number
     closable?: boolean
     clustered?: boolean
     regions?: boolean
@@ -269,40 +272,43 @@ function onVisible(visible: boolean) {
   if (visible && props.autoFit) fitBounds()
 }
 
-const fitBounds = useDebounceFn((items: SiteItem[] = props.items ?? []) => {
-  console.log('[Map] Fit bounds')
-  const minMaxCoords = items.reduce(
-    (
-      acc: { sw: LatLngLiteral; ne: LatLngLiteral } | null,
-      { coordinates: { latitude, longitude } }: SiteItem
-    ): { sw: LatLngLiteral; ne: LatLngLiteral } | null => {
-      return acc === null
-        ? {
-            sw: { lat: latitude, lng: longitude },
-            ne: { lat: latitude, lng: longitude }
-          }
-        : {
-            sw: {
-              lat: Math.min(acc.sw.lat, latitude),
-              lng: Math.min(acc.sw.lng, longitude)
-            },
-            ne: {
-              lat: Math.max(acc.ne.lat, latitude),
-              lng: Math.max(acc.ne.lng, longitude)
+const fitBounds = useDebounceFn(
+  (items: SiteItem[] = props.items ?? [], fitPad: number = props.fitPad) => {
+    console.log('[Map] Fit bounds')
+    const minMaxCoords = items.reduce(
+      (
+        acc: { sw: LatLngLiteral; ne: LatLngLiteral } | null,
+        { coordinates: { latitude, longitude } }: SiteItem
+      ): { sw: LatLngLiteral; ne: LatLngLiteral } | null => {
+        return acc === null
+          ? {
+              sw: { lat: latitude, lng: longitude },
+              ne: { lat: latitude, lng: longitude }
             }
-          }
-    },
-    null
-  )
+          : {
+              sw: {
+                lat: Math.min(acc.sw.lat, latitude),
+                lng: Math.min(acc.sw.lng, longitude)
+              },
+              ne: {
+                lat: Math.max(acc.ne.lat, latitude),
+                lng: Math.max(acc.ne.lng, longitude)
+              }
+            }
+      },
+      null
+    )
 
-  if (minMaxCoords) {
-    minMaxCoords.sw.lat -= props.fitPad
-    minMaxCoords.sw.lng -= props.fitPad
-    minMaxCoords.ne.lat += props.fitPad
-    minMaxCoords.ne.lng += props.fitPad
-    mapBounds.value = latLngBounds(minMaxCoords.sw, minMaxCoords.ne).pad(0.1)
-  }
-}, 200)
+    if (minMaxCoords) {
+      minMaxCoords.sw.lat -= fitPad
+      minMaxCoords.sw.lng -= fitPad
+      minMaxCoords.ne.lat += fitPad
+      minMaxCoords.ne.lng += fitPad
+      mapBounds.value = latLngBounds(minMaxCoords.sw, minMaxCoords.ne).pad(0.1)
+    }
+  },
+  200
+)
 
 defineExpose({ fitBounds })
 </script>

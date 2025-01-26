@@ -1,112 +1,139 @@
 <template>
-  <v-layout class="fill-height bg-surface">
-    <PageErrors v-if="error !== undefined" :error />
-    <v-container v-else-if="dataset" class="align-stretch flex-column" fluid>
-      <v-row
-        :class="['justify-start align-start flex-wrap flex-grow-0', { 'fill-height': lgAndUp }]"
-      >
-        <v-col cols="12" lg="6" class="fill-height">
-          <v-card v-if="editing" cols="12" lg="6" class="align-self-start">
-            <DatasetEditForm
+  <div class="d-flex fill-height bg-surface overflow-y-auto">
+    <v-sheet
+      height="fit-content"
+      min-height="100%"
+      :width="lgAndUp ? '50%' : '100%'"
+      :class="['d-flex', { 'pa-3': lgAndUp }]"
+    >
+      <PageErrors v-if="isError && error" :error />
+      <v-card v-else-if="editing" class="align-self-start">
+        <!-- <DatasetEditForm
               v-model="dataset"
               @cancel="toggleEdit(false)"
               @updated="toggleEdit(false)"
-            />
+            /> -->
+      </v-card>
+
+      <v-card
+        v-else
+        min-height="100%"
+        :title="dataset?.label ?? slug"
+        :flat="!lgAndUp"
+        class="align-self-stretch w-100 d-flex flex-column"
+      >
+        <template #subtitle>
+          <v-chip label text="Sites dataset" size="small" prepend-icon="mdi-map-marker-multiple" />
+        </template>
+        <template #prepend>
+          <v-avatar variant="outlined">
+            <v-icon icon="mdi-folder-table" />
+          </v-avatar>
+        </template>
+        <template #append>
+          <v-btn
+            v-if="isUserMaintainer"
+            color="primary"
+            icon="mdi-pencil"
+            variant="plain"
+            @click="toggleEdit(true)"
+          />
+        </template>
+        <template #actions>
+          <v-spacer />
+          <MetaChip v-if="dataset" :meta="dataset.meta" />
+        </template>
+
+        <v-divider class="my-3" />
+
+        <CenteredSpinner v-if="isPending" :height="500" size="large" color="primary" />
+        <div v-else-if="dataset" class="flex-grow-1">
+          <v-card-text v-if="dataset.description" class="text-caption font-weight-thin">
+            {{ dataset.description }}
+          </v-card-text>
+
+          <v-list>
+            <v-list-item title="Maintainers">
+              <template #subtitle>
+                <PersonChip
+                  v-for="(maintainer, key) in dataset.maintainers"
+                  :person="maintainer"
+                  class="ma-1"
+                  :key
+                />
+              </template>
+            </v-list-item>
+          </v-list>
+
+          <v-divider class="my-3" />
+          <div class="flex-grow-1">
+            <DatasetTabs :dataset flat />
+          </div>
+        </div>
+        <v-divider />
+      </v-card>
+    </v-sheet>
+
+    <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!lgAndUp">
+      <template #="{ isDialog }">
+        <v-sheet
+          width="50%"
+          :class="['fill-height position-sticky top-0', { 'py-4 px-3': !isDialog }]"
+          max-height="100vh"
+        >
+          <v-card :rounded="!mobileMap" class="fill-height">
+            <SitesMap
+              :items="dataset?.sites"
+              :closable="isDialog"
+              @close="toggleMobileMap(false)"
+              clustered
+            >
+              <template #popup="{ item }">
+                <SitePopup :item />
+              </template>
+            </SitesMap>
           </v-card>
-          <v-card
-            v-else
-            cols="12"
-            lg="6"
-            :title="dataset.label"
-            class="fill-height align-self-start d-flex flex-column"
-          >
-            <template #prepend>
-              <v-avatar variant="outlined">
-                <v-icon icon="mdi-folder-table"></v-icon>
-              </v-avatar>
-            </template>
-            <template #append>
-              <v-btn
-                v-if="isUserMaintainer"
-                color="primary"
-                icon="mdi-pencil"
-                variant="plain"
-                @click="toggleEdit(true)"
-              />
-            </template>
-            <template #actions>
-              <v-spacer></v-spacer>
-              <MetaChip :meta="dataset.meta" />
-            </template>
-            <v-divider class="my-3" />
-
-            <v-list>
-              <v-list-item
-                title="Description"
-                :subtitle="dataset.description || 'No description'"
-                :class="{ empty: !dataset.description }"
-              />
-              <v-list-item title="Maintainers">
-                <template #subtitle>
-                  <PersonChip
-                    v-for="(maintainer, key) in dataset.maintainers"
-                    :person="maintainer"
-                    class="ma-1"
-                    :key
-                  />
-                </template>
-              </v-list-item>
-            </v-list>
-
-            <v-divider class="my-3" />
-            <div class="flex-grow-1">
-              <DatasetTabs :dataset flat />
-            </div>
-            <v-divider></v-divider>
-          </v-card>
-        </v-col>
-        <v-col cols="12" lg="6" class="align-self-stretch flex-grow-1 w-100">
-          <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!lgAndUp">
-            <template #="{ isDialog }">
-              <v-card class="fill-height" :rounded="!mobileMap">
-                <SitesMap
-                  :items="dataset.sites ?? undefined"
-                  :closable="isDialog"
-                  @close="toggleMobileMap(false)"
-                >
-                  <template #popup="{ item }">
-                    <SitePopup :item />
-                  </template>
-                </SitesMap>
-              </v-card>
-            </template>
-          </ResponsiveDialog>
-        </v-col>
-      </v-row>
-
-      <v-bottom-navigation :active="!lgAndUp">
-        <v-btn color="primary" prepend-icon="mdi-map" @click="toggleMobileMap(true)" text="Map" />
-      </v-bottom-navigation>
-    </v-container>
-  </v-layout>
+        </v-sheet>
+      </template>
+    </ResponsiveDialog>
+  </div>
+  <v-bottom-navigation :active="!lgAndUp">
+    <v-btn color="primary" prepend-icon="mdi-map" @click="toggleMobileMap(true)" text="Map" />
+  </v-bottom-navigation>
 </template>
 
-<script setup lang="ts">
-import { DatasetsService } from '@/api'
+<script setup lang="ts" generic="DatasetType extends OccurrenceDataset | SiteDataset">
+import { ErrorModel, OccurrenceDataset, SiteDataset } from '@/api'
 import SitesMap from '@/components/maps/SitesMap.vue'
+import PersonChip from '@/components/people/PersonChip.vue'
 import SitePopup from '@/components/sites/SitePopup.vue'
-import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
+import MetaChip from '@/components/toolkit/MetaChip.vue'
+import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
 import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 import { useUserStore } from '@/stores/user'
+import { OptionsLegacyParser } from '@hey-api/client-fetch'
+import { UndefinedInitialQueryOptions, useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
-import { computed, reactive, toRefs } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
-import DatasetEditForm from './DatasetEditForm.vue'
 import DatasetTabs from './DatasetTabs.vue'
-import PersonChip from '@/components/people/PersonChip.vue'
-import MetaChip from '@/components/toolkit/MetaChip.vue'
+
+interface DatasetQueryData {
+  headers?: {
+    Authorization: string
+  }
+  path: {
+    slug: string
+  }
+}
+
+const { slug, query } = defineProps<{
+  slug: string
+  query: (
+    options: OptionsLegacyParser<DatasetQueryData>
+  ) => UndefinedInitialQueryOptions<DatasetType, ErrorModel, DatasetType>
+}>()
 
 const { user } = useUserStore()
 
@@ -116,14 +143,7 @@ const [mobileMap, toggleMobileMap] = useToggle(false)
 
 const { lgAndUp } = useDisplay()
 
-const { params } = useRoute()
-const slug = params.slug as string
-
-const { data: dataset, error } = toRefs(reactive(await fetch()))
-
-async function fetch() {
-  return await DatasetsService.getDataset({ path: { slug } })
-}
+const { data: dataset, error, isPending, isSuccess, isError } = useQuery(query({ path: { slug } }))
 
 const isUserMaintainer = computed(() => {
   return !!dataset.value?.maintainers?.find(({ id }) => user?.identity.id === id)

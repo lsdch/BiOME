@@ -11,89 +11,82 @@
               @click="toggleEdit(true)"
             />
           </template>
-          <v-chip v-for="t in spotting?.target_taxa" class="mx-1" :text="t.name" />
-          <v-list-item-subtitle v-if="!spotting?.target_taxa?.length"> None </v-list-item-subtitle>
+          <TaxonChip v-for="taxon in model.spottings" :taxon class="mx-1" />
+          <v-list-item-subtitle v-if="!model.spottings?.length"> None </v-list-item-subtitle>
         </v-list-item>
-        <v-list-item title="Comments" :subtitle="spotting?.comments || 'None'" />
+        <v-list-item title="Comments" :subtitle="model.comments || 'None'" />
       </v-list>
       <v-form v-else>
-        <TaxonPicker
-          label="Taxa"
-          v-model="model.target_taxa"
-          item-value="name"
-          :ranks="TaxonRank.ranksUpTo('Family')"
-          multiple
-          chips
-          closable-chips
-          clearable
-        />
-        <v-textarea label="Comments" v-model="model.comments" />
+        <v-confirm-edit v-model="model">
+          <template #default="{ model: proxy, actions: _, save, cancel, isPristine }">
+            <TaxonPicker
+              label="Taxa"
+              v-model="proxy.value.spottings"
+              return-object
+              :ranks="TaxonRank.ranksUpTo('Family')"
+              multiple
+              chips
+              closable-chips
+              clearable
+            />
+            <v-textarea label="Comments" v-model="model.comments" />
 
-        <div class="d-flex justify-end">
-          <v-btn
-            class="mx-1"
-            color="primary"
-            variant="tonal"
-            text="Submit"
-            :loading
-            @click="submit()"
-          />
-          <v-btn
-            class="mx-1"
-            text="Cancel"
-            variant="plain"
-            color=""
-            :disabled="loading"
-            @click="reset()"
-          />
-        </div>
+            <div class="d-flex justify-end">
+              <v-btn
+                class="mx-1"
+                color="primary"
+                variant="tonal"
+                text="Submit"
+                :loading
+                @click="submit(proxy.value).then(() => save())"
+              />
+              <v-btn
+                class="mx-1"
+                text="Cancel"
+                variant="plain"
+                color=""
+                :disabled="loading"
+                @click="(cancel(), toggleEdit(false))"
+              />
+            </div>
+          </template>
+        </v-confirm-edit>
       </v-form>
-      <!-- <v-btn variant="tonal" prepend-icon="mdi-pencil">Edit</v-btn> -->
     </v-card-text>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { $SpottingUpdate, Event, EventsService, Spotting, SpottingUpdate, TaxonRank } from '@/api'
+import { $EventUpdate, Event, EventsService, EventUpdate, Taxon, TaxonRank } from '@/api'
 import { useToggle } from '@vueuse/core'
 import { ref, watch } from 'vue'
 import TaxonPicker from '../taxonomy/TaxonPicker.vue'
 import { useSchema } from '../toolkit/forms/schema'
+import { handleErrors } from '@/api/responses'
+import TaxonChip from '../taxonomy/TaxonChip.vue'
 
-const { event } = defineProps<{ event: Event }>()
-const spotting = defineModel<Spotting>('spotting', { required: true })
+const model = defineModel<Event>({ required: true })
 
 const [editing, toggleEdit] = useToggle(false)
 const [loading, toggleLoading] = useToggle(false)
 
-const model = ref<SpottingUpdate>(initialModel(spotting.value))
+type UpdateData = Pick<EventUpdate, 'spottings' | 'comments'>
 
-const { field, errorHandler } = useSchema($SpottingUpdate)
+const { field, errorHandler } = useSchema($EventUpdate)
 
-watch(spotting, (s) => {
-  model.value = initialModel(s)
-})
-
-async function submit() {
+async function submit(model: Event) {
   toggleLoading(true)
-  return EventsService.updateSpotting({ path: { id: event.id }, body: model.value })
+  const body = toUpdateData(model)
+  return EventsService.updateEvent({ path: { id: model.id }, body })
     .then(errorHandler)
-    .then((updated) => {
-      event.spotting = updated
-      toggleEdit(false)
-    })
+    .then(() => toggleEdit(false))
     .finally(() => toggleLoading(false))
 }
 
-function reset() {
-  model.value = initialModel(spotting.value)
-  toggleEdit(false)
-}
-
-function initialModel({ target_taxa, comments }: Spotting): SpottingUpdate {
+function toUpdateData(event: Event): UpdateData {
   return {
-    target_taxa: target_taxa?.map(({ name }) => name) ?? null,
-    comments: comments
+    spottings: event.spottings?.map(({ name }) => name) ?? null,
+    comments: event.comments
   }
 }
 </script>

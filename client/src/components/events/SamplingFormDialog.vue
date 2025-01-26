@@ -22,17 +22,17 @@
         <v-col cols="12" sm="3">
           <v-select
             label="Sampling target"
-            v-bind="field('target_kind')"
+            v-bind="field('target', 'kind')"
             :items="$SamplingTargetKind.enum"
-            v-model="model.target_kind"
+            v-model="model.target.kind"
             hide-details
           />
         </v-col>
         <v-col>
           <TaxonPicker
-            v-model="model.target_taxa"
-            v-bind="field('target_taxa')"
-            :disabled="model.target_kind !== 'Taxa'"
+            v-model="model.target.taxa"
+            v-bind="field('target', 'taxa')"
+            :disabled="model.target.kind !== 'Taxa'"
             label="Target taxa"
             item-value="name"
             :ranks="TaxonRank.ranksUpTo('Family')"
@@ -111,12 +111,12 @@
 
 <script setup lang="ts">
 import {
-  $SamplingInput,
+  $SamplingInputWithEvent,
   $SamplingTargetKind,
   $SamplingUpdate,
   EventInner,
   Sampling,
-  SamplingInput,
+  SamplingInputWithEvent,
   SamplingService,
   SamplingUpdate
 } from '@/api'
@@ -145,10 +145,9 @@ const props = defineProps<
   }
 >()
 
-const initial: SamplingInput = {
+const initial: SamplingInputWithEvent = {
   event_id: props.event.id,
-  target_kind: 'Taxa',
-  target_taxa: []
+  target: { kind: 'Taxa' }
 }
 
 const { model, mode, makeRequest } = useForm(props, {
@@ -166,8 +165,10 @@ const { model, mode, makeRequest } = useForm(props, {
       duration,
       access_points,
       comments,
-      target_kind: target.kind,
-      target_taxa: target.target_taxa?.map(({ name }) => name),
+      target: {
+        kind: target.kind,
+        taxa: target.taxa?.map(({ name }) => name)
+      },
       habitats: habitats.map(({ label }) => label),
       fixatives: fixatives?.map(({ code }) => code),
       methods: methods?.map(({ code }) => code)
@@ -176,7 +177,7 @@ const { model, mode, makeRequest } = useForm(props, {
 })
 
 const { field, errorHandler } = reactiveComputed(() =>
-  useSchema(mode.value === 'Create' ? $SamplingInput : $SamplingUpdate)
+  useSchema(mode.value === 'Create' ? $SamplingInputWithEvent : $SamplingUpdate)
 )
 
 async function submit() {

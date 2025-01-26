@@ -15,7 +15,7 @@
     <TaxonChip
       v-else-if="sampling.target.kind === 'Taxa'"
       class="ma-1"
-      v-for="taxon in sampling.target.target_taxa"
+      v-for="taxon in sampling.target.taxa"
       :taxon
       rounded
     />

@@ -200,7 +200,7 @@ const filter = computed(() => {
   }
 })
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<Sequence>[] = [
   {
     children: [
       { key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } },

@@ -179,21 +179,21 @@
         </v-col>
       </v-row>
     </template>
-    <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
+    <!-- <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
       <BioMaterialFormDialog
         :model-value="dialog"
         @close="onClose"
         @success="onSuccess"
         :edit="editItem"
       />
-    </template>
+    </template> -->
   </CRUDTable>
 </template>
 
 <script setup lang="ts">
 import { BioMaterial, PersonInner, SamplesService, SiteInfo, Taxon } from '@/api'
 import { DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
-import BioMaterialFormDialog from '@/components/occurrence/BioMaterialFormDialog.vue'
+// import BioMaterialFormDialog from '@/components/occurrence/BioMaterialFormDialog.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'

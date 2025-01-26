@@ -28,7 +28,7 @@
         <v-chip
           v-for="sample in sampling.samples"
           :text="sample.identification.taxon.name"
-          :title="sample.type"
+          :title="sample.category"
           class="ma-1"
         />
       </v-list-item>

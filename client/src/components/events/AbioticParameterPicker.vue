@@ -1,5 +1,13 @@
 <template>
-  <v-select label="Parameter" :items :loading v-model="model" item-title="label" v-bind="$attrs">
+  <v-select
+    label="Parameter"
+    :items
+    :loading="isPending"
+    v-model="model"
+    item-title="label"
+    v-bind="$attrs"
+    :error-messages="error?.detail"
+  >
     <template #item="{ item, props }">
       <v-list-item v-bind="props" :subtitle="item.raw.description">
         <template #append>
@@ -11,20 +19,14 @@
 </template>
 
 <script setup lang="ts">
-import { AbioticParameter, EventsService, SamplingService } from '@/api'
-import { handleErrors } from '@/api/responses'
-import { useToggle } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
+import { AbioticParameter } from '@/api'
+import { listAbioticParametersOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
+import { ref } from 'vue'
 
 const model = ref<AbioticParameter>()
 
-const items = ref<AbioticParameter[]>([])
-const [loading, toggleLoading] = useToggle(true)
-onMounted(async () => {
-  items.value = await SamplingService.listAbioticParameters()
-    .then(handleErrors((err) => console.error('Failed to fetch abiotic parameters', err)))
-    .finally(() => toggleLoading(false))
-})
+const { data: items, error, isPending } = useQuery(listAbioticParametersOptions())
 </script>
 
 <style lang="scss" scoped></style>

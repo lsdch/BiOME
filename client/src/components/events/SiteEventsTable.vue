@@ -94,13 +94,14 @@
 
   <!-- Event details dialog -->
   <EventCardDialog
-    :event="focusedEvent?.item"
+    v-if="focusedEvent"
+    v-model="focusedEvent.item"
     v-model:open="showEventDetails"
     v-model:tab="eventTab"
     @next="focusedEvent && focusItem(focusedEvent.index + 1)"
     @prev="focusedEvent && focusItem(focusedEvent.index - 1)"
   >
-    <template v-if="focusedEvent" #subtitle>
+    <template #subtitle>
       <v-btn
         color="primary"
         icon="mdi-arrow-left"
@@ -198,7 +199,7 @@ const headers: CRUDTableHeader<Event>[] = [
         align: 'center',
         width: 0,
         value(item: Event, fallback) {
-          return item.spotting?.target_taxa?.length
+          return item.spottings?.length
         }
       },
       {

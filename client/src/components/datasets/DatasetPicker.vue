@@ -1,5 +1,13 @@
 <template>
-  <v-select v-model="model" :label :items :loading item-title="label" return-item>
+  <v-select
+    v-model="model"
+    :label
+    :items
+    :loading="isPending"
+    item-title="label"
+    return-item
+    :error-messages="error?.detail"
+  >
     <template #item="{ props, item }">
       <v-list-item v-bind="props">
         <template #append>
@@ -11,25 +19,14 @@
 </template>
 
 <script setup lang="ts">
-import { Dataset, DatasetsService } from '@/api'
-import { handleErrors } from '@/api/responses'
-import { onMounted, ref } from 'vue'
+import { SiteDataset } from '@/api'
+import { listSiteDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
 
-const model = defineModel<Dataset>()
+const model = defineModel<SiteDataset>()
 withDefaults(defineProps<{ label?: string }>(), { label: 'Dataset' })
 
-const loading = ref<boolean>()
-
-const items = ref<Dataset[]>()
-
-onMounted(async () => (items.value = (await fetch()) ?? []))
-
-async function fetch() {
-  loading.value = true
-  return DatasetsService.listDatasets()
-    .then(handleErrors((err) => console.error(err)))
-    .finally(() => (loading.value = false))
-}
+const { data: items, error, isPending } = useQuery(listSiteDatasetsOptions())
 </script>
 
 <style scoped></style>

@@ -3,12 +3,13 @@
     <v-container
       fluid
       id="item-view-container"
-      :class="['align-start fill-height w-100', { large: xlAndUp, small: mdAndDown }]"
+      min-height="100%"
+      :class="['align-start w-100', { large: xlAndUp, small: mdAndDown }]"
     >
       <v-card
         id="info-container"
-        :title="site.name"
-        :subtitle="site.code"
+        :title="site?.name ?? code"
+        :subtitle="code"
         prepend-icon="mdi-map-marker-radius"
       >
         <template #append>
@@ -21,13 +22,8 @@
             @click="toggleEdit(true)"
           />
         </template>
-        <!-- <div class="text-h6 d-flex align-center">
-          <v-icon icon="mdi-map-marker-radius" />
-          {{ site.name }}
-
-        </div> -->
         <v-divider class="my-3" />
-        <v-list>
+        <v-list v-if="site">
           <v-list-item title="Coordinates" class="pr-0">
             <template #subtitle>
               <code class="text-wrap">
@@ -82,7 +78,7 @@
 
       <SiteFormDialog :edit="site" v-model="editDialog"></SiteFormDialog>
 
-      <div id="panels">
+      <div id="panels" v-if="site">
         <v-expansion-panels>
           <v-expansion-panel>
             <template #title>
@@ -140,13 +136,13 @@
         <ResponsiveDialog :as-dialog="mapAsDialog" v-model:open="mapActive">
           <v-card class="d-flex flex-column fill-height" :rounded="!mapActive">
             <SitesMap
-              :items="[site]"
+              :items="site ? [site] : []"
               regions
               :fitPad="0.3"
               :closable="mapActive"
               @close="toggleMap(false)"
             />
-            <template #actions>
+            <template #actions v-if="site">
               <!-- :href="`https://www.google.com/maps/place/${site.coordinates.latitude}+${site.coordinates.longitude}/@${site.coordinates.latitude},${site.coordinates.longitude},10z`" -->
               <v-menu>
                 <template #activator="{ props }">
@@ -157,7 +153,7 @@
                     title="Google Maps"
                     prepend-icon="mdi-google-maps"
                     :href="`http://maps.google.com/maps?&z=15&mrt=yp&t=k&q=${site.coordinates.latitude}+${site.coordinates.longitude}+(${site.name})`"
-                  ></v-list-item>
+                  />
                   <v-list-item
                     title="Google Earth"
                     prepend-icon="mdi-google-earth"
@@ -174,16 +170,16 @@
 </template>
 
 <script setup lang="ts">
-import { LocationService, Taxon } from '@/api'
-import { handleErrors } from '@/api/responses'
+import { Taxon } from '@/api'
+import { getSiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import SiteEventsTable from '@/components/events/SiteEventsTable.vue'
 import SitesMap from '@/components/maps/SitesMap.vue'
 import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
+import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
-import { computed, ref } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, reactive } from 'vue'
 import { useDisplay } from 'vuetify'
 import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
@@ -195,46 +191,39 @@ const mapAsDialog = mdAndDown
 const [mapActive, toggleMap] = useToggle(false)
 const [editDialog, toggleEdit] = useToggle(false)
 
-const route = useRoute()
-const code = route.params['code'] as string
+const { code } = defineProps<{ code: string }>()
 
-const site = ref(
-  await LocationService.getSite({ path: { code } }).then(
-    handleErrors((err) => {
-      console.error('Failed to fetch site:', err)
-    })
-  )
-)
+const { data: site, error } = useQuery(getSiteOptions({ path: { code } }))
 
 const targeted_taxa = computed(() => {
   return Object.values(
-    site.value.events.reduce<Record<string, Taxon>>((acc, event) => {
+    site.value?.events.reduce<Record<string, Taxon>>((acc, event) => {
       event.samplings.forEach(({ target }) => {
-        target.target_taxa?.forEach((t) => {
+        target.taxa?.forEach((t) => {
           acc[t.name] = t
         })
       })
       return acc
-    }, {})
+    }, {}) ?? {}
   )
 })
 
 const occurring_taxa = computed(() => {
   return Object.values(
-    site.value.events.reduce<Record<string, Taxon>>((acc, event) => {
+    site.value?.events.reduce<Record<string, Taxon>>((acc, event) => {
       event.samplings.forEach(({ occurring_taxa }) => {
         occurring_taxa?.forEach((t) => {
           acc[t.name] = t
         })
       })
       return acc
-    }, {})
+    }, {}) ?? {}
   )
 })
 
 const abiotic_measurements = computed(() => {
   return (
-    site.value.events?.reduce<Record<string, AbioticData>>(
+    site.value?.events?.reduce<Record<string, AbioticData>>(
       (acc, { performed_on, abiotic_measurements }) => {
         abiotic_measurements.forEach(({ param, value }) => {
           if (performed_on.date === undefined) return
@@ -272,7 +261,7 @@ const abiotic_measurements = computed(() => {
   display: grid;
   gap: 20px 2%;
   grid-template-columns: 49% 49%;
-  grid-template-rows: auto auto 1fr;
+  grid-template-rows: auto auto auto 1fr;
   grid-template-areas:
     'info map'
     'panels panels'

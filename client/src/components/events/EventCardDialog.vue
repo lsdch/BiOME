@@ -14,10 +14,10 @@
       :event
       :fullscreen="smAndDown"
       :edit="editingSampling"
-      @created="(sampling) => props.event?.samplings.unshift(sampling)"
+      @created="(sampling) => event?.samplings.unshift(sampling)"
       @updated="
         (sampling) =>
-          props.event?.samplings.map((s) => {
+          event?.samplings.map((s) => {
             return s.id === sampling.id ? sampling : s
           })
       "
@@ -26,29 +26,28 @@
     <v-tabs v-model="tab" color="primary" center-active class="overflow-visible">
       <v-tab value="sampling" prepend-icon="mdi-package-down">
         <span v-if="!mobile || tab === 'sampling'"> Samplings </span>
-        <v-badge color="primary" inline :content="props.event?.samplings.length" />
+        <v-badge color="primary" inline :content="event?.samplings.length" />
       </v-tab>
       <v-tab value="abiotic" prepend-icon="mdi-gauge">
         <span v-if="!mobile || tab === 'abiotic'"> Abiotic </span>
-        <v-badge color="primary" inline :content="props.event?.abiotic_measurements.length" />
+        <v-badge color="primary" inline :content="event?.abiotic_measurements.length" />
       </v-tab>
       <v-tab value="spotting" prepend-icon="mdi-binoculars">
         <span v-if="!mobile || tab === 'spotting'"> Spotting </span>
-        <v-badge
-          color="primary"
-          inline
-          :content="props.event?.spotting?.target_taxa?.length ?? 0"
-        />
+        <v-badge color="primary" inline :content="event?.spottings?.length ?? 0" />
       </v-tab>
     </v-tabs>
     <v-tabs-window v-model="tab" class="overflow-y-auto event-action-text">
       <v-tabs-window-item value="sampling">
         <v-container fluid>
           <v-row align-content="stretch">
-            <v-col v-for="(sampling, index) in props.event?.samplings" cols="12" md="6">
+            <v-col v-if="!event?.samplings?.length">
+              <v-alert> No samplings reported </v-alert>
+            </v-col>
+            <v-col v-for="(sampling, index) in event?.samplings" cols="12" md="6">
               <SamplingCard
                 :sampling
-                :corner-tag="`#${index + 1} / ${props.event?.samplings.length}`"
+                :corner-tag="`#${index + 1} / ${event?.samplings.length}`"
                 class="h-100"
                 @edit="editSampling"
                 @deleted="onSamplingDelete"
@@ -59,12 +58,16 @@
       </v-tabs-window-item>
 
       <v-tabs-window-item value="abiotic">
-        <v-list :max-width="400">
-          <v-list-item v-for="m in props.event?.abiotic_measurements" :title="m.param.label">
+        <v-container v-if="!event?.abiotic_measurements?.length" fluid>
+          <v-alert> No abiotic measurements reported </v-alert>
+        </v-container>
+        <v-list v-else :max-width="400">
+          <v-list-item
+            v-for="measurement in event?.abiotic_measurements"
+            :title="measurement.param.label"
+          >
             <template #append>
-              <v-chip>
-                <code> {{ m.value }} {{ m.param.unit }} </code>
-              </v-chip>
+              <AbioticMeasurementChip :measurement />
             </template>
           </v-list-item>
         </v-list>
@@ -98,7 +101,7 @@
       </v-tabs-window-item>
 
       <v-tabs-window-item value="spotting">
-        <EventSpotting v-if="event" :event :spotting="event.spotting" />
+        <EventSpotting v-if="event" v-model="event" />
       </v-tabs-window-item>
     </v-tabs-window>
 
@@ -115,11 +118,11 @@
       />
       <v-list class="d-flex justify-space-between w-100">
         <v-list-item title="Performed by">
-          <PersonChip v-for="p in props.event?.performed_by" class="ma-1" :person="p" />
+          <PersonChip v-for="p in event?.performed_by" class="ma-1" :person="p" />
         </v-list-item>
         <v-list-item title="Programs">
           <template #subtitle>
-            <ProgramChip v-for="program in props.event?.programs" class="ma-1" :program />
+            <ProgramChip v-for="program in event?.programs" class="ma-1" :program />
           </template>
         </v-list-item>
       </v-list>
@@ -130,17 +133,16 @@
 <script setup lang="ts">
 import { Event, Sampling } from '@/api'
 import { useToggle } from '@vueuse/core'
+import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
+import PersonChip from '../people/PersonChip.vue'
 import CardDialog from '../toolkit/forms/CardDialog.vue'
 import AbioticParameterPicker from './AbioticParameterPicker.vue'
+import EventSpotting from './EventSpotting.vue'
+import ProgramChip from './ProgramChip.vue'
 import SamplingCard from './SamplingCard.vue'
 import SamplingFormDialog from './SamplingFormDialog.vue'
-import { ref } from 'vue'
-import EventSpotting from './EventSpotting.vue'
-import PersonChip from '../people/PersonChip.vue'
-import ProgramChip from './ProgramChip.vue'
-import { DateTime } from 'luxon'
-import { DateWithPrecision } from '@/api/adapters'
+import { AbioticMeasurementChip } from './AbioticMeasurementChip'
 
 const [samplingDialog, toggleSamplingDialog] = useToggle(false)
 const editingSampling = ref<Sampling>()
@@ -154,8 +156,8 @@ function editSampling(sampling: Sampling) {
 }
 
 function onSamplingDelete(deleted: Sampling) {
-  if (!props.event) return
-  props.event.samplings = props.event.samplings.filter(({ id }) => id !== deleted.id)
+  if (!event.value) return
+  event.value.samplings = event.value.samplings.filter(({ id }) => id !== deleted.id)
 }
 
 const [addItem, toggleAddItem] = useToggle(false)
@@ -163,7 +165,7 @@ const [addItem, toggleAddItem] = useToggle(false)
 const { mobile, smAndDown } = useDisplay()
 
 const open = defineModel<boolean>('open')
-const props = defineProps<{ event?: Event }>()
+const event = defineModel<Event>()
 
 export type EventAction = 'sampling' | 'abiotic' | 'spotting'
 const tab = defineModel<EventAction>('tab', { default: 'sampling' })

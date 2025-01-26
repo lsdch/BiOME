@@ -34,7 +34,7 @@
           />
         </template>
       </TableToolbar>
-      <SitesMap ref="map" :items="sites" clustered :auto-fit="false">
+      <SitesMap ref="map" :items="sites" clustered :auto-fit="sites.length > 1">
         <template #popup="{ item }">
           <KeepAlive>
             <SitePopup v-if="item" :item :options="{ keepInView: false, autoPan: false }" />
@@ -50,7 +50,6 @@ import SitesMap from '@/components/maps/SitesMap.vue'
 import { ref } from 'vue'
 
 import { LocationService } from '@/api'
-import 'vue-leaflet-markercluster/dist/style.css'
 import SitePopup from '@/components/sites/SitePopup.vue'
 import DatasetPicker from '@/components/datasets/DatasetPicker.vue'
 import { useToggle } from '@vueuse/core'

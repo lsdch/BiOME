@@ -1,20 +1,14 @@
 <template>
-  <v-card
-    v-if="item"
-    class="bg-surface fill-height w-100 d-flex flex-column"
-    :title="item.code"
-    flat
-    :rounded="0"
-  >
+  <v-card class="bg-surface fill-height w-100 d-flex flex-column" :title="code" flat :rounded="0">
     <template #prepend>
       <v-avatar variant="outlined">
         <v-icon icon="mdi-dna"></v-icon>
       </v-avatar>
     </template>
     <template #append>
-      <v-btn color="primary" icon="mdi-pencil" variant="tonal" size="small" />
+      <v-btn v-if="canEdit" color="primary" icon="mdi-pencil" variant="tonal" size="small" />
     </template>
-    <template #subtitle>
+    <template v-if="item" #subtitle>
       <v-chip
         class="mx-1"
         size="small"
@@ -52,8 +46,8 @@
         size="small"
         title="Sequence available"
         @click="
-          fasta?.groupItem.select(true),
-            $nextTick(() => fasta?.$el.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+          (fasta?.groupItem.select(true),
+          $nextTick(() => fasta?.$el.scrollIntoView({ behavior: 'smooth', block: 'start' })))
         "
       />
       <!-- @click="fasta?.scrollIntoView()" -->
@@ -67,12 +61,14 @@
         Nomenclatural type
       </v-chip> -->
     </template>
-    <template #actions>
+    <template #actions v-if="item">
       <v-spacer></v-spacer>
       <MetaChip :meta="item.meta"></MetaChip>
     </template>
     <v-divider></v-divider>
-    <v-card-text class="flex-grow-1">
+    <CenteredSpinner v-if="isPending" />
+    <PageErrors v-else-if="error" :error />
+    <v-card-text v-else-if="item" class="flex-grow-1">
       <v-row>
         <v-col>
           <v-list-item :title="item.comments" prepend-icon="mdi-comment-outline"> </v-list-item>
@@ -176,13 +172,17 @@
                       class="ma-1"
                     />
                   </v-list-item>
-                  <!-- <v-list-item title="Published in">
-                  <ArticleChip
-                    v-if="item.external.published_in"
-                    :article="item.external.published_in"
-                    class="ma-1"
-                  />
-                </v-list-item> -->
+                  <v-list-item
+                    title="Published in"
+                    :subtitle="item.external.published_in ? undefined : 'No registered references'"
+                    prepend-icon="mdi-newspaper-variant"
+                  >
+                    <ArticleChip
+                      v-for="article in item.external.published_in"
+                      :article
+                      class="ma-1"
+                    />
+                  </v-list-item>
                 </v-list>
               </v-card-text>
             </v-card>
@@ -244,34 +244,40 @@
       :edit="item.sampling"
       :event="item.event"
     />
-    <v-divider></v-divider>
+    <v-divider />
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { SequencesService } from '@/api'
 import { DateWithPrecision, ExtSeqOrigin } from '@/api/adapters'
+import { getSequenceOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 import OccurrenceSamplingCard from '@/components/occurrence/OccurrenceSamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
+import ArticleChip from '@/components/references/ArticleChip.vue'
 import GeneChip from '@/components/sequences/GeneChip.vue'
 import SeqRefChip from '@/components/sequences/SeqRefChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import MetaChip from '@/components/toolkit/MetaChip.vue'
-import { useFetchItem } from '@/composables/fetch_items'
-import { useClipboard, useScroll, useToggle } from '@vueuse/core'
-import { useTemplateRef } from 'vue'
+import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
+import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
+import { useUserStore } from '@/stores/user'
+import { useQuery } from '@tanstack/vue-query'
+import { useClipboard, useToggle } from '@vueuse/core'
+import { computed, useTemplateRef } from 'vue'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
 
-const { item, fetch } = useFetchItem(() => SequencesService.getSequence({ path: { code } }))
-
-item.value = await fetch()
+const { data: item, error, isPending } = useQuery(getSequenceOptions({ path: { code } }))
 
 const { copy } = useClipboard()
 const fasta = useTemplateRef('fasta-seq')
+
+const { isGranted, isOwner } = useUserStore()
+
+const canEdit = computed(() => item.value && (isOwner(item.value) || isGranted('Maintainer')))
 </script>
 
 <style scoped lang="scss"></style>

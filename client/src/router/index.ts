@@ -8,6 +8,9 @@ import { useGuards } from './guards'
 
 import routes, { accountRoutes } from './routes'
 import { navRouteDefinitions } from './nav'
+import { ComponentProps } from 'vue-component-type-helpers'
+import { VListItem } from 'vuetify/components'
+import { getOccurrenceDatasetOptions, getSiteDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
 
 export * from './nav'
 
@@ -16,12 +19,14 @@ export type RouteNavDefinition = {
   label: string
   icon: string
   granted?: UserRole
+  itemProps?: ComponentProps<typeof VListItem>
 }
 
 export type RouteDefinition = RouteRecordRaw & RouteNavDefinition
 
 
 type Route = RouteDefinition & { routes?: undefined }
+export type Divider = "divider"
 
 type RouteGroup = Readonly<RouteNavDefinition & { routes: RouteDefinition[] }>
 
@@ -68,14 +73,22 @@ function setupRouter(settings: InstanceSettings) {
         component: () => import("../views/location/SiteImportView.vue")
       }),
       {
-        path: "/datasets/:slug",
-        name: "dataset-item",
-        component: () => import('@/views/datasets/DatasetItemView.vue')
+        path: "/datasets/sites/:slug",
+        name: "site-dataset-item",
+        component: () => import('@/views/datasets/DatasetItemView.vue'),
+        props: route => ({ slug: route.params.slug, query: getSiteDatasetOptions }),
+      },
+      {
+        path: "/datasets/occurrences/:slug",
+        name: "occurrence-dataset-item",
+        component: () => import('@/views/datasets/DatasetItemView.vue'),
+        props: route => ({ slug: route.params.slug, query: getOccurrenceDatasetOptions }),
       },
       {
         path: "/sites/:code",
         name: "site-item",
-        component: () => import('@/views/location/SiteItemView.vue')
+        component: () => import('@/views/location/SiteItemView.vue'),
+        props: true
       },
       {
         path: "/bio-material/:code",
