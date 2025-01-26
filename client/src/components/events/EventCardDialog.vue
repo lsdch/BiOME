@@ -139,10 +139,10 @@ import PersonChip from '../people/PersonChip.vue'
 import CardDialog from '../toolkit/forms/CardDialog.vue'
 import AbioticParameterPicker from './AbioticParameterPicker.vue'
 import EventSpotting from './EventSpotting.vue'
-import ProgramChip from './ProgramChip.vue'
 import SamplingCard from './SamplingCard.vue'
 import SamplingFormDialog from './SamplingFormDialog.vue'
 import { AbioticMeasurementChip } from './AbioticMeasurementChip'
+import { ProgramChip } from './ProgramChip'
 
 const [samplingDialog, toggleSamplingDialog] = useToggle(false)
 const editingSampling = ref<Sampling>()
