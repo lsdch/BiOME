@@ -4,7 +4,7 @@
       title="Taxonomy"
       icon="mdi-family-tree"
       :togglable-search="smAndDown"
-      @reload="reload()"
+      @reload="refetch()"
     >
       <template #search>
         <v-container>
@@ -72,8 +72,11 @@
       <!-- INNER TREE -->
       <div class="taxonomy-tree">
         <v-progress-linear v-if="loading" class="loading" indeterminate />
+        <v-container v-if="error" style="grid-column: start / span end">
+          <v-alert type="error" icon="mdi-alert"> Failed to load taxonomy </v-alert>
+        </v-container>
         <FTaxaNestedList
-          v-if="filteredItems?.children?.length"
+          v-else-if="filteredItems?.children?.length"
           :items="filteredItems?.children"
           rank="Kingdom"
         />
@@ -117,11 +120,15 @@ import {
   TaxonRank,
   TaxonStatus
 } from '@/api'
+import { getTaxonomyOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { handleErrors } from '@/api/responses'
+import { useQuery } from '@tanstack/vue-query'
 import { refDebounced } from '@vueuse/core'
 import { useRouteHash } from '@vueuse/router'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useDisplay } from 'vuetify'
+import IconGBIF from '../icons/IconGBIF.vue'
+import TableToolbar from '../toolkit/tables/TableToolbar.vue'
 import {
   maxRankDisplay,
   scrollToTaxon,
@@ -129,8 +136,6 @@ import {
   useTaxonFoldState,
   useTaxonSelection
 } from './composables'
-import IconGBIF from '../icons/IconGBIF.vue'
-import TableToolbar from '../toolkit/tables/TableToolbar.vue'
 import { FTaxaNestedList } from './functionals'
 import StatusPicker from './StatusPicker.vue'
 import TaxonCard from './TaxonCard.vue'
@@ -170,10 +175,10 @@ const headers: Header[] = [
 
 const { toggleFold, isFolded, unfold } = useRankFoldState()
 
-const loading = ref(false)
-const items = ref<Taxonomy>()
+const { data: items, isPending: loading, error, suspense, refetch } = useQuery(getTaxonomyOptions())
+
 onMounted(async () => {
-  items.value = await fetch()
+  await suspense()
   nextTick(() => {
     if (taxonHash.value) scrollToTaxon(taxonHash.value.replace('#', ''))
   })
@@ -219,11 +224,7 @@ const filteredItems = computed(() => {
   }
 })
 
-async function reload() {
-  items.value = await fetch()
-}
-
-async function fetch(query?: GetTaxonomyData['query']) {
+async function fetchPartial(query: GetTaxonomyData['query']) {
   loading.value = true
   const taxonomy = await TaxonomyService.getTaxonomy({ query }).then(
     handleErrors((err) => console.error(err))
@@ -244,7 +245,7 @@ function find(subtree: Taxonomy, taxonID: string) {
 
 async function update(taxonID: string | undefined) {
   if (!taxonID) {
-    items.value = await fetch()
+    await refetch()
     return
   }
   if (!items.value) return
@@ -253,7 +254,7 @@ async function update(taxonID: string | undefined) {
     console.error('Failed to find taxon with ID: ', taxonID)
     return
   }
-  const subtree = await fetch({ identifier: taxonID })
+  const subtree = await fetchPartial({ identifier: taxonID })
   Object.assign(toUpdate, subtree)
 }
 
