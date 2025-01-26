@@ -11,7 +11,12 @@
       </div>
     </v-navigation-drawer>
     <div class="fill-height w-100 d-flex flex-column">
-      <TableToolbar title="Sites" icon="mdi-map-marker" :togglable-search="false">
+      <TableToolbar
+        title="Sites"
+        icon="mdi-map-marker"
+        :togglable-search="false"
+        @reload="refetch()"
+      >
         <template #search>
           <v-btn icon="mdi-menu" variant="tonal" v-if="xs" @click="toggleDrawer(true)" />
         </template>
@@ -23,7 +28,7 @@
             variant="tonal"
             @click="toggleCreate(true)"
           />
-          <SiteFormDialog v-model="createDialog" @success="(site) => sites.unshift(site)" />
+          <SiteFormDialog v-model="createDialog" @success="(site) => sites?.unshift(site)" />
 
           <v-btn
             text="Import sites"
@@ -34,46 +39,47 @@
           />
         </template>
       </TableToolbar>
-      <SitesMap ref="map" :items="sites" clustered :auto-fit="sites.length > 1">
-        <template #popup="{ item }">
-          <KeepAlive>
-            <SitePopup v-if="item" :item :options="{ keepInView: false, autoPan: false }" />
-          </KeepAlive>
-        </template>
-      </SitesMap>
+      <v-progress-linear v-if="isPending || isRefetching" indeterminate color="warning" />
+      <div class="fill-height w-100 position-relative">
+        <v-overlay
+          contained
+          :model-value="!isRefetching && !!error"
+          class="align-center justify-center"
+        >
+          <v-alert color="error" variant="elevated">Failed to load sampling sites</v-alert>
+        </v-overlay>
+        <SitesMap ref="map" :items="sites" clustered :auto-fit="(sites?.length ?? 0) > 1">
+          <template #popup="{ item }">
+            <KeepAlive>
+              <SitePopup v-if="item" :item :options="{ keepInView: false, autoPan: false }" />
+            </KeepAlive>
+          </template>
+        </SitesMap>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import SitesMap from '@/components/maps/SitesMap.vue'
-import { ref } from 'vue'
 
-import { LocationService } from '@/api'
-import SitePopup from '@/components/sites/SitePopup.vue'
+import { listSitesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import DatasetPicker from '@/components/datasets/DatasetPicker.vue'
-import { useToggle } from '@vueuse/core'
-import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
-import { useDisplay } from 'vuetify'
-import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
-import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
-import { LCircle } from '@vue-leaflet/vue-leaflet'
+import SitePopup from '@/components/sites/SitePopup.vue'
+import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
+import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
+import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
+import { useQuery } from '@tanstack/vue-query'
+import { useToggle } from '@vueuse/core'
+import { useDisplay } from 'vuetify'
 
 const { xs } = useDisplay()
 
 const [drawer, toggleDrawer] = useToggle(true)
 const [createDialog, toggleCreate] = useToggle(false)
 
-const sites = ref(
-  (await LocationService.listSites().then(({ data, error }) => {
-    if (error) {
-      console.error(error)
-      return []
-    }
-    return data
-  })) ?? []
-)
+const { data: sites, error, isPending, isRefetching, refetch } = useQuery(listSitesOptions())
 </script>
 
 <style lang="scss">
