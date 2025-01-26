@@ -1,11 +1,5 @@
 <template>
-  <v-card
-    v-if="item"
-    class="bg-surface fill-height w-100 d-flex flex-column"
-    :title="item.code"
-    flat
-    :rounded="0"
-  >
+  <v-card class="bg-surface fill-height w-100 d-flex flex-column" :title="code" flat :rounded="0">
     <template #prepend>
       <v-avatar variant="outlined">
         <v-icon icon="mdi-package-variant"></v-icon>
@@ -14,7 +8,7 @@
     <template #append>
       <v-btn color="primary" icon="mdi-pencil" variant="tonal" size="small" />
     </template>
-    <template #subtitle>
+    <template v-if="item" #subtitle>
       <v-chip
         class="mx-1"
         size="small"
@@ -44,20 +38,30 @@
         Nomenclatural type
       </v-chip>
     </template>
-    <template #actions>
+    <template v-if="item" #actions>
       <v-spacer></v-spacer>
       <MetaChip :meta="item.meta"></MetaChip>
     </template>
     <v-divider></v-divider>
-    <v-card-text class="flex-grow-1">
-      <v-row>
-        <v-col>
-          <v-list-item :title="item.comments" prepend-icon="mdi-comment-outline"> </v-list-item>
+    <CenteredSpinner v-if="isPending" height="100%" size="x-large" />
+    <v-card-text v-else-if="error">
+      <v-alert color="error" icon="mdi-alert">
+        Failed to retrieve bio material informations
+      </v-alert>
+    </v-card-text>
+    <v-card-text v-else-if="item" class="flex-grow-1">
+      <v-row v-if="item.comments">
+        <v-col cols="12">
+          <v-card flat>
+            <v-card-text>
+              {{ item.comments }}
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
       <v-row>
         <v-col cols="12" lg="6">
-          <v-col cols="12">
+          <div class="w-100 my-1">
             <v-card
               title="Identification"
               class="fill-height"
@@ -106,14 +110,14 @@
                 </div>
               </v-card-text>
             </v-card>
-          </v-col>
-          <v-col cols="12">
+          </div>
+          <div class="w-100 my-1">
             <OccurrenceSamplingCard :item @edit="toggleSamplingEdit(true)" />
-          </v-col>
+          </div>
         </v-col>
 
         <v-col cols="12" lg="6">
-          <v-col>
+          <div class="w-100 my-1">
             <v-card title="Content" prepend-icon="mdi-hexagon-multiple" class="fill-height">
               <template #append>
                 <v-tooltip
@@ -201,8 +205,8 @@
                 </template>
               </v-card-text>
             </v-card>
-          </v-col>
-          <v-col>
+          </div>
+          <div class="w-100 my-1">
             <v-card v-if="item.external" title="References" prepend-icon="mdi-newspaper-variant">
               <template #append>
                 <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small"></v-btn>
@@ -227,7 +231,7 @@
                 </v-list>
               </v-card-text>
             </v-card>
-          </v-col>
+          </div>
         </v-col>
       </v-row>
     </v-card-text>
@@ -248,8 +252,8 @@
 </template>
 
 <script setup lang="ts">
-import { SamplesService } from '@/api'
 import { DateWithPrecision, ExtSeqOrigin } from '@/api/adapters'
+import { getBioMaterialOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 import OccurrenceSamplingCard from '@/components/occurrence/OccurrenceSamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
@@ -257,7 +261,8 @@ import ArticleChip from '@/components/references/ArticleChip.vue'
 import GeneChip from '@/components/sequences/GeneChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import MetaChip from '@/components/toolkit/MetaChip.vue'
-import { useFetchItem } from '@/composables/fetch_items'
+import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
+import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { computed } from 'vue'
 
@@ -265,9 +270,7 @@ const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
 
-const { item, fetch } = useFetchItem(() => SamplesService.getBioMaterial({ path: { code } }))
-
-item.value = await fetch()
+const { data: item, error, isPending } = useQuery(getBioMaterialOptions({ path: { code } }))
 
 const hasContentDetails = computed(() => {
   switch (item.value?.category) {
