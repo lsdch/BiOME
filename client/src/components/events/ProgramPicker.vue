@@ -5,14 +5,16 @@
     item-title="label"
     item-subtitle="description"
     v-bind="$attrs"
+    :loading="isPending"
+    :error-messages="error?.detail"
   />
 </template>
 
 <script setup lang="ts">
-import { EventsService } from '@/api'
-import { useFetchItems } from '@/composables/fetch_items'
+import { listProgramsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
 
-const { items } = useFetchItems(EventsService.listPrograms)
+const { data: items, error, isPending } = useQuery(listProgramsOptions())
 </script>
 
 <style scoped lang="scss"></style>
