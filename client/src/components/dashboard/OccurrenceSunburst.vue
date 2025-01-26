@@ -37,38 +37,36 @@
         @click="toggleFullscreen()"
       ></v-btn>
     </template>
-    <!-- <v-card-text class="fill-height"> -->
-    <VChart class="chart" :option autoresize />
-    <!-- </v-card-text> -->
+    <CenteredSpinner v-if="isPending" :height="200" size="large" color="primary" />
+    <v-card-text v-else-if="error">
+      <v-alert color="error"> Failed to load occurrences </v-alert>
+    </v-card-text>
+    <VChart v-else class="chart" :option autoresize />
   </ActivableCardDialog>
 </template>
 
 <script setup lang="ts">
-import { OccurrencesService } from '@/api'
-import { Taxon, TaxonRank } from '@/api/adapters'
-import { useFetchItems } from '@/composables/fetch_items'
+import { OccurrenceOverviewItem, Taxon, TaxonRank } from '@/api/adapters'
+import { occurrenceOverviewOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { SunburstChart } from 'echarts/charts'
 import { TitleComponent, VisualMapComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { SVGRenderer } from 'echarts/renderers'
 import { ECBasicOption, VisualMapComponentOption } from 'echarts/types/dist/shared'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import VChart from 'vue-echarts'
 import ActivableCardDialog from '../toolkit/ui/ActivableCardDialog.vue'
+import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import TaxonRankSlider from './TaxonRankSlider.vue'
 
 use([SVGRenderer, TitleComponent, SunburstChart, VisualMapComponent])
 
 const [fullscreen, toggleFullscreen] = useToggle(false)
 
-const { items, fetch, loading } = useFetchItems(OccurrencesService.occurrenceOverview, {
-  immediate: true
-})
+const { data: items, error, isPending } = useQuery(occurrenceOverviewOptions())
 
-onMounted(async () => {
-  items.value = await fetch()
-})
 const settings = ref<{
   scope: TaxonRank[]
   totalByClade: boolean
@@ -87,11 +85,11 @@ type SunburstData = {
 type SunburstIndex = Record<string, SunburstData>
 
 const data = ref<SunburstData[]>([])
-watch(items, () => (data.value = buildPlotData()))
-watch(settings, () => (data.value = buildPlotData()), { deep: true })
+watch(items, (items) => (data.value = items ? buildPlotData(items) : []))
+watch(settings, () => (data.value = buildPlotData(items.value ?? [])), { deep: true })
 
-function buildPlotData() {
-  const itemsByName = items.value.reduce<SunburstIndex>(
+function buildPlotData(items: OccurrenceOverviewItem[]) {
+  const itemsByName = items.reduce<SunburstIndex>(
     (acc, { name, occurrences, parent_name, rank }) => {
       acc[name] = acc[name] ?? {
         name: Taxon.shortName(name),
