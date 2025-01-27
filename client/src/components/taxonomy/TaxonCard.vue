@@ -1,6 +1,6 @@
 <template>
   <v-bottom-sheet v-model="open" :inset="mdAndUp" content-class="rounded-0">
-    <v-card :rounded="false" :title="taxon.name" :subtitle="taxon.authorship">
+    <v-card :rounded="false" :title="taxon.name" :subtitle="taxon.authorship" :loading="isFetching">
       <template #prepend>
         <LinkIconGBIF v-if="taxon.GBIF_ID" :GBIF_ID="taxon.GBIF_ID" variant="text" />
         <FTaxonStatusIndicator v-else :status="taxon.status" />
@@ -124,6 +124,7 @@
           <v-chip color="primary" :text="`${taxon.children_count}`" :rounded="100" size="small" />
         </v-list-subheader>
         <div class="descendants">
+          <v-alert v-if="error" color="error"> Failed to retrieve descendants list </v-alert>
           <v-skeleton-loader type="chip@5">
             <v-chip
               v-for="c in relatives?.children"
@@ -166,20 +167,14 @@
 </template>
 
 <script setup lang="ts">
-import {
-  $TaxonInput,
-  Taxon,
-  TaxonomyService,
-  TaxonRank,
-  TaxonWithLineage,
-  TaxonWithRelatives
-} from '@/api'
-import { handleErrors } from '@/api/responses'
+import { $TaxonInput, Taxon, TaxonomyService, TaxonRank, TaxonWithRelatives } from '@/api'
+import { getTaxonOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useAppConfirmDialog } from '@/composables/confirm_dialog'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
+import { useQuery } from '@tanstack/vue-query'
 import moment from 'moment'
-import { ref, watch } from 'vue'
+import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import ActivableField from '../toolkit/forms/ActivableField.vue'
 import { useSchema } from '../toolkit/forms/schema'
@@ -197,32 +192,15 @@ const open = defineModel<boolean>('open')
 
 const { schema } = useSchema($TaxonInput)
 
-const relatives = ref<TaxonWithLineage>()
-const loading = ref(false)
-
 const emit = defineEmits<{
   'add-child': [parent: Taxon]
   deleted: [taxon: TaxonWithRelatives]
   navigate: [target: Taxon]
 }>()
 
-watch(
-  taxon,
-  async (taxon) => {
-    relatives.value = undefined
-    relatives.value = await fetch(taxon)
-  },
-  { immediate: true }
-)
+const code = computed(() => taxon.value.code)
 
-async function fetch(taxon: Taxon) {
-  loading.value = true
-  const data = await TaxonomyService.getTaxon({ path: { code: taxon.code } }).then(
-    handleErrors((err) => console.error('Failed to fetch taxon', err))
-  )
-  loading.value = false
-  return data
-}
+const { data: relatives, error, isFetching } = useQuery(getTaxonOptions({ path: { code: code } }))
 
 const { askConfirm } = useAppConfirmDialog()
 const { feedback } = useFeedback()
