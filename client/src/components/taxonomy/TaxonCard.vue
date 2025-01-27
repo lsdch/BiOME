@@ -151,6 +151,7 @@
             color="error"
             text="Delete"
             prepend-icon="mdi-delete-outline"
+            :loading="isDeleting"
             @click="deleteTaxon(taxon)"
           />
           <v-btn
@@ -167,12 +168,12 @@
 </template>
 
 <script setup lang="ts">
-import { $TaxonInput, Taxon, TaxonomyService, TaxonRank, TaxonWithRelatives } from '@/api'
-import { getTaxonOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { $TaxonInput, Taxon, TaxonRank, TaxonWithRelatives } from '@/api'
+import { deleteTaxonMutation, getTaxonOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useAppConfirmDialog } from '@/composables/confirm_dialog'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import moment from 'moment'
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
@@ -205,20 +206,29 @@ const { data: relatives, error, isFetching } = useQuery(getTaxonOptions({ path: 
 const { askConfirm } = useAppConfirmDialog()
 const { feedback } = useFeedback()
 
+const { mutate: delTaxon, isPending: isDeleting } = useMutation({
+  ...deleteTaxonMutation(),
+  onSuccess: (deleted) => {
+    emit('deleted', deleted)
+    feedback({
+      type: 'success',
+      message: `Taxon ${deleted.name} was successfully deleted along with all of its descendants`
+    })
+    open.value = false
+  },
+  onError: (error) => {
+    feedback({ type: 'error', message: 'Failed to delete taxon' })
+    console.error(error)
+  }
+})
+
 async function deleteTaxon(taxon: Taxon) {
   askConfirm({
     title: `Delete taxon ${taxon.name}?`,
     message: 'All descendants will also be deleted'
   }).then(async ({ isCanceled }) => {
     if (isCanceled) return
-    const { data, error } = await TaxonomyService.deleteTaxon({ path: { code: taxon.code } })
-    if (error !== undefined) {
-      feedback({ type: 'error', message: 'Failed to delete taxon' })
-      return
-    }
-    emit('deleted', data)
-    open.value = false
-    feedback({ type: 'success', message: `Taxon ${taxon.name} was successfully deleted` })
+    delTaxon({ path: { code: taxon.code } })
   })
 }
 </script>
