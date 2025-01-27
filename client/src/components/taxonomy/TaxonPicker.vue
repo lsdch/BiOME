@@ -1,6 +1,5 @@
 <template>
   <v-autocomplete
-    v-model="model"
     v-model:search="search"
     no-filter
     :label
@@ -13,6 +12,7 @@
     auto-select-first
     placeholder="Enter search terms..."
     v-bind="$attrs"
+    :error-messages="error?.detail"
   >
     <template #item="{ props, item }">
       <v-list-item v-bind="props" :title="item.raw.obj.name" class="fuzzy-search-item">
@@ -34,13 +34,13 @@
 </template>
 
 <script setup lang="ts">
-import { TaxonomyService, TaxonRank, TaxonWithParentRef } from '@/api'
-import { useFetchItems } from '@/composables/fetch_items'
+import { TaxonRank, TaxonWithParentRef } from '@/api'
+import { listTaxaOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { KeysDeclaration, useFuzzyItemsFilter } from '@/composables/fuzzy_search'
+import { useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
 import { FTaxonStatusIndicator } from './functionals'
 
-const model = defineModel<any>()
 const {
   label = 'Taxon',
   threshold = 0.7,
@@ -54,11 +54,7 @@ const {
 }>()
 
 const search = ref('')
-
-const { items, loading, error } = useFetchItems(() =>
-  // FIXME : not reactive wrt ranks prop
-  TaxonomyService.listTaxa({ query: { ranks } })
-)
+const { data: items, isPending: loading, error } = useQuery(listTaxaOptions({ query: { ranks } }))
 
 const keys: KeysDeclaration<TaxonWithParentRef> = ['name', 'rank', 'status']
 
