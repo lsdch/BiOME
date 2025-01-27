@@ -12,6 +12,7 @@
     :loading="loading"
     :item-value
     v-bind="$attrs"
+    :error-messages="error?.detail"
   >
     <template v-for="(_, name) in $slots" #[name]="slotData">
       <slot :name="name" v-bind="slotData" />
@@ -30,8 +31,9 @@
 </template>
 
 <script setup lang="ts" generic="ModelValue extends unknown | unknown[] | null | undefined">
-import { PeopleService, Person, UserRole } from '@/api'
-import { useFetchItems } from '@/composables/fetch_items'
+import { Person, UserRole } from '@/api'
+import { listPersonsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 
 const model = defineModel<ModelValue>()
@@ -44,9 +46,10 @@ const { restrict } = defineProps<{
   restrict?: 'users' | 'unregistered' | UserRole
 }>()
 
-const { items: allPersons, loading } = useFetchItems(PeopleService.listPersons)
+const { data: allPersons, isPending: loading, error } = useQuery(listPersonsOptions())
 
 const items = computed(() => {
+  if (!allPersons.value) return []
   switch (restrict) {
     case undefined:
       return allPersons.value
