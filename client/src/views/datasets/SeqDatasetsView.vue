@@ -2,7 +2,7 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="DatasetsService.listSequenceDatasets"
+    :fetch-items="listSequenceDatasetsOptions"
     entity-name="Sequence dataset"
     :toolbar="{ title: 'Sequence datasets', icon: 'mdi-crosshairs-gps' }"
   >
@@ -16,7 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { DatasetsService, SequenceDataset } from '@/api'
+import { SequenceDataset } from '@/api'
+import { listSequenceDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<SequenceDataset>[] = [

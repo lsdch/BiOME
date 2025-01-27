@@ -4,8 +4,10 @@
     entity-name="Bio material"
     :headers
     :toolbar="{ title: 'Bio material', icon: 'mdi-package-variant' }"
-    :fetch-items="SamplesService.listBioMaterial"
-    :delete="({ code }: BioMaterial) => SamplesService.deleteBioMaterial({ path: { code } })"
+    :fetch-items="listBioMaterialOptions"
+    :delete="
+      ({ code }: BioMaterialWithDetails) => SamplesService.deleteBioMaterial({ path: { code } })
+    "
     append-actions
     v-model:search="search"
     :filter
@@ -192,7 +194,8 @@
 
 <script setup lang="ts">
 import { BioMaterial, PersonInner, SamplesService, SiteInfo, Taxon } from '@/api'
-import { DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
+import { BioMaterialWithDetails, DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
+import { listBioMaterialOptions } from '@/api/gen/@tanstack/vue-query.gen'
 // import BioMaterialFormDialog from '@/components/occurrence/BioMaterialFormDialog.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'
@@ -238,7 +241,7 @@ const filter = computed(() => {
   }
 })
 
-const headers: CRUDTableHeader<BioMaterial>[] = [
+const headers: CRUDTableHeader<BioMaterialWithDetails>[] = [
   {
     children: [{ key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } }]
   },

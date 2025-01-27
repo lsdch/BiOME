@@ -1,11 +1,13 @@
 import { ErrorModel } from "@/api"
 import { useAppConfirmDialog } from "@/composables/confirm_dialog"
 import { useUserStore } from "@/stores/user"
-import { RequestResult } from "@hey-api/client-fetch"
+import { OptionsLegacyParser, RequestResult } from "@hey-api/client-fetch"
 import { StatusCodes } from "http-status-codes"
-import { ComputedRef, MaybeRef, ModelRef, computed, onMounted, ref, triggerRef } from "vue"
+import { ComputedRef, MaybeRef, ModelRef, Ref, computed, onMounted, ref, triggerRef, watch } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
+import { listAbioticParametersQueryKey } from "@/api/gen/@tanstack/vue-query.gen"
+import { QueryObserverResult, RefetchOptions, UndefinedInitialQueryOptions, useQuery } from "@tanstack/vue-query"
 
 
 
@@ -36,7 +38,8 @@ export type ToolbarProps = {
   onReload?: Function
 }
 
-export type TableProps<ItemType extends {}> = {
+
+export type TableProps<ItemType extends {}, ItemsQueryData extends {}> = {
   /**
    * Entity name to display as title
    */
@@ -56,7 +59,7 @@ export type TableProps<ItemType extends {}> = {
   /**
    * API call to populate table items
    */
-  fetchItems?: () => RequestResult<ItemType[], ErrorModel, false>
+  fetchItems?: (options?: OptionsLegacyParser<ItemsQueryData>) => UndefinedInitialQueryOptions<ItemType[], ErrorModel, ItemType[], any>
   /**
    * API call to delete an item
    */
@@ -81,9 +84,9 @@ type FormSlotScope<ItemType extends { id: string }> = {
 }
 
 
-export function useTable<ItemType extends { id: string }>(
+export function useTable<ItemType extends { id: string }, ItemsQueryData extends {}>(
   items: ModelRef<ItemType[]>,
-  props: TableProps<ItemType>,
+  props: TableProps<ItemType, ItemsQueryData>,
   emit: TableEmits<ItemType>
 ) {
 
@@ -104,23 +107,37 @@ export function useTable<ItemType extends { id: string }>(
     })
   }) as ComputedRef<DataTableHeader[]>
 
-  const loading = ref(props.fetchItems !== undefined)
-  const loadingFailed = ref(false)
-  async function loadItems() {
-    if (props.fetchItems) {
-      loading.value = true
-      const { data, error } = await props.fetchItems()
-      if (error != undefined) {
-        items.value = []
-        loadingFailed.value = true
-      } else {
-        items.value = data
-      }
-      loading.value = false
-    }
-  }
 
-  onMounted(loadItems)
+  const { data, error, isFetching, isSuccess, refetch } = props.fetchItems
+    ? useQuery({ ...props.fetchItems(), enabled: () => !items.value.length, initialData: [] })
+    : {
+      data: ref<ItemType[]>([]) as Ref<ItemType[]>,
+      error: ref<ErrorModel>(),
+      isFetching: ref(false),
+      isSuccess: ref(true),
+      refetch: () => new Promise<void>((resolve, reject) => {
+        return resolve()
+      })
+    }
+
+  watch(data, (data) => items.value = data)
+
+  // const loadingFailed = ref(false)
+  // async function loadItems() {
+  //   if (props.fetchItems) {
+  //     loading.value = true
+  //     const { data, error } = await props.fetchItems()
+  //     if (error != undefined) {
+  //       items.value = []
+  //       loadingFailed.value = true
+  //     } else {
+  //       items.value = data
+  //     }
+  //     loading.value = false
+  //   }
+  // }
+
+  // onMounted(loadItems)
 
 
   const actions = {
@@ -238,7 +255,7 @@ export function useTable<ItemType extends { id: string }>(
         triggerRef(items);
         feedback.value.show('Item successfully deleted.', 'success')
         if (props.reloadOnDelete) {
-          await loadItems()
+          await refetch()
         }
         return { item, index }
       }
@@ -264,6 +281,8 @@ export function useTable<ItemType extends { id: string }>(
 
   return {
     currentUser, feedback, actions, form, processedHeaders,
-    loading, loadItems, loadingFailed,
+    loading: isFetching,
+    loadItems: refetch,
+    error,
   }
 }

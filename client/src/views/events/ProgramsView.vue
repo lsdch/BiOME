@@ -7,7 +7,7 @@
       title: 'Programs',
       icon: 'mdi-notebook'
     }"
-    :fetch-items="EventsService.listPrograms"
+    :fetch-items="listProgramsOptions"
     :delete="({ code }: Program) => EventsService.deleteProgram({ path: { code } })"
     appendActions
   >
@@ -43,6 +43,7 @@
 
 <script setup lang="ts">
 import { EventsService, Program } from '@/api'
+import { listProgramsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ProgramFormDialog from '@/components/events/ProgramFormDialog.vue'
 import InstitutionKindChip from '@/components/people/InstitutionKindChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
@@ -50,7 +51,7 @@ import { useDisplay } from 'vuetify'
 
 const { xs } = useDisplay()
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<Program>[] = [
   { key: 'label', title: 'Label' },
   { key: 'code', title: 'Code', cellProps: { class: 'text-overline' } },
   { key: 'funding_agencies', title: 'Funding agencies' },

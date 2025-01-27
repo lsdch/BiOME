@@ -2,7 +2,7 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="DatasetsService.listOccurrenceDatasets"
+    :fetch-items="listOccurrenceDatasetsOptions"
     entity-name="Occurrence dataset"
     :toolbar="{ title: 'Occurrence datasets', icon: 'mdi-crosshairs-gps' }"
   >
@@ -16,7 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { DatasetsService, OccurrenceDataset } from '@/api'
+import { OccurrenceDataset } from '@/api'
+import { listOccurrenceDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<OccurrenceDataset>[] = [

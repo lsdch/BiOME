@@ -2,8 +2,8 @@
   <CRUDTable
     :headers="headers"
     density="compact"
+    :fetch-items="listPersonsOptions"
     :delete="(person: Person) => PeopleService.deletePerson({ path: { id: person.id } })"
-    :fetch-items="() => PeopleService.listPersons()"
     :filter
     v-model:search="filters"
     entityName="Person"
@@ -92,6 +92,7 @@ import InstitutionKindChip from './InstitutionKindChip.vue'
 import type { AccountStatus, PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
 import PersonFormDialog from './PersonFormDialog.vue'
+import { listPersonsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 
 const { xs, smAndUp } = useDisplay()
 

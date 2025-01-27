@@ -4,7 +4,7 @@
     :headers
     entity-name="Abiotic parameter"
     :toolbar="{ title: 'Abiotic parameters', icon: 'mdi-gauge' }"
-    :fetch-items="SamplingService.listAbioticParameters"
+    :fetch-items="listAbioticParametersOptions"
     :delete="
       ({ code }: AbioticParameter) => SamplingService.deleteAbioticParameter({ path: { code } })
     "
@@ -26,10 +26,11 @@
 
 <script setup lang="ts">
 import { AbioticParameter, SamplingService } from '@/api'
-import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { listAbioticParametersOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import AbioticParameterFormDialog from '@/components/events/AbioticParameterFormDialog.vue'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<AbioticParameter>[] = [
   { key: 'code', title: 'Code', cellProps: { class: 'text-overline' } },
   { key: 'label', title: 'Label' },
   { key: 'unit', title: 'Unit' }

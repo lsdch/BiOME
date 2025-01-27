@@ -332,13 +332,6 @@ export const $BibSearchResults = {
 export const $BioMaterial = {
   additionalProperties: false,
   properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/BioMaterial.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
     category: {
       $ref: '#/components/schemas/OccurrenceCategory'
     },
@@ -2838,13 +2831,6 @@ export const $OccurrenceWithCategory = {
 export const $OptionalBioMaterial = {
   additionalProperties: false,
   properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/BioMaterial.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
     category: {
       $ref: '#/components/schemas/OccurrenceCategory'
     },

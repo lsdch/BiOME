@@ -2,7 +2,7 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="ReferencesService.listArticles"
+    :fetch-items="listArticlesOptions"
     :delete="({ code }: Article) => ReferencesService.deleteArticle({ path: { code } })"
     entity-name="Article"
     :toolbar="{ icon: 'mdi-newspaper-variant-multiple', title: 'Bibliography' }"
@@ -89,6 +89,7 @@
 <script setup lang="ts">
 import { ReferencesService } from '@/api'
 import { Article } from '@/api/adapters'
+import { listArticlesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ArticleFormDialog from '@/components/references/ArticleFormDialog.vue'
 import ArticlesImportDialog from '@/components/references/ArticlesImportDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'

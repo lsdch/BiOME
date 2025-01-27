@@ -2,7 +2,7 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="SequencesService.listSeqDbs"
+    :fetch-items="listSeqDbsOptions"
     entity-name="Seq. DB"
     :toolbar="{
       title: 'Sequence databases',
@@ -39,7 +39,8 @@
 </template>
 
 <script setup lang="ts">
-import { SeqDb, SequencesService } from '@/api'
+import { SeqDb } from '@/api'
+import { listSeqDbsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import SeqDBFormDialog from '@/components/sequences/SeqDBFormDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 

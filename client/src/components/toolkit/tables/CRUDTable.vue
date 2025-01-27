@@ -95,7 +95,13 @@
         </TableToolbar>
       </template>
 
-      <template #body.prepend>
+      <template #body.prepend="{ columns }">
+        <tr v-if="!loading && error">
+          <td :colspan="columns.length">
+            <v-alert color="error" icon="mdi-alert" class="my-3">Failed to retrieve items</v-alert>
+          </td>
+        </tr>
+
         <v-menu
           id="search-menu"
           v-model="menu"
@@ -242,6 +248,7 @@
   lang="ts"
   generic="
     ItemType extends { id: string; meta?: Meta },
+    ItemsQueryData extends {},
     Filters extends { owned?: boolean; term?: string }
   "
 >
@@ -260,7 +267,7 @@ import { hasSlotContent } from '../vue-utils'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
 
-type Props = TableProps<ItemType> & {
+type Props = TableProps<ItemType, ItemsQueryData> & {
   filter?: (item: ItemType) => boolean
   filterKeys?: string | string[]
   mobile?: boolean
@@ -281,11 +288,8 @@ const emit = defineEmits<{
   itemEdited: [item: ItemType, index: number]
 }>()
 
-const { currentUser, actions, feedback, form, processedHeaders, loading, loadItems } = useTable(
-  items,
-  props,
-  emit
-)
+const { currentUser, actions, feedback, form, processedHeaders, loading, loadItems, error } =
+  useTable(items, props, emit)
 
 const [menu, toggleMenu] = useToggle(false)
 

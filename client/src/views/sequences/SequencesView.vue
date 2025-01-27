@@ -7,7 +7,7 @@
       icon: 'mdi-dna'
     }"
     entity-name="Sequence"
-    :fetch-items="SequencesService.listSequences"
+    :fetch-items="listSequencesOptions"
     :delete="({ code }: Sequence) => SequencesService.deleteSequence({ path: { code } })"
     :mobile="xs"
     :filter
@@ -165,6 +165,7 @@
 <script setup lang="ts">
 import { BioMaterial, Gene, PersonInner, Sequence, SequencesService, SiteInfo, Taxon } from '@/api'
 import { DateWithPrecision, ExtSeqOrigin, OccurrenceCategory } from '@/api/adapters'
+import { listSequencesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import PersonChip from '@/components/people/PersonChip.vue'
 import GeneChip from '@/components/sequences/GeneChip.vue'
 import GenePicker from '@/components/sequences/GenePicker.vue'

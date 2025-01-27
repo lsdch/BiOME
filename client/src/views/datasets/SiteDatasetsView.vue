@@ -2,7 +2,7 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="DatasetsService.listSiteDatasets"
+    :fetch-items="listSiteDatasetsOptions"
     entity-name="Site dataset"
     :toolbar="{ title: 'Site datasets', icon: 'mdi-map-marker-multiple' }"
   >
@@ -16,7 +16,8 @@
 </template>
 
 <script setup lang="ts">
-import { DatasetsService, SiteDataset } from '@/api'
+import { SiteDataset } from '@/api'
+import { listSiteDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<SiteDataset>[] = [

@@ -4,7 +4,7 @@
     :headers
     entity-name="Sampling method"
     :toolbar="{ title: 'Sampling methods', icon: 'mdi-hook' }"
-    :fetch-items="SamplingService.listSamplingMethods"
+    :fetch-items="listSamplingMethodsOptions"
     appendActions
   >
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
@@ -19,11 +19,12 @@
 </template>
 
 <script setup lang="ts">
-import { SamplingService } from '@/api'
-import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { SamplingMethod } from '@/api'
+import { listSamplingMethodsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import SamplingMethodFormDialog from '@/components/events/SamplingMethodFormDialog.vue'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<SamplingMethod>[] = [
   { key: 'code', title: 'Code', cellProps: { class: 'text-overline' } },
   { key: 'label', title: 'Label' }
 ]

@@ -168,7 +168,7 @@ func ListBioMaterials(db edgedb.Executor) ([]BioMaterialWithDetails, error) {
 	return items, err
 }
 
-func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterial, err error) {
+func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterialWithDetails, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 		with module occurrence
@@ -194,6 +194,8 @@ func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterial, er
 				seq_consensus := (
 					[is ExternalBioMat].seq_consensus ?? [is InternalBioMat].seq_consensus
 				) { * },
+				event := .sampling.event { *, site: {name, code} },
+				identification: { **, identified_by: { * } },
         external:= [is occurrence::ExternalBioMat]{
           original_link,
           in_collection,

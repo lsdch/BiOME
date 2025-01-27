@@ -127,10 +127,6 @@ export type BibSearchResults = {
 }
 
 export type BioMaterial = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
   category: OccurrenceCategory
   code: string
   code_history?: Array<CodeHistory>
@@ -1027,10 +1023,6 @@ export type OccurrenceWithCategory = {
 }
 
 export type OptionalBioMaterial = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
   category: OccurrenceCategory
   code: string
   code_history?: Array<CodeHistory>
@@ -2810,7 +2802,7 @@ export type DeleteBioMaterialData = {
   }
 }
 
-export type DeleteBioMaterialResponse = BioMaterial
+export type DeleteBioMaterialResponse = BioMaterialWithDetails
 
 export type DeleteBioMaterialError = ErrorModel
 
@@ -4504,7 +4496,7 @@ export type DeleteBioMaterialResponseTransformer = (data: any) => Promise<Delete
 export const DeleteBioMaterialResponseTransformer: DeleteBioMaterialResponseTransformer = async (
   data
 ) => {
-  BioMaterialModelResponseTransformer(data)
+  BioMaterialWithDetailsModelResponseTransformer(data)
   return data
 }
 
