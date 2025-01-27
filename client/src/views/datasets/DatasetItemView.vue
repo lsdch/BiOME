@@ -69,8 +69,8 @@
           <div class="flex-grow-1">
             <DatasetTabs :dataset flat />
           </div>
+          <v-divider />
         </div>
-        <v-divider />
       </v-card>
     </v-sheet>
 
