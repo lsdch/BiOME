@@ -2,12 +2,13 @@
   <v-autocomplete
     label="Institutions (optional)"
     v-model="model"
-    :items
+    :items="filteredItems"
     item-color="primary"
     :chips
     :closable-chips
     :multiple
     :loading
+    :error-messages="error?.detail"
     :item-props="({ code, name }: Institution) => ({ title: code, subtitle: name })"
     :item-value
     :return-object
@@ -33,13 +34,13 @@
 </template>
 
 <script setup lang="ts">
-import { Institution, InstitutionKind, PeopleService } from '@/api'
-import { handleErrors } from '@/api/responses'
-import { useToggle } from '@vueuse/core'
-import { onMounted, ref } from 'vue'
+import { Institution, InstitutionKind } from '@/api'
+import { listInstitutionsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
+import { computed } from 'vue'
 import InstitutionKindChip from './InstitutionKindChip.vue'
 
-const props = defineProps<{
+const { kinds } = defineProps<{
   multiple?: boolean
   chips?: boolean
   closableChips?: boolean
@@ -50,19 +51,11 @@ const props = defineProps<{
 
 const model = defineModel<any>()
 
-const items = ref<Institution[]>([])
+const { data: items, isPending: loading, error } = useQuery(listInstitutionsOptions())
 
-onMounted(fetch)
-
-const [loading, toggleLoading] = useToggle(true)
-async function fetch() {
-  toggleLoading(true)
-  const data = await PeopleService.listInstitutions().then(
-    handleErrors((err) => console.error('Failed to fetch institutions: ', err))
-  )
-  items.value = props.kinds ? data.filter(({ kind }) => props.kinds?.includes(kind)) : data
-  toggleLoading(false)
-}
+const filteredItems = computed(() =>
+  kinds ? items.value?.filter(({ kind }) => kinds?.includes(kind)) : items.value
+)
 </script>
 
 <style scoped></style>
