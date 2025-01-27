@@ -153,7 +153,7 @@ import { Errors, indexErrors } from '../toolkit/validation'
 import SiteFormDialog from './SiteFormDialogLegacy.vue'
 import SiteImportDialog, { SiteRecord } from './SiteImportDialog.vue'
 import SiteImportSettingsDialog from './SiteImportSettingsDialog.vue'
-import SiteStatusIcon from './SiteStatusIcon.vue'
+import SiteStatusIcon from './SiteStatusIcon'
 import SiteTableExpandedRow from './SiteTableExpandedRow.vue'
 import SitesMapPreview from './SitesMapPreview.vue'
 

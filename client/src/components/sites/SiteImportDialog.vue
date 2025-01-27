@@ -47,7 +47,7 @@ import ParserOptions from '../toolkit/import/ParserOptions.vue'
 import SiteTableExpandedRow from './SiteTableExpandedRow.vue'
 
 import SiteImportSettings, { ImportSettings } from './SiteImportSettings.vue'
-import SiteStatusIcon from './SiteStatusIcon.vue'
+import SiteStatusIcon from './SiteStatusIcon'
 import { useDisplay } from 'vuetify'
 
 const { sm } = useDisplay()
