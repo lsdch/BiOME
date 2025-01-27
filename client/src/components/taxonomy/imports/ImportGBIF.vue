@@ -41,30 +41,28 @@
 <script setup lang="ts">
 import moment from 'moment'
 
-import { onMounted, ref, watch } from 'vue'
+import { ref, watch } from 'vue'
 
-import { Taxon, TaxonomyGbifService } from '@/api'
-import { handleErrors } from '@/api/responses'
+import { listAnchorsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import AnchorTaxonCard from '@/components/taxonomy/imports/AnchorTaxonCard.vue'
 import RootTaxonPicker from '@/components/taxonomy/imports/AnchorTaxonPicker.vue'
 import type { ImportProcess } from '@/components/taxonomy/imports/ImportTaxonCard.vue'
 import ImportTaxonCard from '@/components/taxonomy/imports/ImportTaxonCard.vue'
+import { useQuery } from '@tanstack/vue-query'
 import { useEventSource } from '@vueuse/core'
 import { onBeforeRouteLeave } from 'vue-router'
 
 const activities = ref<ImportProcess[]>([])
-const anchors = ref<Taxon[]>([])
-const loading = ref(false)
 
-async function updateAnchors() {
-  loading.value = true
-  anchors.value = await TaxonomyGbifService.listAnchors().then(
-    handleErrors((err) => console.error('Failed to fetch taxonomy anchors', err))
-  )
-  loading.value = false
-}
-
-onMounted(updateAnchors)
+const {
+  data: anchors,
+  error,
+  isFetching: loading,
+  refetch
+} = useQuery({
+  ...listAnchorsOptions(),
+  initialData: []
+})
 
 function updateElapsedTime() {
   activities.value.map((progress) => {
@@ -88,7 +86,7 @@ watch(data, (data) => {
   )
   updateElapsedTime()
   if (activities.value.filter(({ done, error }) => done && !error).length > 0) {
-    updateAnchors()
+    refetch()
   }
 })
 
