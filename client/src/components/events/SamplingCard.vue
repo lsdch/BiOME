@@ -10,6 +10,7 @@
         icon="mdi-delete"
         size="small"
         variant="tonal"
+        :loading="isPending"
         @click="deleteSampling"
       />
       <v-btn
@@ -23,7 +24,7 @@
     </template>
 
     <v-list density="compact">
-      <v-divider></v-divider>
+      <v-divider />
       <v-list-item title="Samples" prepend-icon="mdi-package-variant">
         <v-chip
           v-for="sample in sampling.samples"
@@ -32,17 +33,18 @@
           class="ma-1"
         />
       </v-list-item>
-      <v-divider></v-divider>
+      <v-divider />
       <SamplingListItems :sampling />
     </v-list>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { Sampling, SamplingService } from '@/api'
+import { Sampling } from '@/api'
+import { deleteSamplingMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import { useAppConfirmDialog } from '@/composables/confirm_dialog'
 import { useFeedback } from '@/stores/feedback'
-import { Duration } from 'luxon'
+import { useMutation } from '@tanstack/vue-query'
 import SamplingListItems from './SamplingListItems.vue'
 
 const { sampling } = defineProps<{ sampling: Sampling; cornerTag: string }>()
@@ -54,20 +56,25 @@ const emit = defineEmits<{
 const { askConfirm } = useAppConfirmDialog()
 const { feedback } = useFeedback()
 
+const { mutate, isPending } = useMutation({
+  ...deleteSamplingMutation(),
+  onSuccess: (deleted) => emit('deleted', deleted),
+  onError: (error) => {
+    if (error.status === 404) feedback({ message: 'Sampling does not exist', type: 'error' })
+    else {
+      feedback({ message: 'Failed to delete sampling', type: 'error' })
+      console.error(error)
+    }
+  }
+})
+
 async function deleteSampling() {
   return askConfirm({
     title: 'Delete sampling action ?',
     message: 'All derived samples will be deleted as well for the database.'
-  }).then(({ isCanceled }) => {
+  }).then(async ({ isCanceled }) => {
     if (isCanceled) return
-    return SamplingService.deleteSampling({ path: { id: sampling.id } }).then(({ data, error }) => {
-      if (!error) emit('deleted', data)
-      else if (error.status === 404) feedback({ message: 'Sampling does not exist', type: 'error' })
-      else {
-        feedback({ message: 'Failed to delete sampling', type: 'error' })
-        console.error(error)
-      }
-    })
+    mutate({ path: { id: sampling.id } })
   })
 }
 </script>
