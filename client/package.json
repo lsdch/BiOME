@@ -1,10 +1,14 @@
 {
-  "name": "proto",
+  "name": "@biome/client",
+  "repository": {
+    "type": "git",
+    "url": "git+github.com:lsdch/BiOME.git"
+  },
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=20.0.0 <21.0.0"
+    "node": ">=22.0.0 <23.0.0"
   },
   "scripts": {
     "dev": "pnpm run --silent gen-client && vite",

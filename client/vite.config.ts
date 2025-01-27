@@ -1,13 +1,11 @@
 import { fileURLToPath, URL } from 'node:url'
 
-import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vuetify from 'vite-plugin-vuetify'
 import vueJsx from '@vitejs/plugin-vue-jsx'
-import mkcert from "vite-plugin-mkcert"
-import { watchAndRun } from 'vite-plugin-watch-and-run'
-import path from 'path'
 import { exec } from 'node:child_process'
+import { defineConfig } from 'vite'
+import mkcert from "vite-plugin-mkcert"
+import vuetify from 'vite-plugin-vuetify'
 
 // https://vitejs.dev/config/
 export default defineConfig({
