@@ -5,7 +5,10 @@
     entity-name="Fixative"
     :toolbar="{ title: 'Fixatives', icon: 'mdi-snowflake' }"
     :fetch-items="listFixativesOptions"
-    :delete="({ code }: Fixative) => SamplingService.deleteFixative({ path: { code } })"
+    :delete="{
+      mutation: deleteFixativeMutation,
+      params: ({ code }: Fixative) => ({ path: { code } })
+    }"
     appendActions
   >
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
@@ -21,7 +24,7 @@
 
 <script setup lang="ts">
 import { Fixative, SamplingService } from '@/api'
-import { listFixativesOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { deleteFixativeMutation, listFixativesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import FixativeFormDialog from '@/components/samples/FixativeFormDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 

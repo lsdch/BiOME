@@ -5,9 +5,10 @@
     :headers
     :toolbar="{ title: 'Bio material', icon: 'mdi-package-variant' }"
     :fetch-items="listBioMaterialOptions"
-    :delete="
-      ({ code }: BioMaterialWithDetails) => SamplesService.deleteBioMaterial({ path: { code } })
-    "
+    :delete="{
+      mutation: deleteBioMaterialMutation,
+      params: ({ code }: BioMaterialWithDetails) => ({ path: { code } })
+    }"
     append-actions
     v-model:search="search"
     :filter
@@ -195,7 +196,10 @@
 <script setup lang="ts">
 import { BioMaterial, PersonInner, SamplesService, SiteInfo, Taxon } from '@/api'
 import { BioMaterialWithDetails, DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
-import { listBioMaterialOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import {
+  deleteBioMaterialMutation,
+  listBioMaterialOptions
+} from '@/api/gen/@tanstack/vue-query.gen'
 // import BioMaterialFormDialog from '@/components/occurrence/BioMaterialFormDialog.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'

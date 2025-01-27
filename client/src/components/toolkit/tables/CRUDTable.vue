@@ -249,6 +249,7 @@
   generic="
     ItemType extends { id: string; meta?: Meta },
     ItemsQueryData extends {},
+    ItemsDeleteData extends {},
     Filters extends { owned?: boolean; term?: string }
   "
 >
@@ -267,7 +268,7 @@ import { hasSlotContent } from '../vue-utils'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
 
-type Props = TableProps<ItemType, ItemsQueryData> & {
+type Props = TableProps<ItemType, ItemsQueryData, ItemsDeleteData> & {
   filter?: (item: ItemType) => boolean
   filterKeys?: string | string[]
   mobile?: boolean
@@ -279,7 +280,7 @@ const tableSlots = useSlots()
 // Assert type here to prevent errors in template when exposing VDataTable slots
 const slotNames = Object.keys(tableSlots) as 'default'[]
 
-const items = defineModel<ItemType[]>('items', { default: () => reactive([]) })
+const items = defineModel<ItemType[]>('items', { default: reactive([]) })
 const selected = defineModel<string[]>('selected', { default: [] })
 const search = defineModel<Partial<Filters>>('search', { default: {} })
 const props = withDefaults(defineProps<Props>(), {})

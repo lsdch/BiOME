@@ -9,10 +9,10 @@
       icon: 'mdi-account-plus'
     }"
     :fetch-items="listPendingUserRequestsOptions"
-    :delete="
-      (item: PendingUserRequest) =>
-        AccountService.deletePendingUserRequest({ path: { email: item.email } })
-    "
+    :delete="{
+      mutation: deletePendingUserRequestMutation,
+      params: (item: PendingUserRequest) => ({ path: { email: item.email } })
+    }"
     appendActions="delete"
   >
     <!-- Email column -->
@@ -77,7 +77,10 @@
 
 <script setup lang="ts">
 import { AccountService, PendingUserRequest } from '@/api'
-import { listPendingUserRequestsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import {
+  deletePendingUserRequestMutation,
+  listPendingUserRequestsOptions
+} from '@/api/gen/@tanstack/vue-query.gen'
 import InvitationFormDialog, { InitialContent } from '@/components/account/InvitationFormDialog.vue'
 import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'

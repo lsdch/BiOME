@@ -4,7 +4,10 @@
     :items="site.events"
     :headers
     entityName="Events"
-    :delete="({ id }: Event) => EventsService.deleteEvent({ path: { id } })"
+    :delete="{
+      mutation: deleteEventMutation,
+      params: ({ id }: Event) => ({ path: { id } })
+    }"
     @item-created="(item, index) => toggleFocus(index, item, 'sampling')"
     @click:row="
       (_: PointerEvent, { index, item }: RowClick) => toggleFocus(index, item, 'sampling')
@@ -136,6 +139,7 @@ import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
 import EventCardDialog, { EventAction } from './EventCardDialog.vue'
 import EventFormDialog from './EventFormDialog.vue'
+import { deleteEventMutation } from '@/api/gen/@tanstack/vue-query.gen'
 
 type RowClick = {
   index: number

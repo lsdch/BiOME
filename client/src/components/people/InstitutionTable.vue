@@ -3,7 +3,10 @@
     :headers="headers"
     density="compact"
     :fetch-items="listInstitutionsOptions"
-    :delete="(inst: Institution) => PeopleService.deleteInstitution({ path: { code: inst.code } })"
+    :delete="{
+      mutation: deleteInstitutionMutation,
+      params: (inst: Institution) => ({ path: { code: inst.code } })
+    }"
     entityName="Institution"
     :itemRepr="(inst) => inst.code"
     :toolbar="{
@@ -104,7 +107,10 @@ import { enumAsString } from '../toolkit/enums'
 import InstitutionFormDialog from './InstitutionFormDialog.vue'
 import InstitutionKindChip from './InstitutionKindChip.vue'
 import InstitutionKindPicker from './InstitutionKindPicker.vue'
-import { listInstitutionsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import {
+  deleteInstitutionMutation,
+  listInstitutionsOptions
+} from '@/api/gen/@tanstack/vue-query.gen'
 
 const { mdAndUp } = useDisplay()
 

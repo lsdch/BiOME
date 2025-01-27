@@ -51,8 +51,8 @@
         <template #item.results="{ item }">
           <v-progress-circular indeterminate v-if="item.loading" color="primary" />
           <CrossRefItemSelect
-            v-model="item.selectedRecord"
             v-else-if="item.results"
+            v-model="item.selectedRecord"
             :items="item.results.items"
             :total="item.results.total"
           />

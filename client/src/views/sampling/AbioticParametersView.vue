@@ -5,9 +5,10 @@
     entity-name="Abiotic parameter"
     :toolbar="{ title: 'Abiotic parameters', icon: 'mdi-gauge' }"
     :fetch-items="listAbioticParametersOptions"
-    :delete="
-      ({ code }: AbioticParameter) => SamplingService.deleteAbioticParameter({ path: { code } })
-    "
+    :delete="{
+      mutation: deleteAbioticParameterMutation,
+      params: ({ code }: AbioticParameter) => ({ path: { code } })
+    }"
     appendActions
   >
     <template #[`item.unit`]="{ value }">
@@ -26,7 +27,10 @@
 
 <script setup lang="ts">
 import { AbioticParameter, SamplingService } from '@/api'
-import { listAbioticParametersOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import {
+  deleteAbioticParameterMutation,
+  listAbioticParametersOptions
+} from '@/api/gen/@tanstack/vue-query.gen'
 import AbioticParameterFormDialog from '@/components/events/AbioticParameterFormDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 

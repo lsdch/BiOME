@@ -3,7 +3,10 @@
     class="fill-height"
     :headers
     :fetch-items="listArticlesOptions"
-    :delete="({ code }: Article) => ReferencesService.deleteArticle({ path: { code } })"
+    :delete="{
+      mutation: deleteArticleMutation,
+      params: ({ code }: Article) => ({ path: { code } })
+    }"
     entity-name="Article"
     :toolbar="{ icon: 'mdi-newspaper-variant-multiple', title: 'Bibliography' }"
     append-actions
@@ -89,7 +92,7 @@
 <script setup lang="ts">
 import { ReferencesService } from '@/api'
 import { Article } from '@/api/adapters'
-import { listArticlesOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { deleteArticleMutation, listArticlesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ArticleFormDialog from '@/components/references/ArticleFormDialog.vue'
 import ArticlesImportDialog from '@/components/references/ArticlesImportDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'

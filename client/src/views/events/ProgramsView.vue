@@ -8,7 +8,10 @@
       icon: 'mdi-notebook'
     }"
     :fetch-items="listProgramsOptions"
-    :delete="({ code }: Program) => EventsService.deleteProgram({ path: { code } })"
+    :delete="{
+      mutation: deleteProgramMutation,
+      params: ({ code }: Program) => ({ path: { code } })
+    }"
     appendActions
   >
     <template #[`item.funding_agencies`]="{ value }">
@@ -43,7 +46,7 @@
 
 <script setup lang="ts">
 import { EventsService, Program } from '@/api'
-import { listProgramsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { deleteProgramMutation, listProgramsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ProgramFormDialog from '@/components/events/ProgramFormDialog.vue'
 import InstitutionKindChip from '@/components/people/InstitutionKindChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'

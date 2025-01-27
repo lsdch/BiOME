@@ -1,4 +1,4 @@
-import { ErrorModel } from "@/api"
+import { DeletePersonData, ErrorModel } from "@/api"
 import { useAppConfirmDialog } from "@/composables/confirm_dialog"
 import { useUserStore } from "@/stores/user"
 import { OptionsLegacyParser, RequestResult } from "@hey-api/client-fetch"
@@ -7,7 +7,7 @@ import { ComputedRef, MaybeRef, ModelRef, Ref, computed, onMounted, ref, trigger
 import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
 import { listAbioticParametersQueryKey } from "@/api/gen/@tanstack/vue-query.gen"
-import { QueryObserverResult, RefetchOptions, UndefinedInitialQueryOptions, useQuery } from "@tanstack/vue-query"
+import { QueryObserverResult, RefetchOptions, UndefinedInitialQueryOptions, useMutation, UseMutationOptions, useQuery } from "@tanstack/vue-query"
 
 
 
@@ -39,7 +39,7 @@ export type ToolbarProps = {
 }
 
 
-export type TableProps<ItemType extends {}, ItemsQueryData extends {}> = {
+export type TableProps<ItemType extends {}, ItemsQueryData extends {}, ItemsDeleteData extends {}> = {
   /**
    * Entity name to display as title
    */
@@ -63,7 +63,15 @@ export type TableProps<ItemType extends {}, ItemsQueryData extends {}> = {
   /**
    * API call to delete an item
    */
-  delete?: (item: ItemType) => RequestResult<ItemType, ErrorModel, false>
+  delete?: {
+    mutation: (options?: ItemsDeleteData) => UseMutationOptions<
+      ItemType,
+      ErrorModel,
+      ItemsDeleteData
+    >,
+    params: (item: ItemType) => ItemsDeleteData,
+    fullReload?: boolean
+  }
   /**
    * Reload all items after deleting one
    */
@@ -84,9 +92,13 @@ type FormSlotScope<ItemType extends { id: string }> = {
 }
 
 
-export function useTable<ItemType extends { id: string }, ItemsQueryData extends {}>(
+export function useTable<
+  ItemType extends { id: string },
+  ItemsQueryData extends {},
+  ItemsDeleteData extends {}
+>(
   items: ModelRef<ItemType[]>,
-  props: TableProps<ItemType, ItemsQueryData>,
+  props: TableProps<ItemType, ItemsQueryData, ItemsDeleteData>,
   emit: TableEmits<ItemType>
 ) {
 
@@ -108,10 +120,11 @@ export function useTable<ItemType extends { id: string }, ItemsQueryData extends
   }) as ComputedRef<DataTableHeader[]>
 
 
+  // Items fetching
   const { data, error, isFetching, isSuccess, refetch } = props.fetchItems
     ? useQuery({ ...props.fetchItems(), enabled: () => !items.value.length, initialData: [] })
     : {
-      data: ref<ItemType[]>([]) as Ref<ItemType[]>,
+      data: ref<ItemType[]>(items.value ?? []) as Ref<ItemType[]>,
       error: ref<ErrorModel>(),
       isFetching: ref(false),
       isSuccess: ref(true),
@@ -120,25 +133,7 @@ export function useTable<ItemType extends { id: string }, ItemsQueryData extends
       })
     }
 
-  watch(data, (data) => items.value = data)
-
-  // const loadingFailed = ref(false)
-  // async function loadItems() {
-  //   if (props.fetchItems) {
-  //     loading.value = true
-  //     const { data, error } = await props.fetchItems()
-  //     if (error != undefined) {
-  //       items.value = []
-  //       loadingFailed.value = true
-  //     } else {
-  //       items.value = data
-  //     }
-  //     loading.value = false
-  //   }
-  // }
-
-  // onMounted(loadItems)
-
+  watch(data, (data) => items.value = [...data], { immediate: true })
 
   const actions = {
     edit(item: ItemType) {
@@ -159,8 +154,7 @@ export function useTable<ItemType extends { id: string }, ItemsQueryData extends
             return
           }
           console.info('Edited item', item, ` at index ${index}`)
-          items.value.splice(index, 1)
-          items.value.unshift(item)
+          items.value![index] = item
           triggerRef(items) // required to trigger recomputation of depending properties
           feedback.value.show(props.itemRepr ? `${props.itemRepr(item)} updated` : 'Item updated', 'success')
           emit('itemEdited', item, index)
@@ -188,8 +182,9 @@ export function useTable<ItemType extends { id: string }, ItemsQueryData extends
         // Resolve
         (item) => {
           console.info('Created item', item)
-          items.value.unshift(item)
-          triggerRef(items)
+          // items.value = [item, ...items.value]
+          items.value!.unshift(item)
+          triggerRef(items) // required to trigger recomputation of depending properties
           feedback.value.show(props.itemRepr ? `${props.itemRepr(item)} registered` : 'Item registered', 'success')
           emit('itemCreated', item, 0)
           return { item, index: 0 }
@@ -211,56 +206,56 @@ export function useTable<ItemType extends { id: string }, ItemsQueryData extends
         title: "Confirm deletion",
         message,
         payload: item
-      }).then(({ isCanceled, data }) => {
+      }).then(async ({ isCanceled, data }) => {
         if (isCanceled) {
           console.log("Item deletion canceled")
           return undefined
         }
-        else if (data !== undefined)
-          return executeDelete(data)
+
+        const index = items.value!.findIndex(({ id }) => item.id === id)
+        if (index === -1) console.error("Failed to find item index")
+        console.log(`Deleting item at index ${index}`, item)
+
+        if (props.delete == undefined) {
+          items.value!.splice(index, 1)
+          triggerRef(items)
+        } else {
+          await mutateAsync(props.delete.params(item))
+          if (deleteSuccess.value) {
+            items.value!.splice(index, 1)
+            triggerRef(items);
+          } else {
+            return undefined
+          }
+        }
+        return { item, index }
       })
     }
   }
 
-  async function executeDelete(item: ItemType) {
-    if (!item) {
-      console.error('Item to delete is undefined. Aborting.')
-      return
-    }
-    const index = items.value.findIndex(({ id }) => item.id === id)
-    if (index === -1) console.error("Failed to find item index")
-    console.log(`Deleting item at index ${index}`, item)
-    if (props.delete == undefined) {
-      items.value.splice(index, 1)
-      triggerRef(items)
-    } else {
-      const { error } = await props.delete(item)
-      if (error != undefined) {
-        switch (error.status) {
-          case StatusCodes.NOT_FOUND:
-            feedback.value.show('Deletion failed: record not found.', 'error')
-            break
-          case StatusCodes.BAD_REQUEST:
-            feedback.value.show(`Deletion was not allowed: ${error.detail}`, 'error')
-            break
-          case StatusCodes.FORBIDDEN:
-            feedback.value.show('You are not granted rights to modify this item.', 'error')
-            break
-          case StatusCodes.INTERNAL_SERVER_ERROR:
-            feedback.value.show('An unexpected error occurred.', 'error')
-        }
-        return undefined
-      } else {
-        items.value.splice(index, 1)
-        triggerRef(items);
-        feedback.value.show('Item successfully deleted.', 'success')
-        if (props.reloadOnDelete) {
-          await refetch()
-        }
-        return { item, index }
+  // Delete mutation
+  const { mutateAsync, isSuccess: deleteSuccess } = useMutation({
+    ...props.delete?.mutation(),
+    onSuccess(deleted) {
+      feedback.value.show('Item successfully deleted.', 'success')
+      if (props.delete?.fullReload) refetch()
+    },
+    onError(error) {
+      switch (error.status) {
+        case StatusCodes.NOT_FOUND:
+          feedback.value.show('Deletion failed: record not found.', 'error')
+          break
+        case StatusCodes.BAD_REQUEST:
+          feedback.value.show(`Deletion was not allowed: ${error.detail}`, 'error')
+          break
+        case StatusCodes.FORBIDDEN:
+          feedback.value.show('You are not granted rights to modify this item.', 'error')
+          break
+        case StatusCodes.INTERNAL_SERVER_ERROR:
+          feedback.value.show('An unexpected error occurred.', 'error')
       }
     }
-  }
+  })
 
   const feedback = ref<{
     model: boolean

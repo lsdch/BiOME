@@ -3,7 +3,10 @@
     :headers="headers"
     density="compact"
     :fetch-items="listPersonsOptions"
-    :delete="(person: Person) => PeopleService.deletePerson({ path: { id: person.id } })"
+    :delete="{
+      mutation: deletePersonMutation,
+      params: ({ id }) => ({ path: { id } })
+    }"
     :filter
     v-model:search="filters"
     entityName="Person"
@@ -92,7 +95,7 @@ import InstitutionKindChip from './InstitutionKindChip.vue'
 import type { AccountStatus, PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
 import PersonFormDialog from './PersonFormDialog.vue'
-import { listPersonsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { deletePersonMutation, listPersonsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 
 const { xs, smAndUp } = useDisplay()
 
@@ -103,7 +106,6 @@ function filterStatus(item: Person, status: AccountStatus) {
 }
 
 const filter = computed(() => {
-  console.log(filters)
   const { status, institutions } = filters.value
   return (item: Person) =>
     (!status || filterStatus(item, status)) &&
