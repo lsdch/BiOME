@@ -2,7 +2,6 @@ module admin {
 
   type InstanceSettings {
     required name: str {
-      default := "DarCo";
       constraint min_len_value(3);
       constraint max_len_value(20);
     }

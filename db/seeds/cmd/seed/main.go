@@ -75,7 +75,15 @@ func main() {
 			return fmt.Errorf("Failed to initialize super admin account: %v", err)
 		}
 
-		if err := (settings.SettingsInput{SuperAdminID: superAdmin.ID}).Save(tx); err != nil {
+		if err := (settings.SettingsInput{
+			SuperAdminID: superAdmin.ID,
+			Instance: settings.InstanceSettingsInput{
+				InstanceSettingsInner: settings.InstanceSettingsInner{
+					Name: "[BiOME prototype]",
+				},
+				Description: models.NewOptionalNull("Prototype BiOME instance"),
+			},
+		}).SaveTx(tx); err != nil {
 			return fmt.Errorf("Failed to initialize settings: %v", err)
 		}
 

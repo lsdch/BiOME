@@ -29,8 +29,9 @@ type Settings struct {
 var settings = new(Settings)
 
 type SettingsInput struct {
-	SuperAdminID   edgedb.UUID `json:"super_admin_id"`
-	GeoapifyApiKey *string     `json:"geoapify_api_key,omitempty" map_structure:"GEOAPIFY_API_KEY"`
+	Instance       InstanceSettingsInput `json:"instance"`
+	SuperAdminID   edgedb.UUID           `json:"super_admin_id"`
+	GeoapifyApiKey *string               `json:"geoapify_api_key,omitempty" map_structure:"GEOAPIFY_API_KEY"`
 }
 
 func (i *SettingsInput) LoadConfig(path string) error {
@@ -42,19 +43,19 @@ func (i *SettingsInput) LoadConfig(path string) error {
 	return err
 }
 
-func (i SettingsInput) Save(db edgedb.Executor) error {
+func (i SettingsInput) SaveTx(tx *edgedb.Tx) error {
+	// Init security settings with JWT secret key
 	secretKey := generateSecretKeyJWT()
-	if err := db.Execute(context.Background(),
+	if err := tx.Execute(context.Background(),
 		`#edgeql
-			with module admin,
-			security := (select SecuritySettings limit 1) ?? (insert SecuritySettings {
-				jwt_secret_key := <str>$0
-			}),
-			instance := (select InstanceSettings limit 1) ?? (insert InstanceSettings{}),
-			select(<str>{});
+			insert admin::SecuritySettings { jwt_secret_key := <str>$0 }
 		`, secretKey,
 	); err != nil {
 		return fmt.Errorf("Failed to initialize settings: %v", err)
+	}
+
+	if _, err := i.Instance.Save(tx); err != nil {
+		return err
 	}
 
 	data, err := json.Marshal(i)
@@ -62,7 +63,7 @@ func (i SettingsInput) Save(db edgedb.Executor) error {
 		return err
 	}
 
-	if err := db.QuerySingle(context.Background(),
+	if err := tx.QuerySingle(context.Background(),
 		`#edgeql
 			with data := <json>$0
 			select (insert admin::Settings {

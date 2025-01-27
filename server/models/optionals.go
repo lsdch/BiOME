@@ -80,6 +80,13 @@ type OptionalInput[T any] struct {
 	Value T
 }
 
+func NewOptionalInput[T any](value T) OptionalInput[T] {
+	return OptionalInput[T]{
+		Value: value,
+		IsSet: true,
+	}
+}
+
 func (o OptionalInput[T]) Get() (T, bool) {
 	return o.Value, o.IsSet
 }
@@ -143,6 +150,16 @@ func (o OptionalInput[T]) MarshalEdgeDBStr() ([]byte, error) {
 type OptionalNull[T any] struct {
 	Null bool
 	OptionalInput[T]
+}
+
+func NewOptionalNull[T any](value T) OptionalNull[T] {
+	return OptionalNull[T]{
+		OptionalInput: OptionalInput[T]{
+			Value: value,
+			IsSet: true,
+		},
+		Null: false,
+	}
 }
 
 func (o OptionalNull[T]) IsNull() bool {
