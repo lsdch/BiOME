@@ -10,8 +10,35 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 // Create app instance
-const settings = await import('./components/settings/').then(s => s.initInstanceSettings())
-const app = createApp(App, { settings })
+const app = createApp(App)
+
+
+// Setup TanStack VueQuery
+import { QueryClient, VueQueryPlugin, VueQueryPluginOptions } from '@tanstack/vue-query'
+const queryClient = new QueryClient()
+const vueQueryPluginOptions: VueQueryPluginOptions = { queryClient }
+app.use(VueQueryPlugin, vueQueryPluginOptions)
+
+
+import { instanceSettingsOptions } from "./api/gen/@tanstack/vue-query.gen"
+// Prefetch instance settings
+const settings = await queryClient.fetchQuery({
+  ...instanceSettingsOptions(),
+  gcTime: Infinity
+}).catch((error) => {
+  throw new Error("Failed to fetch instance settings", error)
+})
+
+
+// Setup router
+import setupRouter from './router'
+app.use(setupRouter(settings))
+
+// Setup vuetify
+import vuetify from "./vuetify"
+app.use(vuetify)
+
+
 
 // Setup pinia stores
 import { createPinia, setActivePinia } from 'pinia'
@@ -34,17 +61,6 @@ await import('./stores/user').then(async ({ useUserStore }) => {
   })
 })
 
-// Setup TanStack VueQuery
-import { VueQueryPlugin } from '@tanstack/vue-query'
-app.use(VueQueryPlugin)
-
-// Setup router
-import setupRouter from './router'
-app.use(setupRouter(settings))
-
-// Setup vuetify
-import vuetify from "./vuetify"
-app.use(vuetify)
 
 
 app.mount('#app')

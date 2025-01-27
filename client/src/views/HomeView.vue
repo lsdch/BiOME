@@ -1,8 +1,11 @@
-<script setup lang="ts">
-import DashBoard from '../components/dashboard/DashBoard.vue'
-</script>
-
 <template>
+  <v-container class="bg-surface" fluid>
+    <v-card v-if="instance" :title="instance.description">
+      <template #append>
+        <img src="https://img.shields.io/badge/status-in%20development-orange" />
+      </template>
+    </v-card>
+  </v-container>
   <v-sheet min-height="100%" class="d-flex flex-column justify-space-between fill-height">
     <DashBoard />
   </v-sheet>
@@ -33,5 +36,12 @@ import DashBoard from '../components/dashboard/DashBoard.vue'
     </v-container>
   </v-footer>
 </template>
+
+<script setup lang="ts">
+import { useInstanceSettings } from '@/components/settings'
+import DashBoard from '../components/dashboard/DashBoard.vue'
+
+const { instance } = useInstanceSettings()
+</script>
 
 <style scoped lang="less"></style>

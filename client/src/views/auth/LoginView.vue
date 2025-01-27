@@ -14,7 +14,7 @@
                 @click="mode = Mode.PasswordReset"
               />
               <v-btn
-                v-if="settings.allow_contributor_signup"
+                v-if="instance?.allow_contributor_signup"
                 size="large"
                 color="primary"
                 text="Register"
@@ -54,7 +54,7 @@ enum Mode {
 
 const mode: Ref<Mode> = ref(Mode.Login)
 
-const { settings } = useInstanceSettings()
+const { instance } = useInstanceSettings()
 </script>
 
 <style lang="less"></style>

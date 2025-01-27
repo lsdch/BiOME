@@ -1,10 +1,10 @@
 <template>
-  <v-confirm-edit v-model="model">
+  <v-confirm-edit v-model="instance">
     <template #default="{ isPristine, save, cancel, model: proxy, actions: _ }">
       <SettingsFormActions
         :model-value="!isPristine"
-        @reset="reloadSettings().then(cancel)"
-        @submit="save(), submit()"
+        @reset="cancel()"
+        @submit="submit(proxy.value).then(() => save())"
       />
       <v-container>
         <v-row>
@@ -55,31 +55,24 @@
 </template>
 
 <script setup lang="ts">
-import { $InstanceSettingsInput, SettingsService } from '@/api'
+import { $InstanceSettingsInput, InstanceSettings, SettingsService } from '@/api'
 import { useFeedback } from '@/stores/feedback'
-import { ref } from 'vue'
 import { useInstanceSettings } from '.'
 import { useSchema } from '../toolkit/forms/schema'
 import IconEditor from './InstanceIcon.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
 
-const { settings, reload } = useInstanceSettings()
-
-const model = ref(settings)
+const { instance, reload } = useInstanceSettings()
 
 const { field, errorHandler } = useSchema($InstanceSettingsInput)
 
-async function reloadSettings() {
-  model.value = await reload()
-}
-
 const { feedback } = useFeedback()
 
-async function submit() {
-  await SettingsService.updateInstanceSettings({ body: model.value })
+async function submit(model: InstanceSettings) {
+  await SettingsService.updateInstanceSettings({ body: model })
     .then(errorHandler)
     .then(() => {
-      reloadSettings()
+      reload()
       feedback({ message: 'Updated settings', type: 'success' })
     })
 }

@@ -2,13 +2,14 @@
   <v-app>
     <v-app-bar id="app-bar" color="primary" v-if="!$route.meta.hideNavbar" density="compact">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
-      <v-app-bar-title :to="$router.resolve({ name: 'home' })">
+      <v-app-bar-title :to="{ name: 'home' }">
         <v-btn
           class="app-title opacity-100"
           variant="plain"
           :ripple="false"
           :to="{ name: 'home' }"
-          :text="xs ? undefined : settings.name"
+          :text="xs ? undefined : settings.instance.value?.name"
+          :loading="settings.isPending.value"
         >
           <template #prepend>
             <AppIcon :size="30" />
@@ -81,6 +82,7 @@ import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { useAppConfirmDialog } from './composables/confirm_dialog'
 import { useLocalStorage } from '@vueuse/core'
+import { useInstanceSettings } from './components/settings'
 
 const loading = ref(false)
 
@@ -103,7 +105,7 @@ router.afterEach((to) => {
   loading.value = false
 })
 
-defineProps<{ settings: InstanceSettings }>()
+const settings = useInstanceSettings()
 
 // Confirm dialog
 const { isRevealed, confirm, cancel, content } = useAppConfirmDialog()
