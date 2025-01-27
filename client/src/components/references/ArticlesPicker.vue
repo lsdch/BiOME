@@ -12,9 +12,10 @@
     clear-on-select
     placeholder="Enter search terms..."
     v-bind="$attrs"
+    :error-messages="error?.detail"
   >
     <template #prepend-item>
-      <div v-if="items.length" class="mx-3 text-caption text-center">
+      <div v-if="items && items.length" class="mx-3 text-caption text-center">
         {{
           searchTerms
             ? `${filteredItems.length} item(s) out of ${items.length} total`
@@ -62,9 +63,10 @@
 </template>
 
 <script setup lang="ts">
-import { Article, ReferencesService } from '@/api'
-import { useFetchItems } from '@/composables/fetch_items'
+import { Article } from '@/api'
+import { listArticlesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useFuzzyItemsFilter } from '@/composables/fuzzy_search'
+import { useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
 import ArticleChip from './ArticleChip.vue'
 
@@ -74,7 +76,7 @@ const { threshold = 0.7, limit = 10 } = defineProps<{
   limit?: number
 }>()
 
-const { items, loading } = useFetchItems(ReferencesService.listArticles)
+const { data: items, isPending: loading, error } = useQuery(listArticlesOptions())
 
 const model = defineModel<string | string[] | null>()
 const searchTerms = ref<string>('')

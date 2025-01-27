@@ -37,7 +37,7 @@ export type KeysDeclaration<Item extends {}> = Readonly<Array<keyof Item | { key
 export function useFuzzyItemsFilter<Item extends {}>(
   keys: KeysDeclaration<Item>,
   term: MaybeRef<string>,
-  items: MaybeRef<Item[]>,
+  items: MaybeRef<Item[] | undefined>,
   options?: { limit?: number, threshold?: number }
 ) {
 
@@ -71,12 +71,15 @@ export function useFuzzyItemsFilter<Item extends {}>(
       : (options?.defaultText ?? `Unknown ${String(key)}`)
   }
 
-  const filteredItems = computed(() =>
-    fuzzysort.go<Item>(unref(term), unref(items), {
+  const filteredItems = computed(() => {
+    const maybeItems = unref(items)
+    if (!maybeItems) return []
+    return fuzzysort.go<Item>(unref(term), maybeItems, {
       all: true,
       keys: keys.map((v) => (typeof v === 'object' ? v.fn : String(v))),
       ...options
     })
+  }
   )
 
   return { highlight, filteredItems, keysIndex }
