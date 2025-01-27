@@ -8,7 +8,7 @@
       title: 'Account requests',
       icon: 'mdi-account-plus'
     }"
-    :fetch-items="AccountService.listPendingUserRequests"
+    :fetch-items="listPendingUserRequestsOptions"
     :delete="
       (item: PendingUserRequest) =>
         AccountService.deletePendingUserRequest({ path: { email: item.email } })
@@ -76,21 +76,19 @@
 </template>
 
 <script setup lang="ts">
-import { AccountService, PendingUserRequest, PeopleService } from '@/api'
-import { handleErrors } from '@/api/responses'
+import { AccountService, PendingUserRequest } from '@/api'
+import { listPendingUserRequestsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import InvitationFormDialog, { InitialContent } from '@/components/account/InvitationFormDialog.vue'
-import { ref } from 'vue'
-import AccountsPendingCard from './AccountsPendingCard.vue'
-import { useToggle } from '@vueuse/core'
-import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
-import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
+import { useToggle } from '@vueuse/core'
+import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
 const { mobile } = useDisplay()
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<PendingUserRequest>[] = [
   { title: 'Name', key: 'full_name' },
   { title: 'E-mail', key: 'email' },
   { title: 'E-mail verified', key: 'email_verified', align: 'center' },
