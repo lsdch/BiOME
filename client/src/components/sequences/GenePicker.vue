@@ -1,5 +1,12 @@
 <template>
-  <v-select v-model="model" :items :loading v-bind="$attrs" item-title="code">
+  <v-select
+    v-model="model"
+    :items
+    :loading
+    v-bind="$attrs"
+    item-title="code"
+    :error-messages="error?.detail"
+  >
     <template #item="{ item, props }">
       <v-list-item :subtitle="item.raw.label" v-bind="props" />
     </template>
@@ -7,12 +14,12 @@
 </template>
 
 <script setup lang="ts">
-import { SequencesService } from '@/api'
-import { useFetchItems } from '@/composables/fetch_items'
+import { listGenesOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
 
 const model = defineModel<any>()
 
-const { items, loading } = useFetchItems(SequencesService.listGenes)
+const { data: items, isPending: loading, error } = useQuery(listGenesOptions())
 </script>
 
 <style scoped lang="scss"></style>
