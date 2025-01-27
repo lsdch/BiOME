@@ -5,6 +5,8 @@
     :items="items"
     item-title="name"
     filter-mode="some"
+    :loading="isPending"
+    :error-messages="error?.detail"
     :custom-filter="
       (_: any, q: string, item: any) => {
         const { code, name }: Country = item?.raw
@@ -32,7 +34,7 @@
 import { Country } from '@/api'
 import { useCountries } from '@/stores/countries'
 
-const { countries: items } = useCountries()
+const { countries: items, isPending, error } = useCountries()
 </script>
 
 <style scoped></style>

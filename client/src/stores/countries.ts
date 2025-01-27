@@ -1,21 +1,18 @@
-import { Country, LocationService } from "@/api";
-import { handleErrors } from "@/api/responses";
+import { listCountriesOptions } from "@/api/gen/@tanstack/vue-query.gen";
+import { useQuery } from "@tanstack/vue-query";
 import { defineStore } from "pinia";
-import { ref } from "vue";
 
 export const useCountries = defineStore("countries", () => {
-  const countries = ref<Country[]>([])
 
-  async function fetch() {
-    countries.value = await LocationService.listCountries().then(handleErrors(err => {
-      console.error("Failed to fetch countries: ", err)
-    }))
-    return countries.value
-  }
+  const { data: countries, error, isPending, refetch } = useQuery({
+    ...listCountriesOptions(),
+    gcTime: Infinity,
+    initialData: []
+  })
 
   function findCountry(code: string) {
     return countries.value.find(({ code: c }) => c === code)
   }
 
-  return { countries, fetch, findCountry }
+  return { countries, isPending, error, refetch, findCountry }
 })

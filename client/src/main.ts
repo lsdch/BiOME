@@ -20,13 +20,19 @@ const vueQueryPluginOptions: VueQueryPluginOptions = { queryClient }
 app.use(VueQueryPlugin, vueQueryPluginOptions)
 
 
-import { instanceSettingsOptions } from "./api/gen/@tanstack/vue-query.gen"
+import { instanceSettingsOptions, listCountriesOptions } from "./api/gen/@tanstack/vue-query.gen"
 // Prefetch instance settings
 const settings = await queryClient.fetchQuery({
   ...instanceSettingsOptions(),
   gcTime: Infinity
 }).catch((error) => {
   throw new Error("Failed to fetch instance settings", error)
+})
+
+// Prefetch countries
+queryClient.prefetchQuery({
+  ...listCountriesOptions(),
+  gcTime: Infinity
 })
 
 
@@ -46,8 +52,6 @@ const pinia = createPinia()
 setActivePinia(pinia)
 app.use(pinia)
 
-// Initialize countries store
-await import('./stores/countries').then(s => s.useCountries().fetch())
 
 // Setup authentication using refresh token
 await import('./stores/user').then(async ({ useUserStore }) => {
