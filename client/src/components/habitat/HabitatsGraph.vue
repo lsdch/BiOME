@@ -1,5 +1,9 @@
 <template>
-  <div class="graph" ref="graphContainer" @keyup.esc="toggleCreating(false)">
+  <v-container height="100%" v-if="isFetching || error">
+    <CenteredSpinner v-if="isFetching" height="100%" class="bg-transparent" size="x-large" />
+    <v-alert v-else-if="error" color="error"> Failed to load habitats </v-alert>
+  </v-container>
+  <div v-else class="graph" ref="graphContainer" @keyup.esc="toggleCreating(false)">
     <VueFlow
       :nodes="graph.nodes.value"
       :edges="graph.edges.value"
@@ -105,7 +109,7 @@ import { ControlButton, Controls } from '@vue-flow/controls'
 import '@vue-flow/controls/dist/style.css'
 import { ConnectionLineType, GraphEdge, VueFlow, useConnection, useVueFlow } from '@vue-flow/core'
 import { onKeyStroke, useMouseInElement, useToggle } from '@vueuse/core'
-import { computed, nextTick, ref } from 'vue'
+import { computed, nextTick, ref, Suspense } from 'vue'
 import HabitatFormDialog from './HabitatFormDialog.vue'
 import HabitatGroupNode from './HabitatGroupNode.vue'
 import { useLayout } from './layout'
@@ -120,6 +124,9 @@ import {
   HabitatsGraph,
   useHabitatGraphSelection
 } from './habitat_graph'
+import { listHabitatGroupsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
+import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 
 const { isGranted } = useUserStore()
 
@@ -133,15 +140,14 @@ onKeyStroke('Escape', () => {
   if (!form.value.open) creating.value = false
 })
 
-const data = await HabitatsService.listHabitatGroups().then(({ data, error }) => {
-  if (error !== undefined) {
-    console.error('Failed to fetch habitat groups: ', error)
-    return []
-  }
-  return data
+const { data, error, isFetching, suspense } = useQuery({
+  ...listHabitatGroupsOptions(),
+  initialData: []
 })
 
-const graph = new HabitatsGraph(data)
+// FIXME: this is brittle, graph will not be updated on subsequent fetches
+await suspense()
+const graph = new HabitatsGraph(data.value)
 
 const graphContainer = ref(null)
 const { elementX: x, elementY: y } = useMouseInElement(graphContainer)
