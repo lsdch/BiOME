@@ -1,10 +1,14 @@
 <template>
-  <v-confirm-edit v-model="model">
+  <CenteredSpinner v-if="isPending" text="Loading security settings..." />
+  <v-alert v-else-if="error" color="error" icon="mdi-alert">
+    Failed to load security settings
+  </v-alert>
+  <v-confirm-edit v-else v-model="model">
     <template #default="{ isPristine, save, cancel, model: proxy, actions: _ }">
       <SettingsFormActions
         :model-value="!isPristine"
-        @reset="reloadSettings().then(cancel)"
-        @submit="save(), submit()"
+        @reset="cancel()"
+        @submit="submit(proxy.value).then(() => save())"
       />
       <v-container>
         <v-row>
@@ -49,36 +53,26 @@
 </template>
 
 <script setup lang="ts">
-import { $SecuritySettingsInput, SettingsService } from '@/api'
+import { $SecuritySettingsInput, SecuritySettingsInput, SettingsService } from '@/api'
 import { handleErrors } from '@/api/responses'
 import { useFeedback } from '@/stores/feedback'
 import { ref } from 'vue'
 import { useSchema } from '../toolkit/forms/schema'
 import DaysHoursInput from './DaysHoursInput.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
+import { useQuery } from '@tanstack/vue-query'
+import { securitySettingsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 
 const { feedback } = useFeedback()
 
-async function fetch() {
-  return SettingsService.securitySettings().then(
-    handleErrors((err) => {
-      feedback({ message: 'Failed to retrieve security settings', type: 'error' })
-      console.error(err)
-    })
-  )
-}
+const { data: model, refetch, error, isPending } = useQuery(securitySettingsOptions())
 
-async function reloadSettings() {
-  model.value = await fetch()
-}
-
-async function submit() {
-  return SettingsService.updateSecuritySettings({ body: model.value })
+async function submit(model: SecuritySettingsInput) {
+  return SettingsService.updateSecuritySettings({ body: model })
     .then(errorHandler)
     .then(() => feedback({ message: 'Settings updated', type: 'success' }))
 }
-
-const model = ref(await fetch())
 
 const { field, errorHandler } = useSchema($SecuritySettingsInput)
 </script>

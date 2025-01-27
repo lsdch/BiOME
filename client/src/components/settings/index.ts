@@ -22,5 +22,5 @@ export function useInstanceSettings() {
   function reloadIcon() {
     cacheKey.value = Math.random()
   }
-  return { instance: data, reload: refetch, ICON_PATH, iconImgProps, reloadIcon, isPending }
+  return { instance: data, reload: refetch, ICON_PATH, iconImgProps, reloadIcon, isPending, error }
 }

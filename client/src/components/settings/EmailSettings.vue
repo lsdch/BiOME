@@ -1,10 +1,14 @@
 <template>
-  <v-confirm-edit v-model="model">
+  <CenteredSpinner v-if="isPending" text="Loading e-mail settings..." />
+  <v-alert v-else-if="error" color="error" icon="mdi-alert">
+    Failed to load e-mail settings
+  </v-alert>
+  <v-confirm-edit v-else v-model="model">
     <template #default="{ isPristine, save, cancel, model: proxy, actions: _ }">
       <SettingsFormActions
         :model-value="!isPristine"
-        @submit="save(), submit()"
-        @reset="reload().then(cancel)"
+        @submit="submit(proxy.value).then(save)"
+        @reset="cancel()"
       >
         <template #prepend>
           <EmailSettingsTestConnection
@@ -78,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import { $EmailSettingsInput, SettingsService } from '@/api'
+import { $EmailSettingsInput, EmailSettingsInput, SettingsService } from '@/api'
 import { errorFeedback } from '@/api/responses'
 import PasswordField from '@/components/toolkit/ui/PasswordField.vue'
 import { useFeedback } from '@/stores/feedback'
@@ -86,6 +90,9 @@ import { ref } from 'vue'
 import { useSchema } from '../toolkit/forms/schema'
 import EmailSettingsTestConnection from './EmailSettingsTestConnection.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
+import { emailSettingsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
+import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 
 const status = ref<{
   testing: boolean
@@ -95,22 +102,14 @@ const status = ref<{
   connectionOK: undefined
 })
 
-async function fetch() {
-  return SettingsService.emailSettings().then(errorFeedback('Failed to retrieve email settings'))
-}
-
-const model = ref(await fetch())
-
-async function reload() {
-  model.value = await fetch()
-}
+const { data: model, error, isPending, refetch } = useQuery(emailSettingsOptions())
 
 const { field, errorHandler } = useSchema($EmailSettingsInput)
 const { feedback } = useFeedback()
 
-async function submit() {
+async function submit(model: EmailSettingsInput) {
   status.value.testing = true
-  await SettingsService.updateEmailSettings({ body: model.value })
+  await SettingsService.updateEmailSettings({ body: model })
     .then(errorHandler)
     .then(() => {
       status.value.connectionOK = true

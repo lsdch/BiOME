@@ -1,5 +1,9 @@
 <template>
-  <v-confirm-edit v-model="instance">
+  <CenteredSpinner v-if="isPending" text="Loading instance settings..." />
+  <v-alert v-else-if="error" color="error" icon="mdi-alert">
+    Failed to load instance settings
+  </v-alert>
+  <v-confirm-edit v-else v-model="instance">
     <template #default="{ isPristine, save, cancel, model: proxy, actions: _ }">
       <SettingsFormActions
         :model-value="!isPristine"
@@ -61,8 +65,9 @@ import { useInstanceSettings } from '.'
 import { useSchema } from '../toolkit/forms/schema'
 import IconEditor from './InstanceIcon.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
+import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 
-const { instance, reload } = useInstanceSettings()
+const { instance, reload, isPending, error } = useInstanceSettings()
 
 const { field, errorHandler } = useSchema($InstanceSettingsInput)
 
