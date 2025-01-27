@@ -6,17 +6,18 @@
     item-title="label"
     item-subtitle="description"
     prepend-inner-icon="mdi-snowflake"
+    :error-messages="error?.detail"
     v-bind="$attrs"
-  ></v-select>
+  />
 </template>
 
 <script setup lang="ts">
-import { Fixative, SamplingService } from '@/api'
-import { useFetchItems } from '@/composables/fetch_items'
-import { ref } from 'vue'
+import { Fixative } from '@/api'
+import { listFixativesOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
 
-const model = ref<Fixative[]>([])
-const { items, loading } = useFetchItems(SamplingService.listFixatives)
+const model = defineModel<string | string[] | Fixative | Fixative[] | null>()
+const { data: items, isPending: loading, error } = useQuery(listFixativesOptions())
 </script>
 
 <style scoped lang="scss"></style>
