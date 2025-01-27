@@ -49,9 +49,15 @@
           <v-alert color="error" variant="elevated">Failed to load sampling sites</v-alert>
         </v-overlay>
         <SitesMap ref="map" :items="sites" clustered :auto-fit="(sites?.length ?? 0) > 1">
-          <template #popup="{ item }">
+          <template #popup="{ item, popupOpen, zoom }">
             <KeepAlive>
-              <SitePopup v-if="item" :item :options="{ keepInView: false, autoPan: false }" />
+              <SitePopup
+                v-if="item"
+                :item
+                :options="{ keepInView: false, autoPan: false }"
+                :showRadius="popupOpen"
+                :zoom
+              />
             </KeepAlive>
           </template>
         </SitesMap>

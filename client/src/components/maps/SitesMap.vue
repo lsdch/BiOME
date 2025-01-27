@@ -115,6 +115,7 @@
           :lat-lng="[item.coordinates.latitude, item.coordinates.longitude]"
           v-bind="marker"
           @click="selectSite(item)"
+          @popupopen="console.log('open')"
         >
         </LCircleMarker>
       </LMarkerClusterGroup>
@@ -128,17 +129,11 @@
       >
       </LCircleMarker>
       <slot name="default" :map></slot>
-      <LCircle
-        v-if="selected && showRadius(selected.coordinates.precision)"
-        :lat-lng="[selected.coordinates.latitude, selected.coordinates.longitude]"
-        :radius="precisionRadius(selected.coordinates.precision)"
-        :interactive="false"
-      ></LCircle>
 
       <!-- Shared site popup -->
-      <LLayerGroup ref="popup-layer">
+      <LLayerGroup ref="popup-layer" @popupopen="popupOpen = true" @popupclose="popupOpen = false">
         <KeepAlive>
-          <slot name="popup" v-if="selected" :item="selected"></slot>
+          <slot name="popup" v-if="selected" :item="selected" :popupOpen :zoom> </slot>
         </KeepAlive>
       </LLayerGroup>
     </l-map>
@@ -150,7 +145,6 @@ import 'leaflet/dist/leaflet.css'
 import 'vue-leaflet-markercluster/dist/style.css'
 
 import {
-  LCircle,
   LCircleMarker,
   LControl,
   LControlLayers,
@@ -170,16 +164,18 @@ import L, {
   type Map
 } from 'leaflet'
 
-import { ref, useTemplateRef, watch } from 'vue'
+import { nextTick, ref, useTemplateRef, watch } from 'vue'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import { Geocoordinates } from '.'
 
-import { CoordinatesPrecision } from '@/api'
 import { vElementVisibility } from '@vueuse/components'
+import SitePopup from '../sites/SitePopup.vue'
 
 const zoom = ref(1)
 const map = ref<HTMLElement>()
 const popupLayer = useTemplateRef<InstanceType<typeof LLayerGroup>>('popup-layer')
+
+const popupOpen = ref(false)
 
 const cursorCoordinates = ref<LatLngLiteral>()
 
@@ -187,33 +183,7 @@ const selected = ref<SiteItem>()
 
 function selectSite(item: SiteItem) {
   selected.value = item
-  popupLayer.value?.leafletObject?.openPopup(Geocoordinates.LatLng(item))
-}
-
-function showRadius(precision?: CoordinatesPrecision): precision is CoordinatesPrecision {
-  switch (precision) {
-    case undefined:
-    case '<100m':
-    case 'Unknown':
-      return false
-    case '<1km':
-      return zoom.value > 10
-    default:
-      return zoom.value > 6
-  }
-}
-
-function precisionRadius(precision: CoordinatesPrecision): number {
-  switch (precision) {
-    case '10-100km':
-      return 100_000
-    case '<10km':
-      return 10_000
-    case '<1km':
-      return 1000
-    default:
-      return 0
-  }
+  nextTick(() => popupLayer.value?.leafletObject?.openPopup(Geocoordinates.LatLng(item)))
 }
 
 const { isFullscreen, enter, exit, toggle } = useFullscreen(map, {})
@@ -251,7 +221,7 @@ const props = withDefaults(
 
 defineSlots<{
   default: (map?: HTMLElement) => any
-  popup: (props: { item: SiteItem }) => any
+  popup: (props: { item: SiteItem; popupOpen: boolean; zoom: number }) => any
 }>()
 
 const mapBounds = ref(L.latLngBounds(...props.bounds))
