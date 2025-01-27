@@ -1,10 +1,11 @@
 package db
 
 import (
-	"darco/proto/models"
 	"fmt"
 	"reflect"
 	"strings"
+
+	"github.com/lsdch/biome/models"
 )
 
 type FieldMapping struct {

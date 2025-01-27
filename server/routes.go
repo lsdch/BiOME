@@ -1,22 +1,22 @@
 package main
 
 import (
-	"darco/proto/controllers/biomaterial"
-	"darco/proto/controllers/datasets"
-	"darco/proto/controllers/events"
-	"darco/proto/controllers/habitats"
-	"darco/proto/controllers/institution"
-	"darco/proto/controllers/location"
-	"darco/proto/controllers/occurrences"
-	"darco/proto/controllers/person"
-	"darco/proto/controllers/references"
-	"darco/proto/controllers/sequences"
-	"darco/proto/controllers/services"
-	"darco/proto/controllers/settings"
-	"darco/proto/controllers/sites"
-	"darco/proto/controllers/taxonomy"
-	users "darco/proto/controllers/users"
-	"darco/proto/router"
+	"github.com/lsdch/biome/controllers/biomaterial"
+	"github.com/lsdch/biome/controllers/datasets"
+	"github.com/lsdch/biome/controllers/events"
+	"github.com/lsdch/biome/controllers/habitats"
+	"github.com/lsdch/biome/controllers/institution"
+	"github.com/lsdch/biome/controllers/location"
+	"github.com/lsdch/biome/controllers/occurrences"
+	"github.com/lsdch/biome/controllers/person"
+	"github.com/lsdch/biome/controllers/references"
+	"github.com/lsdch/biome/controllers/sequences"
+	"github.com/lsdch/biome/controllers/services"
+	"github.com/lsdch/biome/controllers/settings"
+	"github.com/lsdch/biome/controllers/sites"
+	"github.com/lsdch/biome/controllers/taxonomy"
+	users "github.com/lsdch/biome/controllers/users"
+	"github.com/lsdch/biome/router"
 )
 
 func registerRoutes(router router.Router) {

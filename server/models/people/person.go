@@ -2,12 +2,13 @@ package people
 
 import (
 	"context"
-	"darco/proto/db"
-	"darco/proto/models"
 	_ "embed"
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"

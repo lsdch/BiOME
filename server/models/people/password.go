@@ -2,10 +2,11 @@ package people
 
 import (
 	"context"
-	"darco/proto/models/settings"
-	"darco/proto/models/tokens"
-	email_templates "darco/proto/templates"
 	"net/url"
+
+	"github.com/lsdch/biome/models/settings"
+	"github.com/lsdch/biome/models/tokens"
+	email_templates "github.com/lsdch/biome/templates"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"

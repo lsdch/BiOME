@@ -2,16 +2,17 @@ package person
 
 import (
 	"context"
-	"darco/proto/controllers"
-	accounts "darco/proto/controllers/users"
-	"darco/proto/db"
-	"darco/proto/resolvers"
-	"darco/proto/router"
 	"net/http"
 	"net/url"
 
-	"darco/proto/models/people"
-	_ "darco/proto/models/validations"
+	"github.com/lsdch/biome/controllers"
+	accounts "github.com/lsdch/biome/controllers/users"
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
+
+	"github.com/lsdch/biome/models/people"
+	_ "github.com/lsdch/biome/models/validations"
 
 	"github.com/danielgtaylor/huma/v2"
 )

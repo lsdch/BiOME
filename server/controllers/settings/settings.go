@@ -2,13 +2,14 @@ package settings
 
 import (
 	"context"
-	"darco/proto/controllers"
-	"darco/proto/models/settings"
-	"darco/proto/resolvers"
-	"darco/proto/router"
 	_ "image/jpeg"
 	_ "image/png"
 	"net/http"
+
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/models/settings"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
 )

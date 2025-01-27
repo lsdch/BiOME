@@ -1,9 +1,10 @@
 package vocabulary
 
 import (
-	"darco/proto/models"
 	"fmt"
 	"maps"
+
+	"github.com/lsdch/biome/models"
 
 	"github.com/edgedb/edgedb-go"
 )

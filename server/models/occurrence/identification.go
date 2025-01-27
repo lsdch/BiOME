@@ -1,11 +1,12 @@
 package occurrence
 
 import (
-	"darco/proto/db"
-	"darco/proto/models"
-	"darco/proto/models/people"
-	"darco/proto/models/taxonomy"
 	"fmt"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/taxonomy"
 
 	"github.com/edgedb/edgedb-go"
 )

@@ -2,9 +2,10 @@ package vocabulary
 
 import (
 	"context"
-	"darco/proto/db"
-	"darco/proto/models/people"
 	"encoding/json"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models/people"
 
 	"github.com/edgedb/edgedb-go"
 )

@@ -2,10 +2,11 @@ package people
 
 import (
 	"context"
-	"darco/proto/models/settings"
-	"darco/proto/services/email"
 	_ "embed"
 	"encoding/json"
+
+	"github.com/lsdch/biome/models/settings"
+	"github.com/lsdch/biome/services/email"
 
 	"github.com/a-h/templ"
 	"github.com/edgedb/edgedb-go"

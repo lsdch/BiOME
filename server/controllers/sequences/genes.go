@@ -1,11 +1,12 @@
 package sequences
 
 import (
-	"darco/proto/controllers"
-	"darco/proto/models/sequences"
-	"darco/proto/resolvers"
-	"darco/proto/router"
 	"net/http"
+
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/models/sequences"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
 )

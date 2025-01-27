@@ -1,9 +1,10 @@
 package auth_tokens
 
 import (
-	"darco/proto/models/settings"
 	"fmt"
 	"time"
+
+	"github.com/lsdch/biome/models/settings"
 
 	"github.com/golang-jwt/jwt"
 )

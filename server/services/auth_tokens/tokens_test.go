@@ -1,11 +1,12 @@
 package auth_tokens_test
 
 import (
-	"darco/proto/config"
-	"darco/proto/models/people"
-	"darco/proto/services/auth_tokens"
-	"darco/proto/tests"
 	"testing"
+
+	"github.com/lsdch/biome/config"
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/services/auth_tokens"
+	"github.com/lsdch/biome/tests"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/stretchr/testify/require"

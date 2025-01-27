@@ -1,7 +1,7 @@
 package occurrence
 
 import (
-	"darco/proto/models"
+	"github.com/lsdch/biome/models"
 
 	"github.com/edgedb/edgedb-go"
 )

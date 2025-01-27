@@ -1,9 +1,10 @@
 package crossref
 
 import (
-	"darco/proto/models/settings"
-	"darco/proto/services"
 	"time"
+
+	"github.com/lsdch/biome/models/settings"
+	"github.com/lsdch/biome/services"
 
 	"github.com/caltechlibrary/crossrefapi"
 	"github.com/sirupsen/logrus"

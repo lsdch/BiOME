@@ -2,9 +2,10 @@ package validations
 
 import (
 	"context"
-	"darco/proto/db"
 	"fmt"
 	"strings"
+
+	"github.com/lsdch/biome/db"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/go-playground/validator/v10"

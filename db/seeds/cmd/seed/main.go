@@ -2,15 +2,16 @@ package main
 
 import (
 	"context"
-	"darco/proto/db"
-	"darco/proto/models"
-	"darco/proto/models/occurrence"
-	"darco/proto/models/people"
-	"darco/proto/models/settings"
 	"flag"
 	"fmt"
 	"seeds"
 	"seeds/email"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/occurrence"
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/settings"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"

@@ -2,14 +2,15 @@ package occurrence
 
 import (
 	"context"
-	"darco/proto/db"
-	"darco/proto/models"
-	"darco/proto/models/location"
-	"darco/proto/services/geoapify"
 	"encoding/json"
 	"fmt"
 	"slices"
 	"strings"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/location"
+	"github.com/lsdch/biome/services/geoapify"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/gosimple/slug"

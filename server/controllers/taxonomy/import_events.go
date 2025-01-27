@@ -1,7 +1,7 @@
 package taxonomy
 
 import (
-	gbif "darco/proto/models/taxonomy/GBIF"
+	gbif "github.com/lsdch/biome/models/taxonomy/GBIF"
 
 	log "github.com/sirupsen/logrus"
 )

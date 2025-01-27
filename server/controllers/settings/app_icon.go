@@ -2,11 +2,12 @@ package settings
 
 import (
 	"context"
-	"darco/proto/resolvers"
 	"image"
 	"image/png"
 	"net/url"
 	"os"
+
+	"github.com/lsdch/biome/resolvers"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/disintegration/imaging"

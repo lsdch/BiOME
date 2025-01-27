@@ -2,10 +2,11 @@ package validations
 
 import (
 	"context"
-	"darco/proto/db"
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/lsdch/biome/db"
 
 	"github.com/sirupsen/logrus"
 )

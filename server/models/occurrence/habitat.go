@@ -2,9 +2,10 @@ package occurrence
 
 import (
 	"context"
-	"darco/proto/models"
-	"darco/proto/models/people"
 	"encoding/json"
+
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/people"
 
 	_ "embed"
 

@@ -1,10 +1,11 @@
 package taxonomy_test
 
 import (
-	"darco/proto/db"
-	"darco/proto/models/taxonomy"
 	"strings"
 	"testing"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models/taxonomy"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/stretchr/testify/assert"

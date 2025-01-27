@@ -3,14 +3,15 @@ package occurrence
 import (
 	"bytes"
 	"context"
-	"darco/proto/db"
-	"darco/proto/models"
-	"darco/proto/models/location"
-	"darco/proto/models/people"
-	"darco/proto/models/validations"
 	"encoding/json"
 	"fmt"
 	"text/template"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/location"
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/validations"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"

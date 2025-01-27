@@ -1,12 +1,13 @@
 package main
 
 import (
-	"darco/proto/config"
-	"darco/proto/db"
-	"darco/proto/models/location"
-	"darco/proto/models/settings"
-	"darco/proto/router"
 	"fmt"
+
+	"github.com/lsdch/biome/config"
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models/location"
+	"github.com/lsdch/biome/models/settings"
+	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/gin-gonic/gin"

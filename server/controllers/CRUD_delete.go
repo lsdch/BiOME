@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"context"
-	"darco/proto/resolvers"
-	"darco/proto/router"
+
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"

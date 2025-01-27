@@ -2,8 +2,9 @@ package geoapify
 
 import (
 	"context"
-	"darco/proto/db"
 	"time"
+
+	"github.com/lsdch/biome/db"
 
 	"github.com/edgedb/edgedb-go"
 )

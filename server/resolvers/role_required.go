@@ -1,8 +1,9 @@
 package resolvers
 
 import (
-	"darco/proto/models/people"
 	"fmt"
+
+	"github.com/lsdch/biome/models/people"
 
 	"github.com/danielgtaylor/huma/v2"
 )

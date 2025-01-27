@@ -2,13 +2,14 @@ package geoapify
 
 import (
 	"bytes"
-	"darco/proto/services"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"time"
+
+	"github.com/lsdch/biome/services"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"

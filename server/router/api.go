@@ -3,8 +3,6 @@ package router
 import (
 	"bytes"
 	"context"
-	"darco/proto/models/occurrence"
-	"darco/proto/services/crossref"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -13,6 +11,9 @@ import (
 	"reflect"
 	"slices"
 	"time"
+
+	"github.com/lsdch/biome/models/occurrence"
+	"github.com/lsdch/biome/services/crossref"
 
 	"github.com/caltechlibrary/crossrefapi"
 	"github.com/danielgtaylor/huma/v2"

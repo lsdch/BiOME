@@ -1,11 +1,12 @@
 package resolvers
 
 import (
-	"darco/proto/db"
-	"darco/proto/models/people"
-	"darco/proto/services/auth_tokens"
 	"net/http"
 	"strings"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/services/auth_tokens"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"

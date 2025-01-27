@@ -2,17 +2,18 @@ package people
 
 import (
 	"context"
-	"darco/proto/db"
-	"darco/proto/models"
-	"darco/proto/models/settings"
-	"darco/proto/models/tokens"
-	"darco/proto/services/email"
-	email_templates "darco/proto/templates"
 	_ "embed"
 	"encoding/json"
 	"fmt"
 	"net/url"
 	"time"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/settings"
+	"github.com/lsdch/biome/models/tokens"
+	"github.com/lsdch/biome/services/email"
+	email_templates "github.com/lsdch/biome/templates"
 
 	"github.com/edgedb/edgedb-go"
 )

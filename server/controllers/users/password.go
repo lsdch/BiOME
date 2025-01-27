@@ -2,10 +2,11 @@ package accounts
 
 import (
 	"context"
-	"darco/proto/db"
-	"darco/proto/models/people"
-	"darco/proto/models/tokens"
-	"darco/proto/resolvers"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/tokens"
+	"github.com/lsdch/biome/resolvers"
 
 	"github.com/danielgtaylor/huma/v2"
 )

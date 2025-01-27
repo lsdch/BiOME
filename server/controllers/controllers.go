@@ -1,8 +1,9 @@
 package controllers
 
 import (
-	"darco/proto/db"
 	"reflect"
+
+	"github.com/lsdch/biome/db"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"

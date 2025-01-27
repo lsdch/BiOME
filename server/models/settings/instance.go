@@ -2,8 +2,9 @@ package settings
 
 import (
 	"context"
-	"darco/proto/models"
 	"encoding/json"
+
+	"github.com/lsdch/biome/models"
 
 	"github.com/edgedb/edgedb-go"
 )

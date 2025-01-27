@@ -2,14 +2,15 @@ package occurrence
 
 import (
 	"context"
-	"darco/proto/models"
-	"darco/proto/models/people"
-	"darco/proto/models/references"
-	"darco/proto/models/sequences"
-	"darco/proto/models/taxonomy"
 	"encoding/json"
 	"fmt"
 	"strings"
+
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/references"
+	"github.com/lsdch/biome/models/sequences"
+	"github.com/lsdch/biome/models/taxonomy"
 
 	"github.com/edgedb/edgedb-go"
 )

@@ -2,16 +2,17 @@ package accounts
 
 import (
 	"context"
-	"darco/proto/controllers"
-	"darco/proto/db"
-	"darco/proto/models/people"
-	users "darco/proto/models/people"
-	"darco/proto/models/tokens"
-	_ "darco/proto/models/validations"
-	"darco/proto/resolvers"
-	"darco/proto/router"
 	"errors"
 	"fmt"
+
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models/people"
+	users "github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/tokens"
+	_ "github.com/lsdch/biome/models/validations"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"

@@ -1,10 +1,11 @@
 package events
 
 import (
-	"darco/proto/controllers"
-	"darco/proto/models/occurrence"
-	"darco/proto/router"
 	"net/http"
+
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/models/occurrence"
+	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
 )

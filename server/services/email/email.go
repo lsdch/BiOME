@@ -3,7 +3,8 @@ package email
 import (
 	"bytes"
 	"context"
-	"darco/proto/models/settings"
+
+	"github.com/lsdch/biome/models/settings"
 
 	"github.com/a-h/templ"
 	"github.com/k3a/html2text"

@@ -1,11 +1,12 @@
 package email
 
 import (
-	"darco/proto/models/settings"
 	"errors"
 	"fmt"
 	"io/fs"
 	"os"
+
+	"github.com/lsdch/biome/models/settings"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/edgedb/edgedb-go"

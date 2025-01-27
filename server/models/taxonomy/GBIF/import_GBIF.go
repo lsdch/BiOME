@@ -2,7 +2,6 @@ package gbif
 
 import (
 	"context"
-	"darco/proto/models/taxonomy"
 	_ "embed"
 	"encoding/json"
 	"fmt"
@@ -11,6 +10,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/lsdch/biome/models/taxonomy"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"

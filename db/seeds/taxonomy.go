@@ -2,8 +2,9 @@ package seeds
 
 import (
 	"context"
-	gbif "darco/proto/models/taxonomy/GBIF"
 	"fmt"
+
+	gbif "github.com/lsdch/biome/models/taxonomy/GBIF"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/schollz/progressbar/v3"

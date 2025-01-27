@@ -2,14 +2,15 @@ package taxonomy
 
 import (
 	"context"
-	"darco/proto/controllers"
-	"darco/proto/db"
-	"darco/proto/models/taxonomy"
-	_ "darco/proto/models/validations"
-	"darco/proto/resolvers"
-	"darco/proto/router"
 	"fmt"
 	"net/http"
+
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models/taxonomy"
+	_ "github.com/lsdch/biome/models/validations"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
 )

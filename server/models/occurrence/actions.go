@@ -2,8 +2,9 @@ package occurrence
 
 import (
 	"context"
-	"darco/proto/models/taxonomy"
 	"encoding/json"
+
+	"github.com/lsdch/biome/models/taxonomy"
 
 	"github.com/edgedb/edgedb-go"
 )

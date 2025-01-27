@@ -2,10 +2,11 @@ package occurrence
 
 import (
 	"context"
-	"darco/proto/models"
-	"darco/proto/models/references"
-	"darco/proto/models/taxonomy"
 	"fmt"
+
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/references"
+	"github.com/lsdch/biome/models/taxonomy"
 
 	"github.com/edgedb/edgedb-go"
 )

@@ -2,8 +2,9 @@ package controllers
 
 import (
 	"context"
-	"darco/proto/models"
-	"darco/proto/resolvers"
+
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/resolvers"
 )
 
 type CreateInputBody[Item models.Persistable[Created], Created any] interface {

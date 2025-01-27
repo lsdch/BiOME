@@ -1,11 +1,12 @@
 package services
 
 import (
-	"darco/proto/controllers"
-	"darco/proto/resolvers"
-	"darco/proto/router"
-	"darco/proto/services/geoapify"
 	"net/http"
+
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
+	"github.com/lsdch/biome/services/geoapify"
 
 	"github.com/danielgtaylor/huma/v2"
 )

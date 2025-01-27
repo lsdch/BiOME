@@ -1,9 +1,10 @@
 package people_test
 
 import (
-	"darco/proto/models/people"
-	"darco/proto/tests"
 	"testing"
+
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/tests"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/stretchr/testify/assert"

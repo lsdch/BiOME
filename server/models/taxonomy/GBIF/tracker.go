@@ -1,9 +1,10 @@
 package gbif
 
 import (
-	"darco/proto/models/taxonomy"
 	"fmt"
 	"time"
+
+	"github.com/lsdch/biome/models/taxonomy"
 
 	"github.com/sirupsen/logrus"
 )

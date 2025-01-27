@@ -1,11 +1,12 @@
 package location
 
 import (
-	"darco/proto/controllers"
-	"darco/proto/models/location"
-	"darco/proto/resolvers"
-	"darco/proto/router"
 	"net/http"
+
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/models/location"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
 )

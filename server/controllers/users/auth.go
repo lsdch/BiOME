@@ -2,16 +2,17 @@ package accounts
 
 import (
 	"context"
-	"darco/proto/db"
-	"darco/proto/models"
-	users "darco/proto/models/people"
-	"darco/proto/models/tokens"
-	"darco/proto/resolvers"
-	"darco/proto/services/auth_tokens"
 	"fmt"
 	"net/http"
 	"slices"
 	"time"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
+	users "github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/tokens"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/services/auth_tokens"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"

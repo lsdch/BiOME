@@ -2,11 +2,12 @@ package people
 
 import (
 	"context"
-	"darco/proto/config"
-	"darco/proto/models/tokens"
-	"darco/proto/services/auth_tokens"
 	"net/http"
 	"time"
+
+	"github.com/lsdch/biome/config"
+	"github.com/lsdch/biome/models/tokens"
+	"github.com/lsdch/biome/services/auth_tokens"
 
 	"github.com/edgedb/edgedb-go"
 )

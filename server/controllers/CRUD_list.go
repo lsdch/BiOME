@@ -2,7 +2,8 @@ package controllers
 
 import (
 	"context"
-	"darco/proto/resolvers"
+
+	"github.com/lsdch/biome/resolvers"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/edgedb/edgedb-go"

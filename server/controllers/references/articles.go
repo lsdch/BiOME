@@ -2,12 +2,13 @@ package references
 
 import (
 	"context"
-	"darco/proto/controllers"
-	"darco/proto/models/references"
-	"darco/proto/resolvers"
-	"darco/proto/router"
-	"darco/proto/services/crossref"
 	"net/http"
+
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/models/references"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
+	"github.com/lsdch/biome/services/crossref"
 
 	"github.com/danielgtaylor/huma/v2"
 )

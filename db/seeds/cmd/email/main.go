@@ -1,9 +1,10 @@
 package main
 
 import (
-	"darco/proto/db"
 	"flag"
 	"seeds/email"
+
+	"github.com/lsdch/biome/db"
 
 	"github.com/edgedb/edgedb-go"
 )

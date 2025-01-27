@@ -2,9 +2,10 @@ package controllers
 
 import (
 	"context"
-	"darco/proto/models"
-	"darco/proto/resolvers"
-	"darco/proto/router"
+
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
 
 	"github.com/edgedb/edgedb-go"
 )

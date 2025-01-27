@@ -2,9 +2,10 @@ package tests
 
 import (
 	"context"
-	"darco/proto/db"
 	"errors"
 	"testing"
+
+	"github.com/lsdch/biome/db"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/edgedb/edgedb-go"

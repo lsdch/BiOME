@@ -2,15 +2,16 @@ package taxonomy
 
 import (
 	"context"
-	"darco/proto/db"
-	"darco/proto/models"
-	"darco/proto/models/people"
 	_ "embed"
 	"encoding/json"
 	"fmt"
 	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/people"
 
 	"github.com/edgedb/edgedb-go"
 )

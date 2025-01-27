@@ -1,13 +1,14 @@
 package institution
 
 import (
-	"darco/proto/controllers"
-	"darco/proto/models/people"
-	"darco/proto/resolvers"
-	"darco/proto/router"
 	"net/http"
 
-	_ "darco/proto/models/validations"
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
+
+	_ "github.com/lsdch/biome/models/validations"
 
 	"github.com/danielgtaylor/huma/v2"
 )

@@ -1,11 +1,12 @@
 package settings_test
 
 import (
-	"darco/proto/db"
-	"darco/proto/models/settings"
-	"darco/proto/tests"
 	"os"
 	"testing"
+
+	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models/settings"
+	"github.com/lsdch/biome/tests"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

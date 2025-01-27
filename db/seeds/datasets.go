@@ -1,8 +1,9 @@
 package seeds
 
 import (
-	"darco/proto/models/occurrence"
 	"encoding/json"
+
+	"github.com/lsdch/biome/models/occurrence"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"

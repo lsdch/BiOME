@@ -2,9 +2,10 @@ package settings
 
 import (
 	"context"
-	"darco/proto/db"
 	"encoding/json"
 	"fmt"
+
+	"github.com/lsdch/biome/db"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"

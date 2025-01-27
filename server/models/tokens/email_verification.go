@@ -2,7 +2,8 @@ package tokens
 
 import (
 	"context"
-	"darco/proto/config"
+
+	"github.com/lsdch/biome/config"
 
 	"github.com/edgedb/edgedb-go"
 )

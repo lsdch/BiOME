@@ -3,9 +3,10 @@ package tokens
 import (
 	"context"
 	"crypto/sha256"
-	"darco/proto/config"
 	"encoding/hex"
 	"time"
+
+	"github.com/lsdch/biome/config"
 
 	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"

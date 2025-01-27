@@ -1,10 +1,11 @@
 package people_test
 
 import (
-	"darco/proto/db"
-	users "darco/proto/models/people"
 	"fmt"
 	"testing"
+
+	"github.com/lsdch/biome/db"
+	users "github.com/lsdch/biome/models/people"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

@@ -2,12 +2,13 @@ package taxonomy
 
 import (
 	"context"
-	"darco/proto/controllers"
-	"darco/proto/models/taxonomy"
-	GBIF "darco/proto/models/taxonomy/GBIF"
-	"darco/proto/resolvers"
-	"darco/proto/router"
 	"net/http"
+
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/models/taxonomy"
+	GBIF "github.com/lsdch/biome/models/taxonomy/GBIF"
+	"github.com/lsdch/biome/resolvers"
+	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/sse"
