@@ -7,10 +7,20 @@
     :toolbar="{ title: 'Occurrence datasets', icon: 'mdi-crosshairs-gps' }"
   >
     <template #item.label="{ item }: { item: OccurrenceDataset }">
-      <RouterLink
-        :to="{ name: 'occurrence-dataset-item', params: { slug: item.slug } }"
-        :text="item.label"
-      />
+      <div class="d-flex justify-space-between">
+        <RouterLink
+          :to="{ name: 'occurrence-dataset-item', params: { slug: item.slug } }"
+          :text="item.label"
+        />
+        <v-icon
+          :color="item.is_congruent ? 'success' : 'warning'"
+          :icon="item.is_congruent ? 'mdi-check-circle' : 'mdi-alert-circle'"
+          :title="item.is_congruent ? 'Congruent' : 'Not congruent'"
+        ></v-icon>
+      </div>
+    </template>
+    <template #item.occurrences="{ value }">
+      <v-chip small>{{ value }}</v-chip>
     </template>
   </CRUDTable>
 </template>
@@ -30,10 +40,6 @@ const headers: CRUDTableHeader<OccurrenceDataset>[] = [
     value(item: OccurrenceDataset, fallback) {
       return item.occurrences.length
     }
-  },
-  {
-    key: 'is_congruent',
-    title: 'Congruent'
   }
 ]
 </script>
