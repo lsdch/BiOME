@@ -6,7 +6,6 @@ import (
 	"github.com/lsdch/biome/config"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/location"
-	"github.com/lsdch/biome/models/settings"
 	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -18,15 +17,11 @@ import (
 //go:generate go run generators/generate_enums.go
 
 func apiConfig(basePath string) huma.Config {
-	instance := settings.Instance()
-	title := fmt.Sprintf("%s API", instance.Name)
-	description, ok := instance.Description.Get()
-	if !ok {
-		description = instance.Name
-	}
+	title := "BiOME API"
+	description := "Biodiversity and Occurrences for Molecular Ecology"
 
-	var cfg = huma.DefaultConfig(title, "1.0")
-	cfg.Info.Description = fmt.Sprintf("%s API", description)
+	var cfg = huma.DefaultConfig(title, "0.0")
+	cfg.Info.Description = fmt.Sprintf("%s: %s", title, description)
 	cfg.Components.SecuritySchemes = map[string]*huma.SecurityScheme{
 		"bearer": {
 			Type:         "http",
