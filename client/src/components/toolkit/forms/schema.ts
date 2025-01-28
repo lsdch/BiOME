@@ -279,7 +279,7 @@ export function useSchema<T extends Schema>(schema: T) {
    * Collects error messages indexed by their object path in an API request body,
    * so that they can be consumed by `bindErrors` or `field`.
    */
-  function _errorHandler(body: ErrorModel) {
+  function dispatchErrors(body: ErrorModel) {
     body.errors?.forEach((e) => {
       if (e.location === undefined)
         unindexedErrors.value.push(e.message ?? "Invalid value")
@@ -290,7 +290,7 @@ export function useSchema<T extends Schema>(schema: T) {
     })
   }
   function errorHandler<D>(e: ResponseBody<D, ErrorModel>) {
-    return handleErrors<D, ErrorModel>(_errorHandler)(e)
+    return handleErrors<D, ErrorModel>(dispatchErrors)(e)
   }
 
   /**
@@ -327,6 +327,7 @@ export function useSchema<T extends Schema>(schema: T) {
     schema: bindSchema,
     field,
     errorHandler,
+    dispatchErrors,
     validate, validateAll,
     paths: paths(schema),
     unindexedErrors,
