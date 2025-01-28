@@ -20,7 +20,7 @@
       <SettingsMenu />
       <AccountNavMenu />
     </v-app-bar>
-    <NavigationDrawer v-model="drawer" :temporary="drawerTemporary || smAndDown" />
+    <NavigationDrawer v-model="drawer" :temporary="lgAndDown && (drawerTemporary || smAndDown)" />
     <v-main id="main" class="bg-main overflow-y-auto" max-height="100vh">
       <v-progress-linear v-show="loading" :color="colors.orange.base" indeterminate />
       <RouterView :key="$route.fullPath" v-slot="{ Component }">
@@ -74,19 +74,19 @@ import colors from 'vuetify/util/colors'
 import AccountNavMenu from '@/components/navbar/AccountNavMenu.vue'
 import SettingsMenu from '@/components/navbar/SettingsMenu.vue'
 
-import { client, ErrorDetail, InstanceSettings } from '@/api'
+import { client, ErrorDetail } from '@/api'
+import { useLocalStorage } from '@vueuse/core'
 import { useDisplay } from 'vuetify'
 import AppIcon from './components/icons/AppIcon.vue'
+import { useInstanceSettings } from './components/settings'
 import ConfirmDialog from './components/toolkit/ui/ConfirmDialog.vue'
 import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { useAppConfirmDialog } from './composables/confirm_dialog'
-import { useLocalStorage } from '@vueuse/core'
-import { useInstanceSettings } from './components/settings'
 
 const loading = ref(false)
 
-const { smAndDown, xs } = useDisplay()
+const { lgAndDown, smAndDown, xs } = useDisplay()
 
 const drawer = ref(!smAndDown.value)
 const drawerTemporary = ref<boolean>()
