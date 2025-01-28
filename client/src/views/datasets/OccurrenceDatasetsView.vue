@@ -19,6 +19,9 @@
         ></v-icon>
       </div>
     </template>
+    <template #item.description="{ value }">
+      <LineClampedText :title="value" :text="value" :lines="3" />
+    </template>
     <template #item.occurrences="{ value }">
       <v-chip small>{{ value }}</v-chip>
     </template>
@@ -29,6 +32,7 @@
 import { OccurrenceDataset } from '@/api'
 import { listOccurrenceDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { LineClampedText } from '@/components/toolkit/ui/LineClampedText'
 
 const headers: CRUDTableHeader<OccurrenceDataset>[] = [
   { key: 'label', title: 'Label' },

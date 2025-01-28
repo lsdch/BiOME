@@ -13,17 +13,7 @@
       />
     </template>
     <template #item.description="{ value }">
-      <div
-        :title="value"
-        :style="{
-          overflow: 'hidden',
-          display: '-webkit-box',
-          lineClamp: 2,
-          '-webkit-box-orient': 'vertical'
-        }"
-      >
-        {{ value }}
-      </div>
+      <LineClampedText :title="value" :text="value" :lines="3" />
     </template>
   </CRUDTable>
 </template>
@@ -32,6 +22,7 @@
 import { SiteDataset } from '@/api'
 import { listSiteDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { LineClampedText } from '@/components/toolkit/ui/LineClampedText'
 
 const headers: CRUDTableHeader<SiteDataset>[] = [
   { key: 'label', title: 'Label' },

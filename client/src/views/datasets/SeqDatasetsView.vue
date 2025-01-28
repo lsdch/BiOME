@@ -12,6 +12,9 @@
         :text="item.label"
       />
     </template>
+    <template #item.description="{ value }">
+      <LineClampedText :title="value" :text="value" :lines="3" />
+    </template>
   </CRUDTable>
 </template>
 
@@ -19,6 +22,7 @@
 import { SequenceDataset } from '@/api'
 import { listSequenceDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { LineClampedText } from '@/components/toolkit/ui/LineClampedText'
 
 const headers: CRUDTableHeader<SequenceDataset>[] = [
   { key: 'label', title: 'Label' },
