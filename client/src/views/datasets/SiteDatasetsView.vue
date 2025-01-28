@@ -12,6 +12,19 @@
         :text="item.label"
       />
     </template>
+    <template #item.description="{ value }">
+      <div
+        :title="value"
+        :style="{
+          overflow: 'hidden',
+          display: '-webkit-box',
+          lineClamp: 2,
+          '-webkit-box-orient': 'vertical'
+        }"
+      >
+        {{ value }}
+      </div>
+    </template>
   </CRUDTable>
 </template>
 
@@ -22,7 +35,10 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<SiteDataset>[] = [
   { key: 'label', title: 'Label' },
-  { key: 'description', title: 'Description' },
+  {
+    key: 'description',
+    title: 'Description'
+  },
   {
     key: 'sites',
     title: 'Sites',
