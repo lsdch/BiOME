@@ -9,7 +9,15 @@
         :model-value="!isPristine"
         @reset="cancel()"
         @submit="submit(proxy.value).then(() => save())"
+        :loading="isUpdating"
       />
+      <v-row>
+        <v-col>
+          <v-alert v-if="updateError" color="error" icon="mdi-alert">
+            Failed to update settings
+          </v-alert>
+        </v-col>
+      </v-row>
       <v-container>
         <v-row>
           <v-col>
@@ -42,27 +50,38 @@
 </template>
 
 <script setup lang="ts">
-import { $ServiceSettingsUpdate, ServiceSettingsUpdate, SettingsService } from '@/api'
-import { handleErrors } from '@/api/responses'
+import { $ServiceSettingsUpdate, ServiceSettingsUpdate } from '@/api'
+import {
+  serviceSettingsOptions,
+  updateServiceSettingsMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import { useFeedback } from '@/stores/feedback'
-import { ref } from 'vue'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import { useSchema } from '../toolkit/forms/schema'
-import SettingsFormActions from './SettingsFormActions.vue'
-import { useQuery } from '@tanstack/vue-query'
-import { serviceSettingsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
+import SettingsFormActions from './SettingsFormActions.vue'
 
 const { feedback } = useFeedback()
 
 const { data: model, error, refetch, isPending } = useQuery(serviceSettingsOptions())
 
-async function submit(model: ServiceSettingsUpdate) {
-  return SettingsService.updateServiceSettings({ body: model })
-    .then(errorHandler)
-    .then(() => feedback({ message: 'Settings updated', type: 'success' }))
-}
+const { field, dispatchErrors } = useSchema($ServiceSettingsUpdate)
 
-const { field, errorHandler } = useSchema($ServiceSettingsUpdate)
+const {
+  mutateAsync,
+  error: updateError,
+  isPending: isUpdating
+} = useMutation({
+  ...updateServiceSettingsMutation(),
+  onSuccess: () => {
+    feedback({ message: 'Updated settings', type: 'success' })
+  },
+  onError: dispatchErrors
+})
+
+async function submit(model: ServiceSettingsUpdate) {
+  await mutateAsync({ body: model })
+}
 </script>
 
 <style lang="scss">

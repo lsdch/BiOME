@@ -9,8 +9,16 @@
         :model-value="!isPristine"
         @reset="cancel()"
         @submit="submit(proxy.value).then(() => save())"
+        :loading="isUpdating"
       />
       <v-container>
+        <v-row>
+          <v-col>
+            <v-alert v-if="updateError" color="error" icon="mdi-alert">
+              Failed to update settings
+            </v-alert>
+          </v-col>
+        </v-row>
         <v-row>
           <v-col>
             <v-list class="settings-list">
@@ -53,28 +61,39 @@
 </template>
 
 <script setup lang="ts">
-import { $SecuritySettingsInput, SecuritySettingsInput, SettingsService } from '@/api'
-import { handleErrors } from '@/api/responses'
+import { $SecuritySettingsInput, SecuritySettingsInput } from '@/api'
+import {
+  securitySettingsOptions,
+  updateSecuritySettingsMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import { useFeedback } from '@/stores/feedback'
-import { ref } from 'vue'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import { useSchema } from '../toolkit/forms/schema'
+import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import DaysHoursInput from './DaysHoursInput.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
-import { useQuery } from '@tanstack/vue-query'
-import { securitySettingsOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 
 const { feedback } = useFeedback()
 
+const { field, dispatchErrors } = useSchema($SecuritySettingsInput)
+
 const { data: model, refetch, error, isPending } = useQuery(securitySettingsOptions())
 
-async function submit(model: SecuritySettingsInput) {
-  return SettingsService.updateSecuritySettings({ body: model })
-    .then(errorHandler)
-    .then(() => feedback({ message: 'Settings updated', type: 'success' }))
-}
+const {
+  mutateAsync,
+  error: updateError,
+  isPending: isUpdating
+} = useMutation({
+  ...updateSecuritySettingsMutation(),
+  onSuccess: () => {
+    feedback({ message: 'Updated settings', type: 'success' })
+  },
+  onError: dispatchErrors
+})
 
-const { field, errorHandler } = useSchema($SecuritySettingsInput)
+async function submit(model: SecuritySettingsInput) {
+  await mutateAsync({ body: model })
+}
 </script>
 
 <style lang="scss">

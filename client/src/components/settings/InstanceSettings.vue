@@ -1,6 +1,6 @@
 <template>
   <CenteredSpinner v-if="isPending" text="Loading instance settings..." />
-  <v-alert v-else-if="error" color="error" icon="mdi-alert">
+  <v-alert v-else-if="fetchError" color="error" icon="mdi-alert">
     Failed to load instance settings
   </v-alert>
   <v-confirm-edit v-else v-model="instance">
@@ -9,8 +9,16 @@
         :model-value="!isPristine"
         @reset="cancel()"
         @submit="submit(proxy.value).then(() => save())"
+        :loading="isUpdating"
       />
       <v-container>
+        <v-row>
+          <v-col>
+            <v-alert v-if="updateError" color="error" icon="mdi-alert">
+              Failed to update settings
+            </v-alert>
+          </v-col>
+        </v-row>
         <v-row>
           <v-col cols="12" sm="3" class="px-3 d-flex align-center justify-center">
             <IconEditor />
@@ -59,27 +67,43 @@
 </template>
 
 <script setup lang="ts">
-import { $InstanceSettingsInput, InstanceSettings, SettingsService } from '@/api'
+import { $InstanceSettingsInput, InstanceSettings } from '@/api'
+import {
+  instanceSettingsQueryKey,
+  updateInstanceSettingsMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import { useFeedback } from '@/stores/feedback'
+import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { useInstanceSettings } from '.'
 import { useSchema } from '../toolkit/forms/schema'
+import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import IconEditor from './InstanceIcon.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
-import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 
-const { instance, reload, isPending, error } = useInstanceSettings()
+const { instance, reload, isPending, error: fetchError } = useInstanceSettings()
 
-const { field, errorHandler } = useSchema($InstanceSettingsInput)
+const { field, dispatchErrors } = useSchema($InstanceSettingsInput)
 
 const { feedback } = useFeedback()
 
+const queryClient = useQueryClient()
+
+const {
+  mutateAsync,
+  error: updateError,
+  isPending: isUpdating
+} = useMutation({
+  ...updateInstanceSettingsMutation(),
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: instanceSettingsQueryKey() })
+    reload()
+    feedback({ message: 'Updated settings', type: 'success' })
+  },
+  onError: dispatchErrors
+})
+
 async function submit(model: InstanceSettings) {
-  await SettingsService.updateInstanceSettings({ body: model })
-    .then(errorHandler)
-    .then(() => {
-      reload()
-      feedback({ message: 'Updated settings', type: 'success' })
-    })
+  await mutateAsync({ body: model })
 }
 </script>
 

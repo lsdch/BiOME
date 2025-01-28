@@ -9,6 +9,7 @@
         :model-value="!isPristine"
         @submit="submit(proxy.value).then(save)"
         @reset="cancel()"
+        :loading="isUpdating"
       >
         <template #prepend>
           <EmailSettingsTestConnection
@@ -18,6 +19,13 @@
           />
         </template>
       </SettingsFormActions>
+      <v-row>
+        <v-col>
+          <v-alert v-if="updateError" color="error" icon="mdi-alert">
+            Failed to update settings
+          </v-alert>
+        </v-col>
+      </v-row>
       <v-card title="Sender identity for automated e-mails" flat>
         <v-container>
           <v-row>
@@ -82,17 +90,19 @@
 </template>
 
 <script setup lang="ts">
-import { $EmailSettingsInput, EmailSettingsInput, SettingsService } from '@/api'
-import { errorFeedback } from '@/api/responses'
+import { $EmailSettingsInput, EmailSettingsInput } from '@/api'
+import {
+  emailSettingsOptions,
+  updateEmailSettingsMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import PasswordField from '@/components/toolkit/ui/PasswordField.vue'
 import { useFeedback } from '@/stores/feedback'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
 import { useSchema } from '../toolkit/forms/schema'
+import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import EmailSettingsTestConnection from './EmailSettingsTestConnection.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
-import { emailSettingsOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { useQuery } from '@tanstack/vue-query'
-import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 
 const status = ref<{
   testing: boolean
@@ -104,21 +114,31 @@ const status = ref<{
 
 const { data: model, error, isPending, refetch } = useQuery(emailSettingsOptions())
 
-const { field, errorHandler } = useSchema($EmailSettingsInput)
+const { field, dispatchErrors } = useSchema($EmailSettingsInput)
 const { feedback } = useFeedback()
 
+const {
+  mutateAsync,
+  error: updateError,
+  isPending: isUpdating
+} = useMutation({
+  ...updateEmailSettingsMutation(),
+  onSuccess: () => {
+    status.value.connectionOK = true
+    feedback({ message: 'Updated settings', type: 'success' })
+  },
+  onError: dispatchErrors,
+  onMutate() {
+    status.value.testing = true
+    status.value.connectionOK = undefined
+  },
+  onSettled() {
+    status.value.testing = false
+  }
+})
+
 async function submit(model: EmailSettingsInput) {
-  status.value.testing = true
-  await SettingsService.updateEmailSettings({ body: model })
-    .then(errorHandler)
-    .then(() => {
-      status.value.connectionOK = true
-      feedback({ message: 'Settings updated', type: 'success' })
-    })
-    .catch(() => {
-      status.value.connectionOK = false
-    })
-  status.value.testing = false
+  await mutateAsync({ body: model })
 }
 </script>
 

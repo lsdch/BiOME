@@ -14,10 +14,16 @@
           text="Save"
           variant="flat"
           @click="saveIcon"
+          :loading="isPending"
         />
       </v-toolbar>
-      <v-container class="fill-height pa-0" fluid>
-        <v-row class="fill-height">
+      <v-container height="100%" class="overflow-y-scroll" fluid>
+        <v-row v-if="error" class="mb-0">
+          <v-col cols="12">
+            <v-alert color="error" icon="mdi-alert"> Failed to upload new icon </v-alert>
+          </v-col>
+        </v-row>
+        <v-row class="h-100">
           <v-col class="d-flex align-center" cols="12" sm="8">
             <div class="d-flex flex-column align-center mx-auto" style="max-width: 300px">
               <v-responsive :aspect-ratio="1" :max-width="300" :max-height="300">
@@ -33,14 +39,13 @@
               <v-file-input
                 v-model="imgFile"
                 class="w-100 cursor-pointer"
-                accept="image/*"
+                accept="image/png,image/jpeg"
                 color="primary"
-                label="Upload new image"
+                label="Upload"
                 prepend-icon=""
                 prepend-inner-icon="mdi-upload"
-                variant="solo-filled"
+                variant="filled"
                 show-size
-                single-line
                 hide-details
                 flat
                 :rounded="0"
@@ -48,7 +53,7 @@
             </div>
           </v-col>
           <v-divider vertical></v-divider>
-          <v-col>
+          <v-col cols="12" sm="4">
             <div class="h-100 d-flex flex-column align-center justify-space-between">
               <InstanceIconPreviews
                 :result="result"
@@ -63,8 +68,9 @@
 </template>
 
 <script setup lang="ts">
-import { SettingsService } from '@/api'
-import { errorFeedback } from '@/api/responses'
+import { setAppIconMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import { useFeedback } from '@/stores/feedback'
+import { useMutation } from '@tanstack/vue-query'
 import { useObjectUrl } from '@vueuse/core'
 import mime from 'mime'
 import { computed, ref } from 'vue'
@@ -104,14 +110,26 @@ const mimeType = computed(
   () => imgFile.value?.type ?? (mime.getType(ICON_PATH) || 'application/octet-stream')
 )
 
+const { feedback } = useFeedback()
+
+const { mutateAsync, error, isPending } = useMutation({
+  ...setAppIconMutation(),
+  onError: (error) => {
+    feedback({ message: 'Failed to upload new icon', type: 'error' })
+    console.error(error)
+  },
+  onSuccess: () => {
+    feedback({ message: 'Icon update', type: 'success' })
+    emit('uploaded')
+    model.value = false
+  }
+})
+
 function saveIcon() {
   result.value?.canvas?.toBlob(async (blob) => {
     if (blob !== null) {
       const file = new File([blob], 'icon', { type: mimeType.value })
-      await SettingsService.setAppIcon({ body: { icon: file } })
-        .then(errorFeedback('Failed to upload new icon'))
-        .then(() => emit('uploaded'))
-        .finally(() => (model.value = false))
+      await mutateAsync({ body: { icon: file } })
     }
   }, mimeType.value)
 }
@@ -126,14 +144,6 @@ function saveIcon() {
   .vue-advanced-cropper__background {
     background: #252525;
   }
-}
-
-.crop-container {
-  max-width: 500px;
-  max-height: 500px;
-  display: flex;
-  justify-content: center;
-  overflow: hidden;
 }
 
 .v-file-input {

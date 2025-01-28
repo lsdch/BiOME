@@ -23,6 +23,7 @@
           variant="text"
           prepend-icon="mdi-floppy"
           @click="emit('submit')"
+          :loading
         />
       </v-card>
     </keep-alive>
@@ -31,6 +32,7 @@
 
 <script setup lang="ts">
 const isOpen = defineModel<boolean>()
+const { loading } = defineProps<{ loading?: boolean }>()
 const emit = defineEmits<{
   reset: []
   submit: []
