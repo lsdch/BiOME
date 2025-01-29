@@ -1,5 +1,11 @@
 <template>
-  <v-card class="bg-surface fill-height w-100 d-flex flex-column" :title="code" flat :rounded="0">
+  <v-card
+    class="bg-surface w-100 d-flex flex-column"
+    :title="code"
+    flat
+    :rounded="0"
+    min-height="100%"
+  >
     <template #prepend>
       <v-avatar variant="outlined">
         <v-icon icon="mdi-dna"></v-icon>
