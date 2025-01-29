@@ -51,11 +51,11 @@ func (i SettingsInput) SaveTx(tx *edgedb.Tx) error {
 			insert admin::SecuritySettings { jwt_secret_key := <str>$0 }
 		`, secretKey,
 	); err != nil {
-		return fmt.Errorf("Failed to initialize settings: %v", err)
+		return fmt.Errorf("Failed to initialize security settings: %v", err)
 	}
 
 	if _, err := i.Instance.Save(tx); err != nil {
-		return err
+		return fmt.Errorf("Failed to initialize instance settings: %v", err)
 	}
 
 	data, err := json.Marshal(i)
@@ -67,7 +67,10 @@ func (i SettingsInput) SaveTx(tx *edgedb.Tx) error {
 		`#edgeql
 			with data := <json>$0
 			select (insert admin::Settings {
-				superadmin := (assert_exists(<people::User><uuid>data['super_admin_id'])),
+				superadmin := (assert_exists(
+					<people::User><uuid>data['super_admin_id'],
+					message := 'Super admin not found'
+				)),
 				geoapify_api_key := <str>json_get(data, 'geoapify_api_key')
 			}) {
 				**,
