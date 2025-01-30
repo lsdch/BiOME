@@ -22,7 +22,9 @@
         />
       </template>
       <v-divider class="my-3" />
-      <v-list v-if="site">
+      <CenteredSpinner v-if="isPending" size="large" :height="300" />
+      <v-alert v-else-if="error" color="error" icon="mdi-alert"> Failed to load site </v-alert>
+      <v-list v-else-if="site">
         <v-list-item title="Coordinates" class="pr-0">
           <template #subtitle>
             <code class="text-wrap">
@@ -75,67 +77,6 @@
       </v-list>
     </v-card>
 
-    <SiteFormDialog :edit="site" v-model="editDialog"></SiteFormDialog>
-
-    <div id="panels" v-if="site">
-      <v-expansion-panels>
-        <v-expansion-panel>
-          <template #title>
-            Events
-            <v-badge color="primary" inline :content="site.events?.length ?? 0" />
-          </template>
-
-          <template #text>
-            <SiteEventsTable :site />
-          </template>
-        </v-expansion-panel>
-        <v-expansion-panel class="dataset-expansion-panel">
-          <template #title>
-            <div class="d-flex w-100 align-center mr-5">
-              Datasets
-              <v-badge
-                color="purple"
-                inline
-                :content="site.datasets?.length ?? 0"
-                variant="tonal"
-              />
-              <v-btn icon="mdi-plus" density="compact" variant="tonal" class="ml-auto" />
-            </div>
-          </template>
-          <template #text>
-            <v-list
-              nav
-              lines="one"
-              density="compact"
-              :items="site.datasets"
-              item-title="label"
-              item-value="slug"
-            >
-              <template #item="{ props: { title, value: slug } }">
-                <v-list-item
-                  link
-                  :to="$router.resolve({ name: 'dataset-item', params: { slug } })"
-                  :title
-                />
-              </template>
-            </v-list>
-          </template>
-        </v-expansion-panel>
-      </v-expansion-panels>
-    </div>
-    <div id="misc">
-      <v-card>
-        <v-list-item title="Abiotic measurements" class="py-2" prepend-icon="mdi-chart-line" link>
-          <AbioticChartsDialog
-            :abiotic_data="Object.values(abiotic_measurements)"
-            activator="parent"
-          />
-          <template #append>
-            <v-chip :text="Object.keys(abiotic_measurements).length.toString() || 'None'" />
-          </template>
-        </v-list-item>
-      </v-card>
-    </div>
     <div id="map-container">
       <ResponsiveDialog :as-dialog="mapAsDialog" v-model:open="mapActive">
         <v-card class="d-flex flex-column fill-height" :rounded="!mapActive">
@@ -169,6 +110,73 @@
         </v-card>
       </ResponsiveDialog>
     </div>
+
+    <SiteFormDialog :edit="site" v-model="editDialog"></SiteFormDialog>
+
+    <div id="panels">
+      <v-expansion-panels :disabled="isPending">
+        <v-expansion-panel>
+          <template #title>
+            Events
+            <v-badge color="primary" inline :content="site?.events?.length ?? 0" />
+          </template>
+
+          <template v-if="site" #text>
+            <SiteEventsTable :site />
+          </template>
+        </v-expansion-panel>
+        <v-expansion-panel class="dataset-expansion-panel">
+          <template #title>
+            <div class="d-flex w-100 align-center mr-5">
+              Datasets
+              <v-badge
+                color="purple"
+                inline
+                :content="site?.datasets?.length ?? 0"
+                variant="tonal"
+              />
+              <v-btn icon="mdi-plus" density="compact" variant="tonal" class="ml-auto" />
+            </div>
+          </template>
+          <template v-if="site" #text>
+            <v-list
+              nav
+              lines="one"
+              density="compact"
+              :items="site.datasets"
+              item-title="label"
+              item-value="slug"
+            >
+              <template #item="{ props: { title, value: slug } }">
+                <v-list-item
+                  link
+                  :to="$router.resolve({ name: 'dataset-item', params: { slug } })"
+                  :title
+                />
+              </template>
+            </v-list>
+          </template>
+        </v-expansion-panel>
+      </v-expansion-panels>
+    </div>
+    <div id="misc">
+      <v-card>
+        <v-list-item
+          title="Abiotic measurements"
+          class="py-2"
+          prepend-icon="mdi-chart-line"
+          :link="!isPending"
+        >
+          <AbioticChartsDialog
+            :abiotic_data="Object.values(abiotic_measurements)"
+            activator="parent"
+          />
+          <template #append>
+            <v-chip :text="Object.keys(abiotic_measurements).length.toString() || 'None'" />
+          </template>
+        </v-list-item>
+      </v-card>
+    </div>
   </v-container>
 </template>
 
@@ -186,6 +194,7 @@ import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
+import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 
 const { mdAndDown, xlAndUp } = useDisplay()
 
@@ -196,7 +205,7 @@ const [editDialog, toggleEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
 
-const { data: site, error } = useQuery(getSiteOptions({ path: { code } }))
+const { data: site, error, isPending } = useQuery(getSiteOptions({ path: { code } }))
 
 const targeted_taxa = computed(() => {
   return Object.values(
