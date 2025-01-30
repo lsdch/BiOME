@@ -22,6 +22,10 @@ a {
   &.muted-title .v-card-title {
     opacity: var(--v-medium-emphasis-opacity);
   }
+  &.wrap-card-title .v-card-title {
+    text-wrap: auto;
+    text-overflow: unset;
+  }
 }
 
 .input-font-monospace input {
