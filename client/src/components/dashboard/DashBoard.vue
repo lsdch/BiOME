@@ -1,5 +1,5 @@
 <template>
-  <v-container class="fill-height bg-surface align-start" fluid>
+  <v-container class="fill-height align-start" fluid>
     <v-row class="w-100">
       <v-col cols="12" md="6">
         <OccurrenceSunburst></OccurrenceSunburst>

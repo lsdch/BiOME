@@ -131,10 +131,10 @@ const cookiesAccepted = useLocalStorage('cookies-accepted', false)
 
 <style>
 #main {
-  background: initial;
+  /* background: initial;
   background-image: radial-gradient(#64646433 1px, transparent 0px);
   background-size: 25px 25px;
-  background-position: -10px -10px;
+  background-position: -10px -10px; */
 }
 
 .app-title {

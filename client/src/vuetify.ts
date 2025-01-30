@@ -14,7 +14,7 @@ import { aliases, mdi } from 'vuetify/iconsets/mdi'
 const light: ThemeDefinition = {
   dark: false,
   colors: {
-    main: '#FFFFFF',
+    main: '#ebe9f3',
     primary: '#1071B0',
     warning: '#ff6600',
   },

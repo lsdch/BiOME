@@ -1,12 +1,12 @@
 <template>
-  <v-container class="bg-surface" fluid>
+  <v-container fluid>
     <v-card v-if="instance" :title="instance.description">
       <template #append>
         <img src="https://img.shields.io/badge/status-in%20development-orange" />
       </template>
     </v-card>
   </v-container>
-  <v-sheet min-height="100%" class="d-flex flex-column justify-space-between fill-height">
+  <v-sheet min-height="100%" class="d-flex flex-column justify-space-between bg-main fill-height">
     <DashBoard />
   </v-sheet>
   <v-footer border="t-sm">
