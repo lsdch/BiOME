@@ -26,12 +26,11 @@
 
 <script setup lang="ts">
 import {
+  $SamplingMethodInput,
+  $SamplingMethodUpdate,
   SamplingMethod,
   SamplingMethodInput,
   SamplingMethodUpdate,
-  $SamplingMethodInput,
-  $SamplingMethodUpdate,
-  EventsService,
   SamplingService
 } from '@/api'
 import { FormEmits, FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
