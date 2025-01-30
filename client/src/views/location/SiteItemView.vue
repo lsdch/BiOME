@@ -93,7 +93,12 @@
           <template #title>
             <div class="d-flex w-100 align-center mr-5">
               Datasets
-              <v-badge color="purple" inline :content="site.datasets?.length" variant="tonal" />
+              <v-badge
+                color="purple"
+                inline
+                :content="site.datasets?.length ?? 0"
+                variant="tonal"
+              />
               <v-btn icon="mdi-plus" density="compact" variant="tonal" class="ml-auto" />
             </div>
           </template>
@@ -177,7 +182,7 @@ import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
-import { computed, reactive } from 'vue'
+import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
