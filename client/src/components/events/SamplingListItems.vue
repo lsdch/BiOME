@@ -28,25 +28,25 @@
   </v-list-item>
   <v-list-item title="Fixatives" prepend-icon="mdi-snowflake">
     <v-chip v-for="f in sampling.fixatives" :text="f.label" />
-    <v-list-item-subtitle v-if="sampling.fixatives.length == 0" class="font-italic">
+    <v-list-item-subtitle v-if="sampling.fixatives?.length" class="font-italic">
       Unknown
     </v-list-item-subtitle>
   </v-list-item>
   <v-list-item title="Methods" prepend-icon="mdi-hook">
     <v-chip v-for="m in sampling.methods" :text="m.label" />
-    <v-list-item-subtitle v-if="sampling.methods.length == 0" class="font-italic">
+    <v-list-item-subtitle v-if="sampling.methods?.length" class="font-italic">
       Unknown
     </v-list-item-subtitle>
   </v-list-item>
   <v-list-item prepend-icon="mdi-image-filter-hdr-outline">
     <v-list-item title="Habitat" class="px-0 no-padding">
-      <v-list-item-subtitle v-if="sampling.habitats.length == 0" class="font-italic">
+      <v-list-item-subtitle v-if="sampling.habitats?.length" class="font-italic">
         Unknown
       </v-list-item-subtitle>
       <v-chip v-for="h in sampling.habitats" class="ma-1" :text="h.label" :title="h.description" />
     </v-list-item>
     <v-list-item title="Access points" class="px-0 no-padding">
-      <v-list-item-subtitle v-if="sampling.access_points.length == 0" class="font-italic">
+      <v-list-item-subtitle v-if="sampling.access_points?.length" class="font-italic">
         Unknown
       </v-list-item-subtitle>
       <v-chip v-for="access in sampling.access_points" class="ma-1" :text="access" />

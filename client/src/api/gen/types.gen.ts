@@ -369,7 +369,7 @@ export type Event = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  abiotic_measurements: Array<AbioticMeasurement>
+  abiotic_measurements?: Array<AbioticMeasurement>
   code: string
   comments?: string
   id: string
@@ -377,7 +377,7 @@ export type Event = {
   performed_by: Array<PersonUser>
   performed_on: DateWithPrecision
   programs?: Array<ProgramInner>
-  samplings: Array<Sampling>
+  samplings?: Array<Sampling>
   site: SiteInfo
   spottings?: Array<Taxon>
 }
@@ -410,6 +410,17 @@ export type EventUpdate = {
   performed_on?: DateWithPrecisionInput
   programs?: Array<string> | null
   spottings?: Array<string> | null
+}
+
+export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom'
+
+export type ExtSeqSpecificsBioMaterial = {
+  origin: ExtSeqOrigin
+  original_taxon: string
+  published_in?: Array<OccurrenceReference>
+  referenced_in?: Array<SeqReference>
+  source_sample: OptionalBioMaterial
+  specimen_identifier: string
 }
 
 export type ExternalBioMatContent = {
@@ -449,8 +460,8 @@ export type ExternalBioMatSequence = {
   legacy?: OptionalLegacySeqId
   origin: ExtSeqOrigin
   original_taxon: string
-  published_in: Array<Article>
-  referenced_in: Array<SeqReference>
+  published_in?: Array<Article>
+  referenced_in?: Array<SeqReference>
   sequence?: string
   specimen_identifier: string
 }
@@ -482,17 +493,6 @@ export type ExternalBioMatUpdate = {
   quantity?: Quantity
   sampling_id: string
   vouchers?: Array<string>
-}
-
-export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom'
-
-export type ExtSeqSpecificsBioMaterial = {
-  origin: ExtSeqOrigin
-  original_taxon: string
-  published_in?: Array<OccurrenceReference>
-  referenced_in?: Array<SeqReference>
-  source_sample: OptionalBioMaterial
-  specimen_identifier: string
 }
 
 export type Fixative = {
@@ -812,7 +812,7 @@ export type InstitutionUpdate = {
   readonly $schema?: string
   code?: string
   description?: string | null
-  kind?: InstitutionKind | null
+  kind?: InstitutionKind
   name?: string
 }
 
@@ -1040,6 +1040,15 @@ export type OptionalBioMaterial = {
   seq_consensus?: OptionalTaxon
 } | null
 
+export type OptionalExtSeqSpecificsBioMaterial = {
+  origin: ExtSeqOrigin
+  original_taxon: string
+  published_in?: Array<OccurrenceReference>
+  referenced_in?: Array<SeqReference>
+  source_sample: OptionalBioMaterial
+  specimen_identifier: string
+} | null
+
 export type OptionalExternalBioMatSpecific = {
   archive: SpecimenVoucher
   comments: string
@@ -1048,15 +1057,6 @@ export type OptionalExternalBioMatSpecific = {
   original_link?: string
   original_taxon?: string
   quantity: Quantity
-} | null
-
-export type OptionalExtSeqSpecificsBioMaterial = {
-  origin: ExtSeqOrigin
-  original_taxon: string
-  published_in?: Array<OccurrenceReference>
-  referenced_in?: Array<SeqReference>
-  source_sample: OptionalBioMaterial
-  specimen_identifier: string
 } | null
 
 export type OptionalHabitatRecord = {
@@ -1370,35 +1370,35 @@ export type Sampling = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  access_points: Array<string>
+  access_points?: Array<string>
   code: string
   comments?: string
   /**
    * Sampling duration in minutes
    */
   duration?: number
-  fixatives: Array<Fixative>
-  habitats: Array<Habitat>
+  fixatives?: Array<Fixative>
+  habitats?: Array<Habitat>
   id: string
   meta: Meta
-  methods: Array<SamplingMethod>
-  occurring_taxa: Array<Taxon>
-  samples: Array<BioMaterial>
+  methods?: Array<SamplingMethod>
+  occurring_taxa?: Array<Taxon>
+  samples?: Array<BioMaterial>
   target: SamplingTarget
 }
 
 export type SamplingInner = {
-  access_points: Array<string>
+  access_points?: Array<string>
   code: string
   comments?: string
   /**
    * Sampling duration in minutes
    */
   duration?: number
-  fixatives: Array<Fixative>
-  habitats: Array<Habitat>
+  fixatives?: Array<Fixative>
+  habitats?: Array<Habitat>
   id: string
-  methods: Array<SamplingMethod>
+  methods?: Array<SamplingMethod>
   target: SamplingTarget
 }
 
@@ -1646,9 +1646,9 @@ export type Site = {
   code: string
   coordinates: Coordinates
   country: Country
-  datasets: Array<DatasetInner>
-  description: string
-  events: Array<Event>
+  datasets?: Array<DatasetInner>
+  description?: string
+  events?: Array<Event>
   id: string
   locality?: string
   meta: Meta
@@ -1733,7 +1733,7 @@ export type SiteItem = {
   code: string
   coordinates: Coordinates
   country: Country
-  description: string
+  description?: string
   id: string
   locality?: string
   name: string
@@ -1803,26 +1803,6 @@ export type TaxonInput = {
   comment?: string
   name: string
   parent: string
-  rank: TaxonRank
-  status: TaxonStatus
-}
-
-export type Taxonomy = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  GBIF_ID?: number
-  anchor: boolean
-  authorship?: string
-  children?: Array<Taxonomy>
-  children_count: number
-  code: string
-  comment?: string
-  id: string
-  meta: Meta
-  name: string
-  parent?: OptionalTaxon
   rank: TaxonRank
   status: TaxonStatus
 }
@@ -1908,12 +1888,30 @@ export type TaxonWithRelatives = {
   status: TaxonStatus
 }
 
-export type Updated = {
-  doi?: string
-  label?: string
-  type?: string
-  updated?: DateObject
+export type Taxonomy = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  GBIF_ID?: number
+  anchor: boolean
+  authorship?: string
+  children?: Array<Taxonomy>
+  children_count: number
+  code: string
+  comment?: string
+  id: string
+  meta: Meta
+  name: string
+  parent?: OptionalTaxon
+  rank: TaxonRank
+  status: TaxonStatus
 }
+
+/**
+ * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
+ */
+export type Url = string
 
 export type UpdatePasswordInput = {
   /**
@@ -1927,10 +1925,12 @@ export type UpdatePasswordInput = {
   password: string
 }
 
-/**
- * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
- */
-export type Url = string
+export type Updated = {
+  doi?: string
+  label?: string
+  type?: string
+  updated?: DateObject
+}
 
 export type User = {
   email: string
@@ -1995,845 +1995,42 @@ export type Works = {
   status?: string
 }
 
-export type CurrentUserData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CurrentUserResponse2 = CurrentUserResponse | void
-
-export type CurrentUserError = ErrorModel
-
-export type ConfirmEmailData = {
-  query?: {
-    token?: string
-  }
-}
-
-export type ConfirmEmailResponse = string
-
-export type ConfirmEmailError = ErrorModel
-
-export type ResendEmailVerificationData = {
-  body: ResendEmailVerificationInputBody
-}
-
-export type ResendEmailVerificationResponse = void
-
-export type ResendEmailVerificationError = ErrorModel
-
-export type RequestPasswordResetData = {
-  body: PasswordResetRequest
-}
-
-export type RequestPasswordResetResponse = void
-
-export type RequestPasswordResetError = ErrorModel
-
-export type LoginData = {
-  body: UserCredentials
-}
-
-export type LoginResponse = AuthenticationResponse
-
-export type LoginError = ErrorModel
-
-export type LogoutData = {
-  body: LogoutInputBody
-}
-
-export type LogoutResponse = string
-
-export type LogoutError = ErrorModel
-
-export type UpdatePasswordData = {
-  body: UpdatePasswordInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type UpdatePasswordResponse = void
-
-export type UpdatePasswordError = ErrorModel
-
-export type ValidatePasswordTokenData = {
-  query: {
-    token: string
-  }
-}
-
-export type ValidatePasswordTokenResponse = void
-
-export type ValidatePasswordTokenError = ErrorModel
-
-export type ResetPasswordData = {
-  body: PasswordInput
-  query: {
-    token: string
-  }
-}
-
-export type ResetPasswordResponse = void
-
-export type ResetPasswordError = ErrorModel
-
-export type ListPendingUserRequestsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListPendingUserRequestsResponse = Array<PendingUserRequest>
-
-export type ListPendingUserRequestsError = ErrorModel
-
-export type DeletePendingUserRequestData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type DeletePendingUserRequestResponse = PendingUserRequest
-
-export type DeletePendingUserRequestError = ErrorModel
-
-export type GetPendingUserRequestData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type GetPendingUserRequestResponse = PendingUserRequest
-
-export type GetPendingUserRequestError = ErrorModel
-
-export type RefreshSessionData = {
-  body: RefreshTokenBody
-}
-
-export type RefreshSessionResponse = AuthenticationResponse
-
-export type RefreshSessionError = ErrorModel
-
-export type RegisterData = {
-  body: RegisterInputBody
-}
-
-export type RegisterResponse = string
-
-export type RegisterError = ErrorModel
-
-export type ClaimInvitationData = {
-  body: UserInput
-  path: {
-    token: string
-  }
-}
-
-export type ClaimInvitationResponse = AuthenticationResponse
-
-export type ClaimInvitationError = ErrorModel
-
-export type ListCountriesData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListCountriesResponse = Array<Country>
-
-export type ListCountriesError = ErrorModel
-
-export type ListOccurrenceDatasetsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListOccurrenceDatasetsResponse = Array<OccurrenceDataset>
-
-export type ListOccurrenceDatasetsError = ErrorModel
-
-export type GetOccurrenceDatasetData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    slug: string
-  }
-}
-
-export type GetOccurrenceDatasetResponse = OccurrenceDataset
-
-export type GetOccurrenceDatasetError = ErrorModel
-
-export type ListSequenceDatasetsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListSequenceDatasetsResponse = Array<SequenceDataset>
-
-export type ListSequenceDatasetsError = ErrorModel
-
-export type GetSequenceDatasetData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    slug: string
-  }
-}
-
-export type GetSequenceDatasetResponse = SequenceDataset
-
-export type GetSequenceDatasetError = ErrorModel
-
-export type ListSiteDatasetsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListSiteDatasetsResponse = Array<SiteDataset>
-
-export type ListSiteDatasetsError = ErrorModel
-
-export type CreateSiteDatasetData = {
-  body: SiteDatasetInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreateSiteDatasetResponse = SiteDataset
-
-export type CreateSiteDatasetError = ErrorModel
-
-export type GetSiteDatasetData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    slug: string
-  }
-}
-
-export type GetSiteDatasetResponse = SiteDataset
-
-export type GetSiteDatasetError = ErrorModel
-
-export type DeleteEventData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-}
-
-export type DeleteEventResponse = Event
-
-export type DeleteEventError = ErrorModel
-
-export type UpdateEventData = {
-  body: EventUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-}
-
-export type UpdateEventResponse = Event
-
-export type UpdateEventError = ErrorModel
-
-export type UpdateSpottingData = {
-  body: Array<string>
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-}
-
-export type UpdateSpottingResponse = Array<Taxon>
-
-export type UpdateSpottingError = ErrorModel
-
-export type ListProgramsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListProgramsResponse = Array<Program>
-
-export type ListProgramsError = ErrorModel
-
-export type CreateProgramData = {
-  body: ProgramInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreateProgramResponse = Program
-
-export type CreateProgramError = ErrorModel
-
-export type DeleteProgramData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type DeleteProgramResponse = Program
-
-export type DeleteProgramError = ErrorModel
-
-export type UpdateProgramData = {
-  body: ProgramUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type UpdateProgramResponse = Program
-
-export type UpdateProgramError = ErrorModel
-
-export type ListHabitatGroupsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListHabitatGroupsResponse = Array<HabitatGroup>
-
-export type ListHabitatGroupsError = ErrorModel
-
-export type CreateHabitatGroupData = {
-  body: HabitatGroupInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreateHabitatGroupResponse = HabitatGroup
-
-export type CreateHabitatGroupError = ErrorModel
-
-export type DeleteHabitatGroupData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type DeleteHabitatGroupResponse = HabitatGroup
-
-export type DeleteHabitatGroupError = ErrorModel
-
-export type UpdateHabitatGroupData = {
-  body: HabitatGroupUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type UpdateHabitatGroupResponse = HabitatGroup
-
-export type UpdateHabitatGroupError = ErrorModel
-
-export type ListInstitutionsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListInstitutionsResponse = Array<Institution>
-
-export type ListInstitutionsError = ErrorModel
-
-export type CreateInstitutionData = {
-  body: InstitutionInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreateInstitutionResponse = Institution
-
-export type CreateInstitutionError = ErrorModel
-
-export type DeleteInstitutionData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type DeleteInstitutionResponse = Institution
-
-export type DeleteInstitutionError = ErrorModel
-
-export type UpdateInstitutionData = {
-  body: InstitutionUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type UpdateInstitutionResponse = Institution
-
-export type UpdateInstitutionError = ErrorModel
-
-export type ListSitesData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListSitesResponse = Array<Site>
-
-export type ListSitesError = ErrorModel
-
-export type CreateSiteData = {
-  body: SiteInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreateSiteResponse = Site
-
-export type CreateSiteError = ErrorModel
-
-export type GetSiteData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type GetSiteResponse = Site
-
-export type GetSiteError = ErrorModel
-
-export type UpdateSiteData = {
-  body: SiteUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type UpdateSiteResponse = Site
-
-export type UpdateSiteError = ErrorModel
-
-export type CreateEventData = {
-  body: EventInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type CreateEventResponse = Event
-
-export type CreateEventError = ErrorModel
-
-export type OccurrenceOverviewData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type OccurrenceOverviewResponse = Array<OccurrenceOverviewItem>
-
-export type OccurrenceOverviewError = ErrorModel
-
-export type ListPersonsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListPersonsResponse = Array<Person>
-
-export type ListPersonsError = ErrorModel
-
-export type CreatePersonData = {
-  body: PersonInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreatePersonResponse = Person
-
-export type CreatePersonError = ErrorModel
-
-export type DeletePersonData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-}
-
-export type DeletePersonResponse = Person
-
-export type DeletePersonError = ErrorModel
-
-export type UpdatePersonData = {
-  body: PersonUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-}
-
-export type UpdatePersonResponse = Person
-
-export type UpdatePersonError = ErrorModel
-
-export type InvitePersonData = {
-  body: InvitationInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-}
-
-export type InvitePersonResponse = InvitationLink
-
-export type InvitePersonError = ErrorModel
-
-export type CrossRefData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  query: {
-    doi: string
-  }
-}
-
-export type CrossRefResponse = Works
-
-export type CrossRefError = ErrorModel
-
-export type CrossRefBibSearchData = {
-  body: string
-}
-
-export type CrossRefBibSearchResponse = BibSearchResults
-
-export type CrossRefBibSearchError = ErrorModel
-
-export type ListArticlesData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListArticlesResponse = Array<Article>
-
-export type ListArticlesError = ErrorModel
-
-export type CreateArticleData = {
-  body: ArticleInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreateArticleResponse = Article
-
-export type CreateArticleError = ErrorModel
-
-export type DeleteArticleData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type DeleteArticleResponse = Article
-
-export type DeleteArticleError = ErrorModel
-
-export type UpdateArticleData = {
-  body: ArticleUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type UpdateArticleResponse = Article
-
-export type UpdateArticleError = ErrorModel
-
-export type ListBioMaterialData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListBioMaterialResponse = Array<BioMaterialWithDetails>
-
-export type ListBioMaterialError = ErrorModel
-
-export type UpdateExternalBioMatData = {
-  body: ExternalBioMatUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type UpdateExternalBioMatResponse = BioMaterialWithDetails
-
-export type UpdateExternalBioMatError = ErrorModel
-
-export type CreateExternalBioMatData = {
-  body: ExternalBioMatOccurrenceInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreateExternalBioMatResponse = BioMaterialWithDetails
-
-export type CreateExternalBioMatError = ErrorModel
-
-export type DeleteBioMaterialData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type DeleteBioMaterialResponse = BioMaterialWithDetails
-
-export type DeleteBioMaterialError = ErrorModel
-
-export type GetBioMaterialData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type GetBioMaterialResponse = BioMaterialWithDetails
-
-export type GetBioMaterialError = ErrorModel
-
 export type ListAbioticParametersData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/abiotic'
 }
 
-export type ListAbioticParametersResponse = Array<AbioticParameter>
+export type ListAbioticParametersErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type ListAbioticParametersError = ErrorModel
+export type ListAbioticParametersError =
+  ListAbioticParametersErrors[keyof ListAbioticParametersErrors]
+
+export type ListAbioticParametersResponses = {
+  /**
+   * OK
+   */
+  200: Array<AbioticParameter>
+}
+
+export type ListAbioticParametersResponse =
+  ListAbioticParametersResponses[keyof ListAbioticParametersResponses]
 
 export type CreateAbioticParameterData = {
   body: AbioticParameterInput
@@ -2843,13 +2040,37 @@ export type CreateAbioticParameterData = {
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/abiotic'
 }
 
-export type CreateAbioticParameterResponse = AbioticParameter
+export type CreateAbioticParameterErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type CreateAbioticParameterError = ErrorModel
+export type CreateAbioticParameterError =
+  CreateAbioticParameterErrors[keyof CreateAbioticParameterErrors]
+
+export type CreateAbioticParameterResponses = {
+  /**
+   * OK
+   */
+  200: AbioticParameter
+}
+
+export type CreateAbioticParameterResponse =
+  CreateAbioticParameterResponses[keyof CreateAbioticParameterResponses]
 
 export type DeleteAbioticParameterData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -2859,11 +2080,33 @@ export type DeleteAbioticParameterData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/abiotic/{code}'
 }
 
-export type DeleteAbioticParameterResponse = AbioticParameter
+export type DeleteAbioticParameterErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type DeleteAbioticParameterError = ErrorModel
+export type DeleteAbioticParameterError =
+  DeleteAbioticParameterErrors[keyof DeleteAbioticParameterErrors]
+
+export type DeleteAbioticParameterResponses = {
+  /**
+   * OK
+   */
+  200: AbioticParameter
+}
+
+export type DeleteAbioticParameterResponse =
+  DeleteAbioticParameterResponses[keyof DeleteAbioticParameterResponses]
 
 export type UpdateAbioticParameterData = {
   body: AbioticParameterUpdate
@@ -2876,53 +2119,629 @@ export type UpdateAbioticParameterData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/abiotic/{code}'
 }
 
-export type UpdateAbioticParameterResponse = AbioticParameter
+export type UpdateAbioticParameterErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type UpdateAbioticParameterError = ErrorModel
+export type UpdateAbioticParameterError =
+  UpdateAbioticParameterErrors[keyof UpdateAbioticParameterErrors]
+
+export type UpdateAbioticParameterResponses = {
+  /**
+   * OK
+   */
+  200: AbioticParameter
+}
+
+export type UpdateAbioticParameterResponse =
+  UpdateAbioticParameterResponses[keyof UpdateAbioticParameterResponses]
 
 export type GetAccessPointsData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/access-points'
 }
 
-export type GetAccessPointsResponse = Array<string>
+export type GetAccessPointsErrors = {
+  /**
+   * Error
+   */
+  default: ErrorModel
+}
 
-export type GetAccessPointsError = ErrorModel
+export type GetAccessPointsError = GetAccessPointsErrors[keyof GetAccessPointsErrors]
 
-export type ListFixativesData = {
+export type GetAccessPointsResponses = {
+  /**
+   * OK
+   */
+  200: Array<string>
+}
+
+export type GetAccessPointsResponse = GetAccessPointsResponses[keyof GetAccessPointsResponses]
+
+export type CurrentUserData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/account'
 }
 
-export type ListFixativesResponse = Array<Fixative>
+export type CurrentUserErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type ListFixativesError = ErrorModel
+export type CurrentUserError = CurrentUserErrors[keyof CurrentUserErrors]
 
-export type CreateFixativeData = {
-  body: FixativeInput
+export type CurrentUserResponses = {
+  /**
+   * The currently authenticated user
+   */
+  200: CurrentUserResponse
+  /**
+   * No active user session
+   */
+  204: void
+}
+
+export type CurrentUserResponse2 = CurrentUserResponses[keyof CurrentUserResponses]
+
+export type ConfirmEmailData = {
+  body?: never
+  path?: never
+  query?: {
+    token?: string
+  }
+  url: '/account/email-confirmation'
+}
+
+export type ConfirmEmailErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ConfirmEmailError = ConfirmEmailErrors[keyof ConfirmEmailErrors]
+
+export type ConfirmEmailResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ConfirmEmailResponse = ConfirmEmailResponses[keyof ConfirmEmailResponses]
+
+export type ResendEmailVerificationData = {
+  body: ResendEmailVerificationInputBody
+  path?: never
+  query?: never
+  url: '/account/email-confirmation/resend'
+}
+
+export type ResendEmailVerificationErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ResendEmailVerificationError =
+  ResendEmailVerificationErrors[keyof ResendEmailVerificationErrors]
+
+export type ResendEmailVerificationResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ResendEmailVerificationResponse =
+  ResendEmailVerificationResponses[keyof ResendEmailVerificationResponses]
+
+export type RequestPasswordResetData = {
+  body: PasswordResetRequest
+  path?: never
+  query?: never
+  url: '/account/forgotten-password'
+}
+
+export type RequestPasswordResetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type RequestPasswordResetError = RequestPasswordResetErrors[keyof RequestPasswordResetErrors]
+
+export type RequestPasswordResetResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type RequestPasswordResetResponse =
+  RequestPasswordResetResponses[keyof RequestPasswordResetResponses]
+
+export type LoginData = {
+  body: UserCredentials
+  path?: never
+  query?: never
+  url: '/account/login'
+}
+
+export type LoginErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type LoginError = LoginErrors[keyof LoginErrors]
+
+export type LoginResponses = {
+  /**
+   * OK
+   */
+  200: AuthenticationResponse
+}
+
+export type LoginResponse = LoginResponses[keyof LoginResponses]
+
+export type LogoutData = {
+  body: LogoutInputBody
+  path?: never
+  query?: never
+  url: '/account/logout'
+}
+
+export type LogoutErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type LogoutError = LogoutErrors[keyof LogoutErrors]
+
+export type LogoutResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type LogoutResponse = LogoutResponses[keyof LogoutResponses]
+
+export type UpdatePasswordData = {
+  body: UpdatePasswordInput
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/account/password'
 }
 
-export type CreateFixativeResponse = Fixative
+export type UpdatePasswordErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type CreateFixativeError = ErrorModel
+export type UpdatePasswordError = UpdatePasswordErrors[keyof UpdatePasswordErrors]
 
-export type DeleteFixativeData = {
+export type UpdatePasswordResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type UpdatePasswordResponse = UpdatePasswordResponses[keyof UpdatePasswordResponses]
+
+export type ValidatePasswordTokenData = {
+  body?: never
+  path?: never
+  query: {
+    token: string
+  }
+  url: '/account/password-reset'
+}
+
+export type ValidatePasswordTokenErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ValidatePasswordTokenError =
+  ValidatePasswordTokenErrors[keyof ValidatePasswordTokenErrors]
+
+export type ValidatePasswordTokenResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ValidatePasswordTokenResponse =
+  ValidatePasswordTokenResponses[keyof ValidatePasswordTokenResponses]
+
+export type ResetPasswordData = {
+  body: PasswordInput
+  path?: never
+  query: {
+    token: string
+  }
+  url: '/account/password-reset'
+}
+
+export type ResetPasswordErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ResetPasswordError = ResetPasswordErrors[keyof ResetPasswordErrors]
+
+export type ResetPasswordResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ResetPasswordResponse = ResetPasswordResponses[keyof ResetPasswordResponses]
+
+export type ListPendingUserRequestsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/account/pending'
+}
+
+export type ListPendingUserRequestsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListPendingUserRequestsError =
+  ListPendingUserRequestsErrors[keyof ListPendingUserRequestsErrors]
+
+export type ListPendingUserRequestsResponses = {
+  /**
+   * OK
+   */
+  200: Array<PendingUserRequest>
+}
+
+export type ListPendingUserRequestsResponse =
+  ListPendingUserRequestsResponses[keyof ListPendingUserRequestsResponses]
+
+export type DeletePendingUserRequestData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/account/pending/{email}'
+}
+
+export type DeletePendingUserRequestErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeletePendingUserRequestError =
+  DeletePendingUserRequestErrors[keyof DeletePendingUserRequestErrors]
+
+export type DeletePendingUserRequestResponses = {
+  /**
+   * OK
+   */
+  200: PendingUserRequest
+}
+
+export type DeletePendingUserRequestResponse =
+  DeletePendingUserRequestResponses[keyof DeletePendingUserRequestResponses]
+
+export type GetPendingUserRequestData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/account/pending/{email}'
+}
+
+export type GetPendingUserRequestErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetPendingUserRequestError =
+  GetPendingUserRequestErrors[keyof GetPendingUserRequestErrors]
+
+export type GetPendingUserRequestResponses = {
+  /**
+   * OK
+   */
+  200: PendingUserRequest
+}
+
+export type GetPendingUserRequestResponse =
+  GetPendingUserRequestResponses[keyof GetPendingUserRequestResponses]
+
+export type RefreshSessionData = {
+  body: RefreshTokenBody
+  path?: never
+  query?: never
+  url: '/account/refresh'
+}
+
+export type RefreshSessionErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type RefreshSessionError = RefreshSessionErrors[keyof RefreshSessionErrors]
+
+export type RefreshSessionResponses = {
+  /**
+   * OK
+   */
+  200: AuthenticationResponse
+}
+
+export type RefreshSessionResponse = RefreshSessionResponses[keyof RefreshSessionResponses]
+
+export type RegisterData = {
+  body: RegisterInputBody
+  path?: never
+  query?: never
+  url: '/account/register'
+}
+
+export type RegisterErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type RegisterError = RegisterErrors[keyof RegisterErrors]
+
+export type RegisterResponses = {
+  /**
+   * Created
+   */
+  201: string
+}
+
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses]
+
+export type ClaimInvitationData = {
+  body: UserInput
+  path: {
+    token: string
+  }
+  query?: never
+  url: '/account/register/{token}'
+}
+
+export type ClaimInvitationErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ClaimInvitationError = ClaimInvitationErrors[keyof ClaimInvitationErrors]
+
+export type ClaimInvitationResponses = {
+  /**
+   * OK
+   */
+  200: AuthenticationResponse
+}
+
+export type ClaimInvitationResponse = ClaimInvitationResponses[keyof ClaimInvitationResponses]
+
+export type ListAnchorsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/anchors/'
+}
+
+export type ListAnchorsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListAnchorsError = ListAnchorsErrors[keyof ListAnchorsErrors]
+
+export type ListAnchorsResponses = {
+  /**
+   * OK
+   */
+  200: Array<TaxonWithParentRef>
+}
+
+export type ListAnchorsResponse = ListAnchorsResponses[keyof ListAnchorsResponses]
+
+export type ListBioMaterialData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/bio-material'
+}
+
+export type ListBioMaterialErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListBioMaterialError = ListBioMaterialErrors[keyof ListBioMaterialErrors]
+
+export type ListBioMaterialResponses = {
+  /**
+   * OK
+   */
+  200: Array<BioMaterialWithDetails>
+}
+
+export type ListBioMaterialResponse = ListBioMaterialResponses[keyof ListBioMaterialResponses]
+
+export type UpdateExternalBioMatData = {
+  body: ExternalBioMatUpdate
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -2932,11 +2751,674 @@ export type DeleteFixativeData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/bio-material/external'
 }
 
-export type DeleteFixativeResponse = Fixative
+export type UpdateExternalBioMatErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type DeleteFixativeError = ErrorModel
+export type UpdateExternalBioMatError = UpdateExternalBioMatErrors[keyof UpdateExternalBioMatErrors]
+
+export type UpdateExternalBioMatResponses = {
+  /**
+   * OK
+   */
+  200: BioMaterialWithDetails
+}
+
+export type UpdateExternalBioMatResponse =
+  UpdateExternalBioMatResponses[keyof UpdateExternalBioMatResponses]
+
+export type CreateExternalBioMatData = {
+  body: ExternalBioMatOccurrenceInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/bio-material/external'
+}
+
+export type CreateExternalBioMatErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateExternalBioMatError = CreateExternalBioMatErrors[keyof CreateExternalBioMatErrors]
+
+export type CreateExternalBioMatResponses = {
+  /**
+   * OK
+   */
+  200: BioMaterialWithDetails
+}
+
+export type CreateExternalBioMatResponse =
+  CreateExternalBioMatResponses[keyof CreateExternalBioMatResponses]
+
+export type DeleteBioMaterialData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/bio-material/{code}'
+}
+
+export type DeleteBioMaterialErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteBioMaterialError = DeleteBioMaterialErrors[keyof DeleteBioMaterialErrors]
+
+export type DeleteBioMaterialResponses = {
+  /**
+   * OK
+   */
+  200: BioMaterialWithDetails
+}
+
+export type DeleteBioMaterialResponse = DeleteBioMaterialResponses[keyof DeleteBioMaterialResponses]
+
+export type GetBioMaterialData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/bio-material/{code}'
+}
+
+export type GetBioMaterialErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetBioMaterialError = GetBioMaterialErrors[keyof GetBioMaterialErrors]
+
+export type GetBioMaterialResponses = {
+  /**
+   * OK
+   */
+  200: BioMaterialWithDetails
+}
+
+export type GetBioMaterialResponse = GetBioMaterialResponses[keyof GetBioMaterialResponses]
+
+export type CrossRefData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query: {
+    doi: string
+  }
+  url: '/crossref'
+}
+
+export type CrossRefErrors = {
+  /**
+   * Error
+   */
+  default: ErrorModel
+}
+
+export type CrossRefError = CrossRefErrors[keyof CrossRefErrors]
+
+export type CrossRefResponses = {
+  /**
+   * OK
+   */
+  200: Works
+}
+
+export type CrossRefResponse = CrossRefResponses[keyof CrossRefResponses]
+
+export type CrossRefBibSearchData = {
+  body: string
+  path?: never
+  query?: never
+  url: '/crossref'
+}
+
+export type CrossRefBibSearchErrors = {
+  /**
+   * Error
+   */
+  default: ErrorModel
+}
+
+export type CrossRefBibSearchError = CrossRefBibSearchErrors[keyof CrossRefBibSearchErrors]
+
+export type CrossRefBibSearchResponses = {
+  /**
+   * OK
+   */
+  200: BibSearchResults
+}
+
+export type CrossRefBibSearchResponse = CrossRefBibSearchResponses[keyof CrossRefBibSearchResponses]
+
+export type ListOccurrenceDatasetsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/datasets/occurrence'
+}
+
+export type ListOccurrenceDatasetsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListOccurrenceDatasetsError =
+  ListOccurrenceDatasetsErrors[keyof ListOccurrenceDatasetsErrors]
+
+export type ListOccurrenceDatasetsResponses = {
+  /**
+   * OK
+   */
+  200: Array<OccurrenceDataset>
+}
+
+export type ListOccurrenceDatasetsResponse =
+  ListOccurrenceDatasetsResponses[keyof ListOccurrenceDatasetsResponses]
+
+export type GetOccurrenceDatasetData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    slug: string
+  }
+  query?: never
+  url: '/datasets/occurrence/{slug}'
+}
+
+export type GetOccurrenceDatasetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetOccurrenceDatasetError = GetOccurrenceDatasetErrors[keyof GetOccurrenceDatasetErrors]
+
+export type GetOccurrenceDatasetResponses = {
+  /**
+   * OK
+   */
+  200: OccurrenceDataset
+}
+
+export type GetOccurrenceDatasetResponse =
+  GetOccurrenceDatasetResponses[keyof GetOccurrenceDatasetResponses]
+
+export type ListSequenceDatasetsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/datasets/sequences'
+}
+
+export type ListSequenceDatasetsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListSequenceDatasetsError = ListSequenceDatasetsErrors[keyof ListSequenceDatasetsErrors]
+
+export type ListSequenceDatasetsResponses = {
+  /**
+   * OK
+   */
+  200: Array<SequenceDataset>
+}
+
+export type ListSequenceDatasetsResponse =
+  ListSequenceDatasetsResponses[keyof ListSequenceDatasetsResponses]
+
+export type GetSequenceDatasetData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    slug: string
+  }
+  query?: never
+  url: '/datasets/sequences/{slug}'
+}
+
+export type GetSequenceDatasetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetSequenceDatasetError = GetSequenceDatasetErrors[keyof GetSequenceDatasetErrors]
+
+export type GetSequenceDatasetResponses = {
+  /**
+   * OK
+   */
+  200: SequenceDataset
+}
+
+export type GetSequenceDatasetResponse =
+  GetSequenceDatasetResponses[keyof GetSequenceDatasetResponses]
+
+export type ListSiteDatasetsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/datasets/sites'
+}
+
+export type ListSiteDatasetsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListSiteDatasetsError = ListSiteDatasetsErrors[keyof ListSiteDatasetsErrors]
+
+export type ListSiteDatasetsResponses = {
+  /**
+   * OK
+   */
+  200: Array<SiteDataset>
+}
+
+export type ListSiteDatasetsResponse = ListSiteDatasetsResponses[keyof ListSiteDatasetsResponses]
+
+export type CreateSiteDatasetData = {
+  body: SiteDatasetInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/datasets/sites'
+}
+
+export type CreateSiteDatasetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateSiteDatasetError = CreateSiteDatasetErrors[keyof CreateSiteDatasetErrors]
+
+export type CreateSiteDatasetResponses = {
+  /**
+   * OK
+   */
+  200: SiteDataset
+}
+
+export type CreateSiteDatasetResponse = CreateSiteDatasetResponses[keyof CreateSiteDatasetResponses]
+
+export type GetSiteDatasetData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    slug: string
+  }
+  query?: never
+  url: '/datasets/sites/{slug}'
+}
+
+export type GetSiteDatasetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetSiteDatasetError = GetSiteDatasetErrors[keyof GetSiteDatasetErrors]
+
+export type GetSiteDatasetResponses = {
+  /**
+   * OK
+   */
+  200: SiteDataset
+}
+
+export type GetSiteDatasetResponse = GetSiteDatasetResponses[keyof GetSiteDatasetResponses]
+
+export type DeleteEventData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/events/{id}'
+}
+
+export type DeleteEventErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteEventError = DeleteEventErrors[keyof DeleteEventErrors]
+
+export type DeleteEventResponses = {
+  /**
+   * OK
+   */
+  200: Event
+}
+
+export type DeleteEventResponse = DeleteEventResponses[keyof DeleteEventResponses]
+
+export type UpdateEventData = {
+  body: EventUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/events/{id}'
+}
+
+export type UpdateEventErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateEventError = UpdateEventErrors[keyof UpdateEventErrors]
+
+export type UpdateEventResponses = {
+  /**
+   * OK
+   */
+  200: Event
+}
+
+export type UpdateEventResponse = UpdateEventResponses[keyof UpdateEventResponses]
+
+export type UpdateSpottingData = {
+  body: Array<string>
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/events/{id}/spottings'
+}
+
+export type UpdateSpottingErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateSpottingError = UpdateSpottingErrors[keyof UpdateSpottingErrors]
+
+export type UpdateSpottingResponses = {
+  /**
+   * OK
+   */
+  200: Array<Taxon>
+}
+
+export type UpdateSpottingResponse = UpdateSpottingResponses[keyof UpdateSpottingResponses]
+
+export type ListFixativesData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/fixatives'
+}
+
+export type ListFixativesErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListFixativesError = ListFixativesErrors[keyof ListFixativesErrors]
+
+export type ListFixativesResponses = {
+  /**
+   * OK
+   */
+  200: Array<Fixative>
+}
+
+export type ListFixativesResponse = ListFixativesResponses[keyof ListFixativesResponses]
+
+export type CreateFixativeData = {
+  body: FixativeInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/fixatives'
+}
+
+export type CreateFixativeErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateFixativeError = CreateFixativeErrors[keyof CreateFixativeErrors]
+
+export type CreateFixativeResponses = {
+  /**
+   * OK
+   */
+  200: Fixative
+}
+
+export type CreateFixativeResponse = CreateFixativeResponses[keyof CreateFixativeResponses]
+
+export type DeleteFixativeData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/fixatives/{code}'
+}
+
+export type DeleteFixativeErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteFixativeError = DeleteFixativeErrors[keyof DeleteFixativeErrors]
+
+export type DeleteFixativeResponses = {
+  /**
+   * OK
+   */
+  200: Fixative
+}
+
+export type DeleteFixativeResponse = DeleteFixativeResponses[keyof DeleteFixativeResponses]
 
 export type UpdateFixativeData = {
   body: FixativeUpdate
@@ -2949,131 +3431,66 @@ export type UpdateFixativeData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/fixatives/{code}'
 }
 
-export type UpdateFixativeResponse = Fixative
-
-export type UpdateFixativeError = ErrorModel
-
-export type ListSamplingMethodsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
+export type UpdateFixativeErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
 }
 
-export type ListSamplingMethodsResponse = Array<SamplingMethod>
+export type UpdateFixativeError = UpdateFixativeErrors[keyof UpdateFixativeErrors]
 
-export type ListSamplingMethodsError = ErrorModel
-
-export type CreateSamplingMethodData = {
-  body: SamplingMethodInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
+export type UpdateFixativeResponses = {
+  /**
+   * OK
+   */
+  200: Fixative
 }
 
-export type CreateSamplingMethodResponse = SamplingMethod
-
-export type CreateSamplingMethodError = ErrorModel
-
-export type DeleteSamplingMethodData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type DeleteSamplingMethodResponse = SamplingMethod
-
-export type DeleteSamplingMethodError = ErrorModel
-
-export type UpdateSamplingMethodData = {
-  body: SamplingMethodUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-}
-
-export type UpdateSamplingMethodResponse = SamplingMethod
-
-export type UpdateSamplingMethodError = ErrorModel
-
-export type CreateSamplingData = {
-  body: SamplingInputWithEvent
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type CreateSamplingResponse = Sampling
-
-export type CreateSamplingError = ErrorModel
-
-export type DeleteSamplingData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-}
-
-export type DeleteSamplingResponse = Sampling
-
-export type DeleteSamplingError = ErrorModel
-
-export type UpdateSamplingData = {
-  body: SamplingUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-}
-
-export type UpdateSamplingResponse = Sampling
-
-export type UpdateSamplingError = ErrorModel
+export type UpdateFixativeResponse = UpdateFixativeResponses[keyof UpdateFixativeResponses]
 
 export type ListGenesData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/genes'
 }
 
-export type ListGenesResponse = Array<Gene>
+export type ListGenesErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type ListGenesError = ErrorModel
+export type ListGenesError = ListGenesErrors[keyof ListGenesErrors]
+
+export type ListGenesResponses = {
+  /**
+   * OK
+   */
+  200: Array<Gene>
+}
+
+export type ListGenesResponse = ListGenesResponses[keyof ListGenesResponses]
 
 export type CreateGeneData = {
   body: GeneInput
@@ -3083,13 +3500,35 @@ export type CreateGeneData = {
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/genes'
 }
 
-export type CreateGeneResponse = Gene
+export type CreateGeneErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type CreateGeneError = ErrorModel
+export type CreateGeneError = CreateGeneErrors[keyof CreateGeneErrors]
+
+export type CreateGeneResponses = {
+  /**
+   * OK
+   */
+  200: Gene
+}
+
+export type CreateGeneResponse = CreateGeneResponses[keyof CreateGeneResponses]
 
 export type DeleteGeneData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -3099,11 +3538,31 @@ export type DeleteGeneData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/genes/{code}'
 }
 
-export type DeleteGeneResponse = Gene
+export type DeleteGeneErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type DeleteGeneError = ErrorModel
+export type DeleteGeneError = DeleteGeneErrors[keyof DeleteGeneErrors]
+
+export type DeleteGeneResponses = {
+  /**
+   * OK
+   */
+  200: Gene
+}
+
+export type DeleteGeneResponse = DeleteGeneResponses[keyof DeleteGeneResponses]
 
 export type UpdateGeneData = {
   body: GeneUpdate
@@ -3116,40 +3575,140 @@ export type UpdateGeneData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/genes/{code}'
 }
 
-export type UpdateGeneResponse = Gene
+export type UpdateGeneErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type UpdateGeneError = ErrorModel
+export type UpdateGeneError = UpdateGeneErrors[keyof UpdateGeneErrors]
 
-export type ListSeqDbsData = {
+export type UpdateGeneResponses = {
+  /**
+   * OK
+   */
+  200: Gene
+}
+
+export type UpdateGeneResponse = UpdateGeneResponses[keyof UpdateGeneResponses]
+
+export type ListGeoapifyUsageData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/geoapify'
 }
 
-export type ListSeqDbsResponse = Array<SeqDb>
+export type ListGeoapifyUsageErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type ListSeqDbsError = ErrorModel
+export type ListGeoapifyUsageError = ListGeoapifyUsageErrors[keyof ListGeoapifyUsageErrors]
 
-export type CreateSeqDbData = {
-  body: SeqDbInput
+export type ListGeoapifyUsageResponses = {
+  /**
+   * OK
+   */
+  200: Array<GeoapifyUsage>
+}
+
+export type ListGeoapifyUsageResponse = ListGeoapifyUsageResponses[keyof ListGeoapifyUsageResponses]
+
+export type ListHabitatGroupsData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/habitats'
 }
 
-export type CreateSeqDbResponse = SeqDb
+export type ListHabitatGroupsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type CreateSeqDbError = ErrorModel
+export type ListHabitatGroupsError = ListHabitatGroupsErrors[keyof ListHabitatGroupsErrors]
 
-export type DeleteSeqDbData = {
+export type ListHabitatGroupsResponses = {
+  /**
+   * OK
+   */
+  200: Array<HabitatGroup>
+}
+
+export type ListHabitatGroupsResponse = ListHabitatGroupsResponses[keyof ListHabitatGroupsResponses]
+
+export type CreateHabitatGroupData = {
+  body: HabitatGroupInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/habitats'
+}
+
+export type CreateHabitatGroupErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateHabitatGroupError = CreateHabitatGroupErrors[keyof CreateHabitatGroupErrors]
+
+export type CreateHabitatGroupResponses = {
+  /**
+   * OK
+   */
+  200: HabitatGroup
+}
+
+export type CreateHabitatGroupResponse =
+  CreateHabitatGroupResponses[keyof CreateHabitatGroupResponses]
+
+export type DeleteHabitatGroupData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -3159,11 +3718,1214 @@ export type DeleteSeqDbData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/habitats/{code}'
 }
 
-export type DeleteSeqDbResponse = SeqDb
+export type DeleteHabitatGroupErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type DeleteSeqDbError = ErrorModel
+export type DeleteHabitatGroupError = DeleteHabitatGroupErrors[keyof DeleteHabitatGroupErrors]
+
+export type DeleteHabitatGroupResponses = {
+  /**
+   * OK
+   */
+  200: HabitatGroup
+}
+
+export type DeleteHabitatGroupResponse =
+  DeleteHabitatGroupResponses[keyof DeleteHabitatGroupResponses]
+
+export type UpdateHabitatGroupData = {
+  body: HabitatGroupUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/habitats/{code}'
+}
+
+export type UpdateHabitatGroupErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateHabitatGroupError = UpdateHabitatGroupErrors[keyof UpdateHabitatGroupErrors]
+
+export type UpdateHabitatGroupResponses = {
+  /**
+   * OK
+   */
+  200: HabitatGroup
+}
+
+export type UpdateHabitatGroupResponse =
+  UpdateHabitatGroupResponses[keyof UpdateHabitatGroupResponses]
+
+export type ImportGbifData = {
+  body: ImportRequestGbif
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/import/taxonomy'
+}
+
+export type ImportGbifErrors = {
+  /**
+   * Error
+   */
+  default: ErrorModel
+}
+
+export type ImportGbifError = ImportGbifErrors[keyof ImportGbifErrors]
+
+export type ImportGbifResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ImportGbifResponse = ImportGbifResponses[keyof ImportGbifResponses]
+
+export type MonitorGbifData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/import/taxonomy/monitor'
+}
+
+export type MonitorGbifErrors = {
+  /**
+   * Error
+   */
+  default: ErrorModel
+}
+
+export type MonitorGbifError = MonitorGbifErrors[keyof MonitorGbifErrors]
+
+export type MonitorGbifResponses = {
+  /**
+   * Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.
+   */
+  200: Array<{
+    data: {
+      [key: string]: ImportProcess
+    }
+    /**
+     * The event name.
+     */
+    event: 'state'
+    /**
+     * The event ID.
+     */
+    id?: number
+    /**
+     * The retry time in milliseconds.
+     */
+    retry?: number
+  }>
+}
+
+export type MonitorGbifResponse = MonitorGbifResponses[keyof MonitorGbifResponses]
+
+export type ListInstitutionsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/institutions'
+}
+
+export type ListInstitutionsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListInstitutionsError = ListInstitutionsErrors[keyof ListInstitutionsErrors]
+
+export type ListInstitutionsResponses = {
+  /**
+   * OK
+   */
+  200: Array<Institution>
+}
+
+export type ListInstitutionsResponse = ListInstitutionsResponses[keyof ListInstitutionsResponses]
+
+export type CreateInstitutionData = {
+  body: InstitutionInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/institutions'
+}
+
+export type CreateInstitutionErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateInstitutionError = CreateInstitutionErrors[keyof CreateInstitutionErrors]
+
+export type CreateInstitutionResponses = {
+  /**
+   * OK
+   */
+  200: Institution
+}
+
+export type CreateInstitutionResponse = CreateInstitutionResponses[keyof CreateInstitutionResponses]
+
+export type DeleteInstitutionData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/institutions/{code}'
+}
+
+export type DeleteInstitutionErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteInstitutionError = DeleteInstitutionErrors[keyof DeleteInstitutionErrors]
+
+export type DeleteInstitutionResponses = {
+  /**
+   * OK
+   */
+  200: Institution
+}
+
+export type DeleteInstitutionResponse = DeleteInstitutionResponses[keyof DeleteInstitutionResponses]
+
+export type UpdateInstitutionData = {
+  body: InstitutionUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/institutions/{code}'
+}
+
+export type UpdateInstitutionErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateInstitutionError = UpdateInstitutionErrors[keyof UpdateInstitutionErrors]
+
+export type UpdateInstitutionResponses = {
+  /**
+   * OK
+   */
+  200: Institution
+}
+
+export type UpdateInstitutionResponse = UpdateInstitutionResponses[keyof UpdateInstitutionResponses]
+
+export type ListCountriesData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/locations/countries'
+}
+
+export type ListCountriesErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListCountriesError = ListCountriesErrors[keyof ListCountriesErrors]
+
+export type ListCountriesResponses = {
+  /**
+   * OK
+   */
+  200: Array<Country>
+}
+
+export type ListCountriesResponse = ListCountriesResponses[keyof ListCountriesResponses]
+
+export type OccurrenceOverviewData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/occurrences/overview'
+}
+
+export type OccurrenceOverviewErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type OccurrenceOverviewError = OccurrenceOverviewErrors[keyof OccurrenceOverviewErrors]
+
+export type OccurrenceOverviewResponses = {
+  /**
+   * OK
+   */
+  200: Array<OccurrenceOverviewItem>
+}
+
+export type OccurrenceOverviewResponse =
+  OccurrenceOverviewResponses[keyof OccurrenceOverviewResponses]
+
+export type ListPersonsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/persons'
+}
+
+export type ListPersonsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListPersonsError = ListPersonsErrors[keyof ListPersonsErrors]
+
+export type ListPersonsResponses = {
+  /**
+   * OK
+   */
+  200: Array<Person>
+}
+
+export type ListPersonsResponse = ListPersonsResponses[keyof ListPersonsResponses]
+
+export type CreatePersonData = {
+  body: PersonInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/persons'
+}
+
+export type CreatePersonErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreatePersonError = CreatePersonErrors[keyof CreatePersonErrors]
+
+export type CreatePersonResponses = {
+  /**
+   * OK
+   */
+  200: Person
+}
+
+export type CreatePersonResponse = CreatePersonResponses[keyof CreatePersonResponses]
+
+export type DeletePersonData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/persons/{id}'
+}
+
+export type DeletePersonErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeletePersonError = DeletePersonErrors[keyof DeletePersonErrors]
+
+export type DeletePersonResponses = {
+  /**
+   * OK
+   */
+  200: Person
+}
+
+export type DeletePersonResponse = DeletePersonResponses[keyof DeletePersonResponses]
+
+export type UpdatePersonData = {
+  body: PersonUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/persons/{id}'
+}
+
+export type UpdatePersonErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdatePersonError = UpdatePersonErrors[keyof UpdatePersonErrors]
+
+export type UpdatePersonResponses = {
+  /**
+   * OK
+   */
+  200: Person
+}
+
+export type UpdatePersonResponse = UpdatePersonResponses[keyof UpdatePersonResponses]
+
+export type InvitePersonData = {
+  body: InvitationInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/persons/{id}/invite'
+}
+
+export type InvitePersonErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type InvitePersonError = InvitePersonErrors[keyof InvitePersonErrors]
+
+export type InvitePersonResponses = {
+  /**
+   * OK
+   */
+  200: InvitationLink
+}
+
+export type InvitePersonResponse = InvitePersonResponses[keyof InvitePersonResponses]
+
+export type ListProgramsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/programs'
+}
+
+export type ListProgramsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListProgramsError = ListProgramsErrors[keyof ListProgramsErrors]
+
+export type ListProgramsResponses = {
+  /**
+   * OK
+   */
+  200: Array<Program>
+}
+
+export type ListProgramsResponse = ListProgramsResponses[keyof ListProgramsResponses]
+
+export type CreateProgramData = {
+  body: ProgramInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/programs'
+}
+
+export type CreateProgramErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateProgramError = CreateProgramErrors[keyof CreateProgramErrors]
+
+export type CreateProgramResponses = {
+  /**
+   * OK
+   */
+  200: Program
+}
+
+export type CreateProgramResponse = CreateProgramResponses[keyof CreateProgramResponses]
+
+export type DeleteProgramData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/programs/{code}'
+}
+
+export type DeleteProgramErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteProgramError = DeleteProgramErrors[keyof DeleteProgramErrors]
+
+export type DeleteProgramResponses = {
+  /**
+   * OK
+   */
+  200: Program
+}
+
+export type DeleteProgramResponse = DeleteProgramResponses[keyof DeleteProgramResponses]
+
+export type UpdateProgramData = {
+  body: ProgramUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/programs/{code}'
+}
+
+export type UpdateProgramErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateProgramError = UpdateProgramErrors[keyof UpdateProgramErrors]
+
+export type UpdateProgramResponses = {
+  /**
+   * OK
+   */
+  200: Program
+}
+
+export type UpdateProgramResponse = UpdateProgramResponses[keyof UpdateProgramResponses]
+
+export type ListArticlesData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/references'
+}
+
+export type ListArticlesErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListArticlesError = ListArticlesErrors[keyof ListArticlesErrors]
+
+export type ListArticlesResponses = {
+  /**
+   * OK
+   */
+  200: Array<Article>
+}
+
+export type ListArticlesResponse = ListArticlesResponses[keyof ListArticlesResponses]
+
+export type CreateArticleData = {
+  body: ArticleInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/references'
+}
+
+export type CreateArticleErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateArticleError = CreateArticleErrors[keyof CreateArticleErrors]
+
+export type CreateArticleResponses = {
+  /**
+   * OK
+   */
+  200: Article
+}
+
+export type CreateArticleResponse = CreateArticleResponses[keyof CreateArticleResponses]
+
+export type DeleteArticleData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/references/{code}'
+}
+
+export type DeleteArticleErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteArticleError = DeleteArticleErrors[keyof DeleteArticleErrors]
+
+export type DeleteArticleResponses = {
+  /**
+   * OK
+   */
+  200: Article
+}
+
+export type DeleteArticleResponse = DeleteArticleResponses[keyof DeleteArticleResponses]
+
+export type UpdateArticleData = {
+  body: ArticleUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/references/{code}'
+}
+
+export type UpdateArticleErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateArticleError = UpdateArticleErrors[keyof UpdateArticleErrors]
+
+export type UpdateArticleResponses = {
+  /**
+   * OK
+   */
+  200: Article
+}
+
+export type UpdateArticleResponse = UpdateArticleResponses[keyof UpdateArticleResponses]
+
+export type ListSamplingMethodsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/sampling-methods'
+}
+
+export type ListSamplingMethodsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListSamplingMethodsError = ListSamplingMethodsErrors[keyof ListSamplingMethodsErrors]
+
+export type ListSamplingMethodsResponses = {
+  /**
+   * OK
+   */
+  200: Array<SamplingMethod>
+}
+
+export type ListSamplingMethodsResponse =
+  ListSamplingMethodsResponses[keyof ListSamplingMethodsResponses]
+
+export type CreateSamplingMethodData = {
+  body: SamplingMethodInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/sampling-methods'
+}
+
+export type CreateSamplingMethodErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateSamplingMethodError = CreateSamplingMethodErrors[keyof CreateSamplingMethodErrors]
+
+export type CreateSamplingMethodResponses = {
+  /**
+   * OK
+   */
+  200: SamplingMethod
+}
+
+export type CreateSamplingMethodResponse =
+  CreateSamplingMethodResponses[keyof CreateSamplingMethodResponses]
+
+export type DeleteSamplingMethodData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/sampling-methods/{code}'
+}
+
+export type DeleteSamplingMethodErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteSamplingMethodError = DeleteSamplingMethodErrors[keyof DeleteSamplingMethodErrors]
+
+export type DeleteSamplingMethodResponses = {
+  /**
+   * OK
+   */
+  200: SamplingMethod
+}
+
+export type DeleteSamplingMethodResponse =
+  DeleteSamplingMethodResponses[keyof DeleteSamplingMethodResponses]
+
+export type UpdateSamplingMethodData = {
+  body: SamplingMethodUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/sampling-methods/{code}'
+}
+
+export type UpdateSamplingMethodErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateSamplingMethodError = UpdateSamplingMethodErrors[keyof UpdateSamplingMethodErrors]
+
+export type UpdateSamplingMethodResponses = {
+  /**
+   * OK
+   */
+  200: SamplingMethod
+}
+
+export type UpdateSamplingMethodResponse =
+  UpdateSamplingMethodResponses[keyof UpdateSamplingMethodResponses]
+
+export type CreateSamplingData = {
+  body: SamplingInputWithEvent
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/samplings'
+}
+
+export type CreateSamplingErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateSamplingError = CreateSamplingErrors[keyof CreateSamplingErrors]
+
+export type CreateSamplingResponses = {
+  /**
+   * OK
+   */
+  200: Sampling
+}
+
+export type CreateSamplingResponse = CreateSamplingResponses[keyof CreateSamplingResponses]
+
+export type DeleteSamplingData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/samplings/{id}'
+}
+
+export type DeleteSamplingErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteSamplingError = DeleteSamplingErrors[keyof DeleteSamplingErrors]
+
+export type DeleteSamplingResponses = {
+  /**
+   * OK
+   */
+  200: Sampling
+}
+
+export type DeleteSamplingResponse = DeleteSamplingResponses[keyof DeleteSamplingResponses]
+
+export type UpdateSamplingData = {
+  body: SamplingUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/samplings/{id}'
+}
+
+export type UpdateSamplingErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateSamplingError = UpdateSamplingErrors[keyof UpdateSamplingErrors]
+
+export type UpdateSamplingResponses = {
+  /**
+   * OK
+   */
+  200: Sampling
+}
+
+export type UpdateSamplingResponse = UpdateSamplingResponses[keyof UpdateSamplingResponses]
+
+export type ListSeqDbsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/seq-databases'
+}
+
+export type ListSeqDbsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListSeqDbsError = ListSeqDbsErrors[keyof ListSeqDbsErrors]
+
+export type ListSeqDbsResponses = {
+  /**
+   * OK
+   */
+  200: Array<SeqDb>
+}
+
+export type ListSeqDbsResponse = ListSeqDbsResponses[keyof ListSeqDbsResponses]
+
+export type CreateSeqDbData = {
+  body: SeqDbInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/seq-databases'
+}
+
+export type CreateSeqDbErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateSeqDbError = CreateSeqDbErrors[keyof CreateSeqDbErrors]
+
+export type CreateSeqDbResponses = {
+  /**
+   * OK
+   */
+  200: SeqDb
+}
+
+export type CreateSeqDbResponse = CreateSeqDbResponses[keyof CreateSeqDbResponses]
+
+export type DeleteSeqDbData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/seq-databases/{code}'
+}
+
+export type DeleteSeqDbErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteSeqDbError = DeleteSeqDbErrors[keyof DeleteSeqDbErrors]
+
+export type DeleteSeqDbResponses = {
+  /**
+   * OK
+   */
+  200: SeqDb
+}
+
+export type DeleteSeqDbResponse = DeleteSeqDbResponses[keyof DeleteSeqDbResponses]
 
 export type UpdateSeqDbData = {
   body: SeqDbUpdate
@@ -3176,26 +4938,69 @@ export type UpdateSeqDbData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/seq-databases/{code}'
 }
 
-export type UpdateSeqDbResponse = SeqDb
+export type UpdateSeqDbErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type UpdateSeqDbError = ErrorModel
+export type UpdateSeqDbError = UpdateSeqDbErrors[keyof UpdateSeqDbErrors]
+
+export type UpdateSeqDbResponses = {
+  /**
+   * OK
+   */
+  200: SeqDb
+}
+
+export type UpdateSeqDbResponse = UpdateSeqDbResponses[keyof UpdateSeqDbResponses]
 
 export type ListSequencesData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/sequences'
 }
 
-export type ListSequencesResponse = Array<Sequence>
+export type ListSequencesErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type ListSequencesError = ErrorModel
+export type ListSequencesError = ListSequencesErrors[keyof ListSequencesErrors]
+
+export type ListSequencesResponses = {
+  /**
+   * OK
+   */
+  200: Array<Sequence>
+}
+
+export type ListSequencesResponse = ListSequencesResponses[keyof ListSequencesResponses]
 
 export type DeleteSequenceData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -3205,13 +5010,34 @@ export type DeleteSequenceData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/sequences/{code}'
 }
 
-export type DeleteSequenceResponse = Sequence
+export type DeleteSequenceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type DeleteSequenceError = ErrorModel
+export type DeleteSequenceError = DeleteSequenceErrors[keyof DeleteSequenceErrors]
+
+export type DeleteSequenceResponses = {
+  /**
+   * OK
+   */
+  200: Sequence
+}
+
+export type DeleteSequenceResponse = DeleteSequenceResponses[keyof DeleteSequenceResponses]
 
 export type GetSequenceData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -3221,37 +5047,66 @@ export type GetSequenceData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/sequences/{code}'
 }
 
-export type GetSequenceResponse = SequenceWithDetails
-
-export type GetSequenceError = ErrorModel
-
-export type ListGeoapifyUsageData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
+export type GetSequenceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
 }
 
-export type ListGeoapifyUsageResponse = Array<GeoapifyUsage>
+export type GetSequenceError = GetSequenceErrors[keyof GetSequenceErrors]
 
-export type ListGeoapifyUsageError = ErrorModel
+export type GetSequenceResponses = {
+  /**
+   * OK
+   */
+  200: SequenceWithDetails
+}
+
+export type GetSequenceResponse = GetSequenceResponses[keyof GetSequenceResponses]
 
 export type EmailSettingsData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/settings/emailing'
 }
 
-export type EmailSettingsResponse = EmailSettings
+export type EmailSettingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type EmailSettingsError = ErrorModel
+export type EmailSettingsError = EmailSettingsErrors[keyof EmailSettingsErrors]
+
+export type EmailSettingsResponses = {
+  /**
+   * OK
+   */
+  200: EmailSettings
+}
+
+export type EmailSettingsResponse = EmailSettingsResponses[keyof EmailSettingsResponses]
 
 export type UpdateEmailSettingsData = {
   body: EmailSettingsInput
@@ -3261,11 +5116,33 @@ export type UpdateEmailSettingsData = {
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/settings/emailing'
 }
 
-export type UpdateEmailSettingsResponse = EmailSettings
+export type UpdateEmailSettingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type UpdateEmailSettingsError = ErrorModel
+export type UpdateEmailSettingsError = UpdateEmailSettingsErrors[keyof UpdateEmailSettingsErrors]
+
+export type UpdateEmailSettingsResponses = {
+  /**
+   * OK
+   */
+  200: EmailSettings
+}
+
+export type UpdateEmailSettingsResponse =
+  UpdateEmailSettingsResponses[keyof UpdateEmailSettingsResponses]
 
 export type TestSmtpData = {
   body: EmailSettingsInput
@@ -3275,11 +5152,32 @@ export type TestSmtpData = {
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/settings/emailing/test-dial'
 }
 
-export type TestSmtpResponse = boolean
+export type TestSmtpErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type TestSmtpError = ErrorModel
+export type TestSmtpError = TestSmtpErrors[keyof TestSmtpErrors]
+
+export type TestSmtpResponses = {
+  /**
+   * OK
+   */
+  200: boolean
+}
+
+export type TestSmtpResponse = TestSmtpResponses[keyof TestSmtpResponses]
 
 export type SetAppIconData = {
   body?: {
@@ -3291,15 +5189,57 @@ export type SetAppIconData = {
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/settings/icon'
 }
 
-export type SetAppIconResponse = string
+export type SetAppIconErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type SetAppIconError = ErrorModel
+export type SetAppIconError = SetAppIconErrors[keyof SetAppIconErrors]
 
-export type InstanceSettingsResponse = InstanceSettings
+export type SetAppIconResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
 
-export type InstanceSettingsError = ErrorModel
+export type SetAppIconResponse = SetAppIconResponses[keyof SetAppIconResponses]
+
+export type InstanceSettingsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/settings/instance'
+}
+
+export type InstanceSettingsErrors = {
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type InstanceSettingsError = InstanceSettingsErrors[keyof InstanceSettingsErrors]
+
+export type InstanceSettingsResponses = {
+  /**
+   * OK
+   */
+  200: InstanceSettings
+}
+
+export type InstanceSettingsResponse = InstanceSettingsResponses[keyof InstanceSettingsResponses]
 
 export type UpdateInstanceSettingsData = {
   body: InstanceSettingsInput
@@ -3309,24 +5249,69 @@ export type UpdateInstanceSettingsData = {
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/settings/instance'
 }
 
-export type UpdateInstanceSettingsResponse = InstanceSettings
+export type UpdateInstanceSettingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type UpdateInstanceSettingsError = ErrorModel
+export type UpdateInstanceSettingsError =
+  UpdateInstanceSettingsErrors[keyof UpdateInstanceSettingsErrors]
+
+export type UpdateInstanceSettingsResponses = {
+  /**
+   * OK
+   */
+  200: InstanceSettings
+}
+
+export type UpdateInstanceSettingsResponse =
+  UpdateInstanceSettingsResponses[keyof UpdateInstanceSettingsResponses]
 
 export type SecuritySettingsData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/settings/security'
 }
 
-export type SecuritySettingsResponse = SecuritySettings
+export type SecuritySettingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type SecuritySettingsError = ErrorModel
+export type SecuritySettingsError = SecuritySettingsErrors[keyof SecuritySettingsErrors]
+
+export type SecuritySettingsResponses = {
+  /**
+   * OK
+   */
+  200: SecuritySettings
+}
+
+export type SecuritySettingsResponse = SecuritySettingsResponses[keyof SecuritySettingsResponses]
 
 export type UpdateSecuritySettingsData = {
   body: SecuritySettingsInput
@@ -3336,24 +5321,69 @@ export type UpdateSecuritySettingsData = {
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/settings/security'
 }
 
-export type UpdateSecuritySettingsResponse = SecuritySettings
+export type UpdateSecuritySettingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type UpdateSecuritySettingsError = ErrorModel
+export type UpdateSecuritySettingsError =
+  UpdateSecuritySettingsErrors[keyof UpdateSecuritySettingsErrors]
+
+export type UpdateSecuritySettingsResponses = {
+  /**
+   * OK
+   */
+  200: SecuritySettings
+}
+
+export type UpdateSecuritySettingsResponse =
+  UpdateSecuritySettingsResponses[keyof UpdateSecuritySettingsResponses]
 
 export type ServiceSettingsData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/settings/services'
 }
 
-export type ServiceSettingsResponse = ServiceSettings
+export type ServiceSettingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type ServiceSettingsError = ErrorModel
+export type ServiceSettingsError = ServiceSettingsErrors[keyof ServiceSettingsErrors]
+
+export type ServiceSettingsResponses = {
+  /**
+   * OK
+   */
+  200: ServiceSettings
+}
+
+export type ServiceSettingsResponse = ServiceSettingsResponses[keyof ServiceSettingsResponses]
 
 export type UpdateServiceSettingsData = {
   body: ServiceSettingsUpdate
@@ -3363,19 +5393,225 @@ export type UpdateServiceSettingsData = {
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/settings/services'
 }
 
-export type UpdateServiceSettingsResponse = ServiceSettings
+export type UpdateServiceSettingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type UpdateServiceSettingsError = ErrorModel
+export type UpdateServiceSettingsError =
+  UpdateServiceSettingsErrors[keyof UpdateServiceSettingsErrors]
 
-export type GetTaxonomyData = {
+export type UpdateServiceSettingsResponses = {
+  /**
+   * OK
+   */
+  200: ServiceSettings
+}
+
+export type UpdateServiceSettingsResponse =
+  UpdateServiceSettingsResponses[keyof UpdateServiceSettingsResponses]
+
+export type ListSitesData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/sites'
+}
+
+export type ListSitesErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListSitesError = ListSitesErrors[keyof ListSitesErrors]
+
+export type ListSitesResponses = {
+  /**
+   * OK
+   */
+  200: Array<Site>
+}
+
+export type ListSitesResponse = ListSitesResponses[keyof ListSitesResponses]
+
+export type CreateSiteData = {
+  body: SiteInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/sites'
+}
+
+export type CreateSiteErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateSiteError = CreateSiteErrors[keyof CreateSiteErrors]
+
+export type CreateSiteResponses = {
+  /**
+   * OK
+   */
+  200: Site
+}
+
+export type CreateSiteResponse = CreateSiteResponses[keyof CreateSiteResponses]
+
+export type GetSiteData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/sites/{code}'
+}
+
+export type GetSiteErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetSiteError = GetSiteErrors[keyof GetSiteErrors]
+
+export type GetSiteResponses = {
+  /**
+   * OK
+   */
+  200: Site
+}
+
+export type GetSiteResponse = GetSiteResponses[keyof GetSiteResponses]
+
+export type UpdateSiteData = {
+  body: SiteUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/sites/{code}'
+}
+
+export type UpdateSiteErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateSiteError = UpdateSiteErrors[keyof UpdateSiteErrors]
+
+export type UpdateSiteResponses = {
+  /**
+   * OK
+   */
+  200: Site
+}
+
+export type UpdateSiteResponse = UpdateSiteResponses[keyof UpdateSiteResponses]
+
+export type CreateEventData = {
+  body: EventInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/sites/{code}/events'
+}
+
+export type CreateEventErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateEventError = CreateEventErrors[keyof CreateEventErrors]
+
+export type CreateEventResponses = {
+  /**
+   * OK
+   */
+  200: Event
+}
+
+export type CreateEventResponse = CreateEventResponses[keyof CreateEventResponses]
+
+export type GetTaxonomyData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
   query?: {
     /**
      * Taxon code or UUID
@@ -3383,26 +5619,66 @@ export type GetTaxonomyData = {
     identifier?: string
     'max-depth'?: TaxonRank
   }
+  url: '/taxonomy'
 }
 
-export type GetTaxonomyResponse = Taxonomy
+export type GetTaxonomyErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type GetTaxonomyError = ErrorModel
+export type GetTaxonomyError = GetTaxonomyErrors[keyof GetTaxonomyErrors]
+
+export type GetTaxonomyResponses = {
+  /**
+   * OK
+   */
+  200: Taxonomy
+}
+
+export type GetTaxonomyResponse = GetTaxonomyResponses[keyof GetTaxonomyResponses]
 
 export type ListTaxaData = {
+  body?: never
+  path?: never
   query?: {
-    anchor?: boolean
-    limit?: number
-    parent?: string
     pattern?: string
     ranks?: Array<TaxonRank>
     status?: TaxonStatus
+    anchor?: boolean
+    parent?: string
+    limit?: number
   }
+  url: '/taxonomy/taxa'
 }
 
-export type ListTaxaResponse = Array<TaxonWithParentRef>
+export type ListTaxaErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type ListTaxaError = ErrorModel
+export type ListTaxaError = ListTaxaErrors[keyof ListTaxaErrors]
+
+export type ListTaxaResponses = {
+  /**
+   * OK
+   */
+  200: Array<TaxonWithParentRef>
+}
+
+export type ListTaxaResponse = ListTaxaResponses[keyof ListTaxaResponses]
 
 export type CreateTaxonData = {
   body: TaxonInput
@@ -3412,13 +5688,39 @@ export type CreateTaxonData = {
      */
     Authorization?: string
   }
+  path?: never
+  query?: never
+  url: '/taxonomy/taxa'
 }
 
-export type CreateTaxonResponse = TaxonWithRelatives
+export type CreateTaxonErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type CreateTaxonError = ErrorModel
+export type CreateTaxonError = CreateTaxonErrors[keyof CreateTaxonErrors]
+
+export type CreateTaxonResponses = {
+  /**
+   * OK
+   */
+  200: TaxonWithRelatives
+}
+
+export type CreateTaxonResponse = CreateTaxonResponses[keyof CreateTaxonResponses]
 
 export type DeleteTaxonData = {
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -3428,21 +5730,74 @@ export type DeleteTaxonData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/taxonomy/taxa/{code}'
 }
 
-export type DeleteTaxonResponse = TaxonWithRelatives
+export type DeleteTaxonErrors = {
+  /**
+   * Unauthorized
+   */
+  401: ErrorModel
+  /**
+   * Not Found
+   */
+  404: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type DeleteTaxonError = ErrorModel
+export type DeleteTaxonError = DeleteTaxonErrors[keyof DeleteTaxonErrors]
+
+export type DeleteTaxonResponses = {
+  /**
+   * OK
+   */
+  200: TaxonWithRelatives
+}
+
+export type DeleteTaxonResponse = DeleteTaxonResponses[keyof DeleteTaxonResponses]
 
 export type GetTaxonData = {
+  body?: never
   path: {
     code: string
   }
+  query?: never
+  url: '/taxonomy/taxa/{code}'
 }
 
-export type GetTaxonResponse = TaxonWithLineage
+export type GetTaxonErrors = {
+  /**
+   * Not Found
+   */
+  404: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
 
-export type GetTaxonError = ErrorModel
+export type GetTaxonError = GetTaxonErrors[keyof GetTaxonErrors]
+
+export type GetTaxonResponses = {
+  /**
+   * OK
+   */
+  200: TaxonWithLineage
+}
+
+export type GetTaxonResponse = GetTaxonResponses[keyof GetTaxonResponses]
 
 export type UpdateTaxonData = {
   body: TaxonUpdate
@@ -3455,1463 +5810,40 @@ export type UpdateTaxonData = {
   path: {
     code: string
   }
+  query?: never
+  url: '/taxonomy/taxa/{code}'
 }
 
-export type UpdateTaxonResponse = Taxon
-
-export type UpdateTaxonError = ErrorModel
-
-export type ListAnchorsData = {
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ListAnchorsResponse = Array<TaxonWithParentRef>
-
-export type ListAnchorsError = ErrorModel
-
-export type ImportGbifData = {
-  body: ImportRequestGbif
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-}
-
-export type ImportGbifResponse = void
-
-export type ImportGbifError = ErrorModel
-
-export type MonitorGbifResponse = Array<{
-  data: {
-    [key: string]: ImportProcess
-  }
+export type UpdateTaxonErrors = {
   /**
-   * The event name.
+   * Bad Request
    */
-  event: 'state'
+  400: ErrorModel
   /**
-   * The event ID.
+   * Unauthorized
    */
-  id?: number
+  401: ErrorModel
   /**
-   * The retry time in milliseconds.
+   * Not Found
    */
-  retry?: number
-}>
-
-export type MonitorGbifError = ErrorModel
-
-export type LoginResponseTransformer = (data: any) => Promise<LoginResponse>
-
-export type AuthenticationResponseModelResponseTransformer = (data: any) => AuthenticationResponse
-
-export const AuthenticationResponseModelResponseTransformer: AuthenticationResponseModelResponseTransformer =
-  (data) => {
-    if (data?.auth_token_expiration) {
-      data.auth_token_expiration = new Date(data.auth_token_expiration)
-    }
-    return data
-  }
-
-export const LoginResponseTransformer: LoginResponseTransformer = async (data) => {
-  AuthenticationResponseModelResponseTransformer(data)
-  return data
-}
-
-export type ListPendingUserRequestsResponseTransformer = (
-  data: any
-) => Promise<ListPendingUserRequestsResponse>
-
-export type PendingUserRequestModelResponseTransformer = (data: any) => PendingUserRequest
-
-export const PendingUserRequestModelResponseTransformer: PendingUserRequestModelResponseTransformer =
-  (data) => {
-    if (data?.created_on) {
-      data.created_on = new Date(data.created_on)
-    }
-    return data
-  }
-
-export const ListPendingUserRequestsResponseTransformer: ListPendingUserRequestsResponseTransformer =
-  async (data) => {
-    if (Array.isArray(data)) {
-      data.forEach(PendingUserRequestModelResponseTransformer)
-    }
-    return data
-  }
-
-export type DeletePendingUserRequestResponseTransformer = (
-  data: any
-) => Promise<DeletePendingUserRequestResponse>
-
-export const DeletePendingUserRequestResponseTransformer: DeletePendingUserRequestResponseTransformer =
-  async (data) => {
-    PendingUserRequestModelResponseTransformer(data)
-    return data
-  }
-
-export type GetPendingUserRequestResponseTransformer = (
-  data: any
-) => Promise<GetPendingUserRequestResponse>
-
-export const GetPendingUserRequestResponseTransformer: GetPendingUserRequestResponseTransformer =
-  async (data) => {
-    PendingUserRequestModelResponseTransformer(data)
-    return data
-  }
-
-export type RefreshSessionResponseTransformer = (data: any) => Promise<RefreshSessionResponse>
-
-export const RefreshSessionResponseTransformer: RefreshSessionResponseTransformer = async (
-  data
-) => {
-  AuthenticationResponseModelResponseTransformer(data)
-  return data
-}
-
-export type ClaimInvitationResponseTransformer = (data: any) => Promise<ClaimInvitationResponse>
-
-export const ClaimInvitationResponseTransformer: ClaimInvitationResponseTransformer = async (
-  data
-) => {
-  AuthenticationResponseModelResponseTransformer(data)
-  return data
-}
-
-export type ListOccurrenceDatasetsResponseTransformer = (
-  data: any
-) => Promise<ListOccurrenceDatasetsResponse>
-
-export type OccurrenceDatasetModelResponseTransformer = (data: any) => OccurrenceDataset
-
-export type MetaModelResponseTransformer = (data: any) => Meta
-
-export const MetaModelResponseTransformer: MetaModelResponseTransformer = (data) => {
-  if (data?.created) {
-    data.created = new Date(data.created)
-  }
-  if (data?.last_updated) {
-    data.last_updated = new Date(data.last_updated)
-  }
-  if (data?.modified) {
-    data.modified = new Date(data.modified)
-  }
-  return data
-}
-
-export type OccurrenceWithCategoryModelResponseTransformer = (data: any) => OccurrenceWithCategory
-
-export type IdentificationModelResponseTransformer = (data: any) => Identification
-
-export type DateWithPrecisionModelResponseTransformer = (data: any) => DateWithPrecision
-
-export const DateWithPrecisionModelResponseTransformer: DateWithPrecisionModelResponseTransformer =
-  (data) => {
-    if (data?.date) {
-      data.date = new Date(data.date)
-    }
-    return data
-  }
-
-export type TaxonModelResponseTransformer = (data: any) => Taxon
-
-export const TaxonModelResponseTransformer: TaxonModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const IdentificationModelResponseTransformer: IdentificationModelResponseTransformer = (
-  data
-) => {
-  if (data?.identified_on) {
-    DateWithPrecisionModelResponseTransformer(data.identified_on)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (data?.taxon) {
-    TaxonModelResponseTransformer(data.taxon)
-  }
-  return data
-}
-
-export type OccurrenceReferenceModelResponseTransformer = (data: any) => OccurrenceReference
-
-export const OccurrenceReferenceModelResponseTransformer: OccurrenceReferenceModelResponseTransformer =
-  (data) => {
-    if (data?.meta) {
-      MetaModelResponseTransformer(data.meta)
-    }
-    return data
-  }
-
-export type SamplingInnerModelResponseTransformer = (data: any) => SamplingInner
-
-export type FixativeModelResponseTransformer = (data: any) => Fixative
-
-export const FixativeModelResponseTransformer: FixativeModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export type HabitatModelResponseTransformer = (data: any) => Habitat
-
-export type HabitatRecordModelResponseTransformer = (data: any) => HabitatRecord
-
-export const HabitatRecordModelResponseTransformer: HabitatRecordModelResponseTransformer = (
-  data
-) => {
-  if (Array.isArray(data?.incompatible)) {
-    data.incompatible.forEach(HabitatRecordModelResponseTransformer)
-  }
-  return data
-}
-
-export const HabitatModelResponseTransformer: HabitatModelResponseTransformer = (data) => {
-  if (Array.isArray(data?.incompatible)) {
-    data.incompatible.forEach(HabitatRecordModelResponseTransformer)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export type SamplingMethodModelResponseTransformer = (data: any) => SamplingMethod
-
-export const SamplingMethodModelResponseTransformer: SamplingMethodModelResponseTransformer = (
-  data
-) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export type SamplingTargetModelResponseTransformer = (data: any) => SamplingTarget
-
-export const SamplingTargetModelResponseTransformer: SamplingTargetModelResponseTransformer = (
-  data
-) => {
-  if (Array.isArray(data?.taxa)) {
-    data.taxa.forEach(TaxonModelResponseTransformer)
-  }
-  return data
-}
-
-export const SamplingInnerModelResponseTransformer: SamplingInnerModelResponseTransformer = (
-  data
-) => {
-  if (Array.isArray(data?.fixatives)) {
-    data.fixatives.forEach(FixativeModelResponseTransformer)
-  }
-  if (Array.isArray(data?.habitats)) {
-    data.habitats.forEach(HabitatModelResponseTransformer)
-  }
-  if (Array.isArray(data?.methods)) {
-    data.methods.forEach(SamplingMethodModelResponseTransformer)
-  }
-  if (data?.target) {
-    SamplingTargetModelResponseTransformer(data.target)
-  }
-  return data
-}
-
-export const OccurrenceWithCategoryModelResponseTransformer: OccurrenceWithCategoryModelResponseTransformer =
-  (data) => {
-    if (data?.identification) {
-      IdentificationModelResponseTransformer(data.identification)
-    }
-    if (Array.isArray(data?.published_in)) {
-      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
-    }
-    if (data?.sampling) {
-      SamplingInnerModelResponseTransformer(data.sampling)
-    }
-    return data
-  }
-
-export const OccurrenceDatasetModelResponseTransformer: OccurrenceDatasetModelResponseTransformer =
-  (data) => {
-    if (data?.meta) {
-      MetaModelResponseTransformer(data.meta)
-    }
-    if (Array.isArray(data?.occurrences)) {
-      data.occurrences.forEach(OccurrenceWithCategoryModelResponseTransformer)
-    }
-    return data
-  }
-
-export const ListOccurrenceDatasetsResponseTransformer: ListOccurrenceDatasetsResponseTransformer =
-  async (data) => {
-    if (Array.isArray(data)) {
-      data.forEach(OccurrenceDatasetModelResponseTransformer)
-    }
-    return data
-  }
-
-export type GetOccurrenceDatasetResponseTransformer = (
-  data: any
-) => Promise<GetOccurrenceDatasetResponse>
-
-export const GetOccurrenceDatasetResponseTransformer: GetOccurrenceDatasetResponseTransformer =
-  async (data) => {
-    OccurrenceDatasetModelResponseTransformer(data)
-    return data
-  }
-
-export type ListSequenceDatasetsResponseTransformer = (
-  data: any
-) => Promise<ListSequenceDatasetsResponse>
-
-export type SequenceDatasetModelResponseTransformer = (data: any) => SequenceDataset
-
-export type SequenceModelResponseTransformer = (data: any) => Sequence
-
-export type CodeHistoryModelResponseTransformer = (data: any) => CodeHistory
-
-export const CodeHistoryModelResponseTransformer: CodeHistoryModelResponseTransformer = (data) => {
-  if (data?.time) {
-    data.time = new Date(data.time)
-  }
-  return data
-}
-
-export type EventInnerModelResponseTransformer = (data: any) => EventInner
-
-export const EventInnerModelResponseTransformer: EventInnerModelResponseTransformer = (data) => {
-  if (data?.performed_on) {
-    DateWithPrecisionModelResponseTransformer(data.performed_on)
-  }
-  return data
-}
-
-export type OptionalExtSeqSpecificsBioMaterialModelResponseTransformer = (
-  data: any
-) => OptionalExtSeqSpecificsBioMaterial
-
-export type SeqReferenceModelResponseTransformer = (data: any) => SeqReference
-
-export type SeqDbModelResponseTransformer = (data: any) => SeqDb
-
-export const SeqDbModelResponseTransformer: SeqDbModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const SeqReferenceModelResponseTransformer: SeqReferenceModelResponseTransformer = (
-  data
-) => {
-  if (data?.db) {
-    SeqDbModelResponseTransformer(data.db)
-  }
-  return data
-}
-
-export type OptionalBioMaterialModelResponseTransformer = (data: any) => OptionalBioMaterial
-
-export type OptionalExternalBioMatSpecificModelResponseTransformer = (
-  data: any
-) => OptionalExternalBioMatSpecific
-
-export type ExternalBioMatContentModelResponseTransformer = (data: any) => ExternalBioMatContent
-
-export type ExternalBioMatSequenceModelResponseTransformer = (data: any) => ExternalBioMatSequence
-
-export type GeneModelResponseTransformer = (data: any) => Gene
-
-export const GeneModelResponseTransformer: GeneModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export type ArticleModelResponseTransformer = (data: any) => Article
-
-export const ArticleModelResponseTransformer: ArticleModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const ExternalBioMatSequenceModelResponseTransformer: ExternalBioMatSequenceModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.code_history)) {
-      data.code_history.forEach(CodeHistoryModelResponseTransformer)
-    }
-    if (data?.gene) {
-      GeneModelResponseTransformer(data.gene)
-    }
-    if (data?.identification) {
-      IdentificationModelResponseTransformer(data.identification)
-    }
-    if (Array.isArray(data?.published_in)) {
-      data.published_in.forEach(ArticleModelResponseTransformer)
-    }
-    if (Array.isArray(data?.referenced_in)) {
-      data.referenced_in.forEach(SeqReferenceModelResponseTransformer)
-    }
-    return data
-  }
-
-export const ExternalBioMatContentModelResponseTransformer: ExternalBioMatContentModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.sequences)) {
-      data.sequences.forEach(ExternalBioMatSequenceModelResponseTransformer)
-    }
-    return data
-  }
-
-export const OptionalExternalBioMatSpecificModelResponseTransformer: OptionalExternalBioMatSpecificModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.content)) {
-      data.content.forEach(ExternalBioMatContentModelResponseTransformer)
-    }
-    return data
-  }
-
-export type OptionalTaxonModelResponseTransformer = (data: any) => OptionalTaxon
-
-export const OptionalTaxonModelResponseTransformer: OptionalTaxonModelResponseTransformer = (
-  data
-) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const OptionalBioMaterialModelResponseTransformer: OptionalBioMaterialModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.code_history)) {
-      data.code_history.forEach(CodeHistoryModelResponseTransformer)
-    }
-    if (data?.external) {
-      OptionalExternalBioMatSpecificModelResponseTransformer(data.external)
-    }
-    if (data?.identification) {
-      IdentificationModelResponseTransformer(data.identification)
-    }
-    if (data?.meta) {
-      MetaModelResponseTransformer(data.meta)
-    }
-    if (Array.isArray(data?.published_in)) {
-      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
-    }
-    if (data?.sampling) {
-      SamplingInnerModelResponseTransformer(data.sampling)
-    }
-    if (data?.seq_consensus) {
-      OptionalTaxonModelResponseTransformer(data.seq_consensus)
-    }
-    return data
-  }
-
-export const OptionalExtSeqSpecificsBioMaterialModelResponseTransformer: OptionalExtSeqSpecificsBioMaterialModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.published_in)) {
-      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
-    }
-    if (Array.isArray(data?.referenced_in)) {
-      data.referenced_in.forEach(SeqReferenceModelResponseTransformer)
-    }
-    if (data?.source_sample) {
-      OptionalBioMaterialModelResponseTransformer(data.source_sample)
-    }
-    return data
-  }
-
-export const SequenceModelResponseTransformer: SequenceModelResponseTransformer = (data) => {
-  if (Array.isArray(data?.code_history)) {
-    data.code_history.forEach(CodeHistoryModelResponseTransformer)
-  }
-  if (data?.event) {
-    EventInnerModelResponseTransformer(data.event)
-  }
-  if (data?.external) {
-    OptionalExtSeqSpecificsBioMaterialModelResponseTransformer(data.external)
-  }
-  if (data?.gene) {
-    GeneModelResponseTransformer(data.gene)
-  }
-  if (data?.identification) {
-    IdentificationModelResponseTransformer(data.identification)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (Array.isArray(data?.published_in)) {
-    data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
-  }
-  if (data?.sampling) {
-    SamplingInnerModelResponseTransformer(data.sampling)
-  }
-  return data
-}
-
-export const SequenceDatasetModelResponseTransformer: SequenceDatasetModelResponseTransformer = (
-  data
-) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (Array.isArray(data?.sequences)) {
-    data.sequences.forEach(SequenceModelResponseTransformer)
-  }
-  return data
-}
-
-export const ListSequenceDatasetsResponseTransformer: ListSequenceDatasetsResponseTransformer =
-  async (data) => {
-    if (Array.isArray(data)) {
-      data.forEach(SequenceDatasetModelResponseTransformer)
-    }
-    return data
-  }
-
-export type GetSequenceDatasetResponseTransformer = (
-  data: any
-) => Promise<GetSequenceDatasetResponse>
-
-export const GetSequenceDatasetResponseTransformer: GetSequenceDatasetResponseTransformer = async (
-  data
-) => {
-  SequenceDatasetModelResponseTransformer(data)
-  return data
-}
-
-export type ListSiteDatasetsResponseTransformer = (data: any) => Promise<ListSiteDatasetsResponse>
-
-export type SiteDatasetModelResponseTransformer = (data: any) => SiteDataset
-
-export const SiteDatasetModelResponseTransformer: SiteDatasetModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const ListSiteDatasetsResponseTransformer: ListSiteDatasetsResponseTransformer = async (
-  data
-) => {
-  if (Array.isArray(data)) {
-    data.forEach(SiteDatasetModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateSiteDatasetResponseTransformer = (data: any) => Promise<CreateSiteDatasetResponse>
-
-export const CreateSiteDatasetResponseTransformer: CreateSiteDatasetResponseTransformer = async (
-  data
-) => {
-  SiteDatasetModelResponseTransformer(data)
-  return data
-}
-
-export type GetSiteDatasetResponseTransformer = (data: any) => Promise<GetSiteDatasetResponse>
-
-export const GetSiteDatasetResponseTransformer: GetSiteDatasetResponseTransformer = async (
-  data
-) => {
-  SiteDatasetModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteEventResponseTransformer = (data: any) => Promise<DeleteEventResponse>
-
-export type EventModelResponseTransformer = (data: any) => Event
-
-export type AbioticMeasurementModelResponseTransformer = (data: any) => AbioticMeasurement
-
-export type AbioticParameterModelResponseTransformer = (data: any) => AbioticParameter
-
-export const AbioticParameterModelResponseTransformer: AbioticParameterModelResponseTransformer = (
-  data
-) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const AbioticMeasurementModelResponseTransformer: AbioticMeasurementModelResponseTransformer =
-  (data) => {
-    if (data?.param) {
-      AbioticParameterModelResponseTransformer(data.param)
-    }
-    return data
-  }
-
-export type SamplingModelResponseTransformer = (data: any) => Sampling
-
-export type BioMaterialModelResponseTransformer = (data: any) => BioMaterial
-
-export const BioMaterialModelResponseTransformer: BioMaterialModelResponseTransformer = (data) => {
-  if (Array.isArray(data?.code_history)) {
-    data.code_history.forEach(CodeHistoryModelResponseTransformer)
-  }
-  if (data?.external) {
-    OptionalExternalBioMatSpecificModelResponseTransformer(data.external)
-  }
-  if (data?.identification) {
-    IdentificationModelResponseTransformer(data.identification)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (Array.isArray(data?.published_in)) {
-    data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
-  }
-  if (data?.sampling) {
-    SamplingInnerModelResponseTransformer(data.sampling)
-  }
-  if (data?.seq_consensus) {
-    OptionalTaxonModelResponseTransformer(data.seq_consensus)
-  }
-  return data
-}
-
-export const SamplingModelResponseTransformer: SamplingModelResponseTransformer = (data) => {
-  if (Array.isArray(data?.fixatives)) {
-    data.fixatives.forEach(FixativeModelResponseTransformer)
-  }
-  if (Array.isArray(data?.habitats)) {
-    data.habitats.forEach(HabitatModelResponseTransformer)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (Array.isArray(data?.methods)) {
-    data.methods.forEach(SamplingMethodModelResponseTransformer)
-  }
-  if (Array.isArray(data?.occurring_taxa)) {
-    data.occurring_taxa.forEach(TaxonModelResponseTransformer)
-  }
-  if (Array.isArray(data?.samples)) {
-    data.samples.forEach(BioMaterialModelResponseTransformer)
-  }
-  if (data?.target) {
-    SamplingTargetModelResponseTransformer(data.target)
-  }
-  return data
-}
-
-export const EventModelResponseTransformer: EventModelResponseTransformer = (data) => {
-  if (Array.isArray(data?.abiotic_measurements)) {
-    data.abiotic_measurements.forEach(AbioticMeasurementModelResponseTransformer)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (data?.performed_on) {
-    DateWithPrecisionModelResponseTransformer(data.performed_on)
-  }
-  if (Array.isArray(data?.samplings)) {
-    data.samplings.forEach(SamplingModelResponseTransformer)
-  }
-  if (Array.isArray(data?.spottings)) {
-    data.spottings.forEach(TaxonModelResponseTransformer)
-  }
-  return data
-}
-
-export const DeleteEventResponseTransformer: DeleteEventResponseTransformer = async (data) => {
-  EventModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateEventResponseTransformer = (data: any) => Promise<UpdateEventResponse>
-
-export const UpdateEventResponseTransformer: UpdateEventResponseTransformer = async (data) => {
-  EventModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateSpottingResponseTransformer = (data: any) => Promise<UpdateSpottingResponse>
-
-export const UpdateSpottingResponseTransformer: UpdateSpottingResponseTransformer = async (
-  data
-) => {
-  if (Array.isArray(data)) {
-    data.forEach(TaxonModelResponseTransformer)
-  }
-  return data
-}
-
-export type ListProgramsResponseTransformer = (data: any) => Promise<ListProgramsResponse>
-
-export type ProgramModelResponseTransformer = (data: any) => Program
-
-export const ProgramModelResponseTransformer: ProgramModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const ListProgramsResponseTransformer: ListProgramsResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(ProgramModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateProgramResponseTransformer = (data: any) => Promise<CreateProgramResponse>
-
-export const CreateProgramResponseTransformer: CreateProgramResponseTransformer = async (data) => {
-  ProgramModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteProgramResponseTransformer = (data: any) => Promise<DeleteProgramResponse>
-
-export const DeleteProgramResponseTransformer: DeleteProgramResponseTransformer = async (data) => {
-  ProgramModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateProgramResponseTransformer = (data: any) => Promise<UpdateProgramResponse>
-
-export const UpdateProgramResponseTransformer: UpdateProgramResponseTransformer = async (data) => {
-  ProgramModelResponseTransformer(data)
-  return data
-}
-
-export type ListHabitatGroupsResponseTransformer = (data: any) => Promise<ListHabitatGroupsResponse>
-
-export type HabitatGroupModelResponseTransformer = (data: any) => HabitatGroup
-
-export type OptionalHabitatRecordModelResponseTransformer = (data: any) => OptionalHabitatRecord
-
-export const OptionalHabitatRecordModelResponseTransformer: OptionalHabitatRecordModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.incompatible)) {
-      data.incompatible.forEach(HabitatRecordModelResponseTransformer)
-    }
-    return data
-  }
-
-export const HabitatGroupModelResponseTransformer: HabitatGroupModelResponseTransformer = (
-  data
-) => {
-  if (data?.depends) {
-    OptionalHabitatRecordModelResponseTransformer(data.depends)
-  }
-  if (Array.isArray(data?.elements)) {
-    data.elements.forEach(HabitatRecordModelResponseTransformer)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const ListHabitatGroupsResponseTransformer: ListHabitatGroupsResponseTransformer = async (
-  data
-) => {
-  if (Array.isArray(data)) {
-    data.forEach(HabitatGroupModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateHabitatGroupResponseTransformer = (
-  data: any
-) => Promise<CreateHabitatGroupResponse>
-
-export const CreateHabitatGroupResponseTransformer: CreateHabitatGroupResponseTransformer = async (
-  data
-) => {
-  HabitatGroupModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteHabitatGroupResponseTransformer = (
-  data: any
-) => Promise<DeleteHabitatGroupResponse>
-
-export const DeleteHabitatGroupResponseTransformer: DeleteHabitatGroupResponseTransformer = async (
-  data
-) => {
-  HabitatGroupModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateHabitatGroupResponseTransformer = (
-  data: any
-) => Promise<UpdateHabitatGroupResponse>
-
-export const UpdateHabitatGroupResponseTransformer: UpdateHabitatGroupResponseTransformer = async (
-  data
-) => {
-  HabitatGroupModelResponseTransformer(data)
-  return data
-}
-
-export type ListInstitutionsResponseTransformer = (data: any) => Promise<ListInstitutionsResponse>
-
-export type InstitutionModelResponseTransformer = (data: any) => Institution
-
-export const InstitutionModelResponseTransformer: InstitutionModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const ListInstitutionsResponseTransformer: ListInstitutionsResponseTransformer = async (
-  data
-) => {
-  if (Array.isArray(data)) {
-    data.forEach(InstitutionModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateInstitutionResponseTransformer = (data: any) => Promise<CreateInstitutionResponse>
-
-export const CreateInstitutionResponseTransformer: CreateInstitutionResponseTransformer = async (
-  data
-) => {
-  InstitutionModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteInstitutionResponseTransformer = (data: any) => Promise<DeleteInstitutionResponse>
-
-export const DeleteInstitutionResponseTransformer: DeleteInstitutionResponseTransformer = async (
-  data
-) => {
-  InstitutionModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateInstitutionResponseTransformer = (data: any) => Promise<UpdateInstitutionResponse>
-
-export const UpdateInstitutionResponseTransformer: UpdateInstitutionResponseTransformer = async (
-  data
-) => {
-  InstitutionModelResponseTransformer(data)
-  return data
-}
-
-export type ListSitesResponseTransformer = (data: any) => Promise<ListSitesResponse>
-
-export type SiteModelResponseTransformer = (data: any) => Site
-
-export const SiteModelResponseTransformer: SiteModelResponseTransformer = (data) => {
-  if (Array.isArray(data?.events)) {
-    data.events.forEach(EventModelResponseTransformer)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const ListSitesResponseTransformer: ListSitesResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(SiteModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateSiteResponseTransformer = (data: any) => Promise<CreateSiteResponse>
-
-export const CreateSiteResponseTransformer: CreateSiteResponseTransformer = async (data) => {
-  SiteModelResponseTransformer(data)
-  return data
-}
-
-export type GetSiteResponseTransformer = (data: any) => Promise<GetSiteResponse>
-
-export const GetSiteResponseTransformer: GetSiteResponseTransformer = async (data) => {
-  SiteModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateSiteResponseTransformer = (data: any) => Promise<UpdateSiteResponse>
-
-export const UpdateSiteResponseTransformer: UpdateSiteResponseTransformer = async (data) => {
-  SiteModelResponseTransformer(data)
-  return data
-}
-
-export type CreateEventResponseTransformer = (data: any) => Promise<CreateEventResponse>
-
-export const CreateEventResponseTransformer: CreateEventResponseTransformer = async (data) => {
-  EventModelResponseTransformer(data)
-  return data
-}
-
-export type ListPersonsResponseTransformer = (data: any) => Promise<ListPersonsResponse>
-
-export type PersonModelResponseTransformer = (data: any) => Person
-
-export const PersonModelResponseTransformer: PersonModelResponseTransformer = (data) => {
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  return data
-}
-
-export const ListPersonsResponseTransformer: ListPersonsResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(PersonModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreatePersonResponseTransformer = (data: any) => Promise<CreatePersonResponse>
-
-export const CreatePersonResponseTransformer: CreatePersonResponseTransformer = async (data) => {
-  PersonModelResponseTransformer(data)
-  return data
-}
-
-export type DeletePersonResponseTransformer = (data: any) => Promise<DeletePersonResponse>
-
-export const DeletePersonResponseTransformer: DeletePersonResponseTransformer = async (data) => {
-  PersonModelResponseTransformer(data)
-  return data
-}
-
-export type UpdatePersonResponseTransformer = (data: any) => Promise<UpdatePersonResponse>
-
-export const UpdatePersonResponseTransformer: UpdatePersonResponseTransformer = async (data) => {
-  PersonModelResponseTransformer(data)
-  return data
-}
-
-export type ListArticlesResponseTransformer = (data: any) => Promise<ListArticlesResponse>
-
-export const ListArticlesResponseTransformer: ListArticlesResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(ArticleModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateArticleResponseTransformer = (data: any) => Promise<CreateArticleResponse>
-
-export const CreateArticleResponseTransformer: CreateArticleResponseTransformer = async (data) => {
-  ArticleModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteArticleResponseTransformer = (data: any) => Promise<DeleteArticleResponse>
-
-export const DeleteArticleResponseTransformer: DeleteArticleResponseTransformer = async (data) => {
-  ArticleModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateArticleResponseTransformer = (data: any) => Promise<UpdateArticleResponse>
-
-export const UpdateArticleResponseTransformer: UpdateArticleResponseTransformer = async (data) => {
-  ArticleModelResponseTransformer(data)
-  return data
-}
-
-export type ListBioMaterialResponseTransformer = (data: any) => Promise<ListBioMaterialResponse>
-
-export type BioMaterialWithDetailsModelResponseTransformer = (data: any) => BioMaterialWithDetails
-
-export const BioMaterialWithDetailsModelResponseTransformer: BioMaterialWithDetailsModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.code_history)) {
-      data.code_history.forEach(CodeHistoryModelResponseTransformer)
-    }
-    if (data?.event) {
-      EventInnerModelResponseTransformer(data.event)
-    }
-    if (data?.external) {
-      OptionalExternalBioMatSpecificModelResponseTransformer(data.external)
-    }
-    if (data?.identification) {
-      IdentificationModelResponseTransformer(data.identification)
-    }
-    if (data?.meta) {
-      MetaModelResponseTransformer(data.meta)
-    }
-    if (Array.isArray(data?.published_in)) {
-      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
-    }
-    if (data?.sampling) {
-      SamplingModelResponseTransformer(data.sampling)
-    }
-    if (data?.seq_consensus) {
-      OptionalTaxonModelResponseTransformer(data.seq_consensus)
-    }
-    return data
-  }
-
-export const ListBioMaterialResponseTransformer: ListBioMaterialResponseTransformer = async (
-  data
-) => {
-  if (Array.isArray(data)) {
-    data.forEach(BioMaterialWithDetailsModelResponseTransformer)
-  }
-  return data
-}
-
-export type UpdateExternalBioMatResponseTransformer = (
-  data: any
-) => Promise<UpdateExternalBioMatResponse>
-
-export const UpdateExternalBioMatResponseTransformer: UpdateExternalBioMatResponseTransformer =
-  async (data) => {
-    BioMaterialWithDetailsModelResponseTransformer(data)
-    return data
-  }
-
-export type CreateExternalBioMatResponseTransformer = (
-  data: any
-) => Promise<CreateExternalBioMatResponse>
-
-export const CreateExternalBioMatResponseTransformer: CreateExternalBioMatResponseTransformer =
-  async (data) => {
-    BioMaterialWithDetailsModelResponseTransformer(data)
-    return data
-  }
-
-export type DeleteBioMaterialResponseTransformer = (data: any) => Promise<DeleteBioMaterialResponse>
-
-export const DeleteBioMaterialResponseTransformer: DeleteBioMaterialResponseTransformer = async (
-  data
-) => {
-  BioMaterialWithDetailsModelResponseTransformer(data)
-  return data
-}
-
-export type GetBioMaterialResponseTransformer = (data: any) => Promise<GetBioMaterialResponse>
-
-export const GetBioMaterialResponseTransformer: GetBioMaterialResponseTransformer = async (
-  data
-) => {
-  BioMaterialWithDetailsModelResponseTransformer(data)
-  return data
-}
-
-export type ListAbioticParametersResponseTransformer = (
-  data: any
-) => Promise<ListAbioticParametersResponse>
-
-export const ListAbioticParametersResponseTransformer: ListAbioticParametersResponseTransformer =
-  async (data) => {
-    if (Array.isArray(data)) {
-      data.forEach(AbioticParameterModelResponseTransformer)
-    }
-    return data
-  }
-
-export type CreateAbioticParameterResponseTransformer = (
-  data: any
-) => Promise<CreateAbioticParameterResponse>
-
-export const CreateAbioticParameterResponseTransformer: CreateAbioticParameterResponseTransformer =
-  async (data) => {
-    AbioticParameterModelResponseTransformer(data)
-    return data
-  }
-
-export type DeleteAbioticParameterResponseTransformer = (
-  data: any
-) => Promise<DeleteAbioticParameterResponse>
-
-export const DeleteAbioticParameterResponseTransformer: DeleteAbioticParameterResponseTransformer =
-  async (data) => {
-    AbioticParameterModelResponseTransformer(data)
-    return data
-  }
-
-export type UpdateAbioticParameterResponseTransformer = (
-  data: any
-) => Promise<UpdateAbioticParameterResponse>
-
-export const UpdateAbioticParameterResponseTransformer: UpdateAbioticParameterResponseTransformer =
-  async (data) => {
-    AbioticParameterModelResponseTransformer(data)
-    return data
-  }
-
-export type ListFixativesResponseTransformer = (data: any) => Promise<ListFixativesResponse>
-
-export const ListFixativesResponseTransformer: ListFixativesResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(FixativeModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateFixativeResponseTransformer = (data: any) => Promise<CreateFixativeResponse>
-
-export const CreateFixativeResponseTransformer: CreateFixativeResponseTransformer = async (
-  data
-) => {
-  FixativeModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteFixativeResponseTransformer = (data: any) => Promise<DeleteFixativeResponse>
-
-export const DeleteFixativeResponseTransformer: DeleteFixativeResponseTransformer = async (
-  data
-) => {
-  FixativeModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateFixativeResponseTransformer = (data: any) => Promise<UpdateFixativeResponse>
-
-export const UpdateFixativeResponseTransformer: UpdateFixativeResponseTransformer = async (
-  data
-) => {
-  FixativeModelResponseTransformer(data)
-  return data
-}
-
-export type ListSamplingMethodsResponseTransformer = (
-  data: any
-) => Promise<ListSamplingMethodsResponse>
-
-export const ListSamplingMethodsResponseTransformer: ListSamplingMethodsResponseTransformer =
-  async (data) => {
-    if (Array.isArray(data)) {
-      data.forEach(SamplingMethodModelResponseTransformer)
-    }
-    return data
-  }
-
-export type CreateSamplingMethodResponseTransformer = (
-  data: any
-) => Promise<CreateSamplingMethodResponse>
-
-export const CreateSamplingMethodResponseTransformer: CreateSamplingMethodResponseTransformer =
-  async (data) => {
-    SamplingMethodModelResponseTransformer(data)
-    return data
-  }
-
-export type DeleteSamplingMethodResponseTransformer = (
-  data: any
-) => Promise<DeleteSamplingMethodResponse>
-
-export const DeleteSamplingMethodResponseTransformer: DeleteSamplingMethodResponseTransformer =
-  async (data) => {
-    SamplingMethodModelResponseTransformer(data)
-    return data
-  }
-
-export type UpdateSamplingMethodResponseTransformer = (
-  data: any
-) => Promise<UpdateSamplingMethodResponse>
-
-export const UpdateSamplingMethodResponseTransformer: UpdateSamplingMethodResponseTransformer =
-  async (data) => {
-    SamplingMethodModelResponseTransformer(data)
-    return data
-  }
-
-export type CreateSamplingResponseTransformer = (data: any) => Promise<CreateSamplingResponse>
-
-export const CreateSamplingResponseTransformer: CreateSamplingResponseTransformer = async (
-  data
-) => {
-  SamplingModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteSamplingResponseTransformer = (data: any) => Promise<DeleteSamplingResponse>
-
-export const DeleteSamplingResponseTransformer: DeleteSamplingResponseTransformer = async (
-  data
-) => {
-  SamplingModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateSamplingResponseTransformer = (data: any) => Promise<UpdateSamplingResponse>
-
-export const UpdateSamplingResponseTransformer: UpdateSamplingResponseTransformer = async (
-  data
-) => {
-  SamplingModelResponseTransformer(data)
-  return data
-}
-
-export type ListGenesResponseTransformer = (data: any) => Promise<ListGenesResponse>
-
-export const ListGenesResponseTransformer: ListGenesResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(GeneModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateGeneResponseTransformer = (data: any) => Promise<CreateGeneResponse>
-
-export const CreateGeneResponseTransformer: CreateGeneResponseTransformer = async (data) => {
-  GeneModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteGeneResponseTransformer = (data: any) => Promise<DeleteGeneResponse>
-
-export const DeleteGeneResponseTransformer: DeleteGeneResponseTransformer = async (data) => {
-  GeneModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateGeneResponseTransformer = (data: any) => Promise<UpdateGeneResponse>
-
-export const UpdateGeneResponseTransformer: UpdateGeneResponseTransformer = async (data) => {
-  GeneModelResponseTransformer(data)
-  return data
-}
-
-export type ListSeqDbsResponseTransformer = (data: any) => Promise<ListSeqDbsResponse>
-
-export const ListSeqDbsResponseTransformer: ListSeqDbsResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(SeqDbModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateSeqDbResponseTransformer = (data: any) => Promise<CreateSeqDbResponse>
-
-export const CreateSeqDbResponseTransformer: CreateSeqDbResponseTransformer = async (data) => {
-  SeqDbModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteSeqDbResponseTransformer = (data: any) => Promise<DeleteSeqDbResponse>
-
-export const DeleteSeqDbResponseTransformer: DeleteSeqDbResponseTransformer = async (data) => {
-  SeqDbModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateSeqDbResponseTransformer = (data: any) => Promise<UpdateSeqDbResponse>
-
-export const UpdateSeqDbResponseTransformer: UpdateSeqDbResponseTransformer = async (data) => {
-  SeqDbModelResponseTransformer(data)
-  return data
-}
-
-export type ListSequencesResponseTransformer = (data: any) => Promise<ListSequencesResponse>
-
-export const ListSequencesResponseTransformer: ListSequencesResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(SequenceModelResponseTransformer)
-  }
-  return data
-}
-
-export type DeleteSequenceResponseTransformer = (data: any) => Promise<DeleteSequenceResponse>
-
-export const DeleteSequenceResponseTransformer: DeleteSequenceResponseTransformer = async (
-  data
-) => {
-  SequenceModelResponseTransformer(data)
-  return data
-}
-
-export type GetSequenceResponseTransformer = (data: any) => Promise<GetSequenceResponse>
-
-export type SequenceWithDetailsModelResponseTransformer = (data: any) => SequenceWithDetails
-
-export const SequenceWithDetailsModelResponseTransformer: SequenceWithDetailsModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.code_history)) {
-      data.code_history.forEach(CodeHistoryModelResponseTransformer)
-    }
-    if (data?.event) {
-      EventInnerModelResponseTransformer(data.event)
-    }
-    if (data?.external) {
-      OptionalExtSeqSpecificsBioMaterialModelResponseTransformer(data.external)
-    }
-    if (data?.gene) {
-      GeneModelResponseTransformer(data.gene)
-    }
-    if (data?.identification) {
-      IdentificationModelResponseTransformer(data.identification)
-    }
-    if (data?.meta) {
-      MetaModelResponseTransformer(data.meta)
-    }
-    if (Array.isArray(data?.published_in)) {
-      data.published_in.forEach(OccurrenceReferenceModelResponseTransformer)
-    }
-    if (data?.sampling) {
-      SamplingModelResponseTransformer(data.sampling)
-    }
-    return data
-  }
-
-export const GetSequenceResponseTransformer: GetSequenceResponseTransformer = async (data) => {
-  SequenceWithDetailsModelResponseTransformer(data)
-  return data
-}
-
-export type GetTaxonomyResponseTransformer = (data: any) => Promise<GetTaxonomyResponse>
-
-export type TaxonomyModelResponseTransformer = (data: any) => Taxonomy
-
-export const TaxonomyModelResponseTransformer: TaxonomyModelResponseTransformer = (data) => {
-  if (Array.isArray(data?.children)) {
-    data.children.forEach(TaxonomyModelResponseTransformer)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (data?.parent) {
-    OptionalTaxonModelResponseTransformer(data.parent)
-  }
-  return data
-}
-
-export const GetTaxonomyResponseTransformer: GetTaxonomyResponseTransformer = async (data) => {
-  TaxonomyModelResponseTransformer(data)
-  return data
-}
-
-export type ListTaxaResponseTransformer = (data: any) => Promise<ListTaxaResponse>
-
-export type TaxonWithParentRefModelResponseTransformer = (data: any) => TaxonWithParentRef
-
-export const TaxonWithParentRefModelResponseTransformer: TaxonWithParentRefModelResponseTransformer =
-  (data) => {
-    if (data?.meta) {
-      MetaModelResponseTransformer(data.meta)
-    }
-    return data
-  }
-
-export const ListTaxaResponseTransformer: ListTaxaResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(TaxonWithParentRefModelResponseTransformer)
-  }
-  return data
-}
-
-export type CreateTaxonResponseTransformer = (data: any) => Promise<CreateTaxonResponse>
-
-export type TaxonWithRelativesModelResponseTransformer = (data: any) => TaxonWithRelatives
-
-export const TaxonWithRelativesModelResponseTransformer: TaxonWithRelativesModelResponseTransformer =
-  (data) => {
-    if (Array.isArray(data?.children)) {
-      data.children.forEach(TaxonModelResponseTransformer)
-    }
-    if (data?.meta) {
-      MetaModelResponseTransformer(data.meta)
-    }
-    if (data?.parent) {
-      OptionalTaxonModelResponseTransformer(data.parent)
-    }
-    return data
-  }
-
-export const CreateTaxonResponseTransformer: CreateTaxonResponseTransformer = async (data) => {
-  TaxonWithRelativesModelResponseTransformer(data)
-  return data
-}
-
-export type DeleteTaxonResponseTransformer = (data: any) => Promise<DeleteTaxonResponse>
-
-export const DeleteTaxonResponseTransformer: DeleteTaxonResponseTransformer = async (data) => {
-  TaxonWithRelativesModelResponseTransformer(data)
-  return data
-}
-
-export type GetTaxonResponseTransformer = (data: any) => Promise<GetTaxonResponse>
-
-export type TaxonWithLineageModelResponseTransformer = (data: any) => TaxonWithLineage
-
-export type LineageModelResponseTransformer = (data: any) => Lineage
-
-export const LineageModelResponseTransformer: LineageModelResponseTransformer = (data) => {
-  if (data?.class) {
-    OptionalTaxonModelResponseTransformer(data.class)
-  }
-  if (data?.family) {
-    OptionalTaxonModelResponseTransformer(data.family)
-  }
-  if (data?.genus) {
-    OptionalTaxonModelResponseTransformer(data.genus)
-  }
-  if (data?.kingdom) {
-    OptionalTaxonModelResponseTransformer(data.kingdom)
-  }
-  if (data?.order) {
-    OptionalTaxonModelResponseTransformer(data.order)
-  }
-  if (data?.phylum) {
-    OptionalTaxonModelResponseTransformer(data.phylum)
-  }
-  if (data?.species) {
-    OptionalTaxonModelResponseTransformer(data.species)
-  }
-  if (data?.subspecies) {
-    OptionalTaxonModelResponseTransformer(data.subspecies)
-  }
-  return data
-}
-
-export const TaxonWithLineageModelResponseTransformer: TaxonWithLineageModelResponseTransformer = (
-  data
-) => {
-  if (Array.isArray(data?.children)) {
-    data.children.forEach(TaxonModelResponseTransformer)
-  }
-  if (data?.lineage) {
-    LineageModelResponseTransformer(data.lineage)
-  }
-  if (data?.meta) {
-    MetaModelResponseTransformer(data.meta)
-  }
-  if (data?.parent) {
-    OptionalTaxonModelResponseTransformer(data.parent)
-  }
-  return data
-}
-
-export const GetTaxonResponseTransformer: GetTaxonResponseTransformer = async (data) => {
-  TaxonWithLineageModelResponseTransformer(data)
-  return data
-}
-
-export type UpdateTaxonResponseTransformer = (data: any) => Promise<UpdateTaxonResponse>
-
-export const UpdateTaxonResponseTransformer: UpdateTaxonResponseTransformer = async (data) => {
-  TaxonModelResponseTransformer(data)
-  return data
-}
-
-export type ListAnchorsResponseTransformer = (data: any) => Promise<ListAnchorsResponse>
-
-export const ListAnchorsResponseTransformer: ListAnchorsResponseTransformer = async (data) => {
-  if (Array.isArray(data)) {
-    data.forEach(TaxonWithParentRefModelResponseTransformer)
-  }
-  return data
-}
+  404: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateTaxonError = UpdateTaxonErrors[keyof UpdateTaxonErrors]
+
+export type UpdateTaxonResponses = {
+  /**
+   * OK
+   */
+  200: Taxon
+}
+
+export type UpdateTaxonResponse = UpdateTaxonResponses[keyof UpdateTaxonResponses]

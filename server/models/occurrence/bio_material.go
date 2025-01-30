@@ -38,10 +38,10 @@ type ExternalBioMatSequence struct {
 	SequenceInner  `edgedb:"$inline" json:",inline"`
 	Category       OccurrenceCategory       `edgedb:"category" json:"category"`
 	Origin         sequences.ExtSeqOrigin   `edgedb:"origin" json:"origin"`
-	ReferencedIn   []sequences.SeqReference `edgedb:"referenced_in" json:"referenced_in"`
+	ReferencedIn   []sequences.SeqReference `edgedb:"referenced_in" json:"referenced_in,omitempty"`
 	Identification Identification           `edgedb:"identification" json:"identification"`
 	Comments       edgedb.OptionalStr       `edgedb:"comments" json:"comments"`
-	PublishedIn    []references.Article     `edgedb:"published_in" json:"published_in"`
+	PublishedIn    []references.Article     `edgedb:"published_in" json:"published_in,omitempty"`
 	// SourceSample            `edgedb:"source_sample" json:"source_sample"`
 	AccessionNumber    edgedb.OptionalStr `edgedb:"accession_number" json:"accession_number"`
 	SpecimenIdentifier string             `edgedb:"specimen_identifier" json:"specimen_identifier"`

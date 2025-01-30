@@ -1109,8 +1109,6 @@
 				},
 				"required": [
 					"performed_by",
-					"abiotic_measurements",
-					"samplings",
 					"meta",
 					"id",
 					"site",
@@ -1424,10 +1422,8 @@
 					"id",
 					"category",
 					"origin",
-					"referenced_in",
 					"identification",
 					"comments",
-					"published_in",
 					"accession_number",
 					"specimen_identifier",
 					"original_taxon",
@@ -4529,16 +4525,10 @@
 					}
 				},
 				"required": [
-					"samples",
-					"occurring_taxa",
 					"meta",
 					"id",
 					"code",
-					"target",
-					"methods",
-					"fixatives",
-					"habitats",
-					"access_points"
+					"target"
 				],
 				"type": "object"
 			},
@@ -4591,11 +4581,7 @@
 				"required": [
 					"id",
 					"code",
-					"target",
-					"methods",
-					"fixatives",
-					"habitats",
-					"access_points"
+					"target"
 				],
 				"type": "object"
 			},
@@ -5395,13 +5381,10 @@
 					}
 				},
 				"required": [
-					"datasets",
-					"events",
 					"meta",
 					"id",
 					"name",
 					"code",
-					"description",
 					"coordinates",
 					"country",
 					"user_defined_locality"
@@ -5636,7 +5619,6 @@
 					"id",
 					"name",
 					"code",
-					"description",
 					"coordinates",
 					"country",
 					"user_defined_locality"

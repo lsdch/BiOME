@@ -1,10 +1,3 @@
-// Setup API client
-import { client } from "@/api"
-import { servers } from "../openapi.json"
-
-// ❗ Use dynamic imports for anything relying on the client in the main script
-// so that the updated config is used
-client.setConfig({ baseUrl: `${servers[0].url}` })
 
 import { createApp } from 'vue'
 import App from './App.vue'
@@ -54,6 +47,7 @@ app.use(pinia)
 
 
 // Setup authentication using refresh token
+import { client } from '@/api/gen/client.gen'
 await import('./stores/user').then(async ({ useUserStore }) => {
   const { refresh, isAuthenticated, sessionExpired, getUser } = useUserStore()
   await getUser()

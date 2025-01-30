@@ -169,7 +169,7 @@ const { model, mode, makeRequest } = useForm(props, {
         kind: target.kind,
         taxa: target.taxa?.map(({ name }) => name)
       },
-      habitats: habitats.map(({ label }) => label),
+      habitats: habitats?.map(({ label }) => label),
       fixatives: fixatives?.map(({ code }) => code),
       methods: methods?.map(({ code }) => code)
     }

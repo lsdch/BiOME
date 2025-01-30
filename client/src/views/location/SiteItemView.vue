@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-surface fill-height">
+  <div class="bg-surface">
     <v-container
       fluid
       id="item-view-container"
@@ -83,7 +83,7 @@
           <v-expansion-panel>
             <template #title>
               Events
-              <v-badge color="primary" inline :content="site.events?.length" />
+              <v-badge color="primary" inline :content="site.events?.length ?? 0" />
             </template>
 
             <template #text>
@@ -94,7 +94,7 @@
             <template #title>
               <div class="d-flex w-100 align-center mr-5">
                 Datasets
-                <v-badge color="purple" inline :content="site.datasets.length" variant="tonal" />
+                <v-badge color="purple" inline :content="site.datasets?.length" variant="tonal" />
                 <v-btn icon="mdi-plus" density="compact" variant="tonal" class="ml-auto" />
               </div>
             </template>
@@ -197,8 +197,8 @@ const { data: site, error } = useQuery(getSiteOptions({ path: { code } }))
 
 const targeted_taxa = computed(() => {
   return Object.values(
-    site.value?.events.reduce<Record<string, Taxon>>((acc, event) => {
-      event.samplings.forEach(({ target }) => {
+    site.value?.events?.reduce<Record<string, Taxon>>((acc, event) => {
+      event.samplings?.forEach(({ target }) => {
         target.taxa?.forEach((t) => {
           acc[t.name] = t
         })
@@ -210,8 +210,8 @@ const targeted_taxa = computed(() => {
 
 const occurring_taxa = computed(() => {
   return Object.values(
-    site.value?.events.reduce<Record<string, Taxon>>((acc, event) => {
-      event.samplings.forEach(({ occurring_taxa }) => {
+    site.value?.events?.reduce<Record<string, Taxon>>((acc, event) => {
+      event.samplings?.forEach(({ occurring_taxa }) => {
         occurring_taxa?.forEach((t) => {
           acc[t.name] = t
         })
@@ -225,7 +225,7 @@ const abiotic_measurements = computed(() => {
   return (
     site.value?.events?.reduce<Record<string, AbioticData>>(
       (acc, { performed_on, abiotic_measurements }) => {
-        abiotic_measurements.forEach(({ param, value }) => {
+        abiotic_measurements?.forEach(({ param, value }) => {
           if (performed_on.date === undefined) return
           acc[param.code] = {
             param,

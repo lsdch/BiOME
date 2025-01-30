@@ -46,8 +46,8 @@ type Event struct {
 	EventInner          `edgedb:"$inline" json:",inline"`
 	PerformedBy         []people.PersonUser  `edgedb:"performed_by" json:"performed_by" minLength:"1"`
 	Programs            []ProgramInner       `edgedb:"programs" json:"programs,omitempty"`
-	AbioticMeasurements []AbioticMeasurement `edgedb:"abiotic_measurements" json:"abiotic_measurements"`
-	Samplings           []Sampling           `edgedb:"samplings" json:"samplings"`
+	AbioticMeasurements []AbioticMeasurement `edgedb:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
+	Samplings           []Sampling           `edgedb:"samplings" json:"samplings,omitempty"`
 	Spottings           []taxonomy.Taxon     `edgedb:"spottings" json:"spottings,omitempty"`
 	Meta                people.Meta          `edgedb:"meta" json:"meta"`
 }

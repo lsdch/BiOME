@@ -60,7 +60,7 @@ type SiteItem struct {
 	ID                  edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
 	Name                string               `edgedb:"name" json:"name" minLength:"4"`
 	Code                string               `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
-	Description         edgedb.OptionalStr   `edgedb:"description" json:"description"`
+	Description         edgedb.OptionalStr   `edgedb:"description" json:"description,omitempty"`
 	Coordinates         Coordinates          `edgedb:"coordinates" json:"coordinates"`
 	Altitude            edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
 	Locality            edgedb.OptionalStr   `edgedb:"locality" json:"locality,omitempty"`
@@ -71,8 +71,8 @@ type SiteItem struct {
 
 type Site struct {
 	SiteItem `edgedb:"$inline" json:",inline"`
-	Datasets []DatasetInner `edgedb:"datasets" json:"datasets"`
-	Events   []Event        `edgedb:"events" json:"events"`
+	Datasets []DatasetInner `edgedb:"datasets" json:"datasets,omitempty"`
+	Events   []Event        `edgedb:"events" json:"events,omitempty"`
 	Meta     people.Meta    `edgedb:"meta" json:"meta"`
 }
 

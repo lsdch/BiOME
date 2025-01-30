@@ -984,16 +984,7 @@ export const $Event = {
       type: 'array'
     }
   },
-  required: [
-    'performed_by',
-    'abiotic_measurements',
-    'samplings',
-    'meta',
-    'id',
-    'site',
-    'code',
-    'performed_on'
-  ],
+  required: ['performed_by', 'meta', 'id', 'site', 'code', 'performed_on'],
   type: 'object'
 } as const
 
@@ -1269,10 +1260,8 @@ export const $ExternalBioMatSequence = {
     'id',
     'category',
     'origin',
-    'referenced_in',
     'identification',
     'comments',
-    'published_in',
     'accession_number',
     'specimen_identifier',
     'original_taxon',
@@ -3957,18 +3946,7 @@ export const $Sampling = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: [
-    'samples',
-    'occurring_taxa',
-    'meta',
-    'id',
-    'code',
-    'target',
-    'methods',
-    'fixatives',
-    'habitats',
-    'access_points'
-  ],
+  required: ['meta', 'id', 'code', 'target'],
   type: 'object'
 } as const
 
@@ -4018,7 +3996,7 @@ export const $SamplingInner = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['id', 'code', 'target', 'methods', 'fixatives', 'habitats', 'access_points'],
+  required: ['id', 'code', 'target'],
   type: 'object'
 } as const
 
@@ -4719,18 +4697,7 @@ export const $Site = {
       type: 'boolean'
     }
   },
-  required: [
-    'datasets',
-    'events',
-    'meta',
-    'id',
-    'name',
-    'code',
-    'description',
-    'coordinates',
-    'country',
-    'user_defined_locality'
-  ],
+  required: ['meta', 'id', 'name', 'code', 'coordinates', 'country', 'user_defined_locality'],
   type: 'object'
 } as const
 
@@ -4933,15 +4900,7 @@ export const $SiteItem = {
       type: 'boolean'
     }
   },
-  required: [
-    'id',
-    'name',
-    'code',
-    'description',
-    'coordinates',
-    'country',
-    'user_defined_locality'
-  ],
+  required: ['id', 'name', 'code', 'coordinates', 'country', 'user_defined_locality'],
   type: 'object'
 } as const
 
