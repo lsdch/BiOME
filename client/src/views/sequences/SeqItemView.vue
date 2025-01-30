@@ -1,7 +1,7 @@
 <template>
   <v-card
-    class="bg-surface w-100 d-flex flex-column"
-    :title="code"
+    class="w-100 d-flex flex-column wrap-card-title small-card-title"
+    :title="CodeIdentifier.textWrap(code)"
     flat
     :rounded="0"
     min-height="100%"
@@ -74,125 +74,133 @@
     <v-divider></v-divider>
     <CenteredSpinner v-if="isPending" />
     <PageErrors v-else-if="error" :error />
-    <v-card-text v-else-if="item" class="flex-grow-1">
+    <v-card-text v-else-if="item" class="flex-grow-1 bg-main">
       <v-row>
         <v-col>
-          <v-list-item :title="item.comments" prepend-icon="mdi-comment-outline"> </v-list-item>
+          <v-card>
+            <v-list>
+              <template v-if="item.label">
+                <v-list-item prepend-icon="mdi-tag">
+                  {{ item.label ?? 'No label provided' }}
+                </v-list-item>
+                <v-divider />
+              </template>
+              <v-list-item
+                prepend-icon="mdi-dots-horizontal"
+                :class="['text-small', { 'font-italic': !item.comments }]"
+              >
+                {{ item.comments ?? 'No comments' }}
+              </v-list-item>
+            </v-list>
+          </v-card>
         </v-col>
       </v-row>
       <v-row>
         <v-col cols="12" lg="6">
-          <v-col cols="12">
-            <v-card
-              title="Identification"
-              class="fill-height"
-              prepend-icon="mdi-microscope"
-              :subtitle="DateWithPrecision.format(item.identification.identified_on)"
-            >
-              <template #append>
-                <v-tooltip
-                  :text="
-                    item.external?.source_sample?.identification.taxon.id ===
-                    item.identification.taxon.id
-                      ? 'Bio material identification matches its sequences identification'
-                      : 'Bio material identification contradicted by its sequences identification'
-                  "
-                  open-on-click
-                  location="end"
-                  origin="center"
-                >
-                  <template #activator="{ props }">
-                    <v-chip
-                      v-bind="{
-                        ...props,
-                        ...(item.external?.source_sample?.identification.taxon.id ===
-                        item.identification.taxon.id
-                          ? {
-                              color: 'success',
-                              text: 'Congruent'
-                            }
-                          : {
-                              color: 'warning',
-                              text: 'Incongruent'
-                            })
-                      }"
-                      size="small"
-                    >
-                    </v-chip>
-                  </template>
-                </v-tooltip>
-              </template>
-              <v-card-text>
-                <TaxonChip :taxon="item.identification.taxon" class="my-1" />
-                <span class="text-no-wrap">
-                  by
-                  <PersonChip :person="item.identification.identified_by" />
-                </span>
-              </v-card-text>
-              <v-divider></v-divider>
-              <v-card-actions v-if="item.external?.original_taxon">
-                Originally tagged as: <code>{{ item.external.original_taxon }}</code>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-          <v-col cols="12">
-            <OccurrenceSamplingCard :item @edit="toggleSamplingEdit(true)" />
-          </v-col>
+          <v-card
+            title="Identification"
+            class="mb-6"
+            prepend-icon="mdi-microscope"
+            :subtitle="DateWithPrecision.format(item.identification.identified_on)"
+          >
+            <template #append>
+              <v-tooltip
+                :text="
+                  item.external?.source_sample?.identification.taxon.id ===
+                  item.identification.taxon.id
+                    ? 'Bio material identification matches its sequences identification'
+                    : 'Bio material identification contradicted by its sequences identification'
+                "
+                open-on-click
+                location="end"
+                origin="center"
+              >
+                <template #activator="{ props }">
+                  <v-chip
+                    v-bind="{
+                      ...props,
+                      ...(item.external?.source_sample?.identification.taxon.id ===
+                      item.identification.taxon.id
+                        ? {
+                            color: 'success',
+                            text: 'Congruent'
+                          }
+                        : {
+                            color: 'warning',
+                            text: 'Incongruent'
+                          })
+                    }"
+                    size="small"
+                  >
+                  </v-chip>
+                </template>
+              </v-tooltip>
+            </template>
+            <v-card-text>
+              <TaxonChip :taxon="item.identification.taxon" class="my-1" />
+              <span class="text-no-wrap">
+                by
+                <PersonChip :person="item.identification.identified_by" />
+              </span>
+            </v-card-text>
+            <v-divider></v-divider>
+            <v-card-actions v-if="item.external?.original_taxon">
+              Originally tagged as: <code>{{ item.external.original_taxon }}</code>
+            </v-card-actions>
+          </v-card>
+          <OccurrenceSamplingCard class="mt-6" :item @edit="toggleSamplingEdit(true)" />
         </v-col>
         <v-col cols="12" lg="6">
-          <v-col cols="12">
-            <v-card title="Origin sample" prepend-icon="mdi-package-variant">
-              <template #subtitle>
-                <v-chip
-                  v-if="item.external?.source_sample"
-                  :text="item.external.source_sample.identification.taxon.name"
-                  :to="{ name: 'biomat-item', params: { code: item.external.source_sample.code } }"
-                  prepend-icon="mdi-link-variant"
-                  color="primary"
-                  label
-                  size="small"
-                  class="mx-1"
-                ></v-chip>
-              </template>
-              <v-card-text>
-                <v-list-item v-if="item.external" title="Specimen identifier">
-                  <template #subtitle>
-                    <code>{{ item.external?.specimen_identifier }} </code>
-                  </template>
-                </v-list-item>
-              </v-card-text>
-            </v-card>
-          </v-col>
+          <v-card title="Origin sample" class="mb-6" prepend-icon="mdi-package-variant">
+            <template #subtitle>
+              <v-chip
+                v-if="item.external?.source_sample"
+                :text="item.external.source_sample.identification.taxon.name"
+                :to="{ name: 'biomat-item', params: { code: item.external.source_sample.code } }"
+                prepend-icon="mdi-link-variant"
+                color="primary"
+                label
+                size="small"
+                class="mx-1"
+              ></v-chip>
+            </template>
+            <v-card-text>
+              <v-list-item v-if="item.external" title="Specimen identifier">
+                <template #subtitle>
+                  <code>{{ item.external?.specimen_identifier }} </code>
+                </template>
+              </v-list-item>
+            </v-card-text>
+          </v-card>
 
-          <v-col cols="12">
-            <v-card v-if="item.external" title="References" prepend-icon="mdi-newspaper-variant">
-              <template #append>
-                <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small"></v-btn>
-              </template>
-              <v-card-text>
-                <v-list>
-                  <v-list-item title="Databases" prepend-icon="mdi-database">
-                    <SeqRefChip
-                      v-for="seqRef in item.external.referenced_in"
-                      :seq-ref
-                      class="ma-1"
-                    />
-                  </v-list-item>
-                  <v-list-item
-                    title="Published in"
-                    :subtitle="item.external.published_in ? undefined : 'No registered references'"
-                    prepend-icon="mdi-newspaper-variant"
-                  >
-                    <ArticleChip
-                      v-for="article in item.external.published_in"
-                      :article
-                      class="ma-1"
-                    />
-                  </v-list-item>
-                </v-list>
-              </v-card-text>
-            </v-card>
-          </v-col>
+          <v-card
+            v-if="item.external"
+            class="mt-6"
+            title="References"
+            prepend-icon="mdi-newspaper-variant"
+          >
+            <template #append>
+              <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small"></v-btn>
+            </template>
+            <v-card-text>
+              <v-list>
+                <v-list-item title="Databases" prepend-icon="mdi-database">
+                  <SeqRefChip v-for="seqRef in item.external.referenced_in" :seq-ref class="ma-1" />
+                </v-list-item>
+                <v-list-item
+                  title="Published in"
+                  :subtitle="item.external.published_in ? undefined : 'No registered references'"
+                  prepend-icon="mdi-newspaper-variant"
+                >
+                  <ArticleChip
+                    v-for="article in item.external.published_in"
+                    :article
+                    class="ma-1"
+                  />
+                </v-list-item>
+              </v-list>
+            </v-card-text>
+          </v-card>
         </v-col>
       </v-row>
       <v-row>
@@ -244,20 +252,20 @@
         </v-col>
       </v-row>
     </v-card-text>
-    <SamplingFormDialog
+    <!-- <SamplingFormDialog
       v-if="item"
       v-model="samplingEdit"
       :edit="item.sampling"
       :event="item.event"
-    />
+    /> -->
     <v-divider />
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { DateWithPrecision, ExtSeqOrigin } from '@/api/adapters'
+import { CodeIdentifier, DateWithPrecision, ExtSeqOrigin } from '@/api/adapters'
 import { getSequenceOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
+// import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 import OccurrenceSamplingCard from '@/components/occurrence/OccurrenceSamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'
