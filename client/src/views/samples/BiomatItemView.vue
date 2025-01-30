@@ -4,6 +4,7 @@
     :title="code"
     flat
     :rounded="0"
+    :height="0"
     min-height="100%"
   >
     <template #prepend>
@@ -49,7 +50,9 @@
       <MetaChip :meta="item.meta"></MetaChip>
     </template>
     <v-divider></v-divider>
-    <CenteredSpinner v-if="isPending" height="100%" size="x-large" />
+    <v-card-text v-if="isPending">
+      <CenteredSpinner size="x-large" height="100%" />
+    </v-card-text>
     <v-card-text v-else-if="error">
       <v-alert color="error" icon="mdi-alert">
         Failed to retrieve bio material informations
