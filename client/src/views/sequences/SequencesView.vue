@@ -70,7 +70,7 @@
       <span class="d-flex justify-space-between align-center">
         <!-- Using zero-width spaces for better line breaks -->
         <RouterLink
-          :text="value.replace(']', ']\u200B').replace('[', '\u200B[')"
+          :text="CodeIdentifier.textWrap(value)"
           :to="{ name: 'sequence', params: { code: value } }"
         />
         <span class="text-right">
@@ -167,7 +167,7 @@
 
 <script setup lang="ts">
 import { BioMaterial, Gene, PersonInner, Sequence, SequencesService, SiteInfo, Taxon } from '@/api'
-import { DateWithPrecision, ExtSeqOrigin, OccurrenceCategory } from '@/api/adapters'
+import { CodeIdentifier, DateWithPrecision, ExtSeqOrigin, OccurrenceCategory } from '@/api/adapters'
 import { deleteSequenceMutation, listSequencesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import PersonChip from '@/components/people/PersonChip.vue'
 import GeneChip from '@/components/sequences/GeneChip.vue'

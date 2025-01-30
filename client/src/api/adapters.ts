@@ -229,3 +229,10 @@ export namespace User {
     return item.meta?.created_by?.id === user.id
   }
 }
+
+export namespace CodeIdentifier {
+  // Inserts zero-width spaces for better line breaks of long biomat/sequence codes
+  export function textWrap(code: string) {
+    return code.replace(']', ']\u200B').replace('[', '\u200B[')
+  }
+}
