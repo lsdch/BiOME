@@ -194,7 +194,7 @@
 </template>
 
 <script setup lang="ts">
-import { BioMaterial, PersonInner, SamplesService, SiteInfo, Taxon } from '@/api'
+import { BioMaterial, PersonInner, SiteInfo, Taxon } from '@/api'
 import { BioMaterialWithDetails, DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
 import {
   deleteBioMaterialMutation,
