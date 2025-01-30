@@ -1267,9 +1267,7 @@
 				},
 				"required": [
 					"origin",
-					"specimen_identifier",
-					"original_taxon",
-					"source_sample"
+					"specimen_identifier"
 				],
 				"type": "object"
 			},
@@ -1427,7 +1425,6 @@
 					"accession_number",
 					"specimen_identifier",
 					"original_taxon",
-					"label",
 					"gene",
 					"code"
 				],
@@ -3296,9 +3293,7 @@
 				},
 				"required": [
 					"origin",
-					"specimen_identifier",
-					"original_taxon",
-					"source_sample"
+					"specimen_identifier"
 				],
 				"type": [
 					"object",
@@ -5128,7 +5123,6 @@
 					"meta",
 					"sampling",
 					"identification",
-					"label",
 					"gene",
 					"category",
 					"code"
@@ -5265,7 +5259,6 @@
 					"meta",
 					"sampling",
 					"identification",
-					"label",
 					"gene",
 					"category",
 					"code"

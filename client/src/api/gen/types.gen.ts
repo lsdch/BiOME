@@ -416,10 +416,10 @@ export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom'
 
 export type ExtSeqSpecificsBioMaterial = {
   origin: ExtSeqOrigin
-  original_taxon: string
+  original_taxon?: string
   published_in?: Array<OccurrenceReference>
   referenced_in?: Array<SeqReference>
-  source_sample: OptionalBioMaterial
+  source_sample?: OptionalBioMaterial
   specimen_identifier: string
 }
 
@@ -456,7 +456,7 @@ export type ExternalBioMatSequence = {
   gene: Gene
   id: string
   identification: Identification
-  label: string
+  label?: string
   legacy?: OptionalLegacySeqId
   origin: ExtSeqOrigin
   original_taxon: string
@@ -1042,10 +1042,10 @@ export type OptionalBioMaterial = {
 
 export type OptionalExtSeqSpecificsBioMaterial = {
   origin: ExtSeqOrigin
-  original_taxon: string
+  original_taxon?: string
   published_in?: Array<OccurrenceReference>
   referenced_in?: Array<SeqReference>
-  source_sample: OptionalBioMaterial
+  source_sample?: OptionalBioMaterial
   specimen_identifier: string
 } | null
 
@@ -1575,7 +1575,7 @@ export type Sequence = {
   gene: Gene
   id: string
   identification: Identification
-  label: string
+  label?: string
   legacy?: OptionalLegacySeqId
   meta: Meta
   published_in?: Array<OccurrenceReference>
@@ -1612,7 +1612,7 @@ export type SequenceWithDetails = {
   gene: Gene
   id: string
   identification: Identification
-  label: string
+  label?: string
   legacy?: OptionalLegacySeqId
   meta: Meta
   published_in?: Array<OccurrenceReference>

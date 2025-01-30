@@ -528,7 +528,9 @@ const optionalExtSeqSpecificsBioMaterialSchemaResponseTransformer = (data: any) 
       return seqReferenceSchemaResponseTransformer(item)
     })
   }
-  data.source_sample = optionalBioMaterialSchemaResponseTransformer(data.source_sample)
+  if (data.source_sample) {
+    data.source_sample = optionalBioMaterialSchemaResponseTransformer(data.source_sample)
+  }
   return data
 }
 

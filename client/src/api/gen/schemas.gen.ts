@@ -1115,7 +1115,7 @@ export const $ExtSeqSpecificsBioMaterial = {
       type: 'string'
     }
   },
-  required: ['origin', 'specimen_identifier', 'original_taxon', 'source_sample'],
+  required: ['origin', 'specimen_identifier'],
   type: 'object'
 } as const
 
@@ -1265,7 +1265,6 @@ export const $ExternalBioMatSequence = {
     'accession_number',
     'specimen_identifier',
     'original_taxon',
-    'label',
     'gene',
     'code'
   ],
@@ -2916,7 +2915,7 @@ export const $OptionalExtSeqSpecificsBioMaterial = {
       type: 'string'
     }
   },
-  required: ['origin', 'specimen_identifier', 'original_taxon', 'source_sample'],
+  required: ['origin', 'specimen_identifier'],
   type: ['object', 'null']
 } as const
 
@@ -4460,17 +4459,7 @@ export const $Sequence = {
       type: 'string'
     }
   },
-  required: [
-    'id',
-    'event',
-    'meta',
-    'sampling',
-    'identification',
-    'label',
-    'gene',
-    'category',
-    'code'
-  ],
+  required: ['id', 'event', 'meta', 'sampling', 'identification', 'gene', 'category', 'code'],
   type: 'object'
 } as const
 
@@ -4586,17 +4575,7 @@ export const $SequenceWithDetails = {
       type: 'string'
     }
   },
-  required: [
-    'id',
-    'event',
-    'meta',
-    'sampling',
-    'identification',
-    'label',
-    'gene',
-    'category',
-    'code'
-  ],
+  required: ['id', 'event', 'meta', 'sampling', 'identification', 'gene', 'category', 'code'],
   type: 'object'
 } as const
 

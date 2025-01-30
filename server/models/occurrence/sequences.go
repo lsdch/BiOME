@@ -23,7 +23,7 @@ type LegacySeqID struct {
 
 type SequenceInner struct {
 	CodeIdentifier `edgedb:"$inline" json:",inline"`
-	Label          edgedb.OptionalStr           `edgedb:"label" json:"label"`
+	Label          edgedb.OptionalStr           `edgedb:"label" json:"label,omitempty"`
 	Sequence       edgedb.OptionalStr           `edgedb:"sequence" json:"sequence,omitempty"`
 	Gene           sequences.Gene               `edgedb:"gene" json:"gene"`
 	Legacy         models.Optional[LegacySeqID] `edgedb:"legacy" json:"legacy,omitempty"`
@@ -44,8 +44,8 @@ type ExtSeqSpecifics[BioMat any] struct {
 	Origin             sequences.ExtSeqOrigin           `edgedb:"origin" json:"origin"`
 	ReferencedIn       []sequences.SeqReference         `edgedb:"referenced_in" json:"referenced_in,omitempty"`
 	SpecimenIdentifier string                           `edgedb:"specimen_identifier" json:"specimen_identifier"`
-	OriginalTaxon      edgedb.OptionalStr               `edgedb:"original_taxon" json:"original_taxon"`
-	SourceSample       models.Optional[BioMat]          `edgedb:"source_sample" json:"source_sample"`
+	OriginalTaxon      edgedb.OptionalStr               `edgedb:"original_taxon" json:"original_taxon,omitempty"`
+	SourceSample       models.Optional[BioMat]          `edgedb:"source_sample" json:"source_sample,omitempty"`
 	PublishedIn        []references.OccurrenceReference `edgedb:"published_in" json:"published_in,omitempty"`
 }
 
