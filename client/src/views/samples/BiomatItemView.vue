@@ -1,12 +1,5 @@
 <template>
-  <v-card
-    class="bg-surface w-100 d-flex flex-column"
-    :title="code"
-    flat
-    :rounded="0"
-    :height="0"
-    min-height="100%"
-  >
+  <v-card class="w-100 d-flex flex-column" :title="code" flat :rounded="0" min-height="100%">
     <template #prepend>
       <v-avatar variant="outlined">
         <v-icon icon="mdi-package-variant"></v-icon>
@@ -58,7 +51,7 @@
         Failed to retrieve bio material informations
       </v-alert>
     </v-card-text>
-    <v-card-text v-else-if="item" class="flex-grow-1">
+    <v-card-text v-else-if="item" class="bg-main flex-grow-1">
       <v-row v-if="item.comments">
         <v-col cols="12">
           <v-card flat>
@@ -70,7 +63,7 @@
       </v-row>
       <v-row>
         <v-col cols="12" lg="6">
-          <div class="w-100 my-1">
+          <div class="w-100 mb-6">
             <v-card
               title="Identification"
               class="fill-height"
@@ -120,13 +113,13 @@
               </v-card-text>
             </v-card>
           </div>
-          <div class="w-100 my-1">
+          <div class="w-100 mt-6">
             <OccurrenceSamplingCard :item @edit="toggleSamplingEdit(true)" />
           </div>
         </v-col>
 
         <v-col cols="12" lg="6">
-          <div class="w-100 my-1">
+          <div class="w-100 mb-6">
             <v-card title="Content" prepend-icon="mdi-hexagon-multiple" class="fill-height">
               <template #append>
                 <v-tooltip
@@ -215,7 +208,7 @@
               </v-card-text>
             </v-card>
           </div>
-          <div class="w-100 my-1">
+          <div class="w-100 mt-6">
             <v-card v-if="item.external" title="References" prepend-icon="mdi-newspaper-variant">
               <template #append>
                 <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small"></v-btn>
