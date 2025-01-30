@@ -18,7 +18,7 @@ type Optional[T any] struct {
 
 func (o Optional[T]) MarshalJSON() ([]byte, error) {
 	if o.Missing() {
-		return []byte("null"), nil
+		return json.Marshal(nil)
 	}
 	return json.Marshal(o.Value)
 }
@@ -58,8 +58,8 @@ func (n Nullable[T]) Schema(r huma.Registry) *huma.Schema {
 }
 
 func (n Nullable[T]) MarshalJSON() ([]byte, error) {
-	if !n.Null {
-		return []byte("null"), nil
+	if n.Null {
+		return json.Marshal(nil)
 	}
 	return json.Marshal(n.Value)
 }
@@ -123,7 +123,7 @@ func (o OptionalInput[T]) Schema(r huma.Registry) *huma.Schema {
 
 func (o OptionalInput[T]) MarshalJSON() ([]byte, error) {
 	if !o.IsSet {
-		return []byte("null"), nil
+		return json.Marshal(nil)
 	}
 	return json.Marshal(o.Value)
 }
@@ -174,7 +174,7 @@ func (o OptionalNull[T]) Schema(r huma.Registry) *huma.Schema {
 
 func (o OptionalNull[T]) MarshalJSON() ([]byte, error) {
 	if (!o.IsSet) || o.Null {
-		return []byte("null"), nil
+		return json.Marshal(nil)
 	}
 	return json.Marshal(o.Value)
 }
