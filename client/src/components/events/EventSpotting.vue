@@ -28,8 +28,9 @@
               chips
               closable-chips
               clearable
+              v-bind="field('spottings')"
             />
-            <v-textarea label="Comments" v-model="model.comments" />
+            <v-textarea label="Comments" v-model="model.comments" v-bind="field('comments')" />
 
             <div class="d-flex justify-end">
               <v-btn
@@ -57,13 +58,11 @@
 </template>
 
 <script setup lang="ts">
-import { $EventUpdate, Event, EventsService, EventUpdate, Taxon, TaxonRank } from '@/api'
+import { $EventUpdate, Event, EventsService, EventUpdate, TaxonRank } from '@/api'
 import { useToggle } from '@vueuse/core'
-import { ref, watch } from 'vue'
+import TaxonChip from '../taxonomy/TaxonChip.vue'
 import TaxonPicker from '../taxonomy/TaxonPicker.vue'
 import { useSchema } from '../toolkit/forms/schema'
-import { handleErrors } from '@/api/responses'
-import TaxonChip from '../taxonomy/TaxonChip.vue'
 
 const model = defineModel<Event>({ required: true })
 
