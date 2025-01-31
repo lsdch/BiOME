@@ -103,6 +103,8 @@
         :opacity="0.75"
         :visible="regions"
       />
+      <slot name="default" :map :zoom></slot>
+
       <LMarkerClusterGroup
         v-if="clustered"
         remove-outside-visible-bounds
@@ -128,7 +130,6 @@
         @click="selectSite(item)"
       >
       </LCircleMarker>
-      <slot name="default" :map></slot>
 
       <!-- Shared site popup -->
       <LLayerGroup ref="popup-layer" @popupopen="popupOpen = true" @popupclose="popupOpen = false">
@@ -220,7 +221,7 @@ const props = withDefaults(
 )
 
 defineSlots<{
-  default: (map?: HTMLElement) => any
+  default: (props: { zoom: number; map?: HTMLElement }) => any
   popup: (props: { item: SiteItem; popupOpen: boolean; zoom: number }) => any
 }>()
 

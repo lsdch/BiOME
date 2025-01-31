@@ -86,7 +86,11 @@
             :fitPad="0.3"
             :closable="mapActive"
             @close="toggleMap(false)"
-          />
+          >
+            <template #default="{ zoom }">
+              <SiteRadius v-if="site" :site :zoom />
+            </template>
+          </SitesMap>
           <template #actions v-if="site">
             <!-- :href="`https://www.google.com/maps/place/${site.coordinates.latitude}+${site.coordinates.longitude}/@${site.coordinates.latitude},${site.coordinates.longitude},10z`" -->
             <v-menu>
@@ -195,6 +199,7 @@ import { useDisplay } from 'vuetify'
 import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
+import SiteRadius from '@/components/sites/SiteRadius'
 
 const { mdAndDown, xlAndUp } = useDisplay()
 

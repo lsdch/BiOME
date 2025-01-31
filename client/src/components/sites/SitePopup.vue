@@ -1,6 +1,6 @@
 <template>
   <l-popup class="site-popup" :options>
-    <SiteRadius v-if="showRadius && zoomedEnough" :site="item" />
+    <SiteRadius v-if="showRadius" :site="item" :zoom />
     <v-list-item
       class="text-no-wrap"
       :title="item.name"
@@ -51,19 +51,6 @@ const { zoom = 1, item } = defineProps<{
   showRadius?: boolean
   zoom?: number
 }>()
-
-const zoomedEnough = computed(() => {
-  switch (item.coordinates.precision) {
-    case undefined:
-    case 'Unknown':
-      return false
-    case '<100m':
-    case '<1km':
-      return zoom > 10
-    default:
-      return zoom > 6
-  }
-})
 </script>
 
 <style lang="scss">
