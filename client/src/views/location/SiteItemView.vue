@@ -83,7 +83,7 @@
           <SitesMap
             :items="site ? [site] : []"
             regions
-            :fitPad="0.3"
+            :fitPad
             :closable="mapActive"
             @close="toggleMap(false)"
           >
@@ -211,6 +211,21 @@ const [editDialog, toggleEdit] = useToggle(false)
 const { code } = defineProps<{ code: string }>()
 
 const { data: site, error, isPending } = useQuery(getSiteOptions({ path: { code } }))
+
+const fitPad = computed(() => {
+  switch (site.value?.coordinates.precision) {
+    case '<100m':
+      return 0.001
+    case '<1km':
+      return 0.01
+    case '<10km':
+      return 0.1
+    case '10-100km':
+      return 1
+    default:
+      return undefined
+  }
+})
 
 const targeted_taxa = computed(() => {
   return Object.values(
