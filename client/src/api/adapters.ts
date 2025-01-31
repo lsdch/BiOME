@@ -18,7 +18,8 @@ import {
   UserRole as TUserRole,
   User as TUser,
   Meta,
-  Quantity as TQuantity
+  Quantity as TQuantity,
+  CoordinatesPrecision as TCoordinatesPrecision
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/people/UserRoleChip"
 import QuantityChip from "@/components/occurrence/ExtBioMatQuantityChip"
@@ -234,5 +235,23 @@ export namespace CodeIdentifier {
   // Inserts zero-width spaces for better line breaks of long biomat/sequence codes
   export function textWrap(code: string) {
     return code.replace(']', ']\u200B').replace('[', '\u200B[')
+  }
+}
+
+export type CoordinatesPrecision = TCoordinatesPrecision
+export namespace CoordinatesPrecision {
+  export function radius(precision?: CoordinatesPrecision): number {
+    switch (precision) {
+      case '10-100km':
+        return 100_000
+      case '<10km':
+        return 10_000
+      case '<1km':
+        return 1000
+      case '<100m':
+        return 100
+      default:
+        return 0
+    }
   }
 }

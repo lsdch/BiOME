@@ -1,11 +1,6 @@
 <template>
   <l-popup class="site-popup" :options>
-    <LCircle
-      v-if="showRadius && zoomedEnough"
-      :lat-lng="Geocoordinates.LatLng(item)"
-      :radius="precisionRadius(item.coordinates.precision)"
-      :interactive="false"
-    ></LCircle>
+    <SiteRadius v-if="showRadius && zoomedEnough" :site="item" />
     <v-list-item
       class="text-no-wrap"
       :title="item.name"
@@ -44,11 +39,11 @@
 </template>
 
 <script setup lang="ts">
-import { CoordinatesPrecision, SiteItem } from '@/api'
-import { LPopup, LCircle } from '@vue-leaflet/vue-leaflet'
+import { SiteItem } from '@/api'
+import { LPopup } from '@vue-leaflet/vue-leaflet'
 import { PopupOptions } from 'leaflet'
-import { Geocoordinates } from '../maps'
 import { computed } from 'vue'
+import SiteRadius from './SiteRadius'
 
 const { zoom = 1, item } = defineProps<{
   item: SiteItem
@@ -69,21 +64,6 @@ const zoomedEnough = computed(() => {
       return zoom > 6
   }
 })
-
-function precisionRadius(precision: CoordinatesPrecision): number {
-  switch (precision) {
-    case '10-100km':
-      return 100_000
-    case '<10km':
-      return 10_000
-    case '<1km':
-      return 1000
-    case '<100m':
-      return 100
-    default:
-      return 0
-  }
-}
 </script>
 
 <style lang="scss">
