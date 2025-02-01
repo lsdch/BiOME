@@ -8,17 +8,31 @@
     <PasswordFields v-model="model.new_password" />
     <v-row>
       <v-col>
-        <v-btn color="primary" type="submit" variant="plain"> Set new password </v-btn>
+        <v-btn
+          color="primary"
+          type="submit"
+          variant="plain"
+          :loading="isPending"
+          text="Set new password"
+        />
       </v-col>
     </v-row>
+    <v-alert v-if="error" type="error">
+      {{
+        error.status == StatusCodes.UNPROCESSABLE_ENTITY ? 'Invalid password' : 'An error occurred'
+      }}
+    </v-alert>
   </v-form>
 </template>
 
 <script setup lang="ts">
-import { AccountService, UpdatePasswordInput } from '@/api'
+import { UpdatePasswordInput } from '@/api'
+import { updatePasswordMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import PasswordFields from '@/components/auth/PasswordFields.vue'
 import PasswordField from '@/components/toolkit/ui/PasswordField.vue'
 import { useFeedback } from '@/stores/feedback'
+import { useMutation } from '@tanstack/vue-query'
+import { StatusCodes } from 'http-status-codes'
 import { ref } from 'vue'
 
 const model = ref<UpdatePasswordInput>({
@@ -31,14 +45,19 @@ const model = ref<UpdatePasswordInput>({
 
 const { feedback } = useFeedback()
 
-async function submit() {
-  AccountService.updatePassword({ body: model.value })
-    .then(() => {
-      feedback({ type: 'success', message: 'Password updated' })
-    })
-    .catch(() => {
-      feedback({ type: 'error', message: 'Password update failed' })
-    })
+const { mutate, isPending, error } = useMutation({
+  ...updatePasswordMutation(),
+  onSuccess: () => {
+    feedback({ type: 'success', message: 'Password updated' })
+  },
+  onError: (error) => {
+    console.error(error)
+    feedback({ type: 'error', message: 'Password update failed' })
+  }
+})
+
+function submit() {
+  mutate({ body: model.value })
 }
 </script>
 
