@@ -9,11 +9,11 @@
     <v-card
       :title="person.full_name"
       :subtitle="person.alias"
-      class="bg-surface-light"
+      class="bg-surface-light small-card-title"
       density="compact"
     >
       <template #prepend>
-        <div class="d-flex flex-column align-center">
+        <div class="d-flex flex-column align-center mr-2">
           <UserRole.Icon :role="person.role" size="small" />
         </div>
       </template>
