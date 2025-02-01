@@ -29,10 +29,9 @@ export function useGuards() {
     return {
       ...route,
       beforeEnter: async (route) => {
-        const store = useUserStore()
-        if (store.isAuthenticated) {
-          await store.refreshAsNeeded()
-          return store.isGranted(role) ? true : denyAccess(`Access requires ${role} privileges`)
+        const { isAuthenticated, isGranted } = useUserStore()
+        if (isAuthenticated) {
+          return isGranted(role) ? true : denyAccess(`Access requires ${role} privileges`)
         } else {
           return { name: 'login', query: { redirect: route.fullPath } }
         }

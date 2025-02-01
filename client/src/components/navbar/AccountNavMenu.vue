@@ -80,7 +80,7 @@ const router = useRouter()
 const { feedback } = useFeedback()
 
 async function logout() {
-  await userStore.logout()
+  userStore.logout()
   router.push({ name: 'home' })
   feedback({ type: 'info', message: 'You have been logged out' })
 }

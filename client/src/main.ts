@@ -41,24 +41,11 @@ app.use(vuetify)
 
 // Setup pinia stores
 import { createPinia, setActivePinia } from 'pinia'
+import { useUserStore } from './stores/user'
 const pinia = createPinia()
 setActivePinia(pinia)
 app.use(pinia)
-
-
-// Setup authentication using refresh token
-import { client } from '@/api/gen/client.gen'
-await import('./stores/user').then(async ({ useUserStore }) => {
-  const { refresh, isAuthenticated, sessionExpired, getUser } = useUserStore()
-  await getUser()
-  client.interceptors.request.use(async (request) => {
-    if (isAuthenticated && sessionExpired && !request.headers.has('noAuthRefresh')) {
-      await refresh()
-    }
-    return request
-  })
-})
-
+useUserStore().refreshSession()
 
 
 app.mount('#app')

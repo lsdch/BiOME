@@ -3,14 +3,13 @@ import NotFound from '@/components/navigation/NotFound.vue'
 import { nextTick } from "vue"
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
 import { useGuards } from './guards'
 
-import routes, { accountRoutes } from './routes'
-import { navRouteDefinitions } from './nav'
+import { getOccurrenceDatasetOptions, getSiteDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { VListItem } from 'vuetify/components'
-import { getOccurrenceDatasetOptions, getSiteDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { navRouteDefinitions } from './nav'
+import routes from './routes'
 
 export * from './nav'
 

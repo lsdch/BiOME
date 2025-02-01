@@ -14,8 +14,13 @@
       name="password"
       prepend-inner-icon="mdi-lock"
     />
-    <div v-if="error?.status === 401" class="text-red text-center mb-3">Invalid credentials</div>
-    <div v-else-if="error" class="text-red">An error occurred on the server</div>
+    <div
+      v-if="loginState.error?.status === StatusCodes.UNAUTHORIZED"
+      class="text-red text-center mb-3"
+    >
+      Invalid credentials
+    </div>
+    <div v-else-if="loginState.error" class="text-red">An error occurred on the server</div>
 
     <v-btn
       block
@@ -25,51 +30,54 @@
       color="primary"
       text="Log in"
       class="mb-5"
-      :loading="loading"
+      :loading="loginState.pending"
     />
   </v-form>
 </template>
 
 <script setup lang="ts">
-import { ErrorModel, UserCredentials } from '@/api'
+import { UserCredentials } from '@/api'
 import { useUserStore } from '@/stores/user'
 import { useRouteQuery } from '@vueuse/router'
-import { onBeforeMount, reactive, ref } from 'vue'
+import { StatusCodes } from 'http-status-codes'
+import { onBeforeMount, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import PasswordField from '../toolkit/ui/PasswordField.vue'
-import { useToggle } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 
 const credentials: UserCredentials = reactive({
   identifier: '',
   password: ''
 })
 
-const error = ref<ErrorModel>()
+const userStore = useUserStore()
+const { isAuthenticated, loginState } = storeToRefs(userStore)
+const { login } = userStore
 
-const [loading, toggleLoading] = useToggle(false)
+function submit() {
+  login(credentials)
+}
 
 const router = useRouter()
-const target = useRouteQuery<string>('redirect', '/')
-const { isAuthenticated, login } = useUserStore()
+watch(isAuthenticated, (ok) => {
+  if (ok) redirect()
+})
 
+/**
+ * Target page to redirect to after successful login,
+ * or if user is already authenticated
+ */
+const target = useRouteQuery<string>('redirect', '/')
+
+// If user is already authenticated, redirect to target
 onBeforeMount(() => {
-  if (isAuthenticated) redirect()
+  if (isAuthenticated.value) redirect()
 })
 
 function redirect() {
   // Using replace to overwrite router history
   router.replace({ path: target.value })
   return
-}
-
-async function submit() {
-  toggleLoading(true)
-  await login(credentials)
-    .then((err) => {
-      error.value = err
-      if (err === undefined) redirect()
-    })
-    .finally(() => toggleLoading(false))
 }
 </script>
 

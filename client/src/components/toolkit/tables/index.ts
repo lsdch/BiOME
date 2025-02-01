@@ -8,6 +8,7 @@ import { FeedbackProps } from "../CRUDFeedback.vue"
 import { Mode } from "../forms/form"
 import { listAbioticParametersQueryKey } from "@/api/gen/@tanstack/vue-query.gen"
 import { QueryObserverResult, RefetchOptions, UndefinedInitialQueryOptions, useMutation, UseMutationOptions, useQuery } from "@tanstack/vue-query"
+import { storeToRefs } from "pinia"
 
 
 
@@ -102,7 +103,7 @@ export function useTable<
   emit: TableEmits<ItemType>
 ) {
 
-  const { user: currentUser } = useUserStore()
+  const { user: currentUser } = storeToRefs(useUserStore())
   const { askConfirm } = useAppConfirmDialog()
 
   const form = ref<FormSlotScope<ItemType>>({
