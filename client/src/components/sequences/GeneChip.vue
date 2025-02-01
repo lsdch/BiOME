@@ -3,19 +3,17 @@
     <template #activator="{ props }">
       <v-chip :text="gene.code" class="font-monospace" v-bind="{ ...props, ...$attrs }" />
     </template>
-    <v-card :title="gene.label" class="bg-surface-light" density="compact">
+    <v-card :title="gene.label" class="bg-surface-light small-card-title" density="compact">
       <template #subtitle>
         <code>{{ gene.code }}</code>
       </template>
       <template #prepend>
-        <v-badge icon="mdi-dna" color="transparent">
+        <v-badge icon="mdi-dna" color="transparent" class="mr-3">
           <v-icon icon="mdi-tag" size="small"></v-icon>
         </v-badge>
       </template>
-      <v-card-text>
-        <span class="font-italic">
-          {{ gene.description ?? 'No description provided' }}
-        </span>
+      <v-card-text v-if="gene.description">
+        {{ gene.description }}
       </v-card-text>
     </v-card>
   </v-menu>
