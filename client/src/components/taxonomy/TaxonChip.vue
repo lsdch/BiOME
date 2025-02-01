@@ -7,7 +7,7 @@
     <v-card
       :title="taxon.name"
       :subtitle="taxon.authorship"
-      class="bg-surface-light"
+      class="bg-surface-light small-card-title"
       density="compact"
       :to="{ name: 'taxonomy', hash: `#${taxon.name}` }"
     >
@@ -33,8 +33,8 @@
 
       <v-card-text>
         <div class="d-flex justify-space-between">
-          <v-chip :text="taxon.status" class="ma-1" />
-          <v-chip :text="taxon.rank" class="ma-1" />
+          <v-chip :text="taxon.status" class="ma-1" size="small" />
+          <v-chip :text="taxon.rank" class="ma-1" size="small" />
         </div>
       </v-card-text>
     </v-card>
