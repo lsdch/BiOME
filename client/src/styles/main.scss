@@ -1,5 +1,9 @@
 @use 'vuetify';
 
+ul {
+  padding-left: 20px;
+}
+
 .fuzzy-search-item-item b {
   color: rgb(var(--v-theme-primary));
 }
