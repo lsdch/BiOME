@@ -39,10 +39,21 @@
         <v-list-item
           :title="
             meta.modified
-              ? DateTime.fromJSDate(meta.modified).toLocaleString({}, { locale: 'en-gb' })
+              ? DateTime.fromJSDate(meta.modified).toLocaleString(DateTime.DATE_FULL, {
+                  locale: 'en-gb'
+                })
               : undefined
           "
-          :subtitle="meta.modified ? 'Last updated' : 'Never updated'"
+          :subtitle="
+            meta.modified
+              ? `Last updated at ${DateTime.fromJSDate(meta.created).toLocaleString(
+                  DateTime.TIME_24_SIMPLE,
+                  {
+                    locale: 'en-gb'
+                  }
+                )}`
+              : 'Never updated'
+          "
           prepend-icon="mdi-update"
           slim
         />
