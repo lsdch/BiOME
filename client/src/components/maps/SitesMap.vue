@@ -105,6 +105,18 @@
       />
       <slot name="default" :map :zoom></slot>
 
+      <LHexbinLayer
+        v-if="clustered"
+        :data="items"
+        :accessor="(item) => Geocoordinates.LatLng(item)"
+        :radius="10"
+        :radius-range="[9.5, 10]"
+        :hover="{ fill: true }"
+        :color-range="['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']"
+        :opacity="[0.8, 0.9]"
+        style="cursor: pointer"
+      ></LHexbinLayer>
+
       <LMarkerClusterGroup
         v-if="clustered"
         remove-outside-visible-bounds
@@ -112,8 +124,8 @@
         :maxClusterRadius="70"
       >
         <LCircleMarker
-          v-for="(item, key) in items"
-          :key
+          v-for="item in items"
+          :key="item.id"
           :lat-lng="[item.coordinates.latitude, item.coordinates.longitude]"
           v-bind="marker"
           @click="selectSite(item)"
@@ -123,8 +135,8 @@
       </LMarkerClusterGroup>
       <LCircleMarker
         v-else
-        v-for="(item, key) in items"
-        :key
+        v-for="item in items"
+        :key="item.id"
         :latLng="[item.coordinates.latitude, item.coordinates.longitude]"
         v-bind="marker"
         @click="selectSite(item)"
@@ -144,6 +156,7 @@
 <script setup lang="ts" generic="SiteItem extends { id: string } & Geocoordinates">
 import 'leaflet/dist/leaflet.css'
 import 'vue-leaflet-markercluster/dist/style.css'
+import LHexbinLayer from 'vue-leaflet-hexbin'
 
 import {
   LCircleMarker,
