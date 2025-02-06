@@ -118,6 +118,7 @@ import { useToggle } from '@vueuse/core'
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import DatasetTabs from './DatasetTabs.vue'
+import { storeToRefs } from 'pinia'
 
 interface DatasetQueryData {
   headers?: {
@@ -135,7 +136,7 @@ const { slug, query } = defineProps<{
   ) => UndefinedInitialQueryOptions<DatasetType, ErrorModel, DatasetType>
 }>()
 
-const { user } = useUserStore()
+const { user } = storeToRefs(useUserStore())
 
 const [editing, toggleEdit] = useToggle(false)
 
@@ -146,7 +147,7 @@ const { lgAndUp } = useDisplay()
 const { data: dataset, error, isPending, isSuccess, isError } = useQuery(query({ path: { slug } }))
 
 const isUserMaintainer = computed(() => {
-  return !!dataset.value?.maintainers?.find(({ id }) => user?.identity.id === id)
+  return !!dataset.value?.maintainers?.find(({ id }) => user.value?.identity.id === id)
 })
 </script>
 
