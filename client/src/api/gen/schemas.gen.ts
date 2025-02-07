@@ -5082,6 +5082,9 @@ export const $TaxonUpdate = {
     code: {
       type: 'string'
     },
+    comment: {
+      type: ['string', 'null']
+    },
     name: {
       type: 'string'
     },

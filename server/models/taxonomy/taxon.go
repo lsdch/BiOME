@@ -276,6 +276,7 @@ type TaxonUpdate struct {
 	Authorship models.OptionalNull[string]       `edgedb:"authorship" json:"authorship,omitempty"`
 	Rank       models.OptionalInput[TaxonRank]   `edgedb:"rank" json:"rank,omitempty"`
 	Parent     models.OptionalInput[string]      `edgedb:"parent" json:"parent,omitempty"` // parent code
+	Comment    models.OptionalNull[string]       `json:"comment,omitempty" edgedb:"comment"`
 }
 
 func (u TaxonUpdate) Save(e edgedb.Executor, code string) (updated Taxon, err error) {

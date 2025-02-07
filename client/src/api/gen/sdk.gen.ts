@@ -2283,7 +2283,7 @@ export class HabitatsService {
         }
       ],
       responseTransformer: updateHabitatGroupResponseTransformer,
-      url: '/habitats/{code}',
+      url: '/habitats/{label}',
       ...options,
       headers: {
         'Content-Type': 'application/json',

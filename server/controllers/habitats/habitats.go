@@ -40,9 +40,13 @@ func RegisterRoutes(r router.Router) {
 
 	router.Register(habitatsAPI, "UpdateHabitatGroup",
 		huma.Operation{
-			Path:    "/{code}",
+			Path:    "/{label}",
 			Method:  http.MethodPatch,
 			Summary: "Update habitat group",
-		}, controllers.UpdateByCodeHandler[occurrence.HabitatGroupUpdate])
+		}, controllers.UpdateHandler[*struct {
+			resolvers.AccessRestricted[resolvers.Maintainer]
+			controllers.LabelInput
+			controllers.UpdateInput[occurrence.HabitatGroupUpdate, string, occurrence.HabitatGroup]
+		}])
 
 }

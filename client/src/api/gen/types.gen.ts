@@ -1826,6 +1826,7 @@ export type TaxonUpdate = {
   readonly $schema?: string
   authorship?: string | null
   code?: string
+  comment?: string | null
   name?: string
   parent?: string
   rank?: TaxonRank
@@ -3754,10 +3755,10 @@ export type UpdateHabitatGroupData = {
     Authorization?: string
   }
   path: {
-    code: string
+    label: string
   }
   query?: never
-  url: '/habitats/{code}'
+  url: '/habitats/{label}'
 }
 
 export type UpdateHabitatGroupErrors = {

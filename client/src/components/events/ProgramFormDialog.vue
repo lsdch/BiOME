@@ -1,81 +1,96 @@
 <template>
-  <FormDialog title="Register program" v-model="open" v-bind="$attrs" @submit="submit" :loading>
-    <v-container>
-      <v-row>
-        <v-col>
-          <v-text-field label="Label" v-model="model.label" v-bind="field('label')" />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-text-field label="Code" v-model="model.code" v-bind="field('code')" />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col class="d-flex">
-          <v-number-input
-            label="Start year"
-            v-model="model.start_year"
-            v-bind="field('start_year')"
-            rounded="e-0"
-          />
-          <v-number-input
-            label="End year"
-            v-model="model.end_year"
-            v-bind="field('end_year')"
-            rounded="s-0"
-          />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <InstitutionPicker
-            label="Funding agencies"
-            v-model="model.funding_agencies"
-            chips
-            closable-chips
-            item-value="code"
-            multiple
-            clearable
-          />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <PersonPicker
-            label="Managers"
-            v-model="model.managers"
-            v-bind="field('managers')"
-            item-value="alias"
-            multiple
-          />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-textarea
-            label="Description"
-            v-model="model.description"
-            v-bind="field('description')"
-          />
-        </v-col>
-      </v-row>
-    </v-container>
-  </FormDialog>
+  <CreateUpdateForm
+    v-model="item"
+    :initial
+    :update-transformer
+    :create
+    :update
+    @success="dialog = false"
+  >
+    <template #default="{ model, field, mode, loading, submit }">
+      <FormDialog
+        title="Register program"
+        v-model="dialog"
+        v-bind="$attrs"
+        @submit="submit"
+        :loading="loading.value"
+      >
+        <v-container>
+          <v-row>
+            <v-col>
+              <v-text-field label="Label" v-model="model.label" v-bind="field('label')" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field label="Code" v-model="model.code" v-bind="field('code')" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col class="d-flex">
+              <v-number-input
+                label="Start year"
+                v-model="model.start_year"
+                v-bind="field('start_year')"
+                rounded="e-0"
+              />
+              <v-number-input
+                label="End year"
+                v-model="model.end_year"
+                v-bind="field('end_year')"
+                rounded="s-0"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <InstitutionPicker
+                label="Funding agencies"
+                v-model="model.funding_agencies"
+                chips
+                closable-chips
+                item-value="code"
+                multiple
+                clearable
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <PersonPicker
+                label="Managers"
+                v-model="model.managers"
+                v-bind="field('managers')"
+                item-value="alias"
+                multiple
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-textarea
+                label="Description"
+                v-model="model.description"
+                v-bind="field('description')"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
+      </FormDialog>
+    </template>
+  </CreateUpdateForm>
 </template>
 
 <script setup lang="ts">
-import { $ProgramInput, EventsService, Program, ProgramInput, ProgramUpdate } from '@/api'
-import { useToggle } from '@vueuse/core'
+import { $ProgramInput, $ProgramUpdate, Program, ProgramInput, ProgramUpdate } from '@/api'
+import { createProgramMutation, updateProgramMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import InstitutionPicker from '../people/InstitutionPicker.vue'
 import PersonPicker from '../people/PersonPicker.vue'
-import { FormEmits, FormProps, useForm } from '../toolkit/forms/form'
+import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { useSchema } from '../toolkit/forms/schema'
-const open = defineModel<boolean>('open')
 
-const props = defineProps<FormProps<Program>>()
-const emit = defineEmits<FormEmits<Program>>()
+const dialog = defineModel<boolean>('dialog')
+const item = defineModel<Program>()
 
 const initial: ProgramInput = {
   label: '',
@@ -84,28 +99,30 @@ const initial: ProgramInput = {
   funding_agencies: []
 }
 
-const { field, errorHandler } = useSchema($ProgramInput)
-const { model, makeRequest } = useForm(props, {
-  initial,
-  updateTransformer({ id, funding_agencies, managers, meta, $schema, ...rest }): ProgramUpdate {
-    return {
-      ...rest,
-      funding_agencies: funding_agencies.map(({ code }) => code),
-      managers: managers.map(({ alias }) => alias)
-    }
+function updateTransformer({
+  id,
+  funding_agencies,
+  managers,
+  meta,
+  $schema,
+  ...rest
+}: Program): ProgramUpdate {
+  return {
+    ...rest,
+    funding_agencies: funding_agencies.map(({ code }) => code),
+    managers: managers.map(({ alias }) => alias)
   }
-})
+}
 
-const [loading, toggleLoading] = useToggle(false)
-async function submit() {
-  toggleLoading(true)
-  return await makeRequest({
-    create: EventsService.createProgram,
-    edit: ({ code }, model) => EventsService.updateProgram({ path: { code }, body: model })
-  })
-    .then(errorHandler)
-    .then((program) => emit('success', program))
-    .finally(() => toggleLoading(false))
+const create = {
+  mutation: createProgramMutation,
+  schema: $ProgramInput
+}
+
+const update = {
+  mutation: updateProgramMutation,
+  schema: $ProgramUpdate,
+  itemID: ({ code }: Program) => ({ code })
 }
 </script>
 

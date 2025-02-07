@@ -1,30 +1,46 @@
 <template>
-  <FormDialog v-model="dialog" :title="`${mode} abiotic parameter`" :loading @submit="submit">
-    <v-container fluid>
-      <v-row>
-        <v-col>
-          <v-text-field label="Label" v-model="model.label" v-bind="field('label')" />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-text-field label="Code" v-model="model.code" v-bind="field('code')" />
-        </v-col>
-        <v-col>
-          <v-text-field label="Unit" v-model="model.unit" v-bind="field('unit')" />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-textarea
-            label="Description"
-            v-model="model.description"
-            v-bind="field('description')"
-          />
-        </v-col>
-      </v-row>
-    </v-container>
-  </FormDialog>
+  <CreateUpdateForm
+    v-model="item"
+    :initial
+    :update-transformer
+    :create
+    :update
+    @success="dialog = false"
+  >
+    <template #default="{ model, field, mode, loading, submit }">
+      <FormDialog
+        v-model="dialog"
+        :title="`${mode} abiotic parameter`"
+        :loading="loading.value"
+        @submit="submit"
+      >
+        <v-container fluid>
+          <v-row>
+            <v-col>
+              <v-text-field label="Label" v-model="model.label" v-bind="field('label')" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field label="Code" v-model="model.code" v-bind="field('code')" />
+            </v-col>
+            <v-col>
+              <v-text-field label="Unit" v-model="model.unit" v-bind="field('unit')" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-textarea
+                label="Description"
+                v-model="model.description"
+                v-bind="field('description')"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
+      </FormDialog>
+    </template>
+  </CreateUpdateForm>
 </template>
 
 <script setup lang="ts">
@@ -33,16 +49,17 @@ import {
   $AbioticParameterUpdate,
   AbioticParameter,
   AbioticParameterInput,
-  AbioticParameterUpdate,
-  SamplingService
+  AbioticParameterUpdate
 } from '@/api'
-import { FormEmits, FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
+import {
+  createAbioticParameterMutation,
+  updateAbioticParameterMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
-import { reactiveComputed, useToggle } from '@vueuse/core'
+import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 
-const dialog = defineModel<boolean>()
-const props = defineProps<FormProps<AbioticParameter>>()
-const emit = defineEmits<FormEmits<AbioticParameter>>()
+const dialog = defineModel<boolean>('dialog')
+const item = defineModel<AbioticParameter>()
 
 const initial: AbioticParameterInput = {
   label: '',
@@ -50,28 +67,24 @@ const initial: AbioticParameterInput = {
   unit: ''
 }
 
-const { model, mode, makeRequest } = useForm(props, {
-  initial,
-  updateTransformer({ id, $schema, meta, ...rest }): AbioticParameterUpdate {
-    return rest
-  }
-})
+function updateTransformer({
+  id,
+  $schema,
+  meta,
+  ...rest
+}: AbioticParameter): AbioticParameterUpdate {
+  return rest
+}
 
-const { field, errorHandler } = reactiveComputed(() =>
-  useSchema(mode.value === 'Create' ? $AbioticParameterInput : $AbioticParameterUpdate)
-)
+const create = {
+  mutation: createAbioticParameterMutation,
+  schema: $AbioticParameterInput
+}
 
-const [loading, toggleLoading] = useToggle(false)
-
-async function submit() {
-  toggleLoading(true)
-  return await makeRequest({
-    create: SamplingService.createAbioticParameter,
-    edit: ({ code }, body) => SamplingService.updateAbioticParameter({ path: { code }, body })
-  })
-    .then(errorHandler)
-    .then((item) => emit('success', item))
-    .finally(() => toggleLoading(false))
+const update = {
+  mutation: updateAbioticParameterMutation,
+  schema: $AbioticParameterUpdate,
+  itemID: ({ code }: AbioticParameter) => ({ code })
 }
 </script>
 

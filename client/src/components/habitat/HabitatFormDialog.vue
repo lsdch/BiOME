@@ -1,131 +1,145 @@
 <template>
-  <FormDialog v-model="dialog" :title @submit="submit" :loading="loading">
-    <v-container>
-      <v-row>
-        <v-col cols="12" md="8">
-          <v-text-field label="Group label" v-model.trim="model.label" v-bind="field('label')">
-            <template #append>
-              <v-btn
+  <CreateUpdateForm
+    v-model="item"
+    :initial
+    :update-transformer
+    :create
+    :update
+    @success="dialog = false"
+  >
+    <template #default="{ model, field, mode, loading, submit }">
+      <FormDialog v-model="dialog" :title="title(mode)" @submit="submit" :loading="loading.value">
+        <v-container>
+          <v-row>
+            <v-col cols="12" md="8">
+              <v-text-field label="Group label" v-model.trim="model.label" v-bind="field('label')">
+                <template #append>
+                  <v-btn
+                    color="primary"
+                    prepend-icon="mdi-plus"
+                    text="Add tag"
+                    @click="addElement(model)"
+                    variant="text"
+                  />
+                </template>
+              </v-text-field>
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-switch
+                v-model="model.exclusive_elements"
+                label="Elements exclusive"
                 color="primary"
-                prepend-icon="mdi-plus"
-                text="Add tag"
-                @click="addElement"
-                variant="text"
+                :messages="
+                  model.exclusive_elements
+                    ? 'Combining group elements disallowed.'
+                    : 'Combining group elements allowed.'
+                "
               />
-            </template>
-          </v-text-field>
-        </v-col>
-        <v-col cols="12" md="4">
-          <v-switch
-            v-model="model.exclusive_elements"
-            label="Elements exclusive"
-            color="primary"
-            :messages="
-              model.exclusive_elements
-                ? 'Combining group elements disallowed.'
-                : 'Combining group elements allowed.'
-            "
-          />
-        </v-col>
-      </v-row>
-      <v-row class="align-center">
-        <v-col><v-divider /></v-col>
-        <v-col cols="0" class="text-center text-secondary">
-          {{ elementsCountHeadline }}
-        </v-col>
-        <v-col class="pa-0">
-          <v-divider />
-        </v-col>
-      </v-row>
-      <v-row class="align-stretch">
-        <v-col cols="12" sm="6" md="4" v-for="(habitat, index) in model.elements" :key="index">
-          <v-card
-            :class="[
-              'border-s-lg border-opacity-100 rounded-s-0',
-              habitat.operation == 'create' ? 'border-success' : 'border-primary'
-            ]"
-          >
-            <template #append>
-              <div class="d-flex flex-column">
-                <v-btn
-                  v-show="model.elements.length > 1 && habitat.operation != 'delete'"
-                  color="error"
-                  size="x-small"
-                  icon="mdi-close"
-                  variant="text"
-                  @click="removeElement(index)"
-                />
-                <v-btn
-                  v-if="['update', 'delete'].includes(habitat.operation)"
-                  icon="mdi-restore"
-                  size="x-small"
-                  variant="text"
-                  color="primary"
-                  @click="restoreElement(index)"
-                />
-              </div>
-            </template>
-            <template #title>
-              <v-text-field
-                v-if="habitat.operation != 'delete'"
-                v-model.trim="habitat.label"
-                class="font-weight-bold"
-                placeholder="Tag name"
-                color="primary"
-                variant="plain"
-                density="compact"
-                v-bind="field('elements', index, 'label')"
-                :hint="undefined"
-                @input="onElementUpdate(index)"
-              />
-              <span v-else class="font-weight-bold text-error text-decoration-line-through">{{
-                habitat.label
-              }}</span>
-            </template>
-            <v-card-text class="bg-surface-light py-3">
-              <v-textarea
-                v-if="habitat.operation != 'delete'"
-                v-model.trim="habitat.description"
-                variant="plain"
-                placeholder="Description (optional)"
-                density="compact"
-                auto-grow
-                :rows="1"
-                hide-details
-                @input="onElementUpdate(index)"
-                v-bind="field('elements', index, 'description')"
-              />
-              <span v-else class="text-caption font-weight-thin">Marked to be removed</span>
-            </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
-  </FormDialog>
+            </v-col>
+          </v-row>
+          <v-row class="align-center">
+            <v-col><v-divider /></v-col>
+            <v-col cols="0" class="text-center text-secondary">
+              {{ elementsCountHeadline(model) }}
+            </v-col>
+            <v-col class="pa-0">
+              <v-divider />
+            </v-col>
+          </v-row>
+          <v-row class="align-stretch">
+            <v-col cols="12" sm="6" md="4" v-for="(habitat, index) in model.elements" :key="index">
+              <v-card
+                :class="[
+                  'border-s-lg border-opacity-100 rounded-s-0',
+                  habitat.operation == 'create' ? 'border-success' : 'border-primary'
+                ]"
+              >
+                <template #append>
+                  <div class="d-flex flex-column">
+                    <v-btn
+                      v-show="model.elements.length > 1 && habitat.operation != 'delete'"
+                      color="error"
+                      size="x-small"
+                      icon="mdi-close"
+                      variant="text"
+                      @click="removeElement(model, index)"
+                    />
+                    <v-btn
+                      v-if="['update', 'delete'].includes(habitat.operation)"
+                      icon="mdi-restore"
+                      size="x-small"
+                      variant="text"
+                      color="primary"
+                      @click="restoreElement(model, index)"
+                    />
+                  </div>
+                </template>
+                <template #title>
+                  <v-text-field
+                    v-if="habitat.operation != 'delete'"
+                    v-model.trim="habitat.label"
+                    class="font-weight-bold"
+                    placeholder="Tag name"
+                    color="primary"
+                    variant="plain"
+                    density="compact"
+                    v-bind="field('elements', index, 'label')"
+                    :hint="undefined"
+                    @input="onElementUpdate(model, index)"
+                  />
+                  <span v-else class="font-weight-bold text-error text-decoration-line-through">{{
+                    habitat.label
+                  }}</span>
+                </template>
+                <v-card-text class="bg-surface-light py-3">
+                  <v-textarea
+                    v-if="habitat.operation != 'delete'"
+                    v-model.trim="habitat.description"
+                    variant="plain"
+                    placeholder="Description (optional)"
+                    density="compact"
+                    auto-grow
+                    :rows="1"
+                    hide-details
+                    @input="onElementUpdate(model, index)"
+                    v-bind="field('elements', index, 'description')"
+                  />
+                  <span v-else class="text-caption font-weight-thin">Marked to be removed</span>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
+      </FormDialog>
+    </template>
+  </CreateUpdateForm>
 </template>
 
 <script setup lang="ts">
 import {
   $HabitatGroupInput,
+  $HabitatGroupUpdate,
   HabitatGroup,
   HabitatGroupInput,
   HabitatGroupUpdate,
   HabitatInput,
-  HabitatRecord,
-  HabitatsService
+  HabitatRecord
 } from '@/api'
-import { useToggle } from '@vueuse/core'
-import { computed } from 'vue'
+import {
+  createHabitatGroupMutation,
+  updateHabitatGroupMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
+import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { FormProps, useForm, useSchema } from '../toolkit/forms/form'
+import { Mode } from '../toolkit/forms/form'
 
-const dialog = defineModel<boolean>()
-const props = defineProps<FormProps<HabitatGroup>>()
+const dialog = defineModel<boolean>('dialog')
+const item = defineModel<HabitatGroup>()
 
-const emit = defineEmits<{
-  created: [group: HabitatGroup]
-  updated: [group: HabitatGroup]
-}>()
+// const emit = defineEmits<{
+//   created: [group: HabitatGroup]
+//   updated: [group: HabitatGroup]
+// }>()
 
 type Element = HabitatInput &
   (
@@ -146,53 +160,62 @@ const initial: State = {
   elements: [{ label: '', description: '', operation: 'create' }]
 }
 
-const { model, mode } = useForm(props, {
-  initial,
-  updateTransformer({ label, depends, exclusive_elements, elements }): State {
-    return {
-      label,
-      exclusive_elements,
-      elements: elements.map((habitat) => {
-        const { id, label, description } = habitat
-        return {
-          id,
-          label,
-          description,
-          initial: habitat,
-          operation: 'keep'
-        }
-      })
-    }
+function updateTransformer({ label, depends, exclusive_elements, elements }: HabitatGroup): State {
+  return {
+    label,
+    exclusive_elements,
+    elements: elements.map((habitat) => {
+      const { id, label, description } = habitat
+      return {
+        id,
+        label,
+        description,
+        initial: habitat,
+        operation: 'keep'
+      }
+    })
   }
-})
-const { field, errorHandler } = useSchema($HabitatGroupInput)
-
-const title = computed(() => {
-  return mode.value == 'Create' ? 'Create habitat group' : `Edit habitats: ${props.edit?.label}`
-})
-
-const elementsCountHeadline = computed(() => {
-  const eltCount = model.value.elements.length
-  return `${eltCount} element${eltCount > 1 ? 's' : ''}`
-})
-
-function addElement() {
-  model.value.elements.unshift({ label: '', description: '', operation: 'create' })
 }
 
-function removeElement(index: number) {
-  if (model.value.elements.length <= index) return
-  const element = model.value.elements[index]
+function title(mode: Mode) {
+  return mode == 'Create' ? 'Create habitat group' : `Edit habitats: ${item.value!.label}`
+}
+
+const create = {
+  mutation: createHabitatGroupMutation,
+  schema: $HabitatGroupInput,
+  transformer: makeCreateRequestBody
+}
+
+const update = {
+  mutation: updateHabitatGroupMutation,
+  schema: $HabitatGroupUpdate,
+  itemID: ({ label }: HabitatGroup) => ({ label }),
+  transformer: makeUpdateRequestBody
+}
+
+function elementsCountHeadline(model: State) {
+  const eltCount = model.elements.length
+  return `${eltCount} element${eltCount > 1 ? 's' : ''}`
+}
+
+function addElement(model: State) {
+  model.elements.unshift({ label: '', description: '', operation: 'create' })
+}
+
+function removeElement(model: State, index: number) {
+  if (model.elements.length <= index) return
+  const element = model.elements[index]
   if (element.operation == 'create') {
-    model.value.elements.splice(index, 1)
+    model.elements.splice(index, 1)
   } else {
     element.operation = 'delete'
   }
 }
 
-function onElementUpdate(index: number) {
-  if (model.value.elements.length <= index) return
-  const element = model.value.elements[index]
+function onElementUpdate(model: State, index: number) {
+  if (model.elements.length <= index) return
+  const element = model.elements[index]
   if (element.operation == 'create') return
   element.operation =
     element.label != element.initial.label || element.description != element.initial.description
@@ -200,44 +223,44 @@ function onElementUpdate(index: number) {
       : 'keep'
 }
 
-function restoreElement(index: number) {
-  if (model.value.elements.length <= index) return
-  const element = model.value.elements[index]
+function restoreElement(model: State, index: number) {
+  if (model.elements.length <= index) return
+  const element = model.elements[index]
   if (element.operation == 'create') return
   element.label = element.initial.label
   element.description = element.initial.description
   element.operation = 'keep'
 }
 
-const [loading, toggleLoading] = useToggle(false)
+// const [loading, toggleLoading] = useToggle(false)
 
-function makeRequest() {
-  return mode.value === 'Create'
-    ? HabitatsService.createHabitatGroup({
-        body: getCreateRequestBody(model.value)
-      })
-    : HabitatsService.updateHabitatGroup({
-        path: { code: props.edit!.label },
-        body: getUpdateRequestBody(model.value)
-      })
-}
+// function makeRequest() {
+//   return mode.value === 'Create'
+//     ? HabitatsService.createHabitatGroup({
+//         body: getCreateRequestBody(model.value)
+//       })
+//     : HabitatsService.updateHabitatGroup({
+//         path: { code: props.edit!.label },
+//         body: getUpdateRequestBody(model.value)
+//       })
+// }
 
-async function submit() {
-  toggleLoading(true)
-  await makeRequest()
-    .then(errorHandler)
-    .then((habitatGroup) => {
-      if (mode.value == 'Create') {
-        emit('created', habitatGroup)
-      } else {
-        emit('updated', habitatGroup)
-      }
-      dialog.value = false
-    })
-    .finally(() => toggleLoading(false))
-}
+// async function submit() {
+//   toggleLoading(true)
+//   await makeRequest()
+//     .then(errorHandler)
+//     .then((habitatGroup) => {
+//       if (mode.value == 'Create') {
+//         emit('created', habitatGroup)
+//       } else {
+//         emit('updated', habitatGroup)
+//       }
+//       dialog.value = false
+//     })
+//     .finally(() => toggleLoading(false))
+// }
 
-function getCreateRequestBody({ label, exclusive_elements, elements }: State): HabitatGroupInput {
+function makeCreateRequestBody({ label, exclusive_elements, elements }: State): HabitatGroupInput {
   return {
     label,
     exclusive_elements,
@@ -245,7 +268,7 @@ function getCreateRequestBody({ label, exclusive_elements, elements }: State): H
   }
 }
 
-function getUpdateRequestBody({ label, exclusive_elements, elements }: State) {
+function makeUpdateRequestBody({ label, exclusive_elements, elements }: State) {
   const body: HabitatGroupUpdate = {
     label,
     exclusive_elements,

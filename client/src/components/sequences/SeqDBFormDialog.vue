@@ -1,81 +1,90 @@
 <template>
-  <FormDialog v-model="dialog" :title="`${mode} sequence database`" :loading @submit="submit">
-    <v-container fluid>
-      <v-row>
-        <v-col>
-          <v-text-field label="Label" v-model.trim="model.label" v-bind="field('label')" />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-text-field
-            label="Code"
-            v-model.trim="model.code"
-            v-bind="field('code')"
-            class="input-font-monospace"
-          />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-text-field
-            label="Link template"
-            v-model.trim="model.link_template"
-            v-bind="field('link_template')"
-            class="input-font-monospace"
-          />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-textarea
-            label="Description"
-            v-model.trim="model.description"
-            v-bind="field('description')"
-          />
-        </v-col>
-      </v-row>
-    </v-container>
-  </FormDialog>
+  <CreateUpdateForm
+    v-model="item"
+    :initial
+    :update-transformer
+    :create
+    :update
+    @success="dialog = false"
+  >
+    <template #default="{ model, field, mode, loading, submit }">
+      <FormDialog
+        v-model="dialog"
+        :title="`${mode} sequence database`"
+        :loading="loading.value"
+        @submit="submit"
+      >
+        <v-container fluid>
+          <v-row>
+            <v-col>
+              <v-text-field label="Label" v-model.trim="model.label" v-bind="field('label')" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                label="Code"
+                v-model.trim="model.code"
+                v-bind="field('code')"
+                class="input-font-monospace"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                label="Link template"
+                v-model.trim="model.link_template"
+                v-bind="field('link_template')"
+                class="input-font-monospace"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-textarea
+                label="Description"
+                v-model.trim="model.description"
+                v-bind="field('description')"
+              />
+            </v-col>
+          </v-row>
+        </v-container>
+      </FormDialog>
+    </template>
+  </CreateUpdateForm>
 </template>
 
 <script setup lang="ts">
-import { SeqDb, SeqDbInput, SeqDbUpdate, $SeqDBInput, $SeqDBUpdate, SequencesService } from '@/api'
-import { FormEmits, FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
+import { $SeqDBInput, $SeqDBUpdate, SeqDb, SeqDbInput, SeqDbUpdate } from '@/api'
+import { createSeqDbMutation, updateSeqDbMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
-import { reactiveComputed, useToggle } from '@vueuse/core'
+import CreateUpdateForm, {
+  FormCreateMutation,
+  FormUpdateMutation
+} from '../toolkit/forms/CreateUpdateForm.vue'
 
-const dialog = defineModel<boolean>()
-const props = defineProps<FormProps<SeqDb>>()
-const emit = defineEmits<FormEmits<SeqDb>>()
+const dialog = defineModel<boolean>('dialog')
+const item = defineModel<SeqDb>()
 
 const initial: SeqDbInput = {
   code: '',
   label: ''
 }
 
-const { model, mode, makeRequest } = useForm(props, {
-  initial,
-  updateTransformer({ code, label, description, link_template }): SeqDbUpdate {
-    return { code, label, description, link_template }
-  }
-})
+function updateTransformer({ code, label, description, link_template }: SeqDb): SeqDbUpdate {
+  return { code, label, description, link_template }
+}
 
-const { field, errorHandler } = reactiveComputed(() =>
-  useSchema(mode.value === 'Create' ? $SeqDBInput : $SeqDBUpdate)
-)
+const create: FormCreateMutation<SeqDb, SeqDbInput> = {
+  mutation: createSeqDbMutation,
+  schema: $SeqDBInput
+}
 
-const [loading, toggleLoading] = useToggle(false)
-
-async function submit() {
-  toggleLoading(true)
-  return await makeRequest({
-    create: SequencesService.createSeqDb,
-    edit: ({ code }, body) => SequencesService.updateSeqDb({ path: { code }, body })
-  })
-    .then(errorHandler)
-    .then((item) => emit('success', item))
-    .finally(() => toggleLoading(false))
+const update = {
+  mutation: updateSeqDbMutation,
+  schema: $SeqDBUpdate,
+  itemID: ({ code }: SeqDb) => ({ code })
 }
 </script>
 

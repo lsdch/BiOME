@@ -19,20 +19,20 @@ type UpdateInput[Item models.PersistableWithID[ID, Updated], ID any, Updated any
 	Body Item
 }
 
-func (i UpdateInput[Item, ID, UpdatedID]) Item() Item {
+func (i UpdateInput[Item, ID, Updated]) Item() Item {
 	return i.Body
 }
 
-type UpdateByCodeHandlerInput[Item models.PersistableWithID[string, UpdatedID], UpdatedID any] struct {
+type UpdateByCodeHandlerInput[Item models.PersistableWithID[string, Updated], Updated any] struct {
 	resolvers.AuthRequired
 	CodeInput
-	UpdateInput[Item, string, UpdatedID]
+	UpdateInput[Item, string, Updated]
 }
 
-type UpdateByIDHandlerInput[Item models.PersistableWithID[edgedb.UUID, UpdatedID], UpdatedID any] struct {
+type UpdateByIDHandlerInput[Item models.PersistableWithID[edgedb.UUID, Updated], Updated any] struct {
 	resolvers.AuthRequired
 	UUIDInput
-	UpdateInput[Item, edgedb.UUID, UpdatedID]
+	UpdateInput[Item, edgedb.UUID, Updated]
 }
 
 type UpdateHandlerOutput[Updated any] struct {

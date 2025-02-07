@@ -5888,6 +5888,12 @@
 					"code": {
 						"type": "string"
 					},
+					"comment": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
 					"name": {
 						"type": "string"
 					},
@@ -10005,7 +10011,7 @@
 					},
 					{
 						"in": "path",
-						"name": "code",
+						"name": "label",
 						"required": true,
 						"schema": {
 							"type": "string"
