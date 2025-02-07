@@ -19,7 +19,8 @@ import {
   User as TUser,
   Meta,
   Quantity as TQuantity,
-  CoordinatesPrecision as TCoordinatesPrecision
+  CoordinatesPrecision as TCoordinatesPrecision,
+  ArticleInput
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/people/UserRoleChip"
 import QuantityChip from "@/components/occurrence/ExtBioMatQuantityChip"
@@ -255,3 +256,5 @@ export namespace CoordinatesPrecision {
     }
   }
 }
+
+export type ArticleLocalInput = Omit<ArticleInput, 'year'> & { year?: number }
