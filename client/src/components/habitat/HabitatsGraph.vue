@@ -88,8 +88,8 @@
       New group
     </div>
     <HabitatFormDialog
-      v-model="form.open"
-      :edit="form.edit"
+      v-model="form.edit"
+      v-model:dialog="form.open"
       @created="addCreatedNode"
       @updated="updateNode"
       @close="toggleCreating(false)"
@@ -186,7 +186,7 @@ function connectGroupHabitat(group: ConnectedGroup, habitat: ConnectedHabitat) {
     .then(async ({ isCanceled }) => {
       if (isCanceled) return
       await HabitatsService.updateHabitatGroup({
-        path: { code: group.label },
+        path: { label: group.label },
         body: { depends: habitat.label }
       }).then(({ data: updated, error }) => {
         if (error !== undefined) {
@@ -215,7 +215,7 @@ function askDeleteEdge(edge: GraphEdge) {
     if (isCanceled) return console.info('Dependency drop canceled')
     else {
       const { data: updated, error } = await HabitatsService.updateHabitatGroup({
-        path: { code: group },
+        path: { label: group },
         body: { depends: null }
       })
       if (error !== undefined) {

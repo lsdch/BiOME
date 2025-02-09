@@ -115,7 +115,7 @@
       </ResponsiveDialog>
     </div>
 
-    <SiteFormDialog :edit="site" v-model="editDialog"></SiteFormDialog>
+    <SiteFormDialog v-model="site" v-model:dialog="editDialog"></SiteFormDialog>
 
     <div id="panels">
       <v-expansion-panels :disabled="isPending">

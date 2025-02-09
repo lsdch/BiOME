@@ -86,8 +86,8 @@
     <!-- Event form -->
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
       <EventFormDialog
-        :model-value="dialog"
-        :edit="editItem"
+        :dialog
+        :model-value="editItem"
         :site
         @close="onClose()"
         @success="onSuccess"
@@ -112,7 +112,7 @@
         size="small"
         variant="text"
         density="compact"
-        :disabled="focusedEvent.index >= site.events.length - 1"
+        :disabled="focusedEvent.index >= (site.events?.length ?? 0) - 1"
       />
       {{ DateWithPrecision.format(focusedEvent.item.performed_on) }}
       <!-- {{ focusedEvent.item.site.name }} |
@@ -170,7 +170,7 @@ const headers: CRUDTableHeader<Event>[] = [
         title: 'Samples',
         align: 'end',
         value(item: Event) {
-          return item.samplings.flatMap(({ samples }) => samples)
+          return item.samplings?.flatMap(({ samples }) => samples)
         }
       }
     ]
@@ -226,11 +226,12 @@ function toggleFocus(index: number, event: Event, tab: EventAction) {
 }
 
 function focusItem(index: number) {
-  focusedEvent.value = { index, item: props.site.events[index] }
+  focusedEvent.value = { index, item: props.site.events![index] }
 }
 
 function focusNext() {
-  if (!focusedEvent.value || focusedEvent.value.index >= props.site.events.length - 1) return
+  if (!focusedEvent.value || focusedEvent.value.index >= (props.site.events?.length ?? 0) - 1)
+    return
   focusItem(focusedEvent.value.index + 1)
 }
 

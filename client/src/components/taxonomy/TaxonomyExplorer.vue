@@ -106,7 +106,7 @@
       @navigate="(target) => (selected = target)"
       @deleted="({ parent }) => update(parent?.id)"
     />
-    <TaxonFormDialog v-model="formDialog" :parent="parentTaxon" @success="onTaxonCreated" />
+    <TaxonFormDialog v-model:dialog="formDialog" :parent="parentTaxon" @success="onTaxonCreated" />
   </div>
 </template>
 

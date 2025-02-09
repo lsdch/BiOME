@@ -33,19 +33,19 @@
     <!-- Form dialog -->
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
       <ProgramFormDialog
-        :open="dialog"
+        :dialog
         @close="onClose"
         @success="onSuccess"
         :mode
         :fullscreen="xs"
-        :edit="editItem"
+        :model-value="editItem"
       />
     </template>
   </CRUDTable>
 </template>
 
 <script setup lang="ts">
-import { EventsService, Program } from '@/api'
+import { Program } from '@/api'
 import { deleteProgramMutation, listProgramsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ProgramFormDialog from '@/components/events/ProgramFormDialog.vue'
 import OrgKindChip from '@/components/people/OrgKindChip.vue'

@@ -252,12 +252,12 @@
         </v-col>
       </v-row>
     </v-card-text>
-    <!-- <SamplingFormDialog
+    <SamplingFormDialog
       v-if="item"
-      v-model="samplingEdit"
-      :edit="item.sampling"
+      v-model:dialog="samplingEdit"
+      v-model="item.sampling"
       :event="item.event"
-    /> -->
+    />
     <v-divider />
   </v-card>
 </template>
@@ -265,6 +265,7 @@
 <script setup lang="ts">
 import { CodeIdentifier, DateWithPrecision, ExtSeqOrigin } from '@/api/adapters'
 import { getSequenceOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 // import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 import OccurrenceSamplingCard from '@/components/occurrence/OccurrenceSamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip.vue'

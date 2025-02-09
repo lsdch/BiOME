@@ -12,12 +12,7 @@
     appendActions
   >
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <FixativeFormDialog
-        :model-value="dialog"
-        @close="onClose"
-        @success="onSuccess"
-        :edit="editItem"
-      />
+      <FixativeFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
     </template>
   </CRUDTable>
 </template>

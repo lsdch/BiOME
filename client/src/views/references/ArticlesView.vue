@@ -68,12 +68,7 @@
       </v-card>
     </template>
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <ArticleFormDialog
-        :model-value="dialog"
-        @close="onClose"
-        @success="onSuccess"
-        :edit="editItem"
-      />
+      <ArticleFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
     </template>
     <template #footer.prepend-actions>
       <ArticlesImportDialog v-model="importDialog" />
@@ -120,7 +115,7 @@ function filter({ authors, year }: Article) {
 const headers: CRUDTableHeader<Article>[] = [
   { key: 'authors', title: 'Authors' },
   { key: 'year', title: 'Year', width: 0 },
-  { key: 'journal', title: 'Journal', mobile: false }
+  { key: 'journal', title: 'Journal' }
 ]
 </script>
 

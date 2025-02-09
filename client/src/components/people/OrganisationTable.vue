@@ -38,8 +38,8 @@
     </template>
     <template #form="{ dialog, editItem, onSuccess, onClose }">
       <OrganisationFormDialog
-        :model-value="dialog"
-        :edit="editItem"
+        :dialog
+        :model-value="editItem"
         @success="onSuccess"
         @close="onClose"
       />

@@ -9,10 +9,10 @@
   >
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
       <SamplingMethodFormDialog
-        :model-value="dialog"
+        :dialog
+        :model-value="editItem"
         @close="onClose"
         @success="onSuccess"
-        :edit="editItem"
       />
     </template>
   </CRUDTable>

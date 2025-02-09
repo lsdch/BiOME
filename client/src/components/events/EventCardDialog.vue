@@ -10,14 +10,14 @@
 
     <SamplingFormDialog
       v-if="event !== undefined"
-      v-model="samplingDialog"
+      v-model="editingSampling"
+      v-model:dialog="samplingDialog"
       :event
       :fullscreen="smAndDown"
-      :edit="editingSampling"
-      @created="(sampling) => event?.samplings.unshift(sampling)"
+      @created="(sampling: Sampling) => event?.samplings?.unshift(sampling)"
       @updated="
-        (sampling) =>
-          event?.samplings.map((s) => {
+        (sampling: Sampling) =>
+          event?.samplings?.map((s) => {
             return s.id === sampling.id ? sampling : s
           })
       "
@@ -26,11 +26,11 @@
     <v-tabs v-model="tab" color="primary" center-active class="overflow-visible">
       <v-tab value="sampling" prepend-icon="mdi-package-down">
         <span v-if="!mobile || tab === 'sampling'"> Samplings </span>
-        <v-badge color="primary" inline :content="event?.samplings.length" />
+        <v-badge color="primary" inline :content="event?.samplings?.length ?? 0" />
       </v-tab>
       <v-tab value="abiotic" prepend-icon="mdi-gauge">
         <span v-if="!mobile || tab === 'abiotic'"> Abiotic </span>
-        <v-badge color="primary" inline :content="event?.abiotic_measurements.length" />
+        <v-badge color="primary" inline :content="event?.abiotic_measurements?.length ?? 0" />
       </v-tab>
       <v-tab value="spotting" prepend-icon="mdi-binoculars">
         <span v-if="!mobile || tab === 'spotting'"> Spotting </span>
@@ -47,7 +47,7 @@
             <v-col v-for="(sampling, index) in event?.samplings" cols="12" md="6">
               <SamplingCard
                 :sampling
-                :corner-tag="`#${index + 1} / ${event?.samplings.length}`"
+                :corner-tag="`#${index + 1} / ${event?.samplings!.length}`"
                 class="h-100"
                 @edit="editSampling"
                 @deleted="onSamplingDelete"
@@ -157,7 +157,7 @@ function editSampling(sampling: Sampling) {
 
 function onSamplingDelete(deleted: Sampling) {
   if (!event.value) return
-  event.value.samplings = event.value.samplings.filter(({ id }) => id !== deleted.id)
+  event.value.samplings = event.value.samplings?.filter(({ id }) => id !== deleted.id)
 }
 
 const [addItem, toggleAddItem] = useToggle(false)

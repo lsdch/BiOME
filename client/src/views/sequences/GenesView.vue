@@ -12,12 +12,7 @@
     </template>
 
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <GeneFormDialog
-        :model-value="dialog"
-        @close="onClose"
-        @success="onSuccess"
-        :edit="editItem"
-      />
+      <GeneFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
     </template>
   </CRUDTable>
 </template>

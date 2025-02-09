@@ -22,12 +22,7 @@
       <PersonFilters v-model="filters" />
     </template>
     <template #form="{ dialog, onClose, onSuccess, editItem }">
-      <PersonFormDialog
-        :edit="editItem"
-        @success="onSuccess"
-        @close="onClose"
-        :model-value="dialog"
-      />
+      <PersonFormDialog @success="onSuccess" @close="onClose" :dialog :model-value="editItem" />
     </template>
 
     <!-- User Role column -->

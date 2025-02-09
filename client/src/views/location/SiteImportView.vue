@@ -106,10 +106,11 @@ import SiteDatasetPrimer from '@/components/sites/SiteDatasetPrimer.vue'
 import SiteTabularImport, { RecordElement } from '@/components/sites/SiteTabularImport.vue'
 import { FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
 import { useUserStore } from '@/stores/user'
+import { storeToRefs } from 'pinia'
 import { computed, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify'
 
-const { user } = useUserStore()
+const { user } = storeToRefs(useUserStore())
 const maintainers = await PeopleService.listPersons().then(({ data, error }) => {
   if (error) {
     console.error('Failed to fetch persons: ', error)

@@ -28,12 +28,7 @@
       </v-list>
     </template>
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <SeqDBFormDialog
-        :model-value="dialog"
-        @close="onClose"
-        @success="onSuccess"
-        :edit="editItem"
-      />
+      <SeqDBFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
     </template>
   </CRUDTable>
 </template>

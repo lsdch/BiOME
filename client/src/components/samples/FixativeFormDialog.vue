@@ -46,7 +46,7 @@ import { createFixativeMutation, updateFixativeMutation } from '@/api/gen/@tanst
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
 import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 
-const dialog = defineModel<boolean>()
+const dialog = defineModel<boolean>('dialog')
 const item = defineModel<Fixative>()
 
 const initial: FixativeInput = {

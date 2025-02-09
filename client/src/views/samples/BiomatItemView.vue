@@ -241,11 +241,11 @@
   </v-card>
   <SamplingFormDialog
     v-if="item"
-    v-model="samplingEdit"
-    :edit="item.sampling"
+    v-model:dialog="samplingEdit"
+    v-model="item.sampling"
     :event="item.event"
     @updated="
-      (sampling) => {
+      (sampling: Sampling) => {
         item!.sampling = sampling
         toggleSamplingEdit(false)
       }
@@ -254,7 +254,7 @@
 </template>
 
 <script setup lang="ts">
-import { DateWithPrecision, ExtSeqOrigin } from '@/api/adapters'
+import { DateWithPrecision, ExtSeqOrigin, Sampling } from '@/api/adapters'
 import { getBioMaterialOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 import OccurrenceSamplingCard from '@/components/occurrence/OccurrenceSamplingCard.vue'

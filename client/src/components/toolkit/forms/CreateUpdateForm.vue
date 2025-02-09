@@ -1,5 +1,14 @@
 <template>
-  <slot name="default" :mode :model :field :loading="activeMutation.isPending" :submit :setModel />
+  <slot
+    name="default"
+    :mode
+    :model
+    :field
+    :loading="activeMutation.isPending"
+    :submit
+    :setModel
+    v-bind="$attrs"
+  />
 </template>
 
 <script

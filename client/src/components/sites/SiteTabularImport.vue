@@ -119,8 +119,8 @@
     <template #form="{ dialog, onClose, onSuccess, editItem }">
       <SiteFormDialog
         title="New site"
-        :edit="editItem"
-        :model-value="dialog"
+        :model-value="editItem"
+        :dialog
         @success="
           (item) => {
             return onSuccess(validateItem(item))

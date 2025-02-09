@@ -79,6 +79,7 @@ import { $PersonInput, $PersonUpdate, Person, PersonInput, PersonUpdate } from '
 import { createPersonMutation, updatePersonMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
 import CreateUpdateForm, { FormUpdateMutation } from '../toolkit/forms/CreateUpdateForm.vue'
+import OrganisationPicker from './OrganisationPicker.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const item = defineModel<Person>()
