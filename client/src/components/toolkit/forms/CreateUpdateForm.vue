@@ -1,5 +1,5 @@
 <template>
-  <slot name="default" :mode :model :field :loading="activeMutation.isPending" :submit />
+  <slot name="default" :mode :model :field :loading="activeMutation.isPending" :submit :setModel />
 </template>
 
 <script
@@ -114,6 +114,10 @@ async function submit() {
       path: update.itemID(item.value!),
       body: model.value as ItemUpdate
     })
+}
+
+function setModel(newModel: InputModel | UpdateModel) {
+  model.value = newModel
 }
 
 defineExpose({ submit, reset })
