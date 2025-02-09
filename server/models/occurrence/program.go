@@ -22,9 +22,9 @@ type ProgramInner struct {
 
 type Program struct {
 	ProgramInner    `edgedb:"$inline" json:",inline"`
-	Managers        []people.PersonInner      `edgedb:"managers" json:"managers" minItems:"1"`
-	FundingAgencies []people.InstitutionInner `edgedb:"funding_agencies" json:"funding_agencies"`
-	Meta            people.Meta               `edgedb:"meta" json:"meta"`
+	Managers        []people.PersonInner       `edgedb:"managers" json:"managers" minItems:"1"`
+	FundingAgencies []people.OrganisationInner `edgedb:"funding_agencies" json:"funding_agencies"`
+	Meta            people.Meta                `edgedb:"meta" json:"meta"`
 }
 
 func ListPrograms(db edgedb.Executor) ([]Program, error) {
@@ -61,15 +61,15 @@ func (i ProgramInput) Save(db edgedb.Executor) (created Program, err error) {
 				select people::Person
 				filter .alias in array_unpack(<array<str>>json_get(data, 'managers'))
 			),
-			institutions := (
-				select people::Institution
+			organisations := (
+				select people::Organisation
 				filter .code in array_unpack(<array<str>>json_get(data, 'funding_agencies'))
 			),
 		select(insert events::Program {
 			label := <str>data['label'],
 			code := <str>data['code'],
 			managers := managers,
-			funding_agencies := institutions,
+			funding_agencies := organisations,
 			start_year := <int32>json_get(data, 'start_year'),
 			end_year := <int32>json_get(data, 'end_year'),
 			description := <str>json_get(data, 'description')
@@ -108,7 +108,7 @@ func (u ProgramUpdate) Save(e edgedb.Executor, code string) (updated Program, er
 				)`,
 			"funding_agencies": `#edgeql
 				(
-					select people::Institution
+					select people::Organisation
 					filter .code in array_unpack(<array<str>>json_get(item, 'funding_agencies'))
 				)`,
 		},

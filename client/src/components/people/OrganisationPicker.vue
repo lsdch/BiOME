@@ -1,6 +1,6 @@
 <template>
   <v-autocomplete
-    label="Institutions (optional)"
+    label="Organisations (optional)"
     v-model="model"
     :items="filteredItems"
     item-color="primary"
@@ -9,7 +9,7 @@
     :multiple
     :loading
     :error-messages="error?.detail"
-    :item-props="({ code, name }: Institution) => ({ title: code, subtitle: name })"
+    :item-props="({ code, name }: Organisation) => ({ title: code, subtitle: name })"
     :item-value
     :return-object
     prepend-inner-icon="mdi-domain"
@@ -21,37 +21,37 @@
           <v-checkbox :model-value="isSelected" hide-details />
         </template>
         <template #append>
-          <InstitutionKindChip :kind="item.raw.kind" />
+          <OrgKindChip :kind="item.raw.kind" />
         </template>
       </v-list-item>
     </template>
     <template #chip="{ item, props }">
-      <InstitutionKindChip :kind="item.raw.kind" v-bind="props" size="small">
+      <OrgKindChip :kind="item.raw.kind" v-bind="props" size="small">
         {{ item.raw.code }}
-      </InstitutionKindChip>
+      </OrgKindChip>
     </template>
   </v-autocomplete>
 </template>
 
 <script setup lang="ts">
-import { Institution, InstitutionKind } from '@/api'
-import { listInstitutionsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { Organisation, OrgKind } from '@/api'
+import { listOrganisationsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
-import InstitutionKindChip from './InstitutionKindChip.vue'
+import OrgKindChip from './OrgKindChip.vue'
 
 const { kinds } = defineProps<{
   multiple?: boolean
   chips?: boolean
   closableChips?: boolean
-  itemValue?: keyof Institution
+  itemValue?: keyof Organisation
   returnObject?: boolean
-  kinds?: InstitutionKind[]
+  kinds?: OrgKind[]
 }>()
 
 const model = defineModel<any>()
 
-const { data: items, isPending: loading, error } = useQuery(listInstitutionsOptions())
+const { data: items, isPending: loading, error } = useQuery(listOrganisationsOptions())
 
 const filteredItems = computed(() =>
   kinds ? items.value?.filter(({ kind }) => kinds?.includes(kind)) : items.value

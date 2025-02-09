@@ -4,10 +4,10 @@
     label
     variant="outlined"
     :class="[$attrs['class'], 'px-1']"
-    v-bind="{ ...InstitutionKind.props[kind], ...$attrs }"
+    v-bind="{ ...OrgKind.props[kind], ...$attrs }"
   >
     <template v-slot:prepend>
-      <v-icon v-bind="InstitutionKind.props[kind]" size="small"></v-icon>
+      <v-icon v-bind="OrgKind.props[kind]" size="small"></v-icon>
     </template>
     <template v-slot v-if="!hideLabel">
       <slot>
@@ -18,10 +18,10 @@
 </template>
 
 <script setup lang="ts">
-import { InstitutionKind } from '@/api/adapters'
+import { OrgKind } from '@/api/adapters'
 
 defineProps<{
-  kind: InstitutionKind
+  kind: OrgKind
   label?: string
   hideLabel?: boolean
 }>()

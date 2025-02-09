@@ -38,9 +38,9 @@ type PersonUser struct {
 
 // Person is the complete informations about a person, including related entities
 type Person struct {
-	PersonUser   `edgedb:"$inline" json:",inline"`
-	Institutions []InstitutionInner `json:"institutions" edgedb:"institutions"`
-	Meta         Meta               `json:"meta" edgedb:"meta"`
+	PersonUser    `edgedb:"$inline" json:",inline"`
+	Organisations []OrganisationInner `json:"organisations" edgedb:"organisations"`
+	Meta          Meta                `json:"meta" edgedb:"meta"`
 }
 
 type OptionalPerson struct {
@@ -80,10 +80,10 @@ func (person Person) Delete(db edgedb.Executor) (Person, error) {
 
 type PersonInput struct {
 	PersonIdentity
-	Institutions []string                     `json:"institutions" binding:"omitempty,exist_all=people::Institution.code" fakesize:"2"`
-	Alias        models.OptionalInput[string] `json:"alias,omitempty" binding:"unique_str=people::Person.alias" fake:"-"`
-	Contact      models.OptionalInput[string] `json:"contact,omitempty" format:"email"`
-	Comment      models.OptionalInput[string] `json:"comment,omitempty"`
+	Organisations []string                     `json:"organisations" binding:"omitempty,exist_all=people::Organisation.code" fakesize:"2"`
+	Alias         models.OptionalInput[string] `json:"alias,omitempty" binding:"unique_str=people::Person.alias" fake:"-"`
+	Contact       models.OptionalInput[string] `json:"contact,omitempty" format:"email"`
+	Comment       models.OptionalInput[string] `json:"comment,omitempty"`
 }
 
 func (p *PersonIdentity) GenerateAlias() string {
@@ -125,12 +125,12 @@ func (person PersonInput) Save(db edgedb.Executor) (created Person, err error) {
 }
 
 type PersonUpdate struct {
-	FirstName    models.OptionalInput[string]   `edgedb:"first_name" json:"first_name,omitempty" minLength:"2" maxLength:"32"`
-	LastName     models.OptionalInput[string]   `edgedb:"last_name" json:"last_name,omitempty" minLength:"2" maxLength:"32"`
-	Contact      models.OptionalNull[string]    `edgedb:"contact" json:"contact,omitempty" `
-	Institutions models.OptionalInput[[]string] `edgedb:"institutions" json:"institutions,omitempty" fakesize:"3"` // Institution codes
-	Alias        models.OptionalInput[string]   `edgedb:"alias" json:"alias,omitempty"`
-	Comment      models.OptionalNull[string]    `edgedb:"comment" json:"comment,omitempty"`
+	FirstName     models.OptionalInput[string]   `edgedb:"first_name" json:"first_name,omitempty" minLength:"2" maxLength:"32"`
+	LastName      models.OptionalInput[string]   `edgedb:"last_name" json:"last_name,omitempty" minLength:"2" maxLength:"32"`
+	Contact       models.OptionalNull[string]    `edgedb:"contact" json:"contact,omitempty" `
+	Organisations models.OptionalInput[[]string] `edgedb:"organisations" json:"organisations,omitempty" fakesize:"3"` // Organisation codes
+	Alias         models.OptionalInput[string]   `edgedb:"alias" json:"alias,omitempty"`
+	Comment       models.OptionalNull[string]    `edgedb:"comment" json:"comment,omitempty"`
 }
 
 func (u PersonUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Person, err error) {
@@ -148,10 +148,10 @@ func (u PersonUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Person, e
 			"contact":    "<str>item['contact']",
 			"alias":      "<str>item['alias']",
 			"comment":    "<str>item['comment']",
-			"institutions": `#edgeql
+			"organisations": `#edgeql
 				(
-					select people::Institution
-					filter .code in array_unpack(<array<str>>item['institutions'])
+					select people::Organisation
+					filter .code in array_unpack(<array<str>>item['organisations'])
 				)`,
 		},
 	}

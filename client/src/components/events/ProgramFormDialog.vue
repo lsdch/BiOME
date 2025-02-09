@@ -44,7 +44,7 @@
           </v-row>
           <v-row>
             <v-col>
-              <InstitutionPicker
+              <OrganisationPicker
                 label="Funding agencies"
                 v-model="model.funding_agencies"
                 chips
@@ -84,7 +84,7 @@
 <script setup lang="ts">
 import { $ProgramInput, $ProgramUpdate, Program, ProgramInput, ProgramUpdate } from '@/api'
 import { createProgramMutation, updateProgramMutation } from '@/api/gen/@tanstack/vue-query.gen'
-import InstitutionPicker from '../people/InstitutionPicker.vue'
+import OrganisationPicker from '../people/OrganisationPicker.vue'
 import PersonPicker from '../people/PersonPicker.vue'
 import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 import FormDialog from '../toolkit/forms/FormDialog.vue'

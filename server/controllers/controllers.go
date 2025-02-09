@@ -60,6 +60,14 @@ func (i LabelInput) Identifier() string {
 	return i.Label
 }
 
+type EmailInput struct {
+	Email string `path:"email"`
+}
+
+func (i EmailInput) Identifier() string {
+	return i.Email
+}
+
 // Implementation assertions
 var _ IdentifierInput[edgedb.UUID] = (*UUIDInput)(nil)
 var _ IdentifierInput[string] = (*CodeInput)(nil)

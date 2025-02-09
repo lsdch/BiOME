@@ -34,7 +34,7 @@
     <template #[`header.role`]="slotProps">
       <IconTableHeader v-bind="slotProps" icon="mdi-account-badge" />
     </template>
-    <template #[`header.institutions`]="slotProps">
+    <template #[`header.organisations`]="slotProps">
       <IconTableHeader v-bind="slotProps" icon="mdi-domain" :expanded="smAndUp" />
     </template>
 
@@ -45,8 +45,8 @@
     <template #[`item.alias`]="{ value }">
       <span class="font-weight-light"> {{ `@${value}` }}</span>
     </template>
-    <template #[`item.institutions`]="{ value }">
-      <InstitutionKindChip
+    <template #[`item.organisations`]="{ value }">
+      <OrgKindChip
         v-for="inst in value"
         :key="inst.code"
         :kind="inst.kind"
@@ -84,14 +84,14 @@
 </template>
 
 <script setup lang="ts">
-import { $UserRole, Institution, PeopleService, Person } from '@/api'
+import { $UserRole, Organisation, PeopleService, Person } from '@/api'
 
 import { UserRole } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import InstitutionKindChip from './InstitutionKindChip.vue'
+import OrgKindChip from './OrgKindChip.vue'
 import type { AccountStatus, PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
 import PersonFormDialog from './PersonFormDialog.vue'
@@ -106,10 +106,10 @@ function filterStatus(item: Person, status: AccountStatus) {
 }
 
 const filter = computed(() => {
-  const { status, institutions } = filters.value
+  const { status, organisations } = filters.value
   return (item: Person) =>
     (!status || filterStatus(item, status)) &&
-    (!institutions || item.institutions.some(({ code }) => institutions.includes(code)))
+    (!organisations || item.organisations.some(({ code }) => organisations.includes(code)))
 })
 
 const headers: CRUDTableHeader<Person>[] = [
@@ -129,10 +129,10 @@ const headers: CRUDTableHeader<Person>[] = [
     key: 'alias'
   },
   {
-    title: 'Institutions',
-    key: 'institutions',
+    title: 'Organisations',
+    key: 'organisations',
     sortable: false,
-    filter: (value: Institution[], query: string) => {
+    filter: (value: Organisation[], query: string) => {
       return value.find((inst) => inst.code.includes(query)) !== undefined
     }
   }

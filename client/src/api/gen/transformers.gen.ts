@@ -39,10 +39,10 @@ import type {
   CreateHabitatGroupResponse,
   DeleteHabitatGroupResponse,
   UpdateHabitatGroupResponse,
-  ListInstitutionsResponse,
-  CreateInstitutionResponse,
-  DeleteInstitutionResponse,
-  UpdateInstitutionResponse,
+  ListOrganisationsResponse,
+  CreateOrganisationResponse,
+  DeleteOrganisationResponse,
+  UpdateOrganisationResponse,
   ListPersonsResponse,
   CreatePersonResponse,
   DeletePersonResponse,
@@ -753,38 +753,38 @@ export const updateHabitatGroupResponseTransformer = async (
   return data
 }
 
-const institutionSchemaResponseTransformer = (data: any) => {
+const organisationSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
-export const listInstitutionsResponseTransformer = async (
+export const listOrganisationsResponseTransformer = async (
   data: any
-): Promise<ListInstitutionsResponse> => {
+): Promise<ListOrganisationsResponse> => {
   data = data.map((item: any) => {
-    return institutionSchemaResponseTransformer(item)
+    return organisationSchemaResponseTransformer(item)
   })
   return data
 }
 
-export const createInstitutionResponseTransformer = async (
+export const createOrganisationResponseTransformer = async (
   data: any
-): Promise<CreateInstitutionResponse> => {
-  data = institutionSchemaResponseTransformer(data)
+): Promise<CreateOrganisationResponse> => {
+  data = organisationSchemaResponseTransformer(data)
   return data
 }
 
-export const deleteInstitutionResponseTransformer = async (
+export const deleteOrganisationResponseTransformer = async (
   data: any
-): Promise<DeleteInstitutionResponse> => {
-  data = institutionSchemaResponseTransformer(data)
+): Promise<DeleteOrganisationResponse> => {
+  data = organisationSchemaResponseTransformer(data)
   return data
 }
 
-export const updateInstitutionResponseTransformer = async (
+export const updateOrganisationResponseTransformer = async (
   data: any
-): Promise<UpdateInstitutionResponse> => {
-  data = institutionSchemaResponseTransformer(data)
+): Promise<UpdateOrganisationResponse> => {
+  data = organisationSchemaResponseTransformer(data)
   return data
 }
 

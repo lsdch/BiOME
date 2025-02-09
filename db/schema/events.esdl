@@ -6,7 +6,7 @@ module events {
     index on ((.code, .label));
 
     required multi managers: people::Person;
-    multi funding_agencies: people::Institution;
+    multi funding_agencies: people::Organisation;
 
     start_year: int32 {
       constraint min_value(1900);

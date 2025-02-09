@@ -1,4 +1,4 @@
-# Module people holds type definitions related to users, persons and institutions.
+# Module people holds type definitions related to users, persons and organisations.
 #
 module people {
 
@@ -11,9 +11,9 @@ module people {
     );
   };
 
-  scalar type InstitutionKind extending enum<Lab, FundingAgency, SequencingPlatform, Other>;
+  scalar type OrgKind extending enum<Lab, FundingAgency, SequencingPlatform, Other>;
 
-  type Institution extending default::Auditable {
+  type Organisation extending default::Auditable {
     required name: str {
       constraint exclusive;
       constraint min_len_value(3);
@@ -28,37 +28,37 @@ module people {
       rewrite insert, update using (default::null_if_empty(.description));
     };
 
-    required kind: InstitutionKind;
+    required kind: OrgKind;
 
-    multi link people := .<institutions[is Person];
+    multi link people := .<organisations[is Person];
   }
 
-  function insert_institution(data: json) -> Institution {
+  function insert_organisation(data: json) -> Organisation {
     using (
-      insert Institution {
+      insert Organisation {
         name := <str>data['name'],
         code := <str>data['code'],
-        kind := <InstitutionKind>data['kind'],
+        kind := <OrgKind>data['kind'],
         description := <str>json_get(data, 'description'),
       }
     );
   };
 
-  function insert_or_create_institution(data: json) -> Institution {
+  function insert_or_create_organisation(data: json) -> Organisation {
     using (
       if (json_typeof(data) = 'object')
-      then (select (insert_institution(data)))
+      then (select (insert_organisation(data)))
       else if (json_typeof(data) = 'string') then (
         select (
           assert_exists(
-            Institution filter .code = <str>data,
-            message := "Failed to find institution with code: " ++ <str>data
+            Organisation filter .code = <str>data,
+            message := "Failed to find organisation with code: " ++ <str>data
           )
         )
       )
       else (
-        assert_exists(<Institution>{},
-        message := "Invalid institution JSON type: " ++ json_typeof(data))
+        assert_exists(<Organisation>{},
+        message := "Invalid organisation JSON type: " ++ json_typeof(data))
       )
     );
   };
@@ -98,7 +98,7 @@ module people {
     contact: str {
       rewrite insert, update using (default::null_if_empty(.contact));
     };
-    multi institutions: Institution;
+    multi organisations: Organisation;
 
     comment : str;
 
@@ -115,9 +115,9 @@ module people {
         alias := <str>json_get(data, 'alias'),
         contact := <str>json_get(data, 'contact'),
         comment := <str>json_get(data, 'comment'),
-        institutions := (
-          distinct (for inst in json_array_unpack(json_get(data, 'institutions')) union (
-            insert_or_create_institution(inst)
+        organisations := (
+          distinct (for inst in json_array_unpack(json_get(data, 'organisations')) union (
+            insert_or_create_organisation(inst)
           ))
         )
       }
@@ -168,7 +168,7 @@ module people {
     required first_name: str;
     required last_name: str;
     required full_name := .first_name ++ " " ++ .last_name;
-    institution: str;
+    organisation: str;
     motive: str;
     required created_on: datetime {
       rewrite insert using (datetime_of_statement());

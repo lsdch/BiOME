@@ -66,7 +66,7 @@ func (u UserInput) RegisterWithToken(db edgedb.Executor, token tokens.Token) (*U
 type PendingUserRequestInput struct {
 	EmailField     `json:",inline" edgedb:"$inline"`
 	PersonIdentity `edgedb:"$inline" json:",inline"`
-	Institution    string `json:"institution,omitempty" edgedb:"institution" fake:"{word}"`
+	Organisation   string `json:"organisation,omitempty" edgedb:"organisation" fake:"{word}"`
 	Motive         string `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
 }
 
@@ -87,7 +87,7 @@ type PendingUserRequest struct {
 	EmailField     `json:",inline" edgedb:"$inline"`
 	PersonIdentity `edgedb:"$inline" json:",inline"`
 	FullName       string             `edgedb:"full_name" json:"full_name"`
-	Institution    edgedb.OptionalStr `json:"institution,omitempty" edgedb:"institution"`
+	Organisation   edgedb.OptionalStr `json:"organisation,omitempty" edgedb:"organisation"`
 	Motive         edgedb.OptionalStr `json:"motive,omitempty" edgedb:"motive"`
 	CreatedOn      time.Time          `json:"created_on" edgedb:"created_on"`
 	EmailVerified  bool               `edgedb:"email_verified" json:"email_verified"`
@@ -214,7 +214,7 @@ type SuperAdminInput struct {
 	UserInput      `edgedb:"$inline" json:",inline"`
 	PersonIdentity `edgedb:"$inline" json:",inline"`
 	Alias          models.OptionalInput[string] `json:"alias,omitempty" fake:"-"`
-	Institution    InstitutionInput             `edgedb:"institution" json:"institution"`
+	Organisation   OrganisationInput            `edgedb:"organisation" json:"organisation"`
 }
 
 func (i SuperAdminInput) Save(e edgedb.Executor) (created User, err error) {
@@ -236,11 +236,11 @@ func (i SuperAdminInput) Save(e edgedb.Executor) (created User, err error) {
 					last_name := <str>data['last_name'],
 					contact := <str>data['email'],
 					alias := <str>json_get(data, 'alias') ?? {},
-					institutions := (insert people::Institution {
-						name := <str>data['institution']['name'],
-						code := <str>data['institution']['code'],
-						description := <str>json_get(data['institution'], 'description'),
-						kind := <InstitutionKind>data['institution']['kind']
+					organisations := (insert people::Organisation {
+						name := <str>data['organisation']['name'],
+						code := <str>data['organisation']['code'],
+						description := <str>json_get(data['organisation'], 'description'),
+						kind := <OrgKind>data['organisation']['kind']
 					})
 				})
 			}),

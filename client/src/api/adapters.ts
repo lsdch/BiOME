@@ -10,7 +10,7 @@ import {
   DateWithPrecision as DateWithPrecisionType,
   Article as TArticle,
   ExtSeqOrigin as TExtSeqOrigin,
-  InstitutionKind as TInstitutionKind,
+  OrgKind as TOrgKind,
   OccurrenceCategory as TOccurrenceCategory,
   SeqReference as TSeqReference,
   Taxon as TTaxon,
@@ -134,21 +134,21 @@ export namespace SeqReference {
   }
 }
 
-export type InstitutionKind = TInstitutionKind
-export namespace InstitutionKind {
-  export const props: Record<InstitutionKind, { icon: string, color: string }> = {
+export type OrgKind = TOrgKind
+export namespace OrgKind {
+  export const props: Record<OrgKind, { icon: string, color: string }> = {
     Lab: { icon: 'mdi-flask', color: 'primary' },
     FundingAgency: { icon: 'mdi-file-certificate', color: 'green' },
     SequencingPlatform: { icon: 'mdi-dna', color: 'orange' },
     Other: { icon: 'mdi-home-modern', color: 'grey' }
   }
-  export function icon(kind: InstitutionKind) {
+  export function icon(kind: OrgKind) {
     return props[kind].icon
   }
-  export function color(kind: InstitutionKind) {
+  export function color(kind: OrgKind) {
     return props[kind].color
   }
-  export function humanize(kind: InstitutionKind) {
+  export function humanize(kind: OrgKind) {
     return kind.replace(/([a-z])([A-Z])/g, '$1 $2').trim()
   }
 }

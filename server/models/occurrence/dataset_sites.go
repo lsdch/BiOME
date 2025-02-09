@@ -16,10 +16,27 @@ import (
 	"github.com/gosimple/slug"
 )
 
+type OccurrencePerSite map[string]EventInputWithActions
+
 // SiteDataset represents a dataset of sites.
 type SiteDataset struct {
 	AbstractDataset `edgedb:"$inline" json:",inline"`
 	Sites           []SiteItem `edgedb:"sites" json:"sites"`
+}
+
+func (d *SiteDataset) ToOccurrenceDataset() *OccurrenceDataset {
+	return &OccurrenceDataset{
+		AbstractDataset: AbstractDataset{
+			DatasetInner: DatasetInner{
+				ID:          d.ID,
+				Label:       d.Label,
+				Slug:        d.Slug,
+				Description: d.Description,
+			},
+			Maintainers: d.Maintainers,
+			Meta:        d.Meta,
+		},
+	}
 }
 
 func (d *SiteDataset) AddSites(db edgedb.Executor, site_ids []edgedb.UUID) (*SiteDataset, error) {

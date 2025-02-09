@@ -2278,218 +2278,6 @@
 				],
 				"type": "object"
 			},
-			"Institution": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/Institution.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"code": {
-						"examples": [
-							"LEHNA"
-						],
-						"maxLength": 12,
-						"minLength": 2,
-						"type": "string"
-					},
-					"description": {
-						"examples": [
-							"Where this database was born."
-						],
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"kind": {
-						"$ref": "#/components/schemas/InstitutionKind",
-						"examples": [
-							"Lab"
-						]
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"name": {
-						"examples": [
-							"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
-						],
-						"maxLength": 128,
-						"minLength": 10,
-						"type": "string"
-					},
-					"people": {
-						"description": "Known members of this institution",
-						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"meta",
-					"id",
-					"name",
-					"code",
-					"kind"
-				],
-				"type": "object"
-			},
-			"InstitutionInner": {
-				"additionalProperties": false,
-				"properties": {
-					"code": {
-						"examples": [
-							"LEHNA"
-						],
-						"maxLength": 12,
-						"minLength": 2,
-						"type": "string"
-					},
-					"description": {
-						"examples": [
-							"Where this database was born."
-						],
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"kind": {
-						"$ref": "#/components/schemas/InstitutionKind",
-						"examples": [
-							"Lab"
-						]
-					},
-					"name": {
-						"examples": [
-							"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
-						],
-						"maxLength": 128,
-						"minLength": 10,
-						"type": "string"
-					}
-				},
-				"required": [
-					"id",
-					"name",
-					"code",
-					"kind"
-				],
-				"type": "object"
-			},
-			"InstitutionInput": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/InstitutionInput.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"code": {
-						"examples": [
-							"LEHNA"
-						],
-						"maxLength": 12,
-						"minLength": 2,
-						"type": "string"
-					},
-					"description": {
-						"examples": [
-							"Where this database was born."
-						],
-						"type": "string"
-					},
-					"kind": {
-						"$ref": "#/components/schemas/InstitutionKind",
-						"examples": [
-							"Lab"
-						]
-					},
-					"name": {
-						"examples": [
-							"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
-						],
-						"maxLength": 128,
-						"minLength": 10,
-						"type": "string"
-					}
-				},
-				"required": [
-					"name",
-					"code",
-					"kind"
-				],
-				"type": "object"
-			},
-			"InstitutionKind": {
-				"enum": [
-					"Lab",
-					"FundingAgency",
-					"SequencingPlatform",
-					"Other"
-				],
-				"title": "InstitutionKind",
-				"type": "string"
-			},
-			"InstitutionUpdate": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/InstitutionUpdate.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"code": {
-						"examples": [
-							"LEHNA"
-						],
-						"type": "string"
-					},
-					"description": {
-						"examples": [
-							"Where this database was born."
-						],
-						"type": [
-							"string",
-							"null"
-						]
-					},
-					"kind": {
-						"$ref": "#/components/schemas/InstitutionKind",
-						"examples": [
-							"Lab"
-						],
-						"type": [
-							"",
-							"null"
-						]
-					},
-					"name": {
-						"examples": [
-							"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
-						],
-						"type": "string"
-					}
-				},
-				"type": "object"
-			},
 			"InvitationInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -3558,6 +3346,218 @@
 					"null"
 				]
 			},
+			"OrgKind": {
+				"enum": [
+					"Lab",
+					"FundingAgency",
+					"SequencingPlatform",
+					"Other"
+				],
+				"title": "OrgKind",
+				"type": "string"
+			},
+			"Organisation": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Organisation.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"examples": [
+							"LEHNA"
+						],
+						"maxLength": 12,
+						"minLength": 2,
+						"type": "string"
+					},
+					"description": {
+						"examples": [
+							"Where this database was born."
+						],
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"kind": {
+						"$ref": "#/components/schemas/OrgKind",
+						"examples": [
+							"Lab"
+						]
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"name": {
+						"examples": [
+							"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
+						],
+						"maxLength": 128,
+						"minLength": 10,
+						"type": "string"
+					},
+					"people": {
+						"description": "Known members of this organisation",
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"meta",
+					"id",
+					"name",
+					"code",
+					"kind"
+				],
+				"type": "object"
+			},
+			"OrganisationInner": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"examples": [
+							"LEHNA"
+						],
+						"maxLength": 12,
+						"minLength": 2,
+						"type": "string"
+					},
+					"description": {
+						"examples": [
+							"Where this database was born."
+						],
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"kind": {
+						"$ref": "#/components/schemas/OrgKind",
+						"examples": [
+							"Lab"
+						]
+					},
+					"name": {
+						"examples": [
+							"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
+						],
+						"maxLength": 128,
+						"minLength": 10,
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"name",
+					"code",
+					"kind"
+				],
+				"type": "object"
+			},
+			"OrganisationInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/OrganisationInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"examples": [
+							"LEHNA"
+						],
+						"maxLength": 12,
+						"minLength": 2,
+						"type": "string"
+					},
+					"description": {
+						"examples": [
+							"Where this database was born."
+						],
+						"type": "string"
+					},
+					"kind": {
+						"$ref": "#/components/schemas/OrgKind",
+						"examples": [
+							"Lab"
+						]
+					},
+					"name": {
+						"examples": [
+							"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
+						],
+						"maxLength": 128,
+						"minLength": 10,
+						"type": "string"
+					}
+				},
+				"required": [
+					"name",
+					"code",
+					"kind"
+				],
+				"type": "object"
+			},
+			"OrganisationUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/OrganisationUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"examples": [
+							"LEHNA"
+						],
+						"type": "string"
+					},
+					"description": {
+						"examples": [
+							"Where this database was born."
+						],
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"kind": {
+						"$ref": "#/components/schemas/OrgKind",
+						"examples": [
+							"Lab"
+						],
+						"type": [
+							"",
+							"null"
+						]
+					},
+					"name": {
+						"examples": [
+							"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"
+						],
+						"type": "string"
+					}
+				},
+				"type": "object"
+			},
 			"Organization": {
 				"additionalProperties": false,
 				"properties": {
@@ -3679,15 +3679,15 @@
 					"id": {
 						"type": "string"
 					},
-					"institution": {
-						"type": "string"
-					},
 					"last_name": {
 						"maxLength": 32,
 						"minLength": 2,
 						"type": "string"
 					},
 					"motive": {
+						"type": "string"
+					},
+					"organisation": {
 						"type": "string"
 					}
 				},
@@ -3714,15 +3714,15 @@
 						"minLength": 2,
 						"type": "string"
 					},
-					"institution": {
-						"type": "string"
-					},
 					"last_name": {
 						"maxLength": 32,
 						"minLength": 2,
 						"type": "string"
 					},
 					"motive": {
+						"type": "string"
+					},
+					"organisation": {
 						"type": "string"
 					}
 				},
@@ -3767,12 +3767,6 @@
 						"format": "uuid",
 						"type": "string"
 					},
-					"institutions": {
-						"items": {
-							"$ref": "#/components/schemas/InstitutionInner"
-						},
-						"type": "array"
-					},
 					"last_name": {
 						"maxLength": 32,
 						"minLength": 2,
@@ -3780,6 +3774,12 @@
 					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
+					},
+					"organisations": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
+						"type": "array"
 					},
 					"role": {
 						"$ref": "#/components/schemas/UserRole"
@@ -3789,7 +3789,7 @@
 					}
 				},
 				"required": [
-					"institutions",
+					"organisations",
 					"meta",
 					"user",
 					"id",
@@ -3874,20 +3874,20 @@
 						"minLength": 2,
 						"type": "string"
 					},
-					"institutions": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
 					"last_name": {
 						"maxLength": 32,
 						"minLength": 2,
 						"type": "string"
+					},
+					"organisations": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
-					"institutions",
+					"organisations",
 					"first_name",
 					"last_name"
 				],
@@ -3925,16 +3925,16 @@
 						"minLength": 2,
 						"type": "string"
 					},
-					"institutions": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
 					"last_name": {
 						"maxLength": 32,
 						"minLength": 2,
 						"type": "string"
+					},
+					"organisations": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"type": "object"
@@ -4015,7 +4015,7 @@
 					},
 					"funding_agencies": {
 						"items": {
-							"$ref": "#/components/schemas/InstitutionInner"
+							"$ref": "#/components/schemas/OrganisationInner"
 						},
 						"type": "array"
 					},
@@ -7516,6 +7516,14 @@
 				"operationId": "DeletePendingUserRequest",
 				"parameters": [
 					{
+						"in": "path",
+						"name": "email",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
 						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
@@ -9983,7 +9991,9 @@
 				"tags": [
 					"Habitats"
 				]
-			},
+			}
+		},
+		"/habitats/{label}": {
 			"patch": {
 				"operationId": "UpdateHabitatGroup",
 				"parameters": [
@@ -10190,335 +10200,6 @@
 				]
 			}
 		},
-		"/institutions": {
-			"get": {
-				"operationId": "ListInstitutions",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/Institution"
-									},
-									"type": "array"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "List institutions",
-				"tags": [
-					"People",
-					"Institution"
-				]
-			},
-			"post": {
-				"operationId": "CreateInstitution",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/InstitutionInput"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Institution"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"400": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Bad Request"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Create institution",
-				"tags": [
-					"People",
-					"Institution"
-				]
-			}
-		},
-		"/institutions/{code}": {
-			"delete": {
-				"operationId": "DeleteInstitution",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "code",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Institution"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"400": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Bad Request"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Delete institution",
-				"tags": [
-					"People",
-					"Institution"
-				]
-			},
-			"patch": {
-				"operationId": "UpdateInstitution",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "code",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/InstitutionUpdate"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Institution"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"400": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Bad Request"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Update institution",
-				"tags": [
-					"People",
-					"Institution"
-				]
-			}
-		},
 		"/locations/countries": {
 			"get": {
 				"operationId": "ListCountries",
@@ -10653,6 +10334,335 @@
 				"summary": "Occurrences overview",
 				"tags": [
 					"Occurrences"
+				]
+			}
+		},
+		"/organisations": {
+			"get": {
+				"operationId": "ListOrganisations",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Organisation"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List organisations",
+				"tags": [
+					"People",
+					"Organisation"
+				]
+			},
+			"post": {
+				"operationId": "CreateOrganisation",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/OrganisationInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Organisation"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"400": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Bad Request"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create organisation",
+				"tags": [
+					"People",
+					"Organisation"
+				]
+			}
+		},
+		"/organisations/{code}": {
+			"delete": {
+				"operationId": "DeleteOrganisation",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Organisation"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"400": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Bad Request"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Delete organisation",
+				"tags": [
+					"People",
+					"Organisation"
+				]
+			},
+			"patch": {
+				"operationId": "UpdateOrganisation",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/OrganisationUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Organisation"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"400": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Bad Request"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update organisation",
+				"tags": [
+					"People",
+					"Organisation"
 				]
 			}
 		},

@@ -29,10 +29,10 @@
     <v-col cols="12" sm="6" class="pa-0">
       <v-list>
         <v-list-item>
-          <InstitutionPicker
-            v-model="model.institutions"
+          <OrganisationPicker
+            v-model="model.organisations"
             clearable
-            label="Institutions"
+            label="Organisations"
             placeholder="Any"
             persistent-placeholder
             density="compact"
@@ -53,14 +53,14 @@ export type AccountStatus = (typeof statuses)[number]
 export type PersonFilters = {
   term?: string
   status?: AccountStatus
-  institutions?: string[]
+  organisations?: string[]
 }
 </script>
 
 <script setup lang="ts">
 import { $UserRole, UserRole } from '@/api'
 import { roleIcon } from '../icons/UserRoleIcon'
-import InstitutionPicker from './InstitutionPicker.vue'
+import OrganisationPicker from './OrganisationPicker.vue'
 
 const model = defineModel<PersonFilters>({ required: true })
 

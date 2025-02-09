@@ -5,9 +5,9 @@ import (
 	"github.com/lsdch/biome/controllers/datasets"
 	"github.com/lsdch/biome/controllers/events"
 	"github.com/lsdch/biome/controllers/habitats"
-	"github.com/lsdch/biome/controllers/institution"
 	"github.com/lsdch/biome/controllers/location"
 	"github.com/lsdch/biome/controllers/occurrences"
+	"github.com/lsdch/biome/controllers/organisation"
 	"github.com/lsdch/biome/controllers/person"
 	"github.com/lsdch/biome/controllers/references"
 	"github.com/lsdch/biome/controllers/sequences"
@@ -21,7 +21,7 @@ import (
 
 func registerRoutes(router router.Router) {
 	users.RegisterRoutes(router)
-	institution.RegisterRoutes(router)
+	organisation.RegisterRoutes(router)
 	person.RegisterRoutes(router)
 	location.RegisterRoutes(router)
 	taxonomy.RegisterRoutes(router)

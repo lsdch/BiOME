@@ -1,12 +1,12 @@
 <template>
   <v-select v-model="model" :items v-bind="$attrs">
     <template v-if="model" #prepend-inner>
-      <v-icon v-bind="InstitutionKind.props[model]" />
+      <v-icon v-bind="OrgKind.props[model]" />
     </template>
     <template #item="{ item, props }">
       <v-list-item :title="item.title" v-bind="props">
         <template #prepend>
-          <v-icon v-bind="InstitutionKind.props[item.raw.value]" />
+          <v-icon v-bind="OrgKind.props[item.raw.value]" />
         </template>
       </v-list-item>
     </template>
@@ -14,13 +14,13 @@
 </template>
 
 <script setup lang="ts">
-import { $InstitutionKind } from '@/api'
-import { InstitutionKind } from '@/api/adapters'
+import { $OrgKind } from '@/api'
+import { OrgKind } from '@/api/adapters'
 
-const model = defineModel<InstitutionKind>()
-const items = $InstitutionKind.enum.map((value) => ({
+const model = defineModel<OrgKind>()
+const items = $OrgKind.enum.map((value) => ({
   value,
-  title: InstitutionKind.humanize(value)
+  title: OrgKind.humanize(value)
 }))
 </script>
 

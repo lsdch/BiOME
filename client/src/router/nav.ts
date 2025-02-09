@@ -160,12 +160,12 @@ export const navRoutes: (RouterItem | Divider)[] = [
         meta: { subtitle: "Persons" }
       },
       {
-        label: "Institutions",
-        path: "/institutions",
-        name: "institutions",
+        label: "Organisations",
+        path: "/organisations",
+        name: "organisations",
         icon: "mdi-domain",
-        component: () => import("../views/people/InstitutionView.vue"),
-        meta: { subtitle: "Institutions" }
+        component: () => import("../views/people/OrganisationView.vue"),
+        meta: { subtitle: "Organisations" }
       },
       {
         label: "Programs",

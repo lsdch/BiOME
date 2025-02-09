@@ -19,7 +19,7 @@ import (
 
 var entities = []string{
 	"countries",
-	"institutions",
+	"organisations",
 	"persons",
 	"users",
 	"articles",
@@ -46,8 +46,8 @@ var superAdminInput = people.SuperAdminInput{
 		IsSet: true,
 		Value: "lsdch",
 	},
-	Institution: people.InstitutionInput{
-		InstitutionInfos: people.InstitutionInfos{
+	Organisation: people.OrganisationInput{
+		OrganisationInfos: people.OrganisationInfos{
 			Name: "Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés",
 			Code: "LEHNA",
 			Kind: "Lab",
@@ -62,7 +62,7 @@ func main() {
 
 	client := db.Connect(edgedb.Options{Database: *database})
 
-	aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json", 500)
+	aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json", 1000)
 	if err != nil {
 		logrus.Fatalf("Failed to load Asellidae sites: %v", err)
 	}
@@ -121,7 +121,6 @@ func main() {
 			logrus.Errorf("Failed to seed datasets: %v", err)
 			return err
 		}
-
 		logrus.Infof("⚙ Postprocessing...")
 		logrus.Infof("• generate sequence codes")
 		if err := tx.Execute(context.Background(),

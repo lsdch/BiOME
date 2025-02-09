@@ -2,15 +2,15 @@
   <CRUDTable
     :headers="headers"
     density="compact"
-    :fetch-items="listInstitutionsOptions"
+    :fetch-items="listOrganisationsOptions"
     :delete="{
-      mutation: deleteInstitutionMutation,
-      params: (inst: Institution) => ({ path: { code: inst.code } })
+      mutation: deleteOrganisationMutation,
+      params: (inst: Organisation) => ({ path: { code: inst.code } })
     }"
-    entityName="Institution"
+    entityName="Organisation"
     :itemRepr="(inst) => inst.code"
     :toolbar="{
-      title: 'Institutions',
+      title: 'Organisations',
       icon: 'mdi-domain'
     }"
     v-model:search="filters"
@@ -23,7 +23,7 @@
       <v-row class="ma-0">
         <v-col cols="12" md="6" class="pa-0">
           <v-list-item>
-            <InstitutionKindPicker
+            <OrgKindPicker
               v-model="filters.kind"
               class="mt-1 mb-2"
               label="Kind"
@@ -37,7 +37,7 @@
       </v-row>
     </template>
     <template #form="{ dialog, editItem, onSuccess, onClose }">
-      <InstitutionFormDialog
+      <OrganisationFormDialog
         :model-value="dialog"
         :edit="editItem"
         @success="onSuccess"
@@ -55,7 +55,7 @@
       <code>{{ item.code }}</code>
     </template>
     <template #[`item.kind`]="{ item, value }">
-      <InstitutionKindChip size="small" :kind="item.kind" :label="value" :hide-label="!mdAndUp" />
+      <OrgKindChip size="small" :kind="item.kind" :label="value" :hide-label="!mdAndUp" />
     </template>
     <template #[`item.people`]="{ value, toggleExpand, internalItem }">
       <v-btn
@@ -78,7 +78,7 @@
         <v-card flat :min-width="300">
           <v-list lines="one" density="compact" prepend-icon="mdi-account">
             <v-list-subheader>
-              {{ item.people?.length ? 'PEOPLE' : 'No people registered in this institution.' }}
+              {{ item.people?.length ? 'PEOPLE' : 'No people registered in this organisation.' }}
             </v-list-subheader>
             <v-list-item v-for="person in item.people" :key="person.id" class="item-person py-0">
               <v-list-item-title class="text-body-2">
@@ -99,34 +99,34 @@
 </template>
 
 <script setup lang="ts">
-import { Institution, InstitutionKind, PeopleService, UserRole } from '@/api'
+import { Organisation, OrgKind, PeopleService, UserRole } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import { enumAsString } from '../toolkit/enums'
-import InstitutionFormDialog from './InstitutionFormDialog.vue'
-import InstitutionKindChip from './InstitutionKindChip.vue'
-import InstitutionKindPicker from './InstitutionKindPicker.vue'
+import OrganisationFormDialog from './OrganisationFormDialog.vue'
+import OrgKindChip from './OrgKindChip.vue'
+import OrgKindPicker from './OrgKindPicker.vue'
 import {
-  deleteInstitutionMutation,
-  listInstitutionsOptions
+  deleteOrganisationMutation,
+  listOrganisationsOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
 
 const { mdAndUp } = useDisplay()
 
-const filters = ref<{ term?: string; kind?: InstitutionKind }>({})
+const filters = ref<{ term?: string; kind?: OrgKind }>({})
 
 const filter = computed(() => {
-  return filters.value.kind ? (item: Institution) => item.kind === filters.value.kind : () => true
+  return filters.value.kind ? (item: Organisation) => item.kind === filters.value.kind : () => true
 })
 
-const headers = computed((): CRUDTableHeader<Institution>[] => [
+const headers = computed((): CRUDTableHeader<Organisation>[] => [
   { title: 'Short name', key: 'code' },
   { title: 'Name', key: 'name' },
   {
     title: 'Kind',
     key: 'kind',
-    value: (item: Institution) => enumAsString(item.kind)
+    value: (item: Organisation) => enumAsString(item.kind)
   },
   { title: 'People', key: 'people', align: 'center' }
 ])

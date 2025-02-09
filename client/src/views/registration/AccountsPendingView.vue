@@ -31,8 +31,8 @@
       />
     </template>
 
-    <!-- Institution column -->
-    <template #item.institution="{ value }">
+    <!-- Organisation column -->
+    <template #item.organisation="{ value }">
       <span :class="{ 'font-italic': !value }">
         {{ value ?? 'N/A' }}
       </span>
@@ -42,9 +42,9 @@
       <div class="mx-5 my-2">
         <div v-if="mobile" class="my-1 d-flex align-center">
           <v-icon icon="mdi-domain" size="small" />
-          <span class="font-weight-bold mx-1">Institution: </span>
+          <span class="font-weight-bold mx-1">Organisation: </span>
           <span>
-            {{ item.institution ?? 'N/A' }}
+            {{ item.organisation ?? 'N/A' }}
           </span>
         </div>
         <div class="font-weight-bold">Motive:</div>
@@ -95,7 +95,7 @@ const headers: CRUDTableHeader<PendingUserRequest>[] = [
   { title: 'Name', key: 'full_name' },
   { title: 'E-mail', key: 'email' },
   { title: 'E-mail verified', key: 'email_verified', align: 'center' },
-  { title: 'Institution', key: 'institution', hide: mobile }
+  { title: 'Organisation', key: 'organisation', hide: mobile }
 ]
 
 const [dialogOpen, toggleInvitationDialog] = useToggle(false)

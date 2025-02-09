@@ -15,7 +15,7 @@
     appendActions
   >
     <template #[`item.funding_agencies`]="{ value }">
-      <InstitutionKindChip
+      <OrgKindChip
         v-for="inst in value"
         :key="inst.code"
         :kind="inst.kind"
@@ -48,7 +48,7 @@
 import { EventsService, Program } from '@/api'
 import { deleteProgramMutation, listProgramsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ProgramFormDialog from '@/components/events/ProgramFormDialog.vue'
-import InstitutionKindChip from '@/components/people/InstitutionKindChip.vue'
+import OrgKindChip from '@/components/people/OrgKindChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { useDisplay } from 'vuetify'
 

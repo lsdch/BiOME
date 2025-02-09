@@ -12,9 +12,9 @@ import {
   SequencesService,
   ServicesService,
   HabitatsService,
-  PeopleService,
   LocationService,
   OccurrencesService,
+  PeopleService,
   SettingsService,
   TaxonomyService
 } from '../sdk.gen'
@@ -135,18 +135,18 @@ import type {
   ImportGbifError,
   ImportGbifResponse,
   MonitorGbifData,
-  ListInstitutionsData,
-  CreateInstitutionData,
-  CreateInstitutionError,
-  CreateInstitutionResponse,
-  DeleteInstitutionData,
-  DeleteInstitutionError,
-  DeleteInstitutionResponse,
-  UpdateInstitutionData,
-  UpdateInstitutionError,
-  UpdateInstitutionResponse,
   ListCountriesData,
   OccurrenceOverviewData,
+  ListOrganisationsData,
+  CreateOrganisationData,
+  CreateOrganisationError,
+  CreateOrganisationResponse,
+  DeleteOrganisationData,
+  DeleteOrganisationError,
+  DeleteOrganisationResponse,
+  UpdateOrganisationData,
+  UpdateOrganisationError,
+  UpdateOrganisationResponse,
   ListPersonsData,
   CreatePersonData,
   CreatePersonError,
@@ -1580,98 +1580,6 @@ export const monitorGbifOptions = (options?: Options<MonitorGbifData>) => {
   })
 }
 
-export const listInstitutionsQueryKey = (options?: Options<ListInstitutionsData>) => [
-  createQueryKey('listInstitutions', options)
-]
-
-export const listInstitutionsOptions = (options?: Options<ListInstitutionsData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await PeopleService.listInstitutions({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listInstitutionsQueryKey(options)
-  })
-}
-
-export const createInstitutionQueryKey = (options: Options<CreateInstitutionData>) => [
-  createQueryKey('createInstitution', options)
-]
-
-export const createInstitutionOptions = (options: Options<CreateInstitutionData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await PeopleService.createInstitution({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: createInstitutionQueryKey(options)
-  })
-}
-
-export const createInstitutionMutation = (options?: Partial<Options<CreateInstitutionData>>) => {
-  const mutationOptions: UseMutationOptions<
-    CreateInstitutionResponse,
-    CreateInstitutionError,
-    Options<CreateInstitutionData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await PeopleService.createInstitution({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const deleteInstitutionMutation = (options?: Partial<Options<DeleteInstitutionData>>) => {
-  const mutationOptions: UseMutationOptions<
-    DeleteInstitutionResponse,
-    DeleteInstitutionError,
-    Options<DeleteInstitutionData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await PeopleService.deleteInstitution({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const updateInstitutionMutation = (options?: Partial<Options<UpdateInstitutionData>>) => {
-  const mutationOptions: UseMutationOptions<
-    UpdateInstitutionResponse,
-    UpdateInstitutionError,
-    Options<UpdateInstitutionData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await PeopleService.updateInstitution({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
 export const listCountriesQueryKey = (options?: Options<ListCountriesData>) => [
   createQueryKey('listCountries', options)
 ]
@@ -1708,6 +1616,98 @@ export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewDa
     },
     queryKey: occurrenceOverviewQueryKey(options)
   })
+}
+
+export const listOrganisationsQueryKey = (options?: Options<ListOrganisationsData>) => [
+  createQueryKey('listOrganisations', options)
+]
+
+export const listOrganisationsOptions = (options?: Options<ListOrganisationsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await PeopleService.listOrganisations({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listOrganisationsQueryKey(options)
+  })
+}
+
+export const createOrganisationQueryKey = (options: Options<CreateOrganisationData>) => [
+  createQueryKey('createOrganisation', options)
+]
+
+export const createOrganisationOptions = (options: Options<CreateOrganisationData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await PeopleService.createOrganisation({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: createOrganisationQueryKey(options)
+  })
+}
+
+export const createOrganisationMutation = (options?: Partial<Options<CreateOrganisationData>>) => {
+  const mutationOptions: UseMutationOptions<
+    CreateOrganisationResponse,
+    CreateOrganisationError,
+    Options<CreateOrganisationData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await PeopleService.createOrganisation({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const deleteOrganisationMutation = (options?: Partial<Options<DeleteOrganisationData>>) => {
+  const mutationOptions: UseMutationOptions<
+    DeleteOrganisationResponse,
+    DeleteOrganisationError,
+    Options<DeleteOrganisationData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await PeopleService.deleteOrganisation({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const updateOrganisationMutation = (options?: Partial<Options<UpdateOrganisationData>>) => {
+  const mutationOptions: UseMutationOptions<
+    UpdateOrganisationResponse,
+    UpdateOrganisationError,
+    Options<UpdateOrganisationData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await PeopleService.updateOrganisation({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
 }
 
 export const listPersonsQueryKey = (options?: Options<ListPersonsData>) => [

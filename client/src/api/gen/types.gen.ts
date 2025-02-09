@@ -767,55 +767,6 @@ export type InstanceSettingsInput = {
   public: boolean
 }
 
-export type Institution = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code: string
-  description?: string
-  id: string
-  kind: InstitutionKind
-  meta: Meta
-  name: string
-  /**
-   * Known members of this institution
-   */
-  people?: Array<PersonUser>
-}
-
-export type InstitutionInner = {
-  code: string
-  description?: string
-  id: string
-  kind: InstitutionKind
-  name: string
-}
-
-export type InstitutionInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code: string
-  description?: string
-  kind: InstitutionKind
-  name: string
-}
-
-export type InstitutionKind = 'Lab' | 'FundingAgency' | 'SequencingPlatform' | 'Other'
-
-export type InstitutionUpdate = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code?: string
-  description?: string | null
-  kind?: InstitutionKind
-  name?: string
-}
-
 export type InvitationInput = {
   /**
    * A URL to the JSON Schema for this object.
@@ -1115,6 +1066,55 @@ export type OptionalUserInner = {
   role: UserRole
 } | null
 
+export type OrgKind = 'Lab' | 'FundingAgency' | 'SequencingPlatform' | 'Other'
+
+export type Organisation = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code: string
+  description?: string
+  id: string
+  kind: OrgKind
+  meta: Meta
+  name: string
+  /**
+   * Known members of this organisation
+   */
+  people?: Array<PersonUser>
+}
+
+export type OrganisationInner = {
+  code: string
+  description?: string
+  id: string
+  kind: OrgKind
+  name: string
+}
+
+export type OrganisationInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code: string
+  description?: string
+  kind: OrgKind
+  name: string
+}
+
+export type OrganisationUpdate = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code?: string
+  description?: string | null
+  kind?: OrgKind
+  name?: string
+}
+
 export type Organization = {
   acronym?: Array<string>
   department?: Array<string>
@@ -1161,17 +1161,17 @@ export type PendingUserRequest = {
   first_name: string
   full_name: string
   id: string
-  institution?: string
   last_name: string
   motive?: string
+  organisation?: string
 }
 
 export type PendingUserRequestInput = {
   email: string
   first_name: string
-  institution?: string
   last_name: string
   motive?: string
+  organisation?: string
 }
 
 export type Person = {
@@ -1185,9 +1185,9 @@ export type Person = {
   first_name: string
   full_name: string
   id: string
-  institutions: Array<InstitutionInner>
   last_name: string
   meta: Meta
+  organisations: Array<OrganisationInner>
   role?: UserRole
   user: OptionalUserInner
 }
@@ -1212,8 +1212,8 @@ export type PersonInput = {
   comment?: string
   contact?: string
   first_name: string
-  institutions: Array<string>
   last_name: string
+  organisations: Array<string>
 }
 
 export type PersonUpdate = {
@@ -1225,8 +1225,8 @@ export type PersonUpdate = {
   comment?: string | null
   contact?: string | null
   first_name?: string
-  institutions?: Array<string>
   last_name?: string
+  organisations?: Array<string>
 }
 
 export type PersonUser = {
@@ -1249,7 +1249,7 @@ export type Program = {
   code: string
   description?: string
   end_year?: number
-  funding_agencies: Array<InstitutionInner>
+  funding_agencies: Array<OrganisationInner>
   id: string
   label: string
   managers: Array<PersonInner>
@@ -2516,7 +2516,9 @@ export type DeletePendingUserRequestData = {
      */
     Authorization?: string
   }
-  path?: never
+  path: {
+    email: string
+  }
   query?: never
   url: '/account/pending/{email}'
 }
@@ -3856,162 +3858,6 @@ export type MonitorGbifResponses = {
 
 export type MonitorGbifResponse = MonitorGbifResponses[keyof MonitorGbifResponses]
 
-export type ListInstitutionsData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/institutions'
-}
-
-export type ListInstitutionsErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ListInstitutionsError = ListInstitutionsErrors[keyof ListInstitutionsErrors]
-
-export type ListInstitutionsResponses = {
-  /**
-   * OK
-   */
-  200: Array<Institution>
-}
-
-export type ListInstitutionsResponse = ListInstitutionsResponses[keyof ListInstitutionsResponses]
-
-export type CreateInstitutionData = {
-  body: InstitutionInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/institutions'
-}
-
-export type CreateInstitutionErrors = {
-  /**
-   * Bad Request
-   */
-  400: ErrorModel
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type CreateInstitutionError = CreateInstitutionErrors[keyof CreateInstitutionErrors]
-
-export type CreateInstitutionResponses = {
-  /**
-   * OK
-   */
-  200: Institution
-}
-
-export type CreateInstitutionResponse = CreateInstitutionResponses[keyof CreateInstitutionResponses]
-
-export type DeleteInstitutionData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/institutions/{code}'
-}
-
-export type DeleteInstitutionErrors = {
-  /**
-   * Bad Request
-   */
-  400: ErrorModel
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type DeleteInstitutionError = DeleteInstitutionErrors[keyof DeleteInstitutionErrors]
-
-export type DeleteInstitutionResponses = {
-  /**
-   * OK
-   */
-  200: Institution
-}
-
-export type DeleteInstitutionResponse = DeleteInstitutionResponses[keyof DeleteInstitutionResponses]
-
-export type UpdateInstitutionData = {
-  body: InstitutionUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/institutions/{code}'
-}
-
-export type UpdateInstitutionErrors = {
-  /**
-   * Bad Request
-   */
-  400: ErrorModel
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type UpdateInstitutionError = UpdateInstitutionErrors[keyof UpdateInstitutionErrors]
-
-export type UpdateInstitutionResponses = {
-  /**
-   * OK
-   */
-  200: Institution
-}
-
-export type UpdateInstitutionResponse = UpdateInstitutionResponses[keyof UpdateInstitutionResponses]
-
 export type ListCountriesData = {
   body?: never
   headers?: {
@@ -4082,6 +3928,165 @@ export type OccurrenceOverviewResponses = {
 
 export type OccurrenceOverviewResponse =
   OccurrenceOverviewResponses[keyof OccurrenceOverviewResponses]
+
+export type ListOrganisationsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/organisations'
+}
+
+export type ListOrganisationsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListOrganisationsError = ListOrganisationsErrors[keyof ListOrganisationsErrors]
+
+export type ListOrganisationsResponses = {
+  /**
+   * OK
+   */
+  200: Array<Organisation>
+}
+
+export type ListOrganisationsResponse = ListOrganisationsResponses[keyof ListOrganisationsResponses]
+
+export type CreateOrganisationData = {
+  body: OrganisationInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/organisations'
+}
+
+export type CreateOrganisationErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateOrganisationError = CreateOrganisationErrors[keyof CreateOrganisationErrors]
+
+export type CreateOrganisationResponses = {
+  /**
+   * OK
+   */
+  200: Organisation
+}
+
+export type CreateOrganisationResponse =
+  CreateOrganisationResponses[keyof CreateOrganisationResponses]
+
+export type DeleteOrganisationData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/organisations/{code}'
+}
+
+export type DeleteOrganisationErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteOrganisationError = DeleteOrganisationErrors[keyof DeleteOrganisationErrors]
+
+export type DeleteOrganisationResponses = {
+  /**
+   * OK
+   */
+  200: Organisation
+}
+
+export type DeleteOrganisationResponse =
+  DeleteOrganisationResponses[keyof DeleteOrganisationResponses]
+
+export type UpdateOrganisationData = {
+  body: OrganisationUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/organisations/{code}'
+}
+
+export type UpdateOrganisationErrors = {
+  /**
+   * Bad Request
+   */
+  400: ErrorModel
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateOrganisationError = UpdateOrganisationErrors[keyof UpdateOrganisationErrors]
+
+export type UpdateOrganisationResponses = {
+  /**
+   * OK
+   */
+  200: Organisation
+}
+
+export type UpdateOrganisationResponse =
+  UpdateOrganisationResponses[keyof UpdateOrganisationResponses]
 
 export type ListPersonsData = {
   body?: never

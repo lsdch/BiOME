@@ -1,4 +1,4 @@
-package institution
+package organisation
 
 import (
 	"net/http"
@@ -14,44 +14,44 @@ import (
 )
 
 func RegisterRoutes(r router.Router) {
-	institutionsAPI := r.RouteGroup("/institutions").
-		WithTags([]string{"People", "Institution"})
+	organisationsAPI := r.RouteGroup("/organisations").
+		WithTags([]string{"People", "Organisation"})
 
-	router.Register(institutionsAPI, "ListInstitutions",
+	router.Register(organisationsAPI, "ListOrganisations",
 		huma.Operation{
 			Path:    "/",
 			Method:  http.MethodGet,
-			Summary: "List institutions",
+			Summary: "List organisations",
 			Errors:  []int{500},
 		},
 		controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](people.ListInstitutions),
+		}](people.ListOrganisations),
 	)
 
-	router.Register(institutionsAPI, "CreateInstitution",
+	router.Register(organisationsAPI, "CreateOrganisation",
 		huma.Operation{
 			Path:    "/",
 			Method:  http.MethodPost,
-			Summary: "Create institution",
+			Summary: "Create organisation",
 			Errors:  []int{400, 500},
 		},
-		controllers.CreateHandler[people.InstitutionInput, people.Institution])
+		controllers.CreateHandler[people.OrganisationInput, people.Organisation])
 
-	router.Register(institutionsAPI, "UpdateInstitution",
+	router.Register(organisationsAPI, "UpdateOrganisation",
 		huma.Operation{
 			Path:    "/{code}",
 			Method:  http.MethodPatch,
-			Summary: "Update institution",
+			Summary: "Update organisation",
 			Errors:  []int{400, 500},
-		}, controllers.UpdateByCodeHandler[people.InstitutionUpdate])
+		}, controllers.UpdateByCodeHandler[people.OrganisationUpdate])
 
-	router.Register(institutionsAPI, "DeleteInstitution",
+	router.Register(organisationsAPI, "DeleteOrganisation",
 		huma.Operation{
 			Path:    "/{code}",
 			Method:  http.MethodDelete,
-			Summary: "Delete institution",
+			Summary: "Delete organisation",
 			Errors:  []int{400, 500},
 		},
-		controllers.DeleteByCodeHandler(people.DeleteInstitution))
+		controllers.DeleteByCodeHandler(people.DeleteOrganisation))
 }

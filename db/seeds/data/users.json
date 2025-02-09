@@ -7,7 +7,7 @@
     "identity": {
       "first_name": "Mock",
       "last_name": "Admin",
-      "institutions": [
+      "organisations": [
         "DEVTEAM"
       ],
       "comment": "A test account with admin privileges."
@@ -21,7 +21,7 @@
     "identity": {
       "first_name": "Mock",
       "last_name": "Maintainer",
-      "institutions": [
+      "organisations": [
         "DEVTEAM"
       ]
     },
@@ -35,7 +35,7 @@
     "identity": {
       "first_name": "Mock",
       "last_name": "Contributor",
-      "institutions": [
+      "organisations": [
         "DEVTEAM"
       ]
     },
@@ -49,7 +49,7 @@
     "identity": {
       "first_name": "Mock",
       "last_name": "Visitor",
-      "institutions": [
+      "organisations": [
         "DEVTEAM"
       ]
     },
@@ -63,7 +63,7 @@
     "identity": {
       "first_name": "Florian",
       "last_name": "Malard",
-      "institutions": [
+      "organisations": [
         "LEHNA"
       ]
     }
@@ -76,7 +76,7 @@
     "identity": {
       "first_name": "Inactive",
       "last_name": "User",
-      "institutions": [
+      "organisations": [
         "LEHNA"
       ]
     }

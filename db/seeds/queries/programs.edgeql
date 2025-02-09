@@ -11,7 +11,7 @@ for item in json_array_unpack(data) union (
       filter .alias IN array_unpack(<array<str>>json_get(item, 'managers'))
     ),
     funding_agencies := (
-      select people::Institution
+      select people::Organisation
       filter .code IN array_unpack(<array<str>>json_get(item, 'funding_agencies'))
     )
   }

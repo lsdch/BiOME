@@ -13,7 +13,7 @@ import (
 
 // Specifies a field in EdgeDB and how to cast a value for its type
 type BindingEdgeDB struct {
-	ObjectName   string // e.g. 'people::Institution'
+	ObjectName   string // e.g. 'people::Organisation'
 	PropertyName string // e.g. 'code'
 	TypeCast     string // e.g. 'str'
 }

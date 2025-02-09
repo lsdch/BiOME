@@ -40,9 +40,9 @@
         <v-row>
           <v-col>
             <v-text-field
-              label="Institution"
-              v-model="model.institution"
-              placeholder="(Optional) The institution your attached to, e.g. your lab or association"
+              label="Organisation"
+              v-model="model.organisation"
+              placeholder="(Optional) The organisation your attached to, e.g. your lab or association"
             />
           </v-col>
         </v-row>
@@ -84,7 +84,7 @@ const model = ref<PendingUserRequestInput>({
   motive: undefined,
   first_name: '',
   last_name: '',
-  institution: undefined
+  organisation: undefined
 })
 
 const { field, errorHandler } = useSchema($PendingUserRequestInput)

@@ -166,24 +166,24 @@ import type {
   MonitorGbifData,
   MonitorGbifResponse,
   MonitorGbifError,
-  ListInstitutionsData,
-  ListInstitutionsResponse,
-  ListInstitutionsError,
-  CreateInstitutionData,
-  CreateInstitutionResponse,
-  CreateInstitutionError,
-  DeleteInstitutionData,
-  DeleteInstitutionResponse,
-  DeleteInstitutionError,
-  UpdateInstitutionData,
-  UpdateInstitutionResponse,
-  UpdateInstitutionError,
   ListCountriesData,
   ListCountriesResponse,
   ListCountriesError,
   OccurrenceOverviewData,
   OccurrenceOverviewResponse,
   OccurrenceOverviewError,
+  ListOrganisationsData,
+  ListOrganisationsResponse,
+  ListOrganisationsError,
+  CreateOrganisationData,
+  CreateOrganisationResponse,
+  CreateOrganisationError,
+  DeleteOrganisationData,
+  DeleteOrganisationResponse,
+  DeleteOrganisationError,
+  UpdateOrganisationData,
+  UpdateOrganisationResponse,
+  UpdateOrganisationError,
   ListPersonsData,
   ListPersonsResponse,
   ListPersonsError,
@@ -368,10 +368,10 @@ import {
   createHabitatGroupResponseTransformer,
   deleteHabitatGroupResponseTransformer,
   updateHabitatGroupResponseTransformer,
-  listInstitutionsResponseTransformer,
-  createInstitutionResponseTransformer,
-  deleteInstitutionResponseTransformer,
-  updateInstitutionResponseTransformer,
+  listOrganisationsResponseTransformer,
+  createOrganisationResponseTransformer,
+  deleteOrganisationResponseTransformer,
+  updateOrganisationResponseTransformer,
   listPersonsResponseTransformer,
   createPersonResponseTransformer,
   deletePersonResponseTransformer,
@@ -1079,9 +1079,9 @@ export class AccountService {
    * Delete account request pending validation using the associated email
    */
   public static deletePendingUserRequest<ThrowOnError extends boolean = false>(
-    options?: Options<DeletePendingUserRequestData, ThrowOnError>
+    options: Options<DeletePendingUserRequestData, ThrowOnError>
   ) {
-    return (options?.client ?? _heyApiClient).delete<
+    return (options.client ?? _heyApiClient).delete<
       DeletePendingUserRequestResponse,
       DeletePendingUserRequestError,
       ThrowOnError
@@ -2293,337 +2293,6 @@ export class HabitatsService {
   }
 }
 
-export class PeopleService {
-  /**
-   * List institutions
-   */
-  public static listInstitutions<ThrowOnError extends boolean = false>(
-    options?: Options<ListInstitutionsData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListInstitutionsResponse,
-      ListInstitutionsError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: listInstitutionsResponseTransformer,
-      url: '/institutions',
-      ...options
-    })
-  }
-
-  /**
-   * Create institution
-   */
-  public static createInstitution<ThrowOnError extends boolean = false>(
-    options: Options<CreateInstitutionData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreateInstitutionResponse,
-      CreateInstitutionError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: createInstitutionResponseTransformer,
-      url: '/institutions',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Delete institution
-   */
-  public static deleteInstitution<ThrowOnError extends boolean = false>(
-    options: Options<DeleteInstitutionData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeleteInstitutionResponse,
-      DeleteInstitutionError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: deleteInstitutionResponseTransformer,
-      url: '/institutions/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update institution
-   */
-  public static updateInstitution<ThrowOnError extends boolean = false>(
-    options: Options<UpdateInstitutionData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdateInstitutionResponse,
-      UpdateInstitutionError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: updateInstitutionResponseTransformer,
-      url: '/institutions/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * List persons
-   */
-  public static listPersons<ThrowOnError extends boolean = false>(
-    options?: Options<ListPersonsData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListPersonsResponse,
-      ListPersonsError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: listPersonsResponseTransformer,
-      url: '/persons',
-      ...options
-    })
-  }
-
-  /**
-   * Create person
-   */
-  public static createPerson<ThrowOnError extends boolean = false>(
-    options: Options<CreatePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreatePersonResponse,
-      CreatePersonError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: createPersonResponseTransformer,
-      url: '/persons',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Delete person
-   */
-  public static deletePerson<ThrowOnError extends boolean = false>(
-    options: Options<DeletePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeletePersonResponse,
-      DeletePersonError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: deletePersonResponseTransformer,
-      url: '/persons/{id}',
-      ...options
-    })
-  }
-
-  /**
-   * Update person
-   */
-  public static updatePerson<ThrowOnError extends boolean = false>(
-    options: Options<UpdatePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdatePersonResponse,
-      UpdatePersonError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: updatePersonResponseTransformer,
-      url: '/persons/{id}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Invite person
-   * Sends an invitation link to a person at the address provided in `dest`, allowing them to register an account assigned with a specified `role`.
-   */
-  public static invitePerson<ThrowOnError extends boolean = false>(
-    options: Options<InvitePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      InvitePersonResponse,
-      InvitePersonError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      url: '/persons/{id}/invite',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-}
-
-export class InstitutionService {
-  /**
-   * List institutions
-   */
-  public static listInstitutions<ThrowOnError extends boolean = false>(
-    options?: Options<ListInstitutionsData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListInstitutionsResponse,
-      ListInstitutionsError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: listInstitutionsResponseTransformer,
-      url: '/institutions',
-      ...options
-    })
-  }
-
-  /**
-   * Create institution
-   */
-  public static createInstitution<ThrowOnError extends boolean = false>(
-    options: Options<CreateInstitutionData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreateInstitutionResponse,
-      CreateInstitutionError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: createInstitutionResponseTransformer,
-      url: '/institutions',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Delete institution
-   */
-  public static deleteInstitution<ThrowOnError extends boolean = false>(
-    options: Options<DeleteInstitutionData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeleteInstitutionResponse,
-      DeleteInstitutionError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: deleteInstitutionResponseTransformer,
-      url: '/institutions/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update institution
-   */
-  public static updateInstitution<ThrowOnError extends boolean = false>(
-    options: Options<UpdateInstitutionData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdateInstitutionResponse,
-      UpdateInstitutionError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: updateInstitutionResponseTransformer,
-      url: '/institutions/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-}
-
 export class LocationService {
   /**
    * List countries
@@ -2816,6 +2485,337 @@ export class OccurrencesService {
       ],
       url: '/occurrences/overview',
       ...options
+    })
+  }
+}
+
+export class PeopleService {
+  /**
+   * List organisations
+   */
+  public static listOrganisations<ThrowOnError extends boolean = false>(
+    options?: Options<ListOrganisationsData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListOrganisationsResponse,
+      ListOrganisationsError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: listOrganisationsResponseTransformer,
+      url: '/organisations',
+      ...options
+    })
+  }
+
+  /**
+   * Create organisation
+   */
+  public static createOrganisation<ThrowOnError extends boolean = false>(
+    options: Options<CreateOrganisationData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CreateOrganisationResponse,
+      CreateOrganisationError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: createOrganisationResponseTransformer,
+      url: '/organisations',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Delete organisation
+   */
+  public static deleteOrganisation<ThrowOnError extends boolean = false>(
+    options: Options<DeleteOrganisationData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).delete<
+      DeleteOrganisationResponse,
+      DeleteOrganisationError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: deleteOrganisationResponseTransformer,
+      url: '/organisations/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Update organisation
+   */
+  public static updateOrganisation<ThrowOnError extends boolean = false>(
+    options: Options<UpdateOrganisationData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).patch<
+      UpdateOrganisationResponse,
+      UpdateOrganisationError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: updateOrganisationResponseTransformer,
+      url: '/organisations/{code}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * List persons
+   */
+  public static listPersons<ThrowOnError extends boolean = false>(
+    options?: Options<ListPersonsData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListPersonsResponse,
+      ListPersonsError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: listPersonsResponseTransformer,
+      url: '/persons',
+      ...options
+    })
+  }
+
+  /**
+   * Create person
+   */
+  public static createPerson<ThrowOnError extends boolean = false>(
+    options: Options<CreatePersonData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CreatePersonResponse,
+      CreatePersonError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: createPersonResponseTransformer,
+      url: '/persons',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Delete person
+   */
+  public static deletePerson<ThrowOnError extends boolean = false>(
+    options: Options<DeletePersonData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).delete<
+      DeletePersonResponse,
+      DeletePersonError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: deletePersonResponseTransformer,
+      url: '/persons/{id}',
+      ...options
+    })
+  }
+
+  /**
+   * Update person
+   */
+  public static updatePerson<ThrowOnError extends boolean = false>(
+    options: Options<UpdatePersonData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).patch<
+      UpdatePersonResponse,
+      UpdatePersonError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: updatePersonResponseTransformer,
+      url: '/persons/{id}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Invite person
+   * Sends an invitation link to a person at the address provided in `dest`, allowing them to register an account assigned with a specified `role`.
+   */
+  public static invitePerson<ThrowOnError extends boolean = false>(
+    options: Options<InvitePersonData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      InvitePersonResponse,
+      InvitePersonError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/persons/{id}/invite',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+}
+
+export class OrganisationService {
+  /**
+   * List organisations
+   */
+  public static listOrganisations<ThrowOnError extends boolean = false>(
+    options?: Options<ListOrganisationsData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListOrganisationsResponse,
+      ListOrganisationsError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: listOrganisationsResponseTransformer,
+      url: '/organisations',
+      ...options
+    })
+  }
+
+  /**
+   * Create organisation
+   */
+  public static createOrganisation<ThrowOnError extends boolean = false>(
+    options: Options<CreateOrganisationData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CreateOrganisationResponse,
+      CreateOrganisationError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: createOrganisationResponseTransformer,
+      url: '/organisations',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Delete organisation
+   */
+  public static deleteOrganisation<ThrowOnError extends boolean = false>(
+    options: Options<DeleteOrganisationData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).delete<
+      DeleteOrganisationResponse,
+      DeleteOrganisationError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: deleteOrganisationResponseTransformer,
+      url: '/organisations/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Update organisation
+   */
+  public static updateOrganisation<ThrowOnError extends boolean = false>(
+    options: Options<UpdateOrganisationData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).patch<
+      UpdateOrganisationResponse,
+      UpdateOrganisationError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: updateOrganisationResponseTransformer,
+      url: '/organisations/{code}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
     })
   }
 }

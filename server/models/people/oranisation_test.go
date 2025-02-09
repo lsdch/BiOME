@@ -12,45 +12,45 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func SetupInstitution(t *testing.T) people.Institution {
-	var input = tests.FakeData[people.InstitutionInput](t)
+func SetupOrganisation(t *testing.T) people.Organisation {
+	var input = tests.FakeData[people.OrganisationInput](t)
 	inst, err := input.Save(db.Client())
 	require.NoError(t, err)
 	return inst
 }
 
-func TestCreateInstitution(t *testing.T) {
-	var input = tests.FakeData[people.InstitutionInput](t)
+func TestCreateOrganisation(t *testing.T) {
+	var input = tests.FakeData[people.OrganisationInput](t)
 	fmt.Printf("%+v\n", input)
 	inst, err := input.Save(db.Client())
 	require.NoError(t, err)
 	assert.Equal(t, input.Name, inst.Name)
 }
 
-func TestFindInstitution(t *testing.T) {
-	inst := SetupInstitution(t)
-	res, err := people.FindInstitution(db.Client(), inst.ID)
+func TestFindOrganisation(t *testing.T) {
+	inst := SetupOrganisation(t)
+	res, err := people.FindOrganisation(db.Client(), inst.ID)
 	require.NoError(t, err)
 	assert.Equal(t, inst, res)
 }
 
-func TestListInstitution(t *testing.T) {
-	_ = SetupInstitution(t)
-	insts, err := people.ListInstitutions(db.Client())
+func TestListOrganisation(t *testing.T) {
+	_ = SetupOrganisation(t)
+	insts, err := people.ListOrganisations(db.Client())
 	require.NoError(t, err)
 	assert.NotEmpty(t, insts)
 }
 
-func TestDeleteInstitution(t *testing.T) {
-	inst := SetupInstitution(t)
+func TestDeleteOrganisation(t *testing.T) {
+	inst := SetupOrganisation(t)
 	deleted, err := inst.Delete(db.Client())
 	require.NoError(t, err)
 	assert.Equal(t, inst, deleted)
 }
 
-func TestUpdateInstitution(t *testing.T) {
-	inst := SetupInstitution(t)
-	input := tests.FakeData[people.InstitutionUpdate](t)
+func TestUpdateOrganisation(t *testing.T) {
+	inst := SetupOrganisation(t)
+	input := tests.FakeData[people.OrganisationUpdate](t)
 	input.Code.IsSet = true
 	input.Description.Null = true
 	input.Description.IsSet = true

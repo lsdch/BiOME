@@ -46,15 +46,15 @@
           </v-row>
           <v-row>
             <v-col>
-              <InstitutionPicker
-                label="Institutions (optional)"
-                v-model="model.institutions"
+              <OrganisationPicker
+                label="Organisations (optional)"
+                v-model="model.organisations"
                 item-color="primary"
                 chips
                 closable-chips
                 multiple
                 item-value="code"
-                v-bind="field('institutions')"
+                v-bind="field('organisations')"
               />
             </v-col>
           </v-row>
@@ -86,7 +86,7 @@ const item = defineModel<Person>()
 const initial: PersonInput = {
   first_name: '',
   last_name: '',
-  institutions: []
+  organisations: []
 }
 
 function updateTransformer({
@@ -95,7 +95,7 @@ function updateTransformer({
   contact,
   first_name,
   last_name,
-  institutions
+  organisations
 }: Person): PersonUpdate {
   return {
     first_name,
@@ -103,7 +103,7 @@ function updateTransformer({
     alias,
     comment,
     contact,
-    institutions: institutions.map(({ code }) => code)
+    organisations: organisations.map(({ code }) => code)
   }
 }
 const create = {

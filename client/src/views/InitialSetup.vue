@@ -7,9 +7,9 @@
           <template v-slot:item.1>
             <v-text-field
               class="mt-3"
-              name="institution"
-              label="Institution name"
-              id="institution-input"
+              name="organisation"
+              label="Organisation name"
+              id="organisation-input"
               hint="The name of the structure for which this instance is deployed, e.g. the name of your lab."
               persistent-hint
             />

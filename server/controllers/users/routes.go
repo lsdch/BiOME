@@ -149,7 +149,7 @@ func RegisterRoutes(r router.Router) {
 			Summary:     "Delete pending user request",
 			Description: "Delete account request pending validation using the associated email",
 		}, controllers.DeleteHandler[*struct {
-			controllers.StrIdentifier `path:"email" format:"email"`
+			controllers.EmailInput `path:"email" format:"email"`
 			resolvers.AccessRestricted[resolvers.Admin]
 		}](people.DeletePendingUserRequest))
 

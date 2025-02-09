@@ -33,7 +33,7 @@
     </template>
     <template #text>
       <div v-show="active">
-        <div v-if="item.institution">Institution: {{ item.institution }}</div>
+        <div v-if="item.organisation">Organisation: {{ item.organisation }}</div>
         <div class="font-italic">
           {{ item.motive ?? 'No motive provided.' }}
         </div>
