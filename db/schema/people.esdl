@@ -31,9 +31,37 @@ module people {
     required kind: InstitutionKind;
 
     multi link people := .<institutions[is Person];
-
-    index on ((.code, .name));
   }
+
+  function insert_institution(data: json) -> Institution {
+    using (
+      insert Institution {
+        name := <str>data['name'],
+        code := <str>data['code'],
+        kind := <InstitutionKind>data['kind'],
+        description := <str>json_get(data, 'description'),
+      }
+    );
+  };
+
+  function insert_or_create_institution(data: json) -> Institution {
+    using (
+      if (json_typeof(data) = 'object')
+      then (select (insert_institution(data)))
+      else if (json_typeof(data) = 'string') then (
+        select (
+          assert_exists(
+            Institution filter .code = <str>data,
+            message := "Failed to find institution with code: " ++ <str>data
+          )
+        )
+      )
+      else (
+        assert_exists(<Institution>{},
+        message := "Invalid institution JSON type: " ++ json_typeof(data))
+      )
+    );
+  };
 
   type Person extending default::Auditable {
     required first_name: str {
@@ -44,9 +72,7 @@ module people {
       constraint min_len_value(2);
       constraint max_len_value(30);
     };
-    required property full_name := array_join(
-      array_agg({.first_name, .last_name}), ' '
-    );
+    required property full_name := array_join([.first_name, .last_name], ' ');
     required alias: str {
       constraint exclusive;
       constraint min_len_value(3);
@@ -80,6 +106,23 @@ module people {
 
     optional property role := .user.role;
   }
+
+  function insert_person(data: json) -> Person {
+    using (
+      insert Person {
+        first_name := <str>data['first_name'],
+        last_name := <str>data['last_name'],
+        alias := <str>json_get(data, 'alias'),
+        contact := <str>json_get(data, 'contact'),
+        comment := <str>json_get(data, 'comment'),
+        institutions := (
+          distinct (for inst in json_array_unpack(json_get(data, 'institutions')) union (
+            insert_or_create_institution(inst)
+          ))
+        )
+      }
+    );
+  };
 
 
   scalar type UserRole extending enum<Visitor, Contributor, Maintainer, Admin>;

@@ -111,16 +111,16 @@ func (p *PersonIdentity) GenerateAlias() string {
 	return alias
 }
 
-//go:embed queries/create_person.edgeql
-var personCreateQuery string
-
 func (person PersonInput) Save(db edgedb.Executor) (created Person, err error) {
 	logrus.Infof("Creating person %+v", person)
 	if !person.Alias.IsSet {
 		person.Alias.Value = person.GenerateAlias()
 	}
 	args, _ := json.Marshal(person)
-	err = db.QuerySingle(context.Background(), personCreateQuery, &created, args)
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			people::insert_person(<json>$0) { ** }
+		`, &created, args)
 	return created, err
 }
 
