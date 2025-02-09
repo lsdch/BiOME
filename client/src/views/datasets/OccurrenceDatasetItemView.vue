@@ -123,8 +123,9 @@ import { computed, reactive, toRefs } from 'vue'
 import { useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import DatasetTabs from './DatasetTabs.vue'
+import { storeToRefs } from 'pinia'
 
-const { user } = useUserStore()
+const { user } = storeToRefs(useUserStore())
 
 const [editing, toggleEdit] = useToggle(false)
 
@@ -142,7 +143,7 @@ async function fetch() {
 }
 
 const isUserMaintainer = computed(() => {
-  return !!dataset.value?.maintainers?.find(({ id }) => user?.identity.id === id)
+  return !!dataset.value?.maintainers?.find(({ id }) => user.value?.identity.id === id)
 })
 </script>
 
