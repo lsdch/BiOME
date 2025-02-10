@@ -6,10 +6,10 @@
         color="#777"
         variant="tonal"
         v-bind="{ ...props, ...$attrs }"
-        :text="DateTime.fromJSDate(meta.last_updated).toRelative({ locale: 'en-gb' })?.toString()"
+        :text="Meta.toString(meta)"
       >
         <template v-slot:prepend>
-          <v-icon color="#777" class="mr-3" size="small" :icon="icon" />
+          <v-icon color="#777" class="mr-3" size="small" :icon="Meta.icon(meta)" />
         </template>
       </v-chip>
     </template>
@@ -65,22 +65,13 @@
 <script setup lang="ts">
 import { Meta } from '@/api'
 import { DateTime } from 'luxon'
-import { computed } from 'vue'
-
-type UpdateIcon = 'mdi-update'
-type CreatedIcon = 'mdi-content-save'
-type Icon = UpdateIcon | CreatedIcon | string
 
 type Props = {
   meta: Meta
   iconColor?: string
 }
-const props = withDefaults(defineProps<Props>(), {
+withDefaults(defineProps<Props>(), {
   iconColor: '#777'
-})
-
-const icon = computed<string>(() => {
-  return props.meta.modified ? 'mdi-update' : 'mdi-content-save'
 })
 </script>
 

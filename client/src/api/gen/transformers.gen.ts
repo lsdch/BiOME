@@ -17,6 +17,7 @@ import type {
   CreateExternalBioMatResponse,
   DeleteBioMaterialResponse,
   GetBioMaterialResponse,
+  ListDatasetsResponse,
   ListOccurrenceDatasetsResponse,
   GetOccurrenceDatasetResponse,
   ListSequenceDatasetsResponse,
@@ -456,6 +457,18 @@ export const getBioMaterialResponseTransformer = async (
   data: any
 ): Promise<GetBioMaterialResponse> => {
   data = bioMaterialWithDetailsSchemaResponseTransformer(data)
+  return data
+}
+
+const polymorphicDatasetSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
+export const listDatasetsResponseTransformer = async (data: any): Promise<ListDatasetsResponse> => {
+  data = data.map((item: any) => {
+    return polymorphicDatasetSchemaResponseTransformer(item)
+  })
   return data
 }
 

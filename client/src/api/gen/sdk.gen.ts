@@ -91,6 +91,9 @@ import type {
   CrossRefBibSearchData,
   CrossRefBibSearchResponse,
   CrossRefBibSearchError,
+  ListDatasetsData,
+  ListDatasetsResponse,
+  ListDatasetsError,
   ListOccurrenceDatasetsData,
   ListOccurrenceDatasetsResponse,
   ListOccurrenceDatasetsError,
@@ -346,6 +349,7 @@ import {
   createExternalBioMatResponseTransformer,
   deleteBioMaterialResponseTransformer,
   getBioMaterialResponseTransformer,
+  listDatasetsResponseTransformer,
   listOccurrenceDatasetsResponseTransformer,
   getOccurrenceDatasetResponseTransformer,
   listSequenceDatasetsResponseTransformer,
@@ -1548,6 +1552,30 @@ export class ReferencesService {
 }
 
 export class DatasetsService {
+  /**
+   * List all datasets
+   * List all datasets with optional filters and category discriminator
+   */
+  public static listDatasets<ThrowOnError extends boolean = false>(
+    options?: Options<ListDatasetsData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListDatasetsResponse,
+      ListDatasetsError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: listDatasetsResponseTransformer,
+      url: '/datasets',
+      ...options
+    })
+  }
+
   /**
    * List occurrence datasets
    * List all occurrence datasets

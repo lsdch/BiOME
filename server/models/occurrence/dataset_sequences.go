@@ -4,12 +4,13 @@ import (
 	"context"
 
 	"github.com/edgedb/edgedb-go"
+	"github.com/lsdch/biome/models/dataset"
 )
 
 type SequenceDataset struct {
-	AbstractDataset `edgedb:"$inline" json:",inline"`
-	Sites           []SiteItem `edgedb:"sites" json:"sites"`
-	Sequences       []Sequence `edgedb:"sequences" json:"sequences"`
+	dataset.AbstractDataset `edgedb:"$inline" json:",inline"`
+	Sites                   []SiteItem `edgedb:"sites" json:"sites"`
+	Sequences               []Sequence `edgedb:"sequences" json:"sequences"`
 }
 
 func ListSequenceDatasets(db edgedb.Executor) (datasets []SequenceDataset, err error) {

@@ -5,15 +5,16 @@ import (
 	"encoding/json"
 
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/dataset"
 
 	"github.com/edgedb/edgedb-go"
 )
 
 type OccurrenceDataset struct {
-	AbstractDataset `edgedb:"$inline" json:",inline"`
-	Sites           []SiteItem               `edgedb:"sites" json:"sites"`
-	Occurrences     []OccurrenceWithCategory `edgedb:"occurrences" json:"occurrences"`
-	IsCongruent     bool                     `edgedb:"is_congruent" json:"is_congruent"`
+	dataset.AbstractDataset `edgedb:"$inline" json:",inline"`
+	Sites                   []SiteItem               `edgedb:"sites" json:"sites"`
+	Occurrences             []OccurrenceWithCategory `edgedb:"occurrences" json:"occurrences"`
+	IsCongruent             bool                     `edgedb:"is_congruent" json:"is_congruent"`
 }
 
 func ListOccurrenceDatasets(db edgedb.Executor) ([]OccurrenceDataset, error) {
@@ -54,8 +55,8 @@ func GetOccurrenceDataset(db edgedb.Executor, slug string) (dataset OccurrenceDa
 }
 
 type OccurrenceDatasetInput struct {
-	DatasetInput `edgedb:"$inline" json:",inline"`
-	Occurrences  OccurrenceBatchInput `json:"occurrences"`
+	dataset.DatasetInput `edgedb:"$inline" json:",inline"`
+	Occurrences          OccurrenceBatchInput `json:"occurrences"`
 }
 
 func (i OccurrenceDatasetInput) SaveTx(tx *edgedb.Tx) (created OccurrenceDataset, err error) {

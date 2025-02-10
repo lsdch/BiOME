@@ -677,6 +677,12 @@ export const $CurrentUserResponse = {
   type: 'object'
 } as const
 
+export const $DatasetCategory = {
+  enum: ['Site', 'Occurrence', 'Seq'],
+  title: 'DatasetCategory',
+  type: 'string'
+} as const
+
 export const $DatasetInner = {
   additionalProperties: false,
   properties: {
@@ -690,11 +696,14 @@ export const $DatasetInner = {
     label: {
       type: 'string'
     },
+    pinned: {
+      type: 'boolean'
+    },
     slug: {
       type: 'string'
     }
   },
-  required: ['id', 'label', 'slug', 'description'],
+  required: ['id', 'label', 'slug', 'pinned', 'description'],
   type: 'object'
 } as const
 
@@ -2516,6 +2525,9 @@ export const $OccurrenceDataset = {
       },
       type: 'array'
     },
+    pinned: {
+      type: 'boolean'
+    },
     sites: {
       items: {
         $ref: '#/components/schemas/SiteItem'
@@ -2535,6 +2547,7 @@ export const $OccurrenceDataset = {
     'id',
     'label',
     'slug',
+    'pinned',
     'description'
   ],
   type: 'object'
@@ -3520,6 +3533,42 @@ export const $PersonUser = {
     }
   },
   required: ['user', 'id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
+  type: 'object'
+} as const
+
+export const $PolymorphicDataset = {
+  additionalProperties: false,
+  properties: {
+    category: {
+      $ref: '#/components/schemas/DatasetCategory'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    maintainers: {
+      items: {
+        $ref: '#/components/schemas/PersonUser'
+      },
+      type: 'array'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    pinned: {
+      type: 'boolean'
+    },
+    slug: {
+      type: 'string'
+    }
+  },
+  required: ['category', 'maintainers', 'meta', 'id', 'label', 'slug', 'pinned', 'description'],
   type: 'object'
 } as const
 
@@ -4512,6 +4561,9 @@ export const $SequenceDataset = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
+    pinned: {
+      type: 'boolean'
+    },
     sequences: {
       items: {
         $ref: '#/components/schemas/Sequence'
@@ -4528,7 +4580,17 @@ export const $SequenceDataset = {
       type: 'string'
     }
   },
-  required: ['sites', 'sequences', 'maintainers', 'meta', 'id', 'label', 'slug', 'description'],
+  required: [
+    'sites',
+    'sequences',
+    'maintainers',
+    'meta',
+    'id',
+    'label',
+    'slug',
+    'pinned',
+    'description'
+  ],
   type: 'object'
 } as const
 
@@ -4729,6 +4791,9 @@ export const $SiteDataset = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
+    pinned: {
+      type: 'boolean'
+    },
     sites: {
       items: {
         $ref: '#/components/schemas/SiteItem'
@@ -4739,7 +4804,7 @@ export const $SiteDataset = {
       type: 'string'
     }
   },
-  required: ['sites', 'maintainers', 'meta', 'id', 'label', 'slug', 'description'],
+  required: ['sites', 'maintainers', 'meta', 'id', 'label', 'slug', 'pinned', 'description'],
   type: 'object'
 } as const
 

@@ -13,9 +13,11 @@
       </v-col>
     </v-row>
   </v-container>
+  <DatasetsDrawer />
 </template>
 
 <script setup lang="ts">
+import DatasetsDrawer from './DatasetsDrawer.vue'
 import OccurrenceSunburst from './OccurrenceSunburst.vue'
 </script>
 

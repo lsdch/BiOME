@@ -82,6 +82,7 @@ import type {
   CrossRefBibSearchData,
   CrossRefBibSearchError,
   CrossRefBibSearchResponse,
+  ListDatasetsData,
   ListOccurrenceDatasetsData,
   GetOccurrenceDatasetData,
   ListSequenceDatasetsData,
@@ -1041,6 +1042,25 @@ export const crossRefBibSearchMutation = (options?: Partial<Options<CrossRefBibS
     }
   }
   return mutationOptions
+}
+
+export const listDatasetsQueryKey = (options?: Options<ListDatasetsData>) => [
+  createQueryKey('listDatasets', options)
+]
+
+export const listDatasetsOptions = (options?: Options<ListDatasetsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await DatasetsService.listDatasets({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listDatasetsQueryKey(options)
+  })
 }
 
 export const listOccurrenceDatasetsQueryKey = (options?: Options<ListOccurrenceDatasetsData>) => [

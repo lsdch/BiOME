@@ -6,6 +6,7 @@ import (
 
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/dataset"
 	"github.com/lsdch/biome/models/location"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/validations"
@@ -68,9 +69,9 @@ type SiteItem struct {
 
 type Site struct {
 	SiteItem `edgedb:"$inline" json:",inline"`
-	Datasets []DatasetInner `edgedb:"datasets" json:"datasets,omitempty"`
-	Events   []Event        `edgedb:"events" json:"events,omitempty"`
-	Meta     people.Meta    `edgedb:"meta" json:"meta"`
+	Datasets []dataset.DatasetInner `edgedb:"datasets" json:"datasets,omitempty"`
+	Events   []Event                `edgedb:"events" json:"events,omitempty"`
+	Meta     people.Meta            `edgedb:"meta" json:"meta"`
 }
 
 func ListSites(db edgedb.Executor) ([]Site, error) {

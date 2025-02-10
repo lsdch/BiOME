@@ -17,10 +17,11 @@ import {
   TaxonRank as TTaxonRank,
   UserRole as TUserRole,
   User as TUser,
-  Meta,
+  Meta as TMeta,
   Quantity as TQuantity,
   CoordinatesPrecision as TCoordinatesPrecision,
-  ArticleInput
+  ArticleInput,
+  DatasetCategory as TDatasetCategory
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/people/UserRoleChip"
 import QuantityChip from "@/components/occurrence/ExtBioMatQuantityChip"
@@ -258,3 +259,30 @@ export namespace CoordinatesPrecision {
 }
 
 export type ArticleLocalInput = Omit<ArticleInput, 'year'> & { year?: number }
+
+export type DatasetCategory = TDatasetCategory
+export namespace DatasetCategory {
+  export function icon(category: DatasetCategory) {
+    switch (category) {
+      case 'Occurrence':
+        return 'mdi-crosshairs-gps'
+      case 'Seq':
+        return 'mdi-dna'
+      case 'Site':
+        return 'mdi-map-marker'
+      default:
+        return 'mdi-folder-table'
+    }
+  }
+}
+
+export type Meta = TMeta
+export namespace Meta {
+  export function toString({ last_updated }: Meta) {
+    return DateTime.fromJSDate(last_updated).toRelative({ locale: 'en-gb' })?.toString()
+  }
+
+  export function icon({ modified }: Meta) {
+    return modified ? 'mdi-update' : 'mdi-content-save'
+  }
+}

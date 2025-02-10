@@ -1,8 +1,9 @@
-package occurrence
+package dataset
 
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
@@ -16,6 +17,7 @@ type DatasetInner struct {
 	ID          edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
 	Label       string             `edgedb:"label" json:"label"`
 	Slug        string             `edgedb:"slug" json:"slug"`
+	Pinned      bool               `edgedb:"pinned" json:"pinned"`
 	Description edgedb.OptionalStr `edgedb:"description" json:"description"`
 }
 
@@ -32,6 +34,40 @@ func (d *AbstractDataset) IsMaintainer(user people.UserInner) bool {
 		}
 	}
 	return false
+}
+
+type PolymorphicDataset struct {
+	AbstractDataset `edgedb:"$inline" json:",inline"`
+	Category        DatasetCategory `edgedb:"category" json:"category"`
+}
+
+type ListDatasetOptions struct {
+	Pinned  bool   `json:"pinned" query:"pinned"`
+	OrderBy string `json:"orderBy,omitempty" query:"orderBy"`
+	Limit   int    `json:"limit,omitempty" query:"limit" minimum:"1"`
+}
+
+func (o ListDatasetOptions) Options() ListDatasetOptions {
+	return o
+}
+
+func ListDatasets(db edgedb.Executor, options ListDatasetOptions) ([]PolymorphicDataset, error) {
+	var datasets []PolymorphicDataset
+	opts, _ := json.Marshal(options)
+	query := `#edgeql
+			with opts := <json>$0
+			select datasets::AnyDataset { ** }
+			filter .pinned = <bool>json_get(opts, 'pinned') ?? .pinned
+		`
+	if options.OrderBy != "" {
+		query += fmt.Sprintf(` order by .%s asc`, options.OrderBy)
+	}
+	if options.Limit != 0 {
+		query += fmt.Sprintf(` limit <int32>%d`, options.Limit)
+	}
+
+	err := db.Query(context.Background(), query, &datasets, opts)
+	return datasets, err
 }
 
 type DatasetMaintainersInput []string

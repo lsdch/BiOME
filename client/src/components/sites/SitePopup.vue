@@ -42,7 +42,6 @@
 import { SiteItem } from '@/api'
 import { LPopup } from '@vue-leaflet/vue-leaflet'
 import { PopupOptions } from 'leaflet'
-import { computed } from 'vue'
 import SiteRadius from './SiteRadius'
 
 const { zoom = 1, item } = defineProps<{

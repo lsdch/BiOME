@@ -764,6 +764,15 @@
 				],
 				"type": "object"
 			},
+			"DatasetCategory": {
+				"enum": [
+					"Site",
+					"Occurrence",
+					"Seq"
+				],
+				"title": "DatasetCategory",
+				"type": "string"
+			},
 			"DatasetInner": {
 				"additionalProperties": false,
 				"properties": {
@@ -777,6 +786,9 @@
 					"label": {
 						"type": "string"
 					},
+					"pinned": {
+						"type": "boolean"
+					},
 					"slug": {
 						"type": "string"
 					}
@@ -785,6 +797,7 @@
 					"id",
 					"label",
 					"slug",
+					"pinned",
 					"description"
 				],
 				"type": "object"
@@ -2813,6 +2826,9 @@
 						},
 						"type": "array"
 					},
+					"pinned": {
+						"type": "boolean"
+					},
 					"sites": {
 						"items": {
 							"$ref": "#/components/schemas/SiteItem"
@@ -2832,6 +2848,7 @@
 					"id",
 					"label",
 					"slug",
+					"pinned",
 					"description"
 				],
 				"type": "object"
@@ -4018,6 +4035,50 @@
 				],
 				"type": "object"
 			},
+			"PolymorphicDataset": {
+				"additionalProperties": false,
+				"properties": {
+					"category": {
+						"$ref": "#/components/schemas/DatasetCategory"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"pinned": {
+						"type": "boolean"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"category",
+					"maintainers",
+					"meta",
+					"id",
+					"label",
+					"slug",
+					"pinned",
+					"description"
+				],
+				"type": "object"
+			},
 			"Program": {
 				"additionalProperties": false,
 				"properties": {
@@ -5190,6 +5251,9 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
+					"pinned": {
+						"type": "boolean"
+					},
 					"sequences": {
 						"items": {
 							"$ref": "#/components/schemas/Sequence"
@@ -5214,6 +5278,7 @@
 					"id",
 					"label",
 					"slug",
+					"pinned",
 					"description"
 				],
 				"type": "object"
@@ -5444,6 +5509,9 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
+					"pinned": {
+						"type": "boolean"
+					},
 					"sites": {
 						"items": {
 							"$ref": "#/components/schemas/SiteItem"
@@ -5461,6 +5529,7 @@
 					"id",
 					"label",
 					"slug",
+					"pinned",
 					"description"
 				],
 				"type": "object"
@@ -8399,6 +8468,101 @@
 				"summary": "Retrieve article infos from query string",
 				"tags": [
 					"References"
+				]
+			}
+		},
+		"/datasets": {
+			"get": {
+				"description": "List all datasets with optional filters and category discriminator",
+				"operationId": "ListDatasets",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "pinned",
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "orderBy",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"format": "int64",
+							"minimum": 1,
+							"type": "integer"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/PolymorphicDataset"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List all datasets",
+				"tags": [
+					"Datasets"
 				]
 			}
 		},

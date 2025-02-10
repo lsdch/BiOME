@@ -1,6 +1,11 @@
 package datasets
 
 import (
+	"net/http"
+
+	"github.com/danielgtaylor/huma/v2"
+	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/models/dataset"
 	"github.com/lsdch/biome/resolvers"
 	"github.com/lsdch/biome/router"
 )
@@ -15,7 +20,18 @@ func (i GetDatasetInput) Identifier() string {
 }
 
 func RegisterRoutes(r router.Router) {
-	// datasets_API := r.RouteGroup("/datasets").WithTags([]string{"Datasets"})
+	datasets_API := r.RouteGroup("/datasets").WithTags([]string{"Datasets"})
+
+	router.Register(datasets_API, "ListDatasets",
+		huma.Operation{
+			Path:        "/",
+			Method:      http.MethodGet,
+			Summary:     "List all datasets",
+			Description: "List all datasets with optional filters and category discriminator",
+		}, controllers.ListHandlerWithOpts[*struct {
+			resolvers.AuthResolver
+			dataset.ListDatasetOptions
+		}](dataset.ListDatasets))
 
 	RegisterSiteDatasetsRoutes(r)
 	RegisterOccurrenceDatasetsRoutes(r)

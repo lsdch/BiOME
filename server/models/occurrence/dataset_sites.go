@@ -9,6 +9,7 @@ import (
 
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/dataset"
 	"github.com/lsdch/biome/models/location"
 	"github.com/lsdch/biome/services/geoapify"
 
@@ -20,14 +21,14 @@ type OccurrencePerSite map[string]EventInputWithActions
 
 // SiteDataset represents a dataset of sites.
 type SiteDataset struct {
-	AbstractDataset `edgedb:"$inline" json:",inline"`
-	Sites           []SiteItem `edgedb:"sites" json:"sites"`
+	dataset.AbstractDataset `edgedb:"$inline" json:",inline"`
+	Sites                   []SiteItem `edgedb:"sites" json:"sites"`
 }
 
 func (d *SiteDataset) ToOccurrenceDataset() *OccurrenceDataset {
 	return &OccurrenceDataset{
-		AbstractDataset: AbstractDataset{
-			DatasetInner: DatasetInner{
+		AbstractDataset: dataset.AbstractDataset{
+			DatasetInner: dataset.DatasetInner{
 				ID:          d.ID,
 				Label:       d.Label,
 				Slug:        d.Slug,
@@ -158,9 +159,9 @@ func (i SiteInputList) Save(e edgedb.Executor) (created []Site, err error) {
 // SiteDatasetInput represents the input for creating a dataset of sites.
 // Dataset is populated with existing sites using their codes and new sites are created from the input.
 type SiteDatasetInput struct {
-	DatasetInput `json:",inline"`
-	Sites        []string      `json:"sites,omitempty" doc:"Existing site codes to include in the dataset"`
-	NewSites     SiteInputList `json:"new_sites,omitempty" doc:"New sites to include in the dataset"`
+	dataset.DatasetInput `json:",inline"`
+	Sites                []string      `json:"sites,omitempty" doc:"Existing site codes to include in the dataset"`
+	NewSites             SiteInputList `json:"new_sites,omitempty" doc:"New sites to include in the dataset"`
 }
 
 // ValidateExistingSites checks if the sites in the input exist in the database.

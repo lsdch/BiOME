@@ -238,10 +238,13 @@ export type CurrentUserResponse = {
   user: User
 }
 
+export type DatasetCategory = 'Site' | 'Occurrence' | 'Seq'
+
 export type DatasetInner = {
   description: string
   id: string
   label: string
+  pinned: boolean
   slug: string
 }
 
@@ -930,6 +933,7 @@ export type OccurrenceDataset = {
   maintainers: Array<PersonUser>
   meta: Meta
   occurrences: Array<OccurrenceWithCategory>
+  pinned: boolean
   sites: Array<SiteItem>
   slug: string
 }
@@ -1245,6 +1249,17 @@ export type PersonUser = {
   last_name: string
   role?: UserRole
   user: OptionalUserInner
+}
+
+export type PolymorphicDataset = {
+  category: DatasetCategory
+  description: string
+  id: string
+  label: string
+  maintainers: Array<PersonUser>
+  meta: Meta
+  pinned: boolean
+  slug: string
 }
 
 export type Program = {
@@ -1599,6 +1614,7 @@ export type SequenceDataset = {
   label: string
   maintainers: Array<PersonUser>
   meta: Meta
+  pinned: boolean
   sequences: Array<Sequence>
   sites: Array<SiteItem>
   slug: string
@@ -1672,6 +1688,7 @@ export type SiteDataset = {
   label: string
   maintainers: Array<PersonUser>
   meta: Meta
+  pinned: boolean
   sites: Array<SiteItem>
   slug: string
 }
@@ -2954,6 +2971,45 @@ export type CrossRefBibSearchResponses = {
 }
 
 export type CrossRefBibSearchResponse = CrossRefBibSearchResponses[keyof CrossRefBibSearchResponses]
+
+export type ListDatasetsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: {
+    pinned?: boolean
+    orderBy?: string
+    limit?: number
+  }
+  url: '/datasets'
+}
+
+export type ListDatasetsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListDatasetsError = ListDatasetsErrors[keyof ListDatasetsErrors]
+
+export type ListDatasetsResponses = {
+  /**
+   * OK
+   */
+  200: Array<PolymorphicDataset>
+}
+
+export type ListDatasetsResponse = ListDatasetsResponses[keyof ListDatasetsResponses]
 
 export type ListOccurrenceDatasetsData = {
   body?: never

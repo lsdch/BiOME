@@ -10,6 +10,10 @@ module datasets {
     };
     description: str;
 
+    required pinned: bool {
+      default := false;
+    };
+
     required multi maintainers: people::Person {
       # edgedb error: SchemaDefinitionError:
       # cannot specify a rewrite for link 'maintainers' of object type 'location::SiteDataset' because it is multi
@@ -19,6 +23,20 @@ module datasets {
       # rewrite update using (.maintainers union .meta.created_by_user.identity);
     };
   }
+
+  scalar type DatasetCategory extending enum<Site, Occurrence, Seq>;
+
+  alias AnyDataset := (
+    select AbstractDataset {
+      **,
+      category := (assert_exists(
+        if AbstractDataset is SiteDataset then DatasetCategory.Site
+        else if AbstractDataset is OccurrenceDataset then DatasetCategory.Occurrence
+        else if AbstractDataset is SeqDataset then DatasetCategory.Seq
+        else <DatasetCategory>{}
+      ))
+    }
+  );
 
   type SiteDataset extending AbstractDataset {
     multi sites: location::Site {
