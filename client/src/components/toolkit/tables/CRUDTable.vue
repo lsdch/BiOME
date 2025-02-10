@@ -255,7 +255,7 @@
 >
 import { Meta, User, UserRole } from '@/api'
 import { useArrayFilter, useClipboard, useToggle } from '@vueuse/core'
-import { Ref, UnwrapRef, reactive, ref, useSlots } from 'vue'
+import { Ref, UnwrapRef, reactive, ref, triggerRef, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { useDisplay } from 'vuetify'
 import { VDataTable } from 'vuetify/components'
@@ -294,7 +294,7 @@ const { currentUser, actions, feedback, form, processedHeaders, loading, loadIte
 
 const [menu, toggleMenu] = useToggle(false)
 
-defineExpose({ form, actions })
+defineExpose({ form, actions, updateItem })
 
 const slots = defineSlots<
   VDataTable['$slots'] & {
@@ -324,12 +324,19 @@ function toggleSort(sortKey: string) {
 }
 
 function ownedItemFilter(item: ItemType) {
-  return search.value.owned && currentUser !== undefined ? User.isOwner(currentUser, item) : true
+  return search.value.owned && currentUser.value !== undefined
+    ? User.isOwner(currentUser.value, item)
+    : true
 }
 
 const filteredItems = useArrayFilter(items as Ref<ItemType[]>, (item) => {
   return (props.filter ? props.filter(item) : true) && ownedItemFilter(item)
 })
+
+function updateItem<Item extends ItemType>(index: number, item: Item) {
+  items.value.splice(index, 1, item)
+  triggerRef(items)
+}
 
 const exportDialog: Ref<{
   open: boolean
