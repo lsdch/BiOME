@@ -60,7 +60,9 @@ export default createVuetify({
     }
   },
   defaults: {
-    VBtn: { rounded: 50 },
+    VBtn: {
+      rounded: true
+    },
     VChip: { rounded: true },
     VTab: { rounded: false },
     VCombobox: { variant: "outlined" },
