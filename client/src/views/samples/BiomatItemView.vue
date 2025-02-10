@@ -39,12 +39,12 @@
       </v-chip>
     </template>
     <template v-if="item" #actions>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <MetaChip :meta="item.meta"></MetaChip>
     </template>
-    <v-divider></v-divider>
-    <v-card-text v-if="isPending">
-      <CenteredSpinner size="x-large" height="100%" />
+    <v-divider />
+    <v-card-text class="bg-main d-flex align-center justify-center" v-if="isPending">
+      <CenteredSpinner size="x-large" class="bg-main" />
     </v-card-text>
     <v-card-text v-else-if="error">
       <v-alert color="error" icon="mdi-alert">
