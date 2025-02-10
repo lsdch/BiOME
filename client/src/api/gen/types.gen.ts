@@ -991,6 +991,12 @@ export type OptionalBioMaterial = {
   seq_consensus?: OptionalTaxon
 } | null
 
+export type OptionalCountry = {
+  code: string
+  id: string
+  name: string
+} | null
+
 export type OptionalExtSeqSpecificsBioMaterial = {
   origin: ExtSeqOrigin
   original_taxon?: string
@@ -1645,7 +1651,7 @@ export type Site = {
   altitude?: number
   code: string
   coordinates: Coordinates
-  country: Country
+  country?: OptionalCountry
   datasets?: Array<DatasetInner>
   description?: string
   events?: Array<Event>
@@ -1714,7 +1720,7 @@ export type SiteInput = {
    * Site coordinates in decimal degrees
    */
   coordinates: Coordinates
-  country_code: string
+  country_code?: string
   description?: string
   /**
    * Nearest populated place
@@ -1732,7 +1738,7 @@ export type SiteItem = {
   altitude?: number
   code: string
   coordinates: Coordinates
-  country: Country
+  country?: OptionalCountry
   description?: string
   id: string
   locality?: string
@@ -1757,7 +1763,7 @@ export type SiteUpdate = {
    * Site coordinates in decimal degrees
    */
   coordinates?: Coordinates
-  country_code?: string
+  country_code?: string | null
   description?: string | null
   /**
    * Nearest populated place

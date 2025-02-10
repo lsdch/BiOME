@@ -27,11 +27,11 @@
         <v-spacer></v-spacer>
         <v-chip :text="item.coordinates.precision" size="small"></v-chip>
       </div>
-      <div v-if="item.locality || item.country.code" class="d-flex align-center my-2 w-100">
+      <div v-if="item.locality || item.country" class="d-flex align-center my-2 w-100">
         <v-icon icon="mdi-map-marker" size="small" class="mr-3" />
         <div class="d-flex justify-space-between w-100">
           {{ item.locality }}
-          <v-chip :text="item.country.code" size="small" class="ml-2" />
+          <v-chip v-if="item.country" :text="item.country.code" size="small" class="ml-2" />
         </div>
       </div>
     </v-card-text>

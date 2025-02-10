@@ -115,7 +115,6 @@ const initial: SiteInput = {
   name: '',
   code: '',
   coordinates: { precision: '<100m', latitude: 0, longitude: 0 },
-  country_code: '',
   user_defined_locality: false
 }
 
@@ -132,7 +131,7 @@ function updateTransformer({
 }: Site): SiteUpdate {
   return {
     ...rest,
-    country_code: country.code
+    country_code: country?.code
   }
 }
 

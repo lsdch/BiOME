@@ -53,8 +53,9 @@
         </v-list-item>
         <v-list-item title="Locality">
           <template #subtitle>
-            {{ site.locality }}, {{ site.country.name }}
+            {{ site.locality }}, {{ site.country?.name ?? 'International territory' }}
             <v-chip
+              v-if="site.country"
               class="ml-2 text-overline"
               variant="outlined"
               density="compact"

@@ -15,6 +15,18 @@ module location {
     multi sites := .<country[is Site];
   }
 
+  function find_country(code: optional str) -> optional Country {
+    using (
+      if exists code then (
+        select assert_exists(
+          location::Country
+          filter .code = code,
+          message := ("Invalid country code: " ++ code)
+        )
+      ) else <location::Country>{}
+    )
+  }
+
   alias CountryList := (
     select Country { *, sites_count := count(.sites) }
   );
@@ -42,7 +54,7 @@ module location {
     description: str;
 
     locality: str;
-    required country: Country;
+    country: Country;
     required user_defined_locality: bool {
       default := false
     };
@@ -74,5 +86,27 @@ module location {
     #   on target delete allow;
     #   on source delete allow;
     # };
+  }
+
+  function coords_from_json(data: json) -> tuple<precision: CoordinatesPrecision, latitude: float32, longitude: float32> {
+    using (
+      assert_exists((
+        precision := <CoordinatesPrecision>data['precision'],
+        latitude := <float32>data['latitude'],
+        longitude := <float32>data['longitude']
+      ))
+    )
+  }
+
+  function insert_site(data: json) -> Site {
+    using (insert Site {
+      name := <str>data['name'],
+      code := <str>data['code'],
+      description := <str>json_get(data, 'description'),
+      coordinates := coords_from_json(data['coordinates']),
+      locality := <str>json_get(data, 'locality'),
+      country := find_country(<str>json_get(data, 'country')),
+      altitude := <int32>json_get(data, 'altitude'),
+    })
   }
 }

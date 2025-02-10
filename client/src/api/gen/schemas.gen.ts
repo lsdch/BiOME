@@ -2734,6 +2734,26 @@ export const $OptionalBioMaterial = {
   type: ['object', 'null']
 } as const
 
+export const $OptionalCountry = {
+  additionalProperties: false,
+  properties: {
+    code: {
+      examples: ['DE'],
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    name: {
+      examples: ['Germany'],
+      type: 'string'
+    }
+  },
+  required: ['id', 'name', 'code'],
+  type: ['object', 'null']
+} as const
+
 export const $OptionalExtSeqSpecificsBioMaterial = {
   additionalProperties: false,
   properties: {
@@ -4641,7 +4661,7 @@ export const $Site = {
       $ref: '#/components/schemas/Coordinates'
     },
     country: {
-      $ref: '#/components/schemas/Country'
+      $ref: '#/components/schemas/OptionalCountry'
     },
     datasets: {
       items: {
@@ -4676,7 +4696,7 @@ export const $Site = {
       type: 'boolean'
     }
   },
-  required: ['meta', 'id', 'name', 'code', 'coordinates', 'country', 'user_defined_locality'],
+  required: ['meta', 'id', 'name', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 
@@ -4836,7 +4856,7 @@ export const $SiteInput = {
       type: 'boolean'
     }
   },
-  required: ['name', 'code', 'coordinates', 'user_defined_locality', 'country_code'],
+  required: ['name', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 
@@ -4859,7 +4879,7 @@ export const $SiteItem = {
       $ref: '#/components/schemas/Coordinates'
     },
     country: {
-      $ref: '#/components/schemas/Country'
+      $ref: '#/components/schemas/OptionalCountry'
     },
     description: {
       type: 'string'
@@ -4879,7 +4899,7 @@ export const $SiteItem = {
       type: 'boolean'
     }
   },
-  required: ['id', 'name', 'code', 'coordinates', 'country', 'user_defined_locality'],
+  required: ['id', 'name', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 
@@ -4915,7 +4935,7 @@ export const $SiteUpdate = {
       examples: ['FR'],
       format: 'country-code',
       pattern: '[A-Z]{2}',
-      type: 'string'
+      type: ['string', 'null']
     },
     description: {
       type: ['string', 'null']

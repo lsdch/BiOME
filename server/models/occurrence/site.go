@@ -1,11 +1,8 @@
 package occurrence
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
-	"fmt"
-	"text/template"
 
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
@@ -39,7 +36,7 @@ type SiteInput struct {
 	Altitude            models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
 	Locality            models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
 	UserDefinedLocality bool                         `edgedb:"user_defined_locality" json:"user_defined_locality" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
-	CountryCode         string                       `json:"country_code" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	CountryCode         models.OptionalInput[string] `json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 
 func (c SiteInput) LatLong() (float32, float32) {
@@ -57,16 +54,16 @@ func (i *SiteInput) Validate(edb edgedb.Executor) validations.ValidationErrors {
 }
 
 type SiteItem struct {
-	ID                  edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
-	Name                string               `edgedb:"name" json:"name" minLength:"4"`
-	Code                string               `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
-	Description         edgedb.OptionalStr   `edgedb:"description" json:"description,omitempty"`
-	Coordinates         Coordinates          `edgedb:"coordinates" json:"coordinates"`
-	Altitude            edgedb.OptionalInt32 `edgedb:"altitude" json:"altitude,omitempty"`
-	Locality            edgedb.OptionalStr   `edgedb:"locality" json:"locality,omitempty"`
-	Country             location.Country     `edgedb:"country" json:"country"`
-	AccessPoint         edgedb.OptionalStr   `edgedb:"access_point" json:"access_point,omitempty"`
-	UserDefinedLocality bool                 `edgedb:"user_defined_locality" json:"user_defined_locality"`
+	ID                  edgedb.UUID                       `edgedb:"id" json:"id" format:"uuid"`
+	Name                string                            `edgedb:"name" json:"name" minLength:"4"`
+	Code                string                            `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
+	Description         edgedb.OptionalStr                `edgedb:"description" json:"description,omitempty"`
+	Coordinates         Coordinates                       `edgedb:"coordinates" json:"coordinates"`
+	Altitude            edgedb.OptionalInt32              `edgedb:"altitude" json:"altitude,omitempty"`
+	Locality            edgedb.OptionalStr                `edgedb:"locality" json:"locality,omitempty"`
+	Country             models.Optional[location.Country] `edgedb:"country" json:"country,omitempty"`
+	AccessPoint         edgedb.OptionalStr                `edgedb:"access_point" json:"access_point,omitempty"`
+	UserDefinedLocality bool                              `edgedb:"user_defined_locality" json:"user_defined_locality"`
 }
 
 type Site struct {
@@ -126,47 +123,13 @@ func GetSite(db edgedb.Executor, identifier string) (Site, error) {
 	return site, err
 }
 
-var siteInsertQueryTmpl = template.Must(
-	template.New("siteInsertQuery").
-		Parse(`#edgeql
-		insert location::Site {{ "{" }}
-			name := <str>{{.Json}}['name'],
-			code := <str>{{.Json}}['code'],
-			description := <str>json_get({{.Json}}, 'description'),
-			coordinates := (
-				precision := <location::CoordinatesPrecision>{{.Json}}['coordinates']['precision'],
-				latitude := <float32>{{.Json}}['coordinates']['latitude'],
-				longitude := <float32>{{.Json}}['coordinates']['longitude']
-			),
-			locality := <str>json_get({{.Json}}, 'locality'),
-			country := (
-				select assert_exists(
-					location::Country
-					filter .code = <str>{{.Json}}['country_code'],
-					message := ("Invalid country code: " ++ <str>{{.Json}}['country_code'])
-				)
-			),
-			altitude := <int32>json_get({{.Json}}, 'altitude')
-		{{ "}" }}
-	`))
-
-func (i SiteInput) InsertQuery(jsonVar string) string {
-	var query bytes.Buffer
-	_ = siteInsertQueryTmpl.Execute(&query, struct{ Json string }{jsonVar})
-	// logrus.Infof("%s", query.String())
-	return query.String()
-}
-
 func (i SiteInput) Save(db edgedb.Executor) (*Site, error) {
 	var created Site
 	data, _ := json.Marshal(i)
-	query := fmt.Sprintf(
-		`#edgeql
-		with module location,
-			data := <json>$0,
-			coords := data['coordinates'],
-		select ( %s ) { *, country: { * }, meta: { * }, datasets: { * } }
-	`, i.InsertQuery("data"))
+	query := `#edgeql
+		with module location, data := <json>$0
+		select (insert_site(data)) { *, country: { * }, meta: { * }, datasets: { * } }
+	`
 	err := db.QuerySingle(context.Background(), query, &created, data)
 	return &created, err
 }
@@ -179,7 +142,7 @@ type SiteUpdate struct {
 	Altitude            models.OptionalNull[int32]        `edgedb:"altitude" json:"altitude,omitempty" doc:"Site altitude in meters"`
 	Locality            models.OptionalNull[string]       `edgedb:"locality" json:"locality,omitempty" doc:"Nearest populated place"`
 	UserDefinedLocality models.OptionalInput[bool]        `edgedb:"user_defined_locality" json:"user_defined_locality" doc:"Signals whether locality was manually entered by user, and automatically inferred from coordinates"`
-	CountryCode         models.OptionalInput[string]      `edgedb:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	CountryCode         models.OptionalNull[string]       `edgedb:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 
 func (u SiteUpdate) Save(e edgedb.Executor, code string) (updated Site, err error) {
@@ -196,18 +159,13 @@ func (u SiteUpdate) Save(e edgedb.Executor, code string) (updated Site, err erro
 			"code":        "<str>item['code']",
 			"description": "<str>item['description']",
 			"coordinates": `#edgeql
-				(
-					precision := <location::CoordinatesPrecision>item['coordinates']['precision'],
-					latitude := <float32>item['coordinates']['latitude'],
-					longitude := <float32>item['coordinates']['longitude']
-				)`,
+				location::coords_from_json(item['coordinates']),
+			`,
 			"altitude": "<int32>item['altitude']",
 			"locality": "<str>item['locality']",
 			"country": `#edgeql
-				(
-					select assert_exists(location::Country
-					filter .code = <str>item['country_code'])
-				)`,
+				location::find_country(item['country_code'])
+			`,
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)

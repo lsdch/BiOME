@@ -55,23 +55,21 @@ func (d *SiteDataset) AddSites(db edgedb.Executor, site_ids []edgedb.UUID) (*Sit
 
 func (d *SiteDataset) CreateSites(tx *edgedb.Tx, sites []SiteInput) error {
 	sitesData, _ := json.Marshal(sites)
-	query := fmt.Sprintf(
-		`#edgeql
-			with
-				dataset := <datasets::SiteDataset><uuid>$0,
-				sites := <json>$1,
-				created_sites := (
-					for site in json_array_unpack(sites) union (
-						%s
-					)
+	query := `#edgeql
+		with
+			dataset := <datasets::SiteDataset><uuid>$0,
+			sites := <json>$1,
+			created_sites := (
+				for site in json_array_unpack(sites) union (
+					location::insert_site(site)
 				)
-			select (update dataset set {
-				sites := (select distinct (
-					.sites union created_sites
-				))
-			}) { **, sites: { *, country: { * } } }
-		`,
-		sites[0].InsertQuery("site"))
+			)
+		select (update dataset set {
+			sites := (select distinct (
+				.sites union created_sites
+			))
+		}) { **, sites: { *, country: { * } } }
+	`
 
 	return tx.QuerySingle(context.Background(), query, d, d.ID, sitesData)
 }
@@ -124,7 +122,7 @@ func (d SiteInputList) FillPlaces(db edgedb.Executor, apiKey string) error {
 	}
 
 	for i, v := range *response {
-		d[i].CountryCode = strings.ToUpper(v.CountryCode)
+		d[i].CountryCode.SetValue(strings.ToUpper(v.CountryCode))
 		switch d[i].Coordinates.Precision {
 		case location.M100, location.KM1, location.KM10:
 			locality := v.City
@@ -145,16 +143,15 @@ func (d SiteInputList) FillPlaces(db edgedb.Executor, apiKey string) error {
 func (i SiteInputList) Save(e edgedb.Executor) (created []Site, err error) {
 	data, _ := json.Marshal(i)
 	err = e.Query(context.Background(),
-		fmt.Sprintf(`#edgeql
+		`#edgeql
 			with data := <json>$0,
 			select (
 				for site in json_array_unpack(data) union (
-					%s
+				 location::insert_site(site)
 				)
 			) { *, country: { * }, meta: { * }, datasets: { * } }
 		`,
-			i[0].InsertQuery("site"),
-		), &created, data)
+		&created, data)
 	return
 }
 
