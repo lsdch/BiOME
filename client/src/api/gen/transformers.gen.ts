@@ -20,6 +20,7 @@ import type {
   ListDatasetsResponse,
   ListOccurrenceDatasetsResponse,
   GetOccurrenceDatasetResponse,
+  TogglePinDatasetResponse,
   ListSequenceDatasetsResponse,
   GetSequenceDatasetResponse,
   ListSiteDatasetsResponse,
@@ -504,6 +505,13 @@ export const getOccurrenceDatasetResponseTransformer = async (
   data: any
 ): Promise<GetOccurrenceDatasetResponse> => {
   data = occurrenceDatasetSchemaResponseTransformer(data)
+  return data
+}
+
+export const togglePinDatasetResponseTransformer = async (
+  data: any
+): Promise<TogglePinDatasetResponse> => {
+  data = polymorphicDatasetSchemaResponseTransformer(data)
   return data
 }
 

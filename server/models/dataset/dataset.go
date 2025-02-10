@@ -87,6 +87,7 @@ func (dm DatasetMaintainersInput) Validate(edb edgedb.Executor) ([]edgedb.UUID, 
 type DatasetInput struct {
 	Label       string                       `json:"label" minLength:"4" maxLength:"32"`
 	Slug        string                       `json:"slug"`
+	Pinned      models.OptionalInput[bool]   `json:"pinned,omitempty"`
 	Description models.OptionalInput[string] `json:"description,omitempty"`
 	Maintainers DatasetMaintainersInput      `json:"maintainers" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
@@ -98,21 +99,23 @@ func (i *DatasetInput) GenerateSlug() {
 type DatasetUpdate struct {
 	Label       models.OptionalInput[string]                  `edgedb:"label" json:"label,omitempty" minLength:"4" maxLength:"32"`
 	Description models.OptionalNull[string]                   `edgedb:"description" json:"description,omitempty"`
+	Pinned      models.OptionalNull[bool]                     `edgedb:"pinned" json:"pinned,omitempty"`
 	Maintainers models.OptionalInput[DatasetMaintainersInput] `edgedb:"maintainers" json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
 
-func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated AbstractDataset, err error) {
+func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated PolymorphicDataset, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
 			with item := <json>$1,
-			select (update datasets::Dataset filter .slug = <str>$0 set {
+			select (update datasets::AnyDataset filter .slug = <str>$0 set {
 				%s
 			}) { **, sites: { *, country: { * }}}
 		`,
 		Mappings: map[string]string{
 			"label":       "<str>item['label']",
 			"description": "<str>item['description']",
+			"pinned":      "<bool>item['pinned']",
 			"maintainers": `#edgeql
 				(
 					select people::Person
@@ -122,5 +125,14 @@ func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated AbstractDat
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, slug, data)
 	updated.Meta.Save(e)
+	return
+}
+
+func TogglePinDataset(db edgedb.Executor, slug string) (dataset PolymorphicDataset, err error) {
+	err = db.QuerySingle(context.Background(), `#edgeql
+		select (update datasets::AnyDataset filter .slug = <str>$0 set {
+			pinned := not .pinned
+		}) { ** }
+	 `, &dataset, slug)
 	return
 }

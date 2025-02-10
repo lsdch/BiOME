@@ -1252,6 +1252,10 @@ export type PersonUser = {
 }
 
 export type PolymorphicDataset = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   category: DatasetCategory
   description: string
   id: string
@@ -1708,6 +1712,7 @@ export type SiteDatasetInput = {
    * New sites to include in the dataset
    */
   new_sites?: Array<SiteInput>
+  pinned?: boolean
   /**
    * Existing site codes to include in the dataset
    */
@@ -3085,6 +3090,43 @@ export type GetOccurrenceDatasetResponses = {
 
 export type GetOccurrenceDatasetResponse =
   GetOccurrenceDatasetResponses[keyof GetOccurrenceDatasetResponses]
+
+export type TogglePinDatasetData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    slug: string
+  }
+  query?: never
+  url: '/datasets/pin/{slug}'
+}
+
+export type TogglePinDatasetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type TogglePinDatasetError = TogglePinDatasetErrors[keyof TogglePinDatasetErrors]
+
+export type TogglePinDatasetResponses = {
+  /**
+   * OK
+   */
+  200: PolymorphicDataset
+}
+
+export type TogglePinDatasetResponse = TogglePinDatasetResponses[keyof TogglePinDatasetResponses]
 
 export type ListSequenceDatasetsData = {
   body?: never

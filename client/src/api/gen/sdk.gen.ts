@@ -100,6 +100,9 @@ import type {
   GetOccurrenceDatasetData,
   GetOccurrenceDatasetResponse,
   GetOccurrenceDatasetError,
+  TogglePinDatasetData,
+  TogglePinDatasetResponse,
+  TogglePinDatasetError,
   ListSequenceDatasetsData,
   ListSequenceDatasetsResponse,
   ListSequenceDatasetsError,
@@ -352,6 +355,7 @@ import {
   listDatasetsResponseTransformer,
   listOccurrenceDatasetsResponseTransformer,
   getOccurrenceDatasetResponseTransformer,
+  togglePinDatasetResponseTransformer,
   listSequenceDatasetsResponseTransformer,
   getSequenceDatasetResponseTransformer,
   listSiteDatasetsResponseTransformer,
@@ -1620,6 +1624,30 @@ export class DatasetsService {
       ],
       responseTransformer: getOccurrenceDatasetResponseTransformer,
       url: '/datasets/occurrence/{slug}',
+      ...options
+    })
+  }
+
+  /**
+   * Pin/unpin dataset
+   * Pin or unpin dataset from from dashboard priority display
+   */
+  public static togglePinDataset<ThrowOnError extends boolean = false>(
+    options: Options<TogglePinDatasetData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).patch<
+      TogglePinDatasetResponse,
+      TogglePinDatasetError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: togglePinDatasetResponseTransformer,
+      url: '/datasets/pin/{slug}',
       ...options
     })
   }

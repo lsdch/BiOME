@@ -1,6 +1,7 @@
 package datasets
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -33,10 +34,34 @@ func RegisterRoutes(r router.Router) {
 			dataset.ListDatasetOptions
 		}](dataset.ListDatasets))
 
+	router.Register(datasets_API, "TogglePinDataset",
+		huma.Operation{
+			Path:        "/pin/{slug}",
+			Method:      http.MethodPatch,
+			Summary:     "Pin/unpin dataset",
+			Description: "Pin or unpin dataset from from dashboard priority display",
+		}, PinUnpinDataset)
+
 	RegisterSiteDatasetsRoutes(r)
 	RegisterOccurrenceDatasetsRoutes(r)
 	RegisterSeqDatasetsRoutes(r)
+}
 
+type PinDatasetInput struct {
+	resolvers.AccessRestricted[resolvers.Admin]
+	controllers.SlugInput
+}
+
+func PinUnpinDataset(ctx context.Context, input *PinDatasetInput) (*controllers.UpdateHandlerOutput[dataset.PolymorphicDataset], error) {
+
+	pinned, err := dataset.TogglePinDataset(input.DB(), input.Slug)
+
+	if err = controllers.StatusError(err); err != nil {
+		return nil, err
+	}
+	return &controllers.UpdateHandlerOutput[dataset.PolymorphicDataset]{
+		Body: pinned,
+	}, nil
 }
 
 // router.Register(datasets_API, "UpdateDataset",

@@ -85,6 +85,9 @@ import type {
   ListDatasetsData,
   ListOccurrenceDatasetsData,
   GetOccurrenceDatasetData,
+  TogglePinDatasetData,
+  TogglePinDatasetError,
+  TogglePinDatasetResponse,
   ListSequenceDatasetsData,
   GetSequenceDatasetData,
   ListSiteDatasetsData,
@@ -1099,6 +1102,24 @@ export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatase
     },
     queryKey: getOccurrenceDatasetQueryKey(options)
   })
+}
+
+export const togglePinDatasetMutation = (options?: Partial<Options<TogglePinDatasetData>>) => {
+  const mutationOptions: UseMutationOptions<
+    TogglePinDatasetResponse,
+    TogglePinDatasetError,
+    Options<TogglePinDatasetData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await DatasetsService.togglePinDataset({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
 }
 
 export const listSequenceDatasetsQueryKey = (options?: Options<ListSequenceDatasetsData>) => [

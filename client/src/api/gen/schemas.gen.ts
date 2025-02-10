@@ -3539,6 +3539,13 @@ export const $PersonUser = {
 export const $PolymorphicDataset = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/PolymorphicDataset.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     category: {
       $ref: '#/components/schemas/DatasetCategory'
     },
@@ -4840,6 +4847,9 @@ export const $SiteDatasetInput = {
         $ref: '#/components/schemas/SiteInput'
       },
       type: 'array'
+    },
+    pinned: {
+      type: 'boolean'
     },
     sites: {
       description: 'Existing site codes to include in the dataset',
