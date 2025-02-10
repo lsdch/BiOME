@@ -1,10 +1,10 @@
 <template>
-  <div class="d-flex fill-height bg-surface overflow-y-auto">
+  <div class="d-flex fill-height bg-main overflow-y-auto">
     <v-sheet
       height="fit-content"
       min-height="100%"
       :width="lgAndUp ? '50%' : '100%'"
-      :class="['d-flex', { 'pa-3': lgAndUp }]"
+      :class="['d-flex bg-transparent', { 'pa-3': lgAndUp }]"
     >
       <PageErrors v-if="isError && error" :error />
       <v-card v-else-if="editing" class="align-self-start">
@@ -78,7 +78,7 @@
       <template #="{ isDialog }">
         <v-sheet
           width="50%"
-          :class="['fill-height position-sticky top-0', { 'py-4 px-3': !isDialog }]"
+          :class="['fill-height position-sticky top-0 bg-transparent', { 'py-4 px-3': !isDialog }]"
           max-height="100vh"
         >
           <v-card :rounded="!mobileMap" class="fill-height">
