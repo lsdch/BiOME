@@ -64,10 +64,10 @@ import type {
   CreateSamplingResponse,
   DeleteSamplingResponse,
   UpdateSamplingResponse,
-  ListSeqDbsResponse,
-  CreateSeqDbResponse,
-  DeleteSeqDbResponse,
-  UpdateSeqDbResponse,
+  ListDataSourcesResponse,
+  CreateDataSourceResponse,
+  DeleteDataSourceResponse,
+  UpdateDataSourceResponse,
   ListSequencesResponse,
   DeleteSequenceResponse,
   GetSequenceResponse,
@@ -231,13 +231,13 @@ const articleSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const seqDbSchemaResponseTransformer = (data: any) => {
+const dataSourceSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
 const seqReferenceSchemaResponseTransformer = (data: any) => {
-  data.db = seqDbSchemaResponseTransformer(data.db)
+  data.db = dataSourceSchemaResponseTransformer(data.db)
   return data
 }
 
@@ -948,25 +948,33 @@ export const updateSamplingResponseTransformer = async (
   return data
 }
 
-export const listSeqDbsResponseTransformer = async (data: any): Promise<ListSeqDbsResponse> => {
+export const listDataSourcesResponseTransformer = async (
+  data: any
+): Promise<ListDataSourcesResponse> => {
   data = data.map((item: any) => {
-    return seqDbSchemaResponseTransformer(item)
+    return dataSourceSchemaResponseTransformer(item)
   })
   return data
 }
 
-export const createSeqDbResponseTransformer = async (data: any): Promise<CreateSeqDbResponse> => {
-  data = seqDbSchemaResponseTransformer(data)
+export const createDataSourceResponseTransformer = async (
+  data: any
+): Promise<CreateDataSourceResponse> => {
+  data = dataSourceSchemaResponseTransformer(data)
   return data
 }
 
-export const deleteSeqDbResponseTransformer = async (data: any): Promise<DeleteSeqDbResponse> => {
-  data = seqDbSchemaResponseTransformer(data)
+export const deleteDataSourceResponseTransformer = async (
+  data: any
+): Promise<DeleteDataSourceResponse> => {
+  data = dataSourceSchemaResponseTransformer(data)
   return data
 }
 
-export const updateSeqDbResponseTransformer = async (data: any): Promise<UpdateSeqDbResponse> => {
-  data = seqDbSchemaResponseTransformer(data)
+export const updateDataSourceResponseTransformer = async (
+  data: any
+): Promise<UpdateDataSourceResponse> => {
+  data = dataSourceSchemaResponseTransformer(data)
   return data
 }
 

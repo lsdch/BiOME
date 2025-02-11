@@ -10,7 +10,7 @@
     <template #default="{ model, field, mode, loading, submit }">
       <FormDialog
         v-model="dialog"
-        :title="`${mode} sequence database`"
+        :title="`${mode} data source`"
         :loading="loading.value"
         @submit="submit"
       >
@@ -22,10 +22,20 @@
           </v-row>
           <v-row>
             <v-col>
-              <v-text-field
+              <FTextField
                 label="Code"
                 v-model.trim="model.code"
                 v-bind="field('code')"
+                class="input-font-monospace"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                label="URL"
+                v-model.trim="model.url"
+                v-bind="field('url')"
                 class="input-font-monospace"
               />
             </v-col>
@@ -56,35 +66,50 @@
 </template>
 
 <script setup lang="ts">
-import { $SeqDBInput, $SeqDBUpdate, SeqDb, SeqDbInput, SeqDbUpdate } from '@/api'
-import { createSeqDbMutation, updateSeqDbMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import {
+  $DataSourceInput,
+  $DataSourceUpdate,
+  DataSource,
+  DataSourceInput,
+  DataSourceUpdate
+} from '@/api'
+import {
+  createDataSourceMutation,
+  updateDataSourceMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
 import CreateUpdateForm, {
   FormCreateMutation,
   FormUpdateMutation
 } from '../toolkit/forms/CreateUpdateForm.vue'
+import FTextField from '../toolkit/forms/FTextField'
 
 const dialog = defineModel<boolean>('dialog')
-const item = defineModel<SeqDb>()
+const item = defineModel<DataSource>()
 
-const initial: SeqDbInput = {
+const initial: DataSourceInput = {
   code: '',
   label: ''
 }
 
-function updateTransformer({ code, label, description, link_template }: SeqDb): SeqDbUpdate {
+function updateTransformer({
+  code,
+  label,
+  description,
+  link_template
+}: DataSource): DataSourceUpdate {
   return { code, label, description, link_template }
 }
 
-const create: FormCreateMutation<SeqDb, SeqDbInput> = {
-  mutation: createSeqDbMutation,
-  schema: $SeqDBInput
+const create: FormCreateMutation<DataSource, DataSourceInput> = {
+  mutation: createDataSourceMutation,
+  schema: $DataSourceInput
 }
 
 const update = {
-  mutation: updateSeqDbMutation,
-  schema: $SeqDBUpdate,
-  itemID: ({ code }: SeqDb) => ({ code })
+  mutation: updateDataSourceMutation,
+  schema: $DataSourceUpdate,
+  itemID: ({ code }: DataSource) => ({ code })
 }
 </script>
 

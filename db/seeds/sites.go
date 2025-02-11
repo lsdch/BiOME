@@ -33,11 +33,11 @@ func LoadSiteDataset(db edgedb.Executor, file string, maxAmount int) (*occurrenc
 		dataset.NewSites = dataset.NewSites[0:maxAmount]
 	}
 
-	logrus.Infof("Making API call to Geoapify")
-	err := dataset.NewSites.FillPlaces(db, cfg.GeoApifyApiKey)
-	if err != nil {
-		return nil, err
-	}
+	// logrus.Infof("Making API call to Geoapify")
+	// err := dataset.NewSites.FillPlaces(db, cfg.GeoApifyApiKey)
+	// if err != nil {
+	// 	return nil, err
+	// }
 	return &dataset, nil
 
 }

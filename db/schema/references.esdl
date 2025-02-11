@@ -43,4 +43,35 @@ module references {
 
     index on ((.code, .year));
   }
+
+  function dataSourceByCode(code: str) -> DataSource {
+    using (
+      select assert_exists(
+        DataSource filter .code = code,
+        message := "Failed to find sequence database with code: " ++ code
+      )
+    );
+  };
+
+  type DataSource extending default::Auditable, default::Vocabulary {
+    url: str;
+    link_template: str;
+  };
+
+  type SeqReference {
+    required db: references::DataSource {
+      on target delete delete source;
+    };
+    required accession: str {
+      constraint min_len_value(3);
+      constraint max_len_value(32);
+    };
+    required is_origin: bool {
+      default := false;
+    };
+
+    required code := ( .db.code ++ ":" ++ .accession );
+
+    # constraint exclusive on ((.db, .accession));
+  };
 }

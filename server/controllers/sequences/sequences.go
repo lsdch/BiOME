@@ -13,7 +13,7 @@ import (
 
 func RegisterRoutes(r router.Router) {
 	RegisterGeneRoutes(r)
-	RegisterSeqDBRoutes(r)
+	RegisterDataSourceRoutes(r)
 
 	seqAPI := r.RouteGroup("/sequences").
 		WithTags([]string{"Sequences"})

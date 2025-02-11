@@ -245,6 +245,44 @@ export type CurrentUserResponse = {
   user: User
 }
 
+export type DataSource = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code: string
+  description?: string
+  id: string
+  label: string
+  link_template?: string
+  meta: Meta
+  url?: string
+}
+
+export type DataSourceInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code: string
+  description?: string
+  label: string
+  link_template?: string
+  url?: string
+}
+
+export type DataSourceUpdate = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code?: string
+  description?: string | null
+  label?: string
+  link_template?: string | null
+  url?: string | null
+}
+
 export type Dataset = {
   /**
    * A URL to the JSON Schema for this object.
@@ -1553,44 +1591,9 @@ export type SecuritySettingsInput = {
   refresh_token_lifetime: number
 }
 
-export type SeqDb = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code: string
-  description?: string
-  id: string
-  label: string
-  link_template?: string
-  meta: Meta
-}
-
-export type SeqDbInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code: string
-  description?: string
-  label: string
-  link_template?: string
-}
-
-export type SeqDbUpdate = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code?: string
-  description?: string | null
-  label?: string
-  link_template?: string | null
-}
-
 export type SeqReference = {
   accession: string
-  db: SeqDb
+  db: DataSource
   id: string
   is_origin: boolean
 }
@@ -4978,7 +4981,7 @@ export type UpdateSamplingResponses = {
 
 export type UpdateSamplingResponse = UpdateSamplingResponses[keyof UpdateSamplingResponses]
 
-export type ListSeqDbsData = {
+export type ListDataSourcesData = {
   body?: never
   headers?: {
     /**
@@ -4991,7 +4994,7 @@ export type ListSeqDbsData = {
   url: '/seq-databases'
 }
 
-export type ListSeqDbsErrors = {
+export type ListDataSourcesErrors = {
   /**
    * Unprocessable Entity
    */
@@ -5002,19 +5005,19 @@ export type ListSeqDbsErrors = {
   500: ErrorModel
 }
 
-export type ListSeqDbsError = ListSeqDbsErrors[keyof ListSeqDbsErrors]
+export type ListDataSourcesError = ListDataSourcesErrors[keyof ListDataSourcesErrors]
 
-export type ListSeqDbsResponses = {
+export type ListDataSourcesResponses = {
   /**
    * OK
    */
-  200: Array<SeqDb>
+  200: Array<DataSource>
 }
 
-export type ListSeqDbsResponse = ListSeqDbsResponses[keyof ListSeqDbsResponses]
+export type ListDataSourcesResponse = ListDataSourcesResponses[keyof ListDataSourcesResponses]
 
-export type CreateSeqDbData = {
-  body: SeqDbInput
+export type CreateDataSourceData = {
+  body: DataSourceInput
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -5026,7 +5029,7 @@ export type CreateSeqDbData = {
   url: '/seq-databases'
 }
 
-export type CreateSeqDbErrors = {
+export type CreateDataSourceErrors = {
   /**
    * Unprocessable Entity
    */
@@ -5037,18 +5040,18 @@ export type CreateSeqDbErrors = {
   500: ErrorModel
 }
 
-export type CreateSeqDbError = CreateSeqDbErrors[keyof CreateSeqDbErrors]
+export type CreateDataSourceError = CreateDataSourceErrors[keyof CreateDataSourceErrors]
 
-export type CreateSeqDbResponses = {
+export type CreateDataSourceResponses = {
   /**
    * OK
    */
-  200: SeqDb
+  200: DataSource
 }
 
-export type CreateSeqDbResponse = CreateSeqDbResponses[keyof CreateSeqDbResponses]
+export type CreateDataSourceResponse = CreateDataSourceResponses[keyof CreateDataSourceResponses]
 
-export type DeleteSeqDbData = {
+export type DeleteDataSourceData = {
   body?: never
   headers?: {
     /**
@@ -5063,7 +5066,7 @@ export type DeleteSeqDbData = {
   url: '/seq-databases/{code}'
 }
 
-export type DeleteSeqDbErrors = {
+export type DeleteDataSourceErrors = {
   /**
    * Unprocessable Entity
    */
@@ -5074,19 +5077,19 @@ export type DeleteSeqDbErrors = {
   500: ErrorModel
 }
 
-export type DeleteSeqDbError = DeleteSeqDbErrors[keyof DeleteSeqDbErrors]
+export type DeleteDataSourceError = DeleteDataSourceErrors[keyof DeleteDataSourceErrors]
 
-export type DeleteSeqDbResponses = {
+export type DeleteDataSourceResponses = {
   /**
    * OK
    */
-  200: SeqDb
+  200: DataSource
 }
 
-export type DeleteSeqDbResponse = DeleteSeqDbResponses[keyof DeleteSeqDbResponses]
+export type DeleteDataSourceResponse = DeleteDataSourceResponses[keyof DeleteDataSourceResponses]
 
-export type UpdateSeqDbData = {
-  body: SeqDbUpdate
+export type UpdateDataSourceData = {
+  body: DataSourceUpdate
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -5100,7 +5103,7 @@ export type UpdateSeqDbData = {
   url: '/seq-databases/{code}'
 }
 
-export type UpdateSeqDbErrors = {
+export type UpdateDataSourceErrors = {
   /**
    * Unprocessable Entity
    */
@@ -5111,16 +5114,16 @@ export type UpdateSeqDbErrors = {
   500: ErrorModel
 }
 
-export type UpdateSeqDbError = UpdateSeqDbErrors[keyof UpdateSeqDbErrors]
+export type UpdateDataSourceError = UpdateDataSourceErrors[keyof UpdateDataSourceErrors]
 
-export type UpdateSeqDbResponses = {
+export type UpdateDataSourceResponses = {
   /**
    * OK
    */
-  200: SeqDb
+  200: DataSource
 }
 
-export type UpdateSeqDbResponse = UpdateSeqDbResponses[keyof UpdateSeqDbResponses]
+export type UpdateDataSourceResponse = UpdateDataSourceResponses[keyof UpdateDataSourceResponses]
 
 export type ListSequencesData = {
   body?: never

@@ -202,36 +202,6 @@ module seq {
     constraint exclusive on ((.specimen, .is_reference)) except (not .is_reference);
   }
 
-  type SeqDB extending default::Auditable, default::Vocabulary {
-    link_template: str;
-  };
-
-  function seqDbByCode(code: str) -> SeqDB {
-    using (
-      select assert_exists(
-        SeqDB filter .code = code,
-        message := "Failed to find sequence database with code: " ++ code
-      )
-    );
-  };
-
-  type SeqReference {
-    required db: SeqDB {
-      on target delete delete source;
-    };
-    required accession: str {
-      constraint min_len_value(3);
-      constraint max_len_value(32);
-    };
-    required is_origin: bool {
-      default := false;
-    };
-
-    required code := ( .db.code ++ ":" ++ .accession );
-
-    constraint exclusive on ((.db, .accession));
-  };
-
   scalar type ExtSeqOrigin extending enum<Lab, PersCom, DB>;
 
   type ExternalSequence extending Sequence, occurrence::Occurrence {
@@ -254,7 +224,7 @@ module seq {
     required origin: ExtSeqOrigin;
     source_sample: occurrence::ExternalBioMat;
 
-    multi referenced_in: SeqReference {
+    multi referenced_in: references::SeqReference {
       constraint exclusive;
     };
     # 🚧 enforce required references when origin = DB in the application layer

@@ -169,7 +169,7 @@ for item in json_array_unpack(data) union (
                   insert seq::SeqReference {
                     accession := <str>ref['accession'],
                     is_origin := <bool>json_get(ref, 'is_origin') ?? false,
-                    db := (select seq::SeqDB filter .code = <str>ref['db'])
+                    db := (select references::DataSource filter .code = <str>ref['db'])
                   }
                 )
               ),
@@ -211,7 +211,7 @@ for item in json_array_unpack(data) union (
                 insert seq::SeqReference {
                   accession := <str>ref['accession'],
                   is_origin := <bool>json_get(ref, 'is_origin') ?? false,
-                  db := (select seq::SeqDB filter .code = <str>ref['db'])
+                  db := (select references::DataSource filter .code = <str>ref['db'])
                 }
               )
             ),

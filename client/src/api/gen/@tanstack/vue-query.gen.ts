@@ -204,16 +204,16 @@ import type {
   UpdateSamplingData,
   UpdateSamplingError,
   UpdateSamplingResponse,
-  ListSeqDbsData,
-  CreateSeqDbData,
-  CreateSeqDbError,
-  CreateSeqDbResponse,
-  DeleteSeqDbData,
-  DeleteSeqDbError,
-  DeleteSeqDbResponse,
-  UpdateSeqDbData,
-  UpdateSeqDbError,
-  UpdateSeqDbResponse,
+  ListDataSourcesData,
+  CreateDataSourceData,
+  CreateDataSourceError,
+  CreateDataSourceResponse,
+  DeleteDataSourceData,
+  DeleteDataSourceError,
+  DeleteDataSourceResponse,
+  UpdateDataSourceData,
+  UpdateDataSourceError,
+  UpdateDataSourceResponse,
   ListSequencesData,
   DeleteSequenceData,
   DeleteSequenceError,
@@ -2255,14 +2255,14 @@ export const updateSamplingMutation = (options?: Partial<Options<UpdateSamplingD
   return mutationOptions
 }
 
-export const listSeqDbsQueryKey = (options?: Options<ListSeqDbsData>) => [
-  createQueryKey('listSeqDbs', options)
+export const listDataSourcesQueryKey = (options?: Options<ListDataSourcesData>) => [
+  createQueryKey('listDataSources', options)
 ]
 
-export const listSeqDbsOptions = (options?: Options<ListSeqDbsData>) => {
+export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SequencesService.listSeqDbs({
+      const { data } = await SequencesService.listDataSources({
         ...options,
         ...queryKey[0],
         signal,
@@ -2270,18 +2270,18 @@ export const listSeqDbsOptions = (options?: Options<ListSeqDbsData>) => {
       })
       return data
     },
-    queryKey: listSeqDbsQueryKey(options)
+    queryKey: listDataSourcesQueryKey(options)
   })
 }
 
-export const createSeqDbQueryKey = (options: Options<CreateSeqDbData>) => [
-  createQueryKey('createSeqDb', options)
+export const createDataSourceQueryKey = (options: Options<CreateDataSourceData>) => [
+  createQueryKey('createDataSource', options)
 ]
 
-export const createSeqDbOptions = (options: Options<CreateSeqDbData>) => {
+export const createDataSourceOptions = (options: Options<CreateDataSourceData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SequencesService.createSeqDb({
+      const { data } = await SequencesService.createDataSource({
         ...options,
         ...queryKey[0],
         signal,
@@ -2289,18 +2289,18 @@ export const createSeqDbOptions = (options: Options<CreateSeqDbData>) => {
       })
       return data
     },
-    queryKey: createSeqDbQueryKey(options)
+    queryKey: createDataSourceQueryKey(options)
   })
 }
 
-export const createSeqDbMutation = (options?: Partial<Options<CreateSeqDbData>>) => {
+export const createDataSourceMutation = (options?: Partial<Options<CreateDataSourceData>>) => {
   const mutationOptions: UseMutationOptions<
-    CreateSeqDbResponse,
-    CreateSeqDbError,
-    Options<CreateSeqDbData>
+    CreateDataSourceResponse,
+    CreateDataSourceError,
+    Options<CreateDataSourceData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await SequencesService.createSeqDb({
+      const { data } = await SequencesService.createDataSource({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -2311,14 +2311,14 @@ export const createSeqDbMutation = (options?: Partial<Options<CreateSeqDbData>>)
   return mutationOptions
 }
 
-export const deleteSeqDbMutation = (options?: Partial<Options<DeleteSeqDbData>>) => {
+export const deleteDataSourceMutation = (options?: Partial<Options<DeleteDataSourceData>>) => {
   const mutationOptions: UseMutationOptions<
-    DeleteSeqDbResponse,
-    DeleteSeqDbError,
-    Options<DeleteSeqDbData>
+    DeleteDataSourceResponse,
+    DeleteDataSourceError,
+    Options<DeleteDataSourceData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await SequencesService.deleteSeqDb({
+      const { data } = await SequencesService.deleteDataSource({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -2329,14 +2329,14 @@ export const deleteSeqDbMutation = (options?: Partial<Options<DeleteSeqDbData>>)
   return mutationOptions
 }
 
-export const updateSeqDbMutation = (options?: Partial<Options<UpdateSeqDbData>>) => {
+export const updateDataSourceMutation = (options?: Partial<Options<UpdateDataSourceData>>) => {
   const mutationOptions: UseMutationOptions<
-    UpdateSeqDbResponse,
-    UpdateSeqDbError,
-    Options<UpdateSeqDbData>
+    UpdateDataSourceResponse,
+    UpdateDataSourceError,
+    Options<UpdateDataSourceData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await SequencesService.updateSeqDb({
+      const { data } = await SequencesService.updateDataSource({
         ...options,
         ...localOptions,
         throwOnError: true

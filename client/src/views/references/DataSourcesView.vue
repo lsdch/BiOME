@@ -2,14 +2,19 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="listSeqDbsOptions"
-    entity-name="Seq. DB"
+    :fetch-items="listDataSourcesOptions"
+    entity-name="Data source"
     :toolbar="{
-      title: 'Sequence databases',
+      title: 'Data sources',
       icon: 'mdi-database-sync'
     }"
     append-actions
   >
+    <template #item.code="{ value, item }">
+      <a v-if="item.url" :href="item.url" target="_blank">{{ value }}</a>
+      <template v-else>{{ value }}</template>
+    </template>
+
     <template #expanded-row-inject="{ item }">
       <v-list>
         <v-list-item
@@ -28,18 +33,18 @@
       </v-list>
     </template>
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <SeqDBFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
+      <DataSourceFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
     </template>
   </CRUDTable>
 </template>
 
 <script setup lang="ts">
-import { SeqDb } from '@/api'
-import { listSeqDbsOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import SeqDBFormDialog from '@/components/sequences/SeqDBFormDialog.vue'
+import { DataSource } from '@/api'
+import { listDataSourcesOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import DataSourceFormDialog from '@/components/references/DataSourceFormDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
-const headers: CRUDTableHeader<SeqDb>[] = [
+const headers: CRUDTableHeader<DataSource>[] = [
   { key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } },
   { key: 'label', title: 'Label' }
 ]

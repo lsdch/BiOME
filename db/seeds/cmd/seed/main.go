@@ -28,7 +28,7 @@ var entities = []string{
 	"fixatives",
 	"abiotic",
 	"genes",
-	"seq_databases",
+	"data_sources",
 	// "datasets",
 }
 
@@ -62,7 +62,7 @@ func main() {
 
 	client := db.Connect(edgedb.Options{Database: *database})
 
-	aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json", 1000)
+	aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json", -1)
 	if err != nil {
 		logrus.Fatalf("Failed to load Asellidae sites: %v", err)
 	}

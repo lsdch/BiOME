@@ -212,8 +212,8 @@ func (i ExternalSequenceInput) Save(e edgedb.Executor, samplingID edgedb.UUID) (
 				),
 				referenced_in := (
           for ref in json_array_unpack(json_get(data, 'referenced_in'))
-					insert seq::SeqReference {
-            db := seq::seqDbByCode(<str>ref['db']),
+					insert references::SeqReference {
+            db := references::dataSourceByCode(<str>ref['db']),
             accession := <str>ref['accession'],
             is_origin := <bool>json_get(ref, 'is_origin'),
           }

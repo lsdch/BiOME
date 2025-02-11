@@ -132,13 +132,6 @@ export const navRoutes: (RouterItem | Divider)[] = [
         icon: "mdi-tag",
         component: () => import("@/views/sequences/GenesView.vue")
       },
-      {
-        label: "Seq. databases",
-        path: "/seq-databases",
-        name: "seq-databases",
-        icon: "mdi-database-sync",
-        component: () => import("@/views/sequences/SeqDatabasesView.vue")
-      }
     ]
   },
   {
@@ -192,11 +185,24 @@ export const navRoutes: (RouterItem | Divider)[] = [
     meta: { subtitle: "Taxonomy" }
   },
   {
-    label: "Bibliography",
-    icon: 'mdi-newspaper-variant-multiple',
-    name: "bibliography",
-    path: '/articles',
-    component: () => import('@/views/references/ArticlesView.vue')
+    label: 'References',
+    icon: 'mdi-book-open-variant',
+    routes: [
+      {
+        label: "Bibliography",
+        icon: 'mdi-newspaper-variant-multiple',
+        name: "bibliography",
+        path: '/articles',
+        component: () => import('@/views/references/ArticlesView.vue')
+      },
+      {
+        label: "Data sources",
+        path: "/data-sources",
+        name: "data-sources",
+        icon: "mdi-database-sync",
+        component: () => import("@/views/references/DataSourcesView.vue")
+      }
+    ]
   },
   {
     label: "Admin",

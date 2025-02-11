@@ -701,6 +701,102 @@ export const $CurrentUserResponse = {
   type: 'object'
 } as const
 
+export const $DataSource = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/DataSource.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    link_template: {
+      type: 'string'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    url: {
+      type: 'string'
+    }
+  },
+  required: ['meta', 'id', 'label', 'code'],
+  type: 'object'
+} as const
+
+export const $DataSourceInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/DataSourceInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    link_template: {
+      type: 'string'
+    },
+    url: {
+      type: 'string'
+    }
+  },
+  required: ['label', 'code'],
+  type: 'object'
+} as const
+
+export const $DataSourceUpdate = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/DataSourceUpdate.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    description: {
+      type: ['string', 'null']
+    },
+    label: {
+      type: 'string'
+    },
+    link_template: {
+      type: ['string', 'null']
+    },
+    url: {
+      type: ['string', 'null']
+    }
+  },
+  type: 'object'
+} as const
+
 export const $Dataset = {
   additionalProperties: false,
   properties: {
@@ -4395,93 +4491,6 @@ export const $SecuritySettingsInput = {
   type: 'object'
 } as const
 
-export const $SeqDB = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/SeqDB.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      type: 'string'
-    },
-    description: {
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    label: {
-      type: 'string'
-    },
-    link_template: {
-      type: 'string'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    }
-  },
-  required: ['meta', 'id', 'label', 'code'],
-  type: 'object'
-} as const
-
-export const $SeqDBInput = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/SeqDBInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      type: 'string'
-    },
-    description: {
-      type: 'string'
-    },
-    label: {
-      type: 'string'
-    },
-    link_template: {
-      type: 'string'
-    }
-  },
-  required: ['label', 'code'],
-  type: 'object'
-} as const
-
-export const $SeqDBUpdate = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/SeqDBUpdate.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      type: 'string'
-    },
-    description: {
-      type: ['string', 'null']
-    },
-    label: {
-      type: 'string'
-    },
-    link_template: {
-      type: ['string', 'null']
-    }
-  },
-  type: 'object'
-} as const
-
 export const $SeqReference = {
   additionalProperties: false,
   properties: {
@@ -4489,7 +4498,7 @@ export const $SeqReference = {
       type: 'string'
     },
     db: {
-      $ref: '#/components/schemas/SeqDB'
+      $ref: '#/components/schemas/DataSource'
     },
     id: {
       format: 'uuid',

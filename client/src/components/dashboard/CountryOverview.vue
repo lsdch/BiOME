@@ -51,37 +51,39 @@ type TreeMapData = {
   value: number
 }
 
-const data = ref<TreeMapData[]>([])
-watch(items, (items) => {
-  data.value =
-    items?.map(({ code, name, sites_count }) => ({
+const data = computed<TreeMapData[]>(() => {
+  return (
+    items.value?.map(({ code, name, sites_count }) => ({
       code,
       name,
       value: sites_count
     })) ?? []
+  )
 })
 
-const treemapSeries = computed<TreemapSeriesOption>(() => ({
-  type: 'treemap',
-  data: data.value,
-  label: {
-    show: true,
-    formatter({ data }: { data: any }) {
-      return `${data?.code}`
+const treemapSeries = computed<TreemapSeriesOption>(() => {
+  return {
+    type: 'treemap',
+    data: data.value,
+    label: {
+      show: true,
+      formatter({ data }: { data: any }) {
+        return `${data?.code}`
+      }
     }
   }
-}))
+})
 
-const option = computed<ECBasicOption>(
-  (): ECBasicOption => ({
+const option = computed<ECBasicOption>((): ECBasicOption => {
+  return {
     series: treemapSeries.value,
     tooltip: {
       formatter: function (info: any) {
         return `${info.name}: ${info.value} sites`
       }
     }
-  })
-)
+  }
+})
 </script>
 
 <style scoped lang="scss"></style>

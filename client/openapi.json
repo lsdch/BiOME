@@ -796,6 +796,122 @@
 				],
 				"type": "object"
 			},
+			"DataSource": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/DataSource.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"link_template": {
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"url": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"meta",
+					"id",
+					"label",
+					"code"
+				],
+				"type": "object"
+			},
+			"DataSourceInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/DataSourceInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"link_template": {
+						"type": "string"
+					},
+					"url": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"label",
+					"code"
+				],
+				"type": "object"
+			},
+			"DataSourceUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/DataSourceUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"label": {
+						"type": "string"
+					},
+					"link_template": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"url": {
+						"type": [
+							"string",
+							"null"
+						]
+					}
+				},
+				"type": "object"
+			},
 			"Dataset": {
 				"additionalProperties": false,
 				"properties": {
@@ -5063,110 +5179,6 @@
 				],
 				"type": "object"
 			},
-			"SeqDB": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/SeqDB.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"code": {
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"link_template": {
-						"type": "string"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					}
-				},
-				"required": [
-					"meta",
-					"id",
-					"label",
-					"code"
-				],
-				"type": "object"
-			},
-			"SeqDBInput": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/SeqDBInput.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"code": {
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"link_template": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"label",
-					"code"
-				],
-				"type": "object"
-			},
-			"SeqDBUpdate": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/SeqDBUpdate.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"code": {
-						"type": "string"
-					},
-					"description": {
-						"type": [
-							"string",
-							"null"
-						]
-					},
-					"label": {
-						"type": "string"
-					},
-					"link_template": {
-						"type": [
-							"string",
-							"null"
-						]
-					}
-				},
-				"type": "object"
-			},
 			"SeqReference": {
 				"additionalProperties": false,
 				"properties": {
@@ -5174,7 +5186,7 @@
 						"type": "string"
 					},
 					"db": {
-						"$ref": "#/components/schemas/SeqDB"
+						"$ref": "#/components/schemas/DataSource"
 					},
 					"id": {
 						"format": "uuid",
@@ -12598,7 +12610,7 @@
 		},
 		"/seq-databases": {
 			"get": {
-				"operationId": "ListSeqDBs",
+				"operationId": "ListDataSources",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -12629,7 +12641,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/SeqDB"
+										"$ref": "#/components/schemas/DataSource"
 									},
 									"type": "array"
 								}
@@ -12658,13 +12670,13 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "List external sequence databases",
+				"summary": "List external data sources",
 				"tags": [
 					"Sequences"
 				]
 			},
 			"post": {
-				"operationId": "CreateSeqDB",
+				"operationId": "CreateDataSource",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -12693,7 +12705,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SeqDBInput"
+								"$ref": "#/components/schemas/DataSourceInput"
 							}
 						}
 					},
@@ -12704,7 +12716,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/SeqDB"
+									"$ref": "#/components/schemas/DataSource"
 								}
 							}
 						},
@@ -12731,7 +12743,7 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "Create external sequence database",
+				"summary": "Register external data source",
 				"tags": [
 					"Sequences"
 				]
@@ -12739,7 +12751,7 @@
 		},
 		"/seq-databases/{code}": {
 			"delete": {
-				"operationId": "DeleteSeqDB",
+				"operationId": "DeleteDataSource",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -12777,7 +12789,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/SeqDB"
+									"$ref": "#/components/schemas/DataSource"
 								}
 							}
 						},
@@ -12804,13 +12816,13 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "Delete external sequence database",
+				"summary": "Delete external data source",
 				"tags": [
 					"Sequences"
 				]
 			},
 			"patch": {
-				"operationId": "UpdateSeqDB",
+				"operationId": "UpdateDataSource",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -12847,7 +12859,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SeqDBUpdate"
+								"$ref": "#/components/schemas/DataSourceUpdate"
 							}
 						}
 					},
@@ -12858,7 +12870,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/SeqDB"
+									"$ref": "#/components/schemas/DataSource"
 								}
 							}
 						},
@@ -12885,7 +12897,7 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "Update external sequence database",
+				"summary": "Update external data source",
 				"tags": [
 					"Sequences"
 				]

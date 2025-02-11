@@ -253,18 +253,18 @@ import type {
   UpdateSamplingData,
   UpdateSamplingResponse,
   UpdateSamplingError,
-  ListSeqDbsData,
-  ListSeqDbsResponse,
-  ListSeqDbsError,
-  CreateSeqDbData,
-  CreateSeqDbResponse,
-  CreateSeqDbError,
-  DeleteSeqDbData,
-  DeleteSeqDbResponse,
-  DeleteSeqDbError,
-  UpdateSeqDbData,
-  UpdateSeqDbResponse,
-  UpdateSeqDbError,
+  ListDataSourcesData,
+  ListDataSourcesResponse,
+  ListDataSourcesError,
+  CreateDataSourceData,
+  CreateDataSourceResponse,
+  CreateDataSourceError,
+  DeleteDataSourceData,
+  DeleteDataSourceResponse,
+  DeleteDataSourceError,
+  UpdateDataSourceData,
+  UpdateDataSourceResponse,
+  UpdateDataSourceError,
   ListSequencesData,
   ListSequencesResponse,
   ListSequencesError,
@@ -402,10 +402,10 @@ import {
   createSamplingResponseTransformer,
   deleteSamplingResponseTransformer,
   updateSamplingResponseTransformer,
-  listSeqDbsResponseTransformer,
-  createSeqDbResponseTransformer,
-  deleteSeqDbResponseTransformer,
-  updateSeqDbResponseTransformer,
+  listDataSourcesResponseTransformer,
+  createDataSourceResponseTransformer,
+  deleteDataSourceResponseTransformer,
+  updateDataSourceResponseTransformer,
   listSequencesResponseTransformer,
   deleteSequenceResponseTransformer,
   getSequenceResponseTransformer,
@@ -2057,14 +2057,14 @@ export class SequencesService {
   }
 
   /**
-   * List external sequence databases
+   * List external data sources
    */
-  public static listSeqDbs<ThrowOnError extends boolean = false>(
-    options?: Options<ListSeqDbsData, ThrowOnError>
+  public static listDataSources<ThrowOnError extends boolean = false>(
+    options?: Options<ListDataSourcesData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListSeqDbsResponse,
-      ListSeqDbsError,
+      ListDataSourcesResponse,
+      ListDataSourcesError,
       ThrowOnError
     >({
       security: [
@@ -2073,21 +2073,21 @@ export class SequencesService {
           type: 'http'
         }
       ],
-      responseTransformer: listSeqDbsResponseTransformer,
+      responseTransformer: listDataSourcesResponseTransformer,
       url: '/seq-databases',
       ...options
     })
   }
 
   /**
-   * Create external sequence database
+   * Register external data source
    */
-  public static createSeqDb<ThrowOnError extends boolean = false>(
-    options: Options<CreateSeqDbData, ThrowOnError>
+  public static createDataSource<ThrowOnError extends boolean = false>(
+    options: Options<CreateDataSourceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateSeqDbResponse,
-      CreateSeqDbError,
+      CreateDataSourceResponse,
+      CreateDataSourceError,
       ThrowOnError
     >({
       security: [
@@ -2096,7 +2096,7 @@ export class SequencesService {
           type: 'http'
         }
       ],
-      responseTransformer: createSeqDbResponseTransformer,
+      responseTransformer: createDataSourceResponseTransformer,
       url: '/seq-databases',
       ...options,
       headers: {
@@ -2107,14 +2107,14 @@ export class SequencesService {
   }
 
   /**
-   * Delete external sequence database
+   * Delete external data source
    */
-  public static deleteSeqDb<ThrowOnError extends boolean = false>(
-    options: Options<DeleteSeqDbData, ThrowOnError>
+  public static deleteDataSource<ThrowOnError extends boolean = false>(
+    options: Options<DeleteDataSourceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteSeqDbResponse,
-      DeleteSeqDbError,
+      DeleteDataSourceResponse,
+      DeleteDataSourceError,
       ThrowOnError
     >({
       security: [
@@ -2123,21 +2123,21 @@ export class SequencesService {
           type: 'http'
         }
       ],
-      responseTransformer: deleteSeqDbResponseTransformer,
+      responseTransformer: deleteDataSourceResponseTransformer,
       url: '/seq-databases/{code}',
       ...options
     })
   }
 
   /**
-   * Update external sequence database
+   * Update external data source
    */
-  public static updateSeqDb<ThrowOnError extends boolean = false>(
-    options: Options<UpdateSeqDbData, ThrowOnError>
+  public static updateDataSource<ThrowOnError extends boolean = false>(
+    options: Options<UpdateDataSourceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateSeqDbResponse,
-      UpdateSeqDbError,
+      UpdateDataSourceResponse,
+      UpdateDataSourceError,
       ThrowOnError
     >({
       security: [
@@ -2146,7 +2146,7 @@ export class SequencesService {
           type: 'http'
         }
       ],
-      responseTransformer: updateSeqDbResponseTransformer,
+      responseTransformer: updateDataSourceResponseTransformer,
       url: '/seq-databases/{code}',
       ...options,
       headers: {

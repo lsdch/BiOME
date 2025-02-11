@@ -105,7 +105,7 @@ module location {
       description := <str>json_get(data, 'description'),
       coordinates := coords_from_json(data['coordinates']),
       locality := <str>json_get(data, 'locality'),
-      country := find_country(<str>json_get(data, 'country')),
+      country := find_country(<str>json_get(data, 'country_code')),
       altitude := <int32>json_get(data, 'altitude'),
     })
   }
