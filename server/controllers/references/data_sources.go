@@ -1,10 +1,10 @@
-package sequences
+package references
 
 import (
 	"net/http"
 
 	"github.com/lsdch/biome/controllers"
-	"github.com/lsdch/biome/models/sequences"
+	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/resolvers"
 	"github.com/lsdch/biome/router"
 
@@ -12,8 +12,8 @@ import (
 )
 
 func RegisterDataSourceRoutes(r router.Router) {
-	genesAPI := r.RouteGroup("/seq-databases").
-		WithTags([]string{"Sequences"})
+	genesAPI := r.RouteGroup("/data-sources").
+		WithTags([]string{"Data sources"})
 
 	router.Register(genesAPI, "ListDataSources",
 		huma.Operation{Path: "/",
@@ -22,7 +22,7 @@ func RegisterDataSourceRoutes(r router.Router) {
 		},
 		controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](sequences.ListDataSources),
+		}](references.ListDataSources),
 	)
 
 	router.Register(genesAPI, "CreateDataSource",
@@ -30,7 +30,7 @@ func RegisterDataSourceRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Register external data source",
 		},
-		controllers.CreateHandler[sequences.DataSourceInput],
+		controllers.CreateHandler[references.DataSourceInput],
 	)
 
 	router.Register(genesAPI, "UpdateDataSource",
@@ -38,7 +38,7 @@ func RegisterDataSourceRoutes(r router.Router) {
 			Method:  http.MethodPatch,
 			Summary: "Update external data source",
 		},
-		controllers.UpdateByCodeHandler[sequences.DataSourceUpdate],
+		controllers.UpdateByCodeHandler[references.DataSourceUpdate],
 	)
 
 	router.Register(genesAPI, "DeleteDataSource",
@@ -46,6 +46,6 @@ func RegisterDataSourceRoutes(r router.Router) {
 			Method:  http.MethodDelete,
 			Summary: "Delete external data source",
 		},
-		controllers.DeleteByCodeHandler(sequences.DeleteDataSources),
+		controllers.DeleteByCodeHandler(references.DeleteDataSources),
 	)
 }

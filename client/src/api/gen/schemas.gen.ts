@@ -1342,6 +1342,9 @@ export const $ExternalBioMatOccurrenceInput = {
     original_link: {
       type: 'string'
     },
+    original_source: {
+      type: 'string'
+    },
     published_in: {
       items: {
         $ref: '#/components/schemas/OccurrenceReferenceInput'
@@ -1467,6 +1470,9 @@ export const $ExternalBioMatSpecific = {
     original_link: {
       type: 'string'
     },
+    original_source: {
+      $ref: '#/components/schemas/OptionalDataSource'
+    },
     original_taxon: {
       type: 'string'
     },
@@ -1507,6 +1513,9 @@ export const $ExternalBioMatUpdate = {
       type: 'boolean'
     },
     original_link: {
+      type: ['string', 'null']
+    },
+    original_source: {
       type: ['string', 'null']
     },
     original_taxon: {
@@ -2937,6 +2946,43 @@ export const $OptionalCountry = {
   type: ['object', 'null']
 } as const
 
+export const $OptionalDataSource = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/DataSource.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    link_template: {
+      type: 'string'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    url: {
+      type: 'string'
+    }
+  },
+  required: ['meta', 'id', 'label', 'code'],
+  type: ['object', 'null']
+} as const
+
 export const $OptionalExtSeqSpecificsBioMaterial = {
   additionalProperties: false,
   properties: {
@@ -2989,6 +3035,9 @@ export const $OptionalExternalBioMatSpecific = {
     },
     original_link: {
       type: 'string'
+    },
+    original_source: {
+      $ref: '#/components/schemas/OptionalDataSource'
     },
     original_taxon: {
       type: 'string'

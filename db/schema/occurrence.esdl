@@ -121,6 +121,7 @@ module occurrence {
   scalar type QuantityType extending enum<Unknown, One, Several, Ten, Tens, Hundred>;
 
   type ExternalBioMat extending BioMaterial {
+    original_source: references::DataSource;
     original_link: str; # link to original database
 
     in_collection: str; # name of a collection where the specimen can be found

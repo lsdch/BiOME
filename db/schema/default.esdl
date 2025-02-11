@@ -59,6 +59,15 @@ module default {
     index on ((.code, .label));
   }
 
+  function get_vocabulary(code: str, object_name: optional str = 'vocabulary') -> Vocabulary {
+    using (
+      assert_exists(
+        assert_single((select Vocabulary filter .code = code)),
+        message := "Failed to find " ++ object_name ++ " with code: " ++ code
+      )
+    );
+  }
+
   type Picture {
     legend: str;
     required path: str {

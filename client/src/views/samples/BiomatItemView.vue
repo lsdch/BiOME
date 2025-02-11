@@ -219,7 +219,13 @@
                     <ArticleChip v-for="article in item.published_in" :article class="ma-1" />
                   </v-list-item>
                   <v-divider class="my-1"></v-divider>
-                  <v-list-item title="In collection">
+                  <v-list-item title="Source">
+                    <DataSourceChip
+                      v-if="item.external.original_source"
+                      :source="item.external.original_source"
+                    />
+                  </v-list-item>
+                  <v-list-item title="Collection">
                     <b>{{ item.external.archive.collection }}</b>
                   </v-list-item>
                   <v-list-item title="Item vouchers">
@@ -260,6 +266,7 @@ import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 import OccurrenceSamplingCard from '@/components/occurrence/OccurrenceSamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip.vue'
 import ArticleChip from '@/components/references/ArticleChip.vue'
+import DataSourceChip from '@/components/references/DataSourceChip.vue'
 import GeneChip from '@/components/sequences/GeneChip.vue'
 import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
 import MetaChip from '@/components/toolkit/MetaChip.vue'

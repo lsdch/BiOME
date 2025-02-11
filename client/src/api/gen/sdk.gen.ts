@@ -91,6 +91,18 @@ import type {
   CrossRefBibSearchData,
   CrossRefBibSearchResponse,
   CrossRefBibSearchError,
+  ListDataSourcesData,
+  ListDataSourcesResponse,
+  ListDataSourcesError,
+  CreateDataSourceData,
+  CreateDataSourceResponse,
+  CreateDataSourceError,
+  DeleteDataSourceData,
+  DeleteDataSourceResponse,
+  DeleteDataSourceError,
+  UpdateDataSourceData,
+  UpdateDataSourceResponse,
+  UpdateDataSourceError,
   ListDatasetsData,
   ListDatasetsResponse,
   ListDatasetsError,
@@ -253,18 +265,6 @@ import type {
   UpdateSamplingData,
   UpdateSamplingResponse,
   UpdateSamplingError,
-  ListDataSourcesData,
-  ListDataSourcesResponse,
-  ListDataSourcesError,
-  CreateDataSourceData,
-  CreateDataSourceResponse,
-  CreateDataSourceError,
-  DeleteDataSourceData,
-  DeleteDataSourceResponse,
-  DeleteDataSourceError,
-  UpdateDataSourceData,
-  UpdateDataSourceResponse,
-  UpdateDataSourceError,
   ListSequencesData,
   ListSequencesResponse,
   ListSequencesError,
@@ -355,6 +355,10 @@ import {
   createExternalBioMatResponseTransformer,
   deleteBioMaterialResponseTransformer,
   getBioMaterialResponseTransformer,
+  listDataSourcesResponseTransformer,
+  createDataSourceResponseTransformer,
+  deleteDataSourceResponseTransformer,
+  updateDataSourceResponseTransformer,
   listDatasetsResponseTransformer,
   listOccurrenceDatasetsResponseTransformer,
   getOccurrenceDatasetResponseTransformer,
@@ -402,10 +406,6 @@ import {
   createSamplingResponseTransformer,
   deleteSamplingResponseTransformer,
   updateSamplingResponseTransformer,
-  listDataSourcesResponseTransformer,
-  createDataSourceResponseTransformer,
-  deleteDataSourceResponseTransformer,
-  updateDataSourceResponseTransformer,
   listSequencesResponseTransformer,
   deleteSequenceResponseTransformer,
   getSequenceResponseTransformer,
@@ -1558,6 +1558,108 @@ export class ReferencesService {
   }
 }
 
+export class DataSourcesService {
+  /**
+   * List external data sources
+   */
+  public static listDataSources<ThrowOnError extends boolean = false>(
+    options?: Options<ListDataSourcesData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListDataSourcesResponse,
+      ListDataSourcesError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: listDataSourcesResponseTransformer,
+      url: '/data-sources',
+      ...options
+    })
+  }
+
+  /**
+   * Register external data source
+   */
+  public static createDataSource<ThrowOnError extends boolean = false>(
+    options: Options<CreateDataSourceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CreateDataSourceResponse,
+      CreateDataSourceError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: createDataSourceResponseTransformer,
+      url: '/data-sources',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Delete external data source
+   */
+  public static deleteDataSource<ThrowOnError extends boolean = false>(
+    options: Options<DeleteDataSourceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).delete<
+      DeleteDataSourceResponse,
+      DeleteDataSourceError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: deleteDataSourceResponseTransformer,
+      url: '/data-sources/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Update external data source
+   */
+  public static updateDataSource<ThrowOnError extends boolean = false>(
+    options: Options<UpdateDataSourceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).patch<
+      UpdateDataSourceResponse,
+      UpdateDataSourceError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: updateDataSourceResponseTransformer,
+      url: '/data-sources/{code}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+}
+
 export class DatasetsService {
   /**
    * List all datasets
@@ -2048,106 +2150,6 @@ export class SequencesService {
       ],
       responseTransformer: updateGeneResponseTransformer,
       url: '/genes/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * List external data sources
-   */
-  public static listDataSources<ThrowOnError extends boolean = false>(
-    options?: Options<ListDataSourcesData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListDataSourcesResponse,
-      ListDataSourcesError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: listDataSourcesResponseTransformer,
-      url: '/seq-databases',
-      ...options
-    })
-  }
-
-  /**
-   * Register external data source
-   */
-  public static createDataSource<ThrowOnError extends boolean = false>(
-    options: Options<CreateDataSourceData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreateDataSourceResponse,
-      CreateDataSourceError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: createDataSourceResponseTransformer,
-      url: '/seq-databases',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Delete external data source
-   */
-  public static deleteDataSource<ThrowOnError extends boolean = false>(
-    options: Options<DeleteDataSourceData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeleteDataSourceResponse,
-      DeleteDataSourceError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: deleteDataSourceResponseTransformer,
-      url: '/seq-databases/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update external data source
-   */
-  public static updateDataSource<ThrowOnError extends boolean = false>(
-    options: Options<UpdateDataSourceData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdateDataSourceResponse,
-      UpdateDataSourceError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: updateDataSourceResponseTransformer,
-      url: '/seq-databases/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',

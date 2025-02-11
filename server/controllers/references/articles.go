@@ -39,6 +39,8 @@ func BibSearch(ctx context.Context, input *BibSearchInput) (*BibSearchOutput, er
 
 func RegisterRoutes(r router.Router) {
 
+	RegisterDataSourceRoutes(r)
+
 	huma.Register(r.API,
 		huma.Operation{
 			OperationID: "CrossRef",

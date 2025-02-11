@@ -7,6 +7,7 @@ import {
   TaxonomyGbifService,
   SamplesService,
   ReferencesService,
+  DataSourcesService,
   DatasetsService,
   EventsService,
   SequencesService,
@@ -82,6 +83,16 @@ import type {
   CrossRefBibSearchData,
   CrossRefBibSearchError,
   CrossRefBibSearchResponse,
+  ListDataSourcesData,
+  CreateDataSourceData,
+  CreateDataSourceError,
+  CreateDataSourceResponse,
+  DeleteDataSourceData,
+  DeleteDataSourceError,
+  DeleteDataSourceResponse,
+  UpdateDataSourceData,
+  UpdateDataSourceError,
+  UpdateDataSourceResponse,
   ListDatasetsData,
   ListOccurrenceDatasetsData,
   GetOccurrenceDatasetData,
@@ -204,16 +215,6 @@ import type {
   UpdateSamplingData,
   UpdateSamplingError,
   UpdateSamplingResponse,
-  ListDataSourcesData,
-  CreateDataSourceData,
-  CreateDataSourceError,
-  CreateDataSourceResponse,
-  DeleteDataSourceData,
-  DeleteDataSourceError,
-  DeleteDataSourceResponse,
-  UpdateDataSourceData,
-  UpdateDataSourceError,
-  UpdateDataSourceResponse,
   ListSequencesData,
   DeleteSequenceData,
   DeleteSequenceError,
@@ -1038,6 +1039,98 @@ export const crossRefBibSearchMutation = (options?: Partial<Options<CrossRefBibS
   > = {
     mutationFn: async (localOptions) => {
       const { data } = await ReferencesService.crossRefBibSearch({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const listDataSourcesQueryKey = (options?: Options<ListDataSourcesData>) => [
+  createQueryKey('listDataSources', options)
+]
+
+export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await DataSourcesService.listDataSources({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listDataSourcesQueryKey(options)
+  })
+}
+
+export const createDataSourceQueryKey = (options: Options<CreateDataSourceData>) => [
+  createQueryKey('createDataSource', options)
+]
+
+export const createDataSourceOptions = (options: Options<CreateDataSourceData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await DataSourcesService.createDataSource({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: createDataSourceQueryKey(options)
+  })
+}
+
+export const createDataSourceMutation = (options?: Partial<Options<CreateDataSourceData>>) => {
+  const mutationOptions: UseMutationOptions<
+    CreateDataSourceResponse,
+    CreateDataSourceError,
+    Options<CreateDataSourceData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await DataSourcesService.createDataSource({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const deleteDataSourceMutation = (options?: Partial<Options<DeleteDataSourceData>>) => {
+  const mutationOptions: UseMutationOptions<
+    DeleteDataSourceResponse,
+    DeleteDataSourceError,
+    Options<DeleteDataSourceData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await DataSourcesService.deleteDataSource({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const updateDataSourceMutation = (options?: Partial<Options<UpdateDataSourceData>>) => {
+  const mutationOptions: UseMutationOptions<
+    UpdateDataSourceResponse,
+    UpdateDataSourceError,
+    Options<UpdateDataSourceData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await DataSourcesService.updateDataSource({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -2245,98 +2338,6 @@ export const updateSamplingMutation = (options?: Partial<Options<UpdateSamplingD
   > = {
     mutationFn: async (localOptions) => {
       const { data } = await SamplingService.updateSampling({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listDataSourcesQueryKey = (options?: Options<ListDataSourcesData>) => [
-  createQueryKey('listDataSources', options)
-]
-
-export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SequencesService.listDataSources({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listDataSourcesQueryKey(options)
-  })
-}
-
-export const createDataSourceQueryKey = (options: Options<CreateDataSourceData>) => [
-  createQueryKey('createDataSource', options)
-]
-
-export const createDataSourceOptions = (options: Options<CreateDataSourceData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SequencesService.createDataSource({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: createDataSourceQueryKey(options)
-  })
-}
-
-export const createDataSourceMutation = (options?: Partial<Options<CreateDataSourceData>>) => {
-  const mutationOptions: UseMutationOptions<
-    CreateDataSourceResponse,
-    CreateDataSourceError,
-    Options<CreateDataSourceData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await SequencesService.createDataSource({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const deleteDataSourceMutation = (options?: Partial<Options<DeleteDataSourceData>>) => {
-  const mutationOptions: UseMutationOptions<
-    DeleteDataSourceResponse,
-    DeleteDataSourceError,
-    Options<DeleteDataSourceData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await SequencesService.deleteDataSource({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const updateDataSourceMutation = (options?: Partial<Options<UpdateDataSourceData>>) => {
-  const mutationOptions: UseMutationOptions<
-    UpdateDataSourceResponse,
-    UpdateDataSourceError,
-    Options<UpdateDataSourceData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await SequencesService.updateDataSource({
         ...options,
         ...localOptions,
         throwOnError: true

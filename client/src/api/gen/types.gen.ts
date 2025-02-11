@@ -504,6 +504,7 @@ export type ExternalBioMatOccurrenceInput = {
   identification: IdentificationInput
   is_type?: boolean
   original_link?: string
+  original_source?: string
   published_in?: Array<OccurrenceReferenceInput>
   quantity: Quantity
   sampling: string
@@ -536,6 +537,7 @@ export type ExternalBioMatSpecific = {
   content?: Array<ExternalBioMatContent>
   content_description?: string
   original_link?: string
+  original_source?: OptionalDataSource
   original_taxon?: string
   quantity: Quantity
 }
@@ -552,6 +554,7 @@ export type ExternalBioMatUpdate = {
   identification?: IdentificationUpdate
   is_type?: boolean
   original_link?: string | null
+  original_source?: string | null
   original_taxon?: string | null
   published_in: Array<OccurrenceReferenceInput> | null
   quantity?: Quantity
@@ -1063,6 +1066,20 @@ export type OptionalCountry = {
   name: string
 } | null
 
+export type OptionalDataSource = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code: string
+  description?: string
+  id: string
+  label: string
+  link_template?: string
+  meta: Meta
+  url?: string
+} | null
+
 export type OptionalExtSeqSpecificsBioMaterial = {
   origin: ExtSeqOrigin
   original_taxon?: string
@@ -1078,6 +1095,7 @@ export type OptionalExternalBioMatSpecific = {
   content?: Array<ExternalBioMatContent>
   content_description?: string
   original_link?: string
+  original_source?: OptionalDataSource
   original_taxon?: string
   quantity: Quantity
 } | null
@@ -2990,6 +3008,150 @@ export type CrossRefBibSearchResponses = {
 }
 
 export type CrossRefBibSearchResponse = CrossRefBibSearchResponses[keyof CrossRefBibSearchResponses]
+
+export type ListDataSourcesData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/data-sources'
+}
+
+export type ListDataSourcesErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListDataSourcesError = ListDataSourcesErrors[keyof ListDataSourcesErrors]
+
+export type ListDataSourcesResponses = {
+  /**
+   * OK
+   */
+  200: Array<DataSource>
+}
+
+export type ListDataSourcesResponse = ListDataSourcesResponses[keyof ListDataSourcesResponses]
+
+export type CreateDataSourceData = {
+  body: DataSourceInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/data-sources'
+}
+
+export type CreateDataSourceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateDataSourceError = CreateDataSourceErrors[keyof CreateDataSourceErrors]
+
+export type CreateDataSourceResponses = {
+  /**
+   * OK
+   */
+  200: DataSource
+}
+
+export type CreateDataSourceResponse = CreateDataSourceResponses[keyof CreateDataSourceResponses]
+
+export type DeleteDataSourceData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/data-sources/{code}'
+}
+
+export type DeleteDataSourceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteDataSourceError = DeleteDataSourceErrors[keyof DeleteDataSourceErrors]
+
+export type DeleteDataSourceResponses = {
+  /**
+   * OK
+   */
+  200: DataSource
+}
+
+export type DeleteDataSourceResponse = DeleteDataSourceResponses[keyof DeleteDataSourceResponses]
+
+export type UpdateDataSourceData = {
+  body: DataSourceUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/data-sources/{code}'
+}
+
+export type UpdateDataSourceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateDataSourceError = UpdateDataSourceErrors[keyof UpdateDataSourceErrors]
+
+export type UpdateDataSourceResponses = {
+  /**
+   * OK
+   */
+  200: DataSource
+}
+
+export type UpdateDataSourceResponse = UpdateDataSourceResponses[keyof UpdateDataSourceResponses]
 
 export type ListDatasetsData = {
   body?: never
@@ -4980,150 +5142,6 @@ export type UpdateSamplingResponses = {
 }
 
 export type UpdateSamplingResponse = UpdateSamplingResponses[keyof UpdateSamplingResponses]
-
-export type ListDataSourcesData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/seq-databases'
-}
-
-export type ListDataSourcesErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ListDataSourcesError = ListDataSourcesErrors[keyof ListDataSourcesErrors]
-
-export type ListDataSourcesResponses = {
-  /**
-   * OK
-   */
-  200: Array<DataSource>
-}
-
-export type ListDataSourcesResponse = ListDataSourcesResponses[keyof ListDataSourcesResponses]
-
-export type CreateDataSourceData = {
-  body: DataSourceInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/seq-databases'
-}
-
-export type CreateDataSourceErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type CreateDataSourceError = CreateDataSourceErrors[keyof CreateDataSourceErrors]
-
-export type CreateDataSourceResponses = {
-  /**
-   * OK
-   */
-  200: DataSource
-}
-
-export type CreateDataSourceResponse = CreateDataSourceResponses[keyof CreateDataSourceResponses]
-
-export type DeleteDataSourceData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/seq-databases/{code}'
-}
-
-export type DeleteDataSourceErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type DeleteDataSourceError = DeleteDataSourceErrors[keyof DeleteDataSourceErrors]
-
-export type DeleteDataSourceResponses = {
-  /**
-   * OK
-   */
-  200: DataSource
-}
-
-export type DeleteDataSourceResponse = DeleteDataSourceResponses[keyof DeleteDataSourceResponses]
-
-export type UpdateDataSourceData = {
-  body: DataSourceUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/seq-databases/{code}'
-}
-
-export type UpdateDataSourceErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type UpdateDataSourceError = UpdateDataSourceErrors[keyof UpdateDataSourceErrors]
-
-export type UpdateDataSourceResponses = {
-  /**
-   * OK
-   */
-  200: DataSource
-}
-
-export type UpdateDataSourceResponse = UpdateDataSourceResponses[keyof UpdateDataSourceResponses]
 
 export type ListSequencesData = {
   body?: never

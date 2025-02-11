@@ -1541,6 +1541,9 @@
 					"original_link": {
 						"type": "string"
 					},
+					"original_source": {
+						"type": "string"
+					},
 					"published_in": {
 						"items": {
 							"$ref": "#/components/schemas/OccurrenceReferenceInput"
@@ -1669,6 +1672,9 @@
 					"original_link": {
 						"type": "string"
 					},
+					"original_source": {
+						"$ref": "#/components/schemas/OptionalDataSource"
+					},
 					"original_taxon": {
 						"type": "string"
 					},
@@ -1723,6 +1729,12 @@
 						"type": "boolean"
 					},
 					"original_link": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"original_source": {
 						"type": [
 							"string",
 							"null"
@@ -3307,6 +3319,52 @@
 					"null"
 				]
 			},
+			"OptionalDataSource": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/DataSource.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"link_template": {
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"url": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"meta",
+					"id",
+					"label",
+					"code"
+				],
+				"type": [
+					"object",
+					"null"
+				]
+			},
 			"OptionalExtSeqSpecificsBioMaterial": {
 				"additionalProperties": false,
 				"properties": {
@@ -3364,6 +3422,9 @@
 					},
 					"original_link": {
 						"type": "string"
+					},
+					"original_source": {
+						"$ref": "#/components/schemas/OptionalDataSource"
 					},
 					"original_taxon": {
 						"type": "string"
@@ -8543,6 +8604,301 @@
 				]
 			}
 		},
+		"/data-sources": {
+			"get": {
+				"operationId": "ListDataSources",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/DataSource"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List external data sources",
+				"tags": [
+					"Data sources"
+				]
+			},
+			"post": {
+				"operationId": "CreateDataSource",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DataSourceInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DataSource"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Register external data source",
+				"tags": [
+					"Data sources"
+				]
+			}
+		},
+		"/data-sources/{code}": {
+			"delete": {
+				"operationId": "DeleteDataSource",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DataSource"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Delete external data source",
+				"tags": [
+					"Data sources"
+				]
+			},
+			"patch": {
+				"operationId": "UpdateDataSource",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DataSourceUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DataSource"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update external data source",
+				"tags": [
+					"Data sources"
+				]
+			}
+		},
 		"/datasets": {
 			"get": {
 				"description": "List all datasets with optional filters and category discriminator",
@@ -12605,301 +12961,6 @@
 				"summary": "Update sampling action",
 				"tags": [
 					"Sampling"
-				]
-			}
-		},
-		"/seq-databases": {
-			"get": {
-				"operationId": "ListDataSources",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/DataSource"
-									},
-									"type": "array"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "List external data sources",
-				"tags": [
-					"Sequences"
-				]
-			},
-			"post": {
-				"operationId": "CreateDataSource",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/DataSourceInput"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/DataSource"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Register external data source",
-				"tags": [
-					"Sequences"
-				]
-			}
-		},
-		"/seq-databases/{code}": {
-			"delete": {
-				"operationId": "DeleteDataSource",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "code",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/DataSource"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Delete external data source",
-				"tags": [
-					"Sequences"
-				]
-			},
-			"patch": {
-				"operationId": "UpdateDataSource",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "code",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/DataSourceUpdate"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/DataSource"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Update external data source",
-				"tags": [
-					"Sequences"
 				]
 			}
 		},

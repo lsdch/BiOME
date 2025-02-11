@@ -17,6 +17,10 @@ import type {
   CreateExternalBioMatResponse,
   DeleteBioMaterialResponse,
   GetBioMaterialResponse,
+  ListDataSourcesResponse,
+  CreateDataSourceResponse,
+  DeleteDataSourceResponse,
+  UpdateDataSourceResponse,
   ListDatasetsResponse,
   ListOccurrenceDatasetsResponse,
   GetOccurrenceDatasetResponse,
@@ -64,10 +68,6 @@ import type {
   CreateSamplingResponse,
   DeleteSamplingResponse,
   UpdateSamplingResponse,
-  ListDataSourcesResponse,
-  CreateDataSourceResponse,
-  DeleteDataSourceResponse,
-  UpdateDataSourceResponse,
   ListSequencesResponse,
   DeleteSequenceResponse,
   GetSequenceResponse,
@@ -269,11 +269,19 @@ const externalBioMatContentSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+const optionalDataSourceSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 const optionalExternalBioMatSpecificSchemaResponseTransformer = (data: any) => {
   if (data.content) {
     data.content = data.content.map((item: any) => {
       return externalBioMatContentSchemaResponseTransformer(item)
     })
+  }
+  if (data.original_source) {
+    data.original_source = optionalDataSourceSchemaResponseTransformer(data.original_source)
   }
   return data
 }
@@ -458,6 +466,36 @@ export const getBioMaterialResponseTransformer = async (
   data: any
 ): Promise<GetBioMaterialResponse> => {
   data = bioMaterialWithDetailsSchemaResponseTransformer(data)
+  return data
+}
+
+export const listDataSourcesResponseTransformer = async (
+  data: any
+): Promise<ListDataSourcesResponse> => {
+  data = data.map((item: any) => {
+    return dataSourceSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+export const createDataSourceResponseTransformer = async (
+  data: any
+): Promise<CreateDataSourceResponse> => {
+  data = dataSourceSchemaResponseTransformer(data)
+  return data
+}
+
+export const deleteDataSourceResponseTransformer = async (
+  data: any
+): Promise<DeleteDataSourceResponse> => {
+  data = dataSourceSchemaResponseTransformer(data)
+  return data
+}
+
+export const updateDataSourceResponseTransformer = async (
+  data: any
+): Promise<UpdateDataSourceResponse> => {
+  data = dataSourceSchemaResponseTransformer(data)
   return data
 }
 
@@ -945,36 +983,6 @@ export const updateSamplingResponseTransformer = async (
   data: any
 ): Promise<UpdateSamplingResponse> => {
   data = samplingSchemaResponseTransformer(data)
-  return data
-}
-
-export const listDataSourcesResponseTransformer = async (
-  data: any
-): Promise<ListDataSourcesResponse> => {
-  data = data.map((item: any) => {
-    return dataSourceSchemaResponseTransformer(item)
-  })
-  return data
-}
-
-export const createDataSourceResponseTransformer = async (
-  data: any
-): Promise<CreateDataSourceResponse> => {
-  data = dataSourceSchemaResponseTransformer(data)
-  return data
-}
-
-export const deleteDataSourceResponseTransformer = async (
-  data: any
-): Promise<DeleteDataSourceResponse> => {
-  data = dataSourceSchemaResponseTransformer(data)
-  return data
-}
-
-export const updateDataSourceResponseTransformer = async (
-  data: any
-): Promise<UpdateDataSourceResponse> => {
-  data = dataSourceSchemaResponseTransformer(data)
   return data
 }
 
