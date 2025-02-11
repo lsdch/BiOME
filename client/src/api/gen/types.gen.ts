@@ -245,9 +245,25 @@ export type CurrentUserResponse = {
   user: User
 }
 
+export type Dataset = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  category: DatasetCategory
+  description: string
+  id: string
+  label: string
+  maintainers: Array<PersonUser>
+  meta: Meta
+  pinned: boolean
+  slug: string
+}
+
 export type DatasetCategory = 'Site' | 'Occurrence' | 'Seq'
 
 export type DatasetInner = {
+  category: DatasetCategory
   description: string
   id: string
   label: string
@@ -933,6 +949,7 @@ export type OccurrenceDataset = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  category: DatasetCategory
   description: string
   id: string
   is_congruent: boolean
@@ -1256,21 +1273,6 @@ export type PersonUser = {
   last_name: string
   role?: UserRole
   user: OptionalUserInner
-}
-
-export type PolymorphicDataset = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  category: DatasetCategory
-  description: string
-  id: string
-  label: string
-  maintainers: Array<PersonUser>
-  meta: Meta
-  pinned: boolean
-  slug: string
 }
 
 export type Program = {
@@ -1620,6 +1622,7 @@ export type SequenceDataset = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  category: DatasetCategory
   description: string
   id: string
   label: string
@@ -1694,6 +1697,7 @@ export type SiteDataset = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  category: DatasetCategory
   description: string
   id: string
   label: string
@@ -3018,7 +3022,7 @@ export type ListDatasetsResponses = {
   /**
    * OK
    */
-  200: Array<PolymorphicDataset>
+  200: Array<Dataset>
 }
 
 export type ListDatasetsResponse = ListDatasetsResponses[keyof ListDatasetsResponses]
@@ -3130,7 +3134,7 @@ export type TogglePinDatasetResponses = {
   /**
    * OK
    */
-  200: PolymorphicDataset
+  200: Dataset
 }
 
 export type TogglePinDatasetResponse = TogglePinDatasetResponses[keyof TogglePinDatasetResponses]

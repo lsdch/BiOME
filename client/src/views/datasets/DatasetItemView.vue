@@ -27,7 +27,7 @@
         </template>
         <template #prepend>
           <v-avatar variant="outlined">
-            <v-icon icon="mdi-folder-table" />
+            <v-icon icon="mdi-folder-table" @click="refetch()" />
           </v-avatar>
         </template>
         <template #append>
@@ -37,6 +37,11 @@
             icon="mdi-pencil"
             variant="plain"
             @click="toggleEdit(true)"
+          />
+          <DatasetPinButton
+            v-if="dataset && userStore.isGranted('Admin')"
+            :model-value="dataset"
+            @update:model-value="({ pinned }) => togglePin(pinned)"
           />
         </template>
         <template #actions>
@@ -112,13 +117,14 @@ import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
 import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 import { useUserStore } from '@/stores/user'
-import { OptionsLegacyParser } from '@hey-api/client-fetch'
-import { UndefinedInitialQueryOptions, useQuery } from '@tanstack/vue-query'
+import { Options, OptionsLegacyParser } from '@hey-api/client-fetch'
+import { UndefinedInitialQueryOptions, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
+import DatasetPinButton from './DatasetPinButton.vue'
 import DatasetTabs from './DatasetTabs.vue'
-import { storeToRefs } from 'pinia'
 
 interface DatasetQueryData {
   headers?: {
@@ -129,14 +135,27 @@ interface DatasetQueryData {
   }
 }
 
+type QueryKey<TOptions extends Options> = [
+  Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
+    _id: string
+    _infinite?: boolean
+  }
+]
+
 const { slug, query } = defineProps<{
   slug: string
-  query: (
-    options: OptionsLegacyParser<DatasetQueryData>
-  ) => UndefinedInitialQueryOptions<DatasetType, ErrorModel, DatasetType>
+  query: (options: OptionsLegacyParser<DatasetQueryData>) => UndefinedInitialQueryOptions<
+    DatasetType,
+    ErrorModel,
+    DatasetType,
+    QueryKey<DatasetQueryData>
+  > & {
+    queryKey: QueryKey<DatasetQueryData>
+  }
 }>()
 
-const { user } = storeToRefs(useUserStore())
+const userStore = useUserStore()
+const { user } = storeToRefs(userStore)
 
 const [editing, toggleEdit] = useToggle(false)
 
@@ -144,7 +163,15 @@ const [mobileMap, toggleMobileMap] = useToggle(false)
 
 const { lgAndUp } = useDisplay()
 
-const { data: dataset, error, isPending, isSuccess, isError } = useQuery(query({ path: { slug } }))
+const { data: dataset, error, isPending, isError, refetch } = useQuery(query({ path: { slug } }))
+
+const queryClient = useQueryClient()
+
+function togglePin(pinned: boolean) {
+  queryClient.setQueryData(query({ path: { slug } }).queryKey, (oldData: DatasetType) => {
+    return { ...oldData, pinned }
+  })
+}
 
 const isUserMaintainer = computed(() => {
   return !!dataset.value?.maintainers?.find(({ id }) => user.value?.identity.id === id)

@@ -11,10 +11,10 @@ import (
 )
 
 type OccurrenceDataset struct {
-	dataset.AbstractDataset `edgedb:"$inline" json:",inline"`
-	Sites                   []SiteItem               `edgedb:"sites" json:"sites"`
-	Occurrences             []OccurrenceWithCategory `edgedb:"occurrences" json:"occurrences"`
-	IsCongruent             bool                     `edgedb:"is_congruent" json:"is_congruent"`
+	dataset.Dataset `edgedb:"$inline" json:",inline"`
+	Sites           []SiteItem               `edgedb:"sites" json:"sites"`
+	Occurrences     []OccurrenceWithCategory `edgedb:"occurrences" json:"occurrences"`
+	IsCongruent     bool                     `edgedb:"is_congruent" json:"is_congruent"`
 }
 
 func ListOccurrenceDatasets(db edgedb.Executor) ([]OccurrenceDataset, error) {

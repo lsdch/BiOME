@@ -701,6 +701,49 @@ export const $CurrentUserResponse = {
   type: 'object'
 } as const
 
+export const $Dataset = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Dataset.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    category: {
+      $ref: '#/components/schemas/DatasetCategory'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    maintainers: {
+      items: {
+        $ref: '#/components/schemas/PersonUser'
+      },
+      type: 'array'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    pinned: {
+      type: 'boolean'
+    },
+    slug: {
+      type: 'string'
+    }
+  },
+  required: ['maintainers', 'meta', 'id', 'label', 'slug', 'pinned', 'description', 'category'],
+  type: 'object'
+} as const
+
 export const $DatasetCategory = {
   enum: ['Site', 'Occurrence', 'Seq'],
   title: 'DatasetCategory',
@@ -710,6 +753,9 @@ export const $DatasetCategory = {
 export const $DatasetInner = {
   additionalProperties: false,
   properties: {
+    category: {
+      $ref: '#/components/schemas/DatasetCategory'
+    },
     description: {
       type: 'string'
     },
@@ -727,7 +773,7 @@ export const $DatasetInner = {
       type: 'string'
     }
   },
-  required: ['id', 'label', 'slug', 'pinned', 'description'],
+  required: ['id', 'label', 'slug', 'pinned', 'description', 'category'],
   type: 'object'
 } as const
 
@@ -2521,6 +2567,9 @@ export const $OccurrenceDataset = {
       readOnly: true,
       type: 'string'
     },
+    category: {
+      $ref: '#/components/schemas/DatasetCategory'
+    },
     description: {
       type: 'string'
     },
@@ -2572,7 +2621,8 @@ export const $OccurrenceDataset = {
     'label',
     'slug',
     'pinned',
-    'description'
+    'description',
+    'category'
   ],
   type: 'object'
 } as const
@@ -3560,49 +3610,6 @@ export const $PersonUser = {
   type: 'object'
 } as const
 
-export const $PolymorphicDataset = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/PolymorphicDataset.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    category: {
-      $ref: '#/components/schemas/DatasetCategory'
-    },
-    description: {
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    label: {
-      type: 'string'
-    },
-    maintainers: {
-      items: {
-        $ref: '#/components/schemas/PersonUser'
-      },
-      type: 'array'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    pinned: {
-      type: 'boolean'
-    },
-    slug: {
-      type: 'string'
-    }
-  },
-  required: ['category', 'maintainers', 'meta', 'id', 'label', 'slug', 'pinned', 'description'],
-  type: 'object'
-} as const
-
 export const $Program = {
   additionalProperties: false,
   properties: {
@@ -4573,6 +4580,9 @@ export const $SequenceDataset = {
       readOnly: true,
       type: 'string'
     },
+    category: {
+      $ref: '#/components/schemas/DatasetCategory'
+    },
     description: {
       type: 'string'
     },
@@ -4620,7 +4630,8 @@ export const $SequenceDataset = {
     'label',
     'slug',
     'pinned',
-    'description'
+    'description',
+    'category'
   ],
   type: 'object'
 } as const
@@ -4803,6 +4814,9 @@ export const $SiteDataset = {
       readOnly: true,
       type: 'string'
     },
+    category: {
+      $ref: '#/components/schemas/DatasetCategory'
+    },
     description: {
       type: 'string'
     },
@@ -4835,7 +4849,17 @@ export const $SiteDataset = {
       type: 'string'
     }
   },
-  required: ['sites', 'maintainers', 'meta', 'id', 'label', 'slug', 'pinned', 'description'],
+  required: [
+    'sites',
+    'maintainers',
+    'meta',
+    'id',
+    'label',
+    'slug',
+    'pinned',
+    'description',
+    'category'
+  ],
   type: 'object'
 } as const
 

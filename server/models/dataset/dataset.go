@@ -19,26 +19,22 @@ type DatasetInner struct {
 	Slug        string             `edgedb:"slug" json:"slug"`
 	Pinned      bool               `edgedb:"pinned" json:"pinned"`
 	Description edgedb.OptionalStr `edgedb:"description" json:"description"`
+	Category    DatasetCategory    `edgedb:"category" json:"category"`
 }
 
-type AbstractDataset struct {
+type Dataset struct {
 	DatasetInner `edgedb:"$inline" json:",inline"`
 	Maintainers  []people.PersonUser `edgedb:"maintainers" json:"maintainers"`
 	Meta         people.Meta         `edgedb:"meta" json:"meta"`
 }
 
-func (d *AbstractDataset) IsMaintainer(user people.UserInner) bool {
+func (d *Dataset) IsMaintainer(user people.UserInner) bool {
 	for _, u := range d.Maintainers {
 		if u.ID == user.ID {
 			return true
 		}
 	}
 	return false
-}
-
-type PolymorphicDataset struct {
-	AbstractDataset `edgedb:"$inline" json:",inline"`
-	Category        DatasetCategory `edgedb:"category" json:"category"`
 }
 
 type ListDatasetOptions struct {
@@ -51,12 +47,12 @@ func (o ListDatasetOptions) Options() ListDatasetOptions {
 	return o
 }
 
-func ListDatasets(db edgedb.Executor, options ListDatasetOptions) ([]PolymorphicDataset, error) {
-	var datasets []PolymorphicDataset
+func ListDatasets(db edgedb.Executor, options ListDatasetOptions) ([]Dataset, error) {
+	var datasets []Dataset
 	opts, _ := json.Marshal(options)
 	query := `#edgeql
 			with opts := <json>$0
-			select datasets::AnyDataset { ** }
+			select datasets::Dataset { ** }
 			filter .pinned = <bool>json_get(opts, 'pinned') ?? .pinned
 		`
 	if options.OrderBy != "" {
@@ -103,12 +99,12 @@ type DatasetUpdate struct {
 	Maintainers models.OptionalInput[DatasetMaintainersInput] `edgedb:"maintainers" json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
 
-func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated PolymorphicDataset, err error) {
+func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated Dataset, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
 			with item := <json>$1,
-			select (update datasets::AnyDataset filter .slug = <str>$0 set {
+			select (update datasets::Dataset filter .slug = <str>$0 set {
 				%s
 			}) { **, sites: { *, country: { * }}}
 		`,
@@ -128,9 +124,9 @@ func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated Polymorphic
 	return
 }
 
-func TogglePinDataset(db edgedb.Executor, slug string) (dataset PolymorphicDataset, err error) {
+func TogglePinDataset(db edgedb.Executor, slug string) (dataset Dataset, err error) {
 	err = db.QuerySingle(context.Background(), `#edgeql
-		select (update datasets::AnyDataset filter .slug = <str>$0 set {
+		select (update datasets::Dataset filter .slug = <str>$0 set {
 			pinned := not .pinned
 		}) { ** }
 	 `, &dataset, slug)

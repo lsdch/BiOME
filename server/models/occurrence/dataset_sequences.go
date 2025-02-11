@@ -8,9 +8,9 @@ import (
 )
 
 type SequenceDataset struct {
-	dataset.AbstractDataset `edgedb:"$inline" json:",inline"`
-	Sites                   []SiteItem `edgedb:"sites" json:"sites"`
-	Sequences               []Sequence `edgedb:"sequences" json:"sequences"`
+	dataset.Dataset `edgedb:"$inline" json:",inline"`
+	Sites           []SiteItem `edgedb:"sites" json:"sites"`
+	Sequences       []Sequence `edgedb:"sequences" json:"sequences"`
 }
 
 func ListSequenceDatasets(db edgedb.Executor) (datasets []SequenceDataset, err error) {

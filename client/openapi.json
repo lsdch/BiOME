@@ -796,6 +796,59 @@
 				],
 				"type": "object"
 			},
+			"Dataset": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Dataset.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"category": {
+						"$ref": "#/components/schemas/DatasetCategory"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"pinned": {
+						"type": "boolean"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"maintainers",
+					"meta",
+					"id",
+					"label",
+					"slug",
+					"pinned",
+					"description",
+					"category"
+				],
+				"type": "object"
+			},
 			"DatasetCategory": {
 				"enum": [
 					"Site",
@@ -808,6 +861,9 @@
 			"DatasetInner": {
 				"additionalProperties": false,
 				"properties": {
+					"category": {
+						"$ref": "#/components/schemas/DatasetCategory"
+					},
 					"description": {
 						"type": "string"
 					},
@@ -830,7 +886,8 @@
 					"label",
 					"slug",
 					"pinned",
-					"description"
+					"description",
+					"category"
 				],
 				"type": "object"
 			},
@@ -2830,6 +2887,9 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"category": {
+						"$ref": "#/components/schemas/DatasetCategory"
+					},
 					"description": {
 						"type": "string"
 					},
@@ -2881,7 +2941,8 @@
 					"label",
 					"slug",
 					"pinned",
-					"description"
+					"description",
+					"category"
 				],
 				"type": "object"
 			},
@@ -4067,59 +4128,6 @@
 				],
 				"type": "object"
 			},
-			"PolymorphicDataset": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/PolymorphicDataset.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"category": {
-						"$ref": "#/components/schemas/DatasetCategory"
-					},
-					"description": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"maintainers": {
-						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"pinned": {
-						"type": "boolean"
-					},
-					"slug": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"category",
-					"maintainers",
-					"meta",
-					"id",
-					"label",
-					"slug",
-					"pinned",
-					"description"
-				],
-				"type": "object"
-			},
 			"Program": {
 				"additionalProperties": false,
 				"properties": {
@@ -5273,6 +5281,9 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"category": {
+						"$ref": "#/components/schemas/DatasetCategory"
+					},
 					"description": {
 						"type": "string"
 					},
@@ -5320,7 +5331,8 @@
 					"label",
 					"slug",
 					"pinned",
-					"description"
+					"description",
+					"category"
 				],
 				"type": "object"
 			},
@@ -5531,6 +5543,9 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"category": {
+						"$ref": "#/components/schemas/DatasetCategory"
+					},
 					"description": {
 						"type": "string"
 					},
@@ -5571,7 +5586,8 @@
 					"label",
 					"slug",
 					"pinned",
-					"description"
+					"description",
+					"category"
 				],
 				"type": "object"
 			},
@@ -8575,7 +8591,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/PolymorphicDataset"
+										"$ref": "#/components/schemas/Dataset"
 									},
 									"type": "array"
 								}
@@ -8794,7 +8810,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/PolymorphicDataset"
+									"$ref": "#/components/schemas/Dataset"
 								}
 							}
 						},

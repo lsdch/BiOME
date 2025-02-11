@@ -461,14 +461,14 @@ export const getBioMaterialResponseTransformer = async (
   return data
 }
 
-const polymorphicDatasetSchemaResponseTransformer = (data: any) => {
+const datasetSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
 export const listDatasetsResponseTransformer = async (data: any): Promise<ListDatasetsResponse> => {
   data = data.map((item: any) => {
-    return polymorphicDatasetSchemaResponseTransformer(item)
+    return datasetSchemaResponseTransformer(item)
   })
   return data
 }
@@ -511,7 +511,7 @@ export const getOccurrenceDatasetResponseTransformer = async (
 export const togglePinDatasetResponseTransformer = async (
   data: any
 ): Promise<TogglePinDatasetResponse> => {
-  data = polymorphicDatasetSchemaResponseTransformer(data)
+  data = datasetSchemaResponseTransformer(data)
   return data
 }
 

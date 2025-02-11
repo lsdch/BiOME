@@ -1,6 +1,8 @@
 module datasets {
 
-  abstract type AbstractDataset extending default::Auditable {
+  scalar type DatasetCategory extending enum<Site, Occurrence, Seq>;
+
+  abstract type Dataset extending default::Auditable {
     required label: str {
       constraint min_len_value(4);
       constraint max_len_value(40);
@@ -22,30 +24,20 @@ module datasets {
       # rewrite insert using (global default::current_user.identity union .maintainers);
       # rewrite update using (.maintainers union .meta.created_by_user.identity);
     };
+    required category := <DatasetCategory>str_replace(
+      str_split(.__type__.name, "::")[1],
+      "Dataset", ""
+    );
   }
 
-  scalar type DatasetCategory extending enum<Site, Occurrence, Seq>;
-
-  alias AnyDataset := (
-    select AbstractDataset {
-      **,
-      category := (assert_exists(
-        if AbstractDataset is SiteDataset then DatasetCategory.Site
-        else if AbstractDataset is OccurrenceDataset then DatasetCategory.Occurrence
-        else if AbstractDataset is SeqDataset then DatasetCategory.Seq
-        else <DatasetCategory>{}
-      ))
-    }
-  );
-
-  type SiteDataset extending AbstractDataset {
+  type SiteDataset extending Dataset {
     multi sites: location::Site {
       on target delete allow;
       on source delete allow;
     };
   };
 
-  type OccurrenceDataset extending AbstractDataset {
+  type OccurrenceDataset extending Dataset {
     multi occurrences: occurrence::Occurrence {
       on target delete allow;
       on source delete allow;
@@ -65,7 +57,7 @@ module datasets {
     ));
   }
 
-  type SeqDataset extending AbstractDataset {
+  type SeqDataset extending Dataset {
     multi sequences: seq::Sequence {
       on target delete allow;
       on source delete allow;

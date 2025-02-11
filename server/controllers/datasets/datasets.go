@@ -52,14 +52,14 @@ type PinDatasetInput struct {
 	controllers.SlugInput
 }
 
-func PinUnpinDataset(ctx context.Context, input *PinDatasetInput) (*controllers.UpdateHandlerOutput[dataset.PolymorphicDataset], error) {
+func PinUnpinDataset(ctx context.Context, input *PinDatasetInput) (*controllers.UpdateHandlerOutput[dataset.Dataset], error) {
 
 	pinned, err := dataset.TogglePinDataset(input.DB(), input.Slug)
 
 	if err = controllers.StatusError(err); err != nil {
 		return nil, err
 	}
-	return &controllers.UpdateHandlerOutput[dataset.PolymorphicDataset]{
+	return &controllers.UpdateHandlerOutput[dataset.Dataset]{
 		Body: pinned,
 	}, nil
 }

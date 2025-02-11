@@ -21,13 +21,13 @@ type OccurrencePerSite map[string]EventInputWithActions
 
 // SiteDataset represents a dataset of sites.
 type SiteDataset struct {
-	dataset.AbstractDataset `edgedb:"$inline" json:",inline"`
-	Sites                   []SiteItem `edgedb:"sites" json:"sites"`
+	dataset.Dataset `edgedb:"$inline" json:",inline"`
+	Sites           []SiteItem `edgedb:"sites" json:"sites"`
 }
 
 func (d *SiteDataset) ToOccurrenceDataset() *OccurrenceDataset {
 	return &OccurrenceDataset{
-		AbstractDataset: dataset.AbstractDataset{
+		Dataset: dataset.Dataset{
 			DatasetInner: dataset.DatasetInner{
 				ID:          d.ID,
 				Label:       d.Label,

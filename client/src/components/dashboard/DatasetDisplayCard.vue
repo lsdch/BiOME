@@ -19,12 +19,12 @@
 </template>
 
 <script setup lang="ts">
-import { Meta, PolymorphicDataset } from '@/api'
+import { Meta, Dataset } from '@/api'
 import { computed } from 'vue'
 import DatasetCategoryIcon from '../datasets/DatasetCategoryIcon'
 
 const { dataset } = defineProps<{
-  dataset: PolymorphicDataset
+  dataset: Dataset
 }>()
 
 const targetRouteName = computed<string>(() => {

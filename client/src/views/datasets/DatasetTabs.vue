@@ -8,7 +8,7 @@
     </v-tabs>
     <v-tabs-window v-model="tab">
       <v-tabs-window-item value="sites" key="sites">
-        <CRUDTable :headers v-model:items="dataset.sites" entityName="Site" density="compact">
+        <CRUDTable :headers :items="dataset.sites" entityName="Site" density="compact">
           <template #[`item.name`]="{ item }: { item: Site }">
             <RouterLink :to="{ name: 'site-item', params: { code: item.code } }">
               {{ item.name }}
@@ -21,16 +21,16 @@
 </template>
 
 <script setup lang="ts">
-import { Dataset, Site } from '@/api'
+import { Dataset, Site, SiteItem } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { ref } from 'vue'
 
-defineProps<{ dataset: Dataset }>()
+defineProps<{ dataset: Dataset & { sites: SiteItem[] } }>()
 
 type Tab = 'sites'
 const tab = ref<Tab>()
 
-const headers: CRUDTableHeader[] = [
+const headers: CRUDTableHeader<SiteItem>[] = [
   { key: 'name', title: 'Name' },
   { key: 'locality', title: 'Locality' },
   {
