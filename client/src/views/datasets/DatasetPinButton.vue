@@ -10,6 +10,7 @@
         :rounded="true"
         variant="text"
         size="x-small"
+        :title="dataset.pinned ? 'Unpin dataset' : 'Pin dataset'"
         v-bind="{ ...$attrs, ...props }"
       >
       </v-btn>
