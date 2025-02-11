@@ -1,5 +1,5 @@
 <template>
-  <v-navigation-drawer location="right" permanent>
+  <v-navigation-drawer v-if="!mobile" location="right" permanent>
     <v-tabs v-model="tab" density="compact">
       <v-tab prepend-icon="mdi-creation-outline" value="pinned" stacked size="small" />
       <v-tab prepend-icon="mdi-update" value="recent" stacked size="small" />
@@ -46,6 +46,9 @@ import { useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
 import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import DatasetDisplayCard from './DatasetDisplayCard.vue'
+import { useDisplay } from 'vuetify'
+
+const { mobile } = useDisplay()
 
 const tab = ref<'pinned' | 'recent'>('pinned')
 

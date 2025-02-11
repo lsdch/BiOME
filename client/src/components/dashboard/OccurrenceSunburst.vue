@@ -2,16 +2,16 @@
   <ActivableCardDialog
     ref="sunburst"
     title="Occurrences overview"
-    class="fill-height w-100"
+    class="w-100 d-flex flex-column"
     v-model="fullscreen"
     fullscreen
     :min-height="300"
-    max-height="100vh"
+    :height="500"
   >
     <template #append>
       <v-menu :close-on-content-click="false" location="bottom" origin="top center">
         <template #activator="{ props }">
-          <v-btn icon="mdi-cog" variant="plain" color="" v-bind="props"></v-btn>
+          <v-btn icon="mdi-cog" variant="text" color="" v-bind="props"></v-btn>
         </template>
         <v-list :width="300" max-width="100vw">
           <v-list-item title="Taxonomic scope">
@@ -33,6 +33,7 @@
       </v-menu>
       <v-btn
         color=""
+        variant="text"
         :icon="fullscreen ? 'mdi-close' : 'mdi-fullscreen'"
         @click="toggleFullscreen()"
       ></v-btn>

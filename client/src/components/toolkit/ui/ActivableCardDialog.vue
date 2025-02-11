@@ -9,7 +9,7 @@
     <template #append>
       <slot name="append"></slot>
     </template>
-    <v-card-text>
+    <v-card-text class="fill-height">
       <slot></slot>
     </v-card-text>
   </CardDialog>

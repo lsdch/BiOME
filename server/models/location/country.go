@@ -40,3 +40,17 @@ func ListCountries(db edgedb.Executor) ([]Country, error) {
 	err := db.Query(context.Background(), query, &countries)
 	return countries, err
 }
+
+type CountryWithSitesCount struct {
+	Country    `json:",inline" edgedb:"$inline"`
+	SitesCount int64 `json:"sites_count" edgedb:"sites_count"`
+}
+
+func SitesCountByCountry(db edgedb.Executor) ([]CountryWithSitesCount, error) {
+	var res []CountryWithSitesCount
+	err := db.Query(context.Background(),
+		`#edgeql
+			select location::Country { *, sites_count := count(.sites) }
+		`, &res)
+	return res, err
+}

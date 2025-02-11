@@ -6,7 +6,7 @@
       </template>
     </v-card>
   </v-container>
-  <v-sheet min-height="100%" class="d-flex flex-column justify-space-between bg-main fill-height">
+  <v-sheet min-height="100%" class="d-flex flex-column justify-space-between bg-main">
     <DashBoard />
   </v-sheet>
   <v-footer border="t-sm">

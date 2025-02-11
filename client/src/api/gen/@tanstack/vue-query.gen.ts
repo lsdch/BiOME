@@ -140,6 +140,7 @@ import type {
   ImportGbifResponse,
   MonitorGbifData,
   ListCountriesData,
+  GetSitesCountByCountryData,
   OccurrenceOverviewData,
   ListOrganisationsData,
   CreateOrganisationData,
@@ -1637,6 +1638,25 @@ export const listCountriesOptions = (options?: Options<ListCountriesData>) => {
       return data
     },
     queryKey: listCountriesQueryKey(options)
+  })
+}
+
+export const getSitesCountByCountryQueryKey = (options?: Options<GetSitesCountByCountryData>) => [
+  createQueryKey('getSitesCountByCountry', options)
+]
+
+export const getSitesCountByCountryOptions = (options?: Options<GetSitesCountByCountryData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await LocationService.getSitesCountByCountry({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getSitesCountByCountryQueryKey(options)
   })
 }
 

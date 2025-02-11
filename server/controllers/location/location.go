@@ -23,4 +23,13 @@ func RegisterRoutes(r router.Router) {
 		}, controllers.ListHandler[*struct {
 			resolvers.AuthResolver
 		}](location.ListCountries))
+
+	router.Register(locationAPI, "getSitesCountByCountry",
+		huma.Operation{
+			Path:    "/countries/sites-count",
+			Method:  http.MethodGet,
+			Summary: "Get country list with sites count",
+		}, controllers.ListHandler[*struct {
+			resolvers.AuthResolver
+		}](location.SitesCountByCountry))
 }

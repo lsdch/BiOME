@@ -175,6 +175,9 @@ import type {
   ListCountriesData,
   ListCountriesResponse,
   ListCountriesError,
+  GetSitesCountByCountryData,
+  GetSitesCountByCountryResponse,
+  GetSitesCountByCountryError,
   OccurrenceOverviewData,
   OccurrenceOverviewResponse,
   OccurrenceOverviewError,
@@ -2373,6 +2376,28 @@ export class LocationService {
   }
 
   /**
+   * Get country list with sites count
+   */
+  public static getSitesCountByCountry<ThrowOnError extends boolean = false>(
+    options?: Options<GetSitesCountByCountryData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      GetSitesCountByCountryResponse,
+      GetSitesCountByCountryError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/locations/countries/sites-count',
+      ...options
+    })
+  }
+
+  /**
    * List sites
    * List all registered sites
    */
@@ -2516,6 +2541,28 @@ export class CountriesService {
         }
       ],
       url: '/locations/countries',
+      ...options
+    })
+  }
+
+  /**
+   * Get country list with sites count
+   */
+  public static getSitesCountByCountry<ThrowOnError extends boolean = false>(
+    options?: Options<GetSitesCountByCountryData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      GetSitesCountByCountryResponse,
+      GetSitesCountByCountryError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/locations/countries/sites-count',
       ...options
     })
   }

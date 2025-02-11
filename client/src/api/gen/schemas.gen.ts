@@ -608,6 +608,30 @@ export const $Country = {
   type: 'object'
 } as const
 
+export const $CountryWithSitesCount = {
+  additionalProperties: false,
+  properties: {
+    code: {
+      examples: ['DE'],
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    name: {
+      examples: ['Germany'],
+      type: 'string'
+    },
+    sites_count: {
+      format: 'int64',
+      type: 'integer'
+    }
+  },
+  required: ['sites_count', 'id', 'name', 'code'],
+  type: 'object'
+} as const
+
 export const $CrossRefPerson = {
   additionalProperties: false,
   properties: {

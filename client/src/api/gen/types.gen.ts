@@ -206,6 +206,13 @@ export type Country = {
   name: string
 }
 
+export type CountryWithSitesCount = {
+  code: string
+  id: string
+  name: string
+  sites_count: number
+}
+
 export type CrossRefPerson = {
   ORCID?: string
   affiliation?: Array<Organization>
@@ -3996,6 +4003,43 @@ export type ListCountriesResponses = {
 }
 
 export type ListCountriesResponse = ListCountriesResponses[keyof ListCountriesResponses]
+
+export type GetSitesCountByCountryData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/locations/countries/sites-count'
+}
+
+export type GetSitesCountByCountryErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetSitesCountByCountryError =
+  GetSitesCountByCountryErrors[keyof GetSitesCountByCountryErrors]
+
+export type GetSitesCountByCountryResponses = {
+  /**
+   * OK
+   */
+  200: Array<CountryWithSitesCount>
+}
+
+export type GetSitesCountByCountryResponse =
+  GetSitesCountByCountryResponses[keyof GetSitesCountByCountryResponses]
 
 export type OccurrenceOverviewData = {
   body?: never
