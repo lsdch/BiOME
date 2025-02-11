@@ -26,7 +26,9 @@
     <template #expanded-row-inject="{ item }">
       <div class="pa-3">
         <p class="mb-2">{{ item.description }}</p>
-        <p>Managers: <v-chip v-for="m in item.managers" :text="m.full_name" /></p>
+        <p>
+          Managers: <PersonChip v-for="person in item.managers" :person size="small" class="ma-1" />
+        </p>
       </div>
     </template>
 
@@ -49,6 +51,7 @@ import { Program } from '@/api'
 import { deleteProgramMutation, listProgramsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ProgramFormDialog from '@/components/events/ProgramFormDialog.vue'
 import OrgKindChip from '@/components/people/OrgKindChip.vue'
+import PersonChip from '@/components/people/PersonChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { useDisplay } from 'vuetify'
 
