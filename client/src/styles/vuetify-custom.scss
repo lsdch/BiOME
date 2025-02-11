@@ -1,0 +1,4 @@
+.v-list-item-subtitle {
+  // Fixes vuetify clipping low hanging letters like 'g' and 'y'
+  line-height: 1.1rem;
+}
