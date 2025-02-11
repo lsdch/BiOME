@@ -72,7 +72,7 @@
       <div class="w-100">
         <v-card density="compact" flat>
           <v-card-title class="text-body-2">Description</v-card-title>
-          <v-card-text class="text-caption">{{ item.description }}</v-card-text>
+          <v-card-text class="text-caption">{{ item.description ?? 'None provided' }}</v-card-text>
         </v-card>
         <v-divider />
         <v-card flat :min-width="300">
@@ -80,17 +80,13 @@
             <v-list-subheader>
               {{ item.people?.length ? 'PEOPLE' : 'No people registered in this organisation.' }}
             </v-list-subheader>
-            <v-list-item v-for="person in item.people" :key="person.id" class="item-person py-0">
-              <v-list-item-title class="text-body-2">
-                {{ person.full_name }}
-              </v-list-item-title>
-              <v-list-item-subtitle>
-                {{ `@${person.alias}` }}
-              </v-list-item-subtitle>
-              <template #prepend>
-                <UserRole.Icon :role="person.role" size="small" />
-              </template>
-            </v-list-item>
+            <PersonChip
+              v-for="person in item.people"
+              :key="person.id"
+              :person="person"
+              size="small"
+              class="ma-1"
+            />
           </v-list>
         </v-card>
       </div>
@@ -111,6 +107,7 @@ import {
   deleteOrganisationMutation,
   listOrganisationsOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
+import PersonChip from './PersonChip.vue'
 
 const { mdAndUp } = useDisplay()
 
