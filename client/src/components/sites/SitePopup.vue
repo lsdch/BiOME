@@ -52,34 +52,4 @@ const { zoom = 1, item } = defineProps<{
 }>()
 </script>
 
-<style lang="scss">
-@use 'vuetify';
-.leaflet-popup {
-  .v-list-item-subtitle {
-    font-size: 0.8rem;
-  }
-  .leaflet-popup-content-wrapper,
-  .leaflet-popup-tip {
-    background-color: rgb(var(--v-theme-surface));
-    color: rgb(var(--v-theme-on-surface));
-  }
-  .leaflet-popup-content-wrapper {
-    border-radius: 0;
-    .leaflet-popup-content {
-      margin: 0px;
-
-      .coordinates {
-        display: grid;
-        grid-template-columns: [label] 0fr [value] 1fr;
-        grid-template-rows: 1fr 1fr;
-        column-gap: 10px;
-
-        .label {
-          grid-column: label;
-          font-family: monospace;
-        }
-      }
-    }
-  }
-}
-</style>
+<style lang="scss"></style>

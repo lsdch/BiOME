@@ -118,7 +118,15 @@
           :color-range="['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']"
           :opacity="[0.8, 0.9]"
           style="cursor: pointer"
-        ></LHexbinLayer>
+        >
+          <template #popup="{ data }">
+            <LPopup :options="{ closeButton: false }">
+              <v-card-text class="text-center">
+                <code class="font-weight-bold">{{ data?.length }}</code>
+              </v-card-text>
+            </LPopup>
+          </template>
+        </LHexbinLayer>
 
         <LMarkerClusterGroup
           v-else-if="markerMode === 'cluster'"
@@ -170,6 +178,7 @@ import {
   LControlScale,
   LLayerGroup,
   LMap,
+  LPopup,
   LTileLayer
 } from '@vue-leaflet/vue-leaflet'
 import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
@@ -190,7 +199,7 @@ import { Geocoordinates } from '.'
 import { vElementVisibility } from '@vueuse/components'
 import MarkerControl, { MarkerLayer } from './MarkerControl.vue'
 
-const markerMode = ref<MarkerLayer>('cluster')
+const markerMode = defineModel<MarkerLayer>('marker-mode', { default: 'cluster' })
 
 const zoom = ref(1)
 const map = ref<HTMLElement>()
@@ -322,5 +331,9 @@ defineExpose({ fitBounds })
   stroke-opacity: 0.5;
   stroke-width: 1;
   cursor: pointer;
+  &.hover {
+    stroke-width: 2;
+    stroke: orangered;
+  }
 }
 </style>
