@@ -48,7 +48,13 @@
         >
           <v-alert color="error" variant="elevated">Failed to load sampling sites</v-alert>
         </v-overlay>
-        <SitesMap ref="map" :items="sites" clustered :auto-fit="(sites?.length ?? 0) > 1">
+        <SitesMap
+          ref="map"
+          :items="sites"
+          clustered
+          :auto-fit="(sites?.length ?? 0) > 1"
+          v-model:marker-mode="markerMode"
+        >
           <template #popup="{ item, popupOpen, zoom }">
             <KeepAlive>
               <SitePopup
@@ -69,17 +75,19 @@
 <script setup lang="ts">
 import SitesMap from '@/components/maps/SitesMap.vue'
 
+import { Site } from '@/api'
 import { listSitesOptions, listSitesQueryKey } from '@/api/gen/@tanstack/vue-query.gen'
 import DatasetPicker from '@/components/datasets/DatasetPicker.vue'
+import { MarkerLayer } from '@/components/maps/MarkerControl.vue'
 import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
 import SitePopup from '@/components/sites/SitePopup.vue'
 import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { useToggle } from '@vueuse/core'
+import { useLocalStorage, useToggle } from '@vueuse/core'
 import { useDisplay } from 'vuetify'
-import { Site } from '@/api'
+import { ref, watch } from 'vue'
 
 const { xs } = useDisplay()
 
@@ -94,6 +102,10 @@ function onCreated(newSite: Site) {
     sites ? [newSite, ...sites] : [newSite]
   )
 }
+
+const markerMode = useLocalStorage<MarkerLayer>('site-view-marker-mode', 'cluster', {
+  initOnMounted: true
+})
 </script>
 
 <style lang="scss">

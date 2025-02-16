@@ -21,8 +21,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0(@babel/core@7.26.9)(@babel/template@7.26.9)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@tanstack/vue-query':
-        specifier: ^5.66.0
-        version: 5.66.0(vue@3.5.13(typescript@5.7.3))
+        specifier: ^5.66.3
+        version: 5.66.3(vue@3.5.13(typescript@5.7.3))
       '@vue-flow/background':
         specifier: ^1.3.2
         version: 1.3.2(@vue-flow/core@1.42.1(vue@3.5.13(typescript@5.7.3)))(vue@3.5.13(typescript@5.7.3))
@@ -45,14 +45,14 @@ importers:
         specifier: ^2.0.4
         version: 2.0.4(vue@3.5.13(typescript@5.7.3))
       '@vueuse/components':
-        specifier: ^12.6.1
-        version: 12.6.1(typescript@5.7.3)
+        specifier: ^12.7.0
+        version: 12.7.0(typescript@5.7.3)
       '@vueuse/core':
-        specifier: ^12.6.1
-        version: 12.6.1(typescript@5.7.3)
+        specifier: ^12.7.0
+        version: 12.7.0(typescript@5.7.3)
       '@vueuse/router':
-        specifier: ^12.6.1
-        version: 12.6.1(typescript@5.7.3)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))
+        specifier: ^12.7.0
+        version: 12.7.0(typescript@5.7.3)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))
       '@zxcvbn-ts/core':
         specifier: ^3.0.4
         version: 3.0.4
@@ -108,8 +108,8 @@ importers:
         specifier: ^2.8.9
         version: 2.8.9(vue@3.5.13(typescript@5.7.3))
       vue-component-type-helpers:
-        specifier: ^2.2.0
-        version: 2.2.0
+        specifier: ^2.2.2
+        version: 2.2.2
       vue-debounce:
         specifier: ^5.0.1
         version: 5.0.1(vue@3.5.13(typescript@5.7.3))
@@ -117,8 +117,8 @@ importers:
         specifier: ^7.0.3
         version: 7.0.3(@vue/runtime-core@3.5.13)(echarts@5.6.0)(vue@3.5.13(typescript@5.7.3))
       vue-leaflet-hexbin:
-        specifier: ^0.1.5
-        version: 0.1.5(@vue-leaflet/vue-leaflet@0.10.1(@types/leaflet@1.9.16)(leaflet@1.9.4)(typescript@5.7.3))(geojson@0.5.0)(leaflet@1.9.4)(typescript@5.7.3)
+        specifier: ^0.1.6
+        version: 0.1.6(@vue-leaflet/vue-leaflet@0.10.1(@types/leaflet@1.9.16)(leaflet@1.9.4)(typescript@5.7.3))(geojson@0.5.0)(leaflet@1.9.4)(typescript@5.7.3)
       vue-leaflet-markercluster:
         specifier: ^0.6.1
         version: 0.6.1(@vue-leaflet/vue-leaflet@0.10.1(@types/leaflet@1.9.16)(leaflet@1.9.4)(typescript@5.7.3))(typescript@5.7.3)
@@ -232,8 +232,8 @@ importers:
         specifier: ^3.0.5
         version: 3.0.5(@types/node@22.13.4)(jiti@2.4.2)(jsdom@26.0.0)(less@4.2.2)(sass-embedded@1.85.0)
       vue-tsc:
-        specifier: ^2.2.0
-        version: 2.2.0(typescript@5.7.3)
+        specifier: ^2.2.2
+        version: 2.2.2(typescript@5.7.3)
 
 packages:
 
@@ -1116,11 +1116,11 @@ packages:
     resolution: {integrity: sha512-Wo1iKt2b9OT7d+YGhvEPD3DXvPv2etTusIMhMUoG7fbhmxcXCtIjJDEygy91Y2JFlwGyjqiBPRozme7UD8hoqg==}
     engines: {node: '>=12'}
 
-  '@tanstack/query-core@5.66.0':
-    resolution: {integrity: sha512-J+JeBtthiKxrpzUu7rfIPDzhscXF2p5zE/hVdrqkACBP8Yu0M96mwJ5m/8cPPYQE9aRNvXztXHlNwIh4FEeMZw==}
+  '@tanstack/query-core@5.66.3':
+    resolution: {integrity: sha512-+2iDxH7UFdtwcry766aJszGmbByQDIzTltJ3oQAZF9bhCxHCIN3yDwHa6qDCZxcpMGvUphCRx/RYJvLbM8mucQ==}
 
-  '@tanstack/vue-query@5.66.0':
-    resolution: {integrity: sha512-P0IIpP2n0Ovn2aRfjn9fyb3Agse5JNZOhCkML+arVkTu6sOSc5QlZkha5R06viE3vGnGGOLHVBTTzm4dBz/USQ==}
+  '@tanstack/vue-query@5.66.3':
+    resolution: {integrity: sha512-irxKp+osvXSQd8Fk+eMRMkxAb07FurmmoTl7PgWKDbssGVYubvS4jhAgCltxMcOJpR99fiqAxS/gAZLnzaJnqw==}
     peerDependencies:
       '@vue/composition-api': ^1.1.2
       vue: ^2.6.0 || ^3.3.0
@@ -1410,8 +1410,8 @@ packages:
       typescript:
         optional: true
 
-  '@vue/language-core@2.2.0':
-    resolution: {integrity: sha512-O1ZZFaaBGkKbsRfnVH1ifOK1/1BUkyK+3SQsfnh6PmMmD4qJcTU8godCeA96jjDRTL6zgnK7YzCHfaUlH2r0Mw==}
+  '@vue/language-core@2.2.2':
+    resolution: {integrity: sha512-QotO41kurE5PLf3vrNgGTk3QswO2PdUFjBwNiOi7zMmGhwb25PSTh9hD1MCgKC06AVv+8sZQvlL3Do4TTVHSiQ==}
     peerDependencies:
       typescript: '*'
     peerDependenciesMeta:
@@ -1473,31 +1473,31 @@ packages:
       vue: ^3.0.0
       vuetify: ^3.0.0
 
-  '@vueuse/components@12.6.1':
-    resolution: {integrity: sha512-HHe9JN9caTu7LendHzBtoOy8DK1T/a0L0POjxj8wAHODrs7AxkCY7EghNo8f9UafcWMRShy321S/5u8a1aGVMQ==}
+  '@vueuse/components@12.7.0':
+    resolution: {integrity: sha512-LbaKPOx9sTPRxI8ymJt3VCm2CifmC432yaXxCGbjkuKIh2jyNlXvE7sGrLm7kbC7WkBJnUXzm3K/cI1pIE8ueQ==}
 
   '@vueuse/core@10.11.1':
     resolution: {integrity: sha512-guoy26JQktXPcz+0n3GukWIy/JDNKti9v6VEMu6kV2sYBsWuGiTU8OWdg+ADfUbHg3/3DlqySDe7JmdHrktiww==}
 
-  '@vueuse/core@12.6.1':
-    resolution: {integrity: sha512-FpgM1tXGAHsAC5n4Tflyg0vSoJUmdevfKaAhKFdxiK9BTIdHOHOiWmo+xivwdzjYFIvI8cEeJWYuqs646jOM2w==}
+  '@vueuse/core@12.7.0':
+    resolution: {integrity: sha512-jtK5B7YjZXmkGNHjviyGO4s3ZtEhbzSgrbX+s5o+Lr8i2nYqNyHuPVOeTdM1/hZ5Tkxg/KktAuAVDDiHMraMVA==}
 
   '@vueuse/metadata@10.11.1':
     resolution: {integrity: sha512-IGa5FXd003Ug1qAZmyE8wF3sJ81xGLSqTqtQ6jaVfkeZ4i5kS2mwQF61yhVqojRnenVew5PldLyRgvdl4YYuSw==}
 
-  '@vueuse/metadata@12.6.1':
-    resolution: {integrity: sha512-2094HNXGdsU3aqRbad0vmlRgGncMC4u2f6nFdW1mUn7b7ym4hORrDZfyeq8G5BfGvX4y0zZynWfCdtB2WwpyVw==}
+  '@vueuse/metadata@12.7.0':
+    resolution: {integrity: sha512-4VvTH9mrjXqFN5LYa5YfqHVRI6j7R00Vy4995Rw7PQxyCL3z0Lli86iN4UemWqixxEvYfRjG+hF9wL8oLOn+3g==}
 
-  '@vueuse/router@12.6.1':
-    resolution: {integrity: sha512-tQts+/ZVM6W1CrzDyaKlUF5j8cUgka1B+lkYXLbrlEPK+3bv1DKFgkchcg+WzPPfJEh0cHVy+7KfKLMtwAZqRQ==}
+  '@vueuse/router@12.7.0':
+    resolution: {integrity: sha512-Jp6dIel54oc2nh++zqjY06ipCcTT6YWDCNQ8dSSnqRwx90wIl7w7MQP7Wpp1wrDwXEoqhelfeZf2gjfrkAhq3g==}
     peerDependencies:
       vue-router: '>=4.0.0-rc.1'
 
   '@vueuse/shared@10.11.1':
     resolution: {integrity: sha512-LHpC8711VFZlDaYUXEBbFBCQ7GS3dVU9mjOhhMhXP6txTV4EhYQg/KGnQuvt/sPAtoUKq7VVUnL6mVtFoL42sA==}
 
-  '@vueuse/shared@12.6.1':
-    resolution: {integrity: sha512-ukTb2na19KT1/YVjj4CYBDOgiV/xmsSJRL6TcKeiz2db+P5bT3I0OJxy38eRR3WSN8CmSnt7MdVJ16vX6VZFxg==}
+  '@vueuse/shared@12.7.0':
+    resolution: {integrity: sha512-coLlUw2HHKsm7rPN6WqHJQr18WymN4wkA/3ThFaJ4v4gWGWAQQGK+MJxLuJTBs4mojQiazlVWAKNJNpUWGRkNw==}
 
   '@xobotyi/scrollbar-width@1.9.5':
     resolution: {integrity: sha512-N8tkAACJx2ww8vFMneJmaAgmjAG1tnVBZJRLRcx061tmsLRZHSEZSLuGWnwPtunsSLvSqXQ2wfp7Mgqg1I+2dQ==}
@@ -1536,8 +1536,8 @@ packages:
   ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
 
-  alien-signals@0.4.14:
-    resolution: {integrity: sha512-itUAVzhczTmP2U5yX67xVpsbbOiquusbWVyA9N+sy6+r6YVbFkahXvNCeEPWEOMhwDYwbVbGHFkVL03N9I5g+Q==}
+  alien-signals@1.0.3:
+    resolution: {integrity: sha512-zQOh3wAYK5ujENxvBBR3CFGF/b6afaSzZ/c9yNhJ1ENrGHETvpUuKQsa93Qrclp0+PzTF93MaZ7scVp1uUozhA==}
 
   ansi-colors@4.1.3:
     resolution: {integrity: sha512-/6w/C21Pm1A7aZitlI5Ni/2J6FFQN8i1Cvz3kHABAAbw93v/NlvKdVOqz7CCWz/3iv/JplRSEEZ83XION15ovw==}
@@ -4709,8 +4709,8 @@ packages:
     peerDependencies:
       vue: ^3.0.0
 
-  vue-component-type-helpers@2.2.0:
-    resolution: {integrity: sha512-cYrAnv2me7bPDcg9kIcGwjJiSB6Qyi08+jLDo9yuvoFQjzHiPTzML7RnkJB1+3P6KMsX/KbCD4QE3Tv/knEllw==}
+  vue-component-type-helpers@2.2.2:
+    resolution: {integrity: sha512-6lLY+n2xz2kCYshl59mL6gy8OUUTmkscmDFMO8i7Lj+QKwgnIFUZmM1i/iTYObtrczZVdw7UakPqDTGwVSGaRg==}
 
   vue-debounce@5.0.1:
     resolution: {integrity: sha512-tJWEDhjHQ47MAUnr7EtZvClNQZJUlKlzd6TVxkSCzWXjeCH/rcKbCDzrd6FNEhvxDOBsTfJFbb9P4f5Xc26Iag==}
@@ -4755,8 +4755,8 @@ packages:
     peerDependencies:
       eslint: '>=6.0.0'
 
-  vue-leaflet-hexbin@0.1.5:
-    resolution: {integrity: sha512-mtAlJyc5E6ZLld23RXTakP07oIbV4H7G+0P8TdLcO+xZs4xxjjKQG/MtnaBMWm3EQK0y9FFdNBqg/cTzKLtgKg==}
+  vue-leaflet-hexbin@0.1.6:
+    resolution: {integrity: sha512-4W9HJJuzJ7w+3yt/IKvdTXUqdCwIYr7FTzaRaLx1Q/6RpdGwvyt3agSvHnFwblW3i3pnQca4CdvemQt94CxxSg==}
     peerDependencies:
       '@vue-leaflet/vue-leaflet': ^0.10.1
       leaflet: ^1.9.4
@@ -4771,8 +4771,8 @@ packages:
     peerDependencies:
       vue: ^3.2.0
 
-  vue-tsc@2.2.0:
-    resolution: {integrity: sha512-gtmM1sUuJ8aSb0KoAFmK9yMxb8TxjewmxqTJ1aKphD5Cbu0rULFY6+UQT51zW7SpUcenfPUuflKyVwyx9Qdnxg==}
+  vue-tsc@2.2.2:
+    resolution: {integrity: sha512-1icPKkxAA5KTAaSwg0wVWdE48EdsH8fgvcbAiqojP4jXKl6LEM3soiW1aG/zrWrFt8Mw1ncG2vG1PvpZpVfehA==}
     hasBin: true
     peerDependencies:
       typescript: '>=5.0.0'
@@ -6057,12 +6057,12 @@ snapshots:
     dependencies:
       remove-accents: 0.5.0
 
-  '@tanstack/query-core@5.66.0': {}
+  '@tanstack/query-core@5.66.3': {}
 
-  '@tanstack/vue-query@5.66.0(vue@3.5.13(typescript@5.7.3))':
+  '@tanstack/vue-query@5.66.3(vue@3.5.13(typescript@5.7.3))':
     dependencies:
       '@tanstack/match-sorter-utils': 8.19.4
-      '@tanstack/query-core': 5.66.0
+      '@tanstack/query-core': 5.66.3
       '@vue/devtools-api': 6.6.4
       vue: 3.5.13(typescript@5.7.3)
       vue-demi: 0.14.10(vue@3.5.13(typescript@5.7.3))
@@ -6438,13 +6438,13 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vue/language-core@2.2.0(typescript@5.7.3)':
+  '@vue/language-core@2.2.2(typescript@5.7.3)':
     dependencies:
       '@volar/language-core': 2.4.11
       '@vue/compiler-dom': 3.5.13
       '@vue/compiler-vue2': 2.7.16
       '@vue/shared': 3.5.13
-      alien-signals: 0.4.14
+      alien-signals: 1.0.3
       minimatch: 9.0.5
       muggle-string: 0.4.1
       path-browserify: 1.0.1
@@ -6478,7 +6478,7 @@ snapshots:
   '@vue/test-utils@2.4.6':
     dependencies:
       js-beautify: 1.15.3
-      vue-component-type-helpers: 2.2.0
+      vue-component-type-helpers: 2.2.2
 
   '@vue/tsconfig@0.7.0(typescript@5.7.3)(vue@3.5.13(typescript@5.7.3))':
     optionalDependencies:
@@ -6501,10 +6501,10 @@ snapshots:
       vue: 3.5.13(typescript@5.7.3)
       vuetify: 3.7.12(typescript@5.7.3)(vite-plugin-vuetify@2.1.0)(vue@3.5.13(typescript@5.7.3))
 
-  '@vueuse/components@12.6.1(typescript@5.7.3)':
+  '@vueuse/components@12.7.0(typescript@5.7.3)':
     dependencies:
-      '@vueuse/core': 12.6.1(typescript@5.7.3)
-      '@vueuse/shared': 12.6.1(typescript@5.7.3)
+      '@vueuse/core': 12.7.0(typescript@5.7.3)
+      '@vueuse/shared': 12.7.0(typescript@5.7.3)
       vue: 3.5.13(typescript@5.7.3)
     transitivePeerDependencies:
       - typescript
@@ -6519,22 +6519,22 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/core@12.6.1(typescript@5.7.3)':
+  '@vueuse/core@12.7.0(typescript@5.7.3)':
     dependencies:
       '@types/web-bluetooth': 0.0.20
-      '@vueuse/metadata': 12.6.1
-      '@vueuse/shared': 12.6.1(typescript@5.7.3)
+      '@vueuse/metadata': 12.7.0
+      '@vueuse/shared': 12.7.0(typescript@5.7.3)
       vue: 3.5.13(typescript@5.7.3)
     transitivePeerDependencies:
       - typescript
 
   '@vueuse/metadata@10.11.1': {}
 
-  '@vueuse/metadata@12.6.1': {}
+  '@vueuse/metadata@12.7.0': {}
 
-  '@vueuse/router@12.6.1(typescript@5.7.3)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))':
+  '@vueuse/router@12.7.0(typescript@5.7.3)(vue-router@4.5.0(vue@3.5.13(typescript@5.7.3)))':
     dependencies:
-      '@vueuse/shared': 12.6.1(typescript@5.7.3)
+      '@vueuse/shared': 12.7.0(typescript@5.7.3)
       vue: 3.5.13(typescript@5.7.3)
       vue-router: 4.5.0(vue@3.5.13(typescript@5.7.3))
     transitivePeerDependencies:
@@ -6547,7 +6547,7 @@ snapshots:
       - '@vue/composition-api'
       - vue
 
-  '@vueuse/shared@12.6.1(typescript@5.7.3)':
+  '@vueuse/shared@12.7.0(typescript@5.7.3)':
     dependencies:
       vue: 3.5.13(typescript@5.7.3)
     transitivePeerDependencies:
@@ -6585,7 +6585,7 @@ snapshots:
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
 
-  alien-signals@0.4.14: {}
+  alien-signals@1.0.3: {}
 
   ansi-colors@4.1.3: {}
 
@@ -10009,7 +10009,7 @@ snapshots:
       easy-bem: 1.1.1
       vue: 3.5.13(typescript@5.7.3)
 
-  vue-component-type-helpers@2.2.0: {}
+  vue-component-type-helpers@2.2.2: {}
 
   vue-debounce@5.0.1(vue@3.5.13(typescript@5.7.3)):
     dependencies:
@@ -10046,10 +10046,10 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vue-leaflet-hexbin@0.1.5(@vue-leaflet/vue-leaflet@0.10.1(@types/leaflet@1.9.16)(leaflet@1.9.4)(typescript@5.7.3))(geojson@0.5.0)(leaflet@1.9.4)(typescript@5.7.3):
+  vue-leaflet-hexbin@0.1.6(@vue-leaflet/vue-leaflet@0.10.1(@types/leaflet@1.9.16)(leaflet@1.9.4)(typescript@5.7.3))(geojson@0.5.0)(leaflet@1.9.4)(typescript@5.7.3):
     dependencies:
       '@vue-leaflet/vue-leaflet': 0.10.1(@types/leaflet@1.9.16)(leaflet@1.9.4)(typescript@5.7.3)
-      '@vueuse/core': 12.6.1(typescript@5.7.3)
+      '@vueuse/core': 12.7.0(typescript@5.7.3)
       leaflet: 1.9.4
       leaflet-hexbin: 0.1.4(geojson@0.5.0)
       vue: 3.5.13(typescript@5.7.3)
@@ -10069,10 +10069,10 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.13(typescript@5.7.3)
 
-  vue-tsc@2.2.0(typescript@5.7.3):
+  vue-tsc@2.2.2(typescript@5.7.3):
     dependencies:
       '@volar/typescript': 2.4.11
-      '@vue/language-core': 2.2.0(typescript@5.7.3)
+      '@vue/language-core': 2.2.2(typescript@5.7.3)
       typescript: 5.7.3
 
   vue@3.5.13(typescript@5.7.3):

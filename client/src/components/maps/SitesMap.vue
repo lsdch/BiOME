@@ -85,7 +85,11 @@
         <div class="leaflet-bar"></div>
       </LControl>
       <LControl position="bottomleft" v-if="clustered">
-        <MarkerControl v-model="markerMode" />
+        <MarkerControl
+          v-model="markerMode"
+          v-model:hexgrid="hexgridConfig"
+          v-model:cluster="clusterConfig"
+        />
       </LControl>
 
       <LControlLayers hide-single-base />
@@ -112,11 +116,16 @@
           v-if="markerMode === 'hexgrid'"
           :data="items"
           :accessor="(item) => Geocoordinates.LatLng(item)"
-          :radius="10"
-          :radius-range="[9.5, 10]"
-          :hover="{ fill: true }"
+          :radius="hexgridConfig.radius"
+          :radius-range="
+            hexgridConfig.useRadiusRange
+              ? hexgridConfig.radiusRange
+              : [hexgridConfig.radius, hexgridConfig.radius]
+          "
+          :opacity="hexgridConfig.opacity"
+          :hover-fill="hexgridConfig.hover.fill"
+          :hover-scale="hexgridConfig.hover.useScale ? hexgridConfig.hover.scale : undefined"
           :color-range="['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']"
-          :opacity="[0.8, 0.9]"
           style="cursor: pointer"
         >
           <template #popup="{ data }">
@@ -133,6 +142,7 @@
           remove-outside-visible-bounds
           show-coverage-on-hover
           :maxClusterRadius="70"
+          :disable-clustering-at-zoom="11"
         >
           <LCircleMarker
             v-for="item in items"
@@ -181,7 +191,13 @@ import {
   LPopup,
   LTileLayer
 } from '@vue-leaflet/vue-leaflet'
-import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
+import {
+  onKeyStroke,
+  useDebounceFn,
+  useFullscreen,
+  useLocalStorage,
+  useThrottleFn
+} from '@vueuse/core'
 import L, {
   CircleMarkerOptions,
   latLng,
@@ -197,9 +213,25 @@ import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import { Geocoordinates } from '.'
 
 import { vElementVisibility } from '@vueuse/components'
+import { HexgridConfig } from './HexgridConfigPanel.vue'
 import MarkerControl, { MarkerLayer } from './MarkerControl.vue'
 
 const markerMode = defineModel<MarkerLayer>('marker-mode', { default: 'cluster' })
+
+const hexgridConfig = useLocalStorage<HexgridConfig>('hexgrid', {
+  radius: 10,
+  useRadiusRange: false,
+  radiusRange: [10, 10],
+  opacity: 0.8,
+  asRange: false,
+  hover: {
+    fill: true,
+    scale: 1,
+    useScale: false
+  }
+})
+
+const clusterConfig = useLocalStorage<{ radius: number }>('cluster', { radius: 70 })
 
 const zoom = ref(1)
 const map = ref<HTMLElement>()
