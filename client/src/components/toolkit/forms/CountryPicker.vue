@@ -33,8 +33,9 @@
 <script setup lang="ts">
 import { Country } from '@/api'
 import { useCountries } from '@/stores/countries'
+import { storeToRefs } from 'pinia'
 
-const { countries: items, isPending, error } = useCountries()
+const { countries: items, isPending, error } = storeToRefs(useCountries())
 </script>
 
 <style scoped></style>
