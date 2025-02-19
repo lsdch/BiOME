@@ -4,8 +4,17 @@
       <v-list-subheader class="px-2"> Filters </v-list-subheader>
       <v-divider></v-divider>
       <div class="mt-3 px-2">
-        <DatasetPicker density="compact" />
-        <CountryPicker density="compact" />
+        <DatasetPicker density="compact" label="Datasets" />
+        <CountryPicker
+          density="compact"
+          multiple
+          v-model="filters.countries"
+          item-value="code"
+          clear-on-select
+          chips
+          closable-chips
+          clearable
+        />
         <TaxonPicker density="compact" />
         <v-select label="Sampled" clearable density="compact" />
       </div>
@@ -86,15 +95,26 @@ import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useLocalStorage, useToggle } from '@vueuse/core'
+import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import { ref, watch } from 'vue'
 
 const { xs } = useDisplay()
 
 const [drawer, toggleDrawer] = useToggle(true)
 const [createDialog, toggleCreate] = useToggle(false)
 
-const { data: sites, error, isPending, isRefetching, refetch } = useQuery(listSitesOptions())
+const filters = ref({
+  countries: [],
+  datasets: []
+})
+
+const {
+  data: sites,
+  error,
+  isPending,
+  isRefetching,
+  refetch
+} = useQuery(listSitesOptions({ query: filters.value }))
 
 const queryClient = useQueryClient()
 function onCreated(newSite: Site) {
