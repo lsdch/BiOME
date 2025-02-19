@@ -144,6 +144,16 @@ func (o OptionalInput[T]) MarshalEdgeDBStr() ([]byte, error) {
 	return json.Marshal(o.Value)
 }
 
+// Implementation of huma.ParamWrapper interface for request parameters binding
+func (o *OptionalInput[T]) Receiver() reflect.Value {
+	return reflect.ValueOf(o).Elem().Field(0)
+}
+
+// Implementation of huma.ParamReactor interface for request parameters binding
+func (o *OptionalInput[T]) OnParamSet(isSet bool, parsed any) {
+	o.IsSet = isSet
+}
+
 // OptionalNull is a field which can be omitted from the input,
 // set to `null`, or set to a value. Each state is tracked and can
 // be checked for in handling code.
