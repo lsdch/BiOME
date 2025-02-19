@@ -268,7 +268,7 @@ import type {
 } from '../types.gen'
 import { client as _heyApiClient } from '../client.gen'
 
-type QueryKey<TOptions extends Options> = [
+export type QueryKey<TOptions extends Options> = [
   Pick<TOptions, 'baseUrl' | 'body' | 'headers' | 'path' | 'query'> & {
     _id: string
     _infinite?: boolean
@@ -279,7 +279,7 @@ const createQueryKey = <TOptions extends Options>(
   id: string,
   options?: TOptions,
   infinite?: boolean
-): QueryKey<TOptions>[0] => {
+): [QueryKey<TOptions>[0]] => {
   const params: QueryKey<TOptions>[0] = {
     _id: id,
     baseUrl: (options?.client ?? _heyApiClient).getConfig().baseUrl
@@ -299,12 +299,11 @@ const createQueryKey = <TOptions extends Options>(
   if (options?.query) {
     params.query = options.query
   }
-  return params
+  return [params]
 }
 
-export const listAbioticParametersQueryKey = (options?: Options<ListAbioticParametersData>) => [
+export const listAbioticParametersQueryKey = (options?: Options<ListAbioticParametersData>) =>
   createQueryKey('listAbioticParameters', options)
-]
 
 export const listAbioticParametersOptions = (options?: Options<ListAbioticParametersData>) => {
   return queryOptions({
@@ -321,9 +320,8 @@ export const listAbioticParametersOptions = (options?: Options<ListAbioticParame
   })
 }
 
-export const createAbioticParameterQueryKey = (options: Options<CreateAbioticParameterData>) => [
+export const createAbioticParameterQueryKey = (options: Options<CreateAbioticParameterData>) =>
   createQueryKey('createAbioticParameter', options)
-]
 
 export const createAbioticParameterOptions = (options: Options<CreateAbioticParameterData>) => {
   return queryOptions({
@@ -400,9 +398,8 @@ export const updateAbioticParameterMutation = (
   return mutationOptions
 }
 
-export const getAccessPointsQueryKey = (options?: Options<GetAccessPointsData>) => [
+export const getAccessPointsQueryKey = (options?: Options<GetAccessPointsData>) =>
   createQueryKey('getAccessPoints', options)
-]
 
 export const getAccessPointsOptions = (options?: Options<GetAccessPointsData>) => {
   return queryOptions({
@@ -419,9 +416,8 @@ export const getAccessPointsOptions = (options?: Options<GetAccessPointsData>) =
   })
 }
 
-export const currentUserQueryKey = (options?: Options<CurrentUserData>) => [
+export const currentUserQueryKey = (options?: Options<CurrentUserData>) =>
   createQueryKey('currentUser', options)
-]
 
 export const currentUserOptions = (options?: Options<CurrentUserData>) => {
   return queryOptions({
@@ -438,9 +434,8 @@ export const currentUserOptions = (options?: Options<CurrentUserData>) => {
   })
 }
 
-export const confirmEmailQueryKey = (options?: Options<ConfirmEmailData>) => [
+export const confirmEmailQueryKey = (options?: Options<ConfirmEmailData>) =>
   createQueryKey('confirmEmail', options)
-]
 
 export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) => {
   return queryOptions({
@@ -457,9 +452,8 @@ export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) => {
   })
 }
 
-export const resendEmailVerificationQueryKey = (options: Options<ResendEmailVerificationData>) => [
+export const resendEmailVerificationQueryKey = (options: Options<ResendEmailVerificationData>) =>
   createQueryKey('resendEmailVerification', options)
-]
 
 export const resendEmailVerificationOptions = (options: Options<ResendEmailVerificationData>) => {
   return queryOptions({
@@ -496,9 +490,8 @@ export const resendEmailVerificationMutation = (
   return mutationOptions
 }
 
-export const requestPasswordResetQueryKey = (options: Options<RequestPasswordResetData>) => [
+export const requestPasswordResetQueryKey = (options: Options<RequestPasswordResetData>) =>
   createQueryKey('requestPasswordReset', options)
-]
 
 export const requestPasswordResetOptions = (options: Options<RequestPasswordResetData>) => {
   return queryOptions({
@@ -535,7 +528,7 @@ export const requestPasswordResetMutation = (
   return mutationOptions
 }
 
-export const loginQueryKey = (options: Options<LoginData>) => [createQueryKey('login', options)]
+export const loginQueryKey = (options: Options<LoginData>) => createQueryKey('login', options)
 
 export const loginOptions = (options: Options<LoginData>) => {
   return queryOptions({
@@ -566,7 +559,7 @@ export const loginMutation = (options?: Partial<Options<LoginData>>) => {
   return mutationOptions
 }
 
-export const logoutQueryKey = (options: Options<LogoutData>) => [createQueryKey('logout', options)]
+export const logoutQueryKey = (options: Options<LogoutData>) => createQueryKey('logout', options)
 
 export const logoutOptions = (options: Options<LogoutData>) => {
   return queryOptions({
@@ -597,9 +590,8 @@ export const logoutMutation = (options?: Partial<Options<LogoutData>>) => {
   return mutationOptions
 }
 
-export const updatePasswordQueryKey = (options: Options<UpdatePasswordData>) => [
+export const updatePasswordQueryKey = (options: Options<UpdatePasswordData>) =>
   createQueryKey('updatePassword', options)
-]
 
 export const updatePasswordOptions = (options: Options<UpdatePasswordData>) => {
   return queryOptions({
@@ -634,9 +626,8 @@ export const updatePasswordMutation = (options?: Partial<Options<UpdatePasswordD
   return mutationOptions
 }
 
-export const validatePasswordTokenQueryKey = (options: Options<ValidatePasswordTokenData>) => [
+export const validatePasswordTokenQueryKey = (options: Options<ValidatePasswordTokenData>) =>
   createQueryKey('validatePasswordToken', options)
-]
 
 export const validatePasswordTokenOptions = (options: Options<ValidatePasswordTokenData>) => {
   return queryOptions({
@@ -653,9 +644,8 @@ export const validatePasswordTokenOptions = (options: Options<ValidatePasswordTo
   })
 }
 
-export const resetPasswordQueryKey = (options: Options<ResetPasswordData>) => [
+export const resetPasswordQueryKey = (options: Options<ResetPasswordData>) =>
   createQueryKey('resetPassword', options)
-]
 
 export const resetPasswordOptions = (options: Options<ResetPasswordData>) => {
   return queryOptions({
@@ -690,9 +680,8 @@ export const resetPasswordMutation = (options?: Partial<Options<ResetPasswordDat
   return mutationOptions
 }
 
-export const listPendingUserRequestsQueryKey = (options?: Options<ListPendingUserRequestsData>) => [
+export const listPendingUserRequestsQueryKey = (options?: Options<ListPendingUserRequestsData>) =>
   createQueryKey('listPendingUserRequests', options)
-]
 
 export const listPendingUserRequestsOptions = (options?: Options<ListPendingUserRequestsData>) => {
   return queryOptions({
@@ -729,9 +718,8 @@ export const deletePendingUserRequestMutation = (
   return mutationOptions
 }
 
-export const getPendingUserRequestQueryKey = (options?: Options<GetPendingUserRequestData>) => [
+export const getPendingUserRequestQueryKey = (options?: Options<GetPendingUserRequestData>) =>
   createQueryKey('getPendingUserRequest', options)
-]
 
 export const getPendingUserRequestOptions = (options?: Options<GetPendingUserRequestData>) => {
   return queryOptions({
@@ -748,9 +736,8 @@ export const getPendingUserRequestOptions = (options?: Options<GetPendingUserReq
   })
 }
 
-export const refreshSessionQueryKey = (options: Options<RefreshSessionData>) => [
+export const refreshSessionQueryKey = (options: Options<RefreshSessionData>) =>
   createQueryKey('refreshSession', options)
-]
 
 export const refreshSessionOptions = (options: Options<RefreshSessionData>) => {
   return queryOptions({
@@ -785,9 +772,8 @@ export const refreshSessionMutation = (options?: Partial<Options<RefreshSessionD
   return mutationOptions
 }
 
-export const registerQueryKey = (options: Options<RegisterData>) => [
+export const registerQueryKey = (options: Options<RegisterData>) =>
   createQueryKey('register', options)
-]
 
 export const registerOptions = (options: Options<RegisterData>) => {
   return queryOptions({
@@ -822,9 +808,8 @@ export const registerMutation = (options?: Partial<Options<RegisterData>>) => {
   return mutationOptions
 }
 
-export const claimInvitationQueryKey = (options: Options<ClaimInvitationData>) => [
+export const claimInvitationQueryKey = (options: Options<ClaimInvitationData>) =>
   createQueryKey('claimInvitation', options)
-]
 
 export const claimInvitationOptions = (options: Options<ClaimInvitationData>) => {
   return queryOptions({
@@ -859,9 +844,8 @@ export const claimInvitationMutation = (options?: Partial<Options<ClaimInvitatio
   return mutationOptions
 }
 
-export const listAnchorsQueryKey = (options?: Options<ListAnchorsData>) => [
+export const listAnchorsQueryKey = (options?: Options<ListAnchorsData>) =>
   createQueryKey('listAnchors', options)
-]
 
 export const listAnchorsOptions = (options?: Options<ListAnchorsData>) => {
   return queryOptions({
@@ -878,9 +862,8 @@ export const listAnchorsOptions = (options?: Options<ListAnchorsData>) => {
   })
 }
 
-export const listBioMaterialQueryKey = (options?: Options<ListBioMaterialData>) => [
+export const listBioMaterialQueryKey = (options?: Options<ListBioMaterialData>) =>
   createQueryKey('listBioMaterial', options)
-]
 
 export const listBioMaterialOptions = (options?: Options<ListBioMaterialData>) => {
   return queryOptions({
@@ -917,9 +900,8 @@ export const updateExternalBioMatMutation = (
   return mutationOptions
 }
 
-export const createExternalBioMatQueryKey = (options: Options<CreateExternalBioMatData>) => [
+export const createExternalBioMatQueryKey = (options: Options<CreateExternalBioMatData>) =>
   createQueryKey('createExternalBioMat', options)
-]
 
 export const createExternalBioMatOptions = (options: Options<CreateExternalBioMatData>) => {
   return queryOptions({
@@ -974,9 +956,8 @@ export const deleteBioMaterialMutation = (options?: Partial<Options<DeleteBioMat
   return mutationOptions
 }
 
-export const getBioMaterialQueryKey = (options: Options<GetBioMaterialData>) => [
+export const getBioMaterialQueryKey = (options: Options<GetBioMaterialData>) =>
   createQueryKey('getBioMaterial', options)
-]
 
 export const getBioMaterialOptions = (options: Options<GetBioMaterialData>) => {
   return queryOptions({
@@ -993,9 +974,8 @@ export const getBioMaterialOptions = (options: Options<GetBioMaterialData>) => {
   })
 }
 
-export const crossRefQueryKey = (options: Options<CrossRefData>) => [
+export const crossRefQueryKey = (options: Options<CrossRefData>) =>
   createQueryKey('crossRef', options)
-]
 
 export const crossRefOptions = (options: Options<CrossRefData>) => {
   return queryOptions({
@@ -1012,9 +992,8 @@ export const crossRefOptions = (options: Options<CrossRefData>) => {
   })
 }
 
-export const crossRefBibSearchQueryKey = (options: Options<CrossRefBibSearchData>) => [
+export const crossRefBibSearchQueryKey = (options: Options<CrossRefBibSearchData>) =>
   createQueryKey('crossRefBibSearch', options)
-]
 
 export const crossRefBibSearchOptions = (options: Options<CrossRefBibSearchData>) => {
   return queryOptions({
@@ -1049,9 +1028,8 @@ export const crossRefBibSearchMutation = (options?: Partial<Options<CrossRefBibS
   return mutationOptions
 }
 
-export const listDataSourcesQueryKey = (options?: Options<ListDataSourcesData>) => [
+export const listDataSourcesQueryKey = (options?: Options<ListDataSourcesData>) =>
   createQueryKey('listDataSources', options)
-]
 
 export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) => {
   return queryOptions({
@@ -1068,9 +1046,8 @@ export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) =
   })
 }
 
-export const createDataSourceQueryKey = (options: Options<CreateDataSourceData>) => [
+export const createDataSourceQueryKey = (options: Options<CreateDataSourceData>) =>
   createQueryKey('createDataSource', options)
-]
 
 export const createDataSourceOptions = (options: Options<CreateDataSourceData>) => {
   return queryOptions({
@@ -1141,9 +1118,8 @@ export const updateDataSourceMutation = (options?: Partial<Options<UpdateDataSou
   return mutationOptions
 }
 
-export const listDatasetsQueryKey = (options?: Options<ListDatasetsData>) => [
+export const listDatasetsQueryKey = (options?: Options<ListDatasetsData>) =>
   createQueryKey('listDatasets', options)
-]
 
 export const listDatasetsOptions = (options?: Options<ListDatasetsData>) => {
   return queryOptions({
@@ -1160,9 +1136,8 @@ export const listDatasetsOptions = (options?: Options<ListDatasetsData>) => {
   })
 }
 
-export const listOccurrenceDatasetsQueryKey = (options?: Options<ListOccurrenceDatasetsData>) => [
+export const listOccurrenceDatasetsQueryKey = (options?: Options<ListOccurrenceDatasetsData>) =>
   createQueryKey('listOccurrenceDatasets', options)
-]
 
 export const listOccurrenceDatasetsOptions = (options?: Options<ListOccurrenceDatasetsData>) => {
   return queryOptions({
@@ -1179,9 +1154,8 @@ export const listOccurrenceDatasetsOptions = (options?: Options<ListOccurrenceDa
   })
 }
 
-export const getOccurrenceDatasetQueryKey = (options: Options<GetOccurrenceDatasetData>) => [
+export const getOccurrenceDatasetQueryKey = (options: Options<GetOccurrenceDatasetData>) =>
   createQueryKey('getOccurrenceDataset', options)
-]
 
 export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatasetData>) => {
   return queryOptions({
@@ -1216,9 +1190,8 @@ export const togglePinDatasetMutation = (options?: Partial<Options<TogglePinData
   return mutationOptions
 }
 
-export const listSequenceDatasetsQueryKey = (options?: Options<ListSequenceDatasetsData>) => [
+export const listSequenceDatasetsQueryKey = (options?: Options<ListSequenceDatasetsData>) =>
   createQueryKey('listSequenceDatasets', options)
-]
 
 export const listSequenceDatasetsOptions = (options?: Options<ListSequenceDatasetsData>) => {
   return queryOptions({
@@ -1235,9 +1208,8 @@ export const listSequenceDatasetsOptions = (options?: Options<ListSequenceDatase
   })
 }
 
-export const getSequenceDatasetQueryKey = (options: Options<GetSequenceDatasetData>) => [
+export const getSequenceDatasetQueryKey = (options: Options<GetSequenceDatasetData>) =>
   createQueryKey('getSequenceDataset', options)
-]
 
 export const getSequenceDatasetOptions = (options: Options<GetSequenceDatasetData>) => {
   return queryOptions({
@@ -1254,9 +1226,8 @@ export const getSequenceDatasetOptions = (options: Options<GetSequenceDatasetDat
   })
 }
 
-export const listSiteDatasetsQueryKey = (options?: Options<ListSiteDatasetsData>) => [
+export const listSiteDatasetsQueryKey = (options?: Options<ListSiteDatasetsData>) =>
   createQueryKey('listSiteDatasets', options)
-]
 
 export const listSiteDatasetsOptions = (options?: Options<ListSiteDatasetsData>) => {
   return queryOptions({
@@ -1273,9 +1244,8 @@ export const listSiteDatasetsOptions = (options?: Options<ListSiteDatasetsData>)
   })
 }
 
-export const createSiteDatasetQueryKey = (options: Options<CreateSiteDatasetData>) => [
+export const createSiteDatasetQueryKey = (options: Options<CreateSiteDatasetData>) =>
   createQueryKey('createSiteDataset', options)
-]
 
 export const createSiteDatasetOptions = (options: Options<CreateSiteDatasetData>) => {
   return queryOptions({
@@ -1310,9 +1280,8 @@ export const createSiteDatasetMutation = (options?: Partial<Options<CreateSiteDa
   return mutationOptions
 }
 
-export const getSiteDatasetQueryKey = (options: Options<GetSiteDatasetData>) => [
+export const getSiteDatasetQueryKey = (options: Options<GetSiteDatasetData>) =>
   createQueryKey('getSiteDataset', options)
-]
 
 export const getSiteDatasetOptions = (options: Options<GetSiteDatasetData>) => {
   return queryOptions({
@@ -1383,9 +1352,8 @@ export const updateSpottingMutation = (options?: Partial<Options<UpdateSpottingD
   return mutationOptions
 }
 
-export const listFixativesQueryKey = (options?: Options<ListFixativesData>) => [
+export const listFixativesQueryKey = (options?: Options<ListFixativesData>) =>
   createQueryKey('listFixatives', options)
-]
 
 export const listFixativesOptions = (options?: Options<ListFixativesData>) => {
   return queryOptions({
@@ -1402,9 +1370,8 @@ export const listFixativesOptions = (options?: Options<ListFixativesData>) => {
   })
 }
 
-export const createFixativeQueryKey = (options: Options<CreateFixativeData>) => [
+export const createFixativeQueryKey = (options: Options<CreateFixativeData>) =>
   createQueryKey('createFixative', options)
-]
 
 export const createFixativeOptions = (options: Options<CreateFixativeData>) => {
   return queryOptions({
@@ -1475,9 +1442,8 @@ export const updateFixativeMutation = (options?: Partial<Options<UpdateFixativeD
   return mutationOptions
 }
 
-export const listGenesQueryKey = (options?: Options<ListGenesData>) => [
+export const listGenesQueryKey = (options?: Options<ListGenesData>) =>
   createQueryKey('listGenes', options)
-]
 
 export const listGenesOptions = (options?: Options<ListGenesData>) => {
   return queryOptions({
@@ -1494,9 +1460,8 @@ export const listGenesOptions = (options?: Options<ListGenesData>) => {
   })
 }
 
-export const createGeneQueryKey = (options: Options<CreateGeneData>) => [
+export const createGeneQueryKey = (options: Options<CreateGeneData>) =>
   createQueryKey('createGene', options)
-]
 
 export const createGeneOptions = (options: Options<CreateGeneData>) => {
   return queryOptions({
@@ -1567,9 +1532,8 @@ export const updateGeneMutation = (options?: Partial<Options<UpdateGeneData>>) =
   return mutationOptions
 }
 
-export const listGeoapifyUsageQueryKey = (options?: Options<ListGeoapifyUsageData>) => [
+export const listGeoapifyUsageQueryKey = (options?: Options<ListGeoapifyUsageData>) =>
   createQueryKey('listGeoapifyUsage', options)
-]
 
 export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData>) => {
   return queryOptions({
@@ -1586,9 +1550,8 @@ export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData
   })
 }
 
-export const listHabitatGroupsQueryKey = (options?: Options<ListHabitatGroupsData>) => [
+export const listHabitatGroupsQueryKey = (options?: Options<ListHabitatGroupsData>) =>
   createQueryKey('listHabitatGroups', options)
-]
 
 export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData>) => {
   return queryOptions({
@@ -1605,9 +1568,8 @@ export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData
   })
 }
 
-export const createHabitatGroupQueryKey = (options: Options<CreateHabitatGroupData>) => [
+export const createHabitatGroupQueryKey = (options: Options<CreateHabitatGroupData>) =>
   createQueryKey('createHabitatGroup', options)
-]
 
 export const createHabitatGroupOptions = (options: Options<CreateHabitatGroupData>) => {
   return queryOptions({
@@ -1696,9 +1658,8 @@ export const importGbifMutation = (options?: Partial<Options<ImportGbifData>>) =
   return mutationOptions
 }
 
-export const monitorGbifQueryKey = (options?: Options<MonitorGbifData>) => [
+export const monitorGbifQueryKey = (options?: Options<MonitorGbifData>) =>
   createQueryKey('monitorGbif', options)
-]
 
 export const monitorGbifOptions = (options?: Options<MonitorGbifData>) => {
   return queryOptions({
@@ -1715,9 +1676,8 @@ export const monitorGbifOptions = (options?: Options<MonitorGbifData>) => {
   })
 }
 
-export const listCountriesQueryKey = (options?: Options<ListCountriesData>) => [
+export const listCountriesQueryKey = (options?: Options<ListCountriesData>) =>
   createQueryKey('listCountries', options)
-]
 
 export const listCountriesOptions = (options?: Options<ListCountriesData>) => {
   return queryOptions({
@@ -1734,9 +1694,8 @@ export const listCountriesOptions = (options?: Options<ListCountriesData>) => {
   })
 }
 
-export const getSitesCountByCountryQueryKey = (options?: Options<GetSitesCountByCountryData>) => [
+export const getSitesCountByCountryQueryKey = (options?: Options<GetSitesCountByCountryData>) =>
   createQueryKey('getSitesCountByCountry', options)
-]
 
 export const getSitesCountByCountryOptions = (options?: Options<GetSitesCountByCountryData>) => {
   return queryOptions({
@@ -1753,9 +1712,8 @@ export const getSitesCountByCountryOptions = (options?: Options<GetSitesCountByC
   })
 }
 
-export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) => [
+export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) =>
   createQueryKey('occurrenceOverview', options)
-]
 
 export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewData>) => {
   return queryOptions({
@@ -1772,9 +1730,8 @@ export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewDa
   })
 }
 
-export const listOrganisationsQueryKey = (options?: Options<ListOrganisationsData>) => [
+export const listOrganisationsQueryKey = (options?: Options<ListOrganisationsData>) =>
   createQueryKey('listOrganisations', options)
-]
 
 export const listOrganisationsOptions = (options?: Options<ListOrganisationsData>) => {
   return queryOptions({
@@ -1791,9 +1748,8 @@ export const listOrganisationsOptions = (options?: Options<ListOrganisationsData
   })
 }
 
-export const createOrganisationQueryKey = (options: Options<CreateOrganisationData>) => [
+export const createOrganisationQueryKey = (options: Options<CreateOrganisationData>) =>
   createQueryKey('createOrganisation', options)
-]
 
 export const createOrganisationOptions = (options: Options<CreateOrganisationData>) => {
   return queryOptions({
@@ -1864,9 +1820,8 @@ export const updateOrganisationMutation = (options?: Partial<Options<UpdateOrgan
   return mutationOptions
 }
 
-export const listPersonsQueryKey = (options?: Options<ListPersonsData>) => [
+export const listPersonsQueryKey = (options?: Options<ListPersonsData>) =>
   createQueryKey('listPersons', options)
-]
 
 export const listPersonsOptions = (options?: Options<ListPersonsData>) => {
   return queryOptions({
@@ -1883,9 +1838,8 @@ export const listPersonsOptions = (options?: Options<ListPersonsData>) => {
   })
 }
 
-export const createPersonQueryKey = (options: Options<CreatePersonData>) => [
+export const createPersonQueryKey = (options: Options<CreatePersonData>) =>
   createQueryKey('createPerson', options)
-]
 
 export const createPersonOptions = (options: Options<CreatePersonData>) => {
   return queryOptions({
@@ -1956,9 +1910,8 @@ export const updatePersonMutation = (options?: Partial<Options<UpdatePersonData>
   return mutationOptions
 }
 
-export const invitePersonQueryKey = (options: Options<InvitePersonData>) => [
+export const invitePersonQueryKey = (options: Options<InvitePersonData>) =>
   createQueryKey('invitePerson', options)
-]
 
 export const invitePersonOptions = (options: Options<InvitePersonData>) => {
   return queryOptions({
@@ -1993,9 +1946,8 @@ export const invitePersonMutation = (options?: Partial<Options<InvitePersonData>
   return mutationOptions
 }
 
-export const listProgramsQueryKey = (options?: Options<ListProgramsData>) => [
+export const listProgramsQueryKey = (options?: Options<ListProgramsData>) =>
   createQueryKey('listPrograms', options)
-]
 
 export const listProgramsOptions = (options?: Options<ListProgramsData>) => {
   return queryOptions({
@@ -2012,9 +1964,8 @@ export const listProgramsOptions = (options?: Options<ListProgramsData>) => {
   })
 }
 
-export const createProgramQueryKey = (options: Options<CreateProgramData>) => [
+export const createProgramQueryKey = (options: Options<CreateProgramData>) =>
   createQueryKey('createProgram', options)
-]
 
 export const createProgramOptions = (options: Options<CreateProgramData>) => {
   return queryOptions({
@@ -2085,9 +2036,8 @@ export const updateProgramMutation = (options?: Partial<Options<UpdateProgramDat
   return mutationOptions
 }
 
-export const listArticlesQueryKey = (options?: Options<ListArticlesData>) => [
+export const listArticlesQueryKey = (options?: Options<ListArticlesData>) =>
   createQueryKey('listArticles', options)
-]
 
 export const listArticlesOptions = (options?: Options<ListArticlesData>) => {
   return queryOptions({
@@ -2104,9 +2054,8 @@ export const listArticlesOptions = (options?: Options<ListArticlesData>) => {
   })
 }
 
-export const createArticleQueryKey = (options: Options<CreateArticleData>) => [
+export const createArticleQueryKey = (options: Options<CreateArticleData>) =>
   createQueryKey('createArticle', options)
-]
 
 export const createArticleOptions = (options: Options<CreateArticleData>) => {
   return queryOptions({
@@ -2177,9 +2126,8 @@ export const updateArticleMutation = (options?: Partial<Options<UpdateArticleDat
   return mutationOptions
 }
 
-export const listSamplingMethodsQueryKey = (options?: Options<ListSamplingMethodsData>) => [
+export const listSamplingMethodsQueryKey = (options?: Options<ListSamplingMethodsData>) =>
   createQueryKey('listSamplingMethods', options)
-]
 
 export const listSamplingMethodsOptions = (options?: Options<ListSamplingMethodsData>) => {
   return queryOptions({
@@ -2196,9 +2144,8 @@ export const listSamplingMethodsOptions = (options?: Options<ListSamplingMethods
   })
 }
 
-export const createSamplingMethodQueryKey = (options: Options<CreateSamplingMethodData>) => [
+export const createSamplingMethodQueryKey = (options: Options<CreateSamplingMethodData>) =>
   createQueryKey('createSamplingMethod', options)
-]
 
 export const createSamplingMethodOptions = (options: Options<CreateSamplingMethodData>) => {
   return queryOptions({
@@ -2275,9 +2222,8 @@ export const updateSamplingMethodMutation = (
   return mutationOptions
 }
 
-export const createSamplingQueryKey = (options: Options<CreateSamplingData>) => [
+export const createSamplingQueryKey = (options: Options<CreateSamplingData>) =>
   createQueryKey('createSampling', options)
-]
 
 export const createSamplingOptions = (options: Options<CreateSamplingData>) => {
   return queryOptions({
@@ -2348,9 +2294,8 @@ export const updateSamplingMutation = (options?: Partial<Options<UpdateSamplingD
   return mutationOptions
 }
 
-export const listSequencesQueryKey = (options?: Options<ListSequencesData>) => [
+export const listSequencesQueryKey = (options?: Options<ListSequencesData>) =>
   createQueryKey('listSequences', options)
-]
 
 export const listSequencesOptions = (options?: Options<ListSequencesData>) => {
   return queryOptions({
@@ -2385,9 +2330,8 @@ export const deleteSequenceMutation = (options?: Partial<Options<DeleteSequenceD
   return mutationOptions
 }
 
-export const getSequenceQueryKey = (options: Options<GetSequenceData>) => [
+export const getSequenceQueryKey = (options: Options<GetSequenceData>) =>
   createQueryKey('getSequence', options)
-]
 
 export const getSequenceOptions = (options: Options<GetSequenceData>) => {
   return queryOptions({
@@ -2404,9 +2348,8 @@ export const getSequenceOptions = (options: Options<GetSequenceData>) => {
   })
 }
 
-export const emailSettingsQueryKey = (options?: Options<EmailSettingsData>) => [
+export const emailSettingsQueryKey = (options?: Options<EmailSettingsData>) =>
   createQueryKey('emailSettings', options)
-]
 
 export const emailSettingsOptions = (options?: Options<EmailSettingsData>) => {
   return queryOptions({
@@ -2423,9 +2366,8 @@ export const emailSettingsOptions = (options?: Options<EmailSettingsData>) => {
   })
 }
 
-export const updateEmailSettingsQueryKey = (options: Options<UpdateEmailSettingsData>) => [
+export const updateEmailSettingsQueryKey = (options: Options<UpdateEmailSettingsData>) =>
   createQueryKey('updateEmailSettings', options)
-]
 
 export const updateEmailSettingsOptions = (options: Options<UpdateEmailSettingsData>) => {
   return queryOptions({
@@ -2462,9 +2404,8 @@ export const updateEmailSettingsMutation = (
   return mutationOptions
 }
 
-export const testSmtpQueryKey = (options: Options<TestSmtpData>) => [
+export const testSmtpQueryKey = (options: Options<TestSmtpData>) =>
   createQueryKey('testSmtp', options)
-]
 
 export const testSmtpOptions = (options: Options<TestSmtpData>) => {
   return queryOptions({
@@ -2499,9 +2440,8 @@ export const testSmtpMutation = (options?: Partial<Options<TestSmtpData>>) => {
   return mutationOptions
 }
 
-export const setAppIconQueryKey = (options?: Options<SetAppIconData>) => [
+export const setAppIconQueryKey = (options?: Options<SetAppIconData>) =>
   createQueryKey('setAppIcon', options)
-]
 
 export const setAppIconOptions = (options?: Options<SetAppIconData>) => {
   return queryOptions({
@@ -2536,9 +2476,8 @@ export const setAppIconMutation = (options?: Partial<Options<SetAppIconData>>) =
   return mutationOptions
 }
 
-export const instanceSettingsQueryKey = (options?: Options<InstanceSettingsData>) => [
+export const instanceSettingsQueryKey = (options?: Options<InstanceSettingsData>) =>
   createQueryKey('instanceSettings', options)
-]
 
 export const instanceSettingsOptions = (options?: Options<InstanceSettingsData>) => {
   return queryOptions({
@@ -2555,9 +2494,8 @@ export const instanceSettingsOptions = (options?: Options<InstanceSettingsData>)
   })
 }
 
-export const updateInstanceSettingsQueryKey = (options: Options<UpdateInstanceSettingsData>) => [
+export const updateInstanceSettingsQueryKey = (options: Options<UpdateInstanceSettingsData>) =>
   createQueryKey('updateInstanceSettings', options)
-]
 
 export const updateInstanceSettingsOptions = (options: Options<UpdateInstanceSettingsData>) => {
   return queryOptions({
@@ -2594,9 +2532,8 @@ export const updateInstanceSettingsMutation = (
   return mutationOptions
 }
 
-export const securitySettingsQueryKey = (options?: Options<SecuritySettingsData>) => [
+export const securitySettingsQueryKey = (options?: Options<SecuritySettingsData>) =>
   createQueryKey('securitySettings', options)
-]
 
 export const securitySettingsOptions = (options?: Options<SecuritySettingsData>) => {
   return queryOptions({
@@ -2613,9 +2550,8 @@ export const securitySettingsOptions = (options?: Options<SecuritySettingsData>)
   })
 }
 
-export const updateSecuritySettingsQueryKey = (options: Options<UpdateSecuritySettingsData>) => [
+export const updateSecuritySettingsQueryKey = (options: Options<UpdateSecuritySettingsData>) =>
   createQueryKey('updateSecuritySettings', options)
-]
 
 export const updateSecuritySettingsOptions = (options: Options<UpdateSecuritySettingsData>) => {
   return queryOptions({
@@ -2652,9 +2588,8 @@ export const updateSecuritySettingsMutation = (
   return mutationOptions
 }
 
-export const serviceSettingsQueryKey = (options?: Options<ServiceSettingsData>) => [
+export const serviceSettingsQueryKey = (options?: Options<ServiceSettingsData>) =>
   createQueryKey('serviceSettings', options)
-]
 
 export const serviceSettingsOptions = (options?: Options<ServiceSettingsData>) => {
   return queryOptions({
@@ -2691,9 +2626,8 @@ export const updateServiceSettingsMutation = (
   return mutationOptions
 }
 
-export const listSitesQueryKey = (options?: Options<ListSitesData>) => [
+export const listSitesQueryKey = (options?: Options<ListSitesData>) =>
   createQueryKey('listSites', options)
-]
 
 export const listSitesOptions = (options?: Options<ListSitesData>) => {
   return queryOptions({
@@ -2710,9 +2644,8 @@ export const listSitesOptions = (options?: Options<ListSitesData>) => {
   })
 }
 
-export const createSiteQueryKey = (options: Options<CreateSiteData>) => [
+export const createSiteQueryKey = (options: Options<CreateSiteData>) =>
   createQueryKey('createSite', options)
-]
 
 export const createSiteOptions = (options: Options<CreateSiteData>) => {
   return queryOptions({
@@ -2747,9 +2680,7 @@ export const createSiteMutation = (options?: Partial<Options<CreateSiteData>>) =
   return mutationOptions
 }
 
-export const getSiteQueryKey = (options: Options<GetSiteData>) => [
-  createQueryKey('getSite', options)
-]
+export const getSiteQueryKey = (options: Options<GetSiteData>) => createQueryKey('getSite', options)
 
 export const getSiteOptions = (options: Options<GetSiteData>) => {
   return queryOptions({
@@ -2784,9 +2715,8 @@ export const updateSiteMutation = (options?: Partial<Options<UpdateSiteData>>) =
   return mutationOptions
 }
 
-export const createEventQueryKey = (options: Options<CreateEventData>) => [
+export const createEventQueryKey = (options: Options<CreateEventData>) =>
   createQueryKey('createEvent', options)
-]
 
 export const createEventOptions = (options: Options<CreateEventData>) => {
   return queryOptions({
@@ -2821,9 +2751,8 @@ export const createEventMutation = (options?: Partial<Options<CreateEventData>>)
   return mutationOptions
 }
 
-export const getTaxonomyQueryKey = (options?: Options<GetTaxonomyData>) => [
+export const getTaxonomyQueryKey = (options?: Options<GetTaxonomyData>) =>
   createQueryKey('getTaxonomy', options)
-]
 
 export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) => {
   return queryOptions({
@@ -2840,9 +2769,8 @@ export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) => {
   })
 }
 
-export const listTaxaQueryKey = (options?: Options<ListTaxaData>) => [
+export const listTaxaQueryKey = (options?: Options<ListTaxaData>) =>
   createQueryKey('listTaxa', options)
-]
 
 export const listTaxaOptions = (options?: Options<ListTaxaData>) => {
   return queryOptions({
@@ -2859,9 +2787,8 @@ export const listTaxaOptions = (options?: Options<ListTaxaData>) => {
   })
 }
 
-export const createTaxonQueryKey = (options: Options<CreateTaxonData>) => [
+export const createTaxonQueryKey = (options: Options<CreateTaxonData>) =>
   createQueryKey('createTaxon', options)
-]
 
 export const createTaxonOptions = (options: Options<CreateTaxonData>) => {
   return queryOptions({
@@ -2914,9 +2841,8 @@ export const deleteTaxonMutation = (options?: Partial<Options<DeleteTaxonData>>)
   return mutationOptions
 }
 
-export const getTaxonQueryKey = (options: Options<GetTaxonData>) => [
+export const getTaxonQueryKey = (options: Options<GetTaxonData>) =>
   createQueryKey('getTaxon', options)
-]
 
 export const getTaxonOptions = (options: Options<GetTaxonData>) => {
   return queryOptions({

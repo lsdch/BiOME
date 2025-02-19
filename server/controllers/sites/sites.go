@@ -25,8 +25,9 @@ func RegisterRoutes(r router.Router) {
 			Method:      http.MethodGet,
 			Summary:     "List sites",
 			Description: "List all registered sites",
-		}, controllers.ListHandler[*struct {
+		}, controllers.ListHandlerWithOpts[*struct {
 			resolvers.AuthResolver
+			occurrence.ListSitesOptions
 		}](occurrence.ListSites))
 
 	router.Register(sites_API, "GetSite",

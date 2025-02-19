@@ -3164,6 +3164,7 @@ export type ListDatasetsData = {
   path?: never
   query?: {
     pinned?: boolean
+    category?: DatasetCategory
     orderBy?: string
     limit?: number
   }
@@ -5610,7 +5611,10 @@ export type ListSitesData = {
     Authorization?: string
   }
   path?: never
-  query?: never
+  query?: {
+    datasets?: Array<string>
+    countries?: Array<string>
+  }
   url: '/sites'
 }
 
@@ -6026,3 +6030,7 @@ export type UpdateTaxonResponses = {
 }
 
 export type UpdateTaxonResponse = UpdateTaxonResponses[keyof UpdateTaxonResponses]
+
+export type ClientOptions = {
+  baseUrl: `${string}://${string}/api/v1` | (string & {})
+}

@@ -38,9 +38,10 @@ func (d *Dataset) IsMaintainer(user people.UserInner) bool {
 }
 
 type ListDatasetOptions struct {
-	Pinned  bool   `json:"pinned" query:"pinned"`
-	OrderBy string `json:"orderBy,omitempty" query:"orderBy"`
-	Limit   int    `json:"limit,omitempty" query:"limit" minimum:"1"`
+	Pinned   models.OptionalInput[bool] `json:"pinned,omitempty" query:"pinned"`
+	Category DatasetCategory            `json:"category,omitempty" query:"category"`
+	OrderBy  string                     `json:"orderBy,omitempty" query:"orderBy"`
+	Limit    int                        `json:"limit,omitempty" query:"limit" minimum:"1"`
 }
 
 func (o ListDatasetOptions) Options() ListDatasetOptions {
@@ -53,7 +54,8 @@ func ListDatasets(db edgedb.Executor, options ListDatasetOptions) ([]Dataset, er
 	query := `#edgeql
 			with opts := <json>$0
 			select datasets::Dataset { ** }
-			filter .pinned = <bool>json_get(opts, 'pinned') ?? .pinned
+			filter .pinned = (<bool>json_get(opts, 'pinned') ?? .pinned)
+			# and .category = <datasets::DatasetCategory>(<str>json_get(opts, 'category') ?? <str>.category)
 		`
 	if options.OrderBy != "" {
 		query += fmt.Sprintf(` order by .%s asc`, options.OrderBy)

@@ -74,10 +74,23 @@ type Site struct {
 	Meta     people.Meta            `edgedb:"meta" json:"meta"`
 }
 
-func ListSites(db edgedb.Executor) ([]Site, error) {
+type ListSitesOptions struct {
+	Datasets  []string `json:"datasets,omitempty" query:"datasets"`
+	Countries []string `json:"countries,omitempty" query:"countries"`
+	// Sampled bool `json:"sampled,omitempty" query:"sampled"`
+}
+
+func (o ListSitesOptions) Options() ListSitesOptions {
+	return o
+}
+
+func ListSites(db edgedb.Executor, options ListSitesOptions) ([]Site, error) {
 	var sites []Site
+	opts, _ := json.Marshal(options)
 	err := db.Query(context.Background(),
 		`#edgeql
+			with opts := <json>$0,
+      countries := <str>json_array_unpack(json_get(opts, 'countries'))
 			select location::Site {
 				*,
 				datasets: { * },
@@ -85,7 +98,9 @@ func ListSites(db edgedb.Executor) ([]Site, error) {
 				country: { * },
 				events: { * } order by .performed_on.date desc
 			}
-		`, &sites)
+			filter (not exists countries) or (.country.code in countries)
+    `,
+		&sites, opts)
 	return sites, err
 }
 

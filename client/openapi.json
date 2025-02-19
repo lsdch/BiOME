@@ -8937,6 +8937,14 @@
 					{
 						"explode": false,
 						"in": "query",
+						"name": "category",
+						"schema": {
+							"$ref": "#/components/schemas/DatasetCategory"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
 						"name": "orderBy",
 						"schema": {
 							"type": "string"
@@ -13885,6 +13893,28 @@
 						"schema": {
 							"description": "Session cookie containing JWT",
 							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "datasets",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "countries",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
 						}
 					}
 				],
