@@ -6,6 +6,7 @@
     @mouseleave="cursorCoordinates = undefined"
   >
     <l-map
+      class="map"
       v-model:zoom="zoom"
       v-bind="$attrs"
       :center="[0, 0]"

@@ -4,6 +4,7 @@
     location="bottom left"
     origin="bottom left"
     :close-on-content-click="false"
+    attach=".map"
   >
     <template #activator="{ props }">
       <v-card theme="light">
