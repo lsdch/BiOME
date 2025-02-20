@@ -32,7 +32,7 @@
         </template>
         <template #append>
           <v-btn
-            v-if="isUserMaintainer"
+            v-if="isUserMaintainer || userStore.isGranted('Admin')"
             color="primary"
             icon="mdi-pencil"
             variant="plain"
