@@ -22,6 +22,7 @@ import type {
   DeleteDataSourceResponse,
   UpdateDataSourceResponse,
   ListDatasetsResponse,
+  UpdateDatasetResponse,
   ListOccurrenceDatasetsResponse,
   GetOccurrenceDatasetResponse,
   TogglePinDatasetResponse,
@@ -508,6 +509,13 @@ export const listDatasetsResponseTransformer = async (data: any): Promise<ListDa
   data = data.map((item: any) => {
     return datasetSchemaResponseTransformer(item)
   })
+  return data
+}
+
+export const updateDatasetResponseTransformer = async (
+  data: any
+): Promise<UpdateDatasetResponse> => {
+  data = datasetSchemaResponseTransformer(data)
   return data
 }
 

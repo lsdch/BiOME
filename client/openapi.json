@@ -1007,6 +1007,45 @@
 				],
 				"type": "object"
 			},
+			"DatasetUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/DatasetUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"label": {
+						"maxLength": 32,
+						"minLength": 4,
+						"type": "string"
+					},
+					"maintainers": {
+						"description": "Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.",
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"pinned": {
+						"type": [
+							"boolean",
+							"null"
+						]
+					}
+				},
+				"type": "object"
+			},
 			"DateObject": {
 				"additionalProperties": false,
 				"properties": {
@@ -8997,6 +9036,90 @@
 					}
 				},
 				"summary": "List all datasets",
+				"tags": [
+					"Datasets"
+				]
+			}
+		},
+		"/datasets/edit/{slug}": {
+			"patch": {
+				"description": "Update dataset metadata",
+				"operationId": "UpdateDataset",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "slug",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DatasetUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Dataset"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update dataset",
 				"tags": [
 					"Datasets"
 				]

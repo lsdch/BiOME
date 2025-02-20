@@ -7,12 +7,14 @@
       :class="['d-flex bg-transparent', { 'pa-3': lgAndUp }]"
     >
       <PageErrors v-if="isError && error" :error />
-      <v-card v-else-if="editing" class="align-self-start">
-        <!-- <DatasetEditForm
-              v-model="dataset"
-              @cancel="toggleEdit(false)"
-              @updated="toggleEdit(false)"
-            /> -->
+      <v-card v-else-if="editing && dataset" class="align-self-stretch w-100 d-flex flex-column">
+        <v-card-text>
+          <DatasetEditForm
+            v-model="dataset"
+            @cancel="toggleEdit(false)"
+            @updated="toggleEdit(false)"
+          />
+        </v-card-text>
       </v-card>
 
       <v-card
@@ -125,6 +127,7 @@ import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import DatasetPinButton from './DatasetPinButton.vue'
 import DatasetTabs from './DatasetTabs.vue'
+import DatasetEditForm from './DatasetEditForm.vue'
 
 interface DatasetQueryData {
   headers?: {

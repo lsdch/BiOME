@@ -42,9 +42,28 @@ func RegisterRoutes(r router.Router) {
 			Description: "Pin or unpin dataset from from dashboard priority display",
 		}, PinUnpinDataset)
 
+	router.Register(datasets_API, "UpdateDataset",
+		huma.Operation{
+			Path:        "/edit/{slug}",
+			Method:      http.MethodPatch,
+			Summary:     "Update dataset",
+			Description: "Update dataset metadata",
+		}, controllers.UpdateHandler[*UpdateDatasetInput],
+	)
+
 	RegisterSiteDatasetsRoutes(r)
 	RegisterOccurrenceDatasetsRoutes(r)
 	RegisterSeqDatasetsRoutes(r)
+}
+
+type UpdateDatasetInput struct {
+	resolvers.AuthRequired
+	Slug string `path:"slug"`
+	controllers.UpdateInput[dataset.DatasetUpdate, string, dataset.Dataset]
+}
+
+func (i UpdateDatasetInput) Identifier() string {
+	return i.Slug
 }
 
 type PinDatasetInput struct {

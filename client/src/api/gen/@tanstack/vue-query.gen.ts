@@ -94,6 +94,9 @@ import type {
   UpdateDataSourceError,
   UpdateDataSourceResponse,
   ListDatasetsData,
+  UpdateDatasetData,
+  UpdateDatasetError,
+  UpdateDatasetResponse,
   ListOccurrenceDatasetsData,
   GetOccurrenceDatasetData,
   TogglePinDatasetData,
@@ -1134,6 +1137,24 @@ export const listDatasetsOptions = (options?: Options<ListDatasetsData>) => {
     },
     queryKey: listDatasetsQueryKey(options)
   })
+}
+
+export const updateDatasetMutation = (options?: Partial<Options<UpdateDatasetData>>) => {
+  const mutationOptions: UseMutationOptions<
+    UpdateDatasetResponse,
+    UpdateDatasetError,
+    Options<UpdateDatasetData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await DatasetsService.updateDataset({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
 }
 
 export const listOccurrenceDatasetsQueryKey = (options?: Options<ListOccurrenceDatasetsData>) =>

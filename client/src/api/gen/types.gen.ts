@@ -309,6 +309,20 @@ export type DatasetInner = {
   slug: string
 }
 
+export type DatasetUpdate = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  description?: string | null
+  label?: string
+  /**
+   * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
+   */
+  maintainers?: Array<string>
+  pinned?: boolean | null
+}
+
 export type DateObject = {
   'date-parts'?: Array<Array<number>>
   'date-time'?: string
@@ -3192,6 +3206,43 @@ export type ListDatasetsResponses = {
 }
 
 export type ListDatasetsResponse = ListDatasetsResponses[keyof ListDatasetsResponses]
+
+export type UpdateDatasetData = {
+  body: DatasetUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    slug: string
+  }
+  query?: never
+  url: '/datasets/edit/{slug}'
+}
+
+export type UpdateDatasetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateDatasetError = UpdateDatasetErrors[keyof UpdateDatasetErrors]
+
+export type UpdateDatasetResponses = {
+  /**
+   * OK
+   */
+  200: Dataset
+}
+
+export type UpdateDatasetResponse = UpdateDatasetResponses[keyof UpdateDatasetResponses]
 
 export type ListOccurrenceDatasetsData = {
   body?: never

@@ -106,6 +106,9 @@ import type {
   ListDatasetsData,
   ListDatasetsResponse,
   ListDatasetsError,
+  UpdateDatasetData,
+  UpdateDatasetResponse,
+  UpdateDatasetError,
   ListOccurrenceDatasetsData,
   ListOccurrenceDatasetsResponse,
   ListOccurrenceDatasetsError,
@@ -360,6 +363,7 @@ import {
   deleteDataSourceResponseTransformer,
   updateDataSourceResponseTransformer,
   listDatasetsResponseTransformer,
+  updateDatasetResponseTransformer,
   listOccurrenceDatasetsResponseTransformer,
   getOccurrenceDatasetResponseTransformer,
   togglePinDatasetResponseTransformer,
@@ -1687,6 +1691,34 @@ export class DatasetsService {
       responseTransformer: listDatasetsResponseTransformer,
       url: '/datasets',
       ...options
+    })
+  }
+
+  /**
+   * Update dataset
+   * Update dataset metadata
+   */
+  public static updateDataset<ThrowOnError extends boolean = false>(
+    options: Options<UpdateDatasetData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).patch<
+      UpdateDatasetResponse,
+      UpdateDatasetError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: updateDatasetResponseTransformer,
+      url: '/datasets/edit/{slug}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
     })
   }
 

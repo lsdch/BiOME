@@ -873,6 +873,39 @@ export const $DatasetInner = {
   type: 'object'
 } as const
 
+export const $DatasetUpdate = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/DatasetUpdate.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: ['string', 'null']
+    },
+    label: {
+      maxLength: 32,
+      minLength: 4,
+      type: 'string'
+    },
+    maintainers: {
+      description:
+        'Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.',
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    pinned: {
+      type: ['boolean', 'null']
+    }
+  },
+  type: 'object'
+} as const
+
 export const $DateObject = {
   additionalProperties: false,
   properties: {
