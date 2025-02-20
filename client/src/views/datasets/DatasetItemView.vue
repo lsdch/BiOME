@@ -51,10 +51,21 @@
           <MetaChip v-if="dataset" :meta="dataset.meta" />
         </template>
 
-        <v-divider class="my-3" />
-
         <CenteredSpinner v-if="isPending" :height="500" size="large" color="primary" />
         <div v-else-if="dataset" class="flex-grow-1">
+          <v-img
+            :src="`/api/v1/assets/images/datasets/${dataset.slug}/${dataset.slug}.jpg`"
+            :min-height="20"
+            :max-height="200"
+            cover
+            ref="image"
+            @error="noImage()"
+            gradient="to top, rgba(var(--v-theme-surface)), #00000000"
+          >
+            <template #error>
+              <v-divider class="my-3" />
+            </template>
+          </v-img>
           <v-card-text v-if="dataset.description" class="text-caption font-weight-thin">
             {{ dataset.description }}
           </v-card-text>
@@ -123,11 +134,17 @@ import { Options, OptionsLegacyParser } from '@hey-api/client-fetch'
 import { UndefinedInitialQueryOptions, useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed } from 'vue'
+import { computed, ImgHTMLAttributes, useTemplateRef } from 'vue'
 import { useDisplay } from 'vuetify'
 import DatasetPinButton from './DatasetPinButton.vue'
 import DatasetTabs from './DatasetTabs.vue'
 import DatasetEditForm from './DatasetEditForm.vue'
+
+const image = useTemplateRef<HTMLImageElement>('image')
+
+function noImage() {
+  image.value?.remove()
+}
 
 interface DatasetQueryData {
   headers?: {
