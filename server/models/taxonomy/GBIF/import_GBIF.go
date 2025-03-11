@@ -11,12 +11,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/taxonomy"
 
 	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/thoas/go-funk"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
@@ -26,14 +27,14 @@ var BASE_URL = "https://api.gbif.org/v1/species/"
 var PAGE_SIZE = 1000
 
 type TaxonGBIF struct {
-	Key            int                `json:"key" edgedb:"GBIF_ID"`
-	Parent         int                `json:"parentKey" edgedb:"parentID"`
-	Name           string             `json:"canonicalName" edgedb:"name"`
-	Authorship     edgedb.OptionalStr `json:"authorship,omitempty" edgedb:"authorship,omitempty"`
-	Status         string             `json:"taxonomicStatus" edgedb:"status"`
-	Rank           string             `json:"rank" edgedb:"rank"`
-	NumDescendants int                `json:"numDescendants" edgedb:"-"`
-	Anchor         bool               `json:"anchor" edgedb:"anchor"`
+	Key            int                  `json:"key" gel:"GBIF_ID"`
+	Parent         int                  `json:"parentKey" gel:"parentID"`
+	Name           string               `json:"canonicalName" gel:"name"`
+	Authorship     geltypes.OptionalStr `json:"authorship,omitempty" gel:"authorship,omitempty"`
+	Status         string               `json:"taxonomicStatus" gel:"status"`
+	Rank           string               `json:"rank" gel:"rank"`
+	NumDescendants int                  `json:"numDescendants" gel:"-"`
+	Anchor         bool                 `json:"anchor" gel:"anchor"`
 }
 
 func (taxon *TaxonGBIF) normalize() {
@@ -105,15 +106,15 @@ func fetchParents(GBIF_ID int) ([]TaxonGBIF, error) {
 //go:embed queries/upsert_anchor.edgeql
 var upsertTaxonCmd string
 
-// Using different tags to unmarshall from GBIF and then marshal to EdgeDB
+// Using different tags to unmarshall from GBIF and then marshal to Gel
 var jsonDB = jsoniter.Config{
 	EscapeHTML:             true,
 	SortMapKeys:            true,
 	ValidateJsonRawMessage: true,
-	TagKey:                 "edgedb",
+	TagKey:                 "gel",
 }.Froze()
 
-func upsertTaxa(tx *edgedb.Tx, taxa []TaxonGBIF) (n int, err error) {
+func upsertTaxa(tx geltypes.Tx, taxa []TaxonGBIF) (n int, err error) {
 	taxa = funk.Map(taxa, func(taxon TaxonGBIF) TaxonGBIF {
 		taxon.normalize()
 		return taxon
@@ -155,7 +156,7 @@ func fetchChildren(GBIF_ID int, offset int) (children ChildrenGBIF, err error) {
 	return
 }
 
-func importChildren(tx *edgedb.Tx, GBIF_ID int, tracker *ProgressTracker) error {
+func importChildren(tx geltypes.Tx, GBIF_ID int, tracker *ProgressTracker) error {
 	var taxa []TaxonGBIF
 	endReached := false
 	offset := 0
@@ -213,7 +214,7 @@ type ImportRequestGBIF struct {
 	Children bool `json:"children" doc:"Import whole clade, including the taxon descendants"`
 }
 
-func ImportTaxonTx(tx *edgedb.Tx, request ImportRequestGBIF, monitor func(p *ImportProcess)) (err error) {
+func ImportTaxonTx(tx geltypes.Tx, request ImportRequestGBIF, monitor func(p *ImportProcess)) (err error) {
 	taxon, err := fetchTaxon(request.Key)
 	if err != nil {
 		return
@@ -244,8 +245,8 @@ func ImportTaxonTx(tx *edgedb.Tx, request ImportRequestGBIF, monitor func(p *Imp
 	return nil
 }
 
-func ImportTaxon(db *edgedb.Client, request ImportRequestGBIF, monitor func(p *ImportProcess)) (err error) {
-	return db.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+func ImportTaxon(db *gel.Client, request ImportRequestGBIF, monitor func(p *ImportProcess)) (err error) {
+	return db.Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
 		return ImportTaxonTx(tx, request, monitor)
 	})
 }

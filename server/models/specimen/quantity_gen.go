@@ -39,7 +39,7 @@ func (m *Quantity) Fake(f *gofakeit.Faker) (any, error) {
 	return string(QuantityValues[f.IntN(len(QuantityValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m Quantity) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

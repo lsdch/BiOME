@@ -3,16 +3,16 @@ package people_test
 import (
 	"testing"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/tests"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
-func SetupAuthAdminUser(t *testing.T) edgedb.Executor {
+func SetupAuthAdminUser(t *testing.T) geltypes.Executor {
 	client := db.Client()
 	user := FakeUserAccount(t, people.Admin)
 	require.NoError(t, user.SetRole(client, people.Admin))

@@ -4,21 +4,20 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/vocabulary"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type AbioticParameter struct {
-	vocabulary.Vocabulary `edgedb:"$inline" json:",inline"`
-	Unit                  string      `edgedb:"unit" json:"unit"`
-	Meta                  people.Meta `edgedb:"meta" json:"meta"`
+	vocabulary.Vocabulary `gel:"$inline" json:",inline"`
+	Unit                  string      `gel:"unit" json:"unit"`
+	Meta                  people.Meta `gel:"meta" json:"meta"`
 }
 
-func ListAbioticParameters(db edgedb.Executor) ([]AbioticParameter, error) {
+func ListAbioticParameters(db geltypes.Executor) ([]AbioticParameter, error) {
 	var items = []AbioticParameter{}
 	err := db.Query(context.Background(),
 		`select events::AbioticParameter { ** };`,
@@ -31,7 +30,7 @@ type AbioticParameterInput struct {
 	Unit                       string `json:"unit"`
 }
 
-func (i AbioticParameterInput) Save(e edgedb.Executor) (created AbioticParameter, err error) {
+func (i AbioticParameterInput) Save(e geltypes.Executor) (created AbioticParameter, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
@@ -47,11 +46,11 @@ func (i AbioticParameterInput) Save(e edgedb.Executor) (created AbioticParameter
 }
 
 type AbioticParameterUpdate struct {
-	vocabulary.VocabularyUpdate `edgedb:"$inline" json:",inline"`
-	Unit                        models.OptionalInput[string] `edgedb:"unit" json:"unit"`
+	vocabulary.VocabularyUpdate `gel:"$inline" json:",inline"`
+	Unit                        models.OptionalInput[string] `gel:"unit" json:"unit"`
 }
 
-func (u AbioticParameterUpdate) Save(e edgedb.Executor, code string) (updated AbioticParameter, err error) {
+func (u AbioticParameterUpdate) Save(e geltypes.Executor, code string) (updated AbioticParameter, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -68,7 +67,7 @@ func (u AbioticParameterUpdate) Save(e edgedb.Executor, code string) (updated Ab
 	return
 }
 
-func DeleteAbioticParameter(db edgedb.Executor, code string) (deleted AbioticParameter, err error) {
+func DeleteAbioticParameter(db geltypes.Executor, code string) (deleted AbioticParameter, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (
@@ -80,9 +79,9 @@ func DeleteAbioticParameter(db edgedb.Executor, code string) (deleted AbioticPar
 }
 
 type AbioticMeasurement struct {
-	ID    edgedb.UUID      `edgedb:"id" json:"id" format:"uuid"`
-	Param AbioticParameter `edgedb:"param" json:"param"`
-	Value float32          `edgedb:"value" json:"value"`
+	ID    geltypes.UUID    `gel:"id" json:"id" format:"uuid"`
+	Param AbioticParameter `gel:"param" json:"param"`
+	Value float32          `gel:"value" json:"value"`
 }
 
 type AbioticMeasurementInput struct {
@@ -91,7 +90,7 @@ type AbioticMeasurementInput struct {
 }
 
 // Upsert AbioticMeasurement with the given event ID
-func (u AbioticMeasurementInput) Save(e edgedb.Executor, eventID edgedb.UUID) (updated AbioticMeasurement, err error) {
+func (u AbioticMeasurementInput) Save(e geltypes.Executor, eventID geltypes.UUID) (updated AbioticMeasurement, err error) {
 	data, _ := json.Marshal(u)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
@@ -114,7 +113,7 @@ func (u AbioticMeasurementInput) Save(e edgedb.Executor, eventID edgedb.UUID) (u
 	return
 }
 
-func DeleteAbioticMeasurement(db edgedb.Executor, id edgedb.UUID) (deleted AbioticMeasurement, err error) {
+func DeleteAbioticMeasurement(db geltypes.Executor, id geltypes.UUID) (deleted AbioticMeasurement, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (

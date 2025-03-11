@@ -3,18 +3,18 @@ package tokens
 import (
 	"context"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/config"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
 type pwdResetToken struct {
-	TokenRecord `edgedb:"$inline" json:",inline"`
-	UserID      edgedb.UUID `edgedb:"user_id" json:"user_id"`
+	TokenRecord `gel:"$inline" json:",inline"`
+	UserID      geltypes.UUID `gel:"user_id" json:"user_id"`
 }
 
-func (t pwdResetToken) Save(db edgedb.Executor) error {
+func (t pwdResetToken) Save(db geltypes.Executor) error {
 	return db.Execute(context.Background(),
 		`#edgeql
 			insert tokens::PasswordReset {
@@ -25,14 +25,14 @@ func (t pwdResetToken) Save(db edgedb.Executor) error {
 		t.UserID, t.Token, t.Expires)
 }
 
-func NewPwdResetToken(userID edgedb.UUID) pwdResetToken {
+func NewPwdResetToken(userID geltypes.UUID) pwdResetToken {
 	return pwdResetToken{
 		UserID:      userID,
 		TokenRecord: GenerateToken(config.Get().AccountTokenDuration()),
 	}
 }
 
-func RetrievePwdResetToken(db edgedb.Executor, token Token) (pwdResetToken, error) {
+func RetrievePwdResetToken(db geltypes.Executor, token Token) (pwdResetToken, error) {
 	var db_token pwdResetToken
 	err := db.QuerySingle(context.Background(),
 		`#edgeql

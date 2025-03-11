@@ -3,17 +3,17 @@ package occurrence
 import (
 	"context"
 
-	"github.com/edgedb/edgedb-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/dataset"
 )
 
 type SequenceDataset struct {
-	dataset.Dataset `edgedb:"$inline" json:",inline"`
-	Sites           []SiteItem `edgedb:"sites" json:"sites"`
-	Sequences       []Sequence `edgedb:"sequences" json:"sequences"`
+	dataset.Dataset `gel:"$inline" json:",inline"`
+	Sites           []SiteItem `gel:"sites" json:"sites"`
+	Sequences       []Sequence `gel:"sequences" json:"sequences"`
 }
 
-func ListSequenceDatasets(db edgedb.Executor) (datasets []SequenceDataset, err error) {
+func ListSequenceDatasets(db geltypes.Executor) (datasets []SequenceDataset, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
 			select datasets::SeqDataset {
@@ -43,7 +43,7 @@ func ListSequenceDatasets(db edgedb.Executor) (datasets []SequenceDataset, err e
 	return
 }
 
-func GetSequenceDataset(db edgedb.Executor, slug string) (dataset SequenceDataset, err error) {
+func GetSequenceDataset(db geltypes.Executor, slug string) (dataset SequenceDataset, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select datasets::SequenceDataset {

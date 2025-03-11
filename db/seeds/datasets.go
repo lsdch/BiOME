@@ -3,9 +3,9 @@ package seeds
 import (
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/occurrence"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -18,7 +18,7 @@ func LoadOccurrencesDatasets(file string) (datasets []occurrence.OccurrenceDatas
 	return
 }
 
-func SeedOccurrencesDatasets(tx *edgedb.Tx, datasets []occurrence.OccurrenceDatasetInput) error {
+func SeedOccurrencesDatasets(tx geltypes.Tx, datasets []occurrence.OccurrenceDatasetInput) error {
 
 	for _, dataset := range datasets {
 		created, err := dataset.SaveTx(tx)

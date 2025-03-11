@@ -4,14 +4,15 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
 
-func checkExistence[T any](db *edgedb.Client, val T, bindings BindingEdgeDB) (exists bool) {
+func checkExistence[T any](db *gel.Client, val T, bindings GelBinding) (exists bool) {
 	query := fmt.Sprintf(
 		"select exists %s filter .%s = <%s>$0",
 		bindings.ObjectName, bindings.PropertyName, bindings.TypeCast,
@@ -26,10 +27,10 @@ func checkExistence[T any](db *edgedb.Client, val T, bindings BindingEdgeDB) (ex
 
 func validateExists(fl validator.FieldLevel) bool {
 	var value, kind, _ = fl.ExtractType(fl.Field())
-	if val, ok := value.Interface().(edgedb.UUID); ok {
-		return checkExistence(db.Client(), val, ParseEdgeDBBindingsOrDie(fl.Param(), "uuid"))
+	if val, ok := value.Interface().(geltypes.UUID); ok {
+		return checkExistence(db.Client(), val, ParseGelBindingsOrDie(fl.Param(), "uuid"))
 	} else if val, ok := value.Interface().(string); ok {
-		return checkExistence(db.Client(), val, ParseEdgeDBBindingsOrDie(fl.Param(), "str"))
+		return checkExistence(db.Client(), val, ParseGelBindingsOrDie(fl.Param(), "str"))
 	}
 	logrus.Fatalf("Unsupported type encountered while trying to validate 'exist=%s' constraint: %s", fl.Param(), kind)
 	return false

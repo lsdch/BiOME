@@ -3,17 +3,16 @@ package tokens
 import (
 	"context"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/config"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type emailVerificationToken struct {
-	TokenRecord `edgedb:"$inline" json:",inline"`
-	Email       string `edgedb:"email" json:"email"`
+	TokenRecord `gel:"$inline" json:",inline"`
+	Email       string `gel:"email" json:"email"`
 }
 
-func (t emailVerificationToken) Save(db edgedb.Executor) error {
+func (t emailVerificationToken) Save(db geltypes.Executor) error {
 	return db.Execute(context.Background(),
 		`insert tokens::EmailVerification {
 			user_request := (
@@ -31,7 +30,7 @@ func NewEmailVerificationToken(email string) emailVerificationToken {
 	}
 }
 
-func RetrieveEmailToken(db edgedb.Executor, token Token) (emailVerificationToken, error) {
+func RetrieveEmailToken(db geltypes.Executor, token Token) (emailVerificationToken, error) {
 	var db_token emailVerificationToken
 	err := db.QuerySingle(context.Background(),
 		`select tokens::EmailVerification { *, email := .user_request.email } filter .token = <str>$0`,

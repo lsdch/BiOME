@@ -7,48 +7,48 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
 type PersonIdentity struct {
-	FirstName string `json:"first_name" edgedb:"first_name" minLength:"2" maxLength:"32" fake:"{firstname}"`
-	LastName  string `json:"last_name" edgedb:"last_name" minLength:"2" maxLength:"32" fake:"{lastname}"`
+	FirstName string `json:"first_name" gel:"first_name" minLength:"2" maxLength:"32" fake:"{firstname}"`
+	LastName  string `json:"last_name" gel:"last_name" minLength:"2" maxLength:"32" fake:"{lastname}"`
 }
 
 // PersonInner contains all properties defining a person, excluding links to related entities
 type PersonInner struct {
-	PersonIdentity `edgedb:"$inline"`
-	ID             edgedb.UUID        `edgedb:"id" json:"id" binding:"required" format:"uuid"`
-	FullName       string             `json:"full_name" edgedb:"full_name" binding:"required"`
-	Alias          string             `json:"alias" edgedb:"alias" binding:"required"`
-	Role           OptionalUserRole   `json:"role,omitempty" edgedb:"role"`
-	Contact        edgedb.OptionalStr `json:"contact" edgedb:"contact" format:"email"`
-	Comment        edgedb.OptionalStr `json:"comment" edgedb:"comment"`
+	PersonIdentity `gel:"$inline"`
+	ID             geltypes.UUID        `gel:"id" json:"id" binding:"required" format:"uuid"`
+	FullName       string               `json:"full_name" gel:"full_name" binding:"required"`
+	Alias          string               `json:"alias" gel:"alias" binding:"required"`
+	Role           OptionalUserRole     `json:"role,omitempty" gel:"role"`
+	Contact        geltypes.OptionalStr `json:"contact" gel:"contact" format:"email"`
+	Comment        geltypes.OptionalStr `json:"comment" gel:"comment"`
 }
 
 // PersonUser is PersonInner with optional user informations attached
 type PersonUser struct {
-	PersonInner `edgedb:"$inline" json:",inline"`
-	User        models.Optional[UserInner] `edgedb:"user" json:"user"`
+	PersonInner `gel:"$inline" json:",inline"`
+	User        models.Optional[UserInner] `gel:"user" json:"user"`
 }
 
 // Person is the complete informations about a person, including related entities
 type Person struct {
-	PersonUser    `edgedb:"$inline" json:",inline"`
-	Organisations []OrganisationInner `json:"organisations" edgedb:"organisations"`
-	Meta          Meta                `json:"meta" edgedb:"meta"`
+	PersonUser    `gel:"$inline" json:",inline"`
+	Organisations []OrganisationInner `json:"organisations" gel:"organisations"`
+	Meta          Meta                `json:"meta" gel:"meta"`
 }
 
 type OptionalPerson struct {
-	edgedb.Optional
-	PersonInner `edgedb:"$inline" json:",inline"`
+	geltypes.Optional
+	PersonInner `gel:"$inline" json:",inline"`
 }
 
-func FindPerson(db edgedb.Executor, id edgedb.UUID) (person Person, err error) {
+func FindPerson(db geltypes.Executor, id geltypes.UUID) (person Person, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 		select people::Person { *, ** } filter .id = <uuid>$0;
@@ -56,7 +56,7 @@ func FindPerson(db edgedb.Executor, id edgedb.UUID) (person Person, err error) {
 	return person, err
 }
 
-func ListPersons(db edgedb.Executor) (people []Person, err error) {
+func ListPersons(db geltypes.Executor) (people []Person, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
 			select people::Person { ** } order by .last_name;
@@ -64,7 +64,7 @@ func ListPersons(db edgedb.Executor) (people []Person, err error) {
 	return
 }
 
-func DeletePerson(db edgedb.Executor, id edgedb.UUID) (deleted Person, err error) {
+func DeletePerson(db geltypes.Executor, id geltypes.UUID) (deleted Person, err error) {
 	logrus.Infof("Deleting person: %v", id)
 	query := `#edgeql
 		select(
@@ -74,7 +74,7 @@ func DeletePerson(db edgedb.Executor, id edgedb.UUID) (deleted Person, err error
 	return
 }
 
-func (person Person) Delete(db edgedb.Executor) (Person, error) {
+func (person Person) Delete(db geltypes.Executor) (Person, error) {
 	return DeletePerson(db, person.ID)
 }
 
@@ -111,7 +111,7 @@ func (p *PersonIdentity) GenerateAlias() string {
 	return alias
 }
 
-func (person PersonInput) Save(db edgedb.Executor) (created Person, err error) {
+func (person PersonInput) Save(db geltypes.Executor) (created Person, err error) {
 	logrus.Infof("Creating person %+v", person)
 	if !person.Alias.IsSet {
 		person.Alias.Value = person.GenerateAlias()
@@ -125,15 +125,15 @@ func (person PersonInput) Save(db edgedb.Executor) (created Person, err error) {
 }
 
 type PersonUpdate struct {
-	FirstName     models.OptionalInput[string]   `edgedb:"first_name" json:"first_name,omitempty" minLength:"2" maxLength:"32"`
-	LastName      models.OptionalInput[string]   `edgedb:"last_name" json:"last_name,omitempty" minLength:"2" maxLength:"32"`
-	Contact       models.OptionalNull[string]    `edgedb:"contact" json:"contact,omitempty" `
-	Organisations models.OptionalInput[[]string] `edgedb:"organisations" json:"organisations,omitempty" fakesize:"3"` // Organisation codes
-	Alias         models.OptionalInput[string]   `edgedb:"alias" json:"alias,omitempty"`
-	Comment       models.OptionalNull[string]    `edgedb:"comment" json:"comment,omitempty"`
+	FirstName     models.OptionalInput[string]   `gel:"first_name" json:"first_name,omitempty" minLength:"2" maxLength:"32"`
+	LastName      models.OptionalInput[string]   `gel:"last_name" json:"last_name,omitempty" minLength:"2" maxLength:"32"`
+	Contact       models.OptionalNull[string]    `gel:"contact" json:"contact,omitempty" `
+	Organisations models.OptionalInput[[]string] `gel:"organisations" json:"organisations,omitempty" fakesize:"3"` // Organisation codes
+	Alias         models.OptionalInput[string]   `gel:"alias" json:"alias,omitempty"`
+	Comment       models.OptionalNull[string]    `gel:"comment" json:"comment,omitempty"`
 }
 
-func (u PersonUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Person, err error) {
+func (u PersonUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Person, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql

@@ -4,16 +4,15 @@ import (
 	"fmt"
 	"maps"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type Vocabulary struct {
-	ID          edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
-	Label       string             `edgedb:"label" json:"label"`
-	Code        string             `edgedb:"code" json:"code"`
-	Description edgedb.OptionalStr `edgedb:"description" json:"description,omitempty"`
+	ID          geltypes.UUID        `gel:"id" json:"id" format:"uuid"`
+	Label       string               `gel:"label" json:"label"`
+	Code        string               `gel:"code" json:"code"`
+	Description geltypes.OptionalStr `gel:"description" json:"description,omitempty"`
 }
 
 type VocabularyInput struct {
@@ -23,9 +22,9 @@ type VocabularyInput struct {
 }
 
 type VocabularyUpdate struct {
-	Label       models.OptionalInput[string] `edgedb:"label" json:"label,omitempty"`
-	Code        models.OptionalInput[string] `edgedb:"code" json:"code,omitempty"`
-	Description models.OptionalNull[string]  `edgedb:"description" json:"description,omitempty"`
+	Label       models.OptionalInput[string] `gel:"label" json:"label,omitempty"`
+	Code        models.OptionalInput[string] `gel:"code" json:"code,omitempty"`
+	Description models.OptionalNull[string]  `gel:"description" json:"description,omitempty"`
 }
 
 // FieldMappingsWith defines Vocabulary field mappings to be used with db.UpdateQuery.

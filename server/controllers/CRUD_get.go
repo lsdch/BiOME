@@ -3,11 +3,10 @@ package controllers
 import (
 	"context"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/resolvers"
 	"github.com/lsdch/biome/router"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type GetInputInterface[Item any, ID any] interface {
@@ -46,7 +45,7 @@ func GetHandler[
 }
 
 func GetByIDHandler[Item any](
-	find models.ItemFinder[edgedb.UUID, Item],
+	find models.ItemFinder[geltypes.UUID, Item],
 ) router.Endpoint[
 	GetByIDHandlerInput[Item],
 	GetHandlerOutput[Item],
@@ -65,4 +64,4 @@ func GetByCodeHandler[Item any](
 
 // Implementation assertions
 var _ UpdateInputInterface[models.PersistableWithID[string, any], string, any] = (*UpdateByCodeHandlerInput[models.PersistableWithID[string, any], any])(nil)
-var _ UpdateInputInterface[models.PersistableWithID[edgedb.UUID, any], edgedb.UUID, any] = (*UpdateByIDHandlerInput[models.PersistableWithID[edgedb.UUID, any], any])(nil)
+var _ UpdateInputInterface[models.PersistableWithID[geltypes.UUID, any], geltypes.UUID, any] = (*UpdateByIDHandlerInput[models.PersistableWithID[geltypes.UUID, any], any])(nil)

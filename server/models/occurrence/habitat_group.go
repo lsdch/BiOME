@@ -6,24 +6,25 @@ import (
 	"fmt"
 	"slices"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
 type HabitatGroup struct {
-	ID        edgedb.UUID                    `edgedb:"id" json:"id" format:"uuid"`
-	Label     string                         `edgedb:"label" json:"label" doc:"Name for the group of habitat tags" example:"Water flow"`
-	Exclusive bool                           `edgedb:"exclusive_elements" json:"exclusive_elements"`
-	Depends   models.Optional[HabitatRecord] `edgedb:"depends" json:"depends"`
-	Elements  []HabitatRecord                `edgedb:"elements" json:"elements"`
-	Meta      people.Meta                    `edgedb:"meta" json:"meta"`
+	ID        geltypes.UUID                  `gel:"id" json:"id" format:"uuid"`
+	Label     string                         `gel:"label" json:"label" doc:"Name for the group of habitat tags" example:"Water flow"`
+	Exclusive bool                           `gel:"exclusive_elements" json:"exclusive_elements"`
+	Depends   models.Optional[HabitatRecord] `gel:"depends" json:"depends"`
+	Elements  []HabitatRecord                `gel:"elements" json:"elements"`
+	Meta      people.Meta                    `gel:"meta" json:"meta"`
 }
 
-func (g *HabitatGroup) AddHabitat(e edgedb.Executor, h HabitatInput) error {
+func (g *HabitatGroup) AddHabitat(e geltypes.Executor, h HabitatInput) error {
 	data, _ := json.Marshal(h)
 	var new_habitat HabitatRecord
 	err := e.QuerySingle(context.Background(),
@@ -45,7 +46,7 @@ func (g *HabitatGroup) AddHabitat(e edgedb.Executor, h HabitatInput) error {
 	return nil
 }
 
-func (g *HabitatGroup) DeleteHabitat(e edgedb.Executor, label string) error {
+func (g *HabitatGroup) DeleteHabitat(e geltypes.Executor, label string) error {
 	err := e.Execute(context.Background(),
 		`#edgeql
 			delete assert_exists(sampling::Habitat filter .label = <str>$0)
@@ -60,7 +61,7 @@ func (g *HabitatGroup) DeleteHabitat(e edgedb.Executor, label string) error {
 	return nil
 }
 
-func (g *HabitatGroup) UpdateHabitat(e edgedb.Executor, label string, h HabitatUpdate) error {
+func (g *HabitatGroup) UpdateHabitat(e geltypes.Executor, label string, h HabitatUpdate) error {
 	data, _ := json.Marshal(h)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -93,7 +94,7 @@ type HabitatGroupInput struct {
 	Elements  []HabitatInput `json:"elements" minItems:"1"`
 }
 
-func (g HabitatGroupInput) Save(db edgedb.Executor) (created HabitatGroup, err error) {
+func (g HabitatGroupInput) Save(db geltypes.Executor) (created HabitatGroup, err error) {
 	data, _ := json.Marshal(g)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
@@ -117,10 +118,10 @@ func (g HabitatGroupInput) Save(db edgedb.Executor) (created HabitatGroup, err e
 	return
 }
 
-func FindHabitatGroup[ID string | edgedb.UUID](db edgedb.Executor, id ID) (*HabitatGroup, error) {
+func FindHabitatGroup[ID string | geltypes.UUID](db geltypes.Executor, id ID) (*HabitatGroup, error) {
 	query, err := func() (string, error) {
 		switch any(id).(type) {
-		case edgedb.UUID:
+		case geltypes.UUID:
 			return `#edgeql
 				select sampling::HabitatGroup { ** } filter .id = <uuid>$0`, nil
 		case string:
@@ -137,7 +138,7 @@ func FindHabitatGroup[ID string | edgedb.UUID](db edgedb.Executor, id ID) (*Habi
 	return &group, err
 }
 
-func ListHabitatGroups(db edgedb.Executor) ([]HabitatGroup, error) {
+func ListHabitatGroups(db geltypes.Executor) ([]HabitatGroup, error) {
 	var groups []HabitatGroup
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -148,7 +149,7 @@ func ListHabitatGroups(db edgedb.Executor) ([]HabitatGroup, error) {
 	return groups, err
 }
 
-func DeleteHabitatGroup(db edgedb.Executor, label string) (deleted HabitatGroup, err error) {
+func DeleteHabitatGroup(db geltypes.Executor, label string) (deleted HabitatGroup, err error) {
 	query := `#edgeql
 		select(
 			delete sampling::HabitatGroup filter .label = <str>$0
@@ -158,15 +159,15 @@ func DeleteHabitatGroup(db edgedb.Executor, label string) (deleted HabitatGroup,
 }
 
 type HabitatGroupUpdate struct {
-	Label      models.OptionalInput[string]                   `edgedb:"label" json:"label,omitempty"`
-	Depends    models.OptionalNull[string]                    `edgedb:"depends" json:"depends,omitempty"`
-	Exclusive  models.OptionalInput[bool]                     `edgedb:"exclusive_elements" json:"exclusive_elements,omitempty"`
+	Label      models.OptionalInput[string]                   `gel:"label" json:"label,omitempty"`
+	Depends    models.OptionalNull[string]                    `gel:"depends" json:"depends,omitempty"`
+	Exclusive  models.OptionalInput[bool]                     `gel:"exclusive_elements" json:"exclusive_elements,omitempty"`
 	CreateTags models.OptionalInput[[]HabitatInput]           `json:"create_tags,omitempty"`
 	UpdateTags models.OptionalInput[map[string]HabitatUpdate] `json:"update_tags,omitempty"`
 	DeleteTags models.OptionalInput[[]string]                 `json:"delete_tags,omitempty"`
 }
 
-func (u HabitatGroupUpdate) Save(e edgedb.Executor, label string) (updated HabitatGroup, err error) {
+func (u HabitatGroupUpdate) Save(e geltypes.Executor, label string) (updated HabitatGroup, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -185,9 +186,9 @@ func (u HabitatGroupUpdate) Save(e edgedb.Executor, label string) (updated Habit
 	}
 	logrus.Infof("Value: %+v", u)
 	logrus.Infof("Query: %v", query.Query(u))
-	return updated, e.(*edgedb.Client).Tx(
+	return updated, e.(*gel.Client).Tx(
 		context.Background(),
-		func(ctx context.Context, tx *edgedb.Tx) (err error) {
+		func(ctx context.Context, tx geltypes.Tx) (err error) {
 			if err = tx.QuerySingle(
 				context.Background(),
 				query.Query(u),

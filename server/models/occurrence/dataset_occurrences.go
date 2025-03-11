@@ -4,20 +4,19 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/dataset"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type OccurrenceDataset struct {
-	dataset.Dataset `edgedb:"$inline" json:",inline"`
-	Sites           []SiteItem               `edgedb:"sites" json:"sites"`
-	Occurrences     []OccurrenceWithCategory `edgedb:"occurrences" json:"occurrences"`
-	IsCongruent     bool                     `edgedb:"is_congruent" json:"is_congruent"`
+	dataset.Dataset `gel:"$inline" json:",inline"`
+	Sites           []SiteItem               `gel:"sites" json:"sites"`
+	Occurrences     []OccurrenceWithCategory `gel:"occurrences" json:"occurrences"`
+	IsCongruent     bool                     `gel:"is_congruent" json:"is_congruent"`
 }
 
-func ListOccurrenceDatasets(db edgedb.Executor) ([]OccurrenceDataset, error) {
+func ListOccurrenceDatasets(db geltypes.Executor) ([]OccurrenceDataset, error) {
 	datasets := []OccurrenceDataset{}
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -36,7 +35,7 @@ func ListOccurrenceDatasets(db edgedb.Executor) ([]OccurrenceDataset, error) {
 	return datasets, err
 }
 
-func GetOccurrenceDataset(db edgedb.Executor, slug string) (dataset OccurrenceDataset, err error) {
+func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset OccurrenceDataset, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select datasets::OccurrenceDataset {
@@ -55,11 +54,11 @@ func GetOccurrenceDataset(db edgedb.Executor, slug string) (dataset OccurrenceDa
 }
 
 type OccurrenceDatasetInput struct {
-	dataset.DatasetInput `edgedb:"$inline" json:",inline"`
+	dataset.DatasetInput `gel:"$inline" json:",inline"`
 	Occurrences          OccurrenceBatchInput `json:"occurrences"`
 }
 
-func (i OccurrenceDatasetInput) SaveTx(tx *edgedb.Tx) (created OccurrenceDataset, err error) {
+func (i OccurrenceDatasetInput) SaveTx(tx geltypes.Tx) (created OccurrenceDataset, err error) {
 	occurrences, err := i.Occurrences.Save(tx)
 	if err != nil {
 		return created, models.WrapErrorPath(err, "occurrences")

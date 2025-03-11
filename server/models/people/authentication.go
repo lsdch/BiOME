@@ -5,22 +5,22 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/config"
 	"github.com/lsdch/biome/models/tokens"
 	"github.com/lsdch/biome/services/auth_tokens"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type UserCredentials struct {
 	Identifier string `json:"identifier" binding:"required"`
-	// Unhashed, password hash comparison is done within EdgeDB
+	// Unhashed, password hash comparison is done within Gel
 	Password string `json:"password" binding:"required"`
 }
 
 // Attempts to authenticate a user given the provided credentials.
-// Return edgedb.NoData error if credentials are invalid.
-func (creds *UserCredentials) Authenticate(db *edgedb.Client) (user User, err error) {
+// Return geltypes.NoDataError if credentials are invalid.
+func (creds *UserCredentials) Authenticate(db *gel.Client) (user User, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select people::User { *, identity: { * } }
@@ -34,8 +34,8 @@ func (creds *UserCredentials) Authenticate(db *edgedb.Client) (user User, err er
 	return
 }
 
-// Returns currently authenticated user or edgedb.NoDataError if not authenticated
-func Current(db edgedb.Executor) (user User, err error) {
+// Returns currently authenticated user or geltypes.NoDataError if not authenticated
+func Current(db geltypes.Executor) (user User, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (global current_user) { * , identity: { * } } limit 1

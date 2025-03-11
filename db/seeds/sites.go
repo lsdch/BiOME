@@ -5,10 +5,10 @@ import (
 	"errors"
 	"os"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/config"
 	"github.com/lsdch/biome/models/occurrence"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -24,7 +24,7 @@ func LoadSiteDatasetJSON(file string) (dataset occurrence.SiteDatasetInput) {
 	return
 }
 
-func LoadSiteDataset(db edgedb.Executor, file string, maxAmount int) (*occurrence.SiteDatasetInput, error) {
+func LoadSiteDataset(db geltypes.Executor, file string, maxAmount int) (*occurrence.SiteDatasetInput, error) {
 	cfg, _ := config.LoadConfig("../../server", "config")
 	logrus.Infof("Loaded config: %+v", cfg)
 
@@ -42,7 +42,7 @@ func LoadSiteDataset(db edgedb.Executor, file string, maxAmount int) (*occurrenc
 
 }
 
-func SeedSites(tx *edgedb.Tx, dataset occurrence.SiteDatasetInput) error {
+func SeedSites(tx geltypes.Tx, dataset occurrence.SiteDatasetInput) error {
 	validated, errs := dataset.Validate(tx)
 	if errs != nil {
 		return errors.Join(errs...)

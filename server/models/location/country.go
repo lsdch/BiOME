@@ -4,13 +4,14 @@ import (
 	"context"
 	_ "embed"
 
-	"github.com/edgedb/edgedb-go"
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 )
 
 //go:embed data/countries.json
 var seed []byte
 
-func SetupCountries(db *edgedb.Client) error {
+func SetupCountries(db *gel.Client) error {
 	return db.Execute(context.Background(),
 		`#edgeql
 		with module location,
@@ -29,12 +30,12 @@ func SetupCountries(db *edgedb.Client) error {
 }
 
 type Country struct {
-	ID   edgedb.UUID `json:"id" edgedb:"id" format:"uuid"`
-	Name string      `json:"name" edgedb:"name" example:"Germany" binding:"required"`
-	Code string      `json:"code" edgedb:"code" example:"DE" binding:"required,country_code=iso3166_1_alpha2"`
+	ID   geltypes.UUID `json:"id" gel:"id" format:"uuid"`
+	Name string        `json:"name" gel:"name" example:"Germany" binding:"required"`
+	Code string        `json:"code" gel:"code" example:"DE" binding:"required,country_code=iso3166_1_alpha2"`
 }
 
-func ListCountries(db edgedb.Executor) ([]Country, error) {
+func ListCountries(db geltypes.Executor) ([]Country, error) {
 	var countries []Country
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -45,11 +46,11 @@ func ListCountries(db edgedb.Executor) ([]Country, error) {
 }
 
 type CountryWithSitesCount struct {
-	Country    `json:",inline" edgedb:"$inline"`
-	SitesCount int64 `json:"sites_count" edgedb:"sites_count"`
+	Country    `json:",inline" gel:"$inline"`
+	SitesCount int64 `json:"sites_count" gel:"sites_count"`
 }
 
-func SitesCountByCountry(db edgedb.Executor) ([]CountryWithSitesCount, error) {
+func SitesCountByCountry(db geltypes.Executor) ([]CountryWithSitesCount, error) {
 	var res []CountryWithSitesCount
 	err := db.Query(context.Background(),
 		`#edgeql

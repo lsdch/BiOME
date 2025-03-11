@@ -3,17 +3,17 @@ package crossref
 import (
 	"fmt"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/services"
 
 	"github.com/caltechlibrary/crossrefapi"
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
 )
 
 // RetrieveDOI queries the CrossRef API to retrieve metadata for a given DOI.
 // The function enqueues the request to the CrossRef client queue and waits for the response.
 // If no match is found or there's an error, returns a 404 Not Found error.
-func RetrieveDOI(db edgedb.Executor, doi string) (*crossrefapi.Works, error) {
+func RetrieveDOI(db geltypes.Executor, doi string) (*crossrefapi.Works, error) {
 
 	queueItem := services.NewQueueItem(
 		func(client *crossrefapi.CrossRefClient) services.ApiResponse[crossrefapi.Works] {

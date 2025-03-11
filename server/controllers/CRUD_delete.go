@@ -3,14 +3,14 @@ package controllers
 import (
 	"context"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/resolvers"
 	"github.com/lsdch/biome/router"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
-type ItemDelete[ID any, Item any] func(db edgedb.Executor, id ID) (Item, error)
+type ItemDelete[ID any, Item any] func(db geltypes.Executor, id ID) (Item, error)
 
 type DeleteHandlerInput[ID any] interface {
 	resolvers.AuthDBProvider
@@ -55,7 +55,7 @@ type DeleteByIDHandlerInput struct {
 }
 
 func DeleteByIDHandler[Item any](
-	deleteItem ItemDelete[edgedb.UUID, Item],
+	deleteItem ItemDelete[geltypes.UUID, Item],
 ) router.Endpoint[DeleteByIDHandlerInput, DeleteHandlerOutput[Item]] {
 	return DeleteHandler[*DeleteByIDHandlerInput](deleteItem)
 }

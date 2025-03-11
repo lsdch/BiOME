@@ -51,7 +51,7 @@ func (m *UserRole) Fake(f *gofakeit.Faker) (any, error) {
 	return string(UserRoleValues[f.IntN(len(UserRoleValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m UserRole) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

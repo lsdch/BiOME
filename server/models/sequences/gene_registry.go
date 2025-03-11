@@ -4,21 +4,20 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/vocabulary"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type Gene struct {
-	vocabulary.Vocabulary `edgedb:"$inline" json:",inline"`
-	IsMOTUDelimiter       bool        `edgedb:"motu" json:"is_MOTU_delimiter"`
-	Meta                  people.Meta `edgedb:"meta" json:"meta"`
+	vocabulary.Vocabulary `gel:"$inline" json:",inline"`
+	IsMOTUDelimiter       bool        `gel:"motu" json:"is_MOTU_delimiter"`
+	Meta                  people.Meta `gel:"meta" json:"meta"`
 }
 
-func ListGenes(db edgedb.Executor) ([]Gene, error) {
+func ListGenes(db geltypes.Executor) ([]Gene, error) {
 	var items = []Gene{}
 	err := db.Query(context.Background(),
 		`select seq::Gene { ** };`,
@@ -31,7 +30,7 @@ type GeneInput struct {
 	IsMOTUDelimiter            bool `json:"is_MOTU_delimiter,omitempty" default:"false"`
 }
 
-func (i GeneInput) Save(e edgedb.Executor) (created Gene, err error) {
+func (i GeneInput) Save(e geltypes.Executor) (created Gene, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
@@ -47,11 +46,11 @@ func (i GeneInput) Save(e edgedb.Executor) (created Gene, err error) {
 }
 
 type GeneUpdate struct {
-	vocabulary.VocabularyUpdate `edgedb:"$inline" json:",inline"`
-	IsMOTUDelimiter             models.OptionalInput[bool] `edgedb:"motu" json:"is_MOTU_delimiter,omitempty"`
+	vocabulary.VocabularyUpdate `gel:"$inline" json:",inline"`
+	IsMOTUDelimiter             models.OptionalInput[bool] `gel:"motu" json:"is_MOTU_delimiter,omitempty"`
 }
 
-func (u GeneUpdate) Save(e edgedb.Executor, code string) (updated Gene, err error) {
+func (u GeneUpdate) Save(e geltypes.Executor, code string) (updated Gene, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -68,7 +67,7 @@ func (u GeneUpdate) Save(e edgedb.Executor, code string) (updated Gene, err erro
 	return
 }
 
-func DeleteGene(db edgedb.Executor, code string) (deleted Gene, err error) {
+func DeleteGene(db geltypes.Executor, code string) (deleted Gene, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (

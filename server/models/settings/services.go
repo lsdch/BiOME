@@ -4,21 +4,20 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type ServiceSettings struct {
-	GeoapifyApiKey edgedb.OptionalStr `edgedb:"geoapify_api_key" json:"geoapify_api_key"`
+	GeoapifyApiKey geltypes.OptionalStr `gel:"geoapify_api_key" json:"geoapify_api_key"`
 }
 
 type ServiceSettingsUpdate struct {
-	GeoapifyApiKey models.OptionalNull[string] `edgedb:"geoapify_api_key" json:"geoapify_api_key"`
+	GeoapifyApiKey models.OptionalNull[string] `gel:"geoapify_api_key" json:"geoapify_api_key"`
 }
 
-func (u ServiceSettingsUpdate) Save(e edgedb.Executor) (updated ServiceSettings, err error) {
+func (u ServiceSettingsUpdate) Save(e geltypes.Executor) (updated ServiceSettings, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql

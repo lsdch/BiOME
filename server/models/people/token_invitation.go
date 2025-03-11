@@ -4,32 +4,31 @@ import (
 	"context"
 	"net/url"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/settings"
 	"github.com/lsdch/biome/models/tokens"
 	"github.com/lsdch/biome/services/email"
 	email_templates "github.com/lsdch/biome/templates"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type InvitationOptions struct {
-	Email string   `edgedb:"email" json:"email" format:"email" doc:"E-mail address of the recipient of the invitation"`
-	Role  UserRole `edgedb:"role" json:"role"`
+	Email string   `gel:"email" json:"email" format:"email" doc:"E-mail address of the recipient of the invitation"`
+	Role  UserRole `gel:"role" json:"role"`
 }
 
 type InvitationInput struct {
-	Person             PersonInner `edgedb:"identity" json:"identity"`
-	InvitationOptions  `edgedb:"$inline" json:",inline"`
-	tokens.TokenRecord `edgedb:"$inline" json:",inline"`
+	Person             PersonInner `gel:"identity" json:"identity"`
+	InvitationOptions  `gel:"$inline" json:",inline"`
+	tokens.TokenRecord `gel:"$inline" json:",inline"`
 }
 
 type Invitation struct {
-	ID              edgedb.UUID `edgedb:"id" json:"id"`
-	IssuedBy        User        `edgedb:"issued_by" json:"issued_by"`
-	InvitationInput `edgedb:"$inline" json:",inline"`
+	ID              geltypes.UUID `gel:"id" json:"id"`
+	IssuedBy        User          `gel:"issued_by" json:"issued_by"`
+	InvitationInput `gel:"$inline" json:",inline"`
 }
 
-func (i InvitationInput) Save(db edgedb.Executor) (Invitation, error) {
+func (i InvitationInput) Save(db geltypes.Executor) (Invitation, error) {
 	var invitation Invitation
 	err := db.QuerySingle(context.Background(),
 		`#edgeql
@@ -82,7 +81,7 @@ func (i *Invitation) Send(target url.URL) (*url.URL, error) {
 	return &target, sendError
 }
 
-func ValidateInvitationToken(db edgedb.Executor, token tokens.Token) (Invitation, error) {
+func ValidateInvitationToken(db geltypes.Executor, token tokens.Token) (Invitation, error) {
 	var invitation Invitation
 	err := db.QuerySingle(context.Background(),
 		`#edgeql

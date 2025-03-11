@@ -4,36 +4,35 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type ProgramInner struct {
-	ID          edgedb.UUID          `edgedb:"id" json:"id" format:"uuid"`
-	Label       string               `edgedb:"label" json:"label"`
-	Code        string               `edgedb:"code" json:"code"`
-	StartYear   edgedb.OptionalInt32 `edgedb:"start_year" json:"start_year,omitempty" minimum:"1900" example:"2019"`
-	EndYear     edgedb.OptionalInt32 `edgedb:"end_year" json:"end_year,omitempty" example:"2025"`
-	Description edgedb.OptionalStr   `edgedb:"description" json:"description,omitempty"`
+	ID          geltypes.UUID          `gel:"id" json:"id" format:"uuid"`
+	Label       string                 `gel:"label" json:"label"`
+	Code        string                 `gel:"code" json:"code"`
+	StartYear   geltypes.OptionalInt32 `gel:"start_year" json:"start_year,omitempty" minimum:"1900" example:"2019"`
+	EndYear     geltypes.OptionalInt32 `gel:"end_year" json:"end_year,omitempty" example:"2025"`
+	Description geltypes.OptionalStr   `gel:"description" json:"description,omitempty"`
 }
 
 type Program struct {
-	ProgramInner    `edgedb:"$inline" json:",inline"`
-	Managers        []people.PersonInner       `edgedb:"managers" json:"managers" minItems:"1"`
-	FundingAgencies []people.OrganisationInner `edgedb:"funding_agencies" json:"funding_agencies"`
-	Meta            people.Meta                `edgedb:"meta" json:"meta"`
+	ProgramInner    `gel:"$inline" json:",inline"`
+	Managers        []people.PersonInner       `gel:"managers" json:"managers" minItems:"1"`
+	FundingAgencies []people.OrganisationInner `gel:"funding_agencies" json:"funding_agencies"`
+	Meta            people.Meta                `gel:"meta" json:"meta"`
 }
 
-func ListPrograms(db edgedb.Executor) ([]Program, error) {
+func ListPrograms(db geltypes.Executor) ([]Program, error) {
 	var programs = []Program{}
 	err := db.Query(context.Background(), `select events::Program { ** }`, &programs)
 	return programs, err
 }
 
-func FindProgram(db edgedb.Executor, code string) (program Program, err error) {
+func FindProgram(db geltypes.Executor, code string) (program Program, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select events::Program { ** } filter .code = <str>$0
@@ -52,7 +51,7 @@ type ProgramInput struct {
 	Description     models.OptionalInput[string]   `json:"description,omitempty"`
 }
 
-func (i ProgramInput) Save(db edgedb.Executor) (created Program, err error) {
+func (i ProgramInput) Save(db geltypes.Executor) (created Program, err error) {
 	args, _ := json.Marshal(i)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
@@ -79,16 +78,16 @@ func (i ProgramInput) Save(db edgedb.Executor) (created Program, err error) {
 }
 
 type ProgramUpdate struct {
-	Label           models.OptionalInput[string]  `edgedb:"label" json:"label,omitempty" example:"Alice's PhD"`
-	Code            models.OptionalInput[string]  `edgedb:"code" json:"code,omitempty" example:"PHD_ALICE"`
-	Managers        models.OptionalNull[[]string] `edgedb:"managers"  json:"managers,omitempty" minItems:"1" example:"[\"adoe\",\"fmalard\"]"`
-	FundingAgencies models.OptionalNull[[]string] `edgedb:"funding_agencies" json:"funding_agencies,omitempty" example:"[\"CNRS\"]"`
-	StartYear       models.OptionalNull[int32]    `edgedb:"start_year" json:"start_year,omitempty" minimum:"1900" example:"2022"`
-	EndYear         models.OptionalNull[int32]    `edgedb:"end_year" json:"end_year,omitempty" example:"2025"`
-	Description     models.OptionalNull[string]   `edgedb:"description" json:"description,omitempty"`
+	Label           models.OptionalInput[string]  `gel:"label" json:"label,omitempty" example:"Alice's PhD"`
+	Code            models.OptionalInput[string]  `gel:"code" json:"code,omitempty" example:"PHD_ALICE"`
+	Managers        models.OptionalNull[[]string] `gel:"managers"  json:"managers,omitempty" minItems:"1" example:"[\"adoe\",\"fmalard\"]"`
+	FundingAgencies models.OptionalNull[[]string] `gel:"funding_agencies" json:"funding_agencies,omitempty" example:"[\"CNRS\"]"`
+	StartYear       models.OptionalNull[int32]    `gel:"start_year" json:"start_year,omitempty" minimum:"1900" example:"2022"`
+	EndYear         models.OptionalNull[int32]    `gel:"end_year" json:"end_year,omitempty" example:"2025"`
+	Description     models.OptionalNull[string]   `gel:"description" json:"description,omitempty"`
 }
 
-func (u ProgramUpdate) Save(e edgedb.Executor, code string) (updated Program, err error) {
+func (u ProgramUpdate) Save(e geltypes.Executor, code string) (updated Program, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -118,7 +117,7 @@ func (u ProgramUpdate) Save(e edgedb.Executor, code string) (updated Program, er
 	return
 }
 
-func DeleteProgram(db edgedb.Executor, code string) (deleted Program, err error) {
+func DeleteProgram(db geltypes.Executor, code string) (deleted Program, err error) {
 	err = db.QuerySingle(context.Background(),
 		`select (
 			 delete events::Program filter .code = <str>$0

@@ -36,7 +36,7 @@ func (m *DatasetCategory) Fake(f *gofakeit.Faker) (any, error) {
 	return string(DatasetCategoryValues[f.IntN(len(DatasetCategoryValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m DatasetCategory) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

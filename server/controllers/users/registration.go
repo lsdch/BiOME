@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/controllers"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/people"
@@ -15,7 +16,6 @@ import (
 	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -34,7 +34,7 @@ func Register(confirmEmailPath string) router.Endpoint[RegisterInput, controller
 			input.Body.Data.LastName,
 			input.Body.Data.Email,
 		)
-		err := db.Client().Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+		err := db.Client().Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
 			pending, err := input.Body.Data.Register(db.Client())
 			if err != nil {
 				return fmt.Errorf("Failed to create account request: %v", err)

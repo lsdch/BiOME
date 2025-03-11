@@ -4,21 +4,20 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/taxonomy"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type Spotting struct {
-	edgedb.Optional
-	ID         edgedb.UUID        `edgedb:"id" json:"-" format:"uuid"`
-	TargetTaxa []taxonomy.Taxon   `edgedb:"target_taxa" json:"target_taxa,omitempty"`
-	Comments   edgedb.OptionalStr `edgedb:"comments" json:"comments,omitempty"`
+	geltypes.Optional
+	ID         geltypes.UUID        `gel:"id" json:"-" format:"uuid"`
+	TargetTaxa []taxonomy.Taxon     `gel:"target_taxa" json:"target_taxa,omitempty"`
+	Comments   geltypes.OptionalStr `gel:"comments" json:"comments,omitempty"`
 }
 
 type SpottingUpdate []string
 
-func (u SpottingUpdate) Save(e edgedb.Executor, eventID edgedb.UUID) (spottings []taxonomy.Taxon, err error) {
+func (u SpottingUpdate) Save(e geltypes.Executor, eventID geltypes.UUID) (spottings []taxonomy.Taxon, err error) {
 	if len(u) == 0 {
 		return
 	}

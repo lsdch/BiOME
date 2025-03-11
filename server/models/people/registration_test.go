@@ -3,10 +3,10 @@ package people_test
 import (
 	"testing"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/tests"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -19,13 +19,13 @@ func FakePendingUserInput(t *testing.T) *people.PendingUserRequestInput {
 func TestPendingUser(t *testing.T) {
 
 	t.Run("Register user",
-		tests.WrapTransaction(t, func(tx *edgedb.Tx) error {
+		tests.WrapTransaction(t, func(tx geltypes.Tx) error {
 			_, err := FakePendingUserInput(t).Register(tx)
 			return err
 		}))
 
 	t.Run("Account request email is initially not verified",
-		tests.WrapTransaction(t, func(tx *edgedb.Tx) error {
+		tests.WrapTransaction(t, func(tx geltypes.Tx) error {
 			pendingUser, err := FakePendingUserInput(t).Register(tx)
 			require.NoError(t, err)
 			assert.False(t, pendingUser.EmailVerified)
@@ -45,7 +45,7 @@ func TestPendingUser(t *testing.T) {
 	// })
 
 	t.Run("Delete pending user request",
-		tests.WrapTransaction(t, func(tx *edgedb.Tx) error {
+		tests.WrapTransaction(t, func(tx geltypes.Tx) error {
 			pendingUser, err := FakePendingUserInput(t).Register(tx)
 			require.NoError(t, err)
 			return pendingUser.Delete(tx)

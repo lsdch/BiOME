@@ -35,7 +35,7 @@ func (m *OccurrenceCategory) Fake(f *gofakeit.Faker) (any, error) {
 	return string(OccurrenceCategoryValues[f.IntN(len(OccurrenceCategoryValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m OccurrenceCategory) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }
@@ -70,7 +70,7 @@ func (m *OccurrenceElement) Fake(f *gofakeit.Faker) (any, error) {
 	return string(OccurrenceElementValues[f.IntN(len(OccurrenceElementValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m OccurrenceElement) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

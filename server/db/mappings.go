@@ -34,10 +34,10 @@ func (q UpdateQuery) structFragments(itemValue reflect.Value) []string {
 		f := itemType.Field(i)
 		v := itemValue.Field(i)
 
-		edgedbTag := f.Tag.Get("edgedb")
-		if edgedbTag == "" {
+		gelTag := f.Tag.Get("gel")
+		if gelTag == "" {
 			continue
-		} else if edgedbTag == "$inline" {
+		} else if gelTag == "$inline" {
 			fragments = append(fragments, q.structFragments(v)...)
 			continue
 		}
@@ -50,11 +50,11 @@ func (q UpdateQuery) structFragments(itemValue reflect.Value) []string {
 				continue
 			}
 			// Field is null: update DB value to empty set {}
-			fragment := fmt.Sprintf("%s := {}", edgedbTag)
+			fragment := fmt.Sprintf("%s := {}", gelTag)
 			// Field is not null: update DB value using provided mapping
 			if !value.IsNull() {
-				if mapping, ok := q.Mappings[edgedbTag]; ok {
-					fragment = fmt.Sprintf("%s := %s", edgedbTag, mapping)
+				if mapping, ok := q.Mappings[gelTag]; ok {
+					fragment = fmt.Sprintf("%s := %s", gelTag, mapping)
 				} else {
 					// Ignore field if mapping was not provided
 					continue

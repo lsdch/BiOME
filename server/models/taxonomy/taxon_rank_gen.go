@@ -41,7 +41,7 @@ func (m *TaxonRank) Fake(f *gofakeit.Faker) (any, error) {
 	return string(TaxonRankValues[f.IntN(len(TaxonRankValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m TaxonRank) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

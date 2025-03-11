@@ -37,7 +37,7 @@ func (m *OrgKind) Fake(f *gofakeit.Faker) (any, error) {
 	return string(OrgKindValues[f.IntN(len(OrgKindValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m OrgKind) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

@@ -8,20 +8,20 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/edgedb/edgedb-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/sirupsen/logrus"
 )
 
 type SecuritySettingsInput struct {
-	MinPasswordStrength         int32 `edgedb:"min_password_strength" json:"min_password_strength" doc:"The level of complexity required for account passwords." minimum:"3" maximum:"5" fake:"{number:3,5}"`
-	RefreshTokenLifetimeHours   int32 `edgedb:"refresh_token_lifetime" json:"refresh_token_lifetime" doc:"User session lifetime in hours" minimum:"1" fake:"{number:1,2}"`
-	InvitationTokenLifetimeDays int32 `edgedb:"invitation_token_lifetime" json:"invitation_token_lifetime" doc:"Invitation token lifetime in days" minimum:"1" fake:"{number:1,7}"`
+	MinPasswordStrength         int32 `gel:"min_password_strength" json:"min_password_strength" doc:"The level of complexity required for account passwords." minimum:"3" maximum:"5" fake:"{number:3,5}"`
+	RefreshTokenLifetimeHours   int32 `gel:"refresh_token_lifetime" json:"refresh_token_lifetime" doc:"User session lifetime in hours" minimum:"1" fake:"{number:1,2}"`
+	InvitationTokenLifetimeDays int32 `gel:"invitation_token_lifetime" json:"invitation_token_lifetime" doc:"Invitation token lifetime in days" minimum:"1" fake:"{number:1,7}"`
 }
 
 type SecuritySettings struct {
-	ID                    edgedb.UUID `edgedb:"id" json:"-"`
-	SecuritySettingsInput `edgedb:"$inline" json:",inline"`
-	SecretKey             string `edgedb:"jwt_secret_key" json:"-" doc:"Used to verify session tokens. Changing it will revoke all currently active user sessions." minLength:"32" fake:"{password:true,true,true,true,true,32}"`
+	ID                    geltypes.UUID `gel:"id" json:"-"`
+	SecuritySettingsInput `gel:"$inline" json:",inline"`
+	SecretKey             string `gel:"jwt_secret_key" json:"-" doc:"Used to verify session tokens. Changing it will revoke all currently active user sessions." minLength:"32" fake:"{password:true,true,true,true,true,32}"`
 }
 
 func (s SecuritySettings) RefreshTokenDuration() time.Duration {
@@ -55,7 +55,7 @@ func generateSecretKeyJWT() string {
 	return encodedKey
 }
 
-func (s *SecuritySettings) RefreshSecretKey(db edgedb.Executor) error {
+func (s *SecuritySettings) RefreshSecretKey(db geltypes.Executor) error {
 	secretKey := generateSecretKeyJWT()
 	if err := db.Execute(context.Background(),
 		`#edgeql
@@ -69,7 +69,7 @@ func (s *SecuritySettings) RefreshSecretKey(db edgedb.Executor) error {
 	return nil
 }
 
-func (input *SecuritySettingsInput) Save(db edgedb.Executor) (*SecuritySettings, error) {
+func (input *SecuritySettingsInput) Save(db geltypes.Executor) (*SecuritySettings, error) {
 	jsonData, _ := json.Marshal(input)
 	var s SecuritySettings
 	if err := db.QuerySingle(context.Background(),

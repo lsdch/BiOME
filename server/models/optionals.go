@@ -8,12 +8,12 @@ import (
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
+	"github.com/geldata/gel-go/geltypes"
 )
 
 type Optional[T any] struct {
-	edgedb.Optional `json:"-"`
-	Value           T `edgedb:"$inline"`
+	geltypes.Optional `json:"-"`
+	Value             T `gel:"$inline"`
 }
 
 func (o Optional[T]) MarshalJSON() ([]byte, error) {

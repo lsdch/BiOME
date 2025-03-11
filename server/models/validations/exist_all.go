@@ -5,14 +5,15 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 )
 
-func checkUnknownValues[T any](db *edgedb.Client, values []T, binding BindingEdgeDB) ([]string, error) {
+func checkUnknownValues[T any](db *gel.Client, values []T, binding GelBinding) ([]string, error) {
 	query := fmt.Sprintf(`
 	with values := array_unpack(<array<%s>>$0)
 	select values except (
@@ -48,11 +49,11 @@ func validateExistAll(fl validator.FieldLevel) bool {
 
 	if slice, ok := value.Interface().([]string); ok {
 		notFound, err = checkUnknownValues(
-			db.Client(), slice, ParseEdgeDBBindingsOrDie(fl.Param(), "str"),
+			db.Client(), slice, ParseGelBindingsOrDie(fl.Param(), "str"),
 		)
-	} else if slice, ok := value.Interface().([]edgedb.UUID); ok {
+	} else if slice, ok := value.Interface().([]geltypes.UUID); ok {
 		notFound, err = checkUnknownValues(
-			db.Client(), slice, ParseEdgeDBBindingsOrDie(fl.Param(), "uuid"),
+			db.Client(), slice, ParseGelBindingsOrDie(fl.Param(), "uuid"),
 		)
 	} else {
 		logrus.Fatalf("Unprocessable value for 'exist_all' validator : %+v", value.Interface())

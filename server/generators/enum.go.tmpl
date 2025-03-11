@@ -54,7 +54,7 @@ func (m *{{.EnumType}}) Fake(f *gofakeit.Faker) (any, error) {
 	return string({{$enumSlice}}[f.IntN(len({{$enumSlice}}) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m {{.EnumType}}) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

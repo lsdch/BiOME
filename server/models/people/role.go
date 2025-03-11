@@ -7,7 +7,7 @@ import (
 	"reflect"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
+	"github.com/geldata/gel-go/geltypes"
 )
 
 type UserRole string // @name UserRole
@@ -23,7 +23,7 @@ const (
 	Admin       UserRole = "Admin"
 )
 
-func (u *User) SetRole(db edgedb.Executor, role UserRole) error {
+func (u *User) SetRole(db geltypes.Executor, role UserRole) error {
 	if err := db.Execute(context.Background(),
 		`#edgeql
 			update people::User set { role := <people::UserRole>$0 }

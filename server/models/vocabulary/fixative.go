@@ -4,18 +4,17 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/people"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type Fixative struct {
-	Vocabulary `edgedb:"$inline" json:",inline"`
-	Meta       people.Meta `edgedb:"meta" json:"meta"`
+	Vocabulary `gel:"$inline" json:",inline"`
+	Meta       people.Meta `gel:"meta" json:"meta"`
 }
 
-func ListFixatives(db edgedb.Executor) ([]Fixative, error) {
+func ListFixatives(db geltypes.Executor) ([]Fixative, error) {
 	var items = []Fixative{}
 	err := db.Query(context.Background(),
 		`select samples::Fixative { ** } order by .label`,
@@ -25,7 +24,7 @@ func ListFixatives(db edgedb.Executor) ([]Fixative, error) {
 
 type FixativeInput VocabularyInput
 
-func (i FixativeInput) Save(e edgedb.Executor) (created Fixative, err error) {
+func (i FixativeInput) Save(e geltypes.Executor) (created Fixative, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
@@ -42,7 +41,7 @@ func (i FixativeInput) Save(e edgedb.Executor) (created Fixative, err error) {
 
 type FixativeUpdate VocabularyUpdate
 
-func (u FixativeUpdate) Save(e edgedb.Executor, code string) (updated Fixative, err error) {
+func (u FixativeUpdate) Save(e geltypes.Executor, code string) (updated Fixative, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -57,7 +56,7 @@ func (u FixativeUpdate) Save(e edgedb.Executor, code string) (updated Fixative, 
 	return
 }
 
-func DeleteFixative(db edgedb.Executor, code string) (deleted Fixative, err error) {
+func DeleteFixative(db geltypes.Executor, code string) (deleted Fixative, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select ( delete samples::Fixative filter .code = <str>$0 ) { ** };

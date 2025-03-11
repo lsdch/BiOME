@@ -7,13 +7,14 @@ import (
 	"seeds"
 	"seeds/email"
 
+	"github.com/geldata/gel-go/gelcfg"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/occurrence"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/settings"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -60,14 +61,14 @@ func main() {
 	database := flag.String("db", "", "The name of the database to seed")
 	flag.Parse()
 
-	client := db.Connect(edgedb.Options{Database: *database})
+	client := db.Connect(gelcfg.Options{Database: *database})
 
 	aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json", -1)
 	if err != nil {
 		logrus.Fatalf("Failed to load Asellidae sites: %v", err)
 	}
 
-	err = client.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+	err = client.Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
 
 		logrus.Infof("⚙ Initializing settings with superadmin account")
 		superAdmin, err := superAdminInput.Save(tx)

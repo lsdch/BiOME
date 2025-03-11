@@ -4,35 +4,35 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 
 	_ "embed"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/goccy/go-yaml"
 )
 
 type HabitatInner struct {
-	Label string `edgedb:"label" json:"label" doc:"A short label for the habitat." minLength:"3" maxLength:"32" example:"Lotic"`
+	Label string `gel:"label" json:"label" doc:"A short label for the habitat." minLength:"3" maxLength:"32" example:"Lotic"`
 }
 
 type HabitatRecord struct {
-	ID           edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
-	HabitatInner `edgedb:"$inline" json:",inline"`
-	Description  edgedb.OptionalStr `edgedb:"description" json:"description,omitempty" doc:"Optional habitat description"`
-	Incompatible []HabitatRecord    `edgedb:"incompatible" json:"incompatible,omitempty"`
+	ID           geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+	HabitatInner `gel:"$inline" json:",inline"`
+	Description  geltypes.OptionalStr `gel:"description" json:"description,omitempty" doc:"Optional habitat description"`
+	Incompatible []HabitatRecord      `gel:"incompatible" json:"incompatible,omitempty"`
 }
 
 type OptionalHabitatRecord struct {
-	edgedb.Optional `json:"-"`
-	_               struct{} `nullable:"true"`
-	HabitatRecord   `edgedb:"$inline" json:",omitempty"`
+	geltypes.Optional `json:"-"`
+	_                 struct{} `nullable:"true"`
+	HabitatRecord     `gel:"$inline" json:",omitempty"`
 }
 
 type Habitat struct {
-	HabitatRecord `edgedb:"$inline" json:",inline"`
-	Meta          people.Meta `edgedb:"meta" json:"meta"`
+	HabitatRecord `gel:"$inline" json:",inline"`
+	Meta          people.Meta `gel:"meta" json:"meta"`
 }
 
 type HabitatInput struct {
@@ -40,7 +40,7 @@ type HabitatInput struct {
 	Description  *string `json:"description,omitempty" doc:"Optional habitat description"`
 }
 
-func (i HabitatInput) Save(db edgedb.Executor) (Habitat, error) {
+func (i HabitatInput) Save(db geltypes.Executor) (Habitat, error) {
 	var created Habitat
 	habitat, _ := json.Marshal(i)
 	err := db.QuerySingle(context.Background(),
@@ -56,11 +56,11 @@ func (i HabitatInput) Save(db edgedb.Executor) (Habitat, error) {
 }
 
 type HabitatUpdate struct {
-	Label       models.OptionalInput[string] `edgedb:"label" json:"label,omitempty"`
-	Description models.OptionalNull[string]  `edgedb:"description" json:"description,omitempty"`
+	Label       models.OptionalInput[string] `gel:"label" json:"label,omitempty"`
+	Description models.OptionalNull[string]  `gel:"description" json:"description,omitempty"`
 }
 
-func ListHabitats(db edgedb.Executor) ([]Habitat, error) {
+func ListHabitats(db geltypes.Executor) ([]Habitat, error) {
 	var habitats []Habitat
 	err := db.Query(context.Background(),
 		`select sampling::Habitat { *, meta: { * }, incompatible: { * } }`,
@@ -71,7 +71,7 @@ func ListHabitats(db edgedb.Executor) ([]Habitat, error) {
 //go:embed data/habitats.yaml
 var habitatsYaml string
 
-func InitialHabitatsSetup(tx *edgedb.Tx) error {
+func InitialHabitatsSetup(tx geltypes.Tx) error {
 	var input []HabitatGroupInput
 	if err := yaml.Unmarshal([]byte(habitatsYaml), &input); err != nil {
 		return err
@@ -79,7 +79,7 @@ func InitialHabitatsSetup(tx *edgedb.Tx) error {
 	return ImportHabitats(tx, input)
 }
 
-func ImportHabitats(tx *edgedb.Tx, habitats []HabitatGroupInput) error {
+func ImportHabitats(tx geltypes.Tx, habitats []HabitatGroupInput) error {
 	items, _ := json.MarshalIndent(habitats, "", "  ")
 
 	err := tx.Execute(context.Background(),

@@ -1,9 +1,8 @@
 package occurrence
 
 import (
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 // OccurrenceBatchInput is the input type for registering occurrences in bulk,
@@ -13,7 +12,7 @@ import (
 // Occurrences types include: BioMaterial (internal/external) and external sequences.
 type OccurrenceBatchInput []SiteOccurrenceInput
 
-func (i OccurrenceBatchInput) Save(tx *edgedb.Tx) (occurrences []OccurrenceWithCategory, err error) {
+func (i OccurrenceBatchInput) Save(tx geltypes.Tx) (occurrences []OccurrenceWithCategory, err error) {
 	for i, siteOccurrence := range i {
 		occ, err := siteOccurrence.Save(tx)
 		if err != nil {
@@ -30,7 +29,7 @@ type SiteOccurrenceInput struct {
 	Events    []EventInputWithActions `json:"events"`
 }
 
-func (i SiteOccurrenceInput) Save(tx *edgedb.Tx) ([]OccurrenceWithCategory, error) {
+func (i SiteOccurrenceInput) Save(tx geltypes.Tx) ([]OccurrenceWithCategory, error) {
 	site, err := i.SiteInput.Save(tx)
 	if err != nil {
 		return nil, err
@@ -54,7 +53,7 @@ type EventInputWithActions struct {
 	AbioticMeasurements []AbioticMeasurementInput      `json:"abiotic_measurements"`
 }
 
-func (i EventInputWithActions) Save(tx *edgedb.Tx, site_code string) ([]OccurrenceWithCategory, error) {
+func (i EventInputWithActions) Save(tx geltypes.Tx, site_code string) ([]OccurrenceWithCategory, error) {
 	event, err := i.EventInput.Save(tx, site_code)
 	if err != nil {
 		return nil, err
@@ -90,7 +89,7 @@ type SamplingInputWithOccurrences struct {
 	Sequences      []ExternalSequenceInput            `json:"sequences"`
 }
 
-func (i SamplingInputWithOccurrences) Save(tx *edgedb.Tx, eventID edgedb.UUID) (occurrences []OccurrenceWithCategory, err error) {
+func (i SamplingInputWithOccurrences) Save(tx geltypes.Tx, eventID geltypes.UUID) (occurrences []OccurrenceWithCategory, err error) {
 
 	sampling, err := i.SamplingInput.Save(tx, eventID)
 	if err != nil {
@@ -137,7 +136,7 @@ type ExternalBioMatInputWithSequences struct {
 	Sequences           []ExternalSequenceInput `json:"sequences"`
 }
 
-func (i ExternalBioMatInputWithSequences) Save(tx *edgedb.Tx, samplingID edgedb.UUID) (occurrences []OccurrenceWithCategory, err error) {
+func (i ExternalBioMatInputWithSequences) Save(tx geltypes.Tx, samplingID geltypes.UUID) (occurrences []OccurrenceWithCategory, err error) {
 	biomat, err := i.ExternalBioMatInput.Save(tx, samplingID)
 	if err != nil {
 		return nil, err

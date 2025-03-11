@@ -6,10 +6,10 @@ import (
 	"io/fs"
 	"os"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/settings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -37,7 +37,7 @@ type EmailSetup struct {
 
 const SMTP_CONFIG_PATH = "./config/email.yaml"
 
-func SetupEmailConfig(db edgedb.Executor, args EmailSetupArgs) error {
+func SetupEmailConfig(db geltypes.Executor, args EmailSetupArgs) error {
 	var emailConfig settings.EmailSettingsInput
 	_, err := os.Stat(SMTP_CONFIG_PATH)
 	if err != nil && errors.Is(err, fs.ErrNotExist) {

@@ -3,16 +3,16 @@ package controllers
 import (
 	"context"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/resolvers"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
 )
 
 // `FetchItemList` functions retrieve item lists from the database
-type FetchItemList[Item any] func(db edgedb.Executor) ([]Item, error)
+type FetchItemList[Item any] func(db geltypes.Executor) ([]Item, error)
 
-type FetchItemListWithOptions[Item any, Options any] func(db edgedb.Executor, options Options) ([]Item, error)
+type FetchItemListWithOptions[Item any, Options any] func(db geltypes.Executor, options Options) ([]Item, error)
 
 type ListHandlerInput struct {
 	resolvers.AuthResolver

@@ -4,22 +4,22 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/taxonomy"
 	"github.com/lsdch/biome/models/vocabulary"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
 type SamplingMethod struct {
-	vocabulary.Vocabulary `edgedb:"$inline" json:",inline"`
-	Meta                  people.Meta `edgedb:"meta" json:"meta"`
+	vocabulary.Vocabulary `gel:"$inline" json:",inline"`
+	Meta                  people.Meta `gel:"meta" json:"meta"`
 }
 
-func ListSamplingMethods(db edgedb.Executor) ([]SamplingMethod, error) {
+func ListSamplingMethods(db geltypes.Executor) ([]SamplingMethod, error) {
 	var items = []SamplingMethod{}
 	err := db.Query(context.Background(),
 		`select events::SamplingMethod { ** } order by .label`,
@@ -29,7 +29,7 @@ func ListSamplingMethods(db edgedb.Executor) ([]SamplingMethod, error) {
 
 type SamplingMethodInput vocabulary.VocabularyInput
 
-func (i SamplingMethodInput) Save(db edgedb.Executor) (created SamplingMethod, err error) {
+func (i SamplingMethodInput) Save(db geltypes.Executor) (created SamplingMethod, err error) {
 	data, _ := json.Marshal(i)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
@@ -45,7 +45,7 @@ func (i SamplingMethodInput) Save(db edgedb.Executor) (created SamplingMethod, e
 
 type SamplingMethodUpdate vocabulary.VocabularyUpdate
 
-func (u SamplingMethodUpdate) Save(e edgedb.Executor, code string) (updated SamplingMethod, err error) {
+func (u SamplingMethodUpdate) Save(e geltypes.Executor, code string) (updated SamplingMethod, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -60,7 +60,7 @@ func (u SamplingMethodUpdate) Save(e edgedb.Executor, code string) (updated Samp
 	return
 }
 
-func DeleteSamplingMethod(db edgedb.Executor, code string) (deleted SamplingMethod, err error) {
+func DeleteSamplingMethod(db geltypes.Executor, code string) (deleted SamplingMethod, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (
@@ -72,36 +72,36 @@ func DeleteSamplingMethod(db edgedb.Executor, code string) (deleted SamplingMeth
 }
 
 type SamplingTarget struct {
-	Kind       SamplingTargetKind `edgedb:"sampling_target" json:"kind"`
-	TargetTaxa []taxonomy.Taxon   `edgedb:"target_taxa" json:"taxa,omitempty"`
+	Kind       SamplingTargetKind `gel:"sampling_target" json:"kind"`
+	TargetTaxa []taxonomy.Taxon   `gel:"target_taxa" json:"taxa,omitempty"`
 }
 
 type SamplingInner struct {
-	ID           edgedb.UUID           `edgedb:"id" json:"id" format:"uuid"`
-	Number       int64                 `edgedb:"number" json:"-"`
-	Code         string                `edgedb:"code" json:"code"`
-	Target       SamplingTarget        `edgedb:"$inline" json:"target"`
-	Duration     edgedb.OptionalInt32  `edgedb:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Methods      []SamplingMethod      `edgedb:"methods" json:"methods,omitempty"`
-	Fixatives    []vocabulary.Fixative `edgedb:"fixatives" json:"fixatives,omitempty"`
-	Habitats     []Habitat             `edgedb:"habitats" json:"habitats,omitempty"`
-	AccessPoints []string              `edgedb:"access_points" json:"access_points,omitempty"`
-	Comments     edgedb.OptionalStr    `edgedb:"comments" json:"comments,omitempty"`
+	ID           geltypes.UUID          `gel:"id" json:"id" format:"uuid"`
+	Number       int64                  `gel:"number" json:"-"`
+	Code         string                 `gel:"code" json:"code"`
+	Target       SamplingTarget         `gel:"$inline" json:"target"`
+	Duration     geltypes.OptionalInt32 `gel:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Methods      []SamplingMethod       `gel:"methods" json:"methods,omitempty"`
+	Fixatives    []vocabulary.Fixative  `gel:"fixatives" json:"fixatives,omitempty"`
+	Habitats     []Habitat              `gel:"habitats" json:"habitats,omitempty"`
+	AccessPoints []string               `gel:"access_points" json:"access_points,omitempty"`
+	Comments     geltypes.OptionalStr   `gel:"comments" json:"comments,omitempty"`
 }
 
 type Sampling struct {
-	SamplingInner `edgedb:"$inline" json:",inline"`
-	Samples       []BioMaterial    `edgedb:"samples" json:"samples,omitempty"`
-	OccurringTaxa []taxonomy.Taxon `edgedb:"occurring_taxa" json:"occurring_taxa,omitempty"`
-	Meta          people.Meta      `edgedb:"meta" json:"meta"`
+	SamplingInner `gel:"$inline" json:",inline"`
+	Samples       []BioMaterial    `gel:"samples" json:"samples,omitempty"`
+	OccurringTaxa []taxonomy.Taxon `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
+	Meta          people.Meta      `gel:"meta" json:"meta"`
 }
 
 type SamplingInputWithEvent struct {
 	SamplingInput `json:",inline"`
-	EventID       edgedb.UUID `json:"event_id"`
+	EventID       geltypes.UUID `json:"event_id"`
 }
 
-func (i SamplingInputWithEvent) Save(e edgedb.Executor) (Sampling, error) {
+func (i SamplingInputWithEvent) Save(e geltypes.Executor) (Sampling, error) {
 	return i.SamplingInput.Save(e, i.EventID)
 }
 
@@ -120,7 +120,7 @@ type SamplingInput struct {
 	AccessPoints []string            `json:"access_points,omitempty"`
 }
 
-func (i SamplingInput) Save(e edgedb.Executor, eventID edgedb.UUID) (created Sampling, err error) {
+func (i SamplingInput) Save(e geltypes.Executor, eventID geltypes.UUID) (created Sampling, err error) {
 	data, _ := json.Marshal(i)
 	logrus.Debugf("data: %s", string(data))
 	err = e.QuerySingle(context.Background(),
@@ -163,15 +163,15 @@ func (i SamplingInput) Save(e edgedb.Executor, eventID edgedb.UUID) (created Sam
 
 type SamplingUpdate struct {
 	Target       models.OptionalInput[SamplingTargetInput] `json:"target"`
-	Methods      models.OptionalNull[[]string]             `edgedb:"methods" json:"methods,omitempty"`
-	Fixatives    models.OptionalNull[[]string]             `edgedb:"fixatives" json:"fixatives,omitempty"`
-	Duration     models.OptionalNull[int32]                `edgedb:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Comments     models.OptionalNull[string]               `edgedb:"comments" json:"comments,omitempty"`
-	Habitats     models.OptionalNull[[]string]             `edgedb:"habitats" json:"habitats,omitempty"`
-	AccessPoints models.OptionalNull[[]string]             `edgedb:"access_points" json:"access_points,omitempty"`
+	Methods      models.OptionalNull[[]string]             `gel:"methods" json:"methods,omitempty"`
+	Fixatives    models.OptionalNull[[]string]             `gel:"fixatives" json:"fixatives,omitempty"`
+	Duration     models.OptionalNull[int32]                `gel:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Comments     models.OptionalNull[string]               `gel:"comments" json:"comments,omitempty"`
+	Habitats     models.OptionalNull[[]string]             `gel:"habitats" json:"habitats,omitempty"`
+	AccessPoints models.OptionalNull[[]string]             `gel:"access_points" json:"access_points,omitempty"`
 }
 
-func (u SamplingUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Sampling, err error) {
+func (u SamplingUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Sampling, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -218,7 +218,7 @@ func (u SamplingUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Samplin
 	return
 }
 
-func ListAccessPoints(db edgedb.Executor) ([]string, error) {
+func ListAccessPoints(db geltypes.Executor) ([]string, error) {
 	var accessPoints []string
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -230,7 +230,7 @@ func ListAccessPoints(db edgedb.Executor) ([]string, error) {
 	return accessPoints, err
 }
 
-func DeleteSampling(db edgedb.Executor, id edgedb.UUID) (deleted Sampling, err error) {
+func DeleteSampling(db geltypes.Executor, id geltypes.UUID) (deleted Sampling, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (

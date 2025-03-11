@@ -5,37 +5,37 @@ import (
 	_ "embed"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
 type OrganisationInfos struct {
-	Name string  `json:"name" edgedb:"name" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés" minLength:"10" maxLength:"128" fake:"{company}"`
-	Code string  `json:"code" edgedb:"code" example:"LEHNA" minLength:"2" maxLength:"12" fake:"{word}"`
-	Kind OrgKind `json:"kind" edgedb:"kind" example:"Lab"`
+	Name string  `json:"name" gel:"name" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés" minLength:"10" maxLength:"128" fake:"{company}"`
+	Code string  `json:"code" gel:"code" example:"LEHNA" minLength:"2" maxLength:"12" fake:"{word}"`
+	Kind OrgKind `json:"kind" gel:"kind" example:"Lab"`
 }
 
 type OrganisationInput struct {
-	OrganisationInfos `edgedb:"$inline"`
-	Description       models.OptionalInput[string] `json:"description,omitempty" edgedb:"description" example:"Where this database was born."`
+	OrganisationInfos `gel:"$inline"`
+	Description       models.OptionalInput[string] `json:"description,omitempty" gel:"description" example:"Where this database was born."`
 }
 
 type OrganisationInner struct {
-	ID                edgedb.UUID `json:"id" edgedb:"id" format:"uuid" binding:"required"`
-	OrganisationInfos `edgedb:"$inline" json:",inline"`
-	Description       edgedb.OptionalStr `json:"description,omitempty" edgedb:"description" example:"Where this database was born."`
+	ID                geltypes.UUID `json:"id" gel:"id" format:"uuid" binding:"required"`
+	OrganisationInfos `gel:"$inline" json:",inline"`
+	Description       geltypes.OptionalStr `json:"description,omitempty" gel:"description" example:"Where this database was born."`
 }
 
 type Organisation struct {
-	OrganisationInner `edgedb:"$inline" json:",inline"`
-	People            []PersonUser `json:"people,omitempty" edgedb:"people" doc:"Known members of this organisation"`
-	Meta              Meta         `json:"meta" edgedb:"meta"`
+	OrganisationInner `gel:"$inline" json:",inline"`
+	People            []PersonUser `json:"people,omitempty" gel:"people" doc:"Known members of this organisation"`
+	Meta              Meta         `json:"meta" gel:"meta"`
 }
 
-func FindOrganisation(db edgedb.Executor, uuid edgedb.UUID) (org Organisation, err error) {
+func FindOrganisation(db geltypes.Executor, uuid geltypes.UUID) (org Organisation, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select people::Organisation { *, people:{ *, user: { * } }, meta:{ * } }
@@ -44,7 +44,7 @@ func FindOrganisation(db edgedb.Executor, uuid edgedb.UUID) (org Organisation, e
 	return org, err
 }
 
-func ListOrganisations(db edgedb.Executor) (organisations []Organisation, err error) {
+func ListOrganisations(db geltypes.Executor) (organisations []Organisation, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
 			select people::Organisation { *, people:{ * }, meta:{ * } } order by .code;
@@ -52,7 +52,7 @@ func ListOrganisations(db edgedb.Executor) (organisations []Organisation, err er
 	return
 }
 
-func DeleteOrganisation(db edgedb.Executor, code string) (org Organisation, err error) {
+func DeleteOrganisation(db geltypes.Executor, code string) (org Organisation, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select(
@@ -62,11 +62,11 @@ func DeleteOrganisation(db edgedb.Executor, code string) (org Organisation, err 
 	return
 }
 
-func (org Organisation) Delete(db edgedb.Executor) (Organisation, error) {
+func (org Organisation) Delete(db geltypes.Executor) (Organisation, error) {
 	return DeleteOrganisation(db, org.Code)
 }
 
-func (inst OrganisationInput) Save(db edgedb.Executor) (created Organisation, err error) {
+func (inst OrganisationInput) Save(db geltypes.Executor) (created Organisation, err error) {
 	args, _ := json.Marshal(inst)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
@@ -78,13 +78,13 @@ func (inst OrganisationInput) Save(db edgedb.Executor) (created Organisation, er
 }
 
 type OrganisationUpdate struct {
-	Name        models.OptionalInput[string] `edgedb:"name" json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
-	Code        models.OptionalInput[string] `edgedb:"code" json:"code,omitempty" example:"LEHNA"`
-	Description models.OptionalNull[string]  `edgedb:"description" json:"description,omitempty" example:"Where this database was born."`
-	Kind        models.OptionalNull[OrgKind] `edgedb:"kind" json:"kind,omitempty" example:"Lab"`
+	Name        models.OptionalInput[string] `gel:"name" json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
+	Code        models.OptionalInput[string] `gel:"code" json:"code,omitempty" example:"LEHNA"`
+	Description models.OptionalNull[string]  `gel:"description" json:"description,omitempty" example:"Where this database was born."`
+	Kind        models.OptionalNull[OrgKind] `gel:"kind" json:"kind,omitempty" example:"Lab"`
 }
 
-func (org OrganisationUpdate) Save(e edgedb.Executor, code string) (updated Organisation, err error) {
+func (org OrganisationUpdate) Save(e geltypes.Executor, code string) (updated Organisation, err error) {
 
 	query := db.UpdateQuery{
 		Frame: `#edgeql

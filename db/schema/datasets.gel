@@ -17,7 +17,7 @@ module datasets {
     };
 
     required multi maintainers: people::Person {
-      # edgedb error: SchemaDefinitionError:
+      # gel error: SchemaDefinitionError:
       # cannot specify a rewrite for link 'maintainers' of object type 'location::SiteDataset' because it is multi
       # Hint: this is a temporary implementation restriction
       # Currently handling this in the application layer

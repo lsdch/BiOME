@@ -9,9 +9,9 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/services"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -87,7 +87,7 @@ type LatLongCoords struct {
 	Lon float32 `json:"lon"`
 }
 
-func (g *GeoapifyClient) BatchReverseGeocode(db edgedb.Executor, locations []LatLongCoords) (*GeoapifyResponse, error) {
+func (g *GeoapifyClient) BatchReverseGeocode(db geltypes.Executor, locations []LatLongCoords) (*GeoapifyResponse, error) {
 
 	if len(locations) > maxBatchSize {
 		return nil, fmt.Errorf("Geoapify batch request exceeds max allowed size (%d/%d)", len(locations), maxBatchSize)

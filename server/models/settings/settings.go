@@ -5,32 +5,32 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 type SuperAdmin struct {
-	Email string `edgedb:"email" json:"email"`
-	Name  string `edgedb:"name" json:"name"`
+	Email string `gel:"email" json:"email"`
+	Name  string `gel:"name" json:"name"`
 }
 
 type Settings struct {
-	ID              edgedb.UUID      `edgedb:"id" json:"-"`
-	Instance        InstanceSettings `edgedb:"instance" json:"instance"`
-	Email           EmailSettings    `edgedb:"email" json:"email,omitempty"`
-	Security        SecuritySettings `edgedb:"security" json:"security"`
-	SuperAdmin      SuperAdmin       `edgedb:"superadmin" json:"superadmin"`
-	ServiceSettings `edgedb:"$inline" json:"services"`
+	ID              geltypes.UUID    `gel:"id" json:"-"`
+	Instance        InstanceSettings `gel:"instance" json:"instance"`
+	Email           EmailSettings    `gel:"email" json:"email,omitempty"`
+	Security        SecuritySettings `gel:"security" json:"security"`
+	SuperAdmin      SuperAdmin       `gel:"superadmin" json:"superadmin"`
+	ServiceSettings `gel:"$inline" json:"services"`
 }
 
 var settings = new(Settings)
 
 type SettingsInput struct {
 	Instance       InstanceSettingsInput `json:"instance"`
-	SuperAdminID   edgedb.UUID           `json:"super_admin_id"`
+	SuperAdminID   geltypes.UUID         `json:"super_admin_id"`
 	GeoapifyApiKey *string               `json:"geoapify_api_key,omitempty" map_structure:"GEOAPIFY_API_KEY"`
 }
 
@@ -43,7 +43,7 @@ func (i *SettingsInput) LoadConfig(path string) error {
 	return err
 }
 
-func (i SettingsInput) SaveTx(tx *edgedb.Tx) error {
+func (i SettingsInput) SaveTx(tx geltypes.Tx) error {
 	// Init security settings with JWT secret key
 	secretKey := generateSecretKeyJWT()
 	if err := tx.Execute(context.Background(),

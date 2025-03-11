@@ -6,33 +6,34 @@ vars:
 
 tasks:
   install:
-    desc: "Install EdgeDB CLI"
-    cmds: [curl https://sh.edgedb.com --proto '=https' -sSf1 | sh]
-    status: [command -v edgedb >/dev/null 2>&1]
+    desc: "Install Gel CLI"
+    cmds: [curl --proto '=https' --tlsv1.2 -sSf https://www.geldata.com/sh | sh]
+    status: [command -v gel >/dev/null 2>&1]
 
   init-schema:
     desc: Create empty schema database branch (used when resetting DB)
     dir: ..
-    cmd: edgedb branch create {{.EMPTY_DB_NAME}}
+    cmd: gel branch create {{.EMPTY_DB_NAME}}
     status:
-      - edgedb branch list | grep "{{.EMPTY_DB_NAME}}"
+      - gel branch list | grep "{{.EMPTY_DB_NAME}}"
     run: once
 
   init-testing:
     desc: "Create testing database branch"
     dir: ..
-    cmd: edgedb branch create {{.TEST_DB_NAME}} --copy-data
+    cmd: gel branch create {{.TEST_DB_NAME}} --copy-data
     status:
-      - edgedb branch list | grep "{{.TEST_DB_NAME}}"
+      - gel branch list | grep "{{.TEST_DB_NAME}}"
 
   init:
     desc: "Create database instance"
     dir: ..
     interactive: true
     cmds:
-      - edgedb project init
-      - edgedb project info
-    status: [edgedb project info]
+      - gel project init
+      - gel extension install postgis
+      - gel project info
+    status: [gel project info]
     deps: [install]
     run: once
 
@@ -51,8 +52,8 @@ tasks:
       - cmd: echo "Seeding database..."
         silent: true
       - go run ./cmd/seed/
-      - edgedb branch drop {{.TEST_DB_NAME}} --non-interactive
-      - edgedb branch create {{.TEST_DB_NAME}} --copy-data
+      - gel branch drop {{.TEST_DB_NAME}} --non-interactive
+      - gel branch create {{.TEST_DB_NAME}} --copy-data
     deps: [migrate]
 
   reset:
@@ -61,38 +62,38 @@ tasks:
     interactive: true
     prompt: This will wipe existing databases and re-run all migrations and seeds. Continue ?
     cmds:
-      - edgedb branch drop main --non-interactive
-      - edgedb branch switch -c main
+      - gel branch drop main --non-interactive
+      - gel branch switch -c main
       - task: seed
     deps: [switch-schema]
 
   switch-schema:
     internal: true
     desc: "Switch to schema-only branch"
-    status: ["edgedb branch current 2>&1 | grep {{.EMPTY_DB_NAME}}"]
-    cmd: edgedb branch switch {{.EMPTY_DB_NAME}}
+    status: ["gel branch current 2>&1 | grep {{.EMPTY_DB_NAME}}"]
+    cmd: gel branch switch {{.EMPTY_DB_NAME}}
     deps: [init-schema]
 
   switch-main:
     internal: true
     desc: "Switch to schema-only branch"
-    status: ["edgedb branch current 2>&1 | grep main"]
-    cmd: edgedb branch switch main
+    status: ["gel branch current 2>&1 | grep main"]
+    cmd: gel branch switch main
     deps: [init-schema]
 
   migration:
     desc: "Extract database migration from current changes in schema"
     dir: ..
     interactive: true
-    cmd: edgedb migration create
+    cmd: gel migration create
 
   migrate:
     desc: "Apply pending database migrations"
     dir: ..
     cmds:
-      - edgedb migrate
-      - edgedb branch drop {{.TEST_DB_NAME}} --non-interactive
-      - edgedb branch create {{.TEST_DB_NAME}} --copy-data
-      - edgedb branch drop {{.EMPTY_DB_NAME}} --non-interactive
-      - edgedb branch create {{.EMPTY_DB_NAME}}
+      - gel migrate
+      - gel branch drop {{.TEST_DB_NAME}} --non-interactive
+      - gel branch create {{.TEST_DB_NAME}} --copy-data
+      - gel branch drop {{.EMPTY_DB_NAME}} --non-interactive
+      - gel branch create {{.EMPTY_DB_NAME}}
     deps: [init, init-testing, init-schema, switch-main]

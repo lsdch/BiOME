@@ -5,27 +5,27 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/gosimple/slug"
 )
 
 type DatasetInner struct {
-	ID          edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
-	Label       string             `edgedb:"label" json:"label"`
-	Slug        string             `edgedb:"slug" json:"slug"`
-	Pinned      bool               `edgedb:"pinned" json:"pinned"`
-	Description edgedb.OptionalStr `edgedb:"description" json:"description"`
-	Category    DatasetCategory    `edgedb:"category" json:"category"`
+	ID          geltypes.UUID        `gel:"id" json:"id" format:"uuid"`
+	Label       string               `gel:"label" json:"label"`
+	Slug        string               `gel:"slug" json:"slug"`
+	Pinned      bool                 `gel:"pinned" json:"pinned"`
+	Description geltypes.OptionalStr `gel:"description" json:"description"`
+	Category    DatasetCategory      `gel:"category" json:"category"`
 }
 
 type Dataset struct {
-	DatasetInner `edgedb:"$inline" json:",inline"`
-	Maintainers  []people.PersonUser `edgedb:"maintainers" json:"maintainers"`
-	Meta         people.Meta         `edgedb:"meta" json:"meta"`
+	DatasetInner `gel:"$inline" json:",inline"`
+	Maintainers  []people.PersonUser `gel:"maintainers" json:"maintainers"`
+	Meta         people.Meta         `gel:"meta" json:"meta"`
 }
 
 func (d *Dataset) IsMaintainer(user people.UserInner) bool {
@@ -48,7 +48,7 @@ func (o ListDatasetOptions) Options() ListDatasetOptions {
 	return o
 }
 
-func ListDatasets(db edgedb.Executor, options ListDatasetOptions) ([]Dataset, error) {
+func ListDatasets(db geltypes.Executor, options ListDatasetOptions) ([]Dataset, error) {
 	var datasets []Dataset
 	opts, _ := json.Marshal(options)
 	query := `#edgeql
@@ -70,7 +70,7 @@ func ListDatasets(db edgedb.Executor, options ListDatasetOptions) ([]Dataset, er
 
 type DatasetMaintainersInput []string
 
-func (dm DatasetMaintainersInput) Validate(edb edgedb.Executor) ([]edgedb.UUID, []error) {
+func (dm DatasetMaintainersInput) Validate(edb geltypes.Executor) ([]geltypes.UUID, []error) {
 	checker := db.DBProperty{Object: "people::Person", Property: "alias"}
 	maintainers, absents := checker.ExistAll(edb, dm)
 	if errs := []error{}; absents != nil {
@@ -95,13 +95,13 @@ func (i *DatasetInput) GenerateSlug() {
 }
 
 type DatasetUpdate struct {
-	Label       models.OptionalInput[string]                  `edgedb:"label" json:"label,omitempty" minLength:"4" maxLength:"32"`
-	Description models.OptionalNull[string]                   `edgedb:"description" json:"description,omitempty"`
-	Pinned      models.OptionalNull[bool]                     `edgedb:"pinned" json:"pinned,omitempty"`
-	Maintainers models.OptionalInput[DatasetMaintainersInput] `edgedb:"maintainers" json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
+	Label       models.OptionalInput[string]                  `gel:"label" json:"label,omitempty" minLength:"4" maxLength:"32"`
+	Description models.OptionalNull[string]                   `gel:"description" json:"description,omitempty"`
+	Pinned      models.OptionalNull[bool]                     `gel:"pinned" json:"pinned,omitempty"`
+	Maintainers models.OptionalInput[DatasetMaintainersInput] `gel:"maintainers" json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
 
-func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated Dataset, err error) {
+func (u DatasetUpdate) Save(e geltypes.Executor, slug string) (updated Dataset, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -126,7 +126,7 @@ func (u DatasetUpdate) Save(e edgedb.Executor, slug string) (updated Dataset, er
 	return
 }
 
-func TogglePinDataset(db edgedb.Executor, slug string) (dataset Dataset, err error) {
+func TogglePinDataset(db geltypes.Executor, slug string) (dataset Dataset, err error) {
 	err = db.QuerySingle(context.Background(), `#edgeql
 		select (update datasets::Dataset filter .slug = <str>$0 set {
 			pinned := not .pinned

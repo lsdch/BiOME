@@ -3,10 +3,9 @@ package controllers
 import (
 	"context"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/resolvers"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type UpdateInputInterface[Item models.PersistableWithID[ID, Updated], ID any, Updated any] interface {
@@ -29,10 +28,10 @@ type UpdateByCodeHandlerInput[Item models.PersistableWithID[string, Updated], Up
 	UpdateInput[Item, string, Updated]
 }
 
-type UpdateByIDHandlerInput[Item models.PersistableWithID[edgedb.UUID, Updated], Updated any] struct {
+type UpdateByIDHandlerInput[Item models.PersistableWithID[geltypes.UUID, Updated], Updated any] struct {
 	resolvers.AuthRequired
 	UUIDInput
-	UpdateInput[Item, edgedb.UUID, Updated]
+	UpdateInput[Item, geltypes.UUID, Updated]
 }
 
 type UpdateHandlerOutput[Updated any] struct {
@@ -56,7 +55,7 @@ func UpdateHandler[
 	return &UpdateHandlerOutput[Updated]{Body: updated}, nil
 }
 
-func UpdateByIDHandler[Item models.PersistableWithID[edgedb.UUID, Updated], Updated any](ctx context.Context, input *UpdateByIDHandlerInput[Item, Updated]) (*UpdateHandlerOutput[Updated], error) {
+func UpdateByIDHandler[Item models.PersistableWithID[geltypes.UUID, Updated], Updated any](ctx context.Context, input *UpdateByIDHandlerInput[Item, Updated]) (*UpdateHandlerOutput[Updated], error) {
 	return UpdateHandler(ctx, input)
 }
 
@@ -66,4 +65,4 @@ func UpdateByCodeHandler[Item models.PersistableWithID[string, Updated], Updated
 
 // Implementation assertions
 var _ UpdateInputInterface[models.PersistableWithID[string, any], string, any] = (*UpdateByCodeHandlerInput[models.PersistableWithID[string, any], any])(nil)
-var _ UpdateInputInterface[models.PersistableWithID[edgedb.UUID, any], edgedb.UUID, any] = (*UpdateByIDHandlerInput[models.PersistableWithID[edgedb.UUID, any], any])(nil)
+var _ UpdateInputInterface[models.PersistableWithID[geltypes.UUID, any], geltypes.UUID, any] = (*UpdateByIDHandlerInput[models.PersistableWithID[geltypes.UUID, any], any])(nil)

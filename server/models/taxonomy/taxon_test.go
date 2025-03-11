@@ -4,10 +4,10 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/taxonomy"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -23,7 +23,7 @@ func TestTaxonomyList(t *testing.T) {
 			},
 		},
 		{
-			taxonomy.ListFilters{IsAnchor: edgedb.NewOptionalBool(false)},
+			taxonomy.ListFilters{IsAnchor: geltypes.NewOptionalBool(false)},
 			func(taxa []taxonomy.TaxonWithParentRef) {
 				for _, taxon := range taxa {
 					assert.False(t, taxon.Anchor)

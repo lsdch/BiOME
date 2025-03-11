@@ -8,27 +8,27 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/settings"
 	"github.com/lsdch/biome/models/tokens"
 	"github.com/lsdch/biome/services/email"
 	email_templates "github.com/lsdch/biome/templates"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type EmailField struct {
-	Email string `edgedb:"email" json:"email" format:"email" fake:"{email}"`
+	Email string `gel:"email" json:"email" format:"email" fake:"{email}"`
 }
 
 type UserInput struct {
-	Login         string `edgedb:"login" json:"login" binding:"login,required,unique_login" fake:"{username}"`
-	EmailField    `edgedb:"$inline" json:",inline"`
+	Login         string `gel:"login" json:"login" binding:"login,required,unique_login" fake:"{username}"`
+	EmailField    `gel:"$inline" json:",inline"`
 	PasswordInput `json:",inline"`
 }
 
-func (u UserInput) Save(db edgedb.Executor, role UserRole, identity PersonInner) (*User, error) {
+func (u UserInput) Save(db geltypes.Executor, role UserRole, identity PersonInner) (*User, error) {
 	var user User
 	input, _ := json.Marshal(u)
 	err := db.QuerySingle(context.Background(),
@@ -51,7 +51,7 @@ func (u UserInput) Save(db edgedb.Executor, role UserRole, identity PersonInner)
 
 var InvalidTokenError = fmt.Errorf("Invalid token")
 
-func (u UserInput) RegisterWithToken(db edgedb.Executor, token tokens.Token) (*User, error) {
+func (u UserInput) RegisterWithToken(db geltypes.Executor, token tokens.Token) (*User, error) {
 	invitation, err := ValidateInvitationToken(db, token)
 	if err != nil {
 		return nil, InvalidTokenError
@@ -64,10 +64,10 @@ func (u UserInput) RegisterWithToken(db edgedb.Executor, token tokens.Token) (*U
 }
 
 type PendingUserRequestInput struct {
-	EmailField     `json:",inline" edgedb:"$inline"`
-	PersonIdentity `edgedb:"$inline" json:",inline"`
-	Organisation   string `json:"organisation,omitempty" edgedb:"organisation" fake:"{word}"`
-	Motive         string `json:"motive,omitempty" edgedb:"motive" fake:"{sentence:10}"`
+	EmailField     `json:",inline" gel:"$inline"`
+	PersonIdentity `gel:"$inline" json:",inline"`
+	Organisation   string `json:"organisation,omitempty" gel:"organisation" fake:"{word}"`
+	Motive         string `json:"motive,omitempty" gel:"motive" fake:"{sentence:10}"`
 }
 
 //go:embed queries/register_pending_user.edgeql
@@ -75,7 +75,7 @@ var registerPendingUserQuery string
 
 // Creates a request for a user account which can be validated by and admin
 // to send an invitation to create an account
-func (u *PendingUserRequestInput) Register(db edgedb.Executor) (*PendingUserRequest, error) {
+func (u *PendingUserRequestInput) Register(db geltypes.Executor) (*PendingUserRequest, error) {
 	args, _ := json.Marshal(u)
 	var pendingUser PendingUserRequest
 	err := db.QuerySingle(context.Background(), registerPendingUserQuery, &pendingUser, args)
@@ -83,17 +83,17 @@ func (u *PendingUserRequestInput) Register(db edgedb.Executor) (*PendingUserRequ
 }
 
 type PendingUserRequest struct {
-	ID             edgedb.UUID `edgedb:"id" json:"id"`
-	EmailField     `json:",inline" edgedb:"$inline"`
-	PersonIdentity `edgedb:"$inline" json:",inline"`
-	FullName       string             `edgedb:"full_name" json:"full_name"`
-	Organisation   edgedb.OptionalStr `json:"organisation,omitempty" edgedb:"organisation"`
-	Motive         edgedb.OptionalStr `json:"motive,omitempty" edgedb:"motive"`
-	CreatedOn      time.Time          `json:"created_on" edgedb:"created_on"`
-	EmailVerified  bool               `edgedb:"email_verified" json:"email_verified"`
+	ID             geltypes.UUID `gel:"id" json:"id"`
+	EmailField     `json:",inline" gel:"$inline"`
+	PersonIdentity `gel:"$inline" json:",inline"`
+	FullName       string               `gel:"full_name" json:"full_name"`
+	Organisation   geltypes.OptionalStr `json:"organisation,omitempty" gel:"organisation"`
+	Motive         geltypes.OptionalStr `json:"motive,omitempty" gel:"motive"`
+	CreatedOn      time.Time            `json:"created_on" gel:"created_on"`
+	EmailVerified  bool                 `gel:"email_verified" json:"email_verified"`
 }
 
-func (p *PendingUserRequest) Delete(db edgedb.Executor) error {
+func (p *PendingUserRequest) Delete(db geltypes.Executor) error {
 	return db.Execute(context.Background(),
 		`#edgeql
 			delete <people::PendingUserRequest><uuid>$0;
@@ -101,7 +101,7 @@ func (p *PendingUserRequest) Delete(db edgedb.Executor) error {
 	)
 }
 
-func (p *PendingUserRequest) SetEmailVerified(db edgedb.Executor, isVerified bool) error {
+func (p *PendingUserRequest) SetEmailVerified(db geltypes.Executor, isVerified bool) error {
 	err := db.Execute(context.Background(),
 		`#edgeql
 			update <people::PendingUserRequest><uuid>$0 set { email_verified := <bool>$1 }
@@ -114,7 +114,7 @@ func (p *PendingUserRequest) SetEmailVerified(db edgedb.Executor, isVerified boo
 	return nil
 }
 
-func ListPendingUserRequests(db edgedb.Executor) ([]PendingUserRequest, error) {
+func ListPendingUserRequests(db geltypes.Executor) ([]PendingUserRequest, error) {
 	var items = []PendingUserRequest{}
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -124,7 +124,7 @@ func ListPendingUserRequests(db edgedb.Executor) ([]PendingUserRequest, error) {
 	return items, err
 }
 
-func GetPendingUserRequest(db edgedb.Executor, email string) (*PendingUserRequest, error) {
+func GetPendingUserRequest(db geltypes.Executor, email string) (*PendingUserRequest, error) {
 	var req PendingUserRequest
 	err := db.QuerySingle(context.Background(),
 		`#edgeql
@@ -134,7 +134,7 @@ func GetPendingUserRequest(db edgedb.Executor, email string) (*PendingUserReques
 	return &req, err
 }
 
-func DeletePendingUserRequest(db edgedb.Executor, email string) (deleted PendingUserRequest, err error) {
+func DeletePendingUserRequest(db geltypes.Executor, email string) (deleted PendingUserRequest, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (delete people::PendingUserRequest filter .email = <str>$0) { ** }
@@ -146,7 +146,7 @@ func DeletePendingUserRequest(db edgedb.Executor, email string) (deleted Pending
 // SendConfirmationEmail sends a confirmation email to the user with a verification token.
 // It generates a confirmation token, and sends an email with the confirmation link.
 // The confirmation token is included as a query parameter in the URL.
-func (p *PendingUserRequest) SendConfirmationEmail(db *edgedb.Client, target url.URL) error {
+func (p *PendingUserRequest) SendConfirmationEmail(db *gel.Client, target url.URL) error {
 	emailToken := tokens.NewEmailVerificationToken(p.Email)
 
 	if err := emailToken.Save(db); err != nil {
@@ -174,7 +174,7 @@ func (p *PendingUserRequest) SendConfirmationEmail(db *edgedb.Client, target url
 // in the database.
 // If successful, the token is consumed and the associated account request
 // is marked as verified.
-func VerifyEmail(edb *edgedb.Client, token tokens.Token) (ok bool, err error) {
+func VerifyEmail(edb *gel.Client, token tokens.Token) (ok bool, err error) {
 	db_token, err := tokens.RetrieveEmailToken(edb, token)
 	if err != nil {
 		// Token not found is just an invalid token
@@ -189,7 +189,7 @@ func VerifyEmail(edb *edgedb.Client, token tokens.Token) (ok bool, err error) {
 	}
 
 	// Consume token and set email verified
-	txErr := edb.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) error {
+	txErr := edb.Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
 		pending_user, err := GetPendingUserRequest(edb, db_token.Email)
 		if err != nil {
 			return err
@@ -211,13 +211,13 @@ func VerifyEmail(edb *edgedb.Client, token tokens.Token) (ok bool, err error) {
 }
 
 type SuperAdminInput struct {
-	UserInput      `edgedb:"$inline" json:",inline"`
-	PersonIdentity `edgedb:"$inline" json:",inline"`
+	UserInput      `gel:"$inline" json:",inline"`
+	PersonIdentity `gel:"$inline" json:",inline"`
 	Alias          models.OptionalInput[string] `json:"alias,omitempty" fake:"-"`
-	Organisation   OrganisationInput            `edgedb:"organisation" json:"organisation"`
+	Organisation   OrganisationInput            `gel:"organisation" json:"organisation"`
 }
 
-func (i SuperAdminInput) Save(e edgedb.Executor) (created User, err error) {
+func (i SuperAdminInput) Save(e geltypes.Executor) (created User, err error) {
 	data, _ := json.Marshal(i)
 	if !i.Alias.IsSet {
 		i.Alias.Value = i.GenerateAlias()

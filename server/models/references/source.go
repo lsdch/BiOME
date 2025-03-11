@@ -4,22 +4,21 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/vocabulary"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type DataSource struct {
-	vocabulary.Vocabulary `edgedb:"$inline" json:",inline"`
-	LinkTemplate          edgedb.OptionalStr `edgedb:"link_template" json:"link_template,omitempty"`
-	URL                   edgedb.OptionalStr `edgedb:"url" json:"url,omitempty"`
-	Meta                  people.Meta        `edgedb:"meta" json:"meta"`
+	vocabulary.Vocabulary `gel:"$inline" json:",inline"`
+	LinkTemplate          geltypes.OptionalStr `gel:"link_template" json:"link_template,omitempty"`
+	URL                   geltypes.OptionalStr `gel:"url" json:"url,omitempty"`
+	Meta                  people.Meta          `gel:"meta" json:"meta"`
 }
 
-func ListDataSources(db edgedb.Executor) ([]DataSource, error) {
+func ListDataSources(db geltypes.Executor) ([]DataSource, error) {
 	var items = []DataSource{}
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -29,7 +28,7 @@ func ListDataSources(db edgedb.Executor) ([]DataSource, error) {
 	return items, err
 }
 
-func DeleteDataSources(db edgedb.Executor, code string) (deleted DataSource, err error) {
+func DeleteDataSources(db geltypes.Executor, code string) (deleted DataSource, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (
@@ -41,12 +40,12 @@ func DeleteDataSources(db edgedb.Executor, code string) (deleted DataSource, err
 }
 
 type DataSourceInput struct {
-	vocabulary.VocabularyInput `edgedb:"$inline" json:",inline"`
-	LinkTemplate               models.OptionalInput[string] `edgedb:"link_template" json:"link_template,omitempty"`
-	URL                        models.OptionalInput[string] `edgedb:"url" json:"url,omitempty"`
+	vocabulary.VocabularyInput `gel:"$inline" json:",inline"`
+	LinkTemplate               models.OptionalInput[string] `gel:"link_template" json:"link_template,omitempty"`
+	URL                        models.OptionalInput[string] `gel:"url" json:"url,omitempty"`
 }
 
-func (i DataSourceInput) Save(e edgedb.Executor) (created DataSource, err error) {
+func (i DataSourceInput) Save(e geltypes.Executor) (created DataSource, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
@@ -63,12 +62,12 @@ func (i DataSourceInput) Save(e edgedb.Executor) (created DataSource, err error)
 }
 
 type DataSourceUpdate struct {
-	vocabulary.VocabularyUpdate `edgedb:"$inline" json:",inline"`
-	LinkTemplate                models.OptionalNull[string] `edgedb:"link_template" json:"link_template,omitempty"`
-	URL                         models.OptionalNull[string] `edgedb:"url" json:"url,omitempty"`
+	vocabulary.VocabularyUpdate `gel:"$inline" json:",inline"`
+	LinkTemplate                models.OptionalNull[string] `gel:"link_template" json:"link_template,omitempty"`
+	URL                         models.OptionalNull[string] `gel:"url" json:"url,omitempty"`
 }
 
-func (u DataSourceUpdate) Save(e edgedb.Executor, code string) (updated DataSource, err error) {
+func (u DataSourceUpdate) Save(e geltypes.Executor, code string) (updated DataSource, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql

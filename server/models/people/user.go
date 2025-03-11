@@ -5,38 +5,39 @@ import (
 	_ "embed"
 	"encoding/json"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/settings"
 	"github.com/lsdch/biome/services/email"
 
 	"github.com/a-h/templ"
-	"github.com/edgedb/edgedb-go"
 )
 
 type UserInner struct {
-	ID             edgedb.UUID `edgedb:"id" json:"id" binding:"required" format:"uuid"`
-	Email          string      `edgedb:"email" json:"email" binding:"required" format:"email"`
-	Login          string      `edgedb:"login" json:"login" binding:"required"`
-	Password       string      `edgedb:"password" json:"-"`
-	Role           UserRole    `edgedb:"role" json:"role" binding:"required"`
-	EmailConfirmed bool        `edgedb:"email_confirmed" json:"email_confirmed" binding:"required"`
+	ID             geltypes.UUID `gel:"id" json:"id" binding:"required" format:"uuid"`
+	Email          string        `gel:"email" json:"email" binding:"required" format:"email"`
+	Login          string        `gel:"login" json:"login" binding:"required"`
+	Password       string        `gel:"password" json:"-"`
+	Role           UserRole      `gel:"role" json:"role" binding:"required"`
+	EmailConfirmed bool          `gel:"email_confirmed" json:"email_confirmed" binding:"required"`
 }
 
 type OptionalUserInner struct {
-	edgedb.Optional
-	UserInner `edgedb:"$inline" json:",inline"`
+	geltypes.Optional
+	UserInner `gel:"$inline" json:",inline"`
 }
 
 type User struct {
-	UserInner `edgedb:"$inline" json:",inline"`
-	Person    PersonInner `edgedb:"identity" json:"identity" binding:"required"`
+	UserInner `gel:"$inline" json:",inline"`
+	Person    PersonInner `gel:"identity" json:"identity" binding:"required"`
 }
 
 type OptionalUser struct {
-	edgedb.Optional
-	User `edgedb:"$inline" json:",inline"`
+	geltypes.Optional
+	User `gel:"$inline" json:",inline"`
 }
 
-func (user *User) SetIdentity(db edgedb.Executor, person *PersonInner) error {
+func (user *User) SetIdentity(db geltypes.Executor, person *PersonInner) error {
 	return db.QuerySingle(context.Background(),
 		`#edgeql
 			with module people
@@ -75,12 +76,12 @@ func (user *User) MarshalJSON() ([]byte, error) {
 }
 
 // Deletes a user account
-func (user *User) Delete(db edgedb.Executor) (*User, error) {
+func (user *User) Delete(db geltypes.Executor) (*User, error) {
 	return DeleteUser(db, user.ID)
 }
 
 // Delete a user account using its UUID
-func DeleteUser(db edgedb.Executor, uuid edgedb.UUID) (*User, error) {
+func DeleteUser(db geltypes.Executor, uuid geltypes.UUID) (*User, error) {
 	var user User
 	err := db.QuerySingle(context.Background(),
 		`select (delete (<people::User><uuid>$0)) { *, identity: { * }}`,
@@ -91,20 +92,20 @@ func DeleteUser(db edgedb.Executor, uuid edgedb.UUID) (*User, error) {
 
 // Find a user by UUID
 //
-// Returns edgedb.NoDataError if nothing matches
-func FindID(db edgedb.Executor, uuid edgedb.UUID) (user User, err error) {
+// Returns geltypes.NoDataError if nothing matches
+func FindID(db geltypes.Executor, uuid geltypes.UUID) (user User, err error) {
 	err = db.QuerySingle(context.Background(),
 		`select (<people::User><uuid>$0) { * , identity: { * } } limit 1`,
 		&user,
-		edgedb.UUID(uuid),
+		geltypes.UUID(uuid),
 	)
 	return
 }
 
 // Find a user by login or email
 //
-// Returns edgedb.NoDataError if nothing matches
-func Find(db *edgedb.Client, identifier string) (user User, err error) {
+// Returns geltypes.NoDataError if nothing matches
+func Find(db *gel.Client, identifier string) (user User, err error) {
 	err = db.QuerySingle(context.Background(),
 		`select people::User { * , identity: { * } }
 		filter .email = <str>$0 or .login = <str>$0 limit 1`,

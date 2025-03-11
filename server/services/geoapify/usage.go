@@ -4,18 +4,17 @@ import (
 	"context"
 	"time"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type GeoapifyUsage struct {
-	ID       edgedb.UUID      `edgedb:"id" json:"id"`
-	Date     edgedb.LocalDate `edgedb:"date" json:"date"`
-	Requests int32            `edgedb:"requests" json:"requests"`
+	ID       geltypes.UUID      `gel:"id" json:"id"`
+	Date     geltypes.LocalDate `gel:"date" json:"date"`
+	Requests int32              `gel:"requests" json:"requests"`
 }
 
-func GeoapifyUsageList(e edgedb.Executor) (usages []GeoapifyUsage, err error) {
+func GeoapifyUsageList(e geltypes.Executor) (usages []GeoapifyUsage, err error) {
 	err = e.Query(context.Background(),
 		`#edgeql
 			select admin::GeoapifyUsage { * } order by .date desc
@@ -23,7 +22,7 @@ func GeoapifyUsageList(e edgedb.Executor) (usages []GeoapifyUsage, err error) {
 	return
 }
 
-func TodayGeoapifyUsage(e edgedb.Executor) (current GeoapifyUsage, err error) {
+func TodayGeoapifyUsage(e geltypes.Executor) (current GeoapifyUsage, err error) {
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			select admin::GeoapifyUsage { * }
@@ -31,12 +30,12 @@ func TodayGeoapifyUsage(e edgedb.Executor) (current GeoapifyUsage, err error) {
 		`, &current)
 	if db.IsNoData(err) {
 		year, month, day := time.Now().UTC().Date()
-		return GeoapifyUsage{Date: edgedb.NewLocalDate(year, month, day)}, nil
+		return GeoapifyUsage{Date: geltypes.NewLocalDate(year, month, day)}, nil
 	}
 	return
 }
 
-func TrackGeoapifyUsage(e edgedb.Executor, requests int32) (current GeoapifyUsage, err error) {
+func TrackGeoapifyUsage(e geltypes.Executor, requests int32) (current GeoapifyUsage, err error) {
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			select (

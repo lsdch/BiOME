@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/controllers"
 	"github.com/lsdch/biome/models/taxonomy"
 	GBIF "github.com/lsdch/biome/models/taxonomy/GBIF"
@@ -12,7 +13,6 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/sse"
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -50,8 +50,8 @@ func RegisterImportRoutes(r router.Router) {
 			Errors:      []int{http.StatusInternalServerError},
 		}, controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](func(db edgedb.Executor) ([]taxonomy.TaxonWithParentRef, error) {
-			return taxonomy.ListTaxa(db, taxonomy.ListFilters{IsAnchor: edgedb.NewOptionalBool(true)})
+		}](func(db geltypes.Executor) ([]taxonomy.TaxonWithParentRef, error) {
+			return taxonomy.ListTaxa(db, taxonomy.ListFilters{IsAnchor: geltypes.NewOptionalBool(true)})
 		}))
 
 	huma.Register(r.API, huma.Operation{

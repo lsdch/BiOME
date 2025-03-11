@@ -8,12 +8,12 @@ import (
 
 func validateUnique(typecast string) validator.Func {
 	return func(fl validator.FieldLevel) bool {
-		bindings := ParseEdgeDBBindingsOrDie(fl.Param(), typecast)
+		bindings := ParseGelBindingsOrDie(fl.Param(), typecast)
 		return bindings.UniqueQuery(fl.Field().Interface())
 	}
 }
 
-func validateUniqueWithBindings(bindings BindingEdgeDB) validator.Func {
+func validateUniqueWithBindings(bindings GelBinding) validator.Func {
 	return func(fl validator.FieldLevel) bool {
 		return bindings.UniqueQuery(fl.Field().Interface())
 	}
@@ -36,7 +36,7 @@ var UniqueStrValidator = CustomValidator{
 // Checks that an email address is not already in use
 var UniqueEmailValidator = CustomValidator{
 	Tag: "unique_email",
-	Handler: validateUniqueWithBindings(BindingEdgeDB{
+	Handler: validateUniqueWithBindings(GelBinding{
 		ObjectName:   "people::User",
 		PropertyName: "email",
 		TypeCast:     "str",
@@ -49,7 +49,7 @@ var UniqueEmailValidator = CustomValidator{
 // Checks that a login is not already in use in the database
 var UniqueLoginValidator = CustomValidator{
 	Tag: "unique_login",
-	Handler: validateUniqueWithBindings(BindingEdgeDB{
+	Handler: validateUniqueWithBindings(GelBinding{
 		ObjectName:   "people::User",
 		PropertyName: "login",
 		TypeCast:     "str",

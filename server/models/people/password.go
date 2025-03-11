@@ -4,11 +4,12 @@ import (
 	"context"
 	"net/url"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/settings"
 	"github.com/lsdch/biome/models/tokens"
 	email_templates "github.com/lsdch/biome/templates"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 	"github.com/trustelem/zxcvbn"
 )
@@ -48,7 +49,7 @@ func validatePasswordStrength(p PasswordSensitiveInfos, pwd string, strength int
 }
 
 // Checks that a password matches the hashed password for a user.
-func (user *User) PasswordMatch(db edgedb.Executor, pwd string) bool {
+func (user *User) PasswordMatch(db geltypes.Executor, pwd string) bool {
 	var match bool
 	query := `#edgeql
 		select exists (select people::User
@@ -64,7 +65,7 @@ func (user *User) PasswordMatch(db edgedb.Executor, pwd string) bool {
 
 // Sets the password of a user.
 // Returns string error if password is not strong enough.
-func (user *User) ValidatePasswordStrength(db edgedb.Executor, pwd string) bool {
+func (user *User) ValidatePasswordStrength(db geltypes.Executor, pwd string) bool {
 	strongEnough := validatePasswordStrength(
 		user.PasswordSensitiveInfos(),
 		string(pwd),
@@ -75,7 +76,7 @@ func (user *User) ValidatePasswordStrength(db edgedb.Executor, pwd string) bool 
 }
 
 // Sets the password for a user in DB.
-func (user *User) SetPassword(db edgedb.Executor, pwd string) error {
+func (user *User) SetPassword(db geltypes.Executor, pwd string) error {
 	return db.Execute(context.Background(),
 		`update (<people::User><uuid>$0) set { password := <str>$1 }`,
 		user.ID, pwd,
@@ -85,7 +86,7 @@ func (user *User) SetPassword(db edgedb.Executor, pwd string) error {
 // RequestPasswordReset creates a password reset token in the DB and sends it
 // to the e-mail registered for the user account.
 // It can then be used to set a new password for the account.
-func (user *User) RequestPasswordReset(db *edgedb.Client, target url.URL) error {
+func (user *User) RequestPasswordReset(db *gel.Client, target url.URL) error {
 
 	token := tokens.NewPwdResetToken(user.ID)
 	if err := token.Save(db); err != nil {

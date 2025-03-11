@@ -6,12 +6,12 @@ import (
 
 	gbif "github.com/lsdch/biome/models/taxonomy/GBIF"
 
-	"github.com/edgedb/edgedb-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/schollz/progressbar/v3"
 	"github.com/sirupsen/logrus"
 )
 
-func SeedTaxonomyGBIF(db *edgedb.Tx) error {
+func SeedTaxonomyGBIF(db geltypes.Tx) error {
 	bar := progressbar.Default(-1, "Importing Asellidae taxonomy from GBIF")
 	_ = db.Execute(context.Background(), "delete taxonomy::Taxon")
 	var total int

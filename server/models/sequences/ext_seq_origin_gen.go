@@ -36,7 +36,7 @@ func (m *ExtSeqOrigin) Fake(f *gofakeit.Faker) (any, error) {
 	return string(ExtSeqOriginValues[f.IntN(len(ExtSeqOriginValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m ExtSeqOrigin) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

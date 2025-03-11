@@ -38,7 +38,7 @@ func (m *CoordinatesPrecision) Fake(f *gofakeit.Faker) (any, error) {
 	return string(CoordinatesPrecisionValues[f.IntN(len(CoordinatesPrecisionValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m CoordinatesPrecision) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

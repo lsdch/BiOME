@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/tests"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -18,7 +18,7 @@ func FakePersonInput(t *testing.T) *people.PersonInput {
 	return tests.FakeData[people.PersonInput](t)
 }
 
-func SetupPerson(t *testing.T, db edgedb.Executor) people.Person {
+func SetupPerson(t *testing.T, db geltypes.Executor) people.Person {
 	p, err := FakePersonInput(t).Save(db)
 	require.NoError(t, err)
 	return p

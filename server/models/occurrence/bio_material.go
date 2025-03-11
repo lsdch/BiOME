@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
@@ -11,66 +12,64 @@ import (
 	"github.com/lsdch/biome/models/sequences"
 	"github.com/lsdch/biome/models/specimen"
 	"github.com/lsdch/biome/models/taxonomy"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type SpecimenVoucher struct {
-	Collection edgedb.OptionalStr `edgedb:"in_collection" json:"collection"`
-	Item       []string           `edgedb:"item_vouchers" json:"vouchers"`
+	Collection geltypes.OptionalStr `gel:"in_collection" json:"collection"`
+	Item       []string             `gel:"item_vouchers" json:"vouchers"`
 }
 
 type ExternalBioMatSpecific struct {
-	// ID                 edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
-	OriginalSource     models.Optional[references.DataSource] `edgedb:"original_source" json:"original_source,omitempty"`
-	OriginalLink       edgedb.OptionalStr                     `edgedb:"original_link" json:"original_link,omitempty"`
-	OriginalTaxon      edgedb.OptionalStr                     `edgedb:"original_taxon" json:"original_taxon,omitempty"`
-	Quantity           specimen.Quantity                      `edgedb:"quantity" json:"quantity"`
-	ContentDescription edgedb.OptionalStr                     `edgedb:"content_description" json:"content_description,omitempty"`
-	Archive            SpecimenVoucher                        `edgedb:"$inline" json:"archive"`
-	Comments           edgedb.OptionalStr                     `edgedb:"comments" json:"comments"`
-	Content            []ExternalBioMatContent                `edgedb:"content" json:"content,omitempty"`
+	// ID                 geltypes.UUID        `gel:"id" json:"id" format:"uuid"`
+	OriginalSource     models.Optional[references.DataSource] `gel:"original_source" json:"original_source,omitempty"`
+	OriginalLink       geltypes.OptionalStr                   `gel:"original_link" json:"original_link,omitempty"`
+	OriginalTaxon      geltypes.OptionalStr                   `gel:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           specimen.Quantity                      `gel:"quantity" json:"quantity"`
+	ContentDescription geltypes.OptionalStr                   `gel:"content_description" json:"content_description,omitempty"`
+	Archive            SpecimenVoucher                        `gel:"$inline" json:"archive"`
+	Comments           geltypes.OptionalStr                   `gel:"comments" json:"comments"`
+	Content            []ExternalBioMatContent                `gel:"content" json:"content,omitempty"`
 }
 
 // ExternalBioMatSequence represents a sequence of an external biomaterial.
 // It is intended to be embedded in external bio material occurrence details.
 type ExternalBioMatSequence struct {
-	ID             edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
-	SequenceInner  `edgedb:"$inline" json:",inline"`
-	Category       OccurrenceCategory       `edgedb:"category" json:"category"`
-	Origin         sequences.ExtSeqOrigin   `edgedb:"origin" json:"origin"`
-	ReferencedIn   []sequences.SeqReference `edgedb:"referenced_in" json:"referenced_in,omitempty"`
-	Identification Identification           `edgedb:"identification" json:"identification"`
-	Comments       edgedb.OptionalStr       `edgedb:"comments" json:"comments"`
-	PublishedIn    []references.Article     `edgedb:"published_in" json:"published_in,omitempty"`
-	// SourceSample            `edgedb:"source_sample" json:"source_sample"`
-	AccessionNumber    edgedb.OptionalStr `edgedb:"accession_number" json:"accession_number"`
-	SpecimenIdentifier string             `edgedb:"specimen_identifier" json:"specimen_identifier"`
-	OriginalTaxon      edgedb.OptionalStr `edgedb:"original_taxon" json:"original_taxon"`
+	ID             geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+	SequenceInner  `gel:"$inline" json:",inline"`
+	Category       OccurrenceCategory       `gel:"category" json:"category"`
+	Origin         sequences.ExtSeqOrigin   `gel:"origin" json:"origin"`
+	ReferencedIn   []sequences.SeqReference `gel:"referenced_in" json:"referenced_in,omitempty"`
+	Identification Identification           `gel:"identification" json:"identification"`
+	Comments       geltypes.OptionalStr     `gel:"comments" json:"comments"`
+	PublishedIn    []references.Article     `gel:"published_in" json:"published_in,omitempty"`
+	// SourceSample            `gel:"source_sample" json:"source_sample"`
+	AccessionNumber    geltypes.OptionalStr `gel:"accession_number" json:"accession_number"`
+	SpecimenIdentifier string               `gel:"specimen_identifier" json:"specimen_identifier"`
+	OriginalTaxon      geltypes.OptionalStr `gel:"original_taxon" json:"original_taxon"`
 }
 
 type ExternalBioMatContent struct {
-	Specimen  string                   `edgedb:"specimen" json:"specimen"`
-	Sequences []ExternalBioMatSequence `edgedb:"sequences" json:"sequences"`
+	Specimen  string                   `gel:"specimen" json:"specimen"`
+	Sequences []ExternalBioMatSequence `gel:"sequences" json:"sequences"`
 }
 
 type BioMaterialInner struct {
-	ID             edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
-	CodeIdentifier `edgedb:"$inline" json:",inline"`
-	Category       OccurrenceCategory `edgedb:"category" json:"category"`
-	IsType         bool               `edgedb:"is_type" json:"is_type"`
-	Comments       edgedb.OptionalStr `edgedb:"comments" json:"comments,omitempty"`
+	ID             geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+	CodeIdentifier `gel:"$inline" json:",inline"`
+	Category       OccurrenceCategory   `gel:"category" json:"category"`
+	IsType         bool                 `gel:"is_type" json:"is_type"`
+	Comments       geltypes.OptionalStr `gel:"comments" json:"comments,omitempty"`
 }
 
 type GenericBioMaterial[SamplingType any] struct {
-	GenericOccurrence[SamplingType] `edgedb:"$inline" json:",inline"`
-	BioMaterialInner                `edgedb:"$inline" json:",inline"`
-	HasSequences                    bool                                    `edgedb:"has_sequences" json:"has_sequences"`
-	IsHomogenous                    bool                                    `edgedb:"is_homogenous" json:"is_homogenous"`
-	IsCongruent                     bool                                    `edgedb:"is_congruent" json:"is_congruent"`
-	SequenceConsensus               models.Optional[taxonomy.Taxon]         `edgedb:"seq_consensus" json:"seq_consensus,omitempty"`
-	External                        models.Optional[ExternalBioMatSpecific] `edgedb:"external" json:"external,omitempty"`
-	Meta                            people.Meta                             `edgedb:"meta" json:"meta"`
+	GenericOccurrence[SamplingType] `gel:"$inline" json:",inline"`
+	BioMaterialInner                `gel:"$inline" json:",inline"`
+	HasSequences                    bool                                    `gel:"has_sequences" json:"has_sequences"`
+	IsHomogenous                    bool                                    `gel:"is_homogenous" json:"is_homogenous"`
+	IsCongruent                     bool                                    `gel:"is_congruent" json:"is_congruent"`
+	SequenceConsensus               models.Optional[taxonomy.Taxon]         `gel:"seq_consensus" json:"seq_consensus,omitempty"`
+	External                        models.Optional[ExternalBioMatSpecific] `gel:"external" json:"external,omitempty"`
+	Meta                            people.Meta                             `gel:"meta" json:"meta"`
 }
 
 type BioMaterial GenericBioMaterial[SamplingInner]
@@ -87,8 +86,8 @@ func (b BioMaterial) AsOccurrence() OccurrenceWithCategory {
 }
 
 type BioMaterialWithDetails struct {
-	GenericBioMaterial[Sampling] `edgedb:"$inline" json:",inline"`
-	Event                        EventInner `edgedb:"event" json:"event"`
+	GenericBioMaterial[Sampling] `gel:"$inline" json:",inline"`
+	Event                        EventInner `gel:"event" json:"event"`
 }
 
 func (b BioMaterialWithDetails) AsOccurrence() OccurrenceWithCategory {
@@ -106,7 +105,7 @@ func (b BioMaterialWithDetails) AsOccurrence() OccurrenceWithCategory {
 	}
 }
 
-func GetBioMaterial(db edgedb.Executor, code string) (biomat BioMaterialWithDetails, err error) {
+func GetBioMaterial(db geltypes.Executor, code string) (biomat BioMaterialWithDetails, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 		with module occurrence
@@ -148,7 +147,7 @@ func GetBioMaterial(db edgedb.Executor, code string) (biomat BioMaterialWithDeta
 	return biomat, err
 }
 
-func ListBioMaterials(db edgedb.Executor) ([]BioMaterialWithDetails, error) {
+func ListBioMaterials(db geltypes.Executor) ([]BioMaterialWithDetails, error) {
 	var items = []BioMaterialWithDetails{}
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -171,7 +170,7 @@ func ListBioMaterials(db edgedb.Executor) ([]BioMaterialWithDetails, error) {
 	return items, err
 }
 
-func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterialWithDetails, err error) {
+func DeleteBioMaterial(db geltypes.Executor, code string) (deleted BioMaterialWithDetails, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 		with module occurrence
@@ -214,9 +213,9 @@ func DeleteBioMaterial(db edgedb.Executor, code string) (deleted BioMaterialWith
 }
 
 type BioMaterialInput struct {
-	OccurrenceInnerInput `edgedb:"$inline" json:",inline"`
-	Code                 models.OptionalInput[string] `edgedb:"code" json:"code,omitempty"`
-	IsType               models.OptionalInput[bool]   `edgedb:"is_type" json:"is_type,omitempty"`
+	OccurrenceInnerInput `gel:"$inline" json:",inline"`
+	Code                 models.OptionalInput[string] `gel:"code" json:"code,omitempty"`
+	IsType               models.OptionalInput[bool]   `gel:"is_type" json:"is_type,omitempty"`
 }
 
 func (i *BioMaterialInput) SetCode(code string) {
@@ -227,7 +226,7 @@ func (i *BioMaterialInput) UseSamplingCode(samplingCode string) {
 	i.SetCode(i.OccurrenceInnerInput.Code(samplingCode))
 }
 
-func (i BioMaterialInput) GetCode(db edgedb.Executor) (string, error) {
+func (i BioMaterialInput) GetCode(db geltypes.Executor) (string, error) {
 	if i.Code.IsSet {
 		return i.Code.Value, nil
 	} else {
@@ -236,17 +235,17 @@ func (i BioMaterialInput) GetCode(db edgedb.Executor) (string, error) {
 }
 
 type BioMaterialUpdate struct {
-	OccurrenceUpdate `edgedb:"$inline" json:",inline"`
-	Code             models.OptionalInput[string] `edgedb:"code" json:"code,omitempty"`
-	IsType           models.OptionalInput[bool]   `edgedb:"is_type" json:"is_type,omitempty"`
+	OccurrenceUpdate `gel:"$inline" json:",inline"`
+	Code             models.OptionalInput[string] `gel:"code" json:"code,omitempty"`
+	IsType           models.OptionalInput[bool]   `gel:"is_type" json:"is_type,omitempty"`
 }
 
 type InternalBioMatInput struct {
-	BioMaterialInput `edgedb:"$inline" json:",inline"`
+	BioMaterialInput `gel:"$inline" json:",inline"`
 	// TODO: Internal-specific fields
 }
 
-func (i InternalBioMatInput) Save(e edgedb.Executor, samplingID edgedb.UUID) (created BioMaterialWithDetails, err error) {
+func (i InternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created BioMaterialWithDetails, err error) {
 	data, _ := json.Marshal(i)
 	code, err := i.GetCode(e)
 	if err != nil {
@@ -303,26 +302,26 @@ func (i InternalBioMatInput) Save(e edgedb.Executor, samplingID edgedb.UUID) (cr
 }
 
 type ExternalBioMatOccurrenceInput struct {
-	Sampling            edgedb.UUID `edgedb:"sampling" json:"sampling"`
-	ExternalBioMatInput `edgedb:"$inline" json:",inline"`
+	Sampling            geltypes.UUID `gel:"sampling" json:"sampling"`
+	ExternalBioMatInput `gel:"$inline" json:",inline"`
 }
 
-func (i ExternalBioMatOccurrenceInput) Save(e edgedb.Executor) (created BioMaterialWithDetails, err error) {
+func (i ExternalBioMatOccurrenceInput) Save(e geltypes.Executor) (created BioMaterialWithDetails, err error) {
 	return i.ExternalBioMatInput.Save(e, i.Sampling)
 }
 
 type ExternalBioMatInput struct {
-	BioMaterialInput   `edgedb:"$inline" json:",inline"`
-	OriginalSource     models.OptionalInput[string] `edgedb:"original_source" json:"original_source,omitempty"`
-	OriginalLink       models.OptionalInput[string] `edgedb:"original_link" json:"original_link,omitempty"`
-	Quantity           specimen.Quantity            `edgedb:"quantity" json:"quantity"`
-	ContentDescription models.OptionalInput[string] `edgedb:"content_description" json:"content_description,omitempty"`
-	Collection         models.OptionalInput[string] `edgedb:"in_collection" json:"collection,omitempty"`
-	Item               []string                     `edgedb:"item_vouchers" json:"vouchers,omitempty"`
-	Comments           models.OptionalInput[string] `edgedb:"comments" json:"comments,omitempty"`
+	BioMaterialInput   `gel:"$inline" json:",inline"`
+	OriginalSource     models.OptionalInput[string] `gel:"original_source" json:"original_source,omitempty"`
+	OriginalLink       models.OptionalInput[string] `gel:"original_link" json:"original_link,omitempty"`
+	Quantity           specimen.Quantity            `gel:"quantity" json:"quantity"`
+	ContentDescription models.OptionalInput[string] `gel:"content_description" json:"content_description,omitempty"`
+	Collection         models.OptionalInput[string] `gel:"in_collection" json:"collection,omitempty"`
+	Item               []string                     `gel:"item_vouchers" json:"vouchers,omitempty"`
+	Comments           models.OptionalInput[string] `gel:"comments" json:"comments,omitempty"`
 }
 
-func (i ExternalBioMatInput) Save(e edgedb.Executor, samplingID edgedb.UUID) (created BioMaterialWithDetails, err error) {
+func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created BioMaterialWithDetails, err error) {
 	data, _ := json.Marshal(i)
 	code, err := i.GetCode(e)
 	if err != nil {
@@ -387,19 +386,19 @@ func (i ExternalBioMatInput) Save(e edgedb.Executor, samplingID edgedb.UUID) (cr
 }
 
 type ExternalBioMatUpdate struct {
-	BioMaterialUpdate  `edgedb:"$inline" json:",inline"`
-	OriginalSource     models.OptionalNull[string]                                `edgedb:"original_source" json:"original_source,omitempty"`
-	OriginalLink       models.OptionalNull[string]                                `edgedb:"original_link" json:"original_link,omitempty"`
-	OriginalTaxon      models.OptionalNull[string]                                `edgedb:"original_taxon" json:"original_taxon,omitempty"`
-	Quantity           models.OptionalInput[specimen.Quantity]                    `edgedb:"quantity" json:"quantity,omitempty"`
-	ContentDescription models.OptionalNull[string]                                `edgedb:"content_description" json:"content_description,omitempty"`
-	Collection         models.OptionalNull[string]                                `edgedb:"in_collection" json:"collection,omitempty"`
-	Item               models.OptionalInput[[]string]                             `edgedb:"item_vouchers" json:"vouchers,omitempty"`
-	Comments           models.OptionalNull[string]                                `edgedb:"comments" json:"comments,omitempty"`
-	PublishedIn        models.OptionalNull[[]references.OccurrenceReferenceInput] `edgedb:"published_in" json:"published_in"`
+	BioMaterialUpdate  `gel:"$inline" json:",inline"`
+	OriginalSource     models.OptionalNull[string]                                `gel:"original_source" json:"original_source,omitempty"`
+	OriginalLink       models.OptionalNull[string]                                `gel:"original_link" json:"original_link,omitempty"`
+	OriginalTaxon      models.OptionalNull[string]                                `gel:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           models.OptionalInput[specimen.Quantity]                    `gel:"quantity" json:"quantity,omitempty"`
+	ContentDescription models.OptionalNull[string]                                `gel:"content_description" json:"content_description,omitempty"`
+	Collection         models.OptionalNull[string]                                `gel:"in_collection" json:"collection,omitempty"`
+	Item               models.OptionalInput[[]string]                             `gel:"item_vouchers" json:"vouchers,omitempty"`
+	Comments           models.OptionalNull[string]                                `gel:"comments" json:"comments,omitempty"`
+	PublishedIn        models.OptionalNull[[]references.OccurrenceReferenceInput] `gel:"published_in" json:"published_in"`
 }
 
-func (u ExternalBioMatUpdate) Save(e edgedb.Executor, code string) (updated BioMaterialWithDetails, err error) {
+func (u ExternalBioMatUpdate) Save(e geltypes.Executor, code string) (updated BioMaterialWithDetails, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql

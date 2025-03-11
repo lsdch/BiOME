@@ -12,13 +12,13 @@ import (
 	"slices"
 	"time"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/occurrence"
 	"github.com/lsdch/biome/services/crossref"
 
 	"github.com/caltechlibrary/crossrefapi"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/adapters/humagin"
-	"github.com/edgedb/edgedb-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -39,11 +39,11 @@ func New(r *gin.Engine, basePath string, config huma.Config) Router {
 	API := humagin.NewWithGroup(r, baseAPI, config)
 
 	registry := huma.NewMapRegistry("#/components/schemas/", SchemaNamer)
-	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalStr](), reflect.TypeOf(""))
-	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalInt32](), reflect.TypeOf(0))
-	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalBool](), reflect.TypeOf(true))
-	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalDateTime](), reflect.TypeFor[time.Time]())
-	registry.RegisterTypeAlias(reflect.TypeFor[edgedb.OptionalDuration](), reflect.TypeFor[edgedb.Duration]())
+	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalStr](), reflect.TypeOf(""))
+	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalInt32](), reflect.TypeOf(0))
+	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalBool](), reflect.TypeOf(true))
+	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalDateTime](), reflect.TypeFor[time.Time]())
+	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalDuration](), reflect.TypeFor[geltypes.Duration]())
 	registry.RegisterTypeAlias(reflect.TypeFor[occurrence.OptionalHabitatRecord](), reflect.TypeFor[occurrence.HabitatRecord]())
 
 	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.Person](), reflect.TypeFor[crossref.CrossRefPerson]())

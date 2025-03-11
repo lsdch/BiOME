@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
+	"github.com/geldata/gel-go/geltypes"
 )
 
 type DBProperty struct {
@@ -13,8 +13,8 @@ type DBProperty struct {
 	Property string
 }
 
-func (q DBProperty) Exists(db edgedb.Executor, v string) (edgedb.UUID, bool) {
-	var uuid edgedb.UUID
+func (q DBProperty) Exists(db geltypes.Executor, v string) (geltypes.UUID, bool) {
+	var uuid geltypes.UUID
 	query := fmt.Sprintf(`select (select %s filter .%s = <str>$0).id`,
 		q.Object, q.Property,
 	)
@@ -22,7 +22,7 @@ func (q DBProperty) Exists(db edgedb.Executor, v string) (edgedb.UUID, bool) {
 	return uuid, !IsNoData(err)
 }
 
-func (q DBProperty) NotExists(db edgedb.Executor, v string) bool {
+func (q DBProperty) NotExists(db geltypes.Executor, v string) bool {
 	var exists bool
 	query := fmt.Sprintf(`select exists %s filter .%s = <str>$0`,
 		q.Object, q.Property,
@@ -31,9 +31,9 @@ func (q DBProperty) NotExists(db edgedb.Executor, v string) bool {
 	return exists
 }
 
-func (q DBProperty) ExistAll(db edgedb.Executor, identifiers []string) ([]edgedb.UUID, []InvalidItem) {
+func (q DBProperty) ExistAll(db geltypes.Executor, identifiers []string) ([]geltypes.UUID, []InvalidItem) {
 	var missings []InvalidItem
-	var uuids []edgedb.UUID
+	var uuids []geltypes.UUID
 	for i, v := range identifiers {
 		uuid, ok := q.Exists(db, v)
 		if ok {
@@ -48,7 +48,7 @@ func (q DBProperty) ExistAll(db edgedb.Executor, identifiers []string) ([]edgedb
 	return uuids, nil
 }
 
-func (q DBProperty) NotExistAll(db edgedb.Executor, identifiers []string) []InvalidItem {
+func (q DBProperty) NotExistAll(db geltypes.Executor, identifiers []string) []InvalidItem {
 	var invalid []InvalidItem
 	for i, v := range identifiers {
 		ok := q.NotExists(db, v)

@@ -1,16 +1,16 @@
 package sequences
 
 import (
-	"github.com/edgedb/edgedb-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/references"
 )
 
 type SeqReference struct {
-	ID        edgedb.UUID           `edgedb:"id" json:"id" format:"uuid"`
-	DB        references.DataSource `edgedb:"db" json:"db"`
-	Accession string                `edgedb:"accession" json:"accession"`
-	IsOrigin  bool                  `edgedb:"is_origin" json:"is_origin"`
-	Code      string                `edgedb:"code" json:"-"`
+	ID        geltypes.UUID         `gel:"id" json:"id" format:"uuid"`
+	DB        references.DataSource `gel:"db" json:"db"`
+	Accession string                `gel:"accession" json:"accession"`
+	IsOrigin  bool                  `gel:"is_origin" json:"is_origin"`
+	Code      string                `gel:"code" json:"-"`
 }
 
 type SeqReferenceInput struct {

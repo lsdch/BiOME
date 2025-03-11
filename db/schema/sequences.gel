@@ -228,7 +228,7 @@ module seq {
       constraint exclusive;
     };
     # 🚧 enforce required references when origin = DB in the application layer
-    # the following statement is not supported by EdgeDB
+    # the following statement is not supported by Gel
     # constraint expression on (.has_references) except (.origin != ExtSeqOrigin.DB);
 
     required specimen_identifier: str {

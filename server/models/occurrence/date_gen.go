@@ -37,7 +37,7 @@ func (m *DatePrecision) Fake(f *gofakeit.Faker) (any, error) {
 	return string(DatePrecisionValues[f.IntN(len(DatePrecisionValues) - 1)]), nil
 }
 
-// EdgeDB Marshalling
+// Gel Marshalling
 func (m DatePrecision) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }

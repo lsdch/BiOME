@@ -5,17 +5,16 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/taxonomy"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type DateWithPrecision struct {
-	Date      time.Time     `edgedb:"date" json:"date,omitempty"`
-	Precision DatePrecision `edgedb:"precision" json:"precision"`
+	Date      time.Time     `gel:"date" json:"date,omitempty"`
+	Precision DatePrecision `gel:"precision" json:"precision"`
 }
 
 type CompositeDate struct {
@@ -30,29 +29,29 @@ type DateWithPrecisionInput struct {
 }
 
 type SiteInfo struct {
-	Name string `edgedb:"name" json:"name"`
-	Code string `edgedb:"code" json:"code"`
+	Name string `gel:"name" json:"name"`
+	Code string `gel:"code" json:"code"`
 }
 
 type EventInner struct {
-	ID          edgedb.UUID        `edgedb:"id" json:"id" format:"uuid"`
-	Site        SiteInfo           `edgedb:"site" json:"site"`
-	Code        string             `edgedb:"code" json:"code"`
-	PerformedOn DateWithPrecision  `edgedb:"performed_on" json:"performed_on"`
-	Comments    edgedb.OptionalStr `edgedb:"comments" json:"comments,omitempty"`
+	ID          geltypes.UUID        `gel:"id" json:"id" format:"uuid"`
+	Site        SiteInfo             `gel:"site" json:"site"`
+	Code        string               `gel:"code" json:"code"`
+	PerformedOn DateWithPrecision    `gel:"performed_on" json:"performed_on"`
+	Comments    geltypes.OptionalStr `gel:"comments" json:"comments,omitempty"`
 }
 
 type Event struct {
-	EventInner          `edgedb:"$inline" json:",inline"`
-	PerformedBy         []people.PersonUser  `edgedb:"performed_by" json:"performed_by" minLength:"1"`
-	Programs            []ProgramInner       `edgedb:"programs" json:"programs,omitempty"`
-	AbioticMeasurements []AbioticMeasurement `edgedb:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
-	Samplings           []Sampling           `edgedb:"samplings" json:"samplings,omitempty"`
-	Spottings           []taxonomy.Taxon     `edgedb:"spottings" json:"spottings,omitempty"`
-	Meta                people.Meta          `edgedb:"meta" json:"meta"`
+	EventInner          `gel:"$inline" json:",inline"`
+	PerformedBy         []people.PersonUser  `gel:"performed_by" json:"performed_by" minLength:"1"`
+	Programs            []ProgramInner       `gel:"programs" json:"programs,omitempty"`
+	AbioticMeasurements []AbioticMeasurement `gel:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
+	Samplings           []Sampling           `gel:"samplings" json:"samplings,omitempty"`
+	Spottings           []taxonomy.Taxon     `gel:"spottings" json:"spottings,omitempty"`
+	Meta                people.Meta          `gel:"meta" json:"meta"`
 }
 
-func (e *Event) AddSampling(db edgedb.Executor, sampling SamplingInput) error {
+func (e *Event) AddSampling(db geltypes.Executor, sampling SamplingInput) error {
 	created, err := sampling.Save(db, e.ID)
 	if err != nil {
 		return err
@@ -61,7 +60,7 @@ func (e *Event) AddSampling(db edgedb.Executor, sampling SamplingInput) error {
 	return nil
 }
 
-func (e *Event) AddSpottings(db edgedb.Executor, taxa SpottingUpdate) error {
+func (e *Event) AddSpottings(db geltypes.Executor, taxa SpottingUpdate) error {
 	spottings, err := taxa.Save(db, e.ID)
 	if err != nil {
 		return err
@@ -72,7 +71,7 @@ func (e *Event) AddSpottings(db edgedb.Executor, taxa SpottingUpdate) error {
 
 // AddAbioticMeasurement adds an abiotic measurement to the event.
 // If a value for a given parameter already exists, it will be overwritten.
-func (e *Event) AddAbioticMeasurement(db edgedb.Executor, measurements AbioticMeasurementInput) error {
+func (e *Event) AddAbioticMeasurement(db geltypes.Executor, measurements AbioticMeasurementInput) error {
 	created, err := measurements.Save(db, e.ID)
 	if err != nil {
 		return err
@@ -81,7 +80,7 @@ func (e *Event) AddAbioticMeasurement(db edgedb.Executor, measurements AbioticMe
 	return nil
 }
 
-func ListEvents(db edgedb.Executor) ([]Event, error) {
+func ListEvents(db geltypes.Executor) ([]Event, error) {
 	var items = []Event{}
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -105,7 +104,7 @@ type EventInput struct {
 	Programs    models.OptionalInput[[]string] `json:"programs,omitempty"`
 }
 
-func (i EventInput) Save(e edgedb.Executor, site_code string) (created Event, err error) {
+func (i EventInput) Save(e geltypes.Executor, site_code string) (created Event, err error) {
 
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
@@ -137,14 +136,14 @@ func (i EventInput) Save(e edgedb.Executor, site_code string) (created Event, er
 }
 
 type EventUpdate struct {
-	PerformedBy models.OptionalInput[[]string]               `edgedb:"performed_by" json:"performed_by,omitempty"`
-	PerformedOn models.OptionalInput[DateWithPrecisionInput] `edgedb:"performed_on" json:"performed_on,omitempty"`
-	Programs    models.OptionalNull[[]string]                `edgedb:"programs" json:"programs,omitempty"`
-	Comments    models.OptionalNull[string]                  `edgedb:"comments" json:"comments,omitempty"`
-	Spottings   models.OptionalNull[[]string]                `edgedb:"spottings" json:"spottings,omitempty"`
+	PerformedBy models.OptionalInput[[]string]               `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedOn models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
+	Programs    models.OptionalNull[[]string]                `gel:"programs" json:"programs,omitempty"`
+	Comments    models.OptionalNull[string]                  `gel:"comments" json:"comments,omitempty"`
+	Spottings   models.OptionalNull[[]string]                `gel:"spottings" json:"spottings,omitempty"`
 }
 
-func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err error) {
+func (u EventUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Event, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql
@@ -187,7 +186,7 @@ func (u EventUpdate) Save(e edgedb.Executor, id edgedb.UUID) (updated Event, err
 	return
 }
 
-func DeleteEvent(db edgedb.Executor, id edgedb.UUID) (deleted Event, err error) {
+func DeleteEvent(db geltypes.Executor, id geltypes.UUID) (deleted Event, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (

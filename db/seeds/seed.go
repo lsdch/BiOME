@@ -5,7 +5,7 @@ import (
 	"embed"
 	"fmt"
 
-	"github.com/edgedb/edgedb-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,7 +22,7 @@ func entityDataPath(entity string) string {
 	return fmt.Sprintf("data/%s.json", entity)
 }
 
-func Seed(tx *edgedb.Tx, entity string) error {
+func Seed(tx geltypes.Tx, entity string) error {
 	queryPath := entityQueryPath(entity)
 	dataPath := entityDataPath(entity)
 	query, err := queries.ReadFile(queryPath)

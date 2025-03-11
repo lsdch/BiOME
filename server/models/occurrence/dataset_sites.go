@@ -7,13 +7,14 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/dataset"
 	"github.com/lsdch/biome/models/location"
 	"github.com/lsdch/biome/services/geoapify"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/gosimple/slug"
 )
 
@@ -21,8 +22,8 @@ type OccurrencePerSite map[string]EventInputWithActions
 
 // SiteDataset represents a dataset of sites.
 type SiteDataset struct {
-	dataset.Dataset `edgedb:"$inline" json:",inline"`
-	Sites           []SiteItem `edgedb:"sites" json:"sites"`
+	dataset.Dataset `gel:"$inline" json:",inline"`
+	Sites           []SiteItem `gel:"sites" json:"sites"`
 }
 
 func (d *SiteDataset) ToOccurrenceDataset() *OccurrenceDataset {
@@ -40,7 +41,7 @@ func (d *SiteDataset) ToOccurrenceDataset() *OccurrenceDataset {
 	}
 }
 
-func (d *SiteDataset) AddSites(db edgedb.Executor, site_ids []edgedb.UUID) (*SiteDataset, error) {
+func (d *SiteDataset) AddSites(db geltypes.Executor, site_ids []geltypes.UUID) (*SiteDataset, error) {
 	err := db.QuerySingle(context.Background(),
 		`#edgeql
 		select(update <datasets::Dataset><uuid>$0 set {
@@ -54,7 +55,7 @@ func (d *SiteDataset) AddSites(db edgedb.Executor, site_ids []edgedb.UUID) (*Sit
 	return d, err
 }
 
-func (d *SiteDataset) CreateSites(tx *edgedb.Tx, sites []SiteInput) error {
+func (d *SiteDataset) CreateSites(tx geltypes.Tx, sites []SiteInput) error {
 	sitesData, _ := json.Marshal(sites)
 	query := `#edgeql
 		with
@@ -75,7 +76,7 @@ func (d *SiteDataset) CreateSites(tx *edgedb.Tx, sites []SiteInput) error {
 	return tx.QuerySingle(context.Background(), query, d, d.ID, sitesData)
 }
 
-func ListSiteDatasets(db edgedb.Executor) (datasets []SiteDataset, err error) {
+func ListSiteDatasets(db geltypes.Executor) (datasets []SiteDataset, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
 			select datasets::SiteDataset { ** }
@@ -86,7 +87,7 @@ func ListSiteDatasets(db edgedb.Executor) (datasets []SiteDataset, err error) {
 }
 
 // GetSiteDataset retrieves a dataset of sites by its slug.
-func GetSiteDataset(db edgedb.Executor, slug string) (dataset SiteDataset, err error) {
+func GetSiteDataset(db geltypes.Executor, slug string) (dataset SiteDataset, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select datasets::SiteDataset {
@@ -115,7 +116,7 @@ func (d SiteInputList) RequestBody() []geoapify.LatLongCoords {
 
 // FillPlaces fills the locality and country code of each site in the list,
 // based on their coordinates using the Geoapify API.
-func (d SiteInputList) FillPlaces(db edgedb.Executor, apiKey string) error {
+func (d SiteInputList) FillPlaces(db geltypes.Executor, apiKey string) error {
 	client := geoapify.NewGeoapifyClient(apiKey)
 	response, err := client.BatchReverseGeocode(db, d.RequestBody())
 	if err != nil {
@@ -141,7 +142,7 @@ func (d SiteInputList) FillPlaces(db edgedb.Executor, apiKey string) error {
 	return nil
 }
 
-func (i SiteInputList) Save(e edgedb.Executor) (created []Site, err error) {
+func (i SiteInputList) Save(e geltypes.Executor) (created []Site, err error) {
 	data, _ := json.Marshal(i)
 	err = e.Query(context.Background(),
 		`#edgeql
@@ -165,7 +166,7 @@ type SiteDatasetInput struct {
 }
 
 // ValidateExistingSites checks if the sites in the input exist in the database.
-func (i *SiteDatasetInput) ValidateExistingSites(edb edgedb.Executor) ([]edgedb.UUID, []error) {
+func (i *SiteDatasetInput) ValidateExistingSites(edb geltypes.Executor) ([]geltypes.UUID, []error) {
 	sites, absents := db.DBProperty{
 		Object:   "location::Site",
 		Property: "code",
@@ -180,7 +181,7 @@ func (i *SiteDatasetInput) ValidateExistingSites(edb edgedb.Executor) ([]edgedb.
 }
 
 // ValidateNewSites checks if the new sites in the input are valid.
-func (s *SiteDatasetInput) ValidateNewSites(edb edgedb.Executor) []error {
+func (s *SiteDatasetInput) ValidateNewSites(edb geltypes.Executor) []error {
 	var errors []error
 	for i, site := range s.NewSites {
 		if errs := site.Validate(edb); errs != nil {
@@ -191,7 +192,7 @@ func (s *SiteDatasetInput) ValidateNewSites(edb edgedb.Executor) []error {
 }
 
 // Validate checks if the input is valid and returns a validated version of it.
-func (i *SiteDatasetInput) Validate(edb edgedb.Executor) (*SiteDatasetInputValidated, []error) {
+func (i *SiteDatasetInput) Validate(edb geltypes.Executor) (*SiteDatasetInputValidated, []error) {
 	maintainers, errsMaintainers := i.Maintainers.Validate(edb)
 	sites, errsSites := i.ValidateExistingSites(edb)
 	errsNewSites := i.ValidateNewSites(edb)
@@ -215,12 +216,12 @@ type SiteDatasetInputValidated struct {
 	Label       string                       `json:"label"`
 	Slug        string                       `json:"slug"`
 	Description models.OptionalInput[string] `json:"description"`
-	Maintainers []edgedb.UUID                `json:"maintainers"`
-	Sites       []edgedb.UUID                `json:"sites"`
+	Maintainers []geltypes.UUID              `json:"maintainers"`
+	Sites       []geltypes.UUID              `json:"sites"`
 	NewSites    SiteInputList                `json:"new_sites"`
 }
 
-func (i *SiteDatasetInputValidated) SaveTx(tx *edgedb.Tx) (*SiteDataset, error) {
+func (i *SiteDatasetInputValidated) SaveTx(tx geltypes.Tx) (*SiteDataset, error) {
 	var created SiteDataset
 	m, _ := json.Marshal(i)
 
@@ -269,9 +270,9 @@ func (i *SiteDatasetInputValidated) SaveTx(tx *edgedb.Tx) (*SiteDataset, error) 
 	return &created, nil
 }
 
-func (i *SiteDatasetInputValidated) Save(db *edgedb.Client) (*SiteDataset, error) {
+func (i *SiteDatasetInputValidated) Save(db *gel.Client) (*SiteDataset, error) {
 	var created = new(SiteDataset)
-	err := db.Tx(context.Background(), func(ctx context.Context, tx *edgedb.Tx) (err error) {
+	err := db.Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) (err error) {
 		created, err = i.SaveTx(tx)
 		if err != nil {
 			created = nil

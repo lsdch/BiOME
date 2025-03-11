@@ -6,29 +6,28 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/models/sequences"
 	"github.com/lsdch/biome/models/taxonomy"
-
-	"github.com/edgedb/edgedb-go"
 )
 
 type LegacySeqID struct {
-	ID            int32  `edgedb:"id" json:"id"`
-	Code          string `edgedb:"code" json:"code"`
-	AlignmentCode string `edgedb:"alignment_code" json:"alignment_code"`
+	ID            int32  `gel:"id" json:"id"`
+	Code          string `gel:"code" json:"code"`
+	AlignmentCode string `gel:"alignment_code" json:"alignment_code"`
 }
 
 type SequenceInner struct {
-	CodeIdentifier `edgedb:"$inline" json:",inline"`
-	Label          edgedb.OptionalStr           `edgedb:"label" json:"label,omitempty"`
-	Sequence       edgedb.OptionalStr           `edgedb:"sequence" json:"sequence,omitempty"`
-	Gene           sequences.Gene               `edgedb:"gene" json:"gene"`
-	Legacy         models.Optional[LegacySeqID] `edgedb:"legacy" json:"legacy,omitempty"`
-	Category       OccurrenceCategory           `edgedb:"category" json:"category"`
-	// Comments edgedb.OptionalStr           `edgedb:"comments" json:"comments,omitempty"`
+	CodeIdentifier `gel:"$inline" json:",inline"`
+	Label          geltypes.OptionalStr         `gel:"label" json:"label,omitempty"`
+	Sequence       geltypes.OptionalStr         `gel:"sequence" json:"sequence,omitempty"`
+	Gene           sequences.Gene               `gel:"gene" json:"gene"`
+	Legacy         models.Optional[LegacySeqID] `gel:"legacy" json:"legacy,omitempty"`
+	Category       OccurrenceCategory           `gel:"category" json:"category"`
+	// Comments geltypes.OptionalStr           `gel:"comments" json:"comments,omitempty"`
 }
 
 type SequenceInnerInput struct {
@@ -41,29 +40,29 @@ type SequenceInnerInput struct {
 }
 
 type ExtSeqSpecifics[BioMat any] struct {
-	Origin             sequences.ExtSeqOrigin           `edgedb:"origin" json:"origin"`
-	ReferencedIn       []sequences.SeqReference         `edgedb:"referenced_in" json:"referenced_in,omitempty"`
-	SpecimenIdentifier string                           `edgedb:"specimen_identifier" json:"specimen_identifier"`
-	OriginalTaxon      edgedb.OptionalStr               `edgedb:"original_taxon" json:"original_taxon,omitempty"`
-	SourceSample       models.Optional[BioMat]          `edgedb:"source_sample" json:"source_sample,omitempty"`
-	PublishedIn        []references.OccurrenceReference `edgedb:"published_in" json:"published_in,omitempty"`
+	Origin             sequences.ExtSeqOrigin           `gel:"origin" json:"origin"`
+	ReferencedIn       []sequences.SeqReference         `gel:"referenced_in" json:"referenced_in,omitempty"`
+	SpecimenIdentifier string                           `gel:"specimen_identifier" json:"specimen_identifier"`
+	OriginalTaxon      geltypes.OptionalStr             `gel:"original_taxon" json:"original_taxon,omitempty"`
+	SourceSample       models.Optional[BioMat]          `gel:"source_sample" json:"source_sample,omitempty"`
+	PublishedIn        []references.OccurrenceReference `gel:"published_in" json:"published_in,omitempty"`
 }
 
 type GenericSequence[SamplingType any] struct {
-	ID                              edgedb.UUID `edgedb:"id" json:"id" format:"uuid"`
-	GenericOccurrence[SamplingType] `edgedb:"$inline" json:",inline"`
-	SequenceInner                   `edgedb:"$inline" json:",inline"`
-	Comments                        edgedb.OptionalStr                            `edgedb:"comments" json:"comments,omitempty"`
-	Event                           EventInner                                    `edgedb:"event" json:"event"`
-	External                        models.Optional[ExtSeqSpecifics[BioMaterial]] `edgedb:"external" json:"external,omitempty"`
-	Meta                            people.Meta                                   `edgedb:"meta" json:"meta"`
+	ID                              geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+	GenericOccurrence[SamplingType] `gel:"$inline" json:",inline"`
+	SequenceInner                   `gel:"$inline" json:",inline"`
+	Comments                        geltypes.OptionalStr                          `gel:"comments" json:"comments,omitempty"`
+	Event                           EventInner                                    `gel:"event" json:"event"`
+	External                        models.Optional[ExtSeqSpecifics[BioMaterial]] `gel:"external" json:"external,omitempty"`
+	Meta                            people.Meta                                   `gel:"meta" json:"meta"`
 }
 
 type Sequence GenericSequence[SamplingInner]
 
 type SequenceWithDetails GenericSequence[Sampling]
 
-func GetSequence(db edgedb.Executor, code string) (seq SequenceWithDetails, err error) {
+func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select seq::Sequence {
@@ -97,7 +96,7 @@ func GetSequence(db edgedb.Executor, code string) (seq SequenceWithDetails, err 
 	return
 }
 
-func ListSequences(db edgedb.Executor) ([]Sequence, error) {
+func ListSequences(db geltypes.Executor) ([]Sequence, error) {
 	var items = []Sequence{}
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -123,7 +122,7 @@ func ListSequences(db edgedb.Executor) ([]Sequence, error) {
 	return items, err
 }
 
-func DeleteSequence(db edgedb.Executor, code string) (deleted Sequence, err error) {
+func DeleteSequence(db geltypes.Executor, code string) (deleted Sequence, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (
@@ -147,10 +146,10 @@ func DeleteSequence(db edgedb.Executor, code string) (deleted Sequence, err erro
 }
 
 type ExternalSequence struct {
-	Occurrence                        `edgedb:"$inline" json:",inline"`
-	SequenceInner                     `edgedb:"$inline" json:",inline"`
-	ExtSeqSpecifics[BioMaterialInner] `edgedb:"$inline" json:",inline"`
-	Meta                              people.Meta `edgedb:"meta" json:"meta"`
+	Occurrence                        `gel:"$inline" json:",inline"`
+	SequenceInner                     `gel:"$inline" json:",inline"`
+	ExtSeqSpecifics[BioMaterialInner] `gel:"$inline" json:",inline"`
+	Meta                              people.Meta `gel:"meta" json:"meta"`
 }
 
 func (s ExternalSequence) AsOccurrence() OccurrenceWithCategory {
@@ -181,7 +180,7 @@ func (i *ExternalSequenceInput) UseSamplingCode(samplingCode string) {
 	)
 }
 
-func (i ExternalSequenceInput) Save(e edgedb.Executor, samplingID edgedb.UUID) (created ExternalSequence, err error) {
+func (i ExternalSequenceInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created ExternalSequence, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql

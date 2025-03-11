@@ -6,9 +6,9 @@ import (
 	"encoding/hex"
 	"time"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/config"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 	"github.com/thanhpk/randstr"
 )
@@ -32,9 +32,9 @@ func (t *Token) UnmarshalEdgeDBStr(data []byte) error {
 }
 
 type TokenRecord struct {
-	ID      edgedb.UUID `edgedb:"id"`
-	Token   Token       `edgedb:"token"`
-	Expires time.Time   `edgedb:"expires"`
+	ID      geltypes.UUID `gel:"id"`
+	Token   Token         `gel:"token"`
+	Expires time.Time     `gel:"expires"`
 }
 
 func (token TokenRecord) IsValid() bool {
@@ -42,7 +42,7 @@ func (token TokenRecord) IsValid() bool {
 }
 
 // Deletes token from the database
-func (token TokenRecord) Consume(db edgedb.Executor) (err error) {
+func (token TokenRecord) Consume(db geltypes.Executor) (err error) {
 	deleteQuery := `delete tokens::Token filter .id = <uuid>$0`
 	if err = db.Execute(context.Background(),
 		`#edgeql

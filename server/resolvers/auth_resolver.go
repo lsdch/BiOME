@@ -4,18 +4,19 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/geldata/gel-go"
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/services/auth_tokens"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
 // A resolver that provides a DB client, having set the currently authenticated user (if any)
 type AuthDBProvider interface {
-	DB() *edgedb.Client
+	DB() *gel.Client
 }
 
 type UserResolver interface {
@@ -38,7 +39,7 @@ func (p *AuthResolver) AuthUser() (*people.User, bool) {
 	return nil, false
 }
 
-func (p *AuthResolver) DB() *edgedb.Client {
+func (p *AuthResolver) DB() *gel.Client {
 	if p.User != nil {
 		return db.WithCurrentUser(p.User.ID)
 	} else {
@@ -72,7 +73,7 @@ func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 		return
 	}
 
-	userID, err := edgedb.ParseUUID(sub.(string))
+	userID, err := geltypes.ParseUUID(sub.(string))
 	if err != nil {
 		logrus.Debugf("Auth middleware: Token %s does not hold a valid UUID", sub)
 		return

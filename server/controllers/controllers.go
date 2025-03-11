@@ -3,10 +3,10 @@ package controllers
 import (
 	"reflect"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -29,10 +29,10 @@ func (o StrIdentifier) Schema(r huma.Registry) *huma.Schema {
 }
 
 type UUIDInput struct {
-	ID edgedb.UUID `path:"id" format:"uuid"`
+	ID geltypes.UUID `path:"id" format:"uuid"`
 }
 
-func (i UUIDInput) Identifier() edgedb.UUID {
+func (i UUIDInput) Identifier() geltypes.UUID {
 	return i.ID
 }
 
@@ -69,7 +69,7 @@ func (i EmailInput) Identifier() string {
 }
 
 // Implementation assertions
-var _ IdentifierInput[edgedb.UUID] = (*UUIDInput)(nil)
+var _ IdentifierInput[geltypes.UUID] = (*UUIDInput)(nil)
 var _ IdentifierInput[string] = (*CodeInput)(nil)
 
 // A simple response output that carries a message

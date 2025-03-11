@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/dataset"
@@ -12,12 +13,11 @@ import (
 	"github.com/lsdch/biome/models/validations"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
 )
 
 type LatLongCoords struct {
-	Latitude  float32 `edgedb:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"39.1137"`
-	Longitude float32 `edgedb:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"9.5064"`
+	Latitude  float32 `gel:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"39.1137"`
+	Longitude float32 `gel:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"9.5064"`
 }
 
 func (c LatLongCoords) LatLong() (float32, float32) {
@@ -25,8 +25,8 @@ func (c LatLongCoords) LatLong() (float32, float32) {
 }
 
 type Coordinates struct {
-	Precision     location.CoordinatesPrecision `edgedb:"precision" json:"precision" doc:"Where the coordinates point to"`
-	LatLongCoords `edgedb:"$inline" json:",inline"`
+	Precision     location.CoordinatesPrecision `gel:"precision" json:"precision" doc:"Where the coordinates point to"`
+	LatLongCoords `gel:"$inline" json:",inline"`
 }
 
 type SiteInput struct {
@@ -36,7 +36,7 @@ type SiteInput struct {
 	Coordinates         Coordinates                  `json:"coordinates" doc:"Site coordinates in decimal degrees"`
 	Altitude            models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
 	Locality            models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
-	UserDefinedLocality bool                         `edgedb:"user_defined_locality" json:"user_defined_locality" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
+	UserDefinedLocality bool                         `gel:"user_defined_locality" json:"user_defined_locality" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
 	CountryCode         models.OptionalInput[string] `json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 
@@ -45,7 +45,7 @@ func (c SiteInput) LatLong() (float32, float32) {
 }
 
 // Validate checks if the site code is unique
-func (i *SiteInput) Validate(edb edgedb.Executor) validations.ValidationErrors {
+func (i *SiteInput) Validate(edb geltypes.Executor) validations.ValidationErrors {
 	codeChecker := db.DBProperty{Object: "location::Site", Property: "code"}
 	var errs validations.ValidationErrors
 	if _, codeExists := codeChecker.Exists(edb, i.Code); codeExists {
@@ -55,23 +55,23 @@ func (i *SiteInput) Validate(edb edgedb.Executor) validations.ValidationErrors {
 }
 
 type SiteItem struct {
-	ID                  edgedb.UUID                       `edgedb:"id" json:"id" format:"uuid"`
-	Name                string                            `edgedb:"name" json:"name" minLength:"4"`
-	Code                string                            `edgedb:"code" json:"code" minLength:"4" maxLength:"8"`
-	Description         edgedb.OptionalStr                `edgedb:"description" json:"description,omitempty"`
-	Coordinates         Coordinates                       `edgedb:"coordinates" json:"coordinates"`
-	Altitude            edgedb.OptionalInt32              `edgedb:"altitude" json:"altitude,omitempty"`
-	Locality            edgedb.OptionalStr                `edgedb:"locality" json:"locality,omitempty"`
-	Country             models.Optional[location.Country] `edgedb:"country" json:"country,omitempty"`
-	AccessPoint         edgedb.OptionalStr                `edgedb:"access_point" json:"access_point,omitempty"`
-	UserDefinedLocality bool                              `edgedb:"user_defined_locality" json:"user_defined_locality"`
+	ID                  geltypes.UUID                     `gel:"id" json:"id" format:"uuid"`
+	Name                string                            `gel:"name" json:"name" minLength:"4"`
+	Code                string                            `gel:"code" json:"code" minLength:"4" maxLength:"8"`
+	Description         geltypes.OptionalStr              `gel:"description" json:"description,omitempty"`
+	Coordinates         Coordinates                       `gel:"coordinates" json:"coordinates"`
+	Altitude            geltypes.OptionalInt32            `gel:"altitude" json:"altitude,omitempty"`
+	Locality            geltypes.OptionalStr              `gel:"locality" json:"locality,omitempty"`
+	Country             models.Optional[location.Country] `gel:"country" json:"country,omitempty"`
+	AccessPoint         geltypes.OptionalStr              `gel:"access_point" json:"access_point,omitempty"`
+	UserDefinedLocality bool                              `gel:"user_defined_locality" json:"user_defined_locality"`
 }
 
 type Site struct {
-	SiteItem `edgedb:"$inline" json:",inline"`
-	Datasets []dataset.DatasetInner `edgedb:"datasets" json:"datasets,omitempty"`
-	Events   []Event                `edgedb:"events" json:"events,omitempty"`
-	Meta     people.Meta            `edgedb:"meta" json:"meta"`
+	SiteItem `gel:"$inline" json:",inline"`
+	Datasets []dataset.DatasetInner `gel:"datasets" json:"datasets,omitempty"`
+	Events   []Event                `gel:"events" json:"events,omitempty"`
+	Meta     people.Meta            `gel:"meta" json:"meta"`
 }
 
 type ListSitesOptions struct {
@@ -84,7 +84,7 @@ func (o ListSitesOptions) Options() ListSitesOptions {
 	return o
 }
 
-func ListSites(db edgedb.Executor, options ListSitesOptions) ([]Site, error) {
+func ListSites(db geltypes.Executor, options ListSitesOptions) ([]Site, error) {
 	var sites []Site
 	opts, _ := json.Marshal(options)
 	err := db.Query(context.Background(),
@@ -104,7 +104,7 @@ func ListSites(db edgedb.Executor, options ListSitesOptions) ([]Site, error) {
 	return sites, err
 }
 
-func GetSite(db edgedb.Executor, identifier string) (Site, error) {
+func GetSite(db geltypes.Executor, identifier string) (Site, error) {
 	var site Site
 	err := db.QuerySingle(context.Background(),
 		`#edgeql
@@ -139,7 +139,7 @@ func GetSite(db edgedb.Executor, identifier string) (Site, error) {
 	return site, err
 }
 
-func (i SiteInput) Save(db edgedb.Executor) (*Site, error) {
+func (i SiteInput) Save(db geltypes.Executor) (*Site, error) {
 	var created Site
 	data, _ := json.Marshal(i)
 	query := `#edgeql
@@ -151,17 +151,17 @@ func (i SiteInput) Save(db edgedb.Executor) (*Site, error) {
 }
 
 type SiteUpdate struct {
-	Name                models.OptionalInput[string]      `edgedb:"name" json:"name,omitempty" minLength:"4"`
-	Code                models.OptionalInput[string]      `edgedb:"code" json:"code,omitempty" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
-	Description         models.OptionalNull[string]       `edgedb:"description" json:"description,omitempty"`
-	Coordinates         models.OptionalInput[Coordinates] `edgedb:"coordinates" json:"coordinates,omitempty" doc:"Site coordinates in decimal degrees"`
-	Altitude            models.OptionalNull[int32]        `edgedb:"altitude" json:"altitude,omitempty" doc:"Site altitude in meters"`
-	Locality            models.OptionalNull[string]       `edgedb:"locality" json:"locality,omitempty" doc:"Nearest populated place"`
-	UserDefinedLocality models.OptionalInput[bool]        `edgedb:"user_defined_locality" json:"user_defined_locality" doc:"Signals whether locality was manually entered by user, and automatically inferred from coordinates"`
-	CountryCode         models.OptionalNull[string]       `edgedb:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	Name                models.OptionalInput[string]      `gel:"name" json:"name,omitempty" minLength:"4"`
+	Code                models.OptionalInput[string]      `gel:"code" json:"code,omitempty" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
+	Description         models.OptionalNull[string]       `gel:"description" json:"description,omitempty"`
+	Coordinates         models.OptionalInput[Coordinates] `gel:"coordinates" json:"coordinates,omitempty" doc:"Site coordinates in decimal degrees"`
+	Altitude            models.OptionalNull[int32]        `gel:"altitude" json:"altitude,omitempty" doc:"Site altitude in meters"`
+	Locality            models.OptionalNull[string]       `gel:"locality" json:"locality,omitempty" doc:"Nearest populated place"`
+	UserDefinedLocality models.OptionalInput[bool]        `gel:"user_defined_locality" json:"user_defined_locality" doc:"Signals whether locality was manually entered by user, and automatically inferred from coordinates"`
+	CountryCode         models.OptionalNull[string]       `gel:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 
-func (u SiteUpdate) Save(e edgedb.Executor, code string) (updated Site, err error) {
+func (u SiteUpdate) Save(e geltypes.Executor, code string) (updated Site, err error) {
 	data, _ := json.Marshal(u)
 	query := db.UpdateQuery{
 		Frame: `#edgeql

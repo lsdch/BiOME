@@ -7,6 +7,7 @@ import (
 	"slices"
 	"time"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	users "github.com/lsdch/biome/models/people"
@@ -15,7 +16,6 @@ import (
 	"github.com/lsdch/biome/services/auth_tokens"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/edgedb/edgedb-go"
 	"github.com/sirupsen/logrus"
 )
 
@@ -76,7 +76,7 @@ type SessionParameters struct {
 	RefreshToken tokens.SessionRefreshToken
 }
 
-func createSession(db edgedb.Executor, params SessionParameters, messages ...string) (*LoginOutput, error) {
+func createSession(db geltypes.Executor, params SessionParameters, messages ...string) (*LoginOutput, error) {
 	user, err := users.FindID(db, params.RefreshToken.UserID)
 	if err != nil {
 		return nil, err

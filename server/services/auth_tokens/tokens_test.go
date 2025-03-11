@@ -3,12 +3,12 @@ package auth_tokens_test
 import (
 	"testing"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/config"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/services/auth_tokens"
 	"github.com/lsdch/biome/tests"
 
-	"github.com/edgedb/edgedb-go"
 	"github.com/stretchr/testify/require"
 	"github.com/test-go/testify/assert"
 )
@@ -22,7 +22,7 @@ func TestJWT(t *testing.T) {
 	require.NoError(t, err)
 	id, err := auth_tokens.ValidateJWT(token)
 	require.NoError(t, err)
-	uuid, err := edgedb.ParseUUID(id.(string))
+	uuid, err := geltypes.ParseUUID(id.(string))
 	require.NoError(t, err)
 	assert.Equal(t, user.ID, uuid)
 }
