@@ -47,9 +47,8 @@ tasks:
   dl-countries-dataset:
     desc: "Download countries dataset"
     dir: ..
-    interactive: true
     cmds:
-      - curl -L --progress-bar -o ./data/remote/countries.json https://github.com/lsdch/countries-boundaries/releases/latest/download/countries.json
+      - curl -L -o ./data/remote/countries.json https://github.com/lsdch/countries-boundaries/releases/latest/download/countries.json
     generates:
       - ./data/remote/countries.json
 
