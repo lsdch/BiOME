@@ -153,6 +153,9 @@ import type {
   ImportGbifError,
   ImportGbifResponse,
   MonitorGbifData,
+  CoordinatesToCountryData,
+  CoordinatesToCountryError,
+  CoordinatesToCountryResponse,
   ListCountriesData,
   GetSitesCountByCountryData,
   OccurrenceOverviewData,
@@ -1695,6 +1698,44 @@ export const monitorGbifOptions = (options?: Options<MonitorGbifData>) => {
     },
     queryKey: monitorGbifQueryKey(options)
   })
+}
+
+export const coordinatesToCountryQueryKey = (options: Options<CoordinatesToCountryData>) =>
+  createQueryKey('coordinatesToCountry', options)
+
+export const coordinatesToCountryOptions = (options: Options<CoordinatesToCountryData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await LocationService.coordinatesToCountry({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: coordinatesToCountryQueryKey(options)
+  })
+}
+
+export const coordinatesToCountryMutation = (
+  options?: Partial<Options<CoordinatesToCountryData>>
+) => {
+  const mutationOptions: UseMutationOptions<
+    CoordinatesToCountryResponse,
+    CoordinatesToCountryError,
+    Options<CoordinatesToCountryData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await LocationService.coordinatesToCountry({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
 }
 
 export const listCountriesQueryKey = (options?: Options<ListCountriesData>) =>

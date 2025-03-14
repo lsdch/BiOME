@@ -16,12 +16,21 @@ import (
 )
 
 type LatLongCoords struct {
-	Latitude  float32 `gel:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"39.1137"`
-	Longitude float32 `gel:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"9.5064"`
+	Latitude  float32 `gel:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"43.5684"`
+	Longitude float32 `gel:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"3.5678"`
 }
 
 func (c LatLongCoords) LatLong() (float32, float32) {
 	return c.Latitude, c.Longitude
+}
+
+func (c LatLongCoords) FindCountry(db geltypes.Executor) (country location.Country, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			select location::position_to_country(<float32>$0, <float32>$1) { * }
+		`,
+		&country, c.Latitude, c.Longitude)
+	return
 }
 
 type Coordinates struct {
@@ -30,7 +39,7 @@ type Coordinates struct {
 }
 
 type SiteInput struct {
-	Name                string                       `json:"name" minLength:"4"`
+	Name                string                       `json:"name" minLength:"4" doc:"A short descriptive name"`
 	Code                string                       `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
 	Description         models.OptionalInput[string] `json:"description,omitempty"`
 	Coordinates         Coordinates                  `json:"coordinates" doc:"Site coordinates in decimal degrees"`

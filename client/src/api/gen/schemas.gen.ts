@@ -560,14 +560,14 @@ export const $Coordinates = {
   additionalProperties: false,
   properties: {
     latitude: {
-      examples: [39.1137],
+      examples: [43.5684],
       format: 'float',
       maximum: 90,
       minimum: -90,
       type: 'number'
     },
     longitude: {
-      examples: [9.5064],
+      examples: [3.5678],
       format: 'float',
       maximum: 180,
       minimum: -180,
@@ -591,6 +591,13 @@ export const $CoordinatesPrecision = {
 export const $Country = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Country.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     code: {
       examples: ['DE'],
       type: 'string'
@@ -2286,6 +2293,35 @@ export const $JournalIssue = {
   type: 'object'
 } as const
 
+export const $LatLongCoords = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/LatLongCoords.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    latitude: {
+      examples: [43.5684],
+      format: 'float',
+      maximum: 90,
+      minimum: -90,
+      type: 'number'
+    },
+    longitude: {
+      examples: [3.5678],
+      format: 'float',
+      maximum: 180,
+      minimum: -180,
+      type: 'number'
+    }
+  },
+  required: ['latitude', 'longitude'],
+  type: 'object'
+} as const
+
 export const $LegacySeqID = {
   additionalProperties: false,
   properties: {
@@ -2978,6 +3014,13 @@ export const $OptionalBioMaterial = {
 export const $OptionalCountry = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Country.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     code: {
       examples: ['DE'],
       type: 'string'
@@ -5086,6 +5129,7 @@ export const $SiteInput = {
       type: 'string'
     },
     name: {
+      description: 'A short descriptive name',
       minLength: 4,
       type: 'string'
     },

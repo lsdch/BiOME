@@ -622,7 +622,7 @@
 				"properties": {
 					"latitude": {
 						"examples": [
-							39.1137
+							43.5684
 						],
 						"format": "float",
 						"maximum": 90,
@@ -631,7 +631,7 @@
 					},
 					"longitude": {
 						"examples": [
-							9.5064
+							3.5678
 						],
 						"format": "float",
 						"maximum": 180,
@@ -664,6 +664,15 @@
 			"Country": {
 				"additionalProperties": false,
 				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Country.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
 					"code": {
 						"examples": [
 							"DE"
@@ -2641,6 +2650,43 @@
 				},
 				"type": "object"
 			},
+			"LatLongCoords": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/LatLongCoords.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"latitude": {
+						"examples": [
+							43.5684
+						],
+						"format": "float",
+						"maximum": 90,
+						"minimum": -90,
+						"type": "number"
+					},
+					"longitude": {
+						"examples": [
+							3.5678
+						],
+						"format": "float",
+						"maximum": 180,
+						"minimum": -180,
+						"type": "number"
+					}
+				},
+				"required": [
+					"latitude",
+					"longitude"
+				],
+				"type": "object"
+			},
 			"LegacySeqID": {
 				"additionalProperties": false,
 				"properties": {
@@ -3359,6 +3405,15 @@
 			"OptionalCountry": {
 				"additionalProperties": false,
 				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Country.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
 					"code": {
 						"examples": [
 							"DE"
@@ -5865,6 +5920,7 @@
 						"type": "string"
 					},
 					"name": {
+						"description": "A short descriptive name",
 						"minLength": 4,
 						"type": "string"
 					},
@@ -11066,6 +11122,85 @@
 				"summary": "Monitor GBIF taxonomy imports",
 				"tags": [
 					"Taxonomy GBIF"
+				]
+			}
+		},
+		"/locations/coordinates": {
+			"post": {
+				"operationId": "coordinatesToCountry",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/LatLongCoords"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Country"
+								}
+							}
+						},
+						"description": "The country that contains the coordinates"
+					},
+					"204": {
+						"description": "No country matches the provided coordinates"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Get country from WGS84 coordinates",
+				"tags": [
+					"Location",
+					"Countries"
 				]
 			}
 		},

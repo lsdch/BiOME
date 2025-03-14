@@ -187,6 +187,9 @@ import type {
   MonitorGbifData,
   MonitorGbifResponse,
   MonitorGbifError,
+  CoordinatesToCountryData,
+  CoordinatesToCountryResponse,
+  CoordinatesToCountryError,
   ListCountriesData,
   ListCountriesResponse,
   ListCountriesError,
@@ -2393,6 +2396,32 @@ export class HabitatsService {
 
 export class LocationService {
   /**
+   * Get country from WGS84 coordinates
+   */
+  public static coordinatesToCountry<ThrowOnError extends boolean = false>(
+    options: Options<CoordinatesToCountryData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CoordinatesToCountryResponse,
+      CoordinatesToCountryError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/locations/coordinates',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
    * List countries
    */
   public static listCountries<ThrowOnError extends boolean = false>(
@@ -2568,6 +2597,32 @@ export class LocationService {
 }
 
 export class CountriesService {
+  /**
+   * Get country from WGS84 coordinates
+   */
+  public static coordinatesToCountry<ThrowOnError extends boolean = false>(
+    options: Options<CoordinatesToCountryData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CoordinatesToCountryResponse,
+      CoordinatesToCountryError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/locations/coordinates',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
   /**
    * List countries
    */

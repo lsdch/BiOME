@@ -201,6 +201,10 @@ export type Coordinates = {
 export type CoordinatesPrecision = '<100m' | '<1km' | '<10km' | '10-100km' | 'Unknown'
 
 export type Country = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   code: string
   continent: string
   id: string
@@ -883,6 +887,15 @@ export type JournalIssue = {
   issue?: string
 }
 
+export type LatLongCoords = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  latitude: number
+  longitude: number
+}
+
 export type LegacySeqId = {
   alignment_code: string
   code: string
@@ -1079,6 +1092,10 @@ export type OptionalBioMaterial = {
 } | null
 
 export type OptionalCountry = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   code: string
   continent: string
   id: string
@@ -1803,6 +1820,9 @@ export type SiteInput = {
    * Nearest populated place
    */
   locality?: string
+  /**
+   * A short descriptive name
+   */
   name: string
   /**
    * Signals if locality was manually entered by user, and automatically inferred from coordinates
@@ -4198,6 +4218,46 @@ export type MonitorGbifResponses = {
 }
 
 export type MonitorGbifResponse = MonitorGbifResponses[keyof MonitorGbifResponses]
+
+export type CoordinatesToCountryData = {
+  body: LatLongCoords
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/locations/coordinates'
+}
+
+export type CoordinatesToCountryErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CoordinatesToCountryError = CoordinatesToCountryErrors[keyof CoordinatesToCountryErrors]
+
+export type CoordinatesToCountryResponses = {
+  /**
+   * The country that contains the coordinates
+   */
+  200: Country
+  /**
+   * No country matches the provided coordinates
+   */
+  204: void
+}
+
+export type CoordinatesToCountryResponse =
+  CoordinatesToCountryResponses[keyof CoordinatesToCountryResponses]
 
 export type ListCountriesData = {
   body?: never
