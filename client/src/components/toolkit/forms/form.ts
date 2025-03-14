@@ -1,42 +1,32 @@
 import { ErrorModel } from '@/api'
-import { RequestResult } from '@hey-api/client-fetch'
+import { MutationOptions, useMutation, UseMutationOptions } from '@tanstack/vue-query'
+import { reactiveComputed } from '@vueuse/core'
 import { computed, Ref, ref, toRef, watch } from 'vue'
 
-export * from './FormDialog.vue'
 export * from './schema'
 
 export type Mode = 'Create' | 'Edit'
 
-export type FormProps<Item> = {
-  edit?: Item
-}
+export type FormProps<Item> = { edit?: Item }
 
 export type FormEmits<ItemType> = {
   (evt: 'success', item: ItemType): void
+  (evt: 'created', item: ItemType): void
+  (evt: 'updated', item: ItemType): void
 }
-
-// type T<Item, ItemInput, ItemUpdate> = {
-//   mode: ComputedRef<"Create">
-//   model: Ref<ItemInput>
-//   item?: undefined
-// } | {
-//   mode: ComputedRef<"Edit">
-//   model: Ref<ItemUpdate>
-//   item: Item
-// }
-
-export type CreateReq<ItemInput, Item> =
-  ({ body }: { body: ItemInput }) => RequestResult<Item, ErrorModel, false>
-export type UpdateReq<ItemUpdate, Item> =
-  (item: Item, model: ItemUpdate) => RequestResult<Item, ErrorModel, false>
 
 /**
  * Handles switching from create mode from an empty model
  * to edit mode with initial values from an existing object
  */
-export function useForm<Item extends object, ItemInput, ItemUpdate>(
+export function useForm<
+  Item extends object,
+  ItemInput,
+  ItemUpdate,
+  ItemID = unknown,
+>(
   props: FormProps<Item>,
-  dataModel: {
+  opts: {
     /**
      * Base value for data model
      */
@@ -46,68 +36,55 @@ export function useForm<Item extends object, ItemInput, ItemUpdate>(
      * so they can be updated
      */
     updateTransformer(item: Item): ItemUpdate
-  }
+
+    mutations: {
+      create: (options?: { body: ItemInput }) => UseMutationOptions<Item, ErrorModel, { body: ItemInput }, any>,
+      update: (options?: { path: ItemID, body: ItemUpdate }) => UseMutationOptions<Item, ErrorModel, {
+        path: ItemID, body: ItemUpdate
+      }, any>
+      itemID(item: Item): ItemID,
+      options?: Omit<MutationOptions<Item, ErrorModel, { body: ItemInput | ItemUpdate }>, "mutationFn" | "mutationKey">
+    }
+  },
 ) {
 
   const item = toRef(() => props.edit)
+  const model = ref(initModel(item.value)) as Ref<ItemInput | ItemUpdate>
+  const mode = computed(() => item.value ? "Edit" : "Create")
+  watch(item, (item) => model.value = initModel(item), { immediate: true })
+
 
   function initModel(item?: Item) {
     return item
-      ? dataModel.updateTransformer(item)
-      : dataModel.initial
+      ? opts.updateTransformer(item)
+      : opts.initial
   }
 
-  const mode = computed(() => item.value ? "Edit" : "Create")
-  const model = ref(initModel(item.value)) as Ref<ItemInput | ItemUpdate>
-
-  watch(item, (item) => model.value = initModel(item), { immediate: true })
 
   function reset() {
     initModel(props.edit)
   }
 
-  function makeRequest({ create, edit }: { create: CreateReq<ItemInput, Item>, edit: UpdateReq<ItemUpdate, Item> }) {
-    switch (mode.value) {
-      case "Create":
-        return create({ body: model.value as ItemInput })
-      case "Edit":
-        return edit(item.value!, model.value as ItemUpdate)
-      default:
-        throw `Unexpected form mode value: ${mode.value}`
-    }
+
+  const createMutation = useMutation({
+    ...opts.mutations.create(),
+    ...opts.mutations.options
+  })
+  const updateMutation = useMutation({
+    ...opts.mutations.update(),
+    ...opts.mutations.options
+  })
+
+  const { error, isPending } = reactiveComputed(() => mode.value === "Create" ? createMutation : updateMutation)
+  async function makeRequest() {
+    if (mode.value === "Create")
+      return await createMutation.mutateAsync({ body: model.value as ItemInput })
+    else
+      return await updateMutation.mutateAsync({
+        path: opts.mutations.itemID(item.value!),
+        body: model.value as ItemUpdate
+      })
   }
 
-  return { mode, model, makeRequest, reset }
-
-  // const state = reactiveComputed(() => {
-  //   if (editItem.value === undefined) {
-  //     return { mode: "Create" as const, model: ref(dataModel.initial) as Ref<ItemInput> }
-  //   } else {
-  //     return {
-  //       mode: "Edit" as const,
-  //       model: ref(dataModel.updateTransformer(editItem.value)) as Ref<ItemUpdate>,
-  //       item: editItem.value!
-  //     }
-  //   }
-  // })
-
-  // return state
-
-  // const model =
-  //   props.edit !== undefined
-  //     ? ref(dataModel.updateTransformer(props.edit)) as Ref<ItemUpdate>
-  //     : ref(dataModel.initial) as Ref<ItemInput>
-
-  // const mode = computed<Mode>(() => props.edit == undefined ? 'Create' : 'Edit')
-
-  // watch(
-  //   () => props.edit,
-  //   (item) => {
-  //     model.value = (item !== undefined
-  //       ? dataModel.updateTransformer(toValue(item))
-  //       : dataModel.initial
-  //     ) as undefined extends Item ? ItemInput : ItemUpdate
-  //   })
-
-  // return { model, mode }
+  return { mode, model, makeRequest, reset, isPending, error }
 }
