@@ -12,6 +12,15 @@
     .leaflet-popup-content {
       margin: 0px;
 
+      .v-list {
+        .v-list-item__content {
+          width: fit-content;
+        }
+        .v-list-item__spacer {
+          width: 12px;
+        }
+      }
+
       .coordinates {
         display: grid;
         grid-template-columns: [label] 0fr [value] 1fr;

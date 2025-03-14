@@ -2,7 +2,7 @@
 
 import UserRoleIcon from "@/components/icons/UserRoleIcon"
 import { DateTime } from "luxon"
-import { $TaxonRank, $UserRole } from "./gen/schemas.gen"
+import { $CoordinatesPrecision, $TaxonRank, $UserRole } from "./gen/schemas.gen"
 import {
   CompositeDate as CompositeDateType,
   DatePrecision,
@@ -255,6 +255,14 @@ export namespace CoordinatesPrecision {
       default:
         return 0
     }
+  }
+
+  export const description: Record<typeof $CoordinatesPrecision.enum[number], string> = {
+    "Unknown": "Coordinates referential is unknown",
+    "<100m": "Actual location",
+    "<1km": "Approximate location",
+    "<10km": "Nearest city or town",
+    "10-100km": "Province or country level"
   }
 }
 

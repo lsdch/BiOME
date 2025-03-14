@@ -1,5 +1,5 @@
 <template>
-  <l-popup class="site-popup" :options>
+  <l-popup class="site-popup" :options @remove="console.log('popupclose')">
     <SiteRadius v-if="showRadius" :site="item" :zoom />
     <v-list-item
       class="text-no-wrap"
@@ -15,33 +15,58 @@
       </template>
     </v-list-item>
     <v-divider />
-    <v-card-text>
-      <div class="d-flex align-center my-2">
-        <v-icon icon="mdi-crosshairs-gps" size="small" class="mr-3" />
+    <v-list>
+      <v-list-item
+        prepend-icon="mdi-crosshairs-gps"
+        width="fit-content"
+        @click.stop="copyCoordinates"
+      >
         <div class="coordinates font-monospace">
           <span class="label"> Lat </span>
           {{ item.coordinates.latitude }}
           <span class="label"> Lng </span>
           {{ item.coordinates.longitude }}
         </div>
-        <v-spacer></v-spacer>
-        <v-chip :text="item.coordinates.precision" size="small"></v-chip>
-      </div>
-      <div v-if="item.locality || item.country" class="d-flex align-center my-2 w-100">
-        <v-icon icon="mdi-map-marker" size="small" class="mr-3" />
-        <div class="d-flex justify-space-between w-100">
-          {{ item.locality }}
-          <v-chip v-if="item.country" :text="item.country.code" size="small" class="ml-2" />
-        </div>
-      </div>
-    </v-card-text>
+        <v-overlay
+          v-model="hasCopied"
+          class="align-center justify-center"
+          contained
+          content-class="w-100"
+        >
+          <v-alert
+            icon="mdi-content-copy"
+            color="success"
+            variant="elevated"
+            density="compact"
+            text="Copied"
+            width="100%"
+          />
+        </v-overlay>
+        <template #append>
+          <CoordPrecisionChip :precision="item.coordinates.precision" size="small" />
+        </template>
+      </v-list-item>
+      <v-list-item prepend-icon="mdi-map-marker">
+        {{ item.locality }}
+        <template #append>
+          <v-tooltip v-if="item.country">
+            <template #activator="{ props }">
+              <v-chip :text="item.country.code" size="small" class="ml-2" v-bind="props" />
+            </template>
+            {{ item.country.name }}
+          </v-tooltip>
+        </template>
+      </v-list-item>
+    </v-list>
   </l-popup>
 </template>
 
 <script setup lang="ts">
 import { SiteItem } from '@/api'
 import { LPopup } from '@vue-leaflet/vue-leaflet'
+import { useClipboard, useTimeoutFn, useToggle } from '@vueuse/core'
 import { PopupOptions } from 'leaflet'
+import CoordPrecisionChip from './CoordPrecisionChip'
 import SiteRadius from './SiteRadius'
 
 const { zoom = 1, item } = defineProps<{
@@ -50,6 +75,17 @@ const { zoom = 1, item } = defineProps<{
   showRadius?: boolean
   zoom?: number
 }>()
+
+const [hasCopied, toggleHasCopied] = useToggle(false)
+const hasCopiedTimeout = useTimeoutFn(() => toggleHasCopied(false), 2000)
+
+const { copy } = useClipboard()
+function copyCoordinates() {
+  hasCopiedTimeout.stop()
+  copy(`${item.coordinates.latitude}, ${item.coordinates.longitude}`)
+  toggleHasCopied(true)
+  hasCopiedTimeout.start()
+}
 </script>
 
 <style lang="scss"></style>
