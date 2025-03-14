@@ -670,6 +670,12 @@
 						],
 						"type": "string"
 					},
+					"continent": {
+						"examples": [
+							"Europe"
+						],
+						"type": "string"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -679,12 +685,20 @@
 							"Germany"
 						],
 						"type": "string"
+					},
+					"subcontinent": {
+						"examples": [
+							"Western Europe"
+						],
+						"type": "string"
 					}
 				},
 				"required": [
 					"id",
 					"name",
-					"code"
+					"code",
+					"continent",
+					"subcontinent"
 				],
 				"type": "object"
 			},
@@ -694,6 +708,12 @@
 					"code": {
 						"examples": [
 							"DE"
+						],
+						"type": "string"
+					},
+					"continent": {
+						"examples": [
+							"Europe"
 						],
 						"type": "string"
 					},
@@ -710,13 +730,21 @@
 					"sites_count": {
 						"format": "int64",
 						"type": "integer"
+					},
+					"subcontinent": {
+						"examples": [
+							"Western Europe"
+						],
+						"type": "string"
 					}
 				},
 				"required": [
 					"sites_count",
 					"id",
 					"name",
-					"code"
+					"code",
+					"continent",
+					"subcontinent"
 				],
 				"type": "object"
 			},
@@ -3337,6 +3365,12 @@
 						],
 						"type": "string"
 					},
+					"continent": {
+						"examples": [
+							"Europe"
+						],
+						"type": "string"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -3346,12 +3380,20 @@
 							"Germany"
 						],
 						"type": "string"
+					},
+					"subcontinent": {
+						"examples": [
+							"Western Europe"
+						],
+						"type": "string"
 					}
 				},
 				"required": [
 					"id",
 					"name",
-					"code"
+					"code",
+					"continent",
+					"subcontinent"
 				],
 				"type": [
 					"object",
@@ -5718,6 +5760,10 @@
 					"description": {
 						"type": "string"
 					},
+					"infer_country": {
+						"description": "Whether to infer the country of the site based on its coordinates",
+						"type": "boolean"
+					},
 					"label": {
 						"maxLength": 32,
 						"minLength": 4,
@@ -5817,6 +5863,10 @@
 					"description": {
 						"type": "string"
 					},
+					"infer_country": {
+						"description": "Infer country from coordinates",
+						"type": "boolean"
+					},
 					"locality": {
 						"description": "Nearest populated place",
 						"type": "string"
@@ -5833,8 +5883,7 @@
 				"required": [
 					"name",
 					"code",
-					"coordinates",
-					"user_defined_locality"
+					"coordinates"
 				],
 				"type": "object"
 			},

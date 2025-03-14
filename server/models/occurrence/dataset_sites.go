@@ -55,15 +55,16 @@ func (d *SiteDataset) AddSites(db geltypes.Executor, site_ids []geltypes.UUID) (
 	return d, err
 }
 
-func (d *SiteDataset) CreateSites(tx geltypes.Tx, sites []SiteInput) error {
+func (d *SiteDataset) CreateSites(tx geltypes.Tx, sites []SiteInput, inferCountry bool) error {
 	sitesData, _ := json.Marshal(sites)
 	query := `#edgeql
 		with
 			dataset := <datasets::SiteDataset><uuid>$0,
 			sites := <json>$1,
+			infer_country := <bool>$2,
 			created_sites := (
 				for site in json_array_unpack(sites) union (
-					location::insert_site(site)
+					location::insert_site(site, infer_country)
 				)
 			)
 		select (update dataset set {
@@ -73,7 +74,7 @@ func (d *SiteDataset) CreateSites(tx geltypes.Tx, sites []SiteInput) error {
 		}) { **, sites: { *, country: { * } } }
 	`
 
-	return tx.QuerySingle(context.Background(), query, d, d.ID, sitesData)
+	return tx.QuerySingle(context.Background(), query, d, d.ID, sitesData, inferCountry)
 }
 
 func ListSiteDatasets(db geltypes.Executor) (datasets []SiteDataset, err error) {
@@ -161,6 +162,7 @@ func (i SiteInputList) Save(e geltypes.Executor) (created []Site, err error) {
 // Dataset is populated with existing sites using their codes and new sites are created from the input.
 type SiteDatasetInput struct {
 	dataset.DatasetInput `json:",inline"`
+	InferCountry         bool          `json:"infer_country,omitempty" doc:"Whether to infer the country of the site based on its coordinates"`
 	Sites                []string      `json:"sites,omitempty" doc:"Existing site codes to include in the dataset"`
 	NewSites             SiteInputList `json:"new_sites,omitempty" doc:"New sites to include in the dataset"`
 }
@@ -202,23 +204,25 @@ func (i *SiteDatasetInput) Validate(edb geltypes.Executor) (*SiteDatasetInputVal
 	}
 
 	return &SiteDatasetInputValidated{
-		Label:       i.Label,
-		Slug:        slug.Make(i.Label),
-		Description: i.Description,
-		Maintainers: maintainers,
-		Sites:       sites,
-		NewSites:    i.NewSites,
+		Label:        i.Label,
+		Slug:         slug.Make(i.Label),
+		Description:  i.Description,
+		Maintainers:  maintainers,
+		InferCountry: i.InferCountry,
+		Sites:        sites,
+		NewSites:     i.NewSites,
 	}, nil
 }
 
 // SiteDatasetInputValidated represents a validated input for creating a dataset of sites.
 type SiteDatasetInputValidated struct {
-	Label       string                       `json:"label"`
-	Slug        string                       `json:"slug"`
-	Description models.OptionalInput[string] `json:"description"`
-	Maintainers []geltypes.UUID              `json:"maintainers"`
-	Sites       []geltypes.UUID              `json:"sites"`
-	NewSites    SiteInputList                `json:"new_sites"`
+	Label        string                       `json:"label"`
+	Slug         string                       `json:"slug"`
+	Description  models.OptionalInput[string] `json:"description"`
+	Maintainers  []geltypes.UUID              `json:"maintainers"`
+	InferCountry bool                         `json:"infer_country"`
+	Sites        []geltypes.UUID              `json:"sites"`
+	NewSites     SiteInputList                `json:"new_sites"`
 }
 
 func (i *SiteDatasetInputValidated) SaveTx(tx geltypes.Tx) (*SiteDataset, error) {
@@ -227,22 +231,22 @@ func (i *SiteDatasetInputValidated) SaveTx(tx geltypes.Tx) (*SiteDataset, error)
 
 	err := tx.QuerySingle(context.Background(),
 		`#edgeql
-	with data := <json>$0
-	select(insert datasets::SiteDataset {
-		label := <str>data['label'],
-		slug := <str>data['slug'],
-		description := <str>json_get(data, 'description'),
-		maintainers := (
-			select distinct (
-				(
-					(global default::current_user).identity
-				) union (
-					select distinct people::Person filter .alias in array_unpack(<array<str>>json_get(data, 'maintainers'))
+			with data := <json>$0
+			select(insert datasets::SiteDataset {
+				label := <str>data['label'],
+				slug := <str>data['slug'],
+				description := <str>json_get(data, 'description'),
+				maintainers := (
+					select distinct (
+						(
+							(global default::current_user).identity
+						) union (
+							select distinct people::Person filter .alias in array_unpack(<array<str>>json_get(data, 'maintainers'))
+						)
+					) ?? (select admin::Settings.superadmin.identity)
 				)
-			) ?? (select admin::Settings.superadmin.identity)
-		)
-	}) { ** }
-`, &created, m)
+			}) { ** }
+		`, &created, m)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to create dataset %s: %v", i.Label, err)
 	}
@@ -259,7 +263,7 @@ func (i *SiteDatasetInputValidated) SaveTx(tx geltypes.Tx) (*SiteDataset, error)
 
 	// Create new sites and add them to the dataset
 	if len(i.NewSites) > 0 {
-		if err := created.CreateSites(tx, i.NewSites); err != nil {
+		if err := created.CreateSites(tx, i.NewSites, i.InferCountry); err != nil {
 			return nil, fmt.Errorf(
 				"Failed to save new sites into dataset %s: %v",
 				i.Label, err,

@@ -44,6 +44,15 @@ tasks:
     cmds:
       - go run ./cmd/email
 
+  dl-countries-dataset:
+    desc: "Download countries dataset"
+    dir: ..
+    interactive: true
+    cmds:
+      - curl -L --progress-bar -o ./data/remote/countries.json https://github.com/lsdch/countries-boundaries/releases/latest/download/countries.json
+    generates:
+      - ./data/remote/countries.json
+
   seed:
     desc: "Initialize local database instance with initial content"
     interactive: true
@@ -54,7 +63,7 @@ tasks:
       - go run ./cmd/seed/
       - gel branch drop {{.TEST_DB_NAME}} --non-interactive
       - gel branch create {{.TEST_DB_NAME}} --copy-data
-    deps: [migrate]
+    deps: [dl-countries-dataset, migrate]
 
   reset:
     desc: "Wipe database and reset initial seed"
@@ -62,6 +71,8 @@ tasks:
     interactive: true
     prompt: This will wipe existing databases and re-run all migrations and seeds. Continue ?
     cmds:
+      - cmd: rm data/remote/countries.json
+        ignore_error: true
       - gel branch drop main --non-interactive
       - gel branch switch -c main
       - task: seed

@@ -85,9 +85,9 @@ func main() {
 	// Disable logging all routes
 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {}
 
-	if err := location.SetupCountries(db.Client()); err != nil {
-		logrus.Fatalf("Failed to setup countries in database: %v", err)
-	}
+	// if err := location.SetupCountries(db.Client()); err != nil {
+	// 	logrus.Fatalf("Failed to setup countries in database: %v", err)
+	// }
 
 	r := setupRouter()
 	if err := r.Run(":8080"); err != nil {

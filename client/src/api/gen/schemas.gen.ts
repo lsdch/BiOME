@@ -4967,6 +4967,10 @@ export const $SiteDatasetInput = {
     description: {
       type: 'string'
     },
+    infer_country: {
+      description: 'Whether to infer the country of the site based on its coordinates',
+      type: 'boolean'
+    },
     label: {
       maxLength: 32,
       minLength: 4,
@@ -5056,6 +5060,10 @@ export const $SiteInput = {
     description: {
       type: 'string'
     },
+    infer_country: {
+      description: 'Infer country from coordinates',
+      type: 'boolean'
+    },
     locality: {
       description: 'Nearest populated place',
       type: 'string'
@@ -5070,7 +5078,7 @@ export const $SiteInput = {
       type: 'boolean'
     }
   },
-  required: ['name', 'code', 'coordinates', 'user_defined_locality'],
+  required: ['name', 'code', 'coordinates'],
   type: 'object'
 } as const
 

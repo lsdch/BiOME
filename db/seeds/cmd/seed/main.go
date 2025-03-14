@@ -19,7 +19,7 @@ import (
 )
 
 var entities = []string{
-	"countries",
+	// "countries",
 	"organisations",
 	"persons",
 	"users",
@@ -69,6 +69,11 @@ func main() {
 	}
 
 	err = client.Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
+
+		logrus.Infof("🌱 Seeding countries")
+		if err := seeds.SeedCountriesGeoJSON(tx, "../../data/remote/countries.json"); err != nil {
+			return fmt.Errorf("Failed to seed countries: %v", err)
+		}
 
 		logrus.Infof("⚙ Initializing settings with superadmin account")
 		superAdmin, err := superAdminInput.Save(tx)

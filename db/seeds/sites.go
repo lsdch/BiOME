@@ -43,6 +43,7 @@ func LoadSiteDataset(db geltypes.Executor, file string, maxAmount int) (*occurre
 }
 
 func SeedSites(tx geltypes.Tx, dataset occurrence.SiteDatasetInput) error {
+	dataset.InferCountry = true
 	validated, errs := dataset.Validate(tx)
 	if errs != nil {
 		return errors.Join(errs...)

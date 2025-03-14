@@ -1749,6 +1749,10 @@ export type SiteDatasetInput = {
    */
   readonly $schema?: string
   description?: string
+  /**
+   * Whether to infer the country of the site based on its coordinates
+   */
+  infer_country?: boolean
   label: string
   /**
    * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
@@ -1791,6 +1795,10 @@ export type SiteInput = {
   country_code?: string
   description?: string
   /**
+   * Infer country from coordinates
+   */
+  infer_country?: boolean
+  /**
    * Nearest populated place
    */
   locality?: string
@@ -1798,7 +1806,7 @@ export type SiteInput = {
   /**
    * Signals if locality was manually entered by user, and automatically inferred from coordinates
    */
-  user_defined_locality: boolean
+  user_defined_locality?: boolean
 }
 
 export type SiteItem = {

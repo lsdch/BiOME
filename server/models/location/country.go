@@ -30,9 +30,11 @@ func SetupCountries(db *gel.Client) error {
 }
 
 type Country struct {
-	ID   geltypes.UUID `json:"id" gel:"id" format:"uuid"`
-	Name string        `json:"name" gel:"name" example:"Germany" binding:"required"`
-	Code string        `json:"code" gel:"code" example:"DE" binding:"required,country_code=iso3166_1_alpha2"`
+	ID           geltypes.UUID `json:"id" gel:"id" format:"uuid"`
+	Name         string        `json:"name" gel:"name" example:"Germany" binding:"required"`
+	Code         string        `json:"code" gel:"code" example:"DE"`
+	Continent    string        `json:"continent" gel:"continent" example:"Europe"`
+	Subcontinent string        `json:"subcontinent" gel:"subcontinent" example:"Western Europe"`
 }
 
 func ListCountries(db geltypes.Executor) ([]Country, error) {
