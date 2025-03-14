@@ -1,5 +1,5 @@
 import HomeView from '@/views/HomeView.vue';
-import { Divider, RouteDefinition, RouterItem } from '.';
+import { Divider, Route, RouteDefinition, RouterItem } from '.';
 import routes from './routes';
 import { useGuards } from './guards';
 
@@ -20,6 +20,17 @@ export const navRoutes: (RouterItem | Divider)[] = [
     icon: "mdi-home",
     component: HomeView,
     meta: { subtitle: "Home" }
+  },
+  {
+    label: "Mapping tool",
+    path: "/mapping",
+    name: "sites",
+    icon: "mdi-map-marker-circle",
+    component: () => import("@/views/location/SitesView.vue"),
+    meta: {
+      subtitle: "Sites",
+      drawer: { temporary: true }
+    }
   },
   {
     label: "Datasets",
@@ -52,94 +63,79 @@ export const navRoutes: (RouterItem | Divider)[] = [
     ]
   },
   {
-    label: "Sampling",
-    icon: "mdi-package-down",
-    routes: [
-      {
-        label: "Sites",
-        path: "/sites",
-        name: "sites",
-        icon: "mdi-map-marker-circle",
-        component: () => import("@/views/location/SitesView.vue"),
-        meta: {
-          subtitle: "Sites",
-          drawer: { temporary: true }
-        }
-      },
-      {
-        label: "Habitats",
-        path: "/habitats",
-        name: "habitats",
-        icon: "mdi-image-filter-hdr-outline",
-        component: () => import("@/views/location/HabitatsView.vue"),
-        meta: { subtitle: "Habitats" },
-        props: {
-          density: "compact"
-        }
-      },
-      {
-        label: "Abiotic parameters",
-        path: "/abiotic-parameters",
-        name: "abiotic-parameters",
-        icon: "mdi-gauge",
-        component: () => import("@/views/sampling/AbioticParametersView.vue"),
-        meta: { subtitle: "Abiotic parameters" }
-      },
-      {
-        label: "Methods",
-        path: "/sampling-methods",
-        name: "sampling-methods",
-        icon: "mdi-hook",
-        component: () => import("@/views/sampling/SamplingMethodsView.vue")
-      },
-      {
-        label: "Fixatives",
-        path: "/fixatives",
-        name: "fixatives",
-        icon: "mdi-snowflake",
-        component: () => import("@/views/sampling/FixativesView.vue")
-      }
-    ]
-  },
-  {
-    label: "Samples",
+    label: "Occurrences",
+    path: "/bio-material",
+    name: "bio-material",
     icon: "mdi-package-variant",
-    routes: [
-      {
-        label: "Bio material",
-        path: "/bio-material",
-        name: "bio-material",
-        icon: "mdi-package-variant",
-        component: () => import("@/views/samples/BioMaterialView.vue")
-      },
-    ]
+    component: () => import("@/views/samples/BioMaterialView.vue")
   },
   {
     label: "Sequences",
+    path: "/sequences",
+    name: "sequences",
     icon: "mdi-dna",
-    routes: [
-      {
-        label: "Sequences",
-        path: "/sequences",
-        name: "sequences",
-        icon: "mdi-dna",
-        component: () => import("@/views/sequences/SequencesView.vue")
-      },
-      {
-        label: "Genes",
-        path: "/genes",
-        name: "genes",
-        icon: "mdi-tag",
-        component: () => import("@/views/sequences/GenesView.vue")
-      },
-    ]
+    component: () => import("@/views/sequences/SequencesView.vue")
   },
+  // {
+  //   label: "Sampling",
+  //   icon: "mdi-package-down",
+  //   routes: [
+
+  //   ]
+  // },
+  // {
+  //   label: "Samples",
+  //   icon: "mdi-package-variant",
+  //   routes: [
+  //     {
+  //       label: "Bio material",
+  //       path: "/bio-material",
+  //       name: "bio-material",
+  //       icon: "mdi-package-variant",
+  //       component: () => import("@/views/samples/BioMaterialView.vue")
+  //     },
+  //   ]
+  // },
+  // {
+  //   label: "Sequences",
+  //   icon: "mdi-dna",
+  //   routes: [
+  //     {
+  //       label: "Sequences",
+  //       path: "/sequences",
+  //       name: "sequences",
+  //       icon: "mdi-dna",
+  //       component: () => import("@/views/sequences/SequencesView.vue")
+  //     },
+  //     {
+  //       label: "Genes",
+  //       path: "/genes",
+  //       name: "genes",
+  //       icon: "mdi-tag",
+  //       component: () => import("@/views/sequences/GenesView.vue")
+  //     },
+  //   ]
+  // },
   {
     label: "DNA sequencing",
     icon: "mdi-flask",
     routes: []
   },
   "divider",
+  {
+    icon: "mdi-family-tree",
+    label: "Taxonomy",
+    path: '/taxonomy',
+    name: 'taxonomy',
+    component: () => import('../views/taxonomy/TaxonomyView.vue'),
+    beforeEnter: (to, from) => {
+      if (from.path === to.path) {
+        return false
+      }
+      return true
+    },
+    meta: { subtitle: "Taxonomy" }
+  },
   {
     label: "People",
     icon: "mdi-account-group",
@@ -171,23 +167,49 @@ export const navRoutes: (RouterItem | Divider)[] = [
     ]
   },
   {
-    icon: "mdi-family-tree",
-    label: "Taxonomy",
-    path: '/taxonomy',
-    name: 'taxonomy',
-    component: () => import('../views/taxonomy/TaxonomyView.vue'),
-    beforeEnter: (to, from) => {
-      if (from.path === to.path) {
-        return false
-      }
-      return true
-    },
-    meta: { subtitle: "Taxonomy" }
-  },
-  {
-    label: 'References',
-    icon: 'mdi-book-open-variant',
+    label: "Metadata registries",
+    icon: "mdi-book-alphabet",
     routes: [
+      { subgroup: "Sampling" },
+      {
+        label: "Habitats",
+        path: "/habitats",
+        name: "habitats",
+        icon: "mdi-image-filter-hdr-outline",
+        component: () => import("@/views/location/HabitatsView.vue"),
+        meta: { subtitle: "Habitats" },
+      },
+      {
+        label: "Abiotic parameters",
+        path: "/abiotic-parameters",
+        name: "abiotic-parameters",
+        icon: "mdi-gauge",
+        component: () => import("@/views/sampling/AbioticParametersView.vue"),
+        meta: { subtitle: "Abiotic parameters" }
+      },
+      {
+        label: "Methods",
+        path: "/sampling-methods",
+        name: "sampling-methods",
+        icon: "mdi-hook",
+        component: () => import("@/views/sampling/SamplingMethodsView.vue")
+      },
+      {
+        label: "Fixatives",
+        path: "/fixatives",
+        name: "fixatives",
+        icon: "mdi-snowflake",
+        component: () => import("@/views/sampling/FixativesView.vue")
+      },
+      { subgroup: "Sequences" },
+      {
+        label: "Genes",
+        path: "/genes",
+        name: "genes",
+        icon: "mdi-tag",
+        component: () => import("@/views/sequences/GenesView.vue")
+      },
+      { subgroup: "Sources" },
       {
         label: "Bibliography",
         icon: 'mdi-newspaper-variant-multiple',
@@ -202,8 +224,16 @@ export const navRoutes: (RouterItem | Divider)[] = [
         icon: "mdi-database-sync",
         component: () => import("@/views/references/DataSourcesView.vue")
       }
+
     ]
   },
+  // {
+  //   label: 'References',
+  //   icon: 'mdi-book-open-variant',
+  //   routes: [
+
+  //   ]
+  // },
   {
     label: "Admin",
     icon: "mdi-cog",
@@ -227,7 +257,7 @@ export const navRouteDefinitions = navRoutes.reduce((acc, current) => {
     return acc
   }
   if (current.routes) {
-    return acc.concat(current.routes)
+    return acc.concat(current.routes.filter((r): r is RouteDefinition => !("subgroup" in r)))
   } else {
     acc.unshift(current as RouteDefinition)
     return acc

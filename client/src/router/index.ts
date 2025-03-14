@@ -7,7 +7,7 @@ import { useGuards } from './guards'
 
 import { getOccurrenceDatasetOptions, getSiteDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { ComponentProps } from 'vue-component-type-helpers'
-import { VListItem } from 'vuetify/components'
+import { VListGroup, VListItem } from 'vuetify/components'
 import { navRouteDefinitions } from './nav'
 import routes from './routes'
 
@@ -21,14 +21,11 @@ export type RouteNavDefinition = {
   itemProps?: ComponentProps<typeof VListItem>
 }
 
-export type RouteDefinition = RouteRecordRaw & RouteNavDefinition
-
-
-type Route = RouteDefinition & { routes?: undefined }
 export type Divider = "divider"
-
-type RouteGroup = Readonly<RouteNavDefinition & { routes: RouteDefinition[] }>
-
+export type RouteDefinition = RouteRecordRaw & RouteNavDefinition
+export type RouteSubgroup = { subgroup: string }
+export type Route = RouteDefinition & { routes?: undefined }
+export type RouteGroup = Readonly<RouteNavDefinition & { groupProps?: ComponentProps<typeof VListGroup>, routes: (RouteDefinition | RouteSubgroup)[] }>
 export type RouterItem = Route | RouteGroup
 
 const { guardRole } = useGuards()

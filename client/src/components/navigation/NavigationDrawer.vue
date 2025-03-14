@@ -18,7 +18,12 @@
           :to="$router.resolve(group)"
         />
         <!-- Route group -->
-        <v-list-group v-else v-show="!group.granted || isGranted(group.granted)">
+        <v-list-group
+          v-else
+          v-show="!group.granted || isGranted(group.granted)"
+          v-bind="group.groupProps"
+        >
+          <!-- Route group activator -->
           <template v-slot:activator="{ props }">
             <v-list-item
               v-bind="props"
@@ -28,19 +33,28 @@
               :active="group.routes?.find(isRouteActive) !== undefined"
             />
           </template>
-          <v-list-item
-            v-for="route in group.routes"
-            v-show="!route.granted || isGranted(route.granted)"
-            :key="route.label"
-            :title="route.label"
-            link
-            slim
-            :to="$router.resolve(route)"
-            color="primary"
-            :active="isRouteActive(route)"
-            :prepend-icon="route.icon"
-            v-bind="route.itemProps"
-          />
+          <!-- Inner route definition -->
+          <template v-for="route in group.routes">
+            <v-divider v-if="'subgroup' in route" />
+            <v-list-subheader v-if="'subgroup' in route">
+              {{ route.subgroup }}
+            </v-list-subheader>
+            <v-divider v-if="'subgroup' in route" />
+
+            <v-list-item
+              v-else
+              v-show="!route.granted || isGranted(route.granted)"
+              :key="route.label"
+              :title="route.label"
+              link
+              slim
+              :to="$router.resolve(route)"
+              color="primary"
+              :active="isRouteActive(route)"
+              :prepend-icon="route.icon"
+              v-bind="route.itemProps"
+            />
+          </template>
         </v-list-group>
       </template>
     </v-list>
@@ -48,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { RouteDefinition, navRoutes, isDivider } from '@/router'
+import { RouteDefinition, navRoutes, isDivider, RouteSubgroup } from '@/router'
 import { useUserStore } from '@/stores/user'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
@@ -57,8 +71,8 @@ const { mobile } = useDisplay()
 
 const router = useRouter()
 const drawer = defineModel<boolean>({ default: true })
-function isRouteActive(route: RouteDefinition) {
-  return route.name === router.currentRoute.value.name
+function isRouteActive(route: RouteDefinition | RouteSubgroup) {
+  return 'name' in route && route.name === router.currentRoute.value.name
 }
 
 const { isGranted } = useUserStore()
@@ -67,7 +81,12 @@ const { isGranted } = useUserStore()
 <style lang="scss">
 @use 'vuetify';
 #main-nav-drawer {
-  .v-list-group__items .v-list-item {
+  .v-list-item__spacer {
+    width: 18px;
+  }
+
+  .v-list-group__items .v-list-item,
+  .v-list-subheader {
     padding-inline-start: var(--indent-padding) !important;
   }
 }
