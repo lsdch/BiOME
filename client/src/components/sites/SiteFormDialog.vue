@@ -15,6 +15,11 @@
         :loading="loading.value"
         @submit="submit"
       >
+        <!-- Expose activator slot -->
+        <template #activator="slotData">
+          <slot name="activator" v-bind="slotData"></slot>
+        </template>
+
         <v-container fluid>
           <v-row>
             <v-col>

@@ -15,6 +15,11 @@
 
         <!-- Default slot -->
         <slot />
+
+        <!-- Expose activator slot -->
+        <template #activator="slotData">
+          <slot name="activator" v-bind="slotData"></slot>
+        </template>
       </CardDialog>
     </template>
   </v-form>
