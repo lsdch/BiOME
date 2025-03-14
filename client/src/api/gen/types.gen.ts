@@ -202,15 +202,19 @@ export type CoordinatesPrecision = '<100m' | '<1km' | '<10km' | '10-100km' | 'Un
 
 export type Country = {
   code: string
+  continent: string
   id: string
   name: string
+  subcontinent: string
 }
 
 export type CountryWithSitesCount = {
   code: string
+  continent: string
   id: string
   name: string
   sites_count: number
+  subcontinent: string
 }
 
 export type CrossRefPerson = {
@@ -1076,8 +1080,10 @@ export type OptionalBioMaterial = {
 
 export type OptionalCountry = {
   code: string
+  continent: string
   id: string
   name: string
+  subcontinent: string
 } | null
 
 export type OptionalDataSource = {
@@ -1749,10 +1755,6 @@ export type SiteDatasetInput = {
    */
   readonly $schema?: string
   description?: string
-  /**
-   * Whether to infer the country of the site based on its coordinates
-   */
-  infer_country?: boolean
   label: string
   /**
    * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
@@ -1792,12 +1794,11 @@ export type SiteInput = {
    * Site coordinates in decimal degrees
    */
   coordinates: Coordinates
+  /**
+   * ISO 3166-1 alpha-3 country code
+   */
   country_code?: string
   description?: string
-  /**
-   * Infer country from coordinates
-   */
-  infer_country?: boolean
   /**
    * Nearest populated place
    */

@@ -5760,10 +5760,6 @@
 					"description": {
 						"type": "string"
 					},
-					"infer_country": {
-						"description": "Whether to infer the country of the site based on its coordinates",
-						"type": "boolean"
-					},
 					"label": {
 						"maxLength": 32,
 						"minLength": 4,
@@ -5853,19 +5849,16 @@
 						"description": "Site coordinates in decimal degrees"
 					},
 					"country_code": {
+						"description": "ISO 3166-1 alpha-3 country code",
 						"examples": [
-							"FR"
+							"FRA"
 						],
 						"format": "country-code",
-						"pattern": "[A-Z]{2}",
+						"pattern": "[A-Z]{3}",
 						"type": "string"
 					},
 					"description": {
 						"type": "string"
-					},
-					"infer_country": {
-						"description": "Infer country from coordinates",
-						"type": "boolean"
 					},
 					"locality": {
 						"description": "Nearest populated place",

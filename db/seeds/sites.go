@@ -24,14 +24,11 @@ func LoadSiteDatasetJSON(file string) (dataset occurrence.SiteDatasetInput) {
 	return
 }
 
-func LoadSiteDataset(db geltypes.Executor, file string, maxAmount int) (*occurrence.SiteDatasetInput, error) {
+func LoadSiteDataset(db geltypes.Executor, file string) (*occurrence.SiteDatasetInput, error) {
 	cfg, _ := config.LoadConfig("../../server", "config")
 	logrus.Infof("Loaded config: %+v", cfg)
 
 	dataset := LoadSiteDatasetJSON(file)
-	if maxAmount > 0 {
-		dataset.NewSites = dataset.NewSites[0:maxAmount]
-	}
 
 	// logrus.Infof("Making API call to Geoapify")
 	// err := dataset.NewSites.FillPlaces(db, cfg.GeoApifyApiKey)
@@ -43,7 +40,6 @@ func LoadSiteDataset(db geltypes.Executor, file string, maxAmount int) (*occurre
 }
 
 func SeedSites(tx geltypes.Tx, dataset occurrence.SiteDatasetInput) error {
-	dataset.InferCountry = true
 	validated, errs := dataset.Validate(tx)
 	if errs != nil {
 		return errors.Join(errs...)

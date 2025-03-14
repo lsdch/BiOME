@@ -595,6 +595,10 @@ export const $Country = {
       examples: ['DE'],
       type: 'string'
     },
+    continent: {
+      examples: ['Europe'],
+      type: 'string'
+    },
     id: {
       format: 'uuid',
       type: 'string'
@@ -602,9 +606,13 @@ export const $Country = {
     name: {
       examples: ['Germany'],
       type: 'string'
+    },
+    subcontinent: {
+      examples: ['Western Europe'],
+      type: 'string'
     }
   },
-  required: ['id', 'name', 'code'],
+  required: ['id', 'name', 'code', 'continent', 'subcontinent'],
   type: 'object'
 } as const
 
@@ -613,6 +621,10 @@ export const $CountryWithSitesCount = {
   properties: {
     code: {
       examples: ['DE'],
+      type: 'string'
+    },
+    continent: {
+      examples: ['Europe'],
       type: 'string'
     },
     id: {
@@ -626,9 +638,13 @@ export const $CountryWithSitesCount = {
     sites_count: {
       format: 'int64',
       type: 'integer'
+    },
+    subcontinent: {
+      examples: ['Western Europe'],
+      type: 'string'
     }
   },
-  required: ['sites_count', 'id', 'name', 'code'],
+  required: ['sites_count', 'id', 'name', 'code', 'continent', 'subcontinent'],
   type: 'object'
 } as const
 
@@ -2966,6 +2982,10 @@ export const $OptionalCountry = {
       examples: ['DE'],
       type: 'string'
     },
+    continent: {
+      examples: ['Europe'],
+      type: 'string'
+    },
     id: {
       format: 'uuid',
       type: 'string'
@@ -2973,9 +2993,13 @@ export const $OptionalCountry = {
     name: {
       examples: ['Germany'],
       type: 'string'
+    },
+    subcontinent: {
+      examples: ['Western Europe'],
+      type: 'string'
     }
   },
-  required: ['id', 'name', 'code'],
+  required: ['id', 'name', 'code', 'continent', 'subcontinent'],
   type: ['object', 'null']
 } as const
 
@@ -4967,10 +4991,6 @@ export const $SiteDatasetInput = {
     description: {
       type: 'string'
     },
-    infer_country: {
-      description: 'Whether to infer the country of the site based on its coordinates',
-      type: 'boolean'
-    },
     label: {
       maxLength: 32,
       minLength: 4,
@@ -5052,17 +5072,14 @@ export const $SiteInput = {
       description: 'Site coordinates in decimal degrees'
     },
     country_code: {
-      examples: ['FR'],
+      description: 'ISO 3166-1 alpha-3 country code',
+      examples: ['FRA'],
       format: 'country-code',
-      pattern: '[A-Z]{2}',
+      pattern: '[A-Z]{3}',
       type: 'string'
     },
     description: {
       type: 'string'
-    },
-    infer_country: {
-      description: 'Infer country from coordinates',
-      type: 'boolean'
     },
     locality: {
       description: 'Nearest populated place',

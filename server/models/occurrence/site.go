@@ -37,8 +37,7 @@ type SiteInput struct {
 	Altitude            models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
 	Locality            models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
 	UserDefinedLocality bool                         `json:"user_defined_locality,omitempty" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
-	InferCountry        bool                         `json:"infer_country,omitempty" doc:"Infer country from coordinates"`
-	CountryCode         models.OptionalInput[string] `json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	CountryCode         models.OptionalInput[string] `json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{3}" example:"FRA" doc:"ISO 3166-1 alpha-3 country code"`
 }
 
 func (c SiteInput) LatLong() (float32, float32) {
@@ -145,9 +144,7 @@ func (i SiteInput) Save(db geltypes.Executor) (*Site, error) {
 	data, _ := json.Marshal(i)
 	query := `#edgeql
 		with module location, data := <json>$0
-		select (
-			insert_site(data, <bool>json_get(data, 'infer_country'))
-		) { *, country: { * }, meta: { * }, datasets: { * } }
+		select insert_site(data) { *, country: { * }, meta: { * }, datasets: { * } }
 	`
 	err := db.QuerySingle(context.Background(), query, &created, data)
 	return &created, err

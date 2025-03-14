@@ -29,16 +29,16 @@ func SeedCountriesGeoJSON(db geltypes.Executor, path string) error {
 								message := "Country code is missing for " ++ <str>item['properties']['name']
 							)
 						)
-					}
+					} unless conflict
 				),
 				select (
 					if item['geometry'] != to_json("null") then (
 						insert CountryBoundary {
 							country := country,
 							geometry := ext::postgis::geomfromgeojson(item['geometry'])
-						}
+						} unless conflict
 					) else (
-						select <CountryBoundary>{}
+						<CountryBoundary>{}
 					)
 				)
 			)

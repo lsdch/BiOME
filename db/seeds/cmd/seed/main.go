@@ -63,7 +63,7 @@ func main() {
 
 	client := db.Connect(gelcfg.Options{Database: *database})
 
-	aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json", -1)
+	aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json")
 	if err != nil {
 		logrus.Fatalf("Failed to load Asellidae sites: %v", err)
 	}

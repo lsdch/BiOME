@@ -44,7 +44,9 @@ module location {
 
   function WGS84_point(lon: float64, lat: float64) -> ext::postgis::geometry {
     using (
-      ext::postgis::point(lon, lat, 4326) # 4326 is WGS84 SRID
+      # 4326 is WGS84 SRID
+      # https://fr.wikipedia.org/wiki/WGS_84
+      ext::postgis::point(lon, lat, 4326)
     )
   }
 
@@ -63,7 +65,7 @@ module location {
   }
 
   function site_coords_to_country(coords: tuple<precision: CoordinatesPrecision, latitude: float32, longitude: float32>) -> optional Country {
-    using (position_to_country(coords.latitude, coords.longitude))
+    using (select position_to_country(coords.latitude, coords.longitude))
   }
 
   alias CountryList := (
@@ -134,21 +136,24 @@ module location {
     )
   }
 
-  function insert_site(data: json, infer_country: optional bool = false) -> Site {
+  function insert_site(data: json) -> Site {
     using (
-      with coords := coords_from_json(data['coordinates'])
+      with
+        coords := coords_from_json(data['coordinates']),
+        country_code := <str>json_get(data, 'country_code'),
       insert Site {
-      name := <str>data['name'],
-      code := <str>data['code'],
-      description := <str>json_get(data, 'description'),
-      coordinates := coords,
-      locality := <str>json_get(data, 'locality'),
-      country := (
-        if infer_country
-        then site_coords_to_country(coords)
-        else find_country(<str>json_get(data, 'country_code'))
-      ),
-      altitude := <int32>json_get(data, 'altitude'),
-    })
+        name := <str>data['name'],
+        code := <str>data['code'],
+        description := <str>json_get(data, 'description'),
+        coordinates := coords,
+        locality := <str>json_get(data, 'locality'),
+        country := (select(
+          if exists country_code
+          then find_country(country_code)
+          else site_coords_to_country(coords)
+        )),
+        altitude := <int32>json_get(data, 'altitude'),
+      }
+    )
   }
 }
