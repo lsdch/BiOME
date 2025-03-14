@@ -42,7 +42,7 @@ module location {
     };
   }
 
-  function WGS84_point(lon: float64, lat: float64) -> ext::postgis::geometry {
+  function WGS84_point(lat: float64, lon: float64) -> ext::postgis::geometry {
     using (
       # 4326 is WGS84 SRID
       # https://fr.wikipedia.org/wiki/WGS_84
@@ -56,7 +56,7 @@ module location {
           select location::CountryBoundary
           filter ext::postgis::contains(
             location::CountryBoundary.geometry,
-            WGS84_point(<float64>lon, <float64>lat)
+            WGS84_point(<float64>lat, <float64>lon)
           )
         ).country,
         message := "More than one country found for the given position: " ++ <str>lat ++ ", " ++ <str>lon
@@ -124,6 +124,21 @@ module location {
     #   on target delete allow;
     #   on source delete allow;
     # };
+  }
+
+  # Retrieve the sites within a given distance from coordinates
+  function sites_proximity (lat: float32, lon: float32, distance: float32) -> set of Site {
+    using (
+      select Site
+      filter ext::postgis::distance(
+        ext::postgis::to_geography(
+          WGS84_point(lat, lon)
+        ),
+        ext::postgis::to_geography(
+          WGS84_point(.coordinates.latitude, .coordinates.longitude)
+        )
+      ) <= distance
+    )
   }
 
   function coords_from_json(data: json) -> tuple<precision: CoordinatesPrecision, latitude: float32, longitude: float32> {
