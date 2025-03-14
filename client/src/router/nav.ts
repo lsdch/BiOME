@@ -76,6 +76,13 @@ export const navRoutes: (RouterItem | Divider)[] = [
     icon: "mdi-dna",
     component: () => import("@/views/sequences/SequencesView.vue")
   },
+  {
+    label: "Data inputs",
+    path: "/import",
+    name: "import",
+    icon: "mdi-file-upload",
+    component: () => import("@/views/import/DataImportView.vue")
+  },
   // {
   //   label: "Sampling",
   //   icon: "mdi-package-down",
