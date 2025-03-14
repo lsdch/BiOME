@@ -19,6 +19,8 @@ func RegisterRoutes(r router.Router) {
 	locationAPI := r.RouteGroup("/locations").
 		WithTags([]string{"Location", "Countries"})
 
+	registry := r.API.OpenAPI().Components.Schemas
+
 	router.Register(locationAPI, "ListCountries",
 		huma.Operation{
 			Path:    "/countries",
@@ -36,8 +38,6 @@ func RegisterRoutes(r router.Router) {
 		}, controllers.ListHandler[*struct {
 			resolvers.AuthResolver
 		}](location.SitesCountByCountry))
-
-	registry := r.API.OpenAPI().Components.Schemas
 
 	router.Register(locationAPI, "coordinatesToCountry",
 		huma.Operation{
@@ -57,6 +57,12 @@ func RegisterRoutes(r router.Router) {
 			},
 		}, CoordinatesToCountry)
 
+	router.Register(locationAPI, "sitesProximity",
+		huma.Operation{
+			Path:    "/coordinates/proximity",
+			Method:  http.MethodPost,
+			Summary: "List sites within a radius of a point",
+		}, SitesProximity)
 }
 
 type CoordinatesToCountryInput struct {
@@ -76,4 +82,23 @@ func CoordinatesToCountry(ctx context.Context, input *CoordinatesToCountryInput)
 	} else {
 		return &CoordinatesToCountryOutput{country}, nil
 	}
+}
+
+type SitesProximityInput struct {
+	resolvers.AuthResolver
+	Body struct {
+		occurrence.LatLongCoords `json:",inline"`
+		Radius                   float32 `json:"radius" doc:"Radius in meters" example:"20000"`
+	}
+}
+type SitesProximityOutput struct {
+	Body []occurrence.SiteItem
+}
+
+func SitesProximity(ctx context.Context, input *SitesProximityInput) (*SitesProximityOutput, error) {
+	sites, err := input.Body.LatLongCoords.SitesProximity(input.DB(), input.Body.Radius)
+	if err != nil {
+		return nil, err
+	}
+	return &SitesProximityOutput{sites}, nil
 }

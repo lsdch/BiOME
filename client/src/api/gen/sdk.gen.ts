@@ -190,6 +190,9 @@ import type {
   CoordinatesToCountryData,
   CoordinatesToCountryResponse,
   CoordinatesToCountryError,
+  SitesProximityData,
+  SitesProximityResponse,
+  SitesProximityError,
   ListCountriesData,
   ListCountriesResponse,
   ListCountriesError,
@@ -2422,6 +2425,32 @@ export class LocationService {
   }
 
   /**
+   * List sites within a radius of a point
+   */
+  public static sitesProximity<ThrowOnError extends boolean = false>(
+    options: Options<SitesProximityData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      SitesProximityResponse,
+      SitesProximityError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/locations/coordinates/proximity',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
    * List countries
    */
   public static listCountries<ThrowOnError extends boolean = false>(
@@ -2615,6 +2644,32 @@ export class CountriesService {
         }
       ],
       url: '/locations/coordinates',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * List sites within a radius of a point
+   */
+  public static sitesProximity<ThrowOnError extends boolean = false>(
+    options: Options<SitesProximityData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      SitesProximityResponse,
+      SitesProximityError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/locations/coordinates/proximity',
       ...options,
       headers: {
         'Content-Type': 'application/json',

@@ -156,6 +156,9 @@ import type {
   CoordinatesToCountryData,
   CoordinatesToCountryError,
   CoordinatesToCountryResponse,
+  SitesProximityData,
+  SitesProximityError,
+  SitesProximityResponse,
   ListCountriesData,
   GetSitesCountByCountryData,
   OccurrenceOverviewData,
@@ -1728,6 +1731,42 @@ export const coordinatesToCountryMutation = (
   > = {
     mutationFn: async (localOptions) => {
       const { data } = await LocationService.coordinatesToCountry({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const sitesProximityQueryKey = (options: Options<SitesProximityData>) =>
+  createQueryKey('sitesProximity', options)
+
+export const sitesProximityOptions = (options: Options<SitesProximityData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await LocationService.sitesProximity({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: sitesProximityQueryKey(options)
+  })
+}
+
+export const sitesProximityMutation = (options?: Partial<Options<SitesProximityData>>) => {
+  const mutationOptions: UseMutationOptions<
+    SitesProximityResponse,
+    SitesProximityError,
+    Options<SitesProximityData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await LocationService.sitesProximity({
         ...options,
         ...localOptions,
         throwOnError: true

@@ -33,6 +33,16 @@ func (c LatLongCoords) FindCountry(db geltypes.Executor) (country location.Count
 	return
 }
 
+func (c LatLongCoords) SitesProximity(db geltypes.Executor, distance float32) ([]SiteItem, error) {
+	var sites []SiteItem
+	err := db.Query(context.Background(),
+		`#edgeql
+			select location::sites_proximity(<float32>$0, <float32>$1, <float32>$2) { * }
+		`,
+		&sites, c.Latitude, c.Longitude, distance)
+	return sites, err
+}
+
 type Coordinates struct {
 	Precision     location.CoordinatesPrecision `gel:"precision" json:"precision" doc:"Where the coordinates point to"`
 	LatLongCoords `gel:"$inline" json:",inline"`

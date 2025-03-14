@@ -1873,6 +1873,19 @@ export type SiteUpdate = {
   user_defined_locality: boolean
 }
 
+export type SitesProximityInputBody = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  latitude: number
+  longitude: number
+  /**
+   * Radius in meters
+   */
+  radius: number
+}
+
 export type SpecimenVoucher = {
   collection: string
   vouchers: Array<string>
@@ -4258,6 +4271,41 @@ export type CoordinatesToCountryResponses = {
 
 export type CoordinatesToCountryResponse =
   CoordinatesToCountryResponses[keyof CoordinatesToCountryResponses]
+
+export type SitesProximityData = {
+  body: SitesProximityInputBody
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/locations/coordinates/proximity'
+}
+
+export type SitesProximityErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type SitesProximityError = SitesProximityErrors[keyof SitesProximityErrors]
+
+export type SitesProximityResponses = {
+  /**
+   * OK
+   */
+  200: Array<SiteItem>
+}
+
+export type SitesProximityResponse = SitesProximityResponses[keyof SitesProximityResponses]
 
 export type ListCountriesData = {
   body?: never

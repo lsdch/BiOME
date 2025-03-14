@@ -5241,6 +5241,41 @@ export const $SiteUpdate = {
   type: 'object'
 } as const
 
+export const $SitesProximityInputBody = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/SitesProximityInputBody.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    latitude: {
+      examples: [43.5684],
+      format: 'float',
+      maximum: 90,
+      minimum: -90,
+      type: 'number'
+    },
+    longitude: {
+      examples: [3.5678],
+      format: 'float',
+      maximum: 180,
+      minimum: -180,
+      type: 'number'
+    },
+    radius: {
+      description: 'Radius in meters',
+      examples: [20000],
+      format: 'float',
+      type: 'number'
+    }
+  },
+  required: ['radius', 'latitude', 'longitude'],
+  type: 'object'
+} as const
+
 export const $SpecimenVoucher = {
   additionalProperties: false,
   properties: {
