@@ -126,18 +126,25 @@ module location {
     # };
   }
 
+  # Distance between a site and coordinates in meters
+  function site_distance (site: Site, lat: float32, lon: float32) -> float64 {
+    using (
+      ext::postgis::distance(
+        ext::postgis::to_geography(
+          WGS84_point(site.coordinates.latitude, site.coordinates.longitude)
+        ),
+        ext::postgis::to_geography(
+          WGS84_point(lat, lon)
+        )
+      )
+    )
+  }
+
   # Retrieve the sites within a given distance from coordinates
   function sites_proximity (lat: float32, lon: float32, distance: float32) -> set of Site {
     using (
       select Site
-      filter ext::postgis::distance(
-        ext::postgis::to_geography(
-          WGS84_point(lat, lon)
-        ),
-        ext::postgis::to_geography(
-          WGS84_point(.coordinates.latitude, .coordinates.longitude)
-        )
-      ) <= distance
+      filter site_distance(Site, lat, lon) <= distance
     )
   }
 
