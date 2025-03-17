@@ -1,6 +1,6 @@
 <template>
   <v-card
-    class="small-card-title"
+    class="site-location small-card-title"
     prepend-icon="mdi-town-hall"
     variant="flat"
     :subtitle="
@@ -24,7 +24,7 @@
       </v-card-title>
     </template>
     <template #append>
-      <div class="d-flex ga-3">
+      <div :class="['d-flex ga-2', { 'flex-column align-end': $vuetify.display.smAndDown }]">
         <v-switch
           v-model="user_defined_locality"
           :true-value="false"
@@ -34,16 +34,18 @@
           hide-details
           label="Auto"
         />
-        <v-btn
-          icon="mdi-restore"
-          title="Auto-fill from coordinates"
-          variant="tonal"
-          color=""
-          size="small"
-          :disabled="!Coordinates.isValidCoordinates(coordinates)"
-          @click="refetch()"
-        />
-        <GeoapifyStatusButton />
+        <div class="d-flex ga-2">
+          <v-btn
+            icon="mdi-restore"
+            title="Auto-fill from coordinates"
+            variant="tonal"
+            color=""
+            size="small"
+            :disabled="!Coordinates.isValidCoordinates(coordinates)"
+            @click="refetch()"
+          />
+          <GeoapifyStatusButton />
+        </div>
       </div>
     </template>
     <v-card-text v-if="user_defined_locality || Coordinates.isValidCoordinates(coordinates)">
@@ -149,4 +151,10 @@ function refetch() {
 }
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.site-location {
+  .v-card-item__content {
+    align-self: start;
+  }
+}
+</style>

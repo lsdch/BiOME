@@ -48,20 +48,42 @@
           </v-row>
           <v-row>
             <v-col cols="12" sm="6">
-              <v-number-input
-                v-model.number="model.coordinates!.latitude"
-                label="Latitude"
-                :precision="4"
-                :step="0.01"
-                v-bind="field('coordinates', 'latitude')"
-              />
-              <v-number-input
-                v-model.number="model.coordinates!.longitude"
-                label="Longitude"
-                :precision="4"
-                :step="0.01"
-                v-bind="field('coordinates', 'longitude')"
-              />
+              <div class="d-flex align-center w-100">
+                <div class="flex-grow-1">
+                  <v-number-input
+                    v-model.number="model.coordinates!.latitude"
+                    label="Latitude"
+                    :precision="4"
+                    :step="0.01"
+                    class="input-latitude"
+                    v-bind="field('coordinates', 'latitude')"
+                  />
+                  <v-number-input
+                    v-model.number="model.coordinates!.longitude"
+                    label="Longitude"
+                    :precision="4"
+                    :step="0.01"
+                    class="input-longitude"
+                    v-bind="field('coordinates', 'longitude')"
+                  />
+                </div>
+                <div v-if="isGeolocationSupported">
+                  <div class="gps-link upper" />
+                  <v-btn
+                    prepend-icon="mdi-crosshairs-gps"
+                    class="gps-btn px-2 ml-2"
+                    :min-width="30"
+                    :height="50"
+                    text="GPS"
+                    stacked
+                    variant="text"
+                    size="small"
+                    rounded="md"
+                    @click="setCoordsFromGPS(model)"
+                  />
+                  <div class="gps-link lower mb-5" />
+                </div>
+              </div>
               <CoordPrecisionPicker
                 v-model="model.precision"
                 v-bind="field('coordinates', 'precision')"
@@ -108,6 +130,7 @@ import CreateUpdateForm, {
 import FTextField from '../toolkit/forms/FTextField'
 import SiteFormLocationField from './SiteFormLocationField.vue'
 import SiteProximityMap from './SiteProximityMap.vue'
+import { useGeolocation, watchOnce } from '@vueuse/core'
 
 const { mdAndDown } = useDisplay()
 const item = defineModel<Site>()
@@ -200,6 +223,44 @@ function onUpdated() {
     message: `Site updated successfully`
   })
 }
+
+const {
+  isSupported: isGeolocationSupported,
+  coords,
+  locatedAt,
+  pause,
+  resume,
+  error
+} = useGeolocation({
+  immediate: false,
+  enableHighAccuracy: true
+})
+
+function setCoordsFromGPS(model: SiteInputModel | SiteUpdateModel) {
+  resume()
+  watchOnce(
+    () => coords.value,
+    (coords) => {
+      console.log(coords)
+      model.coordinates.latitude = coords.latitude
+      model.coordinates.longitude = coords.longitude
+      pause()
+    }
+  )
+}
 </script>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.gps-link {
+  height: 1rem;
+  width: 58%;
+  border-right: 1px solid grey;
+  background-color: transparent;
+  &.upper {
+    border-top: 1px solid grey;
+  }
+  &.lower {
+    border-bottom: 1px solid grey;
+  }
+}
+</style>
