@@ -183,8 +183,9 @@ export function useSchema<T extends Schema>(schema: T) {
     if ((s?.type == 'number' || s?.type == "integer")) {
       rules.push((value?: string | number) => {
         if (value === undefined || value === null || value === "") return true
+        value = Number(value)
         if (s.type == "integer") return Number.isInteger(value) || `Must be an integer number`
-        if (s.type == "number" && s.format == "float") return (Number.isFinite(value) && !Number.isInteger(value)) || `Must be a decimal number`
+        if (s.type == "number" && s.format == "float") return (Number.isFinite(value)) || `Must be a decimal number`
         return Number.isFinite(value) || `Must be a number`
       })
     }
