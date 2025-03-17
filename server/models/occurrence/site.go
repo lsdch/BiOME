@@ -33,14 +33,29 @@ func (c LatLongCoords) FindCountry(db geltypes.Executor) (country location.Count
 	return
 }
 
-func (c LatLongCoords) SitesProximity(db geltypes.Executor, distance float32) ([]SiteItem, error) {
-	var sites []SiteItem
+func (c LatLongCoords) SitesProximity(db geltypes.Executor, distance float32) ([]SiteWithDistance, error) {
+	var sites []SiteWithDistance
 	err := db.Query(context.Background(),
 		`#edgeql
-			select location::sites_proximity(<float32>$0, <float32>$1, <float32>$2) { * }
+			with
+				lat := <float32>$0,
+				lon := <float32>$1,
+				distance := <float32>$2,
+				sites := (select location::sites_proximity(lat, lon, distance))
+			select sites {
+				*,
+				country: { * },
+				distance := location::site_distance(sites, lat, lon)
+			}
+			order by .distance asc
 		`,
 		&sites, c.Latitude, c.Longitude, distance)
 	return sites, err
+}
+
+type SiteWithDistance struct {
+	SiteItem `gel:"$inline" json:",inline"`
+	Distance float64 `gel:"distance" json:"distance"`
 }
 
 type Coordinates struct {

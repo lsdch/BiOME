@@ -92,7 +92,7 @@ type SitesProximityInput struct {
 	}
 }
 type SitesProximityOutput struct {
-	Body []occurrence.SiteItem
+	Body []occurrence.SiteWithDistance
 }
 
 func SitesProximity(ctx context.Context, input *SitesProximityInput) (*SitesProximityOutput, error) {

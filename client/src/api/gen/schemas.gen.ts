@@ -5241,6 +5241,53 @@ export const $SiteUpdate = {
   type: 'object'
 } as const
 
+export const $SiteWithDistance = {
+  additionalProperties: false,
+  properties: {
+    access_point: {
+      type: 'string'
+    },
+    altitude: {
+      format: 'int64',
+      type: 'integer'
+    },
+    code: {
+      maxLength: 8,
+      minLength: 4,
+      type: 'string'
+    },
+    coordinates: {
+      $ref: '#/components/schemas/Coordinates'
+    },
+    country: {
+      $ref: '#/components/schemas/OptionalCountry'
+    },
+    description: {
+      type: 'string'
+    },
+    distance: {
+      format: 'double',
+      type: 'number'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    locality: {
+      type: 'string'
+    },
+    name: {
+      minLength: 4,
+      type: 'string'
+    },
+    user_defined_locality: {
+      type: 'boolean'
+    }
+  },
+  required: ['distance', 'id', 'name', 'code', 'coordinates', 'user_defined_locality'],
+  type: 'object'
+} as const
+
 export const $SitesProximityInputBody = {
   additionalProperties: false,
   properties: {

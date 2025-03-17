@@ -1873,6 +1873,20 @@ export type SiteUpdate = {
   user_defined_locality: boolean
 }
 
+export type SiteWithDistance = {
+  access_point?: string
+  altitude?: number
+  code: string
+  coordinates: Coordinates
+  country?: OptionalCountry
+  description?: string
+  distance: number
+  id: string
+  locality?: string
+  name: string
+  user_defined_locality: boolean
+}
+
 export type SitesProximityInputBody = {
   /**
    * A URL to the JSON Schema for this object.
@@ -4302,7 +4316,7 @@ export type SitesProximityResponses = {
   /**
    * OK
    */
-  200: Array<SiteItem>
+  200: Array<SiteWithDistance>
 }
 
 export type SitesProximityResponse = SitesProximityResponses[keyof SitesProximityResponses]
