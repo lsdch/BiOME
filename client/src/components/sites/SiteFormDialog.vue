@@ -14,6 +14,7 @@
         :title="`${mode} site`"
         :loading="loading.value"
         @submit="submit"
+        :fullscreen="mdAndDown"
       >
         <!-- Expose activator slot -->
         <template #activator="slotData">
@@ -46,31 +47,39 @@
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="6">
               <v-number-input
-                v-model="model.coordinates!.latitude"
+                v-model.number="model.coordinates!.latitude"
                 label="Latitude"
-                float
+                :precision="4"
+                :step="0.01"
                 v-bind="field('coordinates', 'latitude')"
               />
-            </v-col>
-            <v-col cols="12" sm="4">
               <v-number-input
-                v-model="model.coordinates!.longitude"
+                v-model.number="model.coordinates!.longitude"
                 label="Longitude"
-                float
+                :precision="4"
+                :step="0.01"
                 v-bind="field('coordinates', 'longitude')"
               />
-            </v-col>
-            <v-col cols="12" sm="4">
               <CoordPrecisionPicker
-                v-model="model.coordinates!.precision"
+                v-model="model.precision"
                 v-bind="field('coordinates', 'precision')"
               />
+              <v-number-input
+                v-model.number="model.altitude"
+                label="Altitude (m)"
+                v-bind="field('altitude')"
+              />
+            </v-col>
+            <v-col>
+              <v-card height="300">
+                <SiteProximityMap v-model="model.coordinates" />
+              </v-card>
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="12" sm="8">
+            <v-col cols="12" sm="6">
               <div class="d-flex">
                 <v-switch v-model="model.user_defined_locality" :width="50" color="primary" />
                 <v-text-field
@@ -89,11 +98,13 @@
                 </v-text-field>
               </div>
             </v-col>
-            <v-col cols="12" sm="4">
+            <v-col cols="12" sm="6">
               <CountryPicker
                 v-model="model.country_code"
+                :coords="model.coordinates"
                 item-value="code"
                 v-bind="field('country_code')"
+                clearable
               />
             </v-col>
           </v-row>
@@ -104,26 +115,41 @@
 </template>
 
 <script setup lang="ts">
-import { $SiteInput, $SiteUpdate, Site, SiteInput, SiteUpdate } from '@/api'
+import { $SiteInput, $SiteUpdate, CoordinatesPrecision, Site, SiteInput, SiteUpdate } from '@/api'
 import { createSiteMutation, updateSiteMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import CoordPrecisionPicker from '@/components/sites/CoordPrecisionPicker.vue'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
 import { useFeedback } from '@/stores/feedback'
-import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
+import { useDisplay } from 'vuetify'
+import CreateUpdateForm, {
+  FormCreateMutation,
+  FormUpdateMutation
+} from '../toolkit/forms/CreateUpdateForm.vue'
 import FTextField from '../toolkit/forms/FTextField'
+import SiteProximityMap from './SiteProximityMap.vue'
 
+const { mdAndDown } = useDisplay()
 const item = defineModel<Site>()
 const dialog = defineModel<boolean>('dialog')
 
-const initial: SiteInput = {
-  name: '',
-  code: '',
-  coordinates: { precision: '<100m', latitude: 0, longitude: 0 },
-  user_defined_locality: false
+type SiteInputModel = Omit<SiteInput, 'coordinates'> & {
+  coordinates: { latitude?: number; longitude?: number }
+  precision: CoordinatesPrecision
 }
 
-const { feedback } = useFeedback()
+type SiteUpdateModel = Omit<SiteUpdate, 'coordinates'> & {
+  coordinates: { latitude?: number; longitude?: number }
+  precision: CoordinatesPrecision
+}
+
+const initial: SiteInputModel = {
+  name: '',
+  code: '',
+  coordinates: {},
+  precision: '<100m',
+  user_defined_locality: false
+}
 
 function updateTransformer({
   id,
@@ -132,24 +158,52 @@ function updateTransformer({
   events,
   datasets,
   country,
+  coordinates,
   ...rest
-}: Site): SiteUpdate {
+}: Site): SiteUpdateModel {
   return {
     ...rest,
-    country_code: country?.code
+    country_code: country?.code,
+    coordinates: {
+      latitude: coordinates.latitude,
+      longitude: coordinates.longitude
+    },
+    precision: coordinates.precision
   }
 }
 
-const create = {
+const create: FormCreateMutation<Site, SiteInput, SiteInputModel, typeof $SiteInput> = {
   mutation: createSiteMutation,
-  schema: $SiteInput
+  schema: $SiteInput,
+  transformer: (model: SiteInputModel) => {
+    return {
+      ...model,
+      coordinates: {
+        latitude: model.coordinates.latitude!,
+        longitude: model.coordinates.longitude!,
+        precision: model.precision
+      }
+    }
+  }
 }
 
-const update = {
+const update: FormUpdateMutation<Site, SiteUpdate, SiteUpdateModel, typeof $SiteUpdate> = {
   mutation: updateSiteMutation,
   schema: $SiteUpdate,
-  itemID: ({ code }: Site) => ({ code })
+  itemID: ({ code }: Site) => ({ code }),
+  transformer: (model: SiteUpdateModel) => {
+    return {
+      ...model,
+      coordinates: {
+        latitude: model.coordinates.latitude!,
+        longitude: model.coordinates.longitude!,
+        precision: model.precision
+      }
+    }
+  }
 }
+
+const { feedback } = useFeedback()
 
 function onCreated() {
   dialog.value = false
