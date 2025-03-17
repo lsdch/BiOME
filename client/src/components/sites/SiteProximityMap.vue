@@ -43,7 +43,7 @@ import { Coordinates, MaybeCoordinates } from '../maps'
 import { LatLngLiteral } from 'leaflet'
 import { useMousePressed, watchOnce } from '@vueuse/core'
 
-const coords = defineModel<MaybeCoordinates>()
+const coords = defineModel<MaybeCoordinates>({ required: true })
 
 const hasValidCoords = computed(() => Coordinates.isValidCoordinates(coords.value))
 
@@ -71,13 +71,12 @@ const mouse = useMousePressed({ target: map })
 
 function updateFromMarkerCoords({ lat, lng }: LatLngLiteral) {
   if (!mouse.pressed.value) return
+  // Update coordinates on mouse release
   watchOnce(
     () => mouse.pressed.value,
     () => {
-      coords.value = {
-        latitude: Number(lat.toFixed(4)),
-        longitude: Number(lng.toFixed(4))
-      }
+      coords.value.latitude = Number(lat.toFixed(4))
+      coords.value.longitude = Number(lng.toFixed(4))
     }
   )
 }

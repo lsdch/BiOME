@@ -78,36 +78,16 @@
               </v-card>
             </v-col>
           </v-row>
-          <v-row>
-            <v-col cols="12" sm="6">
-              <div class="d-flex">
-                <v-switch v-model="model.user_defined_locality" :width="50" color="primary" />
-                <v-text-field
-                  label="Locality"
-                  v-model="model.locality"
-                  persistent-placeholder
-                  :disabled="!model.user_defined_locality"
-                  :hint="
-                    model.user_defined_locality
-                      ? 'User defined locality'
-                      : 'Inferred from coordinates using Geoapify'
-                  "
-                  persistent-hint
-                  v-bind="field('locality')"
-                >
-                </v-text-field>
-              </div>
-            </v-col>
-            <v-col cols="12" sm="6">
-              <CountryPicker
-                v-model="model.country_code"
-                :coords="model.coordinates"
-                item-value="code"
-                v-bind="field('country_code')"
-                clearable
-              />
-            </v-col>
-          </v-row>
+          <v-divider />
+
+          <!-- Handle automatic/user-defined locality and country definition -->
+          <SiteFormLocationField
+            v-model:country_code="model.country_code"
+            v-model:locality="model.locality"
+            v-model:user_defined_locality="model.user_defined_locality"
+            :coordinates="model.coordinates"
+            :field
+          />
         </v-container>
       </FormDialog>
     </template>
@@ -118,7 +98,6 @@
 import { $SiteInput, $SiteUpdate, CoordinatesPrecision, Site, SiteInput, SiteUpdate } from '@/api'
 import { createSiteMutation, updateSiteMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import CoordPrecisionPicker from '@/components/sites/CoordPrecisionPicker.vue'
-import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
 import { useFeedback } from '@/stores/feedback'
 import { useDisplay } from 'vuetify'
@@ -127,6 +106,7 @@ import CreateUpdateForm, {
   FormUpdateMutation
 } from '../toolkit/forms/CreateUpdateForm.vue'
 import FTextField from '../toolkit/forms/FTextField'
+import SiteFormLocationField from './SiteFormLocationField.vue'
 import SiteProximityMap from './SiteProximityMap.vue'
 
 const { mdAndDown } = useDisplay()
