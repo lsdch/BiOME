@@ -23,6 +23,7 @@
 
       .coordinates {
         display: grid;
+        cursor: copy;
         grid-template-columns: [label] 0fr [value] 1fr;
         grid-template-rows: 1fr 1fr;
         column-gap: 10px;
