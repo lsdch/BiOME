@@ -9,19 +9,19 @@
       class="map"
       v-model:zoom="zoom"
       v-bind="$attrs"
-      :center="[0, 0]"
       :use-global-leaflet="true"
       v-model:bounds="mapBounds"
       :max-bounds="latLngBounds(latLng(90, -360), latLng(-90, 360))"
       :max-bounds-viscosity="1.0"
-      :min-zoom="2"
-      :max-zoom="18"
+      :min-zoom
+      :max-zoom
       @ready="onReady"
       @mousemove="
         ({ latlng }: LeafletMouseEvent) => {
           cursorCoordinates = latlng
         }
       "
+      :center
       :options="{
         gestureHandling: true,
         worldCopyJump: true,
@@ -30,8 +30,8 @@
       }"
     >
       <LControlScale position="bottomright" metric :imperial="false" />
-      <LControl position="bottomright">
-        <v-card v-if="cursorCoordinates" class="coordinates-control">
+      <LControl position="bottomright" class="coordinates-control">
+        <v-card v-if="cursorCoordinates">
           <template #text>
             <code>
               <div>Lat: {{ cursorCoordinates.lat.toFixed(5) }}</div>
@@ -85,7 +85,7 @@
       <LControl position="topleft">
         <div class="leaflet-bar"></div>
       </LControl>
-      <LControl position="bottomleft" v-if="clustered">
+      <LControl position="bottomleft" v-if="clustered && !hideMarkerControl">
         <MarkerControl
           v-model="markerMode"
           v-model:hexgrid="hexgridConfig"
@@ -139,7 +139,7 @@
         </LHexbinLayer>
 
         <LMarkerClusterGroup
-          v-else-if="markerMode === 'cluster'"
+          v-else-if="items && markerMode === 'cluster'"
           remove-outside-visible-bounds
           show-coverage-on-hover
           :maxClusterRadius="70"
@@ -205,6 +205,7 @@ import L, {
   latLngBounds,
   LatLngExpression,
   LatLngLiteral,
+  PointExpression,
   type LeafletMouseEvent,
   type Map
 } from 'leaflet'
@@ -267,11 +268,18 @@ const props = withDefaults(
     clustered?: boolean
     regions?: boolean
     fitPad?: number
+    center?: PointExpression
+    minZoom?: number
+    maxZoom?: number
+    hideMarkerControl?: boolean
   }>(),
   {
     bounds: () => [latLng(90, -360), latLng(-90, 360)],
+    minZoom: 2,
+    maxZoom: 18,
     fitPad: 0,
     autoFit: true,
+    center: () => [0, 0],
     marker: () => ({
       color: 'white',
       fill: true,
@@ -353,9 +361,15 @@ defineExpose({ fitBounds })
 }
 
 .coordinates-control {
-  background-color: rgb(var(--v-theme-surface), 0.5);
-  code * {
-    opacity: 1;
+  pointer-events: none;
+  * {
+    pointer-events: none;
+  }
+  .v-card {
+    background-color: rgb(var(--v-theme-surface), 0.5);
+    code * {
+      opacity: 1;
+    }
   }
 }
 
