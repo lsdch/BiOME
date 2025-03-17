@@ -5,12 +5,10 @@ import (
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/resolvers"
-
-	"github.com/danielgtaylor/huma/v2"
 )
 
 // `FetchItemList` functions retrieve item lists from the database
-type FetchItemList[Item any] func(db geltypes.Executor) ([]Item, error)
+type FetchItemList[Item any] FetchItem[[]Item]
 
 type FetchItemListWithOptions[Item any, Options any] func(db geltypes.Executor, options Options) ([]Item, error)
 
@@ -39,8 +37,8 @@ func ListHandlerWithOpts[Input ListHandlerInputWithOptions[Options], Item any, O
 		if len(items) == 0 {
 			items = []Item{}
 		}
-		if err != nil {
-			return nil, huma.Error500InternalServerError("Failed to retrieve item list", err)
+		if err = StatusError(err); err != nil {
+			return nil, err
 		}
 		return &ListHandlerOutput[Item]{Body: items}, nil
 	}
@@ -52,8 +50,8 @@ func ListHandler[Input resolvers.AuthDBProvider, Item any](listFn FetchItemList[
 		if len(items) == 0 {
 			items = []Item{}
 		}
-		if err != nil {
-			return nil, huma.Error500InternalServerError("Failed to retrieve item list", err)
+		if err = StatusError(err); err != nil {
+			return nil, err
 		}
 		return &ListHandlerOutput[Item]{Body: items}, nil
 	}

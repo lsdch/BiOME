@@ -11,6 +11,7 @@ import (
 	"github.com/lsdch/biome/models/location"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/validations"
+	"github.com/lsdch/biome/services/geoapify"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -22,6 +23,13 @@ type LatLongCoords struct {
 
 func (c LatLongCoords) LatLong() (float32, float32) {
 	return c.Latitude, c.Longitude
+}
+
+func (c LatLongCoords) ToGeoapify() geoapify.LatLongCoords {
+	return geoapify.LatLongCoords{
+		Lat: c.Latitude,
+		Lon: c.Longitude,
+	}
 }
 
 func (c LatLongCoords) FindCountry(db geltypes.Executor) (country location.Country, err error) {

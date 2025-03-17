@@ -658,6 +658,26 @@ export type GeneUpdate = {
   label?: string
 }
 
+export type GeoapifyResult = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  city: string
+  country: string
+  country_code: string
+  county: string
+  formatted: string
+  housenumber: string
+  lat: number
+  lon: number
+  municipality: string
+  postcode: string
+  state: string
+  street: string
+  suburb: string
+}
+
 export type GeoapifyUsage = {
   date: string
   id: string
@@ -1903,6 +1923,17 @@ export type SitesProximityInputBody = {
 export type SpecimenVoucher = {
   collection: string
   vouchers: Array<string>
+}
+
+export type Status = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  available: boolean
+  has_api_key: boolean
+  limit: number
+  requests: number
 }
 
 export type Taxon = {
@@ -3992,6 +4023,76 @@ export type UpdateGeneResponses = {
 
 export type UpdateGeneResponse = UpdateGeneResponses[keyof UpdateGeneResponses]
 
+export type ReverseGeocodeData = {
+  body?: LatLongCoords
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/geoapify/reverse-geocode'
+}
+
+export type ReverseGeocodeErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ReverseGeocodeError = ReverseGeocodeErrors[keyof ReverseGeocodeErrors]
+
+export type ReverseGeocodeResponses = {
+  /**
+   * OK
+   */
+  200: GeoapifyResult
+}
+
+export type ReverseGeocodeResponse = ReverseGeocodeResponses[keyof ReverseGeocodeResponses]
+
+export type GetGeoapifyStatusData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/geoapify/status'
+}
+
+export type GetGeoapifyStatusErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetGeoapifyStatusError = GetGeoapifyStatusErrors[keyof GetGeoapifyStatusErrors]
+
+export type GetGeoapifyStatusResponses = {
+  /**
+   * OK
+   */
+  200: Status
+}
+
+export type GetGeoapifyStatusResponse = GetGeoapifyStatusResponses[keyof GetGeoapifyStatusResponses]
+
 export type ListGeoapifyUsageData = {
   body?: never
   headers?: {
@@ -4002,7 +4103,7 @@ export type ListGeoapifyUsageData = {
   }
   path?: never
   query?: never
-  url: '/geoapify'
+  url: '/geoapify/usage'
 }
 
 export type ListGeoapifyUsageErrors = {

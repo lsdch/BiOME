@@ -1789,6 +1789,76 @@ export const $GeneUpdate = {
   type: 'object'
 } as const
 
+export const $GeoapifyResult = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/GeoapifyResult.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    city: {
+      type: 'string'
+    },
+    country: {
+      type: 'string'
+    },
+    country_code: {
+      type: 'string'
+    },
+    county: {
+      type: 'string'
+    },
+    formatted: {
+      type: 'string'
+    },
+    housenumber: {
+      type: 'string'
+    },
+    lat: {
+      format: 'double',
+      type: 'number'
+    },
+    lon: {
+      format: 'double',
+      type: 'number'
+    },
+    municipality: {
+      type: 'string'
+    },
+    postcode: {
+      type: 'string'
+    },
+    state: {
+      type: 'string'
+    },
+    street: {
+      type: 'string'
+    },
+    suburb: {
+      type: 'string'
+    }
+  },
+  required: [
+    'formatted',
+    'municipality',
+    'city',
+    'county',
+    'state',
+    'country',
+    'country_code',
+    'lat',
+    'lon',
+    'postcode',
+    'street',
+    'housenumber',
+    'suburb'
+  ],
+  type: 'object'
+} as const
+
 export const $GeoapifyUsage = {
   additionalProperties: false,
   properties: {
@@ -5337,6 +5407,35 @@ export const $SpecimenVoucher = {
     }
   },
   required: ['collection', 'vouchers'],
+  type: 'object'
+} as const
+
+export const $Status = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Status.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    available: {
+      type: 'boolean'
+    },
+    has_api_key: {
+      type: 'boolean'
+    },
+    limit: {
+      format: 'int64',
+      type: 'integer'
+    },
+    requests: {
+      format: 'int64',
+      type: 'integer'
+    }
+  },
+  required: ['available', 'has_api_key', 'requests', 'limit'],
   type: 'object'
 } as const
 

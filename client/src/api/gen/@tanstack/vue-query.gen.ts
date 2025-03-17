@@ -138,6 +138,10 @@ import type {
   UpdateGeneData,
   UpdateGeneError,
   UpdateGeneResponse,
+  ReverseGeocodeData,
+  ReverseGeocodeError,
+  ReverseGeocodeResponse,
+  GetGeoapifyStatusData,
   ListGeoapifyUsageData,
   ListHabitatGroupsData,
   CreateHabitatGroupData,
@@ -1557,6 +1561,60 @@ export const updateGeneMutation = (options?: Partial<Options<UpdateGeneData>>) =
     }
   }
   return mutationOptions
+}
+
+export const reverseGeocodeQueryKey = (options?: Options<ReverseGeocodeData>) =>
+  createQueryKey('reverseGeocode', options)
+
+export const reverseGeocodeOptions = (options?: Options<ReverseGeocodeData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await ServicesService.reverseGeocode({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: reverseGeocodeQueryKey(options)
+  })
+}
+
+export const reverseGeocodeMutation = (options?: Partial<Options<ReverseGeocodeData>>) => {
+  const mutationOptions: UseMutationOptions<
+    ReverseGeocodeResponse,
+    ReverseGeocodeError,
+    Options<ReverseGeocodeData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await ServicesService.reverseGeocode({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const getGeoapifyStatusQueryKey = (options?: Options<GetGeoapifyStatusData>) =>
+  createQueryKey('getGeoapifyStatus', options)
+
+export const getGeoapifyStatusOptions = (options?: Options<GetGeoapifyStatusData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await ServicesService.getGeoapifyStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getGeoapifyStatusQueryKey(options)
+  })
 }
 
 export const listGeoapifyUsageQueryKey = (options?: Options<ListGeoapifyUsageData>) =>

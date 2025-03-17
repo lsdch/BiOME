@@ -9,7 +9,9 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/danielgtaylor/huma/v2"
 	"github.com/geldata/gel-go/geltypes"
+	"github.com/lsdch/biome/models/settings"
 	"github.com/lsdch/biome/services"
 
 	"github.com/sirupsen/logrus"
@@ -24,7 +26,7 @@ type GeoapifyClient struct {
 
 type GeoapifyClientScheduler struct {
 	GeoapifyClient
-	BatchRequests    services.Queue[GeoapifyResponse, GeoapifyClient]
+	BatchRequests    services.Queue[[]GeoapifyResult, GeoapifyClient]
 	ActiveQueries    int
 	MaxActiveQueries int
 }
@@ -35,7 +37,7 @@ type GeoapifyPendingResponse struct {
 	URL    string `json:"url"`
 }
 
-func (c GeoapifyClient) AwaitResult(p GeoapifyPendingResponse) (*GeoapifyResponse, error) {
+func (c GeoapifyClient) AwaitResult(p GeoapifyPendingResponse) ([]GeoapifyResult, error) {
 	time.Sleep(5 * time.Second)
 	for {
 		resp, err := c.client.Get(p.URL)
@@ -43,7 +45,7 @@ func (c GeoapifyClient) AwaitResult(p GeoapifyPendingResponse) (*GeoapifyRespons
 			return nil, err
 		}
 
-		var result GeoapifyResponse
+		var result []GeoapifyResult
 		body, err := io.ReadAll(resp.Body)
 		switch resp.StatusCode {
 		case 200:
@@ -51,7 +53,7 @@ func (c GeoapifyClient) AwaitResult(p GeoapifyPendingResponse) (*GeoapifyRespons
 				return nil, err
 			}
 			err = json.Unmarshal(body, &result)
-			return &result, err
+			return result, err
 		case 202:
 			logrus.Infof("Response pending: %+v", string(body))
 			time.Sleep(30 * time.Second)
@@ -60,9 +62,11 @@ func (c GeoapifyClient) AwaitResult(p GeoapifyPendingResponse) (*GeoapifyRespons
 	}
 }
 
-type GeoapifyResponse []struct {
+type GeoapifyResult struct {
 	Formatted    string  `json:"formatted"`
+	Municipality string  `json:"municipality"`
 	City         string  `json:"city"`
+	County       string  `json:"county"`
 	State        string  `json:"state"`
 	Country      string  `json:"country"`
 	CountryCode  string  `json:"country_code"`
@@ -72,14 +76,39 @@ type GeoapifyResponse []struct {
 	Street       string  `json:"street"`
 	HouseNumber  string  `json:"housenumber"`
 	Suburb       string  `json:"suburb"`
-	Municipality string  `json:"municipality"`
 }
 
-func NewGeoapifyClient(apiKey string) *GeoapifyClient {
-	return &GeoapifyClient{
-		apiKey: apiKey,
+type ReverseGeoCodeResponse struct {
+	Results []GeoapifyResult       `json:"results"`
+	Query   map[string]interface{} `json:"query"`
+}
+
+type clientOption func(*GeoapifyClient) error
+
+func WithApiKey(apiKey string) clientOption {
+	return func(c *GeoapifyClient) error {
+		c.apiKey = apiKey
+		return nil
+	}
+}
+
+func NewClient(opts ...clientOption) (*GeoapifyClient, error) {
+	client := &GeoapifyClient{
 		client: &http.Client{},
 	}
+	for _, opt := range opts {
+		if err := opt(client); err != nil {
+			return nil, fmt.Errorf("Failed to initialize Geoapify client: %w", err)
+		}
+	}
+	if client.apiKey == "" {
+		key, ok := settings.Get().GeoapifyApiKey.Get()
+		if !ok {
+			return nil, fmt.Errorf("Geoapify API key not set")
+		}
+		client.apiKey = key
+	}
+	return client, nil
 }
 
 type LatLongCoords struct {
@@ -87,10 +116,78 @@ type LatLongCoords struct {
 	Lon float32 `json:"lon"`
 }
 
-func (g *GeoapifyClient) BatchReverseGeocode(db geltypes.Executor, locations []LatLongCoords) (*GeoapifyResponse, error) {
+func (g *GeoapifyClient) ReverseGeocode(db geltypes.Executor, coords LatLongCoords) (*GeoapifyResult, error) {
+	todayUsage, err := TodayGeoapifyUsage(db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get today's Geoapify usage: %w", err)
+	}
+	if todayUsage.Requests >= CREDIT_LIMIT {
+		return nil, fmt.Errorf("Geoapify usage limit exceeded")
+	}
+
+	baseURL := "https://api.geoapify.com/v1/geocode/reverse"
+
+	// Create URL with query parameters
+	u, err := url.Parse(baseURL)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse URL: %w", err)
+	}
+
+	q := u.Query()
+	q.Set("lat", fmt.Sprintf("%f", coords.Lat))
+	q.Set("lon", fmt.Sprintf("%f", coords.Lon))
+	q.Set("apiKey", g.apiKey)
+	q.Set("format", "json")
+	u.RawQuery = q.Encode()
+
+	logrus.Debugf("Geoapify reverse geocode URL: %s", u.String())
+
+	// Make the request
+	resp, err := g.client.Get(u.String())
+	if err != nil {
+		return nil, fmt.Errorf("failed to make request: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, huma.NewError(
+			resp.StatusCode,
+			"Geoapify API returned non-200 status",
+			fmt.Errorf("%s", string(body)),
+		)
+	}
+
+	_, err = TrackGeoapifyUsage(db, 1)
+	if err != nil {
+		return nil, fmt.Errorf("failed to track Geoapify usage: %w", err)
+	}
+
+	// Parse the response
+	var result ReverseGeoCodeResponse
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return nil, fmt.Errorf("failed to decode response: %w", err)
+	}
+
+	// Geoapify always returns an array of results, even for single queries
+	// so we just take the first one
+	// Coordinates in the middle of the ocean also return a result,
+	// albeit with some empty fields
+	return &result.Results[0], nil
+}
+
+func (g *GeoapifyClient) BatchReverseGeocode(db geltypes.Executor, locations []LatLongCoords) ([]GeoapifyResult, error) {
 
 	if len(locations) > maxBatchSize {
 		return nil, fmt.Errorf("Geoapify batch request exceeds max allowed size (%d/%d)", len(locations), maxBatchSize)
+	}
+
+	todayUsage, err := TodayGeoapifyUsage(db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get today's Geoapify usage: %w", err)
+	}
+	if int(todayUsage.Requests)+len(locations) > CREDIT_LIMIT {
+		return nil, fmt.Errorf("Geoapify usage limit exceeded")
 	}
 
 	baseURL := "https://api.geoapify.com/v1/batch/geocode/reverse"
@@ -111,13 +208,6 @@ func (g *GeoapifyClient) BatchReverseGeocode(db geltypes.Executor, locations []L
 	q.Set("apiKey", g.apiKey)
 	u.RawQuery = q.Encode()
 
-	// Update request to POST with JSON body
-	// req, err := http.NewRequest("POST", u.String(), bytes.NewBuffer(jsonBody))
-	// if err != nil {
-	// 	return nil, fmt.Errorf("failed to create request: %w", err)
-	// }
-	// req.Header.Set("Content-Type", "application/json")
-
 	// Make the request
 	resp, err := g.client.Post(
 		u.String(),
@@ -129,14 +219,18 @@ func (g *GeoapifyClient) BatchReverseGeocode(db geltypes.Executor, locations []L
 	}
 	defer resp.Body.Close()
 
+	if resp.StatusCode != http.StatusAccepted {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, huma.NewError(
+			resp.StatusCode,
+			"Geoapify API returned non-200 status",
+			fmt.Errorf("%s", string(body)),
+		)
+	}
+
 	_, err = TrackGeoapifyUsage(db, int32(len(locations)))
 	if err != nil {
 		return nil, fmt.Errorf("failed to track Geoapify usage: %w", err)
-	}
-
-	if resp.StatusCode != http.StatusAccepted {
-		body, _ := io.ReadAll(resp.Body)
-		return nil, fmt.Errorf("API returned non-202 status: %d\n %s", resp.StatusCode, string(body))
 	}
 
 	// Parse the response
@@ -146,4 +240,26 @@ func (g *GeoapifyClient) BatchReverseGeocode(db geltypes.Executor, locations []L
 	}
 
 	return g.AwaitResult(pending)
+}
+
+type Status struct {
+	Available     bool `json:"available"`
+	HasApiKey     bool `json:"has_api_key"`
+	TodayRequests int  `json:"requests"`
+	Limit         int  `json:"limit"`
+}
+
+func GetStatus(db geltypes.Executor) (*Status, error) {
+	_, hasKey := settings.Get().GeoapifyApiKey.Get()
+	todayUsage, err := TodayGeoapifyUsage(db)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get today's Geoapify usage: %w", err)
+	}
+	limitExceeded := todayUsage.Requests >= CREDIT_LIMIT
+	return &Status{
+		Available:     !limitExceeded && hasKey,
+		HasApiKey:     hasKey,
+		Limit:         CREDIT_LIMIT,
+		TodayRequests: int(todayUsage.Requests),
+	}, nil
 }

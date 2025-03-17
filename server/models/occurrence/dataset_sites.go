@@ -117,13 +117,18 @@ func (d SiteInputList) RequestBody() []geoapify.LatLongCoords {
 // FillPlaces fills the locality and country code of each site in the list,
 // based on their coordinates using the Geoapify API.
 func (d SiteInputList) FillPlaces(db geltypes.Executor, apiKey string) error {
-	client := geoapify.NewGeoapifyClient(apiKey)
+	client, err := geoapify.NewClient(
+		geoapify.WithApiKey(apiKey),
+	)
+	if err != nil {
+		return err
+	}
 	response, err := client.BatchReverseGeocode(db, d.RequestBody())
 	if err != nil {
 		return err
 	}
 
-	for i, v := range *response {
+	for i, v := range response {
 		d[i].CountryCode.SetValue(strings.ToUpper(v.CountryCode))
 		switch d[i].Coordinates.Precision {
 		case location.M100, location.KM1, location.KM10:

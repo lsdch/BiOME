@@ -166,6 +166,12 @@ import type {
   UpdateGeneData,
   UpdateGeneResponse,
   UpdateGeneError,
+  ReverseGeocodeData,
+  ReverseGeocodeResponse,
+  ReverseGeocodeError,
+  GetGeoapifyStatusData,
+  GetGeoapifyStatusResponse,
+  GetGeoapifyStatusError,
   ListGeoapifyUsageData,
   ListGeoapifyUsageResponse,
   ListGeoapifyUsageError,
@@ -2273,6 +2279,54 @@ export class SequencesService {
 
 export class ServicesService {
   /**
+   * Reverse geocode coordinates using Geoapify API
+   */
+  public static reverseGeocode<ThrowOnError extends boolean = false>(
+    options?: Options<ReverseGeocodeData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).post<
+      ReverseGeocodeResponse,
+      ReverseGeocodeError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/geoapify/reverse-geocode',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Get Geoapify API status
+   */
+  public static getGeoapifyStatus<ThrowOnError extends boolean = false>(
+    options?: Options<GetGeoapifyStatusData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      GetGeoapifyStatusResponse,
+      GetGeoapifyStatusError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/geoapify/status',
+      ...options
+    })
+  }
+
+  /**
    * List Geoapify usage
    */
   public static listGeoapifyUsage<ThrowOnError extends boolean = false>(
@@ -2289,7 +2343,7 @@ export class ServicesService {
           type: 'http'
         }
       ],
-      url: '/geoapify',
+      url: '/geoapify/usage',
       ...options
     })
   }

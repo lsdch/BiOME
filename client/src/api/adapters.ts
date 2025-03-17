@@ -21,7 +21,9 @@ import {
   Quantity as TQuantity,
   CoordinatesPrecision as TCoordinatesPrecision,
   ArticleInput,
-  DatasetCategory as TDatasetCategory
+  DatasetCategory as TDatasetCategory,
+  Status as GeoapifyStatus,
+  GeoapifyResult,
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/people/UserRoleChip"
 import QuantityChip from "@/components/occurrence/ExtBioMatQuantityChip"
@@ -294,3 +296,30 @@ export namespace Meta {
     return modified ? 'mdi-update' : 'mdi-content-save'
   }
 }
+
+export namespace Geoapify {
+  export type Status = GeoapifyStatus
+  export type Result = GeoapifyResult
+
+  export namespace Status {
+    type status = "Available" | "Unavailable"
+    const _props: Record<status, { icon: string, color: string }> = {
+      Available: { icon: 'mdi-earth', color: 'success' },
+      Unavailable: { icon: 'mdi-earth-off', color: 'warning' },
+    }
+    export function props(status: GeoapifyStatus) {
+      return _props[status.available ? 'Available' : 'Unavailable']
+    }
+  }
+
+  export namespace Result {
+    export function toLocality(result: GeoapifyResult) {
+      const s = [result.city, result.county, result.state]
+        .filter((v) => v)
+        .join(', ')
+        .trim()
+      return s || null
+    }
+  }
+}
+

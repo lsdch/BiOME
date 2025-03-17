@@ -8,6 +8,8 @@ import (
 	"github.com/lsdch/biome/db"
 )
 
+const CREDIT_LIMIT = 3_000
+
 type GeoapifyUsage struct {
 	ID       geltypes.UUID      `gel:"id" json:"id"`
 	Date     geltypes.LocalDate `gel:"date" json:"date"`
