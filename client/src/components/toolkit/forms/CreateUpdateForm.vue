@@ -46,7 +46,7 @@ export type FormCreateMutation<
   }) => UseMutationOptions<Item, ErrorModel, { body: ItemInput }, any>
   schema: InputSchema
 } & (Equal<InputModel, ItemInput> extends true
-  ? {}
+  ? { transformer: undefined }
   : { transformer: (model: InputModel) => ItemInput })
 
 export type FormUpdateMutation<
@@ -68,7 +68,7 @@ export type FormUpdateMutation<
   schema: UpdateSchema
   itemID(item: Item): ItemID
 } & (Equal<UpdateModel, ItemUpdate> extends true
-  ? {}
+  ? { transformer: undefined }
   : { transformer: (item: UpdateModel) => ItemUpdate })
 
 const { initial, updateTransformer, create, update } = defineProps<{
@@ -117,11 +117,13 @@ watch(activeMutation.value.isPending, (pending) => emit('loading', pending))
 
 async function submit() {
   if (mode.value === 'Create')
-    return await createMutation.mutateAsync({ body: model.value as ItemInput })
+    return await createMutation.mutateAsync({
+      body: create.transformer?.(model.value) ?? (model.value as ItemInput)
+    })
   else
     return await updateMutation.mutateAsync({
       path: update.itemID(item.value!),
-      body: model.value as ItemUpdate
+      body: update.transformer?.(model.value) ?? (model.value as ItemUpdate)
     })
 }
 
