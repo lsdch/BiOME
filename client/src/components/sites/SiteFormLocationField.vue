@@ -1,6 +1,5 @@
 <template>
   <v-card
-    title="Location"
     class="small-card-title"
     prepend-icon="mdi-town-hall"
     variant="flat"
@@ -12,6 +11,18 @@
           : 'Waiting for coordinates'
     "
   >
+    <template #title>
+      <v-card-title>
+        <template v-if="user_defined_locality || !Coordinates.isValidCoordinates(coordinates)">
+          Location
+        </template>
+        <template v-else>
+          {{ locality || 'Unknown locality' }}
+          <CountryChip v-if="countryFromCoords" :country="countryFromCoords" size="small" />
+          <v-chip v-else text="Unknown" size="small" />
+        </template>
+      </v-card-title>
+    </template>
     <template #append>
       <div class="d-flex ga-3">
         <v-switch
@@ -71,21 +82,6 @@
           </v-col>
         </v-row>
       </template>
-      <v-list v-else-if="Coordinates.isValidCoordinates(coordinates)">
-        <v-list-item :title="locality ?? undefined">
-          <template #title>
-            <v-list-item-title>
-              {{ locality || 'Unknown locality' }}
-              <v-chip v-if="country_code" :text="country_code"></v-chip>
-            </v-list-item-title>
-          </template>
-          <template #subtitle>
-            <v-list-item-subtitle v-if="!country_code">
-              Not within country boundaries
-            </v-list-item-subtitle>
-          </template>
-        </v-list-item>
-      </v-list>
     </v-card-text>
   </v-card>
 </template>
@@ -100,6 +96,7 @@ import { Coordinates } from '../maps'
 import CountryPicker from '../toolkit/forms/CountryPicker.vue'
 import { FieldBinding } from '../toolkit/forms/form'
 import GeoapifyStatusButton from '../toolkit/services/geoapify/GeoapifyStatusButton.vue'
+import CountryChip from './CountryChip'
 const locality = defineModel<string | null | undefined>('locality', { required: true })
 const country_code = defineModel<string | null | undefined>('country_code', { required: true })
 const user_defined_locality = defineModel<boolean | undefined>('user_defined_locality')

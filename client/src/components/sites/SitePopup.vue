@@ -48,13 +48,8 @@
       </v-list-item>
       <v-list-item prepend-icon="mdi-map-marker">
         {{ item.locality }}
-        <template #append>
-          <v-tooltip v-if="item.country">
-            <template #activator="{ props }">
-              <v-chip :text="item.country.code" size="small" class="ml-2" v-bind="props" />
-            </template>
-            {{ item.country.name }}
-          </v-tooltip>
+        <template #append v-if="item.country">
+          <CountryChip :country="item.country" size="small" class="ml-2" />
         </template>
       </v-list-item>
     </v-list>
@@ -68,6 +63,7 @@ import { useClipboard, useTimeoutFn, useToggle } from '@vueuse/core'
 import { PopupOptions } from 'leaflet'
 import CoordPrecisionChip from './CoordPrecisionChip'
 import SiteRadius from './SiteRadius'
+import CountryChip from './CountryChip'
 
 const { zoom = 1, item } = defineProps<{
   item: SiteItem
