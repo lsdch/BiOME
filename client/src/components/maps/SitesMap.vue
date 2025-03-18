@@ -143,7 +143,6 @@
           remove-outside-visible-bounds
           show-coverage-on-hover
           :maxClusterRadius="70"
-          :disable-clustering-at-zoom="11"
         >
           <LCircleMarker
             v-for="item in items"
