@@ -20,9 +20,10 @@
 
     <!-- Proximity radius indicator -->
     <LCircle
-      v-if="hasValidCoords && !mouse.pressed.value"
+      v-if="hasValidCoords"
       :lat-lng="[coords!.latitude!, coords!.longitude!]"
       :radius
+      :interactive="false"
     />
 
     <!-- Proximal sites popup -->
