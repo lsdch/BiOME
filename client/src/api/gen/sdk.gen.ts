@@ -205,6 +205,9 @@ import type {
   GetSitesCountByCountryData,
   GetSitesCountByCountryResponse,
   GetSitesCountByCountryError,
+  SearchSitesData,
+  SearchSitesResponse,
+  SearchSitesError,
   OccurrenceOverviewData,
   OccurrenceOverviewResponse,
   OccurrenceOverviewError,
@@ -331,6 +334,9 @@ import type {
   UpdateSiteData,
   UpdateSiteResponse,
   UpdateSiteError,
+  ListSiteEventsData,
+  ListSiteEventsResponse,
+  ListSiteEventsError,
   CreateEventData,
   CreateEventResponse,
   CreateEventError,
@@ -429,6 +435,7 @@ import {
   createSiteResponseTransformer,
   getSiteResponseTransformer,
   updateSiteResponseTransformer,
+  listSiteEventsResponseTransformer,
   createEventResponseTransformer,
   getTaxonomyResponseTransformer,
   listTaxaResponseTransformer,
@@ -2549,6 +2556,29 @@ export class LocationService {
   }
 
   /**
+   * Search sites
+   * Search sites by name, code or locality fuzzy matching a query. Returns a list of sites sorted by similarity.
+   */
+  public static searchSites<ThrowOnError extends boolean = false>(
+    options?: Options<SearchSitesData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      SearchSitesResponse,
+      SearchSitesError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/locations/search',
+      ...options
+    })
+  }
+
+  /**
    * List sites
    * List all registered sites
    */
@@ -2647,6 +2677,29 @@ export class LocationService {
         'Content-Type': 'application/json',
         ...options?.headers
       }
+    })
+  }
+
+  /**
+   * List site events
+   */
+  public static listSiteEvents<ThrowOnError extends boolean = false>(
+    options: Options<ListSiteEventsData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).get<
+      ListSiteEventsResponse,
+      ListSiteEventsError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: listSiteEventsResponseTransformer,
+      url: '/sites/{code}/events',
+      ...options
     })
   }
 
@@ -2772,6 +2825,29 @@ export class CountriesService {
         }
       ],
       url: '/locations/countries/sites-count',
+      ...options
+    })
+  }
+
+  /**
+   * Search sites
+   * Search sites by name, code or locality fuzzy matching a query. Returns a list of sites sorted by similarity.
+   */
+  public static searchSites<ThrowOnError extends boolean = false>(
+    options?: Options<SearchSitesData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      SearchSitesResponse,
+      SearchSitesError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/locations/search',
       ...options
     })
   }

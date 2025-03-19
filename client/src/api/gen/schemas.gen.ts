@@ -5358,12 +5358,59 @@ export const $SiteWithDistance = {
   type: 'object'
 } as const
 
-export const $SitesProximityInputBody = {
+export const $SiteWithScore = {
+  additionalProperties: false,
+  properties: {
+    access_point: {
+      type: 'string'
+    },
+    altitude: {
+      format: 'int64',
+      type: 'integer'
+    },
+    code: {
+      maxLength: 8,
+      minLength: 4,
+      type: 'string'
+    },
+    coordinates: {
+      $ref: '#/components/schemas/Coordinates'
+    },
+    country: {
+      $ref: '#/components/schemas/OptionalCountry'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    locality: {
+      type: 'string'
+    },
+    name: {
+      minLength: 4,
+      type: 'string'
+    },
+    score: {
+      format: 'float',
+      type: 'number'
+    },
+    user_defined_locality: {
+      type: 'boolean'
+    }
+  },
+  required: ['score', 'id', 'name', 'code', 'coordinates', 'user_defined_locality'],
+  type: 'object'
+} as const
+
+export const $SitesProximityQuery = {
   additionalProperties: false,
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/SitesProximityInputBody.json'],
+      examples: ['/api/v1/schemas/SitesProximityQuery.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -5375,6 +5422,10 @@ export const $SitesProximityInputBody = {
       minimum: -90,
       type: 'number'
     },
+    limit: {
+      format: 'int64',
+      type: 'integer'
+    },
     longitude: {
       examples: [3.5678],
       format: 'float',
@@ -5385,8 +5436,8 @@ export const $SitesProximityInputBody = {
     radius: {
       description: 'Radius in meters',
       examples: [20000],
-      format: 'float',
-      type: 'number'
+      format: 'int32',
+      type: 'integer'
     }
   },
   required: ['radius', 'latitude', 'longitude'],

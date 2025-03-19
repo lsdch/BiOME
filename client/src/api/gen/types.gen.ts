@@ -1907,12 +1907,27 @@ export type SiteWithDistance = {
   user_defined_locality: boolean
 }
 
-export type SitesProximityInputBody = {
+export type SiteWithScore = {
+  access_point?: string
+  altitude?: number
+  code: string
+  coordinates: Coordinates
+  country?: OptionalCountry
+  description?: string
+  id: string
+  locality?: string
+  name: string
+  score: number
+  user_defined_locality: boolean
+}
+
+export type SitesProximityQuery = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
   latitude: number
+  limit?: number
   longitude: number
   /**
    * Radius in meters
@@ -4388,7 +4403,7 @@ export type CoordinatesToCountryResponse =
   CoordinatesToCountryResponses[keyof CoordinatesToCountryResponses]
 
 export type SitesProximityData = {
-  body: SitesProximityInputBody
+  body: SitesProximityQuery
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -4493,6 +4508,44 @@ export type GetSitesCountByCountryResponses = {
 
 export type GetSitesCountByCountryResponse =
   GetSitesCountByCountryResponses[keyof GetSitesCountByCountryResponses]
+
+export type SearchSitesData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: {
+    query?: string
+    threshold?: number
+  }
+  url: '/locations/search'
+}
+
+export type SearchSitesErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type SearchSitesError = SearchSitesErrors[keyof SearchSitesErrors]
+
+export type SearchSitesResponses = {
+  /**
+   * OK
+   */
+  200: Array<SiteWithScore>
+}
+
+export type SearchSitesResponse = SearchSitesResponses[keyof SearchSitesResponses]
 
 export type OccurrenceOverviewData = {
   body?: never
@@ -6031,6 +6084,43 @@ export type UpdateSiteResponses = {
 }
 
 export type UpdateSiteResponse = UpdateSiteResponses[keyof UpdateSiteResponses]
+
+export type ListSiteEventsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/sites/{code}/events'
+}
+
+export type ListSiteEventsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListSiteEventsError = ListSiteEventsErrors[keyof ListSiteEventsErrors]
+
+export type ListSiteEventsResponses = {
+  /**
+   * OK
+   */
+  200: Array<Event>
+}
+
+export type ListSiteEventsResponse = ListSiteEventsResponses[keyof ListSiteEventsResponses]
 
 export type CreateEventData = {
   body: EventInput

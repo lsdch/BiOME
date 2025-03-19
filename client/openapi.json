@@ -6181,13 +6181,66 @@
 				],
 				"type": "object"
 			},
-			"SitesProximityInputBody": {
+			"SiteWithScore": {
+				"additionalProperties": false,
+				"properties": {
+					"access_point": {
+						"type": "string"
+					},
+					"altitude": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"code": {
+						"maxLength": 8,
+						"minLength": 4,
+						"type": "string"
+					},
+					"coordinates": {
+						"$ref": "#/components/schemas/Coordinates"
+					},
+					"country": {
+						"$ref": "#/components/schemas/OptionalCountry"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"locality": {
+						"type": "string"
+					},
+					"name": {
+						"minLength": 4,
+						"type": "string"
+					},
+					"score": {
+						"format": "float",
+						"type": "number"
+					},
+					"user_defined_locality": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"score",
+					"id",
+					"name",
+					"code",
+					"coordinates",
+					"user_defined_locality"
+				],
+				"type": "object"
+			},
+			"SitesProximityQuery": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/SitesProximityInputBody.json"
+							"/api/v1/schemas/SitesProximityQuery.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -6201,6 +6254,10 @@
 						"maximum": 90,
 						"minimum": -90,
 						"type": "number"
+					},
+					"limit": {
+						"format": "int64",
+						"type": "integer"
 					},
 					"longitude": {
 						"examples": [
@@ -6216,8 +6273,8 @@
 						"examples": [
 							20000
 						],
-						"format": "float",
-						"type": "number"
+						"format": "int32",
+						"type": "integer"
 					}
 				},
 				"required": [
@@ -11579,7 +11636,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SitesProximityInputBody"
+								"$ref": "#/components/schemas/SitesProximityQuery"
 							}
 						}
 					},
@@ -11759,6 +11816,93 @@
 					}
 				},
 				"summary": "Get country list with sites count",
+				"tags": [
+					"Location",
+					"Countries"
+				]
+			}
+		},
+		"/locations/search": {
+			"get": {
+				"description": "Search sites by name, code or locality fuzzy matching a query. Returns a list of sites sorted by similarity.",
+				"operationId": "searchSites",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "query",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "threshold",
+						"schema": {
+							"format": "float",
+							"type": "number"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/SiteWithScore"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Search sites",
 				"tags": [
 					"Location",
 					"Countries"
@@ -14913,6 +15057,80 @@
 			}
 		},
 		"/sites/{code}/events": {
+			"get": {
+				"operationId": "ListSiteEvents",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/Event"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List site events",
+				"tags": [
+					"Location"
+				]
+			},
 			"post": {
 				"description": "Register event on a site identified by its code",
 				"operationId": "CreateEvent",

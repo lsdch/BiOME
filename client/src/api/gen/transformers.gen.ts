@@ -76,6 +76,7 @@ import type {
   CreateSiteResponse,
   GetSiteResponse,
   UpdateSiteResponse,
+  ListSiteEventsResponse,
   CreateEventResponse,
   GetTaxonomyResponse,
   ListTaxaResponse,
@@ -1066,6 +1067,15 @@ export const getSiteResponseTransformer = async (data: any): Promise<GetSiteResp
 
 export const updateSiteResponseTransformer = async (data: any): Promise<UpdateSiteResponse> => {
   data = siteSchemaResponseTransformer(data)
+  return data
+}
+
+export const listSiteEventsResponseTransformer = async (
+  data: any
+): Promise<ListSiteEventsResponse> => {
+  data = data.map((item: any) => {
+    return eventSchemaResponseTransformer(item)
+  })
   return data
 }
 

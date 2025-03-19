@@ -165,6 +165,7 @@ import type {
   SitesProximityResponse,
   ListCountriesData,
   GetSitesCountByCountryData,
+  SearchSitesData,
   OccurrenceOverviewData,
   ListOrganisationsData,
   CreateOrganisationData,
@@ -263,6 +264,7 @@ import type {
   UpdateSiteData,
   UpdateSiteError,
   UpdateSiteResponse,
+  ListSiteEventsData,
   CreateEventData,
   CreateEventError,
   CreateEventResponse,
@@ -1871,6 +1873,24 @@ export const getSitesCountByCountryOptions = (options?: Options<GetSitesCountByC
   })
 }
 
+export const searchSitesQueryKey = (options?: Options<SearchSitesData>) =>
+  createQueryKey('searchSites', options)
+
+export const searchSitesOptions = (options?: Options<SearchSitesData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await LocationService.searchSites({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: searchSitesQueryKey(options)
+  })
+}
+
 export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) =>
   createQueryKey('occurrenceOverview', options)
 
@@ -2872,6 +2892,24 @@ export const updateSiteMutation = (options?: Partial<Options<UpdateSiteData>>) =
     }
   }
   return mutationOptions
+}
+
+export const listSiteEventsQueryKey = (options: Options<ListSiteEventsData>) =>
+  createQueryKey('listSiteEvents', options)
+
+export const listSiteEventsOptions = (options: Options<ListSiteEventsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await LocationService.listSiteEvents({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listSiteEventsQueryKey(options)
+  })
 }
 
 export const createEventQueryKey = (options: Options<CreateEventData>) =>

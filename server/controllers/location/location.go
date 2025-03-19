@@ -7,6 +7,7 @@ import (
 
 	"github.com/lsdch/biome/controllers"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/location"
 	"github.com/lsdch/biome/models/occurrence"
 	"github.com/lsdch/biome/resolvers"
@@ -63,6 +64,14 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "List sites within a radius of a point",
 		}, SitesProximity)
+
+	router.Register(locationAPI, "searchSites",
+		huma.Operation{
+			Path:        "/search",
+			Method:      http.MethodGet,
+			Summary:     "Search sites",
+			Description: "Search sites by name, code or locality fuzzy matching a query. Returns a list of sites sorted by similarity.",
+		}, SiteSearch)
 }
 
 type CoordinatesToCountryInput struct {
@@ -86,19 +95,33 @@ func CoordinatesToCountry(ctx context.Context, input *CoordinatesToCountryInput)
 
 type SitesProximityInput struct {
 	resolvers.AuthResolver
-	Body struct {
-		occurrence.LatLongCoords `json:",inline"`
-		Radius                   float32 `json:"radius" doc:"Radius in meters" example:"20000"`
-	}
+	Body occurrence.SitesProximityQuery
 }
 type SitesProximityOutput struct {
 	Body []occurrence.SiteWithDistance
 }
 
 func SitesProximity(ctx context.Context, input *SitesProximityInput) (*SitesProximityOutput, error) {
-	sites, err := input.Body.LatLongCoords.SitesProximity(input.DB(), input.Body.Radius)
+	sites, err := input.Body.SitesProximity(input.DB())
 	if err != nil {
 		return nil, err
 	}
 	return &SitesProximityOutput{sites}, nil
+}
+
+type SiteSearchInput struct {
+	resolvers.AuthResolver
+	Query     string                        `query:"query"`
+	Threshold models.OptionalInput[float32] `query:"threshold"`
+}
+type SiteSearchOutput struct {
+	Body []occurrence.SiteWithScore
+}
+
+func SiteSearch(ctx context.Context, input *SiteSearchInput) (*SiteSearchOutput, error) {
+	sites, err := occurrence.SearchSites(input.DB(), input.Query, input.Threshold)
+	if err != nil {
+		return nil, err
+	}
+	return &SiteSearchOutput{sites}, nil
 }

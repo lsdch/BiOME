@@ -83,6 +83,8 @@ module location {
 
   type Site extending default::Auditable {
     required name : str;
+    index on (.name);
+
     required code : str {
       annotation title := "Site identifier";
       annotation description := "A short, unique, user-generated, alphanumeric identifier. Recommended size is 8.";
@@ -91,11 +93,11 @@ module location {
       constraint max_len_value(10);
     };
 
-    index on (.code);
-
     description: str;
 
     locality: str;
+    index on (.locality);
+
     country: Country;
     required user_defined_locality: bool {
       default := false
@@ -126,12 +128,39 @@ module location {
     # };
   }
 
-  # Distance between a site and coordinates in meters
-  function site_distance (site: Site, lat: float32, lon: float32) -> float64 {
+  required global SITE_SEARCH_THRESHOLD: float32 {
+    default := 0.7
+  };
+
+  function site_as_point(site: Site) -> ext::postgis::geometry {
+    using (
+      WGS84_point(<float64>site.coordinates.latitude, <float64>site.coordinates.longitude)
+    )
+  }
+
+  function site_fuzzy_search_score(site: Site, query: str) -> float32 {
+    using (
+      max({
+        ext::pg_trgm::word_similarity(query, site.name),
+        ext::pg_trgm::word_similarity(query, site.code),
+        ext::pg_trgm::word_similarity(query, site.locality)
+      })
+    )
+  }
+
+  function coords_distance(
+    coords: tuple<
+      precision: CoordinatesPrecision,
+      latitude: float32,
+      longitude: float32
+    >,
+    lat: float32,
+    lon: float32
+  ) -> float64 {
     using (
       ext::postgis::distance(
         ext::postgis::to_geography(
-          WGS84_point(site.coordinates.latitude, site.coordinates.longitude)
+          WGS84_point(coords.latitude, coords.longitude)
         ),
         ext::postgis::to_geography(
           WGS84_point(lat, lon)
@@ -140,12 +169,9 @@ module location {
     )
   }
 
-  # Retrieve the sites within a given distance from coordinates
-  function sites_proximity (lat: float32, lon: float32, distance: float32) -> set of Site {
-    using (
-      select Site
-      filter site_distance(Site, lat, lon) <= distance
-    )
+  # Distance between a site and coordinates in meters
+  function site_distance (site: Site, lat: float32, lon: float32) -> float64 {
+    using (coords_distance(site.coordinates, lat, lon))
   }
 
   function coords_from_json(data: json) -> tuple<precision: CoordinatesPrecision, latitude: float32, longitude: float32> {

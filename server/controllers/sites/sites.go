@@ -56,6 +56,15 @@ func RegisterRoutes(r router.Router) {
 		controllers.UpdateByCodeHandler[occurrence.SiteUpdate],
 	)
 
+	router.Register(sites_API, "ListSiteEvents",
+		huma.Operation{
+			Path:    "/{code}/events",
+			Method:  http.MethodGet,
+			Summary: "List site events",
+		},
+		controllers.GetByCodeHandler(occurrence.ListSiteEvents),
+	)
+
 	router.Register(sites_API, "CreateEvent",
 		huma.Operation{
 			Path:        "/{code}/events",

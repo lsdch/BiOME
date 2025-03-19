@@ -3,6 +3,7 @@ package occurrence
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/geldata/gel-go/geltypes"
@@ -80,21 +81,47 @@ func (e *Event) AddAbioticMeasurement(db geltypes.Executor, measurements Abiotic
 	return nil
 }
 
+var listEventsQuery = `#edgeql
+	select events::Event {
+		id,
+		site: {name, code},
+		programs: { * },
+		performed_by: { * },
+		performed_on,
+		comments,
+		spottings: { * },
+		abiotic_measurements: { *, param: { * }  },
+		samplings: {
+			*,
+			target_taxa: { * },
+			fixatives: { * },
+			methods: { * },
+			habitats: { * }
+		},
+		meta: { * }
+	}
+`
+
 func ListEvents(db geltypes.Executor) ([]Event, error) {
 	var items = []Event{}
 	err := db.Query(context.Background(),
-		`#edgeql
-			select events::Event {
-				site: {name, code},
-				programs: { * },
-				performed_by: { * },
-				spottings: { *, target_taxa: { * } },
-				abiotic_measurements: { *, param: { * }  },
-				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
-				meta: { * }
-			}
-		`,
+		listEventsQuery+" order by .performed_on.date desc",
 		&items)
+	return items, err
+}
+
+func ListSiteEvents(e geltypes.Executor, siteCode string) ([]Event, error) {
+	var items = []Event{}
+	query := fmt.Sprintf(`#edgeql
+		%s
+		filter .site = assert_exists((select location::Site filter .code = <str>$0))
+		order by .performed_on.date desc
+	`, listEventsQuery)
+	err := e.Query(context.Background(), query, &items, siteCode)
+	// Capture assert exists error and return a NoDataError
+	if db.IsCardinalityViolation(err) {
+		err = db.NewNoDataError("Site not found")
+	}
 	return items, err
 }
 

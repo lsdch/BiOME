@@ -41,29 +41,71 @@ func (c LatLongCoords) FindCountry(db geltypes.Executor) (country location.Count
 	return
 }
 
-func (c LatLongCoords) SitesProximity(db geltypes.Executor, distance float32) ([]SiteWithDistance, error) {
+func (c LatLongCoords) SitesProximity(db geltypes.Executor, radius int32) ([]SiteWithDistance, error) {
+	return SitesProximityQuery{
+		LatLongCoords: c,
+		Radius:        radius,
+	}.SitesProximity(db)
+}
+
+type SitesProximityQuery struct {
+	LatLongCoords `json:",inline"`
+	Radius        int32                       `json:"radius" doc:"Radius in meters" example:"20000"`
+	Limit         models.OptionalInput[int64] `json:"limit,omitempty"`
+}
+
+func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDistance, error) {
 	var sites []SiteWithDistance
+	params, _ := json.Marshal(c)
 	err := db.Query(context.Background(),
 		`#edgeql
-			with
-				lat := <float32>$0,
-				lon := <float32>$1,
-				distance := <float32>$2,
-				sites := (select location::sites_proximity(lat, lon, distance))
-			select sites {
+			with module location,
+			data := <json>$0,
+			lat := <float32>data['latitude'],
+			lon := <float32>data['longitude'],
+			# Circle centered on provided coordinates with the given radius
+			area := ext::postgis::buffer(
+				ext::postgis::to_geography(WGS84_point(<float64>lat, <float64>lon)),
+				<int32>data['radius']
+			)
+			select Site {
 				*,
 				country: { * },
-				distance := location::site_distance(sites, lat, lon)
+				distance := assert_exists(site_distance(Site, lat, lon))
 			}
+			filter ext::postgis::covers(area, ext::postgis::to_geography(site_as_point(Site)))
 			order by .distance asc
+			limit <optional int64>json_get(data, 'limit')
 		`,
-		&sites, c.Latitude, c.Longitude, distance)
+		&sites, params)
 	return sites, err
 }
 
 type SiteWithDistance struct {
 	SiteItem `gel:"$inline" json:",inline"`
 	Distance float64 `gel:"distance" json:"distance"`
+}
+
+type SiteWithScore struct {
+	SiteItem `gel:"$inline" json:",inline"`
+	Score    float32 `gel:"score" json:"score"`
+}
+
+func SearchSites(db geltypes.Executor, query string, threshold models.OptionalInput[float32]) ([]SiteWithScore, error) {
+	var site []SiteWithScore
+	err := db.Query(context.Background(),
+		`#edgeql
+			with module location
+			select Site {
+				*,
+				country: { * },
+        score := site_fuzzy_search_score(Site, <str>$0)
+      }
+      filter .score >= (<optional float32>$1 ?? global location::SITE_SEARCH_THRESHOLD)
+      order by .score desc
+		`,
+		&site, query, threshold)
+	return site, err
 }
 
 type Coordinates struct {
