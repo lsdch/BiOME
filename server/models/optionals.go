@@ -76,8 +76,8 @@ func (o *Nullable[T]) UnmarshalJSON(b []byte) error {
 }
 
 type OptionalInput[T any] struct {
-	IsSet bool
 	Value T
+	IsSet bool
 }
 
 func NewOptionalInput[T any](value T) OptionalInput[T] {
