@@ -144,21 +144,18 @@
             </div>
           </template>
           <template v-if="site" #text>
-            <v-list
-              nav
-              lines="one"
-              density="compact"
-              :items="site.datasets"
-              item-title="label"
-              item-value="slug"
-            >
-              <template #item="{ props: { title, value: slug } }">
-                <v-list-item
-                  link
-                  :to="$router.resolve({ name: 'dataset-item', params: { slug } })"
-                  :title
-                />
-              </template>
+            <v-list nav lines="one" density="compact" item-title="label" item-value="slug">
+              <v-list-item
+                v-for="{ category, slug, label } in site.datasets"
+                :title="label"
+                link
+                :to="
+                  $router.resolve({
+                    name: `${category.toLocaleLowerCase()}-dataset-item`,
+                    params: { slug }
+                  })
+                "
+              />
             </v-list>
           </template>
         </v-expansion-panel>

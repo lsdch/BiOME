@@ -170,7 +170,7 @@ const headers: CRUDTableHeader<Event>[] = [
         title: 'Samples',
         align: 'end',
         value(item: Event) {
-          return item.samplings?.flatMap(({ samples }) => samples)
+          return item.samplings?.flatMap(({ samples }) => samples ?? []) ?? []
         }
       }
     ]

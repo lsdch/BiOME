@@ -9,9 +9,7 @@
   >
     <template #default="{ model, field, mode, loading, submit }">
       <FormDialog
-        :title="
-          mode.value === 'Create' ? `New event at ${site.name}` : `Update event at ${site.name}`
-        "
+        :title="mode === 'Create' ? `New event at ${site.name}` : `Update event at ${site.name}`"
         v-bind="$attrs"
         @submit="submit"
         :loading="loading.value"
@@ -58,6 +56,7 @@ import PersonPicker from '../people/PersonPicker.vue'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
 import DateWithPrecisionField from './DateWithPrecisionField.vue'
 import ProgramPicker from './ProgramPicker.vue'
+import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const item = defineModel<Event>()
