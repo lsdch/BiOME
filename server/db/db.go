@@ -44,10 +44,29 @@ func WithCurrentUser(userID geltypes.UUID) *gel.Client {
 	return db.WithGlobals(map[string]interface{}{"current_user_id": userID})
 }
 
-// IsNoData returns true if error is gelerr.NoDataError
+type NoDataError struct {
+	msg string
+}
+
+func (e NoDataError) Error() string {
+	return e.msg
+}
+
+func NewNoDataError(msg string) NoDataError {
+	return NoDataError{msg: msg}
+}
+
+// IsNoData returns true if error is gelerr.NoDataError or custom db.NoDataError
 func IsNoData(err error) bool {
 	var edbErr gelerr.Error
-	return err != nil && errors.As(err, &edbErr) && edbErr.Category(gelerr.NoDataError)
+	var customErr NoDataError
+	return err != nil && (errors.As(err, &customErr) ||
+		(errors.As(err, &edbErr) && edbErr.Category(gelerr.NoDataError)))
+}
+
+func IsCardinalityViolation(err error) bool {
+	var edbErr gelerr.Error
+	return err != nil && errors.As(err, &edbErr) && edbErr.Category(gelerr.CardinalityViolationError)
 }
 
 func IsConstraintViolation(err error) (ok bool, edbErr gelerr.Error) {
