@@ -16,11 +16,6 @@ type ListHandlerInput struct {
 	resolvers.AuthResolver
 }
 
-type ListHandlerInputWithOptions[Options any] interface {
-	resolvers.AuthDBProvider
-	Options() Options
-}
-
 type ListHandlerOutput[Item any] struct{ Body []Item }
 
 type ListItemHandler[
@@ -29,30 +24,33 @@ type ListItemHandler[
 	Options any,
 ] func(ctx context.Context, input Input) (*ListHandlerOutput[Item], error)
 
+func ListHandler[Input resolvers.AuthDBProvider, Item any](listFn FetchItemList[Item]) ListItemHandler[Item, Input, any] {
+	return func(ctx context.Context, input Input) (*ListHandlerOutput[Item], error) {
+		items, err := listFn(input.DB())
+		return handleListItemsResult(items, err)
+	}
+}
+
+type ListHandlerInputWithOptions[Options any] interface {
+	resolvers.AuthDBProvider
+	Options() Options
+}
+
 func ListHandlerWithOpts[Input ListHandlerInputWithOptions[Options], Item any, Options any](
 	listFn FetchItemListWithOptions[Item, Options],
 ) ListItemHandler[Item, Input, Options] {
 	return func(ctx context.Context, input Input) (*ListHandlerOutput[Item], error) {
 		items, err := listFn(input.DB(), input.Options())
-		if len(items) == 0 {
-			items = []Item{}
-		}
-		if err = StatusError(err); err != nil {
-			return nil, err
-		}
-		return &ListHandlerOutput[Item]{Body: items}, nil
+		return handleListItemsResult(items, err)
 	}
 }
 
-func ListHandler[Input resolvers.AuthDBProvider, Item any](listFn FetchItemList[Item]) ListItemHandler[Item, Input, any] {
-	return func(ctx context.Context, input Input) (*ListHandlerOutput[Item], error) {
-		items, err := listFn(input.DB())
-		if len(items) == 0 {
-			items = []Item{}
-		}
-		if err = StatusError(err); err != nil {
-			return nil, err
-		}
-		return &ListHandlerOutput[Item]{Body: items}, nil
+func handleListItemsResult[Item any](items []Item, err error) (*ListHandlerOutput[Item], error) {
+	if len(items) == 0 {
+		items = []Item{}
 	}
+	if err = StatusError(err); err != nil {
+		return nil, err
+	}
+	return &ListHandlerOutput[Item]{Body: items}, nil
 }
