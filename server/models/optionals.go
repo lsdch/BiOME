@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -137,11 +138,24 @@ func (o *OptionalInput[T]) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+func (o OptionalInput[T]) Missing() bool {
+	return !o.IsSet
+}
+
 func (o OptionalInput[T]) MarshalEdgeDBStr() ([]byte, error) {
-	if !o.IsSet {
-		return []byte("null"), nil
-	}
 	return json.Marshal(o.Value)
+}
+
+func (o OptionalInput[T]) MarshalEdgeDBFloat32() ([]byte, error) {
+	b := make([]byte, 4)
+	_, err := binary.Encode(b, binary.BigEndian, o.Value)
+	return b, err
+}
+
+func (o OptionalInput[T]) MarshalEdgeDBInt64() ([]byte, error) {
+	b := make([]byte, 8)
+	_, err := binary.Encode(b, binary.BigEndian, o.Value)
+	return b, err
 }
 
 // Implementation of huma.ParamWrapper interface for request parameters binding
