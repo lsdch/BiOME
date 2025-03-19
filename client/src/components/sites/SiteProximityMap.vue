@@ -1,5 +1,5 @@
 <template>
-  <v-progress-linear v-if="isPending" indeterminate></v-progress-linear>
+  <v-progress-linear v-if="hasValidCoords && isPending" indeterminate></v-progress-linear>
   <SitesMap
     ref="map"
     :items="hasValidCoords ? data : undefined"
@@ -55,15 +55,16 @@ const props = withDefaults(
   { radius: 10000 }
 )
 
-const proximityFetchOptions = computed(() =>
-  sitesProximityOptions({
+const proximityFetchOptions = computed(() => ({
+  enabled: hasValidCoords.value,
+  ...sitesProximityOptions({
     body: {
-      latitude: coords.value?.latitude ?? 0,
-      longitude: coords.value?.longitude ?? 0,
+      latitude: coords.value!.latitude!,
+      longitude: coords.value!.longitude!,
       radius: props.radius
     }
   })
-)
+}))
 
 const { data, isPending } = useQuery(proximityFetchOptions)
 
