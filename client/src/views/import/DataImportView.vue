@@ -39,7 +39,18 @@
             />
           </v-card-text> -->
         <v-list>
-          <v-list-item prepend-icon="mdi-plus-circle-outline">Create record</v-list-item>
+          <BioMaterialFormDialog>
+            <template #activator="{ props, isActive }">
+              <v-list-item
+                title="Create record"
+                prepend-icon="mdi-plus-circle-outline"
+                v-bind="props"
+                :active="isActive"
+                color="primary"
+              />
+            </template>
+          </BioMaterialFormDialog>
+          <!-- <v-list-item prepend-icon="mdi-plus-circle-outline">Create record</v-list-item> -->
           <v-list-item prepend-icon="mdi-file-upload-outline">Bulk import</v-list-item>
         </v-list>
       </v-card>
@@ -56,6 +67,7 @@
 </template>
 
 <script setup lang="ts">
+import BioMaterialFormDialog from '@/components/occurrence/BioMaterialFormDialog.vue'
 import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
 </script>
 
