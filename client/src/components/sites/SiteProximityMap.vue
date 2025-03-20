@@ -14,7 +14,7 @@
     <LMarker
       v-if="hasValidCoords"
       :lat-lng="{ lat: coords!.latitude!, lng: coords!.longitude! }"
-      draggable
+      :draggable="hasModelBinding"
       @update:latLng="updateFromMarkerCoords"
     />
 
@@ -43,8 +43,11 @@ import SitePopup from './SitePopup.vue'
 import { Coordinates, MaybeCoordinates } from '../maps'
 import { LatLngLiteral } from 'leaflet'
 import { useMousePressed, watchOnce } from '@vueuse/core'
+import { hasEventListener } from '../toolkit/vue-utils'
 
 const coords = defineModel<MaybeCoordinates>({ required: true })
+
+const hasModelBinding = hasEventListener('onUpdate:modelValue')
 
 const hasValidCoords = computed(() => Coordinates.isValidCoordinates(coords.value))
 
