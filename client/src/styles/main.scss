@@ -42,6 +42,10 @@ a {
   font-family: monospace !important;
 }
 
+.text-muted {
+  opacity: var(--v-medium-emphasis-opacity);
+}
+
 // .v-list.no-indent {
 //   .v-list-group__items .v-list-item {
 //     padding-inline-start: 32px !important;
