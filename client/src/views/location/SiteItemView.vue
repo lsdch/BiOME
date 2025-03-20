@@ -31,13 +31,11 @@
               {{ site.coordinates.latitude }},
               {{ site.coordinates.longitude }}
             </code>
-            <v-chip
+            <CoordPrecisionChip
+              :precision="site.coordinates.precision"
               class="ml-5"
               variant="outlined"
               density="compact"
-              prepend-icon="mdi-crosshairs-question"
-              :text="site.coordinates.precision"
-              title="Precision"
             />
           </template>
           <template #append>
@@ -53,14 +51,14 @@
         </v-list-item>
         <v-list-item title="Locality">
           <template #subtitle>
-            {{ site.locality }}, {{ site.country?.name ?? 'International territory' }}
-            <v-chip
+            <CountryChip
               v-if="site.country"
-              class="ml-2 text-overline"
+              class="mr-2 text-overline"
               variant="outlined"
               density="compact"
-              :text="site.country.code"
+              :country="site.country"
             />
+            {{ site.locality }}
           </template>
         </v-list-item>
         <v-list-item title="Description">
@@ -198,6 +196,8 @@ import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import SiteRadius from '@/components/sites/SiteRadius'
+import CoordPrecisionChip from '@/components/sites/CoordPrecisionChip'
+import CountryChip from '@/components/sites/CountryChip'
 
 const { mdAndDown, xlAndUp } = useDisplay()
 
