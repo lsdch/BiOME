@@ -1,0 +1,17 @@
+@use 'vuetify';
+
+.v-input.required {
+  .v-label.v-field-label {
+    &::after {
+      content: '*';
+      color: rgb(var(--v-theme-error));
+    }
+  }
+  &.hide-required {
+    .v-label.v-field-label {
+      &::after {
+        display: none;
+      }
+    }
+  }
+}

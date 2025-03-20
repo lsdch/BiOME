@@ -154,6 +154,7 @@ export type SchemaBinding = {
   minLength?: number,
   maxLength?: number,
   rules: ((value: any) => true | string)[]
+  class?: string | Record<string, boolean> | (string | Record<string, boolean>)[]
 }
 
 export function patternRule(pattern: string, errMessage = "Invalid format") {
@@ -267,6 +268,7 @@ export function useSchema<T extends Schema>(schema: T) {
       minLength: s?.minLength,
       maxLength: s?.maxLength,
       rules,
+      class: { 'required': spec.required }
     }
   }
 
