@@ -10,6 +10,7 @@
             :text="btnText"
             :disabled="!isValid.value || isDisabled.value"
             @click="emit('submit')"
+            rounded="md"
           />
         </template>
 
