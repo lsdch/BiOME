@@ -1,6 +1,7 @@
+import { ErrorModel, GeoapifyResult } from "@/api";
 import { getGeoapifyStatusOptions, reverseGeocodeOptions } from "@/api/gen/@tanstack/vue-query.gen";
 import { Coordinates, MaybeCoordinates } from "@/components/maps";
-import { useQuery, useQueryClient } from "@tanstack/vue-query";
+import { QueryObserverOptions, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/vue-query";
 import { defineStore } from "pinia";
 import { computed, MaybeRef, unref, watch } from "vue";
 
@@ -17,7 +18,12 @@ export const useGeoapify = defineStore("geoapify", () => {
 
   function reverseGeocodeQuery(
     coords: MaybeRef<MaybeCoordinates>,
-    options?: { enabled: MaybeRef<boolean> }
+    options?: Omit<
+      Partial<QueryObserverOptions<GeoapifyResult, ErrorModel, GeoapifyResult, any, any>>,
+      'enabled' | 'queryKey' | 'queryFn'
+    > & {
+      enabled?: MaybeRef<boolean>
+    }
   ) {
 
     const q = useQuery(computed(() => ({

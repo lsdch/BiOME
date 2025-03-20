@@ -64,7 +64,6 @@
               label="Locality"
               v-model.trim="locality"
               persistent-placeholder
-              :disabled="!user_defined_locality"
               :hint="
                 user_defined_locality
                   ? 'User defined locality'
@@ -89,11 +88,11 @@
 </template>
 
 <script setup lang="ts">
-import { Geoapify } from '@/api'
+import { Country, Geoapify } from '@/api'
 import { coordinatesToCountryOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useGeoapify } from '@/stores/geoapify'
 import { useQuery } from '@tanstack/vue-query'
-import { computed, watch } from 'vue'
+import { computed, MaybeRef, unref, watch } from 'vue'
 import { Coordinates } from '../maps'
 import CountryPicker from '../toolkit/forms/CountryPicker.vue'
 import { FieldBinding } from '../toolkit/forms/form'
@@ -116,12 +115,15 @@ const {
   isFetching: reverseGeocodeIsPending,
   refetch: refetchReverseGeoCode
 } = reverseGeocodeQuery(props.coordinates, {
+  staleTime: Infinity,
   enabled: computed(() => !user_defined_locality.value)
 })
 
-watch(reverseGeocodeResult, (result) => {
-  if (result) {
-    locality.value = result ? Geoapify.Result.toLocality(result) : null
+watch(reverseGeocodeIsPending, (isPending, wasPending) => {
+  if (!isPending && wasPending) {
+    locality.value = reverseGeocodeResult.value
+      ? Geoapify.Result.toLocality(reverseGeocodeResult.value)
+      : null
   }
 })
 
@@ -132,6 +134,7 @@ const {
 } = useQuery(
   computed(() => ({
     enabled: !user_defined_locality.value && Coordinates.isValidCoordinates(props.coordinates),
+    staleTime: Infinity,
     ...coordinatesToCountryOptions({
       body: {
         latitude: props.coordinates.latitude!,
@@ -141,9 +144,14 @@ const {
   }))
 )
 
-watch(countryFromCoords, (country) => {
-  country_code.value = country?.code ?? null
-})
+function useCountryFromCoords() {
+  country_code.value = unref(countryFromCoords)?.code ?? null
+}
+
+watch(
+  countryIsPending,
+  (isPending, wasPending) => wasPending && !isPending && useCountryFromCoords()
+)
 
 function refetch() {
   refetchReverseGeoCode()
