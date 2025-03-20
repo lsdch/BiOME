@@ -57,6 +57,7 @@
                     :step="0.01"
                     class="input-latitude"
                     v-bind="field('coordinates', 'latitude')"
+                    @input="pauseGPS()"
                   />
                   <v-number-input
                     v-model.number="model.coordinates!.longitude"
@@ -65,22 +66,41 @@
                     :step="0.01"
                     class="input-longitude"
                     v-bind="field('coordinates', 'longitude')"
+                    @input="pauseGPS()"
                   />
                 </div>
                 <div v-if="isGeolocationSupported">
                   <div class="gps-link upper" />
-                  <v-btn
-                    prepend-icon="mdi-crosshairs-gps"
-                    class="gps-btn px-2 ml-2"
-                    :min-width="30"
-                    :height="50"
-                    text="GPS"
-                    stacked
-                    variant="text"
-                    size="small"
-                    rounded="md"
-                    @click="setCoordsFromGPS(model)"
-                  />
+                  <v-hover>
+                    <template #default="{ isHovering, props }">
+                      <v-btn
+                        class="gps-btn px-2 ml-2"
+                        :min-width="30"
+                        :height="50"
+                        text="GPS"
+                        stacked
+                        variant="text"
+                        size="small"
+                        rounded="md"
+                        @click="pendingGPS ? pauseGPS() : setCoordsFromGPS(model)"
+                        v-bind="props"
+                      >
+                        <template #prepend>
+                          <v-progress-circular
+                            v-if="pendingGPS && !isHovering"
+                            color="primary"
+                            indeterminate
+                            size="small"
+                          />
+                          <v-icon
+                            v-else
+                            :icon="pendingGPS ? 'mdi-close' : 'mdi-crosshairs-gps'"
+                            :color="pendingGPS ? 'red' : undefined"
+                          />
+                        </template>
+                      </v-btn>
+                    </template>
+                  </v-hover>
                   <div class="gps-link lower mb-5" />
                 </div>
               </div>
@@ -130,7 +150,7 @@ import CreateUpdateForm, {
 import FTextField from '../toolkit/forms/FTextField'
 import SiteFormLocationField from './SiteFormLocationField.vue'
 import SiteProximityMap from './SiteProximityMap.vue'
-import { useGeolocation, watchOnce } from '@vueuse/core'
+import { useGeolocation, useToggle, watchOnce } from '@vueuse/core'
 
 const { mdAndDown } = useDisplay()
 const item = defineModel<Site>()
@@ -236,15 +256,26 @@ const {
   enableHighAccuracy: true
 })
 
-function setCoordsFromGPS(model: SiteInputModel | SiteUpdateModel) {
+const [pendingGPS, togglePendingGPS] = useToggle(false)
+
+function startGPS() {
   resume()
+  togglePendingGPS(true)
+}
+
+function pauseGPS() {
+  pause()
+  togglePendingGPS(false)
+}
+
+function setCoordsFromGPS(model: SiteInputModel | SiteUpdateModel) {
+  startGPS()
   watchOnce(
     () => coords.value,
     (coords) => {
-      console.log(coords)
       model.coordinates.latitude = coords.latitude
       model.coordinates.longitude = coords.longitude
-      pause()
+      pauseGPS()
     }
   )
 }
