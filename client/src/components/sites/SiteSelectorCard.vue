@@ -25,7 +25,13 @@
           </v-card>
         </v-expand-transition>
         <v-expand-transition>
-          <SitePreviewCard v-show="!showEdit" :site rounded="0" flat @edit="toggleEdit(true)" />
+          <SitePreviewCard
+            v-show="!!site && !showEdit"
+            :site
+            rounded="0"
+            flat
+            @edit="toggleEdit(true)"
+          />
         </v-expand-transition>
       </v-col>
       <v-col cols="12" md="6" style="min-height: 250px">
