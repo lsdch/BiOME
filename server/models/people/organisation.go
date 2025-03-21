@@ -78,10 +78,10 @@ func (inst OrganisationInput) Save(db geltypes.Executor) (created Organisation, 
 }
 
 type OrganisationUpdate struct {
-	Name        models.OptionalInput[string] `gel:"name" json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
-	Code        models.OptionalInput[string] `gel:"code" json:"code,omitempty" example:"LEHNA"`
-	Description models.OptionalNull[string]  `gel:"description" json:"description,omitempty" example:"Where this database was born."`
-	Kind        models.OptionalNull[OrgKind] `gel:"kind" json:"kind,omitempty" example:"Lab"`
+	Name        models.OptionalInput[string]  `gel:"name" json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
+	Code        models.OptionalInput[string]  `gel:"code" json:"code,omitempty" example:"LEHNA"`
+	Description models.OptionalNull[string]   `gel:"description" json:"description,omitempty" example:"Where this database was born."`
+	Kind        models.OptionalInput[OrgKind] `gel:"kind" json:"kind,omitempty" example:"Lab"`
 }
 
 func (org OrganisationUpdate) Save(e geltypes.Executor, code string) (updated Organisation, err error) {
