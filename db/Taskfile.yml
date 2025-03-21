@@ -17,6 +17,7 @@ tasks:
     status:
       - gel branch list | grep "{{.EMPTY_DB_NAME}}"
     run: once
+    deps: [init]
 
   init-testing:
     desc: "Create testing database branch"
@@ -24,6 +25,15 @@ tasks:
     cmd: gel branch create {{.TEST_DB_NAME}} --copy-data
     status:
       - gel branch list | grep "{{.TEST_DB_NAME}}"
+    deps: [init]
+
+  postgis:
+    desc: "Install PostGIS extension"
+    dir: ..
+    cmd: gel extension install postgis
+    status:
+      - gel extension list | grep postgis
+    deps: [install]
 
   init:
     desc: "Create database instance"
@@ -31,11 +41,10 @@ tasks:
     interactive: true
     cmds:
       - gel project init
-      - gel extension install postgis
       - gel project info
     status: [gel project info]
-    deps: [install]
     run: once
+    deps: [postgis]
 
   config-email:
     desc: "Run email settings configuration utility"
@@ -48,7 +57,7 @@ tasks:
     desc: "Download countries dataset"
     dir: ..
     cmds:
-      - curl -L -o ./data/remote/countries.json https://github.com/lsdch/countries-boundaries/releases/latest/download/countries.json
+      - curl --silent -L -o ./data/remote/countries.json https://github.com/lsdch/countries-boundaries/releases/latest/download/countries.json
     generates:
       - ./data/remote/countries.json
 
