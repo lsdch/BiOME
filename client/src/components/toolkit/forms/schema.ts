@@ -4,6 +4,7 @@ import * as Schemas from "@/api/gen/schemas.gen"
 import { useCountries } from "@/stores/countries"
 import { List, Union } from "ts-toolbelt"
 import { reactive, ref } from "vue"
+import { OpenApi } from "@hey-api/openapi-ts"
 
 
 type SchemaModule = typeof import("@/api/gen/schemas.gen")
@@ -11,42 +12,7 @@ type SchemaModule = typeof import("@/api/gen/schemas.gen")
 type SchemaRefs = keyof SchemaModule extends `$${infer U}` ? `#/components/schemas/${U}` : never
 
 // Adapted from openapi-ts src
-export type Schema = Readonly<{
-  $ref?: string,
-  additionalProperties?: (boolean | Schema)
-  allOf?: Readonly<Schema[]>
-  anyOf?: Readonly<Schema[]>
-  const?: string | number | boolean | null
-  default?: unknown
-  deprecated?: boolean
-  description?: string
-  enum?: Readonly<(string | number)[]>
-  example?: unknown
-  exclusiveMaximum?: boolean
-  exclusiveMinimum?: boolean
-  format?: string
-  items?: Schema
-  maximum?: number
-  maxItems?: number
-  maxLength?: number
-  maxProperties?: number
-  minimum?: number
-  minItems?: number
-  minLength?: number
-  minProperties?: number
-  multipleOf?: number
-  not?: Readonly<Schema[]>
-  nullable?: boolean
-  oneOf?: Readonly<Schema[]>
-  pattern?: string
-  properties?: Readonly<Record<string, Schema>>
-  readOnly?: boolean
-  required?: Readonly<string[]>
-  title?: string
-  type?: string | Readonly<string[]>
-  uniqueItems?: boolean
-  writeOnly?: boolean
-}>
+export type Schema = NonNullable<NonNullable<OpenApi.V3_1_X['components']>['schemas']>[string]
 
 export type SchemaProperties = Readonly<Record<string, Schema>>
 export type SchemaWithProperties<P> = Schema & Readonly<{ type: "object", properties: P }>
@@ -76,7 +42,7 @@ export type StringPath<P extends (string | number)[]> =
 
 function paths(s: Schema): (string | '*')[][] {
   if (s.properties) {
-    return Object.entries<Schema>(s.properties).reduce<(string | '*')[][]>((acc, [prop, schema]) => {
+    return Object.entries(s.properties as Record<string, Schema>).reduce<(string | '*')[][]>((acc, [prop, schema]) => {
       if (schema.$ref) {
         const key = `$${schema.$ref.split('/').at(-1)}` as keyof SchemaModule
         const p = paths(Schemas[key]).map(p => [prop, ...p])
@@ -116,19 +82,19 @@ export function getSchema<T extends Schema>(schema: T | undefined, ...path: Sche
   const [fragment, ...rest] = path
   if (rest.length == 0) {
     if (typeof fragment === "string") {
-      const prop = schema.properties?.[fragment]
+      const prop = schema.properties?.[fragment] as Schema | undefined
       return {
         schema: prop?.$ref !== undefined ? getSchemaRef(prop.$ref as SchemaRefs) : prop,
         required: schema.required?.includes(fragment) ?? false
       }
     }
-    else if (typeof fragment === "number" && schema.items !== undefined)
+    else if (typeof fragment === "number" && !!schema.items)
       return getSchema(schema.items)
   }
   if (typeof fragment === "string")
-    return getSchema(schema.properties?.[fragment], ...rest)
+    return getSchema(schema.properties?.[fragment] as T | undefined, ...rest)
   else if (typeof fragment === "number" && schema.items !== undefined)
-    return getSchema(schema.items, ...rest)
+    return getSchema(schema.items as T | undefined, ...rest)
   else return { schema: undefined, required: false }
 }
 
