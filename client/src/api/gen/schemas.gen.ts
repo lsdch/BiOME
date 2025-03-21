@@ -3529,8 +3529,7 @@ export const $OrganisationUpdate = {
     },
     kind: {
       $ref: '#/components/schemas/OrgKind',
-      examples: ['Lab'],
-      type: ['', 'null']
+      examples: ['Lab']
     },
     name: {
       examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],

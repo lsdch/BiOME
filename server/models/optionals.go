@@ -53,9 +53,11 @@ func (n Nullable[T]) IsNull() bool {
 }
 
 func (n Nullable[T]) Schema(r huma.Registry) *huma.Schema {
-	s := r.Schema(reflect.TypeOf(n.Value), true, "")
-	s.Nullable = true
-	return s
+	schemaRef := r.Schema(reflect.TypeOf(n.Value), true, "")
+	s := r.Schema(reflect.TypeOf(n.Value), false, "")
+	schemaRef.Type = s.Type
+	schemaRef.Nullable = true
+	return schemaRef
 }
 
 func (n Nullable[T]) MarshalJSON() ([]byte, error) {
@@ -191,9 +193,11 @@ func (o OptionalNull[T]) IsNull() bool {
 }
 
 func (o OptionalNull[T]) Schema(r huma.Registry) *huma.Schema {
-	s := r.Schema(reflect.TypeOf(o.Value), true, "")
-	s.Nullable = true
-	return s
+	schemaRef := r.Schema(reflect.TypeOf(o.Value), true, "")
+	s := r.Schema(reflect.TypeOf(o.Value), false, "")
+	schemaRef.Type = s.Type
+	schemaRef.Nullable = true
+	return schemaRef
 }
 
 func (o OptionalNull[T]) MarshalJSON() ([]byte, error) {
