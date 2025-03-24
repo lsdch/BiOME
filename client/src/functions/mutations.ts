@@ -1,4 +1,4 @@
-import { AbioticParameterInput, CreateAbioticParameterData, ErrorModel } from "@/api"
+import { ErrorModel } from "@/api"
 import { Schema } from "@/components/toolkit/forms/schema"
 import { UseMutationOptions } from "@tanstack/vue-query"
 import { Equal } from "node_modules/@tanstack/vue-query/build/modern/types"
@@ -9,7 +9,7 @@ import { Optional } from "ts-toolbelt/out/Object/Optional"
  * Extracts required keys from a request data type.
  * Applies recursively to nested objects, except for the 'body' key.
  */
-type PickRequired<T> = { [K in keyof T as (undefined extends T[K] ? never : K)]: 'body' extends K ? T[K] : PickRequired<T[K]> }
+type PickRequired<T> = { [K in keyof T as (T[K] extends never ? never : (undefined extends T[K] ? never : K))]: 'body' extends K ? T[K] : PickRequired<T[K]> }
 
 /**
  * Simplified request data model for mutations
