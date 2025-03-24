@@ -5,7 +5,6 @@ import (
 
 	"github.com/lsdch/biome/config"
 	"github.com/lsdch/biome/db"
-	"github.com/lsdch/biome/models/location"
 	"github.com/lsdch/biome/router"
 
 	"github.com/danielgtaylor/huma/v2"
