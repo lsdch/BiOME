@@ -132,6 +132,7 @@ import {
 import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
 import { Mode } from '../toolkit/forms/form'
+import { defineFormCreate, defineFormUpdate, RequestData } from '@/functions/mutations'
 
 const dialog = defineModel<boolean>('dialog')
 const item = defineModel<HabitatGroup>()
@@ -181,18 +182,29 @@ function title(mode: Mode) {
   return mode == 'Create' ? 'Create habitat group' : `Edit habitats: ${item.value!.label}`
 }
 
-const create = {
-  mutation: createHabitatGroupMutation,
+const create = defineFormCreate(createHabitatGroupMutation(), {
+  initial,
   schema: $HabitatGroupInput,
-  transformer: makeCreateRequestBody
-}
+  requestData({ label, exclusive_elements, elements: elts }) {
+    const elements = elts.map<HabitatInput>(({ label, description }) => ({ label, description }))
+    return {
+      body: {
+        label,
+        exclusive_elements,
+        elements
+      }
+    }
+  }
+})
 
-const update = {
-  mutation: updateHabitatGroupMutation,
+const update = defineFormUpdate(updateHabitatGroupMutation(), {
   schema: $HabitatGroupUpdate,
-  itemID: ({ label }: HabitatGroup) => ({ label }),
-  transformer: makeUpdateRequestBody
-}
+  itemToModel: updateTransformer,
+  requestData: ({ label }, model) => ({
+    path: { label },
+    body: makeUpdateRequestBody(model)
+  })
+})
 
 function elementsCountHeadline(model: State) {
   const eltCount = model.elements.length
@@ -260,15 +272,21 @@ function restoreElement(model: State, index: number) {
 //     .finally(() => toggleLoading(false))
 // }
 
-function makeCreateRequestBody({ label, exclusive_elements, elements }: State): HabitatGroupInput {
+function makeCreateRequestBody({
+  label,
+  exclusive_elements,
+  elements
+}: State): RequestData<HabitatGroupInput> {
   return {
-    label,
-    exclusive_elements,
-    elements: elements.map(({ label, description }) => ({ label, description }))
+    body: {
+      label,
+      exclusive_elements,
+      elements: elements.map<HabitatInput>(({ label, description }) => ({ label, description }))
+    }
   }
 }
 
-function makeUpdateRequestBody({ label, exclusive_elements, elements }: State) {
+function makeUpdateRequestBody({ label, exclusive_elements, elements }: State): HabitatGroupUpdate {
   const body: HabitatGroupUpdate = {
     label,
     exclusive_elements,

@@ -1,3 +1,7 @@
+/**
+ * LEGACY CODE TO BE DELETED
+ */
+
 import { ErrorModel } from '@/api'
 import { MutationOptions, useMutation, UseMutationOptions } from '@tanstack/vue-query'
 import { reactiveComputed } from '@vueuse/core'

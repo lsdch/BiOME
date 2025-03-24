@@ -1,16 +1,9 @@
 <template>
-  <CreateUpdateForm
-    v-model="item"
-    :initial
-    :update-transformer
-    :create
-    :update
-    @success="dialog = false"
-  >
+  <CreateUpdateForm v-model="item" :create :update @success="dialog = false">
     <template #default="{ model, field, mode, loading, submit }">
       <v-row>
         <v-col>
-          <v-text-field label="Code" v-model.trim="model.code"></v-text-field>
+          <v-text-field label="Code" v-model.trim="model.code" v-bind="field('code')" />
         </v-col>
       </v-row>
       <v-card title="Identification" class="small-card-title" flat>
@@ -66,8 +59,7 @@ import ArticlesPicker from '../references/ArticlesPicker.vue'
 import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 import ExtBioMatQuantityPicker from './ExtBioMatQuantityPicker.vue'
 import IdentificationFormFields from './IdentificationFormFields.vue'
-import SitePicker from '../sites/SiteAutocomplete.vue'
-import SiteSelectorCard from '../sites/SiteSelectorCard.vue'
+import { defineFormCreate, defineFormUpdate } from '@/functions/mutations'
 
 const dialog = defineModel<boolean>('dialog')
 const item = defineModel<BioMaterialWithDetails>()
@@ -110,16 +102,21 @@ function updateTransformer({
   }
 }
 
-const create = {
-  mutation: createExternalBioMatMutation,
-  schema: $ExternalBioMatOccurrenceInput
-}
+const create = defineFormCreate(createExternalBioMatMutation(), {
+  initial,
+  schema: $ExternalBioMatOccurrenceInput,
+  requestData(model) {
+    return {
+      body: model as ExternalBioMatOccurrenceInput
+    }
+  }
+})
 
-const update = {
-  mutation: updateExternalBioMatMutation,
+const update = defineFormUpdate(updateExternalBioMatMutation(), {
   schema: $ExternalBioMatUpdate,
-  itemID: ({ code }: BioMaterialWithDetails) => ({ code })
-}
+  itemToModel: updateTransformer,
+  requestData: ({ code }) => ({ path: { code } })
+})
 </script>
 
 <style scoped lang="scss"></style>

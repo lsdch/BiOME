@@ -7,6 +7,7 @@
       :rounded="model.precision === 'Unknown' ? undefined : 'e-0'"
       v-bind="field('precision')"
       :max-width="150"
+      class="hide-required"
     />
     <CompositeDateField
       v-if="model.precision !== 'Unknown'"

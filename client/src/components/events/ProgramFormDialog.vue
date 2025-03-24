@@ -1,12 +1,5 @@
 <template>
-  <CreateUpdateForm
-    v-model="item"
-    :initial
-    :update-transformer
-    :create
-    :update
-    @success="dialog = false"
-  >
+  <CreateUpdateForm v-model="item" :create :update @success="dialog = false">
     <template #default="{ model, field, mode, loading, submit }">
       <FormDialog
         title="Register program"
@@ -88,6 +81,7 @@ import OrganisationPicker from '../people/OrganisationPicker.vue'
 import PersonPicker from '../people/PersonPicker.vue'
 import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
+import { defineFormCreate, defineFormUpdate } from '@/functions/mutations'
 
 const dialog = defineModel<boolean>('dialog')
 const item = defineModel<Program>()
@@ -114,16 +108,18 @@ function updateTransformer({
   }
 }
 
-const create = {
-  mutation: createProgramMutation,
+const create = defineFormCreate(createProgramMutation(), {
+  initial,
   schema: $ProgramInput
-}
+})
 
-const update = {
-  mutation: updateProgramMutation,
+const update = defineFormUpdate(updateProgramMutation(), {
   schema: $ProgramUpdate,
-  itemID: ({ code }: Program) => ({ code })
-}
+  itemToModel: updateTransformer,
+  requestData({ code }) {
+    return { path: { code } }
+  }
+})
 </script>
 
 <style scoped></style>

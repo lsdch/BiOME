@@ -1,12 +1,5 @@
 <template>
-  <CreateUpdateForm
-    v-model="item"
-    :initial
-    :update-transformer
-    :create
-    :update
-    @success="dialog = false"
-  >
+  <CreateUpdateForm v-model="item" :create :update @success="dialog = false">
     <template #default="{ model, field, mode, loading, submit }">
       <FormDialog
         :loading="loading.value"
@@ -98,6 +91,7 @@ import {
   TaxonWithRelatives
 } from '@/api'
 import { createTaxonMutation, updateTaxonMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import { defineFormCreate, defineFormUpdate } from '@/functions/mutations'
 import { useDisplay } from 'vuetify'
 import { type FormEmits } from '../toolkit/forms/form'
 import FormDialog from '../toolkit/forms/FormDialog.vue'
@@ -125,16 +119,16 @@ function updateTransformer({ $schema, meta, children_count, ...rest }: Taxon): T
   return rest
 }
 
-const create = {
-  mutation: createTaxonMutation,
+const create = defineFormCreate(createTaxonMutation(), {
+  initial,
   schema: $TaxonInput
-}
+})
 
-const update = {
-  mutation: updateTaxonMutation,
+const update = defineFormUpdate(updateTaxonMutation(), {
   schema: $TaxonUpdate,
-  itemID: ({ code }: Taxon) => ({ code })
-}
+  itemToModel: updateTransformer,
+  requestData: ({ code }) => ({ path: { code } })
+})
 
 function generateCode(model: TaxonInput | TaxonUpdate) {
   return model.name?.replace(/\s/g, '_')

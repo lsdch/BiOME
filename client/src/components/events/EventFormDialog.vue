@@ -1,19 +1,28 @@
 <template>
   <CreateUpdateForm
     v-model="item"
-    :initial
-    :update-transformer
     :create
     :update
+    :local
     @success="dialog = false"
+    @save="dialog = false"
   >
     <template #default="{ model, field, mode, loading, submit }">
       <FormDialog
-        :title="mode === 'Create' ? `New event at ${site.name}` : `Update event at ${site.name}`"
+        v-model="dialog"
+        :title="mode === 'Create' ? `New event` : `Update event`"
         v-bind="$attrs"
         @submit="submit"
         :loading="loading.value"
       >
+        <template #subtitle>
+          <v-chip label :text="site.code" class="font-monospace" prepend-icon="mdi-map-marker" />
+        </template>
+        <!-- Expose activator slot -->
+        <template #activator="slotData">
+          <slot name="activator" v-bind="slotData"></slot>
+        </template>
+
         <v-container>
           <v-row>
             <v-col>
@@ -50,17 +59,23 @@
 
 <script setup lang="ts">
 import { $EventInput, $EventUpdate, Event, EventInput, EventUpdate, SiteItem } from '@/api'
-import { DateWithPrecision } from '@/api/adapters'
+import { DateWithPrecision, SiteInput } from '@/api/adapters'
 import { createEventMutation, updateEventMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import { defineFormCreate, defineFormUpdate } from '@/functions/mutations'
 import PersonPicker from '../people/PersonPicker.vue'
-import FormDialog from '../toolkit/forms/FormDialog.vue'
+import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
+import FormDialog, { FormDialogProps } from '../toolkit/forms/FormDialog.vue'
 import DateWithPrecisionField from './DateWithPrecisionField.vue'
 import ProgramPicker from './ProgramPicker.vue'
-import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const item = defineModel<Event>()
-defineProps<{ site: SiteItem }>()
+const { site } = defineProps<
+  {
+    site: SiteItem | SiteInput
+    local?: true
+  } & Omit<FormDialogProps, 'loading' | 'fullscreen'>
+>()
 
 const initial: EventInput = {
   performed_by: [],
@@ -76,16 +91,26 @@ function updateTransformer({ performed_on, performed_by, programs }: Event): Eve
   }
 }
 
-const create = {
-  mutation: createEventMutation,
-  schema: $EventInput
-}
+const create = defineFormCreate(createEventMutation(), {
+  initial,
+  schema: $EventInput,
+  requestData(model) {
+    return {
+      body: model,
+      path: { code: site.code }
+    }
+  }
+})
 
-const update = {
-  mutation: updateEventMutation,
+const update = defineFormUpdate(updateEventMutation(), {
   schema: $EventUpdate,
-  itemID: ({ code }: Event) => ({ code })
-}
+  itemToModel: updateTransformer,
+  requestData(item) {
+    return {
+      path: { id: item.id }
+    }
+  }
+})
 </script>
 
 <style scoped lang="scss"></style>

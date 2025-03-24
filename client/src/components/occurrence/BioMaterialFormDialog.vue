@@ -16,13 +16,13 @@
         <v-col>
           <SiteSelectorCard
             class="fill-height small-card-title"
-            @update:model-value="(s) => (site = s?.code)"
+            @update:model-value="(s) => (site = s)"
           />
         </v-col>
       </v-row>
       <v-row>
         <v-col cols="12" md="6">
-          <EventFormComponent :site-code="site" v-model="event" />
+          <EventFormComponent :site v-model="event" />
         </v-col>
         <v-col cols="12" md="6">
           <v-card
@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import { BioMaterial, Event, OccurrenceCategory } from '@/api'
+import { BioMaterial, Event, OccurrenceCategory, Site, SiteInput } from '@/api'
 import { FormEmits, FormProps, Mode } from '@/components/toolkit/forms/form'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
 import { useToggle } from '@vueuse/core'
@@ -94,7 +94,7 @@ const emit = defineEmits<FormEmits<BioMaterial>>()
 const mode = computed<Mode>(() => (props.edit ? 'Edit' : 'Create'))
 const category = ref<OccurrenceCategory>()
 
-const site = ref<string>()
+const site = ref<SiteInput | Site>()
 const event = ref<Event>()
 
 const [loading, toggleLoading] = useToggle(false)

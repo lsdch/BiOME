@@ -1,12 +1,5 @@
 <template>
-  <CreateUpdateForm
-    v-model="item"
-    :initial
-    :update-transformer
-    :create
-    :update
-    @success="dialog = false"
-  >
+  <CreateUpdateForm v-model="item" :create :update @success="dialog = false">
     <template #default="{ model, field, mode, loading, submit }">
       <FormDialog
         v-model="dialog"
@@ -53,6 +46,7 @@ import {
   updateSamplingMethodMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
+import { defineFormCreate, defineFormUpdate } from '@/functions/mutations'
 import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 
 const dialog = defineModel<boolean>('dialog')
@@ -67,16 +61,16 @@ function updateTransformer({ code, label, description }: SamplingMethod): Sampli
   return { code, label, description }
 }
 
-const create = {
-  mutation: createSamplingMethodMutation,
+const create = defineFormCreate(createSamplingMethodMutation(), {
+  initial,
   schema: $SamplingMethodInput
-}
+})
 
-const update = {
-  mutation: updateSamplingMethodMutation,
+const update = defineFormUpdate(updateSamplingMethodMutation(), {
   schema: $SamplingMethodUpdate,
-  itemID: ({ code }: SamplingMethod) => ({ code })
-}
+  itemToModel: updateTransformer,
+  requestData: ({ code }) => ({ path: { code } })
+})
 </script>
 
 <style scoped lang="scss"></style>

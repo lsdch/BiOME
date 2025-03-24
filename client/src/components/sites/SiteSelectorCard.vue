@@ -16,7 +16,26 @@
               <SiteAutocomplete @update:model-value="updateSite" />
             </v-card-text>
             <template #append>
-              <v-btn text="New site" prepend-icon="mdi-plus" variant="tonal" rounded="md" />
+              <SiteFormDialog btn-text="Save" local @save="updateSite" :max-width="1200">
+                <template #activator="{ props }">
+                  <v-btn
+                    v-bind="{
+                      ...props,
+                      ...(site && 'id' in site
+                        ? {
+                            text: 'New site',
+                            prependIcon: 'mdi-plus'
+                          }
+                        : {
+                            text: 'Edit new site',
+                            prependIcon: 'mdi-pencil'
+                          })
+                    }"
+                    variant="tonal"
+                    rounded="md"
+                  />
+                </template>
+              </SiteFormDialog>
             </template>
             <template #actions v-if="site">
               <v-spacer />
@@ -47,6 +66,7 @@ import { SiteInput, SiteItem } from '@/api'
 import SitePreviewCard from './SitePreviewCard.vue'
 import { useToggle } from '@vueuse/core'
 import SiteProximityMap from './SiteProximityMap.vue'
+import SiteFormDialog from './SiteFormDialog.vue'
 
 const site = defineModel<SiteItem | SiteInput>()
 

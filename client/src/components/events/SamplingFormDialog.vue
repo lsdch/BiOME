@@ -1,12 +1,5 @@
 <template>
-  <CreateUpdateForm
-    v-model="item"
-    :initial
-    :update-transformer
-    :create
-    :update
-    @success="dialog = false"
-  >
+  <CreateUpdateForm v-model="item" :create :update @success="dialog = false">
     <template #default="{ model, field, mode, loading, submit }">
       <FormDialog
         v-model="dialog"
@@ -132,6 +125,7 @@ import {
 } from '@/api'
 import { DateWithPrecision, TaxonRank } from '@/api/adapters'
 import { createSamplingMutation, updateSamplingMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import { defineFormCreate, defineFormUpdate } from '@/functions/mutations'
 import HabitatPicker from '../habitat/HabitatPicker.vue'
 import FixativePicker from '../samples/FixativePicker.vue'
 import TaxonPicker from '../taxonomy/TaxonPicker.vue'
@@ -174,16 +168,16 @@ function updateTransformer({
   }
 }
 
-const create = {
-  mutation: createSamplingMutation,
+const create = defineFormCreate(createSamplingMutation(), {
+  initial,
   schema: $SamplingInputWithEvent
-}
+})
 
-const update = {
-  mutation: updateSamplingMutation,
+const update = defineFormUpdate(updateSamplingMutation(), {
   schema: $SamplingUpdate,
-  itemID: ({ id }: Sampling) => ({ id })
-}
+  itemToModel: updateTransformer,
+  requestData: ({ id }) => ({ path: { id } })
+})
 </script>
 
 <style scoped lang="scss"></style>

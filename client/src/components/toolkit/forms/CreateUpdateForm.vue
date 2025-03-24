@@ -21,72 +21,38 @@
     ItemID,
     InputSchema extends Schema,
     UpdateSchema extends Schema,
+    InputRequestData extends RequestData<ItemInput>,
+    UpdateRequestData extends RequestData<ItemUpdate> & { path: ItemID },
     InputModel = ItemInput,
     UpdateModel = ItemUpdate
   "
 >
 import { ErrorModel } from '@/api'
-import { useMutation, UseMutationOptions } from '@tanstack/vue-query'
+import { FormCreateMutation, FormUpdateMutation, RequestData } from '@/functions/mutations'
+import { useMutation } from '@tanstack/vue-query'
 import { reactiveComputed } from '@vueuse/core'
 import { StatusCodes } from 'http-status-codes'
 import { computed, ref, watch } from 'vue'
 import { Schema, useSchema } from './schema'
-import { Equal } from 'node_modules/@tanstack/vue-query/build/modern/types'
 
 export type Mode = 'Create' | 'Edit'
 
-export type FormCreateMutation<
-  Item = any,
-  ItemInput = any,
-  InputModel = ItemInput,
-  InputSchema = Schema
-> = {
-  mutation: (options?: {
-    body: ItemInput
-  }) => UseMutationOptions<Item, ErrorModel, { body: ItemInput }, any>
-  schema: InputSchema
-} & (Equal<InputModel, ItemInput> extends true
-  ? { transformer: undefined }
-  : { transformer: (model: InputModel) => ItemInput })
-
-export type FormUpdateMutation<
-  Item = any,
-  ItemUpdate = any,
-  UpdateModel = ItemUpdate,
-  UpdateSchema = Schema,
-  ItemID = any
-> = {
-  mutation: (options?: { path: ItemID; body: ItemUpdate }) => UseMutationOptions<
-    Item,
-    ErrorModel,
-    {
-      path: ItemID
-      body: ItemUpdate
-    },
-    any
-  >
-  schema: UpdateSchema
-  itemID(item: Item): ItemID
-} & (Equal<UpdateModel, ItemUpdate> extends true
-  ? { transformer: undefined }
-  : { transformer: (item: UpdateModel) => ItemUpdate })
-
-const { initial, updateTransformer, create, update } = defineProps<{
-  initial: InputModel
-  updateTransformer: (item: Item) => UpdateModel
-  create: FormCreateMutation<Item, ItemInput, InputModel, InputSchema>
-  update: FormUpdateMutation<Item, ItemUpdate, UpdateModel, UpdateSchema, ItemID>
+const { create, update, local } = defineProps<{
+  create: FormCreateMutation<Item, ItemInput, InputModel, InputSchema, InputRequestData>
+  update: FormUpdateMutation<Item, ItemUpdate, UpdateModel, UpdateSchema, ItemID, UpdateRequestData>
+  local?: true
 }>()
 
 const emit = defineEmits<{
   (evt: 'success', item: Item): void
   (evt: 'created', item: Item): void
   (evt: 'updated', item: Item): void
+  (evt: 'save', item: ItemInput): void
   (evt: 'error', item: ErrorModel): void
-  (evt: 'loading', loading: boolean): void
 }>()
 
 const item = defineModel<Item>()
+const loading = defineModel<boolean>('loading')
 const model = ref<InputModel | UpdateModel>(initModel(item.value))
 const mode = computed<Mode>(() => (item.value ? 'Edit' : 'Create'))
 watch(item, (item) => (model.value = initModel(item)), { immediate: true })
@@ -96,7 +62,7 @@ const { field, dispatchErrors } = reactiveComputed(() =>
 )
 
 const createMutation = useMutation({
-  ...create.mutation(),
+  ...create.mutation,
   onSuccess(data) {
     emit('success', data)
     emit('created', data)
@@ -104,7 +70,7 @@ const createMutation = useMutation({
   onError
 })
 const updateMutation = useMutation({
-  ...update.mutation(),
+  ...update.mutation,
   onSuccess(data) {
     emit('success', data)
     emit('updated', data)
@@ -113,18 +79,21 @@ const updateMutation = useMutation({
 })
 
 const activeMutation = computed(() => (mode.value === 'Create' ? createMutation : updateMutation))
-watch(activeMutation.value.isPending, (pending) => emit('loading', pending))
+watch(activeMutation.value.isPending, (pending) => (loading.value = pending))
 
 async function submit() {
+  if (local) {
+    emit('save', create.requestData?.(model.value)?.body ?? (model.value as ItemInput))
+    return
+  }
   if (mode.value === 'Create')
-    return await createMutation.mutateAsync({
-      body: create.transformer?.(model.value) ?? (model.value as ItemInput)
-    })
-  else
-    return await updateMutation.mutateAsync({
-      path: update.itemID(item.value!),
-      body: update.transformer?.(model.value) ?? (model.value as ItemUpdate)
-    })
+    return await createMutation.mutateAsync(create.requestData(model.value))
+  else {
+    return await updateMutation.mutateAsync(
+      update.requestData(item.value!, model.value)
+      // path: update.itemID(item.value!)
+    )
+  }
 }
 
 function setModel(newModel: InputModel | UpdateModel) {
@@ -141,8 +110,9 @@ function onError(err: ErrorModel) {
 }
 
 function initModel(item?: Item) {
-  return item ? updateTransformer(item) : initial
+  return item ? update.itemToModel(item) : create.initial
 }
+
 function reset() {
   initModel(item.value)
 }

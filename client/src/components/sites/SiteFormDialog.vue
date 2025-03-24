@@ -1,15 +1,16 @@
 <template>
   <CreateUpdateForm
     v-model="item"
-    :initial
-    :update-transformer
     :create
     :update
+    :local
     @created="onCreated()"
     @updated="onUpdated()"
+    @save="dialog = false"
   >
     <template #default="{ model, field, mode, loading, submit }">
       <FormDialog
+        v-bind="props"
         v-model="dialog"
         :title="`${mode} site`"
         :loading="loading.value"
@@ -140,21 +141,25 @@
 import { $SiteInput, $SiteUpdate, CoordinatesPrecision, Site, SiteInput, SiteUpdate } from '@/api'
 import { createSiteMutation, updateSiteMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import CoordPrecisionPicker from '@/components/sites/CoordPrecisionPicker.vue'
-import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
+import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
+import { defineFormCreate, defineFormUpdate } from '@/functions/mutations'
 import { useFeedback } from '@/stores/feedback'
+import { useGeolocation, useToggle, watchOnce } from '@vueuse/core'
 import { useDisplay } from 'vuetify'
-import CreateUpdateForm, {
-  FormCreateMutation,
-  FormUpdateMutation
-} from '../toolkit/forms/CreateUpdateForm.vue'
+import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 import FTextField from '../toolkit/forms/FTextField'
 import SiteFormLocationField from './SiteFormLocationField.vue'
 import SiteProximityMap from './SiteProximityMap.vue'
-import { useGeolocation, useToggle, watchOnce } from '@vueuse/core'
 
 const { mdAndDown } = useDisplay()
 const item = defineModel<Site>()
 const dialog = defineModel<boolean>('dialog')
+
+const props = defineProps<
+  Omit<FormDialogProps, 'loading' | 'fullscreen'> & {
+    local?: true
+  }
+>()
 
 type SiteInputModel = Omit<SiteInput, 'coordinates'> & {
   coordinates: { latitude?: number; longitude?: number }
@@ -195,36 +200,40 @@ function updateTransformer({
   }
 }
 
-const create: FormCreateMutation<Site, SiteInput, SiteInputModel, typeof $SiteInput> = {
-  mutation: createSiteMutation,
+const create = defineFormCreate(createSiteMutation(), {
+  initial,
   schema: $SiteInput,
-  transformer: (model: SiteInputModel) => {
+  requestData: (model: SiteInputModel) => {
     return {
-      ...model,
-      coordinates: {
-        latitude: model.coordinates.latitude!,
-        longitude: model.coordinates.longitude!,
-        precision: model.precision
+      body: {
+        ...model,
+        coordinates: {
+          latitude: model.coordinates.latitude!,
+          longitude: model.coordinates.longitude!,
+          precision: model.precision
+        }
       }
     }
   }
-}
+})
 
-const update: FormUpdateMutation<Site, SiteUpdate, SiteUpdateModel, typeof $SiteUpdate> = {
-  mutation: updateSiteMutation,
+const update = defineFormUpdate(updateSiteMutation(), {
+  itemToModel: updateTransformer,
   schema: $SiteUpdate,
-  itemID: ({ code }: Site) => ({ code }),
-  transformer: (model: SiteUpdateModel) => {
+  requestData: ({ code }, model: SiteUpdateModel) => {
     return {
-      ...model,
-      coordinates: {
-        latitude: model.coordinates.latitude!,
-        longitude: model.coordinates.longitude!,
-        precision: model.precision
+      path: { code },
+      body: {
+        ...model,
+        coordinates: {
+          latitude: model.coordinates.latitude!,
+          longitude: model.coordinates.longitude!,
+          precision: model.precision
+        }
       }
     }
   }
-}
+})
 
 const { feedback } = useFeedback()
 

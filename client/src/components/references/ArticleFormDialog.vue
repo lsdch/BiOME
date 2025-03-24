@@ -1,12 +1,5 @@
 <template>
-  <CreateUpdateForm
-    v-model="item"
-    :initial
-    :update-transformer
-    :create
-    :update
-    @success="dialog = false"
-  >
+  <CreateUpdateForm v-model="item" :create :update @success="dialog = false">
     <template #default="{ model, field, mode, loading, submit, setModel }">
       <FormDialog
         v-model="dialog"
@@ -84,16 +77,10 @@
 </template>
 
 <script setup lang="ts">
-import {
-  $ArticleInput,
-  $ArticleUpdate,
-  Article,
-  ArticleInput,
-  ArticleLocalInput,
-  ArticleUpdate
-} from '@/api'
+import { $ArticleInput, $ArticleUpdate, Article, ArticleLocalInput, ArticleUpdate } from '@/api'
 import { createArticleMutation, updateArticleMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
+import { defineFormCreate, defineFormUpdate } from '@/functions/mutations'
 import { ref } from 'vue'
 import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 import DoiInputFetcher from './DoiInputFetcher.vue'
@@ -112,20 +99,22 @@ function updateTransformer({ id, meta, $schema, ...rest }: Article): ArticleUpda
   return rest
 }
 
-const create = {
-  mutation: createArticleMutation,
+const create = defineFormCreate(createArticleMutation(), {
   schema: $ArticleInput,
-  transformer: (input: ArticleLocalInput): ArticleInput => ({
-    ...input,
-    year: input.year! // will be caught by server-side validation if not provided
+  initial,
+  requestData: (input: ArticleLocalInput) => ({
+    body: {
+      ...input,
+      year: input.year! // will be caught by server-side validation if not provided
+    }
   })
-}
+})
 
-const update = {
-  mutation: updateArticleMutation,
+const update = defineFormUpdate(updateArticleMutation(), {
   schema: $ArticleUpdate,
-  itemID: ({ code }: Article) => ({ code })
-}
+  itemToModel: updateTransformer,
+  requestData: ({ code }) => ({ path: { code } })
+})
 </script>
 
 <style lang="scss">

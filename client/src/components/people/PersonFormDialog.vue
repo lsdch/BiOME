@@ -1,12 +1,5 @@
 <template>
-  <CreateUpdateForm
-    v-model="item"
-    :initial
-    :update-transformer
-    :create
-    :update
-    @success="dialog = false"
-  >
+  <CreateUpdateForm v-model="item" :create :update @success="dialog = false">
     <template #default="{ model, field, mode, loading, submit }">
       <FormDialog
         v-model="dialog"
@@ -78,7 +71,8 @@
 import { $PersonInput, $PersonUpdate, Person, PersonInput, PersonUpdate } from '@/api'
 import { createPersonMutation, updatePersonMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
-import CreateUpdateForm, { FormUpdateMutation } from '../toolkit/forms/CreateUpdateForm.vue'
+import { defineFormCreate, defineFormUpdate } from '@/functions/mutations'
+import CreateUpdateForm from '../toolkit/forms/CreateUpdateForm.vue'
 import OrganisationPicker from './OrganisationPicker.vue'
 
 const dialog = defineModel<boolean>('dialog')
@@ -107,16 +101,16 @@ function updateTransformer({
     organisations: organisations.map(({ code }) => code)
   }
 }
-const create = {
-  mutation: createPersonMutation,
+const create = defineFormCreate(createPersonMutation(), {
+  initial,
   schema: $PersonInput
-}
+})
 
-const update: FormUpdateMutation<Person, PersonUpdate> = {
-  mutation: updatePersonMutation,
+const update = defineFormUpdate(updatePersonMutation(), {
   schema: $PersonUpdate,
-  itemID: ({ id }) => ({ id })
-}
+  itemToModel: updateTransformer,
+  requestData: ({ id }) => ({ path: { id } })
+})
 </script>
 
 <style scoped></style>
