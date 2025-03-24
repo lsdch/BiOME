@@ -2,6 +2,9 @@
   <v-form @submit.prevent>
     <template #="{ isValid, isDisabled }">
       <CardDialog v-model="dialog" v-bind="{ ...$props, ...$attrs }">
+        <template #subtitle>
+          <slot name="subtitle" />
+        </template>
         <template #append>
           <v-btn
             color="primary"
@@ -28,12 +31,13 @@
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
 import CardDialog, { CardDialogProps } from './CardDialog.vue'
+export type FormDialogProps = CardDialogProps & { btnText?: string }
 
 const dialog = defineModel<boolean>({ default: false })
 
 const emit = defineEmits<{ submit: [] }>()
 
-withDefaults(defineProps<CardDialogProps & { btnText?: string }>(), {
+withDefaults(defineProps<FormDialogProps>(), {
   btnText: 'Submit',
   closeText: 'Cancel'
 })
