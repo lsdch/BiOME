@@ -46,20 +46,28 @@
           <v-card title="Bio material" prepend-icon="mdi-package-variant">
             <v-card v-if="mode === 'Create'" title="Category" flat class="small-card-title">
               <v-card-text>
-                <v-btn-toggle v-model="category" mandatory divided rounded="md" variant="outlined">
-                  <v-btn
-                    value="Internal"
-                    text="Internal"
-                    :prepend-icon="OccurrenceCategory.icon('Internal')"
-                    :color="OccurrenceCategory.props.Internal.color"
-                  />
-                  <v-btn
-                    value="External"
-                    text="External"
-                    :prepend-icon="OccurrenceCategory.icon('External')"
-                    :color="OccurrenceCategory.props.External.color"
-                  />
-                </v-btn-toggle>
+                <v-input v-model="category" :rules="[(v) => !!v || 'Category is required']">
+                  <v-btn-toggle
+                    v-model="category"
+                    mandatory
+                    divided
+                    rounded="md"
+                    variant="outlined"
+                  >
+                    <v-btn
+                      value="Internal"
+                      text="Internal"
+                      :prepend-icon="OccurrenceCategory.icon('Internal')"
+                      :color="OccurrenceCategory.props.Internal.color"
+                    />
+                    <v-btn
+                      value="External"
+                      text="External"
+                      :prepend-icon="OccurrenceCategory.icon('External')"
+                      :color="OccurrenceCategory.props.External.color"
+                    />
+                  </v-btn-toggle>
+                </v-input>
               </v-card-text>
             </v-card>
             <v-divider v-if="category" class="mb-3" />
