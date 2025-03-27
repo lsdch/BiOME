@@ -2,7 +2,6 @@ package occurrence
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
@@ -48,33 +47,9 @@ type OccurrenceWithCategory struct {
 
 // OccurrenceInnerInput is meant to be embedded in other occurrence input type
 type OccurrenceInnerInput struct {
-	SamplingID     geltypes.UUID                         `json:"sampling_id" format:"uuid"`
-	Identification IdentificationInput                   `json:"identification"`
+	Identification IdentificationInput                   `json:"identification" doc:"Occurrence identification"`
 	Comments       models.OptionalInput[string]          `json:"comments"`
 	PublishedIn    []references.OccurrenceReferenceInput `gel:"published_in" json:"published_in,omitempty"`
-}
-
-func (i OccurrenceInnerInput) Code(samplingCode string) string {
-	return fmt.Sprintf("%s[%s]",
-		taxonomy.TaxonCode(i.Identification.Taxon),
-		samplingCode,
-	)
-}
-
-func (i OccurrenceInnerInput) GenerateCode(db geltypes.Executor) (string, error) {
-	sampling, err := i.GetSampling(db)
-	if err != nil {
-		return "", fmt.Errorf("Sampling not found")
-	}
-	return i.Code(sampling.Code), nil
-}
-
-func (i OccurrenceInnerInput) GetSampling(db geltypes.Executor) (sampling SamplingInner, err error) {
-	err = db.QuerySingle(context.Background(),
-		`#edgeql
-			select <events::Sampling><uuid>$0 { * }
-		`, i.SamplingID, &sampling)
-	return
 }
 
 type OccurrenceUpdate struct {

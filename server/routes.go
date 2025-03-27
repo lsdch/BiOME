@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/lsdch/biome/controllers/biomaterial"
 	"github.com/lsdch/biome/controllers/datasets"
 	"github.com/lsdch/biome/controllers/events"
 	"github.com/lsdch/biome/controllers/habitats"
@@ -32,7 +31,6 @@ func registerRoutes(router router.Router) {
 	events.RegisterRoutes(router)
 	sequences.RegisterRoutes(router)
 	habitats.RegisterRoutes(router)
-	biomaterial.RegisterRoutes(router)
 	references.RegisterRoutes(router)
 	occurrences.RegisterRoutes(router)
 	services.RegisterGeoapifyRoutes(router)

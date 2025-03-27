@@ -97,8 +97,6 @@ func (i SamplingInputWithOccurrences) Save(tx geltypes.Tx, eventID geltypes.UUID
 	}
 
 	for j, internalBiomat := range i.InternalBiomat {
-		internalBiomat.SamplingID = sampling.ID
-		internalBiomat.UseSamplingCode(sampling.Code)
 		biomat, err := internalBiomat.Save(tx, sampling.ID)
 		if err != nil {
 			return nil, models.WrapErrorIndex(err, j).PrependPath("internal_biomats")
@@ -108,8 +106,6 @@ func (i SamplingInputWithOccurrences) Save(tx geltypes.Tx, eventID geltypes.UUID
 	}
 
 	for j, externalBiomat := range i.ExternalBiomat {
-		externalBiomat.SamplingID = sampling.ID
-		externalBiomat.UseSamplingCode(sampling.Code)
 		occ, err := externalBiomat.Save(tx, sampling.ID)
 		if err != nil {
 			return nil, models.WrapErrorIndex(err, j).PrependPath("external_biomats")

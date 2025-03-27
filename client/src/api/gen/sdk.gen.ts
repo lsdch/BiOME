@@ -139,6 +139,9 @@ import type {
   UpdateEventData,
   UpdateEventResponse,
   UpdateEventError,
+  EventAddExternalOccurrenceData,
+  EventAddExternalOccurrenceResponse,
+  EventAddExternalOccurrenceError,
   UpdateSpottingData,
   UpdateSpottingResponse,
   UpdateSpottingError,
@@ -283,6 +286,9 @@ import type {
   UpdateSamplingData,
   UpdateSamplingResponse,
   UpdateSamplingError,
+  SamplingAddExternalOccurrenceData,
+  SamplingAddExternalOccurrenceResponse,
+  SamplingAddExternalOccurrenceError,
   ListSequencesData,
   ListSequencesResponse,
   ListSequencesError,
@@ -340,6 +346,9 @@ import type {
   CreateEventData,
   CreateEventResponse,
   CreateEventError,
+  SiteAddExternalOccurrenceData,
+  SiteAddExternalOccurrenceResponse,
+  SiteAddExternalOccurrenceError,
   GetTaxonomyData,
   GetTaxonomyResponse,
   GetTaxonomyError,
@@ -392,6 +401,7 @@ import {
   getSiteDatasetResponseTransformer,
   deleteEventResponseTransformer,
   updateEventResponseTransformer,
+  eventAddExternalOccurrenceResponseTransformer,
   updateSpottingResponseTransformer,
   listFixativesResponseTransformer,
   createFixativeResponseTransformer,
@@ -428,6 +438,7 @@ import {
   createSamplingResponseTransformer,
   deleteSamplingResponseTransformer,
   updateSamplingResponseTransformer,
+  samplingAddExternalOccurrenceResponseTransformer,
   listSequencesResponseTransformer,
   deleteSequenceResponseTransformer,
   getSequenceResponseTransformer,
@@ -437,6 +448,7 @@ import {
   updateSiteResponseTransformer,
   listSiteEventsResponseTransformer,
   createEventResponseTransformer,
+  siteAddExternalOccurrenceResponseTransformer,
   getTaxonomyResponseTransformer,
   listTaxaResponseTransformer,
   createTaxonResponseTransformer,
@@ -687,6 +699,106 @@ export class SamplingService {
   }
 
   /**
+   * List habitats
+   */
+  public static listHabitatGroups<ThrowOnError extends boolean = false>(
+    options?: Options<ListHabitatGroupsData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListHabitatGroupsResponse,
+      ListHabitatGroupsError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: listHabitatGroupsResponseTransformer,
+      url: '/habitats',
+      ...options
+    })
+  }
+
+  /**
+   * Create habitat group
+   */
+  public static createHabitatGroup<ThrowOnError extends boolean = false>(
+    options: Options<CreateHabitatGroupData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CreateHabitatGroupResponse,
+      CreateHabitatGroupError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: createHabitatGroupResponseTransformer,
+      url: '/habitats',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Delete habitat group
+   */
+  public static deleteHabitatGroup<ThrowOnError extends boolean = false>(
+    options: Options<DeleteHabitatGroupData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).delete<
+      DeleteHabitatGroupResponse,
+      DeleteHabitatGroupError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: deleteHabitatGroupResponseTransformer,
+      url: '/habitats/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Update habitat group
+   */
+  public static updateHabitatGroup<ThrowOnError extends boolean = false>(
+    options: Options<UpdateHabitatGroupData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).patch<
+      UpdateHabitatGroupResponse,
+      UpdateHabitatGroupError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: updateHabitatGroupResponseTransformer,
+      url: '/habitats/{label}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
    * List sampling methods
    */
   public static listSamplingMethods<ThrowOnError extends boolean = false>(
@@ -855,6 +967,34 @@ export class SamplingService {
       ],
       responseTransformer: updateSamplingResponseTransformer,
       url: '/samplings/{id}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Add occurrence from sampling
+   * Register new occurrence resulting from the sampling action
+   */
+  public static samplingAddExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SamplingAddExternalOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      SamplingAddExternalOccurrenceResponse,
+      SamplingAddExternalOccurrenceError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
+      url: '/samplings/{id}/occurrences/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -1312,7 +1452,7 @@ export class TaxonomyGbifService {
   }
 }
 
-export class SamplesService {
+export class OccurrencesService {
   /**
    * List bio-material
    * Both internal and external
@@ -1436,6 +1576,112 @@ export class SamplesService {
       responseTransformer: getBioMaterialResponseTransformer,
       url: '/bio-material/{code}',
       ...options
+    })
+  }
+
+  /**
+   * Add occurrence from event
+   * Register new occurrence resulting from the event, including sampling specification and biomaterial identification
+   */
+  public static eventAddExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<EventAddExternalOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      EventAddExternalOccurrenceResponse,
+      EventAddExternalOccurrenceError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: eventAddExternalOccurrenceResponseTransformer,
+      url: '/events/{id}/occurrences/external',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Occurrences overview
+   */
+  public static occurrenceOverview<ThrowOnError extends boolean = false>(
+    options?: Options<OccurrenceOverviewData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      OccurrenceOverviewResponse,
+      OccurrenceOverviewError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      url: '/occurrences/overview',
+      ...options
+    })
+  }
+
+  /**
+   * Add occurrence from sampling
+   * Register new occurrence resulting from the sampling action
+   */
+  public static samplingAddExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SamplingAddExternalOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      SamplingAddExternalOccurrenceResponse,
+      SamplingAddExternalOccurrenceError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
+      url: '/samplings/{id}/occurrences/external',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Add occurrence at site
+   * Register new occurrence at site, including event + sampling specification and biomaterial identification
+   */
+  public static siteAddExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SiteAddExternalOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      SiteAddExternalOccurrenceResponse,
+      SiteAddExternalOccurrenceError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
+      url: '/sites/{code}/occurrences/external',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
     })
   }
 }
@@ -1990,6 +2236,34 @@ export class EventsService {
   }
 
   /**
+   * Add occurrence from event
+   * Register new occurrence resulting from the event, including sampling specification and biomaterial identification
+   */
+  public static eventAddExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<EventAddExternalOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      EventAddExternalOccurrenceResponse,
+      EventAddExternalOccurrenceError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        }
+      ],
+      responseTransformer: eventAddExternalOccurrenceResponseTransformer,
+      url: '/events/{id}/occurrences/external',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
    * Update spotting
    */
   public static updateSpotting<ThrowOnError extends boolean = false>(
@@ -2356,108 +2630,6 @@ export class ServicesService {
   }
 }
 
-export class HabitatsService {
-  /**
-   * List habitats
-   */
-  public static listHabitatGroups<ThrowOnError extends boolean = false>(
-    options?: Options<ListHabitatGroupsData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListHabitatGroupsResponse,
-      ListHabitatGroupsError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: listHabitatGroupsResponseTransformer,
-      url: '/habitats',
-      ...options
-    })
-  }
-
-  /**
-   * Create habitat group
-   */
-  public static createHabitatGroup<ThrowOnError extends boolean = false>(
-    options: Options<CreateHabitatGroupData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreateHabitatGroupResponse,
-      CreateHabitatGroupError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: createHabitatGroupResponseTransformer,
-      url: '/habitats',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Delete habitat group
-   */
-  public static deleteHabitatGroup<ThrowOnError extends boolean = false>(
-    options: Options<DeleteHabitatGroupData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeleteHabitatGroupResponse,
-      DeleteHabitatGroupError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: deleteHabitatGroupResponseTransformer,
-      url: '/habitats/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update habitat group
-   */
-  public static updateHabitatGroup<ThrowOnError extends boolean = false>(
-    options: Options<UpdateHabitatGroupData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdateHabitatGroupResponse,
-      UpdateHabitatGroupError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: updateHabitatGroupResponseTransformer,
-      url: '/habitats/{label}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-}
-
 export class LocationService {
   /**
    * Get country from WGS84 coordinates
@@ -2730,18 +2902,17 @@ export class LocationService {
       }
     })
   }
-}
 
-export class CountriesService {
   /**
-   * Get country from WGS84 coordinates
+   * Add occurrence at site
+   * Register new occurrence at site, including event + sampling specification and biomaterial identification
    */
-  public static coordinatesToCountry<ThrowOnError extends boolean = false>(
-    options: Options<CoordinatesToCountryData, ThrowOnError>
+  public static siteAddExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SiteAddExternalOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CoordinatesToCountryResponse,
-      CoordinatesToCountryError,
+      SiteAddExternalOccurrenceResponse,
+      SiteAddExternalOccurrenceError,
       ThrowOnError
     >({
       security: [
@@ -2750,129 +2921,13 @@ export class CountriesService {
           type: 'http'
         }
       ],
-      url: '/locations/coordinates',
+      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
+      url: '/sites/{code}/occurrences/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
         ...options?.headers
       }
-    })
-  }
-
-  /**
-   * List sites within a radius of a point
-   */
-  public static sitesProximity<ThrowOnError extends boolean = false>(
-    options: Options<SitesProximityData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      SitesProximityResponse,
-      SitesProximityError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      url: '/locations/coordinates/proximity',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * List countries
-   */
-  public static listCountries<ThrowOnError extends boolean = false>(
-    options?: Options<ListCountriesData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListCountriesResponse,
-      ListCountriesError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      url: '/locations/countries',
-      ...options
-    })
-  }
-
-  /**
-   * Get country list with sites count
-   */
-  public static getSitesCountByCountry<ThrowOnError extends boolean = false>(
-    options?: Options<GetSitesCountByCountryData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      GetSitesCountByCountryResponse,
-      GetSitesCountByCountryError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      url: '/locations/countries/sites-count',
-      ...options
-    })
-  }
-
-  /**
-   * Search sites
-   * Search sites by name, code or locality fuzzy matching a query. Returns a list of sites sorted by similarity.
-   */
-  public static searchSites<ThrowOnError extends boolean = false>(
-    options?: Options<SearchSitesData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      SearchSitesResponse,
-      SearchSitesError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      url: '/locations/search',
-      ...options
-    })
-  }
-}
-
-export class OccurrencesService {
-  /**
-   * Occurrences overview
-   */
-  public static occurrenceOverview<ThrowOnError extends boolean = false>(
-    options?: Options<OccurrenceOverviewData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      OccurrenceOverviewResponse,
-      OccurrenceOverviewError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      url: '/occurrences/overview',
-      ...options
     })
   }
 }
@@ -2978,237 +3033,6 @@ export class PeopleService {
     })
   }
 
-  /**
-   * List persons
-   */
-  public static listPersons<ThrowOnError extends boolean = false>(
-    options?: Options<ListPersonsData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListPersonsResponse,
-      ListPersonsError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: listPersonsResponseTransformer,
-      url: '/persons',
-      ...options
-    })
-  }
-
-  /**
-   * Create person
-   */
-  public static createPerson<ThrowOnError extends boolean = false>(
-    options: Options<CreatePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreatePersonResponse,
-      CreatePersonError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: createPersonResponseTransformer,
-      url: '/persons',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Delete person
-   */
-  public static deletePerson<ThrowOnError extends boolean = false>(
-    options: Options<DeletePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeletePersonResponse,
-      DeletePersonError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: deletePersonResponseTransformer,
-      url: '/persons/{id}',
-      ...options
-    })
-  }
-
-  /**
-   * Update person
-   */
-  public static updatePerson<ThrowOnError extends boolean = false>(
-    options: Options<UpdatePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdatePersonResponse,
-      UpdatePersonError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: updatePersonResponseTransformer,
-      url: '/persons/{id}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Invite person
-   * Sends an invitation link to a person at the address provided in `dest`, allowing them to register an account assigned with a specified `role`.
-   */
-  public static invitePerson<ThrowOnError extends boolean = false>(
-    options: Options<InvitePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      InvitePersonResponse,
-      InvitePersonError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      url: '/persons/{id}/invite',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-}
-
-export class OrganisationService {
-  /**
-   * List organisations
-   */
-  public static listOrganisations<ThrowOnError extends boolean = false>(
-    options?: Options<ListOrganisationsData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListOrganisationsResponse,
-      ListOrganisationsError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: listOrganisationsResponseTransformer,
-      url: '/organisations',
-      ...options
-    })
-  }
-
-  /**
-   * Create organisation
-   */
-  public static createOrganisation<ThrowOnError extends boolean = false>(
-    options: Options<CreateOrganisationData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreateOrganisationResponse,
-      CreateOrganisationError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: createOrganisationResponseTransformer,
-      url: '/organisations',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Delete organisation
-   */
-  public static deleteOrganisation<ThrowOnError extends boolean = false>(
-    options: Options<DeleteOrganisationData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeleteOrganisationResponse,
-      DeleteOrganisationError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: deleteOrganisationResponseTransformer,
-      url: '/organisations/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update organisation
-   */
-  public static updateOrganisation<ThrowOnError extends boolean = false>(
-    options: Options<UpdateOrganisationData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdateOrganisationResponse,
-      UpdateOrganisationError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        }
-      ],
-      responseTransformer: updateOrganisationResponseTransformer,
-      url: '/organisations/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-}
-
-export class PersonService {
   /**
    * List persons
    */

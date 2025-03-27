@@ -33,7 +33,7 @@ func (i *UUIDResolver) Resolve(ctx huma.Context) []error {
 
 func RegisterRoutes(r router.Router) {
 	personsAPI := r.RouteGroup("/persons").
-		WithTags([]string{"People", "Person"})
+		WithTags([]string{"People"})
 
 	router.Register(personsAPI, "ListPersons",
 		huma.Operation{

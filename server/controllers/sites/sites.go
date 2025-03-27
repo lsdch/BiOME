@@ -1,9 +1,12 @@
 package sites
 
 import (
+	"context"
 	"net/http"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/controllers/occurrences"
 	"github.com/lsdch/biome/models/occurrence"
 	"github.com/lsdch/biome/resolvers"
 	"github.com/lsdch/biome/router"
@@ -74,4 +77,50 @@ func RegisterRoutes(r router.Router) {
 		},
 		controllers.UpdateByCodeHandler[occurrence.EventInput],
 	)
+
+	router.Register(sites_API, "SiteAddExternalOccurrence",
+		huma.Operation{
+			Tags:        []string{"Occurrences"},
+			Path:        "/{code}/occurrences/external",
+			Method:      http.MethodPost,
+			Summary:     "Add occurrence at site",
+			Description: "Register new occurrence at site, including event + sampling specification and biomaterial identification",
+		},
+		SiteAddExternalOccurrence,
+	)
+}
+
+type SiteAddExternalOccurrenceInput struct {
+	resolvers.AccessRestricted[resolvers.Contributor]
+	controllers.CodeInput
+	Body struct {
+		Event       occurrence.EventInput          `json:"event"`
+		Sampling    occurrence.SamplingInput       `json:"sampling"`
+		BioMaterial occurrence.ExternalBioMatInput `json:",inline"`
+	} `nameHint:"ExternalOccurrenceAtSiteInput"`
+}
+
+func SiteAddExternalOccurrence(ctx context.Context, input *SiteAddExternalOccurrenceInput) (*occurrences.RegisterOccurrenceOutput, error) {
+	site := input.Identifier()
+	var created occurrence.BioMaterialWithDetails
+	err := input.DB().Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
+		event, err := input.Body.Event.Save(tx, site)
+		if err != nil {
+			return err
+		}
+		sampling, err := input.Body.Sampling.Save(tx, event.ID)
+		if err != nil {
+			return err
+		}
+		biomat, err := input.Body.BioMaterial.Save(tx, sampling.ID)
+		if err != nil {
+			return err
+		}
+		created = biomat
+		return nil
+	})
+	if err != nil {
+		return nil, controllers.StatusError(err)
+	}
+	return &occurrences.RegisterOccurrenceOutput{Body: created}, nil
 }

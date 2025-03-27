@@ -214,24 +214,12 @@ func DeleteBioMaterial(db geltypes.Executor, code string) (deleted BioMaterialWi
 
 type BioMaterialInput struct {
 	OccurrenceInnerInput `gel:"$inline" json:",inline"`
-	Code                 models.OptionalInput[string] `gel:"code" json:"code,omitempty"`
-	IsType               models.OptionalInput[bool]   `gel:"is_type" json:"is_type,omitempty"`
+	Code                 models.OptionalInput[string] `gel:"code" json:"code,omitempty" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
+	IsType               models.OptionalInput[bool]   `gel:"is_type" json:"is_type,omitempty" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
 }
 
 func (i *BioMaterialInput) SetCode(code string) {
 	i.Code.SetValue(code)
-}
-
-func (i *BioMaterialInput) UseSamplingCode(samplingCode string) {
-	i.SetCode(i.OccurrenceInnerInput.Code(samplingCode))
-}
-
-func (i BioMaterialInput) GetCode(db geltypes.Executor) (string, error) {
-	if i.Code.IsSet {
-		return i.Code.Value, nil
-	} else {
-		return i.GenerateCode(db)
-	}
 }
 
 type BioMaterialUpdate struct {
@@ -247,28 +235,28 @@ type InternalBioMatInput struct {
 
 func (i InternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created BioMaterialWithDetails, err error) {
 	data, _ := json.Marshal(i)
-	code, err := i.GetCode(e)
-	if err != nil {
-		return
-	}
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
-			with data := <json>$1,
-			identification := data['identification'],
+			with
+				sampling := (
+					assert_exists(
+						(select (<events::Sampling><uuid>$0)),
+						message := "Failed to find sampling with ID: " ++ <str><uuid>$0
+					)
+				),
+				data := <json>$1,
+				identification := data['identification'],
+				taxon := taxonomy::taxonByName(<str>identification['taxon']),
 			select (insert occurrence::InternalBioMat {
-				code := <str>$2,
+				code := <str>json_get(data, 'code') ?? occurrence::biomat_code(taxon, sampling),
 				identification := (
 					insert occurrence::Identification {
-						taxon := taxonomy::taxonByName(<str>identification['taxon']),
+						taxon := taxon,
 						identified_by := people::personByAlias(<str>identification['identified_by']),
 						identified_on := date::from_json_with_precision(identification['identified_on']),
 					}
 				),
-				sampling := assert_exists((
-						select (<events::Sampling><uuid>$0)
-					),
-					message := "Failed to find sampling with ID: " ++ <str><uuid>$0
-				),
+				sampling := sampling,
 				is_type := <bool>json_get(data, 'is_type') ?? false,
 				published_in := (
 					with pubs := json_array_unpack(json_get(data, 'published_in'))
@@ -297,7 +285,7 @@ func (i InternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
 				identification: { **, identified_by: { * } },
 				meta: { * }
 			}
-		`, &created, samplingID, data, code)
+		`, &created, samplingID, data)
 	return
 }
 
@@ -315,7 +303,7 @@ type ExternalBioMatInput struct {
 	OriginalSource     models.OptionalInput[string] `gel:"original_source" json:"original_source,omitempty"`
 	OriginalLink       models.OptionalInput[string] `gel:"original_link" json:"original_link,omitempty"`
 	Quantity           specimen.Quantity            `gel:"quantity" json:"quantity"`
-	ContentDescription models.OptionalInput[string] `gel:"content_description" json:"content_description,omitempty"`
+	ContentDescription models.OptionalInput[string] `gel:"content_description" json:"content_description,omitempty" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
 	Collection         models.OptionalInput[string] `gel:"in_collection" json:"collection,omitempty"`
 	Item               []string                     `gel:"item_vouchers" json:"vouchers,omitempty"`
 	Comments           models.OptionalInput[string] `gel:"comments" json:"comments,omitempty"`
@@ -323,16 +311,18 @@ type ExternalBioMatInput struct {
 
 func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created BioMaterialWithDetails, err error) {
 	data, _ := json.Marshal(i)
-	code, err := i.GetCode(e)
-	if err != nil {
-		return
-	}
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
-			with data := <json>$1,
-			identification := data['identification'],
+			with
+				sampling := (assert_exists(
+					(select (<events::Sampling><uuid>$0)),
+					message := "Failed to find sampling with ID: " ++ <str><uuid>$0
+				)),
+				data := <json>$1,
+				identification := data['identification'],
+				taxon := taxonomy::taxonByName(<str>identification['taxon']),
 			select (insert occurrence::ExternalBioMat {
-				code := <str>$2,
+				code := <str>json_get(data, 'code') ?? occurrence::biomat_code(taxon, sampling),
 				original_source := (
 					with src := <str>json_get(data, 'original_source')
 					select (if exists src then default::get_vocabulary(src)[is references::DataSource] else <references::DataSource>{})
@@ -356,15 +346,12 @@ func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
 				),
         identification := (
           insert occurrence::Identification {
-            taxon := taxonomy::taxonByName(<str>identification['taxon']),
+            taxon := taxon,
             identified_by := people::personByAlias(<str>identification['identified_by']),
             identified_on := date::from_json_with_precision(identification['identified_on']),
           }
         ),
-        sampling := assert_exists(
-					(select (<events::Sampling><uuid>$0)),
-					message := "Failed to find sampling with ID: " ++ <str><uuid>$0
-				),
+        sampling := sampling,
         is_type := <bool>json_get(data, 'is_type') ?? false,
 			}) {
         [is occurrence::BioMaterial].**,
@@ -381,7 +368,7 @@ func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
           content_description
         }
       }
-		`, &created, samplingID, data, code)
+		`, &created, samplingID, data)
 	return
 }
 

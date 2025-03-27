@@ -103,7 +103,7 @@ import '@vue-flow/core/dist/style.css'
 /* optional styles: default theme for vue flow  */
 import '@vue-flow/core/dist/theme-default.css'
 
-import { HabitatGroup, HabitatsService } from '@/api'
+import { HabitatGroup, SamplingService } from '@/api'
 import { Background } from '@vue-flow/background'
 import { ControlButton, Controls } from '@vue-flow/controls'
 import '@vue-flow/controls/dist/style.css'
@@ -185,7 +185,7 @@ function connectGroupHabitat(group: ConnectedGroup, habitat: ConnectedHabitat) {
   })
     .then(async ({ isCanceled }) => {
       if (isCanceled) return
-      await HabitatsService.updateHabitatGroup({
+      await SamplingService.updateHabitatGroup({
         path: { label: group.label },
         body: { depends: habitat.label }
       }).then(({ data: updated, error }) => {
@@ -214,7 +214,7 @@ function askDeleteEdge(edge: GraphEdge) {
   askConfirm({ title: `Drop dependency of '${group}'?` }).then(async ({ isCanceled }) => {
     if (isCanceled) return console.info('Dependency drop canceled')
     else {
-      const { data: updated, error } = await HabitatsService.updateHabitatGroup({
+      const { data: updated, error } = await SamplingService.updateHabitatGroup({
         path: { label: group },
         body: { depends: null }
       })
@@ -249,7 +249,7 @@ async function askDeleteGroups(groups: HabitatGroup[]) {
 
   async function deleteHandler(groups: HabitatGroup[]) {
     await Promise.all(
-      groups.map((group) => HabitatsService.deleteHabitatGroup({ path: { code: group.label } }))
+      groups.map((group) => SamplingService.deleteHabitatGroup({ path: { code: group.label } }))
     )
       .then(mergeResponses)
       .then(({ data, error }) => {

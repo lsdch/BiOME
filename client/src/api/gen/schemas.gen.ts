@@ -1367,6 +1367,68 @@ export const $ExternalBioMatContent = {
   type: 'object'
 } as const
 
+export const $ExternalBioMatInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ExternalBioMatInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      description:
+        'Unique code identifier for the bio material. Generated from taxon and sampling if not provided.',
+      examples: ['Genus_sp[SITE|2001-01]'],
+      type: 'string'
+    },
+    collection: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    content_description: {
+      description: 'Description of the content of the bio material',
+      examples: ['2 females, 1 juvenile male'],
+      type: 'string'
+    },
+    identification: {
+      $ref: '#/components/schemas/IdentificationInput',
+      description: 'Occurrence identification'
+    },
+    is_type: {
+      description:
+        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.',
+      type: 'boolean'
+    },
+    original_link: {
+      type: 'string'
+    },
+    original_source: {
+      type: 'string'
+    },
+    published_in: {
+      items: {
+        $ref: '#/components/schemas/OccurrenceReferenceInput'
+      },
+      type: 'array'
+    },
+    quantity: {
+      $ref: '#/components/schemas/Quantity'
+    },
+    vouchers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    }
+  },
+  required: ['quantity', 'identification'],
+  type: 'object'
+} as const
+
 export const $ExternalBioMatOccurrenceInput = {
   additionalProperties: false,
   properties: {
@@ -1378,6 +1440,9 @@ export const $ExternalBioMatOccurrenceInput = {
       type: 'string'
     },
     code: {
+      description:
+        'Unique code identifier for the bio material. Generated from taxon and sampling if not provided.',
+      examples: ['Genus_sp[SITE|2001-01]'],
       type: 'string'
     },
     collection: {
@@ -1387,12 +1452,17 @@ export const $ExternalBioMatOccurrenceInput = {
       type: 'string'
     },
     content_description: {
+      description: 'Description of the content of the bio material',
+      examples: ['2 females, 1 juvenile male'],
       type: 'string'
     },
     identification: {
-      $ref: '#/components/schemas/IdentificationInput'
+      $ref: '#/components/schemas/IdentificationInput',
+      description: 'Occurrence identification'
     },
     is_type: {
+      description:
+        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.',
       type: 'boolean'
     },
     original_link: {
@@ -1413,10 +1483,6 @@ export const $ExternalBioMatOccurrenceInput = {
     sampling: {
       type: 'string'
     },
-    sampling_id: {
-      format: 'uuid',
-      type: 'string'
-    },
     vouchers: {
       items: {
         type: 'string'
@@ -1424,7 +1490,7 @@ export const $ExternalBioMatOccurrenceInput = {
       type: 'array'
     }
   },
-  required: ['sampling', 'quantity', 'sampling_id', 'identification'],
+  required: ['sampling', 'quantity', 'identification'],
   type: 'object'
 } as const
 
@@ -1598,6 +1664,96 @@ export const $ExternalBioMatUpdate = {
     }
   },
   required: ['published_in', 'sampling_id'],
+  type: 'object'
+} as const
+
+export const $ExternalOccurrenceAtEventInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ExternalOccurrenceAtEventInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      description:
+        'Unique code identifier for the bio material. Generated from taxon and sampling if not provided.',
+      examples: ['Genus_sp[SITE|2001-01]'],
+      type: 'string'
+    },
+    collection: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    content_description: {
+      description: 'Description of the content of the bio material',
+      examples: ['2 females, 1 juvenile male'],
+      type: 'string'
+    },
+    identification: {
+      $ref: '#/components/schemas/IdentificationInput',
+      description: 'Occurrence identification'
+    },
+    is_type: {
+      description:
+        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.',
+      type: 'boolean'
+    },
+    original_link: {
+      type: 'string'
+    },
+    original_source: {
+      type: 'string'
+    },
+    published_in: {
+      items: {
+        $ref: '#/components/schemas/OccurrenceReferenceInput'
+      },
+      type: 'array'
+    },
+    quantity: {
+      $ref: '#/components/schemas/Quantity'
+    },
+    sampling: {
+      $ref: '#/components/schemas/SamplingInput',
+      description: 'New sampling action during referenced event'
+    },
+    vouchers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    }
+  },
+  required: ['sampling', 'quantity', 'identification'],
+  type: 'object'
+} as const
+
+export const $ExternalOccurrenceAtSiteInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ExternalOccurrenceAtSiteInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    BioMaterial: {
+      $ref: '#/components/schemas/ExternalBioMatInput'
+    },
+    event: {
+      $ref: '#/components/schemas/EventInput'
+    },
+    sampling: {
+      $ref: '#/components/schemas/SamplingInput'
+    }
+  },
+  required: ['event', 'sampling', 'BioMaterial'],
   type: 'object'
 } as const
 
@@ -4417,6 +4573,49 @@ export const $SamplingInner = {
     }
   },
   required: ['id', 'code', 'target'],
+  type: 'object'
+} as const
+
+export const $SamplingInput = {
+  additionalProperties: false,
+  properties: {
+    access_points: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    comments: {
+      type: 'string'
+    },
+    duration: {
+      description: 'Sampling duration in minutes',
+      format: 'int32',
+      type: 'integer'
+    },
+    fixatives: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    habitats: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    methods: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    target: {
+      $ref: '#/components/schemas/SamplingTargetInput'
+    }
+  },
+  required: ['target'],
   type: 'object'
 } as const
 

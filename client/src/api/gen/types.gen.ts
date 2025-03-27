@@ -514,23 +514,64 @@ export type ExternalBioMatContent = {
   specimen: string
 }
 
+export type ExternalBioMatInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * Unique code identifier for the bio material. Generated from taxon and sampling if not provided.
+   */
+  code?: string
+  collection?: string
+  comments?: string
+  /**
+   * Description of the content of the bio material
+   */
+  content_description?: string
+  /**
+   * Occurrence identification
+   */
+  identification: IdentificationInput
+  /**
+   * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
+   */
+  is_type?: boolean
+  original_link?: string
+  original_source?: string
+  published_in?: Array<OccurrenceReferenceInput>
+  quantity: Quantity
+  vouchers?: Array<string>
+}
+
 export type ExternalBioMatOccurrenceInput = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  /**
+   * Unique code identifier for the bio material. Generated from taxon and sampling if not provided.
+   */
   code?: string
   collection?: string
   comments?: string
+  /**
+   * Description of the content of the bio material
+   */
   content_description?: string
+  /**
+   * Occurrence identification
+   */
   identification: IdentificationInput
+  /**
+   * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
+   */
   is_type?: boolean
   original_link?: string
   original_source?: string
   published_in?: Array<OccurrenceReferenceInput>
   quantity: Quantity
   sampling: string
-  sampling_id: string
   vouchers?: Array<string>
 }
 
@@ -582,6 +623,50 @@ export type ExternalBioMatUpdate = {
   quantity?: Quantity
   sampling_id: string
   vouchers?: Array<string>
+}
+
+export type ExternalOccurrenceAtEventInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * Unique code identifier for the bio material. Generated from taxon and sampling if not provided.
+   */
+  code?: string
+  collection?: string
+  comments?: string
+  /**
+   * Description of the content of the bio material
+   */
+  content_description?: string
+  /**
+   * Occurrence identification
+   */
+  identification: IdentificationInput
+  /**
+   * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
+   */
+  is_type?: boolean
+  original_link?: string
+  original_source?: string
+  published_in?: Array<OccurrenceReferenceInput>
+  quantity: Quantity
+  /**
+   * New sampling action during referenced event
+   */
+  sampling: SamplingInput
+  vouchers?: Array<string>
+}
+
+export type ExternalOccurrenceAtSiteInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  BioMaterial: ExternalBioMatInput
+  event: EventInput
+  sampling: SamplingInput
 }
 
 export type Fixative = {
@@ -1547,6 +1632,19 @@ export type SamplingInner = {
   id: string
   methods?: Array<SamplingMethod>
   target: SamplingTarget
+}
+
+export type SamplingInput = {
+  access_points?: Array<string>
+  comments?: string
+  /**
+   * Sampling duration in minutes
+   */
+  duration?: number
+  fixatives?: Array<string>
+  habitats?: Array<string>
+  methods?: Array<string>
+  target: SamplingTargetInput
 }
 
 export type SamplingInputWithEvent = {
@@ -3713,6 +3811,48 @@ export type UpdateEventResponses = {
 
 export type UpdateEventResponse = UpdateEventResponses[keyof UpdateEventResponses]
 
+export type EventAddExternalOccurrenceData = {
+  body: ExternalOccurrenceAtEventInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    /**
+     * Event ID
+     */
+    id: string
+  }
+  query?: never
+  url: '/events/{id}/occurrences/external'
+}
+
+export type EventAddExternalOccurrenceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type EventAddExternalOccurrenceError =
+  EventAddExternalOccurrenceErrors[keyof EventAddExternalOccurrenceErrors]
+
+export type EventAddExternalOccurrenceResponses = {
+  /**
+   * OK
+   */
+  200: BioMaterialWithDetails
+}
+
+export type EventAddExternalOccurrenceResponse =
+  EventAddExternalOccurrenceResponses[keyof EventAddExternalOccurrenceResponses]
+
 export type UpdateSpottingData = {
   body: Array<string>
   headers?: {
@@ -5480,6 +5620,45 @@ export type UpdateSamplingResponses = {
 
 export type UpdateSamplingResponse = UpdateSamplingResponses[keyof UpdateSamplingResponses]
 
+export type SamplingAddExternalOccurrenceData = {
+  body: ExternalBioMatInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/samplings/{id}/occurrences/external'
+}
+
+export type SamplingAddExternalOccurrenceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type SamplingAddExternalOccurrenceError =
+  SamplingAddExternalOccurrenceErrors[keyof SamplingAddExternalOccurrenceErrors]
+
+export type SamplingAddExternalOccurrenceResponses = {
+  /**
+   * OK
+   */
+  200: BioMaterialWithDetails
+}
+
+export type SamplingAddExternalOccurrenceResponse =
+  SamplingAddExternalOccurrenceResponses[keyof SamplingAddExternalOccurrenceResponses]
+
 export type ListSequencesData = {
   body?: never
   headers?: {
@@ -6158,6 +6337,45 @@ export type CreateEventResponses = {
 }
 
 export type CreateEventResponse = CreateEventResponses[keyof CreateEventResponses]
+
+export type SiteAddExternalOccurrenceData = {
+  body: ExternalOccurrenceAtSiteInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/sites/{code}/occurrences/external'
+}
+
+export type SiteAddExternalOccurrenceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type SiteAddExternalOccurrenceError =
+  SiteAddExternalOccurrenceErrors[keyof SiteAddExternalOccurrenceErrors]
+
+export type SiteAddExternalOccurrenceResponses = {
+  /**
+   * OK
+   */
+  200: BioMaterialWithDetails
+}
+
+export type SiteAddExternalOccurrenceResponse =
+  SiteAddExternalOccurrenceResponses[keyof SiteAddExternalOccurrenceResponses]
 
 export type GetTaxonomyData = {
   body?: never

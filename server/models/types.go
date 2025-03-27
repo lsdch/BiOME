@@ -16,3 +16,8 @@ type PersistableWithID[ID any, Persisted any] interface {
 
 // ItemFinder functions fetch an item from the database using an identifier having a generic type
 type ItemFinder[ID any, Item any] func(db geltypes.Executor, id ID) (Item, error)
+
+type FindOrCreate[ID any, Input Persistable[Item], Item any] struct {
+	Use   []ID    `json:"use"`
+	Input []Input `json:"create"`
+}

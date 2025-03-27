@@ -13,7 +13,7 @@ import (
 
 func RegisterRoutes(r router.Router) {
 	habitatsAPI := r.RouteGroup("/habitats").
-		WithTags([]string{"Habitats"})
+		WithTags([]string{"Sampling"})
 
 	router.Register(habitatsAPI, "ListHabitatGroups",
 		huma.Operation{

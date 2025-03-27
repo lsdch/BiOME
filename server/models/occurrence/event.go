@@ -138,15 +138,15 @@ func (i EventInput) Save(e geltypes.Executor, site_code string) (created Event, 
 		`#edgeql
 			with data := <json>$1,
 			select (insert events::Event {
-				site := (
-					select location::Site filter .code = <str>$0
-				),
+				site := (select location::Site filter .code = <str>$0),
 				performed_by := (
-					select people::Person filter .alias in <str>json_array_unpack(data['performed_by'])
+					select people::Person
+					filter .alias in <str>json_array_unpack(data['performed_by'])
 				),
 				performed_on := date::from_json_with_precision(data['performed_on']),
 				programs := (
-					select events::Program filter .code in <str>json_array_unpack(json_get(data, 'programs'))
+					select events::Program
+					filter .code in <str>json_array_unpack(json_get(data, 'programs'))
 				)
 			}) {
 				*,
@@ -155,7 +155,13 @@ func (i EventInput) Save(e geltypes.Executor, site_code string) (created Event, 
 				performed_by: { * },
 				spottings: { * },
 				abiotic_measurements: { *, param: { * }  },
-				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } },
+				samplings: {
+					*,
+					target_taxa: { * },
+					fixatives: { * },
+					methods: { * },
+					habitats: { * }
+				},
 				meta: { * }
 			}
 		`, &created, site_code, data)

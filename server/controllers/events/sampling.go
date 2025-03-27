@@ -1,9 +1,11 @@
 package events
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/lsdch/biome/controllers"
+	"github.com/lsdch/biome/controllers/occurrences"
 	"github.com/lsdch/biome/models/occurrence"
 	"github.com/lsdch/biome/models/vocabulary"
 	"github.com/lsdch/biome/resolvers"
@@ -45,6 +47,19 @@ func registerSamplingRoutes(r router.Router) {
 		controllers.DeleteByIDHandler(occurrence.DeleteSampling))
 
 	/**
+	 * OCCURRENCE
+	 */
+	router.Register(samplingAPI, "SamplingAddExternalOccurrence",
+		huma.Operation{
+			Tags:        []string{"Occurrences"},
+			Path:        "/{id}/occurrences/external",
+			Method:      http.MethodPost,
+			Summary:     "Add occurrence from sampling",
+			Description: "Register new occurrence resulting from the sampling action",
+		},
+		SamplingAddExternalOccurrence)
+
+	/**
 	 * FIXATIVES
 	 */
 	fixativesAPI := r.RouteGroup("/fixatives").
@@ -84,4 +99,20 @@ func registerSamplingRoutes(r router.Router) {
 		},
 		controllers.DeleteByCodeHandler(vocabulary.DeleteFixative))
 
+}
+
+type SamplingAddExternalOccurrenceInput struct {
+	resolvers.AccessRestricted[resolvers.Contributor]
+	controllers.UUIDInput
+	Body occurrence.ExternalBioMatInput
+}
+
+func SamplingAddExternalOccurrence(ctx context.Context, input *SamplingAddExternalOccurrenceInput) (*occurrences.RegisterOccurrenceOutput, error) {
+	sampling := input.Identifier()
+	biomat := input.Body
+	created, err := biomat.Save(input.DB(), sampling)
+	if err != nil {
+		return nil, controllers.StatusError(err)
+	}
+	return &occurrences.RegisterOccurrenceOutput{Body: created}, nil
 }

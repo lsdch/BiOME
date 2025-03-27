@@ -11,7 +11,13 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
+type RegisterOccurrenceOutput struct {
+	Body occurrence.BioMaterialWithDetails
+}
+
 func RegisterRoutes(r router.Router) {
+
+	registerBioMatRoutes(r)
 
 	occurAPI := r.RouteGroup("/occurrences").
 		WithTags([]string{"Occurrences"})

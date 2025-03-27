@@ -1,4 +1,4 @@
-package biomaterial
+package occurrences
 
 import (
 	"net/http"
@@ -11,8 +11,8 @@ import (
 	"github.com/danielgtaylor/huma/v2"
 )
 
-func RegisterRoutes(r router.Router) {
-	biomat_API := r.RouteGroup("/bio-material").WithTags([]string{"Samples"})
+func registerBioMatRoutes(r router.Router) {
+	biomat_API := r.RouteGroup("/bio-material").WithTags([]string{"Occurrences"})
 
 	router.Register(biomat_API, "ListBioMaterial",
 		huma.Operation{

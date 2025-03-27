@@ -18,7 +18,7 @@ import (
 
 func RegisterRoutes(r router.Router) {
 	locationAPI := r.RouteGroup("/locations").
-		WithTags([]string{"Location", "Countries"})
+		WithTags([]string{"Location"})
 
 	registry := r.API.OpenAPI().Components.Schemas
 

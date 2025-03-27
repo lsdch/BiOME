@@ -1584,6 +1584,74 @@
 				],
 				"type": "object"
 			},
+			"ExternalBioMatInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ExternalBioMatInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"description": "Unique code identifier for the bio material. Generated from taxon and sampling if not provided.",
+						"examples": [
+							"Genus_sp[SITE|2001-01]"
+						],
+						"type": "string"
+					},
+					"collection": {
+						"type": "string"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"content_description": {
+						"description": "Description of the content of the bio material",
+						"examples": [
+							"2 females, 1 juvenile male"
+						],
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/IdentificationInput",
+						"description": "Occurrence identification"
+					},
+					"is_type": {
+						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.",
+						"type": "boolean"
+					},
+					"original_link": {
+						"type": "string"
+					},
+					"original_source": {
+						"type": "string"
+					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceReferenceInput"
+						},
+						"type": "array"
+					},
+					"quantity": {
+						"$ref": "#/components/schemas/Quantity"
+					},
+					"vouchers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"quantity",
+					"identification"
+				],
+				"type": "object"
+			},
 			"ExternalBioMatOccurrenceInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -1597,6 +1665,10 @@
 						"type": "string"
 					},
 					"code": {
+						"description": "Unique code identifier for the bio material. Generated from taxon and sampling if not provided.",
+						"examples": [
+							"Genus_sp[SITE|2001-01]"
+						],
 						"type": "string"
 					},
 					"collection": {
@@ -1606,12 +1678,18 @@
 						"type": "string"
 					},
 					"content_description": {
+						"description": "Description of the content of the bio material",
+						"examples": [
+							"2 females, 1 juvenile male"
+						],
 						"type": "string"
 					},
 					"identification": {
-						"$ref": "#/components/schemas/IdentificationInput"
+						"$ref": "#/components/schemas/IdentificationInput",
+						"description": "Occurrence identification"
 					},
 					"is_type": {
+						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.",
 						"type": "boolean"
 					},
 					"original_link": {
@@ -1632,10 +1710,6 @@
 					"sampling": {
 						"type": "string"
 					},
-					"sampling_id": {
-						"format": "uuid",
-						"type": "string"
-					},
 					"vouchers": {
 						"items": {
 							"type": "string"
@@ -1646,7 +1720,6 @@
 				"required": [
 					"sampling",
 					"quantity",
-					"sampling_id",
 					"identification"
 				],
 				"type": "object"
@@ -1848,6 +1921,108 @@
 				"required": [
 					"published_in",
 					"sampling_id"
+				],
+				"type": "object"
+			},
+			"ExternalOccurrenceAtEventInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ExternalOccurrenceAtEventInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"description": "Unique code identifier for the bio material. Generated from taxon and sampling if not provided.",
+						"examples": [
+							"Genus_sp[SITE|2001-01]"
+						],
+						"type": "string"
+					},
+					"collection": {
+						"type": "string"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"content_description": {
+						"description": "Description of the content of the bio material",
+						"examples": [
+							"2 females, 1 juvenile male"
+						],
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/IdentificationInput",
+						"description": "Occurrence identification"
+					},
+					"is_type": {
+						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.",
+						"type": "boolean"
+					},
+					"original_link": {
+						"type": "string"
+					},
+					"original_source": {
+						"type": "string"
+					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceReferenceInput"
+						},
+						"type": "array"
+					},
+					"quantity": {
+						"$ref": "#/components/schemas/Quantity"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingInput",
+						"description": "New sampling action during referenced event"
+					},
+					"vouchers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"sampling",
+					"quantity",
+					"identification"
+				],
+				"type": "object"
+			},
+			"ExternalOccurrenceAtSiteInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ExternalOccurrenceAtSiteInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"BioMaterial": {
+						"$ref": "#/components/schemas/ExternalBioMatInput"
+					},
+					"event": {
+						"$ref": "#/components/schemas/EventInput"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingInput"
+					}
+				},
+				"required": [
+					"event",
+					"sampling",
+					"BioMaterial"
 				],
 				"type": "object"
 			},
@@ -5096,6 +5271,50 @@
 				"required": [
 					"id",
 					"code",
+					"target"
+				],
+				"type": "object"
+			},
+			"SamplingInput": {
+				"additionalProperties": false,
+				"properties": {
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int32",
+						"type": "integer"
+					},
+					"fixatives": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"habitats": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"methods": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"target": {
+						"$ref": "#/components/schemas/SamplingTargetInput"
+					}
+				},
+				"required": [
 					"target"
 				],
 				"type": "object"
@@ -8590,7 +8809,7 @@
 				},
 				"summary": "List bio-material",
 				"tags": [
-					"Samples"
+					"Occurrences"
 				]
 			}
 		},
@@ -8673,7 +8892,7 @@
 				},
 				"summary": "Update external bio-material",
 				"tags": [
-					"Samples"
+					"Occurrences"
 				]
 			},
 			"post": {
@@ -8746,7 +8965,7 @@
 				},
 				"summary": "Create external bio-material",
 				"tags": [
-					"Samples"
+					"Occurrences"
 				]
 			}
 		},
@@ -8820,7 +9039,7 @@
 				},
 				"summary": "Delete bio-material",
 				"tags": [
-					"Samples"
+					"Occurrences"
 				]
 			},
 			"get": {
@@ -8892,7 +9111,7 @@
 				},
 				"summary": "Get bio-material",
 				"tags": [
-					"Samples"
+					"Occurrences"
 				]
 			}
 		},
@@ -10214,6 +10433,94 @@
 				]
 			}
 		},
+		"/events/{id}/occurrences/external": {
+			"post": {
+				"description": "Register new occurrence resulting from the event, including sampling specification and biomaterial identification",
+				"operationId": "EventAddExternalOccurrence",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"description": "Event ID",
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"description": "Event ID",
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ExternalOccurrenceAtEventInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BioMaterialWithDetails"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Add occurrence from event",
+				"tags": [
+					"Occurrences",
+					"Events"
+				]
+			}
+		},
 		"/events/{id}/spottings": {
 			"put": {
 				"operationId": "UpdateSpotting",
@@ -11165,7 +11472,7 @@
 				},
 				"summary": "List habitats",
 				"tags": [
-					"Habitats"
+					"Sampling"
 				]
 			},
 			"post": {
@@ -11238,7 +11545,7 @@
 				},
 				"summary": "Create habitat group",
 				"tags": [
-					"Habitats"
+					"Sampling"
 				]
 			}
 		},
@@ -11311,7 +11618,7 @@
 				},
 				"summary": "Delete habitat group",
 				"tags": [
-					"Habitats"
+					"Sampling"
 				]
 			}
 		},
@@ -11394,7 +11701,7 @@
 				},
 				"summary": "Update habitat group",
 				"tags": [
-					"Habitats"
+					"Sampling"
 				]
 			}
 		},
@@ -11596,8 +11903,7 @@
 				},
 				"summary": "Get country from WGS84 coordinates",
 				"tags": [
-					"Location",
-					"Countries"
+					"Location"
 				]
 			}
 		},
@@ -11675,8 +11981,7 @@
 				},
 				"summary": "List sites within a radius of a point",
 				"tags": [
-					"Location",
-					"Countries"
+					"Location"
 				]
 			}
 		},
@@ -11744,8 +12049,7 @@
 				},
 				"summary": "List countries",
 				"tags": [
-					"Location",
-					"Countries"
+					"Location"
 				]
 			}
 		},
@@ -11813,8 +12117,7 @@
 				},
 				"summary": "Get country list with sites count",
 				"tags": [
-					"Location",
-					"Countries"
+					"Location"
 				]
 			}
 		},
@@ -11900,8 +12203,7 @@
 				},
 				"summary": "Search sites",
 				"tags": [
-					"Location",
-					"Countries"
+					"Location"
 				]
 			}
 		},
@@ -12037,8 +12339,7 @@
 				},
 				"summary": "List organisations",
 				"tags": [
-					"People",
-					"Organisation"
+					"People"
 				]
 			},
 			"post": {
@@ -12121,8 +12422,7 @@
 				},
 				"summary": "Create organisation",
 				"tags": [
-					"People",
-					"Organisation"
+					"People"
 				]
 			}
 		},
@@ -12205,8 +12505,7 @@
 				},
 				"summary": "Delete organisation",
 				"tags": [
-					"People",
-					"Organisation"
+					"People"
 				]
 			},
 			"patch": {
@@ -12297,8 +12596,7 @@
 				},
 				"summary": "Update organisation",
 				"tags": [
-					"People",
-					"Organisation"
+					"People"
 				]
 			}
 		},
@@ -12366,8 +12664,7 @@
 				},
 				"summary": "List persons",
 				"tags": [
-					"People",
-					"Person"
+					"People"
 				]
 			},
 			"post": {
@@ -12450,8 +12747,7 @@
 				},
 				"summary": "Create person",
 				"tags": [
-					"People",
-					"Person"
+					"People"
 				]
 			}
 		},
@@ -12535,8 +12831,7 @@
 				},
 				"summary": "Delete person",
 				"tags": [
-					"People",
-					"Person"
+					"People"
 				]
 			},
 			"patch": {
@@ -12628,8 +12923,7 @@
 				},
 				"summary": "Update person",
 				"tags": [
-					"People",
-					"Person"
+					"People"
 				]
 			}
 		},
@@ -12714,8 +13008,7 @@
 				},
 				"summary": "Invite person",
 				"tags": [
-					"People",
-					"Person"
+					"People"
 				]
 			}
 		},
@@ -13831,6 +14124,92 @@
 				},
 				"summary": "Update sampling action",
 				"tags": [
+					"Sampling"
+				]
+			}
+		},
+		"/samplings/{id}/occurrences/external": {
+			"post": {
+				"description": "Register new occurrence resulting from the sampling action",
+				"operationId": "SamplingAddExternalOccurrence",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ExternalBioMatInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BioMaterialWithDetails"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Add occurrence from sampling",
+				"tags": [
+					"Occurrences",
 					"Sampling"
 				]
 			}
@@ -15206,6 +15585,91 @@
 				},
 				"summary": "Create event",
 				"tags": [
+					"Location"
+				]
+			}
+		},
+		"/sites/{code}/occurrences/external": {
+			"post": {
+				"description": "Register new occurrence at site, including event + sampling specification and biomaterial identification",
+				"operationId": "SiteAddExternalOccurrence",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ExternalOccurrenceAtSiteInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/BioMaterialWithDetails"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Add occurrence at site",
+				"tags": [
+					"Occurrences",
 					"Location"
 				]
 			}

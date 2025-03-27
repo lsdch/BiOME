@@ -37,6 +37,10 @@ module occurrence {
 
   scalar type OccurrenceCategory extending enum<Internal, External>;
 
+  function biomat_code(taxon: taxonomy::Taxon, sampling: events::Sampling) -> str {
+    using ( taxon.code ++ "[" ++ sampling.code ++ "]" )
+  };
+
   abstract type BioMaterial extending default::CodeIdentifier, Occurrence {
 
     overloaded required code : str {
@@ -44,7 +48,7 @@ module occurrence {
       annotation description := "Format like 'taxon_short_code[sampling_code]'";
       rewrite update using (
         if __specified__.code then .code # allow manual overwrite
-        else .identification.taxon.code ++ "[" ++ .sampling.code ++ "]"
+        else biomat_code(.identification.taxon, .sampling)
       );
 
       # 🚧 unsupported feature for now

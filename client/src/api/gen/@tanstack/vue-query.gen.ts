@@ -5,16 +5,14 @@ import {
   SamplingService,
   AccountService,
   TaxonomyGbifService,
-  SamplesService,
+  OccurrencesService,
   ReferencesService,
   DataSourcesService,
   DatasetsService,
   EventsService,
   SequencesService,
   ServicesService,
-  HabitatsService,
   LocationService,
-  OccurrencesService,
   PeopleService,
   SettingsService,
   TaxonomyService
@@ -115,6 +113,9 @@ import type {
   UpdateEventData,
   UpdateEventError,
   UpdateEventResponse,
+  EventAddExternalOccurrenceData,
+  EventAddExternalOccurrenceError,
+  EventAddExternalOccurrenceResponse,
   UpdateSpottingData,
   UpdateSpottingError,
   UpdateSpottingResponse,
@@ -229,6 +230,9 @@ import type {
   UpdateSamplingData,
   UpdateSamplingError,
   UpdateSamplingResponse,
+  SamplingAddExternalOccurrenceData,
+  SamplingAddExternalOccurrenceError,
+  SamplingAddExternalOccurrenceResponse,
   ListSequencesData,
   DeleteSequenceData,
   DeleteSequenceError,
@@ -268,6 +272,9 @@ import type {
   CreateEventData,
   CreateEventError,
   CreateEventResponse,
+  SiteAddExternalOccurrenceData,
+  SiteAddExternalOccurrenceError,
+  SiteAddExternalOccurrenceResponse,
   GetTaxonomyData,
   ListTaxaData,
   CreateTaxonData,
@@ -883,7 +890,7 @@ export const listBioMaterialQueryKey = (options?: Options<ListBioMaterialData>) 
 export const listBioMaterialOptions = (options?: Options<ListBioMaterialData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SamplesService.listBioMaterial({
+      const { data } = await OccurrencesService.listBioMaterial({
         ...options,
         ...queryKey[0],
         signal,
@@ -904,7 +911,7 @@ export const updateExternalBioMatMutation = (
     Options<UpdateExternalBioMatData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await SamplesService.updateExternalBioMat({
+      const { data } = await OccurrencesService.updateExternalBioMat({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -921,7 +928,7 @@ export const createExternalBioMatQueryKey = (options: Options<CreateExternalBioM
 export const createExternalBioMatOptions = (options: Options<CreateExternalBioMatData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SamplesService.createExternalBioMat({
+      const { data } = await OccurrencesService.createExternalBioMat({
         ...options,
         ...queryKey[0],
         signal,
@@ -942,7 +949,7 @@ export const createExternalBioMatMutation = (
     Options<CreateExternalBioMatData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await SamplesService.createExternalBioMat({
+      const { data } = await OccurrencesService.createExternalBioMat({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -960,7 +967,7 @@ export const deleteBioMaterialMutation = (options?: Partial<Options<DeleteBioMat
     Options<DeleteBioMaterialData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await SamplesService.deleteBioMaterial({
+      const { data } = await OccurrencesService.deleteBioMaterial({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -977,7 +984,7 @@ export const getBioMaterialQueryKey = (options: Options<GetBioMaterialData>) =>
 export const getBioMaterialOptions = (options: Options<GetBioMaterialData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SamplesService.getBioMaterial({
+      const { data } = await OccurrencesService.getBioMaterial({
         ...options,
         ...queryKey[0],
         signal,
@@ -1367,6 +1374,47 @@ export const updateEventMutation = (options?: Partial<Options<UpdateEventData>>)
   return mutationOptions
 }
 
+export const eventAddExternalOccurrenceQueryKey = (
+  options: Options<EventAddExternalOccurrenceData>
+) => createQueryKey('eventAddExternalOccurrence', options)
+
+export const eventAddExternalOccurrenceOptions = (
+  options: Options<EventAddExternalOccurrenceData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.eventAddExternalOccurrence({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: eventAddExternalOccurrenceQueryKey(options)
+  })
+}
+
+export const eventAddExternalOccurrenceMutation = (
+  options?: Partial<Options<EventAddExternalOccurrenceData>>
+) => {
+  const mutationOptions: UseMutationOptions<
+    EventAddExternalOccurrenceResponse,
+    EventAddExternalOccurrenceError,
+    Options<EventAddExternalOccurrenceData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await OccurrencesService.eventAddExternalOccurrence({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
 export const updateSpottingMutation = (options?: Partial<Options<UpdateSpottingData>>) => {
   const mutationOptions: UseMutationOptions<
     UpdateSpottingResponse,
@@ -1643,7 +1691,7 @@ export const listHabitatGroupsQueryKey = (options?: Options<ListHabitatGroupsDat
 export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await HabitatsService.listHabitatGroups({
+      const { data } = await SamplingService.listHabitatGroups({
         ...options,
         ...queryKey[0],
         signal,
@@ -1661,7 +1709,7 @@ export const createHabitatGroupQueryKey = (options: Options<CreateHabitatGroupDa
 export const createHabitatGroupOptions = (options: Options<CreateHabitatGroupData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await HabitatsService.createHabitatGroup({
+      const { data } = await SamplingService.createHabitatGroup({
         ...options,
         ...queryKey[0],
         signal,
@@ -1680,7 +1728,7 @@ export const createHabitatGroupMutation = (options?: Partial<Options<CreateHabit
     Options<CreateHabitatGroupData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await HabitatsService.createHabitatGroup({
+      const { data } = await SamplingService.createHabitatGroup({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -1698,7 +1746,7 @@ export const deleteHabitatGroupMutation = (options?: Partial<Options<DeleteHabit
     Options<DeleteHabitatGroupData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await HabitatsService.deleteHabitatGroup({
+      const { data } = await SamplingService.deleteHabitatGroup({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -1716,7 +1764,7 @@ export const updateHabitatGroupMutation = (options?: Partial<Options<UpdateHabit
     Options<UpdateHabitatGroupData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await HabitatsService.updateHabitatGroup({
+      const { data } = await SamplingService.updateHabitatGroup({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -2473,6 +2521,47 @@ export const updateSamplingMutation = (options?: Partial<Options<UpdateSamplingD
   return mutationOptions
 }
 
+export const samplingAddExternalOccurrenceQueryKey = (
+  options: Options<SamplingAddExternalOccurrenceData>
+) => createQueryKey('samplingAddExternalOccurrence', options)
+
+export const samplingAddExternalOccurrenceOptions = (
+  options: Options<SamplingAddExternalOccurrenceData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.samplingAddExternalOccurrence({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: samplingAddExternalOccurrenceQueryKey(options)
+  })
+}
+
+export const samplingAddExternalOccurrenceMutation = (
+  options?: Partial<Options<SamplingAddExternalOccurrenceData>>
+) => {
+  const mutationOptions: UseMutationOptions<
+    SamplingAddExternalOccurrenceResponse,
+    SamplingAddExternalOccurrenceError,
+    Options<SamplingAddExternalOccurrenceData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await OccurrencesService.samplingAddExternalOccurrence({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
 export const listSequencesQueryKey = (options?: Options<ListSequencesData>) =>
   createQueryKey('listSequences', options)
 
@@ -2938,6 +3027,47 @@ export const createEventMutation = (options?: Partial<Options<CreateEventData>>)
   > = {
     mutationFn: async (localOptions) => {
       const { data } = await LocationService.createEvent({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const siteAddExternalOccurrenceQueryKey = (
+  options: Options<SiteAddExternalOccurrenceData>
+) => createQueryKey('siteAddExternalOccurrence', options)
+
+export const siteAddExternalOccurrenceOptions = (
+  options: Options<SiteAddExternalOccurrenceData>
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.siteAddExternalOccurrence({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: siteAddExternalOccurrenceQueryKey(options)
+  })
+}
+
+export const siteAddExternalOccurrenceMutation = (
+  options?: Partial<Options<SiteAddExternalOccurrenceData>>
+) => {
+  const mutationOptions: UseMutationOptions<
+    SiteAddExternalOccurrenceResponse,
+    SiteAddExternalOccurrenceError,
+    Options<SiteAddExternalOccurrenceData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await OccurrencesService.siteAddExternalOccurrence({
         ...options,
         ...localOptions,
         throwOnError: true

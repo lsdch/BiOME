@@ -15,7 +15,7 @@ import (
 
 func RegisterRoutes(r router.Router) {
 	organisationsAPI := r.RouteGroup("/organisations").
-		WithTags([]string{"People", "Organisation"})
+		WithTags([]string{"People"})
 
 	router.Register(organisationsAPI, "ListOrganisations",
 		huma.Operation{

@@ -33,6 +33,7 @@ import type {
   GetSiteDatasetResponse,
   DeleteEventResponse,
   UpdateEventResponse,
+  EventAddExternalOccurrenceResponse,
   UpdateSpottingResponse,
   ListFixativesResponse,
   CreateFixativeResponse,
@@ -69,6 +70,7 @@ import type {
   CreateSamplingResponse,
   DeleteSamplingResponse,
   UpdateSamplingResponse,
+  SamplingAddExternalOccurrenceResponse,
   ListSequencesResponse,
   DeleteSequenceResponse,
   GetSequenceResponse,
@@ -78,6 +80,7 @@ import type {
   UpdateSiteResponse,
   ListSiteEventsResponse,
   CreateEventResponse,
+  SiteAddExternalOccurrenceResponse,
   GetTaxonomyResponse,
   ListTaxaResponse,
   CreateTaxonResponse,
@@ -712,6 +715,13 @@ export const updateEventResponseTransformer = async (data: any): Promise<UpdateE
   return data
 }
 
+export const eventAddExternalOccurrenceResponseTransformer = async (
+  data: any
+): Promise<EventAddExternalOccurrenceResponse> => {
+  data = bioMaterialWithDetailsSchemaResponseTransformer(data)
+  return data
+}
+
 export const updateSpottingResponseTransformer = async (
   data: any
 ): Promise<UpdateSpottingResponse> => {
@@ -995,6 +1005,13 @@ export const updateSamplingResponseTransformer = async (
   return data
 }
 
+export const samplingAddExternalOccurrenceResponseTransformer = async (
+  data: any
+): Promise<SamplingAddExternalOccurrenceResponse> => {
+  data = bioMaterialWithDetailsSchemaResponseTransformer(data)
+  return data
+}
+
 export const listSequencesResponseTransformer = async (
   data: any
 ): Promise<ListSequencesResponse> => {
@@ -1081,6 +1098,13 @@ export const listSiteEventsResponseTransformer = async (
 
 export const createEventResponseTransformer = async (data: any): Promise<CreateEventResponse> => {
   data = eventSchemaResponseTransformer(data)
+  return data
+}
+
+export const siteAddExternalOccurrenceResponseTransformer = async (
+  data: any
+): Promise<SiteAddExternalOccurrenceResponse> => {
+  data = bioMaterialWithDetailsSchemaResponseTransformer(data)
   return data
 }
 
