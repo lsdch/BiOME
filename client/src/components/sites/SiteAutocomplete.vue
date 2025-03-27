@@ -47,6 +47,9 @@
                 : 'Waiting for query...'
         "
       >
+        <template #prepend v-if="isFetching">
+          <v-progress-circular indeterminate color="primary" class="mr-3" />
+        </template>
       </v-list-item>
     </template>
   </v-autocomplete>
@@ -95,6 +98,13 @@ const sitesAtProximity = useQuery(
 const { data: items, isFetching } = toRefs(
   reactiveComputed(() => (isSearchCoordinates.value ? sitesAtProximity : sitesMatching))
 )
+</script>
+
+<script lang="ts">
+/**
+ * Provides an autocomplete input for searching sites by name, locality, code or WGS84 coordinates.
+ */
+export default {}
 </script>
 
 <style scoped lang="scss"></style>
