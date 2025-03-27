@@ -1,8 +1,8 @@
 <template>
   <div class="d-flex">
     <v-select
-      :label="model.precision === 'Unknown' ? 'Date' : 'Precision'"
       v-model="model.precision"
+      :label="model.precision === 'Unknown' ? 'Date' : 'Precision'"
       :items="$DatePrecision.enum"
       :rounded="model.precision === 'Unknown' ? undefined : 'e-0'"
       v-bind="field('precision')"

@@ -64,6 +64,16 @@ export namespace DateWithPrecision {
   export function toInput({ date, precision }: DateWithPrecision): DateWithPrecisionInput {
     return { date: CompositeDate.fromDateWithPrecision({ date, precision }), precision }
   }
+
+  export function fromInput({ date, precision }: DateWithPrecisionInput):
+    DateWithPrecision {
+    if (precision === 'Unknown' || !date) return { date: undefined, precision }
+    return {
+      date: new Date(date.year!, (date.month ?? 1) - 1, date.day ?? 1),
+      precision
+    }
+  }
+
   export function toDateTime({ date, precision }: DateWithPrecision): DateTime | null {
     if (precision === 'Unknown' || !date) return null
     return DateTime.fromJSDate(date)
