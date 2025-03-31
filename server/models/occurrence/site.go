@@ -241,7 +241,7 @@ type SiteUpdate struct {
 	Coordinates         models.OptionalInput[Coordinates] `gel:"coordinates" json:"coordinates,omitempty" doc:"Site coordinates in decimal degrees"`
 	Altitude            models.OptionalNull[int32]        `gel:"altitude" json:"altitude,omitempty" doc:"Site altitude in meters"`
 	Locality            models.OptionalNull[string]       `gel:"locality" json:"locality,omitempty" doc:"Nearest populated place"`
-	UserDefinedLocality models.OptionalInput[bool]        `gel:"user_defined_locality" json:"user_defined_locality" doc:"Signals whether locality was manually entered by user, and automatically inferred from coordinates"`
+	UserDefinedLocality models.OptionalInput[bool]        `gel:"user_defined_locality" json:"user_defined_locality,omitempty" doc:"Signals whether locality was manually entered by user, and automatically inferred from coordinates"`
 	CountryCode         models.OptionalNull[string]       `gel:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 

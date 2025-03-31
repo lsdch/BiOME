@@ -2059,7 +2059,7 @@ export const $Habitat = {
     },
     incompatible: {
       items: {
-        $ref: '#/components/schemas/HabitatRecord'
+        $ref: '#/components/schemas/HabitatInner'
       },
       type: 'array'
     },
@@ -2074,7 +2074,7 @@ export const $Habitat = {
       $ref: '#/components/schemas/Meta'
     }
   },
-  required: ['meta', 'id', 'label'],
+  required: ['meta', 'incompatible', 'id', 'label'],
   type: 'object'
 } as const
 
@@ -2113,7 +2113,7 @@ export const $HabitatGroup = {
       $ref: '#/components/schemas/Meta'
     }
   },
-  required: ['id', 'label', 'exclusive_elements', 'depends', 'elements', 'meta'],
+  required: ['id', 'label', 'exclusive_elements', 'elements', 'meta'],
   type: 'object'
 } as const
 
@@ -2195,6 +2195,29 @@ export const $HabitatGroupUpdate = {
   type: 'object'
 } as const
 
+export const $HabitatInner = {
+  additionalProperties: false,
+  properties: {
+    description: {
+      description: 'Optional habitat description',
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      description: 'A short label for the habitat.',
+      examples: ['Lotic'],
+      maxLength: 32,
+      minLength: 3,
+      type: 'string'
+    }
+  },
+  required: ['id', 'label'],
+  type: 'object'
+} as const
+
 export const $HabitatInput = {
   additionalProperties: false,
   properties: {
@@ -2227,7 +2250,7 @@ export const $HabitatRecord = {
     },
     incompatible: {
       items: {
-        $ref: '#/components/schemas/HabitatRecord'
+        $ref: '#/components/schemas/HabitatInner'
       },
       type: 'array'
     },
@@ -2239,7 +2262,7 @@ export const $HabitatRecord = {
       type: 'string'
     }
   },
-  required: ['id', 'label'],
+  required: ['incompatible', 'id', 'label'],
   type: 'object'
 } as const
 
@@ -3389,7 +3412,7 @@ export const $OptionalHabitatRecord = {
     },
     incompatible: {
       items: {
-        $ref: '#/components/schemas/HabitatRecord'
+        $ref: '#/components/schemas/HabitatInner'
       },
       type: 'array'
     },
@@ -3401,7 +3424,7 @@ export const $OptionalHabitatRecord = {
       type: 'string'
     }
   },
-  required: ['id', 'label'],
+  required: ['incompatible', 'id', 'label'],
   type: ['object', 'null']
 } as const
 
@@ -4426,6 +4449,35 @@ export const $ResendEmailVerificationInputBody = {
   type: 'object'
 } as const
 
+export const $ReverseGeocodeInputBody = {
+  additionalProperties: true,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/ReverseGeocodeInputBody.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    latitude: {
+      examples: [43.5684],
+      format: 'float',
+      maximum: 90,
+      minimum: -90,
+      type: 'number'
+    },
+    longitude: {
+      examples: [3.5678],
+      format: 'float',
+      maximum: 180,
+      minimum: -180,
+      type: 'number'
+    }
+  },
+  required: ['latitude', 'longitude'],
+  type: 'object'
+} as const
+
 export const $Review = {
   additionalProperties: false,
   properties: {
@@ -4579,6 +4631,13 @@ export const $SamplingInner = {
 export const $SamplingInput = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/SamplingInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     access_points: {
       items: {
         type: 'string'
@@ -5505,7 +5564,6 @@ export const $SiteUpdate = {
       type: 'boolean'
     }
   },
-  required: ['user_defined_locality'],
   type: 'object'
 } as const
 

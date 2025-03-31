@@ -34,6 +34,14 @@ func registerEventsRoutes(r router.Router) {
 		},
 		controllers.DeleteByIDHandler(occurrence.DeleteEvent))
 
+	router.Register(eventsAPI, "CreateSamplingAtEvent",
+		huma.Operation{
+			Path:    "/{id}/samplings",
+			Method:  http.MethodPost,
+			Summary: "Create sampling at event",
+		},
+		controllers.UpdateByIDHandler[occurrence.SamplingInput])
+
 	router.Register(eventsAPI, "UpdateSpotting",
 		huma.Operation{
 			Path:    "/{id}/spottings",

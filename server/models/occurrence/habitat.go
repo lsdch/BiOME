@@ -13,15 +13,19 @@ import (
 	"github.com/goccy/go-yaml"
 )
 
-type HabitatInner struct {
+type HabitatLabel struct {
 	Label string `gel:"label" json:"label" doc:"A short label for the habitat." minLength:"3" maxLength:"32" example:"Lotic"`
 }
 
-type HabitatRecord struct {
+type HabitatInner struct {
 	ID           geltypes.UUID `gel:"id" json:"id" format:"uuid"`
-	HabitatInner `gel:"$inline" json:",inline"`
+	HabitatLabel `gel:"$inline" json:",inline"`
 	Description  geltypes.OptionalStr `gel:"description" json:"description,omitempty" doc:"Optional habitat description"`
-	Incompatible []HabitatRecord      `gel:"incompatible" json:"incompatible,omitempty"`
+}
+
+type HabitatRecord struct {
+	HabitatInner `gel:"$inline" json:",inline"`
+	Incompatible []HabitatInner `gel:"incompatible" json:"incompatible"`
 }
 
 type OptionalHabitatRecord struct {
@@ -36,7 +40,7 @@ type Habitat struct {
 }
 
 type HabitatInput struct {
-	HabitatInner `json:",inline"`
+	HabitatLabel `json:",inline"`
 	Description  *string `json:"description,omitempty" doc:"Optional habitat description"`
 }
 

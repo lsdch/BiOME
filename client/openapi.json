@@ -2359,7 +2359,7 @@
 					},
 					"incompatible": {
 						"items": {
-							"$ref": "#/components/schemas/HabitatRecord"
+							"$ref": "#/components/schemas/HabitatInner"
 						},
 						"type": "array"
 					},
@@ -2378,6 +2378,7 @@
 				},
 				"required": [
 					"meta",
+					"incompatible",
 					"id",
 					"label"
 				],
@@ -2426,7 +2427,6 @@
 					"id",
 					"label",
 					"exclusive_elements",
-					"depends",
 					"elements",
 					"meta"
 				],
@@ -2522,6 +2522,33 @@
 				},
 				"type": "object"
 			},
+			"HabitatInner": {
+				"additionalProperties": false,
+				"properties": {
+					"description": {
+						"description": "Optional habitat description",
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"description": "A short label for the habitat.",
+						"examples": [
+							"Lotic"
+						],
+						"maxLength": 32,
+						"minLength": 3,
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"label"
+				],
+				"type": "object"
+			},
 			"HabitatInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -2557,7 +2584,7 @@
 					},
 					"incompatible": {
 						"items": {
-							"$ref": "#/components/schemas/HabitatRecord"
+							"$ref": "#/components/schemas/HabitatInner"
 						},
 						"type": "array"
 					},
@@ -2572,6 +2599,7 @@
 					}
 				},
 				"required": [
+					"incompatible",
 					"id",
 					"label"
 				],
@@ -3838,7 +3866,7 @@
 					},
 					"incompatible": {
 						"items": {
-							"$ref": "#/components/schemas/HabitatRecord"
+							"$ref": "#/components/schemas/HabitatInner"
 						},
 						"type": "array"
 					},
@@ -3853,6 +3881,7 @@
 					}
 				},
 				"required": [
+					"incompatible",
 					"id",
 					"label"
 				],
@@ -5117,6 +5146,43 @@
 				],
 				"type": "object"
 			},
+			"ReverseGeocodeInputBody": {
+				"additionalProperties": true,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ReverseGeocodeInputBody.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"latitude": {
+						"examples": [
+							43.5684
+						],
+						"format": "float",
+						"maximum": 90,
+						"minimum": -90,
+						"type": "number"
+					},
+					"longitude": {
+						"examples": [
+							3.5678
+						],
+						"format": "float",
+						"maximum": 180,
+						"minimum": -180,
+						"type": "number"
+					}
+				},
+				"required": [
+					"latitude",
+					"longitude"
+				],
+				"type": "object"
+			},
 			"Review": {
 				"additionalProperties": false,
 				"properties": {
@@ -5278,6 +5344,15 @@
 			"SamplingInput": {
 				"additionalProperties": false,
 				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SamplingInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
 					"access_points": {
 						"items": {
 							"type": "string"
@@ -6338,9 +6413,6 @@
 						"type": "boolean"
 					}
 				},
-				"required": [
-					"user_defined_locality"
-				],
 				"type": "object"
 			},
 			"SiteWithDistance": {
@@ -10521,6 +10593,90 @@
 				]
 			}
 		},
+		"/events/{id}/samplings": {
+			"post": {
+				"operationId": "CreateSamplingAtEvent",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SamplingInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Sampling"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create sampling at event",
+				"tags": [
+					"Events"
+				]
+			}
+		},
 		"/events/{id}/spottings": {
 			"put": {
 				"operationId": "UpdateSpotting",
@@ -11232,10 +11388,11 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/LatLongCoords"
+								"$ref": "#/components/schemas/ReverseGeocodeInputBody"
 							}
 						}
-					}
+					},
+					"required": true
 				},
 				"responses": {
 					"200": {

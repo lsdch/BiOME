@@ -34,6 +34,7 @@ import type {
   DeleteEventResponse,
   UpdateEventResponse,
   EventAddExternalOccurrenceResponse,
+  CreateSamplingAtEventResponse,
   UpdateSpottingResponse,
   ListFixativesResponse,
   CreateFixativeResponse,
@@ -301,21 +302,7 @@ const fixativeSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const habitatRecordSchemaResponseTransformer = (data: any) => {
-  if (data.incompatible) {
-    data.incompatible = data.incompatible.map((item: any) => {
-      return habitatRecordSchemaResponseTransformer(item)
-    })
-  }
-  return data
-}
-
 const habitatSchemaResponseTransformer = (data: any) => {
-  if (data.incompatible) {
-    data.incompatible = data.incompatible.map((item: any) => {
-      return habitatRecordSchemaResponseTransformer(item)
-    })
-  }
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
@@ -722,6 +709,13 @@ export const eventAddExternalOccurrenceResponseTransformer = async (
   return data
 }
 
+export const createSamplingAtEventResponseTransformer = async (
+  data: any
+): Promise<CreateSamplingAtEventResponse> => {
+  data = samplingSchemaResponseTransformer(data)
+  return data
+}
+
 export const updateSpottingResponseTransformer = async (
   data: any
 ): Promise<UpdateSpottingResponse> => {
@@ -783,20 +777,7 @@ export const updateGeneResponseTransformer = async (data: any): Promise<UpdateGe
   return data
 }
 
-const optionalHabitatRecordSchemaResponseTransformer = (data: any) => {
-  if (data.incompatible) {
-    data.incompatible = data.incompatible.map((item: any) => {
-      return habitatRecordSchemaResponseTransformer(item)
-    })
-  }
-  return data
-}
-
 const habitatGroupSchemaResponseTransformer = (data: any) => {
-  data.depends = optionalHabitatRecordSchemaResponseTransformer(data.depends)
-  data.elements = data.elements.map((item: any) => {
-    return habitatRecordSchemaResponseTransformer(item)
-  })
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }

@@ -49,7 +49,10 @@ func RegisterGeoapifyRoutes(r router.Router) {
 
 type ReverseGeocodeInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
-	Body *occurrence.LatLongCoords
+	Body struct {
+		_ struct{} `json:"-" additionalProperties:"true"`
+		*occurrence.LatLongCoords
+	}
 }
 
 type ReverseGeocodeOutput struct {

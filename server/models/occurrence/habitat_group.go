@@ -19,7 +19,7 @@ type HabitatGroup struct {
 	ID        geltypes.UUID                  `gel:"id" json:"id" format:"uuid"`
 	Label     string                         `gel:"label" json:"label" doc:"Name for the group of habitat tags" example:"Water flow"`
 	Exclusive bool                           `gel:"exclusive_elements" json:"exclusive_elements"`
-	Depends   models.Optional[HabitatRecord] `gel:"depends" json:"depends"`
+	Depends   models.Optional[HabitatRecord] `gel:"depends" json:"depends,omitempty"`
 	Elements  []HabitatRecord                `gel:"elements" json:"elements"`
 	Meta      people.Meta                    `gel:"meta" json:"meta"`
 }

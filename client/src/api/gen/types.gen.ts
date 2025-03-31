@@ -780,7 +780,7 @@ export type Habitat = {
    */
   description?: string
   id: string
-  incompatible?: Array<HabitatRecord>
+  incompatible: Array<HabitatInner>
   /**
    * A short label for the habitat.
    */
@@ -793,7 +793,7 @@ export type HabitatGroup = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  depends: OptionalHabitatRecord
+  depends?: OptionalHabitatRecord
   elements: Array<HabitatRecord>
   exclusive_elements: boolean
   id: string
@@ -836,6 +836,18 @@ export type HabitatGroupUpdate = {
   }
 }
 
+export type HabitatInner = {
+  /**
+   * Optional habitat description
+   */
+  description?: string
+  id: string
+  /**
+   * A short label for the habitat.
+   */
+  label: string
+}
+
 export type HabitatInput = {
   /**
    * Optional habitat description
@@ -853,7 +865,7 @@ export type HabitatRecord = {
    */
   description?: string
   id: string
-  incompatible?: Array<HabitatRecord>
+  incompatible: Array<HabitatInner>
   /**
    * A short label for the habitat.
    */
@@ -1248,7 +1260,7 @@ export type OptionalHabitatRecord = {
    */
   description?: string
   id: string
-  incompatible?: Array<HabitatRecord>
+  incompatible: Array<HabitatInner>
   /**
    * A short label for the habitat.
    */
@@ -1587,6 +1599,16 @@ export type ResendEmailVerificationInputBody = {
   verification_url: string
 }
 
+export type ReverseGeocodeInputBody = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  latitude: number
+  longitude: number
+  [key: string]: unknown | string | number | undefined
+}
+
 export type Review = {
   'competing-interest-statement'?: string
   language?: string
@@ -1635,6 +1657,10 @@ export type SamplingInner = {
 }
 
 export type SamplingInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   access_points?: Array<string>
   comments?: string
   /**
@@ -1988,7 +2014,7 @@ export type SiteUpdate = {
   /**
    * Signals whether locality was manually entered by user, and automatically inferred from coordinates
    */
-  user_defined_locality: boolean
+  user_defined_locality?: boolean
 }
 
 export type SiteWithDistance = {
@@ -3853,6 +3879,45 @@ export type EventAddExternalOccurrenceResponses = {
 export type EventAddExternalOccurrenceResponse =
   EventAddExternalOccurrenceResponses[keyof EventAddExternalOccurrenceResponses]
 
+export type CreateSamplingAtEventData = {
+  body: SamplingInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    id: string
+  }
+  query?: never
+  url: '/events/{id}/samplings'
+}
+
+export type CreateSamplingAtEventErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateSamplingAtEventError =
+  CreateSamplingAtEventErrors[keyof CreateSamplingAtEventErrors]
+
+export type CreateSamplingAtEventResponses = {
+  /**
+   * OK
+   */
+  200: Sampling
+}
+
+export type CreateSamplingAtEventResponse =
+  CreateSamplingAtEventResponses[keyof CreateSamplingAtEventResponses]
+
 export type UpdateSpottingData = {
   body: Array<string>
   headers?: {
@@ -4179,7 +4244,7 @@ export type UpdateGeneResponses = {
 export type UpdateGeneResponse = UpdateGeneResponses[keyof UpdateGeneResponses]
 
 export type ReverseGeocodeData = {
-  body?: LatLongCoords
+  body: ReverseGeocodeInputBody
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
