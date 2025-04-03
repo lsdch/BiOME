@@ -10,7 +10,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { VBtn } from 'vuetify/components'
-import { type SortItem } from '../tables'
 
 const emit = defineEmits<{
   click: []

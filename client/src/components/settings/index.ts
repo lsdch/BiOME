@@ -1,6 +1,6 @@
 import { InstanceSettings, SettingsService } from "@/api";
 import { instanceSettingsOptions } from "@/api/gen/@tanstack/vue-query.gen";
-import { handleErrors } from "@/api/responses";
+import { useErrorHandler } from "@/api/responses";
 import { useQuery } from "@tanstack/vue-query";
 import { computed, ref } from "vue";
 

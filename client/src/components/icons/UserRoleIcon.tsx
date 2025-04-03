@@ -1,4 +1,5 @@
 import { UserRole } from '@/api/adapters'
+import { VIcon } from 'vuetify/components'
 
 export function roleIcon(role?: UserRole) {
   switch (role) {
@@ -27,9 +28,13 @@ export function roleIcon(role?: UserRole) {
   }
 }
 
-export function UserRoleIcon({ role }: { role?: UserRole }, context: { attrs?: object }) {
+export type UserRoleIconProps = {
+  role?: UserRole
+} & VIcon['$props']
+
+export function UserRoleIcon({ role, ...props }: UserRoleIconProps, context: { attrs?: object }) {
   const { icon, color } = roleIcon(role)
-  return <v-icon icon={icon} color={color} title={role} {...context.attrs} />
+  return <v-icon icon={icon} color={color} title={role} {...{ ...props, ...context.attrs }} />
 }
 
 export default UserRoleIcon

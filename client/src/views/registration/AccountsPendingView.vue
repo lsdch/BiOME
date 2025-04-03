@@ -81,7 +81,7 @@ import {
   deletePendingUserRequestMutation,
   listPendingUserRequestsOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
-import InvitationFormDialog, { InitialContent } from '@/components/account/InvitationFormDialog.vue'
+import InvitationFormDialog, { InitialContent } from '@/components/users/InvitationFormDialog.vue'
 import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'

@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { Fixative, SamplingService } from '@/api'
 import { deleteFixativeMutation, listFixativesOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import FixativeFormDialog from '@/components/samples/FixativeFormDialog.vue'
+import FixativeFormDialog from '@/components/forms/FixativeFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<Fixative>[] = [

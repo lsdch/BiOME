@@ -1,12 +1,12 @@
 <template>
   <v-confirm-edit v-model="dataset">
     <template v-slot:default="{ model: proxy, save, cancel, isPristine, actions: _ }">
-      <v-text-field v-model="proxy.value.label" label="Label" v-bind="field('label')" />
+      <v-text-field v-model="proxy.value.label" label="Label" v-bind="schema('label')" />
       <v-textarea
         v-model="proxy.value.description"
         label="Description"
         variant="outlined"
-        v-bind="field('description')"
+        v-bind="schema('description')"
       />
       <PersonPicker
         label="Maintainers"
@@ -14,7 +14,7 @@
         multiple
         restrict="Contributor"
         return-objects
-        v-bind="field('maintainers')"
+        v-bind="schema('maintainers')"
         clearable
       />
       <div class="d-flex justify-end">
@@ -36,12 +36,15 @@
 import { $DatasetUpdate, DatasetUpdate, OccurrenceDataset, SiteDataset } from '@/api'
 import { updateDatasetMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import PersonPicker from '@/components/people/PersonPicker.vue'
-import { useSchema } from '@/components/toolkit/forms/schema'
+import { useSchema } from '@/composables/schema'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation } from '@tanstack/vue-query'
 
 const dataset = defineModel<DatasetType>({ required: true })
-const { field, dispatchErrors } = useSchema($DatasetUpdate)
+const {
+  bind: { schema },
+  dispatchErrors
+} = useSchema($DatasetUpdate)
 const { feedback } = useFeedback()
 
 const emit = defineEmits<{

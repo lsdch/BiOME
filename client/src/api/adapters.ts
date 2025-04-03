@@ -24,8 +24,9 @@ import {
   DatasetCategory as TDatasetCategory,
   Status as GeoapifyStatus,
   GeoapifyResult,
+  SamplingTargetKind as TSamplingTargetKind,
 } from "./gen/types.gen"
-import UserRoleChip from "@/components/people/UserRoleChip"
+import UserRoleChip from "@/components/users/UserRoleChip"
 import QuantityChip from "@/components/occurrence/ExtBioMatQuantityChip"
 
 export * from "./gen/types.gen"
@@ -218,13 +219,9 @@ export namespace UserRole {
     return $UserRole.enum.indexOf(user.role) >= $UserRole.enum.indexOf(role)
   }
 
-  export function Icon({ role }: { role?: UserRole }, context: { attrs?: object }) {
-    return UserRoleIcon({ role }, context)
-  }
+  export const Icon = UserRoleIcon
 
-  export function Chip({ role }: { role?: UserRole }, context: { attrs?: object }) {
-    return UserRoleChip({ role }, context)
-  }
+  export const Chip = UserRoleChip
 }
 
 
@@ -332,4 +329,3 @@ export namespace Geoapify {
     }
   }
 }
-

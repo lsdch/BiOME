@@ -19,8 +19,9 @@
 </template>
 
 <script setup lang="ts">
-import { ArticleLocalInput, ErrorModel } from '@/api'
+import { ErrorModel } from '@/api'
 import { crossRefOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { ArticleFormModel } from '@/models/article'
 import { useQuery } from '@tanstack/vue-query'
 import { watch } from 'vue'
 
@@ -32,7 +33,7 @@ const { data, error, isFetching, refetch } = useQuery({
 })
 
 const emit = defineEmits<{
-  fetched: [article: ArticleLocalInput]
+  fetched: [article: ArticleFormModel]
   error: [error: ErrorModel]
 }>()
 

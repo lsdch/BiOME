@@ -28,9 +28,9 @@
               chips
               closable-chips
               clearable
-              v-bind="field('spottings')"
+              v-bind="schema('spottings')"
             />
-            <v-textarea label="Comments" v-model="model.comments" v-bind="field('comments')" />
+            <v-textarea label="Comments" v-model="model.comments" v-bind="schema('comments')" />
 
             <div class="d-flex justify-end">
               <v-btn
@@ -60,9 +60,9 @@
 <script setup lang="ts">
 import { $EventUpdate, Event, EventsService, EventUpdate, TaxonRank } from '@/api'
 import { useToggle } from '@vueuse/core'
-import TaxonChip from '../taxonomy/TaxonChip.vue'
+import TaxonChip from '../taxonomy/TaxonChip'
 import TaxonPicker from '../taxonomy/TaxonPicker.vue'
-import { useSchema } from '../toolkit/forms/schema'
+import { useSchema } from '../../composables/schema'
 
 const model = defineModel<Event>({ required: true })
 
@@ -71,7 +71,10 @@ const [loading, toggleLoading] = useToggle(false)
 
 type UpdateData = Pick<EventUpdate, 'spottings' | 'comments'>
 
-const { field, errorHandler } = useSchema($EventUpdate)
+const {
+  bind: { schema },
+  handleErrors: errorHandler
+} = useSchema($EventUpdate)
 
 async function submit(model: Event) {
   toggleLoading(true)

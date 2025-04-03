@@ -20,11 +20,15 @@
             <v-text-field
               label="First name"
               v-model="model.first_name"
-              v-bind="field('first_name')"
+              v-bind="schema('first_name')"
             />
           </v-col>
           <v-col cols="12" sm="6">
-            <v-text-field label="Last name" v-model="model.last_name" v-bind="field('last_name')" />
+            <v-text-field
+              label="Last name"
+              v-model="model.last_name"
+              v-bind="schema('last_name')"
+            />
           </v-col>
         </v-row>
         <v-row>
@@ -33,7 +37,7 @@
               label="E-mail address"
               v-model="model.email"
               prepend-inner-icon="mdi-at"
-              v-bind="field('email')"
+              v-bind="schema('email')"
             />
           </v-col>
         </v-row>
@@ -51,7 +55,7 @@
             <v-textarea
               label="Motivations"
               v-model="model.motive"
-              v-bind="field('motive')"
+              v-bind="schema('motive')"
               placeholder="(Optional) Short explanation on how you want to contribute"
               persistent-placeholder
             />
@@ -74,7 +78,7 @@
 
 <script setup lang="ts">
 import { $PendingUserRequestInput, AccountService, PendingUserRequestInput } from '@/api'
-import { useSchema } from '@/components/toolkit/forms/schema'
+import { useSchema } from '@/composables/schema'
 import { accountRoutes } from '@/router/routes'
 import { ref } from 'vue'
 
@@ -87,7 +91,10 @@ const model = ref<PendingUserRequestInput>({
   organisation: undefined
 })
 
-const { field, errorHandler } = useSchema($PendingUserRequestInput)
+const {
+  bind: { schema },
+  handleErrors: errorHandler
+} = useSchema($PendingUserRequestInput)
 
 function submit() {
   AccountService.register({

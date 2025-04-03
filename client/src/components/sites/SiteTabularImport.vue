@@ -117,7 +117,7 @@
 
     <!-- Item form -->
     <template #form="{ dialog, onClose, onSuccess, editItem }">
-      <SiteFormDialog
+      <!-- <SiteFormDialog
         title="New site"
         :model-value="editItem"
         :dialog
@@ -127,7 +127,7 @@
           }
         "
         @close="onClose"
-      />
+      /> -->
     </template>
   </CRUDTable>
 
@@ -146,11 +146,11 @@ import { $SiteInput } from '@/api'
 import DropZone from '@/components/toolkit/import/DropZone.vue'
 import { ParseError } from 'papaparse'
 import { computed, ref } from 'vue'
-import { useSchema } from '../toolkit/forms/schema'
+import { useSchema } from '../../composables/schema'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
 import { Errors, indexErrors } from '../toolkit/validation'
-import SiteFormDialog from './SiteFormDialogLegacy.vue'
+// import SiteFormDialog from './SiteFormDialogLegacy.vue'
 import SiteImportDialog, { SiteRecord } from './SiteImportDialog.vue'
 import SiteImportSettingsDialog from './SiteImportSettingsDialog.vue'
 import SiteStatusIcon from './SiteStatusIcon'
@@ -235,7 +235,7 @@ const headers: CRUDTableHeaders = [
   }
 ]
 
-const { schema, validate, paths, validateAll } = useSchema($SiteInput)
+const { bindField: schema, validate, paths, validateAll } = useSchema($SiteInput)
 
 function validateItem(item: SiteRecord): RecordElement {
   return {

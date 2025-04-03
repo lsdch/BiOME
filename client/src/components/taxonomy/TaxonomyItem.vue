@@ -53,7 +53,7 @@ const hilight = computed(() => {
 })
 
 onMounted(() => {
-  if (`#${props.item.name}` === location.hash) select(props.item, true)
+  if (`#${props.item.name}` === location.hash) select(props.item)
 })
 
 const { onFold: onRankFold, onUnfold: onRankUnfold, isFolded: isRankFolded } = useRankFoldState()

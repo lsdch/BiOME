@@ -36,7 +36,7 @@
 <script setup lang="ts">
 import type { Taxon } from '@/api'
 import ItemDateChip from '../../toolkit/ItemDateChip.vue'
-import LinkIconGBIF from '../LinkIconGBIF.vue'
+import LinkIconGBIF from '../LinkIconGBIF'
 
 defineProps<Taxon>()
 </script>

@@ -85,7 +85,7 @@
 
     <!-- Event form -->
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <EventFormDialog
+      <EventMutationFormDialog
         :dialog
         :model-value="editItem"
         :site
@@ -131,15 +131,15 @@
 </template>
 
 <script setup lang="ts">
-import { BioMaterial, EventsService, Site, type Event } from '@/api'
+import { BioMaterial, Site, type Event } from '@/api'
 import { DateWithPrecision } from '@/api/adapters'
+import { deleteEventMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import { ref, useTemplateRef } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
 import EventCardDialog, { EventAction } from './EventCardDialog.vue'
-import EventFormDialog from './EventFormDialog.vue'
-import { deleteEventMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import EventMutationFormDialog from '../forms/EventFormDialogMutation.vue'
 
 type RowClick = {
   index: number

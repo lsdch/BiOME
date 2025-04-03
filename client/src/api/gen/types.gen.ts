@@ -221,6 +221,17 @@ export type CountryWithSitesCount = {
   subcontinent: string
 }
 
+export type CreateExternalBioMatInputBody = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  bio_material: ExternalBioMatInput
+  event: EventInput
+  sampling: SamplingInput
+  site: SiteInput
+}
+
 export type CrossRefPerson = {
   ORCID?: string
   affiliation?: Array<Organization>
@@ -544,37 +555,6 @@ export type ExternalBioMatInput = {
   vouchers?: Array<string>
 }
 
-export type ExternalBioMatOccurrenceInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  /**
-   * Unique code identifier for the bio material. Generated from taxon and sampling if not provided.
-   */
-  code?: string
-  collection?: string
-  comments?: string
-  /**
-   * Description of the content of the bio material
-   */
-  content_description?: string
-  /**
-   * Occurrence identification
-   */
-  identification: IdentificationInput
-  /**
-   * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
-   */
-  is_type?: boolean
-  original_link?: string
-  original_source?: string
-  published_in?: Array<OccurrenceReferenceInput>
-  quantity: Quantity
-  sampling: string
-  vouchers?: Array<string>
-}
-
 export type ExternalBioMatSequence = {
   accession_number: string
   category: OccurrenceCategory
@@ -631,32 +611,13 @@ export type ExternalOccurrenceAtEventInput = {
    */
   readonly $schema?: string
   /**
-   * Unique code identifier for the bio material. Generated from taxon and sampling if not provided.
+   * New occurrence resulting from the sampling action
    */
-  code?: string
-  collection?: string
-  comments?: string
-  /**
-   * Description of the content of the bio material
-   */
-  content_description?: string
-  /**
-   * Occurrence identification
-   */
-  identification: IdentificationInput
-  /**
-   * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
-   */
-  is_type?: boolean
-  original_link?: string
-  original_source?: string
-  published_in?: Array<OccurrenceReferenceInput>
-  quantity: Quantity
+  biomaterial: ExternalBioMatInput
   /**
    * New sampling action during referenced event
    */
   sampling: SamplingInput
-  vouchers?: Array<string>
 }
 
 export type ExternalOccurrenceAtSiteInput = {
@@ -664,7 +625,7 @@ export type ExternalOccurrenceAtSiteInput = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  BioMaterial: ExternalBioMatInput
+  biomaterial: ExternalBioMatInput
   event: EventInput
   sampling: SamplingInput
 }
@@ -3082,7 +3043,7 @@ export type UpdateExternalBioMatResponse =
   UpdateExternalBioMatResponses[keyof UpdateExternalBioMatResponses]
 
 export type CreateExternalBioMatData = {
-  body: ExternalBioMatOccurrenceInput
+  body: CreateExternalBioMatInputBody
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.

@@ -38,7 +38,7 @@ import { Organisation, OrgKind } from '@/api'
 import { listOrganisationsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
-import OrgKindChip from './OrgKindChip.vue'
+import OrgKindChip from './OrgKindChip'
 
 const { kinds } = defineProps<{
   multiple?: boolean

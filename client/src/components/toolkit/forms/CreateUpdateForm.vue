@@ -33,7 +33,7 @@ import { useMutation } from '@tanstack/vue-query'
 import { reactiveComputed } from '@vueuse/core'
 import { StatusCodes } from 'http-status-codes'
 import { computed, ref, watch } from 'vue'
-import { Schema, useSchema } from './schema'
+import { Schema, useSchema } from '../../../composables/schema'
 
 export type Mode = 'Create' | 'Edit'
 
@@ -52,12 +52,11 @@ const emit = defineEmits<{
 }>()
 
 const item = defineModel<Item>()
-const loading = defineModel<boolean>('loading')
 const model = ref<InputModel | UpdateModel>(initModel(item.value))
 const mode = computed<Mode>(() => (item.value ? 'Edit' : 'Create'))
 watch(item, (item) => (model.value = initModel(item)), { immediate: true })
 
-const { field, dispatchErrors } = reactiveComputed(() =>
+const { bindSchema: field, dispatchErrors } = reactiveComputed(() =>
   useSchema(mode.value === 'Create' ? create.schema : update.schema)
 )
 
@@ -79,7 +78,6 @@ const updateMutation = useMutation({
 })
 
 const activeMutation = computed(() => (mode.value === 'Create' ? createMutation : updateMutation))
-watch(activeMutation.value.isPending, (pending) => (loading.value = pending))
 
 async function submit() {
   if (local) {
@@ -89,10 +87,7 @@ async function submit() {
   if (mode.value === 'Create')
     return await createMutation.mutateAsync(create.requestData(model.value))
   else {
-    return await updateMutation.mutateAsync(
-      update.requestData(item.value!, model.value)
-      // path: update.itemID(item.value!)
-    )
+    return await updateMutation.mutateAsync(update.requestData(item.value!, model.value))
   }
 }
 

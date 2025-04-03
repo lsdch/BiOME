@@ -71,8 +71,8 @@ import { nextTick, ref } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import colors from 'vuetify/util/colors'
 
-import AccountNavMenu from '@/components/navbar/AccountNavMenu.vue'
-import SettingsMenu from '@/components/navbar/SettingsMenu.vue'
+import AccountNavMenu from '@/components/navigation/AccountNavMenu.vue'
+import SettingsMenu from '@/components/navigation/SettingsMenu.vue'
 
 import { client } from '@/api/gen/client.gen'
 import { ErrorDetail } from '@/api'

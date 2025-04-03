@@ -27,7 +27,7 @@
 </template>
 
 <script setup lang="ts">
-import LinkIconGBIF from '@/components/taxonomy/LinkIconGBIF.vue'
+import LinkIconGBIF from '@/components/taxonomy/LinkIconGBIF'
 
 export type ImportProcess = {
   name: string

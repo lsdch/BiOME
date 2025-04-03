@@ -25,13 +25,18 @@
 
     <v-list density="compact">
       <v-divider />
-      <v-list-item title="Samples" prepend-icon="mdi-package-variant">
+      <v-list-item prepend-icon="mdi-package-variant">
+        <template #append>
+          <span class="text-caption text-muted">Bio-materials</span>
+        </template>
         <v-chip
+          v-if="sampling.samples?.length"
           v-for="sample in sampling.samples"
           :text="sample.identification.taxon.name"
           :title="sample.category"
           class="ma-1"
         />
+        <span v-else class="text-muted font-italic">None registered</span>
       </v-list-item>
       <v-divider />
       <SamplingListItems :sampling />
@@ -84,13 +89,13 @@ async function deleteSampling() {
 .sampling-card {
   border-inline-start-width: 2px;
   border-inline-start-style: solid;
-  border-inline-start-color: rgba(var(--v-theme-success), 0.7);
+  border-inline-start-color: rgba(var(--v-theme-secondary), 0.7);
 
   .v-card-item {
     padding-top: 0px;
     padding-left: 0px;
     .top-tag {
-      background-color: rgba(var(--v-theme-success), 0.7);
+      background-color: rgba(var(--v-theme-secondary), 0.7);
       height: 45px;
       padding: 10px;
       border-bottom-right-radius: 25%;

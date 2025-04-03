@@ -97,3 +97,16 @@ a {
     }
   }
 }
+
+.coordinates {
+  display: grid;
+  grid-template-columns: [label] 0fr [value] 1fr;
+  grid-template-rows: 1fr 1fr;
+  column-gap: 10px;
+
+  .label {
+    grid-column: label;
+    font-family: monospace;
+    opacity: var(--v-medium-emphasis-opacity);
+  }
+}

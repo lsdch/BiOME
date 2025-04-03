@@ -1,6 +1,7 @@
 package occurrences
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/lsdch/biome/controllers"
@@ -37,7 +38,7 @@ func registerBioMatRoutes(r router.Router) {
 			Path:    "/external",
 			Method:  http.MethodPost,
 			Summary: "Create external bio-material",
-		}, controllers.CreateHandler[occurrence.ExternalBioMatOccurrenceInput])
+		}, CreateExternalBioMat)
 
 	router.Register(biomat_API, "UpdateExternalBioMat",
 		huma.Operation{
@@ -53,4 +54,34 @@ func registerBioMatRoutes(r router.Router) {
 			Summary:     "Delete bio-material",
 			Description: "Delete any (internal/external) bio-material record by its code",
 		}, controllers.DeleteByCodeHandler(occurrence.DeleteBioMaterial))
+}
+
+type CreateExternalBioMatInput struct {
+	resolvers.AccessRestricted[resolvers.Contributor]
+	Body struct {
+		Site        occurrence.SiteInput           `json:"site"`
+		Event       occurrence.EventInput          `json:"event"`
+		Sampling    occurrence.SamplingInput       `json:"sampling"`
+		Biomaterial occurrence.ExternalBioMatInput `json:"bio_material"`
+	}
+}
+
+func CreateExternalBioMat(ctx context.Context, input *CreateExternalBioMatInput) (*RegisterOccurrenceOutput, error) {
+	site, err := input.Body.Site.Save(input.DB())
+	if err != nil {
+		return nil, controllers.StatusError(err)
+	}
+	event, err := input.Body.Event.Save(input.DB(), site.Code)
+	if err != nil {
+		return nil, controllers.StatusError(err)
+	}
+	sampling, err := input.Body.Sampling.Save(input.DB(), event.ID)
+	if err != nil {
+		return nil, controllers.StatusError(err)
+	}
+	bioMaterial, err := input.Body.Biomaterial.Save(input.DB(), sampling.ID)
+	if err != nil {
+		return nil, controllers.StatusError(err)
+	}
+	return &RegisterOccurrenceOutput{bioMaterial}, nil
 }

@@ -99,7 +99,7 @@
 import { ref, watch } from 'vue'
 import { $TaxonRank, ErrorModel, TaxonRank, TaxonomyGbifService } from '@/api'
 import { endpointGBIF } from '.'
-import LinkIconGBIF from '../LinkIconGBIF.vue'
+import LinkIconGBIF from '../LinkIconGBIF'
 import AutocompleteGBIF from './AutocompleteGBIF.vue'
 
 const importDescendants = ref(true)

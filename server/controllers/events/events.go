@@ -66,8 +66,8 @@ type EventAddExternalOccurrenceInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
 	ID   geltypes.UUID `path:"id" format:"uuid" doc:"Event ID"`
 	Body struct {
-		Sampling                       occurrence.SamplingInput `json:"sampling" doc:"New sampling action during referenced event"`
-		occurrence.ExternalBioMatInput `json:",inline" doc:"New occurrence resulting from the sampling action"`
+		Sampling    occurrence.SamplingInput       `json:"sampling" doc:"New sampling action during referenced event"`
+		BioMaterial occurrence.ExternalBioMatInput `json:"biomaterial" doc:"New occurrence resulting from the sampling action"`
 	} `nameHint:"ExternalOccurrenceAtEventInput"`
 }
 
@@ -79,7 +79,7 @@ func EventAddExternalOccurrence(ctx context.Context, input *EventAddExternalOccu
 		if err != nil {
 			return err
 		}
-		created, err := input.Body.ExternalBioMatInput.Save(tx, sampling.ID)
+		created, err := input.Body.BioMaterial.Save(tx, sampling.ID)
 		if err != nil {
 			return err
 		}

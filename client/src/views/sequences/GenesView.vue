@@ -20,7 +20,7 @@
 <script setup lang="ts">
 import { Gene } from '@/api'
 import { listGenesOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import GeneFormDialog from '@/components/sequences/GeneFormDialog.vue'
+import GeneFormDialog from '@/components/forms/GeneFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<Gene>[] = [

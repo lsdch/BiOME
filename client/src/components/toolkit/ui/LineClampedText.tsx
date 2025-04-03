@@ -19,3 +19,5 @@ export function LineClampedText(
     </div>
   )
 }
+
+export default LineClampedText

@@ -98,7 +98,8 @@ import {
   LocationService,
   PeopleService,
   Dataset,
-  DatasetInput
+  DatasetInput,
+  DatasetsService
 } from '@/api'
 import PersonPicker from '@/components/people/PersonPicker.vue'
 import { isGranted } from '@/components/people/userRole'
@@ -144,12 +145,12 @@ const initial: DatasetInput = {
 }
 const { model } = useForm(props, { initial })
 
-const { field } = useSchema($DatasetInput)
+const { bindSchema: field } = useSchema($DatasetInput)
 
 const datasetCreated = ref<Dataset>()
 
 async function submit() {
-  const { data, error } = await LocationService.createDataset({ body: model.value })
+  const { data, error } = await DatasetsService.createSiteDataset({ body: model.value })
   if (error) {
     console.error(error)
     return

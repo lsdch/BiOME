@@ -68,7 +68,7 @@ import { listArticlesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useFuzzyItemsFilter } from '@/composables/fuzzy_search'
 import { useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
-import ArticleChip from './ArticleChip.vue'
+import ArticleChip from './ArticleChip'
 
 const { threshold = 0.7, limit = 10 } = defineProps<{
   multiple?: boolean
@@ -78,7 +78,7 @@ const { threshold = 0.7, limit = 10 } = defineProps<{
 
 const { data: items, isPending: loading, error } = useQuery(listArticlesOptions())
 
-const model = defineModel<string | string[] | null>()
+const model = defineModel<Article[]>()
 const searchTerms = ref<string>('')
 
 const keys = [

@@ -88,7 +88,7 @@
 import { ReferencesService } from '@/api'
 import { Article } from '@/api/adapters'
 import { deleteArticleMutation, listArticlesOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import ArticleFormDialog from '@/components/references/ArticleFormDialog.vue'
+import ArticleFormDialog from '@/components/forms/ArticleFormDialogMutation.vue'
 import ArticlesImportDialog from '@/components/references/ArticlesImportDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { useToggle } from '@vueuse/core'

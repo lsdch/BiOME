@@ -49,9 +49,9 @@
 <script setup lang="ts">
 import { Program } from '@/api'
 import { deleteProgramMutation, listProgramsOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import ProgramFormDialog from '@/components/events/ProgramFormDialog.vue'
-import OrgKindChip from '@/components/people/OrgKindChip.vue'
-import PersonChip from '@/components/people/PersonChip.vue'
+import ProgramFormDialog from '@/components/forms/ProgramFormDialogMutation.vue'
+import OrgKindChip from '@/components/people/OrgKindChip'
+import PersonChip from '@/components/people/PersonChip'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { useDisplay } from 'vuetify'
 

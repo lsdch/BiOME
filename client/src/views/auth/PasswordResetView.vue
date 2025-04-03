@@ -46,7 +46,7 @@
 
 <script setup lang="ts">
 import { AccountService, PasswordInput } from '@/api'
-import PasswordFields from '@/components/auth/PasswordFields.vue'
+import PasswordFields from '@/components/users/PasswordFields.vue'
 import { useRouteQuery } from '@vueuse/router'
 import { onBeforeMount, ref } from 'vue'
 import { useRouter } from 'vue-router'

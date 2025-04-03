@@ -1,15 +1,30 @@
 import { ErrorModel } from "@/api"
-import { Schema } from "@/components/toolkit/forms/schema"
-import { UseMutationOptions } from "@tanstack/vue-query"
+import { joinPath, PathPrefix, Schema, useSchema } from "@/composables/schema"
+import { useMutation, UseMutationOptions } from "@tanstack/vue-query"
+import { reactiveComputed } from "@vueuse/core"
+import { StatusCodes } from "http-status-codes"
 import { Equal } from "node_modules/@tanstack/vue-query/build/modern/types"
 import { Optional } from "ts-toolbelt/out/Object/Optional"
+import { computed, ModelRef, ref, watch } from "vue"
 
+export type Mode = 'Create' | 'Edit'
+
+export type FormProps = {
+  mode?: Mode
+  errors?: IndexedValidationErrors
+}
 
 /**
  * Extracts required keys from a request data type.
  * Applies recursively to nested objects, except for the 'body' key.
  */
 type PickRequired<T> = { [K in keyof T as (T[K] extends never ? never : (undefined extends T[K] ? never : K))]: 'body' extends K ? T[K] : PickRequired<T[K]> }
+
+export type FormEmits<ItemType> = {
+  (evt: 'success', item: ItemType): void
+  (evt: 'created', item: ItemType): void
+  (evt: 'updated', item: ItemType): void
+}
 
 /**
  * Simplified request data model for mutations
@@ -31,7 +46,7 @@ export type FormCreateMutation<
 > = {
   mutation: UseMutationOptions<Item, ErrorModel, RData, any>
   schema: InputSchema,
-  initial: InputModel,
+  initial: () => InputModel,
   requestData: (model: InputModel) => RData
 }
 
@@ -81,7 +96,7 @@ export function defineFormCreate<
      * It may differ from the request data model,
      * in which case a transformation must be applied in `requestData`.
      */
-    initial: InputModel,
+    initial: () => InputModel,
     /**
      * OpenAPI JSON schema for input model.
      * Used for form validation and fields configuration
@@ -168,5 +183,118 @@ export function defineFormUpdate<
         body: data.body ?? model
       } as RData
     }
+  }
+}
+
+/**
+ * Represents errors returned by the API, indexed by their location.
+ * The `rest` key is used for errors that are not related to a specific field.
+ */
+export type IndexedValidationErrors = Record<'rest' | (string & {}), string[]>
+
+export function useMutationForm<
+  Item,
+  ItemInput,
+  ItemUpdate,
+  ItemID,
+  InputSchema extends Schema,
+  UpdateSchema extends Schema,
+  InputRequestData extends RequestData<ItemInput>,
+  UpdateRequestData extends RequestData<ItemUpdate> & { path: ItemID },
+  InputModel = ItemInput,
+  UpdateModel = ItemUpdate
+>(
+  item: ModelRef<Item | undefined>,
+  { create, update, onSuccess }: {
+    create: FormCreateMutation<Item, ItemInput, InputModel, InputSchema, InputRequestData>,
+    update: FormUpdateMutation<Item, ItemUpdate, UpdateModel, UpdateSchema, ItemID, UpdateRequestData>,
+    onSuccess?: (item: Item, mode: Mode) => any
+  }
+) {
+
+  const model = ref<InputModel | UpdateModel>(initModel(item.value))
+  watch(item, (item) => (model.value = initModel(item)), { immediate: true })
+
+  function initModel(item?: Item) {
+    return item ? update.itemToModel(item) : create.initial()
+  }
+
+  const mode = computed<Mode>(() => (item.value ? 'Edit' : 'Create'))
+
+  // Schema bindings
+  const schemaBindings = reactiveComputed(() =>
+    useSchema(mode.value === 'Create' ? create.schema : update.schema)
+  )
+
+  const createMutation = useMutation({
+    ...create.mutation,
+    onSuccess(data) {
+      onSuccess?.(data, 'Create')
+      reset()
+    },
+    onError
+  })
+  const updateMutation = useMutation({
+    ...update.mutation,
+    onSuccess(data) {
+      onSuccess?.(data, 'Edit')
+      reset()
+    },
+    onError
+  })
+
+  const activeMutation = computed(() => (mode.value === 'Create' ? createMutation : updateMutation))
+
+  async function submit() {
+    if (mode.value === 'Create')
+      return await createMutation.mutateAsync(create.requestData(model.value))
+    else {
+      return await updateMutation.mutateAsync(update.requestData(item.value!, model.value))
+    }
+  }
+
+  function reset() {
+    initModel(item.value)
+  }
+
+  function onError(err: ErrorModel) {
+    if (err.status && err.status !== StatusCodes.UNPROCESSABLE_ENTITY) {
+      schemaBindings.dispatchErrors(err)
+    }
+  }
+
+  const errors = computed(() => {
+    return activeMutation.value.error.value?.errors?.reduce<IndexedValidationErrors>((acc, error) => {
+      if (error.location && error.location.startsWith('body.')) {
+        const loc = error.location.replace('body.', '')
+        acc[loc] = (acc[loc] ?? []).concat(error.message ?? 'Invalid value')
+      } else {
+        acc['rest'].push(error.message ?? 'Invalid value')
+      }
+      return acc
+    }, { rest: [] })
+  })
+
+  function errorsWithPrefix(prefix: PathPrefix<typeof create.schema>) {
+    const pref = joinPath<typeof create.schema>(prefix)
+    return computed(() => {
+      return Object.entries(errors.value ?? {}).reduce((acc, [key, value]) => {
+        if (key.startsWith(pref)) {
+          const newKey = key.replace(pref, '')
+          acc[newKey] = value
+        }
+        return acc
+      },
+        {} as IndexedValidationErrors)
+    })
+  }
+
+  return {
+    model, mode,
+    schemaBindings,
+    activeMutation,
+    submit,
+    reset,
+    errors,
   }
 }

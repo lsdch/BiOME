@@ -178,10 +178,10 @@ import moment from 'moment'
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import ActivableField from '../toolkit/forms/ActivableField.vue'
-import { useSchema } from '../toolkit/forms/schema'
+import { useSchema } from '../../composables/schema'
 import ItemDateChip from '../toolkit/ItemDateChip.vue'
 import { FTaxonStatusIndicator, taxonStatusIndicatorProps } from './functionals'
-import LinkIconGBIF from './LinkIconGBIF.vue'
+import LinkIconGBIF from './LinkIconGBIF'
 
 const { mdAndUp } = useDisplay()
 const { isGranted } = useUserStore()
@@ -191,7 +191,9 @@ const extensibleRanks: TaxonRank[] = ['Order', 'Family', 'Genus', 'Species']
 const taxon = defineModel<Taxon>({ required: true })
 const open = defineModel<boolean>('open')
 
-const { schema } = useSchema($TaxonInput)
+const {
+  bind: { schema }
+} = useSchema($TaxonInput)
 
 const emit = defineEmits<{
   'add-child': [parent: Taxon]
@@ -199,9 +201,11 @@ const emit = defineEmits<{
   navigate: [target: Taxon]
 }>()
 
-const code = computed(() => taxon.value.code)
-
-const { data: relatives, error, isFetching } = useQuery(getTaxonOptions({ path: { code: code } }))
+const {
+  data: relatives,
+  error,
+  isFetching
+} = useQuery(computed(() => getTaxonOptions({ path: { code: taxon.value.code } })))
 
 const { askConfirm } = useAppConfirmDialog()
 const { feedback } = useFeedback()

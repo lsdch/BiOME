@@ -26,12 +26,12 @@
 </template>
 
 <script setup lang="ts">
-import { AbioticParameter, SamplingService } from '@/api'
+import { AbioticParameter } from '@/api'
 import {
   deleteAbioticParameterMutation,
   listAbioticParametersOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
-import AbioticParameterFormDialog from '@/components/events/AbioticParameterFormDialog.vue'
+import AbioticParameterFormDialog from '@/components/forms/AbioticParamFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<AbioticParameter>[] = [

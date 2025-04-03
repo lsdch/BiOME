@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { DataSource } from '@/api'
 import { listDataSourcesOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import DataSourceFormDialog from '@/components/references/DataSourceFormDialog.vue'
+import DataSourceFormDialog from '@/components/forms/DataSourceFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<DataSource>[] = [

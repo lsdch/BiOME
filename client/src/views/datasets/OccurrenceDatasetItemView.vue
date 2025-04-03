@@ -112,9 +112,9 @@
 <script setup lang="ts">
 import { DatasetsService } from '@/api'
 import SitesMap from '@/components/maps/SitesMap.vue'
-import PersonChip from '@/components/people/PersonChip.vue'
+import PersonChip from '@/components/people/PersonChip'
 import SitePopup from '@/components/sites/SitePopup.vue'
-import MetaChip from '@/components/toolkit/MetaChip.vue'
+import MetaChip from '@/components/toolkit/MetaChip'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
 import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 import { useUserStore } from '@/stores/user'

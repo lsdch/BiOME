@@ -96,7 +96,7 @@ type SiteAddExternalOccurrenceInput struct {
 	Body struct {
 		Event       occurrence.EventInput          `json:"event"`
 		Sampling    occurrence.SamplingInput       `json:"sampling"`
-		BioMaterial occurrence.ExternalBioMatInput `json:",inline"`
+		BioMaterial occurrence.ExternalBioMatInput `json:"biomaterial"`
 	} `nameHint:"ExternalOccurrenceAtSiteInput"`
 }
 

@@ -655,6 +655,33 @@ export const $CountryWithSitesCount = {
   type: 'object'
 } as const
 
+export const $CreateExternalBioMatInputBody = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/CreateExternalBioMatInputBody.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    bio_material: {
+      $ref: '#/components/schemas/ExternalBioMatInput'
+    },
+    event: {
+      $ref: '#/components/schemas/EventInput'
+    },
+    sampling: {
+      $ref: '#/components/schemas/SamplingInput'
+    },
+    site: {
+      $ref: '#/components/schemas/SiteInput'
+    }
+  },
+  required: ['site', 'event', 'sampling', 'bio_material'],
+  type: 'object'
+} as const
+
 export const $CrossRefPerson = {
   additionalProperties: false,
   properties: {
@@ -1429,71 +1456,6 @@ export const $ExternalBioMatInput = {
   type: 'object'
 } as const
 
-export const $ExternalBioMatOccurrenceInput = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/ExternalBioMatOccurrenceInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      description:
-        'Unique code identifier for the bio material. Generated from taxon and sampling if not provided.',
-      examples: ['Genus_sp[SITE|2001-01]'],
-      type: 'string'
-    },
-    collection: {
-      type: 'string'
-    },
-    comments: {
-      type: 'string'
-    },
-    content_description: {
-      description: 'Description of the content of the bio material',
-      examples: ['2 females, 1 juvenile male'],
-      type: 'string'
-    },
-    identification: {
-      $ref: '#/components/schemas/IdentificationInput',
-      description: 'Occurrence identification'
-    },
-    is_type: {
-      description:
-        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.',
-      type: 'boolean'
-    },
-    original_link: {
-      type: 'string'
-    },
-    original_source: {
-      type: 'string'
-    },
-    published_in: {
-      items: {
-        $ref: '#/components/schemas/OccurrenceReferenceInput'
-      },
-      type: 'array'
-    },
-    quantity: {
-      $ref: '#/components/schemas/Quantity'
-    },
-    sampling: {
-      type: 'string'
-    },
-    vouchers: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    }
-  },
-  required: ['sampling', 'quantity', 'identification'],
-  type: 'object'
-} as const
-
 export const $ExternalBioMatSequence = {
   additionalProperties: false,
   properties: {
@@ -1677,59 +1639,16 @@ export const $ExternalOccurrenceAtEventInput = {
       readOnly: true,
       type: 'string'
     },
-    code: {
-      description:
-        'Unique code identifier for the bio material. Generated from taxon and sampling if not provided.',
-      examples: ['Genus_sp[SITE|2001-01]'],
-      type: 'string'
-    },
-    collection: {
-      type: 'string'
-    },
-    comments: {
-      type: 'string'
-    },
-    content_description: {
-      description: 'Description of the content of the bio material',
-      examples: ['2 females, 1 juvenile male'],
-      type: 'string'
-    },
-    identification: {
-      $ref: '#/components/schemas/IdentificationInput',
-      description: 'Occurrence identification'
-    },
-    is_type: {
-      description:
-        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.',
-      type: 'boolean'
-    },
-    original_link: {
-      type: 'string'
-    },
-    original_source: {
-      type: 'string'
-    },
-    published_in: {
-      items: {
-        $ref: '#/components/schemas/OccurrenceReferenceInput'
-      },
-      type: 'array'
-    },
-    quantity: {
-      $ref: '#/components/schemas/Quantity'
+    biomaterial: {
+      $ref: '#/components/schemas/ExternalBioMatInput',
+      description: 'New occurrence resulting from the sampling action'
     },
     sampling: {
       $ref: '#/components/schemas/SamplingInput',
       description: 'New sampling action during referenced event'
-    },
-    vouchers: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
     }
   },
-  required: ['sampling', 'quantity', 'identification'],
+  required: ['sampling', 'biomaterial'],
   type: 'object'
 } as const
 
@@ -1743,7 +1662,7 @@ export const $ExternalOccurrenceAtSiteInput = {
       readOnly: true,
       type: 'string'
     },
-    BioMaterial: {
+    biomaterial: {
       $ref: '#/components/schemas/ExternalBioMatInput'
     },
     event: {
@@ -1753,7 +1672,7 @@ export const $ExternalOccurrenceAtSiteInput = {
       $ref: '#/components/schemas/SamplingInput'
     }
   },
-  required: ['event', 'sampling', 'BioMaterial'],
+  required: ['event', 'sampling', 'biomaterial'],
   type: 'object'
 } as const
 

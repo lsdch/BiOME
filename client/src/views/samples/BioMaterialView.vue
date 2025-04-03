@@ -201,9 +201,9 @@ import {
   listBioMaterialOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
 // import BioMaterialFormDialog from '@/components/occurrence/BioMaterialFormDialog.vue'
-import PersonChip from '@/components/people/PersonChip.vue'
-import ArticleChip from '@/components/references/ArticleChip.vue'
-import TaxonChip from '@/components/taxonomy/TaxonChip.vue'
+import PersonChip from '@/components/people/PersonChip'
+import ArticleChip from '@/components/references/ArticleChip'
+import TaxonChip from '@/components/taxonomy/TaxonChip'
 import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'

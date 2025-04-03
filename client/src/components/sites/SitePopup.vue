@@ -21,7 +21,7 @@
         width="fit-content"
         @click.stop="copyCoordinates"
       >
-        <div class="coordinates font-monospace">
+        <div class="coordinates font-monospace cursor-pointer">
           <span class="label"> Lat </span>
           {{ item.coordinates.latitude }}
           <span class="label"> Lng </span>

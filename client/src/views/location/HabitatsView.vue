@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-import HabitatsGraph from '@/components/habitat/HabitatsGraph.vue'
+import HabitatsGraph from '@/components/occurrence/habitat/HabitatsGraph.vue'
 </script>
 
 <style scoped></style>

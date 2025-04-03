@@ -22,7 +22,12 @@
       <PersonFilters v-model="filters" />
     </template>
     <template #form="{ dialog, onClose, onSuccess, editItem }">
-      <PersonFormDialog @success="onSuccess" @close="onClose" :dialog :model-value="editItem" />
+      <PersonFormDialogMutation
+        @success="onSuccess"
+        @close="onClose"
+        :dialog
+        :model-value="editItem"
+      />
     </template>
 
     <!-- User Role column -->
@@ -79,18 +84,18 @@
 </template>
 
 <script setup lang="ts">
-import { $UserRole, Organisation, PeopleService, Person } from '@/api'
+import { $UserRole, Organisation, Person } from '@/api'
 
 import { UserRole } from '@/api'
+import { deletePersonMutation, listPersonsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import OrgKindChip from './OrgKindChip.vue'
+import OrgKindChip from './OrgKindChip'
 import type { AccountStatus, PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
-import PersonFormDialog from './PersonFormDialog.vue'
-import { deletePersonMutation, listPersonsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import PersonFormDialogMutation from '../forms/people/PersonFormDialogMutation.vue'
 
 const { xs, smAndUp } = useDisplay()
 

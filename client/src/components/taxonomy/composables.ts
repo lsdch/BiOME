@@ -12,13 +12,13 @@ export function useTaxonSelection() {
 
   function select(taxon: Taxon) {
     selectedTaxon.value = taxon
-    history.replaceState(null, '', `#${taxon.name}`)
+    history.replaceState(history.state, '', `#${taxon.name}`)
     selectHook.trigger(taxon)
   }
 
   function drop() {
     selectedTaxon.value = undefined
-    history.replaceState(null, '', ``)
+    history.replaceState(history.state, '', ``)
   }
 
   return { select, drop, selected: selectedTaxon, onSelect: selectHook.on }

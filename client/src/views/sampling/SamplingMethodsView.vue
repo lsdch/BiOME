@@ -21,7 +21,7 @@
 <script setup lang="ts">
 import { SamplingMethod } from '@/api'
 import { listSamplingMethodsOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import SamplingMethodFormDialog from '@/components/events/SamplingMethodFormDialog.vue'
+import SamplingMethodFormDialog from '@/components/forms/SamplingMethodFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<SamplingMethod>[] = [

@@ -37,7 +37,7 @@
                   v-model.trim="proxy.value.geoapify_api_key"
                   label="API key"
                   :step="1"
-                  v-bind="field('geoapify_api_key')"
+                  v-bind="schema('geoapify_api_key')"
                   control-variant="stacked"
                 />
               </v-card-text>
@@ -57,7 +57,7 @@ import {
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import { useSchema } from '../toolkit/forms/schema'
+import { useSchema } from '../../composables/schema'
 import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import SettingsFormActions from './SettingsFormActions.vue'
 
@@ -65,7 +65,10 @@ const { feedback } = useFeedback()
 
 const { data: model, error, refetch, isPending } = useQuery(serviceSettingsOptions())
 
-const { field, dispatchErrors } = useSchema($ServiceSettingsUpdate)
+const {
+  bind: { schema },
+  dispatchErrors
+} = useSchema($ServiceSettingsUpdate)
 
 const {
   mutateAsync,

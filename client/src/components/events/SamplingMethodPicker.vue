@@ -3,6 +3,7 @@
     :items
     :loading="isPending"
     item-title="label"
+    item-value="code"
     item-subtitle="description"
     v-bind="$attrs"
     prepend-inner-icon="mdi-hook"

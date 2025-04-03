@@ -100,14 +100,14 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import { enumAsString } from '../toolkit/enums'
-import OrganisationFormDialog from './OrganisationFormDialog.vue'
-import OrgKindChip from './OrgKindChip.vue'
+import OrganisationFormDialog from '../forms/people/OrganisationFormDialog.vue'
+import OrgKindChip from './OrgKindChip'
 import OrgKindPicker from './OrgKindPicker.vue'
 import {
   deleteOrganisationMutation,
   listOrganisationsOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
-import PersonChip from './PersonChip.vue'
+import PersonChip from './PersonChip'
 
 const { mdAndUp } = useDisplay()
 

@@ -31,7 +31,7 @@
                 class="pb-4"
                 hint="The name that is displayed in the navbar and front page"
                 persistent-hint
-                v-bind="field('name')"
+                v-bind="schema('name')"
               />
               <v-text-field
                 v-model="proxy.value.description"
@@ -39,7 +39,7 @@
                 hint="A short description of the database purpose to be displayed on the front page."
                 persistent-hint
                 clearable
-                v-bind="field('description')"
+                v-bind="schema('description')"
               />
             </div>
           </v-col>
@@ -75,14 +75,17 @@ import {
 import { useFeedback } from '@/stores/feedback'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { useInstanceSettings } from '.'
-import { useSchema } from '../toolkit/forms/schema'
+import { useSchema } from '../../composables/schema'
 import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import IconEditor from './InstanceIcon.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
 
 const { instance, reload, isPending, error: fetchError } = useInstanceSettings()
 
-const { field, dispatchErrors } = useSchema($InstanceSettingsInput)
+const {
+  bind: { schema },
+  dispatchErrors
+} = useSchema($InstanceSettingsInput)
 
 const { feedback } = useFeedback()
 

@@ -121,13 +121,13 @@ import {
   TaxonStatus
 } from '@/api'
 import { getTaxonomyOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { handleErrors } from '@/api/responses'
+import { useErrorHandler } from '@/api/responses'
 import { useQuery } from '@tanstack/vue-query'
 import { refDebounced } from '@vueuse/core'
 import { useRouteHash } from '@vueuse/router'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import IconGBIF from '../icons/IconGBIF.vue'
+import IconGBIF from '../icons/IconGBIF'
 import TableToolbar from '../toolkit/tables/TableToolbar.vue'
 import {
   maxRankDisplay,
@@ -139,8 +139,8 @@ import {
 import { FTaxaNestedList } from './functionals'
 import StatusPicker from './StatusPicker.vue'
 import TaxonCard from './TaxonCard.vue'
-import TaxonFormDialog from './TaxonFormDialog.vue'
-import TaxonRankPicker from './TaxonRankPicker.vue'
+import TaxonFormDialog from '../forms/TaxonFormDialogMutation.vue'
+import TaxonRankPicker from './TaxonRankPicker'
 
 const { smAndDown } = useDisplay()
 
@@ -227,7 +227,7 @@ const filteredItems = computed(() => {
 async function fetchPartial(query: GetTaxonomyData['query']) {
   loading.value = true
   const taxonomy = await TaxonomyService.getTaxonomy({ query }).then(
-    handleErrors((err) => console.error(err))
+    useErrorHandler((err) => console.error(err))
   )
   loading.value = false
   return taxonomy

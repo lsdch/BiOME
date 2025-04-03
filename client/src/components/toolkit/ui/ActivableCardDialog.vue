@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import CardDialog from '../forms/CardDialog.vue'
+import CardDialog from './CardDialog.vue'
 
 const dialog = defineModel<boolean>({ default: false })
 </script>

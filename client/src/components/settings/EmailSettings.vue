@@ -33,14 +33,14 @@
               <v-text-field
                 v-model.trim="proxy.value.from_name"
                 label="From identity"
-                v-bind="field('from_name')"
+                v-bind="schema('from_name')"
               />
             </v-col>
             <v-col cols="12" md="6">
               <v-text-field
                 v-model.trim="proxy.value.from_address"
                 label="From address"
-                v-bind="field('from_address')"
+                v-bind="schema('from_address')"
               />
             </v-col>
           </v-row>
@@ -55,7 +55,7 @@
                 class="flex-grow-1"
                 v-model.trim="proxy.value.host"
                 label="SMTP Host"
-                v-bind="field('host')"
+                v-bind="schema('host')"
                 rounded="e-0"
               />
               <v-number-input
@@ -65,13 +65,13 @@
                 v-model.number="proxy.value.port"
                 label="SMTP Port"
                 :min="1"
-                v-bind="field('port')"
+                v-bind="schema('port')"
               />
             </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <v-text-field v-model.trim="proxy.value.user" label="User" v-bind="field('user')" />
+              <v-text-field v-model.trim="proxy.value.user" label="User" v-bind="schema('user')" />
             </v-col>
           </v-row>
           <v-row>
@@ -79,7 +79,7 @@
               <PasswordField
                 v-model="proxy.value.password"
                 label="Password"
-                v-bind="field('password')"
+                v-bind="schema('password')"
               />
             </v-col>
           </v-row>
@@ -95,11 +95,11 @@ import {
   emailSettingsOptions,
   updateEmailSettingsMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
-import PasswordField from '@/components/toolkit/ui/PasswordField.vue'
+import PasswordField from '@/components/toolkit/forms/PasswordField.vue'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { ref } from 'vue'
-import { useSchema } from '../toolkit/forms/schema'
+import { useSchema } from '../../composables/schema'
 import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import EmailSettingsTestConnection from './EmailSettingsTestConnection.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
@@ -114,7 +114,10 @@ const status = ref<{
 
 const { data: model, error, isPending, refetch } = useQuery(emailSettingsOptions())
 
-const { field, dispatchErrors } = useSchema($EmailSettingsInput)
+const {
+  bind: { schema },
+  dispatchErrors
+} = useSchema($EmailSettingsInput)
 const { feedback } = useFeedback()
 
 const {

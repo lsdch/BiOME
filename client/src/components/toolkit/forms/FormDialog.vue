@@ -1,8 +1,8 @@
 <template>
   <v-form @submit.prevent>
     <template #="{ isValid, isDisabled }">
-      <CardDialog v-model="dialog" v-bind="{ ...$props, ...$attrs }">
-        <template #subtitle>
+      <CardDialog v-model="model" v-bind="props">
+        <template #subtitle v-if="$slots['subtitle']">
           <slot name="subtitle" />
         </template>
         <template #append>
@@ -10,10 +10,19 @@
             color="primary"
             variant="flat"
             :loading="loading"
-            :text="btnText"
+            v-bind="
+              $vuetify.display.smAndUp
+                ? {
+                    text: btnText
+                  }
+                : {
+                    icon: 'mdi-floppy',
+                    size: 'small'
+                  }
+            "
             :disabled="!isValid.value || isDisabled.value"
             @click="emit('submit')"
-            rounded="md"
+            rounded="sm"
           />
         </template>
 
@@ -22,7 +31,7 @@
 
         <!-- Expose activator slot -->
         <template #activator="slotData">
-          <slot name="activator" v-bind="slotData"></slot>
+          <slot name="activator" v-bind="slotData" />
         </template>
       </CardDialog>
     </template>
@@ -30,14 +39,15 @@
 </template>
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
-import CardDialog, { CardDialogProps } from './CardDialog.vue'
+import CardDialog, { CardDialogProps } from '../ui/CardDialog.vue'
 export type FormDialogProps = CardDialogProps & { btnText?: string }
 
-const dialog = defineModel<boolean>({ default: false })
+// dialog state exposed from CardDialog
+const model = defineModel<boolean>({ default: false })
 
 const emit = defineEmits<{ submit: [] }>()
 
-withDefaults(defineProps<FormDialogProps>(), {
+const props = withDefaults(defineProps<FormDialogProps>(), {
   btnText: 'Submit',
   closeText: 'Cancel'
 })

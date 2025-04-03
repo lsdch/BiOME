@@ -37,9 +37,11 @@
         <v-badge color="primary" inline :content="event?.spottings?.length ?? 0" />
       </v-tab>
     </v-tabs>
+
     <v-tabs-window v-model="tab" class="overflow-y-auto event-action-text">
+      <!-- Sampling tab -->
       <v-tabs-window-item value="sampling">
-        <v-container fluid>
+        <v-container fluid :class="{ 'px-0': $vuetify.display.xs }">
           <v-row align-content="stretch">
             <v-col v-if="!event?.samplings?.length">
               <v-alert> No samplings reported </v-alert>
@@ -57,6 +59,7 @@
         </v-container>
       </v-tabs-window-item>
 
+      <!-- Abiotic measurements tab -->
       <v-tabs-window-item value="abiotic">
         <v-container v-if="!event?.abiotic_measurements?.length" fluid>
           <v-alert> No abiotic measurements reported </v-alert>
@@ -100,6 +103,7 @@
         </v-card-text>
       </v-tabs-window-item>
 
+      <!-- Spottings tab -->
       <v-tabs-window-item value="spotting">
         <EventSpotting v-if="event" v-model="event" />
       </v-tabs-window-item>
@@ -135,12 +139,12 @@ import { Event, Sampling } from '@/api'
 import { useToggle } from '@vueuse/core'
 import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import PersonChip from '../people/PersonChip.vue'
-import CardDialog from '../toolkit/forms/CardDialog.vue'
+import PersonChip from '../people/PersonChip'
+import CardDialog from '../toolkit/ui/CardDialog.vue'
 import AbioticParameterPicker from './AbioticParameterPicker.vue'
 import EventSpotting from './EventSpotting.vue'
 import SamplingCard from './SamplingCard.vue'
-import SamplingFormDialog from './SamplingFormDialog.vue'
+import SamplingFormDialog from '../forms/SamplingFormDialog.vue'
 import { AbioticMeasurementChip } from './AbioticMeasurementChip'
 import { ProgramChip } from './ProgramChip'
 

@@ -123,9 +123,9 @@
 <script setup lang="ts" generic="DatasetType extends OccurrenceDataset | SiteDataset">
 import { ErrorModel, OccurrenceDataset, SiteDataset } from '@/api'
 import SitesMap from '@/components/maps/SitesMap.vue'
-import PersonChip from '@/components/people/PersonChip.vue'
+import PersonChip from '@/components/people/PersonChip'
 import SitePopup from '@/components/sites/SitePopup.vue'
-import MetaChip from '@/components/toolkit/MetaChip.vue'
+import MetaChip from '@/components/toolkit/MetaChip'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
 import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'

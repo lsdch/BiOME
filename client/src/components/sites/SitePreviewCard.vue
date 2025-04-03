@@ -1,10 +1,11 @@
 <template>
-  <v-card
-    class="small-card-title flex-grow-1"
-    title="Site"
-    prepend-icon="mdi-map-marker"
-    v-bind="$attrs"
-  >
+  <v-card class="small-card-title flex-grow-1" prepend-icon="mdi-map-marker" v-bind="$attrs">
+    <template #title>
+      <b v-if="site" class="font-monospace">
+        {{ site.code }}
+      </b>
+      <v-card-title v-else>Site</v-card-title>
+    </template>
     <template #subtitle>
       <v-chip
         v-if="site && 'id' in site"
@@ -25,44 +26,54 @@
         text="New site"
       />
     </template>
-    <template #append v-if="hasEmitBinding">
-      <v-btn icon="mdi-pencil" size="small" variant="tonal" @click="emit('edit')" />
+    <template #append>
+      <slot name="append" />
     </template>
     <v-divider />
-    <v-list v-if="site">
-      <v-list-item :title="site.name">
-        <v-list-item-subtitle>
-          {{ site.locality ?? 'Unspecified locality' }}
-          <!-- <CountryChip v-if="site.country" :country="site.country" size="small" /> -->
-        </v-list-item-subtitle>
-        <template #append>
-          <v-chip v-if="site" :text="site.code" class="font-monospace" size="small" />
-        </template>
-      </v-list-item>
-      <v-list-item>
-        <!-- <div class="d-flex flex-column"> -->
-        <div class="coordinates font-monospace">
-          <span class="label"> Lat </span>
-          {{ site.coordinates.latitude }}
-          <span class="label"> Lng </span>
-          {{ site.coordinates.longitude }}
+    <v-expand-transition>
+      <slot>
+        <div v-if="site">
+          <v-list>
+            <v-list-item :title="site.name">
+              <v-list-item-subtitle>
+                {{ site.locality ?? 'Unspecified locality' }}
+                <!-- <CountryChip v-if="site.country" :country="site.country" size="small" /> -->
+              </v-list-item-subtitle>
+              <template #append>
+                <v-chip v-if="site" :text="site.code" class="font-monospace" size="small" />
+              </template>
+            </v-list-item>
+            <v-list-item>
+              <!-- <div class="d-flex flex-column"> -->
+              <div class="coordinates font-monospace">
+                <span class="label"> Lat </span>
+                {{ site.coordinates.latitude }}
+                <span class="label"> Lng </span>
+                {{ site.coordinates.longitude }}
+              </div>
+              <template #append>
+                <CoordPrecisionChip :precision="site.coordinates.precision" size="small" />
+              </template>
+              <!-- </div> -->
+            </v-list-item>
+          </v-list>
         </div>
-        <template #append>
-          <CoordPrecisionChip :precision="site.coordinates.precision" size="small" />
-        </template>
-        <!-- </div> -->
-      </v-list-item>
-    </v-list>
-    <slot></slot>
+      </slot>
+    </v-expand-transition>
+    <slot name="below" />
+    <template #actions v-if="$slots.actions">
+      <slot name="actions" />
+    </template>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { SiteInput, SiteItem } from '@/api'
+import { SiteItem } from '@/api'
 import { hasEventListener } from '../toolkit/vue-utils'
 import CoordPrecisionChip from './CoordPrecisionChip'
+import { SiteModel } from '@/models'
 
-const props = defineProps<{ site?: SiteItem | SiteInput }>()
+const props = defineProps<{ site?: SiteItem | SiteModel.SiteFormModel }>()
 const emit = defineEmits<{ edit: [] }>()
 const hasEmitBinding = hasEventListener('onEdit')
 </script>

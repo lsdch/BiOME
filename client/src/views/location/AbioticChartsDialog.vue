@@ -26,7 +26,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import AbioticLineChart, { AbioticData } from './AbioticLineChart.vue'
-import CardDialog from '@/components/toolkit/forms/CardDialog.vue'
+import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
 import { useDisplay } from 'vuetify'
 
 const props = defineProps<{ abiotic_data: AbioticData[] }>()

@@ -32,14 +32,14 @@
                   :thumb-size="15"
                   :ticks="{ 3: 'Medium', 4: 'Strong', 5: 'Very strong' }"
                   show-ticks="always"
-                  v-bind="field('min_password_strength')"
+                  v-bind="schema('min_password_strength')"
                 />
               </v-list-item>
               <v-divider />
               <v-list-item title="User session lifetime">
                 <DaysHoursInput
                   v-model="proxy.value.refresh_token_lifetime"
-                  v-bind="field('refresh_token_lifetime')"
+                  v-bind="schema('refresh_token_lifetime')"
                 />
               </v-list-item>
               <v-divider />
@@ -48,7 +48,7 @@
                   v-model="proxy.value.invitation_token_lifetime"
                   label="User invitation lifetime (days)"
                   :step="1"
-                  v-bind="field('invitation_token_lifetime')"
+                  v-bind="schema('invitation_token_lifetime')"
                   control-variant="stacked"
                 />
               </v-list-item>
@@ -68,14 +68,17 @@ import {
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation, useQuery } from '@tanstack/vue-query'
-import { useSchema } from '../toolkit/forms/schema'
+import { useSchema } from '../../composables/schema'
 import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import DaysHoursInput from './DaysHoursInput.vue'
 import SettingsFormActions from './SettingsFormActions.vue'
 
 const { feedback } = useFeedback()
 
-const { field, dispatchErrors } = useSchema($SecuritySettingsInput)
+const {
+  bind: { schema },
+  dispatchErrors
+} = useSchema($SecuritySettingsInput)
 
 const { data: model, refetch, error, isPending } = useQuery(securitySettingsOptions())
 

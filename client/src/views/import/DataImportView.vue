@@ -4,7 +4,7 @@
       <v-card title="Sites" prepend-icon="mdi-map-marker">
         <v-divider />
         <v-list>
-          <SiteFormDialog>
+          <SiteMutationFormDialog>
             <template #activator="{ props, isActive }">
               <v-list-item
                 title="Create record"
@@ -14,7 +14,7 @@
                 color="primary"
               />
             </template>
-          </SiteFormDialog>
+          </SiteMutationFormDialog>
           <v-list-item prepend-icon="mdi-file-upload-outline">Bulk import</v-list-item>
         </v-list>
       </v-card>
@@ -39,7 +39,7 @@
             />
           </v-card-text> -->
         <v-list>
-          <BioMaterialFormDialog>
+          <OccurrenceFormDialogCreate :fullscreen="$vuetify.display.smAndDown" :max-width="1400">
             <template #activator="{ props, isActive }">
               <v-list-item
                 title="Create record"
@@ -49,7 +49,7 @@
                 color="primary"
               />
             </template>
-          </BioMaterialFormDialog>
+          </OccurrenceFormDialogCreate>
           <!-- <v-list-item prepend-icon="mdi-plus-circle-outline">Create record</v-list-item> -->
           <v-list-item prepend-icon="mdi-file-upload-outline">Bulk import</v-list-item>
         </v-list>
@@ -67,8 +67,8 @@
 </template>
 
 <script setup lang="ts">
-import BioMaterialFormDialog from '@/components/occurrence/BioMaterialFormDialog.vue'
-import SiteFormDialog from '@/components/sites/SiteFormDialog.vue'
+import OccurrenceFormDialogCreate from '@/components/forms/occurrence/OccurrenceFormDialogCreate.vue'
+import SiteMutationFormDialog from '@/components/forms/SiteFormDialogMutation.vue'
 </script>
 
 <style scoped lang="scss">

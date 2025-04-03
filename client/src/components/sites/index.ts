@@ -2,7 +2,7 @@ import { SiteInput } from "@/api";
 import { onKeyDown, onKeyStroke, useDebouncedRefHistory, useEventListener, useKeyModifier, useMagicKeys, whenever } from "@vueuse/core";
 import { parse } from "papaparse";
 import { computed, Ref, ref } from "vue";
-import { Schema, useSchema } from "../toolkit/forms/schema";
+import { Schema, useSchema } from "../../composables/schema";
 import { Errors, indexErrors } from "../toolkit/validation";
 
 

@@ -23,7 +23,7 @@ export function mergeResponses<D = unknown, E = unknown>(responses: ResponseBody
   })
 }
 
-export function handleErrors<D, E>(handler: (err: E) => any) {
+export function useErrorHandler<D, E>(handler: (err: E) => any) {
   return ({ data, error }: ResponseBody<D, E>) => {
     return new Promise<D>((resolve, reject) => {
       if (error !== undefined) {
