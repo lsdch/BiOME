@@ -2,6 +2,8 @@
 @use './forms.scss';
 @use './leaflet.scss';
 @use './vuetify-custom.scss';
+@use 'sass:map';
+@use 'vuetify/lib/styles/settings/variables' as *;
 
 ul {
   padding-left: 20px;
@@ -108,5 +110,20 @@ a {
     grid-column: label;
     font-family: monospace;
     opacity: var(--v-medium-emphasis-opacity);
+  }
+}
+
+@media #{map.get($display-breakpoints, 'xs')} {
+  .v-card-title {
+    font-size: 1rem;
+  }
+
+  .responsive-container {
+    padding-right: 0px !important;
+    padding-left: 0px !important;
+
+    .v-card {
+      border-radius: 0px !important;
+    }
   }
 }
