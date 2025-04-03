@@ -124,12 +124,12 @@ export const navRoutes: (RouterItem | Divider)[] = [
   //     },
   //   ]
   // },
-  {
-    label: "DNA sequencing",
-    icon: "mdi-flask",
-    routes: []
-  },
   "divider",
+  // {
+  //   label: "DNA sequencing",
+  //   icon: "mdi-flask",
+  //   routes: []
+  // },
   {
     icon: "mdi-family-tree",
     label: "Taxonomy",
