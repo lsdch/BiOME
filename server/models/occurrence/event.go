@@ -29,14 +29,9 @@ type DateWithPrecisionInput struct {
 	Precision DatePrecision `json:"precision"`
 }
 
-type SiteInfo struct {
-	Name string `gel:"name" json:"name"`
-	Code string `gel:"code" json:"code"`
-}
-
 type EventInner struct {
 	ID          geltypes.UUID        `gel:"id" json:"id" format:"uuid"`
-	Site        SiteInfo             `gel:"site" json:"site"`
+	Site        SiteItem             `gel:"site" json:"site"`
 	Code        string               `gel:"code" json:"code"`
 	PerformedOn DateWithPrecision    `gel:"performed_on" json:"performed_on"`
 	Comments    geltypes.OptionalStr `gel:"comments" json:"comments,omitempty"`
@@ -84,7 +79,7 @@ func (e *Event) AddAbioticMeasurement(db geltypes.Executor, measurements Abiotic
 var listEventsQuery = `#edgeql
 	select events::Event {
 		id,
-		site: {name, code},
+		site: {*, country: { * }},
 		programs: { * },
 		performed_by: { * },
 		performed_on,
@@ -150,7 +145,7 @@ func (i EventInput) Save(e geltypes.Executor, site_code string) (created Event, 
 				)
 			}) {
 				*,
-				site: {name, code},
+				site: {*, country: { * }},
 				programs: { * },
 				performed_by: { * },
 				spottings: { * },
@@ -185,7 +180,7 @@ func (u EventUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Event,
 				%s
 			}) {
 				*,
-				site: {name, code},
+				site: {*, country: { *}},
 				programs: { * },
 				performed_by: { * },
 				spottings: { * },
@@ -225,7 +220,7 @@ func DeleteEvent(db geltypes.Executor, id geltypes.UUID) (deleted Event, err err
 			select (
 				delete events::Event filter .id = <uuid>$0
 			) {
-				site: {name, code},
+				site: { *, country: { * }},
 				programs: { * },
 				performed_by: { * },
 				spottings: { * },

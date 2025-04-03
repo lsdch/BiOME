@@ -68,7 +68,7 @@ func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, er
 			select seq::Sequence {
 				**,
 				gene: { * },
-				required event := .sampling.event { *, site: {name, code} },
+				required event := .sampling.event { *, site: { *, country: { * } } },
 				sampling: {
 					*,
 					target_taxa: { * },
@@ -103,7 +103,7 @@ func ListSequences(db geltypes.Executor) ([]Sequence, error) {
 			select seq::Sequence {
 				**,
 				gene: { * },
-				required event := .sampling.event { *, site: {name, code} },
+				required event := .sampling.event { *, site: { *, country: { * } } },
 				identification: { **, identified_by: { * } },
 				external := [is seq::ExternalSequence]{
 					origin,
@@ -130,7 +130,7 @@ func DeleteSequence(db geltypes.Executor, code string) (deleted Sequence, err er
 		 	) {
 				**,
 				gene: { * },
-				required event := .sampling.event { *, site: {name, code} },
+				required event := .sampling.event { *, site: { *, country: { * } } },
 				identification: { **, identified_by: { * } },
 				external := [is seq::ExternalSequence]{
 					origin,

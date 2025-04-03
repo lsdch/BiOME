@@ -22,7 +22,7 @@ func ListSequenceDatasets(db geltypes.Executor) (datasets []SequenceDataset, err
 				sequences: {
 					**,
 					gene: { * },
-					required event := .sampling.event { *, site: {name, code} },
+					required event := .sampling.event { *, site: { *, country: { * } } },
 					identification: { ** },
 					external := [is seq::ExternalSequence]{
 						origin,
@@ -52,7 +52,7 @@ func GetSequenceDataset(db geltypes.Executor, slug string) (dataset SequenceData
 				sequences: {
 					**,
 					gene: { * },
-					required event := .sampling.event { *, site: {name, code} },
+					required event := .sampling.event { *, site: { *, country: { * } } },
 					identification: { ** },
 					external := [is seq::ExternalSequence]{
 						origin,

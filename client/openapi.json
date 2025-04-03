@@ -1425,7 +1425,7 @@
 						"type": "array"
 					},
 					"site": {
-						"$ref": "#/components/schemas/SiteInfo"
+						"$ref": "#/components/schemas/SiteItem"
 					},
 					"spottings": {
 						"items": {
@@ -1461,7 +1461,7 @@
 						"$ref": "#/components/schemas/DateWithPrecision"
 					},
 					"site": {
-						"$ref": "#/components/schemas/SiteInfo"
+						"$ref": "#/components/schemas/SiteItem"
 					}
 				},
 				"required": [
@@ -6128,22 +6128,6 @@
 					"label",
 					"slug",
 					"maintainers"
-				],
-				"type": "object"
-			},
-			"SiteInfo": {
-				"additionalProperties": false,
-				"properties": {
-					"code": {
-						"type": "string"
-					},
-					"name": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"name",
-					"code"
 				],
 				"type": "object"
 			},

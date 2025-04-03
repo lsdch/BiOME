@@ -475,7 +475,7 @@ export type Event = {
   performed_on: DateWithPrecision
   programs?: Array<ProgramInner>
   samplings?: Array<Sampling>
-  site: SiteInfo
+  site: SiteItem
   spottings?: Array<Taxon>
 }
 
@@ -484,7 +484,7 @@ export type EventInner = {
   comments?: string
   id: string
   performed_on: DateWithPrecision
-  site: SiteInfo
+  site: SiteItem
 }
 
 export type EventInput = {
@@ -1892,11 +1892,6 @@ export type SiteDatasetInput = {
    */
   sites?: Array<string>
   slug: string
-}
-
-export type SiteInfo = {
-  code: string
-  name: string
 }
 
 export type SiteInput = {

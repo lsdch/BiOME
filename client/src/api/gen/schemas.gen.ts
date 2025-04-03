@@ -1233,7 +1233,7 @@ export const $Event = {
       type: 'array'
     },
     site: {
-      $ref: '#/components/schemas/SiteInfo'
+      $ref: '#/components/schemas/SiteItem'
     },
     spottings: {
       items: {
@@ -1263,7 +1263,7 @@ export const $EventInner = {
       $ref: '#/components/schemas/DateWithPrecision'
     },
     site: {
-      $ref: '#/components/schemas/SiteInfo'
+      $ref: '#/components/schemas/SiteItem'
     }
   },
   required: ['id', 'site', 'code', 'performed_on'],
@@ -5315,20 +5315,6 @@ export const $SiteDatasetInput = {
     }
   },
   required: ['label', 'slug', 'maintainers'],
-  type: 'object'
-} as const
-
-export const $SiteInfo = {
-  additionalProperties: false,
-  properties: {
-    code: {
-      type: 'string'
-    },
-    name: {
-      type: 'string'
-    }
-  },
-  required: ['name', 'code'],
   type: 'object'
 } as const
 

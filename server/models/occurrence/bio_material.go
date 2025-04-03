@@ -120,7 +120,7 @@ func GetBioMaterial(db geltypes.Executor, code string) (biomat BioMaterialWithDe
 				samples: { **, identification: { **, identified_by: { * } } },
 				occurring_taxa: { * }
 			},
-			event := .sampling.event { *, site: {name, code} },
+			event := .sampling.event { *, site: { *, country: { * } } },
 			identification: { ** },
 			external: {
 				content := (
@@ -154,7 +154,7 @@ func ListBioMaterials(db geltypes.Executor) ([]BioMaterialWithDetails, error) {
 			with module occurrence
 			select BioMaterialWithType {
         **,
-				event := .sampling.event { *, site: {name, code} },
+				event := .sampling.event { *, site: { *, country: { * } } },
 				identification: { **, identified_by: { * } },
         external: {
 					original_source,
@@ -196,7 +196,7 @@ func DeleteBioMaterial(db geltypes.Executor, code string) (deleted BioMaterialWi
 				seq_consensus := (
 					[is ExternalBioMat].seq_consensus ?? [is InternalBioMat].seq_consensus
 				) { * },
-				event := .sampling.event { *, site: {name, code} },
+				event := .sampling.event { *, site: { *, country: { * } } },
 				identification: { **, identified_by: { * } },
         external:= [is occurrence::ExternalBioMat]{
 					original_source,
@@ -281,7 +281,7 @@ func (i InternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
 					occurring_taxa: { * }
 				},
 				published_in: { *, @original_source },
-				event := .sampling.event { *, site: {name, code} },
+				event := .sampling.event { *, site: { *, country: { * } } },
 				identification: { **, identified_by: { * } },
 				meta: { * }
 			}
@@ -358,7 +358,7 @@ func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
 				is_homogenous,
 				is_congruent,
 				seq_consensus: { * },
-				event := .sampling.event { *, site: {name, code} },
+				event := .sampling.event { *, site: { *, country: { * } } },
 				identification: { ** },
         external := [is occurrence::ExternalBioMat]{
           original_link,
@@ -395,7 +395,7 @@ func (u ExternalBioMatUpdate) Save(e geltypes.Executor, code string) (updated Bi
       }) {
         **,
 				seq_consensus: { * },
-				event := .sampling.event { *, site: {name, code} },
+				event := .sampling.event { *, site: { *, country: { * } } },
 				identification: { **, identified_by: { * } },
         external := [is occurrence::ExternalBioMat]{
           original_link,

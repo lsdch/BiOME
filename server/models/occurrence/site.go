@@ -198,7 +198,7 @@ func GetSite(db geltypes.Executor, identifier string) (Site, error) {
 				datasets: { * },
 				meta: { * },
 				events: { *,
-					site: {name, code},
+					site: { *, { * }},
 					programs: { * },
 					performed_by: { * },
 					spottings: { * },
