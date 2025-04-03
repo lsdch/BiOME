@@ -10,7 +10,7 @@
       <slot name="activator" v-bind="slotData"></slot>
     </template>
 
-    <v-container class="bg-main overflow-y-auto" fluid min-height="100%">
+    <v-container class="bg-main overflow-y-auto responsive-container" fluid min-height="100%">
       <v-row align="stretch" class="bg-main">
         <v-col cols="12" md="6">
           <SiteFormComponent class="fill-height small-card-title" v-model="model.site" />

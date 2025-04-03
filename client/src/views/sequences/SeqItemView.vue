@@ -69,14 +69,14 @@
     </template>
     <template #actions v-if="item">
       <v-spacer />
-      <MetaChip :meta="item.meta"></MetaChip>
+      <MetaChip :meta="item.meta" />
     </template>
     <v-divider />
     <v-card-text v-if="isPending" class="bg-main d-flex justify-center align-center">
       <CenteredSpinner class="bg-main" size="x-large" />
     </v-card-text>
     <PageErrors v-else-if="error" :error />
-    <v-card-text v-else-if="item" class="flex-grow-1 bg-main">
+    <v-card-text v-else-if="item" class="flex-grow-1 bg-main responsive-container">
       <v-row>
         <v-col>
           <v-card>
