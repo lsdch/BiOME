@@ -5,5 +5,11 @@
     "description": "NCBI GenBank sequence repository",
     "link_template": "https://www.ncbi.nlm.nih.gov/nuccore/{accession}",
     "url": "https://www.ncbi.nlm.nih.gov/nuccore/"
+  },
+  {
+    "code": "WAD",
+    "label": "World Asellidae Database",
+    "description": "Asellidae occurrences database",
+    "url": "https://gotit.univ-lyon1.fr/"
   }
 ]
