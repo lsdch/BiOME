@@ -103,8 +103,8 @@ func main() {
 			return err
 		}
 
-		if err := seeds.SeedTaxonomyGBIF(tx); err != nil {
-			logrus.Errorf("Failed to load Asellidae taxonomy: %v", err)
+		if err := seeds.SeedTaxonomyGBIF(tx, "Asellidae", "Stenasellidae"); err != nil {
+			logrus.Errorf("Failed to seed taxonomy: %v", err)
 			return err
 		}
 

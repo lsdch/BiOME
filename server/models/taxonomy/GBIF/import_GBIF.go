@@ -15,7 +15,6 @@ import (
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/taxonomy"
 
-	jsoniter "github.com/json-iterator/go"
 	"github.com/sirupsen/logrus"
 
 	"github.com/thoas/go-funk"
@@ -26,13 +25,17 @@ import (
 var BASE_URL = "https://api.gbif.org/v1/species/"
 var PAGE_SIZE = 1000
 
+type TaxonInnerGBIF struct {
+	Key    int    `json:"key" gel:"GBIF_ID"`
+	Parent int    `json:"parentKey" gel:"parentID"`
+	Name   string `json:"canonicalName" gel:"name"`
+	Status string `json:"taxonomicStatus" gel:"status"`
+	Rank   string `json:"rank" gel:"rank"`
+}
+
 type TaxonGBIF struct {
-	Key            int                  `json:"key" gel:"GBIF_ID"`
-	Parent         int                  `json:"parentKey" gel:"parentID"`
-	Name           string               `json:"canonicalName" gel:"name"`
+	TaxonInnerGBIF `json:",inline" gel:"$inline"`
 	Authorship     geltypes.OptionalStr `json:"authorship,omitempty" gel:"authorship,omitempty"`
-	Status         string               `json:"taxonomicStatus" gel:"status"`
-	Rank           string               `json:"rank" gel:"rank"`
 	NumDescendants int                  `json:"numDescendants" gel:"-"`
 	Anchor         bool                 `json:"anchor" gel:"anchor"`
 }
@@ -103,17 +106,6 @@ func fetchParents(GBIF_ID int) ([]TaxonGBIF, error) {
 	return requestTaxa(URL)
 }
 
-//go:embed queries/upsert_anchor.edgeql
-var upsertTaxonCmd string
-
-// Using different tags to unmarshall from GBIF and then marshal to Gel
-var jsonDB = jsoniter.Config{
-	EscapeHTML:             true,
-	SortMapKeys:            true,
-	ValidateJsonRawMessage: true,
-	TagKey:                 "gel",
-}.Froze()
-
 func upsertTaxa(tx geltypes.Tx, taxa []TaxonGBIF) (n int, err error) {
 	taxa = funk.Map(taxa, func(taxon TaxonGBIF) TaxonGBIF {
 		taxon.normalize()
@@ -124,8 +116,29 @@ func upsertTaxa(tx geltypes.Tx, taxa []TaxonGBIF) (n int, err error) {
 
 	for _, taxon := range taxa {
 		logrus.Debugf("Inserting taxon from GBIF %+v", &taxon)
-		args, _ := jsonDB.Marshal(&taxon)
-		if err = tx.Execute(ctx, upsertTaxonCmd, args); err != nil {
+		args, _ := json.Marshal(&taxon)
+		if err = tx.Execute(ctx,
+			`#edgeql
+				with module taxonomy,
+					data := <json>$0,
+					anchor := <bool>data['anchor'],
+				insert Taxon {
+					name := <str>data['canonicalName'],
+					GBIF_ID := <int32>data['key'],
+					status := <TaxonStatus>data['taxonomicStatus'],
+					parent := (
+						select detached Taxon filter .GBIF_ID = <int32>data['parentKey']
+					),
+					rank := <Rank>data['rank'],
+					authorship := <str>data['authorship'],
+					anchor := anchor
+				}
+				unless conflict on .GBIF_ID else (
+					update Taxon set {
+						anchor := anchor if not .anchor else .anchor
+					}
+				)
+			`, args); err != nil {
 			return
 		} else {
 			n++
