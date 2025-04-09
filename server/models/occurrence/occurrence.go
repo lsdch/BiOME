@@ -37,7 +37,8 @@ const (
 	SequenceElement    OccurrenceElement = "Sequence"
 )
 
-// OccurrenceWithCategory represents any occurrence with its category (internal, external) and element (biomaterial, sequence).
+// OccurrenceWithCategory represents any occurrence
+// with its category (internal, external) and element (biomaterial, sequence).
 // Internal sequences are not supposed to be included in this type.
 type OccurrenceWithCategory struct {
 	Occurrence        `gel:"$inline" json:",inline"`

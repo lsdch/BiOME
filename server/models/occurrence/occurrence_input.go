@@ -24,6 +24,11 @@ func (i OccurrenceBatchInput) Save(tx geltypes.Tx) (occurrences []OccurrenceWith
 	return
 }
 
+/*
+SiteOccurrenceInput is the input type for registering a site and its occurrences in bulk.
+It includes the site data and a list of events.
+Each event can have multiple samplings, spottings, and abiotic measurements.
+*/
 type SiteOccurrenceInput struct {
 	SiteInput `json:",inline"`
 	Events    []EventInputWithActions `json:"events"`
@@ -46,6 +51,10 @@ func (i SiteOccurrenceInput) Save(tx geltypes.Tx) ([]OccurrenceWithCategory, err
 	return occurrences, nil
 }
 
+// EventInputWithActions is the input type for registering an event and its occurrences in bulk.
+// It includes the event data and a list of samplings.
+// Each sampling can have multiple internal and external biomaterials, and sequences.
+// It also includes spottings and abiotic measurements.
 type EventInputWithActions struct {
 	EventInput          `json:",inline"`
 	Samplings           []SamplingInputWithOccurrences `json:"samplings"`
