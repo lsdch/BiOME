@@ -17,7 +17,8 @@
   },
   {
     "label": "RNA Later",
-    "code": "RNA-L"
+    "code": "RNAlater",
+    "description": "RNA Later is a solution used for preserving RNA in biological samples, particularly in tissues and cells. It stabilizes RNA by inhibiting RNase activity, allowing for the collection and storage of samples at room temperature without immediate freezing."
   },
   {
     "label": "Silica",
