@@ -80,8 +80,8 @@ func (person Person) Delete(db geltypes.Executor) (Person, error) {
 
 type PersonInput struct {
 	PersonIdentity
-	Organisations []string                     `json:"organisations" binding:"omitempty,exist_all=people::Organisation.code" fakesize:"2"`
-	Alias         models.OptionalInput[string] `json:"alias,omitempty" binding:"unique_str=people::Person.alias" fake:"-"`
+	Organisations []string                     `json:"organisations" fakesize:"2"`
+	Alias         models.OptionalInput[string] `json:"alias,omitempty" fake:"-"`
 	Contact       models.OptionalInput[string] `json:"contact,omitempty" format:"email"`
 	Comment       models.OptionalInput[string] `json:"comment,omitempty"`
 }
