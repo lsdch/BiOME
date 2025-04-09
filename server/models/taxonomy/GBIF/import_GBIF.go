@@ -26,11 +26,12 @@ var BASE_URL = "https://api.gbif.org/v1/species/"
 var PAGE_SIZE = 1000
 
 type TaxonInnerGBIF struct {
-	Key    int    `json:"key" gel:"GBIF_ID"`
-	Parent int    `json:"parentKey" gel:"parentID"`
-	Name   string `json:"canonicalName" gel:"name"`
-	Status string `json:"taxonomicStatus" gel:"status"`
-	Rank   string `json:"rank" gel:"rank"`
+	Key      int    `json:"key" gel:"GBIF_ID"`
+	Parent   int    `json:"parentKey" gel:"parentID"`
+	Name     string `json:"canonicalName" gel:"name"`
+	Status   string `json:"taxonomicStatus" gel:"status"`
+	Rank     string `json:"rank" gel:"rank"`
+	NameType string `json:"nameType" gel:"name_type"`
 }
 
 type TaxonGBIF struct {
@@ -184,7 +185,7 @@ func importChildren(tx geltypes.Tx, GBIF_ID int, tracker *ProgressTracker) error
 	}
 
 	taxa = funk.Filter(taxa, func(taxon TaxonGBIF) bool {
-		return taxon.Rank != "UNRANKED" && taxon.Rank != "VARIETY" && taxon.Status == "ACCEPTED"
+		return taxon.Rank != "UNRANKED" && taxon.Rank != "VARIETY" && taxon.Rank != "FORM" && taxon.Status == "ACCEPTED" && taxon.NameType == "SCIENTIFIC"
 	}).([]TaxonGBIF)
 
 	if len(taxa) > 0 {
