@@ -121,7 +121,8 @@ type SiteInput struct {
 	Altitude            models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
 	Locality            models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
 	UserDefinedLocality bool                         `json:"user_defined_locality,omitempty" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
-	CountryCode         models.OptionalInput[string] `json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{3}" example:"FRA" doc:"ISO 3166-1 alpha-3 country code"`
+	// If country code is not provided, country is inferred from coordinates
+	CountryCode models.OptionalInput[string] `json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{3}" example:"FRA" doc:"ISO 3166-1 alpha-3 country code"`
 }
 
 func (c SiteInput) LatLong() (float32, float32) {
