@@ -28,7 +28,6 @@ const dark: ThemeDefinition = {
   }
 }
 
-import { VNumberInput } from 'vuetify/labs/VNumberInput'
 import { VTreeview, VTreeviewItem } from 'vuetify/labs/VTreeview'
 
 const { VTextField } = components
@@ -37,7 +36,6 @@ export default createVuetify({
   blueprint: md3,
   components: {
     ...components,
-    VNumberInput,
     VTreeview,
     VTreeviewItem,
   },
