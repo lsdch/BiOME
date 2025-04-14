@@ -1,6 +1,6 @@
 <template>
   <FormDialog
-    title="Import sites"
+    title="Import bibliographic references"
     v-model="isOpen"
     btn-text="Upload"
     :fullscreen="smAndDown"
@@ -8,6 +8,7 @@
     scrollable
   >
     <!-- @submit="() => (file != undefined ? importFile(file, options) : null)" -->
+    <v-progress-linear :model-value="progress" :max="items.length" color="primary" />
     <v-divider></v-divider>
     <div class="spreadsheet-container fill-height" @mouseup="dragging = false">
       <v-data-table
@@ -123,7 +124,7 @@ import FormDialog from '../toolkit/forms/FormDialog.vue'
 import ErrorTooltip from '../sites/ErrorTooltip.vue'
 import { BibSearchResults, Message, ReferencesService } from '@/api'
 import CrossRefItemSelect from './CrossRefItemSelect.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useDebounceFn } from '@vueuse/core'
 
 const { smAndDown, mobile } = useDisplay()
@@ -173,6 +174,8 @@ const headers: DataTableHeader[] = [
 
 const keyedItems = computed(() => items.value.map((it, i) => ({ ...it, id: i })))
 
+const progress = ref(0)
+
 async function queryItem(item: Partial<Item>) {
   if (!item.query) return
   item.loading = true
@@ -180,7 +183,10 @@ async function queryItem(item: Partial<Item>) {
   item.selectedRecord = undefined
   item.errors = undefined
   const { data, error } = await ReferencesService.crossRefBibSearch({ body: item.query }).finally(
-    () => (item.loading = false)
+    () => {
+      item.loading = false
+      progress.value++
+    }
   )
   if (error) {
     item.errors = { query: error.detail }

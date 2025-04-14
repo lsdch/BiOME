@@ -12,6 +12,7 @@ import (
 	"github.com/lsdch/biome/models/sequences"
 	"github.com/lsdch/biome/models/specimen"
 	"github.com/lsdch/biome/models/taxonomy"
+	"github.com/sirupsen/logrus"
 )
 
 type SpecimenVoucher struct {
@@ -147,11 +148,34 @@ func GetBioMaterial(db geltypes.Executor, code string) (biomat BioMaterialWithDe
 	return biomat, err
 }
 
-func ListBioMaterials(db geltypes.Executor) ([]BioMaterialWithDetails, error) {
+type ListBioMaterialOptions struct {
+	models.Pagination `json:",inline"`
+	models.Sorting    `json:",inline"`
+	models.Filter     `json:",inline"`
+	Category          models.OptionalInput[OccurrenceCategory] `query:"category" json:"category,omitzero"`
+	Taxon             models.OptionalInput[string]             `query:"taxon" json:"taxon,omitzero"`
+	HasSequences      models.OptionalInput[bool]               `query:"has_sequences" json:"has_sequences,omitzero"`
+	IsType            models.OptionalInput[bool]               `query:"is_type" json:"is_type,omitzero"`
+}
+
+func (o ListBioMaterialOptions) Options() ListBioMaterialOptions {
+	return o
+}
+
+func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) ([]BioMaterialWithDetails, error) {
+	params, _ := json.Marshal(opts)
+	logrus.Debugf("Params: %s", string(params))
 	var items = []BioMaterialWithDetails{}
 	err := db.Query(context.Background(),
 		`#edgeql
-			with module occurrence
+			with module occurrence,
+				params := <json>$0,
+				search_term := <str>json_get(params, 'search'),
+				category := <OccurrenceCategory>json_get(params, 'category'),
+				taxon := <str>json_get(params, 'taxon'),
+				has_sequences := <bool>json_get(params, 'has_sequences'),
+				is_type := <bool>json_get(params, 'is_type'),
+				owner := <uuid>json_get(params, 'owner'),
 			select BioMaterialWithType {
         **,
 				event := .sampling.event { *, site: { *, country: { * } } },
@@ -165,8 +189,19 @@ func ListBioMaterials(db geltypes.Executor) ([]BioMaterialWithDetails, error) {
           content_description
         }
       }
+			filter (
+				(.code ilike '%' ++ search_term ++ '%' if exists search_term else true) and
+				(.category = category if exists category else true) and
+				(.identification.taxon.name ilike '%' ++ taxon ++ '%' if exists taxon else true) and
+				(.has_sequences = has_sequences if exists has_sequences else true) and
+				(.is_type = is_type if exists is_type else true) and
+				(.meta.created_by_user.id = owner if exists owner else true)
+			)
+			order by .identification.identified_on.date desc
+			offset <optional int64>json_get(params, 'offset')
+			limit <optional int64>json_get(params, 'limit');
 		`,
-		&items)
+		&items, params)
 	return items, err
 }
 
@@ -231,6 +266,11 @@ type BioMaterialUpdate struct {
 type InternalBioMatInput struct {
 	BioMaterialInput `gel:"$inline" json:",inline"`
 	// TODO: Internal-specific fields
+}
+
+func (i *InternalBioMatInput) WithCreatedMetadata(c CreatedMetadata) InternalBioMatInput {
+	i.OccurrenceInnerInput.WithCreatedMetadata(c)
+	return *i
 }
 
 func (i InternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created BioMaterialWithDetails, err error) {
@@ -309,8 +349,19 @@ type ExternalBioMatInput struct {
 	Comments           models.OptionalInput[string] `gel:"comments" json:"comments,omitempty"`
 }
 
+func (bm *ExternalBioMatInput) WithCreatedMetadata(c CreatedMetadata) ExternalBioMatInput {
+	bm.BioMaterialInput.WithCreatedMetadata(c)
+	if dataSource, ok := bm.OriginalSource.Get(); ok {
+		if s, ok := c.DataSources[dataSource]; ok {
+			bm.OriginalSource = (&bm.OriginalSource).SetValue(s)
+		}
+	}
+	return *bm
+}
+
 func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created BioMaterialWithDetails, err error) {
 	data, _ := json.Marshal(i)
+	logrus.Infof("Creating ExternalBioMat with args: %s", string(data))
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with

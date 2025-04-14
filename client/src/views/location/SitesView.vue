@@ -84,8 +84,12 @@
 <script setup lang="ts">
 import SitesMap from '@/components/maps/SitesMap.vue'
 
-import { Site } from '@/api'
-import { listSitesOptions, listSitesQueryKey } from '@/api/gen/@tanstack/vue-query.gen'
+import { OccurrencesBySiteData, Site } from '@/api'
+import {
+  listSitesOptions,
+  listSitesQueryKey,
+  occurrencesBySiteOptions
+} from '@/api/gen/@tanstack/vue-query.gen'
 import DatasetPicker from '@/components/datasets/DatasetPicker.vue'
 import { MarkerLayer } from '@/components/maps/MarkerControl.vue'
 import SiteFormDialog from '@/components/forms/SiteFormDialogMutation.vue'
@@ -103,7 +107,7 @@ const { xs } = useDisplay()
 const [drawer, toggleDrawer] = useToggle(true)
 const [createDialog, toggleCreate] = useToggle(false)
 
-const filters = ref({
+const filters = ref<Required<OccurrencesBySiteData>['query']>({
   countries: [],
   datasets: []
 })
@@ -114,7 +118,7 @@ const {
   isPending,
   isRefetching,
   refetch
-} = useQuery(listSitesOptions({ query: filters.value }))
+} = useQuery(occurrencesBySiteOptions({ query: filters.value }))
 
 const queryClient = useQueryClient()
 function onCreated(newSite: Site) {

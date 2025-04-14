@@ -122,12 +122,7 @@
       />
       <v-list class="d-flex justify-space-between w-100">
         <v-list-item title="Performed by">
-          <PersonChip v-for="p in event?.performed_by" class="ma-1" :person="p" />
-        </v-list-item>
-        <v-list-item title="Programs">
-          <template #subtitle>
-            <ProgramChip v-for="program in event?.programs" class="ma-1" :program />
-          </template>
+          <PersonChip v-for="p in event?.performed_by ?? []" class="ma-1" :person="p" />
         </v-list-item>
       </v-list>
     </v-card-actions>
@@ -139,14 +134,13 @@ import { Event, Sampling } from '@/api'
 import { useToggle } from '@vueuse/core'
 import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
+import SamplingFormDialog from '../forms/SamplingFormDialog.vue'
 import PersonChip from '../people/PersonChip'
 import CardDialog from '../toolkit/ui/CardDialog.vue'
+import { AbioticMeasurementChip } from './AbioticMeasurementChip'
 import AbioticParameterPicker from './AbioticParameterPicker.vue'
 import EventSpotting from './EventSpotting.vue'
 import SamplingCard from './SamplingCard.vue'
-import SamplingFormDialog from '../forms/SamplingFormDialog.vue'
-import { AbioticMeasurementChip } from './AbioticMeasurementChip'
-import { ProgramChip } from './ProgramChip'
 
 const [samplingDialog, toggleSamplingDialog] = useToggle(false)
 const editingSampling = ref<Sampling>()

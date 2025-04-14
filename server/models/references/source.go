@@ -54,7 +54,7 @@ func (i DataSourceInput) Save(e geltypes.Executor) (created DataSource, err erro
 				label := <str>data['label'],
 				code := <str>data['code'],
 				description := <str>json_get(data, 'description'),
-				link_template := <str>json_get(data, 'link_template')
+				link_template := <str>json_get(data, 'link_template'),
 				url := <str>json_get(data, 'url')
 			}) { ** }
 		`, &created, data)

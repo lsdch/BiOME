@@ -9,6 +9,7 @@ import (
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
+	"github.com/sirupsen/logrus"
 
 	"github.com/gosimple/slug"
 )
@@ -38,10 +39,10 @@ func (d *Dataset) IsMaintainer(user people.UserInner) bool {
 }
 
 type ListDatasetOptions struct {
-	Pinned   models.OptionalInput[bool] `json:"pinned,omitempty" query:"pinned"`
-	Category DatasetCategory            `json:"category,omitempty" query:"category"`
-	OrderBy  string                     `json:"orderBy,omitempty" query:"orderBy"`
-	Limit    int                        `json:"limit,omitempty" query:"limit" minimum:"1"`
+	Pinned   models.OptionalInput[bool] `query:"pinned"`
+	Category DatasetCategory            `query:"category"`
+	OrderBy  string                     `query:"orderBy"`
+	Limit    int                        `query:"limit" minimum:"1"`
 }
 
 func (o ListDatasetOptions) Options() ListDatasetOptions {
@@ -49,11 +50,15 @@ func (o ListDatasetOptions) Options() ListDatasetOptions {
 }
 
 func ListDatasets(db geltypes.Executor, options ListDatasetOptions) ([]Dataset, error) {
+	logrus.Debugf("Options: %+v", options)
 	var datasets []Dataset
 	opts, _ := json.Marshal(options)
 	query := `#edgeql
 			with opts := <json>$0
-			select datasets::Dataset { ** }
+			select datasets::Dataset { *,
+				maintainers: { *, user: { * } },
+				meta: { * }
+			}
 			filter .pinned = (<bool>json_get(opts, 'pinned') ?? .pinned)
 			# and .category = <datasets::DatasetCategory>(<str>json_get(opts, 'category') ?? <str>.category)
 		`

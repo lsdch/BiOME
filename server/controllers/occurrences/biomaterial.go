@@ -21,8 +21,9 @@ func registerBioMatRoutes(r router.Router) {
 			Method:      http.MethodGet,
 			Summary:     "List bio-material",
 			Description: "Both internal and external",
-		}, controllers.ListHandler[*struct {
+		}, controllers.ListHandlerWithOpts[*struct {
 			resolvers.AuthResolver
+			occurrence.ListBioMaterialOptions
 		}](occurrence.ListBioMaterials))
 
 	router.Register(biomat_API, "GetBioMaterial",

@@ -122,3 +122,10 @@ type OccurrenceReferenceInput struct {
 	ArticleCode string                     `json:"code"`
 	Original    models.OptionalInput[bool] `json:"original,omitempty"`
 }
+
+func (i *OccurrenceReferenceInput) WithArticleCode(codes map[string]string) OccurrenceReferenceInput {
+	if code, ok := codes[i.ArticleCode]; ok {
+		i.ArticleCode = code
+	}
+	return *i
+}

@@ -7,7 +7,7 @@
   >
     <v-card
       id="info-container"
-      :title="site?.name ?? code"
+      :title="site?.name || code"
       :subtitle="code"
       prepend-icon="mdi-map-marker-radius"
     >

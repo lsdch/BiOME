@@ -1406,17 +1406,16 @@
 						"items": {
 							"$ref": "#/components/schemas/PersonUser"
 						},
-						"minLength": 1,
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
 						"type": "array"
 					},
 					"performed_on": {
 						"$ref": "#/components/schemas/DateWithPrecision"
-					},
-					"programs": {
-						"items": {
-							"$ref": "#/components/schemas/ProgramInner"
-						},
-						"type": "array"
 					},
 					"samplings": {
 						"items": {
@@ -1435,7 +1434,6 @@
 					}
 				},
 				"required": [
-					"performed_by",
 					"meta",
 					"id",
 					"site",
@@ -1488,21 +1486,19 @@
 						"items": {
 							"type": "string"
 						},
-						"minLength": 1,
 						"type": "array"
 					},
-					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecisionInput"
-					},
-					"programs": {
+					"performed_by_groups": {
 						"items": {
 							"type": "string"
 						},
 						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecisionInput"
 					}
 				},
 				"required": [
-					"performed_by",
 					"performed_on"
 				],
 				"type": "object"
@@ -1529,12 +1525,12 @@
 						"items": {
 							"type": "string"
 						},
-						"type": "array"
+						"type": [
+							"array",
+							"null"
+						]
 					},
-					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecisionInput"
-					},
-					"programs": {
+					"performed_by_groups": {
 						"items": {
 							"type": "string"
 						},
@@ -1542,6 +1538,9 @@
 							"array",
 							"null"
 						]
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecisionInput"
 					},
 					"spottings": {
 						"items": {
@@ -2543,7 +2542,7 @@
 						"type": "string"
 					},
 					"identified_by": {
-						"$ref": "#/components/schemas/OptionalPerson"
+						"$ref": "#/components/schemas/OptionalPersonInner"
 					},
 					"identified_on": {
 						"$ref": "#/components/schemas/DateWithPrecision"
@@ -2558,7 +2557,6 @@
 				"required": [
 					"id",
 					"taxon",
-					"identified_by",
 					"identified_on",
 					"meta"
 				],
@@ -3277,7 +3275,7 @@
 						"type": "string"
 					},
 					"created_by": {
-						"$ref": "#/components/schemas/UserShortIdentity"
+						"$ref": "#/components/schemas/OptionalUserShortIdentity"
 					},
 					"last_updated": {
 						"format": "date-time",
@@ -3288,12 +3286,45 @@
 						"type": "string"
 					},
 					"updated_by": {
-						"$ref": "#/components/schemas/UserShortIdentity"
+						"$ref": "#/components/schemas/OptionalUserShortIdentity"
 					}
 				},
 				"required": [
 					"created",
 					"last_updated"
+				],
+				"type": "object"
+			},
+			"OccurrenceAtSite": {
+				"additionalProperties": false,
+				"properties": {
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
+					"code": {
+						"type": "string"
+					},
+					"element": {
+						"$ref": "#/components/schemas/OccurrenceElement"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"sampling_date": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
+					"taxon": {
+						"$ref": "#/components/schemas/TaxonInner"
+					}
+				},
+				"required": [
+					"id",
+					"code",
+					"taxon",
+					"sampling_date",
+					"category",
+					"element"
 				],
 				"type": "object"
 			},
@@ -3356,6 +3387,64 @@
 							"$ref": "#/components/schemas/SiteItem"
 						},
 						"type": "array"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"sites",
+					"occurrences",
+					"is_congruent",
+					"maintainers",
+					"meta",
+					"id",
+					"label",
+					"slug",
+					"pinned",
+					"description",
+					"category"
+				],
+				"type": "object"
+			},
+			"OccurrenceDatasetListItem": {
+				"additionalProperties": false,
+				"properties": {
+					"category": {
+						"$ref": "#/components/schemas/DatasetCategory"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"is_congruent": {
+						"type": "boolean"
+					},
+					"label": {
+						"type": "string"
+					},
+					"maintainers": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"occurrences": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"pinned": {
+						"type": "boolean"
+					},
+					"sites": {
+						"format": "int64",
+						"type": "integer"
 					},
 					"slug": {
 						"type": "string"
@@ -3829,7 +3918,7 @@
 					"null"
 				]
 			},
-			"OptionalPerson": {
+			"OptionalPersonInner": {
 				"additionalProperties": false,
 				"properties": {
 					"alias": {
@@ -3872,7 +3961,10 @@
 					"first_name",
 					"last_name"
 				],
-				"type": "object"
+				"type": [
+					"object",
+					"null"
+				]
 			},
 			"OptionalTaxon": {
 				"additionalProperties": false,
@@ -3983,6 +4075,34 @@
 					"login",
 					"role",
 					"email_confirmed"
+				],
+				"type": [
+					"object",
+					"null"
+				]
+			},
+			"OptionalUserShortIdentity": {
+				"additionalProperties": false,
+				"properties": {
+					"alias": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"login": {
+						"type": "string"
+					},
+					"name": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"login",
+					"name",
+					"alias"
 				],
 				"type": [
 					"object",
@@ -4526,7 +4646,6 @@
 					}
 				},
 				"required": [
-					"organisations",
 					"first_name",
 					"last_name"
 				],
@@ -4642,6 +4761,12 @@
 					"code": {
 						"type": "string"
 					},
+					"datasets": {
+						"items": {
+							"$ref": "#/components/schemas/DatasetInner"
+						},
+						"type": "array"
+					},
 					"description": {
 						"type": "string"
 					},
@@ -4687,46 +4812,8 @@
 				"required": [
 					"managers",
 					"funding_agencies",
+					"datasets",
 					"meta",
-					"id",
-					"label",
-					"code"
-				],
-				"type": "object"
-			},
-			"ProgramInner": {
-				"additionalProperties": false,
-				"properties": {
-					"code": {
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"end_year": {
-						"examples": [
-							2025
-						],
-						"format": "int64",
-						"type": "integer"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"start_year": {
-						"examples": [
-							2019
-						],
-						"format": "int64",
-						"minimum": 1900,
-						"type": "integer"
-					}
-				},
-				"required": [
 					"id",
 					"label",
 					"code"
@@ -4750,6 +4837,17 @@
 							"PHD_ALICE"
 						],
 						"type": "string"
+					},
+					"datasets": {
+						"examples": [
+							[
+								"dataset1"
+							]
+						],
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"description": {
 						"type": "string"
@@ -4824,6 +4922,20 @@
 							"PHD_ALICE"
 						],
 						"type": "string"
+					},
+					"datasets": {
+						"examples": [
+							[
+								"dataset1"
+							]
+						],
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
 					},
 					"description": {
 						"type": [
@@ -5955,9 +6067,6 @@
 						"readOnly": true,
 						"type": "string"
 					},
-					"access_point": {
-						"type": "string"
-					},
 					"altitude": {
 						"format": "int64",
 						"type": "integer"
@@ -6199,9 +6308,6 @@
 			"SiteItem": {
 				"additionalProperties": false,
 				"properties": {
-					"access_point": {
-						"type": "string"
-					},
 					"altitude": {
 						"format": "int64",
 						"type": "integer"
@@ -6317,9 +6423,6 @@
 			"SiteWithDistance": {
 				"additionalProperties": false,
 				"properties": {
-					"access_point": {
-						"type": "string"
-					},
 					"altitude": {
 						"format": "int64",
 						"type": "integer"
@@ -6367,12 +6470,61 @@
 				],
 				"type": "object"
 			},
+			"SiteWithOccurrences": {
+				"additionalProperties": false,
+				"properties": {
+					"altitude": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"code": {
+						"maxLength": 8,
+						"minLength": 4,
+						"type": "string"
+					},
+					"coordinates": {
+						"$ref": "#/components/schemas/Coordinates"
+					},
+					"country": {
+						"$ref": "#/components/schemas/OptionalCountry"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"locality": {
+						"type": "string"
+					},
+					"name": {
+						"minLength": 4,
+						"type": "string"
+					},
+					"occurrences": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceAtSite"
+						},
+						"type": "array"
+					},
+					"user_defined_locality": {
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"occurrences",
+					"id",
+					"name",
+					"code",
+					"coordinates",
+					"user_defined_locality"
+				],
+				"type": "object"
+			},
 			"SiteWithScore": {
 				"additionalProperties": false,
 				"properties": {
-					"access_point": {
-						"type": "string"
-					},
 					"altitude": {
 						"format": "int64",
 						"type": "integer"
@@ -6597,6 +6749,35 @@
 					"anchor",
 					"children_count",
 					"meta",
+					"name",
+					"status",
+					"rank"
+				],
+				"type": "object"
+			},
+			"TaxonInner": {
+				"additionalProperties": false,
+				"properties": {
+					"name": {
+						"examples": [
+							"Asellus aquaticus"
+						],
+						"type": "string"
+					},
+					"rank": {
+						"$ref": "#/components/schemas/TaxonRank",
+						"examples": [
+							"Species"
+						]
+					},
+					"status": {
+						"$ref": "#/components/schemas/TaxonStatus",
+						"examples": [
+							"Accepted"
+						]
+					}
+				},
+				"required": [
 					"name",
 					"status",
 					"rank"
@@ -7275,10 +7456,7 @@
 					"name",
 					"alias"
 				],
-				"type": [
-					"object",
-					"null"
-				]
+				"type": "object"
 			},
 			"Works": {
 				"additionalProperties": false,
@@ -8741,6 +8919,83 @@
 							"description": "Session cookie containing JWT",
 							"type": "string"
 						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "offset",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "sort_by",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "search",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "owner",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "category",
+						"schema": {
+							"$ref": "#/components/schemas/OccurrenceCategory"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "taxon",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "has_sequences",
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "is_type",
+						"schema": {
+							"type": "boolean"
+						}
 					}
 				],
 				"responses": {
@@ -9705,7 +9960,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/OccurrenceDataset"
+										"$ref": "#/components/schemas/OccurrenceDatasetListItem"
 									},
 									"type": "array"
 								}
@@ -12263,6 +12518,96 @@
 				]
 			}
 		},
+		"/occurrences/by-site": {
+			"get": {
+				"operationId": "OccurrencesBySite",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "datasets",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "countries",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/SiteWithOccurrences"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Occurrences by site",
+				"tags": [
+					"Occurrences"
+				]
+			}
+		},
 		"/occurrences/overview": {
 			"get": {
 				"operationId": "OccurrenceOverview",
@@ -13132,7 +13477,7 @@
 				},
 				"summary": "List programs",
 				"tags": [
-					"Events"
+					"Datasets"
 				]
 			},
 			"post": {
@@ -13205,7 +13550,7 @@
 				},
 				"summary": "Create program",
 				"tags": [
-					"Events"
+					"Datasets"
 				]
 			}
 		},
@@ -13278,7 +13623,7 @@
 				},
 				"summary": "Delete program",
 				"tags": [
-					"Events"
+					"Datasets"
 				]
 			},
 			"patch": {
@@ -13359,7 +13704,7 @@
 				},
 				"summary": "Update program",
 				"tags": [
-					"Events"
+					"Datasets"
 				]
 			}
 		},

@@ -2,6 +2,7 @@ package seeds
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/occurrence"
@@ -9,7 +10,17 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func LoadOccurrencesDatasets(file string) (datasets []occurrence.OccurrenceDatasetInput, err error) {
+func LoadOccurrencesDataset(file string) (*occurrence.OccurrenceDatasetInput, error) {
+	dataset := new(occurrence.OccurrenceDatasetInput)
+	b, err := data.ReadFile(file)
+	if err != nil {
+		return nil, err
+	}
+	err = json.Unmarshal(b, dataset)
+	return dataset, err
+}
+
+func LoadMultipleOccurrencesDatasets(file string) (datasets []occurrence.OccurrenceDatasetInput, err error) {
 	b, err := data.ReadFile(file)
 	if err != nil {
 		return nil, err
@@ -23,7 +34,7 @@ func SeedOccurrencesDatasets(tx geltypes.Tx, datasets []occurrence.OccurrenceDat
 	for _, dataset := range datasets {
 		created, err := dataset.SaveTx(tx)
 		if err != nil {
-			return err
+			return fmt.Errorf("❗Failed to seed occurrence dataset: %v", err)
 		}
 		logrus.Infof("🌱 dataset: %s", created.Label)
 	}

@@ -5,34 +5,38 @@ import (
 	"encoding/json"
 
 	"github.com/geldata/gel-go/geltypes"
-	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/dataset"
 )
+
+type OccurrenceDatasetListItem struct {
+	dataset.Dataset `gel:"$inline" json:",inline"`
+	Sites           int64 `gel:"sites_count" json:"sites"`
+	Occurrences     int64 `gel:"occurrences_count" json:"occurrences"`
+	IsCongruent     bool  `gel:"is_congruent" json:"is_congruent"`
+}
+
+func ListOccurrenceDatasets(db geltypes.Executor) ([]OccurrenceDatasetListItem, error) {
+	datasets := []OccurrenceDatasetListItem{}
+	err := db.Query(context.Background(),
+		`#edgeql
+			select datasets::OccurrenceDataset {
+				*,
+				maintainers: { *, user: { * } },
+				meta: { * },
+				sites_count := count(.sites),
+				occurrences_count := count(.occurrences),
+			}
+		`,
+		&datasets,
+	)
+	return datasets, err
+}
 
 type OccurrenceDataset struct {
 	dataset.Dataset `gel:"$inline" json:",inline"`
 	Sites           []SiteItem               `gel:"sites" json:"sites"`
 	Occurrences     []OccurrenceWithCategory `gel:"occurrences" json:"occurrences"`
 	IsCongruent     bool                     `gel:"is_congruent" json:"is_congruent"`
-}
-
-func ListOccurrenceDatasets(db geltypes.Executor) ([]OccurrenceDataset, error) {
-	datasets := []OccurrenceDataset{}
-	err := db.Query(context.Background(),
-		`#edgeql
-			select datasets::OccurrenceDataset {
-				**,
-				sites: { *, country: { * } },
-				occurrences: {
-					sampling: { * },
-					identification: { ** },
-					comments
-				},
-			}
-		`,
-		&datasets,
-	)
-	return datasets, err
 }
 
 func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset OccurrenceDataset, err error) {
@@ -55,13 +59,13 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 
 type OccurrenceDatasetInput struct {
 	dataset.DatasetInput `gel:"$inline" json:",inline"`
-	Occurrences          OccurrenceBatchInput `json:"occurrences"`
+	OccurrenceBatchInput `json:",inline"`
 }
 
 func (i OccurrenceDatasetInput) SaveTx(tx geltypes.Tx) (created OccurrenceDataset, err error) {
-	occurrences, err := i.Occurrences.Save(tx)
+	occurrences, err := i.OccurrenceBatchInput.Save(tx)
 	if err != nil {
-		return created, models.WrapErrorPath(err, "occurrences")
+		return created, err
 	}
 
 	i.DatasetInput.GenerateSlug()

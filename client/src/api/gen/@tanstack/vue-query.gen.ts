@@ -17,7 +17,12 @@ import {
   SettingsService,
   TaxonomyService
 } from '../sdk.gen'
-import { queryOptions, type UseMutationOptions } from '@tanstack/vue-query'
+import {
+  queryOptions,
+  type UseMutationOptions,
+  infiniteQueryOptions,
+  type InfiniteData
+} from '@tanstack/vue-query'
 import type {
   ListAbioticParametersData,
   CreateAbioticParameterData,
@@ -67,6 +72,8 @@ import type {
   ClaimInvitationResponse,
   ListAnchorsData,
   ListBioMaterialData,
+  ListBioMaterialError,
+  ListBioMaterialResponse,
   UpdateExternalBioMatData,
   UpdateExternalBioMatError,
   UpdateExternalBioMatResponse,
@@ -170,6 +177,7 @@ import type {
   ListCountriesData,
   GetSitesCountByCountryData,
   SearchSitesData,
+  OccurrencesBySiteData,
   OccurrenceOverviewData,
   ListOrganisationsData,
   CreateOrganisationData,
@@ -903,6 +911,81 @@ export const listBioMaterialOptions = (options?: Options<ListBioMaterialData>) =
     },
     queryKey: listBioMaterialQueryKey(options)
   })
+}
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>
+>(
+  queryKey: QueryKey<Options>,
+  page: K
+) => {
+  const params = queryKey[0]
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any)
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any)
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any)
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const listBioMaterialInfiniteQueryKey = (
+  options?: Options<ListBioMaterialData>
+): QueryKey<Options<ListBioMaterialData>> => createQueryKey('listBioMaterial', options, true)
+
+export const listBioMaterialInfiniteOptions = (options?: Options<ListBioMaterialData>) => {
+  return infiniteQueryOptions<
+    ListBioMaterialResponse,
+    ListBioMaterialError,
+    InfiniteData<ListBioMaterialResponse>,
+    QueryKey<Options<ListBioMaterialData>>,
+    number | Pick<QueryKey<Options<ListBioMaterialData>>[0], 'body' | 'headers' | 'path' | 'query'>
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListBioMaterialData>>[0],
+          'body' | 'headers' | 'path' | 'query'
+        > =
+          typeof pageParam === 'object'
+            ? pageParam
+            : {
+                query: {
+                  offset: pageParam
+                }
+              }
+        const params = createInfiniteParams(queryKey, page)
+        const { data } = await OccurrencesService.listBioMaterial({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true
+        })
+        return data
+      },
+      queryKey: listBioMaterialInfiniteQueryKey(options)
+    }
+  )
 }
 
 export const updateExternalBioMatMutation = (
@@ -1980,6 +2063,24 @@ export const searchSitesOptions = (options?: Options<SearchSitesData>) => {
   })
 }
 
+export const occurrencesBySiteQueryKey = (options?: Options<OccurrencesBySiteData>) =>
+  createQueryKey('occurrencesBySite', options)
+
+export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.occurrencesBySite({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: occurrencesBySiteQueryKey(options)
+  })
+}
+
 export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) =>
   createQueryKey('occurrenceOverview', options)
 
@@ -2220,7 +2321,7 @@ export const listProgramsQueryKey = (options?: Options<ListProgramsData>) =>
 export const listProgramsOptions = (options?: Options<ListProgramsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await EventsService.listPrograms({
+      const { data } = await DatasetsService.listPrograms({
         ...options,
         ...queryKey[0],
         signal,
@@ -2238,7 +2339,7 @@ export const createProgramQueryKey = (options: Options<CreateProgramData>) =>
 export const createProgramOptions = (options: Options<CreateProgramData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await EventsService.createProgram({
+      const { data } = await DatasetsService.createProgram({
         ...options,
         ...queryKey[0],
         signal,
@@ -2257,7 +2358,7 @@ export const createProgramMutation = (options?: Partial<Options<CreateProgramDat
     Options<CreateProgramData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await EventsService.createProgram({
+      const { data } = await DatasetsService.createProgram({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -2275,7 +2376,7 @@ export const deleteProgramMutation = (options?: Partial<Options<DeleteProgramDat
     Options<DeleteProgramData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await EventsService.deleteProgram({
+      const { data } = await DatasetsService.deleteProgram({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -2293,7 +2394,7 @@ export const updateProgramMutation = (options?: Partial<Options<UpdateProgramDat
     Options<UpdateProgramData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await EventsService.updateProgram({
+      const { data } = await DatasetsService.updateProgram({
         ...options,
         ...localOptions,
         throwOnError: true

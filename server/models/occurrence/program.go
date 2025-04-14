@@ -7,6 +7,7 @@ import (
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/dataset"
 	"github.com/lsdch/biome/models/people"
 )
 
@@ -23,19 +24,23 @@ type Program struct {
 	ProgramInner    `gel:"$inline" json:",inline"`
 	Managers        []people.PersonInner       `gel:"managers" json:"managers" minItems:"1"`
 	FundingAgencies []people.OrganisationInner `gel:"funding_agencies" json:"funding_agencies"`
+	Datasets        []dataset.DatasetInner     `gel:"datasets" json:"datasets"`
 	Meta            people.Meta                `gel:"meta" json:"meta"`
 }
 
 func ListPrograms(db geltypes.Executor) ([]Program, error) {
 	var programs = []Program{}
-	err := db.Query(context.Background(), `select events::Program { ** }`, &programs)
+	err := db.Query(context.Background(),
+		`#edgeql
+			select datasets::ResearchProgram { ** }
+		`, &programs)
 	return programs, err
 }
 
 func FindProgram(db geltypes.Executor, code string) (program Program, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
-			select events::Program { ** } filter .code = <str>$0
+			select datasets::ResearchProgram { ** } filter .code = <str>$0
 		`,
 		&program, code)
 	return
@@ -49,6 +54,7 @@ type ProgramInput struct {
 	StartYear       models.OptionalInput[int32]    `json:"start_year,omitempty" minimum:"1900" example:"2022"`
 	EndYear         models.OptionalInput[int32]    `json:"end_year,omitempty" example:"2025"`
 	Description     models.OptionalInput[string]   `json:"description,omitempty"`
+	Datasets        models.OptionalInput[[]string] `json:"datasets,omitempty" example:"[\"dataset1\"]"`
 }
 
 func (i ProgramInput) Save(db geltypes.Executor) (created Program, err error) {
@@ -71,7 +77,11 @@ func (i ProgramInput) Save(db geltypes.Executor) (created Program, err error) {
 			funding_agencies := organisations,
 			start_year := <int32>json_get(data, 'start_year'),
 			end_year := <int32>json_get(data, 'end_year'),
-			description := <str>json_get(data, 'description')
+			description := <str>json_get(data, 'description'),
+			datasets := (
+				select datasets::Dataset
+				filter .slug in <str>json_array_unpack(json_get(data, 'datasets'))
+			)
 		}) { ** };`,
 		&created, args)
 	return created, err
@@ -85,6 +95,7 @@ type ProgramUpdate struct {
 	StartYear       models.OptionalNull[int32]    `gel:"start_year" json:"start_year,omitempty" minimum:"1900" example:"2022"`
 	EndYear         models.OptionalNull[int32]    `gel:"end_year" json:"end_year,omitempty" example:"2025"`
 	Description     models.OptionalNull[string]   `gel:"description" json:"description,omitempty"`
+	Datasets        models.OptionalNull[[]string] `gel:"datasets" json:"datasets,omitempty" example:"[\"dataset1\"]"`
 }
 
 func (u ProgramUpdate) Save(e geltypes.Executor, code string) (updated Program, err error) {
@@ -110,6 +121,11 @@ func (u ProgramUpdate) Save(e geltypes.Executor, code string) (updated Program, 
 					select people::Organisation
 					filter .code in array_unpack(<array<str>>json_get(item, 'funding_agencies'))
 				)`,
+			"datasets": `#edgeql
+				(
+					select datasets::Dataset
+					filter .slug in <str>json_array_unpack(json_get(item, 'datasets'))
+				)`,
 		},
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
@@ -119,8 +135,9 @@ func (u ProgramUpdate) Save(e geltypes.Executor, code string) (updated Program, 
 
 func DeleteProgram(db geltypes.Executor, code string) (deleted Program, err error) {
 	err = db.QuerySingle(context.Background(),
-		`select (
-			 delete events::Program filter .code = <str>$0
+		`#edgeql
+		select (
+			 delete datasets::ResearchProgram filter .code = <str>$0
 		 ) { ** };`,
 		&deleted, code)
 	return

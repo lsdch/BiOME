@@ -12,6 +12,7 @@ import (
 	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/models/sequences"
 	"github.com/lsdch/biome/models/taxonomy"
+	"github.com/sirupsen/logrus"
 )
 
 type LegacySeqID struct {
@@ -171,6 +172,17 @@ type ExternalSequenceInput struct {
 	Identification     IdentificationInput                   `json:"identification"`
 }
 
+func (seq *ExternalSequenceInput) WithCreatedMetadata(c CreatedMetadata) ExternalSequenceInput {
+	seq.Identification.WithPersonAliases(c.People)
+	for i := range seq.PublishedIn {
+		(&seq.PublishedIn[i]).WithArticleCode(c.Bibliography)
+	}
+	for i := range seq.ReferencedIn {
+		(&seq.ReferencedIn[i]).WithDataSourceCode(c.DataSources)
+	}
+	return *seq
+}
+
 func (i *ExternalSequenceInput) UseSamplingCode(samplingCode string) {
 	i.Code = fmt.Sprintf("%s[%s]%s|%s",
 		taxonomy.TaxonCode(i.Identification.Taxon),
@@ -182,6 +194,7 @@ func (i *ExternalSequenceInput) UseSamplingCode(samplingCode string) {
 
 func (i ExternalSequenceInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created ExternalSequence, err error) {
 	data, _ := json.Marshal(i)
+	logrus.Infof("ExternalSequence: %s", string(data))
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with data := <json>$1,

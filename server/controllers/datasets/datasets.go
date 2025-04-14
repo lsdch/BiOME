@@ -54,6 +54,7 @@ func RegisterRoutes(r router.Router) {
 	RegisterSiteDatasetsRoutes(r)
 	RegisterOccurrenceDatasetsRoutes(r)
 	RegisterSeqDatasetsRoutes(r)
+	registerProgramRoutes(r)
 }
 
 type UpdateDatasetInput struct {

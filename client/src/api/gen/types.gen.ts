@@ -471,9 +471,9 @@ export type Event = {
   comments?: string
   id: string
   meta: Meta
-  performed_by: Array<PersonUser>
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
   performed_on: DateWithPrecision
-  programs?: Array<ProgramInner>
   samplings?: Array<Sampling>
   site: SiteItem
   spottings?: Array<Taxon>
@@ -492,9 +492,9 @@ export type EventInput = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  performed_by: Array<string>
+  performed_by?: Array<string>
+  performed_by_groups?: Array<string>
   performed_on: DateWithPrecisionInput
-  programs?: Array<string>
 }
 
 export type EventUpdate = {
@@ -503,9 +503,9 @@ export type EventUpdate = {
    */
   readonly $schema?: string
   comments?: string | null
-  performed_by?: Array<string>
+  performed_by?: Array<string> | null
+  performed_by_groups?: Array<string> | null
   performed_on?: DateWithPrecisionInput
-  programs?: Array<string> | null
   spottings?: Array<string> | null
 }
 
@@ -840,7 +840,7 @@ export type HabitatUpdate = {
 
 export type Identification = {
   id: string
-  identified_by: OptionalPerson
+  identified_by?: OptionalPersonInner
   identified_on: DateWithPrecision
   meta: Meta
   taxon: Taxon
@@ -1086,10 +1086,19 @@ export type Message = {
 
 export type Meta = {
   created: Date
-  created_by?: UserShortIdentity
+  created_by?: OptionalUserShortIdentity
   last_updated: Date
   modified?: Date
-  updated_by?: UserShortIdentity
+  updated_by?: OptionalUserShortIdentity
+}
+
+export type OccurrenceAtSite = {
+  category: OccurrenceCategory
+  code: string
+  element: OccurrenceElement
+  id: string
+  sampling_date: DateWithPrecision
+  taxon: TaxonInner
 }
 
 export type OccurrenceCategory = 'Internal' | 'External'
@@ -1109,6 +1118,20 @@ export type OccurrenceDataset = {
   occurrences: Array<OccurrenceWithCategory>
   pinned: boolean
   sites: Array<SiteItem>
+  slug: string
+}
+
+export type OccurrenceDatasetListItem = {
+  category: DatasetCategory
+  description: string
+  id: string
+  is_congruent: boolean
+  label: string
+  maintainers: Array<PersonUser>
+  meta: Meta
+  occurrences: number
+  pinned: boolean
+  sites: number
   slug: string
 }
 
@@ -1234,7 +1257,7 @@ export type OptionalLegacySeqId = {
   id: number
 } | null
 
-export type OptionalPerson = {
+export type OptionalPersonInner = {
   alias: string
   comment: string
   contact: string
@@ -1243,7 +1266,7 @@ export type OptionalPerson = {
   id: string
   last_name: string
   role?: UserRole
-}
+} | null
 
 export type OptionalTaxon = {
   /**
@@ -1269,6 +1292,13 @@ export type OptionalUserInner = {
   id: string
   login: string
   role: UserRole
+} | null
+
+export type OptionalUserShortIdentity = {
+  alias: string
+  id: string
+  login: string
+  name: string
 } | null
 
 export type OrgKind = 'Lab' | 'FundingAgency' | 'SequencingPlatform' | 'Other'
@@ -1418,7 +1448,7 @@ export type PersonInput = {
   contact?: string
   first_name: string
   last_name: string
-  organisations: Array<string>
+  organisations?: Array<string>
 }
 
 export type PersonUpdate = {
@@ -1452,6 +1482,7 @@ export type Program = {
    */
   readonly $schema?: string
   code: string
+  datasets: Array<DatasetInner>
   description?: string
   end_year?: number
   funding_agencies: Array<OrganisationInner>
@@ -1462,21 +1493,13 @@ export type Program = {
   start_year?: number
 }
 
-export type ProgramInner = {
-  code: string
-  description?: string
-  end_year?: number
-  id: string
-  label: string
-  start_year?: number
-}
-
 export type ProgramInput = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
   code: string
+  datasets?: Array<string>
   description?: string
   end_year?: number
   funding_agencies?: Array<string>
@@ -1491,6 +1514,7 @@ export type ProgramUpdate = {
    */
   readonly $schema?: string
   code?: string
+  datasets?: Array<string> | null
   description?: string | null
   end_year?: number | null
   funding_agencies?: Array<string> | null
@@ -1840,7 +1864,6 @@ export type Site = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  access_point?: string
   altitude?: number
   code: string
   coordinates: Coordinates
@@ -1931,7 +1954,6 @@ export type SiteInput = {
 }
 
 export type SiteItem = {
-  access_point?: string
   altitude?: number
   code: string
   coordinates: Coordinates
@@ -1974,7 +1996,6 @@ export type SiteUpdate = {
 }
 
 export type SiteWithDistance = {
-  access_point?: string
   altitude?: number
   code: string
   coordinates: Coordinates
@@ -1987,8 +2008,20 @@ export type SiteWithDistance = {
   user_defined_locality: boolean
 }
 
+export type SiteWithOccurrences = {
+  altitude?: number
+  code: string
+  coordinates: Coordinates
+  country?: OptionalCountry
+  description?: string
+  id: string
+  locality?: string
+  name: string
+  occurrences: Array<OccurrenceAtSite>
+  user_defined_locality: boolean
+}
+
 export type SiteWithScore = {
-  access_point?: string
   altitude?: number
   code: string
   coordinates: Coordinates
@@ -2044,6 +2077,12 @@ export type Taxon = {
   comment?: string
   id: string
   meta: Meta
+  name: string
+  rank: TaxonRank
+  status: TaxonStatus
+}
+
+export type TaxonInner = {
   name: string
   rank: TaxonRank
   status: TaxonStatus
@@ -2239,7 +2278,7 @@ export type UserShortIdentity = {
   id: string
   login: string
   name: string
-} | null
+}
 
 export type Works = {
   /**
@@ -2973,7 +3012,17 @@ export type ListBioMaterialData = {
     Authorization?: string
   }
   path?: never
-  query?: never
+  query?: {
+    limit?: number
+    offset?: number
+    sort_by?: Array<string>
+    search?: string
+    owner?: string
+    category?: OccurrenceCategory
+    taxon?: string
+    has_sequences?: boolean
+    is_type?: boolean
+  }
   url: '/bio-material'
 }
 
@@ -3457,7 +3506,7 @@ export type ListOccurrenceDatasetsResponses = {
   /**
    * OK
    */
-  200: Array<OccurrenceDataset>
+  200: Array<OccurrenceDatasetListItem>
 }
 
 export type ListOccurrenceDatasetsResponse =
@@ -4707,6 +4756,44 @@ export type SearchSitesResponses = {
 }
 
 export type SearchSitesResponse = SearchSitesResponses[keyof SearchSitesResponses]
+
+export type OccurrencesBySiteData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: {
+    datasets?: Array<string>
+    countries?: Array<string>
+  }
+  url: '/occurrences/by-site'
+}
+
+export type OccurrencesBySiteErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type OccurrencesBySiteError = OccurrencesBySiteErrors[keyof OccurrencesBySiteErrors]
+
+export type OccurrencesBySiteResponses = {
+  /**
+   * OK
+   */
+  200: Array<SiteWithOccurrences>
+}
+
+export type OccurrencesBySiteResponse = OccurrencesBySiteResponses[keyof OccurrencesBySiteResponses]
 
 export type OccurrenceOverviewData = {
   body?: never

@@ -15,7 +15,6 @@
           <TaxonPicker
             label="Parent"
             :ranks="['Order', 'Family', 'Genus', 'Species']"
-            :readonly="!!parent"
             item-value="code"
             return-object
             :modelValue="parent"

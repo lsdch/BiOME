@@ -1,13 +1,13 @@
-import { DeletePersonData, ErrorModel } from "@/api"
+import { ErrorModel } from "@/api"
 import { useAppConfirmDialog } from "@/composables/confirm_dialog"
 import { useUserStore } from "@/stores/user"
-import { OptionsLegacyParser, RequestResult } from "@hey-api/client-fetch"
+import { OptionsLegacyParser } from "@hey-api/client-fetch"
 import { StatusCodes } from "http-status-codes"
-import { ComputedRef, MaybeRef, ModelRef, Ref, computed, onMounted, ref, triggerRef, watch } from "vue"
+import { computed, ComputedRef, MaybeRef, ModelRef, Ref, ref, triggerRef, watch } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
-import { Mode } from "../forms/form"
-import { listAbioticParametersQueryKey } from "@/api/gen/@tanstack/vue-query.gen"
-import { QueryObserverResult, RefetchOptions, UndefinedInitialQueryOptions, useMutation, UseMutationOptions, useQuery } from "@tanstack/vue-query"
+
+import { Mode } from "@/functions/mutations"
+import { UndefinedInitialQueryOptions, useMutation, UseMutationOptions, useQuery } from "@tanstack/vue-query"
 import { storeToRefs } from "pinia"
 
 

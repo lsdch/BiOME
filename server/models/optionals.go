@@ -98,9 +98,10 @@ func (o OptionalInput[T]) HasValue() bool {
 	return o.IsSet
 }
 
-func (o *OptionalInput[T]) SetValue(value T) {
+func (o *OptionalInput[T]) SetValue(value T) OptionalInput[T] {
 	o.IsSet = true
 	o.Value = value
+	return *o
 }
 
 func (o OptionalInput[T]) IsNull() bool {

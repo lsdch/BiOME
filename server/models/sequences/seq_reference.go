@@ -20,3 +20,10 @@ type SeqReferenceInput struct {
 	Accession string `json:"accession" doc:"Accession number or sequence identifier in the data source"`
 	IsOrigin  bool   `json:"is_origin" doc:"Is this the origin of the sequence?"`
 }
+
+func (i *SeqReferenceInput) WithDataSourceCode(codes map[string]string) SeqReferenceInput {
+	if code, ok := codes[i.DB]; ok {
+		i.DB = code
+	}
+	return *i
+}

@@ -1214,17 +1214,16 @@ export const $Event = {
       items: {
         $ref: '#/components/schemas/PersonUser'
       },
-      minLength: 1,
+      type: 'array'
+    },
+    performed_by_groups: {
+      items: {
+        $ref: '#/components/schemas/OrganisationInner'
+      },
       type: 'array'
     },
     performed_on: {
       $ref: '#/components/schemas/DateWithPrecision'
-    },
-    programs: {
-      items: {
-        $ref: '#/components/schemas/ProgramInner'
-      },
-      type: 'array'
     },
     samplings: {
       items: {
@@ -1242,7 +1241,7 @@ export const $Event = {
       type: 'array'
     }
   },
-  required: ['performed_by', 'meta', 'id', 'site', 'code', 'performed_on'],
+  required: ['meta', 'id', 'site', 'code', 'performed_on'],
   type: 'object'
 } as const
 
@@ -1284,20 +1283,19 @@ export const $EventInput = {
       items: {
         type: 'string'
       },
-      minLength: 1,
       type: 'array'
     },
-    performed_on: {
-      $ref: '#/components/schemas/DateWithPrecisionInput'
-    },
-    programs: {
+    performed_by_groups: {
       items: {
         type: 'string'
       },
       type: 'array'
+    },
+    performed_on: {
+      $ref: '#/components/schemas/DateWithPrecisionInput'
     }
   },
-  required: ['performed_by', 'performed_on'],
+  required: ['performed_on'],
   type: 'object'
 } as const
 
@@ -1318,16 +1316,16 @@ export const $EventUpdate = {
       items: {
         type: 'string'
       },
-      type: 'array'
+      type: ['array', 'null']
     },
-    performed_on: {
-      $ref: '#/components/schemas/DateWithPrecisionInput'
-    },
-    programs: {
+    performed_by_groups: {
       items: {
         type: 'string'
       },
       type: ['array', 'null']
+    },
+    performed_on: {
+      $ref: '#/components/schemas/DateWithPrecisionInput'
     },
     spottings: {
       items: {
@@ -2206,7 +2204,7 @@ export const $Identification = {
       type: 'string'
     },
     identified_by: {
-      $ref: '#/components/schemas/OptionalPerson'
+      $ref: '#/components/schemas/OptionalPersonInner'
     },
     identified_on: {
       $ref: '#/components/schemas/DateWithPrecision'
@@ -2218,7 +2216,7 @@ export const $Identification = {
       $ref: '#/components/schemas/Taxon'
     }
   },
-  required: ['id', 'taxon', 'identified_by', 'identified_on', 'meta'],
+  required: ['id', 'taxon', 'identified_on', 'meta'],
   type: 'object'
 } as const
 
@@ -2891,7 +2889,7 @@ export const $Meta = {
       type: 'string'
     },
     created_by: {
-      $ref: '#/components/schemas/UserShortIdentity'
+      $ref: '#/components/schemas/OptionalUserShortIdentity'
     },
     last_updated: {
       format: 'date-time',
@@ -2902,10 +2900,37 @@ export const $Meta = {
       type: 'string'
     },
     updated_by: {
-      $ref: '#/components/schemas/UserShortIdentity'
+      $ref: '#/components/schemas/OptionalUserShortIdentity'
     }
   },
   required: ['created', 'last_updated'],
+  type: 'object'
+} as const
+
+export const $OccurrenceAtSite = {
+  additionalProperties: false,
+  properties: {
+    category: {
+      $ref: '#/components/schemas/OccurrenceCategory'
+    },
+    code: {
+      type: 'string'
+    },
+    element: {
+      $ref: '#/components/schemas/OccurrenceElement'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    sampling_date: {
+      $ref: '#/components/schemas/DateWithPrecision'
+    },
+    taxon: {
+      $ref: '#/components/schemas/TaxonInner'
+    }
+  },
+  required: ['id', 'code', 'taxon', 'sampling_date', 'category', 'element'],
   type: 'object'
 } as const
 
@@ -2964,6 +2989,65 @@ export const $OccurrenceDataset = {
         $ref: '#/components/schemas/SiteItem'
       },
       type: 'array'
+    },
+    slug: {
+      type: 'string'
+    }
+  },
+  required: [
+    'sites',
+    'occurrences',
+    'is_congruent',
+    'maintainers',
+    'meta',
+    'id',
+    'label',
+    'slug',
+    'pinned',
+    'description',
+    'category'
+  ],
+  type: 'object'
+} as const
+
+export const $OccurrenceDatasetListItem = {
+  additionalProperties: false,
+  properties: {
+    category: {
+      $ref: '#/components/schemas/DatasetCategory'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    is_congruent: {
+      type: 'boolean'
+    },
+    label: {
+      type: 'string'
+    },
+    maintainers: {
+      items: {
+        $ref: '#/components/schemas/PersonUser'
+      },
+      type: 'array'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    occurrences: {
+      format: 'int64',
+      type: 'integer'
+    },
+    pinned: {
+      type: 'boolean'
+    },
+    sites: {
+      format: 'int64',
+      type: 'integer'
     },
     slug: {
       type: 'string'
@@ -3365,7 +3449,7 @@ export const $OptionalLegacySeqID = {
   type: ['object', 'null']
 } as const
 
-export const $OptionalPerson = {
+export const $OptionalPersonInner = {
   additionalProperties: false,
   properties: {
     alias: {
@@ -3400,7 +3484,7 @@ export const $OptionalPerson = {
     }
   },
   required: ['id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
-  type: 'object'
+  type: ['object', 'null']
 } as const
 
 export const $OptionalTaxon = {
@@ -3482,6 +3566,27 @@ export const $OptionalUserInner = {
     }
   },
   required: ['id', 'email', 'login', 'role', 'email_confirmed'],
+  type: ['object', 'null']
+} as const
+
+export const $OptionalUserShortIdentity = {
+  additionalProperties: false,
+  properties: {
+    alias: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    login: {
+      type: 'string'
+    },
+    name: {
+      type: 'string'
+    }
+  },
+  required: ['id', 'login', 'name', 'alias'],
   type: ['object', 'null']
 } as const
 
@@ -3938,7 +4043,7 @@ export const $PersonInput = {
       type: 'array'
     }
   },
-  required: ['organisations', 'first_name', 'last_name'],
+  required: ['first_name', 'last_name'],
   type: 'object'
 } as const
 
@@ -4035,6 +4140,12 @@ export const $Program = {
     code: {
       type: 'string'
     },
+    datasets: {
+      items: {
+        $ref: '#/components/schemas/DatasetInner'
+      },
+      type: 'array'
+    },
     description: {
       type: 'string'
     },
@@ -4073,39 +4184,7 @@ export const $Program = {
       type: 'integer'
     }
   },
-  required: ['managers', 'funding_agencies', 'meta', 'id', 'label', 'code'],
-  type: 'object'
-} as const
-
-export const $ProgramInner = {
-  additionalProperties: false,
-  properties: {
-    code: {
-      type: 'string'
-    },
-    description: {
-      type: 'string'
-    },
-    end_year: {
-      examples: [2025],
-      format: 'int64',
-      type: 'integer'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    label: {
-      type: 'string'
-    },
-    start_year: {
-      examples: [2019],
-      format: 'int64',
-      minimum: 1900,
-      type: 'integer'
-    }
-  },
-  required: ['id', 'label', 'code'],
+  required: ['managers', 'funding_agencies', 'datasets', 'meta', 'id', 'label', 'code'],
   type: 'object'
 } as const
 
@@ -4122,6 +4201,13 @@ export const $ProgramInput = {
     code: {
       examples: ['PHD_ALICE'],
       type: 'string'
+    },
+    datasets: {
+      examples: [['dataset1']],
+      items: {
+        type: 'string'
+      },
+      type: 'array'
     },
     description: {
       type: 'string'
@@ -4174,6 +4260,13 @@ export const $ProgramUpdate = {
     code: {
       examples: ['PHD_ALICE'],
       type: 'string'
+    },
+    datasets: {
+      examples: [['dataset1']],
+      items: {
+        type: 'string'
+      },
+      type: ['array', 'null']
     },
     description: {
       type: ['string', 'null']
@@ -5153,9 +5246,6 @@ export const $Site = {
       readOnly: true,
       type: 'string'
     },
-    access_point: {
-      type: 'string'
-    },
     altitude: {
       format: 'int64',
       type: 'integer'
@@ -5378,9 +5468,6 @@ export const $SiteInput = {
 export const $SiteItem = {
   additionalProperties: false,
   properties: {
-    access_point: {
-      type: 'string'
-    },
     altitude: {
       format: 'int64',
       type: 'integer'
@@ -5475,9 +5562,6 @@ export const $SiteUpdate = {
 export const $SiteWithDistance = {
   additionalProperties: false,
   properties: {
-    access_point: {
-      type: 'string'
-    },
     altitude: {
       format: 'int64',
       type: 'integer'
@@ -5519,12 +5603,55 @@ export const $SiteWithDistance = {
   type: 'object'
 } as const
 
+export const $SiteWithOccurrences = {
+  additionalProperties: false,
+  properties: {
+    altitude: {
+      format: 'int64',
+      type: 'integer'
+    },
+    code: {
+      maxLength: 8,
+      minLength: 4,
+      type: 'string'
+    },
+    coordinates: {
+      $ref: '#/components/schemas/Coordinates'
+    },
+    country: {
+      $ref: '#/components/schemas/OptionalCountry'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    locality: {
+      type: 'string'
+    },
+    name: {
+      minLength: 4,
+      type: 'string'
+    },
+    occurrences: {
+      items: {
+        $ref: '#/components/schemas/OccurrenceAtSite'
+      },
+      type: 'array'
+    },
+    user_defined_locality: {
+      type: 'boolean'
+    }
+  },
+  required: ['occurrences', 'id', 'name', 'code', 'coordinates', 'user_defined_locality'],
+  type: 'object'
+} as const
+
 export const $SiteWithScore = {
   additionalProperties: false,
   properties: {
-    access_point: {
-      type: 'string'
-    },
     altitude: {
       format: 'int64',
       type: 'integer'
@@ -5705,6 +5832,26 @@ export const $Taxon = {
     }
   },
   required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  type: 'object'
+} as const
+
+export const $TaxonInner = {
+  additionalProperties: false,
+  properties: {
+    name: {
+      examples: ['Asellus aquaticus'],
+      type: 'string'
+    },
+    rank: {
+      $ref: '#/components/schemas/TaxonRank',
+      examples: ['Species']
+    },
+    status: {
+      $ref: '#/components/schemas/TaxonStatus',
+      examples: ['Accepted']
+    }
+  },
+  required: ['name', 'status', 'rank'],
   type: 'object'
 } as const
 
@@ -6227,7 +6374,7 @@ export const $UserShortIdentity = {
     }
   },
   required: ['id', 'login', 'name', 'alias'],
-  type: ['object', 'null']
+  type: 'object'
 } as const
 
 export const $Works = {

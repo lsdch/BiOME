@@ -1,9 +1,9 @@
 <template>
   <CRUDTable
     class="fill-height"
-    entity-name="Bio material"
+    entity-name="Bio-material"
     :headers
-    :toolbar="{ title: 'Bio material', icon: 'mdi-package-variant' }"
+    :toolbar="{ title: 'Occurrences', icon: 'mdi-package-variant' }"
     :fetch-items="listBioMaterialOptions"
     :delete="{
       mutation: deleteBioMaterialMutation,
@@ -14,6 +14,7 @@
     :filter
     :mobile="xs"
   >
+    <!-- Search and filters panel -->
     <template #menu>
       <v-row class="ma-0">
         <v-col cols="12" md="6">
@@ -43,10 +44,14 @@
                 label="Nomenclatural type"
                 color-true="primary"
                 color-false="red"
-                hint="Show only nomenclatural type material"
+                hint="Show only <a href='https://en.wikipedia.org/wiki/Type_(biology)' target='_blank'>nomenclatural type</a> material"
                 persistent-hint
                 density="compact"
-              />
+              >
+                <template #message="{ message }">
+                  <span v-html="message" />
+                </template>
+              </ClearableSwitch>
             </v-list-item>
             <v-list-item prepend-icon="mdi-dna">
               <ClearableSwitch
@@ -93,12 +98,16 @@
       </span>
     </template>
     <template
-      #item.event.site="{ value: { code, name }, item }: { value: SiteInfo; item: BioMaterial }"
+      #item.event.site="{ value: { code, name }, item }: { value: SiteItem; item: BioMaterial }"
     >
-      <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name" />
+      <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name || code" />
     </template>
     <template #item.event.performed_on="{ value }: { value: DateWithPrecision }">
-      <span>{{ DateWithPrecision.format(value) }}</span>
+      <span
+        :class="['font-monospace text-caption', { 'text-muted': value.precision == 'Unknown' }]"
+      >
+        {{ DateWithPrecision.format(value) }}
+      </span>
     </template>
 
     <template
@@ -106,11 +115,16 @@
     >
       <TaxonChip :taxon size="small" short />
     </template>
-    <template #item.identification.identified_by="{ value }: { value: PersonInner }">
-      <PersonChip :person="value" size="small" short />
+    <template #item.identification.identified_by="{ value }: { value: PersonInner | undefined }">
+      <PersonChip v-if="value" :person="value" size="small" short />
+      <span v-else class="text-muted text-caption">Unknown</span>
     </template>
-    <template #item.identification.identified_on="{ value }">
-      {{ DateWithPrecision.format(value) }}
+    <template #item.identification.identified_on="{ value }: { value: DateWithPrecision }">
+      <span
+        :class="['font-monospace text-caption', { 'text-muted': value.precision == 'Unknown' }]"
+      >
+        {{ DateWithPrecision.format(value) }}
+      </span>
     </template>
     <template #expanded-row-inject="{ item }">
       <v-row v-if="item.external" class="ma-0">
@@ -194,8 +208,13 @@
 </template>
 
 <script setup lang="ts">
-import { BioMaterial, PersonInner, SiteInfo, Taxon } from '@/api'
-import { BioMaterialWithDetails, DateWithPrecision, OccurrenceCategory } from '@/api/adapters'
+import { BioMaterial, PersonInner, Taxon } from '@/api'
+import {
+  BioMaterialWithDetails,
+  DateWithPrecision,
+  OccurrenceCategory,
+  SiteItem
+} from '@/api/adapters'
 import {
   deleteBioMaterialMutation,
   listBioMaterialOptions
@@ -247,6 +266,7 @@ const filter = computed(() => {
 
 const headers: CRUDTableHeader<BioMaterialWithDetails>[] = [
   {
+    title: 'BioMaterial',
     children: [{ key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } }]
   },
   {
@@ -254,7 +274,13 @@ const headers: CRUDTableHeader<BioMaterialWithDetails>[] = [
     align: 'center',
     headerProps: { class: 'border-s' },
     children: [
-      { key: 'event.site', title: 'Site' },
+      {
+        key: 'event.site',
+        title: 'Site',
+        sort(a, b) {
+          return (a.name || a.code).localeCompare(b.name || b.code)
+        }
+      },
       { key: 'event.performed_on', title: 'Date', align: 'end', sort: DateWithPrecision.compare }
     ]
   },
@@ -272,7 +298,14 @@ const headers: CRUDTableHeader<BioMaterialWithDetails>[] = [
           return a.name.localeCompare(b.name)
         }
       },
-      { key: 'identification.identified_by', title: 'Done by', align: 'center' },
+      {
+        key: 'identification.identified_by',
+        title: 'Done by',
+        align: 'center',
+        sort(a, b) {
+          return (a?.last_name || 'ZZZZZZZ').localeCompare(b?.last_name || 'ZZZZZZZ')
+        }
+      },
       {
         key: 'identification.identified_on',
         title: 'Date',

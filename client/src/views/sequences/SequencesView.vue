@@ -101,12 +101,18 @@
       <GeneChip :gene size="small" />
     </template>
     <template
-      #item.event.site="{ value: { code, name }, item }: { value: SiteInfo; item: BioMaterial }"
+      #item.event.site="{ value: { code, name }, item }: { value: SiteItem; item: BioMaterial }"
     >
-      <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name" />
+      <RouterLink
+        :class="{ 'font-monospace': !name }"
+        :to="{ name: 'site-item', params: { code } }"
+        :text="name || code"
+      />
     </template>
     <template #item.event.performed_on="{ value }: { value: DateWithPrecision }">
-      <span>{{ DateWithPrecision.format(value) }}</span>
+      <span :class="{ 'text-muted': value.precision === 'Unknown' }">{{
+        DateWithPrecision.format(value)
+      }}</span>
     </template>
 
     <template
@@ -166,8 +172,14 @@
 </template>
 
 <script setup lang="ts">
-import { BioMaterial, Gene, PersonInner, Sequence, SequencesService, SiteInfo, Taxon } from '@/api'
-import { CodeIdentifier, DateWithPrecision, ExtSeqOrigin, OccurrenceCategory } from '@/api/adapters'
+import { BioMaterial, Gene, PersonInner, Sequence, Taxon } from '@/api'
+import {
+  CodeIdentifier,
+  DateWithPrecision,
+  ExtSeqOrigin,
+  OccurrenceCategory,
+  SiteItem
+} from '@/api/adapters'
 import { deleteSequenceMutation, listSequencesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import PersonChip from '@/components/people/PersonChip'
 import GeneChip from '@/components/sequences/GeneChip'

@@ -63,12 +63,15 @@ func main() {
 
 	client := db.Connect(gelcfg.Options{Database: *database})
 
-	aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json")
-	if err != nil {
-		logrus.Fatalf("Failed to load Asellidae sites: %v", err)
-	}
+	// aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json")
+	// if err != nil {
+	// 	logrus.Fatalf("Failed to load Asellidae sites: %v", err)
+	// }
 
-	err = client.Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
+	timeout, _ := geltypes.ParseDuration("15m")
+	err := client.WithConfig(map[string]interface{}{
+		"session_idle_transaction_timeout": timeout,
+	}).Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
 
 		logrus.Infof("🌱 Seeding countries")
 		if err := seeds.SeedCountriesGeoJSON(tx, "../../data/remote/countries.json"); err != nil {
@@ -116,9 +119,34 @@ func main() {
 				return err
 			}
 		}
+		return nil
+	})
+
+	if err != nil {
+		logrus.Errorf("Seeding failed: %v", err)
+	}
+
+	err = client.WithConfig(map[string]interface{}{
+		"session_idle_transaction_timeout": timeout,
+	}).Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
+		logrus.Info("🧪 Empirical datasets")
+		// logrus.Infof("🌱 Seeding WAD sampling sites")
+		// if err := seeds.SeedSites(tx, *aselloidea); err != nil {
+		// 	logrus.Errorf("Failed to seed Aselloidea sampling sites")
+		// 	return err
+		// }
+		logrus.Infof("🌱 Seeding WAD occurrences")
+		aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
+		if err != nil {
+			logrus.Errorf("Failed to load datasets: %v", err)
+			return err
+		}
+		if err := seeds.SeedOccurrencesDatasets(tx, []occurrence.OccurrenceDatasetInput{*aselloidea}); err != nil {
+			return err
+		}
 
 		logrus.Info("⚙ Artificial datasets")
-		datasets, err := seeds.LoadOccurrencesDatasets("data/datasets.json")
+		datasets, err := seeds.LoadMultipleOccurrencesDatasets("data/datasets.json")
 		if err != nil {
 			logrus.Errorf("Failed to load datasets: %v", err)
 			return err
@@ -128,18 +156,18 @@ func main() {
 			return err
 		}
 		logrus.Infof("⚙ Postprocessing...")
+		// logrus.Infof("• generate bio-material codes")
+		// if err := tx.Execute(context.Background(),
+		// 	`#edgeql
+		// 		update occurrence::BioMaterial set {};
+		// 	`); err != nil {
+		// 	return err
+		// }
 		logrus.Infof("• generate sequence codes")
 		if err := tx.Execute(context.Background(),
 			`#edgeql
 				update seq::ExternalSequence set {};
 			`); err != nil {
-			return err
-		}
-
-		logrus.Info("🧪 Empirical datasets")
-		logrus.Infof("🌱 Seeding WAD sampling sites")
-		if err := seeds.SeedSites(tx, *aselloidea); err != nil {
-			logrus.Errorf("Failed to seed Aselloidea sampling sites")
 			return err
 		}
 

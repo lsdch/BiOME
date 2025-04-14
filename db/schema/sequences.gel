@@ -36,7 +36,6 @@ module seq {
     required multi extracted_by: people::Person;
     required extraction_method: DNAExtractionMethod;
     required extracted_on: tuple<date: datetime, precision: date::DatePrecision> {
-      constraint date::required_unless_unknown(.date, .precision);
       rewrite insert, update using (
         (date := date::rewrite_date(.extracted_on), precision :=.extracted_on.precision)
       )
@@ -94,7 +93,6 @@ module seq {
     required reverse_primer : PCRReversePrimer;
     required quality: PCRQuality;
     required performed_on: tuple<date: datetime, precision: date::DatePrecision> {
-      constraint date::required_unless_unknown(.date, .precision);
       rewrite insert, update using (
         (date := date::rewrite_date(__subject__.performed_on), precision := __subject__.performed_on.precision)
       )

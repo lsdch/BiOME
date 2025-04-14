@@ -30,13 +30,9 @@ const props = defineProps<
 const create = defineFormCreate(createEventMutation(), {
   initial: EventModel.initialModel,
   schema: $EventInput,
-  requestData({ performed_by, performed_on, programs }) {
+  requestData(model) {
     return {
-      body: {
-        performed_by: performed_by.map(({ alias }) => alias),
-        performed_on,
-        programs: programs.map(({ code }) => code)
-      },
+      body: EventModel.toRequestData(model),
       path: { code: props.site.code }
     }
   }
@@ -45,13 +41,9 @@ const create = defineFormCreate(createEventMutation(), {
 const update = defineFormUpdate(updateEventMutation(), {
   schema: $EventUpdate,
   itemToModel: EventModel.fromEvent,
-  requestData(item, { performed_by, performed_on, programs }) {
+  requestData(item, model) {
     return {
-      body: {
-        performed_by: performed_by.map(({ alias }) => alias),
-        performed_on,
-        programs: programs.map(({ code }) => code)
-      },
+      body: EventModel.toRequestData(model),
       path: { id: item.id }
     }
   }

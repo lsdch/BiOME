@@ -9,6 +9,17 @@ module taxonomy {
     );
   };
 
+  function find_taxon(name_or_code: str) -> Taxon {
+    using (
+      select assert_single(assert_exists(
+        Taxon filter (.name = name_or_code or .code = name_or_code),
+        message := "Failed to find taxon with name or code: " ++ name_or_code
+      ),
+        message := "Multiple taxa matching name or code: " ++ name_or_code
+      )
+    )
+  };
+
   scalar type Rank extending enum<Kingdom, Phylum, Class, Order, Family, Genus, Species, Subspecies>;
   # Ignore FORM, VARIETY, UNRANKED
 

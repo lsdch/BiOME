@@ -59,6 +59,14 @@ export const navRoutes: (RouterItem | Divider)[] = [
         icon: 'mdi-dna',
         component: () => import('../views/datasets/SeqDatasetsView.vue'),
         meta: { subtitle: "Sequence datasets" }
+      },
+      {
+        label: "Research programs",
+        path: "/programs",
+        name: "programs",
+        icon: "mdi-notebook",
+        component: () => import("@/views/events/ProgramsView.vue"),
+        meta: { subtitle: "Programs" }
       }
     ]
   },
@@ -164,14 +172,6 @@ export const navRoutes: (RouterItem | Divider)[] = [
         component: () => import("../views/people/OrganisationView.vue"),
         meta: { subtitle: "Organisations" }
       },
-      {
-        label: "Programs",
-        path: "/programs",
-        name: "programs",
-        icon: "mdi-notebook",
-        component: () => import("@/views/events/ProgramsView.vue"),
-        meta: { subtitle: "Programs" }
-      }
     ]
   },
   {

@@ -19,14 +19,12 @@
     </v-row>
     <v-row>
       <v-col>
-        <ProgramPicker
-          v-model="model.programs"
+        <OrganisationPicker
+          label="Performed by group(s)"
+          v-model="model.performed_by_groups"
           multiple
-          chips
-          closable-chips
-          clearable
           return-object
-          v-bind="schema('programs')"
+          v-bind="schema('performed_by_groups')"
         />
       </v-col>
     </v-row>
@@ -35,12 +33,12 @@
 
 <script setup lang="ts">
 import { $EventInput, $EventUpdate } from '@/api'
-import { FormProps } from '@/functions/mutations'
-import { EventModel } from '@/models'
 import PersonPicker from '@/components/people/PersonPicker.vue'
 import { useSchema } from '@/composables/schema'
-import ProgramPicker from '@/components/events/ProgramPicker.vue'
+import { FormProps } from '@/functions/mutations'
+import { EventModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
+import OrganisationPicker from '../people/OrganisationPicker.vue'
 import DateWithPrecisionField from '../toolkit/forms/DateWithPrecisionField.vue'
 
 const model = defineModel<EventModel.EventModel>({

@@ -32,4 +32,16 @@ func RegisterRoutes(r router.Router) {
 			resolvers.AuthResolver
 		}](occurrence.OccurrenceOverview),
 	)
+
+	router.Register(occurAPI, "OccurrencesBySite",
+		huma.Operation{
+			Path:    "/by-site",
+			Method:  http.MethodGet,
+			Summary: "Occurrences by site",
+		},
+		controllers.ListHandlerWithOpts[*struct {
+			resolvers.AuthResolver
+			occurrence.OccurrencesBySiteOptions
+		}](occurrence.OccurrencesBySite),
+	)
 }

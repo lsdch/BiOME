@@ -11,17 +11,26 @@ import (
 )
 
 type Identification struct {
-	ID           geltypes.UUID         `gel:"id" json:"id" format:"uuid"`
-	Taxon        taxonomy.Taxon        `gel:"taxon" json:"taxon"`
-	IdentifiedBy people.OptionalPerson `gel:"identified_by" json:"identified_by"`
-	IdentifiedOn DateWithPrecision     `gel:"identified_on" json:"identified_on"`
-	Meta         people.Meta           `gel:"meta" json:"meta"`
+	ID           geltypes.UUID                       `gel:"id" json:"id" format:"uuid"`
+	Taxon        taxonomy.Taxon                      `gel:"taxon" json:"taxon"`
+	IdentifiedBy models.Optional[people.PersonInner] `gel:"identified_by" json:"identified_by,omitempty"`
+	IdentifiedOn DateWithPrecision                   `gel:"identified_on" json:"identified_on"`
+	Meta         people.Meta                         `gel:"meta" json:"meta"`
 }
 
 type IdentificationInput struct {
 	Taxon        string                       `gel:"taxon" json:"taxon"`
 	IdentifiedBy models.OptionalInput[string] `gel:"identified_by" json:"identified_by"`
 	IdentifiedOn DateWithPrecisionInput       `gel:"identified_on" json:"identified_on"`
+}
+
+func (id *IdentificationInput) WithPersonAliases(aliases map[string]string) IdentificationInput {
+	if p, ok := id.IdentifiedBy.Get(); ok {
+		if alias, ok := aliases[p]; ok {
+			id.IdentifiedBy.SetValue(alias)
+		}
+	}
+	return *id
 }
 
 type IdentificationUpdate struct {

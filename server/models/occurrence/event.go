@@ -11,6 +11,7 @@ import (
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/taxonomy"
+	"github.com/sirupsen/logrus"
 )
 
 type DateWithPrecision struct {
@@ -39,12 +40,12 @@ type EventInner struct {
 
 type Event struct {
 	EventInner          `gel:"$inline" json:",inline"`
-	PerformedBy         []people.PersonUser  `gel:"performed_by" json:"performed_by" minLength:"1"`
-	Programs            []ProgramInner       `gel:"programs" json:"programs,omitempty"`
-	AbioticMeasurements []AbioticMeasurement `gel:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
-	Samplings           []Sampling           `gel:"samplings" json:"samplings,omitempty"`
-	Spottings           []taxonomy.Taxon     `gel:"spottings" json:"spottings,omitempty"`
-	Meta                people.Meta          `gel:"meta" json:"meta"`
+	PerformedBy         []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedByGroups   []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
+	AbioticMeasurements []AbioticMeasurement       `gel:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
+	Samplings           []Sampling                 `gel:"samplings" json:"samplings,omitempty"`
+	Spottings           []taxonomy.Taxon           `gel:"spottings" json:"spottings,omitempty"`
+	Meta                people.Meta                `gel:"meta" json:"meta"`
 }
 
 func (e *Event) AddSampling(db geltypes.Executor, sampling SamplingInput) error {
@@ -80,8 +81,8 @@ var listEventsQuery = `#edgeql
 	select events::Event {
 		id,
 		site: {*, country: { * }},
-		programs: { * },
 		performed_by: { * },
+		performed_by_groups: { * },
 		performed_on,
 		comments,
 		spottings: { * },
@@ -121,14 +122,25 @@ func ListSiteEvents(e geltypes.Executor, siteCode string) ([]Event, error) {
 }
 
 type EventInput struct {
-	PerformedBy []string                       `json:"performed_by" minLength:"1"`
-	PerformedOn DateWithPrecisionInput         `json:"performed_on"`
-	Programs    models.OptionalInput[[]string] `json:"programs,omitempty"`
+	PerformedBy       []string               `json:"performed_by,omitempty"`
+	PerformedByGroups []string               `json:"performed_by_groups,omitempty"`
+	PerformedOn       DateWithPrecisionInput `json:"performed_on"`
+}
+
+func (ev EventInput) WithPersonAliases(aliases map[string]string) EventInput {
+	for i, alias := range ev.PerformedBy {
+		if _, ok := aliases[alias]; ok {
+			ev.PerformedBy[i] = aliases[alias]
+		}
+	}
+	return ev
 }
 
 func (i EventInput) Save(e geltypes.Executor, site_code string) (created Event, err error) {
 
 	data, _ := json.Marshal(i)
+	logrus.Infof("Event: %s", string(data))
+
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with data := <json>$1,
@@ -136,18 +148,20 @@ func (i EventInput) Save(e geltypes.Executor, site_code string) (created Event, 
 				site := (select location::Site filter .code = <str>$0),
 				performed_by := (
 					select people::Person
-					filter .alias in <str>json_array_unpack(data['performed_by'])
+					filter .alias in <str>json_array_unpack(json_get(data, 'performed_by'))
 				),
-				performed_on := date::from_json_with_precision(data['performed_on']),
-				programs := (
-					select events::Program
-					filter .code in <str>json_array_unpack(json_get(data, 'programs'))
+				performed_by_groups := (
+					select people::Organisation
+					filter .code in <str>json_array_unpack(json_get(data,'performed_by_groups'))
+				),
+				performed_on := (
+					select date::from_json_with_precision(data['performed_on'])
 				)
 			}) {
 				*,
 				site: {*, country: { * }},
-				programs: { * },
 				performed_by: { * },
+				performed_by_groups: { * },
 				spottings: { * },
 				abiotic_measurements: { *, param: { * }  },
 				samplings: {
@@ -164,11 +178,11 @@ func (i EventInput) Save(e geltypes.Executor, site_code string) (created Event, 
 }
 
 type EventUpdate struct {
-	PerformedBy models.OptionalInput[[]string]               `gel:"performed_by" json:"performed_by,omitempty"`
-	PerformedOn models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
-	Programs    models.OptionalNull[[]string]                `gel:"programs" json:"programs,omitempty"`
-	Comments    models.OptionalNull[string]                  `gel:"comments" json:"comments,omitempty"`
-	Spottings   models.OptionalNull[[]string]                `gel:"spottings" json:"spottings,omitempty"`
+	PerformedBy       models.OptionalNull[[]string]                `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedByGroups models.OptionalNull[[]string]                `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
+	PerformedOn       models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
+	Comments          models.OptionalNull[string]                  `gel:"comments" json:"comments,omitempty"`
+	Spottings         models.OptionalNull[[]string]                `gel:"spottings" json:"spottings,omitempty"`
 }
 
 func (u EventUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Event, err error) {
@@ -181,27 +195,27 @@ func (u EventUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Event,
 			}) {
 				*,
 				site: {*, country: { *}},
-				programs: { * },
 				performed_by: { * },
+				performed_by_groups: { * },
 				spottings: { * },
 				abiotic_measurements: { *, param: { * }  },
 				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }
 			}
 		`,
 		Mappings: map[string]string{
-			"perform_by": `#edgeql
+			"performed_by": `#edgeql
 				(
 					select people::Person
 					filter .alias in <str>json_array_unpack(data['performed_by'])
 				)`,
+			"performed_by_groups": `#edgeql
+				(
+					select people::Organisation
+					filter .code in <str>json_array_unpack(data['performed_by_groups'])
+				)`,
 			"performed_on": `#edgeql
 				date::from_json_with_precision(data['performed_on'])
 			`,
-			"programs": `#edgeql
-				(
-					select events::Program
-					filter .code in <str>json_array_unpack(json_get(data, 'programs'))
-				)`,
 			"comments": `data['comments']`,
 			"spottings": `#edgeql
 				(
@@ -221,8 +235,8 @@ func DeleteEvent(db geltypes.Executor, id geltypes.UUID) (deleted Event, err err
 				delete events::Event filter .id = <uuid>$0
 			) {
 				site: { *, country: { * }},
-				programs: { * },
 				performed_by: { * },
+				performed_by_groups: { * },
 				spottings: { * },
 				abiotic_measurements: { *, param: { * }  },
 				samplings: { *, target_taxa: { * }, fixatives: { * }, methods: { * }, habitats: { * } }

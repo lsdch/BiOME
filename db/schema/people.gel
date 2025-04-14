@@ -22,7 +22,7 @@ module people {
     required code: str {
       constraint exclusive;
       constraint min_len_value(2);
-      constraint max_len_value(12);
+      constraint max_len_value(32);
     };
     description: str {
       rewrite insert, update using (default::null_if_empty(.description));
@@ -44,8 +44,8 @@ module people {
     );
   };
 
-  function insert_or_create_organisation(data: json) -> Organisation {
-    using (
+  function insert_or_find_organisation(data: json) -> Organisation {
+    using (select(
       if (json_typeof(data) = 'object')
       then (select (insert_organisation(data)))
       else if (json_typeof(data) = 'string') then (
@@ -60,28 +60,36 @@ module people {
         assert_exists(<Organisation>{},
         message := "Invalid organisation JSON type: " ++ json_typeof(data))
       )
-    );
+    ));
   };
 
   type Person extending default::Auditable {
     required first_name: str {
-      constraint min_len_value(1);
+      # constraint min_len_value(1);
       constraint max_len_value(30);
     };
     required last_name: str {
       constraint min_len_value(2);
       constraint max_len_value(30);
     };
-    required property full_name := array_join([.first_name, .last_name], ' ');
+    required property full_name := (select(assert_exists(
+      if len(.first_name) > 0
+      then array_join([.first_name, .last_name], ' ')
+      else .last_name
+    )));
     required alias: str {
       constraint exclusive;
-      constraint min_len_value(3);
+      constraint min_len_value(2);
       constraint max_len_value(32);
       default := <str>{};
       rewrite insert, update using (
         default::null_if_empty(.alias) ?? (
         with
-          default_alias := str_lower(.first_name[0] ++ .last_name),
+          default_alias := (
+            if len(.first_name) >0
+            then str_lower(.first_name[0] ++ .last_name)
+            else str_lower(.last_name)
+          ),
           conflicts := (select count (
             detached Person filter (
               str_trim(.alias, "0123456789") = default_alias
@@ -93,7 +101,7 @@ module people {
       );
     };
 
-    index on ((.alias, .first_name, .last_name));
+    index on ((.alias, .last_name));
 
     contact: str {
       rewrite insert, update using (default::null_if_empty(.contact));
@@ -116,8 +124,11 @@ module people {
         contact := <str>json_get(data, 'contact'),
         comment := <str>json_get(data, 'comment'),
         organisations := (
-          distinct (for inst in json_array_unpack(json_get(data, 'organisations')) union (
-            insert_or_create_organisation(inst)
+          distinct (for org in json_array_unpack(json_get(data, 'organisations')) union (
+            assert_exists(
+              Organisation filter .code = <str>org,
+              message := "Failed to find organisation with code: " ++ <str>org
+            )
           ))
         )
       }

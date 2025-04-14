@@ -52,7 +52,7 @@ import { occurrenceOverviewOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { SunburstChart } from 'echarts/charts'
-import { TitleComponent, VisualMapComponent } from 'echarts/components'
+import { DataZoomComponent, TitleComponent, VisualMapComponent } from 'echarts/components'
 import { use } from 'echarts/core'
 import { SVGRenderer } from 'echarts/renderers'
 import { ECBasicOption, VisualMapComponentOption } from 'echarts/types/dist/shared'
@@ -62,7 +62,7 @@ import ActivableCardDialog from '../toolkit/ui/ActivableCardDialog.vue'
 import CenteredSpinner from '../toolkit/ui/CenteredSpinner'
 import TaxonRankSlider from './TaxonRankSlider.vue'
 
-use([SVGRenderer, TitleComponent, SunburstChart, VisualMapComponent])
+use([SVGRenderer, TitleComponent, SunburstChart, VisualMapComponent, DataZoomComponent])
 
 const [fullscreen, toggleFullscreen] = useToggle(false)
 
@@ -162,6 +162,17 @@ const visualMap = computed<VisualMapComponentOption>(() => ({
 
 const option = computed<ECBasicOption>(
   (): ECBasicOption => ({
+    dataZoom: [
+      {
+        type: 'inside',
+        xAxisIndex: [0],
+        yAxisIndex: [0],
+        radiusAxisIndex: [0],
+        start: 0,
+        end: 100,
+        minSpan: 0
+      }
+    ],
     // title: {
     //   text: 'Occurrences overview',
     //   // subtext: 'Source: https://worldcoffeeresearch.org/work/sensory-lexicon/',
@@ -178,63 +189,18 @@ const option = computed<ECBasicOption>(
     series: {
       type: 'sunburst',
       data: data.value,
-      radius: [0, '70%'],
+      radius: [0, '85%'],
       sort: undefined,
       emphasis: {
         focus: 'ancestor'
       },
-      levels: [
-        {
-          label: {
-            rotate: 'tangential'
-          }
-        },
-        {
-          label: {
-            rotate: 'tangential'
-          }
-        },
-        {
-          label: {
-            rotate: 'tangential'
-          }
-        },
-        {
-          label: {
-            rotate: 'tangential'
-          }
-        },
-        {
-          label: {
-            rotate: 'tangential'
-          }
-        },
-        {
-          // itemStyle: {
-          //   borderWidth: 2
-          // },
-          label: {
-            rotate: 'tangential'
-          }
-        },
-        {
-          label: {
-            rotate: 'tangential'
-          }
-        },
-        {
-          // r0: '70%',
-          // r: '72%',
-          label: {
-            position: 'outside',
-            padding: 3,
-            silent: false
-          },
-          itemStyle: {
-            borderWidth: 3
-          }
-        }
-      ]
+      itemStyle: {
+        borderWidth: 0.3
+      },
+      label: {
+        rotate: 'tangential',
+        minAngle: 10
+      }
     }
   })
 )

@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-data-table
-      id="table"
+      class="crud-table"
       :headers="processedHeaders"
       :items="filteredItems"
       :loading="loading"
@@ -18,6 +18,7 @@
       :mobile="mobile ?? xs"
       :density="mobile ? 'compact' : undefined"
       :items-per-page-options="[5, 10, 15, 20]"
+      :items-per-page="mobile ? 5 : 15"
       style="position: relative"
     >
       <!-- Toolbar -->
@@ -374,18 +375,24 @@ async function copyUUID(item: ItemType) {
 }
 </script>
 
-<style lang="less">
-#search-menu .v-overlay__content {
-  left: 0px !important;
-}
+<style lang="scss">
+.crud-table {
+  #search-menu .v-overlay__content {
+    left: 0px !important;
+  }
 
-tr.expanded td {
-  border-left: 1px solid rgb(16, 113, 176);
-}
+  tr.expanded td {
+    border-left: 1px solid rgb(16, 113, 176);
+  }
 
-tr:has(+ tr.expanded) {
-  td:first-child {
-    border-left: 3px solid rgb(16, 113, 176);
+  tr:has(+ tr.expanded) {
+    td:first-child {
+      border-left: 3px solid rgb(16, 113, 176);
+    }
+  }
+
+  tr.v-data-table__tr--mobile .v-data-table__td-title {
+    opacity: var(--v-medium-emphasis-opacity);
   }
 }
 </style>

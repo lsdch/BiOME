@@ -1,5 +1,26 @@
 module datasets {
 
+  type ResearchProgram extending default::Auditable {
+    required label: str { constraint exclusive };
+    required code: str { constraint exclusive };
+
+    required multi managers: people::Person;
+    multi funding_agencies: people::Organisation;
+
+    start_year: int32 {
+      constraint min_value(1900);
+    };
+    end_year: int32;
+    constraint expression on (.start_year <= .end_year);
+
+    description: str;
+
+    multi datasets: Dataset {
+      on target delete allow;
+      on source delete allow;
+    };
+  };
+
   scalar type DatasetCategory extending enum<Site, Occurrence, Seq>;
 
   abstract type Dataset extending default::Auditable {

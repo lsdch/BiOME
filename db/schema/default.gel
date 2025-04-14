@@ -29,7 +29,7 @@ module default {
   # Objects that are identifiable by a unique code, and have a history of code changes
   abstract type CodeIdentifier {
     required code: str {
-      constraint exclusive;
+      delegated constraint exclusive;
     };
 
     # Stores the history of code changes
@@ -47,17 +47,15 @@ module default {
 
     required label: str {
       constraint exclusive;
-      constraint min_len_value(3);
+      constraint min_len_value(2);
     };
     required code: str {
       annotation title := "An expressive, unique, user-generated uppercase alphanumeric code";
       delegated constraint exclusive;
       constraint min_len_value(2);
-      constraint max_len_value(12);
+      constraint max_len_value(32);
     };
     description: str;
-
-    index on ((.code, .label));
   }
 
   function get_vocabulary(code: str, object_name: optional str = 'vocabulary') -> Vocabulary {

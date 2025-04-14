@@ -6,7 +6,6 @@ module occurrence {
     identified_by: people::Person; # might be unknown
 
     required identified_on: tuple<date: datetime, precision: date::DatePrecision>{
-      constraint date::required_unless_unknown(__subject__.date, __subject__.precision);
       rewrite insert, update using (
         (date := date::rewrite_date(.identified_on), precision :=.identified_on.precision)
       )
@@ -20,7 +19,7 @@ module occurrence {
   # External sequences are occurrences and MIGHT be linked to external bio-materials.
   # External sequences without bio-materials are occurrences by themselves.
   # Otherwise, their purpose is to add molecular data to an existing occurrence.
-  abstract type Occurrence extending default::Auditable {
+  abstract type Occurrence extending default::Auditable, default::CodeIdentifier {
 
     required sampling: events::Sampling;
     required identification: Identification {
@@ -41,7 +40,7 @@ module occurrence {
     using ( taxon.code ++ "[" ++ sampling.code ++ "]" )
   };
 
-  abstract type BioMaterial extending default::CodeIdentifier, Occurrence {
+  abstract type BioMaterial extending Occurrence {
 
     overloaded required code : str {
       constraint exclusive;

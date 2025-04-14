@@ -33,6 +33,10 @@ module references {
       default := (
         with
           gen_code := generate_article_code(.authors, .year),
+          # The discriminant is the number of articles with the same code
+          # that are already in the database, minus 1 (the current one)
+          # This is used to generate a unique code for the article
+          # by appending a letter from the alphabet to the code
           discriminant := (select count(detached Article filter generate_article_code(.authors, .year) = gen_code) - 1),
         select (
           if discriminant >= 0 then generate_article_code(.authors, .year) ++ global alphabet[discriminant]

@@ -3,20 +3,132 @@ package occurrence
 import (
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/references"
+	"github.com/lsdch/biome/models/taxonomy"
+	"github.com/sirupsen/logrus"
 )
+
+type OccurrenceBatchMetadataInputs struct {
+	Organisations map[string]people.OrganisationInput   `json:"organisations,omitempty"`
+	People        map[string]people.PersonInput         `json:"people,omitempty"`
+	DataSources   map[string]references.DataSourceInput `json:"data_sources,omitempty"`
+	Taxa          []taxonomy.TaxonInput                 `json:"taxa,omitempty"`
+	Bibliography  map[string]references.ArticleInput    `json:"bibliography,omitempty"`
+}
+
+type CreatedMetadata struct {
+	Organisations map[string]string `json:"organisations,omitempty"` // input string to code map
+	People        map[string]string `json:"people,omitempty"`        // input string to alias map
+	DataSources   map[string]string `json:"data_sources,omitempty"`  // input string to code map
+	Bibliography  map[string]string `json:"bibliography,omitempty"`  // input string to code map
+}
+
+func (i OccurrenceBatchMetadataInputs) saveNewDataSources(tx geltypes.Tx) (map[string]string, error) {
+	codes := make(map[string]string)
+	for rawSource, source := range i.DataSources {
+		created, err := source.Save(tx)
+		if err != nil {
+			return nil, models.WrapErrorPath(err, rawSource)
+		}
+		codes[rawSource] = created.Code
+	}
+	return codes, nil
+}
+
+func (i OccurrenceBatchMetadataInputs) saveNewBibliography(tx geltypes.Tx) (map[string]string, error) {
+	codes := make(map[string]string)
+	for rawRef, ref := range i.Bibliography {
+		created, err := ref.Save(tx)
+		if err != nil {
+			return nil, models.WrapErrorPath(err, rawRef)
+		}
+		codes[rawRef] = created.Code
+	}
+	return codes, nil
+}
+
+func (i OccurrenceBatchMetadataInputs) saveNewOrganisations(tx geltypes.Tx) (map[string]string, error) {
+	codes := make(map[string]string)
+	for rawOrg, org := range i.Organisations {
+		logrus.Infof("Creating organisation '%s' %+v", rawOrg, org)
+		created, err := org.Save(tx)
+		if err != nil {
+			return nil, models.WrapErrorPath(err, rawOrg)
+		}
+		codes[rawOrg] = created.Code
+	}
+	return codes, nil
+}
+
+func (i OccurrenceBatchMetadataInputs) saveNewPersons(tx geltypes.Tx, orgCodes map[string]string) (map[string]string, error) {
+	personAliases := make(map[string]string)
+	for rawPerson, person := range i.People {
+		created, err := person.WithOrganisationCodes(orgCodes).Save(tx)
+		if err != nil {
+			return nil, models.WrapErrorPath(err, rawPerson)
+		}
+		personAliases[rawPerson] = created.Alias
+	}
+	return personAliases, nil
+}
+
+func (i OccurrenceBatchMetadataInputs) Save(tx geltypes.Tx) (*CreatedMetadata, error) {
+
+	for j, taxon := range i.Taxa {
+		if _, err := taxon.Save(tx); err != nil {
+			return nil, models.WrapErrorIndex(err, j).PrependPath("taxa")
+		}
+	}
+
+	dataSources, err := i.saveNewDataSources(tx)
+	if err != nil {
+		return nil, models.WrapErrorPath(err, "data_sources")
+	}
+
+	bibliography, err := i.saveNewBibliography(tx)
+	if err != nil {
+		return nil, models.WrapErrorPath(err, "bibliography")
+	}
+
+	organisations, err := i.saveNewOrganisations(tx)
+	if err != nil {
+		return nil, models.WrapErrorPath(err, "organisations")
+	}
+
+	personAliases, err := i.saveNewPersons(tx, organisations)
+	if err != nil {
+		return nil, models.WrapErrorPath(err, "people")
+	}
+	return &CreatedMetadata{
+		Organisations: organisations,
+		People:        personAliases,
+		DataSources:   dataSources,
+		Bibliography:  bibliography,
+	}, nil
+}
 
 // OccurrenceBatchInput is the input type for registering occurrences in bulk,
 // including all the necessary upstream data:
 // site, events, sampling.
 // Occurrences can be registered in bulk, with multiple events and samplings.
 // Occurrences types include: BioMaterial (internal/external) and external sequences.
-type OccurrenceBatchInput []SiteOccurrenceInput
+type OccurrenceBatchInput struct {
+	OccurrenceBatchMetadataInputs `json:",inline"`
+	Occurrences                   []SiteOccurrenceInput `json:"occurrences"`
+}
 
 func (i OccurrenceBatchInput) Save(tx geltypes.Tx) (occurrences []OccurrenceWithCategory, err error) {
-	for i, siteOccurrence := range i {
-		occ, err := siteOccurrence.Save(tx)
+
+	replacements, err := i.OccurrenceBatchMetadataInputs.Save(tx)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, siteOccurrence := range i.Occurrences {
+		occ, err := siteOccurrence.WithCreatedMetadata(*replacements).Save(tx)
 		if err != nil {
-			return nil, models.WrapErrorIndex(err, i)
+			return nil, models.WrapErrorIndex(err, i).PrependPath("occurrences")
 		} else {
 			occurrences = append(occurrences, occ...)
 		}
@@ -32,6 +144,13 @@ Each event can have multiple samplings, spottings, and abiotic measurements.
 type SiteOccurrenceInput struct {
 	SiteInput `json:",inline"`
 	Events    []EventInputWithActions `json:"events"`
+}
+
+func (i *SiteOccurrenceInput) WithCreatedMetadata(c CreatedMetadata) SiteOccurrenceInput {
+	for j := range i.Events {
+		i.Events[j].WithCreatedMetadata(c)
+	}
+	return *i
 }
 
 func (i SiteOccurrenceInput) Save(tx geltypes.Tx) ([]OccurrenceWithCategory, error) {
@@ -60,6 +179,14 @@ type EventInputWithActions struct {
 	Samplings           []SamplingInputWithOccurrences `json:"samplings"`
 	Spottings           SpottingUpdate                 `json:"spottings"`
 	AbioticMeasurements []AbioticMeasurementInput      `json:"abiotic_measurements"`
+}
+
+func (ev EventInputWithActions) WithCreatedMetadata(c CreatedMetadata) EventInputWithActions {
+	ev.EventInput.WithPersonAliases(c.People)
+	for i := range ev.Samplings {
+		ev.Samplings[i].WithCreatedMetadata(c)
+	}
+	return ev
 }
 
 func (i EventInputWithActions) Save(tx geltypes.Tx, site_code string) ([]OccurrenceWithCategory, error) {
@@ -96,6 +223,19 @@ type SamplingInputWithOccurrences struct {
 	InternalBiomat []InternalBioMatInput              `json:"internal_biomats"`
 	ExternalBiomat []ExternalBioMatInputWithSequences `json:"external_biomats"`
 	Sequences      []ExternalSequenceInput            `json:"sequences"`
+}
+
+func (s *SamplingInputWithOccurrences) WithCreatedMetadata(c CreatedMetadata) SamplingInputWithOccurrences {
+	for i := range s.InternalBiomat {
+		(&s.InternalBiomat[i]).WithCreatedMetadata(c)
+	}
+	for i := range s.ExternalBiomat {
+		(&s.ExternalBiomat[i]).WithCreatedMetadata(c)
+	}
+	for i := range s.Sequences {
+		(&s.Sequences[i]).WithCreatedMetadata(c)
+	}
+	return *s
 }
 
 func (i SamplingInputWithOccurrences) Save(tx geltypes.Tx, eventID geltypes.UUID) (occurrences []OccurrenceWithCategory, err error) {
@@ -139,6 +279,14 @@ func (i SamplingInputWithOccurrences) Save(tx geltypes.Tx, eventID geltypes.UUID
 type ExternalBioMatInputWithSequences struct {
 	ExternalBioMatInput `json:",inline"`
 	Sequences           []ExternalSequenceInput `json:"sequences"`
+}
+
+func (bm *ExternalBioMatInputWithSequences) WithCreatedMetadata(c CreatedMetadata) ExternalBioMatInputWithSequences {
+	(&bm.ExternalBioMatInput).WithCreatedMetadata(c)
+	for i := range bm.Sequences {
+		(&bm.Sequences[i]).WithCreatedMetadata(c)
+	}
+	return *bm
 }
 
 func (i ExternalBioMatInputWithSequences) Save(tx geltypes.Tx, samplingID geltypes.UUID) (occurrences []OccurrenceWithCategory, err error) {

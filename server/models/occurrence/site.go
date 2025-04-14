@@ -148,7 +148,6 @@ type SiteItem struct {
 	Altitude            geltypes.OptionalInt32            `gel:"altitude" json:"altitude,omitempty"`
 	Locality            geltypes.OptionalStr              `gel:"locality" json:"locality,omitempty"`
 	Country             models.Optional[location.Country] `gel:"country" json:"country,omitempty"`
-	AccessPoint         geltypes.OptionalStr              `gel:"access_point" json:"access_point,omitempty"`
 	UserDefinedLocality bool                              `gel:"user_defined_locality" json:"user_defined_locality"`
 }
 
@@ -199,9 +198,9 @@ func GetSite(db geltypes.Executor, identifier string) (Site, error) {
 				datasets: { * },
 				meta: { * },
 				events: { *,
-					site: { *, { * }},
-					programs: { * },
+					site: { *, country: { * } },
 					performed_by: { * },
+					performed_by_groups: { * },
 					spottings: { * },
 					abiotic_measurements: { *, param: { * }  },
 					samplings: {

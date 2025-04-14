@@ -48,6 +48,7 @@ import type {
   CreateHabitatGroupResponse,
   DeleteHabitatGroupResponse,
   UpdateHabitatGroupResponse,
+  OccurrencesBySiteResponse,
   ListOrganisationsResponse,
   CreateOrganisationResponse,
   DeleteOrganisationResponse,
@@ -510,6 +511,20 @@ export const updateDatasetResponseTransformer = async (
   return data
 }
 
+const occurrenceDatasetListItemSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
+export const listOccurrenceDatasetsResponseTransformer = async (
+  data: any
+): Promise<ListOccurrenceDatasetsResponse> => {
+  data = data.map((item: any) => {
+    return occurrenceDatasetListItemSchemaResponseTransformer(item)
+  })
+  return data
+}
+
 const occurrenceWithCategorySchemaResponseTransformer = (data: any) => {
   data.identification = identificationSchemaResponseTransformer(data.identification)
   if (data.published_in) {
@@ -525,15 +540,6 @@ const occurrenceDatasetSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   data.occurrences = data.occurrences.map((item: any) => {
     return occurrenceWithCategorySchemaResponseTransformer(item)
-  })
-  return data
-}
-
-export const listOccurrenceDatasetsResponseTransformer = async (
-  data: any
-): Promise<ListOccurrenceDatasetsResponse> => {
-  data = data.map((item: any) => {
-    return occurrenceDatasetSchemaResponseTransformer(item)
   })
   return data
 }
@@ -809,6 +815,27 @@ export const updateHabitatGroupResponseTransformer = async (
   data: any
 ): Promise<UpdateHabitatGroupResponse> => {
   data = habitatGroupSchemaResponseTransformer(data)
+  return data
+}
+
+const occurrenceAtSiteSchemaResponseTransformer = (data: any) => {
+  data.sampling_date = dateWithPrecisionSchemaResponseTransformer(data.sampling_date)
+  return data
+}
+
+const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
+  data.occurrences = data.occurrences.map((item: any) => {
+    return occurrenceAtSiteSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+export const occurrencesBySiteResponseTransformer = async (
+  data: any
+): Promise<OccurrencesBySiteResponse> => {
+  data = data.map((item: any) => {
+    return siteWithOccurrencesSchemaResponseTransformer(item)
+  })
   return data
 }
 

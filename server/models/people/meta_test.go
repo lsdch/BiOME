@@ -23,7 +23,7 @@ func TestMeta(t *testing.T) {
 		require.NoError(t, err)
 		updated, err := people.FindPerson(client, person.ID)
 		require.NoError(t, err)
-		assert.Equal(t, user.ID, updated.Meta.UpdatedBy.ID)
+		assert.Equal(t, user.ID, updated.Meta.UpdatedBy.Value.ID)
 		assert.GreaterOrEqual(t, updated.Meta.LastUpdated, updated.Meta.Created)
 	})
 }

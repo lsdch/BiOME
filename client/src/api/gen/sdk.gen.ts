@@ -214,6 +214,9 @@ import type {
   SearchSitesData,
   SearchSitesResponse,
   SearchSitesError,
+  OccurrencesBySiteData,
+  OccurrencesBySiteResponse,
+  OccurrencesBySiteError,
   OccurrenceOverviewData,
   OccurrenceOverviewResponse,
   OccurrenceOverviewError,
@@ -419,6 +422,7 @@ import {
   createHabitatGroupResponseTransformer,
   deleteHabitatGroupResponseTransformer,
   updateHabitatGroupResponseTransformer,
+  occurrencesBySiteResponseTransformer,
   listOrganisationsResponseTransformer,
   createOrganisationResponseTransformer,
   deleteOrganisationResponseTransformer,
@@ -1675,6 +1679,12 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
+      querySerializer: {
+        array: {
+          explode: false,
+          style: 'form'
+        }
+      },
       responseTransformer: listBioMaterialResponseTransformer,
       url: '/bio-material',
       ...options
@@ -1833,6 +1843,40 @@ export class OccurrencesService {
         'Content-Type': 'application/json',
         ...options?.headers
       }
+    })
+  }
+
+  /**
+   * Occurrences by site
+   */
+  public static occurrencesBySite<ThrowOnError extends boolean = false>(
+    options?: Options<OccurrencesBySiteData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      OccurrencesBySiteResponse,
+      OccurrencesBySiteError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      querySerializer: {
+        array: {
+          explode: false,
+          style: 'form'
+        }
+      },
+      responseTransformer: occurrencesBySiteResponseTransformer,
+      url: '/occurrences/by-site',
+      ...options
     })
   }
 
@@ -2526,6 +2570,126 @@ export class DatasetsService {
       ...options
     })
   }
+
+  /**
+   * List programs
+   */
+  public static listPrograms<ThrowOnError extends boolean = false>(
+    options?: Options<ListProgramsData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListProgramsResponse,
+      ListProgramsError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      responseTransformer: listProgramsResponseTransformer,
+      url: '/programs',
+      ...options
+    })
+  }
+
+  /**
+   * Create program
+   */
+  public static createProgram<ThrowOnError extends boolean = false>(
+    options: Options<CreateProgramData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CreateProgramResponse,
+      CreateProgramError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      responseTransformer: createProgramResponseTransformer,
+      url: '/programs',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Delete program
+   */
+  public static deleteProgram<ThrowOnError extends boolean = false>(
+    options: Options<DeleteProgramData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).delete<
+      DeleteProgramResponse,
+      DeleteProgramError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      responseTransformer: deleteProgramResponseTransformer,
+      url: '/programs/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Update program
+   */
+  public static updateProgram<ThrowOnError extends boolean = false>(
+    options: Options<UpdateProgramData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).patch<
+      UpdateProgramResponse,
+      UpdateProgramError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      responseTransformer: updateProgramResponseTransformer,
+      url: '/programs/{code}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
 }
 
 export class EventsService {
@@ -2678,126 +2842,6 @@ export class EventsService {
       ],
       responseTransformer: updateSpottingResponseTransformer,
       url: '/events/{id}/spottings',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * List programs
-   */
-  public static listPrograms<ThrowOnError extends boolean = false>(
-    options?: Options<ListProgramsData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListProgramsResponse,
-      ListProgramsError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      responseTransformer: listProgramsResponseTransformer,
-      url: '/programs',
-      ...options
-    })
-  }
-
-  /**
-   * Create program
-   */
-  public static createProgram<ThrowOnError extends boolean = false>(
-    options: Options<CreateProgramData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreateProgramResponse,
-      CreateProgramError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      responseTransformer: createProgramResponseTransformer,
-      url: '/programs',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Delete program
-   */
-  public static deleteProgram<ThrowOnError extends boolean = false>(
-    options: Options<DeleteProgramData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeleteProgramResponse,
-      DeleteProgramError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      responseTransformer: deleteProgramResponseTransformer,
-      url: '/programs/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update program
-   */
-  public static updateProgram<ThrowOnError extends boolean = false>(
-    options: Options<UpdateProgramData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdateProgramResponse,
-      UpdateProgramError,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      responseTransformer: updateProgramResponseTransformer,
-      url: '/programs/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',

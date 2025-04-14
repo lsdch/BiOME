@@ -1,22 +1,5 @@
 module events {
 
-  type Program extending default::Auditable {
-    required label: str { constraint exclusive };
-    required code: str { constraint exclusive };
-    index on ((.code, .label));
-
-    required multi managers: people::Person;
-    multi funding_agencies: people::Organisation;
-
-    start_year: int32 {
-      constraint min_value(1900);
-    };
-    end_year: int32;
-    constraint expression on (.start_year <= .end_year);
-
-    description: str;
-  }
-
   type Event extending default::Auditable {
 
     required code := (
@@ -35,9 +18,10 @@ module events {
       on target delete delete source;
     };
 
-    required multi performed_by: people::Person;
+    multi performed_by: people::Person;
+    multi performed_by_groups: people::Organisation;
+
     required performed_on: tuple<date: datetime, precision: date::DatePrecision> {
-      constraint date::required_unless_unknown(__subject__.date, __subject__.precision);
       rewrite insert, update using (
         (
           date := date::rewrite_date(__subject__.performed_on),
@@ -45,7 +29,6 @@ module events {
         )
       )
     };
-    multi programs: Program;
 
     # Spotting: visiting a site without taking any samples,
     # e.g. in preparation of future sampling
@@ -92,27 +75,24 @@ module events {
       readonly := true;
     };
 
-    required single code := (
-      with
-        id := .id,
-        event := .event,
-        # siblings are all samplings of events having the same code
-        # event codes are not unique, but samplings are
-        siblings := (
-          select detached events::Sampling
-          filter .event.code = event.code
-          order by .number
-        ),
-        # if sampling is not found in siblings, it is the last one and was probably just created
-        rank := (
-          select assert_single(enumerate(siblings) filter .1.id = id).0
-        ) ?? count(siblings),
-        suffix := (if count(siblings) > 1 then '.' ++ <str>(rank + 1) else '')
-        select assert_single(assert_exists(
-          event.code ++ suffix,
-          message := "Failed to generate sampling code. Event code: '" ++ event.code ++ "'. Suffix: '" ++ suffix ++ "'"
-        ))
-    );
+    required code := (
+        with
+          id := .id,
+          event := .event,
+          # siblings are all samplings of events having the same code
+          # event codes are not unique, but samplings are
+          siblings := (
+            select detached events::Sampling
+            filter .event = event
+            order by .number
+          ),
+          # if sampling is not found in siblings, it is the last one and was probably just created
+          rank := (
+            select assert_single(enumerate(siblings) filter .1.id = id).0
+          ) ?? count(siblings),
+          suffix := (if count(siblings) > 1 then '.' ++ <str>(rank + 1) else '')
+          select event.code ++ suffix
+      );
 
     # WARNING : during migration, remove pseudo-field when no sampling was performed
     multi methods: SamplingMethod;
@@ -135,6 +115,7 @@ module events {
 
     multi link samples := .<sampling[is occurrence::BioMaterial];
     multi link external_seqs := .<sampling[is seq::ExternalSequence];
+    multi link occurrences := .<sampling[is occurrence::Occurrence];
 
     multi link occurring_taxa := (
       with ext_samples_no_seqs := (

@@ -98,20 +98,6 @@
       </v-expand-transition>
       <v-expand-transition>
         <v-card v-if="event && !showEdit" class="small-card-title" flat>
-          <v-list-item prepend-icon="mdi-notebook">
-            <template #append>
-              <span class="text-caption text-muted">Program</span>
-            </template>
-            <ProgramChip
-              v-if="event.programs?.length"
-              v-for="program in event.programs"
-              :program
-              size="small"
-            />
-            <v-list-item-title v-else class="text-muted font-italic">
-              No associated research programs
-            </v-list-item-title>
-          </v-list-item>
           <v-list-item prepend-icon="mdi-account-multiple">
             <template #append>
               <span class="text-caption text-muted">Participants</span>
@@ -122,7 +108,16 @@
               :person
               size="small"
             />
-            <v-list-item-title v-else class="text-muted font-italic">
+            <v-chip
+              v-if="event.performed_by_groups?.length"
+              v-for="org in event.performed_by_groups"
+            >
+              {{ org.code }}
+            </v-chip>
+            <v-list-item-title
+              v-if="!event.performed_by?.length && !event.performed_by_groups?.length"
+              class="text-muted font-italic"
+            >
               No known participants
             </v-list-item-title>
           </v-list-item>
@@ -138,15 +133,14 @@
 
 <script setup lang="ts">
 import { DateWithPrecision, DateWithPrecisionInput, Event, Site } from '@/api'
+import EventFormDialog from '@/components/forms/EventFormDialog.vue'
+import SiteEventPicker from '@/components/forms/occurrence/SiteEventPicker.vue'
+import PersonChip from '@/components/people/PersonChip'
 import { hasID } from '@/functions/db'
 import { EventModel } from '@/models'
 import { SiteFormModel } from '@/models/site'
 import { useToggle } from '@vueuse/core'
 import { ref, watch } from 'vue'
-import EventFormDialog from '@/components/forms/EventFormDialog.vue'
-import { ProgramChip } from '@/components/events/ProgramChip'
-import PersonChip from '@/components/people/PersonChip'
-import SiteEventPicker from '@/components/forms/occurrence/SiteEventPicker.vue'
 
 const event = defineModel<Event | EventModel.EventModel>()
 const props = defineProps<{ site?: Site | SiteFormModel }>()
