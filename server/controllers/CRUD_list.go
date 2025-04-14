@@ -46,7 +46,7 @@ func ListHandlerWithOpts[Input ListHandlerInputWithOptions[Options], Result any,
 func handleListItemsResult[Result any](items Result, err error) (*FetchHandlerOutput[Result], error) {
 	t := reflect.ValueOf(items)
 	if t.Kind() == reflect.Slice && t.Len() == 0 {
-		items = reflect.MakeSlice(t.Type().Elem(), 0, 0).Interface().(Result)
+		items = reflect.MakeSlice(t.Type(), 0, 0).Interface().(Result)
 	}
 	if err = StatusError(err); err != nil {
 		return nil, err
