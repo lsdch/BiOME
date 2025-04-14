@@ -1358,6 +1358,15 @@ export type Organization = {
   place?: Array<string>
 }
 
+export type PaginatedListBioMaterialWithDetails = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  items: Array<BioMaterialWithDetails>
+  total_count: number
+}
+
 export type PasswordInput = {
   /**
    * A URL to the JSON Schema for this object.
@@ -3043,7 +3052,7 @@ export type ListBioMaterialResponses = {
   /**
    * OK
    */
-  200: Array<BioMaterialWithDetails>
+  200: PaginatedListBioMaterialWithDetails
 }
 
 export type ListBioMaterialResponse = ListBioMaterialResponses[keyof ListBioMaterialResponses]

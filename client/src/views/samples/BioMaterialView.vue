@@ -1,5 +1,5 @@
 <template>
-  <CRUDTable
+  <CRUDTableServer
     class="fill-height"
     entity-name="Bio-material"
     :headers
@@ -9,10 +9,8 @@
       mutation: deleteBioMaterialMutation,
       params: ({ code }: BioMaterialWithDetails) => ({ path: { code } })
     }"
-    append-actions
-    v-model:search="search"
-    :filter
     :mobile="xs"
+    show-expand
   >
     <!-- Search and filters panel -->
     <template #menu>
@@ -127,74 +125,36 @@
       </span>
     </template>
     <template #expanded-row-inject="{ item }">
-      <v-row v-if="item.external" class="ma-0">
-        <v-col v-if="item.external.original_taxon != undefined">
-          <v-card class="fill-height">
-            <v-list>
-              <v-list-subheader>Original identification</v-list-subheader>
-              <v-chip :text="item.external.original_taxon"></v-chip>
-            </v-list>
-          </v-card>
-        </v-col>
-        <v-col cols="12" md="6">
-          <v-card
-            flat
-            title="References"
-            class="fill-height small-card-title muted-title"
-            density="compact"
-          >
-            <template #append>
+      <!-- <v-card flat class="fill-height small-card-title muted-title" density="compact"> -->
+      <!-- <template #append>
               <v-btn
                 icon="mdi-link-variant"
-                :href="item.external.original_link"
+                :to="item.external.original_link"
                 size="x-small"
                 variant="tonal"
               />
-            </template>
-            <v-list>
-              <v-list-item title="Literature" prepend-icon="mdi-newspaper-variant">
-                <ArticleChip
-                  v-for="article in item.published_in"
-                  :article
-                  class="ma-1"
-                  size="small"
-                />
-              </v-list-item>
-              <v-list-item title="In collection" prepend-icon="mdi-archive">
-                <div class="font-weight-bold">
-                  {{ item.external.archive.collection }}
-                </div>
-                Vouchers:
-                <v-chip
-                  v-for="voucher in item.external.archive.vouchers"
-                  size="small"
-                  :text="voucher"
-                  class="mx-1 font-monospace"
-                />
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-col>
-        <v-divider :vertical="mdAndUp" class="flex-grow-0"></v-divider>
-        <v-col cols="12" md="6">
-          <v-card title="Content" class="fill-height small-card-title muted-title" flat>
-            <v-list density="compact">
-              <v-list-item
-                title="Original identification"
-                :subtitle="item.external.original_taxon ?? 'None provided'"
-              />
-              <v-list-item
-                lines="one"
-                :subtitle="item.external.content_description ?? 'No further description'"
-              >
-                <template #title>
-                  Quantity: <v-chip :text="item.external.quantity" size="small" />
-                </template>
-              </v-list-item>
-            </v-list>
-          </v-card>
-        </v-col>
-      </v-row>
+            </template> -->
+      <v-list v-if="item.external">
+        <v-list-item prepend-icon="mdi-newspaper-variant">
+          <template #append>
+            <span class="text-muted text-caption">Publications</span>
+          </template>
+          <ArticleChip v-for="article in item.published_in" :article class="ma-1" size="small" />
+        </v-list-item>
+        <v-list-item
+          lines="one"
+          :subtitle="item.external.content_description ?? 'No further description'"
+          prepend-icon="mdi-hexagon-multiple"
+        >
+          <template #append>
+            <span class="text-muted text-caption">Content</span>
+          </template>
+          <template #title>
+            <v-chip :text="item.external.quantity" size="small" />
+          </template>
+        </v-list-item>
+      </v-list>
+      <!-- </v-card> -->
     </template>
     <!-- <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
       <BioMaterialFormDialog
@@ -204,7 +164,7 @@
         @success="onSuccess"
       />
     </template> -->
-  </CRUDTable>
+  </CRUDTableServer>
 </template>
 
 <script setup lang="ts">
@@ -226,6 +186,7 @@ import TaxonChip from '@/components/taxonomy/TaxonChip'
 import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'

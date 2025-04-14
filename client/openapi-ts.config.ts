@@ -1,6 +1,6 @@
 import { UserConfig, defineConfig, defaultPlugins } from "@hey-api/openapi-ts"
 
-const config: UserConfig = defineConfig({
+const config: Promise<UserConfig> = defineConfig({
   input: "./openapi.json",
   output: {
     path: "src/api/gen/",
@@ -24,7 +24,8 @@ const config: UserConfig = defineConfig({
     },
     {
       name: "@hey-api/typescript",
-      style: "PascalCase"
+      style: "PascalCase",
+      readOnlyWriteOnlyBehavior: 'off',
     },
     {
       name: "@hey-api/sdk",

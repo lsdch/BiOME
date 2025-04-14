@@ -162,11 +162,13 @@ func (o ListBioMaterialOptions) Options() ListBioMaterialOptions {
 	return o
 }
 
-func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) ([]BioMaterialWithDetails, error) {
+func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models.PaginatedList[BioMaterialWithDetails], error) {
 	params, _ := json.Marshal(opts)
 	logrus.Debugf("Params: %s", string(params))
-	var items = []BioMaterialWithDetails{}
-	err := db.Query(context.Background(),
+	var result = models.PaginatedList[BioMaterialWithDetails]{
+		Items: []BioMaterialWithDetails{},
+	}
+	err := db.QuerySingle(context.Background(),
 		`#edgeql
 			with module occurrence,
 				params := <json>$0,
@@ -176,33 +178,41 @@ func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) ([]BioM
 				has_sequences := <bool>json_get(params, 'has_sequences'),
 				is_type := <bool>json_get(params, 'is_type'),
 				owner := <uuid>json_get(params, 'owner'),
-			select BioMaterialWithType {
-        **,
-				event := .sampling.event { *, site: { *, country: { * } } },
-				identification: { **, identified_by: { * } },
-        external: {
-					original_source,
-          original_link,
-          in_collection,
-          item_vouchers,
-          quantity,
-          content_description
-        }
-      }
-			filter (
-				(.code ilike '%' ++ search_term ++ '%' if exists search_term else true) and
-				(.category = category if exists category else true) and
-				(.identification.taxon.name ilike '%' ++ taxon ++ '%' if exists taxon else true) and
-				(.has_sequences = has_sequences if exists has_sequences else true) and
-				(.is_type = is_type if exists is_type else true) and
-				(.meta.created_by_user.id = owner if exists owner else true)
-			)
-			order by .identification.identified_on.date desc
-			offset <optional int64>json_get(params, 'offset')
-			limit <optional int64>json_get(params, 'limit');
+			items := (
+				select BioMaterialWithType { * }
+				filter (
+					(.code ilike '%' ++ search_term ++ '%' if exists search_term else true) and
+					(.category = category if exists category else true) and
+					(.identification.taxon.name ilike '%' ++ taxon ++ '%' if exists taxon else true) and
+					(.has_sequences = has_sequences if exists has_sequences else true) and
+					(.is_type = is_type if exists is_type else true) and
+					(.meta.created_by_user.id = owner if exists owner else true)
+				)
+			),
+			select {
+				items := (
+					select items
+					order by .identification.identified_on.date desc
+					offset <optional int64>json_get(params, 'offset')
+					limit <optional int64>json_get(params, 'limit')
+				) {
+					**,
+					event := .sampling.event { *, site: { *, country: { * } } },
+					identification: { **, identified_by: { * } },
+					external: {
+						original_source,
+						original_link,
+						in_collection,
+						item_vouchers,
+						quantity,
+						content_description
+					}
+				},
+				total_count := count(items),
+			};
 		`,
-		&items, params)
-	return items, err
+		&result, params)
+	return result, err
 }
 
 func DeleteBioMaterial(db geltypes.Executor, code string) (deleted BioMaterialWithDetails, err error) {

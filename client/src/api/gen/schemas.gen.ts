@@ -3776,6 +3776,31 @@ export const $Organization = {
   type: 'object'
 } as const
 
+export const $PaginatedListBioMaterialWithDetails = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/PaginatedListBioMaterialWithDetails.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    items: {
+      items: {
+        $ref: '#/components/schemas/BioMaterialWithDetails'
+      },
+      type: 'array'
+    },
+    total_count: {
+      format: 'int64',
+      type: 'integer'
+    }
+  },
+  required: ['items', 'total_count'],
+  type: 'object'
+} as const
+
 export const $PasswordInput = {
   additionalProperties: false,
   properties: {

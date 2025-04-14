@@ -1,14 +1,15 @@
-import { ErrorModel } from "@/api"
 import { useAppConfirmDialog } from "@/composables/confirm_dialog"
 import { useUserStore } from "@/stores/user"
 import { OptionsLegacyParser } from "@hey-api/client-fetch"
 import { StatusCodes } from "http-status-codes"
-import { computed, ComputedRef, MaybeRef, ModelRef, Ref, ref, triggerRef, watch } from "vue"
+import { computed, ComputedRef, MaybeRef, ModelRef, Ref, ref, triggerRef, UnwrapRef, watch } from "vue"
 import { FeedbackProps } from "../CRUDFeedback.vue"
 
 import { Mode } from "@/functions/mutations"
 import { UndefinedInitialQueryOptions, useMutation, UseMutationOptions, useQuery } from "@tanstack/vue-query"
 import { storeToRefs } from "pinia"
+import { ErrorModel } from "@/api"
+import { VDataTable } from "vuetify/components"
 
 
 
@@ -73,11 +74,19 @@ export type TableProps<ItemType extends {}, ItemsQueryData extends {}, ItemsDele
     params: (item: ItemType) => ItemsDeleteData,
     fullReload?: boolean
   }
-  /**
-   * Reload all items after deleting one
-   */
-  reloadOnDelete?: boolean
 }
+
+export type TableSlots<ItemType> = VDataTable['$slots'] & {
+  search(props: { toggleMenu: (value?: boolean | undefined) => boolean; menuOpen: boolean }): any
+  'toolbar-extension': () => any
+  menu: (props: { toggleMenu: (value?: boolean | undefined) => boolean; menuOpen: boolean }) => any
+  'expanded-row-inject': (props: { item: ItemType }) => any
+  'expanded-row-footer': (props: { item: ItemType }) => any
+  'toolbar-prepend-actions': () => any
+  'toolbar-append-actions': () => any
+  'footer.prepend-actions': () => any
+}
+
 
 export type TableEmits<ItemType> = (
   ((evt: "itemCreated", item: ItemType, index: number) => void) &
@@ -98,12 +107,11 @@ export function useTable<
   ItemsQueryData extends {},
   ItemsDeleteData extends {}
 >(
-  items: ModelRef<ItemType[]>,
+  items: Ref<ItemType[]>,
   props: TableProps<ItemType, ItemsQueryData, ItemsDeleteData>,
   emit: TableEmits<ItemType>
 ) {
 
-  const { user: currentUser } = storeToRefs(useUserStore())
   const { askConfirm } = useAppConfirmDialog()
 
   const form = ref<FormSlotScope<ItemType>>({
@@ -276,9 +284,170 @@ export function useTable<
 
 
   return {
-    currentUser, feedback, actions, form, processedHeaders,
+    feedback, actions, form, processedHeaders,
     loading: isFetching,
     loadItems: refetch,
     error,
   }
 }
+
+export function useTableSort() {
+  const sortBy = ref<SortItem[]>([])
+
+  function toggleSort(sortKey: string) {
+    const sortMeta = sortBy.value?.find(({ key }) => key === sortKey)
+    let order: 'desc' | 'asc' = 'asc'
+    if (sortMeta?.order === 'asc') {
+      order = 'desc'
+    }
+    sortBy.value?.splice(0, sortBy.value.length)
+    sortBy.value?.push({ key: sortKey, order })
+  }
+  return { sortBy, toggleSort }
+}
+
+// export function useTableMutations<
+//   ItemType extends { id: string },
+//   ItemsQueryData extends {},
+//   ItemsDeleteData extends {}
+// >(items: Ref<ItemType[]>, options?: {
+//   delete?: (item: ItemType) => UseMutationOptions<
+//     ItemType,
+//     ErrorModel,
+//     ItemsDeleteData
+//   >
+//   stringify?: (item: ItemType) => string
+//   onUpdated?: (item: ItemType) => void
+//   onCreated?: (item: ItemType) => void
+//   onDeleted?: (item: ItemType) => void
+// }) {
+
+//   const { askConfirm } = useAppConfirmDialog()
+//   const feedback = ref<{
+//     model: boolean
+//     props: FeedbackProps
+//     show(text: string, color?: string): void
+//   }>({
+//     model: false,
+//     props: {
+//       text: '',
+//       color: undefined
+//     },
+//     show(text: string, color: string | undefined = undefined) {
+//       feedback.value.props = { text, color }
+//       feedback.value.model = true
+//     }
+//   })
+
+
+//   const form = ref<FormSlotScope<ItemType>>({
+//     dialog: false,
+//     mode: 'Create',
+//     editItem: undefined,
+//     onSuccess: (_item: ItemType) => { },
+//     onClose: () => { }
+//   })
+
+//   const actions = {
+//     edit(item: ItemType) {
+//       return new Promise<ItemType>((resolve, reject) => {
+//         form.value = {
+//           mode: "Edit",
+//           editItem: item,
+//           dialog: true,
+//           onSuccess: resolve,
+//           onClose: reject
+//         }
+//       }).then(
+//         // Resolve
+//         (item) => {
+//           options?.onUpdated?.(item)
+//           console.info('Edited item', item)
+//           feedback.value.show('Item updated', 'success')
+//           return item
+//         },
+//         // Reject
+//         () => {
+//           console.info('Item edition was cancelled')
+//           return
+//         }
+//       ).finally(() => {
+//         form.value.dialog = false
+//       })
+//     },
+//     create() {
+//       return new Promise<ItemType>((resolve, reject) => {
+//         form.value = {
+//           mode: 'Create',
+//           editItem: undefined,
+//           dialog: true,
+//           onSuccess: resolve,
+//           onClose: reject
+//         }
+//       }).then(
+//         // Resolve
+//         (item) => {
+//           options?.onCreated?.(item)
+//           console.info('Created item', item)
+//           // items.value = [item, ...items.value]
+//           feedback.value.show('Item registered', 'success')
+//           return item
+//         },
+//         // Reject
+//         () => {
+//           console.log('Item creation was cancelled')
+//           return
+//         }
+//       ).finally(() => {
+//         form.value.dialog = false
+//       })
+//     },
+//     async delete(item: ItemType) {
+//       return await askConfirm({
+//         title: "Confirm deletion",
+//         message: `Are you sure you want to delete ${options?.stringify?.(item) ?? 'this item'} ?`,
+//         payload: item
+//       }).then(async ({ isCanceled, data }) => {
+//         if (isCanceled) {
+//           console.log("Item deletion canceled")
+//           return undefined
+//         }
+//         options?.onDeleted?.(data)
+
+//         await mutateAsync(options?.delete.params(item))
+//         if (deleteSuccess.value) {
+//           items.value!.splice(index, 1)
+//           triggerRef(items);
+//         } else {
+//           return undefined
+//         }
+//         return item
+//       }
+//     }
+//   }
+
+//   // Delete mutation
+//   const { mutateAsync, isSuccess: deleteSuccess } = useMutation({
+//     ...options?.delete?.mutation(item),
+
+//     onSuccess(deleted) {
+//       feedback.value.show('Item successfully deleted.', 'success')
+//       if (options.delete?.fullReload) refetch()
+//     },
+//     onError(error) {
+//       switch (error.status) {
+//         case StatusCodes.NOT_FOUND:
+//           feedback.value.show('Deletion failed: record not found.', 'error')
+//           break
+//         case StatusCodes.BAD_REQUEST:
+//           feedback.value.show(`Deletion was not allowed: ${error.detail}`, 'error')
+//           break
+//         case StatusCodes.FORBIDDEN:
+//           feedback.value.show('You are not granted rights to modify this item.', 'error')
+//           break
+//         case StatusCodes.INTERNAL_SERVER_ERROR:
+//           feedback.value.show('An unexpected error occurred.', 'error')
+//       }
+//     }
+//   })
+// }

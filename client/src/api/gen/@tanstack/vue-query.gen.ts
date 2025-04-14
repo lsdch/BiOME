@@ -373,7 +373,11 @@ export const createAbioticParameterOptions = (options: Options<CreateAbioticPara
 
 export const createAbioticParameterMutation = (
   options?: Partial<Options<CreateAbioticParameterData>>
-) => {
+): UseMutationOptions<
+  CreateAbioticParameterResponse,
+  CreateAbioticParameterError,
+  Options<CreateAbioticParameterData>
+> => {
   const mutationOptions: UseMutationOptions<
     CreateAbioticParameterResponse,
     CreateAbioticParameterError,
@@ -393,7 +397,11 @@ export const createAbioticParameterMutation = (
 
 export const deleteAbioticParameterMutation = (
   options?: Partial<Options<DeleteAbioticParameterData>>
-) => {
+): UseMutationOptions<
+  DeleteAbioticParameterResponse,
+  DeleteAbioticParameterError,
+  Options<DeleteAbioticParameterData>
+> => {
   const mutationOptions: UseMutationOptions<
     DeleteAbioticParameterResponse,
     DeleteAbioticParameterError,
@@ -413,7 +421,11 @@ export const deleteAbioticParameterMutation = (
 
 export const updateAbioticParameterMutation = (
   options?: Partial<Options<UpdateAbioticParameterData>>
-) => {
+): UseMutationOptions<
+  UpdateAbioticParameterResponse,
+  UpdateAbioticParameterError,
+  Options<UpdateAbioticParameterData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateAbioticParameterResponse,
     UpdateAbioticParameterError,
@@ -505,7 +517,11 @@ export const resendEmailVerificationOptions = (options: Options<ResendEmailVerif
 
 export const resendEmailVerificationMutation = (
   options?: Partial<Options<ResendEmailVerificationData>>
-) => {
+): UseMutationOptions<
+  ResendEmailVerificationResponse,
+  ResendEmailVerificationError,
+  Options<ResendEmailVerificationData>
+> => {
   const mutationOptions: UseMutationOptions<
     ResendEmailVerificationResponse,
     ResendEmailVerificationError,
@@ -543,7 +559,11 @@ export const requestPasswordResetOptions = (options: Options<RequestPasswordRese
 
 export const requestPasswordResetMutation = (
   options?: Partial<Options<RequestPasswordResetData>>
-) => {
+): UseMutationOptions<
+  RequestPasswordResetResponse,
+  RequestPasswordResetError,
+  Options<RequestPasswordResetData>
+> => {
   const mutationOptions: UseMutationOptions<
     RequestPasswordResetResponse,
     RequestPasswordResetError,
@@ -578,7 +598,9 @@ export const loginOptions = (options: Options<LoginData>) => {
   })
 }
 
-export const loginMutation = (options?: Partial<Options<LoginData>>) => {
+export const loginMutation = (
+  options?: Partial<Options<LoginData>>
+): UseMutationOptions<LoginResponse, LoginError, Options<LoginData>> => {
   const mutationOptions: UseMutationOptions<LoginResponse, LoginError, Options<LoginData>> = {
     mutationFn: async (localOptions) => {
       const { data } = await AccountService.login({
@@ -609,7 +631,9 @@ export const logoutOptions = (options: Options<LogoutData>) => {
   })
 }
 
-export const logoutMutation = (options?: Partial<Options<LogoutData>>) => {
+export const logoutMutation = (
+  options?: Partial<Options<LogoutData>>
+): UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> => {
   const mutationOptions: UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> = {
     mutationFn: async (localOptions) => {
       const { data } = await AccountService.logout({
@@ -641,7 +665,9 @@ export const updatePasswordOptions = (options: Options<UpdatePasswordData>) => {
   })
 }
 
-export const updatePasswordMutation = (options?: Partial<Options<UpdatePasswordData>>) => {
+export const updatePasswordMutation = (
+  options?: Partial<Options<UpdatePasswordData>>
+): UseMutationOptions<UpdatePasswordResponse, UpdatePasswordError, Options<UpdatePasswordData>> => {
   const mutationOptions: UseMutationOptions<
     UpdatePasswordResponse,
     UpdatePasswordError,
@@ -695,7 +721,9 @@ export const resetPasswordOptions = (options: Options<ResetPasswordData>) => {
   })
 }
 
-export const resetPasswordMutation = (options?: Partial<Options<ResetPasswordData>>) => {
+export const resetPasswordMutation = (
+  options?: Partial<Options<ResetPasswordData>>
+): UseMutationOptions<ResetPasswordResponse, ResetPasswordError, Options<ResetPasswordData>> => {
   const mutationOptions: UseMutationOptions<
     ResetPasswordResponse,
     ResetPasswordError,
@@ -733,7 +761,11 @@ export const listPendingUserRequestsOptions = (options?: Options<ListPendingUser
 
 export const deletePendingUserRequestMutation = (
   options?: Partial<Options<DeletePendingUserRequestData>>
-) => {
+): UseMutationOptions<
+  DeletePendingUserRequestResponse,
+  DeletePendingUserRequestError,
+  Options<DeletePendingUserRequestData>
+> => {
   const mutationOptions: UseMutationOptions<
     DeletePendingUserRequestResponse,
     DeletePendingUserRequestError,
@@ -787,7 +819,9 @@ export const refreshSessionOptions = (options: Options<RefreshSessionData>) => {
   })
 }
 
-export const refreshSessionMutation = (options?: Partial<Options<RefreshSessionData>>) => {
+export const refreshSessionMutation = (
+  options?: Partial<Options<RefreshSessionData>>
+): UseMutationOptions<RefreshSessionResponse, RefreshSessionError, Options<RefreshSessionData>> => {
   const mutationOptions: UseMutationOptions<
     RefreshSessionResponse,
     RefreshSessionError,
@@ -823,7 +857,9 @@ export const registerOptions = (options: Options<RegisterData>) => {
   })
 }
 
-export const registerMutation = (options?: Partial<Options<RegisterData>>) => {
+export const registerMutation = (
+  options?: Partial<Options<RegisterData>>
+): UseMutationOptions<RegisterResponse, RegisterError, Options<RegisterData>> => {
   const mutationOptions: UseMutationOptions<
     RegisterResponse,
     RegisterError,
@@ -859,7 +895,13 @@ export const claimInvitationOptions = (options: Options<ClaimInvitationData>) =>
   })
 }
 
-export const claimInvitationMutation = (options?: Partial<Options<ClaimInvitationData>>) => {
+export const claimInvitationMutation = (
+  options?: Partial<Options<ClaimInvitationData>>
+): UseMutationOptions<
+  ClaimInvitationResponse,
+  ClaimInvitationError,
+  Options<ClaimInvitationData>
+> => {
   const mutationOptions: UseMutationOptions<
     ClaimInvitationResponse,
     ClaimInvitationError,
@@ -990,7 +1032,11 @@ export const listBioMaterialInfiniteOptions = (options?: Options<ListBioMaterial
 
 export const updateExternalBioMatMutation = (
   options?: Partial<Options<UpdateExternalBioMatData>>
-) => {
+): UseMutationOptions<
+  UpdateExternalBioMatResponse,
+  UpdateExternalBioMatError,
+  Options<UpdateExternalBioMatData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateExternalBioMatResponse,
     UpdateExternalBioMatError,
@@ -1028,7 +1074,11 @@ export const createExternalBioMatOptions = (options: Options<CreateExternalBioMa
 
 export const createExternalBioMatMutation = (
   options?: Partial<Options<CreateExternalBioMatData>>
-) => {
+): UseMutationOptions<
+  CreateExternalBioMatResponse,
+  CreateExternalBioMatError,
+  Options<CreateExternalBioMatData>
+> => {
   const mutationOptions: UseMutationOptions<
     CreateExternalBioMatResponse,
     CreateExternalBioMatError,
@@ -1046,7 +1096,13 @@ export const createExternalBioMatMutation = (
   return mutationOptions
 }
 
-export const deleteBioMaterialMutation = (options?: Partial<Options<DeleteBioMaterialData>>) => {
+export const deleteBioMaterialMutation = (
+  options?: Partial<Options<DeleteBioMaterialData>>
+): UseMutationOptions<
+  DeleteBioMaterialResponse,
+  DeleteBioMaterialError,
+  Options<DeleteBioMaterialData>
+> => {
   const mutationOptions: UseMutationOptions<
     DeleteBioMaterialResponse,
     DeleteBioMaterialError,
@@ -1118,7 +1174,13 @@ export const crossRefBibSearchOptions = (options: Options<CrossRefBibSearchData>
   })
 }
 
-export const crossRefBibSearchMutation = (options?: Partial<Options<CrossRefBibSearchData>>) => {
+export const crossRefBibSearchMutation = (
+  options?: Partial<Options<CrossRefBibSearchData>>
+): UseMutationOptions<
+  CrossRefBibSearchResponse,
+  CrossRefBibSearchError,
+  Options<CrossRefBibSearchData>
+> => {
   const mutationOptions: UseMutationOptions<
     CrossRefBibSearchResponse,
     CrossRefBibSearchError,
@@ -1172,7 +1234,13 @@ export const createDataSourceOptions = (options: Options<CreateDataSourceData>) 
   })
 }
 
-export const createDataSourceMutation = (options?: Partial<Options<CreateDataSourceData>>) => {
+export const createDataSourceMutation = (
+  options?: Partial<Options<CreateDataSourceData>>
+): UseMutationOptions<
+  CreateDataSourceResponse,
+  CreateDataSourceError,
+  Options<CreateDataSourceData>
+> => {
   const mutationOptions: UseMutationOptions<
     CreateDataSourceResponse,
     CreateDataSourceError,
@@ -1190,7 +1258,13 @@ export const createDataSourceMutation = (options?: Partial<Options<CreateDataSou
   return mutationOptions
 }
 
-export const deleteDataSourceMutation = (options?: Partial<Options<DeleteDataSourceData>>) => {
+export const deleteDataSourceMutation = (
+  options?: Partial<Options<DeleteDataSourceData>>
+): UseMutationOptions<
+  DeleteDataSourceResponse,
+  DeleteDataSourceError,
+  Options<DeleteDataSourceData>
+> => {
   const mutationOptions: UseMutationOptions<
     DeleteDataSourceResponse,
     DeleteDataSourceError,
@@ -1208,7 +1282,13 @@ export const deleteDataSourceMutation = (options?: Partial<Options<DeleteDataSou
   return mutationOptions
 }
 
-export const updateDataSourceMutation = (options?: Partial<Options<UpdateDataSourceData>>) => {
+export const updateDataSourceMutation = (
+  options?: Partial<Options<UpdateDataSourceData>>
+): UseMutationOptions<
+  UpdateDataSourceResponse,
+  UpdateDataSourceError,
+  Options<UpdateDataSourceData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateDataSourceResponse,
     UpdateDataSourceError,
@@ -1244,7 +1324,9 @@ export const listDatasetsOptions = (options?: Options<ListDatasetsData>) => {
   })
 }
 
-export const updateDatasetMutation = (options?: Partial<Options<UpdateDatasetData>>) => {
+export const updateDatasetMutation = (
+  options?: Partial<Options<UpdateDatasetData>>
+): UseMutationOptions<UpdateDatasetResponse, UpdateDatasetError, Options<UpdateDatasetData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateDatasetResponse,
     UpdateDatasetError,
@@ -1298,7 +1380,13 @@ export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatase
   })
 }
 
-export const togglePinDatasetMutation = (options?: Partial<Options<TogglePinDatasetData>>) => {
+export const togglePinDatasetMutation = (
+  options?: Partial<Options<TogglePinDatasetData>>
+): UseMutationOptions<
+  TogglePinDatasetResponse,
+  TogglePinDatasetError,
+  Options<TogglePinDatasetData>
+> => {
   const mutationOptions: UseMutationOptions<
     TogglePinDatasetResponse,
     TogglePinDatasetError,
@@ -1388,7 +1476,13 @@ export const createSiteDatasetOptions = (options: Options<CreateSiteDatasetData>
   })
 }
 
-export const createSiteDatasetMutation = (options?: Partial<Options<CreateSiteDatasetData>>) => {
+export const createSiteDatasetMutation = (
+  options?: Partial<Options<CreateSiteDatasetData>>
+): UseMutationOptions<
+  CreateSiteDatasetResponse,
+  CreateSiteDatasetError,
+  Options<CreateSiteDatasetData>
+> => {
   const mutationOptions: UseMutationOptions<
     CreateSiteDatasetResponse,
     CreateSiteDatasetError,
@@ -1424,7 +1518,9 @@ export const getSiteDatasetOptions = (options: Options<GetSiteDatasetData>) => {
   })
 }
 
-export const deleteEventMutation = (options?: Partial<Options<DeleteEventData>>) => {
+export const deleteEventMutation = (
+  options?: Partial<Options<DeleteEventData>>
+): UseMutationOptions<DeleteEventResponse, DeleteEventError, Options<DeleteEventData>> => {
   const mutationOptions: UseMutationOptions<
     DeleteEventResponse,
     DeleteEventError,
@@ -1442,7 +1538,9 @@ export const deleteEventMutation = (options?: Partial<Options<DeleteEventData>>)
   return mutationOptions
 }
 
-export const updateEventMutation = (options?: Partial<Options<UpdateEventData>>) => {
+export const updateEventMutation = (
+  options?: Partial<Options<UpdateEventData>>
+): UseMutationOptions<UpdateEventResponse, UpdateEventError, Options<UpdateEventData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateEventResponse,
     UpdateEventError,
@@ -1483,7 +1581,11 @@ export const eventAddExternalOccurrenceOptions = (
 
 export const eventAddExternalOccurrenceMutation = (
   options?: Partial<Options<EventAddExternalOccurrenceData>>
-) => {
+): UseMutationOptions<
+  EventAddExternalOccurrenceResponse,
+  EventAddExternalOccurrenceError,
+  Options<EventAddExternalOccurrenceData>
+> => {
   const mutationOptions: UseMutationOptions<
     EventAddExternalOccurrenceResponse,
     EventAddExternalOccurrenceError,
@@ -1521,7 +1623,11 @@ export const createSamplingAtEventOptions = (options: Options<CreateSamplingAtEv
 
 export const createSamplingAtEventMutation = (
   options?: Partial<Options<CreateSamplingAtEventData>>
-) => {
+): UseMutationOptions<
+  CreateSamplingAtEventResponse,
+  CreateSamplingAtEventError,
+  Options<CreateSamplingAtEventData>
+> => {
   const mutationOptions: UseMutationOptions<
     CreateSamplingAtEventResponse,
     CreateSamplingAtEventError,
@@ -1539,7 +1645,9 @@ export const createSamplingAtEventMutation = (
   return mutationOptions
 }
 
-export const updateSpottingMutation = (options?: Partial<Options<UpdateSpottingData>>) => {
+export const updateSpottingMutation = (
+  options?: Partial<Options<UpdateSpottingData>>
+): UseMutationOptions<UpdateSpottingResponse, UpdateSpottingError, Options<UpdateSpottingData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateSpottingResponse,
     UpdateSpottingError,
@@ -1593,7 +1701,9 @@ export const createFixativeOptions = (options: Options<CreateFixativeData>) => {
   })
 }
 
-export const createFixativeMutation = (options?: Partial<Options<CreateFixativeData>>) => {
+export const createFixativeMutation = (
+  options?: Partial<Options<CreateFixativeData>>
+): UseMutationOptions<CreateFixativeResponse, CreateFixativeError, Options<CreateFixativeData>> => {
   const mutationOptions: UseMutationOptions<
     CreateFixativeResponse,
     CreateFixativeError,
@@ -1611,7 +1721,9 @@ export const createFixativeMutation = (options?: Partial<Options<CreateFixativeD
   return mutationOptions
 }
 
-export const deleteFixativeMutation = (options?: Partial<Options<DeleteFixativeData>>) => {
+export const deleteFixativeMutation = (
+  options?: Partial<Options<DeleteFixativeData>>
+): UseMutationOptions<DeleteFixativeResponse, DeleteFixativeError, Options<DeleteFixativeData>> => {
   const mutationOptions: UseMutationOptions<
     DeleteFixativeResponse,
     DeleteFixativeError,
@@ -1629,7 +1741,9 @@ export const deleteFixativeMutation = (options?: Partial<Options<DeleteFixativeD
   return mutationOptions
 }
 
-export const updateFixativeMutation = (options?: Partial<Options<UpdateFixativeData>>) => {
+export const updateFixativeMutation = (
+  options?: Partial<Options<UpdateFixativeData>>
+): UseMutationOptions<UpdateFixativeResponse, UpdateFixativeError, Options<UpdateFixativeData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateFixativeResponse,
     UpdateFixativeError,
@@ -1683,7 +1797,9 @@ export const createGeneOptions = (options: Options<CreateGeneData>) => {
   })
 }
 
-export const createGeneMutation = (options?: Partial<Options<CreateGeneData>>) => {
+export const createGeneMutation = (
+  options?: Partial<Options<CreateGeneData>>
+): UseMutationOptions<CreateGeneResponse, CreateGeneError, Options<CreateGeneData>> => {
   const mutationOptions: UseMutationOptions<
     CreateGeneResponse,
     CreateGeneError,
@@ -1701,7 +1817,9 @@ export const createGeneMutation = (options?: Partial<Options<CreateGeneData>>) =
   return mutationOptions
 }
 
-export const deleteGeneMutation = (options?: Partial<Options<DeleteGeneData>>) => {
+export const deleteGeneMutation = (
+  options?: Partial<Options<DeleteGeneData>>
+): UseMutationOptions<DeleteGeneResponse, DeleteGeneError, Options<DeleteGeneData>> => {
   const mutationOptions: UseMutationOptions<
     DeleteGeneResponse,
     DeleteGeneError,
@@ -1719,7 +1837,9 @@ export const deleteGeneMutation = (options?: Partial<Options<DeleteGeneData>>) =
   return mutationOptions
 }
 
-export const updateGeneMutation = (options?: Partial<Options<UpdateGeneData>>) => {
+export const updateGeneMutation = (
+  options?: Partial<Options<UpdateGeneData>>
+): UseMutationOptions<UpdateGeneResponse, UpdateGeneError, Options<UpdateGeneData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateGeneResponse,
     UpdateGeneError,
@@ -1755,7 +1875,9 @@ export const reverseGeocodeOptions = (options: Options<ReverseGeocodeData>) => {
   })
 }
 
-export const reverseGeocodeMutation = (options?: Partial<Options<ReverseGeocodeData>>) => {
+export const reverseGeocodeMutation = (
+  options?: Partial<Options<ReverseGeocodeData>>
+): UseMutationOptions<ReverseGeocodeResponse, ReverseGeocodeError, Options<ReverseGeocodeData>> => {
   const mutationOptions: UseMutationOptions<
     ReverseGeocodeResponse,
     ReverseGeocodeError,
@@ -1845,7 +1967,13 @@ export const createHabitatGroupOptions = (options: Options<CreateHabitatGroupDat
   })
 }
 
-export const createHabitatGroupMutation = (options?: Partial<Options<CreateHabitatGroupData>>) => {
+export const createHabitatGroupMutation = (
+  options?: Partial<Options<CreateHabitatGroupData>>
+): UseMutationOptions<
+  CreateHabitatGroupResponse,
+  CreateHabitatGroupError,
+  Options<CreateHabitatGroupData>
+> => {
   const mutationOptions: UseMutationOptions<
     CreateHabitatGroupResponse,
     CreateHabitatGroupError,
@@ -1863,7 +1991,13 @@ export const createHabitatGroupMutation = (options?: Partial<Options<CreateHabit
   return mutationOptions
 }
 
-export const deleteHabitatGroupMutation = (options?: Partial<Options<DeleteHabitatGroupData>>) => {
+export const deleteHabitatGroupMutation = (
+  options?: Partial<Options<DeleteHabitatGroupData>>
+): UseMutationOptions<
+  DeleteHabitatGroupResponse,
+  DeleteHabitatGroupError,
+  Options<DeleteHabitatGroupData>
+> => {
   const mutationOptions: UseMutationOptions<
     DeleteHabitatGroupResponse,
     DeleteHabitatGroupError,
@@ -1881,7 +2015,13 @@ export const deleteHabitatGroupMutation = (options?: Partial<Options<DeleteHabit
   return mutationOptions
 }
 
-export const updateHabitatGroupMutation = (options?: Partial<Options<UpdateHabitatGroupData>>) => {
+export const updateHabitatGroupMutation = (
+  options?: Partial<Options<UpdateHabitatGroupData>>
+): UseMutationOptions<
+  UpdateHabitatGroupResponse,
+  UpdateHabitatGroupError,
+  Options<UpdateHabitatGroupData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateHabitatGroupResponse,
     UpdateHabitatGroupError,
@@ -1899,7 +2039,9 @@ export const updateHabitatGroupMutation = (options?: Partial<Options<UpdateHabit
   return mutationOptions
 }
 
-export const importGbifMutation = (options?: Partial<Options<ImportGbifData>>) => {
+export const importGbifMutation = (
+  options?: Partial<Options<ImportGbifData>>
+): UseMutationOptions<ImportGbifResponse, ImportGbifError, Options<ImportGbifData>> => {
   const mutationOptions: UseMutationOptions<
     ImportGbifResponse,
     ImportGbifError,
@@ -1955,7 +2097,11 @@ export const coordinatesToCountryOptions = (options: Options<CoordinatesToCountr
 
 export const coordinatesToCountryMutation = (
   options?: Partial<Options<CoordinatesToCountryData>>
-) => {
+): UseMutationOptions<
+  CoordinatesToCountryResponse,
+  CoordinatesToCountryError,
+  Options<CoordinatesToCountryData>
+> => {
   const mutationOptions: UseMutationOptions<
     CoordinatesToCountryResponse,
     CoordinatesToCountryError,
@@ -1991,7 +2137,9 @@ export const sitesProximityOptions = (options: Options<SitesProximityData>) => {
   })
 }
 
-export const sitesProximityMutation = (options?: Partial<Options<SitesProximityData>>) => {
+export const sitesProximityMutation = (
+  options?: Partial<Options<SitesProximityData>>
+): UseMutationOptions<SitesProximityResponse, SitesProximityError, Options<SitesProximityData>> => {
   const mutationOptions: UseMutationOptions<
     SitesProximityResponse,
     SitesProximityError,
@@ -2135,7 +2283,13 @@ export const createOrganisationOptions = (options: Options<CreateOrganisationDat
   })
 }
 
-export const createOrganisationMutation = (options?: Partial<Options<CreateOrganisationData>>) => {
+export const createOrganisationMutation = (
+  options?: Partial<Options<CreateOrganisationData>>
+): UseMutationOptions<
+  CreateOrganisationResponse,
+  CreateOrganisationError,
+  Options<CreateOrganisationData>
+> => {
   const mutationOptions: UseMutationOptions<
     CreateOrganisationResponse,
     CreateOrganisationError,
@@ -2153,7 +2307,13 @@ export const createOrganisationMutation = (options?: Partial<Options<CreateOrgan
   return mutationOptions
 }
 
-export const deleteOrganisationMutation = (options?: Partial<Options<DeleteOrganisationData>>) => {
+export const deleteOrganisationMutation = (
+  options?: Partial<Options<DeleteOrganisationData>>
+): UseMutationOptions<
+  DeleteOrganisationResponse,
+  DeleteOrganisationError,
+  Options<DeleteOrganisationData>
+> => {
   const mutationOptions: UseMutationOptions<
     DeleteOrganisationResponse,
     DeleteOrganisationError,
@@ -2171,7 +2331,13 @@ export const deleteOrganisationMutation = (options?: Partial<Options<DeleteOrgan
   return mutationOptions
 }
 
-export const updateOrganisationMutation = (options?: Partial<Options<UpdateOrganisationData>>) => {
+export const updateOrganisationMutation = (
+  options?: Partial<Options<UpdateOrganisationData>>
+): UseMutationOptions<
+  UpdateOrganisationResponse,
+  UpdateOrganisationError,
+  Options<UpdateOrganisationData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateOrganisationResponse,
     UpdateOrganisationError,
@@ -2225,7 +2391,9 @@ export const createPersonOptions = (options: Options<CreatePersonData>) => {
   })
 }
 
-export const createPersonMutation = (options?: Partial<Options<CreatePersonData>>) => {
+export const createPersonMutation = (
+  options?: Partial<Options<CreatePersonData>>
+): UseMutationOptions<CreatePersonResponse, CreatePersonError, Options<CreatePersonData>> => {
   const mutationOptions: UseMutationOptions<
     CreatePersonResponse,
     CreatePersonError,
@@ -2243,7 +2411,9 @@ export const createPersonMutation = (options?: Partial<Options<CreatePersonData>
   return mutationOptions
 }
 
-export const deletePersonMutation = (options?: Partial<Options<DeletePersonData>>) => {
+export const deletePersonMutation = (
+  options?: Partial<Options<DeletePersonData>>
+): UseMutationOptions<DeletePersonResponse, DeletePersonError, Options<DeletePersonData>> => {
   const mutationOptions: UseMutationOptions<
     DeletePersonResponse,
     DeletePersonError,
@@ -2261,7 +2431,9 @@ export const deletePersonMutation = (options?: Partial<Options<DeletePersonData>
   return mutationOptions
 }
 
-export const updatePersonMutation = (options?: Partial<Options<UpdatePersonData>>) => {
+export const updatePersonMutation = (
+  options?: Partial<Options<UpdatePersonData>>
+): UseMutationOptions<UpdatePersonResponse, UpdatePersonError, Options<UpdatePersonData>> => {
   const mutationOptions: UseMutationOptions<
     UpdatePersonResponse,
     UpdatePersonError,
@@ -2297,7 +2469,9 @@ export const invitePersonOptions = (options: Options<InvitePersonData>) => {
   })
 }
 
-export const invitePersonMutation = (options?: Partial<Options<InvitePersonData>>) => {
+export const invitePersonMutation = (
+  options?: Partial<Options<InvitePersonData>>
+): UseMutationOptions<InvitePersonResponse, InvitePersonError, Options<InvitePersonData>> => {
   const mutationOptions: UseMutationOptions<
     InvitePersonResponse,
     InvitePersonError,
@@ -2351,7 +2525,9 @@ export const createProgramOptions = (options: Options<CreateProgramData>) => {
   })
 }
 
-export const createProgramMutation = (options?: Partial<Options<CreateProgramData>>) => {
+export const createProgramMutation = (
+  options?: Partial<Options<CreateProgramData>>
+): UseMutationOptions<CreateProgramResponse, CreateProgramError, Options<CreateProgramData>> => {
   const mutationOptions: UseMutationOptions<
     CreateProgramResponse,
     CreateProgramError,
@@ -2369,7 +2545,9 @@ export const createProgramMutation = (options?: Partial<Options<CreateProgramDat
   return mutationOptions
 }
 
-export const deleteProgramMutation = (options?: Partial<Options<DeleteProgramData>>) => {
+export const deleteProgramMutation = (
+  options?: Partial<Options<DeleteProgramData>>
+): UseMutationOptions<DeleteProgramResponse, DeleteProgramError, Options<DeleteProgramData>> => {
   const mutationOptions: UseMutationOptions<
     DeleteProgramResponse,
     DeleteProgramError,
@@ -2387,7 +2565,9 @@ export const deleteProgramMutation = (options?: Partial<Options<DeleteProgramDat
   return mutationOptions
 }
 
-export const updateProgramMutation = (options?: Partial<Options<UpdateProgramData>>) => {
+export const updateProgramMutation = (
+  options?: Partial<Options<UpdateProgramData>>
+): UseMutationOptions<UpdateProgramResponse, UpdateProgramError, Options<UpdateProgramData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateProgramResponse,
     UpdateProgramError,
@@ -2441,7 +2621,9 @@ export const createArticleOptions = (options: Options<CreateArticleData>) => {
   })
 }
 
-export const createArticleMutation = (options?: Partial<Options<CreateArticleData>>) => {
+export const createArticleMutation = (
+  options?: Partial<Options<CreateArticleData>>
+): UseMutationOptions<CreateArticleResponse, CreateArticleError, Options<CreateArticleData>> => {
   const mutationOptions: UseMutationOptions<
     CreateArticleResponse,
     CreateArticleError,
@@ -2459,7 +2641,9 @@ export const createArticleMutation = (options?: Partial<Options<CreateArticleDat
   return mutationOptions
 }
 
-export const deleteArticleMutation = (options?: Partial<Options<DeleteArticleData>>) => {
+export const deleteArticleMutation = (
+  options?: Partial<Options<DeleteArticleData>>
+): UseMutationOptions<DeleteArticleResponse, DeleteArticleError, Options<DeleteArticleData>> => {
   const mutationOptions: UseMutationOptions<
     DeleteArticleResponse,
     DeleteArticleError,
@@ -2477,7 +2661,9 @@ export const deleteArticleMutation = (options?: Partial<Options<DeleteArticleDat
   return mutationOptions
 }
 
-export const updateArticleMutation = (options?: Partial<Options<UpdateArticleData>>) => {
+export const updateArticleMutation = (
+  options?: Partial<Options<UpdateArticleData>>
+): UseMutationOptions<UpdateArticleResponse, UpdateArticleError, Options<UpdateArticleData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateArticleResponse,
     UpdateArticleError,
@@ -2533,7 +2719,11 @@ export const createSamplingMethodOptions = (options: Options<CreateSamplingMetho
 
 export const createSamplingMethodMutation = (
   options?: Partial<Options<CreateSamplingMethodData>>
-) => {
+): UseMutationOptions<
+  CreateSamplingMethodResponse,
+  CreateSamplingMethodError,
+  Options<CreateSamplingMethodData>
+> => {
   const mutationOptions: UseMutationOptions<
     CreateSamplingMethodResponse,
     CreateSamplingMethodError,
@@ -2553,7 +2743,11 @@ export const createSamplingMethodMutation = (
 
 export const deleteSamplingMethodMutation = (
   options?: Partial<Options<DeleteSamplingMethodData>>
-) => {
+): UseMutationOptions<
+  DeleteSamplingMethodResponse,
+  DeleteSamplingMethodError,
+  Options<DeleteSamplingMethodData>
+> => {
   const mutationOptions: UseMutationOptions<
     DeleteSamplingMethodResponse,
     DeleteSamplingMethodError,
@@ -2573,7 +2767,11 @@ export const deleteSamplingMethodMutation = (
 
 export const updateSamplingMethodMutation = (
   options?: Partial<Options<UpdateSamplingMethodData>>
-) => {
+): UseMutationOptions<
+  UpdateSamplingMethodResponse,
+  UpdateSamplingMethodError,
+  Options<UpdateSamplingMethodData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateSamplingMethodResponse,
     UpdateSamplingMethodError,
@@ -2609,7 +2807,9 @@ export const createSamplingOptions = (options: Options<CreateSamplingData>) => {
   })
 }
 
-export const createSamplingMutation = (options?: Partial<Options<CreateSamplingData>>) => {
+export const createSamplingMutation = (
+  options?: Partial<Options<CreateSamplingData>>
+): UseMutationOptions<CreateSamplingResponse, CreateSamplingError, Options<CreateSamplingData>> => {
   const mutationOptions: UseMutationOptions<
     CreateSamplingResponse,
     CreateSamplingError,
@@ -2627,7 +2827,9 @@ export const createSamplingMutation = (options?: Partial<Options<CreateSamplingD
   return mutationOptions
 }
 
-export const deleteSamplingMutation = (options?: Partial<Options<DeleteSamplingData>>) => {
+export const deleteSamplingMutation = (
+  options?: Partial<Options<DeleteSamplingData>>
+): UseMutationOptions<DeleteSamplingResponse, DeleteSamplingError, Options<DeleteSamplingData>> => {
   const mutationOptions: UseMutationOptions<
     DeleteSamplingResponse,
     DeleteSamplingError,
@@ -2645,7 +2847,9 @@ export const deleteSamplingMutation = (options?: Partial<Options<DeleteSamplingD
   return mutationOptions
 }
 
-export const updateSamplingMutation = (options?: Partial<Options<UpdateSamplingData>>) => {
+export const updateSamplingMutation = (
+  options?: Partial<Options<UpdateSamplingData>>
+): UseMutationOptions<UpdateSamplingResponse, UpdateSamplingError, Options<UpdateSamplingData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateSamplingResponse,
     UpdateSamplingError,
@@ -2686,7 +2890,11 @@ export const samplingAddExternalOccurrenceOptions = (
 
 export const samplingAddExternalOccurrenceMutation = (
   options?: Partial<Options<SamplingAddExternalOccurrenceData>>
-) => {
+): UseMutationOptions<
+  SamplingAddExternalOccurrenceResponse,
+  SamplingAddExternalOccurrenceError,
+  Options<SamplingAddExternalOccurrenceData>
+> => {
   const mutationOptions: UseMutationOptions<
     SamplingAddExternalOccurrenceResponse,
     SamplingAddExternalOccurrenceError,
@@ -2722,7 +2930,9 @@ export const listSequencesOptions = (options?: Options<ListSequencesData>) => {
   })
 }
 
-export const deleteSequenceMutation = (options?: Partial<Options<DeleteSequenceData>>) => {
+export const deleteSequenceMutation = (
+  options?: Partial<Options<DeleteSequenceData>>
+): UseMutationOptions<DeleteSequenceResponse, DeleteSequenceError, Options<DeleteSequenceData>> => {
   const mutationOptions: UseMutationOptions<
     DeleteSequenceResponse,
     DeleteSequenceError,
@@ -2796,7 +3006,11 @@ export const updateEmailSettingsOptions = (options: Options<UpdateEmailSettingsD
 
 export const updateEmailSettingsMutation = (
   options?: Partial<Options<UpdateEmailSettingsData>>
-) => {
+): UseMutationOptions<
+  UpdateEmailSettingsResponse,
+  UpdateEmailSettingsError,
+  Options<UpdateEmailSettingsData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateEmailSettingsResponse,
     UpdateEmailSettingsError,
@@ -2832,7 +3046,9 @@ export const testSmtpOptions = (options: Options<TestSmtpData>) => {
   })
 }
 
-export const testSmtpMutation = (options?: Partial<Options<TestSmtpData>>) => {
+export const testSmtpMutation = (
+  options?: Partial<Options<TestSmtpData>>
+): UseMutationOptions<TestSmtpResponse, TestSmtpError, Options<TestSmtpData>> => {
   const mutationOptions: UseMutationOptions<
     TestSmtpResponse,
     TestSmtpError,
@@ -2868,7 +3084,9 @@ export const setAppIconOptions = (options?: Options<SetAppIconData>) => {
   })
 }
 
-export const setAppIconMutation = (options?: Partial<Options<SetAppIconData>>) => {
+export const setAppIconMutation = (
+  options?: Partial<Options<SetAppIconData>>
+): UseMutationOptions<SetAppIconResponse, SetAppIconError, Options<SetAppIconData>> => {
   const mutationOptions: UseMutationOptions<
     SetAppIconResponse,
     SetAppIconError,
@@ -2924,7 +3142,11 @@ export const updateInstanceSettingsOptions = (options: Options<UpdateInstanceSet
 
 export const updateInstanceSettingsMutation = (
   options?: Partial<Options<UpdateInstanceSettingsData>>
-) => {
+): UseMutationOptions<
+  UpdateInstanceSettingsResponse,
+  UpdateInstanceSettingsError,
+  Options<UpdateInstanceSettingsData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateInstanceSettingsResponse,
     UpdateInstanceSettingsError,
@@ -2980,7 +3202,11 @@ export const updateSecuritySettingsOptions = (options: Options<UpdateSecuritySet
 
 export const updateSecuritySettingsMutation = (
   options?: Partial<Options<UpdateSecuritySettingsData>>
-) => {
+): UseMutationOptions<
+  UpdateSecuritySettingsResponse,
+  UpdateSecuritySettingsError,
+  Options<UpdateSecuritySettingsData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateSecuritySettingsResponse,
     UpdateSecuritySettingsError,
@@ -3018,7 +3244,11 @@ export const serviceSettingsOptions = (options?: Options<ServiceSettingsData>) =
 
 export const updateServiceSettingsMutation = (
   options?: Partial<Options<UpdateServiceSettingsData>>
-) => {
+): UseMutationOptions<
+  UpdateServiceSettingsResponse,
+  UpdateServiceSettingsError,
+  Options<UpdateServiceSettingsData>
+> => {
   const mutationOptions: UseMutationOptions<
     UpdateServiceSettingsResponse,
     UpdateServiceSettingsError,
@@ -3072,7 +3302,9 @@ export const createSiteOptions = (options: Options<CreateSiteData>) => {
   })
 }
 
-export const createSiteMutation = (options?: Partial<Options<CreateSiteData>>) => {
+export const createSiteMutation = (
+  options?: Partial<Options<CreateSiteData>>
+): UseMutationOptions<CreateSiteResponse, CreateSiteError, Options<CreateSiteData>> => {
   const mutationOptions: UseMutationOptions<
     CreateSiteResponse,
     CreateSiteError,
@@ -3107,7 +3339,9 @@ export const getSiteOptions = (options: Options<GetSiteData>) => {
   })
 }
 
-export const updateSiteMutation = (options?: Partial<Options<UpdateSiteData>>) => {
+export const updateSiteMutation = (
+  options?: Partial<Options<UpdateSiteData>>
+): UseMutationOptions<UpdateSiteResponse, UpdateSiteError, Options<UpdateSiteData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateSiteResponse,
     UpdateSiteError,
@@ -3161,7 +3395,9 @@ export const createEventOptions = (options: Options<CreateEventData>) => {
   })
 }
 
-export const createEventMutation = (options?: Partial<Options<CreateEventData>>) => {
+export const createEventMutation = (
+  options?: Partial<Options<CreateEventData>>
+): UseMutationOptions<CreateEventResponse, CreateEventError, Options<CreateEventData>> => {
   const mutationOptions: UseMutationOptions<
     CreateEventResponse,
     CreateEventError,
@@ -3202,7 +3438,11 @@ export const siteAddExternalOccurrenceOptions = (
 
 export const siteAddExternalOccurrenceMutation = (
   options?: Partial<Options<SiteAddExternalOccurrenceData>>
-) => {
+): UseMutationOptions<
+  SiteAddExternalOccurrenceResponse,
+  SiteAddExternalOccurrenceError,
+  Options<SiteAddExternalOccurrenceData>
+> => {
   const mutationOptions: UseMutationOptions<
     SiteAddExternalOccurrenceResponse,
     SiteAddExternalOccurrenceError,
@@ -3274,7 +3514,9 @@ export const createTaxonOptions = (options: Options<CreateTaxonData>) => {
   })
 }
 
-export const createTaxonMutation = (options?: Partial<Options<CreateTaxonData>>) => {
+export const createTaxonMutation = (
+  options?: Partial<Options<CreateTaxonData>>
+): UseMutationOptions<CreateTaxonResponse, CreateTaxonError, Options<CreateTaxonData>> => {
   const mutationOptions: UseMutationOptions<
     CreateTaxonResponse,
     CreateTaxonError,
@@ -3292,7 +3534,9 @@ export const createTaxonMutation = (options?: Partial<Options<CreateTaxonData>>)
   return mutationOptions
 }
 
-export const deleteTaxonMutation = (options?: Partial<Options<DeleteTaxonData>>) => {
+export const deleteTaxonMutation = (
+  options?: Partial<Options<DeleteTaxonData>>
+): UseMutationOptions<DeleteTaxonResponse, DeleteTaxonError, Options<DeleteTaxonData>> => {
   const mutationOptions: UseMutationOptions<
     DeleteTaxonResponse,
     DeleteTaxonError,
@@ -3328,7 +3572,9 @@ export const getTaxonOptions = (options: Options<GetTaxonData>) => {
   })
 }
 
-export const updateTaxonMutation = (options?: Partial<Options<UpdateTaxonData>>) => {
+export const updateTaxonMutation = (
+  options?: Partial<Options<UpdateTaxonData>>
+): UseMutationOptions<UpdateTaxonResponse, UpdateTaxonError, Options<UpdateTaxonData>> => {
   const mutationOptions: UseMutationOptions<
     UpdateTaxonResponse,
     UpdateTaxonError,

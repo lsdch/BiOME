@@ -260,7 +260,7 @@ import { Ref, UnwrapRef, reactive, ref, triggerRef, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { useDisplay } from 'vuetify'
 import { VDataTable } from 'vuetify/components'
-import { TableProps, useTable } from '.'
+import { TableProps, TableSlots, useTable, useTableSort } from '.'
 import CRUDFeedback from '../CRUDFeedback.vue'
 import ExportDialog from '../ui/ExportDialog.vue'
 import MetaChip from '../MetaChip'
@@ -268,6 +268,8 @@ import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import { hasSlotContent } from '../vue-utils'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
+import { storeToRefs } from 'pinia'
+import { useUserStore } from '@/stores/user'
 
 type Props = TableProps<ItemType, ItemsQueryData, ItemsDeleteData> & {
   filter?: (item: ItemType) => boolean
@@ -284,45 +286,32 @@ const slotNames = Object.keys(tableSlots) as 'default'[]
 const items = defineModel<ItemType[]>('items', { default: reactive([]) })
 const selected = defineModel<string[]>('selected', { default: [] })
 const search = defineModel<Partial<Filters>>('search', { default: {} })
-const props = withDefaults(defineProps<Props>(), {})
+const props = defineProps<Props>()
 const emit = defineEmits<{
   itemCreated: [item: ItemType, index: number]
   itemEdited: [item: ItemType, index: number]
 }>()
 
-const { currentUser, actions, feedback, form, processedHeaders, loading, loadItems, error } =
-  useTable(items, props, emit)
+const { user: currentUser } = storeToRefs(useUserStore())
+
+const { actions, feedback, form, processedHeaders, loading, loadItems, error } = useTable(
+  items,
+  props,
+  emit
+)
 
 const [menu, toggleMenu] = useToggle(false)
 
 defineExpose({ form, actions, updateItem })
 
 const slots = defineSlots<
-  VDataTable['$slots'] & {
-    actions(bind: { actions: typeof actions; item: ItemType; currentUser: typeof currentUser }): any
-    search(props: { toggleMenu: typeof toggleMenu; menuOpen: boolean }): any
-    'toolbar-extension': () => any
-    menu: (props: { toggleMenu: typeof toggleMenu; menuOpen: boolean }) => any
-    'expanded-row-inject': (props: { item: ItemType }) => any
-    'expanded-row-footer': (props: { item: ItemType }) => any
-    'toolbar-prepend-actions': () => any
-    'toolbar-append-actions': () => any
-    'footer.prepend-actions': () => any
+  TableSlots<ItemType> & {
+    actions(bind: { actions: typeof actions; item: ItemType; currentUser: User | undefined }): any
     form(props: UnwrapRef<typeof form>): any
   }
 >()
 
-const sortBy = ref<SortItem[]>([])
-
-function toggleSort(sortKey: string) {
-  const sortMeta = sortBy.value?.find(({ key }) => key === sortKey)
-  let order: 'desc' | 'asc' = 'asc'
-  if (sortMeta?.order === 'asc') {
-    order = 'desc'
-  }
-  sortBy.value?.splice(0, sortBy.value.length)
-  sortBy.value?.push({ key: sortKey, order })
-}
+const { sortBy, toggleSort } = useTableSort()
 
 function ownedItemFilter(item: ItemType) {
   return search.value.owned && currentUser.value !== undefined

@@ -425,12 +425,17 @@ const bioMaterialWithDetailsSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+const paginatedListBioMaterialWithDetailsSchemaResponseTransformer = (data: any) => {
+  data.items = data.items.map((item: any) => {
+    return bioMaterialWithDetailsSchemaResponseTransformer(item)
+  })
+  return data
+}
+
 export const listBioMaterialResponseTransformer = async (
   data: any
 ): Promise<ListBioMaterialResponse> => {
-  data = data.map((item: any) => {
-    return bioMaterialWithDetailsSchemaResponseTransformer(item)
-  })
+  data = paginatedListBioMaterialWithDetailsSchemaResponseTransformer(data)
   return data
 }
 

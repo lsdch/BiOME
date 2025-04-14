@@ -10,6 +10,8 @@ import (
 // `FetchItem` functions retrieve a single item from the database
 type FetchItem[Item any] func(db geltypes.Executor) (Item, error)
 
+type FetchItemWithOptions[Item any, Options any] func(db geltypes.Executor, options Options) (Item, error)
+
 type FetchHandlerOutput[Item any] struct{ Body Item }
 
 type FetchItemHandler[

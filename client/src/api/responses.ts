@@ -1,5 +1,10 @@
 import { useFeedback } from "@/stores/feedback";
 
+export type PaginatedList<Item> = {
+  items: Item[];
+  total_count: number;
+}
+
 export type ResponseBody<Data = unknown, Error = unknown> = {
   data: Data;
   error: undefined;
