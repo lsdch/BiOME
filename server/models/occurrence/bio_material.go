@@ -154,6 +154,7 @@ type ListBioMaterialOptions struct {
 	models.Filter     `json:",inline"`
 	Category          models.OptionalInput[OccurrenceCategory] `query:"category" json:"category,omitzero"`
 	Taxon             models.OptionalInput[string]             `query:"taxon" json:"taxon,omitzero"`
+	WholeClade        bool                                     `query:"whole_clade" json:"whole_clade"`
 	HasSequences      models.OptionalInput[bool]               `query:"has_sequences" json:"has_sequences,omitzero"`
 	IsType            models.OptionalInput[bool]               `query:"is_type" json:"is_type,omitzero"`
 }
@@ -174,19 +175,32 @@ func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models
 				params := <json>$0,
 				search_term := <str>json_get(params, 'search'),
 				category := <OccurrenceCategory>json_get(params, 'category'),
-				taxon := <str>json_get(params, 'taxon'),
+				taxon_name := <str>json_get(params, 'taxon'),
+				taxon := (
+					(select taxonomy::Taxon filter .name = taxon_name)
+					if (exists taxon_name)
+					else <taxonomy::Taxon>{}
+				),
+				whole_clade := <bool>params['whole_clade'],
 				has_sequences := <bool>json_get(params, 'has_sequences'),
 				is_type := <bool>json_get(params, 'is_type'),
-				owner := <uuid>json_get(params, 'owner'),
+				is_own := <bool>params['owned'],
 			items := (
 				select BioMaterialWithType { * }
 				filter (
 					(.code ilike '%' ++ search_term ++ '%' if exists search_term else true) and
 					(.category = category if exists category else true) and
-					(.identification.taxon.name ilike '%' ++ taxon ++ '%' if exists taxon else true) and
+					(
+						(
+							.identification.taxon = taxon or (
+								taxonomy::is_in_clade(.identification.taxon, taxon) if whole_clade else false
+							)
+						)
+						if exists taxon else true
+					) and
 					(.has_sequences = has_sequences if exists has_sequences else true) and
 					(.is_type = is_type if exists is_type else true) and
-					(.meta.created_by_user.id = owner if exists owner else true)
+					(.meta.created_by_user = global default::current_user if (is_own and exists global default::current_user) else true)
 				)
 			),
 			select {

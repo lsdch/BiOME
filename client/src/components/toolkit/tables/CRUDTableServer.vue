@@ -1,5 +1,7 @@
 <template>
   <v-data-table-server
+    id="table"
+    class="crud-table"
     :headers="processedHeaders"
     :items="data?.items"
     :items-length="data?.total_count ?? 0"
@@ -14,7 +16,7 @@
       <TableToolbar
         ref="toolbar"
         id="table-toolbar"
-        v-model:search="filters.term"
+        v-model:search="genericFilters.search"
         v-bind="toolbar"
         @reload="refetch().then(() => feedback({ message: 'Data reload' }))"
       >
@@ -61,12 +63,16 @@
         <!-- Searchbar -->
         <template #search="props">
           <slot name="search" v-bind="props" :toggleMenu :menu-open="menu">
-            <CRUDTableSearchBar v-model="filters.term" v-if="$vuetify.display.smAndUp" />
+            <CRUDTableSearchBar v-model="genericFilters.search" v-if="$vuetify.display.smAndUp" />
 
             <v-badge
               dot
               :color="
-                Object.values(filters).some((v) => v !== undefined) ? 'success' : 'transparent'
+                Object.values(genericFilters)
+                  .concat(Object.values(filters))
+                  .some((v) => v !== undefined && v !== null && v !== '')
+                  ? 'success'
+                  : 'transparent'
               "
               class="mx-1"
             >
@@ -82,15 +88,6 @@
           </slot>
         </template>
       </TableToolbar>
-    </template>
-
-    <template #body.prepend="{ columns }">
-      <tr v-if="!loading && error">
-        <td :colspan="columns.length">
-          <v-alert color="error" icon="mdi-alert" class="my-3">Failed to retrieve items</v-alert>
-        </td>
-      </tr>
-
       <v-menu
         id="search-menu"
         v-model="menu"
@@ -101,14 +98,14 @@
       >
         <v-card rounded="t-0">
           <v-card-text>
-            <v-inline-search-bar v-model="filters.term" label="Search term" />
+            <v-inline-search-bar v-model="genericFilters.search" label="Search term" />
           </v-card-text>
           <slot name="menu" :toggleMenu :menuOpen="menu" />
           <v-divider />
-          <v-list-item>
+          <v-list-item v-if="currentUser">
             <template #title>
               <v-switch
-                v-model="filters.owned"
+                v-model="genericFilters.owned"
                 label="Owned items"
                 color="primary"
                 hint="Restrict the list to elements you contributed"
@@ -118,7 +115,7 @@
               />
             </template>
           </v-list-item>
-          <v-divider />
+          <v-divider v-if="currentUser" />
           <v-card-actions>
             <v-btn color="primary" text="OK" @click="toggleMenu(false)" />
             <v-spacer />
@@ -126,6 +123,14 @@
           </v-card-actions>
         </v-card>
       </v-menu>
+    </template>
+
+    <template #body.prepend="{ columns }">
+      <tr v-if="!loading && error">
+        <td :colspan="columns.length">
+          <v-alert color="error" icon="mdi-alert" class="my-3">Failed to retrieve items</v-alert>
+        </td>
+      </tr>
     </template>
 
     <!-- Expose VDataTable slots -->
@@ -226,14 +231,8 @@ import { ErrorModel, Meta } from '@/api'
 import { PaginatedList } from '@/api/responses'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
-import { Options, OptionsLegacyParser } from '@hey-api/client-fetch'
-import {
-  DataTag,
-  keepPreviousData,
-  UndefinedInitialQueryOptions,
-  useQuery
-} from '@tanstack/vue-query'
-import { useToggle } from '@vueuse/core'
+import { keepPreviousData, UndefinedInitialQueryOptions, useQuery } from '@tanstack/vue-query'
+import { computedAsync, promiseTimeout, useToggle } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ComputedRef, ref, useSlots } from 'vue'
 import { TableSlots, ToolbarProps, useTableSort } from '.'
@@ -241,11 +240,32 @@ import MetaChip from '../MetaChip'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
-import { listBioMaterialOptions } from '@/api/gen/@tanstack/vue-query.gen'
 
 type ItemsQueryData = {
   limit?: number
   offset?: number
+}
+
+type Pagination = {
+  itemsPerPage: number
+  page: number
+}
+
+const pagination = ref<Pagination>({
+  itemsPerPage: 15,
+  page: 1
+})
+
+type Filters = {
+  search?: string
+  owned?: boolean
+}
+const genericFilters = ref<Filters>({
+  search: '',
+  owned: undefined
+})
+function resetFilters() {
+  genericFilters.value = {}
 }
 
 const slots = useSlots()
@@ -254,9 +274,12 @@ const slotNames = Object.keys(slots) as 'default'[]
 defineSlots<TableSlots<ItemType>>()
 
 const props = defineProps<{
+  filters: ItemFilters & Filters
   headers: CRUDTableHeader<ItemType>[]
   toolbar?: ToolbarProps | false
-  fetchItems: (options?: { query: ItemsQueryData }) => UndefinedInitialQueryOptions<
+  fetchItems: (options?: {
+    query: ItemsQueryData & ItemFilters & Filters
+  }) => UndefinedInitialQueryOptions<
     PaginatedList<ItemType>,
     ErrorModel,
     PaginatedList<ItemType>,
@@ -278,50 +301,36 @@ const processedHeaders = computed((): CRUDTableHeader<ItemType>[] => {
   })
 }) as ComputedRef<DataTableHeader[]>
 
-type Pagination = {
-  itemsPerPage: number
-  page: number
-}
-
-const pagination = ref<Pagination>({
-  itemsPerPage: 15,
-  page: 1
-})
-
-type Filters = {
-  term?: string
-  owned?: boolean
-}
-const filters = ref<Filters>({
-  term: '',
-  owned: undefined
-})
-function resetFilters() {
-  filters.value = {}
-}
-
-const itemFilters = defineModel<ItemFilters>()
-
-const offset = computed(() => {
-  return (pagination.value.page - 1) * pagination.value.itemsPerPage
-})
-
-const {
-  data,
-  error,
-  isPending: loading,
-  refetch
-} = useQuery(
+const { data, error, isPending, isFetching, refetch } = useQuery(
   computed(() => ({
     ...props.fetchItems({
       query: {
         limit: pagination.value.itemsPerPage,
-        offset: offset.value
+        offset: (pagination.value.page - 1) * pagination.value.itemsPerPage,
+        ...genericFilters.value,
+        ...props.filters
       }
     }),
     placeholderData: keepPreviousData
   }))
 )
+
+const loading = computedAsync(async () => {
+  return (
+    isPending.value ||
+    (isFetching.value &&
+      (await promiseTimeout(500).then(() => {
+        return isFetching.value
+      })))
+  )
+}, true)
 </script>
 
-<style scoped></style>
+<style lang="scss">
+#table table {
+  position: relative;
+}
+#search-menu .v-overlay__content {
+  left: 0px !important;
+}
+</style>

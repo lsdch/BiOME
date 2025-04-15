@@ -3,6 +3,7 @@
     class="fill-height"
     entity-name="Bio-material"
     :headers
+    :filters
     :toolbar="{ title: 'Occurrences', icon: 'mdi-package-variant' }"
     :fetch-items="listBioMaterialOptions"
     :delete="{
@@ -18,17 +19,24 @@
         <v-col cols="12" md="6">
           <v-list>
             <v-list-item prepend-icon="mdi-package-variant">
-              <OccurrenceCategorySelect class="mt-1" v-model="search.category" label="Category" />
+              <OccurrenceCategorySelect class="mt-1" v-model="filters.category" label="Category" />
             </v-list-item>
+            <v-divider />
             <v-list-item prepend-icon="mdi-family-tree">
               <TaxonPicker
-                v-model="search.taxon"
+                v-model="filters.taxon"
                 item-value="name"
                 label="Assigned taxon"
                 density="compact"
                 class="mt-1"
                 hide-details
                 clearable
+              />
+              <v-switch
+                label="Include whole clade"
+                color="primary"
+                v-model="filters.whole_clade"
+                hide-details
               />
             </v-list-item>
           </v-list>
@@ -37,7 +45,7 @@
           <v-list density="compact">
             <v-list-item prepend-icon="mdi-star-four-points">
               <ClearableSwitch
-                v-model="search.nomenclaturalType"
+                v-model="filters.is_type"
                 class="pl-2"
                 label="Nomenclatural type"
                 color-true="primary"
@@ -53,7 +61,7 @@
             </v-list-item>
             <v-list-item prepend-icon="mdi-dna">
               <ClearableSwitch
-                v-model="search.hasSequences"
+                v-model="filters.has_sequences"
                 class="pl-2"
                 label="Sequences available"
                 color-true="primary"
@@ -185,45 +193,22 @@ import ArticleChip from '@/components/references/ArticleChip'
 import TaxonChip from '@/components/taxonomy/TaxonChip'
 import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
-import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
-const { xs, mdAndUp } = useDisplay()
+const { xs } = useDisplay()
 
 type BiomatTableFilters = {
-  term?: string
   category?: OccurrenceCategory
-  nomenclaturalType?: boolean
-  hasSequences?: boolean
+  is_type?: boolean
+  has_sequences?: boolean
   taxon?: string
+  whole_clade?: boolean
 }
 
-const search = ref<BiomatTableFilters>({})
-function toggleNomenclaturalType(value?: boolean) {
-  search.value.nomenclaturalType = value ?? !search.value.nomenclaturalType
-}
-
-function toggleSequenceFilter(value?: boolean) {
-  search.value.hasSequences = value ?? !search.value.hasSequences
-}
-
-function nomenclaturalTypeFilter({ is_type }: BioMaterial) {
-  return is_type
-}
-const filter = computed(() => {
-  const { category, nomenclaturalType } = search.value
-  switch (category) {
-    case undefined:
-    case null:
-      return nomenclaturalType ? nomenclaturalTypeFilter : undefined
-    default:
-      return (item: BioMaterial) =>
-        item.category === category && (nomenclaturalType ? nomenclaturalTypeFilter(item) : true)
-  }
-})
+const filters = ref<BiomatTableFilters>({})
 
 const headers: CRUDTableHeader<BioMaterialWithDetails>[] = [
   {

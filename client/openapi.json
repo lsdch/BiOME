@@ -6147,7 +6147,6 @@
 				"required": [
 					"meta",
 					"id",
-					"name",
 					"code",
 					"coordinates",
 					"user_defined_locality"
@@ -6328,7 +6327,6 @@
 					}
 				},
 				"required": [
-					"name",
 					"code",
 					"coordinates"
 				],
@@ -6372,7 +6370,6 @@
 				},
 				"required": [
 					"id",
-					"name",
 					"code",
 					"coordinates",
 					"user_defined_locality"
@@ -6440,7 +6437,10 @@
 					},
 					"name": {
 						"minLength": 4,
-						"type": "string"
+						"type": [
+							"string",
+							"null"
+						]
 					},
 					"user_defined_locality": {
 						"description": "Signals whether locality was manually entered by user, and automatically inferred from coordinates",
@@ -6492,7 +6492,6 @@
 				"required": [
 					"distance",
 					"id",
-					"name",
 					"code",
 					"coordinates",
 					"user_defined_locality"
@@ -6544,7 +6543,6 @@
 				"required": [
 					"occurrences",
 					"id",
-					"name",
 					"code",
 					"coordinates",
 					"user_defined_locality"
@@ -6594,7 +6592,6 @@
 				"required": [
 					"score",
 					"id",
-					"name",
 					"code",
 					"coordinates",
 					"user_defined_locality"
@@ -8989,9 +8986,9 @@
 					{
 						"explode": false,
 						"in": "query",
-						"name": "owner",
+						"name": "owned",
 						"schema": {
-							"type": "string"
+							"type": "boolean"
 						}
 					},
 					{
@@ -9008,6 +9005,14 @@
 						"name": "taxon",
 						"schema": {
 							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "whole_clade",
+						"schema": {
+							"type": "boolean"
 						}
 					},
 					{

@@ -82,7 +82,7 @@ module location {
 
 
   type Site extending default::Auditable {
-    required name : str;
+    name: str;
     index on (.name);
 
     required code : str {
@@ -190,7 +190,7 @@ module location {
         coords := coords_from_json(data['coordinates']),
         country_code := <str>json_get(data, 'country_code'),
       insert Site {
-        name := <str>data['name'],
+        name := <str>json_get(data, 'name'),
         code := <str>data['code'],
         description := <str>json_get(data, 'description'),
         coordinates := coords,

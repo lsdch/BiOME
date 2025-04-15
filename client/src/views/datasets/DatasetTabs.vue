@@ -11,7 +11,7 @@
         <CRUDTable :headers :items="dataset.sites" entityName="Site" density="compact">
           <template #[`item.name`]="{ item }: { item: Site }">
             <RouterLink :to="{ name: 'site-item', params: { code: item.code } }">
-              {{ item.name }}
+              {{ item.name || item.code }}
             </RouterLink>
           </template>
         </CRUDTable>

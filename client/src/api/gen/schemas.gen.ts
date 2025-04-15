@@ -5319,7 +5319,7 @@ export const $Site = {
       type: 'boolean'
     }
   },
-  required: ['meta', 'id', 'name', 'code', 'coordinates', 'user_defined_locality'],
+  required: ['meta', 'id', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 
@@ -5486,7 +5486,7 @@ export const $SiteInput = {
       type: 'boolean'
     }
   },
-  required: ['name', 'code', 'coordinates'],
+  required: ['code', 'coordinates'],
   type: 'object'
 } as const
 
@@ -5526,7 +5526,7 @@ export const $SiteItem = {
       type: 'boolean'
     }
   },
-  required: ['id', 'name', 'code', 'coordinates', 'user_defined_locality'],
+  required: ['id', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 
@@ -5573,7 +5573,7 @@ export const $SiteUpdate = {
     },
     name: {
       minLength: 4,
-      type: 'string'
+      type: ['string', 'null']
     },
     user_defined_locality: {
       description:
@@ -5624,7 +5624,7 @@ export const $SiteWithDistance = {
       type: 'boolean'
     }
   },
-  required: ['distance', 'id', 'name', 'code', 'coordinates', 'user_defined_locality'],
+  required: ['distance', 'id', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 
@@ -5670,7 +5670,7 @@ export const $SiteWithOccurrences = {
       type: 'boolean'
     }
   },
-  required: ['occurrences', 'id', 'name', 'code', 'coordinates', 'user_defined_locality'],
+  required: ['occurrences', 'id', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 
@@ -5714,7 +5714,7 @@ export const $SiteWithScore = {
       type: 'boolean'
     }
   },
-  required: ['score', 'id', 'name', 'code', 'coordinates', 'user_defined_locality'],
+  required: ['score', 'id', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 

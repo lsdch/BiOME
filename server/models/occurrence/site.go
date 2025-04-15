@@ -114,7 +114,7 @@ type Coordinates struct {
 }
 
 type SiteInput struct {
-	Name                string                       `json:"name" minLength:"4" doc:"A short descriptive name"`
+	Name                models.OptionalInput[string] `json:"name,omitempty" minLength:"4" doc:"A short descriptive name"`
 	Code                string                       `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
 	Description         models.OptionalInput[string] `json:"description,omitempty"`
 	Coordinates         Coordinates                  `json:"coordinates" doc:"Site coordinates in decimal degrees"`
@@ -141,7 +141,7 @@ func (i *SiteInput) Validate(edb geltypes.Executor) validations.ValidationErrors
 
 type SiteItem struct {
 	ID                  geltypes.UUID                     `gel:"id" json:"id" format:"uuid"`
-	Name                string                            `gel:"name" json:"name" minLength:"4"`
+	Name                geltypes.OptionalStr              `gel:"name" json:"name,omitempty" minLength:"4"`
 	Code                string                            `gel:"code" json:"code" minLength:"4" maxLength:"8"`
 	Description         geltypes.OptionalStr              `gel:"description" json:"description,omitempty"`
 	Coordinates         Coordinates                       `gel:"coordinates" json:"coordinates"`
@@ -235,7 +235,7 @@ func (i SiteInput) Save(db geltypes.Executor) (*Site, error) {
 }
 
 type SiteUpdate struct {
-	Name                models.OptionalInput[string]      `gel:"name" json:"name,omitempty" minLength:"4"`
+	Name                models.OptionalNull[string]       `gel:"name" json:"name,omitempty" minLength:"4"`
 	Code                models.OptionalInput[string]      `gel:"code" json:"code,omitempty" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
 	Description         models.OptionalNull[string]       `gel:"description" json:"description,omitempty"`
 	Coordinates         models.OptionalInput[Coordinates] `gel:"coordinates" json:"coordinates,omitempty" doc:"Site coordinates in decimal degrees"`

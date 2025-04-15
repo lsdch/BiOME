@@ -1,9 +1,5 @@
 package models
 
-import (
-	"github.com/geldata/gel-go/geltypes"
-)
-
 type Pagination struct {
 	Limit  int `query:"limit" json:"limit,omitzero"`
 	Offset int `query:"offset" json:"offset,omitzero"`
@@ -14,8 +10,8 @@ type Sorting struct {
 }
 
 type Filter struct {
-	SearchTerm string                       `query:"search" json:"search,omitzero"`
-	Owner      OptionalInput[geltypes.UUID] `query:"owner" json:"owner,omitzero"`
+	SearchTerm string `query:"search" json:"search,omitzero"`
+	Owned      bool   `query:"owned" json:"owned"`
 }
 
 type PaginatedList[T any] struct {

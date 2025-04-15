@@ -1883,7 +1883,7 @@ export type Site = {
   id: string
   locality?: string
   meta: Meta
-  name: string
+  name?: string
   user_defined_locality: boolean
 }
 
@@ -1955,7 +1955,7 @@ export type SiteInput = {
   /**
    * A short descriptive name
    */
-  name: string
+  name?: string
   /**
    * Signals if locality was manually entered by user, and automatically inferred from coordinates
    */
@@ -1970,7 +1970,7 @@ export type SiteItem = {
   description?: string
   id: string
   locality?: string
-  name: string
+  name?: string
   user_defined_locality: boolean
 }
 
@@ -1997,7 +1997,7 @@ export type SiteUpdate = {
    * Nearest populated place
    */
   locality?: string | null
-  name?: string
+  name?: string | null
   /**
    * Signals whether locality was manually entered by user, and automatically inferred from coordinates
    */
@@ -2013,7 +2013,7 @@ export type SiteWithDistance = {
   distance: number
   id: string
   locality?: string
-  name: string
+  name?: string
   user_defined_locality: boolean
 }
 
@@ -2025,7 +2025,7 @@ export type SiteWithOccurrences = {
   description?: string
   id: string
   locality?: string
-  name: string
+  name?: string
   occurrences: Array<OccurrenceAtSite>
   user_defined_locality: boolean
 }
@@ -2038,7 +2038,7 @@ export type SiteWithScore = {
   description?: string
   id: string
   locality?: string
-  name: string
+  name?: string
   score: number
   user_defined_locality: boolean
 }
@@ -3026,9 +3026,10 @@ export type ListBioMaterialData = {
     offset?: number
     sort_by?: Array<string>
     search?: string
-    owner?: string
+    owned?: boolean
     category?: OccurrenceCategory
     taxon?: string
+    whole_clade?: boolean
     has_sequences?: boolean
     is_type?: boolean
   }

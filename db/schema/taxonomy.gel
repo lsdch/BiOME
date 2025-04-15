@@ -153,4 +153,18 @@ module taxonomy {
 
     index on ((.name, .code, .rank, .status));
   }
+
+  function is_in_clade(taxon: Taxon, ancestor: Taxon) -> bool {
+    using (
+      select (
+        (ancestor.rank = Rank.Kingdom and taxon.kingdom = ancestor)
+        or (ancestor.rank = Rank.Phylum and taxon.phylum = ancestor)
+        or (ancestor.rank = Rank.Class and taxon.class = ancestor)
+        or (ancestor.rank = Rank.Order and taxon.order = ancestor)
+        or (ancestor.rank = Rank.Family and taxon.family = ancestor)
+        or (ancestor.rank = Rank.Genus and taxon.genus = ancestor)
+        or (ancestor.rank = Rank.Species and taxon.species = ancestor)
+      ) ?? false
+    );
+  };
 }

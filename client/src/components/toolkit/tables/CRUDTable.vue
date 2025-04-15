@@ -1,6 +1,7 @@
 <template>
   <div>
     <v-data-table
+      id="table"
       class="crud-table"
       :headers="processedHeaders"
       :items="filteredItems"
