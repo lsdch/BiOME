@@ -131,10 +131,7 @@ const headers: CRUDTableHeader<Person>[] = [
   {
     title: 'Organisations',
     key: 'organisations',
-    sortable: false,
-    filter: (value: Organisation[], query: string) => {
-      return value.find((inst) => inst.code.includes(query)) !== undefined
-    }
+    sortable: false
   }
 ]
 </script>
