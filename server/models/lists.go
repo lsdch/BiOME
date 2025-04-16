@@ -5,8 +5,16 @@ type Pagination struct {
 	Offset int `query:"offset" json:"offset,omitzero"`
 }
 
-type Sorting struct {
-	SortBy []string `query:"sort_by" json:"sort_by,omitempty"`
+type SortOrder string
+
+const (
+	SortAsc  SortOrder = "asc"
+	SortDesc SortOrder = "desc"
+)
+
+type SortBy[T ~string] struct {
+	Key   T         `query:"sort" json:"key,omitempty"`
+	Order SortOrder `query:"order" json:"order,omitempty"`
 }
 
 type Filter struct {

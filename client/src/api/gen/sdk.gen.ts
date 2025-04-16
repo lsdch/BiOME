@@ -1679,12 +1679,6 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      querySerializer: {
-        array: {
-          explode: false,
-          style: 'form'
-        }
-      },
       responseTransformer: listBioMaterialResponseTransformer,
       url: '/bio-material',
       ...options

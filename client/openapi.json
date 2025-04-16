@@ -391,6 +391,19 @@
 				],
 				"type": "object"
 			},
+			"BioMatSortKey": {
+				"enum": [
+					"code",
+					"site",
+					"sampling_date",
+					"identified_on",
+					"taxon",
+					"identified_by",
+					"last_updated"
+				],
+				"title": "BioMatSortKey",
+				"type": "string"
+			},
 			"BioMaterial": {
 				"additionalProperties": false,
 				"properties": {
@@ -8967,12 +8980,17 @@
 					{
 						"explode": false,
 						"in": "query",
-						"name": "sort_by",
+						"name": "sort",
 						"schema": {
-							"items": {
-								"type": "string"
-							},
-							"type": "array"
+							"$ref": "#/components/schemas/BioMatSortKey"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "order",
+						"schema": {
+							"type": "string"
 						}
 					},
 					{

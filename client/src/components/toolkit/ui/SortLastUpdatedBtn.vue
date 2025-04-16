@@ -17,11 +17,11 @@ const emit = defineEmits<{
 
 const props = defineProps<{
   sortKey: string
-  sortBy: SortItem[]
+  sortBy?: SortItem[]
 }>()
 
 const sortLastUpdateIcon = computed(() => {
-  const sortMeta = props.sortBy.find(({ key }) => key === props.sortKey)
+  const sortMeta = props.sortBy?.find(({ key }) => key === props.sortKey)
   if (sortMeta) {
     return sortMeta.order === 'asc'
       ? { icon: 'mdi-sort-calendar-ascending', color: 'primary' }

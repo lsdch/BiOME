@@ -329,6 +329,20 @@ export const $BibSearchResults = {
   type: 'object'
 } as const
 
+export const $BioMatSortKey = {
+  enum: [
+    'code',
+    'site',
+    'sampling_date',
+    'identified_on',
+    'taxon',
+    'identified_by',
+    'last_updated'
+  ],
+  title: 'BioMatSortKey',
+  type: 'string'
+} as const
+
 export const $BioMaterial = {
   additionalProperties: false,
   properties: {

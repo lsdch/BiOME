@@ -10,6 +10,7 @@
     :items-per-page-options="[5, 10, 15, 25, 50]"
     v-model:items-per-page="pagination.itemsPerPage"
     v-model:page="pagination.page"
+    v-model:sort-by="sortBy"
   >
     <!-- Toolbar -->
     <template #top v-if="toolbar">
@@ -55,8 +56,21 @@
           <SortLastUpdatedBtn
             v-if="!toolbar?.noSort"
             sort-key="meta.last_updated"
-            :sort-by="sortBy"
-            @click="toggleSort('meta.last_updated')"
+            :sort-by
+            @click="
+              sortBy = [
+                {
+                  key: 'meta.last_updated',
+                  remoteKey: 'last_updated',
+                  order:
+                    sortBy?.[0]?.key === 'meta.last_updated'
+                      ? sortBy[0].order === 'asc'
+                        ? 'desc'
+                        : 'asc'
+                      : 'asc'
+                }
+              ]
+            "
           />
         </template>
 
@@ -224,7 +238,8 @@
     ItemType extends { id: string; meta?: Meta },
     ItemInputType extends {},
     ItemsDeleteData extends {},
-    ItemFilters extends {}
+    ItemFilters extends {},
+    ItemSortKey extends string
   "
 >
 import { ErrorModel, Meta } from '@/api'
@@ -234,13 +249,15 @@ import { useUserStore } from '@/stores/user'
 import { keepPreviousData, UndefinedInitialQueryOptions, useQuery } from '@tanstack/vue-query'
 import { computedAsync, promiseTimeout, useToggle } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, ComputedRef, ref, useSlots } from 'vue'
+import { computed, ComputedRef, reactive, ref, useSlots } from 'vue'
 import { TableSlots, ToolbarProps, useTableSort } from '.'
 import MetaChip from '../MetaChip'
 import SortLastUpdatedBtn from '../ui/SortLastUpdatedBtn.vue'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
-
+export type SortItemRemote<ItemSortKey> = SortItem<ItemSortKey> & {
+  remoteKey: string
+}
 type ItemsQueryData = {
   limit?: number
   offset?: number
@@ -268,17 +285,25 @@ function resetFilters() {
   genericFilters.value = {}
 }
 
+const sortBy = ref<SortItemRemote<ItemSortKey>[]>()
+
 const slots = useSlots()
 // Assert type here to prevent errors in template
 const slotNames = Object.keys(slots) as 'default'[]
 defineSlots<TableSlots<ItemType>>()
 
 const props = defineProps<{
+  sortKeyTransform?: (key: ItemSortKey | undefined) => ItemSortKey | undefined
   filters: ItemFilters & Filters
   headers: CRUDTableHeader<ItemType>[]
   toolbar?: ToolbarProps | false
   fetchItems: (options?: {
-    query: ItemsQueryData & ItemFilters & Filters
+    query: ItemsQueryData &
+      ItemFilters &
+      Filters & {
+        order?: 'asc' | 'desc'
+        sort?: ItemSortKey
+      }
   }) => UndefinedInitialQueryOptions<
     PaginatedList<ItemType>,
     ErrorModel,
@@ -293,7 +318,6 @@ const { feedback } = useFeedback()
 const { user: currentUser } = storeToRefs(useUserStore())
 
 const [menu, toggleMenu] = useToggle(false)
-const { sortBy, toggleSort } = useTableSort()
 
 const processedHeaders = computed((): CRUDTableHeader<ItemType>[] => {
   return props.headers.filter(({ hide }) => {
@@ -308,7 +332,9 @@ const { data, error, isPending, isFetching, refetch } = useQuery(
         limit: pagination.value.itemsPerPage,
         offset: (pagination.value.page - 1) * pagination.value.itemsPerPage,
         ...genericFilters.value,
-        ...props.filters
+        ...props.filters,
+        order: sortBy.value?.[0]?.order,
+        sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
       }
     }),
     placeholderData: keepPreviousData

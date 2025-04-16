@@ -12,6 +12,7 @@
     }"
     :mobile="xs"
     show-expand
+    :sort-key-transform
   >
     <!-- Search and filters panel -->
     <template #menu>
@@ -103,9 +104,7 @@
         </span>
       </span>
     </template>
-    <template
-      #item.event.site="{ value: { code, name }, item }: { value: SiteItem; item: BioMaterial }"
-    >
+    <template #item.event.site="{ value: { code, name } }: { value: SiteItem }">
       <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name || code" />
     </template>
     <template #item.event.performed_on="{ value }: { value: DateWithPrecision }">
@@ -179,6 +178,7 @@
 import { BioMaterial, PersonInner, Taxon } from '@/api'
 import {
   BioMaterialWithDetails,
+  BioMatSortKey,
   DateWithPrecision,
   OccurrenceCategory,
   SiteItem
@@ -195,7 +195,7 @@ import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
 import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
 const { xs } = useDisplay()
@@ -210,7 +210,7 @@ type BiomatTableFilters = {
 
 const filters = ref<BiomatTableFilters>({})
 
-const headers: CRUDTableHeader<BioMaterialWithDetails>[] = [
+const headers = [
   {
     title: 'BioMaterial',
     children: [{ key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } }]
@@ -222,12 +222,9 @@ const headers: CRUDTableHeader<BioMaterialWithDetails>[] = [
     children: [
       {
         key: 'event.site',
-        title: 'Site',
-        sort(a, b) {
-          return (a.name || a.code).localeCompare(b.name || b.code)
-        }
+        title: 'Site'
       },
-      { key: 'event.performed_on', title: 'Date', align: 'end', sort: DateWithPrecision.compare }
+      { key: 'event.performed_on', title: 'Date', align: 'end' }
     ]
   },
   {
@@ -239,28 +236,39 @@ const headers: CRUDTableHeader<BioMaterialWithDetails>[] = [
       {
         key: 'identification.taxon',
         title: 'Taxon',
-        align: 'center',
-        sort(a: { name: string }, b: { name: string }) {
-          return a.name.localeCompare(b.name)
-        }
+        align: 'center'
       },
       {
         key: 'identification.identified_by',
         title: 'Done by',
-        align: 'center',
-        sort(a, b) {
-          return (a?.last_name || 'ZZZZZZZ').localeCompare(b?.last_name || 'ZZZZZZZ')
-        }
+        align: 'center'
       },
       {
         key: 'identification.identified_on',
         title: 'Date',
-        align: 'end',
-        sort: DateWithPrecision.compare
+        align: 'end'
       }
     ]
   }
-]
+] as const satisfies CRUDTableHeader<BioMaterialWithDetails>[]
+
+type SortableColumn = Extract<
+  Exclude<(typeof headers)[number]['children'], undefined>[number]['key'] | 'meta.last_updated',
+  string
+>
+const sortKeyMap: Record<SortableColumn, BioMatSortKey> = {
+  'event.site': 'site',
+  'event.performed_on': 'sampling_date',
+  'identification.taxon': 'taxon',
+  'identification.identified_by': 'identified_by',
+  'identification.identified_on': 'identified_on',
+  'meta.last_updated': 'last_updated',
+  code: 'code'
+}
+
+function sortKeyTransform(key: string | undefined): BioMatSortKey | undefined {
+  return key ? sortKeyMap[key as SortableColumn] : undefined
+}
 </script>
 
 <style scoped lang="scss"></style>

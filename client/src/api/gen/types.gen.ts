@@ -126,6 +126,15 @@ export type BibSearchResults = {
   total: number
 }
 
+export type BioMatSortKey =
+  | 'code'
+  | 'site'
+  | 'sampling_date'
+  | 'identified_on'
+  | 'taxon'
+  | 'identified_by'
+  | 'last_updated'
+
 export type BioMaterial = {
   category: OccurrenceCategory
   code: string
@@ -3024,7 +3033,8 @@ export type ListBioMaterialData = {
   query?: {
     limit?: number
     offset?: number
-    sort_by?: Array<string>
+    sort?: BioMatSortKey
+    order?: string
     search?: string
     owned?: boolean
     category?: OccurrenceCategory

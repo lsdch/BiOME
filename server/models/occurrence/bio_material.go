@@ -3,6 +3,8 @@ package occurrence
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
@@ -148,19 +150,62 @@ func GetBioMaterial(db geltypes.Executor, code string) (biomat BioMaterialWithDe
 	return biomat, err
 }
 
+// type BioMaterialSorting struct {
+// 	Code models.SortOrder `query:"code" json:"code,omitzero"`
+// }
+
+type BioMatSortKey string
+
+//generate:enum
+const (
+	BioMatSortCode         BioMatSortKey = "code"
+	BioMatSortSite         BioMatSortKey = "site"
+	BioMatSortSamplingDate BioMatSortKey = "sampling_date"
+	BioMatSortIdentifiedOn BioMatSortKey = "identified_on"
+	BioMatSortTaxon        BioMatSortKey = "taxon"
+	BioMatSortIdentifiedBy BioMatSortKey = "identified_by"
+	BioMatSortLastUpdated  BioMatSortKey = "last_updated"
+)
+
 type ListBioMaterialOptions struct {
 	models.Pagination `json:",inline"`
-	models.Sorting    `json:",inline"`
-	models.Filter     `json:",inline"`
-	Category          models.OptionalInput[OccurrenceCategory] `query:"category" json:"category,omitzero"`
-	Taxon             models.OptionalInput[string]             `query:"taxon" json:"taxon,omitzero"`
-	WholeClade        bool                                     `query:"whole_clade" json:"whole_clade"`
-	HasSequences      models.OptionalInput[bool]               `query:"has_sequences" json:"has_sequences,omitzero"`
-	IsType            models.OptionalInput[bool]               `query:"is_type" json:"is_type,omitzero"`
+	models.SortBy[BioMatSortKey]
+	models.Filter `json:",inline"`
+	Category      models.OptionalInput[OccurrenceCategory] `query:"category" json:"category,omitzero"`
+	Taxon         models.OptionalInput[string]             `query:"taxon" json:"taxon,omitzero"`
+	WholeClade    bool                                     `query:"whole_clade" json:"whole_clade"`
+	HasSequences  models.OptionalInput[bool]               `query:"has_sequences" json:"has_sequences,omitzero"`
+	IsType        models.OptionalInput[bool]               `query:"is_type" json:"is_type,omitzero"`
 }
 
 func (o ListBioMaterialOptions) Options() ListBioMaterialOptions {
 	return o
+}
+
+func (i ListBioMaterialOptions) OrderByString() string {
+	if i.SortBy.Key == "" {
+		return ""
+	}
+	var orderBy []string
+	switch i.SortBy.Key {
+	case BioMatSortSite:
+		orderBy = append(orderBy, "(.event.site.name ?? .event.site.code) "+string(i.SortBy.Order))
+	case BioMatSortCode:
+		orderBy = append(orderBy, ".code "+string(i.SortBy.Order))
+	case BioMatSortTaxon:
+		orderBy = append(orderBy, ".identification.taxon.name "+string(i.SortBy.Order))
+	case BioMatSortSamplingDate:
+		orderBy = append(orderBy, ".sampling.event.performed_on.date "+string(i.SortBy.Order))
+	case BioMatSortIdentifiedOn:
+		orderBy = append(orderBy, ".identification.identified_on.date "+string(i.SortBy.Order))
+	case BioMatSortIdentifiedBy:
+		orderBy = append(orderBy, ".identification.identified_by.last_name "+string(i.SortBy.Order))
+	case BioMatSortLastUpdated:
+		orderBy = append(orderBy, ".meta.lastUpdated "+string(i.SortBy.Order))
+	default:
+		logrus.Warnf("Unknown sort key: %s", i.SortBy.Key)
+	}
+	return "order by " + strings.Join(orderBy, " then ")
 }
 
 func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models.PaginatedList[BioMaterialWithDetails], error) {
@@ -170,7 +215,7 @@ func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models
 		Items: []BioMaterialWithDetails{},
 	}
 	err := db.QuerySingle(context.Background(),
-		`#edgeql
+		fmt.Sprintf(`#edgeql
 			with module occurrence,
 				params := <json>$0,
 				search_term := <str>json_get(params, 'search'),
@@ -188,7 +233,7 @@ func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models
 			items := (
 				select BioMaterialWithType { * }
 				filter (
-					(.code ilike '%' ++ search_term ++ '%' if exists search_term else true) and
+					(.code ilike '%%' ++ search_term ++ '%%' if exists search_term else true) and
 					(.category = category if exists category else true) and
 					(
 						(
@@ -206,7 +251,8 @@ func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models
 			select {
 				items := (
 					select items
-					order by .identification.identified_on.date desc
+					%s # Order by clause
+					# order by .identification.identified_on.date desc
 					offset <optional int64>json_get(params, 'offset')
 					limit <optional int64>json_get(params, 'limit')
 				) {
@@ -224,7 +270,7 @@ func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models
 				},
 				total_count := count(items),
 			};
-		`,
+		`, opts.OrderByString()),
 		&result, params)
 	return result, err
 }
