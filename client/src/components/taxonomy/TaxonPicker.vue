@@ -39,7 +39,11 @@
   </v-autocomplete>
 </template>
 
-<script setup lang="ts" generic="Multiple extends boolean = false">
+<script
+  setup
+  lang="ts"
+  generic="Multiple extends boolean = false, ItemValue extends string = never"
+>
 import { Taxon, TaxonRank } from '@/api'
 import { listTaxaOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
@@ -48,8 +52,9 @@ import { FTaxonStatusIndicator } from './functionals'
 import TaxonChip from './TaxonChip'
 
 type Multiplable<T> = true extends Multiple ? T[] : T
+type WithItemValue<T extends Taxon> = ItemValue extends keyof T ? T[ItemValue] : T
 
-const model = defineModel<Multiplable<Taxon>>()
+const model = defineModel<Multiplable<WithItemValue<Taxon>>>()
 
 const {
   label = 'Taxon',
@@ -64,6 +69,7 @@ const {
   limit?: number
   chips?: boolean
   multiple?: Multiple
+  itemValue?: ItemValue
 }>()
 
 const search = ref('')
