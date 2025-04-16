@@ -59,7 +59,7 @@ func FindPerson(db geltypes.Executor, id geltypes.UUID) (person Person, err erro
 func ListPersons(db geltypes.Executor) (people []Person, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
-			select people::Person { ** } order by .last_name;
+			select people::Person { ** } order by (exists .user) desc then .last_name asc;
 		`, &people)
 	return
 }
