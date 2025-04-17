@@ -71,9 +71,10 @@
       </v-row>
 
       <v-row>
-        <v-col cols="12" lg="6" class="d-flex flex-column ga-6 align-stretch justify-start">
+        <v-col cols="12" lg="6" class="d-flex flex-column ga-4 align-stretch justify-start">
           <v-card
             title="Identification"
+            class="small-card-title"
             prepend-icon="mdi-microscope"
             :subtitle="DateWithPrecision.format(item.identification.identified_on)"
           >
@@ -112,14 +113,18 @@
               <TaxonChip :taxon="item.identification.taxon" class="my-1" />
               <span class="text-no-wrap">
                 by
-                <PersonChip :person="item.identification.identified_by" />
+                <PersonChip
+                  v-if="item.identification.identified_by"
+                  :person="item.identification.identified_by"
+                />
+                <span class="text-muted" v-else>Unknown</span>
               </span>
               <div v-if="item.external?.original_taxon">
                 Originally tagged as: {{ item.external.original_taxon }}
               </div>
             </v-card-text>
           </v-card>
-          <v-card title="Content" prepend-icon="mdi-hexagon-multiple">
+          <v-card title="Content" class="small-card-title" prepend-icon="mdi-hexagon-multiple">
             <template #append>
               <v-tooltip
                 :text="
@@ -152,17 +157,18 @@
               </v-tooltip>
             </template>
             <v-list v-if="item.external">
-              <v-list-item
-                :subtitle="item.external.content_description ?? 'No further description'"
-              >
+              <v-list-item lines="three">
                 <template #title>
-                  Specimen quantity: <v-chip :text="item.external.quantity" size="small" />
+                  <v-chip :text="item.external.quantity" size="small" />
                 </template>
                 <template #subtitle>
                   <div>{{ item.external.content_description ?? 'No further description' }}</div>
                   <div v-if="item.category === 'External' && !item.external.content">
                     No sequences registered
                   </div>
+                </template>
+                <template #append>
+                  <span class="text-muted text-caption">Quantity</span>
                 </template>
               </v-list-item>
               <template v-if="hasContentDetails">
@@ -207,35 +213,52 @@
               </template>
             </v-list>
           </v-card>
-          <v-card v-if="item.external" title="References" prepend-icon="mdi-newspaper-variant">
+          <v-card
+            v-if="item.external"
+            class="small-card-title"
+            title="References"
+            prepend-icon="mdi-newspaper-variant"
+          >
             <template #append>
-              <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small"></v-btn>
+              <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small" />
             </template>
-            <v-card-text>
-              <v-list>
-                <v-list-item title="Published in">
-                  <ArticleChip v-for="article in item.published_in" :article class="ma-1" />
-                </v-list-item>
-                <v-divider class="my-1" />
-                <v-list-item title="Source">
-                  <DataSourceChip
-                    v-if="item.external.original_source"
-                    :source="item.external.original_source"
-                  />
-                </v-list-item>
-                <v-list-item title="Collection">
-                  <b>{{ item.external.archive.collection }}</b>
-                </v-list-item>
-                <v-list-item title="Item vouchers">
+
+            <v-divider />
+            <v-list>
+              <v-list-item>
+                <ArticleChip v-for="article in item.published_in" :article class="ma-1" />
+                <template #append>
+                  <span class="text-muted text-caption">Publication(s)</span>
+                </template>
+              </v-list-item>
+              <v-list-item>
+                <DataSourceChip
+                  v-if="item.external.original_source"
+                  :source="item.external.original_source"
+                />
+                <span v-else class="text-muted text-caption"> Unknown </span>
+                <template #append>
+                  <span class="text-muted text-caption">Data source</span>
+                </template>
+              </v-list-item>
+              <v-list-item>
+                <b v-if="item.external.archive.collection">{{
+                  item.external.archive.collection
+                }}</b>
+                <span class="text-muted"> Unknown </span>
+                <template #append>
+                  <span class="text-muted text-caption">Collection</span>
+                </template>
+                <template #subtitle>
                   <v-chip
                     v-for="v in item.external.archive.vouchers"
                     :text="v"
                     size="small"
                     class="ma-1"
                   />
-                </v-list-item>
-              </v-list>
-            </v-card-text>
+                </template>
+              </v-list-item>
+            </v-list>
           </v-card>
         </v-col>
 

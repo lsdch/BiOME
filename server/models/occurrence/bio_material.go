@@ -90,7 +90,7 @@ func (b BioMaterial) AsOccurrence() OccurrenceWithCategory {
 
 type BioMaterialWithDetails struct {
 	GenericBioMaterial[Sampling] `gel:"$inline" json:",inline"`
-	Event                        EventInner `gel:"event" json:"event"`
+	Event                        EventWithParticipants `gel:"event" json:"event"`
 }
 
 func (b BioMaterialWithDetails) AsOccurrence() OccurrenceWithCategory {
@@ -123,7 +123,12 @@ func GetBioMaterial(db geltypes.Executor, code string) (biomat BioMaterialWithDe
 				samples: { **, identification: { **, identified_by: { * } } },
 				occurring_taxa: { * }
 			},
-			event := .sampling.event { *, site: { *, country: { * } } },
+			event := .sampling.event {
+				*,
+				performed_by: { * },
+				performed_by_groups: { * },
+				site: { *, country: { * } }
+			},
 			identification: { ** },
 			external: {
 				content := (
@@ -137,7 +142,7 @@ func GetBioMaterial(db geltypes.Executor, code string) (biomat BioMaterialWithDe
 						}
 					}
 				),
-				original_source,
+				original_source: { * },
 				original_link,
 				in_collection,
 				item_vouchers,
@@ -257,7 +262,12 @@ func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models
 					limit <optional int64>json_get(params, 'limit')
 				) {
 					**,
-					event := .sampling.event { *, site: { *, country: { * } } },
+					event := .sampling.event {
+						*,
+						performed_by: { * },
+						performed_by_groups: { * },
+						site: { *, country: { * } }
+					},
 					identification: { **, identified_by: { * } },
 					external: {
 						original_source,
@@ -301,7 +311,12 @@ func DeleteBioMaterial(db geltypes.Executor, code string) (deleted BioMaterialWi
 				seq_consensus := (
 					[is ExternalBioMat].seq_consensus ?? [is InternalBioMat].seq_consensus
 				) { * },
-				event := .sampling.event { *, site: { *, country: { * } } },
+				event := .sampling.event {
+					*,
+					performed_by: { * },
+					performed_by_groups: { * },
+					site: { *, country: { * } }
+				},
 				identification: { **, identified_by: { * } },
         external:= [is occurrence::ExternalBioMat]{
 					original_source,
@@ -391,7 +406,12 @@ func (i InternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
 					occurring_taxa: { * }
 				},
 				published_in: { *, @original_source },
-				event := .sampling.event { *, site: { *, country: { * } } },
+				event := .sampling.event {
+					*,
+					performed_by: { * },
+					performed_by_groups: { * },
+					site: { *, country: { * } }
+				},
 				identification: { **, identified_by: { * } },
 				meta: { * }
 			}
@@ -479,7 +499,12 @@ func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
 				is_homogenous,
 				is_congruent,
 				seq_consensus: { * },
-				event := .sampling.event { *, site: { *, country: { * } } },
+				event := .sampling.event {
+					*,
+					performed_by: { * },
+					performed_by_groups: { * },
+					site: { *, country: { * } }
+				},
 				identification: { ** },
         external := [is occurrence::ExternalBioMat]{
           original_link,
@@ -516,7 +541,12 @@ func (u ExternalBioMatUpdate) Save(e geltypes.Executor, code string) (updated Bi
       }) {
         **,
 				seq_consensus: { * },
-				event := .sampling.event { *, site: { *, country: { * } } },
+				event := .sampling.event {
+					*,
+					performed_by: { * },
+					performed_by_groups: { * },
+					site: { *, country: { * } }
+				},
 				identification: { **, identified_by: { * } },
         external := [is occurrence::ExternalBioMat]{
           original_link,

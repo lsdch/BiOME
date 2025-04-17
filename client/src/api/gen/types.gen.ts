@@ -162,7 +162,7 @@ export type BioMaterialWithDetails = {
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
-  event: EventInner
+  event: EventWithParticipants
   external?: OptionalExternalBioMatSpecific
   has_sequences: boolean
   id: string
@@ -516,6 +516,16 @@ export type EventUpdate = {
   performed_by_groups?: Array<string> | null
   performed_on?: DateWithPrecisionInput
   spottings?: Array<string> | null
+}
+
+export type EventWithParticipants = {
+  code: string
+  comments?: string
+  id: string
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
+  performed_on: DateWithPrecision
+  site: SiteItem
 }
 
 export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom'

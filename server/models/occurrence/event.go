@@ -38,14 +38,18 @@ type EventInner struct {
 	Comments    geltypes.OptionalStr `gel:"comments" json:"comments,omitempty"`
 }
 
+type EventWithParticipants struct {
+	EventInner        `gel:"$inline" json:",inline"`
+	PerformedBy       []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedByGroups []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
+}
+
 type Event struct {
-	EventInner          `gel:"$inline" json:",inline"`
-	PerformedBy         []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
-	PerformedByGroups   []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
-	AbioticMeasurements []AbioticMeasurement       `gel:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
-	Samplings           []Sampling                 `gel:"samplings" json:"samplings,omitempty"`
-	Spottings           []taxonomy.Taxon           `gel:"spottings" json:"spottings,omitempty"`
-	Meta                people.Meta                `gel:"meta" json:"meta"`
+	EventWithParticipants `gel:"$inline" json:",inline"`
+	AbioticMeasurements   []AbioticMeasurement `gel:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
+	Samplings             []Sampling           `gel:"samplings" json:"samplings,omitempty"`
+	Spottings             []taxonomy.Taxon     `gel:"spottings" json:"spottings,omitempty"`
+	Meta                  people.Meta          `gel:"meta" json:"meta"`
 }
 
 func (e *Event) AddSampling(db geltypes.Executor, sampling SamplingInput) error {

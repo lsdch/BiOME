@@ -211,7 +211,7 @@ const dateWithPrecisionSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const eventInnerSchemaResponseTransformer = (data: any) => {
+const eventWithParticipantsSchemaResponseTransformer = (data: any) => {
   data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
   return data
 }
@@ -407,7 +407,7 @@ const bioMaterialWithDetailsSchemaResponseTransformer = (data: any) => {
       return codeHistorySchemaResponseTransformer(item)
     })
   }
-  data.event = eventInnerSchemaResponseTransformer(data.event)
+  data.event = eventWithParticipantsSchemaResponseTransformer(data.event)
   if (data.external) {
     data.external = optionalExternalBioMatSpecificSchemaResponseTransformer(data.external)
   }
@@ -560,6 +560,11 @@ export const togglePinDatasetResponseTransformer = async (
   data: any
 ): Promise<TogglePinDatasetResponse> => {
   data = datasetSchemaResponseTransformer(data)
+  return data
+}
+
+const eventInnerSchemaResponseTransformer = (data: any) => {
+  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
   return data
 }
 

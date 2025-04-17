@@ -132,15 +132,6 @@
       </span>
     </template>
     <template #expanded-row-inject="{ item }">
-      <!-- <v-card flat class="fill-height small-card-title muted-title" density="compact"> -->
-      <!-- <template #append>
-              <v-btn
-                icon="mdi-link-variant"
-                :to="item.external.original_link"
-                size="x-small"
-                variant="tonal"
-              />
-            </template> -->
       <v-list v-if="item.external">
         <v-list-item prepend-icon="mdi-newspaper-variant">
           <template #append>
@@ -161,7 +152,7 @@
           </template>
         </v-list-item>
       </v-list>
-      <!-- </v-card> -->
+      <v-divider v-if="item.external" />
     </template>
     <!-- <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
       <BioMaterialFormDialog

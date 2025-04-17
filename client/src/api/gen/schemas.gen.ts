@@ -440,7 +440,7 @@ export const $BioMaterialWithDetails = {
       type: 'string'
     },
     event: {
-      $ref: '#/components/schemas/EventInner'
+      $ref: '#/components/schemas/EventWithParticipants'
     },
     external: {
       $ref: '#/components/schemas/OptionalExternalBioMatSpecific'
@@ -1348,6 +1348,42 @@ export const $EventUpdate = {
       type: ['array', 'null']
     }
   },
+  type: 'object'
+} as const
+
+export const $EventWithParticipants = {
+  additionalProperties: false,
+  properties: {
+    code: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    performed_by: {
+      items: {
+        $ref: '#/components/schemas/PersonUser'
+      },
+      type: 'array'
+    },
+    performed_by_groups: {
+      items: {
+        $ref: '#/components/schemas/OrganisationInner'
+      },
+      type: 'array'
+    },
+    performed_on: {
+      $ref: '#/components/schemas/DateWithPrecision'
+    },
+    site: {
+      $ref: '#/components/schemas/SiteItem'
+    }
+  },
+  required: ['id', 'site', 'code', 'performed_on'],
   type: 'object'
 } as const
 
