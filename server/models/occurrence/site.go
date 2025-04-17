@@ -52,6 +52,7 @@ type SitesProximityQuery struct {
 	LatLongCoords `json:",inline"`
 	Radius        int32                       `json:"radius" doc:"Radius in meters" example:"20000"`
 	Limit         models.OptionalInput[int64] `json:"limit,omitempty"`
+	Exclude       []string                    `json:"exclude,omitempty" doc:"List of site codes to exclude from the result"`
 }
 
 func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDistance, error) {
@@ -63,6 +64,7 @@ func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDis
 			data := <json>$0,
 			lat := <float32>data['latitude'],
 			lon := <float32>data['longitude'],
+			exclude_sites := <str>json_array_unpack(json_get(data, 'exclude')),
 			# Circle centered on provided coordinates with the given radius
 			area := ext::postgis::buffer(
 				ext::postgis::to_geography(WGS84_point(<float64>lat, <float64>lon)),
@@ -74,6 +76,7 @@ func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDis
 				distance := assert_exists(site_distance(Site, lat, lon))
 			}
 			filter ext::postgis::covers(area, ext::postgis::to_geography(site_as_point(Site)))
+			and not .code in exclude_sites
 			order by .distance asc
 			limit <optional int64>json_get(data, 'limit')
 		`,

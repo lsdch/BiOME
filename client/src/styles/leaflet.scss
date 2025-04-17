@@ -23,3 +23,10 @@
     }
   }
 }
+
+.leaflet-control-attribution {
+  opacity: 0.5;
+  &:hover {
+    opacity: 0.8;
+  }
+}

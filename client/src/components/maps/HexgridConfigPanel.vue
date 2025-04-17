@@ -1,5 +1,5 @@
 <template>
-  <v-card-text class="d-flex flex-column align-end">
+  <v-card-text class="d-flex flex-column">
     <v-slider
       v-model="model.radius"
       :max="20"
@@ -11,8 +11,6 @@
       hide-details
     />
     <div class="d-flex w-100 justify-space-between">
-      <v-checkbox-btn v-model="model.useRadiusRange" class="flex-grow-0 flex-start" />
-      <v-spacer />
       <v-range-slider
         :model-value="model.useRadiusRange ? model.radiusRange : [model.radius, model.radius]"
         @update:model-value="(v) => (model.radiusRange = v)"
@@ -24,11 +22,15 @@
         :disabled="!model.useRadiusRange"
         hide-details
         color="primary"
-      />
+      >
+        <template #append>
+          <v-checkbox-btn v-model="model.useRadiusRange" class="flex-grow-0 flex-start" />
+        </template>
+      </v-range-slider>
     </div>
   </v-card-text>
   <v-divider />
-  <v-card-text class="d-flex flex-column align-end">
+  <v-card-text class="d-flex flex-column">
     <v-range-slider
       v-if="model.asRange"
       v-model="model.opacity"
@@ -56,7 +58,7 @@
     <template #append>
       <v-switch label="Grow on hover" v-model="model.hover.fill" hide-details color="primary" />
     </template>
-    <v-card-text class="d-flex flex-column align-end">
+    <v-card-text class="d-flex flex-column">
       <div class="d-flex justify-space-between w-100">
         <v-checkbox-btn v-model="model.hover.useScale" class="flex-grow-0" />
         <v-slider

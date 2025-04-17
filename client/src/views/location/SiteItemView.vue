@@ -2,6 +2,7 @@
   <v-container
     fluid
     id="item-view-container"
+    class="responsive-container"
     min-height="100%"
     :class="['align-start w-100', { large: xlAndUp, small: mdAndDown }]"
   >
@@ -25,93 +26,64 @@
       <CenteredSpinner v-if="isPending" size="large" :height="300" />
       <v-alert v-else-if="error" color="error" icon="mdi-alert"> Failed to load site </v-alert>
       <v-list v-else-if="site">
-        <v-list-item title="Coordinates" class="pr-0">
-          <template #subtitle>
-            <code class="text-wrap">
-              {{ site.coordinates.latitude }},
-              {{ site.coordinates.longitude }}
-            </code>
-            <CoordPrecisionChip
-              :precision="site.coordinates.precision"
-              class="ml-5"
-              variant="outlined"
-              density="compact"
-            />
-          </template>
+        <v-list-item prepend-icon="mdi-crosshairs-gps">
+          <code class="text-wrap">
+            {{ site.coordinates.latitude }},
+            {{ site.coordinates.longitude }}
+          </code>
+          <CoordPrecisionChip
+            :precision="site.coordinates.precision"
+            class="ml-5"
+            density="compact"
+          />
           <template #append>
-            <v-btn
-              v-if="mapAsDialog"
-              class="ml-3"
-              variant="tonal"
-              icon="mdi-map-marker"
-              color="primary"
-              @click="toggleMap(true)"
-            />
+            <span class="text-muted text-caption">Coordinates</span>
           </template>
         </v-list-item>
-        <v-list-item title="Locality">
-          <template #subtitle>
-            <CountryChip
-              v-if="site.country"
-              class="mr-2 text-overline"
-              variant="outlined"
-              density="compact"
-              :country="site.country"
-            />
-            {{ site.locality }}
+        <v-list-item prepend-icon="mdi-town-hall">
+          <span :class="{ 'text-muted': !site.locality }">
+            {{ site.locality || 'Unknown locality' }}
+          </span>
+          <CountryChip
+            v-if="site.country"
+            class="mx-2 text-overline"
+            density="compact"
+            :country="site.country"
+          />
+          <template #append>
+            <span class="text-muted text-caption">Locality</span>
           </template>
         </v-list-item>
-        <v-list-item title="Description">
-          <v-list-item-subtitle
-            :class="{ 'font-italic': !site.description }"
+        <v-list-item>
+          <span
+            :class="['text-muted', { 'font-italic': !site.description }]"
             v-text="site.description ?? 'No description'"
           />
+          <template #append>
+            <span class="text-muted text-caption">Description</span>
+          </template>
         </v-list-item>
-        <v-list-item title="Targeted taxa">
-          <TaxonChip v-for="taxon in targeted_taxa" class="ma-1" :taxon />
+        <div id="inline-map-container" />
+        <v-divider />
+        <v-list-item>
+          <TaxonChip v-for="taxon in targeted_taxa" class="ma-1" :taxon size="small" />
+          <template #append>
+            <span class="text-muted text-caption">Targeted taxa</span>
+          </template>
         </v-list-item>
-        <v-list-item title="Sampled taxa">
-          <TaxonChip v-for="taxon in occurring_taxa" class="ma-1" :taxon />
+        <v-list-item>
+          <TaxonChip v-for="taxon in occurring_taxa" class="ma-1" :taxon size="small" />
+          <template #append>
+            <span class="text-muted text-caption">Sampled taxa</span>
+          </template>
         </v-list-item>
       </v-list>
     </v-card>
 
     <div id="map-container">
-      <ResponsiveDialog :as-dialog="mapAsDialog" v-model:open="mapActive">
-        <v-card class="d-flex flex-column fill-height" :rounded="!mapActive">
-          <SitesMap
-            :items="site ? [site] : []"
-            regions
-            :fitPad
-            :closable="mapActive"
-            @close="toggleMap(false)"
-          >
-            <template #default="{ zoom }">
-              <SiteRadius v-if="site" :site :zoom />
-            </template>
-          </SitesMap>
-          <template #actions v-if="site">
-            <!-- :href="`https://www.google.com/maps/place/${site.coordinates.latitude}+${site.coordinates.longitude}/@${site.coordinates.latitude},${site.coordinates.longitude},10z`" -->
-            <v-menu>
-              <template #activator="{ props }">
-                <v-btn prepend-icon="mdi-map" color="primary" v-bind="props" text="Open in" />
-              </template>
-              <v-list density="compact">
-                <v-list-item
-                  title="Google Maps"
-                  prepend-icon="mdi-google-maps"
-                  :href="`http://maps.google.com/maps?&z=15&mrt=yp&t=k&q=${site.coordinates.latitude}+${site.coordinates.longitude}+(${site.name})`"
-                />
-                <v-list-item
-                  title="Google Earth"
-                  prepend-icon="mdi-google-earth"
-                  :href="`https://earth.google.com/web/search/${site.coordinates.latitude},${site.coordinates.longitude}`"
-                />
-              </v-list>
-            </v-menu>
-          </template>
-        </v-card>
-      </ResponsiveDialog>
+      <v-card v-if="!site && !$vuetify.display.mdAndDown" height="100%">
+        <CenteredSpinner height="100%" :size="50" />
+      </v-card>
     </div>
 
     <SiteFormDialog v-model="site" v-model:dialog="editDialog"></SiteFormDialog>
@@ -120,7 +92,7 @@
       <v-expansion-panels :disabled="isPending">
         <v-expansion-panel>
           <template #title>
-            Events
+            Events and samples
             <v-badge color="primary" inline :content="site?.events?.length ?? 0" />
           </template>
 
@@ -177,6 +149,7 @@
         </v-list-item>
       </v-card>
     </div>
+    <SiteItemMap v-if="site" :site />
   </v-container>
 </template>
 
@@ -184,46 +157,27 @@
 import { Taxon } from '@/api'
 import { getSiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import SiteEventsTable from '@/components/events/SiteEventsTable.vue'
-import SitesMap from '@/components/maps/SitesMap.vue'
 import SiteFormDialog from '@/components/forms/SiteFormDialogMutation.vue'
+import CoordPrecisionChip from '@/components/sites/CoordPrecisionChip'
+import CountryChip from '@/components/sites/CountryChip'
 import TaxonChip from '@/components/taxonomy/TaxonChip'
-import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
+import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
-import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
-import SiteRadius from '@/components/sites/SiteRadius'
-import CoordPrecisionChip from '@/components/sites/CoordPrecisionChip'
-import CountryChip from '@/components/sites/CountryChip'
+import SiteItemMap from './SiteItemMap.vue'
 
 const { mdAndDown, xlAndUp } = useDisplay()
 
-const mapAsDialog = mdAndDown
-
-const [mapActive, toggleMap] = useToggle(false)
 const [editDialog, toggleEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
 
+console.log('code', code)
 const { data: site, error, isPending } = useQuery(getSiteOptions({ path: { code } }))
-
-const fitPad = computed(() => {
-  switch (site.value?.coordinates.precision) {
-    case '<100m':
-      return 0.001
-    case '<1km':
-      return 0.01
-    case '<10km':
-      return 0.1
-    case '10-100km':
-      return 1
-    default:
-      return undefined
-  }
-})
 
 const targeted_taxa = computed(() => {
   return Object.values(
@@ -277,6 +231,7 @@ const abiotic_measurements = computed(() => {
   grid-area: map;
   align-self: stretch;
 }
+
 #info-container {
   grid-area: info;
 }

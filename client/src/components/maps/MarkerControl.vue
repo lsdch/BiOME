@@ -1,17 +1,39 @@
 <template>
   <v-menu
     transition="scale-transition"
-    location="bottom left"
-    origin="bottom left"
+    location="right center"
+    origin="left center"
+    :offset="10"
     :close-on-content-click="false"
     attach=".map"
   >
     <template #activator="{ props }">
-      <v-card theme="light">
-        <v-btn icon="mdi-cog" variant="plain" color="" :rounded="30" v-bind="props"></v-btn>
+      <v-card theme="light" flat rounded="0" elevation="5" :width="30" :height="30">
+        <v-btn
+          icon="mdi-cog"
+          variant="text"
+          color=""
+          :rounded="0"
+          v-bind="props"
+          size="small"
+          :width="30"
+          :height="30"
+        />
       </v-card>
     </template>
-    <v-card theme="light" :min-width="300" title="Marker settings">
+    <v-card
+      theme="light"
+      :min-width="400"
+      title="Marker settings"
+      class="small-card-title opacity-80"
+      :max-height="300"
+      @click.stop
+      @mousemove.stop
+      @wheel.stop
+      @touchmove.stop
+      @scroll.stop
+      :ripple="false"
+    >
       <template #append>
         <v-btn-toggle
           mandatory
@@ -21,8 +43,8 @@
           border="sm"
           color="success"
         >
-          <v-btn text="Clusters" size="small" density="compact" value="cluster"></v-btn>
-          <v-btn text="Hex grid" size="small" density="compact" value="hexgrid"></v-btn>
+          <v-btn text="Clusters" size="x-small" density="compact" value="cluster"></v-btn>
+          <v-btn text="Hex grid" size="x-small" density="compact" value="hexgrid"></v-btn>
         </v-btn-toggle>
       </template>
       <v-tabs-window v-model="marker">

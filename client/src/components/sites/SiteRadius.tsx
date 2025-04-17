@@ -24,6 +24,8 @@ function zoomedEnough(item: Geocoordinates, zoom?: number) {
 export function SiteRadius({ site, interactive = false, zoom, ...props }: SiteRadiusProps) {
   return zoomedEnough(site, zoom) ? (
     <LCircle
+      color="orange"
+      dashArray="1px 8px"
       latLng={Geocoordinates.LatLng(site)}
       radius={CoordinatesPrecision.radius(site.coordinates.precision)}
       interactive={interactive}

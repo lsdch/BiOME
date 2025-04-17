@@ -5778,6 +5778,13 @@ export const $SitesProximityQuery = {
       readOnly: true,
       type: 'string'
     },
+    exclude: {
+      description: 'List of site codes to exclude from the result',
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
     latitude: {
       examples: [43.5684],
       format: 'float',

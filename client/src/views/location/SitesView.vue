@@ -20,7 +20,7 @@
       </div>
     </v-navigation-drawer>
     <div class="fill-height w-100 d-flex flex-column">
-      <TableToolbar
+      <!-- <TableToolbar
         title="Sites"
         icon="mdi-map-marker"
         :togglable-search="false"
@@ -47,7 +47,7 @@
             :to="{ name: 'import-dataset' }"
           />
         </template>
-      </TableToolbar>
+      </TableToolbar> -->
       <v-progress-linear v-if="isPending || isRefetching" indeterminate color="warning" />
       <div class="fill-height w-100 position-relative">
         <v-overlay

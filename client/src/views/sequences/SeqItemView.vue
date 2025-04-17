@@ -77,35 +77,35 @@
     </v-card-text>
     <PageErrors v-else-if="error" :error />
     <v-card-text v-else-if="item" class="flex-grow-1 bg-main responsive-container">
-      <v-row>
+      <v-row v-if="item.label || item.comments">
         <v-col>
           <v-card>
             <v-list>
               <template v-if="item.label">
                 <v-list-item prepend-icon="mdi-tag">
-                  {{ item.label ?? 'No label provided' }}
+                  {{ item.label }}
                 </v-list-item>
                 <v-divider />
               </template>
               <v-list-item
+                v-if="item.comments"
                 prepend-icon="mdi-dots-horizontal"
                 :class="['text-small', { 'font-italic': !item.comments }]"
               >
-                {{ item.comments ?? 'No comments' }}
+                {{ item.comments }}
               </v-list-item>
             </v-list>
           </v-card>
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12" lg="6">
+        <v-col cols="12" lg="6" class="d-flex flex-column ga-4 align-stretch justify-start">
           <v-card
             title="Identification"
-            class="mb-6"
             prepend-icon="mdi-microscope"
             :subtitle="DateWithPrecision.format(item.identification.identified_on)"
           >
-            <template #append>
+            <template #append v-if="item.external?.source_sample">
               <v-tooltip
                 :text="
                   item.external?.source_sample?.identification.taxon.id ===
@@ -142,18 +142,22 @@
               <TaxonChip :taxon="item.identification.taxon" class="my-1" />
               <span class="text-no-wrap">
                 by
-                <PersonChip :person="item.identification.identified_by" />
+                <PersonChip
+                  v-if="item.identification.identified_by"
+                  :person="item.identification.identified_by"
+                />
+                <span class="text-muted" v-else>Unknown</span>
               </span>
             </v-card-text>
-            <v-divider></v-divider>
-            <v-card-actions v-if="item.external?.original_taxon">
-              Originally tagged as: <code>{{ item.external.original_taxon }}</code>
-            </v-card-actions>
+            <v-divider />
+            <v-list-item v-if="item.external?.original_taxon">
+              <code>{{ item.external.original_taxon }}</code>
+              <template #append>
+                <span class="text-muted text-caption">Original ident.</span>
+              </template>
+            </v-list-item>
           </v-card>
-          <OccurrenceSamplingCard class="mt-6" :item @edit="toggleSamplingEdit(true)" />
-        </v-col>
-        <v-col cols="12" lg="6">
-          <v-card title="Origin sample" class="mb-6" prepend-icon="mdi-package-variant">
+          <v-card title="Origin sample" prepend-icon="mdi-package-variant">
             <template #subtitle>
               <v-chip
                 v-if="item.external?.source_sample"
@@ -164,45 +168,48 @@
                 label
                 size="small"
                 class="mx-1"
-              ></v-chip>
+              />
+              <v-card-subtitle v-else>No attached bio-material</v-card-subtitle>
             </template>
-            <v-card-text>
-              <v-list-item v-if="item.external" title="Specimen identifier">
-                <template #subtitle>
-                  <code>{{ item.external?.specimen_identifier }} </code>
-                </template>
-              </v-list-item>
-            </v-card-text>
+            <v-list-item v-if="item.external" prepend-icon="mdi-tag">
+              <code>{{ item.external?.specimen_identifier }} </code>
+              <template #append>
+                <span class="text-muted text-caption"> Specimen identifier </span>
+              </template>
+            </v-list-item>
           </v-card>
 
-          <v-card
-            v-if="item.external"
-            class="mt-6"
-            title="References"
-            prepend-icon="mdi-newspaper-variant"
-          >
+          <v-card v-if="item.external" title="References" prepend-icon="mdi-newspaper-variant">
             <template #append>
-              <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small"></v-btn>
+              <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small" />
             </template>
-            <v-card-text>
-              <v-list>
-                <v-list-item title="Databases" prepend-icon="mdi-database">
-                  <SeqRefChip v-for="seqRef in item.external.referenced_in" :seq-ref class="ma-1" />
-                </v-list-item>
-                <v-list-item
-                  title="Published in"
-                  :subtitle="item.external.published_in ? undefined : 'No registered references'"
-                  prepend-icon="mdi-newspaper-variant"
-                >
-                  <ArticleChip
-                    v-for="article in item.external.published_in"
-                    :article
-                    class="ma-1"
-                  />
-                </v-list-item>
-              </v-list>
-            </v-card-text>
+            <v-list>
+              <v-list-item prepend-icon="mdi-database">
+                <SeqRefChip
+                  v-if="item.external.referenced_in"
+                  v-for="seqRef in item.external.referenced_in"
+                  :seq-ref
+                  class="ma-1"
+                />
+                <span v-else class="text-muted">None registered</span>
+                <template #append>
+                  <span class="text-muted text-caption">Repositories</span>
+                </template>
+              </v-list-item>
+              <v-list-item
+                :subtitle="item.external.published_in ? undefined : 'No registered references'"
+                prepend-icon="mdi-newspaper-variant"
+              >
+                <ArticleChip v-for="article in item.external.published_in" :article class="ma-1" />
+                <template #append>
+                  <span class="text-muted text-caption"> Publication(s) </span>
+                </template>
+              </v-list-item>
+            </v-list>
           </v-card>
+        </v-col>
+        <v-col cols="12" lg="6">
+          <OccurrenceSamplingCard :item @edit="toggleSamplingEdit(true)" />
         </v-col>
       </v-row>
       <v-row>

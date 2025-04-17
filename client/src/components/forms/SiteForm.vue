@@ -104,7 +104,7 @@
         />
       </v-col>
       <v-col>
-        <v-card height="300">
+        <v-card height="300" class="d-flex flex-column">
           <SiteProximityMap v-model="model.coordinates" />
         </v-card>
       </v-col>

@@ -31,14 +31,18 @@
     >
       <LControlScale position="bottomright" metric :imperial="false" />
       <LControl position="bottomright" class="coordinates-control">
-        <v-card v-if="cursorCoordinates">
-          <template #text>
-            <code>
-              <div>Lat: {{ cursorCoordinates.lat.toFixed(5) }}</div>
-              <div>Lng: {{ cursorCoordinates.lng.toFixed(5) }}</div>
-              <div>Zoom: {{ zoom.toFixed(4) }}</div>
-            </code>
-          </template>
+        <v-card v-if="cursorCoordinates" density="compact" class="pa-2">
+          <code class="text-caption font-monospace">
+            <div class="d-flex justify-space-between ga-2">
+              <span>Lat:</span> {{ cursorCoordinates.lat.toFixed(4) }}
+            </div>
+            <div class="d-flex justify-space-between ga-2">
+              <span>Lng:</span> {{ cursorCoordinates.lng.toFixed(4) }}
+            </div>
+            <div class="d-flex justify-space-between ga-2">
+              <span>Zoom:</span> {{ zoom.toFixed(2) }}
+            </div>
+          </code>
         </v-card>
       </LControl>
 
@@ -60,7 +64,7 @@
       <LControl position="topleft">
         <div class="leaflet-bar d-flex flex-column">
           <v-btn
-            v-if="items"
+            v-if="items || marker"
             title="Fit view"
             class="bg-white"
             color="white"
@@ -68,7 +72,7 @@
             icon="mdi-fit-to-screen"
             :width="30"
             density="compact"
-            @click="fitBounds(items)"
+            @click="fitMapView()"
           />
           <v-btn
             title="Toggle fullscreen"
@@ -83,14 +87,14 @@
         </div>
       </LControl>
       <LControl position="topleft">
-        <div class="leaflet-bar"></div>
-      </LControl>
-      <LControl position="bottomleft" v-if="clustered && !hideMarkerControl">
-        <MarkerControl
-          v-model="markerMode"
-          v-model:hexgrid="hexgridConfig"
-          v-model:cluster="clusterConfig"
-        />
+        <div class="leaflet-bar">
+          <MarkerControl
+            v-if="clustered && !hideMarkerControl"
+            v-model="markerMode"
+            v-model:hexgrid="hexgridConfig"
+            v-model:cluster="clusterConfig"
+          />
+        </div>
       </LControl>
 
       <LControlLayers hide-single-base />
@@ -148,7 +152,7 @@
             v-for="item in items"
             :key="item.id"
             :lat-lng="[item.coordinates.latitude, item.coordinates.longitude]"
-            v-bind="marker"
+            v-bind="markerOptions"
             @click="selectSite(item)"
             @popupopen="console.log('open')"
           >
@@ -161,10 +165,18 @@
         v-for="item in items"
         :key="item.id"
         :latLng="[item.coordinates.latitude, item.coordinates.longitude]"
-        v-bind="marker"
+        v-bind="markerOptions"
         @click="selectSite(item)"
       >
       </LCircleMarker>
+
+      <slot
+        v-if="marker"
+        name="marker"
+        :lat-lng="marker ? Geocoordinates.LatLng(marker) : undefined"
+      >
+        <LMarker :lat-lng="Geocoordinates.LatLng(marker)" />
+      </slot>
 
       <!-- Shared site popup -->
       <LLayerGroup ref="popup-layer" @popupopen="popupOpen = true" @popupclose="popupOpen = false">
@@ -188,6 +200,7 @@ import {
   LControlScale,
   LLayerGroup,
   LMap,
+  LMarker,
   LPopup,
   LTileLayer
 } from '@vue-leaflet/vue-leaflet'
@@ -260,13 +273,13 @@ const emit = defineEmits<{
 const props = withDefaults(
   defineProps<{
     items?: SiteItem[]
-    marker?: Omit<CircleMarkerOptions, 'dashArray'>
+    marker?: Geocoordinates
+    markerOptions?: Omit<CircleMarkerOptions, 'dashArray'>
     bounds?: [LatLngExpression, LatLngExpression]
     autoFit?: boolean | number
     closable?: boolean
     clustered?: boolean
     regions?: boolean
-    fitPad?: number
     center?: PointExpression
     minZoom?: number
     maxZoom?: number
@@ -276,10 +289,9 @@ const props = withDefaults(
     bounds: () => [latLng(90, -360), latLng(-90, 360)],
     minZoom: 2,
     maxZoom: 18,
-    fitPad: 0,
     autoFit: true,
     center: () => [0, 0],
-    marker: () => ({
+    markerOptions: () => ({
       color: 'white',
       fill: true,
       fillColor: 'orangered',
@@ -292,63 +304,76 @@ const props = withDefaults(
 defineSlots<{
   default: (props: { zoom: number; map?: HTMLElement }) => any
   popup: (props: { item: SiteItem; popupOpen: boolean; zoom: number }) => any
+  marker: (props: { latLng?: LatLngExpression }) => any
 }>()
 
 const mapBounds = ref(L.latLngBounds(...props.bounds))
 
 watch(
-  () => props.items,
-  (items) => {
-    if (props.autoFit && items) fitBounds(items)
-  }
+  () => [props.items, props.marker, props.autoFit],
+  () => fitMapView()
 )
 
 function onReady(mapInstance: Map) {
   // nextTick(fitBounds)
-  if (props.autoFit) setTimeout(fitBounds, 200)
+  if (props.autoFit) setTimeout(fitMapView, 200)
 }
 
 function onVisible(visible: boolean) {
-  if (visible && props.autoFit) fitBounds()
+  if (!visible) return
+  fitMapView()
 }
 
-const fitBounds = useDebounceFn(
-  (items: SiteItem[] = props.items ?? [], fitPad: number = props.fitPad) => {
-    console.log('[Map] Fit bounds')
-    const minMaxCoords = items.reduce(
-      (
-        acc: { sw: LatLngLiteral; ne: LatLngLiteral } | null,
-        { coordinates: { latitude, longitude } }: SiteItem
-      ): { sw: LatLngLiteral; ne: LatLngLiteral } | null => {
-        return acc === null
-          ? {
-              sw: { lat: latitude, lng: longitude },
-              ne: { lat: latitude, lng: longitude }
-            }
-          : {
-              sw: {
-                lat: Math.min(acc.sw.lat, latitude),
-                lng: Math.min(acc.sw.lng, longitude)
-              },
-              ne: {
-                lat: Math.max(acc.ne.lat, latitude),
-                lng: Math.max(acc.ne.lng, longitude)
-              }
-            }
-      },
-      null
-    )
-
-    if (minMaxCoords) {
-      minMaxCoords.sw.lat -= fitPad
-      minMaxCoords.sw.lng -= fitPad
-      minMaxCoords.ne.lat += fitPad
-      minMaxCoords.ne.lng += fitPad
-      mapBounds.value = latLngBounds(minMaxCoords.sw, minMaxCoords.ne).pad(0.1)
+function fitMapView() {
+  if (props.autoFit !== false) {
+    if (typeof props.autoFit == 'number') {
+      fitRadius(props.autoFit)
+    } else {
+      fitBounds(props.items)
     }
-  },
-  200
-)
+  }
+}
+
+const fitRadius = useDebounceFn((radius: number) => {
+  if (props.marker) {
+    let r = Math.max(100, radius)
+    const { latitude, longitude } = props.marker.coordinates
+    mapBounds.value = L.latLng(latitude, longitude)
+      .toBounds(r + 100)
+      .pad(0.5)
+  }
+}, 200)
+
+const fitBounds = useDebounceFn((items: SiteItem[] = props.items ?? []) => {
+  console.log('[Map] Fit bounds')
+  const minMaxCoords = items.reduce(
+    (
+      acc: { sw: LatLngLiteral; ne: LatLngLiteral } | null,
+      { coordinates: { latitude, longitude } }: SiteItem
+    ): { sw: LatLngLiteral; ne: LatLngLiteral } | null => {
+      return acc === null
+        ? {
+            sw: { lat: latitude, lng: longitude },
+            ne: { lat: latitude, lng: longitude }
+          }
+        : {
+            sw: {
+              lat: Math.min(acc.sw.lat, latitude),
+              lng: Math.min(acc.sw.lng, longitude)
+            },
+            ne: {
+              lat: Math.max(acc.ne.lat, latitude),
+              lng: Math.max(acc.ne.lng, longitude)
+            }
+          }
+    },
+    null
+  )
+
+  if (minMaxCoords) {
+    mapBounds.value = latLngBounds(minMaxCoords.sw, minMaxCoords.ne).pad(0.1)
+  }
+}, 200)
 
 defineExpose({ fitBounds })
 </script>

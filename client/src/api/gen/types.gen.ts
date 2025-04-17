@@ -2067,6 +2067,10 @@ export type SitesProximityQuery = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  /**
+   * List of site codes to exclude from the result
+   */
+  exclude?: Array<string>
   latitude: number
   limit?: number
   longitude: number
