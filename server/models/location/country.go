@@ -57,6 +57,7 @@ func SitesCountByCountry(db geltypes.Executor) ([]CountryWithSitesCount, error) 
 	err := db.Query(context.Background(),
 		`#edgeql
 			select location::Country { *, sites_count := count(.sites) }
+			order by .sites_count desc
 		`, &res)
 	return res, err
 }
