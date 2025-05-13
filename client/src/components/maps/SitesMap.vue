@@ -132,12 +132,19 @@
           :hover-scale="hexgridConfig.hover.useScale ? hexgridConfig.hover.scale : undefined"
           :color-range="['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']"
           style="cursor: pointer"
+          @click="
+            (e) => {
+              if (e.length === 1) selectSite(e[0].data)
+            }
+          "
         >
           <template #popup="{ data }">
-            <LPopup :options="{ closeButton: false }">
-              <v-card-text class="text-center">
-                <code class="font-weight-bold">{{ data?.length }}</code>
-              </v-card-text>
+            <LPopup v-show="(data?.length ?? 0) > 1" :options="{ closeButton: false }">
+              <slot name="hex-popup" :data>
+                <v-card-text class="text-center">
+                  <code class="font-weight-bold">{{ data?.length }}</code>
+                </v-card-text>
+              </slot>
             </LPopup>
           </template>
         </LHexbinLayer>
@@ -222,13 +229,19 @@ import L, {
   type Map
 } from 'leaflet'
 
-import { nextTick, ref, useTemplateRef, watch } from 'vue'
+import { nextTick, ref, UnwrapRef, useTemplateRef, watch } from 'vue'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import { Geocoordinates } from '.'
 
 import { vElementVisibility } from '@vueuse/components'
 import { HexgridConfig } from './HexgridConfigPanel.vue'
 import MarkerControl, { MarkerLayer } from './MarkerControl.vue'
+import SitePopup from '../sites/SitePopup.vue'
+
+export type HexPopupData<SiteItem> = {
+  data: SiteItem
+  coord: L.LatLngExpression
+}
 
 const markerMode = defineModel<MarkerLayer>('marker-mode', { default: 'cluster' })
 
@@ -301,10 +314,11 @@ const props = withDefaults(
   }
 )
 
-defineSlots<{
+const slots = defineSlots<{
   default: (props: { zoom: number; map?: HTMLElement }) => any
   popup: (props: { item: SiteItem; popupOpen: boolean; zoom: number }) => any
   marker: (props: { latLng?: LatLngExpression }) => any
+  'hex-popup': (props: { data?: HexPopupData<SiteItem>[] }) => any
 }>()
 
 const mapBounds = ref(L.latLngBounds(...props.bounds))

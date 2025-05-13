@@ -3385,6 +3385,21 @@ export const $OptionalDataSource = {
   type: ['object', 'null']
 } as const
 
+export const $OptionalDateWithPrecision = {
+  additionalProperties: false,
+  properties: {
+    date: {
+      format: 'date-time',
+      type: 'string'
+    },
+    precision: {
+      $ref: '#/components/schemas/DatePrecision'
+    }
+  },
+  required: ['precision'],
+  type: ['object', 'null']
+} as const
+
 export const $OptionalExtSeqSpecificsBioMaterial = {
   additionalProperties: false,
   properties: {
@@ -5702,6 +5717,9 @@ export const $SiteWithOccurrences = {
     id: {
       format: 'uuid',
       type: 'string'
+    },
+    last_visited: {
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     locality: {
       type: 'string'

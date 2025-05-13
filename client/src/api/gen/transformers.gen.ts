@@ -828,12 +828,22 @@ export const updateHabitatGroupResponseTransformer = async (
   return data
 }
 
+const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
+  if (data.date) {
+    data.date = new Date(data.date)
+  }
+  return data
+}
+
 const occurrenceAtSiteSchemaResponseTransformer = (data: any) => {
   data.sampling_date = dateWithPrecisionSchemaResponseTransformer(data.sampling_date)
   return data
 }
 
 const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
+  if (data.last_visited) {
+    data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
+  }
   data.occurrences = data.occurrences.map((item: any) => {
     return occurrenceAtSiteSchemaResponseTransformer(item)
   })

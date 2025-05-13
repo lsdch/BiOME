@@ -52,11 +52,12 @@
           <CountryChip :country="item.country" size="small" class="ml-2" />
         </template>
       </v-list-item>
+      <slot name="append-items" :item />
     </v-list>
   </l-popup>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="Item extends SiteItem">
 import { SiteItem } from '@/api'
 import { LPopup } from '@vue-leaflet/vue-leaflet'
 import { useClipboard, useTimeoutFn, useToggle } from '@vueuse/core'
@@ -66,7 +67,7 @@ import SiteRadius from './SiteRadius'
 import CountryChip from './CountryChip'
 
 const { zoom = 1, item } = defineProps<{
-  item: SiteItem
+  item: Item
   options?: PopupOptions
   showRadius?: boolean
   zoom?: number

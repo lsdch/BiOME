@@ -176,7 +176,6 @@
             <div class="d-flex flex-column h-auto">
               <div class="flex-grow-1">
                 <slot name="expanded-row-inject" :item> </slot>
-                <v-divider v-show="$slots['expanded-row-inject']" />
               </div>
               <slot name="expanded-row-footer" :item>
                 <div class="d-flex flex-wrap align-center">
@@ -236,8 +235,6 @@
   lang="ts"
   generic="
     ItemType extends { id: string; meta?: Meta },
-    ItemInputType extends {},
-    ItemsDeleteData extends {},
     ItemFilters extends {},
     ItemSortKey extends string
   "

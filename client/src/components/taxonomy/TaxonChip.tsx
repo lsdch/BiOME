@@ -1,10 +1,13 @@
-import { Taxon } from '@/api'
+import { Taxon, TaxonInner } from '@/api'
 import { FTaxonStatusIndicator } from '@/components/taxonomy/functionals'
 import LinkIconGBIF from '@/components/taxonomy/LinkIconGBIF'
 import { withModifiers } from 'vue'
 import { VChip } from 'vuetify/components'
 
-export type TaxonChipProps = VChip['$props'] & { taxon: Taxon; short?: boolean }
+export type TaxonChipProps = VChip['$props'] & {
+  taxon: TaxonInner & Partial<Taxon>
+  short?: boolean
+}
 
 export function TaxonChip({ taxon, short, ...chipProps }: TaxonChipProps) {
   const shortName = (name: string) => {

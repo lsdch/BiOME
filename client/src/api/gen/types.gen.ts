@@ -1237,6 +1237,11 @@ export type OptionalDataSource = {
   url?: string
 } | null
 
+export type OptionalDateWithPrecision = {
+  date?: Date
+  precision: DatePrecision
+} | null
+
 export type OptionalExtSeqSpecificsBioMaterial = {
   origin: ExtSeqOrigin
   original_taxon?: string
@@ -2043,6 +2048,7 @@ export type SiteWithOccurrences = {
   country?: OptionalCountry
   description?: string
   id: string
+  last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
   occurrences: Array<OccurrenceAtSite>
@@ -4803,6 +4809,14 @@ export type OccurrencesBySiteData = {
   query?: {
     datasets?: Array<string>
     countries?: Array<string>
+    taxa?: Array<string>
+    whole_clade?: boolean
+    habitats?: Array<string>
+    /**
+     * List of sampling target names. "Community"
+     */
+    sampling_target_kinds?: Array<SamplingTargetKind>
+    sampling_target_taxa?: Array<string>
   }
   url: '/occurrences/by-site'
 }
@@ -6570,6 +6584,7 @@ export type ListTaxaData = {
     anchor?: boolean
     parent?: string
     limit?: number
+    sampled_only?: boolean
   }
   url: '/taxonomy/taxa'
 }

@@ -28,6 +28,7 @@
         :items="nearbySites?.filter(({ distance }) => distance <= proximityRadius)"
         :auto-fit="proximityRadius"
         clustered
+        regions
       >
         <template #popup="{ item }">
           <KeepAlive>

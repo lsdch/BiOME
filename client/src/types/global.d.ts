@@ -48,4 +48,6 @@ declare global {
   type PartialTips<T extends {}> = {
     [K in keyof T]?: T[K] extends {} ? PartialTips<T[K]> : T[K]
   }
+
+  type Multiplable<T, Multiple extends boolean> = true extends Multiple ? T[] : T
 }

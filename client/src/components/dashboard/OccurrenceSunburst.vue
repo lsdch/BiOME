@@ -11,7 +11,7 @@
     <template #append>
       <v-menu :close-on-content-click="false" location="bottom" origin="top center">
         <template #activator="{ props }">
-          <v-btn icon="mdi-cog" variant="text" color="" v-bind="props"></v-btn>
+          <v-btn icon="mdi-cog" variant="text" color="" v-bind="props" />
         </template>
         <v-list :width="300" max-width="100vw">
           <v-list-item title="Taxonomic scope">
@@ -27,7 +27,7 @@
               label="Use total clade occurrences"
               v-model="settings.totalByClade"
               color="primary"
-            ></v-switch>
+            />
           </v-list-item>
         </v-list>
       </v-menu>
@@ -36,7 +36,7 @@
         variant="text"
         :icon="fullscreen ? 'mdi-close' : 'mdi-fullscreen'"
         @click="toggleFullscreen()"
-      ></v-btn>
+      />
     </template>
     <CenteredSpinner v-if="isPending" :height="200" size="large" color="primary" />
     <v-card-text v-else-if="error">
@@ -162,17 +162,6 @@ const visualMap = computed<VisualMapComponentOption>(() => ({
 
 const option = computed<ECBasicOption>(
   (): ECBasicOption => ({
-    dataZoom: [
-      {
-        type: 'inside',
-        xAxisIndex: [0],
-        yAxisIndex: [0],
-        radiusAxisIndex: [0],
-        start: 0,
-        end: 100,
-        minSpan: 0
-      }
-    ],
     // title: {
     //   text: 'Occurrences overview',
     //   // subtext: 'Source: https://worldcoffeeresearch.org/work/sensory-lexicon/',

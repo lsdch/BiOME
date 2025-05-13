@@ -59,11 +59,17 @@ type OccurrenceAtSite struct {
 
 type SiteWithOccurrences struct {
 	SiteItem    `gel:"$inline" json:",inline"`
-	Occurrences []OccurrenceAtSite `gel:"occurrences" json:"occurrences"`
+	Occurrences []OccurrenceAtSite                 `gel:"occurrences" json:"occurrences"`
+	LastVisited models.Optional[DateWithPrecision] `gel:"last_visited" json:"last_visited,omitempty"`
 }
 
 type OccurrencesBySiteOptions struct {
 	ListSitesOptions
+	Taxa                []string             `json:"taxa,omitempty" query:"taxa"`
+	WholeClade          bool                 `json:"whole_clade" query:"whole_clade"`
+	Habitats            []string             `json:"habitats,omitempty" query:"habitats"`
+	SamplingTargetKinds []SamplingTargetKind `json:"sampling_target_kinds,omitempty" query:"sampling_target_kinds" doc:"List of sampling target names. \"Community\" "`
+	SamplingTargetTaxa  []string             `json:"sampling_target_taxa,omitempty" query:"sampling_target_taxa"`
 }
 
 func (o OccurrencesBySiteOptions) Options() OccurrencesBySiteOptions {
@@ -72,20 +78,47 @@ func (o OccurrencesBySiteOptions) Options() OccurrencesBySiteOptions {
 
 func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]SiteWithOccurrences, error) {
 	var sites []SiteWithOccurrences
-	filters, _ := json.Marshal(opts.ListSitesOptions)
+	filters, _ := json.Marshal(opts)
 	err := db.Query(context.Background(),
 		`#edgeql
 			with module occurrence,
 			 filters := <json>$0,
-			 country_codes := <str>json_get(filters, 'country_codes'),
+			 country_codes := <str>json_array_unpack(json_get(filters, 'countries')),
+			 taxa := (
+				select taxonomy::Taxon
+				filter .code in <str>json_array_unpack(json_get(filters, 'taxa'))
+			 ),
+			 datasets := (
+				select datasets::Dataset
+				filter .slug in <str>json_array_unpack(json_get(filters, 'datasets'))
+			 ),
+			 whole_clade := <bool>json_get(filters, 'whole_clade'),
+			 habitats := <str>json_array_unpack(json_get(filters, 'habitats')),
+			 sampling_target := json_get(filters, 'sampling_target'),
 			select location::Site {
 				*,
 				country: { * },
+				last_visited := assert_single((
+					select distinct .events.performed_on filter (.date = max(location::Site.events.performed_on.date)) limit 1
+				)),
 				occurrences := (
-					(
-						select .events.samplings.occurrences
-						filter ((exists [is BioMaterial].id) or (not exists [is seq::ExternalSequence].source_sample))
-					) {
+					with samplings := (
+						select .events.samplings
+						filter (not exists habitats or all(habitats in .habitats.label))
+						# and (
+						# 	(not exists sampling_target or sampling_target != to_json('null'))
+						# 	and .sampling_target = <events::SamplingTarget>sampling_target['kind']
+						# 	and .target_taxa =
+						# )
+					),
+					occurrences := (
+						select samplings.occurrences
+						filter (
+							(exists [is BioMaterial].id) or
+							(not exists [is seq::ExternalSequence].source_sample)
+						)
+					),
+					select occurrences {
 						id,
 						code,
 						required sampling_date := .sampling.event.performed_on,
@@ -100,8 +133,28 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 							else 'BioMaterial'
 						)
 					}
+					filter (
+						not exists taxa or any(
+							if whole_clade
+							then (.taxon in taxa) or taxonomy::is_in_clade(.taxon, taxa)
+							else .taxon in taxa
+						)
+					)
+					and (
+						not exists datasets
+						or occurrences in datasets[is datasets::OccurrenceDataset].occurrences
+					)
 				)
-		 } filter (not exists country_codes or .country.code in country_codes)
+		 } filter (
+			(not exists country_codes or .country.code in country_codes) and
+			(not exists habitats or exists .occurrences) and
+			(not exists taxa or exists .occurrences) and
+			(not exists sampling_target or exists .occurrences) and
+			(not exists datasets or (
+				location::Site in datasets[is datasets::SiteDataset].sites
+				?? datasets[is datasets::OccurrenceDataset].sites
+			))
+		 )
 		`,
 		&sites, filters)
 	return sites, err

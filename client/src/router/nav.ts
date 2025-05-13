@@ -24,11 +24,11 @@ export const navRoutes: (RouterItem | Divider)[] = [
   {
     label: "Mapping tool",
     path: "/mapping",
-    name: "sites",
+    name: "mapping",
     icon: "mdi-map-marker-circle",
-    component: () => import("@/views/location/SitesView.vue"),
+    component: () => import("@/views/location/MappingToolView.vue"),
     meta: {
-      subtitle: "Sites",
+      subtitle: "Mapping tool",
       drawer: { temporary: true }
     }
   },

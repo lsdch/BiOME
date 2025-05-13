@@ -175,12 +175,13 @@ func GetTaxonomy(db geltypes.Executor, q TaxonomyQuery) (*Taxonomy, error) {
 }
 
 type ListFilters struct {
-	Pattern  string                `json:"pattern,omitempty" query:"pattern"`
-	Ranks    []TaxonRank           `query:"ranks"`
-	Status   TaxonStatus           `json:"status,omitempty" query:"status"`
-	IsAnchor geltypes.OptionalBool `json:"anchors_only,omitempty" query:"anchor"`
-	Parent   string                `json:"parent,omitempty" query:"parent"`
-	Limit    int64                 `json:"limit,omitempty" query:"limit"`
+	Pattern     string                `json:"pattern,omitempty" query:"pattern"`
+	Ranks       []TaxonRank           `query:"ranks"`
+	Status      TaxonStatus           `json:"status,omitempty" query:"status"`
+	IsAnchor    geltypes.OptionalBool `json:"anchors_only,omitempty" query:"anchor"`
+	Parent      string                `json:"parent,omitempty" query:"parent"`
+	Limit       int64                 `json:"limit,omitempty" query:"limit"`
+	SampledOnly bool                  `json:"sampled_only,omitempty" query:"sampled_only"`
 }
 
 func ListTaxa(db geltypes.Executor, filters ListFilters) ([]TaxonWithParentRef, error) {
@@ -207,16 +208,22 @@ func ListTaxa(db geltypes.Executor, filters ListFilters) ([]TaxonWithParentRef, 
 			ranks := <Rank>(array_unpack(<array<str>>$1) if len(<array<str>>$1) > 0 else <str>{}),
 			status := <TaxonStatus>(<str>$2 if len(<str>$2) > 0 else <str>{}),
 			is_anchor := <optional bool>$3,
-			parent := <optional str>$4
+			parent := <optional str>$4,
+			sampled_only := <bool>$5,
 		select Taxon { *, meta: {*}, parent_code := .parent.code }
 		filter (.rank in ranks if exists ranks else true)
 		and (.status = status if exists status else true)
 		and (.anchor = is_anchor if exists is_anchor else true)
-		and (.parent.code ilike parent if len(parent) > 0 else true)` +
+		and (.parent.code ilike parent if len(parent) > 0 else true)
+		and (exists (
+			select occurrence::Occurrence
+			filter .identification.taxon = Taxon
+		) if sampled_only else true)` +
+		" " +
 		"order by " + order_by + " then .rank asc then .name asc " +
 		"limit " + limit
 	err := db.Query(context.Background(), query, &taxa,
-		filters.Pattern, filters.Ranks, filters.Status, filters.IsAnchor, filters.Parent)
+		filters.Pattern, filters.Ranks, filters.Status, filters.IsAnchor, filters.Parent, filters.SampledOnly)
 	return taxa, err
 }
 

@@ -57,6 +57,8 @@ export namespace DateWithPrecision {
     Unknown: "'Unknown'"
   }
   export function compare(a: DateWithPrecision, b: DateWithPrecision) {
+    if (a.precision === 'Unknown') return -1
+    if (b.precision === 'Unknown') return 1
     return (DateWithPrecision.toDateTime(b) ?? 0) > (DateWithPrecision.toDateTime(a) ?? 0)
       ? -1
       : 1

@@ -14,12 +14,8 @@
     </template>
 
     <v-card flat :rounded="false" :title :subtitle class="overflow-x-auto">
-      <template
-        v-for="(name, index) of Object.keys($slots).filter((k) => k !== 'append')"
-        #[name]="slotData"
-        :key="index"
-      >
-        <slot :name v-bind="slotData ?? {}" />
+      <template v-for="(_, name) in slots" #[name]="slotData">
+        <slot :name="name" v-bind="slotData ?? {}" />
       </template>
       <template #append>
         <slot name="append" />
@@ -53,7 +49,8 @@
 
 <script setup lang="ts">
 import { ComponentPublicInstance } from 'vue'
-import { VDialog } from 'vuetify/components'
+import { ComponentSlots } from 'vue-component-type-helpers'
+import { VCard, VDialog } from 'vuetify/components'
 
 const dialog = defineModel<boolean>()
 
@@ -75,6 +72,9 @@ function close() {
   dialog.value = false
   emit('close')
 }
+
+// type SlotType = VCard['$slots'] & Pick<VDialog['$slots'], 'activator'>
+const slots = defineSlots<VCard['$slots'] & Pick<VDialog['$slots'], 'activator'>>()
 </script>
 
 <style scoped></style>
