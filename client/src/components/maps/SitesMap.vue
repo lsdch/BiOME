@@ -325,7 +325,7 @@ const slots = defineSlots<{
   default: (props: { zoom: number; map?: HTMLElement }) => any
   popup: (props: { item: SiteItem; popupOpen: boolean; zoom: number }) => any
   marker: (props: { latLng?: LatLngExpression }) => any
-  'hex-popup': (props: { data?: HexPopupData<SiteItem>[] }) => any
+  'hex-popup': (props: { data?: HexPopupData<UnwrapRef<SiteItem>>[] }) => any
 }>()
 
 const mapBounds = ref(L.latLngBounds(...props.bounds))
