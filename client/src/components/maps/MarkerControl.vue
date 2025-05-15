@@ -43,14 +43,18 @@
           border="sm"
           color="success"
         >
-          <v-btn text="Clusters" size="x-small" density="compact" value="cluster"></v-btn>
+          <v-btn text="Markers" size="x-small" density="compact" value="cluster"></v-btn>
           <v-btn text="Hex grid" size="x-small" density="compact" value="hexgrid"></v-btn>
         </v-btn-toggle>
       </template>
       <v-tabs-window v-model="marker">
         <v-tabs-window-item value="cluster">
           <v-card-text>
-            <!-- <ClusterConfigPanel v-model="clusterConfig" /> -->
+            <v-switch label="Clustered" v-model="markerConfig.clustered" />
+            <ColorPickerMenu v-model="markerConfig.color" label="Stroke color" />
+            <ColorPickerMenu v-model="markerConfig.fillColor" label="Fill color" />
+            <v-slider label="Stroke width" :min="1" :max="5" v-model="markerConfig.weight" />
+            <v-slider label="Radius" :min="1" :max="20" v-model="markerConfig.radius" />
           </v-card-text>
         </v-tabs-window-item>
         <v-tabs-window-item value="hexgrid">
@@ -63,11 +67,22 @@
 </template>
 
 <script setup lang="ts">
+import { CircleMarkerOptions } from 'leaflet'
 import HexgridConfigPanel, { HexgridConfig } from './HexgridConfigPanel.vue'
+import ColorPickerMenu from '../toolkit/ui/ColorPickerMenu.vue'
+import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 
-export type MarkerLayer = 'cluster' | 'hexgrid'
-const marker = defineModel<MarkerLayer>({ required: true })
+export type MapLayerMode = 'markers' | 'hexgrid'
+
+// Opacity can be controlled directly by 'color' and 'fill' properties
+export type MarkerConfig = { clustered: boolean } & Overwrite<
+  Omit<CircleMarkerOptions, 'opacity' | 'fillOpacity'>,
+  { dashArray?: string | undefined }
+>
+
+const marker = defineModel<MapLayerMode>({ required: true })
 const hexgridConfig = defineModel<HexgridConfig>('hexgrid', { required: true })
+const markerConfig = defineModel<MarkerConfig>('marker', { required: true })
 </script>
 
 <style scoped lang="scss"></style>

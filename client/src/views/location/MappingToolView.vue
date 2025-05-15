@@ -73,7 +73,7 @@
 import SitesMap from '@/components/maps/SitesMap.vue'
 
 import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { MarkerLayer } from '@/components/maps/MarkerControl.vue'
+import { MapLayerMode } from '@/components/maps/MarkerControl.vue'
 import { useQuery } from '@tanstack/vue-query'
 import { useLocalStorage } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
@@ -109,7 +109,7 @@ watch(isPending, (pending) => {
   }
 })
 
-const markerMode = useLocalStorage<MarkerLayer>('site-view-marker-mode', 'cluster', {
+const markerMode = useLocalStorage<MapLayerMode>('site-view-marker-mode', 'markers', {
   initOnMounted: true
 })
 </script>

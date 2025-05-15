@@ -89,10 +89,10 @@
       <LControl position="topleft">
         <div class="leaflet-bar">
           <MarkerControl
-            v-if="clustered && !hideMarkerControl"
+            v-if="!hideMarkerControl"
             v-model="markerMode"
             v-model:hexgrid="hexgridConfig"
-            v-model:cluster="clusterConfig"
+            v-model:marker="markerConfig"
           />
         </div>
       </LControl>
@@ -116,41 +116,42 @@
         :visible="regions"
       />
       <slot name="default" :map :zoom></slot>
-      <template v-if="clustered">
-        <LHexbinLayer
-          v-if="markerMode === 'hexgrid'"
-          :data="items"
-          :accessor="(item) => Geocoordinates.LatLng(item)"
-          :radius="hexgridConfig.radius"
-          :radius-range="
-            hexgridConfig.useRadiusRange
-              ? hexgridConfig.radiusRange
-              : [hexgridConfig.radius, hexgridConfig.radius]
-          "
-          :opacity="hexgridConfig.opacity"
-          :hover-fill="hexgridConfig.hover.fill"
-          :hover-scale="hexgridConfig.hover.useScale ? hexgridConfig.hover.scale : undefined"
-          :color-range="['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']"
-          style="cursor: pointer"
-          @click="
-            (e) => {
-              if (e.length === 1) selectSite(e[0].data)
-            }
-          "
-        >
-          <template #popup="{ data }">
-            <LPopup v-show="(data?.length ?? 0) > 1" :options="{ closeButton: false }">
-              <slot name="hex-popup" :data>
-                <v-card-text class="text-center">
-                  <code class="font-weight-bold">{{ data?.length }}</code>
-                </v-card-text>
-              </slot>
-            </LPopup>
-          </template>
-        </LHexbinLayer>
 
+      <!-- Hexagon layer  -->
+      <LHexbinLayer
+        v-if="markerMode === 'hexgrid'"
+        :data="items"
+        :accessor="(item) => Geocoordinates.LatLng(item)"
+        :radius="hexgridConfig.radius"
+        :radius-range="
+          hexgridConfig.useRadiusRange
+            ? hexgridConfig.radiusRange
+            : [hexgridConfig.radius, hexgridConfig.radius]
+        "
+        :opacity="hexgridConfig.opacity"
+        :hover-fill="hexgridConfig.hover.fill"
+        :hover-scale="hexgridConfig.hover.useScale ? hexgridConfig.hover.scale : undefined"
+        :color-range="['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']"
+        style="cursor: pointer"
+        @click="
+          (e) => {
+            if (e.length === 1) selectSite(e[0].data)
+          }
+        "
+      >
+        <template #popup="{ data }">
+          <LPopup v-show="(data?.length ?? 0) > 1" :options="{ closeButton: false }">
+            <slot name="hex-popup" :data>
+              <v-card-text class="text-center">
+                <code class="font-weight-bold">{{ data?.length }}</code>
+              </v-card-text>
+            </slot>
+          </LPopup>
+        </template>
+      </LHexbinLayer>
+      <template v-else-if="markerConfig.clustered">
         <LMarkerClusterGroup
-          v-else-if="items && markerMode === 'cluster'"
+          v-if="items"
           remove-outside-visible-bounds
           show-coverage-on-hover
           :maxClusterRadius="70"
@@ -159,7 +160,9 @@
             v-for="item in items"
             :key="item.id"
             :lat-lng="[item.coordinates.latitude, item.coordinates.longitude]"
-            v-bind="markerOptions"
+            v-bind="markerConfig"
+            :opacity="1"
+            :fill-opacity="1"
             @click="selectSite(item)"
             @popupopen="console.log('open')"
           >
@@ -167,12 +170,15 @@
         </LMarkerClusterGroup>
       </template>
 
+      <!-- Marker layers -->
       <LCircleMarker
         v-else
         v-for="item in items"
         :key="item.id"
         :latLng="[item.coordinates.latitude, item.coordinates.longitude]"
-        v-bind="markerOptions"
+        v-bind="markerConfig"
+        :opacity="1"
+        :fill-opacity="1"
         @click="selectSite(item)"
       >
       </LCircleMarker>
@@ -219,7 +225,6 @@ import {
   useThrottleFn
 } from '@vueuse/core'
 import L, {
-  CircleMarkerOptions,
   latLng,
   latLngBounds,
   LatLngExpression,
@@ -229,13 +234,13 @@ import L, {
   type Map
 } from 'leaflet'
 
-import { nextTick, ref, UnwrapRef, useTemplateRef, watch } from 'vue'
+import { nextTick, ref, useTemplateRef, watch } from 'vue'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import { Geocoordinates } from '.'
 
 import { vElementVisibility } from '@vueuse/components'
 import { HexgridConfig } from './HexgridConfigPanel.vue'
-import MarkerControl, { MarkerLayer } from './MarkerControl.vue'
+import MarkerControl, { MapLayerMode, MarkerConfig } from './MarkerControl.vue'
 import SitePopup from '../sites/SitePopup.vue'
 
 export type HexPopupData<SiteItem> = {
@@ -243,7 +248,7 @@ export type HexPopupData<SiteItem> = {
   coord: L.LatLngExpression
 }
 
-const markerMode = defineModel<MarkerLayer>('marker-mode', { default: 'cluster' })
+const markerMode = defineModel<MapLayerMode>('marker-mode', { default: 'markers' })
 
 const hexgridConfig = useLocalStorage<HexgridConfig>('hexgrid', {
   radius: 10,
@@ -258,7 +263,10 @@ const hexgridConfig = useLocalStorage<HexgridConfig>('hexgrid', {
   }
 })
 
-const clusterConfig = useLocalStorage<{ radius: number }>('cluster', { radius: 70 })
+const markerConfig = useLocalStorage<MarkerConfig>('marker', {
+  radius: 8,
+  clustered: false
+})
 
 const zoom = ref(1)
 const map = ref<HTMLElement>()
@@ -287,11 +295,10 @@ const props = withDefaults(
   defineProps<{
     items?: SiteItem[]
     marker?: Geocoordinates
-    markerOptions?: Omit<CircleMarkerOptions, 'dashArray'>
+    // markerOptions?: Omit<CircleMarkerOptions, 'dashArray'>
     bounds?: [LatLngExpression, LatLngExpression]
     autoFit?: boolean | number
     closable?: boolean
-    clustered?: boolean
     regions?: boolean
     center?: PointExpression
     minZoom?: number
@@ -303,14 +310,14 @@ const props = withDefaults(
     minZoom: 2,
     maxZoom: 18,
     autoFit: true,
-    center: () => [0, 0],
-    markerOptions: () => ({
-      color: 'white',
-      fill: true,
-      fillColor: 'orangered',
-      fillOpacity: 1,
-      radius: 8
-    })
+    center: () => [0, 0]
+    // markerOptions: () => ({
+    //   color: 'white',
+    //   fill: true,
+    //   fillColor: 'orangered',
+    //   fillOpacity: 1,
+    //   radius: 8
+    // })
   }
 )
 
