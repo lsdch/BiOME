@@ -23,10 +23,8 @@
         hide-details
         color="primary"
       >
-        <template #append>
-          <v-checkbox-btn v-model="model.useRadiusRange" class="flex-grow-0 flex-start" />
-        </template>
       </v-range-slider>
+      <v-checkbox-btn v-model="model.useRadiusRange" class="flex-grow-0 flex-start" />
     </div>
   </v-card-text>
   <v-divider />
