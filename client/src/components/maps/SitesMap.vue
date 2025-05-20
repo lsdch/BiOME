@@ -86,7 +86,7 @@
           />
         </div>
       </LControl>
-      <LControl position="topleft">
+      <!-- <LControl position="topleft">
         <div class="leaflet-bar">
           <MarkerControl
             v-if="!hideMarkerControl"
@@ -95,9 +95,17 @@
             v-model:marker="markerConfig"
           />
         </div>
-      </LControl>
+      </LControl> -->
 
       <LControlLayers hide-single-base />
+
+      <LControl
+        position="topleft"
+        :options="{}"
+        v-if="markerMode === 'hexgrid' && hexgridColorRange?.length"
+      >
+        <MapColorLegend class="mx-3" :range="hexgridColorRange" />
+      </LControl>
 
       <l-tile-layer
         :subdomains="['server', 'services']"
@@ -119,20 +127,27 @@
 
       <!-- Hexagon layer  -->
       <LHexbinLayer
-        v-if="markerMode === 'hexgrid'"
+        v-if="hexgridConfig.active && items"
+        pane="overlayPane"
         :data="items"
         :accessor="(item) => Geocoordinates.LatLng(item)"
         :radius="hexgridConfig.radius"
         :radius-range="
-          hexgridConfig.useRadiusRange
+          hexgridConfig.bindings?.radius
             ? hexgridConfig.radiusRange
             : [hexgridConfig.radius, hexgridConfig.radius]
         "
-        :opacity="hexgridConfig.opacity"
+        :opacity="
+          hexgridConfig.bindings?.opacity ? hexgridConfig.opacityRange : hexgridConfig.opacity
+        "
         :hover-fill="hexgridConfig.hover.fill"
         :hover-scale="hexgridConfig.hover.useScale ? hexgridConfig.hover.scale : undefined"
-        :color-range="['#440154', '#3b528b', '#21918c', '#5ec962', '#fde725']"
+        :color-range="hexgridConfig.colorRange"
         style="cursor: pointer"
+        :color-binding="hexgridConfig.bindings?.color"
+        :opacity-binding="hexgridConfig.bindings?.opacity"
+        :radius-binding="hexgridConfig.bindings?.radius"
+        @update:color-scale-extent="(range) => console.log(range)"
         @click="
           (e) => {
             if (e.length === 1) selectSite(e[0].data)
@@ -149,15 +164,16 @@
           </LPopup>
         </template>
       </LHexbinLayer>
-      <template v-else-if="markerConfig.clustered">
+      <LLayerGroup v-if="markerConfig.active && items" pane="markerPane">
         <LMarkerClusterGroup
-          v-if="items"
+          v-if="markerConfig.clustered"
           remove-outside-visible-bounds
           show-coverage-on-hover
           :maxClusterRadius="70"
         >
           <LCircleMarker
             v-for="item in items"
+            pane="markerPane"
             :key="item.id"
             :lat-lng="[item.coordinates.latitude, item.coordinates.longitude]"
             v-bind="markerConfig"
@@ -168,20 +184,24 @@
           >
           </LCircleMarker>
         </LMarkerClusterGroup>
-      </template>
 
-      <!-- Marker layers -->
-      <LCircleMarker
-        v-else
-        v-for="item in items"
-        :key="item.id"
-        :latLng="[item.coordinates.latitude, item.coordinates.longitude]"
-        v-bind="markerConfig"
-        :opacity="1"
-        :fill-opacity="1"
-        @click="selectSite(item)"
-      >
-      </LCircleMarker>
+        <!-- Marker layers -->
+        <LCircleMarker
+          v-else
+          pane="markerPane"
+          v-for="item in items"
+          :key="item.id"
+          :latLng="[item.coordinates.latitude, item.coordinates.longitude]"
+          v-bind="markerConfig"
+          :opacity="1"
+          :fill-opacity="1"
+          :options="{
+            zIndexOffset: 10
+          }"
+          @click="selectSite(item)"
+        >
+        </LCircleMarker>
+      </LLayerGroup>
 
       <slot
         v-if="marker"
@@ -203,7 +223,7 @@
 
 <script setup lang="ts" generic="SiteItem extends { id: string } & Geocoordinates">
 import 'leaflet/dist/leaflet.css'
-import LHexbinLayer from 'vue-leaflet-hexbin'
+import LHexbinLayer, { type ScaleBinding } from 'vue-leaflet-hexbin'
 import 'vue-leaflet-markercluster/dist/style.css'
 
 import {
@@ -217,14 +237,9 @@ import {
   LPopup,
   LTileLayer
 } from '@vue-leaflet/vue-leaflet'
-import {
-  onKeyStroke,
-  useDebounceFn,
-  useFullscreen,
-  useLocalStorage,
-  useThrottleFn
-} from '@vueuse/core'
+import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
 import L, {
+  CircleMarkerOptions,
   latLng,
   latLngBounds,
   LatLngExpression,
@@ -234,39 +249,78 @@ import L, {
   type Map
 } from 'leaflet'
 
-import { nextTick, ref, useTemplateRef, watch } from 'vue'
+import { nextTick, reactive, ref, UnwrapRef, useTemplateRef, watch } from 'vue'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import { Geocoordinates } from '.'
 
+import MapColorLegend from '@/views/location/MapColorLegend.vue'
 import { vElementVisibility } from '@vueuse/components'
-import { HexgridConfig } from './HexgridConfigPanel.vue'
-import MarkerControl, { MapLayerMode, MarkerConfig } from './MarkerControl.vue'
-import SitePopup from '../sites/SitePopup.vue'
+import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
+import { MapLayerMode } from './MarkerControl.vue'
 
 export type HexPopupData<SiteItem> = {
   data: SiteItem
   coord: L.LatLngExpression
 }
 
+export type HexgridScaleBindings<SiteItem> = {
+  color?: ScaleBinding<SiteItem>
+  radius?: ScaleBinding<SiteItem>
+  opacity?: ScaleBinding<SiteItem>
+}
+
+// Opacity can be controlled directly by 'color' and 'fill' properties
+export type MarkerConfig = {
+  active: boolean
+  clustered: boolean
+} & Overwrite<
+  Omit<CircleMarkerOptions, 'opacity' | 'fillOpacity' | 'renderer'>,
+  { dashArray?: string | undefined }
+>
+
+export type HexgridConfig<SiteItem> = {
+  active: boolean
+  radius: number
+  radiusRange?: [number, number]
+  colorRange?: string[]
+  hover: {
+    fill: boolean
+    useScale: boolean
+    scale: number
+  }
+  opacity: number
+  opacityRange?: [number, number]
+  bindings: HexgridScaleBindings<SiteItem>
+}
+
 const markerMode = defineModel<MapLayerMode>('marker-mode', { default: 'markers' })
 
-const hexgridConfig = useLocalStorage<HexgridConfig>('hexgrid', {
-  radius: 10,
-  useRadiusRange: false,
-  radiusRange: [10, 10],
-  opacity: 0.8,
-  asRange: false,
-  hover: {
-    fill: true,
-    scale: 1,
-    useScale: false
-  }
+const markerConfig = defineModel<MarkerConfig>('marker-config', {
+  default: () =>
+    reactive({
+      active: false,
+      radius: 8,
+      clustered: false
+    })
 })
 
-const markerConfig = useLocalStorage<MarkerConfig>('marker', {
-  radius: 8,
-  clustered: false
+const hexgridConfig = defineModel<HexgridConfig<SiteItem>>('hexgrid-config', {
+  default: () => ({
+    active: true,
+    radius: 10,
+    radiusRange: [10, 10],
+    opacity: 0.8,
+    asRange: false,
+    hover: {
+      fill: true,
+      scale: 1,
+      useScale: false
+    },
+    bindings: {}
+  })
 })
+
+const hexgridColorRange = ref<[number, number]>()
 
 const zoom = ref(1)
 const map = ref<HTMLElement>()

@@ -76,7 +76,7 @@ export type MapLayerMode = 'markers' | 'hexgrid'
 
 // Opacity can be controlled directly by 'color' and 'fill' properties
 export type MarkerConfig = { clustered: boolean } & Overwrite<
-  Omit<CircleMarkerOptions, 'opacity' | 'fillOpacity'>,
+  Omit<CircleMarkerOptions, 'opacity' | 'fillOpacity' | 'renderer'>,
   { dashArray?: string | undefined }
 >
 

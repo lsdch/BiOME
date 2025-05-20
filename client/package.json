@@ -60,7 +60,7 @@
     "vue-component-type-helpers": "^2.2.10",
     "vue-debounce": "^5.0.1",
     "vue-echarts": "^7.0.3",
-    "vue-leaflet-hexbin": "^0.2.0",
+    "vue-leaflet-hexbin": "^0.2.2",
     "vue-leaflet-markercluster": "^0.6.1",
     "vue-router": "^4.5.1",
     "vuetify": "^3.8.5"
