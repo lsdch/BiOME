@@ -92,7 +92,8 @@ function addWithDependencies(habitat: ConnectedHabitat) {
 
 function onDelete(item: HabitatRecord) {
   model.value = model.value.filter(
-    ({ id }) => graph.habitat(id).dependencies?.find(({ id }) => id == item.id) == undefined
+    ({ id }) =>
+      id != item.id && graph.habitat(id).dependencies?.find(({ id }) => id == item.id) == undefined
   )
 }
 
