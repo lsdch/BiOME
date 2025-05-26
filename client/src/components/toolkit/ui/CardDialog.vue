@@ -9,11 +9,11 @@
     v-bind="$attrs"
   >
     <!-- Expose activator slot -->
-    <template #activator="slotData">
+    <template #activator="slotData" v-if="slots.activator">
       <slot name="activator" v-bind="slotData"></slot>
     </template>
 
-    <v-card flat :rounded="false" :title :subtitle class="overflow-x-auto">
+    <v-card flat :rounded="false" :title :subtitle class="overflow-x-auto" :prepend-icon>
       <template v-for="(_, name) in slots" #[name]="slotData">
         <slot :name="name" v-bind="slotData ?? {}" />
       </template>
@@ -49,7 +49,6 @@
 
 <script setup lang="ts">
 import { ComponentPublicInstance } from 'vue'
-import { ComponentSlots } from 'vue-component-type-helpers'
 import { VCard, VDialog } from 'vuetify/components'
 
 const dialog = defineModel<boolean>()
@@ -63,6 +62,7 @@ export type CardDialogProps = {
   fullscreen?: boolean
   maxWidth?: number
   closeText?: string
+  prependIcon?: IconValue
   activator?: (string & {}) | Element | 'parent' | ComponentPublicInstance
 }
 
