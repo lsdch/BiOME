@@ -266,12 +266,25 @@ func Delete(db geltypes.Executor, code string) (taxon TaxonWithRelatives, err er
 	return
 }
 
-//go:embed queries/create_taxon.edgeql
-var createTaxonCmd string
-
 func (taxon TaxonInput) Save(db geltypes.Executor) (created TaxonWithRelatives, err error) {
 	args, _ := json.Marshal(taxon)
-	err = db.QuerySingle(context.Background(), createTaxonCmd, &created, args)
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+		with module taxonomy,
+		data := <json>$0
+		select (
+			insert Taxon {
+				name := <str>data['name'],
+				code := <str>json_get(data, 'code'),
+				status := <TaxonStatus>data['status'],
+				parent := (
+					select detached Taxon filter .code = <str>data['parent']
+				),
+				rank := <Rank>data['rank'],
+				authorship := <str>json_get(data, 'authorship')
+			}
+		) { *, meta: { * }, parent : { * , meta: { * }}, children : { * , meta: { * }} };
+	`, &created, args)
 	return created, err
 }
 
