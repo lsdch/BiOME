@@ -149,6 +149,16 @@ module taxonomy {
     multi link children := .<parent[is Taxon];
     required children_count := (select count(.children));
 
+    lineage := (
+      select .kingdom
+      union .phylum
+      union .class
+      union .order
+      union .family
+      union .genus
+      union .species
+    );
+
     comment: str;
 
     index on ((.name, .code, .rank, .status));
@@ -156,15 +166,7 @@ module taxonomy {
 
   function is_in_clade(taxon: Taxon, ancestor: Taxon) -> bool {
     using (
-      select (
-        (ancestor.rank = Rank.Kingdom and (taxon.kingdom = ancestor) ?? false)
-        or (ancestor.rank = Rank.Phylum and (taxon.phylum = ancestor) ?? false)
-        or (ancestor.rank = Rank.Class and (taxon.class = ancestor) ?? false)
-        or (ancestor.rank = Rank.Order and (taxon.order = ancestor) ?? false)
-        or (ancestor.rank = Rank.Family and (taxon.family = ancestor) ?? false)
-        or (ancestor.rank = Rank.Genus and (taxon.genus = ancestor) ?? false)
-        or (ancestor.rank = Rank.Species and (taxon.species = ancestor) ?? false)
-      ) ?? false
+      select (ancestor in taxon.lineage or taxon = ancestor)
     );
   };
 }
