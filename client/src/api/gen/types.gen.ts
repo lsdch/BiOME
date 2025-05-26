@@ -1116,7 +1116,6 @@ export type OccurrenceAtSite = {
   code: string
   element: OccurrenceElement
   id: string
-  sampling_date: DateWithPrecision
   taxon: TaxonInner
 }
 
@@ -1659,6 +1658,14 @@ export type Sampling = {
   target: SamplingTarget
 }
 
+export type SamplingEventWithOccurrences = {
+  date: DateWithPrecision
+  id: string
+  occurrences: Array<OccurrenceAtSite>
+  occurring_taxa?: Array<Taxon>
+  target: SamplingTarget
+}
+
 export type SamplingInner = {
   access_points?: Array<string>
   code: string
@@ -1998,6 +2005,8 @@ export type SiteItem = {
   user_defined_locality: boolean
 }
 
+export type SiteSamplingStatus = 'All' | 'Sampled' | 'Occurrences'
+
 export type SiteUpdate = {
   /**
    * A URL to the JSON Schema for this object.
@@ -2051,7 +2060,7 @@ export type SiteWithOccurrences = {
   last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
-  occurrences: Array<OccurrenceAtSite>
+  samplings: Array<SamplingEventWithOccurrences>
   user_defined_locality: boolean
 }
 
@@ -4817,6 +4826,11 @@ export type OccurrencesBySiteData = {
      */
     sampling_target_kinds?: Array<SamplingTargetKind>
     sampling_target_taxa?: Array<string>
+    sampling_target_whole_clade?: boolean
+    /**
+     * Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence.
+     */
+    include_sites?: SiteSamplingStatus
   }
   url: '/occurrences/by-site'
 }

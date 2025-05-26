@@ -835,8 +835,14 @@ const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const occurrenceAtSiteSchemaResponseTransformer = (data: any) => {
-  data.sampling_date = dateWithPrecisionSchemaResponseTransformer(data.sampling_date)
+const samplingEventWithOccurrencesSchemaResponseTransformer = (data: any) => {
+  data.date = dateWithPrecisionSchemaResponseTransformer(data.date)
+  if (data.occurring_taxa) {
+    data.occurring_taxa = data.occurring_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
+    })
+  }
+  data.target = samplingTargetSchemaResponseTransformer(data.target)
   return data
 }
 
@@ -844,8 +850,8 @@ const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
   }
-  data.occurrences = data.occurrences.map((item: any) => {
-    return occurrenceAtSiteSchemaResponseTransformer(item)
+  data.samplings = data.samplings.map((item: any) => {
+    return samplingEventWithOccurrencesSchemaResponseTransformer(item)
   })
   return data
 }

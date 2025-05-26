@@ -79,3 +79,39 @@ func (m *OccurrenceElement) UnmarshalEdgeDBStr(data []byte) error {
 	*m = OccurrenceElement(string(data))
 	return nil
 }
+
+
+
+var SiteSamplingStatusValues = []SiteSamplingStatus{
+	IncludeAllSites,
+	IncludeSampled,
+	IncludeWithOccurrences,
+}
+
+// Register enum in OpenAPI specification
+func (u SiteSamplingStatus) Schema(r huma.Registry) *huma.Schema {
+  if r.Map()["SiteSamplingStatus"] == nil {
+    schemaRef := r.Schema(reflect.TypeOf(""), true, "SiteSamplingStatus")
+    schemaRef.Title = "SiteSamplingStatus"
+    for _, v := range SiteSamplingStatusValues {
+      schemaRef.Enum = append(schemaRef.Enum, string(v))
+    }
+    r.Map()["SiteSamplingStatus"] = schemaRef
+  }
+
+	return &huma.Schema{Ref: "#/components/schemas/SiteSamplingStatus"}
+}
+
+func (m *SiteSamplingStatus) Fake(f *gofakeit.Faker) (any, error) {
+	return string(SiteSamplingStatusValues[f.IntN(len(SiteSamplingStatusValues) - 1)]), nil
+}
+
+// Gel Marshalling
+func (m SiteSamplingStatus) MarshalEdgeDBStr() ([]byte, error) {
+	return []byte(m), nil
+}
+
+func (m *SiteSamplingStatus) UnmarshalEdgeDBStr(data []byte) error {
+	*m = SiteSamplingStatus(string(data))
+	return nil
+}

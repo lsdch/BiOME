@@ -2973,14 +2973,11 @@ export const $OccurrenceAtSite = {
       format: 'uuid',
       type: 'string'
     },
-    sampling_date: {
-      $ref: '#/components/schemas/DateWithPrecision'
-    },
     taxon: {
       $ref: '#/components/schemas/TaxonInner'
     }
   },
-  required: ['id', 'code', 'taxon', 'sampling_date', 'category', 'element'],
+  required: ['id', 'code', 'taxon', 'category', 'element'],
   type: 'object'
 } as const
 
@@ -4680,6 +4677,36 @@ export const $Sampling = {
   type: 'object'
 } as const
 
+export const $SamplingEventWithOccurrences = {
+  additionalProperties: false,
+  properties: {
+    date: {
+      $ref: '#/components/schemas/DateWithPrecision'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    occurrences: {
+      items: {
+        $ref: '#/components/schemas/OccurrenceAtSite'
+      },
+      type: 'array'
+    },
+    occurring_taxa: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
+    },
+    target: {
+      $ref: '#/components/schemas/SamplingTarget'
+    }
+  },
+  required: ['id', 'date', 'target', 'occurrences'],
+  type: 'object'
+} as const
+
 export const $SamplingInner = {
   additionalProperties: false,
   properties: {
@@ -5595,6 +5622,12 @@ export const $SiteItem = {
   type: 'object'
 } as const
 
+export const $SiteSamplingStatus = {
+  enum: ['All', 'Sampled', 'Occurrences'],
+  title: 'SiteSamplingStatus',
+  type: 'string'
+} as const
+
 export const $SiteUpdate = {
   additionalProperties: false,
   properties: {
@@ -5728,9 +5761,9 @@ export const $SiteWithOccurrences = {
       minLength: 4,
       type: 'string'
     },
-    occurrences: {
+    samplings: {
       items: {
-        $ref: '#/components/schemas/OccurrenceAtSite'
+        $ref: '#/components/schemas/SamplingEventWithOccurrences'
       },
       type: 'array'
     },
@@ -5738,7 +5771,7 @@ export const $SiteWithOccurrences = {
       type: 'boolean'
     }
   },
-  required: ['occurrences', 'id', 'code', 'coordinates', 'user_defined_locality'],
+  required: ['samplings', 'id', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 

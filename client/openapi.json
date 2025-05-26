@@ -3364,9 +3364,6 @@
 						"format": "uuid",
 						"type": "string"
 					},
-					"sampling_date": {
-						"$ref": "#/components/schemas/DateWithPrecision"
-					},
 					"taxon": {
 						"$ref": "#/components/schemas/TaxonInner"
 					}
@@ -3375,7 +3372,6 @@
 					"id",
 					"code",
 					"taxon",
-					"sampling_date",
 					"category",
 					"element"
 				],
@@ -5416,6 +5412,40 @@
 				],
 				"type": "object"
 			},
+			"SamplingEventWithOccurrences": {
+				"additionalProperties": false,
+				"properties": {
+					"date": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"occurrences": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceAtSite"
+						},
+						"type": "array"
+					},
+					"occurring_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					},
+					"target": {
+						"$ref": "#/components/schemas/SamplingTarget"
+					}
+				},
+				"required": [
+					"id",
+					"date",
+					"target",
+					"occurrences"
+				],
+				"type": "object"
+			},
 			"SamplingInner": {
 				"additionalProperties": false,
 				"properties": {
@@ -6448,6 +6478,15 @@
 				],
 				"type": "object"
 			},
+			"SiteSamplingStatus": {
+				"enum": [
+					"All",
+					"Sampled",
+					"Occurrences"
+				],
+				"title": "SiteSamplingStatus",
+				"type": "string"
+			},
 			"SiteUpdate": {
 				"additionalProperties": false,
 				"properties": {
@@ -6605,9 +6644,9 @@
 						"minLength": 4,
 						"type": "string"
 					},
-					"occurrences": {
+					"samplings": {
 						"items": {
-							"$ref": "#/components/schemas/OccurrenceAtSite"
+							"$ref": "#/components/schemas/SamplingEventWithOccurrences"
 						},
 						"type": "array"
 					},
@@ -6616,7 +6655,7 @@
 					}
 				},
 				"required": [
-					"occurrences",
+					"samplings",
 					"id",
 					"code",
 					"coordinates",
@@ -12736,6 +12775,25 @@
 								"type": "string"
 							},
 							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "sampling_target_whole_clade",
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"description": "Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence.",
+						"explode": false,
+						"in": "query",
+						"name": "include_sites",
+						"schema": {
+							"$ref": "#/components/schemas/SiteSamplingStatus",
+							"default": "All",
+							"description": "Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence."
 						}
 					}
 				],

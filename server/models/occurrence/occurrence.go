@@ -48,28 +48,47 @@ type OccurrenceWithCategory struct {
 	OccurrenceElement OccurrenceElement  `gel:"element" json:"element"`
 }
 
+type SamplingEventWithOccurrences struct {
+	ID            geltypes.UUID      `gel:"id" json:"id" format:"uuid"`
+	Date          DateWithPrecision  `gel:"date" json:"date"`
+	Target        SamplingTarget     `gel:"$inline" json:"target"`
+	Occurrences   []OccurrenceAtSite `gel:"occurrences" json:"occurrences"`
+	OccurringTaxa []taxonomy.Taxon   `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
+}
+
 type OccurrenceAtSite struct {
-	ID                geltypes.UUID       `gel:"id" json:"id" format:"uuid"`
-	Code              string              `gel:"code" json:"code"`
-	Taxon             taxonomy.TaxonInner `gel:"taxon" json:"taxon"`
-	SamplingDate      DateWithPrecision   `gel:"sampling_date" json:"sampling_date"`
-	Category          OccurrenceCategory  `gel:"category" json:"category"`
-	OccurrenceElement OccurrenceElement   `gel:"element" json:"element"`
+	ID    geltypes.UUID       `gel:"id" json:"id" format:"uuid"`
+	Code  string              `gel:"code" json:"code"`
+	Taxon taxonomy.TaxonInner `gel:"taxon" json:"taxon"`
+	// SamplingDate      DateWithPrecision   `gel:"sampling_date" json:"sampling_date"`
+	Category          OccurrenceCategory `gel:"category" json:"category"`
+	OccurrenceElement OccurrenceElement  `gel:"element" json:"element"`
 }
 
 type SiteWithOccurrences struct {
 	SiteItem    `gel:"$inline" json:",inline"`
-	Occurrences []OccurrenceAtSite                 `gel:"occurrences" json:"occurrences"`
+	Samplings   []SamplingEventWithOccurrences     `gel:"samplings" json:"samplings"`
 	LastVisited models.Optional[DateWithPrecision] `gel:"last_visited" json:"last_visited,omitempty"`
 }
 
+type SiteSamplingStatus string
+
+//generate:enum
+const (
+	IncludeAllSites        SiteSamplingStatus = "All"
+	IncludeSampled         SiteSamplingStatus = "Sampled"
+	IncludeWithOccurrences SiteSamplingStatus = "Occurrences"
+)
+
 type OccurrencesBySiteOptions struct {
 	ListSitesOptions
-	Taxa                []string             `json:"taxa,omitempty" query:"taxa"`
-	WholeClade          bool                 `json:"whole_clade" query:"whole_clade"`
-	Habitats            []string             `json:"habitats,omitempty" query:"habitats"`
-	SamplingTargetKinds []SamplingTargetKind `json:"sampling_target_kinds,omitempty" query:"sampling_target_kinds" doc:"List of sampling target names. \"Community\" "`
-	SamplingTargetTaxa  []string             `json:"sampling_target_taxa,omitempty" query:"sampling_target_taxa"`
+	Taxa                     []string             `json:"taxa,omitempty" query:"taxa"`
+	WholeClade               bool                 `json:"whole_clade" query:"whole_clade"`
+	Habitats                 []string             `json:"habitats,omitempty" query:"habitats"`
+	SamplingTargetKinds      []SamplingTargetKind `json:"sampling_target_kinds,omitempty" query:"sampling_target_kinds" doc:"List of sampling target names. \"Community\" "`
+	SamplingTargetTaxa       []string             `json:"sampling_target_taxa,omitempty" query:"sampling_target_taxa"`
+	SamplingTargetWholeClade bool                 `json:"sampling_target_whole_clade" query:"sampling_target_whole_clade"`
+	IncludeSites             SiteSamplingStatus   `json:"include_sites,omitempty" query:"include_sites" default:"All" doc:"Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence."`
 }
 
 func (o OccurrencesBySiteOptions) Options() OccurrencesBySiteOptions {
@@ -82,74 +101,100 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 	err := db.Query(context.Background(),
 		`#edgeql
 			with module occurrence,
-			 filters := <json>$0,
-			 country_codes := <str>json_array_unpack(json_get(filters, 'countries')),
-			 taxa := (
-				select taxonomy::Taxon
-				filter .code in <str>json_array_unpack(json_get(filters, 'taxa'))
-			 ),
-			 datasets := (
-				select datasets::Dataset
-				filter .slug in <str>json_array_unpack(json_get(filters, 'datasets'))
-			 ),
-			 whole_clade := <bool>json_get(filters, 'whole_clade'),
-			 habitats := <str>json_array_unpack(json_get(filters, 'habitats')),
-			 sampling_target := json_get(filters, 'sampling_target'),
+				filters := <json>$0,
+				country_codes := <str>json_array_unpack(json_get(filters, 'countries')),
+				taxa := (
+					select taxonomy::Taxon
+					filter .code in <str>json_array_unpack(json_get(filters, 'taxa'))
+				),
+				datasets := (
+					select datasets::Dataset
+					filter .slug in <str>json_array_unpack(json_get(filters, 'datasets'))
+				),
+				whole_clade := <bool>json_get(filters, 'whole_clade'),
+				habitats := <str>json_array_unpack(json_get(filters, 'habitats')),
+				sampling_target_kinds := <events::SamplingTarget>json_array_unpack(json_get(filters, 'sampling_target_kinds')),
+				sampling_target_taxa := (
+					select taxonomy::Taxon
+					filter .name in <str>json_array_unpack(json_get(filters, 'sampling_target_taxa'))
+				),
+				sampling_target_whole_clade := <bool>json_get(filters, 'sampling_target_whole_clade'),
+				sampling_status := <str>json_get(filters, 'include_sites'),
 			select location::Site {
 				*,
 				country: { * },
 				last_visited := assert_single((
 					select distinct .events.performed_on filter (.date = max(location::Site.events.performed_on.date)) limit 1
 				)),
-				occurrences := (
-					with samplings := (
-						select .events.samplings
-						filter (not exists habitats or all(habitats in .habitats.label))
-						# and (
-						# 	(not exists sampling_target or sampling_target != to_json('null'))
-						# 	and .sampling_target = <events::SamplingTarget>sampling_target['kind']
-						# 	and .target_taxa =
-						# )
-					),
-					occurrences := (
-						select samplings.occurrences
-						filter (
-							(exists [is BioMaterial].id) or
-							(not exists [is seq::ExternalSequence].source_sample)
-						)
-					),
-					select occurrences {
-						id,
-						code,
-						required sampling_date := .sampling.event.performed_on,
-						required taxon := (
-										[is ExternalBioMat].seq_consensus ??
-										[is InternalBioMat].seq_consensus ??
-										.identification.taxon
-						) { name, status, rank},
-						category := ([is InternalBioMat].category  ?? OccurrenceCategory.External),
-						element := (
-							if exists [is seq::Sequence].id then 'Sequence'
-							else 'BioMaterial'
-						)
-					}
+				samplings := (
+					select .events.samplings
 					filter (
-						not exists taxa or any(
-							if whole_clade
-							then (.taxon in taxa) or taxonomy::is_in_clade(.taxon, taxa)
-							else .taxon in taxa
+						not exists habitats or all(habitats in .habitats.label)
+					)
+					and (
+						not exists sampling_target_kinds or (
+							.sampling_target in sampling_target_kinds
 						)
 					)
 					and (
-						not exists datasets
-						or occurrences in datasets[is datasets::OccurrenceDataset].occurrences
+						not exists sampling_target_taxa or (
+							if sampling_target_whole_clade
+							then any(.target_taxa in sampling_target_taxa) or any(taxonomy::is_in_clade(.target_taxa, sampling_target_taxa))
+							else any(.target_taxa in sampling_target_taxa)
+						)
 					)
-				)
+				) {
+					id,
+					date := .event.performed_on,
+					sampling_target,
+					target_taxa: { * },
+					occurring_taxa: { * },
+					occurrences := (
+						with occurrences := (
+							select .occurrences filter (
+								(exists [is BioMaterial].id) or
+								(not exists [is seq::ExternalSequence].source_sample)
+							)
+						),
+						select occurrences {
+							id,
+							code,
+							required taxon := (
+									[is ExternalBioMat].seq_consensus ??
+									[is InternalBioMat].seq_consensus ??
+									.identification.taxon
+								) { name, status, rank},
+							required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
+							required element := (
+								if exists [is seq::Sequence].id then 'Sequence'
+								else 'BioMaterial'
+							)
+						}
+						filter (
+							not exists taxa or (
+								if whole_clade
+								then (.taxon in taxa) or any(taxonomy::is_in_clade(.taxon, taxa))
+								else .taxon in taxa
+							)
+						)
+						and (
+							not exists datasets
+							or occurrences in datasets[is datasets::OccurrenceDataset].occurrences
+						)
+					)
+				}
 		 } filter (
+			(
+				not exists sampling_status or sampling_status = "All" or (
+					sampling_status = "Sampled" and exists .samplings
+				) or (
+					sampling_status = "Occurrences" and exists .samplings.occurrences
+				)
+			) and
 			(not exists country_codes or .country.code in country_codes) and
-			(not exists habitats or exists .occurrences) and
-			(not exists taxa or exists .occurrences) and
-			(not exists sampling_target or exists .occurrences) and
+			# (not exists habitats or exists .samplings) and
+			# (not exists taxa or exists .samplings.occurrences) and
+			# (not exists sampling_target_kinds or exists .samplings) and
 			(not exists datasets or (
 				location::Site in datasets[is datasets::SiteDataset].sites
 				?? datasets[is datasets::OccurrenceDataset].sites
