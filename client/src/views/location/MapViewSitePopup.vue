@@ -8,54 +8,89 @@
   >
     <template #append-items="{ item }">
       <v-divider />
-      <OccurrenceListDialog :occurrences="item.occurrences" :with-site="false" :max-width="1200">
+      <OccurrenceListDialog
+        :occurrences="
+          item.samplings.flatMap((s) => s.occurrences.map((o) => ({ ...o, sampling_date: s.date })))
+        "
+        :with-site="false"
+        :max-width="1200"
+      >
         <template #title>
-          <div class="d-flex ga-2">
-            <RouterLink
-              class="font-monospace"
-              :to="{
-                name: 'site-item',
-                params: { code: item.code }
-              }"
-            >
-              {{ item.code }}
-            </RouterLink>
-            <CountryChip v-if="item.country" :country="item.country" />
-          </div>
+          <DialogTitle :item />
         </template>
         <template #subtitle>
-          <span class="font-monospace">
-            {{ item.coordinates.latitude }}, {{ item.coordinates.longitude }}
-          </span>
+          <DialogSubtitle :item />
         </template>
         <template #activator="{ props }">
-          <v-list-item v-bind="props">
-            {{ pluralizeWithCount(item.occurrences.length, 'occurrence') }}
+          <v-list-item v-bind="props" title="Occurrences">
+            <template #append>
+              <v-badge
+                inline
+                :content="item.samplings.reduce((sum, s) => sum + s.occurrences.length, 0)"
+                color="success"
+              />
+            </template>
           </v-list-item>
         </template>
       </OccurrenceListDialog>
-      <v-list-item class="font-monospace">
-        {{ item.last_visited ? DateWithPrecision.format(item.last_visited) : 'Never' }}
-        <template #append>
-          <span class="text-caption text-muted"> Last visit</span>
+      <SamplingListDialog :samplings="item.samplings" :with-site="false" :max-width="1200">
+        <template #title>
+          <DialogTitle :item />
         </template>
-      </v-list-item>
+        <template #subtitle>
+          <DialogSubtitle :item />
+        </template>
+        <template #activator="{ props }">
+          <v-list-item
+            title="Sampling events"
+            :subtitle="`Last visit: ${item.last_visited ? DateWithPrecision.format(item.last_visited) : 'Never'}`"
+            v-bind="props"
+          >
+            <template #append>
+              <v-badge inline :content="item.samplings.length" color="warning" />
+            </template>
+          </v-list-item>
+        </template>
+      </SamplingListDialog>
     </template>
   </SitePopup>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import { DateWithPrecision, SiteWithOccurrences } from '@/api'
 import SitePopup from '@/components/sites/SitePopup.vue'
 import { pluralizeWithCount } from '@/functions/text'
 import OccurrenceListDialog from './OccurrenceListDialog.vue'
 import CountryChip from '@/components/sites/CountryChip'
+import SamplingListDialog from './SamplingListDialog.vue'
+import { RouterLink } from 'vue-router'
 
-defineProps<{
+const { item } = defineProps<{
   item: SiteWithOccurrences
   popupOpen: boolean
   zoom: number
 }>()
+
+const DialogTitle = ({ item }: { item: SiteWithOccurrences }) => (
+  <div class="d-flex ga-2">
+    <RouterLink
+      class="font-monospace"
+      to={{
+        name: 'site-item',
+        params: { code: item.code }
+      }}
+    >
+      {item.code}
+    </RouterLink>
+    {item.country ? <CountryChip country={item.country} /> : undefined}
+  </div>
+)
+
+const DialogSubtitle = ({ item }: { item: SiteWithOccurrences }) => (
+  <span class="font-monospace">
+    {item.coordinates.latitude}, {item.coordinates.longitude}
+  </span>
+)
 </script>
 
 <style scoped lang="scss"></style>

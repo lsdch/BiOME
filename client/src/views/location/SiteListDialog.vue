@@ -36,34 +36,36 @@
       </template>
       <template #expanded-row-inject="{ item }: { item: SiteWithOccurrences }">
         <v-list density="compact">
-          <v-list-item
-            v-for="o in item.occurrences"
-            :subtitle="DateWithPrecision.format(o.sampling_date)"
-            :to="{
-              name: o.element === 'Sequence' ? 'sequence' : 'biomat-item',
-              params: { code: o.code }
-            }"
-          >
-            <template #prepend>
-              <v-icon
-                :icon="o.element === 'Sequence' ? 'mdi-dna' : 'mdi-package-variant'"
-                :color="o.category === 'Internal' ? 'primary' : 'warning'"
-              />
-            </template>
-            <template #title>
-              <RouterLink
-                :to="{
-                  name: o.element === 'Sequence' ? 'sequence' : 'biomat-item',
-                  params: { code: o.code }
-                }"
-                class="font-monospace text-caption"
-                >{{ o.code }}</RouterLink
-              >
-            </template>
-            <template #append>
-              <TaxonChip :taxon="o.taxon" size="small" />
-            </template>
-          </v-list-item>
+          <template v-for="s in item.samplings">
+            <v-list-item
+              v-for="o in s.occurrences"
+              :subtitle="DateWithPrecision.format(s.date)"
+              :to="{
+                name: o.element === 'Sequence' ? 'sequence' : 'biomat-item',
+                params: { code: o.code }
+              }"
+            >
+              <template #prepend>
+                <v-icon
+                  :icon="o.element === 'Sequence' ? 'mdi-dna' : 'mdi-package-variant'"
+                  :color="o.category === 'Internal' ? 'primary' : 'warning'"
+                />
+              </template>
+              <template #title>
+                <RouterLink
+                  :to="{
+                    name: o.element === 'Sequence' ? 'sequence' : 'biomat-item',
+                    params: { code: o.code }
+                  }"
+                  class="font-monospace text-caption"
+                  >{{ o.code }}</RouterLink
+                >
+              </template>
+              <template #append>
+                <TaxonChip :taxon="o.taxon" size="small" />
+              </template>
+            </v-list-item>
+          </template>
         </v-list>
       </template>
     </CRUDTable>
@@ -121,7 +123,7 @@ const headers: CRUDTableHeader<SiteWithOccurrences>[] = [
     align: 'end',
     width: 0,
     value(item: SiteWithOccurrences) {
-      return item.occurrences?.length
+      return item.samplings.reduce((sum, s) => sum + s.occurrences?.length, 0)
     },
     sortable: true
   }

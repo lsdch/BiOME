@@ -5,6 +5,7 @@
     :items
     item-value="value"
     item-title="title"
+    item-props
     :clearable
     :density
     v-bind="$attrs"
@@ -63,7 +64,6 @@ watch(
   () => model.value,
   (newValue) => {
     if (!newValue.binding) model.value.log = false
-    console.log('update')
     emit('updateFn', useScaleBinding(newValue))
   },
   { deep: true }
@@ -71,20 +71,18 @@ watch(
 
 const items = [
   { title: 'Sites', value: 'sites' },
+  { title: 'Sampling events', value: 'samplings' },
   {
     title: 'Occurrences',
     value: 'occurrences'
-  }
-  // {
-  //   title: 'Species',
-  //   value: (d) =>
-  //     Object.values(
-  //       d.reduce<SampledTaxa>(
-  //         (acc, { data }) => ({ ...acc, ...occurringTaxa(data.occurrences) }),
-  //         occurringTaxa([])
-  //       )
-  //     ).reduce((acc, taxon) => ({...acc, ...taxon})).length
-  // }
+  },
+  {
+    title: 'Species richness',
+    value: 'speciesRichness',
+    subtitle: 'Includes species and sub-species'
+  },
+  { title: 'Genus richness', value: 'genusRichness' },
+  { title: 'Family richness', value: 'familyRichness' }
 ] as const
 </script>
 

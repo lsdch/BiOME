@@ -3,25 +3,42 @@
     <template v-for="(_, name) in $slots" #[name]="slotData">
       <slot :name="name" v-bind="slotData ?? {}" />
     </template>
-    <v-text-field
-      v-if="(occurrences?.length ?? 0) > 10"
-      v-model="search.term"
-      class="mx-5"
-      hide-details
-      label="Search"
-      clearable
-      density="compact"
-    />
-    <CRUDTable :items="occurrences" entity-name="Occurrences" :headers :search>
-      <template #item.code="{ item, value }: { item: OccurrenceAtSite; value: string }">
-        <RouterLink
-          :to="{
-            name: item.element === 'Sequence' ? 'sequence' : 'biomat-item',
-            params: { code: item.code }
-          }"
+    <div v-if="(occurrences?.length ?? 0) > 10" class="d-flex align-center ga-2">
+      <v-text-field
+        v-model="search.term"
+        class="mx-5"
+        hide-details
+        label="Search"
+        clearable
+        density="compact"
+      />
+      Types:
+      <v-chip-group multiple mandatory v-model="search.occurrenceTypes">
+        <v-chip prepend-icon="mdi-cube-scan" color="primary" value="internal">Internal</v-chip>
+        <v-chip prepend-icon="mdi-arrow-collapse-all" color="warning" value="external"
+          >External</v-chip
         >
-          <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
-        </RouterLink>
+        <v-chip prepend-icon="mdi-dna" color="warning" value="sequence">Seq.</v-chip>
+      </v-chip-group>
+    </div>
+    <CRUDTable :items entity-name="Occurrences" :headers :search>
+      <template #item.code="{ item, value }: { item: OccurrenceAtSite; value: string }">
+        <div class="d-flex justify-space-between align-center">
+          <RouterLink
+            :to="{
+              name: item.element === 'Sequence' ? 'sequence' : 'biomat-item',
+              params: { code: item.code }
+            }"
+          >
+            <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
+          </RouterLink>
+          <v-icon
+            :color="item.category === 'Internal' ? 'primary' : 'warning'"
+            :icon="item.element === 'Sequence' ? 'mdi-dna' : OccurrenceCategory.icon(item.category)"
+            :title="`${item.category} ${item.element}`"
+            class="mx-1"
+          />
+        </div>
       </template>
       <template #item.site.code="{ value }: { value: string }">
         <RouterLink
@@ -58,14 +75,22 @@
 </template>
 
 <script setup lang="ts" generic="WithSite extends boolean">
-import { CodeIdentifier, DateWithPrecision, OccurrenceAtSite, SiteItem } from '@/api'
+import {
+  CodeIdentifier,
+  DateWithPrecision,
+  OccurrenceAtSite,
+  OccurrenceCategory,
+  SiteItem
+} from '@/api'
 import TaxonChip from '@/components/taxonomy/TaxonChip'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
-import { Component, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { ComponentSlots } from 'vue-component-type-helpers'
 
-type Occurrence = OccurrenceAtSite & (WithSite extends true ? { site: SiteItem } : {})
+type Occurrence = OccurrenceAtSite & { sampling_date: DateWithPrecision } & (WithSite extends true
+    ? { site: SiteItem }
+    : {})
 
 const {
   title = 'Occurrences',
@@ -82,9 +107,25 @@ const {
   } & CardDialogProps
 >()
 
-const search = ref({ term: undefined, owned: undefined })
+const items = computed(() => {
+  return occurrences?.filter((o) => {
+    return (
+      (occurrenceTypes.value.has('sequence') && o.element === 'Sequence') ||
+      (occurrenceTypes.value.has('internal') && o.category === 'Internal') ||
+      (occurrenceTypes.value.has('external') && o.category === 'External')
+    )
+  })
+})
 
-const headers: CRUDTableHeader<Occurrence>[] = [
+const occurrenceTypes = computed(() => new Set(search.value.occurrenceTypes))
+
+const search = ref({
+  term: undefined,
+  owned: undefined,
+  occurrenceTypes: ['internal', 'external', 'sequence']
+})
+
+const headersWithSites: CRUDTableHeader<Occurrence>[] = [
   {
     title: 'Code',
     value: 'code',
@@ -121,9 +162,16 @@ const headers: CRUDTableHeader<Occurrence>[] = [
     sortable: true,
     align: 'start'
   }
-].filter(
-  (header) => props.withSite !== false || !header.value.startsWith('site.')
-) as CRUDTableHeader<Occurrence>[]
+]
+
+const headers = computed(() =>
+  headersWithSites.filter(
+    (header) =>
+      props.withSite !== false ||
+      typeof header.value != 'string' ||
+      !header.value.startsWith('site.')
+  )
+)
 
 defineSlots<ComponentSlots<typeof CardDialog>>()
 </script>

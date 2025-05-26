@@ -1,9 +1,53 @@
 <template>
   <div class="fill-height w-100 d-flex">
-    <v-navigation-drawer :location="$vuetify.display.xs ? 'top' : 'left'" :width="500">
+    <v-navigation-drawer
+      :location="$vuetify.display.xs ? 'top' : 'left'"
+      :width="500"
+      v-model="drawer"
+      :temporary="!drawerPinned"
+    >
+      <template #append>
+        <v-divider />
+        <div class="d-flex justify-space-between pa-2">
+          <div>
+            <v-tooltip location="top">
+              <template #activator="{ props }">
+                <v-btn v-bind="props" variant="text" icon="mdi-content-save-plus"></v-btn>
+              </template>
+              Save map view settings
+            </v-tooltip>
+            <v-tooltip location="top">
+              <template #activator="{ props }">
+                <v-btn v-bind="props" variant="text" icon="mdi-file-download"></v-btn>
+              </template>
+              Load settings
+            </v-tooltip>
+          </div>
+          <v-tooltip>
+            <template #activator="{ props }">
+              <v-btn
+                v-bind="props"
+                icon="mdi-pin"
+                size="small"
+                :variant="drawerPinned ? 'tonal' : 'plain'"
+                @click="drawerPinned = !drawerPinned"
+              />
+            </template>
+            Toggle permanent options menu
+          </v-tooltip>
+        </div>
+      </template>
       <v-tabs v-model="tab">
         <v-tab text="Filters" value="filters" prepend-icon="mdi-filter-variant" />
         <v-tab text="Layers" value="bindings" prepend-icon="mdi-layers" />
+        <v-spacer />
+        <v-btn
+          variant="plain"
+          icon="mdi-chevron-left"
+          rounded="xl"
+          color=""
+          @click="toggleDrawer(false)"
+        />
       </v-tabs>
       <v-divider />
       <v-tabs-window v-model="tab">
@@ -210,9 +254,38 @@
         </v-tabs-window-item>
       </v-tabs-window>
     </v-navigation-drawer>
+    <v-navigation-drawer v-if="!drawerPinned || !drawer" rail location="left" class="bg-main">
+      <v-list>
+        <v-tooltip content-class="bg-surface text-overline py-0" :height="48">
+          <template #activator="{ props }">
+            <v-list-item
+              v-bind="props"
+              prepend-icon="mdi-filter-variant"
+              title="Filters"
+              @click="toggleTab('filters')"
+              :active="tab === 'filters' && drawer"
+              color="primary"
+            />
+          </template>
+          <v-sheet :height="48" class="my-0 d-flex align-center"> Filters </v-sheet>
+        </v-tooltip>
+        <v-tooltip content-class="bg-surface text-overline py-0" :height="48">
+          <template #activator="{ props }">
+            <v-list-item
+              v-bind="props"
+              prepend-icon="mdi-layers"
+              @click="toggleTab('bindings')"
+              :active="tab === 'bindings' && drawer"
+              color="primary"
+            />
+          </template>
+          <v-sheet :height="48" class="my-0 d-flex align-center"> Layers </v-sheet>
+        </v-tooltip>
+      </v-list>
+    </v-navigation-drawer>
     <div class="fill-height w-100 d-flex flex-column">
       <v-progress-linear v-if="isPending && !initialFetchDone" indeterminate color="warning" />
-      <div class="fill-height w-100 position-relative">
+      <div :class="['fill-height w-100 position-relative']">
         <v-overlay
           contained
           :model-value="!isRefetching && !!error"
@@ -228,6 +301,7 @@
           v-model:marker-mode="markerMode"
           :marker-config
           :hexgrid-config
+          v-model:polygon-mode="polygonMode"
         >
           <LControl v-if="isRefetching || isFetching" position="topleft">
             <v-progress-circular
@@ -237,6 +311,16 @@
               size="32"
               width="6"
             />
+          </LControl>
+          <LControl position="topright" v-if="sites">
+            <MapStatsDialog :sites>
+              <template #activator="{ props }">
+                <v-btn v-bind="props" icon="mdi-poll" color="white" :width="45" :height="45" />
+              </template>
+            </MapStatsDialog>
+          </LControl>
+          <LControl position="topright" v-if="sites">
+            <v-btn icon="mdi-shape-polygon-plus" @click="togglePolygonMode(true)"></v-btn>
           </LControl>
           <template #hex-popup="{ data }">
             <MapViewHexPopup :data />
@@ -263,16 +347,31 @@ import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
 import { palette } from '@/views/location/color_brewer'
 import { useQuery } from '@tanstack/vue-query'
 import { LControl } from '@vue-leaflet/vue-leaflet'
-import { useLocalStorage } from '@vueuse/core'
+import { useLocalStorage, useToggle } from '@vueuse/core'
 import { computed, ref, watch } from 'vue'
 import ColorPalettePicker from './ColorPalettePicker.vue'
 import LayerOptionsCard from './LayerOptionsCard.vue'
+import MapStatsDialog from './MapStatsDialog.vue'
 import MapViewHexPopup from './MapViewHexPopup.vue'
 import MapViewSitePopup from './MapViewSitePopup.vue'
 import MappingToolFilters, { MappingFilters } from './MappingToolFilters.vue'
 import ScaleBindingSelect from './ScaleBindingSelect.vue'
+import { polygon } from 'leaflet'
+
+const [polygonMode, togglePolygonMode] = useToggle(false)
+
+const drawerPinned = useLocalStorage('mapping-tool-drawer-pinned', false, {
+  initOnMounted: true
+})
+
+const [drawer, toggleDrawer] = useToggle(false)
 
 const tab = ref<'filters' | 'bindings'>('filters')
+
+function toggleTab(newTab: 'filters' | 'bindings') {
+  tab.value = newTab
+  toggleDrawer(true)
+}
 
 const hexgridConfig = ref<HexgridConfig<SiteWithOccurrences>>({
   active: true,
@@ -298,7 +397,9 @@ const markerConfig = ref<MarkerConfig>({
   weight: 1
 })
 
-const filters = ref<MappingFilters>({})
+const filters = ref<MappingFilters>({
+  include_sites: 'Occurrences'
+})
 
 const {
   data: sites,

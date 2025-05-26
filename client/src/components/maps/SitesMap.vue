@@ -1,7 +1,8 @@
 <template>
+  {{ polyline }}
   <div
     ref="map"
-    class="fill-height"
+    :class="['fill-height', { 'polygon-mode': polygonMode }]"
     v-element-visibility="onVisible"
     @mouseleave="cursorCoordinates = undefined"
   >
@@ -28,6 +29,13 @@
         wheelPxPerZoomLevel: 100,
         zoomSnap: 0.5
       }"
+      @click="
+        (e: LeafletMouseEvent) => {
+          if (polygonMode) {
+            addPolylinePoint(e.latlng)
+          }
+        }
+      "
     >
       <LControlScale position="bottomright" metric :imperial="false" />
       <LControl position="bottomright" class="coordinates-control">
@@ -217,6 +225,50 @@
           <slot name="popup" v-if="selected" :item="selected" :popupOpen :zoom> </slot>
         </KeepAlive>
       </LLayerGroup>
+
+      <LPolygon
+        v-if="!polygonMode && polyline.length > 2"
+        :lat-lngs="polyline"
+        color="orangered"
+        :weight="2"
+        fill
+        no-clip
+        fill-rule=""
+        :fill-opacity="0.3"
+      />
+      <LPolyline
+        v-if="polygonMode && polyline.length"
+        :lat-lngs="[...polyline, ...(cursorCoordinates ? [cursorCoordinates] : [])]"
+        color="orangered"
+        :weight="2"
+        fill
+        no-clip
+        fill-rule=""
+        :fill-opacity="0.3"
+        :interactive="false"
+      />
+      <LCircleMarker
+        v-if="polygonMode || polyline.length > 1"
+        v-for="(latLng, i) in polyline"
+        interactive
+        :lat-lng
+        :radius="i === 0 || i === polyline.length - 1 ? 6 : 3"
+        fill
+        :fill-opacity="1"
+        :fillColor="i === 0 ? 'green' : 'orangered'"
+        :color="i === 0 ? 'green' : 'orangered'"
+        @click="
+          (ev) => {
+            console.log('click', i)
+            if (polygonMode && i === 0) {
+              if (polyline.length == 2) {
+                clearPolyline()
+              }
+              polygonMode = false
+            }
+          }
+        "
+      />
     </l-map>
   </div>
 </template>
@@ -234,10 +286,18 @@ import {
   LLayerGroup,
   LMap,
   LMarker,
+  LPolygon,
+  LPolyline,
   LPopup,
   LTileLayer
 } from '@vue-leaflet/vue-leaflet'
-import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
+import {
+  onKeyPressed,
+  onKeyStroke,
+  useDebounceFn,
+  useFullscreen,
+  useThrottleFn
+} from '@vueuse/core'
 import L, {
   CircleMarkerOptions,
   latLng,
@@ -245,6 +305,7 @@ import L, {
   LatLngExpression,
   LatLngLiteral,
   PointExpression,
+  polygon,
   type LeafletMouseEvent,
   type Map
 } from 'leaflet'
@@ -257,6 +318,7 @@ import MapColorLegend from '@/views/location/MapColorLegend.vue'
 import { vElementVisibility } from '@vueuse/components'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { MapLayerMode } from './MarkerControl.vue'
+import { useKeyPress } from '@vue-flow/core'
 
 export type HexPopupData<SiteItem> = {
   data: SiteItem
@@ -365,13 +427,6 @@ const props = withDefaults(
     maxZoom: 18,
     autoFit: true,
     center: () => [0, 0]
-    // markerOptions: () => ({
-    //   color: 'white',
-    //   fill: true,
-    //   fillColor: 'orangered',
-    //   fillOpacity: 1,
-    //   radius: 8
-    // })
   }
 )
 
@@ -450,6 +505,23 @@ const fitBounds = useDebounceFn((items: SiteItem[] = props.items ?? []) => {
   }
 }, 200)
 
+const polygonMode = defineModel<boolean>('polygon-mode', { default: false })
+const polyline = ref<LatLngExpression[]>([])
+function addPolylinePoint(latlng: LatLngExpression) {
+  polyline.value = [...polyline.value, latlng]
+}
+function clearPolyline() {
+  polyline.value = []
+}
+
+onKeyStroke('Escape', () => {
+  console.log('Escape pressed')
+  if (polygonMode.value) {
+    clearPolyline()
+    polygonMode.value = false
+  }
+})
+
 defineExpose({ fitBounds })
 </script>
 
@@ -470,6 +542,10 @@ defineExpose({ fitBounds })
       opacity: 1;
     }
   }
+}
+
+.polygon-mode .map {
+  cursor: crosshair;
 }
 
 .hexbin-hexagon {

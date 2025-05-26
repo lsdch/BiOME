@@ -1,9 +1,15 @@
-import { SiteWithOccurrences } from "@/api"
+import { SiteWithOccurrences, TaxonRank } from "@/api"
 import { ScaleBinding } from "vue-leaflet-hexbin"
 
-const bindings: Record<'sites' | 'occurrences', ScaleBinding<SiteWithOccurrences>> = {
+export type BindingName = 'sites' | 'occurrences' | 'samplings' | 'speciesRichness' | 'genusRichness' | 'familyRichness'
+
+const bindings: Record<BindingName, ScaleBinding<SiteWithOccurrences>> = {
   sites: (d) => d.length,
-  occurrences: (d) => d.reduce((acc, { data }) => acc + data.occurrences.length, 0),
+  samplings: (d) => d.reduce((acc, { data }) => acc + data.samplings.length, 0),
+  occurrences: (d) => d.reduce((acc, { data }) => acc + data.samplings.flatMap((s) => s.occurrences).length, 0),
+  speciesRichness: (d) => computeRichness(d.map(({ data }) => data), 'Species'),
+  genusRichness: (d) => computeRichness(d.map(({ data }) => data), 'Genus'),
+  familyRichness: (d) => computeRichness(d.map(({ data }) => data), 'Family'),
 }
 
 export type ScaleBindingSpec = {
@@ -24,4 +30,13 @@ export function useScaleBinding(spec: ScaleBindingSpec | undefined): ScaleBindin
     default:
       return scaleBinding
   }
+}
+
+export function computeRichness(data: SiteWithOccurrences[], rank: TaxonRank): number {
+  return data.reduce(
+    (acc, { samplings }) => acc + samplings.flatMap(
+      (s) => s.occurrences.filter(
+        (o) => o.taxon.rank === rank || (rank === 'Species' && o.taxon.rank === 'Subspecies')
+      )
+    ).length, 0)
 }

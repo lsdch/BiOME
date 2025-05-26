@@ -1,9 +1,11 @@
 <template>
   <v-menu location="right" origin="left" :close-on-content-click="false">
     <template #activator="{ props }">
-      <v-list-item v-bind="props" append-icon="mdi-chevron-right">
-        {{ occurringTaxaCount }}
-        occurring {{ occurringTaxaCount === 1 ? 'taxon' : 'taxa' }}
+      <v-list-item
+        v-bind="props"
+        append-icon="mdi-chevron-right"
+        :title="pluralizeWithCount(occurringTaxaCount ?? 0, 'sampled taxon', 'sampled taxa')"
+      >
       </v-list-item>
     </template>
     <OccurringTaxaList v-if="occurrences" :occurrences="occurrences" />
@@ -15,6 +17,7 @@ import { SiteWithOccurrences } from '@/api'
 import { HexPopupData } from '@/components/maps/SitesMap.vue'
 import { computed } from 'vue'
 import OccurringTaxaList from './OccurringTaxaList.vue'
+import { pluralizeWithCount } from '@/functions/text'
 const { data } = defineProps<{
   data?: HexPopupData<SiteWithOccurrences>[]
 }>()
@@ -22,9 +25,9 @@ const { data } = defineProps<{
 const occurrences = computed(() => {
   return data?.reduce(
     (acc, { data }) => {
-      return acc.concat(data.occurrences)
+      return acc.concat(data.samplings.flatMap((s) => s.occurrences))
     },
-    [] as SiteWithOccurrences['occurrences']
+    [] as SiteWithOccurrences['samplings'][number]['occurrences']
   )
 })
 
