@@ -3,6 +3,7 @@ import { Replace } from 'ts-toolbelt/out/Object/Replace';
 import { Ref } from 'vue';
 import { VDataTable } from 'vuetify/components'
 import { VIcon } from 'vuetify/components/VIcon';
+import { DataTableItem } from 'vuetify/lib/components/VDataTable/types.mjs';
 
 
 export { };
@@ -21,8 +22,9 @@ declare global {
     // Allow filtering using any value type instead of string only
     // See original definition of FilterFunction type:
     // https://github.com/vuetifyjs/vuetify/blob/21241e1762734f639b4ee421e00735d3754181c8/packages/vuetify/src/composables/filter.ts#L19-L19
-    readonly filter?: (value: any, query: string, item?: Item) => boolean
+    readonly filter?: (value: any, query: string, item: DataTableItem<Item>) => boolean
     key?: Exclude<(keyof Item), "$schema"> | DataTableHeader['key'];
+    value?: Exclude<(keyof Item), "$schema"> | DataTableHeader['value'];
     hide?: Ref<boolean>
   };
   type CRUDTableHeaders = CRUDTableHeader[]
