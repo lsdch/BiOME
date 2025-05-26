@@ -26,7 +26,9 @@
       <slot name="prepend-item" />
     </template>
     <template #chip="{ item, props }" v-if="chips">
-      <TaxonChip :taxon="item.raw" v-bind="props" />
+      <slot name="chip" :props :item>
+        <TaxonChip :taxon="item.raw" v-bind="props" />
+      </slot>
     </template>
     <template #item="{ props, item }">
       <v-list-item v-bind="props" :title="item.raw.name" class="fuzzy-search-item">
