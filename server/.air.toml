@@ -24,7 +24,7 @@ post_cmd = []
 # run code generation
 pre_cmd = [
   "go generate",
-  "templ generate",
+  "go tool templ generate",
   # "cd ../client && pnpm gen-client"
 ]
 rerun = false
