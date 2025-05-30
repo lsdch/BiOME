@@ -105,7 +105,7 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 				country_codes := <str>json_array_unpack(json_get(filters, 'countries')),
 				taxa := (
 					select taxonomy::Taxon
-					filter .code in <str>json_array_unpack(json_get(filters, 'taxa'))
+					filter .name in <str>json_array_unpack(json_get(filters, 'taxa'))
 				),
 				datasets := (
 					select datasets::Dataset
