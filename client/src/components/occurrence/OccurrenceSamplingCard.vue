@@ -14,7 +14,7 @@
     <v-list-item
       class="text-primary"
       prepend-icon="mdi-map-marker-outline"
-      :title="item.event.site.name ?? item.event.site.code"
+      :title="item.event.site.name || item.event.site.code"
       :subtitle="item.event.site.locality"
       :to="{ name: 'site-item', params: { code: item.event.site.code } }"
     >
