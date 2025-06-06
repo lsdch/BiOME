@@ -1,5 +1,8 @@
 <template>
-  <v-dialog v-model="isRevealed" max-width="500px" persistent @keyup.esc="emit('cancel')">
+  <v-dialog v-model="isRevealed" :max-width="500" persistent @keyup.esc="cancel()">
+    <template #activator="props">
+      <slot name="activator" v-bind="props" />
+    </template>
     <v-card>
       <v-toolbar dark dense flat>
         <v-toolbar-title class="text-body-2 font-weight-bold grey--text">
@@ -9,14 +12,14 @@
       <v-card-text v-if="message"> {{ message }} </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="grey" variant="text" @click="emit('cancel')" text="Cancel" />
-        <v-btn color="blue-darken-1" variant="text" @click="emit('confirm')" text="OK" />
+        <v-btn color="grey" variant="text" @click="cancel()" text="Cancel" />
+        <v-btn color="blue-darken-1" variant="text" @click="confirm()" text="OK" />
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
-<script setup lang="ts" generic="Payload = any">
+<script setup lang="ts">
 export type ConfirmDialogProps<T> = {
   title: string
   message?: string
@@ -31,6 +34,16 @@ const emit = defineEmits<{
   confirm: []
   cancel: []
 }>()
+
+function confirm() {
+  isRevealed.value = false
+  emit('confirm')
+}
+
+function cancel() {
+  isRevealed.value = false
+  emit('cancel')
+}
 </script>
 
 <style scoped></style>
