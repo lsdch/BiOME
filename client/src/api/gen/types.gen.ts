@@ -1133,9 +1133,8 @@ export type OccurrenceDataset = {
   label: string
   maintainers: Array<PersonUser>
   meta: Meta
-  occurrences: Array<OccurrenceWithCategory>
   pinned: boolean
-  sites: Array<SiteItem>
+  sites: Array<SiteWithOccurrences>
   slug: string
 }
 
@@ -1180,16 +1179,6 @@ export type OccurrenceReference = {
 export type OccurrenceReferenceInput = {
   code: string
   original?: boolean
-}
-
-export type OccurrenceWithCategory = {
-  category: OccurrenceCategory
-  comments: string
-  element: OccurrenceElement
-  id: string
-  identification: Identification
-  published_in?: Array<OccurrenceReference>
-  sampling: SamplingInner
 }
 
 export type OptionalBioMaterial = {
@@ -1912,6 +1901,10 @@ export type Site = {
   description?: string
   events?: Array<Event>
   id: string
+  /**
+   * Last visit date with precision. If not set, site has never been visited.
+   */
+  last_visited?: OptionalDateWithPrecision
   locality?: string
   meta: Meta
   name?: string
@@ -2000,6 +1993,10 @@ export type SiteItem = {
   country?: OptionalCountry
   description?: string
   id: string
+  /**
+   * Last visit date with precision. If not set, site has never been visited.
+   */
+  last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
   user_defined_locality: boolean
@@ -2045,6 +2042,10 @@ export type SiteWithDistance = {
   description?: string
   distance: number
   id: string
+  /**
+   * Last visit date with precision. If not set, site has never been visited.
+   */
+  last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
   user_defined_locality: boolean
@@ -2057,6 +2058,9 @@ export type SiteWithOccurrences = {
   country?: OptionalCountry
   description?: string
   id: string
+  /**
+   * Last visit date with precision. If not set, site has never been visited.
+   */
   last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
@@ -2071,6 +2075,10 @@ export type SiteWithScore = {
   country?: OptionalCountry
   description?: string
   id: string
+  /**
+   * Last visit date with precision. If not set, site has never been visited.
+   */
+  last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
   score: number
@@ -3816,6 +3824,43 @@ export type GetSiteDatasetResponses = {
 }
 
 export type GetSiteDatasetResponse = GetSiteDatasetResponses[keyof GetSiteDatasetResponses]
+
+export type GetDatasetData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    slug: string
+  }
+  query?: never
+  url: '/datasets/{slug}'
+}
+
+export type GetDatasetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetDatasetError = GetDatasetErrors[keyof GetDatasetErrors]
+
+export type GetDatasetResponses = {
+  /**
+   * OK
+   */
+  200: Dataset
+}
+
+export type GetDatasetResponse = GetDatasetResponses[keyof GetDatasetResponses]
 
 export type DeleteEventData = {
   body?: never

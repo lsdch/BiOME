@@ -66,9 +66,8 @@ type OccurrenceAtSite struct {
 }
 
 type SiteWithOccurrences struct {
-	SiteItem    `gel:"$inline" json:",inline"`
-	Samplings   []SamplingEventWithOccurrences     `gel:"samplings" json:"samplings"`
-	LastVisited models.Optional[DateWithPrecision] `gel:"last_visited" json:"last_visited,omitempty"`
+	SiteItem  `gel:"$inline" json:",inline"`
+	Samplings []SamplingEventWithOccurrences `gel:"samplings" json:"samplings"`
 }
 
 type SiteSamplingStatus string
@@ -123,9 +122,6 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 			select location::Site {
 				*,
 				country: { * },
-				last_visited := assert_single((
-					select distinct .events.performed_on filter (.date = max(location::Site.events.performed_on.date)) limit 1
-				)),
 				samplings := (
 					select .events.samplings
 					filter (

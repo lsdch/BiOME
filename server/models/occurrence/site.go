@@ -143,15 +143,16 @@ func (i *SiteInput) Validate(edb geltypes.Executor) validations.ValidationErrors
 }
 
 type SiteItem struct {
-	ID                  geltypes.UUID                     `gel:"id" json:"id" format:"uuid"`
-	Name                geltypes.OptionalStr              `gel:"name" json:"name,omitempty" minLength:"4"`
-	Code                string                            `gel:"code" json:"code" minLength:"4" maxLength:"8"`
-	Description         geltypes.OptionalStr              `gel:"description" json:"description,omitempty"`
-	Coordinates         Coordinates                       `gel:"coordinates" json:"coordinates"`
-	Altitude            geltypes.OptionalInt32            `gel:"altitude" json:"altitude,omitempty"`
-	Locality            geltypes.OptionalStr              `gel:"locality" json:"locality,omitempty"`
-	Country             models.Optional[location.Country] `gel:"country" json:"country,omitempty"`
-	UserDefinedLocality bool                              `gel:"user_defined_locality" json:"user_defined_locality"`
+	ID                  geltypes.UUID                      `gel:"id" json:"id" format:"uuid"`
+	Name                geltypes.OptionalStr               `gel:"name" json:"name,omitempty" minLength:"4"`
+	Code                string                             `gel:"code" json:"code" minLength:"4" maxLength:"8"`
+	Description         geltypes.OptionalStr               `gel:"description" json:"description,omitempty"`
+	Coordinates         Coordinates                        `gel:"coordinates" json:"coordinates"`
+	Altitude            geltypes.OptionalInt32             `gel:"altitude" json:"altitude,omitempty"`
+	Locality            geltypes.OptionalStr               `gel:"locality" json:"locality,omitempty"`
+	Country             models.Optional[location.Country]  `gel:"country" json:"country,omitempty"`
+	UserDefinedLocality bool                               `gel:"user_defined_locality" json:"user_defined_locality"`
+	LastVisited         models.Optional[DateWithPrecision] `gel:"last_visited" json:"last_visited,omitempty" doc:"Last visit date with precision. If not set, site has never been visited."`
 }
 
 type Site struct {

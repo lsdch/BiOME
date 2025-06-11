@@ -42,7 +42,7 @@ import {
   ColorBrewerPalette,
   ColorBrewerPaletteKey,
   palette
-} from '@/views/location/color_brewer'
+} from '@/functions/color_brewer'
 
 const model = defineModel<keyof typeof brewerPalettes>({
   default: 'Viridis'

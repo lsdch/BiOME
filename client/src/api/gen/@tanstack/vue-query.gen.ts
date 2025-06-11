@@ -114,6 +114,7 @@ import type {
   CreateSiteDatasetError,
   CreateSiteDatasetResponse,
   GetSiteDatasetData,
+  GetDatasetData,
   DeleteEventData,
   DeleteEventError,
   DeleteEventResponse,
@@ -338,6 +339,9 @@ const createQueryKey = <TOptions extends Options>(
 export const listAbioticParametersQueryKey = (options?: Options<ListAbioticParametersData>) =>
   createQueryKey('listAbioticParameters', options)
 
+/**
+ * List abiotic parameters
+ */
 export const listAbioticParametersOptions = (options?: Options<ListAbioticParametersData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -356,6 +360,9 @@ export const listAbioticParametersOptions = (options?: Options<ListAbioticParame
 export const createAbioticParameterQueryKey = (options: Options<CreateAbioticParameterData>) =>
   createQueryKey('createAbioticParameter', options)
 
+/**
+ * Create abiotic parameter
+ */
 export const createAbioticParameterOptions = (options: Options<CreateAbioticParameterData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -371,6 +378,9 @@ export const createAbioticParameterOptions = (options: Options<CreateAbioticPara
   })
 }
 
+/**
+ * Create abiotic parameter
+ */
 export const createAbioticParameterMutation = (
   options?: Partial<Options<CreateAbioticParameterData>>
 ): UseMutationOptions<
@@ -395,6 +405,9 @@ export const createAbioticParameterMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete abiotic parameter
+ */
 export const deleteAbioticParameterMutation = (
   options?: Partial<Options<DeleteAbioticParameterData>>
 ): UseMutationOptions<
@@ -419,6 +432,9 @@ export const deleteAbioticParameterMutation = (
   return mutationOptions
 }
 
+/**
+ * Update abiotic parameter
+ */
 export const updateAbioticParameterMutation = (
   options?: Partial<Options<UpdateAbioticParameterData>>
 ): UseMutationOptions<
@@ -446,6 +462,9 @@ export const updateAbioticParameterMutation = (
 export const getAccessPointsQueryKey = (options?: Options<GetAccessPointsData>) =>
   createQueryKey('getAccessPoints', options)
 
+/**
+ * List access points
+ */
 export const getAccessPointsOptions = (options?: Options<GetAccessPointsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -464,6 +483,10 @@ export const getAccessPointsOptions = (options?: Options<GetAccessPointsData>) =
 export const currentUserQueryKey = (options?: Options<CurrentUserData>) =>
   createQueryKey('currentUser', options)
 
+/**
+ * Current user
+ * Get infos of currently authenticated user account
+ */
 export const currentUserOptions = (options?: Options<CurrentUserData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -482,6 +505,10 @@ export const currentUserOptions = (options?: Options<CurrentUserData>) => {
 export const confirmEmailQueryKey = (options?: Options<ConfirmEmailData>) =>
   createQueryKey('confirmEmail', options)
 
+/**
+ * Confirm e-mail
+ * Confirms the validity of an e-mail address associated to an account, using a token issued at the end of user registration.
+ */
 export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -500,6 +527,10 @@ export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) => {
 export const resendEmailVerificationQueryKey = (options: Options<ResendEmailVerificationData>) =>
   createQueryKey('resendEmailVerification', options)
 
+/**
+ * Resend e-mail verification link
+ * Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.
+ */
 export const resendEmailVerificationOptions = (options: Options<ResendEmailVerificationData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -515,6 +546,10 @@ export const resendEmailVerificationOptions = (options: Options<ResendEmailVerif
   })
 }
 
+/**
+ * Resend e-mail verification link
+ * Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.
+ */
 export const resendEmailVerificationMutation = (
   options?: Partial<Options<ResendEmailVerificationData>>
 ): UseMutationOptions<
@@ -542,6 +577,10 @@ export const resendEmailVerificationMutation = (
 export const requestPasswordResetQueryKey = (options: Options<RequestPasswordResetData>) =>
   createQueryKey('requestPasswordReset', options)
 
+/**
+ * Request password reset
+ * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
+ */
 export const requestPasswordResetOptions = (options: Options<RequestPasswordResetData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -557,6 +596,10 @@ export const requestPasswordResetOptions = (options: Options<RequestPasswordRese
   })
 }
 
+/**
+ * Request password reset
+ * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
+ */
 export const requestPasswordResetMutation = (
   options?: Partial<Options<RequestPasswordResetData>>
 ): UseMutationOptions<
@@ -583,6 +626,10 @@ export const requestPasswordResetMutation = (
 
 export const loginQueryKey = (options: Options<LoginData>) => createQueryKey('login', options)
 
+/**
+ * Login
+ * Authenticate using user credentials
+ */
 export const loginOptions = (options: Options<LoginData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -598,6 +645,10 @@ export const loginOptions = (options: Options<LoginData>) => {
   })
 }
 
+/**
+ * Login
+ * Authenticate using user credentials
+ */
 export const loginMutation = (
   options?: Partial<Options<LoginData>>
 ): UseMutationOptions<LoginResponse, LoginError, Options<LoginData>> => {
@@ -616,6 +667,10 @@ export const loginMutation = (
 
 export const logoutQueryKey = (options: Options<LogoutData>) => createQueryKey('logout', options)
 
+/**
+ * Logout
+ * Logout from current user session by revoking session cookies
+ */
 export const logoutOptions = (options: Options<LogoutData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -631,6 +686,10 @@ export const logoutOptions = (options: Options<LogoutData>) => {
   })
 }
 
+/**
+ * Logout
+ * Logout from current user session by revoking session cookies
+ */
 export const logoutMutation = (
   options?: Partial<Options<LogoutData>>
 ): UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> => {
@@ -650,6 +709,10 @@ export const logoutMutation = (
 export const updatePasswordQueryKey = (options: Options<UpdatePasswordData>) =>
   createQueryKey('updatePassword', options)
 
+/**
+ * Update password
+ * Updates password of currently authenticated user
+ */
 export const updatePasswordOptions = (options: Options<UpdatePasswordData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -665,6 +728,10 @@ export const updatePasswordOptions = (options: Options<UpdatePasswordData>) => {
   })
 }
 
+/**
+ * Update password
+ * Updates password of currently authenticated user
+ */
 export const updatePasswordMutation = (
   options?: Partial<Options<UpdatePasswordData>>
 ): UseMutationOptions<UpdatePasswordResponse, UpdatePasswordError, Options<UpdatePasswordData>> => {
@@ -688,6 +755,10 @@ export const updatePasswordMutation = (
 export const validatePasswordTokenQueryKey = (options: Options<ValidatePasswordTokenData>) =>
   createQueryKey('validatePasswordToken', options)
 
+/**
+ * Validate password token
+ * Verifies that the password token is valid and can be used to reset a password
+ */
 export const validatePasswordTokenOptions = (options: Options<ValidatePasswordTokenData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -706,6 +777,10 @@ export const validatePasswordTokenOptions = (options: Options<ValidatePasswordTo
 export const resetPasswordQueryKey = (options: Options<ResetPasswordData>) =>
   createQueryKey('resetPassword', options)
 
+/**
+ * Reset password
+ * Set a new password using a previously issued reset token
+ */
 export const resetPasswordOptions = (options: Options<ResetPasswordData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -721,6 +796,10 @@ export const resetPasswordOptions = (options: Options<ResetPasswordData>) => {
   })
 }
 
+/**
+ * Reset password
+ * Set a new password using a previously issued reset token
+ */
 export const resetPasswordMutation = (
   options?: Partial<Options<ResetPasswordData>>
 ): UseMutationOptions<ResetPasswordResponse, ResetPasswordError, Options<ResetPasswordData>> => {
@@ -744,6 +823,10 @@ export const resetPasswordMutation = (
 export const listPendingUserRequestsQueryKey = (options?: Options<ListPendingUserRequestsData>) =>
   createQueryKey('listPendingUserRequests', options)
 
+/**
+ * List pending user requests
+ * Lists all account requests pending validation from an administrator
+ */
 export const listPendingUserRequestsOptions = (options?: Options<ListPendingUserRequestsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -759,6 +842,10 @@ export const listPendingUserRequestsOptions = (options?: Options<ListPendingUser
   })
 }
 
+/**
+ * Delete pending user request
+ * Delete account request pending validation using the associated email
+ */
 export const deletePendingUserRequestMutation = (
   options?: Partial<Options<DeletePendingUserRequestData>>
 ): UseMutationOptions<
@@ -786,6 +873,10 @@ export const deletePendingUserRequestMutation = (
 export const getPendingUserRequestQueryKey = (options?: Options<GetPendingUserRequestData>) =>
   createQueryKey('getPendingUserRequest', options)
 
+/**
+ * Get pending user request
+ * Get account request pending validation using the associated email
+ */
 export const getPendingUserRequestOptions = (options?: Options<GetPendingUserRequestData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -804,6 +895,10 @@ export const getPendingUserRequestOptions = (options?: Options<GetPendingUserReq
 export const refreshSessionQueryKey = (options: Options<RefreshSessionData>) =>
   createQueryKey('refreshSession', options)
 
+/**
+ * Refresh auth token
+ * Refresh session using refresh token
+ */
 export const refreshSessionOptions = (options: Options<RefreshSessionData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -819,6 +914,10 @@ export const refreshSessionOptions = (options: Options<RefreshSessionData>) => {
   })
 }
 
+/**
+ * Refresh auth token
+ * Refresh session using refresh token
+ */
 export const refreshSessionMutation = (
   options?: Partial<Options<RefreshSessionData>>
 ): UseMutationOptions<RefreshSessionResponse, RefreshSessionError, Options<RefreshSessionData>> => {
@@ -842,6 +941,10 @@ export const refreshSessionMutation = (
 export const registerQueryKey = (options: Options<RegisterData>) =>
   createQueryKey('register', options)
 
+/**
+ * Register new account
+ * Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link. The target URL can be set by the client, otherwise it defaults to the API endpoint: `/api/v1/account/email-confirmation`
+ */
 export const registerOptions = (options: Options<RegisterData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -857,6 +960,10 @@ export const registerOptions = (options: Options<RegisterData>) => {
   })
 }
 
+/**
+ * Register new account
+ * Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link. The target URL can be set by the client, otherwise it defaults to the API endpoint: `/api/v1/account/email-confirmation`
+ */
 export const registerMutation = (
   options?: Partial<Options<RegisterData>>
 ): UseMutationOptions<RegisterResponse, RegisterError, Options<RegisterData>> => {
@@ -880,6 +987,10 @@ export const registerMutation = (
 export const claimInvitationQueryKey = (options: Options<ClaimInvitationData>) =>
   createQueryKey('claimInvitation', options)
 
+/**
+ * Claim invitation
+ * Register an account with pre-assigned role and identity, using an invitation token
+ */
 export const claimInvitationOptions = (options: Options<ClaimInvitationData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -895,6 +1006,10 @@ export const claimInvitationOptions = (options: Options<ClaimInvitationData>) =>
   })
 }
 
+/**
+ * Claim invitation
+ * Register an account with pre-assigned role and identity, using an invitation token
+ */
 export const claimInvitationMutation = (
   options?: Partial<Options<ClaimInvitationData>>
 ): UseMutationOptions<
@@ -922,6 +1037,9 @@ export const claimInvitationMutation = (
 export const listAnchorsQueryKey = (options?: Options<ListAnchorsData>) =>
   createQueryKey('listAnchors', options)
 
+/**
+ * List GBIF anchor clades
+ */
 export const listAnchorsOptions = (options?: Options<ListAnchorsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -940,6 +1058,10 @@ export const listAnchorsOptions = (options?: Options<ListAnchorsData>) => {
 export const listBioMaterialQueryKey = (options?: Options<ListBioMaterialData>) =>
   createQueryKey('listBioMaterial', options)
 
+/**
+ * List bio-material
+ * Both internal and external
+ */
 export const listBioMaterialOptions = (options?: Options<ListBioMaterialData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -993,6 +1115,10 @@ export const listBioMaterialInfiniteQueryKey = (
   options?: Options<ListBioMaterialData>
 ): QueryKey<Options<ListBioMaterialData>> => createQueryKey('listBioMaterial', options, true)
 
+/**
+ * List bio-material
+ * Both internal and external
+ */
 export const listBioMaterialInfiniteOptions = (options?: Options<ListBioMaterialData>) => {
   return infiniteQueryOptions<
     ListBioMaterialResponse,
@@ -1030,6 +1156,9 @@ export const listBioMaterialInfiniteOptions = (options?: Options<ListBioMaterial
   )
 }
 
+/**
+ * Update external bio-material
+ */
 export const updateExternalBioMatMutation = (
   options?: Partial<Options<UpdateExternalBioMatData>>
 ): UseMutationOptions<
@@ -1057,6 +1186,9 @@ export const updateExternalBioMatMutation = (
 export const createExternalBioMatQueryKey = (options: Options<CreateExternalBioMatData>) =>
   createQueryKey('createExternalBioMat', options)
 
+/**
+ * Create external bio-material
+ */
 export const createExternalBioMatOptions = (options: Options<CreateExternalBioMatData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1072,6 +1204,9 @@ export const createExternalBioMatOptions = (options: Options<CreateExternalBioMa
   })
 }
 
+/**
+ * Create external bio-material
+ */
 export const createExternalBioMatMutation = (
   options?: Partial<Options<CreateExternalBioMatData>>
 ): UseMutationOptions<
@@ -1096,6 +1231,10 @@ export const createExternalBioMatMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete bio-material
+ * Delete any (internal/external) bio-material record by its code
+ */
 export const deleteBioMaterialMutation = (
   options?: Partial<Options<DeleteBioMaterialData>>
 ): UseMutationOptions<
@@ -1123,6 +1262,10 @@ export const deleteBioMaterialMutation = (
 export const getBioMaterialQueryKey = (options: Options<GetBioMaterialData>) =>
   createQueryKey('getBioMaterial', options)
 
+/**
+ * Get bio-material
+ * Both internal and external
+ */
 export const getBioMaterialOptions = (options: Options<GetBioMaterialData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1141,6 +1284,9 @@ export const getBioMaterialOptions = (options: Options<GetBioMaterialData>) => {
 export const crossRefQueryKey = (options: Options<CrossRefData>) =>
   createQueryKey('crossRef', options)
 
+/**
+ * Retrieve article infos from DOI
+ */
 export const crossRefOptions = (options: Options<CrossRefData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1159,6 +1305,9 @@ export const crossRefOptions = (options: Options<CrossRefData>) => {
 export const crossRefBibSearchQueryKey = (options: Options<CrossRefBibSearchData>) =>
   createQueryKey('crossRefBibSearch', options)
 
+/**
+ * Retrieve article infos from query string
+ */
 export const crossRefBibSearchOptions = (options: Options<CrossRefBibSearchData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1174,6 +1323,9 @@ export const crossRefBibSearchOptions = (options: Options<CrossRefBibSearchData>
   })
 }
 
+/**
+ * Retrieve article infos from query string
+ */
 export const crossRefBibSearchMutation = (
   options?: Partial<Options<CrossRefBibSearchData>>
 ): UseMutationOptions<
@@ -1201,6 +1353,9 @@ export const crossRefBibSearchMutation = (
 export const listDataSourcesQueryKey = (options?: Options<ListDataSourcesData>) =>
   createQueryKey('listDataSources', options)
 
+/**
+ * List external data sources
+ */
 export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1219,6 +1374,9 @@ export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) =
 export const createDataSourceQueryKey = (options: Options<CreateDataSourceData>) =>
   createQueryKey('createDataSource', options)
 
+/**
+ * Register external data source
+ */
 export const createDataSourceOptions = (options: Options<CreateDataSourceData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1234,6 +1392,9 @@ export const createDataSourceOptions = (options: Options<CreateDataSourceData>) 
   })
 }
 
+/**
+ * Register external data source
+ */
 export const createDataSourceMutation = (
   options?: Partial<Options<CreateDataSourceData>>
 ): UseMutationOptions<
@@ -1258,6 +1419,9 @@ export const createDataSourceMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete external data source
+ */
 export const deleteDataSourceMutation = (
   options?: Partial<Options<DeleteDataSourceData>>
 ): UseMutationOptions<
@@ -1282,6 +1446,9 @@ export const deleteDataSourceMutation = (
   return mutationOptions
 }
 
+/**
+ * Update external data source
+ */
 export const updateDataSourceMutation = (
   options?: Partial<Options<UpdateDataSourceData>>
 ): UseMutationOptions<
@@ -1309,6 +1476,10 @@ export const updateDataSourceMutation = (
 export const listDatasetsQueryKey = (options?: Options<ListDatasetsData>) =>
   createQueryKey('listDatasets', options)
 
+/**
+ * List all datasets
+ * List all datasets with optional filters and category discriminator
+ */
 export const listDatasetsOptions = (options?: Options<ListDatasetsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1324,6 +1495,10 @@ export const listDatasetsOptions = (options?: Options<ListDatasetsData>) => {
   })
 }
 
+/**
+ * Update dataset
+ * Update dataset metadata
+ */
 export const updateDatasetMutation = (
   options?: Partial<Options<UpdateDatasetData>>
 ): UseMutationOptions<UpdateDatasetResponse, UpdateDatasetError, Options<UpdateDatasetData>> => {
@@ -1347,6 +1522,10 @@ export const updateDatasetMutation = (
 export const listOccurrenceDatasetsQueryKey = (options?: Options<ListOccurrenceDatasetsData>) =>
   createQueryKey('listOccurrenceDatasets', options)
 
+/**
+ * List occurrence datasets
+ * List all occurrence datasets
+ */
 export const listOccurrenceDatasetsOptions = (options?: Options<ListOccurrenceDatasetsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1365,6 +1544,10 @@ export const listOccurrenceDatasetsOptions = (options?: Options<ListOccurrenceDa
 export const getOccurrenceDatasetQueryKey = (options: Options<GetOccurrenceDatasetData>) =>
   createQueryKey('getOccurrenceDataset', options)
 
+/**
+ * Get occurrence dataset
+ * Get infos for an occurrence dataset
+ */
 export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatasetData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1380,6 +1563,10 @@ export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatase
   })
 }
 
+/**
+ * Pin/unpin dataset
+ * Pin or unpin dataset from from dashboard priority display
+ */
 export const togglePinDatasetMutation = (
   options?: Partial<Options<TogglePinDatasetData>>
 ): UseMutationOptions<
@@ -1407,6 +1594,10 @@ export const togglePinDatasetMutation = (
 export const listSequenceDatasetsQueryKey = (options?: Options<ListSequenceDatasetsData>) =>
   createQueryKey('listSequenceDatasets', options)
 
+/**
+ * List sequence datasets
+ * List all sequence datasets
+ */
 export const listSequenceDatasetsOptions = (options?: Options<ListSequenceDatasetsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1425,6 +1616,10 @@ export const listSequenceDatasetsOptions = (options?: Options<ListSequenceDatase
 export const getSequenceDatasetQueryKey = (options: Options<GetSequenceDatasetData>) =>
   createQueryKey('getSequenceDataset', options)
 
+/**
+ * Get sequence dataset
+ * Get infos for an sequence dataset
+ */
 export const getSequenceDatasetOptions = (options: Options<GetSequenceDatasetData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1443,6 +1638,10 @@ export const getSequenceDatasetOptions = (options: Options<GetSequenceDatasetDat
 export const listSiteDatasetsQueryKey = (options?: Options<ListSiteDatasetsData>) =>
   createQueryKey('listSiteDatasets', options)
 
+/**
+ * List site datasets
+ * List all site datasets
+ */
 export const listSiteDatasetsOptions = (options?: Options<ListSiteDatasetsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1461,6 +1660,10 @@ export const listSiteDatasetsOptions = (options?: Options<ListSiteDatasetsData>)
 export const createSiteDatasetQueryKey = (options: Options<CreateSiteDatasetData>) =>
   createQueryKey('createSiteDataset', options)
 
+/**
+ * Create site dataset
+ * Create a new site dataset with new or existing sites
+ */
 export const createSiteDatasetOptions = (options: Options<CreateSiteDatasetData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1476,6 +1679,10 @@ export const createSiteDatasetOptions = (options: Options<CreateSiteDatasetData>
   })
 }
 
+/**
+ * Create site dataset
+ * Create a new site dataset with new or existing sites
+ */
 export const createSiteDatasetMutation = (
   options?: Partial<Options<CreateSiteDatasetData>>
 ): UseMutationOptions<
@@ -1503,6 +1710,10 @@ export const createSiteDatasetMutation = (
 export const getSiteDatasetQueryKey = (options: Options<GetSiteDatasetData>) =>
   createQueryKey('getSiteDataset', options)
 
+/**
+ * Get site dataset
+ * Get infos for a site dataset
+ */
 export const getSiteDatasetOptions = (options: Options<GetSiteDatasetData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1518,6 +1729,31 @@ export const getSiteDatasetOptions = (options: Options<GetSiteDatasetData>) => {
   })
 }
 
+export const getDatasetQueryKey = (options: Options<GetDatasetData>) =>
+  createQueryKey('getDataset', options)
+
+/**
+ * Get dataset
+ * Retrieve dataset infos by slug
+ */
+export const getDatasetOptions = (options: Options<GetDatasetData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await DatasetsService.getDataset({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getDatasetQueryKey(options)
+  })
+}
+
+/**
+ * Delete event
+ */
 export const deleteEventMutation = (
   options?: Partial<Options<DeleteEventData>>
 ): UseMutationOptions<DeleteEventResponse, DeleteEventError, Options<DeleteEventData>> => {
@@ -1538,6 +1774,9 @@ export const deleteEventMutation = (
   return mutationOptions
 }
 
+/**
+ * Update event
+ */
 export const updateEventMutation = (
   options?: Partial<Options<UpdateEventData>>
 ): UseMutationOptions<UpdateEventResponse, UpdateEventError, Options<UpdateEventData>> => {
@@ -1562,6 +1801,10 @@ export const eventAddExternalOccurrenceQueryKey = (
   options: Options<EventAddExternalOccurrenceData>
 ) => createQueryKey('eventAddExternalOccurrence', options)
 
+/**
+ * Add occurrence from event
+ * Register new occurrence resulting from the event, including sampling specification and biomaterial identification
+ */
 export const eventAddExternalOccurrenceOptions = (
   options: Options<EventAddExternalOccurrenceData>
 ) => {
@@ -1579,6 +1822,10 @@ export const eventAddExternalOccurrenceOptions = (
   })
 }
 
+/**
+ * Add occurrence from event
+ * Register new occurrence resulting from the event, including sampling specification and biomaterial identification
+ */
 export const eventAddExternalOccurrenceMutation = (
   options?: Partial<Options<EventAddExternalOccurrenceData>>
 ): UseMutationOptions<
@@ -1606,6 +1853,9 @@ export const eventAddExternalOccurrenceMutation = (
 export const createSamplingAtEventQueryKey = (options: Options<CreateSamplingAtEventData>) =>
   createQueryKey('createSamplingAtEvent', options)
 
+/**
+ * Create sampling at event
+ */
 export const createSamplingAtEventOptions = (options: Options<CreateSamplingAtEventData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1621,6 +1871,9 @@ export const createSamplingAtEventOptions = (options: Options<CreateSamplingAtEv
   })
 }
 
+/**
+ * Create sampling at event
+ */
 export const createSamplingAtEventMutation = (
   options?: Partial<Options<CreateSamplingAtEventData>>
 ): UseMutationOptions<
@@ -1645,6 +1898,9 @@ export const createSamplingAtEventMutation = (
   return mutationOptions
 }
 
+/**
+ * Update spotting
+ */
 export const updateSpottingMutation = (
   options?: Partial<Options<UpdateSpottingData>>
 ): UseMutationOptions<UpdateSpottingResponse, UpdateSpottingError, Options<UpdateSpottingData>> => {
@@ -1668,6 +1924,9 @@ export const updateSpottingMutation = (
 export const listFixativesQueryKey = (options?: Options<ListFixativesData>) =>
   createQueryKey('listFixatives', options)
 
+/**
+ * List fixatives
+ */
 export const listFixativesOptions = (options?: Options<ListFixativesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1686,6 +1945,9 @@ export const listFixativesOptions = (options?: Options<ListFixativesData>) => {
 export const createFixativeQueryKey = (options: Options<CreateFixativeData>) =>
   createQueryKey('createFixative', options)
 
+/**
+ * Create fixative
+ */
 export const createFixativeOptions = (options: Options<CreateFixativeData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1701,6 +1963,9 @@ export const createFixativeOptions = (options: Options<CreateFixativeData>) => {
   })
 }
 
+/**
+ * Create fixative
+ */
 export const createFixativeMutation = (
   options?: Partial<Options<CreateFixativeData>>
 ): UseMutationOptions<CreateFixativeResponse, CreateFixativeError, Options<CreateFixativeData>> => {
@@ -1721,6 +1986,9 @@ export const createFixativeMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete fixative
+ */
 export const deleteFixativeMutation = (
   options?: Partial<Options<DeleteFixativeData>>
 ): UseMutationOptions<DeleteFixativeResponse, DeleteFixativeError, Options<DeleteFixativeData>> => {
@@ -1741,6 +2009,9 @@ export const deleteFixativeMutation = (
   return mutationOptions
 }
 
+/**
+ * Update fixative
+ */
 export const updateFixativeMutation = (
   options?: Partial<Options<UpdateFixativeData>>
 ): UseMutationOptions<UpdateFixativeResponse, UpdateFixativeError, Options<UpdateFixativeData>> => {
@@ -1764,6 +2035,9 @@ export const updateFixativeMutation = (
 export const listGenesQueryKey = (options?: Options<ListGenesData>) =>
   createQueryKey('listGenes', options)
 
+/**
+ * List genes
+ */
 export const listGenesOptions = (options?: Options<ListGenesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1782,6 +2056,9 @@ export const listGenesOptions = (options?: Options<ListGenesData>) => {
 export const createGeneQueryKey = (options: Options<CreateGeneData>) =>
   createQueryKey('createGene', options)
 
+/**
+ * Create gene
+ */
 export const createGeneOptions = (options: Options<CreateGeneData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1797,6 +2074,9 @@ export const createGeneOptions = (options: Options<CreateGeneData>) => {
   })
 }
 
+/**
+ * Create gene
+ */
 export const createGeneMutation = (
   options?: Partial<Options<CreateGeneData>>
 ): UseMutationOptions<CreateGeneResponse, CreateGeneError, Options<CreateGeneData>> => {
@@ -1817,6 +2097,9 @@ export const createGeneMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete gene
+ */
 export const deleteGeneMutation = (
   options?: Partial<Options<DeleteGeneData>>
 ): UseMutationOptions<DeleteGeneResponse, DeleteGeneError, Options<DeleteGeneData>> => {
@@ -1837,6 +2120,9 @@ export const deleteGeneMutation = (
   return mutationOptions
 }
 
+/**
+ * Update gene
+ */
 export const updateGeneMutation = (
   options?: Partial<Options<UpdateGeneData>>
 ): UseMutationOptions<UpdateGeneResponse, UpdateGeneError, Options<UpdateGeneData>> => {
@@ -1860,6 +2146,9 @@ export const updateGeneMutation = (
 export const reverseGeocodeQueryKey = (options: Options<ReverseGeocodeData>) =>
   createQueryKey('reverseGeocode', options)
 
+/**
+ * Reverse geocode coordinates using Geoapify API
+ */
 export const reverseGeocodeOptions = (options: Options<ReverseGeocodeData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1875,6 +2164,9 @@ export const reverseGeocodeOptions = (options: Options<ReverseGeocodeData>) => {
   })
 }
 
+/**
+ * Reverse geocode coordinates using Geoapify API
+ */
 export const reverseGeocodeMutation = (
   options?: Partial<Options<ReverseGeocodeData>>
 ): UseMutationOptions<ReverseGeocodeResponse, ReverseGeocodeError, Options<ReverseGeocodeData>> => {
@@ -1898,6 +2190,9 @@ export const reverseGeocodeMutation = (
 export const getGeoapifyStatusQueryKey = (options?: Options<GetGeoapifyStatusData>) =>
   createQueryKey('getGeoapifyStatus', options)
 
+/**
+ * Get Geoapify API status
+ */
 export const getGeoapifyStatusOptions = (options?: Options<GetGeoapifyStatusData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1916,6 +2211,9 @@ export const getGeoapifyStatusOptions = (options?: Options<GetGeoapifyStatusData
 export const listGeoapifyUsageQueryKey = (options?: Options<ListGeoapifyUsageData>) =>
   createQueryKey('listGeoapifyUsage', options)
 
+/**
+ * List Geoapify usage
+ */
 export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1934,6 +2232,9 @@ export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData
 export const listHabitatGroupsQueryKey = (options?: Options<ListHabitatGroupsData>) =>
   createQueryKey('listHabitatGroups', options)
 
+/**
+ * List habitats
+ */
 export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1952,6 +2253,9 @@ export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData
 export const createHabitatGroupQueryKey = (options: Options<CreateHabitatGroupData>) =>
   createQueryKey('createHabitatGroup', options)
 
+/**
+ * Create habitat group
+ */
 export const createHabitatGroupOptions = (options: Options<CreateHabitatGroupData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -1967,6 +2271,9 @@ export const createHabitatGroupOptions = (options: Options<CreateHabitatGroupDat
   })
 }
 
+/**
+ * Create habitat group
+ */
 export const createHabitatGroupMutation = (
   options?: Partial<Options<CreateHabitatGroupData>>
 ): UseMutationOptions<
@@ -1991,6 +2298,9 @@ export const createHabitatGroupMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete habitat group
+ */
 export const deleteHabitatGroupMutation = (
   options?: Partial<Options<DeleteHabitatGroupData>>
 ): UseMutationOptions<
@@ -2015,6 +2325,9 @@ export const deleteHabitatGroupMutation = (
   return mutationOptions
 }
 
+/**
+ * Update habitat group
+ */
 export const updateHabitatGroupMutation = (
   options?: Partial<Options<UpdateHabitatGroupData>>
 ): UseMutationOptions<
@@ -2039,6 +2352,9 @@ export const updateHabitatGroupMutation = (
   return mutationOptions
 }
 
+/**
+ * Import GBIF clade
+ */
 export const importGbifMutation = (
   options?: Partial<Options<ImportGbifData>>
 ): UseMutationOptions<ImportGbifResponse, ImportGbifError, Options<ImportGbifData>> => {
@@ -2062,6 +2378,9 @@ export const importGbifMutation = (
 export const monitorGbifQueryKey = (options?: Options<MonitorGbifData>) =>
   createQueryKey('monitorGbif', options)
 
+/**
+ * Monitor GBIF taxonomy imports
+ */
 export const monitorGbifOptions = (options?: Options<MonitorGbifData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2080,6 +2399,9 @@ export const monitorGbifOptions = (options?: Options<MonitorGbifData>) => {
 export const coordinatesToCountryQueryKey = (options: Options<CoordinatesToCountryData>) =>
   createQueryKey('coordinatesToCountry', options)
 
+/**
+ * Get country from WGS84 coordinates
+ */
 export const coordinatesToCountryOptions = (options: Options<CoordinatesToCountryData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2095,6 +2417,9 @@ export const coordinatesToCountryOptions = (options: Options<CoordinatesToCountr
   })
 }
 
+/**
+ * Get country from WGS84 coordinates
+ */
 export const coordinatesToCountryMutation = (
   options?: Partial<Options<CoordinatesToCountryData>>
 ): UseMutationOptions<
@@ -2122,6 +2447,9 @@ export const coordinatesToCountryMutation = (
 export const sitesProximityQueryKey = (options: Options<SitesProximityData>) =>
   createQueryKey('sitesProximity', options)
 
+/**
+ * List sites within a radius of a point
+ */
 export const sitesProximityOptions = (options: Options<SitesProximityData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2137,6 +2465,9 @@ export const sitesProximityOptions = (options: Options<SitesProximityData>) => {
   })
 }
 
+/**
+ * List sites within a radius of a point
+ */
 export const sitesProximityMutation = (
   options?: Partial<Options<SitesProximityData>>
 ): UseMutationOptions<SitesProximityResponse, SitesProximityError, Options<SitesProximityData>> => {
@@ -2160,6 +2491,9 @@ export const sitesProximityMutation = (
 export const listCountriesQueryKey = (options?: Options<ListCountriesData>) =>
   createQueryKey('listCountries', options)
 
+/**
+ * List countries
+ */
 export const listCountriesOptions = (options?: Options<ListCountriesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2178,6 +2512,9 @@ export const listCountriesOptions = (options?: Options<ListCountriesData>) => {
 export const getSitesCountByCountryQueryKey = (options?: Options<GetSitesCountByCountryData>) =>
   createQueryKey('getSitesCountByCountry', options)
 
+/**
+ * Get country list with sites count
+ */
 export const getSitesCountByCountryOptions = (options?: Options<GetSitesCountByCountryData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2196,6 +2533,10 @@ export const getSitesCountByCountryOptions = (options?: Options<GetSitesCountByC
 export const searchSitesQueryKey = (options?: Options<SearchSitesData>) =>
   createQueryKey('searchSites', options)
 
+/**
+ * Search sites
+ * Search sites by name, code or locality fuzzy matching a query. Returns a list of sites sorted by similarity.
+ */
 export const searchSitesOptions = (options?: Options<SearchSitesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2214,6 +2555,9 @@ export const searchSitesOptions = (options?: Options<SearchSitesData>) => {
 export const occurrencesBySiteQueryKey = (options?: Options<OccurrencesBySiteData>) =>
   createQueryKey('occurrencesBySite', options)
 
+/**
+ * Occurrences by site
+ */
 export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2232,6 +2576,9 @@ export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData
 export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) =>
   createQueryKey('occurrenceOverview', options)
 
+/**
+ * Occurrences overview
+ */
 export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2250,6 +2597,9 @@ export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewDa
 export const listOrganisationsQueryKey = (options?: Options<ListOrganisationsData>) =>
   createQueryKey('listOrganisations', options)
 
+/**
+ * List organisations
+ */
 export const listOrganisationsOptions = (options?: Options<ListOrganisationsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2268,6 +2618,9 @@ export const listOrganisationsOptions = (options?: Options<ListOrganisationsData
 export const createOrganisationQueryKey = (options: Options<CreateOrganisationData>) =>
   createQueryKey('createOrganisation', options)
 
+/**
+ * Create organisation
+ */
 export const createOrganisationOptions = (options: Options<CreateOrganisationData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2283,6 +2636,9 @@ export const createOrganisationOptions = (options: Options<CreateOrganisationDat
   })
 }
 
+/**
+ * Create organisation
+ */
 export const createOrganisationMutation = (
   options?: Partial<Options<CreateOrganisationData>>
 ): UseMutationOptions<
@@ -2307,6 +2663,9 @@ export const createOrganisationMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete organisation
+ */
 export const deleteOrganisationMutation = (
   options?: Partial<Options<DeleteOrganisationData>>
 ): UseMutationOptions<
@@ -2331,6 +2690,9 @@ export const deleteOrganisationMutation = (
   return mutationOptions
 }
 
+/**
+ * Update organisation
+ */
 export const updateOrganisationMutation = (
   options?: Partial<Options<UpdateOrganisationData>>
 ): UseMutationOptions<
@@ -2358,6 +2720,9 @@ export const updateOrganisationMutation = (
 export const listPersonsQueryKey = (options?: Options<ListPersonsData>) =>
   createQueryKey('listPersons', options)
 
+/**
+ * List persons
+ */
 export const listPersonsOptions = (options?: Options<ListPersonsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2376,6 +2741,9 @@ export const listPersonsOptions = (options?: Options<ListPersonsData>) => {
 export const createPersonQueryKey = (options: Options<CreatePersonData>) =>
   createQueryKey('createPerson', options)
 
+/**
+ * Create person
+ */
 export const createPersonOptions = (options: Options<CreatePersonData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2391,6 +2759,9 @@ export const createPersonOptions = (options: Options<CreatePersonData>) => {
   })
 }
 
+/**
+ * Create person
+ */
 export const createPersonMutation = (
   options?: Partial<Options<CreatePersonData>>
 ): UseMutationOptions<CreatePersonResponse, CreatePersonError, Options<CreatePersonData>> => {
@@ -2411,6 +2782,9 @@ export const createPersonMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete person
+ */
 export const deletePersonMutation = (
   options?: Partial<Options<DeletePersonData>>
 ): UseMutationOptions<DeletePersonResponse, DeletePersonError, Options<DeletePersonData>> => {
@@ -2431,6 +2805,9 @@ export const deletePersonMutation = (
   return mutationOptions
 }
 
+/**
+ * Update person
+ */
 export const updatePersonMutation = (
   options?: Partial<Options<UpdatePersonData>>
 ): UseMutationOptions<UpdatePersonResponse, UpdatePersonError, Options<UpdatePersonData>> => {
@@ -2454,6 +2831,10 @@ export const updatePersonMutation = (
 export const invitePersonQueryKey = (options: Options<InvitePersonData>) =>
   createQueryKey('invitePerson', options)
 
+/**
+ * Invite person
+ * Sends an invitation link to a person at the address provided in `dest`, allowing them to register an account assigned with a specified `role`.
+ */
 export const invitePersonOptions = (options: Options<InvitePersonData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2469,6 +2850,10 @@ export const invitePersonOptions = (options: Options<InvitePersonData>) => {
   })
 }
 
+/**
+ * Invite person
+ * Sends an invitation link to a person at the address provided in `dest`, allowing them to register an account assigned with a specified `role`.
+ */
 export const invitePersonMutation = (
   options?: Partial<Options<InvitePersonData>>
 ): UseMutationOptions<InvitePersonResponse, InvitePersonError, Options<InvitePersonData>> => {
@@ -2492,6 +2877,9 @@ export const invitePersonMutation = (
 export const listProgramsQueryKey = (options?: Options<ListProgramsData>) =>
   createQueryKey('listPrograms', options)
 
+/**
+ * List programs
+ */
 export const listProgramsOptions = (options?: Options<ListProgramsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2510,6 +2898,9 @@ export const listProgramsOptions = (options?: Options<ListProgramsData>) => {
 export const createProgramQueryKey = (options: Options<CreateProgramData>) =>
   createQueryKey('createProgram', options)
 
+/**
+ * Create program
+ */
 export const createProgramOptions = (options: Options<CreateProgramData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2525,6 +2916,9 @@ export const createProgramOptions = (options: Options<CreateProgramData>) => {
   })
 }
 
+/**
+ * Create program
+ */
 export const createProgramMutation = (
   options?: Partial<Options<CreateProgramData>>
 ): UseMutationOptions<CreateProgramResponse, CreateProgramError, Options<CreateProgramData>> => {
@@ -2545,6 +2939,9 @@ export const createProgramMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete program
+ */
 export const deleteProgramMutation = (
   options?: Partial<Options<DeleteProgramData>>
 ): UseMutationOptions<DeleteProgramResponse, DeleteProgramError, Options<DeleteProgramData>> => {
@@ -2565,6 +2962,9 @@ export const deleteProgramMutation = (
   return mutationOptions
 }
 
+/**
+ * Update program
+ */
 export const updateProgramMutation = (
   options?: Partial<Options<UpdateProgramData>>
 ): UseMutationOptions<UpdateProgramResponse, UpdateProgramError, Options<UpdateProgramData>> => {
@@ -2588,6 +2988,9 @@ export const updateProgramMutation = (
 export const listArticlesQueryKey = (options?: Options<ListArticlesData>) =>
   createQueryKey('listArticles', options)
 
+/**
+ * List articles
+ */
 export const listArticlesOptions = (options?: Options<ListArticlesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2606,6 +3009,9 @@ export const listArticlesOptions = (options?: Options<ListArticlesData>) => {
 export const createArticleQueryKey = (options: Options<CreateArticleData>) =>
   createQueryKey('createArticle', options)
 
+/**
+ * Create article
+ */
 export const createArticleOptions = (options: Options<CreateArticleData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2621,6 +3027,9 @@ export const createArticleOptions = (options: Options<CreateArticleData>) => {
   })
 }
 
+/**
+ * Create article
+ */
 export const createArticleMutation = (
   options?: Partial<Options<CreateArticleData>>
 ): UseMutationOptions<CreateArticleResponse, CreateArticleError, Options<CreateArticleData>> => {
@@ -2641,6 +3050,9 @@ export const createArticleMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete article
+ */
 export const deleteArticleMutation = (
   options?: Partial<Options<DeleteArticleData>>
 ): UseMutationOptions<DeleteArticleResponse, DeleteArticleError, Options<DeleteArticleData>> => {
@@ -2661,6 +3073,9 @@ export const deleteArticleMutation = (
   return mutationOptions
 }
 
+/**
+ * Update article
+ */
 export const updateArticleMutation = (
   options?: Partial<Options<UpdateArticleData>>
 ): UseMutationOptions<UpdateArticleResponse, UpdateArticleError, Options<UpdateArticleData>> => {
@@ -2684,6 +3099,9 @@ export const updateArticleMutation = (
 export const listSamplingMethodsQueryKey = (options?: Options<ListSamplingMethodsData>) =>
   createQueryKey('listSamplingMethods', options)
 
+/**
+ * List sampling methods
+ */
 export const listSamplingMethodsOptions = (options?: Options<ListSamplingMethodsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2702,6 +3120,9 @@ export const listSamplingMethodsOptions = (options?: Options<ListSamplingMethods
 export const createSamplingMethodQueryKey = (options: Options<CreateSamplingMethodData>) =>
   createQueryKey('createSamplingMethod', options)
 
+/**
+ * Create sampling method
+ */
 export const createSamplingMethodOptions = (options: Options<CreateSamplingMethodData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2717,6 +3138,9 @@ export const createSamplingMethodOptions = (options: Options<CreateSamplingMetho
   })
 }
 
+/**
+ * Create sampling method
+ */
 export const createSamplingMethodMutation = (
   options?: Partial<Options<CreateSamplingMethodData>>
 ): UseMutationOptions<
@@ -2741,6 +3165,9 @@ export const createSamplingMethodMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete sampling method
+ */
 export const deleteSamplingMethodMutation = (
   options?: Partial<Options<DeleteSamplingMethodData>>
 ): UseMutationOptions<
@@ -2765,6 +3192,9 @@ export const deleteSamplingMethodMutation = (
   return mutationOptions
 }
 
+/**
+ * Update sampling method
+ */
 export const updateSamplingMethodMutation = (
   options?: Partial<Options<UpdateSamplingMethodData>>
 ): UseMutationOptions<
@@ -2792,6 +3222,9 @@ export const updateSamplingMethodMutation = (
 export const createSamplingQueryKey = (options: Options<CreateSamplingData>) =>
   createQueryKey('createSampling', options)
 
+/**
+ * Create sampling action
+ */
 export const createSamplingOptions = (options: Options<CreateSamplingData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2807,6 +3240,9 @@ export const createSamplingOptions = (options: Options<CreateSamplingData>) => {
   })
 }
 
+/**
+ * Create sampling action
+ */
 export const createSamplingMutation = (
   options?: Partial<Options<CreateSamplingData>>
 ): UseMutationOptions<CreateSamplingResponse, CreateSamplingError, Options<CreateSamplingData>> => {
@@ -2827,6 +3263,9 @@ export const createSamplingMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete sampling action
+ */
 export const deleteSamplingMutation = (
   options?: Partial<Options<DeleteSamplingData>>
 ): UseMutationOptions<DeleteSamplingResponse, DeleteSamplingError, Options<DeleteSamplingData>> => {
@@ -2847,6 +3286,9 @@ export const deleteSamplingMutation = (
   return mutationOptions
 }
 
+/**
+ * Update sampling action
+ */
 export const updateSamplingMutation = (
   options?: Partial<Options<UpdateSamplingData>>
 ): UseMutationOptions<UpdateSamplingResponse, UpdateSamplingError, Options<UpdateSamplingData>> => {
@@ -2871,6 +3313,10 @@ export const samplingAddExternalOccurrenceQueryKey = (
   options: Options<SamplingAddExternalOccurrenceData>
 ) => createQueryKey('samplingAddExternalOccurrence', options)
 
+/**
+ * Add occurrence from sampling
+ * Register new occurrence resulting from the sampling action
+ */
 export const samplingAddExternalOccurrenceOptions = (
   options: Options<SamplingAddExternalOccurrenceData>
 ) => {
@@ -2888,6 +3334,10 @@ export const samplingAddExternalOccurrenceOptions = (
   })
 }
 
+/**
+ * Add occurrence from sampling
+ * Register new occurrence resulting from the sampling action
+ */
 export const samplingAddExternalOccurrenceMutation = (
   options?: Partial<Options<SamplingAddExternalOccurrenceData>>
 ): UseMutationOptions<
@@ -2915,6 +3365,9 @@ export const samplingAddExternalOccurrenceMutation = (
 export const listSequencesQueryKey = (options?: Options<ListSequencesData>) =>
   createQueryKey('listSequences', options)
 
+/**
+ * List sequences
+ */
 export const listSequencesOptions = (options?: Options<ListSequencesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2930,6 +3383,9 @@ export const listSequencesOptions = (options?: Options<ListSequencesData>) => {
   })
 }
 
+/**
+ * Delete sequence
+ */
 export const deleteSequenceMutation = (
   options?: Partial<Options<DeleteSequenceData>>
 ): UseMutationOptions<DeleteSequenceResponse, DeleteSequenceError, Options<DeleteSequenceData>> => {
@@ -2953,6 +3409,9 @@ export const deleteSequenceMutation = (
 export const getSequenceQueryKey = (options: Options<GetSequenceData>) =>
   createQueryKey('getSequence', options)
 
+/**
+ * Get sequence
+ */
 export const getSequenceOptions = (options: Options<GetSequenceData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2971,6 +3430,9 @@ export const getSequenceOptions = (options: Options<GetSequenceData>) => {
 export const emailSettingsQueryKey = (options?: Options<EmailSettingsData>) =>
   createQueryKey('emailSettings', options)
 
+/**
+ * Email settings
+ */
 export const emailSettingsOptions = (options?: Options<EmailSettingsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -2989,6 +3451,9 @@ export const emailSettingsOptions = (options?: Options<EmailSettingsData>) => {
 export const updateEmailSettingsQueryKey = (options: Options<UpdateEmailSettingsData>) =>
   createQueryKey('updateEmailSettings', options)
 
+/**
+ * Update email settings
+ */
 export const updateEmailSettingsOptions = (options: Options<UpdateEmailSettingsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3004,6 +3469,9 @@ export const updateEmailSettingsOptions = (options: Options<UpdateEmailSettingsD
   })
 }
 
+/**
+ * Update email settings
+ */
 export const updateEmailSettingsMutation = (
   options?: Partial<Options<UpdateEmailSettingsData>>
 ): UseMutationOptions<
@@ -3031,6 +3499,9 @@ export const updateEmailSettingsMutation = (
 export const testSmtpQueryKey = (options: Options<TestSmtpData>) =>
   createQueryKey('testSmtp', options)
 
+/**
+ * Test SMTP connection
+ */
 export const testSmtpOptions = (options: Options<TestSmtpData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3046,6 +3517,9 @@ export const testSmtpOptions = (options: Options<TestSmtpData>) => {
   })
 }
 
+/**
+ * Test SMTP connection
+ */
 export const testSmtpMutation = (
   options?: Partial<Options<TestSmtpData>>
 ): UseMutationOptions<TestSmtpResponse, TestSmtpError, Options<TestSmtpData>> => {
@@ -3069,6 +3543,9 @@ export const testSmtpMutation = (
 export const setAppIconQueryKey = (options?: Options<SetAppIconData>) =>
   createQueryKey('setAppIcon', options)
 
+/**
+ * Set app icon
+ */
 export const setAppIconOptions = (options?: Options<SetAppIconData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3084,6 +3561,9 @@ export const setAppIconOptions = (options?: Options<SetAppIconData>) => {
   })
 }
 
+/**
+ * Set app icon
+ */
 export const setAppIconMutation = (
   options?: Partial<Options<SetAppIconData>>
 ): UseMutationOptions<SetAppIconResponse, SetAppIconError, Options<SetAppIconData>> => {
@@ -3107,6 +3587,9 @@ export const setAppIconMutation = (
 export const instanceSettingsQueryKey = (options?: Options<InstanceSettingsData>) =>
   createQueryKey('instanceSettings', options)
 
+/**
+ * Instance settings
+ */
 export const instanceSettingsOptions = (options?: Options<InstanceSettingsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3125,6 +3608,9 @@ export const instanceSettingsOptions = (options?: Options<InstanceSettingsData>)
 export const updateInstanceSettingsQueryKey = (options: Options<UpdateInstanceSettingsData>) =>
   createQueryKey('updateInstanceSettings', options)
 
+/**
+ * Update instance settings
+ */
 export const updateInstanceSettingsOptions = (options: Options<UpdateInstanceSettingsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3140,6 +3626,9 @@ export const updateInstanceSettingsOptions = (options: Options<UpdateInstanceSet
   })
 }
 
+/**
+ * Update instance settings
+ */
 export const updateInstanceSettingsMutation = (
   options?: Partial<Options<UpdateInstanceSettingsData>>
 ): UseMutationOptions<
@@ -3167,6 +3656,9 @@ export const updateInstanceSettingsMutation = (
 export const securitySettingsQueryKey = (options?: Options<SecuritySettingsData>) =>
   createQueryKey('securitySettings', options)
 
+/**
+ * Security settings
+ */
 export const securitySettingsOptions = (options?: Options<SecuritySettingsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3185,6 +3677,9 @@ export const securitySettingsOptions = (options?: Options<SecuritySettingsData>)
 export const updateSecuritySettingsQueryKey = (options: Options<UpdateSecuritySettingsData>) =>
   createQueryKey('updateSecuritySettings', options)
 
+/**
+ * Update security settings
+ */
 export const updateSecuritySettingsOptions = (options: Options<UpdateSecuritySettingsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3200,6 +3695,9 @@ export const updateSecuritySettingsOptions = (options: Options<UpdateSecuritySet
   })
 }
 
+/**
+ * Update security settings
+ */
 export const updateSecuritySettingsMutation = (
   options?: Partial<Options<UpdateSecuritySettingsData>>
 ): UseMutationOptions<
@@ -3227,6 +3725,9 @@ export const updateSecuritySettingsMutation = (
 export const serviceSettingsQueryKey = (options?: Options<ServiceSettingsData>) =>
   createQueryKey('serviceSettings', options)
 
+/**
+ * Service settings
+ */
 export const serviceSettingsOptions = (options?: Options<ServiceSettingsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3242,6 +3743,9 @@ export const serviceSettingsOptions = (options?: Options<ServiceSettingsData>) =
   })
 }
 
+/**
+ * Update service settings
+ */
 export const updateServiceSettingsMutation = (
   options?: Partial<Options<UpdateServiceSettingsData>>
 ): UseMutationOptions<
@@ -3269,6 +3773,10 @@ export const updateServiceSettingsMutation = (
 export const listSitesQueryKey = (options?: Options<ListSitesData>) =>
   createQueryKey('listSites', options)
 
+/**
+ * List sites
+ * List all registered sites
+ */
 export const listSitesOptions = (options?: Options<ListSitesData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3287,6 +3795,10 @@ export const listSitesOptions = (options?: Options<ListSitesData>) => {
 export const createSiteQueryKey = (options: Options<CreateSiteData>) =>
   createQueryKey('createSite', options)
 
+/**
+ * Create site
+ * Create site infos using its code
+ */
 export const createSiteOptions = (options: Options<CreateSiteData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3302,6 +3814,10 @@ export const createSiteOptions = (options: Options<CreateSiteData>) => {
   })
 }
 
+/**
+ * Create site
+ * Create site infos using its code
+ */
 export const createSiteMutation = (
   options?: Partial<Options<CreateSiteData>>
 ): UseMutationOptions<CreateSiteResponse, CreateSiteError, Options<CreateSiteData>> => {
@@ -3324,6 +3840,10 @@ export const createSiteMutation = (
 
 export const getSiteQueryKey = (options: Options<GetSiteData>) => createQueryKey('getSite', options)
 
+/**
+ * Get site
+ * Get site infos using its code
+ */
 export const getSiteOptions = (options: Options<GetSiteData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3339,6 +3859,10 @@ export const getSiteOptions = (options: Options<GetSiteData>) => {
   })
 }
 
+/**
+ * Update site
+ * Update site infos using its code
+ */
 export const updateSiteMutation = (
   options?: Partial<Options<UpdateSiteData>>
 ): UseMutationOptions<UpdateSiteResponse, UpdateSiteError, Options<UpdateSiteData>> => {
@@ -3362,6 +3886,9 @@ export const updateSiteMutation = (
 export const listSiteEventsQueryKey = (options: Options<ListSiteEventsData>) =>
   createQueryKey('listSiteEvents', options)
 
+/**
+ * List site events
+ */
 export const listSiteEventsOptions = (options: Options<ListSiteEventsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3380,6 +3907,10 @@ export const listSiteEventsOptions = (options: Options<ListSiteEventsData>) => {
 export const createEventQueryKey = (options: Options<CreateEventData>) =>
   createQueryKey('createEvent', options)
 
+/**
+ * Create event
+ * Register event on a site identified by its code
+ */
 export const createEventOptions = (options: Options<CreateEventData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3395,6 +3926,10 @@ export const createEventOptions = (options: Options<CreateEventData>) => {
   })
 }
 
+/**
+ * Create event
+ * Register event on a site identified by its code
+ */
 export const createEventMutation = (
   options?: Partial<Options<CreateEventData>>
 ): UseMutationOptions<CreateEventResponse, CreateEventError, Options<CreateEventData>> => {
@@ -3419,6 +3954,10 @@ export const siteAddExternalOccurrenceQueryKey = (
   options: Options<SiteAddExternalOccurrenceData>
 ) => createQueryKey('siteAddExternalOccurrence', options)
 
+/**
+ * Add occurrence at site
+ * Register new occurrence at site, including event + sampling specification and biomaterial identification
+ */
 export const siteAddExternalOccurrenceOptions = (
   options: Options<SiteAddExternalOccurrenceData>
 ) => {
@@ -3436,6 +3975,10 @@ export const siteAddExternalOccurrenceOptions = (
   })
 }
 
+/**
+ * Add occurrence at site
+ * Register new occurrence at site, including event + sampling specification and biomaterial identification
+ */
 export const siteAddExternalOccurrenceMutation = (
   options?: Partial<Options<SiteAddExternalOccurrenceData>>
 ): UseMutationOptions<
@@ -3463,6 +4006,9 @@ export const siteAddExternalOccurrenceMutation = (
 export const getTaxonomyQueryKey = (options?: Options<GetTaxonomyData>) =>
   createQueryKey('getTaxonomy', options)
 
+/**
+ * Get taxonomy
+ */
 export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3481,6 +4027,9 @@ export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) => {
 export const listTaxaQueryKey = (options?: Options<ListTaxaData>) =>
   createQueryKey('listTaxa', options)
 
+/**
+ * List taxa
+ */
 export const listTaxaOptions = (options?: Options<ListTaxaData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3499,6 +4048,9 @@ export const listTaxaOptions = (options?: Options<ListTaxaData>) => {
 export const createTaxonQueryKey = (options: Options<CreateTaxonData>) =>
   createQueryKey('createTaxon', options)
 
+/**
+ * Create taxon
+ */
 export const createTaxonOptions = (options: Options<CreateTaxonData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3514,6 +4066,9 @@ export const createTaxonOptions = (options: Options<CreateTaxonData>) => {
   })
 }
 
+/**
+ * Create taxon
+ */
 export const createTaxonMutation = (
   options?: Partial<Options<CreateTaxonData>>
 ): UseMutationOptions<CreateTaxonResponse, CreateTaxonError, Options<CreateTaxonData>> => {
@@ -3534,6 +4089,9 @@ export const createTaxonMutation = (
   return mutationOptions
 }
 
+/**
+ * Delete taxon
+ */
 export const deleteTaxonMutation = (
   options?: Partial<Options<DeleteTaxonData>>
 ): UseMutationOptions<DeleteTaxonResponse, DeleteTaxonError, Options<DeleteTaxonData>> => {
@@ -3557,6 +4115,9 @@ export const deleteTaxonMutation = (
 export const getTaxonQueryKey = (options: Options<GetTaxonData>) =>
   createQueryKey('getTaxon', options)
 
+/**
+ * Get taxon
+ */
 export const getTaxonOptions = (options: Options<GetTaxonData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
@@ -3572,6 +4133,9 @@ export const getTaxonOptions = (options: Options<GetTaxonData>) => {
   })
 }
 
+/**
+ * Update taxon
+ */
 export const updateTaxonMutation = (
   options?: Partial<Options<UpdateTaxonData>>
 ): UseMutationOptions<UpdateTaxonResponse, UpdateTaxonError, Options<UpdateTaxonData>> => {

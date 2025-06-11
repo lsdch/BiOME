@@ -184,7 +184,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/habitats",
         name: "habitats",
         icon: "mdi-image-filter-hdr-outline",
-        component: () => import("@/views/location/HabitatsView.vue"),
+        component: () => import("@/views/sampling/HabitatsView.vue"),
         meta: { subtitle: "Habitats" },
       },
       {

@@ -119,6 +119,14 @@ module location {
       annotation title := "The site elevation in meters";
     };
 
+    single last_visited := (
+      assert_single((
+        select .events.performed_on
+        filter .date = max(__source__.events.performed_on.date)
+        limit 1
+      ))
+    );
+
     multi link events := .<site[is events::Event];
     multi datasets := .<sites[is datasets::SiteDataset];
 

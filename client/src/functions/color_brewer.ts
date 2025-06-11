@@ -1,4 +1,6 @@
 import { Writable } from "ts-toolbelt/out/List/Writable"
+import { Hex, HexToRGB, parseHex, RGBtoHex } from "vuetify/lib/util/colorUtils.mjs"
+
 
 export type ColorBrewerPaletteKey = keyof typeof brewerPalettes
 export type ColorBrewerPalette = Writable<typeof brewerPalettes[ColorBrewerPaletteKey]>
@@ -144,4 +146,11 @@ export const brewerPalettes = {
 
 export function palette(k: ColorBrewerPaletteKey): ColorBrewerPalette {
   return brewerPalettes[k] as ColorBrewerPalette
+}
+
+export function withOpacity(color?: string, opacity: number = 1): Hex | undefined {
+  if (color === undefined) return undefined
+  const rgb = HexToRGB(parseHex(color))
+  rgb.a = opacity
+  return RGBtoHex(rgb)
 }

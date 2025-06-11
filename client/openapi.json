@@ -3422,18 +3422,12 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"occurrences": {
-						"items": {
-							"$ref": "#/components/schemas/OccurrenceWithCategory"
-						},
-						"type": "array"
-					},
 					"pinned": {
 						"type": "boolean"
 					},
 					"sites": {
 						"items": {
-							"$ref": "#/components/schemas/SiteItem"
+							"$ref": "#/components/schemas/SiteWithOccurrences"
 						},
 						"type": "array"
 					},
@@ -3443,7 +3437,6 @@
 				},
 				"required": [
 					"sites",
-					"occurrences",
 					"is_congruent",
 					"maintainers",
 					"meta",
@@ -3614,45 +3607,6 @@
 				},
 				"required": [
 					"code"
-				],
-				"type": "object"
-			},
-			"OccurrenceWithCategory": {
-				"additionalProperties": false,
-				"properties": {
-					"category": {
-						"$ref": "#/components/schemas/OccurrenceCategory"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"element": {
-						"$ref": "#/components/schemas/OccurrenceElement"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"identification": {
-						"$ref": "#/components/schemas/Identification"
-					},
-					"published_in": {
-						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
-						},
-						"type": "array"
-					},
-					"sampling": {
-						"$ref": "#/components/schemas/SamplingInner"
-					}
-				},
-				"required": [
-					"category",
-					"element",
-					"id",
-					"comments",
-					"sampling",
-					"identification"
 				],
 				"type": "object"
 			},
@@ -6232,6 +6186,10 @@
 						"format": "uuid",
 						"type": "string"
 					},
+					"last_visited": {
+						"$ref": "#/components/schemas/OptionalDateWithPrecision",
+						"description": "Last visit date with precision. If not set, site has never been visited."
+					},
 					"locality": {
 						"type": "string"
 					},
@@ -6459,6 +6417,10 @@
 						"format": "uuid",
 						"type": "string"
 					},
+					"last_visited": {
+						"$ref": "#/components/schemas/OptionalDateWithPrecision",
+						"description": "Last visit date with precision. If not set, site has never been visited."
+					},
 					"locality": {
 						"type": "string"
 					},
@@ -6589,6 +6551,10 @@
 						"format": "uuid",
 						"type": "string"
 					},
+					"last_visited": {
+						"$ref": "#/components/schemas/OptionalDateWithPrecision",
+						"description": "Last visit date with precision. If not set, site has never been visited."
+					},
 					"locality": {
 						"type": "string"
 					},
@@ -6635,7 +6601,8 @@
 						"type": "string"
 					},
 					"last_visited": {
-						"$ref": "#/components/schemas/OptionalDateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision",
+						"description": "Last visit date with precision. If not set, site has never been visited."
 					},
 					"locality": {
 						"type": "string"
@@ -6687,6 +6654,10 @@
 					"id": {
 						"format": "uuid",
 						"type": "string"
+					},
+					"last_visited": {
+						"$ref": "#/components/schemas/OptionalDateWithPrecision",
+						"description": "Last visit date with precision. If not set, site has never been visited."
 					},
 					"locality": {
 						"type": "string"
@@ -10655,6 +10626,80 @@
 					}
 				},
 				"summary": "Get site dataset",
+				"tags": [
+					"Datasets"
+				]
+			}
+		},
+		"/datasets/{slug}": {
+			"get": {
+				"description": "Retrieve dataset infos by slug",
+				"operationId": "GetDataset",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "slug",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Dataset"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Get dataset",
 				"tags": [
 					"Datasets"
 				]

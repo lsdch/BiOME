@@ -3022,18 +3022,12 @@ export const $OccurrenceDataset = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    occurrences: {
-      items: {
-        $ref: '#/components/schemas/OccurrenceWithCategory'
-      },
-      type: 'array'
-    },
     pinned: {
       type: 'boolean'
     },
     sites: {
       items: {
-        $ref: '#/components/schemas/SiteItem'
+        $ref: '#/components/schemas/SiteWithOccurrences'
       },
       type: 'array'
     },
@@ -3043,7 +3037,6 @@ export const $OccurrenceDataset = {
   },
   required: [
     'sites',
-    'occurrences',
     'is_congruent',
     'maintainers',
     'meta',
@@ -3203,39 +3196,6 @@ export const $OccurrenceReferenceInput = {
     }
   },
   required: ['code'],
-  type: 'object'
-} as const
-
-export const $OccurrenceWithCategory = {
-  additionalProperties: false,
-  properties: {
-    category: {
-      $ref: '#/components/schemas/OccurrenceCategory'
-    },
-    comments: {
-      type: 'string'
-    },
-    element: {
-      $ref: '#/components/schemas/OccurrenceElement'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    identification: {
-      $ref: '#/components/schemas/Identification'
-    },
-    published_in: {
-      items: {
-        $ref: '#/components/schemas/OccurrenceReference'
-      },
-      type: 'array'
-    },
-    sampling: {
-      $ref: '#/components/schemas/SamplingInner'
-    }
-  },
-  required: ['category', 'element', 'id', 'comments', 'sampling', 'identification'],
   type: 'object'
 } as const
 
@@ -5397,6 +5357,10 @@ export const $Site = {
       format: 'uuid',
       type: 'string'
     },
+    last_visited: {
+      $ref: '#/components/schemas/OptionalDateWithPrecision',
+      description: 'Last visit date with precision. If not set, site has never been visited.'
+    },
     locality: {
       type: 'string'
     },
@@ -5607,6 +5571,10 @@ export const $SiteItem = {
       format: 'uuid',
       type: 'string'
     },
+    last_visited: {
+      $ref: '#/components/schemas/OptionalDateWithPrecision',
+      description: 'Last visit date with precision. If not set, site has never been visited.'
+    },
     locality: {
       type: 'string'
     },
@@ -5711,6 +5679,10 @@ export const $SiteWithDistance = {
       format: 'uuid',
       type: 'string'
     },
+    last_visited: {
+      $ref: '#/components/schemas/OptionalDateWithPrecision',
+      description: 'Last visit date with precision. If not set, site has never been visited.'
+    },
     locality: {
       type: 'string'
     },
@@ -5752,7 +5724,8 @@ export const $SiteWithOccurrences = {
       type: 'string'
     },
     last_visited: {
-      $ref: '#/components/schemas/OptionalDateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision',
+      description: 'Last visit date with precision. If not set, site has never been visited.'
     },
     locality: {
       type: 'string'
@@ -5799,6 +5772,10 @@ export const $SiteWithScore = {
     id: {
       format: 'uuid',
       type: 'string'
+    },
+    last_visited: {
+      $ref: '#/components/schemas/OptionalDateWithPrecision',
+      description: 'Last visit date with precision. If not set, site has never been visited.'
     },
     locality: {
       type: 'string'

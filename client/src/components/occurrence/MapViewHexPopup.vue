@@ -71,12 +71,12 @@
 <script setup lang="ts">
 import { SiteWithOccurrences } from '@/api'
 import { HexPopupData } from '@/components/maps/SitesMap.vue'
-import { pluralize, pluralizeWithCount } from '@/functions/text'
-import AreaSampledTaxa from './AreaSampledTaxa.vue'
-import OccurrenceListDialog from './OccurrenceListDialog.vue'
-import SiteListDialog from './SiteListDialog.vue'
+import { pluralize } from '@/functions/text'
 import { computed } from 'vue'
-import SamplingListDialog from './SamplingListDialog.vue'
+import OccurrenceListDialog from '../../components/occurrence/OccurrenceListDialog.vue'
+import SamplingListDialog from '../../components/occurrence/SamplingListDialog.vue'
+import SiteListDialog from '../../components/occurrence/SiteListDialog.vue'
+import AreaSampledTaxa from './AreaSampledTaxa.vue'
 
 const { data } = defineProps<{ data: HexPopupData<SiteWithOccurrences>[] | undefined }>()
 

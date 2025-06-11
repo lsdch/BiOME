@@ -34,6 +34,14 @@ func RegisterRoutes(r router.Router) {
 			dataset.ListDatasetOptions
 		}](dataset.ListDatasets))
 
+	router.Register(datasets_API, "GetDataset",
+		huma.Operation{
+			Path:        "/{slug}",
+			Method:      http.MethodGet,
+			Summary:     "Get dataset",
+			Description: "Retrieve dataset infos by slug",
+		}, controllers.GetHandler[*GetDatasetInput](dataset.GetDataset))
+
 	router.Register(datasets_API, "TogglePinDataset",
 		huma.Operation{
 			Path:        "/pin/{slug}",

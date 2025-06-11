@@ -69,9 +69,6 @@
     <v-divider class="my-2" />
 
     <v-list-item>
-      <SiteSamplingStatusFilter density="compact" v-model="filters.include_sites" />
-    </v-list-item>
-    <v-list-item>
       <SamplingTargetKindFilter density="compact" v-model="filters.sampling_target_kinds">
         <template #chip="{ item, props }">
           <v-chip
@@ -168,8 +165,8 @@ import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { reactive, ref, watch } from 'vue'
-import SamplingTargetKindFilter from '../../components/occurrence/SamplingTargetKindPicker.vue'
-import SiteSamplingStatusFilter from './SiteSamplingStatusFilter.vue'
+import SamplingTargetKindFilter from '@/components/occurrence/SamplingTargetKindPicker.vue'
+import SiteSamplingStatusFilter from '@/views/location/SiteSamplingStatusFilter.vue'
 
 export type MappingFilters = Overwrite<
   NonNullable<OccurrencesBySiteData['query']>,

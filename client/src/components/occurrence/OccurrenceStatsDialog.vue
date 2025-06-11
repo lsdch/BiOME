@@ -9,6 +9,7 @@
     <template #activator="props" v-if="$slots.activator">
       <slot name="activator" v-bind="props" />
     </template>
+    <v-progress-linear v-if="loading" indeterminate color="primary" />
     <v-list>
       <v-list-item title="Sites">
         <template #append>
@@ -51,6 +52,7 @@ const dialog = defineModel<boolean>({
 
 const { sites } = defineProps<{
   sites?: SiteWithOccurrences[]
+  loading?: boolean
 }>()
 </script>
 

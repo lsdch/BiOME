@@ -34,23 +34,53 @@ func ListOccurrenceDatasets(db geltypes.Executor) ([]OccurrenceDatasetListItem, 
 
 type OccurrenceDataset struct {
 	dataset.Dataset `gel:"$inline" json:",inline"`
-	Sites           []SiteItem               `gel:"sites" json:"sites"`
-	Occurrences     []OccurrenceWithCategory `gel:"occurrences" json:"occurrences"`
-	IsCongruent     bool                     `gel:"is_congruent" json:"is_congruent"`
+	Sites           []SiteWithOccurrences `gel:"sites" json:"sites"`
+	// Occurrences     []OccurrenceWithCategory `gel:"occurrences" json:"occurrences"`
+	IsCongruent bool `gel:"is_congruent" json:"is_congruent"`
 }
 
 func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset OccurrenceDataset, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
-			select datasets::OccurrenceDataset {
-				**,
-				sites: { *, country: { * } },
-				occurrences: {
-					sampling: { * },
-					identification: { ** },
-					comments
-				},
-			} filter .slug = <str>$0
+			with module occurrence,
+				dataset := (
+					select datasets::OccurrenceDataset
+					filter .slug = <str>$0
+				),
+			select dataset {
+				*,
+				meta: { * },
+				maintainers: { *, user: { * } },
+				sites: {
+					*,
+					country: { * },
+					samplings := (
+						.events.samplings
+					) {
+						id,
+						date := .event.performed_on,
+						sampling_target,
+						target_taxa: { * },
+						occurring_taxa: { * },
+						occurrences := (
+							select (.occurrences intersect dataset.occurrences) {
+								id,
+								code,
+								required taxon := (
+										[is ExternalBioMat].seq_consensus ??
+										[is InternalBioMat].seq_consensus ??
+										.identification.taxon
+									) { name, status, rank},
+								required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
+								required element := (
+									if exists [is seq::Sequence].id then 'Sequence'
+									else 'BioMaterial'
+								)
+							}
+						)
+					}
+			}
+		}
 		`,
 		&dataset, slug,
 	)

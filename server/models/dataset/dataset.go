@@ -73,6 +73,17 @@ func ListDatasets(db geltypes.Executor, options ListDatasetOptions) ([]Dataset, 
 	return datasets, err
 }
 
+func GetDataset(db geltypes.Executor, slug string) (dataset Dataset, err error) {
+	err = db.QuerySingle(context.Background(), `#edgeql
+		select datasets::Dataset {
+			*,
+			maintainers: { *, user: { * } },
+			meta: { * },
+		} filter .slug = <str>$0
+	`, &dataset, slug)
+	return dataset, err
+}
+
 type DatasetMaintainersInput []string
 
 func (dm DatasetMaintainersInput) Validate(edb geltypes.Executor) ([]geltypes.UUID, []error) {

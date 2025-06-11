@@ -2,7 +2,7 @@ import { AuthenticationResponse, Meta, User, UserCredentials, UserRole } from "@
 import { loginMutation, logoutMutation, refreshSessionMutation } from "@/api/gen/@tanstack/vue-query.gen"
 import { client } from '@/api/gen/client.gen'
 import { useMutation } from "@tanstack/vue-query"
-import { until, useLocalStorage, useTimeoutPoll } from "@vueuse/core"
+import { until, useLocalStorage } from "@vueuse/core"
 import { defineStore } from "pinia"
 import { computed, ref } from "vue"
 

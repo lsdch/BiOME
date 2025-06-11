@@ -58,12 +58,11 @@
 
 <script setup lang="tsx">
 import { DateWithPrecision, SiteWithOccurrences } from '@/api'
-import SitePopup from '@/components/sites/SitePopup.vue'
-import { pluralizeWithCount } from '@/functions/text'
-import OccurrenceListDialog from './OccurrenceListDialog.vue'
 import CountryChip from '@/components/sites/CountryChip'
-import SamplingListDialog from './SamplingListDialog.vue'
+import SitePopup from '@/components/sites/SitePopup.vue'
 import { RouterLink } from 'vue-router'
+import OccurrenceListDialog from '../../components/occurrence/OccurrenceListDialog.vue'
+import SamplingListDialog from '../../components/occurrence/SamplingListDialog.vue'
 
 const { item } = defineProps<{
   item: SiteWithOccurrences

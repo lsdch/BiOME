@@ -31,6 +31,7 @@ import type {
   ListSiteDatasetsResponse,
   CreateSiteDatasetResponse,
   GetSiteDatasetResponse,
+  GetDatasetResponse,
   DeleteEventResponse,
   UpdateEventResponse,
   EventAddExternalOccurrenceResponse,
@@ -48,6 +49,8 @@ import type {
   CreateHabitatGroupResponse,
   DeleteHabitatGroupResponse,
   UpdateHabitatGroupResponse,
+  SitesProximityResponse,
+  SearchSitesResponse,
   OccurrencesBySiteResponse,
   ListOrganisationsResponse,
   CreateOrganisationResponse,
@@ -211,8 +214,23 @@ const dateWithPrecisionSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
+  if (data.date) {
+    data.date = new Date(data.date)
+  }
+  return data
+}
+
+const siteItemSchemaResponseTransformer = (data: any) => {
+  if (data.last_visited) {
+    data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
+  }
+  return data
+}
+
 const eventWithParticipantsSchemaResponseTransformer = (data: any) => {
   data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  data.site = siteItemSchemaResponseTransformer(data.site)
   return data
 }
 
@@ -530,21 +548,31 @@ export const listOccurrenceDatasetsResponseTransformer = async (
   return data
 }
 
-const occurrenceWithCategorySchemaResponseTransformer = (data: any) => {
-  data.identification = identificationSchemaResponseTransformer(data.identification)
-  if (data.published_in) {
-    data.published_in = data.published_in.map((item: any) => {
-      return occurrenceReferenceSchemaResponseTransformer(item)
+const samplingEventWithOccurrencesSchemaResponseTransformer = (data: any) => {
+  data.date = dateWithPrecisionSchemaResponseTransformer(data.date)
+  if (data.occurring_taxa) {
+    data.occurring_taxa = data.occurring_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
     })
   }
-  data.sampling = samplingInnerSchemaResponseTransformer(data.sampling)
+  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  return data
+}
+
+const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
+  if (data.last_visited) {
+    data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
+  }
+  data.samplings = data.samplings.map((item: any) => {
+    return samplingEventWithOccurrencesSchemaResponseTransformer(item)
+  })
   return data
 }
 
 const occurrenceDatasetSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
-  data.occurrences = data.occurrences.map((item: any) => {
-    return occurrenceWithCategorySchemaResponseTransformer(item)
+  data.sites = data.sites.map((item: any) => {
+    return siteWithOccurrencesSchemaResponseTransformer(item)
   })
   return data
 }
@@ -565,6 +593,7 @@ export const togglePinDatasetResponseTransformer = async (
 
 const eventInnerSchemaResponseTransformer = (data: any) => {
   data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  data.site = siteItemSchemaResponseTransformer(data.site)
   return data
 }
 
@@ -635,6 +664,9 @@ const sequenceDatasetSchemaResponseTransformer = (data: any) => {
   data.sequences = data.sequences.map((item: any) => {
     return sequenceSchemaResponseTransformer(item)
   })
+  data.sites = data.sites.map((item: any) => {
+    return siteItemSchemaResponseTransformer(item)
+  })
   return data
 }
 
@@ -656,6 +688,9 @@ export const getSequenceDatasetResponseTransformer = async (
 
 const siteDatasetSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
+  data.sites = data.sites.map((item: any) => {
+    return siteItemSchemaResponseTransformer(item)
+  })
   return data
 }
 
@@ -682,6 +717,11 @@ export const getSiteDatasetResponseTransformer = async (
   return data
 }
 
+export const getDatasetResponseTransformer = async (data: any): Promise<GetDatasetResponse> => {
+  data = datasetSchemaResponseTransformer(data)
+  return data
+}
+
 const abioticMeasurementSchemaResponseTransformer = (data: any) => {
   data.param = abioticParameterSchemaResponseTransformer(data.param)
   return data
@@ -700,6 +740,7 @@ const eventSchemaResponseTransformer = (data: any) => {
       return samplingSchemaResponseTransformer(item)
     })
   }
+  data.site = siteItemSchemaResponseTransformer(data.site)
   if (data.spottings) {
     data.spottings = data.spottings.map((item: any) => {
       return taxonSchemaResponseTransformer(item)
@@ -828,30 +869,32 @@ export const updateHabitatGroupResponseTransformer = async (
   return data
 }
 
-const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
-  if (data.date) {
-    data.date = new Date(data.date)
-  }
-  return data
-}
-
-const samplingEventWithOccurrencesSchemaResponseTransformer = (data: any) => {
-  data.date = dateWithPrecisionSchemaResponseTransformer(data.date)
-  if (data.occurring_taxa) {
-    data.occurring_taxa = data.occurring_taxa.map((item: any) => {
-      return taxonSchemaResponseTransformer(item)
-    })
-  }
-  data.target = samplingTargetSchemaResponseTransformer(data.target)
-  return data
-}
-
-const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
+const siteWithDistanceSchemaResponseTransformer = (data: any) => {
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
   }
-  data.samplings = data.samplings.map((item: any) => {
-    return samplingEventWithOccurrencesSchemaResponseTransformer(item)
+  return data
+}
+
+export const sitesProximityResponseTransformer = async (
+  data: any
+): Promise<SitesProximityResponse> => {
+  data = data.map((item: any) => {
+    return siteWithDistanceSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+const siteWithScoreSchemaResponseTransformer = (data: any) => {
+  if (data.last_visited) {
+    data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
+  }
+  return data
+}
+
+export const searchSitesResponseTransformer = async (data: any): Promise<SearchSitesResponse> => {
+  data = data.map((item: any) => {
+    return siteWithScoreSchemaResponseTransformer(item)
   })
   return data
 }
@@ -1094,6 +1137,9 @@ const siteSchemaResponseTransformer = (data: any) => {
     data.events = data.events.map((item: any) => {
       return eventSchemaResponseTransformer(item)
     })
+  }
+  if (data.last_visited) {
+    data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
   }
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data

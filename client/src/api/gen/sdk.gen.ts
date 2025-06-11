@@ -133,6 +133,9 @@ import type {
   GetSiteDatasetData,
   GetSiteDatasetResponse,
   GetSiteDatasetError,
+  GetDatasetData,
+  GetDatasetResponse,
+  GetDatasetError,
   DeleteEventData,
   DeleteEventResponse,
   DeleteEventError,
@@ -405,6 +408,7 @@ import {
   listSiteDatasetsResponseTransformer,
   createSiteDatasetResponseTransformer,
   getSiteDatasetResponseTransformer,
+  getDatasetResponseTransformer,
   deleteEventResponseTransformer,
   updateEventResponseTransformer,
   eventAddExternalOccurrenceResponseTransformer,
@@ -422,6 +426,8 @@ import {
   createHabitatGroupResponseTransformer,
   deleteHabitatGroupResponseTransformer,
   updateHabitatGroupResponseTransformer,
+  sitesProximityResponseTransformer,
+  searchSitesResponseTransformer,
   occurrencesBySiteResponseTransformer,
   listOrganisationsResponseTransformer,
   createOrganisationResponseTransformer,
@@ -2566,6 +2572,33 @@ export class DatasetsService {
   }
 
   /**
+   * Get dataset
+   * Retrieve dataset infos by slug
+   */
+  public static getDataset<ThrowOnError extends boolean = false>(
+    options: Options<GetDatasetData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).get<GetDatasetResponse, GetDatasetError, ThrowOnError>(
+      {
+        security: [
+          {
+            scheme: 'bearer',
+            type: 'http'
+          },
+          {
+            in: 'cookie',
+            name: 'auth_token',
+            type: 'apiKey'
+          }
+        ],
+        responseTransformer: getDatasetResponseTransformer,
+        url: '/datasets/{slug}',
+        ...options
+      }
+    )
+  }
+
+  /**
    * List programs
    */
   public static listPrograms<ThrowOnError extends boolean = false>(
@@ -3188,6 +3221,7 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
+      responseTransformer: sitesProximityResponseTransformer,
       url: '/locations/coordinates/proximity',
       ...options,
       headers: {
@@ -3274,6 +3308,7 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
+      responseTransformer: searchSitesResponseTransformer,
       url: '/locations/search',
       ...options
     })

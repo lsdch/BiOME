@@ -38,8 +38,15 @@
         </div>
       </template>
       <v-tabs v-model="tab">
-        <v-tab text="Filters" value="filters" prepend-icon="mdi-filter-variant" />
-        <v-tab text="Layers" value="bindings" prepend-icon="mdi-layers" />
+        <v-tab value="feeds" prepend-icon="mdi-database-arrow-right">
+          Data feeds
+          <v-badge inline :content="registry.length" color="purple" />
+        </v-tab>
+        <!-- <v-tab text="Filters" value="filters" prepend-icon="mdi-filter-variant" /> -->
+        <v-tab value="bindings" prepend-icon="mdi-layers">
+          Layers
+          <v-badge inline :content="markerLayerOptions.length + 1" color="success" />
+        </v-tab>
         <v-spacer />
         <v-btn
           variant="plain"
@@ -51,205 +58,55 @@
       </v-tabs>
       <v-divider />
       <v-tabs-window v-model="tab">
-        <v-tabs-window-item value="filters">
-          <MappingToolFilters v-model="filters" />
+        <v-tabs-window-item eager value="feeds">
+          <OccurrenceDataFeedManager />
         </v-tabs-window-item>
+        <!-- <v-tabs-window-item value="filters">
+          <MappingToolFilters v-model="filters" />
+        </v-tabs-window-item> -->
         <v-tabs-window-item value="bindings">
-          <LayerOptionsCard
-            title="Hexgrid"
-            v-model="hexgridConfig.active"
-            prepend-icon="mdi-hexagon-multiple-outline"
-            flat
-          >
-            <div class="bg-main">
-              <v-list class="bg-main">
-                <div class="d-flex align-center">
-                  <v-list-subheader>Color</v-list-subheader>
-                  <v-divider />
-                </div>
-
-                <v-list-item>
-                  <ScaleBindingSelect
-                    label="Color binding"
-                    density="compact"
-                    class="my-1"
-                    @update-fn="(f) => (hexgridConfig.bindings.color = f)"
-                  />
-                </v-list-item>
-                <v-list-item>
-                  <ColorPalettePicker
-                    label="Palette"
-                    class="my-1"
-                    @update:model-value="(v) => (hexgridConfig.colorRange = palette(v))"
-                  />
-                </v-list-item>
-                <v-list-item>
-                  <ScaleBindingSelect
-                    label="Opacity binding"
-                    density="compact"
-                    placeholder="Constant"
-                    persistent-placeholder
-                    clearable
-                    hide-details
-                    class="my-1"
-                    @update-fn="(f) => (hexgridConfig.bindings.opacity = f)"
-                  />
-                </v-list-item>
-                <ListItemInput
-                  :title="hexgridConfig.bindings.opacity ? 'Opacity range' : 'Opacity'"
-                >
-                  <v-range-slider
-                    v-if="hexgridConfig.bindings.opacity"
-                    v-model="hexgridConfig.opacityRange"
-                    :min="0"
-                    :max="1"
-                    :step="0.1"
-                    :width="250"
-                    hide-details
-                    color="warning"
-                    thumb-label
-                  >
-                    <template #thumb-label="{ modelValue }"> {{ modelValue * 100 }}% </template>
-                  </v-range-slider>
-                  <v-slider
-                    v-else
-                    v-model="hexgridConfig.opacity"
-                    :min="0"
-                    :max="1"
-                    :step="0.1"
-                    hide-details
-                    :width="250"
-                    thumb-label
-                  >
-                    <template #thumb-label="{ modelValue }"> {{ modelValue * 100 }}% </template>
-                  </v-slider>
-                </ListItemInput>
-
-                <div class="d-flex align-center">
-                  <v-list-subheader>Radius</v-list-subheader>
-                  <v-divider />
-                </div>
-                <v-list-item title="Grid cell">
-                  <template #append>
-                    <v-slider
-                      v-model="hexgridConfig.radius"
-                      :min="2"
-                      :max="20"
-                      :step="1"
-                      :width="250"
-                      hide-details
-                      thumb-label
-                    />
-                  </template>
-                </v-list-item>
-
-                <v-list-item>
-                  <ScaleBindingSelect
-                    label="Radius binding"
-                    density="compact"
-                    placeholder="Constant"
-                    persistent-placeholder
-                    clearable
-                    hide-details
-                    class="my-1"
-                    @update-fn="(f) => (hexgridConfig.bindings.radius = f)"
-                  />
-                </v-list-item>
-                <ListItemInput title="Radius range" v-if="hexgridConfig.bindings.radius">
-                  <v-range-slider
-                    v-model="hexgridConfig.radiusRange"
-                    :ticks="[hexgridConfig.radius]"
-                    show-ticks="always"
-                    :min="2"
-                    :max="20"
-                    :step="0.5"
-                    :width="250"
-                    thumb-label
-                    hide-details
-                    color="warning"
-                  />
-                </ListItemInput>
-
-                <div class="d-flex align-center">
-                  <v-list-subheader>Hover</v-list-subheader>
-                  <v-divider />
-                </div>
-                <v-list-item title="Fill cell">
-                  <template #prepend>
-                    <v-checkbox v-model="hexgridConfig.hover.fill" hide-details />
-                  </template>
-                </v-list-item>
-                <v-list-item title="Upscale">
-                  <template #prepend>
-                    <v-checkbox v-model="hexgridConfig.hover.useScale" hide-details />
-                  </template>
-                  <template #append>
-                    <v-slider
-                      v-model="hexgridConfig.hover.scale"
-                      :disabled="!hexgridConfig.hover.useScale"
-                      :min="1"
-                      :max="5"
-                      :step="0.2"
-                      :width="250"
-                      :ticks="
-                        Object.fromEntries(
-                          Array.from({ length: 5 }, (_, i) => [i + 1, `×${i + 1}`])
-                        )
-                      "
-                      show-ticks="always"
-                      hide-details
-                      thumb-label
-                    >
-                      <template #thumb-label="{ modelValue }"> ×{{ modelValue }} </template>
-                    </v-slider>
-                  </template>
-                </v-list-item>
-              </v-list>
-            </div>
-          </LayerOptionsCard>
+          <HexgridLayerCard v-model="hexgridLayerOptions" />
 
           <v-divider />
 
-          <LayerOptionsCard
-            title="Markers"
-            v-model="markerConfig.active"
-            prepend-icon="mdi-circle-multiple-outline"
-          >
-            <div class="bg-main">
-              <v-list>
-                <ListItemInput label="Clustered" subtitle="Aggregate marker clusters">
-                  <v-switch v-model="markerConfig.clustered" hide-details />
-                </ListItemInput>
-                <ListItemInput label="Radius">
-                  <v-slider
-                    :min="1"
-                    :max="20"
-                    :step="0.5"
-                    v-model="markerConfig.radius"
-                    hide-details
-                    :width="250"
-                    thumb-label
-                  />
-                </ListItemInput>
-                <ListItemInput label="Stroke color" subtitle="Hue and opacity">
-                  <ColorPickerMenu v-model="markerConfig.color" hide-details />
-                </ListItemInput>
-                <ListItemInput label="Fill color" subtitle="Hue and opacity">
-                  <ColorPickerMenu v-model="markerConfig.fillColor" hide-details />
-                </ListItemInput>
-                <ListItemInput label="Stroke width">
-                  <v-slider
-                    :min="1"
-                    :max="5"
-                    v-model="markerConfig.weight"
-                    hide-details
-                    :width="250"
-                    thumb-label
-                  />
-                </ListItemInput>
-              </v-list>
-            </div>
-          </LayerOptionsCard>
+          <MarkerLayerCard
+            v-for="(markerLayer, i) in markerLayerOptions"
+            v-model="markerLayerOptions[i]"
+            @delete="markerLayerOptions.splice(i, 1)"
+            @reset="resetMarkerLayer(i)"
+          />
+          <v-divider />
+          <div class="d-flex">
+            <v-btn
+              stacked
+              class="flex-grow-1"
+              variant="text"
+              size="small"
+              :rounded="0"
+              prepend-icon="mdi-plus"
+              text="Add marker layer"
+              @click="addMarkerLayer()"
+            />
+            <v-divider vertical />
+            <ConfirmDialog
+              title="Reset layers"
+              message="Are you sure you want to reset all layers?"
+              @confirm="resetLayers()"
+            >
+              <template #activator="{ props }">
+                <v-btn
+                  stacked
+                  class="flex-grow-1"
+                  variant="text"
+                  size="small"
+                  :rounded="0"
+                  prepend-icon="mdi-restore"
+                  text="Reset layers"
+                  v-bind="props"
+                />
+              </template>
+            </ConfirmDialog>
+          </div>
           <v-divider />
         </v-tabs-window-item>
       </v-tabs-window>
@@ -260,14 +117,14 @@
           <template #activator="{ props }">
             <v-list-item
               v-bind="props"
-              prepend-icon="mdi-filter-variant"
-              title="Filters"
-              @click="toggleTab('filters')"
-              :active="tab === 'filters' && drawer"
+              prepend-icon="mdi-database-arrow-right"
+              title="Data feeds"
+              @click="toggleTab('feeds')"
+              :active="tab === 'feeds' && drawer"
               color="primary"
             />
           </template>
-          <v-sheet :height="48" class="my-0 d-flex align-center"> Filters </v-sheet>
+          <v-sheet :height="48" class="my-0 d-flex align-center"> Data feeds </v-sheet>
         </v-tooltip>
         <v-tooltip content-class="bg-surface text-overline py-0" :height="48">
           <template #activator="{ props }">
@@ -284,26 +141,23 @@
       </v-list>
     </v-navigation-drawer>
     <div class="fill-height w-100 d-flex flex-column">
-      <v-progress-linear v-if="isPending && !initialFetchDone" indeterminate color="warning" />
+      <v-progress-linear v-if="allPending" indeterminate color="warning" />
       <div :class="['fill-height w-100 position-relative']">
-        <v-overlay
+        <!-- <v-overlay
           contained
           :model-value="!isRefetching && !!error"
           class="align-center justify-center"
         >
           <v-alert color="error" variant="elevated">Failed to load sampling sites</v-alert>
-        </v-overlay>
+        </v-overlay> -->
         <SitesMap
           ref="map"
-          :items="sites"
-          clustered
-          :auto-fit="(sites?.length ?? 0) > 1"
-          v-model:marker-mode="markerMode"
-          :marker-config
-          :hexgrid-config
+          auto-fit
+          :marker-layers
+          :hexgrid="hexgridLayer"
           v-model:polygon-mode="polygonMode"
         >
-          <LControl v-if="isRefetching || isFetching" position="topleft">
+          <!-- <LControl v-if="isRefetching || isFetching" position="topleft">
             <v-progress-circular
               v-if="isPending || isRefetching"
               indeterminate
@@ -311,17 +165,17 @@
               size="32"
               width="6"
             />
-          </LControl>
-          <LControl position="topright" v-if="sites">
+          </LControl> -->
+          <!-- <LControl position="topright" v-if="sites">
             <MapStatsDialog :sites>
               <template #activator="{ props }">
                 <v-btn v-bind="props" icon="mdi-poll" color="white" :width="45" :height="45" />
               </template>
             </MapStatsDialog>
-          </LControl>
-          <LControl position="topright" v-if="sites">
+          </LControl> -->
+          <!-- <LControl position="topright" v-if="sites">
             <v-btn icon="mdi-shape-polygon-plus" @click="togglePolygonMode(true)"></v-btn>
-          </LControl>
+          </LControl> -->
           <template #hex-popup="{ data }">
             <MapViewHexPopup :data />
           </template>
@@ -337,26 +191,36 @@
 </template>
 
 <script setup lang="ts">
-import SitesMap, { HexgridConfig, MarkerConfig } from '@/components/maps/SitesMap.vue'
+import SitesMap, {
+  HexgridConfig,
+  HexgridLayer,
+  HexgridScaleBindings,
+  MarkerLayer
+} from '@/components/maps/SitesMap.vue'
 
 import { SiteWithOccurrences } from '@/api'
-import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { MapLayerMode } from '@/components/maps/MarkerControl.vue'
-import ColorPickerMenu from '@/components/toolkit/ui/ColorPickerMenu.vue'
+import {
+  HexgridLayerDefinition,
+  MarkerLayerDefinition,
+  SitesFilter
+} from '@/components/maps/map-layers'
+import DataFeedPicker from '@/components/occurrence/DataFeedPicker.vue'
+import OccurrenceDataFeedManager from '@/components/occurrence/OccurrenceDataFeedManager.vue'
+import { useDataFeeds } from '@/components/occurrence/data_feeds'
+import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
 import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
-import { palette } from '@/views/location/color_brewer'
-import { useQuery } from '@tanstack/vue-query'
-import { LControl } from '@vue-leaflet/vue-leaflet'
+import { palette, withOpacity } from '@/functions/color_brewer'
 import { useLocalStorage, useToggle } from '@vueuse/core'
-import { computed, ref, watch } from 'vue'
-import ColorPalettePicker from './ColorPalettePicker.vue'
+import { UUID } from 'crypto'
+import { computed, reactive, ref } from 'vue'
+import ColorPalettePicker from '../../components/toolkit/ui/ColorPalettePicker.vue'
 import LayerOptionsCard from './LayerOptionsCard.vue'
-import MapStatsDialog from './MapStatsDialog.vue'
-import MapViewHexPopup from './MapViewHexPopup.vue'
-import MapViewSitePopup from './MapViewSitePopup.vue'
-import MappingToolFilters, { MappingFilters } from './MappingToolFilters.vue'
+import MapViewHexPopup from '../../components/occurrence/MapViewHexPopup.vue'
+import MapViewSitePopup from '../../components/occurrence/MapViewSitePopup.vue'
 import ScaleBindingSelect from './ScaleBindingSelect.vue'
-import { polygon } from 'leaflet'
+import SiteSamplingStatusFilter from './SiteSamplingStatusFilter.vue'
+import MarkerLayerCard from '@/components/maps/MarkerLayerCard.vue'
+import HexgridLayerCard from '@/components/maps/HexgridLayerCard.vue'
 
 const [polygonMode, togglePolygonMode] = useToggle(false)
 
@@ -366,69 +230,129 @@ const drawerPinned = useLocalStorage('mapping-tool-drawer-pinned', false, {
 
 const [drawer, toggleDrawer] = useToggle(false)
 
-const tab = ref<'filters' | 'bindings'>('filters')
+const tab = ref<'bindings' | 'feeds'>('feeds')
 
-function toggleTab(newTab: 'filters' | 'bindings') {
+function toggleTab(newTab: 'feeds' | 'bindings') {
   tab.value = newTab
   toggleDrawer(true)
 }
 
-const hexgridConfig = ref<HexgridConfig<SiteWithOccurrences>>({
+const { remotes, registry, allPending, anyLoading } = useDataFeeds()
+
+function filterSites(
+  sites: SiteWithOccurrences[] | undefined,
+  filterType: SitesFilter
+): SiteWithOccurrences[] | undefined {
+  if (!sites) return undefined
+  switch (filterType) {
+    case 'Sampled':
+      return sites.filter((site) => site.samplings.length > 0)
+    case 'Occurrences':
+      return sites.filter((site) =>
+        site.samplings.some(({ occurrences }) => occurrences.length > 0)
+      )
+    default:
+      return sites
+  }
+}
+
+const hexgridLayerOptions = reactive<HexgridLayerDefinition>({
+  name: 'Hexgrid',
   active: true,
-  radius: 10,
-  radiusRange: [0, 10],
-  hover: {
-    fill: true,
-    useScale: false,
-    scale: 1.5
+  dataFeedID: registry.value[0].id,
+  filterType: 'Occurrences',
+  config: {
+    radius: 10,
+    radiusRange: [0, 10],
+    hover: {
+      fill: true,
+      useScale: false,
+      scale: 1.5
+    },
+    colorRange: palette('Viridis'),
+    opacity: 0.8,
+    opacityRange: [0, 1]
   },
-  colorRange: palette('Viridis'),
-  opacity: 0.8,
-  opacityRange: [0, 1],
   bindings: {}
 })
 
-const markerConfig = ref<MarkerConfig>({
-  active: false,
-  clustered: false,
-  radius: 4,
-  color: '#FF000055',
-  fillColor: '#FF000000',
-  weight: 1
-})
-
-const filters = ref<MappingFilters>({
-  include_sites: 'Occurrences'
-})
-
-const {
-  data: sites,
-  error,
-  isPending,
-  isFetching,
-  isRefetching,
-  refetch
-} = useQuery(
-  computed(() =>
-    occurrencesBySiteOptions({
-      query: {
-        ...filters.value,
-        habitats: filters.value.habitats?.map(({ label }) => label)
-      }
-    })
-  )
-)
-
-const initialFetchDone = ref(false)
-watch(isPending, (pending) => {
-  if (!pending && !initialFetchDone.value) {
-    initialFetchDone.value = true
+const hexgridLayer = computed<HexgridLayer<SiteWithOccurrences>>(() => {
+  const feedID = hexgridLayerOptions.dataFeedID
+  const remote = feedID ? remotes.get(feedID) : undefined
+  return {
+    name: hexgridLayerOptions.name,
+    active: hexgridLayerOptions.active,
+    config: hexgridLayerOptions.config,
+    bindings: hexgridLayerOptions.bindings,
+    data: filterSites(remote?.data.value, hexgridLayerOptions.filterType)
   }
 })
 
-const markerMode = useLocalStorage<MapLayerMode>('site-view-marker-mode', 'markers', {
-  initOnMounted: true
+const markerLayerOptions = reactive<MarkerLayerDefinition[]>([])
+const markerLayers = computed<MarkerLayer<SiteWithOccurrences>[]>(() => {
+  return markerLayerOptions.map((layer) => {
+    const remote = layer.dataFeedID ? remotes.get(layer.dataFeedID) : undefined
+    return {
+      name: layer.name,
+      config: layer.config,
+      active: layer.active,
+      data: filterSites(remote?.data.value, layer.filterType)
+    }
+  })
 })
+
+const markerColorPalette = [
+  '#e41a1c',
+  '#377eb8',
+  '#4daf4a',
+  '#984ea3',
+  '#ff7f00',
+  '#ffff33',
+  '#a65628',
+  '#f781bf'
+]
+
+function newMarkerLayer(index: number = markerLayerOptions.length): MarkerLayerDefinition {
+  return {
+    filterType: 'Occurrences',
+    active: true,
+    config: {
+      clustered: false,
+      radius: 4,
+      color: withOpacity(markerColorPalette[index % markerColorPalette.length], 0.8),
+      fillColor: withOpacity(markerColorPalette[index % markerColorPalette.length], 0.3),
+      weight: 2
+    }
+  }
+}
+
+function addMarkerLayer(index: number = markerLayerOptions.length) {
+  const layer = newMarkerLayer(index)
+  markerLayerOptions.push(layer)
+  return layer
+}
+
+function resetMarkerLayer(index: number) {
+  if (index < 0 || index >= markerLayerOptions.length) return
+  markerLayerOptions[index] = newMarkerLayer(index)
+}
+
+function resetLayers() {
+  hexgridLayerOptions.config = {
+    radius: 10,
+    radiusRange: [0, 10],
+    hover: {
+      fill: true,
+      useScale: false,
+      scale: 1.5
+    },
+    colorRange: palette('Viridis'),
+    opacity: 0.8,
+    opacityRange: [0, 1]
+  }
+  hexgridLayerOptions.bindings = {}
+  markerLayerOptions.length = 0
+}
 </script>
 
 <style lang="scss">

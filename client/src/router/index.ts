@@ -5,7 +5,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useGuards } from './guards'
 
-import { getOccurrenceDatasetOptions, getSiteDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { getSiteDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { VListGroup, VListItem } from 'vuetify/components'
 import { navRouteDefinitions } from './nav'
@@ -71,14 +71,14 @@ function setupRouter(settings: InstanceSettings) {
       {
         path: "/datasets/sites/:slug",
         name: "site-dataset-item",
-        component: () => import('@/views/datasets/DatasetItemView.vue'),
+        component: () => import('@/views/datasets/SiteDatasetItemView.vue'),
         props: route => ({ slug: route.params.slug, query: getSiteDatasetOptions }),
       },
       {
         path: "/datasets/occurrences/:slug",
         name: "occurrence-dataset-item",
-        component: () => import('@/views/datasets/DatasetItemView.vue'),
-        props: route => ({ slug: route.params.slug, query: getOccurrenceDatasetOptions }),
+        component: () => import('@/views/datasets/OccurrenceDatasetItemView.vue'),
+        props: route => ({ slug: route.params.slug }),
       },
       {
         path: "/sites/:code",

@@ -16,7 +16,7 @@
 import { SiteWithOccurrences } from '@/api'
 import { HexPopupData } from '@/components/maps/SitesMap.vue'
 import { computed } from 'vue'
-import OccurringTaxaList from './OccurringTaxaList.vue'
+import OccurringTaxaList from '../../components/occurrence/OccurringTaxaList.vue'
 import { pluralizeWithCount } from '@/functions/text'
 const { data } = defineProps<{
   data?: HexPopupData<SiteWithOccurrences>[]
