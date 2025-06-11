@@ -47,6 +47,33 @@
         size="small"
         color="warning"
       />
+      <CardDialog
+        v-else-if="remote.error.value"
+        :title="`Error: ${feed.name}`"
+        prepend-icon="mdi-alert"
+        :max-width="500"
+      >
+        <template #activator="{ props }">
+          <v-btn v-bind="props" icon="mdi-alert" color="error" :rounded="100" variant="text" />
+        </template>
+        <v-card-text>
+          <v-alert color="error">
+            An error occurred while fetching data for this feed:
+            <strong>{{ remote.error.value?.detail }}</strong>
+          </v-alert>
+          <span class="text-caption">
+            This may be due to a server error, please file an issue or try again later.
+          </span>
+        </v-card-text>
+      </CardDialog>
+      <v-icon
+        v-else
+        icon="mdi-circle"
+        color="success"
+        size="small"
+        v-tooltip="{ text: 'Data is up to date', openDelay: 500, openOnClick: true }"
+        @click="() => {}"
+      />
       <v-btn
         :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'"
         color=""
@@ -79,6 +106,7 @@ import { DataFeed, useDataFeeds } from './data_feeds'
 import { useQuery } from '@tanstack/vue-query'
 import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import MapStatsDialog from '@/components/occurrence/OccurrenceStatsDialog.vue'
+import CardDialog from '../toolkit/ui/CardDialog.vue'
 
 defineProps<{
   placeholder?: string
