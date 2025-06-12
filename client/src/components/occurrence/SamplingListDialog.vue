@@ -19,6 +19,7 @@
             name: 'site-item',
             params: { code: value }
           }"
+          target="_blank"
         >
           <span class="text-wrap font-monospace">
             {{ CodeIdentifier.textWrap(value) }}
@@ -49,37 +50,10 @@
         <v-badge inline :content="value" color="success" @click="toggleExpand(item)" />
       </template>
       <template #expanded-row-inject="{ item }: { item: SamplingEvent }">
-        <v-list density="compact">
-          <v-list-item
-            v-for="{ element, code, category, taxon } in item.occurrences"
-            :subtitle="DateWithPrecision.format(item.date)"
-            :to="{
-              name: element === 'Sequence' ? 'sequence' : 'biomat-item',
-              params: { code: code }
-            }"
-          >
-            <template #prepend>
-              <v-icon
-                :icon="element === 'Sequence' ? 'mdi-dna' : 'mdi-package-variant'"
-                :color="category === 'Internal' ? 'primary' : 'warning'"
-              />
-            </template>
-            <template #title>
-              <RouterLink
-                :to="{
-                  name: element === 'Sequence' ? 'sequence' : 'biomat-item',
-                  params: { code: code }
-                }"
-                class="font-monospace text-caption"
-              >
-                {{ code }}
-              </RouterLink>
-            </template>
-            <template #append>
-              <TaxonChip :taxon="taxon" size="small" />
-            </template>
-          </v-list-item>
-        </v-list>
+        <OccurrenceAtSiteList
+          v-if="item.occurrences.length"
+          :occurrences="item.occurrences.map((o) => ({ ...o, date: item.date }))"
+        />
       </template>
     </CRUDTable>
   </CardDialog>
@@ -98,6 +72,7 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
 import { computed, ref } from 'vue'
 import { ComponentSlots } from 'vue-component-type-helpers'
+import OccurrenceAtSiteList from './OccurrenceAtSiteList.vue'
 
 type SamplingEvent = SamplingEventWithOccurrences &
   (WithSite extends true ? { site: SiteItem } : {})

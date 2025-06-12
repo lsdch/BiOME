@@ -6,6 +6,7 @@
       :title="item.name"
       :subtitle="item.code"
       :to="{ name: 'site-item', params: { code: item.code } }"
+      target="_blank"
     >
       <template #title="{ title }">
         <span class="text-wrap">{{ title }}</span>

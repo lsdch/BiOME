@@ -10,6 +10,7 @@
             name: 'site-item',
             params: { code: value }
           }"
+          target="_blank"
         >
           <span class="text-wrap font-monospace">
             {{ CodeIdentifier.textWrap(value) }}
@@ -35,38 +36,17 @@
         </span>
       </template>
       <template #expanded-row-inject="{ item }: { item: SiteWithOccurrences }">
-        <v-list density="compact">
-          <template v-for="s in item.samplings">
-            <v-list-item
-              v-for="o in s.occurrences"
-              :subtitle="DateWithPrecision.format(s.date)"
-              :to="{
-                name: o.element === 'Sequence' ? 'sequence' : 'biomat-item',
-                params: { code: o.code }
-              }"
-            >
-              <template #prepend>
-                <v-icon
-                  :icon="o.element === 'Sequence' ? 'mdi-dna' : 'mdi-package-variant'"
-                  :color="o.category === 'Internal' ? 'primary' : 'warning'"
-                />
-              </template>
-              <template #title>
-                <RouterLink
-                  :to="{
-                    name: o.element === 'Sequence' ? 'sequence' : 'biomat-item',
-                    params: { code: o.code }
-                  }"
-                  class="font-monospace text-caption"
-                  >{{ o.code }}</RouterLink
-                >
-              </template>
-              <template #append>
-                <TaxonChip :taxon="o.taxon" size="small" />
-              </template>
-            </v-list-item>
-          </template>
-        </v-list>
+        <OccurrenceAtSiteList
+          v-if="item.samplings.length"
+          :occurrences="
+            item.samplings.flatMap((sampling) =>
+              sampling.occurrences.map((occurrence) => ({
+                ...occurrence,
+                date: sampling.date
+              }))
+            )
+          "
+        />
       </template>
     </CRUDTable>
   </CardDialog>
@@ -75,9 +55,9 @@
 <script setup lang="ts">
 import { CodeIdentifier, DateWithPrecision, SiteWithOccurrences } from '@/api'
 import CountryChip from '@/components/sites/CountryChip'
-import TaxonChip from '@/components/taxonomy/TaxonChip'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
+import OccurrenceAtSiteList from './OccurrenceAtSiteList.vue'
 
 const {
   sites,

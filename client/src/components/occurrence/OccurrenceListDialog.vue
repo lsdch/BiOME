@@ -29,6 +29,7 @@
               name: item.element === 'Sequence' ? 'sequence' : 'biomat-item',
               params: { code: item.code }
             }"
+            target="_blank"
           >
             <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
           </RouterLink>
@@ -46,6 +47,7 @@
             name: 'site-item',
             params: { code: value }
           }"
+          target="_blank"
         >
           <span class="text-wrap font-monospace">
             {{ CodeIdentifier.textWrap(value) }}
