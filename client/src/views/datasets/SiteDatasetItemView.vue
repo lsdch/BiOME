@@ -1,7 +1,7 @@
 <template>
   <DatasetItemView :slug :dataset="dataset">
     <template #map="{ isDialog, toggleMobileMap }">
-      <SitesMap :hexgrid :closable="isDialog" @close="toggleMobileMap(false)" clustered> </SitesMap>
+      <BaseMap :hexgrid :closable="isDialog" @close="toggleMobileMap(false)" clustered> </BaseMap>
     </template>
     <template #details>
       <CenteredSpinner v-if="isPending" :height="300" size="large" color="primary" />
@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { getSiteDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import SitesMap from '@/components/maps/SitesMap.vue'
+import BaseMap from '@/components/maps/BaseMap.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import { palette } from '@/functions/color_brewer'
 import { useUserStore } from '@/stores/user'

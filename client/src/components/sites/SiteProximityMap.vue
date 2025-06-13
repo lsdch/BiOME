@@ -1,7 +1,7 @@
 <template>
   <v-progress-linear v-if="hasValidCoords && isPending" indeterminate />
   <div class="flex-grow-1">
-    <SitesMap
+    <BaseMap
       ref="map"
       :marker="hasValidCoords ? ({ coordinates: coords } as Geocoordinates) : undefined"
       :items="
@@ -36,7 +36,7 @@
       <template #popup="{ item }">
         <SitePopup :item />
       </template>
-    </SitesMap>
+    </BaseMap>
   </div>
   <ProximityRadiusSlider
     class="flex-grow-0"
@@ -49,7 +49,7 @@ import { sitesProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
 import { LCircle, LMarker } from '@vue-leaflet/vue-leaflet'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-import SitesMap from '../maps/SitesMap.vue'
+import BaseMap from '../maps/BaseMap.vue'
 import SitePopup from './SitePopup.vue'
 import { Coordinates, Geocoordinates, MaybeCoordinates } from '../maps'
 import { LatLngLiteral } from 'leaflet'

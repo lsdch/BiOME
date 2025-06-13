@@ -14,7 +14,7 @@
 
 <script setup lang="ts">
 import { SiteWithOccurrences } from '@/api'
-import { HexPopupData } from '@/components/maps/SitesMap.vue'
+import { HexPopupData } from '@/components/maps/BaseMap.vue'
 import { computed } from 'vue'
 import OccurringTaxaList from '../../components/occurrence/OccurringTaxaList.vue'
 import { pluralizeWithCount } from '@/functions/text'

@@ -1,6 +1,6 @@
 <template>
   <v-sheet :height>
-    <SitesMap
+    <BaseMap
       :marker="site"
       :marker-layers="[proximalSitesMarkers]"
       :auto-fit="proximityRadius || CoordinatesPrecision.radius(site?.coordinates.precision)"
@@ -14,7 +14,7 @@
       </template>
       <SiteRadius v-if="site" :site />
       <SiteProximityRadius :site :proximity-radius />
-    </SitesMap>
+    </BaseMap>
   </v-sheet>
   <v-list-item>
     <ProximityRadiusSlider @update:radius="(radius) => (proximityRadius = radius)" />
@@ -30,7 +30,7 @@ import { Geocoordinates } from '.'
 import SiteRadius from '../sites/SiteRadius'
 import ProximityRadiusSlider from './ProximityRadiusSlider.vue'
 import SiteProximityRadius from './SiteProximityRadius.vue'
-import SitesMap, { MarkerLayer } from './SitesMap.vue'
+import BaseMap, { MarkerLayer } from './BaseMap.vue'
 
 const { site, height = 300 } = defineProps<{
   site: Geocoordinates & { code: string }

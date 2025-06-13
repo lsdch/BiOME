@@ -1,7 +1,7 @@
 <template>
   <DatasetItemView :slug :dataset="dataset">
     <template #map="{ isDialog, toggleMobileMap }">
-      <SitesMap :hexgrid :closable="isDialog" @close="toggleMobileMap(false)" clustered>
+      <BaseMap :hexgrid :closable="isDialog" @close="toggleMobileMap(false)" clustered>
         <template #hex-popup="{ data }">
           <MapViewHexPopup :data />
         </template>
@@ -10,7 +10,7 @@
             <MapViewSitePopup :item :popupOpen :zoom :key="item.code" />
           </KeepAlive>
         </template>
-      </SitesMap>
+      </BaseMap>
     </template>
     <template #details>
       <CenteredSpinner v-if="isPending" :height="300" size="large" color="primary" />
@@ -25,7 +25,7 @@
 <script setup lang="ts">
 import { SiteWithOccurrences } from '@/api'
 import { getOccurrenceDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import SitesMap, { HexgridLayer } from '@/components/maps/SitesMap.vue'
+import BaseMap, { HexgridLayer } from '@/components/maps/BaseMap.vue'
 import MapViewHexPopup from '@/components/occurrence/MapViewHexPopup.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import { palette } from '@/functions/color_brewer'

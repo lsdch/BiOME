@@ -31,10 +31,8 @@
 </template>
 
 <script setup lang="ts">
-import { SiteWithOccurrences } from '@/api'
-import { ScaleBindingSpec, useScaleBinding } from '@/composables/occurrences'
-import { onMounted, reactive, watch } from 'vue'
-import { ScaleBinding } from 'vue-leaflet-hexbin'
+import { ScaleBindingSpec } from '@/composables/occurrences'
+import { onMounted, reactive } from 'vue'
 
 const { clearable } = defineProps<{
   label?: string
@@ -55,19 +53,6 @@ onMounted(() => {
     model.value.binding = items[0].value
   }
 })
-
-const emit = defineEmits<{
-  updateFn: [binding?: ScaleBinding<SiteWithOccurrences>]
-}>()
-
-watch(
-  () => model.value,
-  (newValue) => {
-    if (!newValue.binding) model.value.log = false
-    emit('updateFn', useScaleBinding(newValue))
-  },
-  { deep: true }
-)
 
 const items = [
   { title: 'Sites', value: 'sites' },

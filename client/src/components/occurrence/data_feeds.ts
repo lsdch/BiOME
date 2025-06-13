@@ -1,6 +1,7 @@
 import { ErrorModel, SiteWithOccurrences } from "@/api";
 import { MappingFilters } from "@/components/occurrence/OccurrenceDataFeedFilters.vue";
 import { UseQueryReturnType } from "@tanstack/vue-query";
+import { useLocalStorage } from "@vueuse/core";
 import type { UUID } from "crypto";
 import { v4 as uuidv4 } from "uuid";
 import { computed, MaybeRef, reactive, ref, shallowReactive, unref } from "vue";
@@ -15,7 +16,7 @@ export type RegisteredDataFeed = {
   id: UUID,
 } & DataFeed
 
-const dataFeeds = ref<[DataFeed, ...Array<DataFeed>]>([newDataFeed("Feed #1")]);
+const dataFeeds = useLocalStorage<[DataFeed, ...Array<DataFeed>]>('maptool-data-feeds', [newDataFeed("Feed #1")]);
 
 const remotes = shallowReactive(new Map<UUID, UseQueryReturnType<SiteWithOccurrences[], ErrorModel>>())
 

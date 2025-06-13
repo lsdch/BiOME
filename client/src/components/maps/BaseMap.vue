@@ -165,11 +165,10 @@
           </LPopup>
         </template>
       </LHexbinLayer>
-      <!-- <LLayerGroup v-if="markerConfig.active && items" pane="markerPane"> -->
       <LLayerGroup v-for="layer in markerLayers" pane="markerPane">
         <template v-if="layer.active">
           <LMarkerClusterGroup
-            v-if="layer.config.clustered"
+            v-if="layer.clustered"
             remove-outside-visible-bounds
             show-coverage-on-hover
             :maxClusterRadius="70"
@@ -269,9 +268,19 @@
   </div>
 </template>
 
-<script setup lang="ts" generic="SiteItem extends { id: string } & Geocoordinates">
+<script lang="ts">
+/**
+ * Base map component for displaying geolocated items on a map.
+ * Supports hexbin layers, marker layers, and custom popups.
+ */
+export default {
+  name: 'BaseMap'
+}
+</script>
+
+<script setup lang="ts" generic="Item extends { id: string } & Geocoordinates">
 import 'leaflet/dist/leaflet.css'
-import LHexbinLayer, { type ScaleBinding } from 'vue-leaflet-hexbin'
+import LHexbinLayer from 'vue-leaflet-hexbin'
 import 'vue-leaflet-markercluster/dist/style.css'
 
 import {
@@ -289,7 +298,6 @@ import {
 } from '@vue-leaflet/vue-leaflet'
 import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
 import L, {
-  CircleMarkerOptions,
   latLng,
   latLngBounds,
   LatLngExpression,
@@ -305,59 +313,17 @@ import { Geocoordinates } from '.'
 
 import MapColorLegend from '@/views/location/MapColorLegend.vue'
 import { vElementVisibility } from '@vueuse/components'
-import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
+import { HexgridLayer, MarkerLayer } from './map-layers'
 
-export type HexPopupData<SiteItem> = {
-  data: SiteItem
+export type HexPopupData<Item> = {
+  data: Item
   coord: L.LatLngExpression
 }
 
-export type HexgridScaleBindings<SiteItem> = {
-  color?: ScaleBinding<SiteItem>
-  radius?: ScaleBinding<SiteItem>
-  opacity?: ScaleBinding<SiteItem>
-}
+const markerLayers = defineModel<MarkerLayer<Item>[]>('marker-layers')
 
-// Opacity can be controlled directly by 'color' and 'fill' properties
-export type MarkerConfig = {
-  clustered: boolean
-} & Overwrite<
-  Omit<CircleMarkerOptions, 'opacity' | 'fillOpacity' | 'renderer'>,
-  { dashArray?: string | undefined }
->
-
-export type HexgridLayer<SiteItem> = {
-  name?: string
-  active: boolean
-  config: HexgridConfig
-  data?: SiteItem[]
-  bindings: HexgridScaleBindings<SiteItem>
-}
-
-export type HexgridConfig = {
-  radius: number
-  radiusRange?: [number, number]
-  colorRange?: string[]
-  hover: {
-    fill: boolean
-    useScale: boolean
-    scale: number
-  }
-  opacity: number
-  opacityRange?: [number, number]
-}
-
-export type MarkerLayer<SiteItem> = {
-  name?: string
-  active: boolean
-  config: MarkerConfig
-  data?: SiteItem[]
-}
-
-const markerLayers = defineModel<MarkerLayer<SiteItem>[]>('marker-layers')
-
-const hexgrid = defineModel<HexgridLayer<SiteItem>>('hexgrid', {
-  default: (): HexgridLayer<SiteItem> => ({
+const hexgrid = defineModel<HexgridLayer<Item>>('hexgrid', {
+  default: (): HexgridLayer<Item> => ({
     active: true,
     config: {
       radius: 10,
@@ -383,9 +349,9 @@ const popupOpen = ref(false)
 
 const cursorCoordinates = ref<LatLngLiteral>()
 
-const selected = ref<SiteItem>()
+const selected = ref<Item>()
 
-function selectSite(item: SiteItem) {
+function selectSite(item: Item) {
   selected.value = item
   nextTick(() => popupLayer.value?.leafletObject?.openPopup(Geocoordinates.LatLng(item)))
 }
@@ -400,9 +366,10 @@ const emit = defineEmits<{
 
 const props = withDefaults(
   defineProps<{
-    items?: SiteItem[]
+    /**
+     * Place a single marker at the given coordinates.
+     */
     marker?: Geocoordinates
-    // markerOptions?: Omit<CircleMarkerOptions, 'dashArray'>
     bounds?: [LatLngExpression, LatLngExpression]
     autoFit?: boolean | number
     closable?: boolean
@@ -410,7 +377,6 @@ const props = withDefaults(
     center?: PointExpression
     minZoom?: number
     maxZoom?: number
-    hideMarkerControl?: boolean
   }>(),
   {
     bounds: () => [latLng(90, -360), latLng(-90, 360)],
@@ -423,9 +389,9 @@ const props = withDefaults(
 
 const slots = defineSlots<{
   default: (props: { zoom: number; map?: HTMLElement }) => any
-  popup: (props: { item: SiteItem; popupOpen: boolean; zoom: number }) => any
+  popup: (props: { item: Item; popupOpen: boolean; zoom: number }) => any
   marker: (props: { latLng?: LatLngExpression }) => any
-  'hex-popup': (props: { data?: HexPopupData<UnwrapRef<SiteItem>>[] }) => any
+  'hex-popup': (props: { data?: HexPopupData<UnwrapRef<Item>>[] }) => any
 }>()
 
 const mapBounds = ref(L.latLngBounds(...props.bounds))
@@ -474,11 +440,11 @@ const fitRadius = useDebounceFn((radius: number) => {
   }
 }, 200)
 
-function computeBounds(items: SiteItem[]) {
+function computeBounds(items: Item[]) {
   const minMaxCoords = items.reduce(
     (
       acc: { sw: LatLngLiteral; ne: LatLngLiteral } | null,
-      { coordinates: { latitude, longitude } }: SiteItem
+      { coordinates: { latitude, longitude } }: Item
     ): { sw: LatLngLiteral; ne: LatLngLiteral } | null => {
       return acc === null
         ? {

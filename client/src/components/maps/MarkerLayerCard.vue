@@ -54,7 +54,7 @@
           />
         </v-list-item>
         <ListItemInput label="Clustered" subtitle="Aggregate marker clusters">
-          <v-switch v-model="layer.config.clustered" hide-details />
+          <v-switch v-model="layer.clustered" hide-details />
         </ListItemInput>
         <ListItemInput label="Radius">
           <v-slider

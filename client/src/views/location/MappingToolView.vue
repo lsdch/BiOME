@@ -150,7 +150,7 @@
         >
           <v-alert color="error" variant="elevated">Failed to load sampling sites</v-alert>
         </v-overlay> -->
-        <SitesMap
+        <BaseMap
           ref="map"
           auto-fit
           :marker-layers
@@ -184,43 +184,34 @@
               <MapViewSitePopup :item="item" :popupOpen="popupOpen" :zoom="zoom" :key="item.code" />
             </KeepAlive>
           </template>
-        </SitesMap>
+        </BaseMap>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import SitesMap, {
-  HexgridConfig,
-  HexgridLayer,
-  HexgridScaleBindings,
-  MarkerLayer
-} from '@/components/maps/SitesMap.vue'
+import BaseMap from '@/components/maps/BaseMap.vue'
 
 import { SiteWithOccurrences } from '@/api'
+import HexgridLayerCard from '@/components/maps/HexgridLayerCard.vue'
+import MarkerLayerCard from '@/components/maps/MarkerLayerCard.vue'
 import {
-  HexgridLayerDefinition,
+  HexgridLayer,
+  HexgridLayerSpec,
+  MarkerLayer,
   MarkerLayerDefinition,
   SitesFilter
 } from '@/components/maps/map-layers'
-import DataFeedPicker from '@/components/occurrence/DataFeedPicker.vue'
 import OccurrenceDataFeedManager from '@/components/occurrence/OccurrenceDataFeedManager.vue'
 import { useDataFeeds } from '@/components/occurrence/data_feeds'
 import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
-import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
+import { useScaleBinding } from '@/composables/occurrences'
 import { palette, withOpacity } from '@/functions/color_brewer'
 import { useLocalStorage, useToggle } from '@vueuse/core'
-import { UUID } from 'crypto'
-import { computed, reactive, ref } from 'vue'
-import ColorPalettePicker from '../../components/toolkit/ui/ColorPalettePicker.vue'
-import LayerOptionsCard from './LayerOptionsCard.vue'
+import { computed, ref } from 'vue'
 import MapViewHexPopup from '../../components/occurrence/MapViewHexPopup.vue'
 import MapViewSitePopup from '../../components/occurrence/MapViewSitePopup.vue'
-import ScaleBindingSelect from './ScaleBindingSelect.vue'
-import SiteSamplingStatusFilter from './SiteSamplingStatusFilter.vue'
-import MarkerLayerCard from '@/components/maps/MarkerLayerCard.vue'
-import HexgridLayerCard from '@/components/maps/HexgridLayerCard.vue'
 
 const [polygonMode, togglePolygonMode] = useToggle(false)
 
@@ -256,46 +247,64 @@ function filterSites(
   }
 }
 
-const hexgridLayerOptions = reactive<HexgridLayerDefinition>({
-  name: 'Hexgrid',
-  active: true,
-  dataFeedID: registry.value[0].id,
-  filterType: 'Occurrences',
-  config: {
-    radius: 10,
-    radiusRange: [0, 10],
-    hover: {
-      fill: true,
-      useScale: false,
-      scale: 1.5
+const hexgridLayerOptions = useLocalStorage<HexgridLayerSpec>(
+  'map-tool-hexgrid-layer',
+  {
+    name: 'Hexgrid',
+    active: true,
+    dataFeedID: registry.value[0].id,
+    filterType: 'Occurrences',
+    config: {
+      radius: 10,
+      radiusRange: [0, 10],
+      hover: {
+        fill: true,
+        useScale: false,
+        scale: 1.5
+      },
+      colorRange: 'Viridis',
+      opacity: 0.8,
+      opacityRange: [0, 1]
     },
-    colorRange: palette('Viridis'),
-    opacity: 0.8,
-    opacityRange: [0, 1]
+    bindings: {
+      color: { log: false, binding: 'sites' },
+      opacity: { log: false },
+      radius: { log: false }
+    }
   },
-  bindings: {}
-})
+  { deep: true }
+)
 
 const hexgridLayer = computed<HexgridLayer<SiteWithOccurrences>>(() => {
-  const feedID = hexgridLayerOptions.dataFeedID
-  const remote = feedID ? remotes.get(feedID) : undefined
+  const { dataFeedID, name, active, config, bindings, filterType } = hexgridLayerOptions.value
+  const remote = dataFeedID ? remotes.get(dataFeedID) : undefined
   return {
-    name: hexgridLayerOptions.name,
-    active: hexgridLayerOptions.active,
-    config: hexgridLayerOptions.config,
-    bindings: hexgridLayerOptions.bindings,
-    data: filterSites(remote?.data.value, hexgridLayerOptions.filterType)
+    name,
+    active,
+    config: {
+      ...config,
+      colorRange: palette(config.colorRange ?? 'Viridis')
+    },
+    bindings: {
+      radius: useScaleBinding(bindings.radius),
+      color: useScaleBinding(bindings.color),
+      opacity: useScaleBinding(bindings.opacity)
+    },
+    data: filterSites(remote?.data.value, filterType)
   }
 })
 
-const markerLayerOptions = reactive<MarkerLayerDefinition[]>([])
+const markerLayerOptions = useLocalStorage<MarkerLayerDefinition[]>('maptool-marker-layers', [], {
+  deep: true
+})
 const markerLayers = computed<MarkerLayer<SiteWithOccurrences>[]>(() => {
-  return markerLayerOptions.map((layer) => {
+  return markerLayerOptions.value.map((layer) => {
     const remote = layer.dataFeedID ? remotes.get(layer.dataFeedID) : undefined
     return {
       name: layer.name,
       config: layer.config,
       active: layer.active,
+      clustered: false,
       data: filterSites(remote?.data.value, layer.filterType)
     }
   })
@@ -312,12 +321,12 @@ const markerColorPalette = [
   '#f781bf'
 ]
 
-function newMarkerLayer(index: number = markerLayerOptions.length): MarkerLayerDefinition {
+function newMarkerLayer(index: number = markerLayerOptions.value.length): MarkerLayerDefinition {
   return {
     filterType: 'Occurrences',
     active: true,
+    clustered: false,
     config: {
-      clustered: false,
       radius: 4,
       color: withOpacity(markerColorPalette[index % markerColorPalette.length], 0.8),
       fillColor: withOpacity(markerColorPalette[index % markerColorPalette.length], 0.3),
@@ -326,19 +335,19 @@ function newMarkerLayer(index: number = markerLayerOptions.length): MarkerLayerD
   }
 }
 
-function addMarkerLayer(index: number = markerLayerOptions.length) {
+function addMarkerLayer(index: number = markerLayerOptions.value.length) {
   const layer = newMarkerLayer(index)
-  markerLayerOptions.push(layer)
+  markerLayerOptions.value.push(layer)
   return layer
 }
 
 function resetMarkerLayer(index: number) {
-  if (index < 0 || index >= markerLayerOptions.length) return
-  markerLayerOptions[index] = newMarkerLayer(index)
+  if (index < 0 || index >= markerLayerOptions.value.length) return
+  markerLayerOptions.value[index] = newMarkerLayer(index)
 }
 
 function resetLayers() {
-  hexgridLayerOptions.config = {
+  hexgridLayerOptions.value.config = {
     radius: 10,
     radiusRange: [0, 10],
     hover: {
@@ -346,12 +355,12 @@ function resetLayers() {
       useScale: false,
       scale: 1.5
     },
-    colorRange: palette('Viridis'),
+    colorRange: 'Viridis',
     opacity: 0.8,
     opacityRange: [0, 1]
   }
-  hexgridLayerOptions.bindings = {}
-  markerLayerOptions.length = 0
+  hexgridLayerOptions.value.bindings = {}
+  markerLayerOptions.value.length = 0
 }
 </script>
 

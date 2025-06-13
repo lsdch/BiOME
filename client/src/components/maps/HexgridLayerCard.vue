@@ -32,21 +32,18 @@
 
         <v-list-item>
           <ScaleBindingSelect
+            v-model="layer.bindings.color"
             label="Color binding"
             density="compact"
             class="my-1"
-            @update-fn="(f) => (layer.bindings.color = f)"
           />
         </v-list-item>
         <v-list-item>
-          <ColorPalettePicker
-            label="Palette"
-            class="my-1"
-            @update:model-value="(v) => (layer.config.colorRange = palette(v))"
-          />
+          <ColorPalettePicker v-model="layer.config.colorRange" label="Palette" class="my-1" />
         </v-list-item>
         <v-list-item>
           <ScaleBindingSelect
+            v-model="layer.bindings.opacity"
             label="Opacity binding"
             density="compact"
             placeholder="Constant"
@@ -54,12 +51,11 @@
             clearable
             hide-details
             class="my-1"
-            @update-fn="(f) => (layer.bindings.opacity = f)"
           />
         </v-list-item>
         <ListItemInput :title="layer.bindings.opacity ? 'Opacity range' : 'Opacity'">
           <v-range-slider
-            v-if="layer.bindings.opacity"
+            v-if="layer.bindings.opacity?.binding"
             v-model="layer.config.opacityRange"
             :min="0"
             :max="1"
@@ -105,6 +101,7 @@
 
         <v-list-item>
           <ScaleBindingSelect
+            v-model="layer.bindings.radius"
             label="Radius binding"
             density="compact"
             placeholder="Constant"
@@ -112,10 +109,9 @@
             clearable
             hide-details
             class="my-1"
-            @update-fn="(f) => (layer.bindings.radius = f)"
           />
         </v-list-item>
-        <ListItemInput title="Radius range" v-if="layer.bindings.radius">
+        <ListItemInput title="Radius range" v-if="layer.bindings.radius?.binding">
           <v-range-slider
             v-model="layer.config.radiusRange"
             :ticks="[layer.config.radius]"
@@ -167,15 +163,14 @@
 
 <script setup lang="ts">
 import LayerOptionsCard from '@/views/location/LayerOptionsCard.vue'
-import DataFeedPicker from '../occurrence/DataFeedPicker.vue'
-import { HexgridLayerDefinition } from './map-layers'
-import SiteSamplingStatusFilter from '@/views/location/SiteSamplingStatusFilter.vue'
 import ScaleBindingSelect from '@/views/location/ScaleBindingSelect.vue'
+import SiteSamplingStatusFilter from '@/views/location/SiteSamplingStatusFilter.vue'
+import DataFeedPicker from '../occurrence/DataFeedPicker.vue'
 import ColorPalettePicker from '../toolkit/ui/ColorPalettePicker.vue'
-import { palette } from '@/functions/color_brewer'
 import ListItemInput from '../toolkit/ui/ListItemInput.vue'
+import { HexgridLayerSpec } from './map-layers'
 
-const layer = defineModel<HexgridLayerDefinition>({ required: true })
+const layer = defineModel<HexgridLayerSpec>({ required: true })
 </script>
 
 <style scoped lang="scss"></style>

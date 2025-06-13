@@ -70,7 +70,7 @@
 
 <script setup lang="ts">
 import { SiteWithOccurrences } from '@/api'
-import { HexPopupData } from '@/components/maps/SitesMap.vue'
+import { HexPopupData } from '@/components/maps/BaseMap.vue'
 import { pluralize } from '@/functions/text'
 import { computed } from 'vue'
 import OccurrenceListDialog from '../../components/occurrence/OccurrenceListDialog.vue'
