@@ -104,42 +104,56 @@ func (i OccurrenceDatasetInput) SaveTx(tx geltypes.Tx) (created OccurrenceDatase
 
 	err = tx.QuerySingle(context.Background(),
 		`#edgeql
-      with
+      with module occurrence,
         data := <json>$0,
         occurrences := <json>$1,
-      select (insert datasets::OccurrenceDataset {
-        label := <str>data['label'],
-        slug := <str>data['slug'],
-        description := <str>json_get(data, 'description'),
-				maintainers := (
-					select people::Person
-					filter .alias in <str>json_array_unpack(data['maintainers'])
-				) ?? (SELECT admin::Settings.superadmin.identity),
-        occurrences := (
-          select occurrence::Occurrence
-          filter .id in <uuid>json_array_unpack(occurrences)['id']
-        )
-      }) {
+				dataset := (
+					insert datasets::OccurrenceDataset {
+						label := <str>data['label'],
+						slug := <str>data['slug'],
+						description := <str>json_get(data, 'description'),
+						maintainers := (
+							select people::Person
+							filter .alias in <str>json_array_unpack(data['maintainers'])
+						) ?? (SELECT admin::Settings.superadmin.identity),
+						occurrences := (
+							select occurrence::Occurrence
+							filter .id in <uuid>json_array_unpack(occurrences)['id']
+						)
+					}
+				)
+      select dataset {
         *,
 				maintainers: { * },
-				occurrences: {
-					id, comments,
-					sampling: {
-						*,
+				sites: {
+					*,
+					country: { * },
+					samplings := (
+						.events.samplings
+					) {
+						id,
+						date := .event.performed_on,
+						sampling_target,
 						target_taxa: { * },
-						methods: { * },
-						fixatives: { * },
-						habitats: { * },
-					},
-					identification: { ** },
-					category:= [is occurrence::BioMaterial].category ?? occurrence::OccurrenceCategory.External,
-					element:= (
-						if exists [is occurrence::BioMaterial].id
-						then "BioMaterial"
-						else "Sequence"
-					),
-
-				}
+						occurring_taxa: { * },
+						occurrences := (
+							select (.occurrences intersect dataset.occurrences) {
+								id,
+								code,
+								required taxon := (
+										[is ExternalBioMat].seq_consensus ??
+										[is InternalBioMat].seq_consensus ??
+										.identification.taxon
+									) { name, status, rank},
+								required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
+								required element := (
+									if exists [is seq::Sequence].id then 'Sequence'
+									else 'BioMaterial'
+								)
+							}
+						)
+					}
+			}
       }
       `, &created, data, occurrencesData,
 	)
