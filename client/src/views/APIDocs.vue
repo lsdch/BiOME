@@ -12,4 +12,12 @@ import '@stoplight/elements/web-components.min.js'
 import '@stoplight/elements/styles.min.css'
 </script>
 
-<style scoped></style>
+<style lang="scss">
+html[data-theme='dark'] {
+  .sl-code-viewer {
+    background: #fafafa;
+    color: black;
+    filter: invert(1);
+  }
+}
+</style>

@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import NavigationDrawer from '@/components/navigation/NavigationDrawer.vue'
-import { nextTick, ref } from 'vue'
+import { nextTick, ref, watch } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import colors from 'vuetify/util/colors'
 
@@ -84,6 +84,7 @@ import ConfirmDialog from './components/toolkit/ui/ConfirmDialog.vue'
 import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { useAppConfirmDialog } from './composables/confirm_dialog'
+import { useTheme } from 'vuetify/lib/composables/theme.mjs'
 
 const loading = ref(false)
 
@@ -91,6 +92,11 @@ const { lgAndDown, smAndDown, xs } = useDisplay()
 
 const drawer = ref(!smAndDown.value)
 const drawerTemporary = ref<boolean>()
+
+const { current: currentTheme } = useTheme()
+watch(currentTheme, ({ dark }) => {
+  document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+})
 
 // Navigation
 const router = useRouter()
