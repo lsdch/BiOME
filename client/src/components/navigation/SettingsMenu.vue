@@ -35,10 +35,6 @@ const theme = useTheme()
 watch(theme.global.name, () => {
   localStorage.setItem('app-theme', theme.global.name.value)
 })
-
-onBeforeMount(() => {
-  theme.global.name.value = localStorage.getItem('app-theme') ?? 'light'
-})
 </script>
 
 <style scoped></style>

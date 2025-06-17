@@ -67,7 +67,7 @@
 
 <script setup lang="ts">
 import NavigationDrawer from '@/components/navigation/NavigationDrawer.vue'
-import { nextTick, ref, watch } from 'vue'
+import { nextTick, onMounted, ref, watch } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import colors from 'vuetify/util/colors'
 
@@ -76,7 +76,7 @@ import SettingsMenu from '@/components/navigation/SettingsMenu.vue'
 
 import { client } from '@/api/gen/client.gen'
 import { ErrorDetail } from '@/api'
-import { useLocalStorage } from '@vueuse/core'
+import { useLocalStorage, usePreferredDark } from '@vueuse/core'
 import { useDisplay } from 'vuetify'
 import AppIcon from './components/icons/AppIcon.vue'
 import { useInstanceSettings } from './components/settings'
@@ -93,9 +93,15 @@ const { lgAndDown, smAndDown, xs } = useDisplay()
 const drawer = ref(!smAndDown.value)
 const drawerTemporary = ref<boolean>()
 
-const { current: currentTheme } = useTheme()
+const { current: currentTheme, global: theme } = useTheme()
 watch(currentTheme, ({ dark }) => {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+})
+
+useLocalStorage('app-theme', usePreferredDark().value ? 'dark' : 'light')
+
+onMounted(() => {
+  theme.name.value = localStorage.getItem('app-theme') ?? 'light'
 })
 
 // Navigation
