@@ -35,21 +35,21 @@
             size="small"
             value="Site"
             class="flex-grow-1"
-            title="Sites"
+            v-tooltip="{ text: 'Sites', location: 'top' }"
           />
           <v-btn
             :icon="DatasetCategory.icon('Occurrence')"
             size="small"
             value="Occurrence"
             class="flex-grow-1"
-            title="Occurrences"
+            v-tooltip="{ text: 'Occurrences', location: 'top' }"
           />
           <v-btn
             :icon="DatasetCategory.icon('Seq')"
             size="small"
             value="Seq"
             class="flex-grow-1"
-            title="Sequences"
+            v-tooltip="{ text: 'Sequences', location: 'top' }"
           />
         </v-btn-toggle>
       </div>
