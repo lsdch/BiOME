@@ -55,7 +55,7 @@ export function MetaChip({ meta, iconColor = '#777', ...chipProps }: MetaChipPro
                 }
                 subtitle={
                   meta.modified
-                    ? `Last updated at ${DateTime.fromJSDate(meta.created).toLocaleString(
+                    ? `Last updated at ${DateTime.fromJSDate(meta.modified).toLocaleString(
                         DateTime.TIME_24_SIMPLE,
                         { locale: 'en-gb' }
                       )}`
