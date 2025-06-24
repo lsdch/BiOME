@@ -202,7 +202,7 @@
                       "
                     >
                       <v-btn
-                        v-if="actions.edit"
+                        v-if="slots.form"
                         text="Edit"
                         color="primary"
                         variant="tonal"
