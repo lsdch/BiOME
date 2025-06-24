@@ -28,11 +28,11 @@ var {{.EnumType}}Hierarchy = map[{{.EnumType}}]int{
 }
 
 func (u {{.EnumType}}) IsGreater(v {{.EnumType}}) bool {
-  return {{.EnumType}}Hierarchy[u] > {{.EnumType}}Hierarchy[u]
+  return {{.EnumType}}Hierarchy[u] > {{.EnumType}}Hierarchy[v]
 }
 
 func (u {{.EnumType}}) IsGreaterEqual(v {{.EnumType}}) bool {
-  return {{.EnumType}}Hierarchy[u] >= {{.EnumType}}Hierarchy[u]
+  return {{.EnumType}}Hierarchy[u] >= {{.EnumType}}Hierarchy[v]
 }
 {{- end}}
 

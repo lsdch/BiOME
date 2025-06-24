@@ -26,11 +26,11 @@ var UserRoleHierarchy = map[UserRole]int{
 }
 
 func (u UserRole) IsGreater(v UserRole) bool {
-  return UserRoleHierarchy[u] > UserRoleHierarchy[u]
+  return UserRoleHierarchy[u] > UserRoleHierarchy[v]
 }
 
 func (u UserRole) IsGreaterEqual(v UserRole) bool {
-  return UserRoleHierarchy[u] >= UserRoleHierarchy[u]
+  return UserRoleHierarchy[u] >= UserRoleHierarchy[v]
 }
 
 // Register enum in OpenAPI specification
