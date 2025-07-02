@@ -30,7 +30,7 @@
         <slot />
 
         <!-- Expose activator slot -->
-        <template #activator="slotData">
+        <template #activator="slotData" v-if="slots.activator">
           <slot name="activator" v-bind="slotData" />
         </template>
       </CardDialog>
@@ -39,11 +39,12 @@
 </template>
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
+import { VCard, VDialog } from 'vuetify/components'
 import CardDialog, { CardDialogProps } from '../ui/CardDialog.vue'
 export type FormDialogProps = CardDialogProps & { btnText?: string }
 
 // dialog state exposed from CardDialog
-const model = defineModel<boolean>({ default: false })
+const model = defineModel<boolean>()
 
 const emit = defineEmits<{ submit: [] }>()
 
@@ -51,6 +52,8 @@ const props = withDefaults(defineProps<FormDialogProps>(), {
   btnText: 'Submit',
   closeText: 'Cancel'
 })
+
+const slots = defineSlots<VCard['$slots'] & Pick<VDialog['$slots'], 'activator'>>()
 </script>
 
 <style scoped></style>
