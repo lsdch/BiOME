@@ -14,8 +14,11 @@
     </template>
 
     <v-card flat :rounded="false" :title :subtitle class="overflow-x-auto" :prepend-icon>
-      <template v-for="(_, name) in slots" #[name]="slotData">
-        <slot :name="name" v-bind="slotData ?? {}" />
+      <template
+        v-for="name in slotNames.filter((s) => !['activator', 'append'].includes(s))"
+        #[name]="slotData"
+      >
+        <slot :name v-bind="(slotData as any) ?? {}" />
       </template>
       <template #append>
         <slot name="append" />
@@ -75,6 +78,7 @@ function close() {
 
 // type SlotType = VCard['$slots'] & Pick<VDialog['$slots'], 'activator'>
 const slots = defineSlots<VCard['$slots'] & Pick<VDialog['$slots'], 'activator'>>()
+const slotNames = Object.keys(slots) as Array<keyof typeof slots>
 </script>
 
 <style scoped></style>
