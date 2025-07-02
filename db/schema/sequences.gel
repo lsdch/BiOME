@@ -202,20 +202,27 @@ module seq {
 
   scalar type ExtSeqOrigin extending enum<Lab, PersCom, DB>;
 
+  function generate_ext_seq_code(seq :ExternalSequence) -> str {
+    using (
+      with suffix := (
+        if seq.origin = ExtSeqOrigin.Lab then "lab"
+        else if seq.origin = ExtSeqOrigin.PersCom then "perscom"
+        else (
+          with
+            sources := (select seq.referenced_in filter seq.referenced_in.is_origin)
+          select array_join(array_agg(sources.code), "|")
+        )
+      )
+      select seq.identification.taxon.code ++ "[" ++ seq.sampling.code ++ "]" ++ seq.specimen_identifier ++ "|" ++ suffix
+    );
+  };
+
   type ExternalSequence extending Sequence, occurrence::Occurrence {
 
     overloaded required code: str {
       constraint exclusive;
       rewrite update using (
-        with suffix := (
-          if .origin = ExtSeqOrigin.Lab then "lab"
-          else if .origin = ExtSeqOrigin.PersCom then "perscom"
-          else (
-            with sources := (select .referenced_in filter .is_origin).code
-            select array_join(array_agg(sources), "|")
-          )
-        )
-        select .identification.taxon.code ++ "[" ++ .sampling.code ++ "]" ++ .specimen_identifier ++ "|" ++ suffix
+        select generate_ext_seq_code(__subject__)
       );
     }
 

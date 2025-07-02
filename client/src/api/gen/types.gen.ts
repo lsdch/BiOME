@@ -273,6 +273,51 @@ export type CurrentUserResponse = {
   user: User
 }
 
+export type DataFeedSpec = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  description?: string
+  id: string
+  /**
+   * Global settings are considered as part of the application.
+   */
+  is_global: boolean
+  /**
+   * Public settings are available to all users, while private settings are only available to the user who created them.
+   */
+  is_public: boolean
+  meta: Meta
+  name: string
+  /**
+   * A JSON representation of settings.
+   */
+  spec: string
+}
+
+export type DataFeedSpecInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  description?: string
+  id?: string
+  /**
+   * Global settings are considered as part of the application.
+   */
+  is_global: boolean
+  /**
+   * Public settings are available to all users, while private settings are only available to the user who created them.
+   */
+  is_public: boolean
+  name: string
+  /**
+   * A JSON representation of settings.
+   */
+  spec: string
+}
+
 export type DataSource = {
   /**
    * A URL to the JSON Schema for this object.
@@ -1030,6 +1075,51 @@ export type LogoutInputBody = {
    */
   readonly $schema?: string
   refresh_token?: string
+}
+
+export type MapToolPreset = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  description?: string
+  id: string
+  /**
+   * Global settings are considered as part of the application.
+   */
+  is_global: boolean
+  /**
+   * Public settings are available to all users, while private settings are only available to the user who created them.
+   */
+  is_public: boolean
+  meta: Meta
+  name: string
+  /**
+   * A JSON representation of settings.
+   */
+  spec: string
+}
+
+export type MapToolPresetInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  description?: string
+  id?: string
+  /**
+   * Global settings are considered as part of the application.
+   */
+  is_global: boolean
+  /**
+   * Public settings are available to all users, while private settings are only available to the user who created them.
+   */
+  is_public: boolean
+  name: string
+  /**
+   * A JSON representation of settings.
+   */
+  spec: string
 }
 
 export type Message = {
@@ -6187,6 +6277,185 @@ export type UpdateInstanceSettingsResponses = {
 
 export type UpdateInstanceSettingsResponse =
   UpdateInstanceSettingsResponses[keyof UpdateInstanceSettingsResponses]
+
+export type ListDataFeedsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/settings/mapping/data-feeds'
+}
+
+export type ListDataFeedsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListDataFeedsError = ListDataFeedsErrors[keyof ListDataFeedsErrors]
+
+export type ListDataFeedsResponses = {
+  /**
+   * OK
+   */
+  200: Array<DataFeedSpec>
+}
+
+export type ListDataFeedsResponse = ListDataFeedsResponses[keyof ListDataFeedsResponses]
+
+export type CreateDataFeedData = {
+  body: DataFeedSpecInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/settings/mapping/data-feeds'
+}
+
+export type CreateDataFeedErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateDataFeedError = CreateDataFeedErrors[keyof CreateDataFeedErrors]
+
+export type CreateDataFeedResponses = {
+  /**
+   * OK
+   */
+  200: DataFeedSpec
+}
+
+export type CreateDataFeedResponse = CreateDataFeedResponses[keyof CreateDataFeedResponses]
+
+export type ListMapPresetsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/settings/mapping/map-presets'
+}
+
+export type ListMapPresetsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListMapPresetsError = ListMapPresetsErrors[keyof ListMapPresetsErrors]
+
+export type ListMapPresetsResponses = {
+  /**
+   * OK
+   */
+  200: Array<MapToolPreset>
+}
+
+export type ListMapPresetsResponse = ListMapPresetsResponses[keyof ListMapPresetsResponses]
+
+export type CreateUpdateMapPresetData = {
+  body: MapToolPresetInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/settings/mapping/map-presets'
+}
+
+export type CreateUpdateMapPresetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateUpdateMapPresetError =
+  CreateUpdateMapPresetErrors[keyof CreateUpdateMapPresetErrors]
+
+export type CreateUpdateMapPresetResponses = {
+  /**
+   * OK
+   */
+  200: MapToolPreset
+}
+
+export type CreateUpdateMapPresetResponse =
+  CreateUpdateMapPresetResponses[keyof CreateUpdateMapPresetResponses]
+
+export type DeleteMapPresetData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    name: string
+  }
+  query?: never
+  url: '/settings/mapping/map-presets/{name}'
+}
+
+export type DeleteMapPresetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteMapPresetError = DeleteMapPresetErrors[keyof DeleteMapPresetErrors]
+
+export type DeleteMapPresetResponses = {
+  /**
+   * OK
+   */
+  200: MapToolPreset
+}
+
+export type DeleteMapPresetResponse = DeleteMapPresetResponses[keyof DeleteMapPresetResponses]
 
 export type SecuritySettingsData = {
   body?: never

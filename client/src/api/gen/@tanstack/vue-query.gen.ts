@@ -264,6 +264,17 @@ import type {
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsError,
   UpdateInstanceSettingsResponse,
+  ListDataFeedsData,
+  CreateDataFeedData,
+  CreateDataFeedError,
+  CreateDataFeedResponse,
+  ListMapPresetsData,
+  CreateUpdateMapPresetData,
+  CreateUpdateMapPresetError,
+  CreateUpdateMapPresetResponse,
+  DeleteMapPresetData,
+  DeleteMapPresetError,
+  DeleteMapPresetResponse,
   SecuritySettingsData,
   UpdateSecuritySettingsData,
   UpdateSecuritySettingsError,
@@ -3643,6 +3654,148 @@ export const updateInstanceSettingsMutation = (
   > = {
     mutationFn: async (localOptions) => {
       const { data } = await SettingsService.updateInstanceSettings({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const listDataFeedsQueryKey = (options?: Options<ListDataFeedsData>) =>
+  createQueryKey('listDataFeeds', options)
+
+/**
+ * List saved data feeds
+ */
+export const listDataFeedsOptions = (options?: Options<ListDataFeedsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.listDataFeeds({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listDataFeedsQueryKey(options)
+  })
+}
+
+export const createDataFeedQueryKey = (options: Options<CreateDataFeedData>) =>
+  createQueryKey('createDataFeed', options)
+
+/**
+ * Save data feed
+ */
+export const createDataFeedOptions = (options: Options<CreateDataFeedData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.createDataFeed({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: createDataFeedQueryKey(options)
+  })
+}
+
+/**
+ * Save data feed
+ */
+export const createDataFeedMutation = (
+  options?: Partial<Options<CreateDataFeedData>>
+): UseMutationOptions<CreateDataFeedResponse, CreateDataFeedError, Options<CreateDataFeedData>> => {
+  const mutationOptions: UseMutationOptions<
+    CreateDataFeedResponse,
+    CreateDataFeedError,
+    Options<CreateDataFeedData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await SettingsService.createDataFeed({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const listMapPresetsQueryKey = (options?: Options<ListMapPresetsData>) =>
+  createQueryKey('listMapPresets', options)
+
+/**
+ * List saved map presets
+ */
+export const listMapPresetsOptions = (options?: Options<ListMapPresetsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.listMapPresets({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listMapPresetsQueryKey(options)
+  })
+}
+
+/**
+ * Save map preset
+ * Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.
+ */
+export const createUpdateMapPresetMutation = (
+  options?: Partial<Options<CreateUpdateMapPresetData>>
+): UseMutationOptions<
+  CreateUpdateMapPresetResponse,
+  CreateUpdateMapPresetError,
+  Options<CreateUpdateMapPresetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateUpdateMapPresetResponse,
+    CreateUpdateMapPresetError,
+    Options<CreateUpdateMapPresetData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await SettingsService.createUpdateMapPreset({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Delete map preset
+ * Deletes a map preset by name. Only the owner of the preset or an admin can delete it.
+ */
+export const deleteMapPresetMutation = (
+  options?: Partial<Options<DeleteMapPresetData>>
+): UseMutationOptions<
+  DeleteMapPresetResponse,
+  DeleteMapPresetError,
+  Options<DeleteMapPresetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteMapPresetResponse,
+    DeleteMapPresetError,
+    Options<DeleteMapPresetData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await SettingsService.deleteMapPreset({
         ...options,
         ...localOptions,
         throwOnError: true

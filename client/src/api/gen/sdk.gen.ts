@@ -325,6 +325,21 @@ import type {
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsResponse,
   UpdateInstanceSettingsError,
+  ListDataFeedsData,
+  ListDataFeedsResponse,
+  ListDataFeedsError,
+  CreateDataFeedData,
+  CreateDataFeedResponse,
+  CreateDataFeedError,
+  ListMapPresetsData,
+  ListMapPresetsResponse,
+  ListMapPresetsError,
+  CreateUpdateMapPresetData,
+  CreateUpdateMapPresetResponse,
+  CreateUpdateMapPresetError,
+  DeleteMapPresetData,
+  DeleteMapPresetResponse,
+  DeleteMapPresetError,
   SecuritySettingsData,
   SecuritySettingsResponse,
   SecuritySettingsError,
@@ -456,6 +471,11 @@ import {
   listSequencesResponseTransformer,
   deleteSequenceResponseTransformer,
   getSequenceResponseTransformer,
+  listDataFeedsResponseTransformer,
+  createDataFeedResponseTransformer,
+  listMapPresetsResponseTransformer,
+  createUpdateMapPresetResponseTransformer,
+  deleteMapPresetResponseTransformer,
   listSitesResponseTransformer,
   createSiteResponseTransformer,
   getSiteResponseTransformer,
@@ -3978,6 +3998,156 @@ export class SettingsService {
         'Content-Type': 'application/json',
         ...options?.headers
       }
+    })
+  }
+
+  /**
+   * List saved data feeds
+   */
+  public static listDataFeeds<ThrowOnError extends boolean = false>(
+    options?: Options<ListDataFeedsData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListDataFeedsResponse,
+      ListDataFeedsError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      responseTransformer: listDataFeedsResponseTransformer,
+      url: '/settings/mapping/data-feeds',
+      ...options
+    })
+  }
+
+  /**
+   * Save data feed
+   */
+  public static createDataFeed<ThrowOnError extends boolean = false>(
+    options: Options<CreateDataFeedData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CreateDataFeedResponse,
+      CreateDataFeedError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      responseTransformer: createDataFeedResponseTransformer,
+      url: '/settings/mapping/data-feeds',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * List saved map presets
+   */
+  public static listMapPresets<ThrowOnError extends boolean = false>(
+    options?: Options<ListMapPresetsData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListMapPresetsResponse,
+      ListMapPresetsError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      responseTransformer: listMapPresetsResponseTransformer,
+      url: '/settings/mapping/map-presets',
+      ...options
+    })
+  }
+
+  /**
+   * Save map preset
+   * Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.
+   */
+  public static createUpdateMapPreset<ThrowOnError extends boolean = false>(
+    options: Options<CreateUpdateMapPresetData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).put<
+      CreateUpdateMapPresetResponse,
+      CreateUpdateMapPresetError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      responseTransformer: createUpdateMapPresetResponseTransformer,
+      url: '/settings/mapping/map-presets',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Delete map preset
+   * Deletes a map preset by name. Only the owner of the preset or an admin can delete it.
+   */
+  public static deleteMapPreset<ThrowOnError extends boolean = false>(
+    options: Options<DeleteMapPresetData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).delete<
+      DeleteMapPresetResponse,
+      DeleteMapPresetError,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      responseTransformer: deleteMapPresetResponseTransformer,
+      url: '/settings/mapping/map-presets/{name}',
+      ...options
     })
   }
 

@@ -79,6 +79,11 @@ import type {
   ListSequencesResponse,
   DeleteSequenceResponse,
   GetSequenceResponse,
+  ListDataFeedsResponse,
+  CreateDataFeedResponse,
+  ListMapPresetsResponse,
+  CreateUpdateMapPresetResponse,
+  DeleteMapPresetResponse,
   ListSitesResponse,
   CreateSiteResponse,
   GetSiteResponse,
@@ -1129,6 +1134,55 @@ const sequenceWithDetailsSchemaResponseTransformer = (data: any) => {
 
 export const getSequenceResponseTransformer = async (data: any): Promise<GetSequenceResponse> => {
   data = sequenceWithDetailsSchemaResponseTransformer(data)
+  return data
+}
+
+const dataFeedSpecSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
+export const listDataFeedsResponseTransformer = async (
+  data: any
+): Promise<ListDataFeedsResponse> => {
+  data = data.map((item: any) => {
+    return dataFeedSpecSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+export const createDataFeedResponseTransformer = async (
+  data: any
+): Promise<CreateDataFeedResponse> => {
+  data = dataFeedSpecSchemaResponseTransformer(data)
+  return data
+}
+
+const mapToolPresetSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
+export const listMapPresetsResponseTransformer = async (
+  data: any
+): Promise<ListMapPresetsResponse> => {
+  data = data.map((item: any) => {
+    return mapToolPresetSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+export const createUpdateMapPresetResponseTransformer = async (
+  data: any
+): Promise<CreateUpdateMapPresetResponse> => {
+  data = mapToolPresetSchemaResponseTransformer(data)
+  return data
+}
+
+export const deleteMapPresetResponseTransformer = async (
+  data: any
+): Promise<DeleteMapPresetResponse> => {
+  data = mapToolPresetSchemaResponseTransformer(data)
   return data
 }
 

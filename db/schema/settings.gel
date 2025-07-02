@@ -1,0 +1,19 @@
+module settings {
+  type AbstractSettingsSpec extending default::Auditable {
+    required name: str {
+      delegated constraint exclusive;
+    };
+    description: str;
+    required spec: json;
+    required is_global: bool {
+      default := false;
+    };
+    required is_public: bool {
+      default := false;
+    };
+  };
+
+  type DataFeedSpec extending AbstractSettingsSpec;
+
+  type MapToolPreset extending AbstractSettingsSpec;
+}

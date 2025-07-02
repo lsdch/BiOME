@@ -60,6 +60,14 @@ func (i LabelInput) Identifier() string {
 	return i.Label
 }
 
+type NameInput struct {
+	Name string `path:"name"`
+}
+
+func (i NameInput) Identifier() string {
+	return i.Name
+}
+
 type EmailInput struct {
 	Email string `path:"email"`
 }

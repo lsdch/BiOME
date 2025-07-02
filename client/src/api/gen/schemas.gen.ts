@@ -765,6 +765,84 @@ export const $CurrentUserResponse = {
   type: 'object'
 } as const
 
+export const $DataFeedSpec = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/DataFeedSpec.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    is_global: {
+      description: 'Global settings are considered as part of the application.',
+      type: 'boolean'
+    },
+    is_public: {
+      description:
+        'Public settings are available to all users, while private settings are only available to the user who created them.',
+      type: 'boolean'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    name: {
+      type: 'string'
+    },
+    spec: {
+      description: 'A JSON representation of settings.',
+      type: 'string'
+    }
+  },
+  required: ['id', 'meta', 'name', 'spec', 'is_global', 'is_public'],
+  type: 'object'
+} as const
+
+export const $DataFeedSpecInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/DataFeedSpecInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      type: 'string'
+    },
+    is_global: {
+      description: 'Global settings are considered as part of the application.',
+      type: 'boolean'
+    },
+    is_public: {
+      description:
+        'Public settings are available to all users, while private settings are only available to the user who created them.',
+      type: 'boolean'
+    },
+    name: {
+      type: 'string'
+    },
+    spec: {
+      description: 'A JSON representation of settings.',
+      type: 'string'
+    }
+  },
+  required: ['name', 'spec', 'is_global', 'is_public'],
+  type: 'object'
+} as const
+
 export const $DataSource = {
   additionalProperties: false,
   properties: {
@@ -2640,6 +2718,84 @@ export const $LogoutInputBody = {
       type: 'string'
     }
   },
+  type: 'object'
+} as const
+
+export const $MapToolPreset = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/MapToolPreset.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    is_global: {
+      description: 'Global settings are considered as part of the application.',
+      type: 'boolean'
+    },
+    is_public: {
+      description:
+        'Public settings are available to all users, while private settings are only available to the user who created them.',
+      type: 'boolean'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    name: {
+      type: 'string'
+    },
+    spec: {
+      description: 'A JSON representation of settings.',
+      type: 'string'
+    }
+  },
+  required: ['id', 'meta', 'name', 'spec', 'is_global', 'is_public'],
+  type: 'object'
+} as const
+
+export const $MapToolPresetInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/MapToolPresetInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      type: 'string'
+    },
+    is_global: {
+      description: 'Global settings are considered as part of the application.',
+      type: 'boolean'
+    },
+    is_public: {
+      description:
+        'Public settings are available to all users, while private settings are only available to the user who created them.',
+      type: 'boolean'
+    },
+    name: {
+      type: 'string'
+    },
+    spec: {
+      description: 'A JSON representation of settings.',
+      type: 'string'
+    }
+  },
+  required: ['name', 'spec', 'is_global', 'is_public'],
   type: 'object'
 } as const
 

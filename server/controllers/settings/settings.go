@@ -88,6 +88,8 @@ func RegisterRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Set app icon",
 		}, SetAppIcon)
+
+	RegisterMapPresetsRoutes(api)
 }
 
 type InstanceSettings struct{ Body settings.InstanceSettings }

@@ -30,9 +30,9 @@ tasks:
   postgis:
     desc: "Install PostGIS extension"
     dir: ..
-    cmd: gel extension install postgis
+    cmd: gel extension install postgis -I biome
     status:
-      - gel extension list | grep postgis
+      - gel extension list -I biome | grep postgis
     deps: [install]
 
   init:
@@ -44,7 +44,7 @@ tasks:
       - gel project info
     status: [gel project info]
     run: once
-    deps: [postgis]
+    # deps: [postgis]
 
   config-email:
     desc: "Run email settings configuration utility"
