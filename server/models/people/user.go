@@ -22,6 +22,10 @@ type UserInner struct {
 	EmailConfirmed bool          `gel:"email_confirmed" json:"email_confirmed" binding:"required"`
 }
 
+func (u *UserInner) IsGranted(role UserRole) bool {
+	return u.Role.IsGreaterEqual(role)
+}
+
 type OptionalUserInner struct {
 	geltypes.Optional
 	UserInner `gel:"$inline" json:",inline"`
