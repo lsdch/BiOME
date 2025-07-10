@@ -32,6 +32,13 @@ type AuthResolver struct {
 	Session         http.Cookie `cookie:"auth_token" doc:"Session cookie containing JWT"`
 }
 
+func (p *AuthResolver) IsGranted(role people.UserRole) bool {
+	if p.User == nil {
+		return false
+	}
+	return p.User.IsGranted(role)
+}
+
 func (p *AuthResolver) AuthUser() (*people.User, bool) {
 	if p.User != nil {
 		return p.User, true
