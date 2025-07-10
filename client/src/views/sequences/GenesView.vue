@@ -4,7 +4,7 @@
     :headers
     entity-name="Gene"
     :toolbar="{ title: 'Genes registry', icon: 'mdi-tag' }"
-    :fetch-items="listGenesOptions"
+    :fetch-items="listGenesOptions()"
     append-actions
   >
     <template #item.is_MOTU_delimiter="{ value }">

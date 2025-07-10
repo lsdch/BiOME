@@ -1,6 +1,7 @@
 
 import { Replace } from 'ts-toolbelt/out/Object/Replace';
 import { Ref } from 'vue';
+import { DataTableSortItem } from 'vuetify';
 import { VDataTable } from 'vuetify/components'
 import { VIcon } from 'vuetify/components/VIcon';
 import { DataTableItem } from 'vuetify/lib/components/VDataTable/types.mjs';
@@ -29,9 +30,7 @@ declare global {
   };
   type CRUDTableHeaders = CRUDTableHeader[]
 
-  type SortItem<K = string> = VDataTable['$props']['sortBy'] extends Readonly<Array<infer T>> | undefined
-    ? Replace<T, { key: K }>
-    : never
+  type SortItem<K = string> = OverWrite<DataTableSortItem, { key: K }>
 
 
   // Type wrangling

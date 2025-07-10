@@ -4,7 +4,7 @@
     :headers
     entity-name="Fixative"
     :toolbar="{ title: 'Fixatives', icon: 'mdi-snowflake' }"
-    :fetch-items="listFixativesOptions"
+    :fetch-items="listFixativesOptions()"
     :delete="{
       mutation: deleteFixativeMutation,
       params: ({ code }: Fixative) => ({ path: { code } })
@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { Fixative, SamplingService } from '@/api'
+import { Fixative } from '@/api'
 import { deleteFixativeMutation, listFixativesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import FixativeFormDialog from '@/components/forms/FixativeFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'

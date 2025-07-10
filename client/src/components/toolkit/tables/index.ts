@@ -10,6 +10,8 @@ import { UndefinedInitialQueryOptions, useMutation, UseMutationOptions, useQuery
 import { storeToRefs } from "pinia"
 import { ErrorModel } from "@/api"
 import { VDataTable } from "vuetify/components"
+import { DataTag } from "@tanstack/vue-query"
+import { DataTableSortItem } from "vuetify"
 
 
 
@@ -61,7 +63,10 @@ export type TableProps<ItemType extends {}, ItemsQueryData extends {}, ItemsDele
   /**
    * API call to populate table items
    */
-  fetchItems?: (options?: OptionsLegacyParser<ItemsQueryData>) => UndefinedInitialQueryOptions<ItemType[], ErrorModel, ItemType[], any>
+  fetchItems?: UndefinedInitialQueryOptions<ItemType[], ErrorModel, ItemType[], any> & {
+    queryKey: DataTag<any, ItemType[], ErrorModel>;
+  }
+
   /**
    * API call to delete an item
    */
@@ -128,10 +133,15 @@ export function useTable<
     })
   }) as ComputedRef<DataTableHeader[]>
 
+  console.log(props.fetchItems)
 
   // Items fetching
   const { data, error, isFetching, isSuccess, refetch } = props.fetchItems
-    ? useQuery({ ...props.fetchItems(), enabled: () => !items.value.length, initialData: [] })
+    ? useQuery(computed(() => ({ ...props.fetchItems!, enabled: () => !items.value.length, initialData: [] }), {
+      onTrigger(event) {
+        console.log('Triggered items fetch', event)
+      },
+    }))
     : {
       data: ref<ItemType[]>(items.value ?? []) as Ref<ItemType[]>,
       error: ref<ErrorModel>(),
@@ -142,7 +152,7 @@ export function useTable<
       })
     }
 
-  watch(data, (data) => items.value = [...data], { immediate: true })
+  watch(data, (data) => items.value = [...data ?? []], { immediate: true })
 
   const actions = {
     edit(item: ItemType) {
@@ -292,7 +302,7 @@ export function useTable<
 }
 
 export function useTableSort() {
-  const sortBy = ref<SortItem[]>([])
+  const sortBy = ref<DataTableSortItem[]>([])
 
   function toggleSort(sortKey: string) {
     const sortMeta = sortBy.value?.find(({ key }) => key === sortKey)

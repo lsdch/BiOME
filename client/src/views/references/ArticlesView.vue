@@ -2,7 +2,7 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="listArticlesOptions"
+    :fetch-items="listArticlesOptions()"
     :delete="{
       mutation: deleteArticleMutation,
       params: ({ code }: Article) => ({ path: { code } })

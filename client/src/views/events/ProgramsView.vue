@@ -7,7 +7,7 @@
       title: 'Programs',
       icon: 'mdi-notebook'
     }"
-    :fetch-items="listProgramsOptions"
+    :fetch-items="listProgramsOptions()"
     :delete="{
       mutation: deleteProgramMutation,
       params: ({ code }: Program) => ({ path: { code } })

@@ -186,7 +186,7 @@ import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
 import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
 const { xs } = useDisplay()

@@ -2,7 +2,7 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="listSequenceDatasetsOptions"
+    :fetch-items="listSequenceDatasetsOptions()"
     entity-name="Sequence dataset"
     :toolbar="{ title: 'Sequence datasets', icon: 'mdi-crosshairs-gps' }"
   >

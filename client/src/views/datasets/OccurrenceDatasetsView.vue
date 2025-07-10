@@ -2,7 +2,7 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="listOccurrenceDatasetsOptions"
+    :fetch-items="listOccurrenceDatasetsOptions()"
     entity-name="Occurrence dataset"
     :toolbar="{ title: 'Occurrence datasets', icon: 'mdi-crosshairs-gps' }"
   >

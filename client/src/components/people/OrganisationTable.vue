@@ -2,7 +2,7 @@
   <CRUDTable
     :headers="headers"
     density="compact"
-    :fetch-items="listOrganisationsOptions"
+    :fetch-items="listOrganisationsOptions()"
     :delete="{
       mutation: deleteOrganisationMutation,
       params: (inst: Organisation) => ({ path: { code: inst.code } })

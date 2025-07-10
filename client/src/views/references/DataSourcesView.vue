@@ -2,7 +2,7 @@
   <CRUDTable
     class="fill-height"
     :headers
-    :fetch-items="listDataSourcesOptions"
+    :fetch-items="listDataSourcesOptions()"
     entity-name="Data source"
     :toolbar="{
       title: 'Data sources',

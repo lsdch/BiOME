@@ -4,7 +4,7 @@
     :headers
     entity-name="Abiotic parameter"
     :toolbar="{ title: 'Abiotic parameters', icon: 'mdi-gauge' }"
-    :fetch-items="listAbioticParametersOptions"
+    :fetch-items="listAbioticParametersOptions()"
     :delete="{
       mutation: deleteAbioticParameterMutation,
       params: ({ code }: AbioticParameter) => ({ path: { code } })

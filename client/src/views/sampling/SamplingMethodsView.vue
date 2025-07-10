@@ -4,7 +4,7 @@
     :headers
     entity-name="Sampling method"
     :toolbar="{ title: 'Sampling methods', icon: 'mdi-hook' }"
-    :fetch-items="listSamplingMethodsOptions"
+    :fetch-items="listSamplingMethodsOptions()"
     appendActions
   >
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">

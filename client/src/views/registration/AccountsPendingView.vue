@@ -8,7 +8,7 @@
       title: 'Account requests',
       icon: 'mdi-account-plus'
     }"
-    :fetch-items="listPendingUserRequestsOptions"
+    :fetch-items="listPendingUserRequestsOptions()"
     :delete="{
       mutation: deletePendingUserRequestMutation,
       params: (item: PendingUserRequest) => ({ path: { email: item.email } })

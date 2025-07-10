@@ -7,7 +7,7 @@
       icon: 'mdi-dna'
     }"
     entity-name="Sequence"
-    :fetch-items="listSequencesOptions"
+    :fetch-items="listSequencesOptions()"
     :delete="{
       mutation: deleteSequenceMutation,
       params: ({ code }: Sequence) => ({ path: { code } })

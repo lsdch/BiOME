@@ -3,7 +3,7 @@
     ref="table"
     class="fill-height"
     :headers
-    :fetch-items="listSiteDatasetsOptions"
+    :fetch-items="listSiteDatasetsOptions()"
     entity-name="Site dataset"
     :toolbar="{ title: 'Site datasets', icon: 'mdi-map-marker-multiple' }"
   >
@@ -21,7 +21,7 @@
     <template #header.pin="props">
       <IconTableHeader icon="mdi-pin" v-bind="props" />
     </template>
-    <template #item.pin="{ item, index }: { item: SiteDataset }">
+    <template #item.pin="{ item, index }: { item: SiteDataset; index: number }">
       <DatasetPinButton
         :model-value="item"
         @update:model-value="
