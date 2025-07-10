@@ -15715,6 +15715,14 @@
 							"description": "Session cookie containing JWT",
 							"type": "string"
 						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "all",
+						"schema": {
+							"type": "boolean"
+						}
 					}
 				],
 				"responses": {
@@ -15855,6 +15863,14 @@
 						"schema": {
 							"description": "Session cookie containing JWT",
 							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "all",
+						"schema": {
+							"type": "boolean"
 						}
 					}
 				],

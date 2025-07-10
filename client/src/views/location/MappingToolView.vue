@@ -6,48 +6,21 @@
       v-model="drawer"
       :temporary="!drawerPinned"
     >
-      <template #append>
-        <v-divider />
-        <div class="d-flex justify-space-between pa-2">
-          <div>
-            <v-tooltip location="top">
-              <template #activator="{ props }">
-                <v-btn v-bind="props" variant="text" icon="mdi-content-save-plus"></v-btn>
-              </template>
-              Save map view settings
-            </v-tooltip>
-            <v-tooltip location="top">
-              <template #activator="{ props }">
-                <v-btn v-bind="props" variant="text" icon="mdi-file-download"></v-btn>
-              </template>
-              Load settings
-            </v-tooltip>
-          </div>
-          <v-tooltip>
-            <template #activator="{ props }">
-              <v-btn
-                v-bind="props"
-                icon="mdi-pin"
-                size="small"
-                :variant="drawerPinned ? 'tonal' : 'plain'"
-                @click="drawerPinned = !drawerPinned"
-              />
-            </template>
-            Toggle permanent options menu
-          </v-tooltip>
-        </div>
-      </template>
       <v-tabs v-model="tab">
         <v-tab value="feeds" prepend-icon="mdi-database-arrow-right">
           Data feeds
-          <v-badge inline :content="registry.length" color="purple" />
+          <v-badge inline :content="feeds.length" color="purple" />
         </v-tab>
         <!-- <v-tab text="Filters" value="filters" prepend-icon="mdi-filter-variant" /> -->
         <v-tab value="bindings" prepend-icon="mdi-layers">
           Layers
           <v-badge inline :content="markerLayerOptions.length + 1" color="success" />
         </v-tab>
+        <v-tab value="config">
+          <v-icon icon="mdi-cog" />
+        </v-tab>
         <v-spacer />
+
         <v-btn
           variant="plain"
           icon="mdi-chevron-left"
@@ -61,14 +34,9 @@
         <v-tabs-window-item eager value="feeds">
           <OccurrenceDataFeedManager />
         </v-tabs-window-item>
-        <!-- <v-tabs-window-item value="filters">
-          <MappingToolFilters v-model="filters" />
-        </v-tabs-window-item> -->
         <v-tabs-window-item value="bindings">
           <HexgridLayerCard v-model="hexgridLayerOptions" />
-
           <v-divider />
-
           <MarkerLayerCard
             v-for="(markerLayer, i) in markerLayerOptions"
             v-model="markerLayerOptions[i]"
@@ -109,8 +77,83 @@
           </div>
           <v-divider />
         </v-tabs-window-item>
+        <v-tabs-window-item value="config">
+          <v-list>
+            <CardDialog v-if="userStore.isGranted('Contributor')" title="Map presets">
+              <template #append>
+                <v-switch
+                  v-if="userStore.isGranted('Maintainer')"
+                  v-model="showAllPresets"
+                  label="Maintainer view"
+                  hide-details
+                  color="warning"
+                  v-tooltip="'Display all registered presets'"
+                />
+              </template>
+              <template #activator="{ props }">
+                <v-list-item
+                  title="Manage presets"
+                  prepend-icon="mdi-folder-star-multiple"
+                  v-bind="props"
+                />
+              </template>
+              <MapPresetManager :all="showAllPresets" />
+            </CardDialog>
+          </v-list>
+        </v-tabs-window-item>
       </v-tabs-window>
+      <template #append>
+        <v-divider />
+        <div class="d-flex justify-space-between pa-2">
+          <div>
+            <MapPresetSaveDialog
+              v-if="userStore.isAuthenticated"
+              :specs="{
+                feeds: feeds,
+                hexgrid: hexgridLayerOptions,
+                markers: markerLayerOptions
+              }"
+            >
+              <template #activator="{ props }">
+                <v-btn
+                  variant="text"
+                  icon="mdi-content-save"
+                  v-tooltip="'Save map preset'"
+                  v-bind="props"
+                ></v-btn>
+              </template>
+            </MapPresetSaveDialog>
+            <MapPresetLoadDialog
+              @apply="
+                ({ spec: { feeds, hexgrid, markers }, name }) => {
+                  feeds.splice(0, feeds.length, ...feeds)
+                  hexgridLayerOptions = hexgrid
+                  markerLayerOptions.splice(0, markers.length, ...markers)
+                  feedback({ message: `Loaded preset '${name}'`, type: 'success' })
+                }
+              "
+            >
+              <template #activator="{ props }">
+                <v-btn
+                  variant="text"
+                  icon="mdi-file-star"
+                  v-tooltip="'Load preset'"
+                  v-bind="props"
+                />
+              </template>
+            </MapPresetLoadDialog>
+          </div>
+          <v-btn
+            icon="mdi-pin"
+            size="small"
+            :variant="drawerPinned ? 'tonal' : 'plain'"
+            @click="drawerPinned = !drawerPinned"
+            v-tooltip="'Toggle permanent drawer'"
+          />
+        </div>
+      </template>
     </v-navigation-drawer>
+
     <v-navigation-drawer v-if="!drawerPinned || !drawer" rail location="left" class="bg-main">
       <v-list>
         <v-tooltip content-class="bg-surface text-overline py-0" :height="48">
@@ -143,13 +186,6 @@
     <div class="fill-height w-100 d-flex flex-column">
       <v-progress-linear v-if="allPending" indeterminate color="warning" />
       <div :class="['fill-height w-100 position-relative']">
-        <!-- <v-overlay
-          contained
-          :model-value="!isRefetching && !!error"
-          class="align-center justify-center"
-        >
-          <v-alert color="error" variant="elevated">Failed to load sampling sites</v-alert>
-        </v-overlay> -->
         <BaseMap
           ref="map"
           auto-fit
@@ -212,23 +248,37 @@ import { useLocalStorage, useToggle } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import MapViewHexPopup from '../../components/occurrence/MapViewHexPopup.vue'
 import MapViewSitePopup from '../../components/occurrence/MapViewSitePopup.vue'
+import MapPresetSaveDialog from '@/components/maps/MapPresetSaveDialog.vue'
+import MapPresetLoadDialog from '@/components/maps/MapPresetLoadDialog.vue'
+import { useFeedback } from '@/stores/feedback'
+import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
+import MapPresetManager from '@/components/maps/MapPresetManager.vue'
+import { useUserStore } from '@/stores/user'
 
 const [polygonMode, togglePolygonMode] = useToggle(false)
+
+const showAllPresets = ref(false)
 
 const drawerPinned = useLocalStorage('mapping-tool-drawer-pinned', false, {
   initOnMounted: true
 })
 
+const userStore = useUserStore()
+
 const [drawer, toggleDrawer] = useToggle(false)
 
-const tab = ref<'bindings' | 'feeds'>('feeds')
+type MappingToolTab = 'feeds' | 'bindings' | 'config'
 
-function toggleTab(newTab: 'feeds' | 'bindings') {
+const tab = ref<MappingToolTab>('feeds')
+
+function toggleTab(newTab: MappingToolTab) {
   tab.value = newTab
   toggleDrawer(true)
 }
 
-const { remotes, registry, allPending, anyLoading } = useDataFeeds()
+const { feedback } = useFeedback()
+
+const { data, feeds, allPending, anyLoading } = useDataFeeds()
 
 function filterSites(
   sites: SiteWithOccurrences[] | undefined,
@@ -252,7 +302,7 @@ const hexgridLayerOptions = useLocalStorage<HexgridLayerSpec>(
   {
     name: 'Hexgrid',
     active: true,
-    dataFeedID: registry.value[0].id,
+    dataFeedID: feeds.value[0].id,
     filterType: 'Occurrences',
     config: {
       radius: 10,
@@ -277,7 +327,7 @@ const hexgridLayerOptions = useLocalStorage<HexgridLayerSpec>(
 
 const hexgridLayer = computed<HexgridLayer<SiteWithOccurrences>>(() => {
   const { dataFeedID, name, active, config, bindings, filterType } = hexgridLayerOptions.value
-  const remote = dataFeedID ? remotes.get(dataFeedID) : undefined
+  const remote = dataFeedID ? data.get(dataFeedID) : undefined
   return {
     name,
     active,
@@ -299,7 +349,7 @@ const markerLayerOptions = useLocalStorage<MarkerLayerDefinition[]>('maptool-mar
 })
 const markerLayers = computed<MarkerLayer<SiteWithOccurrences>[]>(() => {
   return markerLayerOptions.value.map((layer) => {
-    const remote = layer.dataFeedID ? remotes.get(layer.dataFeedID) : undefined
+    const remote = layer.dataFeedID ? data.get(layer.dataFeedID) : undefined
     return {
       name: layer.name,
       config: layer.config,

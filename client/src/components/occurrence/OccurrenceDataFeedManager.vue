@@ -1,26 +1,26 @@
 <template>
   <div class="bg-main">
-    <v-list-item class="pb-3 bg-main">
-      <DatasetPicker
-        label="Dataset context"
-        placeholder="None"
-        persistent-placeholder
-        prepend-icon="mdi-folder-table"
-        density="compact"
-        clearable
-        multiple
-        chips
-        closable-chips
-        hint="Restrict all data feeds to a one or more datasets. Individual feeds may be configured to include additional datasets."
-        persistent-hint
-        class="my-3"
-      />
-    </v-list-item>
-    <v-divider class="mb-3" />
+    <v-card
+      title="Context"
+      class="small-card-title"
+      subtitle="Default settings for all new data feeds"
+      flat
+      :rounded="0"
+    >
+      <template #append>
+        <v-switch v-model="contextEnabled" color="primary" hide-details></v-switch>
+      </template>
+      <v-expand-transition>
+        <div v-if="contextEnabled" class="bg-main">
+          <DataFeedsContextPicker />
+        </div>
+      </v-expand-transition>
+    </v-card>
+    <v-divider class="mb-3" :thickness="4" />
     <v-item-group selected-class="ma-3" class="d-flex flex-column ga-3 pa-2 bg-main">
-      <v-item v-for="(_, i) in registry" #="{ isSelected, toggle, selectedClass }">
+      <v-item v-for="(_, i) in feeds" #="{ isSelected, toggle, selectedClass }">
         <OccurrenceDataFeedCard
-          v-model="registry[i]"
+          v-model="feeds[i]"
           :placeholder="`Feed #${i + 1}`"
           :class="selectedClass"
           :expanded="isSelected"
@@ -67,11 +67,14 @@
 
 <script setup lang="ts">
 import OccurrenceDataFeedCard from '@/components/occurrence/OccurrenceDataFeedCard.vue'
-import { useDataFeeds } from './data_feeds'
 import DatasetPicker from '../datasets/DatasetPicker.vue'
+import TaxonPicker from '../taxonomy/TaxonPicker.vue'
 import ConfirmDialog from '../toolkit/ui/ConfirmDialog.vue'
+import InlineHelp from '../toolkit/ui/InlineHelp.vue'
+import { useDataFeeds } from './data_feeds'
+import DataFeedsContextPicker from './DataFeedsContextPicker.vue'
 
-const { addDataFeed, registry, resetAll } = useDataFeeds()
+const { addDataFeed, feeds, resetAll, context, contextEnabled, applyContext } = useDataFeeds()
 </script>
 
 <style scoped lang="scss"></style>

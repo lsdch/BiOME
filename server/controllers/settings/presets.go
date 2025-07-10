@@ -12,6 +12,15 @@ import (
 	"github.com/lsdch/biome/router"
 )
 
+type ListPresetsInput struct {
+	resolvers.AuthResolver
+	ShowAll bool `query:"all" description:"Show all presets, including private ones."`
+}
+
+func (i *ListPresetsInput) Options() bool {
+	return i.AuthResolver.IsGranted(people.Maintainer) && i.ShowAll
+}
+
 func RegisterMapPresetsRoutes(r router.Group) {
 	api := r.RouteGroup("/mapping").WithTags([]string{"Settings"})
 
@@ -20,9 +29,7 @@ func RegisterMapPresetsRoutes(r router.Group) {
 			Path:    "/data-feeds",
 			Method:  http.MethodGet,
 			Summary: "List saved data feeds",
-		}, controllers.ListHandler[*struct {
-			resolvers.AuthResolver
-		}](presets.ListDataFeedSpecs))
+		}, controllers.ListHandlerWithOpts[*ListPresetsInput](presets.ListDataFeedSpecs))
 
 	router.Register(api, "CreateDataFeed",
 		huma.Operation{
@@ -36,9 +43,7 @@ func RegisterMapPresetsRoutes(r router.Group) {
 			Path:    "/map-presets",
 			Method:  http.MethodGet,
 			Summary: "List saved map presets",
-		}, controllers.ListHandler[*struct {
-			resolvers.AuthResolver
-		}](presets.ListMapPresets))
+		}, controllers.ListHandlerWithOpts[*ListPresetsInput](presets.ListMapPresets))
 
 	router.Register(api, "CreateUpdateMapPreset",
 		huma.Operation{

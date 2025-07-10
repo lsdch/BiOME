@@ -22,14 +22,7 @@
     <template #item="{ item, props }">
       <v-list-item :title="item.title" v-bind="props">
         <template #append>
-          <div style="width: 100px">
-            <v-sparkline
-              :gradient="item.raw.palette"
-              gradient-direction="left"
-              :model-value="Array.from({ length: 10 }, (_, i) => 0)"
-              :line-width="50"
-            />
-          </div>
+          <ColorPalettePreview :gradient="item.raw.name" />
         </template>
       </v-list-item>
     </template>
@@ -43,6 +36,7 @@ import {
   ColorBrewerPaletteKey,
   palette
 } from '@/functions/color_brewer'
+import ColorPalettePreview from './ColorPalettePreview.vue'
 
 const model = defineModel<keyof typeof brewerPalettes>({
   default: 'Viridis'

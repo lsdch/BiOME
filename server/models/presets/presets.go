@@ -35,21 +35,21 @@ type Presets struct {
 type DataFeedSpec Presets
 type MapToolPreset Presets
 
-func ListDataFeedSpecs(db geltypes.Executor) (specs []DataFeedSpec, err error) {
+func ListDataFeedSpecs(db geltypes.Executor, all bool) (specs []DataFeedSpec, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
 			select settings::DataFeedSpec { *, meta: { * } }
-			filter .is_public or (.meta.created_by_user = global current_user) ?? false
-		`, &specs)
+			filter <bool>$0 or .is_public or (.meta.created_by_user = global current_user) ?? false
+		`, &specs, all)
 	return
 }
 
-func ListMapPresets(db geltypes.Executor) (specs []MapToolPreset, err error) {
+func ListMapPresets(db geltypes.Executor, all bool) (specs []MapToolPreset, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
 			select settings::MapToolPreset { *, meta: { * } }
-			filter .is_public or (.meta.created_by_user = global current_user) ?? false
-		`, &specs)
+			filter <bool>$0 or .is_public or (.meta.created_by_user = global current_user) ?? false
+		`, &specs, all)
 	return
 }
 

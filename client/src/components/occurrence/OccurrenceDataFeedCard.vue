@@ -33,7 +33,7 @@
             />
             <v-list-item prepend-icon="mdi-restore" title="Reset" @click="feed.filters = {}" />
             <v-list-item
-              v-if="registry.length > 1"
+              v-if="feeds.length > 1"
               prepend-icon="mdi-delete"
               title="Delete"
               @click="deleteFeed(feed.id)"
@@ -119,7 +119,7 @@ const feed = defineModel<DataFeed>({
 
 const expanded = defineModel<boolean>('expanded', { default: false })
 
-const { registry, register, deleteFeed, duplicateFeed } = useDataFeeds()
+const { feeds, register, deleteFeed, duplicateFeed } = useDataFeeds()
 
 const remote = useQuery(
   computed(() =>

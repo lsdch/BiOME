@@ -4,7 +4,7 @@ import { UseQueryReturnType } from "@tanstack/vue-query";
 import { useLocalStorage } from "@vueuse/core";
 import type { UUID } from "crypto";
 import { v4 as uuidv4 } from "uuid";
-import { computed, MaybeRef, reactive, ref, shallowReactive, unref } from "vue";
+import { computed, MaybeRef, ref, shallowReactive, unref } from "vue";
 
 export type DataFeed = {
   id: UUID
@@ -12,27 +12,36 @@ export type DataFeed = {
   filters: MappingFilters
 }
 
+export type DataFeedContext = {
+  datasets?: string[]
+  taxa?: string[]
+  whole_clade?: boolean
+}
+
 export type RegisteredDataFeed = {
   id: UUID,
 } & DataFeed
 
+const context = ref<DataFeedContext>({})
+const contextEnabled = ref(false)
+
 const dataFeeds = useLocalStorage<[DataFeed, ...Array<DataFeed>]>('maptool-data-feeds', [newDataFeed("Feed #1")]);
 
-const remotes = shallowReactive(new Map<UUID, UseQueryReturnType<SiteWithOccurrences[], ErrorModel>>())
+const data = shallowReactive(new Map<UUID, UseQueryReturnType<SiteWithOccurrences[], ErrorModel>>())
 
-const anyLoading = computed(() => remotes.size > 0 && [...remotes.values()].some(remote => remote.isPending.value))
+const anyLoading = computed(() => data.size > 0 && [...data.values()].some(remote => remote.isPending.value))
 
-const allPending = computed(() => remotes.size > 0 && [...remotes.values()].every(remote => remote.isPending.value))
+const allPending = computed(() => data.size > 0 && [...data.values()].every(remote => remote.isPending.value))
 
 function register(dataFeed: MaybeRef<DataFeed>, remote: UseQueryReturnType<SiteWithOccurrences[], ErrorModel>) {
-  remotes.set(unref(dataFeed).id, remote)
+  data.set(unref(dataFeed).id, remote)
 }
 
 function newDataFeed(name?: string): DataFeed {
   return {
     id: uuidv4() as UUID,
     name: name || `Feed #${dataFeeds.value.length + 1}`,
-    filters: {}
+    filters: contextEnabled.value ? { ...context.value } : {}
   }
 }
 
@@ -46,7 +55,7 @@ function deleteFeed(id: UUID) {
   const index = dataFeeds.value.findIndex(df => df.id === id);
   if (index !== -1) {
     dataFeeds.value.splice(index, 1);
-    remotes.delete(id);
+    data.delete(id);
   }
 }
 
@@ -57,10 +66,36 @@ function duplicateFeed(feed: DataFeed): DataFeed {
 }
 
 function resetAll() {
-  remotes.clear();
+  data.clear();
   dataFeeds.value = [newDataFeed("Feed #1")];
 }
 
+function applyContext() {
+  dataFeeds.value.forEach(feed => {
+    feed.filters.datasets = context.value.datasets?.concat(
+      feed.filters.datasets?.filter(ds => !context.value.datasets?.includes(ds)) || []
+    );
+    feed.filters.taxa = context.value.taxa?.concat(
+      feed.filters.taxa?.filter(t => !context.value.taxa?.includes(t)) || []
+    );
+    feed.filters.whole_clade = context.value.whole_clade
+  });
+}
+
 export function useDataFeeds() {
-  return { registry: dataFeeds, remotes, anyLoading, allPending, register, deleteFeed, newDataFeed, addDataFeed, resetAll, duplicateFeed };
+  return {
+    feeds: dataFeeds,
+    data,
+    anyLoading,
+    allPending,
+    context,
+    contextEnabled,
+    applyContext,
+    register,
+    deleteFeed,
+    newDataFeed,
+    addDataFeed,
+    resetAll,
+    duplicateFeed
+  };
 }

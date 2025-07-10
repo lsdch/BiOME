@@ -6287,7 +6287,9 @@ export type ListDataFeedsData = {
     Authorization?: string
   }
   path?: never
-  query?: never
+  query?: {
+    all?: boolean
+  }
   url: '/settings/mapping/data-feeds'
 }
 
@@ -6357,7 +6359,9 @@ export type ListMapPresetsData = {
     Authorization?: string
   }
   path?: never
-  query?: never
+  query?: {
+    all?: boolean
+  }
   url: '/settings/mapping/map-presets'
 }
 
