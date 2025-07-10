@@ -28,7 +28,6 @@ const dark: ThemeDefinition = {
   }
 }
 
-import { VTreeview, VTreeviewItem } from 'vuetify/labs/VTreeview'
 
 const { VTextField } = components
 
@@ -36,8 +35,6 @@ export default createVuetify({
   blueprint: md3,
   components: {
     ...components,
-    VTreeview,
-    VTreeviewItem,
   },
   aliases: {
     VInlineSearchBar: VTextField,

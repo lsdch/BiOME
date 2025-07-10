@@ -93,7 +93,7 @@ const { lgAndDown, smAndDown, xs } = useDisplay()
 const drawer = ref(!smAndDown.value)
 const drawerTemporary = ref<boolean>()
 
-const { current: currentTheme, global: theme } = useTheme()
+const { current: currentTheme, change: changeTheme } = useTheme()
 watch(currentTheme, ({ dark }) => {
   document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
 })
@@ -101,7 +101,7 @@ watch(currentTheme, ({ dark }) => {
 useLocalStorage('app-theme', usePreferredDark().value ? 'dark' : 'light')
 
 onMounted(() => {
-  theme.name.value = localStorage.getItem('app-theme') ?? 'light'
+  changeTheme(localStorage.getItem('app-theme') ?? 'light')
 })
 
 // Navigation
