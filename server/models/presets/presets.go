@@ -39,7 +39,7 @@ func ListDataFeedSpecs(db geltypes.Executor) (specs []DataFeedSpec, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
 			select settings::DataFeedSpec { *, meta: { * } }
-			filter .is_public or .meta.created_by_user = global current_user
+			filter .is_public or (.meta.created_by_user = global current_user) ?? false
 		`, &specs)
 	return
 }
@@ -48,7 +48,7 @@ func ListMapPresets(db geltypes.Executor) (specs []MapToolPreset, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
 			select settings::MapToolPreset { *, meta: { * } }
-			filter .is_public or .meta.created_by_user = global current_user
+			filter .is_public or (.meta.created_by_user = global current_user) ?? false
 		`, &specs)
 	return
 }
