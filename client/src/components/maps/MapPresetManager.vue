@@ -121,7 +121,6 @@ import {
   listMapPresetsOptions,
   listMapPresetsQueryKey
 } from '@/api/gen/@tanstack/vue-query.gen'
-import { Options } from '@hey-api/client-fetch'
 import { UndefinedInitialQueryOptions, useMutation, UseMutationOptions } from '@tanstack/vue-query'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import { ParsedMapPreset, parseMapPreset } from './map-presets'
@@ -134,6 +133,7 @@ import MapPresetSummaryIcons from './MapPresetSummaryIcons.vue'
 import { useFeedback } from '@/stores/feedback'
 import { computed } from 'vue'
 import { computedWithControl } from '@vueuse/core'
+import { Options } from '@/api/gen/client'
 
 const props = defineProps<{ all?: boolean }>()
 

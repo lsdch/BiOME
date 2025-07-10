@@ -1094,7 +1094,9 @@ const createInfiniteParams = <
   queryKey: QueryKey<Options>,
   page: K
 ) => {
-  const params = queryKey[0]
+  const params = {
+    ...queryKey[0]
+  }
   if (page.body) {
     params.body = {
       ...(queryKey[0].body as any),

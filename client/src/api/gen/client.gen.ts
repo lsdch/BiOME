@@ -6,7 +6,7 @@ import {
   type ClientOptions as DefaultClientOptions,
   createClient,
   createConfig
-} from '@hey-api/client-fetch'
+} from './client'
 import { createClientConfig } from '../../../openapi-client.cfg'
 
 /**

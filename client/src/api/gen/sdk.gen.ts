@@ -5,392 +5,392 @@ import {
   type TDataShape,
   type Client,
   formDataBodySerializer
-} from '@hey-api/client-fetch'
+} from './client'
 import type {
   ListAbioticParametersData,
-  ListAbioticParametersResponse,
-  ListAbioticParametersError,
+  ListAbioticParametersResponses,
+  ListAbioticParametersErrors,
   CreateAbioticParameterData,
-  CreateAbioticParameterResponse,
-  CreateAbioticParameterError,
+  CreateAbioticParameterResponses,
+  CreateAbioticParameterErrors,
   DeleteAbioticParameterData,
-  DeleteAbioticParameterResponse,
-  DeleteAbioticParameterError,
+  DeleteAbioticParameterResponses,
+  DeleteAbioticParameterErrors,
   UpdateAbioticParameterData,
-  UpdateAbioticParameterResponse,
-  UpdateAbioticParameterError,
+  UpdateAbioticParameterResponses,
+  UpdateAbioticParameterErrors,
   GetAccessPointsData,
-  GetAccessPointsResponse,
-  GetAccessPointsError,
+  GetAccessPointsResponses,
+  GetAccessPointsErrors,
   CurrentUserData,
-  CurrentUserResponse2,
-  CurrentUserError,
+  CurrentUserResponses,
+  CurrentUserErrors,
   ConfirmEmailData,
-  ConfirmEmailResponse,
-  ConfirmEmailError,
+  ConfirmEmailResponses,
+  ConfirmEmailErrors,
   ResendEmailVerificationData,
-  ResendEmailVerificationResponse,
-  ResendEmailVerificationError,
+  ResendEmailVerificationResponses,
+  ResendEmailVerificationErrors,
   RequestPasswordResetData,
-  RequestPasswordResetResponse,
-  RequestPasswordResetError,
+  RequestPasswordResetResponses,
+  RequestPasswordResetErrors,
   LoginData,
-  LoginResponse,
-  LoginError,
+  LoginResponses,
+  LoginErrors,
   LogoutData,
-  LogoutResponse,
-  LogoutError,
+  LogoutResponses,
+  LogoutErrors,
   UpdatePasswordData,
-  UpdatePasswordResponse,
-  UpdatePasswordError,
+  UpdatePasswordResponses,
+  UpdatePasswordErrors,
   ValidatePasswordTokenData,
-  ValidatePasswordTokenResponse,
-  ValidatePasswordTokenError,
+  ValidatePasswordTokenResponses,
+  ValidatePasswordTokenErrors,
   ResetPasswordData,
-  ResetPasswordResponse,
-  ResetPasswordError,
+  ResetPasswordResponses,
+  ResetPasswordErrors,
   ListPendingUserRequestsData,
-  ListPendingUserRequestsResponse,
-  ListPendingUserRequestsError,
+  ListPendingUserRequestsResponses,
+  ListPendingUserRequestsErrors,
   DeletePendingUserRequestData,
-  DeletePendingUserRequestResponse,
-  DeletePendingUserRequestError,
+  DeletePendingUserRequestResponses,
+  DeletePendingUserRequestErrors,
   GetPendingUserRequestData,
-  GetPendingUserRequestResponse,
-  GetPendingUserRequestError,
+  GetPendingUserRequestResponses,
+  GetPendingUserRequestErrors,
   RefreshSessionData,
-  RefreshSessionResponse,
-  RefreshSessionError,
+  RefreshSessionResponses,
+  RefreshSessionErrors,
   RegisterData,
-  RegisterResponse,
-  RegisterError,
+  RegisterResponses,
+  RegisterErrors,
   ClaimInvitationData,
-  ClaimInvitationResponse,
-  ClaimInvitationError,
+  ClaimInvitationResponses,
+  ClaimInvitationErrors,
   ListAnchorsData,
-  ListAnchorsResponse,
-  ListAnchorsError,
+  ListAnchorsResponses,
+  ListAnchorsErrors,
   ListBioMaterialData,
-  ListBioMaterialResponse,
-  ListBioMaterialError,
+  ListBioMaterialResponses,
+  ListBioMaterialErrors,
   UpdateExternalBioMatData,
-  UpdateExternalBioMatResponse,
-  UpdateExternalBioMatError,
+  UpdateExternalBioMatResponses,
+  UpdateExternalBioMatErrors,
   CreateExternalBioMatData,
-  CreateExternalBioMatResponse,
-  CreateExternalBioMatError,
+  CreateExternalBioMatResponses,
+  CreateExternalBioMatErrors,
   DeleteBioMaterialData,
-  DeleteBioMaterialResponse,
-  DeleteBioMaterialError,
+  DeleteBioMaterialResponses,
+  DeleteBioMaterialErrors,
   GetBioMaterialData,
-  GetBioMaterialResponse,
-  GetBioMaterialError,
+  GetBioMaterialResponses,
+  GetBioMaterialErrors,
   CrossRefData,
-  CrossRefResponse,
-  CrossRefError,
+  CrossRefResponses,
+  CrossRefErrors,
   CrossRefBibSearchData,
-  CrossRefBibSearchResponse,
-  CrossRefBibSearchError,
+  CrossRefBibSearchResponses,
+  CrossRefBibSearchErrors,
   ListDataSourcesData,
-  ListDataSourcesResponse,
-  ListDataSourcesError,
+  ListDataSourcesResponses,
+  ListDataSourcesErrors,
   CreateDataSourceData,
-  CreateDataSourceResponse,
-  CreateDataSourceError,
+  CreateDataSourceResponses,
+  CreateDataSourceErrors,
   DeleteDataSourceData,
-  DeleteDataSourceResponse,
-  DeleteDataSourceError,
+  DeleteDataSourceResponses,
+  DeleteDataSourceErrors,
   UpdateDataSourceData,
-  UpdateDataSourceResponse,
-  UpdateDataSourceError,
+  UpdateDataSourceResponses,
+  UpdateDataSourceErrors,
   ListDatasetsData,
-  ListDatasetsResponse,
-  ListDatasetsError,
+  ListDatasetsResponses,
+  ListDatasetsErrors,
   UpdateDatasetData,
-  UpdateDatasetResponse,
-  UpdateDatasetError,
+  UpdateDatasetResponses,
+  UpdateDatasetErrors,
   ListOccurrenceDatasetsData,
-  ListOccurrenceDatasetsResponse,
-  ListOccurrenceDatasetsError,
+  ListOccurrenceDatasetsResponses,
+  ListOccurrenceDatasetsErrors,
   GetOccurrenceDatasetData,
-  GetOccurrenceDatasetResponse,
-  GetOccurrenceDatasetError,
+  GetOccurrenceDatasetResponses,
+  GetOccurrenceDatasetErrors,
   TogglePinDatasetData,
-  TogglePinDatasetResponse,
-  TogglePinDatasetError,
+  TogglePinDatasetResponses,
+  TogglePinDatasetErrors,
   ListSequenceDatasetsData,
-  ListSequenceDatasetsResponse,
-  ListSequenceDatasetsError,
+  ListSequenceDatasetsResponses,
+  ListSequenceDatasetsErrors,
   GetSequenceDatasetData,
-  GetSequenceDatasetResponse,
-  GetSequenceDatasetError,
+  GetSequenceDatasetResponses,
+  GetSequenceDatasetErrors,
   ListSiteDatasetsData,
-  ListSiteDatasetsResponse,
-  ListSiteDatasetsError,
+  ListSiteDatasetsResponses,
+  ListSiteDatasetsErrors,
   CreateSiteDatasetData,
-  CreateSiteDatasetResponse,
-  CreateSiteDatasetError,
+  CreateSiteDatasetResponses,
+  CreateSiteDatasetErrors,
   GetSiteDatasetData,
-  GetSiteDatasetResponse,
-  GetSiteDatasetError,
+  GetSiteDatasetResponses,
+  GetSiteDatasetErrors,
   GetDatasetData,
-  GetDatasetResponse,
-  GetDatasetError,
+  GetDatasetResponses,
+  GetDatasetErrors,
   DeleteEventData,
-  DeleteEventResponse,
-  DeleteEventError,
+  DeleteEventResponses,
+  DeleteEventErrors,
   UpdateEventData,
-  UpdateEventResponse,
-  UpdateEventError,
+  UpdateEventResponses,
+  UpdateEventErrors,
   EventAddExternalOccurrenceData,
-  EventAddExternalOccurrenceResponse,
-  EventAddExternalOccurrenceError,
+  EventAddExternalOccurrenceResponses,
+  EventAddExternalOccurrenceErrors,
   CreateSamplingAtEventData,
-  CreateSamplingAtEventResponse,
-  CreateSamplingAtEventError,
+  CreateSamplingAtEventResponses,
+  CreateSamplingAtEventErrors,
   UpdateSpottingData,
-  UpdateSpottingResponse,
-  UpdateSpottingError,
+  UpdateSpottingResponses,
+  UpdateSpottingErrors,
   ListFixativesData,
-  ListFixativesResponse,
-  ListFixativesError,
+  ListFixativesResponses,
+  ListFixativesErrors,
   CreateFixativeData,
-  CreateFixativeResponse,
-  CreateFixativeError,
+  CreateFixativeResponses,
+  CreateFixativeErrors,
   DeleteFixativeData,
-  DeleteFixativeResponse,
-  DeleteFixativeError,
+  DeleteFixativeResponses,
+  DeleteFixativeErrors,
   UpdateFixativeData,
-  UpdateFixativeResponse,
-  UpdateFixativeError,
+  UpdateFixativeResponses,
+  UpdateFixativeErrors,
   ListGenesData,
-  ListGenesResponse,
-  ListGenesError,
+  ListGenesResponses,
+  ListGenesErrors,
   CreateGeneData,
-  CreateGeneResponse,
-  CreateGeneError,
+  CreateGeneResponses,
+  CreateGeneErrors,
   DeleteGeneData,
-  DeleteGeneResponse,
-  DeleteGeneError,
+  DeleteGeneResponses,
+  DeleteGeneErrors,
   UpdateGeneData,
-  UpdateGeneResponse,
-  UpdateGeneError,
+  UpdateGeneResponses,
+  UpdateGeneErrors,
   ReverseGeocodeData,
-  ReverseGeocodeResponse,
-  ReverseGeocodeError,
+  ReverseGeocodeResponses,
+  ReverseGeocodeErrors,
   GetGeoapifyStatusData,
-  GetGeoapifyStatusResponse,
-  GetGeoapifyStatusError,
+  GetGeoapifyStatusResponses,
+  GetGeoapifyStatusErrors,
   ListGeoapifyUsageData,
-  ListGeoapifyUsageResponse,
-  ListGeoapifyUsageError,
+  ListGeoapifyUsageResponses,
+  ListGeoapifyUsageErrors,
   ListHabitatGroupsData,
-  ListHabitatGroupsResponse,
-  ListHabitatGroupsError,
+  ListHabitatGroupsResponses,
+  ListHabitatGroupsErrors,
   CreateHabitatGroupData,
-  CreateHabitatGroupResponse,
-  CreateHabitatGroupError,
+  CreateHabitatGroupResponses,
+  CreateHabitatGroupErrors,
   DeleteHabitatGroupData,
-  DeleteHabitatGroupResponse,
-  DeleteHabitatGroupError,
+  DeleteHabitatGroupResponses,
+  DeleteHabitatGroupErrors,
   UpdateHabitatGroupData,
-  UpdateHabitatGroupResponse,
-  UpdateHabitatGroupError,
+  UpdateHabitatGroupResponses,
+  UpdateHabitatGroupErrors,
   ImportGbifData,
-  ImportGbifResponse,
-  ImportGbifError,
+  ImportGbifResponses,
+  ImportGbifErrors,
   MonitorGbifData,
-  MonitorGbifResponse,
-  MonitorGbifError,
+  MonitorGbifResponses,
+  MonitorGbifErrors,
   CoordinatesToCountryData,
-  CoordinatesToCountryResponse,
-  CoordinatesToCountryError,
+  CoordinatesToCountryResponses,
+  CoordinatesToCountryErrors,
   SitesProximityData,
-  SitesProximityResponse,
-  SitesProximityError,
+  SitesProximityResponses,
+  SitesProximityErrors,
   ListCountriesData,
-  ListCountriesResponse,
-  ListCountriesError,
+  ListCountriesResponses,
+  ListCountriesErrors,
   GetSitesCountByCountryData,
-  GetSitesCountByCountryResponse,
-  GetSitesCountByCountryError,
+  GetSitesCountByCountryResponses,
+  GetSitesCountByCountryErrors,
   SearchSitesData,
-  SearchSitesResponse,
-  SearchSitesError,
+  SearchSitesResponses,
+  SearchSitesErrors,
   OccurrencesBySiteData,
-  OccurrencesBySiteResponse,
-  OccurrencesBySiteError,
+  OccurrencesBySiteResponses,
+  OccurrencesBySiteErrors,
   OccurrenceOverviewData,
-  OccurrenceOverviewResponse,
-  OccurrenceOverviewError,
+  OccurrenceOverviewResponses,
+  OccurrenceOverviewErrors,
   ListOrganisationsData,
-  ListOrganisationsResponse,
-  ListOrganisationsError,
+  ListOrganisationsResponses,
+  ListOrganisationsErrors,
   CreateOrganisationData,
-  CreateOrganisationResponse,
-  CreateOrganisationError,
+  CreateOrganisationResponses,
+  CreateOrganisationErrors,
   DeleteOrganisationData,
-  DeleteOrganisationResponse,
-  DeleteOrganisationError,
+  DeleteOrganisationResponses,
+  DeleteOrganisationErrors,
   UpdateOrganisationData,
-  UpdateOrganisationResponse,
-  UpdateOrganisationError,
+  UpdateOrganisationResponses,
+  UpdateOrganisationErrors,
   ListPersonsData,
-  ListPersonsResponse,
-  ListPersonsError,
+  ListPersonsResponses,
+  ListPersonsErrors,
   CreatePersonData,
-  CreatePersonResponse,
-  CreatePersonError,
+  CreatePersonResponses,
+  CreatePersonErrors,
   DeletePersonData,
-  DeletePersonResponse,
-  DeletePersonError,
+  DeletePersonResponses,
+  DeletePersonErrors,
   UpdatePersonData,
-  UpdatePersonResponse,
-  UpdatePersonError,
+  UpdatePersonResponses,
+  UpdatePersonErrors,
   InvitePersonData,
-  InvitePersonResponse,
-  InvitePersonError,
+  InvitePersonResponses,
+  InvitePersonErrors,
   ListProgramsData,
-  ListProgramsResponse,
-  ListProgramsError,
+  ListProgramsResponses,
+  ListProgramsErrors,
   CreateProgramData,
-  CreateProgramResponse,
-  CreateProgramError,
+  CreateProgramResponses,
+  CreateProgramErrors,
   DeleteProgramData,
-  DeleteProgramResponse,
-  DeleteProgramError,
+  DeleteProgramResponses,
+  DeleteProgramErrors,
   UpdateProgramData,
-  UpdateProgramResponse,
-  UpdateProgramError,
+  UpdateProgramResponses,
+  UpdateProgramErrors,
   ListArticlesData,
-  ListArticlesResponse,
-  ListArticlesError,
+  ListArticlesResponses,
+  ListArticlesErrors,
   CreateArticleData,
-  CreateArticleResponse,
-  CreateArticleError,
+  CreateArticleResponses,
+  CreateArticleErrors,
   DeleteArticleData,
-  DeleteArticleResponse,
-  DeleteArticleError,
+  DeleteArticleResponses,
+  DeleteArticleErrors,
   UpdateArticleData,
-  UpdateArticleResponse,
-  UpdateArticleError,
+  UpdateArticleResponses,
+  UpdateArticleErrors,
   ListSamplingMethodsData,
-  ListSamplingMethodsResponse,
-  ListSamplingMethodsError,
+  ListSamplingMethodsResponses,
+  ListSamplingMethodsErrors,
   CreateSamplingMethodData,
-  CreateSamplingMethodResponse,
-  CreateSamplingMethodError,
+  CreateSamplingMethodResponses,
+  CreateSamplingMethodErrors,
   DeleteSamplingMethodData,
-  DeleteSamplingMethodResponse,
-  DeleteSamplingMethodError,
+  DeleteSamplingMethodResponses,
+  DeleteSamplingMethodErrors,
   UpdateSamplingMethodData,
-  UpdateSamplingMethodResponse,
-  UpdateSamplingMethodError,
+  UpdateSamplingMethodResponses,
+  UpdateSamplingMethodErrors,
   CreateSamplingData,
-  CreateSamplingResponse,
-  CreateSamplingError,
+  CreateSamplingResponses,
+  CreateSamplingErrors,
   DeleteSamplingData,
-  DeleteSamplingResponse,
-  DeleteSamplingError,
+  DeleteSamplingResponses,
+  DeleteSamplingErrors,
   UpdateSamplingData,
-  UpdateSamplingResponse,
-  UpdateSamplingError,
+  UpdateSamplingResponses,
+  UpdateSamplingErrors,
   SamplingAddExternalOccurrenceData,
-  SamplingAddExternalOccurrenceResponse,
-  SamplingAddExternalOccurrenceError,
+  SamplingAddExternalOccurrenceResponses,
+  SamplingAddExternalOccurrenceErrors,
   ListSequencesData,
-  ListSequencesResponse,
-  ListSequencesError,
+  ListSequencesResponses,
+  ListSequencesErrors,
   DeleteSequenceData,
-  DeleteSequenceResponse,
-  DeleteSequenceError,
+  DeleteSequenceResponses,
+  DeleteSequenceErrors,
   GetSequenceData,
-  GetSequenceResponse,
-  GetSequenceError,
+  GetSequenceResponses,
+  GetSequenceErrors,
   EmailSettingsData,
-  EmailSettingsResponse,
-  EmailSettingsError,
+  EmailSettingsResponses,
+  EmailSettingsErrors,
   UpdateEmailSettingsData,
-  UpdateEmailSettingsResponse,
-  UpdateEmailSettingsError,
+  UpdateEmailSettingsResponses,
+  UpdateEmailSettingsErrors,
   TestSmtpData,
-  TestSmtpResponse,
-  TestSmtpError,
+  TestSmtpResponses,
+  TestSmtpErrors,
   SetAppIconData,
-  SetAppIconResponse,
-  SetAppIconError,
+  SetAppIconResponses,
+  SetAppIconErrors,
   InstanceSettingsData,
-  InstanceSettingsResponse,
-  InstanceSettingsError,
+  InstanceSettingsResponses,
+  InstanceSettingsErrors,
   UpdateInstanceSettingsData,
-  UpdateInstanceSettingsResponse,
-  UpdateInstanceSettingsError,
+  UpdateInstanceSettingsResponses,
+  UpdateInstanceSettingsErrors,
   ListDataFeedsData,
-  ListDataFeedsResponse,
-  ListDataFeedsError,
+  ListDataFeedsResponses,
+  ListDataFeedsErrors,
   CreateDataFeedData,
-  CreateDataFeedResponse,
-  CreateDataFeedError,
+  CreateDataFeedResponses,
+  CreateDataFeedErrors,
   ListMapPresetsData,
-  ListMapPresetsResponse,
-  ListMapPresetsError,
+  ListMapPresetsResponses,
+  ListMapPresetsErrors,
   CreateUpdateMapPresetData,
-  CreateUpdateMapPresetResponse,
-  CreateUpdateMapPresetError,
+  CreateUpdateMapPresetResponses,
+  CreateUpdateMapPresetErrors,
   DeleteMapPresetData,
-  DeleteMapPresetResponse,
-  DeleteMapPresetError,
+  DeleteMapPresetResponses,
+  DeleteMapPresetErrors,
   SecuritySettingsData,
-  SecuritySettingsResponse,
-  SecuritySettingsError,
+  SecuritySettingsResponses,
+  SecuritySettingsErrors,
   UpdateSecuritySettingsData,
-  UpdateSecuritySettingsResponse,
-  UpdateSecuritySettingsError,
+  UpdateSecuritySettingsResponses,
+  UpdateSecuritySettingsErrors,
   ServiceSettingsData,
-  ServiceSettingsResponse,
-  ServiceSettingsError,
+  ServiceSettingsResponses,
+  ServiceSettingsErrors,
   UpdateServiceSettingsData,
-  UpdateServiceSettingsResponse,
-  UpdateServiceSettingsError,
+  UpdateServiceSettingsResponses,
+  UpdateServiceSettingsErrors,
   ListSitesData,
-  ListSitesResponse,
-  ListSitesError,
+  ListSitesResponses,
+  ListSitesErrors,
   CreateSiteData,
-  CreateSiteResponse,
-  CreateSiteError,
+  CreateSiteResponses,
+  CreateSiteErrors,
   GetSiteData,
-  GetSiteResponse,
-  GetSiteError,
+  GetSiteResponses,
+  GetSiteErrors,
   UpdateSiteData,
-  UpdateSiteResponse,
-  UpdateSiteError,
+  UpdateSiteResponses,
+  UpdateSiteErrors,
   ListSiteEventsData,
-  ListSiteEventsResponse,
-  ListSiteEventsError,
+  ListSiteEventsResponses,
+  ListSiteEventsErrors,
   CreateEventData,
-  CreateEventResponse,
-  CreateEventError,
+  CreateEventResponses,
+  CreateEventErrors,
   SiteAddExternalOccurrenceData,
-  SiteAddExternalOccurrenceResponse,
-  SiteAddExternalOccurrenceError,
+  SiteAddExternalOccurrenceResponses,
+  SiteAddExternalOccurrenceErrors,
   GetTaxonomyData,
-  GetTaxonomyResponse,
-  GetTaxonomyError,
+  GetTaxonomyResponses,
+  GetTaxonomyErrors,
   ListTaxaData,
-  ListTaxaResponse,
-  ListTaxaError,
+  ListTaxaResponses,
+  ListTaxaErrors,
   CreateTaxonData,
-  CreateTaxonResponse,
-  CreateTaxonError,
+  CreateTaxonResponses,
+  CreateTaxonErrors,
   DeleteTaxonData,
-  DeleteTaxonResponse,
-  DeleteTaxonError,
+  DeleteTaxonResponses,
+  DeleteTaxonErrors,
   GetTaxonData,
-  GetTaxonResponse,
-  GetTaxonError,
+  GetTaxonResponses,
+  GetTaxonErrors,
   UpdateTaxonData,
-  UpdateTaxonResponse,
-  UpdateTaxonError
+  UpdateTaxonResponses,
+  UpdateTaxonErrors
 } from './types.gen'
 import {
   listAbioticParametersResponseTransformer,
@@ -517,10 +517,11 @@ export class SamplingService {
     options?: Options<ListAbioticParametersData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListAbioticParametersResponse,
-      ListAbioticParametersError,
+      ListAbioticParametersResponses,
+      ListAbioticParametersErrors,
       ThrowOnError
     >({
+      responseTransformer: listAbioticParametersResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -532,7 +533,6 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listAbioticParametersResponseTransformer,
       url: '/abiotic',
       ...options
     })
@@ -545,10 +545,11 @@ export class SamplingService {
     options: Options<CreateAbioticParameterData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateAbioticParameterResponse,
-      CreateAbioticParameterError,
+      CreateAbioticParameterResponses,
+      CreateAbioticParameterErrors,
       ThrowOnError
     >({
+      responseTransformer: createAbioticParameterResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -560,12 +561,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createAbioticParameterResponseTransformer,
       url: '/abiotic',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -577,10 +577,11 @@ export class SamplingService {
     options: Options<DeleteAbioticParameterData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteAbioticParameterResponse,
-      DeleteAbioticParameterError,
+      DeleteAbioticParameterResponses,
+      DeleteAbioticParameterErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteAbioticParameterResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -592,7 +593,6 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteAbioticParameterResponseTransformer,
       url: '/abiotic/{code}',
       ...options
     })
@@ -605,10 +605,11 @@ export class SamplingService {
     options: Options<UpdateAbioticParameterData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateAbioticParameterResponse,
-      UpdateAbioticParameterError,
+      UpdateAbioticParameterResponses,
+      UpdateAbioticParameterErrors,
       ThrowOnError
     >({
+      responseTransformer: updateAbioticParameterResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -620,12 +621,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateAbioticParameterResponseTransformer,
       url: '/abiotic/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -637,8 +637,8 @@ export class SamplingService {
     options?: Options<GetAccessPointsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      GetAccessPointsResponse,
-      GetAccessPointsError,
+      GetAccessPointsResponses,
+      GetAccessPointsErrors,
       ThrowOnError
     >({
       security: [
@@ -664,10 +664,11 @@ export class SamplingService {
     options?: Options<ListFixativesData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListFixativesResponse,
-      ListFixativesError,
+      ListFixativesResponses,
+      ListFixativesErrors,
       ThrowOnError
     >({
+      responseTransformer: listFixativesResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -679,7 +680,6 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listFixativesResponseTransformer,
       url: '/fixatives',
       ...options
     })
@@ -692,10 +692,11 @@ export class SamplingService {
     options: Options<CreateFixativeData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateFixativeResponse,
-      CreateFixativeError,
+      CreateFixativeResponses,
+      CreateFixativeErrors,
       ThrowOnError
     >({
+      responseTransformer: createFixativeResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -707,12 +708,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createFixativeResponseTransformer,
       url: '/fixatives',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -724,10 +724,11 @@ export class SamplingService {
     options: Options<DeleteFixativeData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteFixativeResponse,
-      DeleteFixativeError,
+      DeleteFixativeResponses,
+      DeleteFixativeErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteFixativeResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -739,7 +740,6 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteFixativeResponseTransformer,
       url: '/fixatives/{code}',
       ...options
     })
@@ -752,10 +752,11 @@ export class SamplingService {
     options: Options<UpdateFixativeData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateFixativeResponse,
-      UpdateFixativeError,
+      UpdateFixativeResponses,
+      UpdateFixativeErrors,
       ThrowOnError
     >({
+      responseTransformer: updateFixativeResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -767,12 +768,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateFixativeResponseTransformer,
       url: '/fixatives/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -784,10 +784,11 @@ export class SamplingService {
     options?: Options<ListHabitatGroupsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListHabitatGroupsResponse,
-      ListHabitatGroupsError,
+      ListHabitatGroupsResponses,
+      ListHabitatGroupsErrors,
       ThrowOnError
     >({
+      responseTransformer: listHabitatGroupsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -799,7 +800,6 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listHabitatGroupsResponseTransformer,
       url: '/habitats',
       ...options
     })
@@ -812,10 +812,11 @@ export class SamplingService {
     options: Options<CreateHabitatGroupData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateHabitatGroupResponse,
-      CreateHabitatGroupError,
+      CreateHabitatGroupResponses,
+      CreateHabitatGroupErrors,
       ThrowOnError
     >({
+      responseTransformer: createHabitatGroupResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -827,12 +828,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createHabitatGroupResponseTransformer,
       url: '/habitats',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -844,10 +844,11 @@ export class SamplingService {
     options: Options<DeleteHabitatGroupData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteHabitatGroupResponse,
-      DeleteHabitatGroupError,
+      DeleteHabitatGroupResponses,
+      DeleteHabitatGroupErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteHabitatGroupResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -859,7 +860,6 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteHabitatGroupResponseTransformer,
       url: '/habitats/{code}',
       ...options
     })
@@ -872,10 +872,11 @@ export class SamplingService {
     options: Options<UpdateHabitatGroupData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateHabitatGroupResponse,
-      UpdateHabitatGroupError,
+      UpdateHabitatGroupResponses,
+      UpdateHabitatGroupErrors,
       ThrowOnError
     >({
+      responseTransformer: updateHabitatGroupResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -887,12 +888,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateHabitatGroupResponseTransformer,
       url: '/habitats/{label}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -904,10 +904,11 @@ export class SamplingService {
     options?: Options<ListSamplingMethodsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListSamplingMethodsResponse,
-      ListSamplingMethodsError,
+      ListSamplingMethodsResponses,
+      ListSamplingMethodsErrors,
       ThrowOnError
     >({
+      responseTransformer: listSamplingMethodsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -919,7 +920,6 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listSamplingMethodsResponseTransformer,
       url: '/sampling-methods',
       ...options
     })
@@ -932,10 +932,11 @@ export class SamplingService {
     options: Options<CreateSamplingMethodData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateSamplingMethodResponse,
-      CreateSamplingMethodError,
+      CreateSamplingMethodResponses,
+      CreateSamplingMethodErrors,
       ThrowOnError
     >({
+      responseTransformer: createSamplingMethodResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -947,12 +948,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createSamplingMethodResponseTransformer,
       url: '/sampling-methods',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -964,10 +964,11 @@ export class SamplingService {
     options: Options<DeleteSamplingMethodData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteSamplingMethodResponse,
-      DeleteSamplingMethodError,
+      DeleteSamplingMethodResponses,
+      DeleteSamplingMethodErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteSamplingMethodResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -979,7 +980,6 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteSamplingMethodResponseTransformer,
       url: '/sampling-methods/{code}',
       ...options
     })
@@ -992,10 +992,11 @@ export class SamplingService {
     options: Options<UpdateSamplingMethodData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateSamplingMethodResponse,
-      UpdateSamplingMethodError,
+      UpdateSamplingMethodResponses,
+      UpdateSamplingMethodErrors,
       ThrowOnError
     >({
+      responseTransformer: updateSamplingMethodResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1007,12 +1008,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateSamplingMethodResponseTransformer,
       url: '/sampling-methods/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1024,10 +1024,11 @@ export class SamplingService {
     options: Options<CreateSamplingData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateSamplingResponse,
-      CreateSamplingError,
+      CreateSamplingResponses,
+      CreateSamplingErrors,
       ThrowOnError
     >({
+      responseTransformer: createSamplingResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1039,12 +1040,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createSamplingResponseTransformer,
       url: '/samplings',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1056,10 +1056,11 @@ export class SamplingService {
     options: Options<DeleteSamplingData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteSamplingResponse,
-      DeleteSamplingError,
+      DeleteSamplingResponses,
+      DeleteSamplingErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteSamplingResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1071,7 +1072,6 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteSamplingResponseTransformer,
       url: '/samplings/{id}',
       ...options
     })
@@ -1084,10 +1084,11 @@ export class SamplingService {
     options: Options<UpdateSamplingData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateSamplingResponse,
-      UpdateSamplingError,
+      UpdateSamplingResponses,
+      UpdateSamplingErrors,
       ThrowOnError
     >({
+      responseTransformer: updateSamplingResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1099,12 +1100,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateSamplingResponseTransformer,
       url: '/samplings/{id}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1117,10 +1117,11 @@ export class SamplingService {
     options: Options<SamplingAddExternalOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      SamplingAddExternalOccurrenceResponse,
-      SamplingAddExternalOccurrenceError,
+      SamplingAddExternalOccurrenceResponses,
+      SamplingAddExternalOccurrenceErrors,
       ThrowOnError
     >({
+      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1132,12 +1133,11 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
       url: '/samplings/{id}/occurrences/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1152,8 +1152,8 @@ export class AccountService {
     options?: Options<CurrentUserData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      CurrentUserResponse2,
-      CurrentUserError,
+      CurrentUserResponses,
+      CurrentUserErrors,
       ThrowOnError
     >({
       security: [
@@ -1180,8 +1180,8 @@ export class AccountService {
     options?: Options<ConfirmEmailData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ConfirmEmailResponse,
-      ConfirmEmailError,
+      ConfirmEmailResponses,
+      ConfirmEmailErrors,
       ThrowOnError
     >({
       security: [
@@ -1208,8 +1208,8 @@ export class AccountService {
     options: Options<ResendEmailVerificationData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      ResendEmailVerificationResponse,
-      ResendEmailVerificationError,
+      ResendEmailVerificationResponses,
+      ResendEmailVerificationErrors,
       ThrowOnError
     >({
       security: [
@@ -1227,7 +1227,7 @@ export class AccountService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1240,8 +1240,8 @@ export class AccountService {
     options: Options<RequestPasswordResetData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      RequestPasswordResetResponse,
-      RequestPasswordResetError,
+      RequestPasswordResetResponses,
+      RequestPasswordResetErrors,
       ThrowOnError
     >({
       security: [
@@ -1259,7 +1259,7 @@ export class AccountService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1271,7 +1271,8 @@ export class AccountService {
   public static login<ThrowOnError extends boolean = false>(
     options: Options<LoginData, ThrowOnError>
   ) {
-    return (options.client ?? _heyApiClient).post<LoginResponse, LoginError, ThrowOnError>({
+    return (options.client ?? _heyApiClient).post<LoginResponses, LoginErrors, ThrowOnError>({
+      responseTransformer: loginResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1283,12 +1284,11 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: loginResponseTransformer,
       url: '/account/login',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1300,7 +1300,7 @@ export class AccountService {
   public static logout<ThrowOnError extends boolean = false>(
     options: Options<LogoutData, ThrowOnError>
   ) {
-    return (options.client ?? _heyApiClient).post<LogoutResponse, LogoutError, ThrowOnError>({
+    return (options.client ?? _heyApiClient).post<LogoutResponses, LogoutErrors, ThrowOnError>({
       security: [
         {
           scheme: 'bearer',
@@ -1316,7 +1316,7 @@ export class AccountService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1329,8 +1329,8 @@ export class AccountService {
     options: Options<UpdatePasswordData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      UpdatePasswordResponse,
-      UpdatePasswordError,
+      UpdatePasswordResponses,
+      UpdatePasswordErrors,
       ThrowOnError
     >({
       security: [
@@ -1348,7 +1348,7 @@ export class AccountService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1361,8 +1361,8 @@ export class AccountService {
     options: Options<ValidatePasswordTokenData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).get<
-      ValidatePasswordTokenResponse,
-      ValidatePasswordTokenError,
+      ValidatePasswordTokenResponses,
+      ValidatePasswordTokenErrors,
       ThrowOnError
     >({
       security: [
@@ -1389,8 +1389,8 @@ export class AccountService {
     options: Options<ResetPasswordData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      ResetPasswordResponse,
-      ResetPasswordError,
+      ResetPasswordResponses,
+      ResetPasswordErrors,
       ThrowOnError
     >({
       security: [
@@ -1408,7 +1408,7 @@ export class AccountService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1421,10 +1421,11 @@ export class AccountService {
     options?: Options<ListPendingUserRequestsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListPendingUserRequestsResponse,
-      ListPendingUserRequestsError,
+      ListPendingUserRequestsResponses,
+      ListPendingUserRequestsErrors,
       ThrowOnError
     >({
+      responseTransformer: listPendingUserRequestsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1436,7 +1437,6 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listPendingUserRequestsResponseTransformer,
       url: '/account/pending',
       ...options
     })
@@ -1450,10 +1450,11 @@ export class AccountService {
     options: Options<DeletePendingUserRequestData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeletePendingUserRequestResponse,
-      DeletePendingUserRequestError,
+      DeletePendingUserRequestResponses,
+      DeletePendingUserRequestErrors,
       ThrowOnError
     >({
+      responseTransformer: deletePendingUserRequestResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1465,7 +1466,6 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deletePendingUserRequestResponseTransformer,
       url: '/account/pending/{email}',
       ...options
     })
@@ -1479,10 +1479,11 @@ export class AccountService {
     options?: Options<GetPendingUserRequestData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      GetPendingUserRequestResponse,
-      GetPendingUserRequestError,
+      GetPendingUserRequestResponses,
+      GetPendingUserRequestErrors,
       ThrowOnError
     >({
+      responseTransformer: getPendingUserRequestResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1494,7 +1495,6 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: getPendingUserRequestResponseTransformer,
       url: '/account/pending/{email}',
       ...options
     })
@@ -1508,10 +1508,11 @@ export class AccountService {
     options: Options<RefreshSessionData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      RefreshSessionResponse,
-      RefreshSessionError,
+      RefreshSessionResponses,
+      RefreshSessionErrors,
       ThrowOnError
     >({
+      responseTransformer: refreshSessionResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1523,12 +1524,11 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: refreshSessionResponseTransformer,
       url: '/account/refresh',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1540,7 +1540,7 @@ export class AccountService {
   public static register<ThrowOnError extends boolean = false>(
     options: Options<RegisterData, ThrowOnError>
   ) {
-    return (options.client ?? _heyApiClient).post<RegisterResponse, RegisterError, ThrowOnError>({
+    return (options.client ?? _heyApiClient).post<RegisterResponses, RegisterErrors, ThrowOnError>({
       security: [
         {
           scheme: 'bearer',
@@ -1556,7 +1556,7 @@ export class AccountService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1569,10 +1569,11 @@ export class AccountService {
     options: Options<ClaimInvitationData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      ClaimInvitationResponse,
-      ClaimInvitationError,
+      ClaimInvitationResponses,
+      ClaimInvitationErrors,
       ThrowOnError
     >({
+      responseTransformer: claimInvitationResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1584,12 +1585,11 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: claimInvitationResponseTransformer,
       url: '/account/register/{token}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1603,8 +1603,36 @@ export class TaxonomyGbifService {
     options?: Options<ListAnchorsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListAnchorsResponse,
-      ListAnchorsError,
+      ListAnchorsResponses,
+      ListAnchorsErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listAnchorsResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/anchors/',
+      ...options
+    })
+  }
+
+  /**
+   * Import GBIF clade
+   */
+  public static importGbif<ThrowOnError extends boolean = false>(
+    options: Options<ImportGbifData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).put<
+      ImportGbifResponses,
+      ImportGbifErrors,
       ThrowOnError
     >({
       security: [
@@ -1618,39 +1646,13 @@ export class TaxonomyGbifService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listAnchorsResponseTransformer,
-      url: '/anchors/',
-      ...options
-    })
-  }
-
-  /**
-   * Import GBIF clade
-   */
-  public static importGbif<ThrowOnError extends boolean = false>(
-    options: Options<ImportGbifData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).put<ImportGbifResponse, ImportGbifError, ThrowOnError>(
-      {
-        security: [
-          {
-            scheme: 'bearer',
-            type: 'http'
-          },
-          {
-            in: 'cookie',
-            name: 'auth_token',
-            type: 'apiKey'
-          }
-        ],
-        url: '/import/taxonomy',
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options?.headers
-        }
+      url: '/import/taxonomy',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
       }
-    )
+    })
   }
 
   /**
@@ -1660,8 +1662,8 @@ export class TaxonomyGbifService {
     options?: Options<MonitorGbifData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      MonitorGbifResponse,
-      MonitorGbifError,
+      MonitorGbifResponses,
+      MonitorGbifErrors,
       ThrowOnError
     >({
       security: [
@@ -1690,10 +1692,11 @@ export class OccurrencesService {
     options?: Options<ListBioMaterialData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListBioMaterialResponse,
-      ListBioMaterialError,
+      ListBioMaterialResponses,
+      ListBioMaterialErrors,
       ThrowOnError
     >({
+      responseTransformer: listBioMaterialResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1705,7 +1708,6 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listBioMaterialResponseTransformer,
       url: '/bio-material',
       ...options
     })
@@ -1718,10 +1720,11 @@ export class OccurrencesService {
     options: Options<UpdateExternalBioMatData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateExternalBioMatResponse,
-      UpdateExternalBioMatError,
+      UpdateExternalBioMatResponses,
+      UpdateExternalBioMatErrors,
       ThrowOnError
     >({
+      responseTransformer: updateExternalBioMatResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1733,12 +1736,11 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateExternalBioMatResponseTransformer,
       url: '/bio-material/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1750,10 +1752,11 @@ export class OccurrencesService {
     options: Options<CreateExternalBioMatData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateExternalBioMatResponse,
-      CreateExternalBioMatError,
+      CreateExternalBioMatResponses,
+      CreateExternalBioMatErrors,
       ThrowOnError
     >({
+      responseTransformer: createExternalBioMatResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1765,12 +1768,11 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createExternalBioMatResponseTransformer,
       url: '/bio-material/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1783,10 +1785,11 @@ export class OccurrencesService {
     options: Options<DeleteBioMaterialData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteBioMaterialResponse,
-      DeleteBioMaterialError,
+      DeleteBioMaterialResponses,
+      DeleteBioMaterialErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteBioMaterialResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1798,7 +1801,6 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteBioMaterialResponseTransformer,
       url: '/bio-material/{code}',
       ...options
     })
@@ -1812,10 +1814,11 @@ export class OccurrencesService {
     options: Options<GetBioMaterialData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).get<
-      GetBioMaterialResponse,
-      GetBioMaterialError,
+      GetBioMaterialResponses,
+      GetBioMaterialErrors,
       ThrowOnError
     >({
+      responseTransformer: getBioMaterialResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1827,7 +1830,6 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: getBioMaterialResponseTransformer,
       url: '/bio-material/{code}',
       ...options
     })
@@ -1841,10 +1843,11 @@ export class OccurrencesService {
     options: Options<EventAddExternalOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      EventAddExternalOccurrenceResponse,
-      EventAddExternalOccurrenceError,
+      EventAddExternalOccurrenceResponses,
+      EventAddExternalOccurrenceErrors,
       ThrowOnError
     >({
+      responseTransformer: eventAddExternalOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1856,12 +1859,11 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: eventAddExternalOccurrenceResponseTransformer,
       url: '/events/{id}/occurrences/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1873,10 +1875,17 @@ export class OccurrencesService {
     options?: Options<OccurrencesBySiteData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      OccurrencesBySiteResponse,
-      OccurrencesBySiteError,
+      OccurrencesBySiteResponses,
+      OccurrencesBySiteErrors,
       ThrowOnError
     >({
+      querySerializer: {
+        array: {
+          explode: false,
+          style: 'form'
+        }
+      },
+      responseTransformer: occurrencesBySiteResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1888,13 +1897,6 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      querySerializer: {
-        array: {
-          explode: false,
-          style: 'form'
-        }
-      },
-      responseTransformer: occurrencesBySiteResponseTransformer,
       url: '/occurrences/by-site',
       ...options
     })
@@ -1907,8 +1909,8 @@ export class OccurrencesService {
     options?: Options<OccurrenceOverviewData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      OccurrenceOverviewResponse,
-      OccurrenceOverviewError,
+      OccurrenceOverviewResponses,
+      OccurrenceOverviewErrors,
       ThrowOnError
     >({
       security: [
@@ -1935,10 +1937,11 @@ export class OccurrencesService {
     options: Options<SamplingAddExternalOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      SamplingAddExternalOccurrenceResponse,
-      SamplingAddExternalOccurrenceError,
+      SamplingAddExternalOccurrenceResponses,
+      SamplingAddExternalOccurrenceErrors,
       ThrowOnError
     >({
+      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1950,12 +1953,11 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
       url: '/samplings/{id}/occurrences/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1968,10 +1970,11 @@ export class OccurrencesService {
     options: Options<SiteAddExternalOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      SiteAddExternalOccurrenceResponse,
-      SiteAddExternalOccurrenceError,
+      SiteAddExternalOccurrenceResponses,
+      SiteAddExternalOccurrenceErrors,
       ThrowOnError
     >({
+      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1983,12 +1986,11 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
       url: '/sites/{code}/occurrences/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2001,7 +2003,7 @@ export class ReferencesService {
   public static crossRef<ThrowOnError extends boolean = false>(
     options: Options<CrossRefData, ThrowOnError>
   ) {
-    return (options.client ?? _heyApiClient).get<CrossRefResponse, CrossRefError, ThrowOnError>({
+    return (options.client ?? _heyApiClient).get<CrossRefResponses, CrossRefErrors, ThrowOnError>({
       security: [
         {
           scheme: 'bearer',
@@ -2025,8 +2027,8 @@ export class ReferencesService {
     options: Options<CrossRefBibSearchData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CrossRefBibSearchResponse,
-      CrossRefBibSearchError,
+      CrossRefBibSearchResponses,
+      CrossRefBibSearchErrors,
       ThrowOnError
     >({
       security: [
@@ -2044,7 +2046,7 @@ export class ReferencesService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2056,10 +2058,11 @@ export class ReferencesService {
     options?: Options<ListArticlesData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListArticlesResponse,
-      ListArticlesError,
+      ListArticlesResponses,
+      ListArticlesErrors,
       ThrowOnError
     >({
+      responseTransformer: listArticlesResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2071,7 +2074,6 @@ export class ReferencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listArticlesResponseTransformer,
       url: '/references',
       ...options
     })
@@ -2084,10 +2086,11 @@ export class ReferencesService {
     options: Options<CreateArticleData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateArticleResponse,
-      CreateArticleError,
+      CreateArticleResponses,
+      CreateArticleErrors,
       ThrowOnError
     >({
+      responseTransformer: createArticleResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2099,12 +2102,11 @@ export class ReferencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createArticleResponseTransformer,
       url: '/references',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2116,10 +2118,11 @@ export class ReferencesService {
     options: Options<DeleteArticleData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteArticleResponse,
-      DeleteArticleError,
+      DeleteArticleResponses,
+      DeleteArticleErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteArticleResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2131,7 +2134,6 @@ export class ReferencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteArticleResponseTransformer,
       url: '/references/{code}',
       ...options
     })
@@ -2144,10 +2146,11 @@ export class ReferencesService {
     options: Options<UpdateArticleData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateArticleResponse,
-      UpdateArticleError,
+      UpdateArticleResponses,
+      UpdateArticleErrors,
       ThrowOnError
     >({
+      responseTransformer: updateArticleResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2159,12 +2162,11 @@ export class ReferencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateArticleResponseTransformer,
       url: '/references/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2178,10 +2180,11 @@ export class DataSourcesService {
     options?: Options<ListDataSourcesData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListDataSourcesResponse,
-      ListDataSourcesError,
+      ListDataSourcesResponses,
+      ListDataSourcesErrors,
       ThrowOnError
     >({
+      responseTransformer: listDataSourcesResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2193,7 +2196,6 @@ export class DataSourcesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listDataSourcesResponseTransformer,
       url: '/data-sources',
       ...options
     })
@@ -2206,10 +2208,11 @@ export class DataSourcesService {
     options: Options<CreateDataSourceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateDataSourceResponse,
-      CreateDataSourceError,
+      CreateDataSourceResponses,
+      CreateDataSourceErrors,
       ThrowOnError
     >({
+      responseTransformer: createDataSourceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2221,12 +2224,11 @@ export class DataSourcesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createDataSourceResponseTransformer,
       url: '/data-sources',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2238,10 +2240,11 @@ export class DataSourcesService {
     options: Options<DeleteDataSourceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteDataSourceResponse,
-      DeleteDataSourceError,
+      DeleteDataSourceResponses,
+      DeleteDataSourceErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteDataSourceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2253,7 +2256,6 @@ export class DataSourcesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteDataSourceResponseTransformer,
       url: '/data-sources/{code}',
       ...options
     })
@@ -2266,10 +2268,11 @@ export class DataSourcesService {
     options: Options<UpdateDataSourceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateDataSourceResponse,
-      UpdateDataSourceError,
+      UpdateDataSourceResponses,
+      UpdateDataSourceErrors,
       ThrowOnError
     >({
+      responseTransformer: updateDataSourceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2281,12 +2284,11 @@ export class DataSourcesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateDataSourceResponseTransformer,
       url: '/data-sources/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2301,10 +2303,11 @@ export class DatasetsService {
     options?: Options<ListDatasetsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListDatasetsResponse,
-      ListDatasetsError,
+      ListDatasetsResponses,
+      ListDatasetsErrors,
       ThrowOnError
     >({
+      responseTransformer: listDatasetsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2316,7 +2319,6 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listDatasetsResponseTransformer,
       url: '/datasets',
       ...options
     })
@@ -2330,10 +2332,11 @@ export class DatasetsService {
     options: Options<UpdateDatasetData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateDatasetResponse,
-      UpdateDatasetError,
+      UpdateDatasetResponses,
+      UpdateDatasetErrors,
       ThrowOnError
     >({
+      responseTransformer: updateDatasetResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2345,12 +2348,11 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateDatasetResponseTransformer,
       url: '/datasets/edit/{slug}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2363,10 +2365,11 @@ export class DatasetsService {
     options?: Options<ListOccurrenceDatasetsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListOccurrenceDatasetsResponse,
-      ListOccurrenceDatasetsError,
+      ListOccurrenceDatasetsResponses,
+      ListOccurrenceDatasetsErrors,
       ThrowOnError
     >({
+      responseTransformer: listOccurrenceDatasetsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2378,7 +2381,6 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listOccurrenceDatasetsResponseTransformer,
       url: '/datasets/occurrence',
       ...options
     })
@@ -2392,10 +2394,11 @@ export class DatasetsService {
     options: Options<GetOccurrenceDatasetData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).get<
-      GetOccurrenceDatasetResponse,
-      GetOccurrenceDatasetError,
+      GetOccurrenceDatasetResponses,
+      GetOccurrenceDatasetErrors,
       ThrowOnError
     >({
+      responseTransformer: getOccurrenceDatasetResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2407,7 +2410,6 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: getOccurrenceDatasetResponseTransformer,
       url: '/datasets/occurrence/{slug}',
       ...options
     })
@@ -2421,10 +2423,11 @@ export class DatasetsService {
     options: Options<TogglePinDatasetData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      TogglePinDatasetResponse,
-      TogglePinDatasetError,
+      TogglePinDatasetResponses,
+      TogglePinDatasetErrors,
       ThrowOnError
     >({
+      responseTransformer: togglePinDatasetResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2436,7 +2439,6 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: togglePinDatasetResponseTransformer,
       url: '/datasets/pin/{slug}',
       ...options
     })
@@ -2450,10 +2452,11 @@ export class DatasetsService {
     options?: Options<ListSequenceDatasetsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListSequenceDatasetsResponse,
-      ListSequenceDatasetsError,
+      ListSequenceDatasetsResponses,
+      ListSequenceDatasetsErrors,
       ThrowOnError
     >({
+      responseTransformer: listSequenceDatasetsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2465,7 +2468,6 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listSequenceDatasetsResponseTransformer,
       url: '/datasets/sequences',
       ...options
     })
@@ -2479,10 +2481,11 @@ export class DatasetsService {
     options: Options<GetSequenceDatasetData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).get<
-      GetSequenceDatasetResponse,
-      GetSequenceDatasetError,
+      GetSequenceDatasetResponses,
+      GetSequenceDatasetErrors,
       ThrowOnError
     >({
+      responseTransformer: getSequenceDatasetResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2494,7 +2497,6 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: getSequenceDatasetResponseTransformer,
       url: '/datasets/sequences/{slug}',
       ...options
     })
@@ -2508,10 +2510,11 @@ export class DatasetsService {
     options?: Options<ListSiteDatasetsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListSiteDatasetsResponse,
-      ListSiteDatasetsError,
+      ListSiteDatasetsResponses,
+      ListSiteDatasetsErrors,
       ThrowOnError
     >({
+      responseTransformer: listSiteDatasetsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2523,7 +2526,6 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listSiteDatasetsResponseTransformer,
       url: '/datasets/sites',
       ...options
     })
@@ -2537,10 +2539,11 @@ export class DatasetsService {
     options: Options<CreateSiteDatasetData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateSiteDatasetResponse,
-      CreateSiteDatasetError,
+      CreateSiteDatasetResponses,
+      CreateSiteDatasetErrors,
       ThrowOnError
     >({
+      responseTransformer: createSiteDatasetResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2552,12 +2555,11 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createSiteDatasetResponseTransformer,
       url: '/datasets/sites',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2570,10 +2572,11 @@ export class DatasetsService {
     options: Options<GetSiteDatasetData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).get<
-      GetSiteDatasetResponse,
-      GetSiteDatasetError,
+      GetSiteDatasetResponses,
+      GetSiteDatasetErrors,
       ThrowOnError
     >({
+      responseTransformer: getSiteDatasetResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2585,7 +2588,6 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: getSiteDatasetResponseTransformer,
       url: '/datasets/sites/{slug}',
       ...options
     })
@@ -2598,37 +2600,12 @@ export class DatasetsService {
   public static getDataset<ThrowOnError extends boolean = false>(
     options: Options<GetDatasetData, ThrowOnError>
   ) {
-    return (options.client ?? _heyApiClient).get<GetDatasetResponse, GetDatasetError, ThrowOnError>(
-      {
-        security: [
-          {
-            scheme: 'bearer',
-            type: 'http'
-          },
-          {
-            in: 'cookie',
-            name: 'auth_token',
-            type: 'apiKey'
-          }
-        ],
-        responseTransformer: getDatasetResponseTransformer,
-        url: '/datasets/{slug}',
-        ...options
-      }
-    )
-  }
-
-  /**
-   * List programs
-   */
-  public static listPrograms<ThrowOnError extends boolean = false>(
-    options?: Options<ListProgramsData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListProgramsResponse,
-      ListProgramsError,
+    return (options.client ?? _heyApiClient).get<
+      GetDatasetResponses,
+      GetDatasetErrors,
       ThrowOnError
     >({
+      responseTransformer: getDatasetResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2640,7 +2617,34 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
+      url: '/datasets/{slug}',
+      ...options
+    })
+  }
+
+  /**
+   * List programs
+   */
+  public static listPrograms<ThrowOnError extends boolean = false>(
+    options?: Options<ListProgramsData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListProgramsResponses,
+      ListProgramsErrors,
+      ThrowOnError
+    >({
       responseTransformer: listProgramsResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
       url: '/programs',
       ...options
     })
@@ -2653,10 +2657,11 @@ export class DatasetsService {
     options: Options<CreateProgramData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateProgramResponse,
-      CreateProgramError,
+      CreateProgramResponses,
+      CreateProgramErrors,
       ThrowOnError
     >({
+      responseTransformer: createProgramResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2668,12 +2673,11 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createProgramResponseTransformer,
       url: '/programs',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2685,10 +2689,11 @@ export class DatasetsService {
     options: Options<DeleteProgramData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteProgramResponse,
-      DeleteProgramError,
+      DeleteProgramResponses,
+      DeleteProgramErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteProgramResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2700,7 +2705,6 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteProgramResponseTransformer,
       url: '/programs/{code}',
       ...options
     })
@@ -2713,10 +2717,11 @@ export class DatasetsService {
     options: Options<UpdateProgramData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateProgramResponse,
-      UpdateProgramError,
+      UpdateProgramResponses,
+      UpdateProgramErrors,
       ThrowOnError
     >({
+      responseTransformer: updateProgramResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2728,12 +2733,11 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateProgramResponseTransformer,
       url: '/programs/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2747,10 +2751,11 @@ export class EventsService {
     options: Options<DeleteEventData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteEventResponse,
-      DeleteEventError,
+      DeleteEventResponses,
+      DeleteEventErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteEventResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2762,7 +2767,6 @@ export class EventsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteEventResponseTransformer,
       url: '/events/{id}',
       ...options
     })
@@ -2775,10 +2779,11 @@ export class EventsService {
     options: Options<UpdateEventData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateEventResponse,
-      UpdateEventError,
+      UpdateEventResponses,
+      UpdateEventErrors,
       ThrowOnError
     >({
+      responseTransformer: updateEventResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2790,12 +2795,11 @@ export class EventsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateEventResponseTransformer,
       url: '/events/{id}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2808,10 +2812,11 @@ export class EventsService {
     options: Options<EventAddExternalOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      EventAddExternalOccurrenceResponse,
-      EventAddExternalOccurrenceError,
+      EventAddExternalOccurrenceResponses,
+      EventAddExternalOccurrenceErrors,
       ThrowOnError
     >({
+      responseTransformer: eventAddExternalOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2823,12 +2828,11 @@ export class EventsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: eventAddExternalOccurrenceResponseTransformer,
       url: '/events/{id}/occurrences/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2840,10 +2844,11 @@ export class EventsService {
     options: Options<CreateSamplingAtEventData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateSamplingAtEventResponse,
-      CreateSamplingAtEventError,
+      CreateSamplingAtEventResponses,
+      CreateSamplingAtEventErrors,
       ThrowOnError
     >({
+      responseTransformer: createSamplingAtEventResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2855,12 +2860,11 @@ export class EventsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createSamplingAtEventResponseTransformer,
       url: '/events/{id}/samplings',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2872,10 +2876,11 @@ export class EventsService {
     options: Options<UpdateSpottingData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).put<
-      UpdateSpottingResponse,
-      UpdateSpottingError,
+      UpdateSpottingResponses,
+      UpdateSpottingErrors,
       ThrowOnError
     >({
+      responseTransformer: updateSpottingResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2887,12 +2892,11 @@ export class EventsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateSpottingResponseTransformer,
       url: '/events/{id}/spottings',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2905,7 +2909,12 @@ export class SequencesService {
   public static listGenes<ThrowOnError extends boolean = false>(
     options?: Options<ListGenesData, ThrowOnError>
   ) {
-    return (options?.client ?? _heyApiClient).get<ListGenesResponse, ListGenesError, ThrowOnError>({
+    return (options?.client ?? _heyApiClient).get<
+      ListGenesResponses,
+      ListGenesErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listGenesResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2917,7 +2926,6 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listGenesResponseTransformer,
       url: '/genes',
       ...options
     })
@@ -2930,10 +2938,11 @@ export class SequencesService {
     options: Options<CreateGeneData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateGeneResponse,
-      CreateGeneError,
+      CreateGeneResponses,
+      CreateGeneErrors,
       ThrowOnError
     >({
+      responseTransformer: createGeneResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2945,12 +2954,11 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createGeneResponseTransformer,
       url: '/genes',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -2962,10 +2970,11 @@ export class SequencesService {
     options: Options<DeleteGeneData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteGeneResponse,
-      DeleteGeneError,
+      DeleteGeneResponses,
+      DeleteGeneErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteGeneResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2977,7 +2986,6 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteGeneResponseTransformer,
       url: '/genes/{code}',
       ...options
     })
@@ -2990,10 +2998,11 @@ export class SequencesService {
     options: Options<UpdateGeneData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateGeneResponse,
-      UpdateGeneError,
+      UpdateGeneResponses,
+      UpdateGeneErrors,
       ThrowOnError
     >({
+      responseTransformer: updateGeneResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3005,12 +3014,11 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateGeneResponseTransformer,
       url: '/genes/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3022,10 +3030,11 @@ export class SequencesService {
     options?: Options<ListSequencesData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListSequencesResponse,
-      ListSequencesError,
+      ListSequencesResponses,
+      ListSequencesErrors,
       ThrowOnError
     >({
+      responseTransformer: listSequencesResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3037,7 +3046,6 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listSequencesResponseTransformer,
       url: '/sequences',
       ...options
     })
@@ -3050,10 +3058,11 @@ export class SequencesService {
     options: Options<DeleteSequenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteSequenceResponse,
-      DeleteSequenceError,
+      DeleteSequenceResponses,
+      DeleteSequenceErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteSequenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3065,7 +3074,6 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteSequenceResponseTransformer,
       url: '/sequences/{code}',
       ...options
     })
@@ -3078,10 +3086,11 @@ export class SequencesService {
     options: Options<GetSequenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).get<
-      GetSequenceResponse,
-      GetSequenceError,
+      GetSequenceResponses,
+      GetSequenceErrors,
       ThrowOnError
     >({
+      responseTransformer: getSequenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3093,7 +3102,6 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: getSequenceResponseTransformer,
       url: '/sequences/{code}',
       ...options
     })
@@ -3108,8 +3116,8 @@ export class ServicesService {
     options: Options<ReverseGeocodeData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      ReverseGeocodeResponse,
-      ReverseGeocodeError,
+      ReverseGeocodeResponses,
+      ReverseGeocodeErrors,
       ThrowOnError
     >({
       security: [
@@ -3127,7 +3135,7 @@ export class ServicesService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3139,8 +3147,8 @@ export class ServicesService {
     options?: Options<GetGeoapifyStatusData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      GetGeoapifyStatusResponse,
-      GetGeoapifyStatusError,
+      GetGeoapifyStatusResponses,
+      GetGeoapifyStatusErrors,
       ThrowOnError
     >({
       security: [
@@ -3166,8 +3174,8 @@ export class ServicesService {
     options?: Options<ListGeoapifyUsageData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListGeoapifyUsageResponse,
-      ListGeoapifyUsageError,
+      ListGeoapifyUsageResponses,
+      ListGeoapifyUsageErrors,
       ThrowOnError
     >({
       security: [
@@ -3195,8 +3203,8 @@ export class LocationService {
     options: Options<CoordinatesToCountryData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CoordinatesToCountryResponse,
-      CoordinatesToCountryError,
+      CoordinatesToCountryResponses,
+      CoordinatesToCountryErrors,
       ThrowOnError
     >({
       security: [
@@ -3214,7 +3222,7 @@ export class LocationService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3226,10 +3234,11 @@ export class LocationService {
     options: Options<SitesProximityData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      SitesProximityResponse,
-      SitesProximityError,
+      SitesProximityResponses,
+      SitesProximityErrors,
       ThrowOnError
     >({
+      responseTransformer: sitesProximityResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3241,12 +3250,11 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: sitesProximityResponseTransformer,
       url: '/locations/coordinates/proximity',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3258,8 +3266,8 @@ export class LocationService {
     options?: Options<ListCountriesData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListCountriesResponse,
-      ListCountriesError,
+      ListCountriesResponses,
+      ListCountriesErrors,
       ThrowOnError
     >({
       security: [
@@ -3285,8 +3293,8 @@ export class LocationService {
     options?: Options<GetSitesCountByCountryData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      GetSitesCountByCountryResponse,
-      GetSitesCountByCountryError,
+      GetSitesCountByCountryResponses,
+      GetSitesCountByCountryErrors,
       ThrowOnError
     >({
       security: [
@@ -3313,10 +3321,11 @@ export class LocationService {
     options?: Options<SearchSitesData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      SearchSitesResponse,
-      SearchSitesError,
+      SearchSitesResponses,
+      SearchSitesErrors,
       ThrowOnError
     >({
+      responseTransformer: searchSitesResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3328,7 +3337,6 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: searchSitesResponseTransformer,
       url: '/locations/search',
       ...options
     })
@@ -3341,7 +3349,18 @@ export class LocationService {
   public static listSites<ThrowOnError extends boolean = false>(
     options?: Options<ListSitesData, ThrowOnError>
   ) {
-    return (options?.client ?? _heyApiClient).get<ListSitesResponse, ListSitesError, ThrowOnError>({
+    return (options?.client ?? _heyApiClient).get<
+      ListSitesResponses,
+      ListSitesErrors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        array: {
+          explode: false,
+          style: 'form'
+        }
+      },
+      responseTransformer: listSitesResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3353,13 +3372,6 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      querySerializer: {
-        array: {
-          explode: false,
-          style: 'form'
-        }
-      },
-      responseTransformer: listSitesResponseTransformer,
       url: '/sites',
       ...options
     })
@@ -3373,10 +3385,11 @@ export class LocationService {
     options: Options<CreateSiteData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateSiteResponse,
-      CreateSiteError,
+      CreateSiteResponses,
+      CreateSiteErrors,
       ThrowOnError
     >({
+      responseTransformer: createSiteResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3388,12 +3401,11 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createSiteResponseTransformer,
       url: '/sites',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3405,7 +3417,8 @@ export class LocationService {
   public static getSite<ThrowOnError extends boolean = false>(
     options: Options<GetSiteData, ThrowOnError>
   ) {
-    return (options.client ?? _heyApiClient).get<GetSiteResponse, GetSiteError, ThrowOnError>({
+    return (options.client ?? _heyApiClient).get<GetSiteResponses, GetSiteErrors, ThrowOnError>({
+      responseTransformer: getSiteResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3417,7 +3430,6 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: getSiteResponseTransformer,
       url: '/sites/{code}',
       ...options
     })
@@ -3431,10 +3443,11 @@ export class LocationService {
     options: Options<UpdateSiteData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateSiteResponse,
-      UpdateSiteError,
+      UpdateSiteResponses,
+      UpdateSiteErrors,
       ThrowOnError
     >({
+      responseTransformer: updateSiteResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3446,12 +3459,11 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateSiteResponseTransformer,
       url: '/sites/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3463,10 +3475,11 @@ export class LocationService {
     options: Options<ListSiteEventsData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).get<
-      ListSiteEventsResponse,
-      ListSiteEventsError,
+      ListSiteEventsResponses,
+      ListSiteEventsErrors,
       ThrowOnError
     >({
+      responseTransformer: listSiteEventsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3478,7 +3491,6 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listSiteEventsResponseTransformer,
       url: '/sites/{code}/events',
       ...options
     })
@@ -3492,10 +3504,11 @@ export class LocationService {
     options: Options<CreateEventData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateEventResponse,
-      CreateEventError,
+      CreateEventResponses,
+      CreateEventErrors,
       ThrowOnError
     >({
+      responseTransformer: createEventResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3507,12 +3520,11 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createEventResponseTransformer,
       url: '/sites/{code}/events',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3525,10 +3537,11 @@ export class LocationService {
     options: Options<SiteAddExternalOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      SiteAddExternalOccurrenceResponse,
-      SiteAddExternalOccurrenceError,
+      SiteAddExternalOccurrenceResponses,
+      SiteAddExternalOccurrenceErrors,
       ThrowOnError
     >({
+      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3540,12 +3553,11 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
       url: '/sites/{code}/occurrences/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3559,10 +3571,11 @@ export class PeopleService {
     options?: Options<ListOrganisationsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListOrganisationsResponse,
-      ListOrganisationsError,
+      ListOrganisationsResponses,
+      ListOrganisationsErrors,
       ThrowOnError
     >({
+      responseTransformer: listOrganisationsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3574,7 +3587,6 @@ export class PeopleService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listOrganisationsResponseTransformer,
       url: '/organisations',
       ...options
     })
@@ -3587,10 +3599,11 @@ export class PeopleService {
     options: Options<CreateOrganisationData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateOrganisationResponse,
-      CreateOrganisationError,
+      CreateOrganisationResponses,
+      CreateOrganisationErrors,
       ThrowOnError
     >({
+      responseTransformer: createOrganisationResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3602,12 +3615,11 @@ export class PeopleService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createOrganisationResponseTransformer,
       url: '/organisations',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3619,10 +3631,11 @@ export class PeopleService {
     options: Options<DeleteOrganisationData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteOrganisationResponse,
-      DeleteOrganisationError,
+      DeleteOrganisationResponses,
+      DeleteOrganisationErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteOrganisationResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3634,7 +3647,6 @@ export class PeopleService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteOrganisationResponseTransformer,
       url: '/organisations/{code}',
       ...options
     })
@@ -3647,10 +3659,11 @@ export class PeopleService {
     options: Options<UpdateOrganisationData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateOrganisationResponse,
-      UpdateOrganisationError,
+      UpdateOrganisationResponses,
+      UpdateOrganisationErrors,
       ThrowOnError
     >({
+      responseTransformer: updateOrganisationResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3662,12 +3675,11 @@ export class PeopleService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateOrganisationResponseTransformer,
       url: '/organisations/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3679,10 +3691,11 @@ export class PeopleService {
     options?: Options<ListPersonsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListPersonsResponse,
-      ListPersonsError,
+      ListPersonsResponses,
+      ListPersonsErrors,
       ThrowOnError
     >({
+      responseTransformer: listPersonsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3694,7 +3707,6 @@ export class PeopleService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listPersonsResponseTransformer,
       url: '/persons',
       ...options
     })
@@ -3707,10 +3719,11 @@ export class PeopleService {
     options: Options<CreatePersonData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreatePersonResponse,
-      CreatePersonError,
+      CreatePersonResponses,
+      CreatePersonErrors,
       ThrowOnError
     >({
+      responseTransformer: createPersonResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3722,12 +3735,11 @@ export class PeopleService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createPersonResponseTransformer,
       url: '/persons',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3739,10 +3751,11 @@ export class PeopleService {
     options: Options<DeletePersonData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeletePersonResponse,
-      DeletePersonError,
+      DeletePersonResponses,
+      DeletePersonErrors,
       ThrowOnError
     >({
+      responseTransformer: deletePersonResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3754,7 +3767,6 @@ export class PeopleService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deletePersonResponseTransformer,
       url: '/persons/{id}',
       ...options
     })
@@ -3767,10 +3779,11 @@ export class PeopleService {
     options: Options<UpdatePersonData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdatePersonResponse,
-      UpdatePersonError,
+      UpdatePersonResponses,
+      UpdatePersonErrors,
       ThrowOnError
     >({
+      responseTransformer: updatePersonResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3782,12 +3795,11 @@ export class PeopleService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updatePersonResponseTransformer,
       url: '/persons/{id}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3800,8 +3812,8 @@ export class PeopleService {
     options: Options<InvitePersonData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      InvitePersonResponse,
-      InvitePersonError,
+      InvitePersonResponses,
+      InvitePersonErrors,
       ThrowOnError
     >({
       security: [
@@ -3819,7 +3831,7 @@ export class PeopleService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3833,8 +3845,8 @@ export class SettingsService {
     options?: Options<EmailSettingsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      EmailSettingsResponse,
-      EmailSettingsError,
+      EmailSettingsResponses,
+      EmailSettingsErrors,
       ThrowOnError
     >({
       security: [
@@ -3860,8 +3872,8 @@ export class SettingsService {
     options: Options<UpdateEmailSettingsData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      UpdateEmailSettingsResponse,
-      UpdateEmailSettingsError,
+      UpdateEmailSettingsResponses,
+      UpdateEmailSettingsErrors,
       ThrowOnError
     >({
       security: [
@@ -3879,7 +3891,7 @@ export class SettingsService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3890,7 +3902,7 @@ export class SettingsService {
   public static testSmtp<ThrowOnError extends boolean = false>(
     options: Options<TestSmtpData, ThrowOnError>
   ) {
-    return (options.client ?? _heyApiClient).post<TestSmtpResponse, TestSmtpError, ThrowOnError>({
+    return (options.client ?? _heyApiClient).post<TestSmtpResponses, TestSmtpErrors, ThrowOnError>({
       security: [
         {
           scheme: 'bearer',
@@ -3906,7 +3918,7 @@ export class SettingsService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -3918,8 +3930,8 @@ export class SettingsService {
     options?: Options<SetAppIconData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).post<
-      SetAppIconResponse,
-      SetAppIconError,
+      SetAppIconResponses,
+      SetAppIconErrors,
       ThrowOnError
     >({
       ...formDataBodySerializer,
@@ -3950,8 +3962,8 @@ export class SettingsService {
     options?: Options<InstanceSettingsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      InstanceSettingsResponse,
-      InstanceSettingsError,
+      InstanceSettingsResponses,
+      InstanceSettingsErrors,
       ThrowOnError
     >({
       security: [
@@ -3977,8 +3989,8 @@ export class SettingsService {
     options: Options<UpdateInstanceSettingsData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      UpdateInstanceSettingsResponse,
-      UpdateInstanceSettingsError,
+      UpdateInstanceSettingsResponses,
+      UpdateInstanceSettingsErrors,
       ThrowOnError
     >({
       security: [
@@ -3996,7 +4008,7 @@ export class SettingsService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -4008,10 +4020,11 @@ export class SettingsService {
     options?: Options<ListDataFeedsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListDataFeedsResponse,
-      ListDataFeedsError,
+      ListDataFeedsResponses,
+      ListDataFeedsErrors,
       ThrowOnError
     >({
+      responseTransformer: listDataFeedsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4023,7 +4036,6 @@ export class SettingsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listDataFeedsResponseTransformer,
       url: '/settings/mapping/data-feeds',
       ...options
     })
@@ -4036,10 +4048,11 @@ export class SettingsService {
     options: Options<CreateDataFeedData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateDataFeedResponse,
-      CreateDataFeedError,
+      CreateDataFeedResponses,
+      CreateDataFeedErrors,
       ThrowOnError
     >({
+      responseTransformer: createDataFeedResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4051,12 +4064,11 @@ export class SettingsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createDataFeedResponseTransformer,
       url: '/settings/mapping/data-feeds',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -4068,10 +4080,11 @@ export class SettingsService {
     options?: Options<ListMapPresetsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListMapPresetsResponse,
-      ListMapPresetsError,
+      ListMapPresetsResponses,
+      ListMapPresetsErrors,
       ThrowOnError
     >({
+      responseTransformer: listMapPresetsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4083,7 +4096,6 @@ export class SettingsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: listMapPresetsResponseTransformer,
       url: '/settings/mapping/map-presets',
       ...options
     })
@@ -4097,10 +4109,11 @@ export class SettingsService {
     options: Options<CreateUpdateMapPresetData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).put<
-      CreateUpdateMapPresetResponse,
-      CreateUpdateMapPresetError,
+      CreateUpdateMapPresetResponses,
+      CreateUpdateMapPresetErrors,
       ThrowOnError
     >({
+      responseTransformer: createUpdateMapPresetResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4112,12 +4125,11 @@ export class SettingsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createUpdateMapPresetResponseTransformer,
       url: '/settings/mapping/map-presets',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -4130,10 +4142,11 @@ export class SettingsService {
     options: Options<DeleteMapPresetData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteMapPresetResponse,
-      DeleteMapPresetError,
+      DeleteMapPresetResponses,
+      DeleteMapPresetErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteMapPresetResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4145,7 +4158,6 @@ export class SettingsService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteMapPresetResponseTransformer,
       url: '/settings/mapping/map-presets/{name}',
       ...options
     })
@@ -4158,8 +4170,8 @@ export class SettingsService {
     options?: Options<SecuritySettingsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      SecuritySettingsResponse,
-      SecuritySettingsError,
+      SecuritySettingsResponses,
+      SecuritySettingsErrors,
       ThrowOnError
     >({
       security: [
@@ -4185,8 +4197,8 @@ export class SettingsService {
     options: Options<UpdateSecuritySettingsData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      UpdateSecuritySettingsResponse,
-      UpdateSecuritySettingsError,
+      UpdateSecuritySettingsResponses,
+      UpdateSecuritySettingsErrors,
       ThrowOnError
     >({
       security: [
@@ -4204,7 +4216,7 @@ export class SettingsService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -4216,8 +4228,8 @@ export class SettingsService {
     options?: Options<ServiceSettingsData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ServiceSettingsResponse,
-      ServiceSettingsError,
+      ServiceSettingsResponses,
+      ServiceSettingsErrors,
       ThrowOnError
     >({
       security: [
@@ -4243,8 +4255,8 @@ export class SettingsService {
     options: Options<UpdateServiceSettingsData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateServiceSettingsResponse,
-      UpdateServiceSettingsError,
+      UpdateServiceSettingsResponses,
+      UpdateServiceSettingsErrors,
       ThrowOnError
     >({
       security: [
@@ -4262,7 +4274,7 @@ export class SettingsService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -4276,10 +4288,11 @@ export class TaxonomyService {
     options?: Options<GetTaxonomyData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      GetTaxonomyResponse,
-      GetTaxonomyError,
+      GetTaxonomyResponses,
+      GetTaxonomyErrors,
       ThrowOnError
     >({
+      responseTransformer: getTaxonomyResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4291,7 +4304,6 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: getTaxonomyResponseTransformer,
       url: '/taxonomy',
       ...options
     })
@@ -4303,7 +4315,14 @@ export class TaxonomyService {
   public static listTaxa<ThrowOnError extends boolean = false>(
     options?: Options<ListTaxaData, ThrowOnError>
   ) {
-    return (options?.client ?? _heyApiClient).get<ListTaxaResponse, ListTaxaError, ThrowOnError>({
+    return (options?.client ?? _heyApiClient).get<ListTaxaResponses, ListTaxaErrors, ThrowOnError>({
+      querySerializer: {
+        array: {
+          explode: false,
+          style: 'form'
+        }
+      },
+      responseTransformer: listTaxaResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4315,13 +4334,6 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      querySerializer: {
-        array: {
-          explode: false,
-          style: 'form'
-        }
-      },
-      responseTransformer: listTaxaResponseTransformer,
       url: '/taxonomy/taxa',
       ...options
     })
@@ -4334,10 +4346,11 @@ export class TaxonomyService {
     options: Options<CreateTaxonData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).post<
-      CreateTaxonResponse,
-      CreateTaxonError,
+      CreateTaxonResponses,
+      CreateTaxonErrors,
       ThrowOnError
     >({
+      responseTransformer: createTaxonResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4349,12 +4362,11 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: createTaxonResponseTransformer,
       url: '/taxonomy/taxa',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -4366,10 +4378,11 @@ export class TaxonomyService {
     options: Options<DeleteTaxonData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteTaxonResponse,
-      DeleteTaxonError,
+      DeleteTaxonResponses,
+      DeleteTaxonErrors,
       ThrowOnError
     >({
+      responseTransformer: deleteTaxonResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4381,7 +4394,6 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: deleteTaxonResponseTransformer,
       url: '/taxonomy/taxa/{code}',
       ...options
     })
@@ -4393,7 +4405,8 @@ export class TaxonomyService {
   public static getTaxon<ThrowOnError extends boolean = false>(
     options: Options<GetTaxonData, ThrowOnError>
   ) {
-    return (options.client ?? _heyApiClient).get<GetTaxonResponse, GetTaxonError, ThrowOnError>({
+    return (options.client ?? _heyApiClient).get<GetTaxonResponses, GetTaxonErrors, ThrowOnError>({
+      responseTransformer: getTaxonResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4405,7 +4418,6 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: getTaxonResponseTransformer,
       url: '/taxonomy/taxa/{code}',
       ...options
     })
@@ -4418,10 +4430,11 @@ export class TaxonomyService {
     options: Options<UpdateTaxonData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateTaxonResponse,
-      UpdateTaxonError,
+      UpdateTaxonResponses,
+      UpdateTaxonErrors,
       ThrowOnError
     >({
+      responseTransformer: updateTaxonResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -4433,12 +4446,11 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      responseTransformer: updateTaxonResponseTransformer,
       url: '/taxonomy/taxa/{code}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }

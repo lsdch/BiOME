@@ -126,6 +126,9 @@ export type BibSearchResults = {
   total: number
 }
 
+/**
+ * BioMatSortKey
+ */
 export type BioMatSortKey =
   | 'code'
   | 'site'
@@ -207,6 +210,9 @@ export type Coordinates = {
   precision: CoordinatesPrecision
 }
 
+/**
+ * CoordinatesPrecision
+ */
 export type CoordinatesPrecision = '<100m' | '<1km' | '<10km' | '10-100km' | 'Unknown'
 
 export type Country = {
@@ -371,6 +377,9 @@ export type Dataset = {
   slug: string
 }
 
+/**
+ * DatasetCategory
+ */
 export type DatasetCategory = 'Site' | 'Occurrence' | 'Seq'
 
 export type DatasetInner = {
@@ -402,6 +411,9 @@ export type DateObject = {
   timestamp?: number
 }
 
+/**
+ * DatePrecision
+ */
 export type DatePrecision = 'Day' | 'Month' | 'Year' | 'Unknown'
 
 export type DateRange = {
@@ -573,6 +585,9 @@ export type EventWithParticipants = {
   site: SiteItem
 }
 
+/**
+ * ExtSeqOrigin
+ */
 export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom'
 
 export type ExtSeqSpecificsBioMaterial = {
@@ -1209,6 +1224,9 @@ export type OccurrenceAtSite = {
   taxon: TaxonInner
 }
 
+/**
+ * OccurrenceCategory
+ */
 export type OccurrenceCategory = 'Internal' | 'External'
 
 export type OccurrenceDataset = {
@@ -1242,6 +1260,9 @@ export type OccurrenceDatasetListItem = {
   slug: string
 }
 
+/**
+ * OccurrenceElement
+ */
 export type OccurrenceElement = 'BioMaterial' | 'Sequence'
 
 export type OccurrenceOverviewItem = {
@@ -1403,6 +1424,9 @@ export type OptionalUserShortIdentity = {
   name: string
 } | null
 
+/**
+ * OrgKind
+ */
 export type OrgKind = 'Lab' | 'FundingAgency' | 'SequencingPlatform' | 'Other'
 
 export type Organisation = {
@@ -1640,6 +1664,9 @@ export type Property = {
   'id-type'?: string
 }
 
+/**
+ * Quantity
+ */
 export type Quantity = 'Unknown' | 'One' | 'Several' | 'Dozen' | 'Tens' | 'Hundred'
 
 export type Reference = {
@@ -1837,6 +1864,9 @@ export type SamplingTargetInput = {
   taxa?: Array<string>
 }
 
+/**
+ * SamplingTargetKind
+ */
 export type SamplingTargetKind = 'Community' | 'Unknown' | 'Taxa'
 
 export type SamplingUpdate = {
@@ -2092,6 +2122,9 @@ export type SiteItem = {
   user_defined_locality: boolean
 }
 
+/**
+ * SiteSamplingStatus
+ */
 export type SiteSamplingStatus = 'All' | 'Sampled' | 'Occurrences'
 
 export type SiteUpdate = {
@@ -2247,6 +2280,9 @@ export type TaxonInput = {
   status: TaxonStatus
 }
 
+/**
+ * TaxonRank
+ */
 export type TaxonRank =
   | 'Kingdom'
   | 'Phylum'
@@ -2257,6 +2293,9 @@ export type TaxonRank =
   | 'Species'
   | 'Subspecies'
 
+/**
+ * TaxonStatus
+ */
 export type TaxonStatus = 'Accepted' | 'Unreferenced' | 'Unclassified'
 
 export type TaxonUpdate = {
@@ -2416,6 +2455,9 @@ export type UserInput = {
   password_confirmation: string
 }
 
+/**
+ * UserRole
+ */
 export type UserRole = 'Visitor' | 'Contributor' | 'Maintainer' | 'Admin'
 
 export type UserShortIdentity = {
@@ -4733,6 +4775,7 @@ export type MonitorGbifError = MonitorGbifErrors[keyof MonitorGbifErrors]
 
 export type MonitorGbifResponses = {
   /**
+   * Server Sent Events
    * Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.
    */
   200: Array<{

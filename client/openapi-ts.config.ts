@@ -7,6 +7,14 @@ const config: Promise<UserConfig> = defineConfig({
     format: "prettier",
     lint: "eslint",
   },
+  parser: {
+    transforms: {
+
+      readWrite: {
+        enabled: false,
+      }
+    }
+  },
   plugins: [
     ...defaultPlugins,
     {
@@ -25,11 +33,13 @@ const config: Promise<UserConfig> = defineConfig({
     {
       name: "@hey-api/typescript",
       style: "PascalCase",
-      readOnlyWriteOnlyBehavior: 'off',
     },
     {
       name: "@hey-api/sdk",
       asClass: true,
+      classNameBuilder(name) {
+        return `${name}Service`
+      },
       transformer: true,
     },
     { name: "@hey-api/transformers", dates: true, bigInt: false },

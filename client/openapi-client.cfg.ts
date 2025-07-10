@@ -1,5 +1,5 @@
 import { servers } from "./openapi.json"
-import type { CreateClientConfig } from '@hey-api/client-fetch';
+import type { CreateClientConfig } from '@/api/gen/client/';
 
 export const createClientConfig: CreateClientConfig = (config) => ({
   ...config,
