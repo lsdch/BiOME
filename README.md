@@ -14,18 +14,17 @@ In ecology, an occurrence is defined as the reported presence of a specific taxo
 1. Install golang >= 1.24
 2. Setup `GOBIN` environment variable in your shell profile
 3. Add it to your `PATH` environment variable
-4. Install [air](github.com/cosmtrek/air@latest) to handle hot-reloading of the server, and [swag](github.com/swaggo/swag/cmd/swag@latest) to generate OpenAPI docs :
+4. Install [air](github.com/cosmtrek/air@latest) to handle hot-reloading of the server:
 
    ```bash
    go install github.com/cosmtrek/air@latest
-   go install github.com/swaggo/swag/cmd/swag@latest
    ```
 5. Database setup
   - install [Gel CLI](https://docs.geldata.com/reference/cli)
-  - run `gel project init` in the `/server` directory
+  - run `gel project init` in the project directory
 
 6. Client setup
-- Install nodejs >= 22
+- Install `nodejs >= 23`
 - Install [pnpm](https://pnpm.io/installation)
 - run `pnpm i` in the `/client` directory
 
