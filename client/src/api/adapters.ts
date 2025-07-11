@@ -221,6 +221,10 @@ export namespace UserRole {
     return $UserRole.enum.indexOf(user.role) >= $UserRole.enum.indexOf(role)
   }
 
+  export function upTo(role: UserRole, exclude: boolean = false): UserRole[] {
+    return $UserRole.enum.slice(0, $UserRole.enum.indexOf(role) + (exclude ? 1 : 0))
+  }
+
   export const Icon = UserRoleIcon
 
   export const Chip = UserRoleChip
