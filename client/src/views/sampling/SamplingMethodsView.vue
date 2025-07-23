@@ -8,8 +8,9 @@
     appendActions
   >
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <SamplingMethodFormDialog
+      <SamplingMethodFormDialogMutation
         :dialog
+        @update:dialog="(v) => !v && onClose()"
         :model-value="editItem"
         @close="onClose"
         @success="onSuccess"
@@ -21,7 +22,7 @@
 <script setup lang="ts">
 import { SamplingMethod } from '@/api'
 import { listSamplingMethodsOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import SamplingMethodFormDialog from '@/components/forms/SamplingMethodFormDialogMutation.vue'
+import SamplingMethodFormDialogMutation from '@/components/forms/SamplingMethodFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<SamplingMethod>[] = [

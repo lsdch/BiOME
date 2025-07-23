@@ -1,6 +1,7 @@
 <template>
   <PersonFormDialog
     v-model="model"
+    v-model:dialog="dialog"
     :mode
     :errors
     :loading="loading || activeMutation.isPending.value"
@@ -20,10 +21,9 @@ import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/functions
 import { PersonModel } from '@/models'
 import PersonFormDialog from './PersonFormDialog.vue'
 
+defineProps<FormDialogProps>()
 const dialog = defineModel<boolean>('dialog')
 const item = defineModel<Person>()
-
-defineProps<FormDialogProps>()
 
 const create = defineFormCreate(createPersonMutation(), {
   initial: PersonModel.initialModel,

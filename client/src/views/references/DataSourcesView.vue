@@ -33,7 +33,13 @@
       </v-list>
     </template>
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <DataSourceFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
+      <DataSourceFormDialogMutation
+        :dialog
+        @update:dialog="(v) => !v && onClose()"
+        :model-value="editItem"
+        @close="onClose"
+        @success="onSuccess"
+      />
     </template>
   </CRUDTable>
 </template>
@@ -41,7 +47,7 @@
 <script setup lang="ts">
 import { DataSource } from '@/api'
 import { listDataSourcesOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import DataSourceFormDialog from '@/components/forms/DataSourceFormDialogMutation.vue'
+import DataSourceFormDialogMutation from '@/components/forms/DataSourceFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<DataSource>[] = [

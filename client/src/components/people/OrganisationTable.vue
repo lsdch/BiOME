@@ -37,8 +37,9 @@
       </v-row>
     </template>
     <template #form="{ dialog, editItem, onSuccess, onClose }">
-      <OrganisationFormDialog
+      <OrganisationFormDialogMutation
         :dialog
+        @update:dialog="(v) => !v && onClose()"
         :model-value="editItem"
         @success="onSuccess"
         @close="onClose"
@@ -95,18 +96,18 @@
 </template>
 
 <script setup lang="ts">
-import { Organisation, OrgKind, PeopleService, UserRole } from '@/api'
-import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
-import { computed, ref } from 'vue'
-import { useDisplay } from 'vuetify'
-import { enumAsString } from '../toolkit/enums'
-import OrganisationFormDialog from '../forms/people/OrganisationFormDialog.vue'
-import OrgKindChip from './OrgKindChip'
-import OrgKindPicker from './OrgKindPicker.vue'
+import { Organisation, OrgKind } from '@/api'
 import {
   deleteOrganisationMutation,
   listOrganisationsOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { computed, ref } from 'vue'
+import { useDisplay } from 'vuetify'
+import OrganisationFormDialogMutation from '../forms/people/OrganisationFormDialogMutation.vue'
+import { enumAsString } from '../toolkit/enums'
+import OrgKindChip from './OrgKindChip'
+import OrgKindPicker from './OrgKindPicker.vue'
 import PersonChip from './PersonChip'
 
 const { mdAndUp } = useDisplay()

@@ -68,7 +68,13 @@
       </v-card>
     </template>
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <ArticleFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
+      <ArticleFormDialogMutation
+        :dialog
+        @update:dialog="(v) => !v && onClose()"
+        :model-value="editItem"
+        @close="onClose"
+        @success="onSuccess"
+      />
     </template>
     <template #footer.prepend-actions>
       <ArticlesImportDialog v-model="importDialog" />
@@ -88,6 +94,7 @@
 import { ReferencesService } from '@/api'
 import { Article } from '@/api/adapters'
 import { deleteArticleMutation, listArticlesOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import ArticleFormDialogMutation from '@/components/forms/ArticleFormDialogMutation.vue'
 import ArticleFormDialog from '@/components/forms/ArticleFormDialogMutation.vue'
 import ArticlesImportDialog from '@/components/references/ArticlesImportDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'

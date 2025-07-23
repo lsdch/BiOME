@@ -12,7 +12,13 @@
     appendActions
   >
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <FixativeFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
+      <FixativeFormDialogMutation
+        :dialog
+        @update:dialog="(v) => !v && onClose()"
+        :model-value="editItem"
+        @close="onClose"
+        @success="onSuccess"
+      />
     </template>
   </CRUDTable>
 </template>
@@ -20,7 +26,7 @@
 <script setup lang="ts">
 import { Fixative } from '@/api'
 import { deleteFixativeMutation, listFixativesOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import FixativeFormDialog from '@/components/forms/FixativeFormDialogMutation.vue'
+import FixativeFormDialogMutation from '@/components/forms/FixativeFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<Fixative>[] = [

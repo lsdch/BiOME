@@ -11,7 +11,7 @@ export function initialModel(): Reactive<OrganisationInput> {
   })
 }
 
-export function fromOrganisation({ name, code, kind, description }: OrganisationInner): OrganisationUpdate {
+export function fromOrganisation({ name, code, kind, description }: Organisation): OrganisationUpdate {
   return {
     name,
     code,

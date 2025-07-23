@@ -12,7 +12,13 @@
     </template>
 
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <GeneFormDialog :dialog :model-value="editItem" @close="onClose" @success="onSuccess" />
+      <GeneFormDialogMutation
+        :dialog
+        @update:dialog="(v) => !v && onClose()"
+        :model-value="editItem"
+        @close="onClose"
+        @success="onSuccess"
+      />
     </template>
   </CRUDTable>
 </template>
@@ -20,7 +26,7 @@
 <script setup lang="ts">
 import { Gene } from '@/api'
 import { listGenesOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import GeneFormDialog from '@/components/forms/GeneFormDialogMutation.vue'
+import GeneFormDialogMutation from '@/components/forms/GeneFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<Gene>[] = [

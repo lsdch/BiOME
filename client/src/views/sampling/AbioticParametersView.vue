@@ -15,8 +15,9 @@
       <code>{{ value }}</code>
     </template>
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <AbioticParameterFormDialog
+      <AbioticParameterFormDialogMutation
         :dialog
+        @update:dialog="(v) => !v && onClose()"
         :model-value="editItem"
         @close="onClose"
         @success="onSuccess"
@@ -31,7 +32,7 @@ import {
   deleteAbioticParameterMutation,
   listAbioticParametersOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
-import AbioticParameterFormDialog from '@/components/forms/AbioticParamFormDialogMutation.vue'
+import AbioticParameterFormDialogMutation from '@/components/forms/AbioticParamFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<AbioticParameter>[] = [

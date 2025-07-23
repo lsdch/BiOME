@@ -85,8 +85,9 @@
 
     <!-- Event form -->
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <EventMutationFormDialog
+      <EventMutationFormDialogMutation
         :dialog
+        @update:dialog="(v) => !v && onClose()"
         :model-value="editItem"
         :site
         @close="onClose()"
@@ -139,7 +140,7 @@ import { ComponentExposed } from 'vue-component-type-helpers'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '../toolkit/tables/IconTableHeader.vue'
 import EventCardDialog, { EventAction } from './EventCardDialog.vue'
-import EventMutationFormDialog from '../forms/EventFormDialogMutation.vue'
+import EventMutationFormDialogMutation from '../forms/EventFormDialogMutation.vue'
 
 type RowClick = {
   index: number

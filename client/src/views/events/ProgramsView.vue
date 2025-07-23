@@ -34,8 +34,9 @@
 
     <!-- Form dialog -->
     <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
-      <ProgramFormDialog
+      <ProgramFormDialogMutation
         :dialog
+        @update:dialog="(v) => !v && onClose()"
         @close="onClose"
         @success="onSuccess"
         :mode
@@ -49,7 +50,7 @@
 <script setup lang="ts">
 import { Program } from '@/api'
 import { deleteProgramMutation, listProgramsOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import ProgramFormDialog from '@/components/forms/ProgramFormDialogMutation.vue'
+import ProgramFormDialogMutation from '@/components/forms/ProgramFormDialogMutation.vue'
 import OrgKindChip from '@/components/people/OrgKindChip'
 import PersonChip from '@/components/people/PersonChip'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'

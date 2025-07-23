@@ -21,12 +21,12 @@
     <template #menu>
       <PersonFilters v-model="filters" />
     </template>
-    <template #form="{ dialog, onClose, onSuccess, editItem }">
+    <template #form="props">
       <PersonFormDialogMutation
-        @success="onSuccess"
-        @close="onClose"
-        :dialog
-        :model-value="editItem"
+        @success="props.onSuccess"
+        :dialog="props.dialog"
+        @update:dialog="(v) => !v && props.onClose()"
+        :model-value="props.editItem"
       />
     </template>
 
