@@ -222,7 +222,7 @@ export namespace UserRole {
   }
 
   export function upTo(role: UserRole, exclude: boolean = false): UserRole[] {
-    return $UserRole.enum.slice(0, $UserRole.enum.indexOf(role) + (exclude ? 1 : 0))
+    return $UserRole.enum.slice(0, $UserRole.enum.indexOf(role) + (exclude ? 0 : 1))
   }
 
   export const Icon = UserRoleIcon

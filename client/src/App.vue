@@ -17,7 +17,7 @@
         </v-btn>
       </v-app-bar-title>
       <v-spacer />
-      <SettingsMenu />
+      <SettingsMenu v-if="!user" />
       <AccountNavMenu />
     </v-app-bar>
     <NavigationDrawer v-model="drawer" :temporary="lgAndDown && (drawerTemporary || smAndDown)" />
@@ -85,10 +85,14 @@ import ErrorSnackbar from './components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from './components/toolkit/ui/FeedbackSnackbar.vue'
 import { useAppConfirmDialog } from './composables/confirm_dialog'
 import { useTheme } from 'vuetify/lib/composables/theme.mjs'
+import { storeToRefs } from 'pinia'
+import { useUserStore } from './stores/user'
 
 const loading = ref(false)
 
 const { lgAndDown, smAndDown, xs } = useDisplay()
+
+const { user } = storeToRefs(useUserStore())
 
 const drawer = ref(!smAndDown.value)
 const drawerTemporary = ref<boolean>()
@@ -142,12 +146,12 @@ const cookiesAccepted = useLocalStorage('cookies-accepted', false)
 </script>
 
 <style>
-#main {
-  /* background: initial;
+/* #main {
+  background: initial;
   background-image: radial-gradient(#64646433 1px, transparent 0px);
   background-size: 25px 25px;
-  background-position: -10px -10px; */
-}
+  background-position: -10px -10px;
+} */
 
 .app-title {
   color: white;

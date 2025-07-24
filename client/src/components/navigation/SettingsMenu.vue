@@ -16,10 +16,12 @@
         <v-switch
           class="px-3"
           label="Dark theme"
-          v-model="theme.global.name.value"
+          :model-value="theme.name.value"
+          @update:model-value="(v) => theme.change(v!)"
           false-value="light"
           true-value="dark"
           color="purple"
+          :indeterminate="false"
           hide-details
         />
       </v-list-item>
@@ -28,12 +30,12 @@
 </template>
 
 <script setup lang="ts">
-import { onBeforeMount, watch } from 'vue'
+import { watch } from 'vue'
 import { useTheme } from 'vuetify'
 const theme = useTheme()
 
-watch(theme.global.name, () => {
-  localStorage.setItem('app-theme', theme.global.name.value)
+watch(theme.name, () => {
+  localStorage.setItem('app-theme', theme.name.value)
 })
 </script>
 

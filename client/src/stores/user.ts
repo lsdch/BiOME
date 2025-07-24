@@ -14,6 +14,7 @@ export const useUserStore = defineStore("user", () => {
   const session_expires = ref<Date>()
   const refresh_token = useLocalStorage<string | undefined>("refresh_token", undefined)
   const isAuthenticated = computed(() => user.value !== undefined)
+  const usePrivilege = ref<UserRole>()
 
   // Session refresh using stored refresh token
   const { mutate: refreshSession, error: refreshError, isPending: refreshPending } = useMutation({
@@ -92,6 +93,7 @@ export const useUserStore = defineStore("user", () => {
     user.value = data.user
     refresh_token.value = data.refresh_token
     session_expires.value = data.auth_token_expiration
+    usePrivilege.value = data.user.role
     // Refresh session before it expires
     setTimeout(refresh, data.auth_token_expiration.getTime() - Date.now() - 30_000)
   }
@@ -104,7 +106,7 @@ export const useUserStore = defineStore("user", () => {
 
   function isGranted(role: UserRole) {
     return user.value
-      ? UserRole.isGranted(user.value, role)
+      ? UserRole.isGranted(usePrivilege.value ? { role: usePrivilege.value } : user.value, role)
       : false
   }
 
@@ -164,5 +166,9 @@ export const useUserStore = defineStore("user", () => {
      * Indicates if the user is currently authenticated
      */
     isAuthenticated,
+    /**
+     * Current user role, used to determine UI privileges
+     */
+    usePrivilege,
   }
 })

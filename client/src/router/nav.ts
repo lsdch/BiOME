@@ -92,46 +92,6 @@ export const navRoutes: (RouterItem | Divider)[] = [
       icon: "mdi-file-upload",
       component: () => import("@/views/import/DataImportView.vue")
     }),
-  // {
-  //   label: "Sampling",
-  //   icon: "mdi-package-down",
-  //   routes: [
-
-  //   ]
-  // },
-  // {
-  //   label: "Samples",
-  //   icon: "mdi-package-variant",
-  //   routes: [
-  //     {
-  //       label: "Bio material",
-  //       path: "/bio-material",
-  //       name: "bio-material",
-  //       icon: "mdi-package-variant",
-  //       component: () => import("@/views/samples/BioMaterialView.vue")
-  //     },
-  //   ]
-  // },
-  // {
-  //   label: "Sequences",
-  //   icon: "mdi-dna",
-  //   routes: [
-  //     {
-  //       label: "Sequences",
-  //       path: "/sequences",
-  //       name: "sequences",
-  //       icon: "mdi-dna",
-  //       component: () => import("@/views/sequences/SequencesView.vue")
-  //     },
-  //     {
-  //       label: "Genes",
-  //       path: "/genes",
-  //       name: "genes",
-  //       icon: "mdi-tag",
-  //       component: () => import("@/views/sequences/GenesView.vue")
-  //     },
-  //   ]
-  // },
   "divider",
   // {
   //   label: "DNA sequencing",
@@ -235,16 +195,10 @@ export const navRoutes: (RouterItem | Divider)[] = [
 
     ]
   },
-  // {
-  //   label: 'References',
-  //   icon: 'mdi-book-open-variant',
-  //   routes: [
-
-  //   ]
-  // },
   {
     label: "Admin",
     icon: "mdi-cog",
+    granted: "Admin",
     routes: [
       guardRole('Admin',
         {
