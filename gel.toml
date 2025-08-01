@@ -1,5 +1,5 @@
 [instance]
-server-version = "6.7"
+server-version = "6.9"
 
 [project]
 schema-dir = "db/schema"
