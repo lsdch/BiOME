@@ -922,14 +922,21 @@ export type Identification = {
   identified_by?: OptionalPersonInner
   identified_on: DateWithPrecision
   meta: Meta
+  qualifier?: OptionalIdentificationQualifier
   taxon: Taxon
 }
 
 export type IdentificationInput = {
-  identified_by: string
+  identified_by?: string
   identified_on: DateWithPrecisionInput
+  qualifier?: IdentificationQualifier
   taxon: string
 }
+
+/**
+ * IdentificationQualifier
+ */
+export type IdentificationQualifier = 'CF' | 'AFF'
 
 export type IdentificationUpdate = {
   identified_by?: string | null
@@ -1373,6 +1380,8 @@ export type OptionalHabitatRecord = {
    */
   label: string
 } | null
+
+export type OptionalIdentificationQualifier = IdentificationQualifier | null
 
 export type OptionalLegacySeqId = {
   alignment_code: string

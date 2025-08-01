@@ -12,6 +12,10 @@ import (
 	"github.com/geldata/gel-go/geltypes"
 )
 
+type StrUnmarshaler interface {
+	UnmarshalEdgeDBStr(data []byte) error
+}
+
 type Optional[T any] struct {
 	geltypes.Optional `json:"-"`
 	Value             T `gel:"$inline"`
@@ -33,6 +37,14 @@ func (o *Optional[T]) Schema(r huma.Registry) *huma.Schema {
 		r.Map()[name] = &s
 	}
 	return &huma.Schema{Ref: fmt.Sprintf("#/components/schemas/%s", name)}
+}
+
+// Gel Marshalling
+func (m *Optional[T]) UnmarshalEdgeDBStr(data []byte) error {
+	if s, ok := any(m.Value).(StrUnmarshaler); ok {
+		return s.UnmarshalEdgeDBStr(data)
+	}
+	return nil
 }
 
 type OptionalNullable interface {

@@ -1,5 +1,7 @@
 module occurrence {
 
+  scalar type IdentificationQualifier extending enum<CF, AFF>;
+
   type Identification extending default::Auditable {
     required taxon: taxonomy::Taxon;
 
@@ -9,6 +11,10 @@ module occurrence {
       rewrite insert, update using (
         (date := date::rewrite_date(.identified_on), precision :=.identified_on.precision)
       )
+    };
+
+    qualifier: IdentificationQualifier {
+      annotation description := "Identification qualifier, e.g. 'cf.' or 'aff.'";
     };
   }
 

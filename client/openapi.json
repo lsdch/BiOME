@@ -2693,6 +2693,9 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
+					"qualifier": {
+						"$ref": "#/components/schemas/OptionalIdentificationQualifier"
+					},
 					"taxon": {
 						"$ref": "#/components/schemas/Taxon"
 					}
@@ -2714,16 +2717,26 @@
 					"identified_on": {
 						"$ref": "#/components/schemas/DateWithPrecisionInput"
 					},
+					"qualifier": {
+						"$ref": "#/components/schemas/IdentificationQualifier"
+					},
 					"taxon": {
 						"type": "string"
 					}
 				},
 				"required": [
 					"taxon",
-					"identified_by",
 					"identified_on"
 				],
 				"type": "object"
+			},
+			"IdentificationQualifier": {
+				"enum": [
+					"CF",
+					"AFF"
+				],
+				"title": "IdentificationQualifier",
+				"type": "string"
 			},
 			"IdentificationUpdate": {
 				"additionalProperties": false,
@@ -4093,6 +4106,13 @@
 				],
 				"type": [
 					"object",
+					"null"
+				]
+			},
+			"OptionalIdentificationQualifier": {
+				"$ref": "#/components/schemas/IdentificationQualifier",
+				"type": [
+					"",
 					"null"
 				]
 			},

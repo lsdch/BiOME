@@ -2340,6 +2340,9 @@ export const $Identification = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
+    qualifier: {
+      $ref: '#/components/schemas/OptionalIdentificationQualifier'
+    },
     taxon: {
       $ref: '#/components/schemas/Taxon'
     }
@@ -2357,12 +2360,21 @@ export const $IdentificationInput = {
     identified_on: {
       $ref: '#/components/schemas/DateWithPrecisionInput'
     },
+    qualifier: {
+      $ref: '#/components/schemas/IdentificationQualifier'
+    },
     taxon: {
       type: 'string'
     }
   },
-  required: ['taxon', 'identified_by', 'identified_on'],
+  required: ['taxon', 'identified_on'],
   type: 'object'
+} as const
+
+export const $IdentificationQualifier = {
+  enum: ['CF', 'AFF'],
+  title: 'IdentificationQualifier',
+  type: 'string'
 } as const
 
 export const $IdentificationUpdate = {
@@ -3607,6 +3619,11 @@ export const $OptionalHabitatRecord = {
   },
   required: ['incompatible', 'id', 'label'],
   type: ['object', 'null']
+} as const
+
+export const $OptionalIdentificationQualifier = {
+  $ref: '#/components/schemas/IdentificationQualifier',
+  type: ['', 'null']
 } as const
 
 export const $OptionalLegacySeqID = {
