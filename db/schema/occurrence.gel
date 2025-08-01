@@ -154,7 +154,7 @@ module occurrence {
       )
     );
 
-    # Molecular identification,if available, and homogenous
+    # Molecular identification,if available and homogenous
     single seq_consensus := (
       select (
         if .is_homogenous then
@@ -164,6 +164,12 @@ module occurrence {
           )
         else {}
       )
+    );
+
+		# Consensus molecular identification, if available.
+		# If not available, use morphological identification.
+    single best_identification := (
+      select .seq_consensus ?? .identification.taxon
     );
   }
 

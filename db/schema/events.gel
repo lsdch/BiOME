@@ -118,13 +118,9 @@ module events {
     multi link occurrences := .<sampling[is occurrence::Occurrence];
 
     multi link occurring_taxa := (
-      with ext_samples_no_seqs := (
-        select .samples[is occurrence::ExternalBioMat]
-        filter not exists [is occurrence::ExternalBioMat].sequences
-      )
       select distinct (
-        ext_samples_no_seqs.identification.taxon union
-        .external_seqs.identification.taxon union
+        .samples[is occurrence::ExternalBioMat].best_identification union
+        (select .external_seqs filter not exists .source_sample).identification.taxon union
         .samples[is occurrence::InternalBioMat].identified_taxa
       )
     );
