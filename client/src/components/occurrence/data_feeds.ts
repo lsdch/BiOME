@@ -18,10 +18,6 @@ export type DataFeedContext = {
   whole_clade?: boolean
 }
 
-export type RegisteredDataFeed = {
-  id: UUID,
-} & DataFeed
-
 const context = ref<DataFeedContext>({})
 const contextEnabled = ref(false)
 
