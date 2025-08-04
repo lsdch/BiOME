@@ -374,6 +374,7 @@ export type Dataset = {
   maintainers: Array<PersonUser>
   meta: Meta
   pinned: boolean
+  publication?: OptionalArticle
   slug: string
 }
 
@@ -403,6 +404,7 @@ export type DatasetUpdate = {
    */
   maintainers?: Array<string>
   pinned?: boolean | null
+  publication?: string | null
 }
 
 export type DateObject = {
@@ -1249,6 +1251,7 @@ export type OccurrenceDataset = {
   maintainers: Array<PersonUser>
   meta: Meta
   pinned: boolean
+  publication?: OptionalArticle
   sites: Array<SiteWithOccurrences>
   slug: string
 }
@@ -1263,6 +1266,7 @@ export type OccurrenceDatasetListItem = {
   meta: Meta
   occurrences: number
   pinned: boolean
+  publication?: OptionalArticle
   sites: number
   slug: string
 }
@@ -1298,6 +1302,24 @@ export type OccurrenceReferenceInput = {
   code: string
   original?: boolean
 }
+
+export type OptionalArticle = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  authors: Array<string>
+  code: string
+  comments?: string
+  doi?: string
+  id: string
+  journal?: string
+  meta: Meta
+  original_source: boolean
+  title?: string
+  verbatim?: string
+  year: number
+} | null
 
 export type OptionalBioMaterial = {
   category: OccurrenceCategory
@@ -1974,6 +1996,7 @@ export type SequenceDataset = {
   maintainers: Array<PersonUser>
   meta: Meta
   pinned: boolean
+  publication?: OptionalArticle
   sequences: Array<Sequence>
   sites: Array<SiteItem>
   slug: string
@@ -2052,6 +2075,7 @@ export type SiteDataset = {
   maintainers: Array<PersonUser>
   meta: Meta
   pinned: boolean
+  publication?: OptionalArticle
   sites: Array<SiteItem>
   slug: string
 }
@@ -2072,6 +2096,7 @@ export type SiteDatasetInput = {
    */
   new_sites?: Array<SiteInput>
   pinned?: boolean
+  publication?: string
   /**
    * Existing site codes to include in the dataset
    */

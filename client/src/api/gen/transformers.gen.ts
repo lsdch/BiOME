@@ -520,8 +520,16 @@ export const updateDataSourceResponseTransformer = async (
   return data
 }
 
+const optionalArticleSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 const datasetSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.publication) {
+    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  }
   return data
 }
 
@@ -541,6 +549,9 @@ export const updateDatasetResponseTransformer = async (
 
 const occurrenceDatasetListItemSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.publication) {
+    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  }
   return data
 }
 
@@ -576,6 +587,9 @@ const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
 
 const occurrenceDatasetSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.publication) {
+    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  }
   data.sites = data.sites.map((item: any) => {
     return siteWithOccurrencesSchemaResponseTransformer(item)
   })
@@ -666,6 +680,9 @@ const sequenceSchemaResponseTransformer = (data: any) => {
 
 const sequenceDatasetSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.publication) {
+    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  }
   data.sequences = data.sequences.map((item: any) => {
     return sequenceSchemaResponseTransformer(item)
   })
@@ -693,6 +710,9 @@ export const getSequenceDatasetResponseTransformer = async (
 
 const siteDatasetSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.publication) {
+    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  }
   data.sites = data.sites.map((item: any) => {
     return siteItemSchemaResponseTransformer(item)
   })

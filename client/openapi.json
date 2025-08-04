@@ -1122,6 +1122,9 @@
 					"pinned": {
 						"type": "boolean"
 					},
+					"publication": {
+						"$ref": "#/components/schemas/OptionalArticle"
+					},
 					"slug": {
 						"type": "string"
 					}
@@ -1213,6 +1216,12 @@
 					"pinned": {
 						"type": [
 							"boolean",
+							"null"
+						]
+					},
+					"publication": {
+						"type": [
+							"string",
 							"null"
 						]
 					}
@@ -3618,6 +3627,9 @@
 					"pinned": {
 						"type": "boolean"
 					},
+					"publication": {
+						"$ref": "#/components/schemas/OptionalArticle"
+					},
 					"sites": {
 						"items": {
 							"$ref": "#/components/schemas/SiteWithOccurrences"
@@ -3676,6 +3688,9 @@
 					},
 					"pinned": {
 						"type": "boolean"
+					},
+					"publication": {
+						"$ref": "#/components/schemas/OptionalArticle"
 					},
 					"sites": {
 						"format": "int64",
@@ -3802,6 +3817,70 @@
 					"code"
 				],
 				"type": "object"
+			},
+			"OptionalArticle": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/Article.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"authors": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"code": {
+						"type": "string"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"doi": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"journal": {
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"original_source": {
+						"type": "boolean"
+					},
+					"title": {
+						"type": "string"
+					},
+					"verbatim": {
+						"type": "string"
+					},
+					"year": {
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"id",
+					"code",
+					"authors",
+					"year",
+					"original_source",
+					"meta"
+				],
+				"type": [
+					"object",
+					"null"
+				]
 			},
 			"OptionalBioMaterial": {
 				"additionalProperties": false,
@@ -6188,6 +6267,9 @@
 					"pinned": {
 						"type": "boolean"
 					},
+					"publication": {
+						"$ref": "#/components/schemas/OptionalArticle"
+					},
 					"sequences": {
 						"items": {
 							"$ref": "#/components/schemas/Sequence"
@@ -6450,6 +6532,9 @@
 					"pinned": {
 						"type": "boolean"
 					},
+					"publication": {
+						"$ref": "#/components/schemas/OptionalArticle"
+					},
 					"sites": {
 						"items": {
 							"$ref": "#/components/schemas/SiteItem"
@@ -6509,6 +6594,9 @@
 					},
 					"pinned": {
 						"type": "boolean"
+					},
+					"publication": {
+						"type": "string"
 					},
 					"sites": {
 						"description": "Existing site codes to include in the dataset",

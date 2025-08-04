@@ -49,6 +49,10 @@ module datasets {
       str_split(.__type__.name, "::")[1],
       "Dataset", ""
     );
+
+    publication: references::Article {
+      on source delete allow;
+    };
   }
 
   type SiteDataset extending Dataset {

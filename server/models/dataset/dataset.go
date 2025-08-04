@@ -9,6 +9,7 @@ import (
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/references"
 	"github.com/sirupsen/logrus"
 
 	"github.com/gosimple/slug"
@@ -25,8 +26,9 @@ type DatasetInner struct {
 
 type Dataset struct {
 	DatasetInner `gel:"$inline" json:",inline"`
-	Maintainers  []people.PersonUser `gel:"maintainers" json:"maintainers"`
-	Meta         people.Meta         `gel:"meta" json:"meta"`
+	Publication  models.Optional[references.Article] `gel:"publication" json:"publication,omitempty"`
+	Maintainers  []people.PersonUser                 `gel:"maintainers" json:"maintainers"`
+	Meta         people.Meta                         `gel:"meta" json:"meta"`
 }
 
 func (d *Dataset) IsMaintainer(user people.UserInner) bool {
@@ -101,6 +103,7 @@ func (dm DatasetMaintainersInput) Validate(edb geltypes.Executor) ([]geltypes.UU
 type DatasetInput struct {
 	Label       string                       `json:"label" minLength:"4" maxLength:"32"`
 	Slug        string                       `json:"slug"`
+	Publication models.OptionalInput[string] `json:"publication,omitempty"`
 	Pinned      models.OptionalInput[bool]   `json:"pinned,omitempty"`
 	Description models.OptionalInput[string] `json:"description,omitempty"`
 	Maintainers DatasetMaintainersInput      `json:"maintainers" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
@@ -113,6 +116,7 @@ func (i *DatasetInput) GenerateSlug() {
 type DatasetUpdate struct {
 	Label       models.OptionalInput[string]                  `gel:"label" json:"label,omitempty" minLength:"4" maxLength:"32"`
 	Description models.OptionalNull[string]                   `gel:"description" json:"description,omitempty"`
+	Publication models.OptionalNull[string]                   `gel:"publication" json:"publication,omitempty"`
 	Pinned      models.OptionalNull[bool]                     `gel:"pinned" json:"pinned,omitempty"`
 	Maintainers models.OptionalInput[DatasetMaintainersInput] `gel:"maintainers" json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
@@ -127,7 +131,12 @@ func (u DatasetUpdate) Save(e geltypes.Executor, slug string) (updated Dataset, 
 			}) { **, sites: { *, country: { * }}}
 		`,
 		Mappings: map[string]string{
-			"label":       "<str>item['label']",
+			"label": "<str>item['label']",
+			"publication": `#edgeql
+				(
+					select references::Article
+					filter .code = <str>item['publication']
+				)`,
 			"description": "<str>item['description']",
 			"pinned":      "<bool>item['pinned']",
 			"maintainers": `#edgeql

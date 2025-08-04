@@ -974,6 +974,9 @@ export const $Dataset = {
     pinned: {
       type: 'boolean'
     },
+    publication: {
+      $ref: '#/components/schemas/OptionalArticle'
+    },
     slug: {
       type: 'string'
     }
@@ -1043,6 +1046,9 @@ export const $DatasetUpdate = {
     },
     pinned: {
       type: ['boolean', 'null']
+    },
+    publication: {
+      type: ['string', 'null']
     }
   },
   type: 'object'
@@ -3193,6 +3199,9 @@ export const $OccurrenceDataset = {
     pinned: {
       type: 'boolean'
     },
+    publication: {
+      $ref: '#/components/schemas/OptionalArticle'
+    },
     sites: {
       items: {
         $ref: '#/components/schemas/SiteWithOccurrences'
@@ -3252,6 +3261,9 @@ export const $OccurrenceDatasetListItem = {
     },
     pinned: {
       type: 'boolean'
+    },
+    publication: {
+      $ref: '#/components/schemas/OptionalArticle'
     },
     sites: {
       format: 'int64',
@@ -3365,6 +3377,59 @@ export const $OccurrenceReferenceInput = {
   },
   required: ['code'],
   type: 'object'
+} as const
+
+export const $OptionalArticle = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Article.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    authors: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    code: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    doi: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    journal: {
+      type: 'string'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    original_source: {
+      type: 'boolean'
+    },
+    title: {
+      type: 'string'
+    },
+    verbatim: {
+      type: 'string'
+    },
+    year: {
+      format: 'int32',
+      type: 'integer'
+    }
+  },
+  required: ['id', 'code', 'authors', 'year', 'original_source', 'meta'],
+  type: ['object', 'null']
 } as const
 
 export const $OptionalBioMaterial = {
@@ -5352,6 +5417,9 @@ export const $SequenceDataset = {
     pinned: {
       type: 'boolean'
     },
+    publication: {
+      $ref: '#/components/schemas/OptionalArticle'
+    },
     sequences: {
       items: {
         $ref: '#/components/schemas/Sequence'
@@ -5587,6 +5655,9 @@ export const $SiteDataset = {
     pinned: {
       type: 'boolean'
     },
+    publication: {
+      $ref: '#/components/schemas/OptionalArticle'
+    },
     sites: {
       items: {
         $ref: '#/components/schemas/SiteItem'
@@ -5646,6 +5717,9 @@ export const $SiteDatasetInput = {
     },
     pinned: {
       type: 'boolean'
+    },
+    publication: {
+      type: 'string'
     },
     sites: {
       description: 'Existing site codes to include in the dataset',
