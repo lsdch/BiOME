@@ -61,18 +61,31 @@
         />
       </template>
     </ConfirmDialog>
+    <v-divider vertical />
+    <OccurrenceDataExportDialog>
+      <template #activator="{ props }">
+        <v-btn
+          prepend-icon="mdi-download"
+          size="small"
+          class="flex-grow-1"
+          variant="text"
+          text="Export data"
+          stacked
+          :rounded="0"
+          v-bind="props"
+        />
+      </template>
+    </OccurrenceDataExportDialog>
   </div>
   <v-divider />
 </template>
 
 <script setup lang="ts">
 import OccurrenceDataFeedCard from '@/components/occurrence/OccurrenceDataFeedCard.vue'
-import DatasetPicker from '../datasets/DatasetPicker.vue'
-import TaxonPicker from '../taxonomy/TaxonPicker.vue'
 import ConfirmDialog from '../toolkit/ui/ConfirmDialog.vue'
-import InlineHelp from '../toolkit/ui/InlineHelp.vue'
 import { useDataFeeds } from './data_feeds'
 import DataFeedsContextPicker from './DataFeedsContextPicker.vue'
+import OccurrenceDataExportDialog from './OccurrenceDataExportDialog.vue'
 
 const { addDataFeed, feeds, resetAll, context, contextEnabled, applyContext } = useDataFeeds()
 </script>

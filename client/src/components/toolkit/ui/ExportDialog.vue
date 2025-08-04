@@ -15,23 +15,10 @@
               <v-checkbox label="Quote items" v-model="options.quotes" color="primary"></v-checkbox>
             </v-col>
             <v-col cols="12" sm="">
-              <v-select
-                label="Quote char"
-                :items="quoteChars"
-                v-model="options.quoteChar"
-                item-value="value"
-                :item-props="(item) => item"
-                :disabled="!options.quotes"
-              />
+              <CSVQuotePicker v-model="options.quoteChar" :disabled="!options.quotes" />
             </v-col>
           </v-row>
-          <v-select
-            label="Delimiter"
-            :items="delimiters"
-            v-model="options.delimiter"
-            item-value="value"
-            :item-props="(item) => item"
-          />
+          <CSVDelimiterPicker v-model="options.delimiter" />
         </v-form>
       </v-card-text>
       <v-divider></v-divider>
@@ -53,9 +40,12 @@
 
 <script setup lang="ts" generic="ItemType extends {}">
 import { flatten } from 'flat'
-import moment from 'moment'
 import CSVEngine from 'papaparse'
 import { computed, ref, watch } from 'vue'
+import CSVDelimiterPicker from './exports/CSVDelimiterPicker.vue'
+import CSVQuotePicker from './exports/CSVQuotePicker.vue'
+import { DateTime } from 'luxon'
+import { useExportOptions } from '@/composables/data_exports'
 
 const isValid = ref(null)
 
@@ -63,27 +53,8 @@ const dialog = defineModel<boolean>()
 const props = defineProps<{ items: ItemType[]; namePrefix: string }>()
 const emit = defineEmits<{ ready: [] }>()
 
-function defaultOptions() {
-  return {
-    delimiter: '\t',
-    quotes: true,
-    quoteChar: '"'
-  }
-}
-
-const options = ref(defaultOptions())
+const { options, reset } = useExportOptions()
 const filename = ref(generateFilename())
-
-const delimiters = [
-  { title: '\\t', subtitle: 'Tab', value: '\t' },
-  { title: ',', subtitle: 'Comma', value: ',' },
-  { title: ';', subtitle: 'Semicolon', value: ';' }
-]
-
-const quoteChars = [
-  { title: '"', subtitle: 'Double', value: '"' },
-  { title: "'", subtitle: 'Single', value: "'" }
-]
 
 function revokeURL() {
   URL.revokeObjectURL(button?.value?.href)
@@ -91,13 +62,13 @@ function revokeURL() {
 
 watch(props, () => {
   revokeURL()
-  options.value = defaultOptions()
+  reset()
 })
 
 const suffix = computed(() => (options.value.delimiter === '\t' ? '.tsv' : '.csv'))
 
 function generateFilename() {
-  return `${props.namePrefix}_${moment().format('Y-MM-DD')}`
+  return `${props.namePrefix}_${DateTime.now().toFormat('yyyy-MM-dd')}`
 }
 
 const csvString = ref('')
