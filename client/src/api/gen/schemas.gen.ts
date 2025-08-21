@@ -6255,7 +6255,17 @@ export const $TaxonInput = {
 } as const
 
 export const $TaxonRank = {
-  enum: ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Subspecies'],
+  enum: [
+    'Kingdom',
+    'Phylum',
+    'Class',
+    'Order',
+    'Family',
+    'Genus',
+    'Subgenus',
+    'Species',
+    'Subspecies'
+  ],
   title: 'TaxonRank',
   type: 'string'
 } as const

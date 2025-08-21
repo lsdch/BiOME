@@ -2324,6 +2324,7 @@ export type TaxonRank =
   | 'Order'
   | 'Family'
   | 'Genus'
+  | 'Subgenus'
   | 'Species'
   | 'Subspecies'
 

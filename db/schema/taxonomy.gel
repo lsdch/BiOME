@@ -20,7 +20,7 @@ module taxonomy {
     )
   };
 
-  scalar type Rank extending enum<Kingdom, Phylum, Class, Order, Family, Genus, Species, Subspecies>;
+  scalar type Rank extending enum<Kingdom, Phylum, Class, Order, Family, Genus, Subgenus, Species, Subspecies>;
   # Ignore FORM, VARIETY, UNRANKED
 
 
@@ -40,7 +40,7 @@ module taxonomy {
     };
 
     constraint expression on (not contains(.name, " "))
-      except (.rank = Rank.Species or .rank = Rank.Subspecies) {
+      except (.rank = Rank.Subgenus or .rank = Rank.Species or .rank = Rank.Subspecies) {
         errmessage := "Taxon names with rank higher than species may not include a whitespace."
       };
     constraint expression on (len(str_split(.name, " ")) >= 2)
@@ -66,7 +66,7 @@ module taxonomy {
     required anchor: bool {
       annotation description := "Signals whether this taxon was manually imported";
       default := false;
-    }
+    };
     authorship: str;
 
     kingdom: Taxon {

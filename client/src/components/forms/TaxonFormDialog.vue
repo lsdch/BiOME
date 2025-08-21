@@ -17,22 +17,19 @@
             :ranks="['Order', 'Family', 'Genus', 'Species']"
             item-value="code"
             return-object
-            :modelValue="parent"
-            @update:modelValue="
-              (parent: Taxon | undefined) => {
-                model.parent = parent?.code
-                model.rank = parent ? TaxonRank.childRank(parent.rank) : undefined
-              }
-            "
+            :multiple="false"
+            v-model="parent"
           />
         </v-col>
         <v-col cols="12" sm="6">
-          <v-text-field
-            :modelValue="model.parent !== '' ? model.rank : ''"
-            label="New descendant rank"
-            variant="plain"
-            readonly
-            append-icon=""
+          <v-select
+            label="New taxon rank"
+            v-model="model.rank"
+            :items="[
+              TaxonRank.childRank(parent.rank),
+              ...(parent.rank === 'Genus' ? ['Subgenus'] : [])
+            ]"
+            :disabled="parent.rank !== 'Genus'"
           />
         </v-col>
       </v-row>
@@ -66,11 +63,7 @@
       </v-row>
       <v-row>
         <v-col>
-          <v-textarea
-            label="Comments (optional)"
-            variant="outlined"
-            v-model.trim="model.comment"
-          ></v-textarea>
+          <v-textarea label="Comments (optional)" variant="outlined" v-model.trim="model.comment" />
         </v-col>
       </v-row>
     </v-container>
@@ -86,10 +79,15 @@ import { TaxonModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
 import StatusPicker from '../taxonomy/StatusPicker.vue'
 import TaxonPicker from '../taxonomy/TaxonPicker.vue'
+import { watch } from 'vue'
 
 const dialog = defineModel<boolean>('dialog')
 const model = defineModel<TaxonModel.TaxonFormModel>({
   default: TaxonModel.initialModel
+})
+
+const parent = defineModel<Taxon>('parent', {
+  required: true
 })
 
 const { mode = 'Create', ...props } = defineProps<
@@ -107,6 +105,15 @@ const {
 function generateCode(model: TaxonModel.TaxonFormModel) {
   return model.name?.replace(/\s/g, '_')
 }
+
+watch(
+  parent,
+  (newParent) => {
+    model.value.parent = newParent.code
+    model.value.rank = TaxonRank.childRank(newParent.rank)
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped lang="scss"></style>

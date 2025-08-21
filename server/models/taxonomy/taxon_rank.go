@@ -11,6 +11,7 @@ const (
 	Order      TaxonRank = "Order"
 	Family     TaxonRank = "Family"
 	Genus      TaxonRank = "Genus"
+	Subgenus   TaxonRank = "Subgenus"
 	Species    TaxonRank = "Species"
 	Subspecies TaxonRank = "Subspecies"
 )

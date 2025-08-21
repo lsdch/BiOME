@@ -30,6 +30,7 @@
         <TaxonRankPicker
           class="ml-3"
           v-model="maxRankDisplay"
+          :exclude="['Subgenus']"
           label="Truncate above"
           hide-details
           density="compact"
@@ -106,7 +107,12 @@
       @navigate="(target) => (selected = target)"
       @deleted="({ parent }) => update(parent?.id)"
     />
-    <TaxonFormDialog v-model:dialog="formDialog" :parent="parentTaxon" @success="onTaxonCreated" />
+    <TaxonFormDialog
+      v-if="parentTaxon"
+      v-model:dialog="formDialog"
+      v-model:parent="parentTaxon"
+      @success="onTaxonCreated"
+    />
   </div>
 </template>
 
@@ -160,7 +166,7 @@ onSelect((taxon) => {
   showTaxonCard.value = true
 })
 
-type Header = { rank: TaxonRank }
+type Header = { rank: TaxonRank.NoSubgenus }
 
 const headers: Header[] = [
   { rank: 'Kingdom' },
@@ -274,11 +280,12 @@ const templateColumns = computed(() => {
 })
 
 type RanksCount = {
-  [k in TaxonRank]: number
+  [k in TaxonRank.NoSubgenus]: number
 }
 
 function _countsByRank(acc: RanksCount, taxonomy: Taxonomy | undefined) {
   taxonomy?.children?.forEach((child) => {
+    if (child.rank === 'Subgenus') return
     acc[child.rank] += 1
     if (child.children_count > 0) _countsByRank(acc, child)
   })

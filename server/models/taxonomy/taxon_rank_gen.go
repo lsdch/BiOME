@@ -19,6 +19,7 @@ var TaxonRankValues = []TaxonRank{
 	Order,
 	Family,
 	Genus,
+	Subgenus,
 	Species,
 	Subspecies,
 }

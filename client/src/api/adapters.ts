@@ -171,6 +171,9 @@ export namespace OrgKind {
 
 export type TaxonRank = TTaxonRank
 export namespace TaxonRank {
+
+  export type NoSubgenus = Exclude<TaxonRank, 'Subgenus'>
+
   const taxonRankOrder = Object.fromEntries($TaxonRank.enum.map((rank, i) => [rank, i])) as { [k in TaxonRank]: number }
 
   export function index(rank: TaxonRank) {
@@ -190,7 +193,14 @@ export namespace TaxonRank {
   }
 
   export function childRank(rank: TaxonRank): TaxonRank | undefined {
-    return $TaxonRank.enum[index(rank) + 1]
+    switch (rank) {
+      case 'Genus':
+        return 'Species'
+      case 'Subgenus':
+        return undefined
+      default:
+        return $TaxonRank.enum[index(rank) + 1]
+    }
   }
 
   export function ranksUpTo(rank: TaxonRank): TaxonRank[] {
