@@ -65,7 +65,7 @@ func TestTaxonomyList(t *testing.T) {
 }
 
 func TestTaxonomyFind(t *testing.T) {
-	taxon, err := taxonomy.FindByCode(db.Client(), "Asellus")
+	taxon, err := taxonomy.FindByName(db.Client(), "Asellus")
 	require.NoError(t, err)
 	assert.Equal(t, taxon.Code, "Asellus")
 }

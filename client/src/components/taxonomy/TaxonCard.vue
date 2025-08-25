@@ -18,16 +18,13 @@
       </template>
 
       <template #text>
-        <v-row>
-          <v-col cols="12" sm="6" class="d-flex justify-sm-end align-center order-sm-last">
-            <v-chip :text="taxon.rank" variant="outlined" class="mr-3" />
-            <v-chip
-              :text="taxon.status"
-              variant="outlined"
-              :color="taxonStatusIndicatorProps(taxon.status).color"
-            />
-          </v-col>
-          <v-col cols="12" sm="6">
+        <v-chip :text="taxon.rank" variant="outlined" class="mr-3" />
+        <v-chip
+          :text="taxon.status"
+          variant="outlined"
+          :color="taxonStatusIndicatorProps(taxon.status).color"
+        />
+        <!-- <v-col cols="12" sm="6">
             <ActivableField v-model="taxon.code" activable="Maintainer">
               <template #default="{ proxy, active, props, save, cancel, isPristine }">
                 <v-text-field
@@ -60,8 +57,7 @@
                 </v-text-field>
               </template>
             </ActivableField>
-          </v-col>
-        </v-row>
+          </v-col> -->
 
         <div v-if="taxon.anchor" class="text-body-2">
           <v-icon icon="mdi-pin" color="warning" />
@@ -205,7 +201,7 @@ const {
   data: relatives,
   error,
   isFetching
-} = useQuery(computed(() => getTaxonOptions({ path: { code: taxon.value.code } })))
+} = useQuery(computed(() => getTaxonOptions({ path: { name: taxon.value.name } })))
 
 const { askConfirm } = useAppConfirmDialog()
 const { feedback } = useFeedback()
@@ -232,7 +228,7 @@ async function deleteTaxon(taxon: Taxon) {
     message: 'All descendants will also be deleted'
   }).then(async ({ isCanceled }) => {
     if (isCanceled) return
-    delTaxon({ path: { code: taxon.code } })
+    delTaxon({ path: { name: taxon.name } })
   })
 }
 </script>

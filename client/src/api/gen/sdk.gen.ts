@@ -4394,7 +4394,7 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      url: '/taxonomy/taxa/{code}',
+      url: '/taxonomy/taxa/{name}',
       ...options
     })
   }
@@ -4418,7 +4418,7 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      url: '/taxonomy/taxa/{code}',
+      url: '/taxonomy/taxa/{name}',
       ...options
     })
   }
@@ -4446,7 +4446,7 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      url: '/taxonomy/taxa/{code}',
+      url: '/taxonomy/taxa/{name}',
       ...options,
       headers: {
         'Content-Type': 'application/json',

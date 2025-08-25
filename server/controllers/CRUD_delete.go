@@ -42,6 +42,10 @@ type DeleteByCodeHandlerInput struct {
 	resolvers.AuthRequired
 	CodeInput
 }
+type DeleteByNameHandlerInput struct {
+	resolvers.AuthRequired
+	NameInput
+}
 
 func DeleteByCodeHandler[Item any](
 	deleteItem ItemDelete[string, Item],
@@ -58,4 +62,10 @@ func DeleteByIDHandler[Item any](
 	deleteItem ItemDelete[geltypes.UUID, Item],
 ) router.Endpoint[DeleteByIDHandlerInput, DeleteHandlerOutput[Item]] {
 	return DeleteHandler[*DeleteByIDHandlerInput](deleteItem)
+}
+
+func DeleteByNameHandler[Item any](
+	deleteItem ItemDelete[string, Item],
+) router.Endpoint[DeleteByNameHandlerInput, DeleteHandlerOutput[Item]] {
+	return DeleteHandler[*DeleteByNameHandlerInput](deleteItem)
 }

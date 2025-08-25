@@ -1431,7 +1431,6 @@ export type OptionalTaxon = {
   anchor: boolean
   authorship?: string
   children_count: number
-  code: string
   comment?: string
   id: string
   meta: Meta
@@ -2285,7 +2284,6 @@ export type Taxon = {
   anchor: boolean
   authorship?: string
   children_count: number
-  code: string
   comment?: string
   id: string
   meta: Meta
@@ -2306,7 +2304,6 @@ export type TaxonInput = {
    */
   readonly $schema?: string
   authorship?: string
-  code?: string
   comment?: string
   name: string
   parent: string
@@ -2339,7 +2336,6 @@ export type TaxonUpdate = {
    */
   readonly $schema?: string
   authorship?: string | null
-  code?: string
   comment?: string | null
   name?: string
   parent?: string
@@ -2357,7 +2353,6 @@ export type TaxonWithLineage = {
   authorship?: string
   children?: Array<Taxon>
   children_count: number
-  code: string
   comment?: string
   id: string
   lineage: Lineage
@@ -2373,7 +2368,6 @@ export type TaxonWithParentRef = {
   anchor: boolean
   authorship?: string
   children_count: number
-  code: string
   comment?: string
   id: string
   meta: Meta
@@ -2393,7 +2387,6 @@ export type TaxonWithRelatives = {
   authorship?: string
   children?: Array<Taxon>
   children_count: number
-  code: string
   comment?: string
   id: string
   meta: Meta
@@ -2413,7 +2406,6 @@ export type Taxonomy = {
   authorship?: string
   children?: Array<Taxonomy>
   children_count: number
-  code: string
   comment?: string
   id: string
   meta: Meta
@@ -6954,7 +6946,7 @@ export type GetTaxonomyData = {
   path?: never
   query?: {
     /**
-     * Taxon code or UUID
+     * Taxon name or UUID
      */
     identifier?: string
     'max-depth'?: TaxonRank
@@ -7069,10 +7061,10 @@ export type DeleteTaxonData = {
     Authorization?: string
   }
   path: {
-    code: string
+    name: string
   }
   query?: never
-  url: '/taxonomy/taxa/{code}'
+  url: '/taxonomy/taxa/{name}'
 }
 
 export type DeleteTaxonErrors = {
@@ -7108,10 +7100,10 @@ export type DeleteTaxonResponse = DeleteTaxonResponses[keyof DeleteTaxonResponse
 export type GetTaxonData = {
   body?: never
   path: {
-    code: string
+    name: string
   }
   query?: never
-  url: '/taxonomy/taxa/{code}'
+  url: '/taxonomy/taxa/{name}'
 }
 
 export type GetTaxonErrors = {
@@ -7149,10 +7141,10 @@ export type UpdateTaxonData = {
     Authorization?: string
   }
   path: {
-    code: string
+    name: string
   }
   query?: never
-  url: '/taxonomy/taxa/{code}'
+  url: '/taxonomy/taxa/{name}'
 }
 
 export type UpdateTaxonErrors = {

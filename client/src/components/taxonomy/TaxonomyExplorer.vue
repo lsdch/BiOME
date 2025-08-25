@@ -107,7 +107,7 @@
       @navigate="(target) => (selected = target)"
       @deleted="({ parent }) => update(parent?.id)"
     />
-    <TaxonFormDialog
+    <TaxonFormDialogMutation
       v-if="parentTaxon"
       v-model:dialog="formDialog"
       v-model:parent="parentTaxon"
@@ -145,7 +145,7 @@ import {
 import { FTaxaNestedList } from './functionals'
 import StatusPicker from './StatusPicker.vue'
 import TaxonCard from './TaxonCard.vue'
-import TaxonFormDialog from '../forms/TaxonFormDialogMutation.vue'
+import TaxonFormDialogMutation from '../forms/TaxonFormDialogMutation.vue'
 import TaxonRankPicker from './TaxonRankPicker'
 
 const { smAndDown } = useDisplay()

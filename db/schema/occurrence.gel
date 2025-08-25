@@ -43,7 +43,7 @@ module occurrence {
   scalar type OccurrenceCategory extending enum<Internal, External>;
 
   function biomat_code(taxon: taxonomy::Taxon, sampling: events::Sampling) -> str {
-    using ( taxon.code ++ "[" ++ sampling.code ++ "]" )
+    using ( taxonomy::taxon_code(taxon) ++ "[" ++ sampling.code ++ "]" )
   };
 
   abstract type BioMaterial extending Occurrence {

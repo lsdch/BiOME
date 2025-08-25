@@ -213,7 +213,7 @@ module seq {
           select array_join(array_agg(sources.code), "|")
         )
       )
-      select seq.identification.taxon.code ++ "[" ++ seq.sampling.code ++ "]" ++ seq.specimen_identifier ++ "|" ++ suffix
+      select taxonomy::taxon_code(seq.identification.taxon) ++ "[" ++ seq.sampling.code ++ "]" ++ seq.specimen_identifier ++ "|" ++ suffix
     );
   };
 

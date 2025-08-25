@@ -28,6 +28,12 @@ type UpdateByCodeHandlerInput[Item models.PersistableWithID[string, Updated], Up
 	UpdateInput[Item, string, Updated]
 }
 
+type UpdateByNameHandlerInput[Item models.PersistableWithID[string, Updated], Updated any] struct {
+	resolvers.AuthRequired
+	NameInput
+	UpdateInput[Item, string, Updated]
+}
+
 type UpdateByIDHandlerInput[Item models.PersistableWithID[geltypes.UUID, Updated], Updated any] struct {
 	resolvers.AuthRequired
 	UUIDInput
@@ -60,6 +66,10 @@ func UpdateByIDHandler[Item models.PersistableWithID[geltypes.UUID, Updated], Up
 }
 
 func UpdateByCodeHandler[Item models.PersistableWithID[string, Updated], Updated any](ctx context.Context, input *UpdateByCodeHandlerInput[Item, Updated]) (*UpdateHandlerOutput[Updated], error) {
+	return UpdateHandler(ctx, input)
+}
+
+func UpdateByNameHandler[Item models.PersistableWithID[string, Updated], Updated any](ctx context.Context, input *UpdateByNameHandlerInput[Item, Updated]) (*UpdateHandlerOutput[Updated], error) {
 	return UpdateHandler(ctx, input)
 }
 

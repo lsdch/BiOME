@@ -3773,10 +3773,6 @@ export const $OptionalTaxon = {
       format: 'int64',
       type: 'integer'
     },
-    code: {
-      examples: ['ASEaquaticus'],
-      type: 'string'
-    },
     comment: {
       type: 'string'
     },
@@ -3800,7 +3796,7 @@ export const $OptionalTaxon = {
       examples: ['Accepted']
     }
   },
-  required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: ['object', 'null']
 } as const
 
@@ -6161,10 +6157,6 @@ export const $Taxon = {
       format: 'int64',
       type: 'integer'
     },
-    code: {
-      examples: ['ASEaquaticus'],
-      type: 'string'
-    },
     comment: {
       type: 'string'
     },
@@ -6188,7 +6180,7 @@ export const $Taxon = {
       examples: ['Accepted']
     }
   },
-  required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 
@@ -6224,11 +6216,6 @@ export const $TaxonInput = {
     },
     authorship: {
       examples: ['(Linnaeus, 1758)'],
-      type: 'string'
-    },
-    code: {
-      examples: ['Asellus_aquaticus'],
-      minLength: 4,
       type: 'string'
     },
     comment: {
@@ -6289,9 +6276,6 @@ export const $TaxonUpdate = {
     authorship: {
       type: ['string', 'null']
     },
-    code: {
-      type: 'string'
-    },
     comment: {
       type: ['string', 'null']
     },
@@ -6343,10 +6327,6 @@ export const $TaxonWithLineage = {
       format: 'int64',
       type: 'integer'
     },
-    code: {
-      examples: ['ASEaquaticus'],
-      type: 'string'
-    },
     comment: {
       type: 'string'
     },
@@ -6376,7 +6356,7 @@ export const $TaxonWithLineage = {
       examples: ['Accepted']
     }
   },
-  required: ['lineage', 'id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['lineage', 'id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 
@@ -6398,10 +6378,6 @@ export const $TaxonWithParentRef = {
     children_count: {
       format: 'int64',
       type: 'integer'
-    },
-    code: {
-      examples: ['ASEaquaticus'],
-      type: 'string'
     },
     comment: {
       type: 'string'
@@ -6429,7 +6405,7 @@ export const $TaxonWithParentRef = {
       examples: ['Accepted']
     }
   },
-  required: ['parent', 'id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['parent', 'id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 
@@ -6465,10 +6441,6 @@ export const $TaxonWithRelatives = {
       format: 'int64',
       type: 'integer'
     },
-    code: {
-      examples: ['ASEaquaticus'],
-      type: 'string'
-    },
     comment: {
       type: 'string'
     },
@@ -6495,7 +6467,7 @@ export const $TaxonWithRelatives = {
       examples: ['Accepted']
     }
   },
-  required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 
@@ -6531,10 +6503,6 @@ export const $Taxonomy = {
       format: 'int64',
       type: 'integer'
     },
-    code: {
-      examples: ['ASEaquaticus'],
-      type: 'string'
-    },
     comment: {
       type: 'string'
     },
@@ -6561,7 +6529,7 @@ export const $Taxonomy = {
       examples: ['Accepted']
     }
   },
-  required: ['id', 'code', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 

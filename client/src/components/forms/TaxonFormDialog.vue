@@ -15,7 +15,7 @@
           <TaxonPicker
             label="Parent"
             :ranks="['Order', 'Family', 'Genus', 'Species']"
-            item-value="code"
+            item-value="name"
             return-object
             :multiple="false"
             v-model="parent"
@@ -25,11 +25,15 @@
           <v-select
             label="New taxon rank"
             v-model="model.rank"
-            :items="[
-              TaxonRank.childRank(parent.rank),
-              ...(parent.rank === 'Genus' ? ['Subgenus'] : [])
-            ]"
-            :disabled="parent.rank !== 'Genus'"
+            :items="
+              parent
+                ? [
+                    TaxonRank.childRank(parent.rank),
+                    ...(parent.rank === 'Genus' ? ['Subgenus'] : [])
+                  ]
+                : []
+            "
+            :disabled="parent?.rank !== 'Genus'"
           />
         </v-col>
       </v-row>
@@ -40,9 +44,9 @@
         </v-col>
         <v-col cols="12" sm="6">
           <v-text-field
-            v-model.trim="model.code"
+            v-model.trim="model.name"
             label="Code"
-            v-bind="schema('code')"
+            v-bind="schema('name')"
             :placeholder="generateCode(model)"
             :persistent-placeholder="(model.name?.length ?? 0) > 0"
           />
@@ -86,9 +90,7 @@ const model = defineModel<TaxonModel.TaxonFormModel>({
   default: TaxonModel.initialModel
 })
 
-const parent = defineModel<Taxon>('parent', {
-  required: true
-})
+const parent = defineModel<Taxon>('parent')
 
 const { mode = 'Create', ...props } = defineProps<
   { parent?: Taxon } & FormProps & FormDialogProps
@@ -109,8 +111,13 @@ function generateCode(model: TaxonModel.TaxonFormModel) {
 watch(
   parent,
   (newParent) => {
-    model.value.parent = newParent.code
-    model.value.rank = TaxonRank.childRank(newParent.rank)
+    if (newParent) {
+      model.value.parent = newParent.name
+      model.value.rank = TaxonRank.childRank(newParent.rank)
+    } else {
+      model.value.parent = undefined
+      model.value.rank = undefined
+    }
   },
   { immediate: true }
 )

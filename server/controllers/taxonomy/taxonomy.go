@@ -38,7 +38,7 @@ func RegisterRoutes(r router.Router) {
 
 	router.Register(taxaAPI, "GetTaxon",
 		huma.Operation{
-			Path:    "/{code}",
+			Path:    "/{name}",
 			Method:  http.MethodGet,
 			Summary: "Get taxon",
 			Errors:  []int{http.StatusNotFound},
@@ -56,20 +56,20 @@ func RegisterRoutes(r router.Router) {
 
 	router.Register(taxaAPI, "UpdateTaxon",
 		huma.Operation{
-			Path:    "/{code}",
+			Path:    "/{name}",
 			Method:  http.MethodPatch,
 			Summary: "Update taxon",
 			Errors:  []int{http.StatusBadRequest, http.StatusUnauthorized, http.StatusNotFound},
-		}, controllers.UpdateByCodeHandler[taxonomy.TaxonUpdate])
+		}, controllers.UpdateByNameHandler[taxonomy.TaxonUpdate])
 
 	router.Register(taxaAPI, "DeleteTaxon",
 		huma.Operation{
-			Path:    "/{code}",
+			Path:    "/{name}",
 			Method:  http.MethodDelete,
 			Summary: "Delete taxon",
 			Errors:  []int{http.StatusNotFound, http.StatusUnauthorized},
 		},
-		controllers.DeleteByCodeHandler(taxonomy.Delete))
+		controllers.DeleteByNameHandler(taxonomy.Delete))
 }
 
 type ListTaxaInput struct {
@@ -85,14 +85,14 @@ func ListTaxa(ctx context.Context, input *ListTaxaInput) (*ListTaxaOutput, error
 	return &ListTaxaOutput{Body: taxa}, nil
 }
 
-type GetTaxonInput struct{ controllers.CodeInput }
+type GetTaxonInput struct{ controllers.NameInput }
 type GetTaxonOutput struct{ Body taxonomy.TaxonWithLineage }
 
 func GetTaxon(ctx context.Context, input *GetTaxonInput) (*GetTaxonOutput, error) {
-	taxon, err := taxonomy.FindByCode(db.Client(), input.Code)
+	taxon, err := taxonomy.FindByName(db.Client(), input.Name)
 	if db.IsNoData(err) {
 		return nil, huma.Error404NotFound(
-			fmt.Sprintf("Taxon %s does not exist", input.Code),
+			fmt.Sprintf("Taxon %s does not exist", input.Name),
 		)
 	}
 	return &GetTaxonOutput{Body: taxon}, err

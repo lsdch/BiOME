@@ -9,13 +9,13 @@ module taxonomy {
     );
   };
 
-  function find_taxon(name_or_code: str) -> Taxon {
+  function find_taxon(name: str) -> Taxon {
     using (
       select assert_single(assert_exists(
-        Taxon filter (.name = name_or_code or .code = name_or_code),
-        message := "Failed to find taxon with name or code: " ++ name_or_code
+        Taxon filter (.name = name),
+        message := "Failed to find taxon with name: " ++ name
       ),
-        message := "Multiple taxa matching name or code: " ++ name_or_code
+        message := "Multiple taxa matching name: " ++ name
       )
     )
   };
@@ -56,13 +56,6 @@ module taxonomy {
 
     required status: TaxonStatus;
     # constraint expression on (exists .GBIF_ID) except (<TaxonStatus>.status != TaxonStatus.Accepted);
-    required code: str {
-      constraint exclusive;
-      rewrite insert, update using (
-        if (__specified__.code and len(.code) > 0) then .code
-        else str_replace(.name, " ", "_")
-      )
-    };
     required anchor: bool {
       annotation description := "Signals whether this taxon was manually imported";
       default := false;
@@ -161,8 +154,14 @@ module taxonomy {
 
     comment: str;
 
-    index on ((.name, .code, .rank, .status));
+    index on ((.name, .rank, .status));
   }
+
+  function taxon_code(taxon: Taxon) -> str {
+    using (
+      re_replace(taxon.name, "[^()a-zA-Z]", "_")
+    );
+  };
 
   function is_in_clade(taxon: Taxon, ancestor: Taxon) -> bool {
     using (

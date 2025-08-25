@@ -4299,12 +4299,6 @@
 						"format": "int64",
 						"type": "integer"
 					},
-					"code": {
-						"examples": [
-							"ASEaquaticus"
-						],
-						"type": "string"
-					},
 					"comment": {
 						"type": "string"
 					},
@@ -4336,7 +4330,6 @@
 				},
 				"required": [
 					"id",
-					"code",
 					"anchor",
 					"children_count",
 					"meta",
@@ -7114,12 +7107,6 @@
 						"format": "int64",
 						"type": "integer"
 					},
-					"code": {
-						"examples": [
-							"ASEaquaticus"
-						],
-						"type": "string"
-					},
 					"comment": {
 						"type": "string"
 					},
@@ -7151,7 +7138,6 @@
 				},
 				"required": [
 					"id",
-					"code",
 					"anchor",
 					"children_count",
 					"meta",
@@ -7206,13 +7192,6 @@
 						"examples": [
 							"(Linnaeus, 1758)"
 						],
-						"type": "string"
-					},
-					"code": {
-						"examples": [
-							"Asellus_aquaticus"
-						],
-						"minLength": 4,
 						"type": "string"
 					},
 					"comment": {
@@ -7290,9 +7269,6 @@
 							"null"
 						]
 					},
-					"code": {
-						"type": "string"
-					},
 					"comment": {
 						"type": [
 							"string",
@@ -7352,12 +7328,6 @@
 						"format": "int64",
 						"type": "integer"
 					},
-					"code": {
-						"examples": [
-							"ASEaquaticus"
-						],
-						"type": "string"
-					},
 					"comment": {
 						"type": "string"
 					},
@@ -7396,7 +7366,6 @@
 				"required": [
 					"lineage",
 					"id",
-					"code",
 					"anchor",
 					"children_count",
 					"meta",
@@ -7428,12 +7397,6 @@
 					"children_count": {
 						"format": "int64",
 						"type": "integer"
-					},
-					"code": {
-						"examples": [
-							"ASEaquaticus"
-						],
-						"type": "string"
 					},
 					"comment": {
 						"type": "string"
@@ -7470,7 +7433,6 @@
 				"required": [
 					"parent",
 					"id",
-					"code",
 					"anchor",
 					"children_count",
 					"meta",
@@ -7518,12 +7480,6 @@
 						"format": "int64",
 						"type": "integer"
 					},
-					"code": {
-						"examples": [
-							"ASEaquaticus"
-						],
-						"type": "string"
-					},
 					"comment": {
 						"type": "string"
 					},
@@ -7558,7 +7514,6 @@
 				},
 				"required": [
 					"id",
-					"code",
 					"anchor",
 					"children_count",
 					"meta",
@@ -7606,12 +7561,6 @@
 						"format": "int64",
 						"type": "integer"
 					},
-					"code": {
-						"examples": [
-							"ASEaquaticus"
-						],
-						"type": "string"
-					},
 					"comment": {
 						"type": "string"
 					},
@@ -7646,7 +7595,6 @@
 				},
 				"required": [
 					"id",
-					"code",
 					"anchor",
 					"children_count",
 					"meta",
@@ -17039,12 +16987,12 @@
 						}
 					},
 					{
-						"description": "Taxon code or UUID",
+						"description": "Taxon name or UUID",
 						"explode": false,
 						"in": "query",
 						"name": "identifier",
 						"schema": {
-							"description": "Taxon code or UUID",
+							"description": "Taxon name or UUID",
 							"type": "string"
 						}
 					},
@@ -17284,7 +17232,7 @@
 				]
 			}
 		},
-		"/taxonomy/taxa/{code}": {
+		"/taxonomy/taxa/{name}": {
 			"delete": {
 				"operationId": "DeleteTaxon",
 				"parameters": [
@@ -17312,7 +17260,7 @@
 					},
 					{
 						"in": "path",
-						"name": "code",
+						"name": "name",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -17381,7 +17329,7 @@
 				"parameters": [
 					{
 						"in": "path",
-						"name": "code",
+						"name": "name",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -17462,7 +17410,7 @@
 					},
 					{
 						"in": "path",
-						"name": "code",
+						"name": "name",
 						"required": true,
 						"schema": {
 							"type": "string"

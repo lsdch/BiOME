@@ -38,8 +38,8 @@ const create = defineFormCreate(createTaxonMutation(), {
 const update = defineFormUpdate(updateTaxonMutation(), {
   itemToModel: TaxonModel.fromTaxon,
   schema: $TaxonUpdate,
-  requestData: ({ code }, model) => ({
-    path: { code },
+  requestData: ({ name }, model) => ({
+    path: { name },
     body: TaxonModel.toRequestBody(model)
   })
 })
