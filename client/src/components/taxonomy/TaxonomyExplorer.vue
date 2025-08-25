@@ -51,7 +51,7 @@
         class="taxonomy-header bg-surface"
       >
         <span class="text-overline">
-          {{ rank }}
+          {{ rank === 'Species' ? 'Species / Subgenus' : rank }}
         </span>
         <v-chip
           size="small"
@@ -273,6 +273,7 @@ async function onTaxonCreated(taxon: Taxonomy) {
 const templateColumns = computed(() => {
   return $TaxonRank.enum
     .reduce((acc, rank) => {
+      if (rank === 'Subgenus') return acc
       const name = `[${rank}${rank == 'Kingdom' ? ' start' : ''}]`
       return `${acc} ${name} ${TaxonRank.isAscendant(rank, maxRankDisplay.value) ? '0px' : 'auto'}`
     }, '')

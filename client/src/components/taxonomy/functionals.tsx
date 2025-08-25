@@ -1,9 +1,12 @@
-import { Taxon, Taxonomy, TaxonRank, TaxonStatus } from '@/api'
+import { Taxonomy, TaxonRank, TaxonStatus } from '@/api'
 import TaxonomyItem from './TaxonomyItem.vue'
 
 export function FTaxaNestedList(props: { items: Taxonomy[]; rank: TaxonRank }) {
   return (
-    <div class="pa-0 taxa-list bg-surface" style={{ 'grid-column': `${props.rank} / span end` }}>
+    <div
+      class="pa-0 taxa-list bg-surface"
+      style={{ 'grid-column': `${props.rank == 'Subgenus' ? 'Species' : props.rank} / span end` }}
+    >
       {props.items.map((item) => (
         <TaxonomyItem item={item} />
       ))}

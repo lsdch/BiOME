@@ -44,23 +44,14 @@
         </v-col>
         <v-col cols="12" sm="6">
           <v-text-field
-            v-model.trim="model.name"
-            label="Code"
-            v-bind="schema('name')"
-            :placeholder="generateCode(model)"
-            :persistent-placeholder="(model.name?.length ?? 0) > 0"
-          />
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12" sm="6">
-          <v-text-field
             label="Authorship (optional)"
             placeholder="e.g. (Linnaeus, 1758)"
             v-bind="schema('authorship')"
             v-model.trim="model.authorship"
           />
         </v-col>
+      </v-row>
+      <v-row>
         <v-col cols="12" sm="6">
           <StatusPicker v-model="model.status" v-bind="schema('status')" />
         </v-col>
@@ -103,10 +94,6 @@ const emit = defineEmits<{
 const {
   bind: { schema }
 } = reactiveComputed(() => useSchema(mode === 'Create' ? $TaxonInput : $TaxonUpdate))
-
-function generateCode(model: TaxonModel.TaxonFormModel) {
-  return model.name?.replace(/\s/g, '_')
-}
 
 watch(
   parent,

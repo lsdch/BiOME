@@ -172,6 +172,8 @@ export namespace OrgKind {
 export type TaxonRank = TTaxonRank
 export namespace TaxonRank {
 
+  export const extensibleRanks: TaxonRank[] = ['Order', 'Family', 'Genus', 'Species']
+
   export type NoSubgenus = Exclude<TaxonRank, 'Subgenus'>
 
   const taxonRankOrder = Object.fromEntries($TaxonRank.enum.map((rank, i) => [rank, i])) as { [k in TaxonRank]: number }

@@ -3,7 +3,7 @@
     v-if="!TaxonRank.isAscendant(item.rank, maxRankDisplay)"
     class="taxon-item-container"
     ref="container"
-    :style="{ 'grid-column': item.rank }"
+    :style="{ 'grid-column': item.rank === 'Subgenus' ? 'Species' : item.rank }"
     :id="item.name"
   >
     <div :class="['taxon-item', { hilight }]">
@@ -11,7 +11,7 @@
       <span class="mr-3 text-no-wrap cursor-pointer" @click="select(item)">
         {{ item.name }}
       </span>
-      <v-spacer></v-spacer>
+      <v-spacer />
       <v-icon v-if="item.anchor" icon="mdi-pin" size="x-small" color="warning" />
       <v-chip
         v-if="item.children_count > 0"
@@ -23,6 +23,9 @@
       >
         {{ item.children_count }}
       </v-chip>
+      <span v-else-if="item.rank === 'Subgenus'" class="text-caption text-muted mr-1"
+        >Subgenus</span
+      >
     </div>
   </div>
 

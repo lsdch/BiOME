@@ -151,7 +151,7 @@
             @click="deleteTaxon(taxon)"
           />
           <v-btn
-            v-if="extensibleRanks.includes(taxon.rank)"
+            v-if="TaxonRank.extensibleRanks.includes(taxon.rank)"
             color="primary"
             text="Add descendant"
             prepend-icon="mdi-arrow-decision"
@@ -181,8 +181,6 @@ import LinkIconGBIF from './LinkIconGBIF'
 
 const { mdAndUp } = useDisplay()
 const { isGranted } = useUserStore()
-
-const extensibleRanks: TaxonRank[] = ['Order', 'Family', 'Genus', 'Species']
 
 const taxon = defineModel<Taxon>({ required: true })
 const open = defineModel<boolean>('open')
