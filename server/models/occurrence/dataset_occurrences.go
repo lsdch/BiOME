@@ -59,7 +59,7 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 						date := .performed_on,
 						occurring_taxa: { * },
 						occurrences := (
-							select (.occurrences intersect dataset.occurrences) {
+							select (dataset.occurrences) {
 								id,
 								code,
 								required taxon := (
@@ -72,7 +72,7 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 									if exists [is seq::Sequence].id then 'Sequence'
 									else 'BioMaterial'
 								)
-							}
+							} filter.sampling.id = dataset.sites.samplings.id
 						)
 					}
 			}
