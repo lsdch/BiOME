@@ -136,21 +136,6 @@ import type {
   GetDatasetData,
   GetDatasetResponses,
   GetDatasetErrors,
-  DeleteEventData,
-  DeleteEventResponses,
-  DeleteEventErrors,
-  UpdateEventData,
-  UpdateEventResponses,
-  UpdateEventErrors,
-  EventAddExternalOccurrenceData,
-  EventAddExternalOccurrenceResponses,
-  EventAddExternalOccurrenceErrors,
-  CreateSamplingAtEventData,
-  CreateSamplingAtEventResponses,
-  CreateSamplingAtEventErrors,
-  UpdateSpottingData,
-  UpdateSpottingResponses,
-  UpdateSpottingErrors,
   ListFixativesData,
   ListFixativesResponses,
   ListFixativesErrors,
@@ -364,15 +349,15 @@ import type {
   UpdateSiteData,
   UpdateSiteResponses,
   UpdateSiteErrors,
-  ListSiteEventsData,
-  ListSiteEventsResponses,
-  ListSiteEventsErrors,
-  CreateEventData,
-  CreateEventResponses,
-  CreateEventErrors,
   SiteAddExternalOccurrenceData,
   SiteAddExternalOccurrenceResponses,
   SiteAddExternalOccurrenceErrors,
+  ListSiteSamplingsData,
+  ListSiteSamplingsResponses,
+  ListSiteSamplingsErrors,
+  CreateSamplingAtSiteData,
+  CreateSamplingAtSiteResponses,
+  CreateSamplingAtSiteErrors,
   GetTaxonomyData,
   GetTaxonomyResponses,
   GetTaxonomyErrors,
@@ -418,17 +403,11 @@ import {
   listOccurrenceDatasetsResponseTransformer,
   getOccurrenceDatasetResponseTransformer,
   togglePinDatasetResponseTransformer,
-  listSequenceDatasetsResponseTransformer,
   getSequenceDatasetResponseTransformer,
   listSiteDatasetsResponseTransformer,
   createSiteDatasetResponseTransformer,
   getSiteDatasetResponseTransformer,
   getDatasetResponseTransformer,
-  deleteEventResponseTransformer,
-  updateEventResponseTransformer,
-  eventAddExternalOccurrenceResponseTransformer,
-  createSamplingAtEventResponseTransformer,
-  updateSpottingResponseTransformer,
   listFixativesResponseTransformer,
   createFixativeResponseTransformer,
   deleteFixativeResponseTransformer,
@@ -480,9 +459,9 @@ import {
   createSiteResponseTransformer,
   getSiteResponseTransformer,
   updateSiteResponseTransformer,
-  listSiteEventsResponseTransformer,
-  createEventResponseTransformer,
   siteAddExternalOccurrenceResponseTransformer,
+  listSiteSamplingsResponseTransformer,
+  createSamplingAtSiteResponseTransformer,
   getTaxonomyResponseTransformer,
   listTaxaResponseTransformer,
   createTaxonResponseTransformer,
@@ -1836,39 +1815,6 @@ export class OccurrencesService {
   }
 
   /**
-   * Add occurrence from event
-   * Register new occurrence resulting from the event, including sampling specification and biomaterial identification
-   */
-  public static eventAddExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<EventAddExternalOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      EventAddExternalOccurrenceResponses,
-      EventAddExternalOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: eventAddExternalOccurrenceResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/events/{id}/occurrences/external',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
    * Occurrences by site
    */
   public static occurrencesBySite<ThrowOnError extends boolean = false>(
@@ -2456,7 +2402,6 @@ export class DatasetsService {
       ListSequenceDatasetsErrors,
       ThrowOnError
     >({
-      responseTransformer: listSequenceDatasetsResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2734,165 +2679,6 @@ export class DatasetsService {
         }
       ],
       url: '/programs/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-}
-
-export class EventsService {
-  /**
-   * Delete event
-   */
-  public static deleteEvent<ThrowOnError extends boolean = false>(
-    options: Options<DeleteEventData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeleteEventResponses,
-      DeleteEventErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteEventResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/events/{id}',
-      ...options
-    })
-  }
-
-  /**
-   * Update event
-   */
-  public static updateEvent<ThrowOnError extends boolean = false>(
-    options: Options<UpdateEventData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdateEventResponses,
-      UpdateEventErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateEventResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/events/{id}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Add occurrence from event
-   * Register new occurrence resulting from the event, including sampling specification and biomaterial identification
-   */
-  public static eventAddExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<EventAddExternalOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      EventAddExternalOccurrenceResponses,
-      EventAddExternalOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: eventAddExternalOccurrenceResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/events/{id}/occurrences/external',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Create sampling at event
-   */
-  public static createSamplingAtEvent<ThrowOnError extends boolean = false>(
-    options: Options<CreateSamplingAtEventData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreateSamplingAtEventResponses,
-      CreateSamplingAtEventErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createSamplingAtEventResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/events/{id}/samplings',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Update spotting
-   */
-  public static updateSpotting<ThrowOnError extends boolean = false>(
-    options: Options<UpdateSpottingData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).put<
-      UpdateSpottingResponses,
-      UpdateSpottingErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateSpottingResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/events/{id}/spottings',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -3469,67 +3255,6 @@ export class LocationService {
   }
 
   /**
-   * List site events
-   */
-  public static listSiteEvents<ThrowOnError extends boolean = false>(
-    options: Options<ListSiteEventsData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).get<
-      ListSiteEventsResponses,
-      ListSiteEventsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listSiteEventsResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sites/{code}/events',
-      ...options
-    })
-  }
-
-  /**
-   * Create event
-   * Register event on a site identified by its code
-   */
-  public static createEvent<ThrowOnError extends boolean = false>(
-    options: Options<CreateEventData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreateEventResponses,
-      CreateEventErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createEventResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sites/{code}/events',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
    * Add occurrence at site
    * Register new occurrence at site, including event + sampling specification and biomaterial identification
    */
@@ -3554,6 +3279,67 @@ export class LocationService {
         }
       ],
       url: '/sites/{code}/occurrences/external',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * List samplings at site
+   */
+  public static listSiteSamplings<ThrowOnError extends boolean = false>(
+    options: Options<ListSiteSamplingsData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).get<
+      ListSiteSamplingsResponses,
+      ListSiteSamplingsErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listSiteSamplingsResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/sites/{code}/samplings',
+      ...options
+    })
+  }
+
+  /**
+   * Create sampling at site
+   * Register sampling event on a site identified by its code
+   */
+  public static createSamplingAtSite<ThrowOnError extends boolean = false>(
+    options: Options<CreateSamplingAtSiteData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CreateSamplingAtSiteResponses,
+      CreateSamplingAtSiteErrors,
+      ThrowOnError
+    >({
+      responseTransformer: createSamplingAtSiteResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/sites/{code}/samplings',
       ...options,
       headers: {
         'Content-Type': 'application/json',

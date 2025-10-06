@@ -1,4 +1,4 @@
-package events
+package sampling
 
 import (
 	"context"
@@ -28,7 +28,7 @@ func registerSamplingRoutes(r router.Router) {
 			Method:  http.MethodPost,
 			Summary: "Create sampling action",
 		},
-		controllers.CreateHandler[occurrence.SamplingInputWithEvent])
+		controllers.CreateHandler[occurrence.SamplingInputAtSite])
 
 	router.Register(samplingAPI, "UpdateSampling",
 		huma.Operation{
@@ -103,7 +103,7 @@ func registerSamplingRoutes(r router.Router) {
 
 type SamplingAddExternalOccurrenceInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
-	controllers.UUIDInput
+	controllers.NumberInput
 	Body occurrence.ExternalBioMatInput
 }
 

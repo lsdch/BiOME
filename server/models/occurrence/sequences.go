@@ -54,14 +54,13 @@ type GenericSequence[SamplingType any] struct {
 	GenericOccurrence[SamplingType] `gel:"$inline" json:",inline"`
 	SequenceInner                   `gel:"$inline" json:",inline"`
 	Comments                        geltypes.OptionalStr                          `gel:"comments" json:"comments,omitempty"`
-	Event                           EventInner                                    `gel:"event" json:"event"`
 	External                        models.Optional[ExtSeqSpecifics[BioMaterial]] `gel:"external" json:"external,omitempty"`
 	Meta                            people.Meta                                   `gel:"meta" json:"meta"`
 }
 
-type Sequence GenericSequence[SamplingInner]
-
-type SequenceWithDetails GenericSequence[Sampling]
+type Sequence GenericSequence[Sampling]
+type SequenceListItem GenericSequence[SamplingInnerWithSite]
+type SequenceWithDetails GenericSequence[SamplingWithSite]
 
 func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, err error) {
 	err = db.QuerySingle(context.Background(),
@@ -69,7 +68,6 @@ func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, er
 			select seq::Sequence {
 				**,
 				gene: { * },
-				required event := .sampling.event { *, site: { *, country: { * } } },
 				sampling: {
 					*,
 					target_taxa: { * },
@@ -77,7 +75,8 @@ func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, er
 					methods: { * },
 					habitats: { * },
 					samples: { **, identification: { **, identified_by: { * } } },
-					occurring_taxa: { * }
+					occurring_taxa: { * },
+					site: { *, country: { * } }
 				},
 				identification: { **, identified_by: { * } },
 				external := [is seq::ExternalSequence]{
@@ -97,14 +96,14 @@ func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, er
 	return
 }
 
-func ListSequences(db geltypes.Executor) ([]Sequence, error) {
-	var items = []Sequence{}
+func ListSequences(db geltypes.Executor) ([]SequenceListItem, error) {
+	var items = []SequenceListItem{}
 	err := db.Query(context.Background(),
 		`#edgeql
 			select seq::Sequence {
 				**,
 				gene: { * },
-				required event := .sampling.event { *, site: { *, country: { * } } },
+				sampling: { *, site : { *, country: { * } } },
 				identification: { **, identified_by: { * } },
 				external := [is seq::ExternalSequence]{
 					origin,
@@ -123,7 +122,7 @@ func ListSequences(db geltypes.Executor) ([]Sequence, error) {
 	return items, err
 }
 
-func DeleteSequence(db geltypes.Executor, code string) (deleted Sequence, err error) {
+func DeleteSequence(db geltypes.Executor, code string) (deleted SequenceListItem, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select (
@@ -131,7 +130,7 @@ func DeleteSequence(db geltypes.Executor, code string) (deleted Sequence, err er
 		 	) {
 				**,
 				gene: { * },
-				required event := .sampling.event { *, site: { *, country: { * } } },
+				sampling: { *, site: { *, country: { * } } },
 				identification: { **, identified_by: { * } },
 				external := [is seq::ExternalSequence]{
 					origin,
@@ -172,7 +171,7 @@ type ExternalSequenceInput struct {
 	Identification     IdentificationInput                   `json:"identification"`
 }
 
-func (seq *ExternalSequenceInput) WithCreatedMetadata(c CreatedMetadata) ExternalSequenceInput {
+func (seq *ExternalSequenceInput) WithCreatedMetadata(c *CreatedMetadata) *ExternalSequenceInput {
 	seq.Identification.WithPersonAliases(c.People)
 	for i := range seq.PublishedIn {
 		(&seq.PublishedIn[i]).WithArticleCode(c.Bibliography)
@@ -180,7 +179,7 @@ func (seq *ExternalSequenceInput) WithCreatedMetadata(c CreatedMetadata) Externa
 	for i := range seq.ReferencedIn {
 		(&seq.ReferencedIn[i]).WithDataSourceCode(c.DataSources)
 	}
-	return *seq
+	return seq
 }
 
 func (i *ExternalSequenceInput) UseSamplingCode(samplingCode string) {
@@ -192,14 +191,14 @@ func (i *ExternalSequenceInput) UseSamplingCode(samplingCode string) {
 	)
 }
 
-func (i ExternalSequenceInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created ExternalSequence, err error) {
+func (i ExternalSequenceInput) Save(e geltypes.Executor, samplingNo int64) (created ExternalSequence, err error) {
 	data, _ := json.Marshal(i)
 	logrus.Infof("ExternalSequence: %s", string(data))
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with data := <json>$1,
 			select (insert seq::ExternalSequence {
-				sampling := (<events::Sampling><uuid>$0),
+				sampling := (select events::Sampling filter .number = <int64>$0),
 				code := <str>data['code'],
 				label := <str>json_get(data, 'label'),
 				sequence := <str>json_get(data, 'sequence'),
@@ -244,6 +243,6 @@ func (i ExternalSequenceInput) Save(e geltypes.Executor, samplingID geltypes.UUI
 				source_sample: { id, code, category, is_type, comments },
         identification: { ** }
 			}
-		`, &created, samplingID, data)
+		`, &created, samplingNo, data)
 	return
 }

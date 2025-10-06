@@ -9,7 +9,6 @@ import {
   ReferencesService,
   DataSourcesService,
   DatasetsService,
-  EventsService,
   SequencesService,
   ServicesService,
   LocationService,
@@ -115,21 +114,6 @@ import type {
   CreateSiteDatasetResponse,
   GetSiteDatasetData,
   GetDatasetData,
-  DeleteEventData,
-  DeleteEventError,
-  DeleteEventResponse,
-  UpdateEventData,
-  UpdateEventError,
-  UpdateEventResponse,
-  EventAddExternalOccurrenceData,
-  EventAddExternalOccurrenceError,
-  EventAddExternalOccurrenceResponse,
-  CreateSamplingAtEventData,
-  CreateSamplingAtEventError,
-  CreateSamplingAtEventResponse,
-  UpdateSpottingData,
-  UpdateSpottingError,
-  UpdateSpottingResponse,
   ListFixativesData,
   CreateFixativeData,
   CreateFixativeError,
@@ -291,13 +275,13 @@ import type {
   UpdateSiteData,
   UpdateSiteError,
   UpdateSiteResponse,
-  ListSiteEventsData,
-  CreateEventData,
-  CreateEventError,
-  CreateEventResponse,
   SiteAddExternalOccurrenceData,
   SiteAddExternalOccurrenceError,
   SiteAddExternalOccurrenceResponse,
+  ListSiteSamplingsData,
+  CreateSamplingAtSiteData,
+  CreateSamplingAtSiteError,
+  CreateSamplingAtSiteResponse,
   GetTaxonomyData,
   ListTaxaData,
   CreateTaxonData,
@@ -1762,176 +1746,6 @@ export const getDatasetOptions = (options: Options<GetDatasetData>) => {
     },
     queryKey: getDatasetQueryKey(options)
   })
-}
-
-/**
- * Delete event
- */
-export const deleteEventMutation = (
-  options?: Partial<Options<DeleteEventData>>
-): UseMutationOptions<DeleteEventResponse, DeleteEventError, Options<DeleteEventData>> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteEventResponse,
-    DeleteEventError,
-    Options<DeleteEventData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await EventsService.deleteEvent({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update event
- */
-export const updateEventMutation = (
-  options?: Partial<Options<UpdateEventData>>
-): UseMutationOptions<UpdateEventResponse, UpdateEventError, Options<UpdateEventData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateEventResponse,
-    UpdateEventError,
-    Options<UpdateEventData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await EventsService.updateEvent({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const eventAddExternalOccurrenceQueryKey = (
-  options: Options<EventAddExternalOccurrenceData>
-) => createQueryKey('eventAddExternalOccurrence', options)
-
-/**
- * Add occurrence from event
- * Register new occurrence resulting from the event, including sampling specification and biomaterial identification
- */
-export const eventAddExternalOccurrenceOptions = (
-  options: Options<EventAddExternalOccurrenceData>
-) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await OccurrencesService.eventAddExternalOccurrence({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: eventAddExternalOccurrenceQueryKey(options)
-  })
-}
-
-/**
- * Add occurrence from event
- * Register new occurrence resulting from the event, including sampling specification and biomaterial identification
- */
-export const eventAddExternalOccurrenceMutation = (
-  options?: Partial<Options<EventAddExternalOccurrenceData>>
-): UseMutationOptions<
-  EventAddExternalOccurrenceResponse,
-  EventAddExternalOccurrenceError,
-  Options<EventAddExternalOccurrenceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    EventAddExternalOccurrenceResponse,
-    EventAddExternalOccurrenceError,
-    Options<EventAddExternalOccurrenceData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await OccurrencesService.eventAddExternalOccurrence({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const createSamplingAtEventQueryKey = (options: Options<CreateSamplingAtEventData>) =>
-  createQueryKey('createSamplingAtEvent', options)
-
-/**
- * Create sampling at event
- */
-export const createSamplingAtEventOptions = (options: Options<CreateSamplingAtEventData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await EventsService.createSamplingAtEvent({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: createSamplingAtEventQueryKey(options)
-  })
-}
-
-/**
- * Create sampling at event
- */
-export const createSamplingAtEventMutation = (
-  options?: Partial<Options<CreateSamplingAtEventData>>
-): UseMutationOptions<
-  CreateSamplingAtEventResponse,
-  CreateSamplingAtEventError,
-  Options<CreateSamplingAtEventData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateSamplingAtEventResponse,
-    CreateSamplingAtEventError,
-    Options<CreateSamplingAtEventData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await EventsService.createSamplingAtEvent({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update spotting
- */
-export const updateSpottingMutation = (
-  options?: Partial<Options<UpdateSpottingData>>
-): UseMutationOptions<UpdateSpottingResponse, UpdateSpottingError, Options<UpdateSpottingData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateSpottingResponse,
-    UpdateSpottingError,
-    Options<UpdateSpottingData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await EventsService.updateSpotting({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
 }
 
 export const listFixativesQueryKey = (options?: Options<ListFixativesData>) =>
@@ -4038,73 +3852,6 @@ export const updateSiteMutation = (
   return mutationOptions
 }
 
-export const listSiteEventsQueryKey = (options: Options<ListSiteEventsData>) =>
-  createQueryKey('listSiteEvents', options)
-
-/**
- * List site events
- */
-export const listSiteEventsOptions = (options: Options<ListSiteEventsData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.listSiteEvents({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listSiteEventsQueryKey(options)
-  })
-}
-
-export const createEventQueryKey = (options: Options<CreateEventData>) =>
-  createQueryKey('createEvent', options)
-
-/**
- * Create event
- * Register event on a site identified by its code
- */
-export const createEventOptions = (options: Options<CreateEventData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.createEvent({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: createEventQueryKey(options)
-  })
-}
-
-/**
- * Create event
- * Register event on a site identified by its code
- */
-export const createEventMutation = (
-  options?: Partial<Options<CreateEventData>>
-): UseMutationOptions<CreateEventResponse, CreateEventError, Options<CreateEventData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreateEventResponse,
-    CreateEventError,
-    Options<CreateEventData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await LocationService.createEvent({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
 export const siteAddExternalOccurrenceQueryKey = (
   options: Options<SiteAddExternalOccurrenceData>
 ) => createQueryKey('siteAddExternalOccurrence', options)
@@ -4148,6 +3895,77 @@ export const siteAddExternalOccurrenceMutation = (
   > = {
     mutationFn: async (localOptions) => {
       const { data } = await OccurrencesService.siteAddExternalOccurrence({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const listSiteSamplingsQueryKey = (options: Options<ListSiteSamplingsData>) =>
+  createQueryKey('listSiteSamplings', options)
+
+/**
+ * List samplings at site
+ */
+export const listSiteSamplingsOptions = (options: Options<ListSiteSamplingsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await LocationService.listSiteSamplings({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listSiteSamplingsQueryKey(options)
+  })
+}
+
+export const createSamplingAtSiteQueryKey = (options: Options<CreateSamplingAtSiteData>) =>
+  createQueryKey('createSamplingAtSite', options)
+
+/**
+ * Create sampling at site
+ * Register sampling event on a site identified by its code
+ */
+export const createSamplingAtSiteOptions = (options: Options<CreateSamplingAtSiteData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await LocationService.createSamplingAtSite({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: createSamplingAtSiteQueryKey(options)
+  })
+}
+
+/**
+ * Create sampling at site
+ * Register sampling event on a site identified by its code
+ */
+export const createSamplingAtSiteMutation = (
+  options?: Partial<Options<CreateSamplingAtSiteData>>
+): UseMutationOptions<
+  CreateSamplingAtSiteResponse,
+  CreateSamplingAtSiteError,
+  Options<CreateSamplingAtSiteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateSamplingAtSiteResponse,
+    CreateSamplingAtSiteError,
+    Options<CreateSamplingAtSiteData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await LocationService.createSamplingAtSite({
         ...options,
         ...localOptions,
         throwOnError: true

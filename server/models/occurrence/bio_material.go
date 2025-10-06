@@ -88,10 +88,9 @@ func (b BioMaterial) AsOccurrence() OccurrenceWithCategory {
 	}
 }
 
-type BioMaterialWithDetails struct {
-	GenericBioMaterial[Sampling] `gel:"$inline" json:",inline"`
-	Event                        EventWithParticipants `gel:"event" json:"event"`
-}
+type BioMaterialListItem GenericBioMaterial[SamplingInnerWithSite]
+
+type BioMaterialWithDetails GenericBioMaterial[SamplingWithSite]
 
 func (b BioMaterialWithDetails) AsOccurrence() OccurrenceWithCategory {
 	return OccurrenceWithCategory{
@@ -121,12 +120,7 @@ func GetBioMaterial(db geltypes.Executor, code string) (biomat BioMaterialWithDe
 				methods: { * },
 				habitats: { * },
 				samples: { **, identification: { **, identified_by: { * } } },
-				occurring_taxa: { * }
-			},
-			event := .sampling.event {
-				*,
-				performed_by: { * },
-				performed_by_groups: { * },
+				occurring_taxa: { * },
 				site: { *, country: { * } }
 			},
 			identification: { ** },
@@ -194,13 +188,13 @@ func (i ListBioMaterialOptions) OrderByString() string {
 	var orderBy []string
 	switch i.SortBy.Key {
 	case BioMatSortSite:
-		orderBy = append(orderBy, "(.event.site.name ?? .event.site.code) "+string(i.SortBy.Order))
+		orderBy = append(orderBy, "(.site.name ?? .site.code) "+string(i.SortBy.Order))
 	case BioMatSortCode:
 		orderBy = append(orderBy, ".code "+string(i.SortBy.Order))
 	case BioMatSortTaxon:
 		orderBy = append(orderBy, ".identification.taxon.name "+string(i.SortBy.Order))
 	case BioMatSortSamplingDate:
-		orderBy = append(orderBy, ".sampling.event.performed_on.date "+string(i.SortBy.Order))
+		orderBy = append(orderBy, ".sampling.performed_on.date "+string(i.SortBy.Order))
 	case BioMatSortIdentifiedOn:
 		orderBy = append(orderBy, ".identification.identified_on.date "+string(i.SortBy.Order))
 	case BioMatSortIdentifiedBy:
@@ -213,11 +207,11 @@ func (i ListBioMaterialOptions) OrderByString() string {
 	return "order by " + strings.Join(orderBy, " then ")
 }
 
-func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models.PaginatedList[BioMaterialWithDetails], error) {
+func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models.PaginatedList[BioMaterialListItem], error) {
 	params, _ := json.Marshal(opts)
 	logrus.Debugf("Params: %s", string(params))
-	var result = models.PaginatedList[BioMaterialWithDetails]{
-		Items: []BioMaterialWithDetails{},
+	var result = models.PaginatedList[BioMaterialListItem]{
+		Items: []BioMaterialListItem{},
 	}
 	err := db.QuerySingle(context.Background(),
 		fmt.Sprintf(`#edgeql
@@ -262,10 +256,8 @@ func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models
 					limit <optional int64>json_get(params, 'limit')
 				) {
 					**,
-					event := .sampling.event {
+					sampling: {
 						*,
-						performed_by: { * },
-						performed_by_groups: { * },
 						site: { *, country: { * } }
 					},
 					identification: { **, identified_by: { * } },
@@ -285,14 +277,15 @@ func ListBioMaterials(db geltypes.Executor, opts ListBioMaterialOptions) (models
 	return result, err
 }
 
-func DeleteBioMaterial(db geltypes.Executor, code string) (deleted BioMaterialWithDetails, err error) {
+func DeleteBioMaterial(db geltypes.Executor, code string) (deleted BioMaterialListItem, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 		with module occurrence
 			select (
 				delete BioMaterial filter .code = <str>$0
 			) {
-        **,
+        *,
+				sampling: { *, site: { *, country: { * } } },
 				required has_sequences := (
 					exists ([is ExternalBioMat].sequences ?? [is InternalBioMat].specimens.sequences)
 				),
@@ -311,12 +304,6 @@ func DeleteBioMaterial(db geltypes.Executor, code string) (deleted BioMaterialWi
 				seq_consensus := (
 					[is ExternalBioMat].seq_consensus ?? [is InternalBioMat].seq_consensus
 				) { * },
-				event := .sampling.event {
-					*,
-					performed_by: { * },
-					performed_by_groups: { * },
-					site: { *, country: { * } }
-				},
 				identification: { **, identified_by: { * } },
         external:= [is occurrence::ExternalBioMat]{
 					original_source,
@@ -353,20 +340,20 @@ type InternalBioMatInput struct {
 	// TODO: Internal-specific fields
 }
 
-func (i *InternalBioMatInput) WithCreatedMetadata(c CreatedMetadata) InternalBioMatInput {
+func (i *InternalBioMatInput) WithCreatedMetadata(c *CreatedMetadata) *InternalBioMatInput {
 	i.OccurrenceInnerInput.WithCreatedMetadata(c)
-	return *i
+	return i
 }
 
-func (i InternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created BioMaterialWithDetails, err error) {
+func (i InternalBioMatInput) Save(e geltypes.Executor, samplingNumber int64) (created BioMaterialWithDetails, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with
 				sampling := (
 					assert_exists(
-						(select (<events::Sampling><uuid>$0)),
-						message := "Failed to find sampling with ID: " ++ <str><uuid>$0
+						(select events::Sampling filter .number = <int64>$0),
+						message := "Failed to find sampling with number: " ++ <str><int64>$0
 					)
 				),
 				data := <json>$1,
@@ -406,26 +393,21 @@ func (i InternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
 					occurring_taxa: { * }
 				},
 				published_in: { *, @original_source },
-				event := .sampling.event {
-					*,
-					performed_by: { * },
-					performed_by_groups: { * },
-					site: { *, country: { * } }
-				},
+				site := .sampling.site { *, country: { * } },
 				identification: { **, identified_by: { * } },
 				meta: { * }
 			}
-		`, &created, samplingID, data)
+		`, &created, samplingNumber, data)
 	return
 }
 
 type ExternalBioMatOccurrenceInput struct {
-	Sampling            geltypes.UUID `gel:"sampling" json:"sampling"`
+	SamplingNumber      int64 `gel:"sampling" json:"sampling"`
 	ExternalBioMatInput `gel:"$inline" json:",inline"`
 }
 
 func (i ExternalBioMatOccurrenceInput) Save(e geltypes.Executor) (created BioMaterialWithDetails, err error) {
-	return i.ExternalBioMatInput.Save(e, i.Sampling)
+	return i.ExternalBioMatInput.Save(e, i.SamplingNumber)
 }
 
 type ExternalBioMatInput struct {
@@ -439,25 +421,25 @@ type ExternalBioMatInput struct {
 	Comments           models.OptionalInput[string] `gel:"comments" json:"comments,omitempty"`
 }
 
-func (bm *ExternalBioMatInput) WithCreatedMetadata(c CreatedMetadata) ExternalBioMatInput {
+func (bm *ExternalBioMatInput) WithCreatedMetadata(c *CreatedMetadata) *ExternalBioMatInput {
 	bm.BioMaterialInput.WithCreatedMetadata(c)
 	if dataSource, ok := bm.OriginalSource.Get(); ok {
 		if s, ok := c.DataSources[dataSource]; ok {
 			bm.OriginalSource = (&bm.OriginalSource).SetValue(s)
 		}
 	}
-	return *bm
+	return bm
 }
 
-func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID) (created BioMaterialWithDetails, err error) {
+func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingNumber int64) (created BioMaterialWithDetails, err error) {
 	data, _ := json.Marshal(i)
 	logrus.Infof("Creating ExternalBioMat with args: %s", string(data))
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with
 				sampling := (assert_exists(
-					(select (<events::Sampling><uuid>$0)),
-					message := "Failed to find sampling with ID: " ++ <str><uuid>$0
+					(select events::Sampling filter .number = <int64>$0),
+					message := "Failed to find sampling with number: " ++ <str><int64>$0
 				)),
 				data := <json>$1,
 				identification := data['identification'],
@@ -499,12 +481,7 @@ func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
 				is_homogenous,
 				is_congruent,
 				seq_consensus: { * },
-				event := .sampling.event {
-					*,
-					performed_by: { * },
-					performed_by_groups: { * },
-					site: { *, country: { * } }
-				},
+				site := .sampling.site { *, country: { * } },
 				identification: { ** },
         external := [is occurrence::ExternalBioMat]{
           original_link,
@@ -514,7 +491,7 @@ func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingID geltypes.UUID)
           content_description
         }
       }
-		`, &created, samplingID, data)
+		`, &created, samplingNumber, data)
 	return
 }
 
@@ -541,12 +518,7 @@ func (u ExternalBioMatUpdate) Save(e geltypes.Executor, code string) (updated Bi
       }) {
         **,
 				seq_consensus: { * },
-				event := .sampling.event {
-					*,
-					performed_by: { * },
-					performed_by_groups: { * },
-					site: { *, country: { * } }
-				},
+				site := .sampling.site { *, country: { * } },
 				identification: { **, identified_by: { * } },
         external := [is occurrence::ExternalBioMat]{
           original_link,

@@ -67,7 +67,7 @@ module datasets {
       on target delete allow;
       on source delete allow;
     };
-    multi sites := (.occurrences.sampling.event.site);
+    multi sites := (.occurrences.sampling.site);
 
     # Dataset is congruent if all occurrences are congruent:
     # Morphological identification matches molecular identification
@@ -87,7 +87,7 @@ module datasets {
       on target delete allow;
       on source delete allow;
     };
-    multi sites := (.sequences.sampling.event.site)
+    multi sites := (.sequences.sampling.site)
   }
 
 

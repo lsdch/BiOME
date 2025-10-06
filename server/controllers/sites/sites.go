@@ -59,23 +59,23 @@ func RegisterRoutes(r router.Router) {
 		controllers.UpdateByCodeHandler[occurrence.SiteUpdate],
 	)
 
-	router.Register(sites_API, "ListSiteEvents",
+	router.Register(sites_API, "ListSiteSamplings",
 		huma.Operation{
-			Path:    "/{code}/events",
+			Path:    "/{code}/samplings",
 			Method:  http.MethodGet,
-			Summary: "List site events",
+			Summary: "List samplings at site",
 		},
-		controllers.GetByCodeHandler(occurrence.ListSiteEvents),
+		controllers.GetByCodeHandler(occurrence.ListSamplingsAtSite),
 	)
 
-	router.Register(sites_API, "CreateEvent",
+	router.Register(sites_API, "CreateSamplingAtSite",
 		huma.Operation{
-			Path:        "/{code}/events",
+			Path:        "/{code}/samplings",
 			Method:      http.MethodPost,
-			Summary:     "Create event",
-			Description: "Register event on a site identified by its code",
+			Summary:     "Create sampling at site",
+			Description: "Register sampling event on a site identified by its code",
 		},
-		controllers.UpdateByCodeHandler[occurrence.EventInput],
+		controllers.UpdateByCodeHandler[occurrence.SamplingInput],
 	)
 
 	router.Register(sites_API, "SiteAddExternalOccurrence",
@@ -94,25 +94,21 @@ type SiteAddExternalOccurrenceInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
 	controllers.CodeInput
 	Body struct {
-		Event       occurrence.EventInput          `json:"event"`
 		Sampling    occurrence.SamplingInput       `json:"sampling"`
 		BioMaterial occurrence.ExternalBioMatInput `json:"biomaterial"`
 	} `nameHint:"ExternalOccurrenceAtSiteInput"`
 }
 
 func SiteAddExternalOccurrence(ctx context.Context, input *SiteAddExternalOccurrenceInput) (*occurrences.RegisterOccurrenceOutput, error) {
-	site := input.Identifier()
+	siteCode := input.Identifier()
 	var created occurrence.BioMaterialWithDetails
 	err := input.DB().Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
-		event, err := input.Body.Event.Save(tx, site)
+
+		sampling, err := input.Body.Sampling.Save(tx, siteCode)
 		if err != nil {
 			return err
 		}
-		sampling, err := input.Body.Sampling.Save(tx, event.ID)
-		if err != nil {
-			return err
-		}
-		biomat, err := input.Body.BioMaterial.Save(tx, sampling.ID)
+		biomat, err := input.Body.BioMaterial.Save(tx, sampling.Number)
 		if err != nil {
 			return err
 		}

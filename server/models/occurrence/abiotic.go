@@ -79,18 +79,23 @@ func DeleteAbioticParameter(db geltypes.Executor, code string) (deleted AbioticP
 }
 
 type AbioticMeasurement struct {
-	ID    geltypes.UUID    `gel:"id" json:"id" format:"uuid"`
-	Param AbioticParameter `gel:"param" json:"param"`
-	Value float32          `gel:"value" json:"value"`
+	ID                geltypes.UUID              `gel:"id" json:"id" format:"uuid"`
+	Param             AbioticParameter           `gel:"param" json:"param"`
+	Value             float32                    `gel:"value" json:"value"`
+	PerformedOn       DateWithPrecision          `gel:"performed_on" json:"performed_on"`
+	PerformedBy       []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedByGroups []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
+	Meta              people.Meta                `gel:"meta" json:"meta"`
 }
 
 type AbioticMeasurementInput struct {
-	Param string  `json:"param"` // Parameter code
-	Value float32 `json:"value"`
+	ActionInput `json:",inline"`
+	Param       string  `json:"param"` // Parameter code
+	Value       float32 `json:"value"`
 }
 
 // Upsert AbioticMeasurement with the given event ID
-func (u AbioticMeasurementInput) Save(e geltypes.Executor, eventID geltypes.UUID) (updated AbioticMeasurement, err error) {
+func (u AbioticMeasurementInput) Save(e geltypes.Executor, siteCode string) (updated AbioticMeasurement, err error) {
 	data, _ := json.Marshal(u)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
@@ -98,18 +103,24 @@ func (u AbioticMeasurementInput) Save(e geltypes.Executor, eventID geltypes.UUID
 			param := (select events::AbioticParameter filter .code = <str>item['param']),
 			select (
 				insert events::AbioticMeasurement {
-					event := (<events::Event><uuid>$0),
+					site := (select location::Site filter .code = <uuid>$0),
+					performed_by := (
+						select people::Person
+						filter .alias in <str>json_array_unpack(json_get(data, 'performed_by'))
+					),
+					performed_by_groups := (
+						select people::Organisation
+						filter .code in <str>json_array_unpack(json_get(data,'performed_by_groups'))
+					),
+					performed_on := (
+						select date::from_json_with_precision(data['performed_on'])
+					),
 					param := param,
 					value := <float32>item['value']
-				} unless conflict on ((.event, .param)) else (
-					update events::AbioticMeasurement set {
-						param := param,
-						value := <float32>item['value']
-					}
-				)
+				}
 			) { param: { * }, value}
 		`,
-		&updated, eventID, data)
+		&updated, siteCode, data)
 	return
 }
 

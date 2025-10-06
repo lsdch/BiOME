@@ -12,6 +12,7 @@ import {
   ExtSeqOrigin as TExtSeqOrigin,
   OrgKind as TOrgKind,
   OccurrenceCategory as TOccurrenceCategory,
+  OccurrenceElement as TOccurrenceElement,
   SeqReference as TSeqReference,
   Taxon as TTaxon,
   TaxonRank as TTaxonRank,
@@ -77,13 +78,20 @@ export namespace DateWithPrecision {
     }
   }
 
+  export function maybeFromInput(input: DateWithPrecisionInput | DateWithPrecision): DateWithPrecision {
+    if (input.date instanceof Date || input.precision === 'Unknown') {
+      return input as DateWithPrecision
+    }
+    return fromInput(input as DateWithPrecisionInput)
+  }
+
   export function toDateTime({ date, precision }: DateWithPrecision): DateTime | null {
     if (precision === 'Unknown' || !date) return null
     return DateTime.fromJSDate(date)
   }
 
-  export function format({ date, precision }: DateWithPrecision, format?: string) {
-    if (precision === 'Unknown' || !date) return "Unknown"
+  export function format({ date, precision }: DateWithPrecision, format?: string, unknownText = "Unknown"): string {
+    if (precision === 'Unknown' || !date) return unknownText
     return DateTime.fromJSDate(date)
       .setLocale('en-gb')
       .toFormat(format ?? formats[precision])
@@ -108,6 +116,18 @@ export namespace OccurrenceCategory {
 
   export function icon(t: OccurrenceCategory) {
     return props[t].icon
+  }
+}
+
+export type OccurrenceElement = TOccurrenceElement
+export namespace OccurrenceElement {
+  export function humanize(element: OccurrenceElement) {
+    switch (element) {
+      case 'BioMaterial':
+        return 'bio-material'
+      case 'Sequence':
+        return 'sequence'
+    }
   }
 }
 

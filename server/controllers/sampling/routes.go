@@ -1,4 +1,4 @@
-package events
+package sampling
 
 import (
 	"net/http"
@@ -13,7 +13,6 @@ import (
 
 func RegisterRoutes(r router.Router) {
 	registerSamplingRoutes(r)
-	registerEventsRoutes(r)
 	registerAbioticParameterRoutes(r)
 	registerSamplingMethodsRoutes(r)
 

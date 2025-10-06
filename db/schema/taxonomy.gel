@@ -39,10 +39,11 @@ module taxonomy {
       constraint min_len_value(4);
     };
 
-    constraint expression on (not contains(.name, " "))
-      except (.rank = Rank.Subgenus or .rank = Rank.Species or .rank = Rank.Subspecies) {
-        errmessage := "Taxon names with rank higher than species may not include a whitespace."
-      };
+    # Note: constraint is too stringent when working with e.g. unclassified genus "Family gen. X1"
+    # constraint expression on (not contains(.name, " "))
+    #   except (.rank = Rank.Subgenus or .rank = Rank.Species or .rank = Rank.Subspecies) {
+    #     errmessage := "Taxon names with rank higher than species may not include a whitespace."
+    #   };
     constraint expression on (len(str_split(.name, " ")) >= 2)
       except (.rank != Rank.Species) {
         errmessage := "A species name must include a whitespace."
@@ -159,7 +160,12 @@ module taxonomy {
 
   function taxon_code(taxon: Taxon) -> str {
     using (
-      re_replace(taxon.name, "[^()a-zA-Z]", "_")
+      re_replace(
+        "[^()a-zA-Z]",
+        "_",
+        str_replace(taxon.name, "sp. ", "sp."),
+        flags := 'ig'
+      )
     );
   };
 

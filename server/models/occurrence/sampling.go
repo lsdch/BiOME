@@ -3,6 +3,7 @@ package occurrence
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
@@ -76,17 +77,22 @@ type SamplingTarget struct {
 	TargetTaxa []taxonomy.Taxon   `gel:"target_taxa" json:"taxa,omitempty"`
 }
 
+type SamplingOutline struct {
+	ID          geltypes.UUID     `gel:"id" json:"id" format:"uuid"`
+	Number      int64             `gel:"number" json:"number" doc:"Auto-incrementing number, unique per sampling"`
+	PerformedOn DateWithPrecision `gel:"performed_on" json:"performed_on"`
+}
 type SamplingInner struct {
-	ID           geltypes.UUID          `gel:"id" json:"id" format:"uuid"`
-	Number       int64                  `gel:"number" json:"-"`
-	Code         string                 `gel:"code" json:"code"`
-	Target       SamplingTarget         `gel:"$inline" json:"target"`
-	Duration     geltypes.OptionalInt32 `gel:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Methods      []SamplingMethod       `gel:"methods" json:"methods,omitempty"`
-	Fixatives    []vocabulary.Fixative  `gel:"fixatives" json:"fixatives,omitempty"`
-	Habitats     []Habitat              `gel:"habitats" json:"habitats,omitempty"`
-	AccessPoints []string               `gel:"access_points" json:"access_points,omitempty"`
-	Comments     geltypes.OptionalStr   `gel:"comments" json:"comments,omitempty"`
+	SamplingOutline   `gel:"$inline" json:",inline"`
+	PerformedBy       []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedByGroups []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
+	Target            SamplingTarget             `gel:"$inline" json:"target"`
+	Duration          geltypes.OptionalInt32     `gel:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Methods           []SamplingMethod           `gel:"methods" json:"methods,omitempty"`
+	Fixatives         []vocabulary.Fixative      `gel:"fixatives" json:"fixatives,omitempty"`
+	Habitats          []Habitat                  `gel:"habitats" json:"habitats,omitempty"`
+	AccessPoints      []string                   `gel:"access_points" json:"access_points,omitempty"`
+	Comments          geltypes.OptionalStr       `gel:"comments" json:"comments,omitempty"`
 }
 
 type Sampling struct {
@@ -96,13 +102,34 @@ type Sampling struct {
 	Meta          people.Meta      `gel:"meta" json:"meta"`
 }
 
-type SamplingInputWithEvent struct {
-	SamplingInput `json:",inline"`
-	EventID       geltypes.UUID `json:"event_id"`
+func (s Sampling) Code(siteCode string) string {
+	return fmt.Sprintf("%s|%s", siteCode, s.PerformedOn.ToCode())
 }
 
-func (i SamplingInputWithEvent) Save(e geltypes.Executor) (Sampling, error) {
-	return i.SamplingInput.Save(e, i.EventID)
+type SamplingWithOccurrences struct {
+	SamplingInner `gel:"$inline" json:",inline"`
+	Occurrences   []OccurrenceAtSite `gel:"occurrences" json:"occurrences,omitempty"`
+	OccurringTaxa []taxonomy.Taxon   `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
+	Meta          people.Meta        `gel:"meta" json:"meta"`
+}
+
+type SamplingWithSite struct {
+	Sampling `gel:"$inline" json:",inline"`
+	Site     SiteItem `gel:"site" json:"site"`
+}
+
+type SamplingInnerWithSite struct {
+	SamplingInner `gel:"$inline" json:",inline"`
+	Site          SiteItem `gel:"site" json:"site"`
+}
+
+type SamplingInputAtSite struct {
+	SamplingInput `json:",inline"`
+	SiteCode      string `json:"site_code"`
+}
+
+func (i SamplingInputAtSite) Save(e geltypes.Executor) (Sampling, error) {
+	return i.SamplingInput.Save(e, i.SiteCode)
 }
 
 type SamplingTargetInput struct {
@@ -111,6 +138,7 @@ type SamplingTargetInput struct {
 }
 
 type SamplingInput struct {
+	ActionInput  `json:",inline"`
 	Target       SamplingTargetInput `json:"target"`
 	Methods      []string            `json:"methods,omitempty"`
 	Fixatives    []string            `json:"fixatives,omitempty"`
@@ -120,15 +148,29 @@ type SamplingInput struct {
 	AccessPoints []string            `json:"access_points,omitempty"`
 }
 
-func (i SamplingInput) Save(e geltypes.Executor, eventID geltypes.UUID) (created Sampling, err error) {
+func (i SamplingInput) Save(e geltypes.Executor, siteCode string) (created Sampling, err error) {
 	data, _ := json.Marshal(i)
-	logrus.Debugf("data: %s", string(data))
+	logrus.Debugf("Inserting sampling event: %s", string(data))
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with module events,
 			data := <json>$1,
 			select (insert events::Sampling {
-				event := (select (<Event><uuid>$0)),
+				site := assert_exists(
+					(select location::Site filter .code = <str>$0),
+					message := 'Site with code ' ++ <str>$0 ++ ' does not exist'
+				),
+				performed_by := (
+					select people::Person
+					filter .alias in <str>json_array_unpack(json_get(data, 'performed_by'))
+				),
+				performed_by_groups := (
+					select people::Organisation
+					filter .code in <str>json_array_unpack(json_get(data,'performed_by_groups'))
+				),
+				performed_on := (
+					select date::from_json_with_precision(data['performed_on'])
+				),
 				methods := (
 					select SamplingMethod
 					filter .code in <str>json_array_unpack(json_get(data, 'methods'))
@@ -157,18 +199,21 @@ func (i SamplingInput) Save(e geltypes.Executor, eventID geltypes.UUID) (created
 				methods: { * },
 				meta: { * }
 			}
-		`, &created, eventID, data)
+		`, &created, siteCode, data)
 	return
 }
 
 type SamplingUpdate struct {
-	Target       models.OptionalInput[SamplingTargetInput] `json:"target"`
-	Methods      models.OptionalNull[[]string]             `gel:"methods" json:"methods,omitempty"`
-	Fixatives    models.OptionalNull[[]string]             `gel:"fixatives" json:"fixatives,omitempty"`
-	Duration     models.OptionalNull[int32]                `gel:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Comments     models.OptionalNull[string]               `gel:"comments" json:"comments,omitempty"`
-	Habitats     models.OptionalNull[[]string]             `gel:"habitats" json:"habitats,omitempty"`
-	AccessPoints models.OptionalNull[[]string]             `gel:"access_points" json:"access_points,omitempty"`
+	PerformedBy       models.OptionalNull[[]string]                `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedByGroups models.OptionalNull[[]string]                `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
+	PerformedOn       models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
+	Target            models.OptionalInput[SamplingTargetInput]    `json:"target"`
+	Methods           models.OptionalNull[[]string]                `gel:"methods" json:"methods,omitempty"`
+	Fixatives         models.OptionalNull[[]string]                `gel:"fixatives" json:"fixatives,omitempty"`
+	Duration          models.OptionalNull[int32]                   `gel:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Comments          models.OptionalNull[string]                  `gel:"comments" json:"comments,omitempty"`
+	Habitats          models.OptionalNull[[]string]                `gel:"habitats" json:"habitats,omitempty"`
+	AccessPoints      models.OptionalNull[[]string]                `gel:"access_points" json:"access_points,omitempty"`
 }
 
 func (u SamplingUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Sampling, err error) {
@@ -180,6 +225,9 @@ func (u SamplingUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Sam
 				%s
 			}) {
 				*,
+				site: {*, country: { *}},
+				performed_by: { * },
+				performed_by_groups: { * },
 				habitats: { * },
 				target_taxa: { * },
 				fixatives: { * },
@@ -188,6 +236,19 @@ func (u SamplingUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Sam
 			}
 		`,
 		Mappings: map[string]string{
+			"performed_by": `#edgeql
+				(
+					select people::Person
+					filter .alias in <str>json_array_unpack(data['performed_by'])
+				)`,
+			"performed_by_groups": `#edgeql
+				(
+					select people::Organisation
+					filter .code in <str>json_array_unpack(data['performed_by_groups'])
+				)`,
+			"performed_on": `#edgeql
+				date::from_json_with_precision(data['performed_on'])
+			`,
 			"sampling_target": "<events::SamplingTarget>item['target_kind']",
 			"target_taxa": `#edgeql
 				(
@@ -237,6 +298,9 @@ func DeleteSampling(db geltypes.Executor, id geltypes.UUID) (deleted Sampling, e
 			 	delete events::Sampling filter .id = <uuid>$0
 		 	) {
 			 	*,
+				site: { *, country: { * }},
+				performed_by: { * },
+				performed_by_groups: { * },
 				habitats: { * },
 				target_taxa: { * },
 				fixatives: { * },

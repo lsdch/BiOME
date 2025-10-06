@@ -2,6 +2,10 @@ package models
 
 import "github.com/geldata/gel-go/geltypes"
 
+type WithUUID struct {
+	ID geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+}
+
 // Persistable items can make changes in the database,
 // e.g. when inserting a record
 type Persistable[Persisted any] interface {

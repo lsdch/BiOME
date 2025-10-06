@@ -76,6 +76,14 @@ func (i EmailInput) Identifier() string {
 	return i.Email
 }
 
+type NumberInput struct {
+	Number int64 `path:"number"`
+}
+
+func (i NumberInput) Identifier() int64 {
+	return i.Number
+}
+
 // Implementation assertions
 var _ IdentifierInput[geltypes.UUID] = (*UUIDInput)(nil)
 var _ IdentifierInput[string] = (*CodeInput)(nil)

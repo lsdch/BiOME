@@ -5,9 +5,10 @@
       class="crud-table"
       :headers="processedHeaders"
       :items="filteredItems"
-      :loading="loading"
+      :loading
       :search="search.term"
-      :filter-keys="filterKeys"
+      :filter-keys
+      :filter-mode
       v-model="selected"
       v-model:sort-by="sortBy"
       v-bind="$attrs"
@@ -275,6 +276,7 @@ import { useUserStore } from '@/stores/user'
 type Props = TableProps<ItemType, ItemsQueryData, ItemsDeleteData> & {
   filter?: (item: ItemType) => boolean
   filterKeys?: string | string[]
+  filterMode?: VDataTable['filterMode']
   mobile?: boolean
 }
 

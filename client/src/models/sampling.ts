@@ -1,18 +1,20 @@
-import { HabitatRecord, Sampling, SamplingInput, SamplingUpdate } from "@/api";
+import { DateWithPrecision, DateWithPrecisionInput, HabitatRecord, Sampling, SamplingInput, SamplingUpdate } from "@/api";
 import { reactive } from "vue";
 import { Reactive } from "vue";
 
 export type SamplingFormModel = Omit<{
   [K in keyof SamplingInput]: K extends keyof Sampling ? Sampling[K] : never
-}, 'habitats'> & {
-  habitats?: HabitatRecord[]
+}, 'habitats' | 'performed_on'> & {
+  habitats?: HabitatRecord[],
+  performed_on: DateWithPrecisionInput
 }
 
 export function initialModel(): Reactive<SamplingFormModel> {
   return reactive({
     target: {
       kind: "Taxa"
-    }
+    },
+    performed_on: { precision: 'Day', date: {} }
   })
 }
 
@@ -23,7 +25,10 @@ export function fromSampling({
   habitats,
   target,
   comments,
-  methods
+  methods,
+  performed_on,
+  performed_by,
+  performed_by_groups
 }: Sampling): SamplingFormModel {
   return {
     duration,
@@ -36,6 +41,9 @@ export function fromSampling({
     habitats,
     fixatives,
     methods,
+    performed_on: DateWithPrecision.toInput(performed_on),
+    performed_by: performed_by ?? [],
+    performed_by_groups: performed_by_groups ?? [],
   }
 }
 
@@ -46,7 +54,10 @@ export function toRequestBody({
   target,
   habitats,
   fixatives,
-  methods
+  methods,
+  performed_on,
+  performed_by,
+  performed_by_groups
 }: SamplingFormModel): SamplingInput {
   return {
     duration,
@@ -58,6 +69,9 @@ export function toRequestBody({
     },
     habitats: habitats?.map(({ label }) => label),
     fixatives: fixatives?.map(({ code }) => code),
-    methods: methods?.map(({ code }) => code)
+    methods: methods?.map(({ code }) => code),
+    performed_on: performed_on,
+    performed_by: performed_by?.map(({ alias }) => alias),
+    performed_by_groups: performed_by_groups?.map(({ code }) => code),
   } satisfies SamplingUpdate
 }

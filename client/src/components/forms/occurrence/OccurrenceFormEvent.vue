@@ -134,7 +134,7 @@
 <script setup lang="ts">
 import { DateWithPrecision, DateWithPrecisionInput, Event, Site } from '@/api'
 import EventFormDialog from '@/components/forms/EventFormDialog.vue'
-import SiteEventPicker from '@/components/forms/occurrence/SiteEventPicker.vue'
+import SiteEventPicker from '@/components/forms/occurrence/SiteSamplingPicker.vue'
 import PersonChip from '@/components/people/PersonChip'
 import { hasID } from '@/functions/db'
 import { EventModel } from '@/models'

@@ -20,18 +20,16 @@
 import { BioMaterialWithDetails, ErrorModel } from '@/api'
 import {
   createExternalBioMatMutation,
-  eventAddExternalOccurrenceMutation,
   samplingAddExternalOccurrenceMutation,
   siteAddExternalOccurrenceMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { hasID } from '@/functions/db'
 import { IndexedValidationErrors } from '@/functions/mutations'
-import { BiomatModel, EventModel, OccurrenceModel, SamplingModel, SiteModel } from '@/models'
+import { BiomatModel, OccurrenceModel, SamplingModel, SiteModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation } from '@tanstack/vue-query'
-import { reactiveComputed } from '@vueuse/core'
-import { computed, ref, unref } from 'vue'
+import { computed, ref } from 'vue'
 import OccurrenceFormDialog from './OccurrenceFormDialog.vue'
 
 const dialog = defineModel<boolean>('dialog')
@@ -40,13 +38,11 @@ const model = ref<OccurrenceModel.OccurrenceModel>(OccurrenceModel.initialModel(
 defineProps<FormDialogProps>()
 
 const addFromSampling = useMutation(samplingAddExternalOccurrenceMutation())
-const addFromEvent = useMutation(eventAddExternalOccurrenceMutation())
 const addFromSite = useMutation(siteAddExternalOccurrenceMutation())
 const createFromScratchExternal = useMutation(createExternalBioMatMutation())
 
 function getActiveMutation() {
   if (hasID(model.value?.sampling)) return addFromSampling
-  else if (hasID(model.value?.event)) return addFromEvent
   else if (hasID(model.value?.site)) return addFromSite
   else return createFromScratchExternal
 }
@@ -92,19 +88,8 @@ function submit() {
   if (hasID(model.value?.sampling))
     return addFromSampling.mutate(
       {
-        path: { id: model.value.sampling.id },
+        path: { number: model.value.sampling.number },
         body: BiomatModel.toRequestData(model.value.biomaterial.external!)
-      },
-      mutationCallbacks
-    )
-  else if (hasID(model.value?.event))
-    return addFromEvent.mutate(
-      {
-        path: { id: model.value.event.id },
-        body: {
-          sampling: SamplingModel.toRequestBody(model.value.sampling!),
-          biomaterial: BiomatModel.toRequestData(model.value.biomaterial.external!)
-        }
       },
       mutationCallbacks
     )
@@ -113,7 +98,6 @@ function submit() {
       {
         path: { code: model.value.site.code },
         body: {
-          event: EventModel.toRequestData(model.value.event!),
           sampling: SamplingModel.toRequestBody(model.value.sampling!),
           biomaterial: BiomatModel.toRequestData(model.value.biomaterial.external!)
         }
@@ -125,7 +109,6 @@ function submit() {
       {
         body: {
           site: SiteModel.toRequestBody(model.value.site!),
-          event: EventModel.toRequestData(model.value.event!),
           sampling: SamplingModel.toRequestBody(model.value.sampling!),
           bio_material: BiomatModel.toRequestData(model.value.biomaterial.external!)
         }

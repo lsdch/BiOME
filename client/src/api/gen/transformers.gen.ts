@@ -26,17 +26,11 @@ import type {
   ListOccurrenceDatasetsResponse,
   GetOccurrenceDatasetResponse,
   TogglePinDatasetResponse,
-  ListSequenceDatasetsResponse,
   GetSequenceDatasetResponse,
   ListSiteDatasetsResponse,
   CreateSiteDatasetResponse,
   GetSiteDatasetResponse,
   GetDatasetResponse,
-  DeleteEventResponse,
-  UpdateEventResponse,
-  EventAddExternalOccurrenceResponse,
-  CreateSamplingAtEventResponse,
-  UpdateSpottingResponse,
   ListFixativesResponse,
   CreateFixativeResponse,
   DeleteFixativeResponse,
@@ -88,9 +82,9 @@ import type {
   CreateSiteResponse,
   GetSiteResponse,
   UpdateSiteResponse,
-  ListSiteEventsResponse,
-  CreateEventResponse,
   SiteAddExternalOccurrenceResponse,
+  ListSiteSamplingsResponse,
+  CreateSamplingAtSiteResponse,
   GetTaxonomyResponse,
   ListTaxaResponse,
   CreateTaxonResponse,
@@ -212,35 +206,15 @@ const codeHistorySchemaResponseTransformer = (data: any) => {
   return data
 }
 
+const geneSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 const dateWithPrecisionSchemaResponseTransformer = (data: any) => {
   if (data.date) {
     data.date = new Date(data.date)
   }
-  return data
-}
-
-const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
-  if (data.date) {
-    data.date = new Date(data.date)
-  }
-  return data
-}
-
-const siteItemSchemaResponseTransformer = (data: any) => {
-  if (data.last_visited) {
-    data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
-  }
-  return data
-}
-
-const eventWithParticipantsSchemaResponseTransformer = (data: any) => {
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
-  data.site = siteItemSchemaResponseTransformer(data.site)
-  return data
-}
-
-const geneSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -336,12 +310,90 @@ const samplingMethodSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
+  if (data.date) {
+    data.date = new Date(data.date)
+  }
+  return data
+}
+
+const siteItemSchemaResponseTransformer = (data: any) => {
+  if (data.last_visited) {
+    data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
+  }
+  return data
+}
+
 const samplingTargetSchemaResponseTransformer = (data: any) => {
   if (data.taxa) {
     data.taxa = data.taxa.map((item: any) => {
       return taxonSchemaResponseTransformer(item)
     })
   }
+  return data
+}
+
+const samplingInnerWithSiteSchemaResponseTransformer = (data: any) => {
+  if (data.fixatives) {
+    data.fixatives = data.fixatives.map((item: any) => {
+      return fixativeSchemaResponseTransformer(item)
+    })
+  }
+  if (data.habitats) {
+    data.habitats = data.habitats.map((item: any) => {
+      return habitatSchemaResponseTransformer(item)
+    })
+  }
+  if (data.methods) {
+    data.methods = data.methods.map((item: any) => {
+      return samplingMethodSchemaResponseTransformer(item)
+    })
+  }
+  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  data.site = siteItemSchemaResponseTransformer(data.site)
+  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  return data
+}
+
+const optionalTaxonSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
+const bioMaterialListItemSchemaResponseTransformer = (data: any) => {
+  if (data.code_history) {
+    data.code_history = data.code_history.map((item: any) => {
+      return codeHistorySchemaResponseTransformer(item)
+    })
+  }
+  if (data.external) {
+    data.external = optionalExternalBioMatSpecificSchemaResponseTransformer(data.external)
+  }
+  data.identification = identificationSchemaResponseTransformer(data.identification)
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.published_in) {
+    data.published_in = data.published_in.map((item: any) => {
+      return occurrenceReferenceSchemaResponseTransformer(item)
+    })
+  }
+  data.sampling = samplingInnerWithSiteSchemaResponseTransformer(data.sampling)
+  if (data.seq_consensus) {
+    data.seq_consensus = optionalTaxonSchemaResponseTransformer(data.seq_consensus)
+  }
+  return data
+}
+
+const paginatedListBioMaterialListItemSchemaResponseTransformer = (data: any) => {
+  data.items = data.items.map((item: any) => {
+    return bioMaterialListItemSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+export const listBioMaterialResponseTransformer = async (
+  data: any
+): Promise<ListBioMaterialResponse> => {
+  data = paginatedListBioMaterialListItemSchemaResponseTransformer(data)
   return data
 }
 
@@ -361,12 +413,8 @@ const samplingInnerSchemaResponseTransformer = (data: any) => {
       return samplingMethodSchemaResponseTransformer(item)
     })
   }
+  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
   data.target = samplingTargetSchemaResponseTransformer(data.target)
-  return data
-}
-
-const optionalTaxonSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -393,7 +441,7 @@ const bioMaterialSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const samplingSchemaResponseTransformer = (data: any) => {
+const samplingWithSiteSchemaResponseTransformer = (data: any) => {
   if (data.fixatives) {
     data.fixatives = data.fixatives.map((item: any) => {
       return fixativeSchemaResponseTransformer(item)
@@ -415,11 +463,13 @@ const samplingSchemaResponseTransformer = (data: any) => {
       return taxonSchemaResponseTransformer(item)
     })
   }
+  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
   if (data.samples) {
     data.samples = data.samples.map((item: any) => {
       return bioMaterialSchemaResponseTransformer(item)
     })
   }
+  data.site = siteItemSchemaResponseTransformer(data.site)
   data.target = samplingTargetSchemaResponseTransformer(data.target)
   return data
 }
@@ -430,7 +480,6 @@ const bioMaterialWithDetailsSchemaResponseTransformer = (data: any) => {
       return codeHistorySchemaResponseTransformer(item)
     })
   }
-  data.event = eventWithParticipantsSchemaResponseTransformer(data.event)
   if (data.external) {
     data.external = optionalExternalBioMatSpecificSchemaResponseTransformer(data.external)
   }
@@ -441,24 +490,10 @@ const bioMaterialWithDetailsSchemaResponseTransformer = (data: any) => {
       return occurrenceReferenceSchemaResponseTransformer(item)
     })
   }
-  data.sampling = samplingSchemaResponseTransformer(data.sampling)
+  data.sampling = samplingWithSiteSchemaResponseTransformer(data.sampling)
   if (data.seq_consensus) {
     data.seq_consensus = optionalTaxonSchemaResponseTransformer(data.seq_consensus)
   }
-  return data
-}
-
-const paginatedListBioMaterialWithDetailsSchemaResponseTransformer = (data: any) => {
-  data.items = data.items.map((item: any) => {
-    return bioMaterialWithDetailsSchemaResponseTransformer(item)
-  })
-  return data
-}
-
-export const listBioMaterialResponseTransformer = async (
-  data: any
-): Promise<ListBioMaterialResponse> => {
-  data = paginatedListBioMaterialWithDetailsSchemaResponseTransformer(data)
   return data
 }
 
@@ -479,7 +514,7 @@ export const createExternalBioMatResponseTransformer = async (
 export const deleteBioMaterialResponseTransformer = async (
   data: any
 ): Promise<DeleteBioMaterialResponse> => {
-  data = bioMaterialWithDetailsSchemaResponseTransformer(data)
+  data = bioMaterialListItemSchemaResponseTransformer(data)
   return data
 }
 
@@ -564,14 +599,13 @@ export const listOccurrenceDatasetsResponseTransformer = async (
   return data
 }
 
-const samplingEventWithOccurrencesSchemaResponseTransformer = (data: any) => {
+const samplingDateWithOccurrencesSchemaResponseTransformer = (data: any) => {
   data.date = dateWithPrecisionSchemaResponseTransformer(data.date)
   if (data.occurring_taxa) {
     data.occurring_taxa = data.occurring_taxa.map((item: any) => {
       return taxonSchemaResponseTransformer(item)
     })
   }
-  data.target = samplingTargetSchemaResponseTransformer(data.target)
   return data
 }
 
@@ -580,7 +614,7 @@ const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
   }
   data.samplings = data.samplings.map((item: any) => {
-    return samplingEventWithOccurrencesSchemaResponseTransformer(item)
+    return samplingDateWithOccurrencesSchemaResponseTransformer(item)
   })
   return data
 }
@@ -607,12 +641,6 @@ export const togglePinDatasetResponseTransformer = async (
   data: any
 ): Promise<TogglePinDatasetResponse> => {
   data = datasetSchemaResponseTransformer(data)
-  return data
-}
-
-const eventInnerSchemaResponseTransformer = (data: any) => {
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
-  data.site = siteItemSchemaResponseTransformer(data.site)
   return data
 }
 
@@ -656,13 +684,44 @@ const optionalExtSeqSpecificsBioMaterialSchemaResponseTransformer = (data: any) 
   return data
 }
 
+const samplingSchemaResponseTransformer = (data: any) => {
+  if (data.fixatives) {
+    data.fixatives = data.fixatives.map((item: any) => {
+      return fixativeSchemaResponseTransformer(item)
+    })
+  }
+  if (data.habitats) {
+    data.habitats = data.habitats.map((item: any) => {
+      return habitatSchemaResponseTransformer(item)
+    })
+  }
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.methods) {
+    data.methods = data.methods.map((item: any) => {
+      return samplingMethodSchemaResponseTransformer(item)
+    })
+  }
+  if (data.occurring_taxa) {
+    data.occurring_taxa = data.occurring_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
+    })
+  }
+  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  if (data.samples) {
+    data.samples = data.samples.map((item: any) => {
+      return bioMaterialSchemaResponseTransformer(item)
+    })
+  }
+  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  return data
+}
+
 const sequenceSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) => {
       return codeHistorySchemaResponseTransformer(item)
     })
   }
-  data.event = eventInnerSchemaResponseTransformer(data.event)
   if (data.external) {
     data.external = optionalExtSeqSpecificsBioMaterialSchemaResponseTransformer(data.external)
   }
@@ -674,7 +733,7 @@ const sequenceSchemaResponseTransformer = (data: any) => {
       return occurrenceReferenceSchemaResponseTransformer(item)
     })
   }
-  data.sampling = samplingInnerSchemaResponseTransformer(data.sampling)
+  data.sampling = samplingSchemaResponseTransformer(data.sampling)
   return data
 }
 
@@ -688,15 +747,6 @@ const sequenceDatasetSchemaResponseTransformer = (data: any) => {
   })
   data.sites = data.sites.map((item: any) => {
     return siteItemSchemaResponseTransformer(item)
-  })
-  return data
-}
-
-export const listSequenceDatasetsResponseTransformer = async (
-  data: any
-): Promise<ListSequenceDatasetsResponse> => {
-  data = data.map((item: any) => {
-    return sequenceDatasetSchemaResponseTransformer(item)
   })
   return data
 }
@@ -744,66 +794,6 @@ export const getSiteDatasetResponseTransformer = async (
 
 export const getDatasetResponseTransformer = async (data: any): Promise<GetDatasetResponse> => {
   data = datasetSchemaResponseTransformer(data)
-  return data
-}
-
-const abioticMeasurementSchemaResponseTransformer = (data: any) => {
-  data.param = abioticParameterSchemaResponseTransformer(data.param)
-  return data
-}
-
-const eventSchemaResponseTransformer = (data: any) => {
-  if (data.abiotic_measurements) {
-    data.abiotic_measurements = data.abiotic_measurements.map((item: any) => {
-      return abioticMeasurementSchemaResponseTransformer(item)
-    })
-  }
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
-  if (data.samplings) {
-    data.samplings = data.samplings.map((item: any) => {
-      return samplingSchemaResponseTransformer(item)
-    })
-  }
-  data.site = siteItemSchemaResponseTransformer(data.site)
-  if (data.spottings) {
-    data.spottings = data.spottings.map((item: any) => {
-      return taxonSchemaResponseTransformer(item)
-    })
-  }
-  return data
-}
-
-export const deleteEventResponseTransformer = async (data: any): Promise<DeleteEventResponse> => {
-  data = eventSchemaResponseTransformer(data)
-  return data
-}
-
-export const updateEventResponseTransformer = async (data: any): Promise<UpdateEventResponse> => {
-  data = eventSchemaResponseTransformer(data)
-  return data
-}
-
-export const eventAddExternalOccurrenceResponseTransformer = async (
-  data: any
-): Promise<EventAddExternalOccurrenceResponse> => {
-  data = bioMaterialWithDetailsSchemaResponseTransformer(data)
-  return data
-}
-
-export const createSamplingAtEventResponseTransformer = async (
-  data: any
-): Promise<CreateSamplingAtEventResponse> => {
-  data = samplingSchemaResponseTransformer(data)
-  return data
-}
-
-export const updateSpottingResponseTransformer = async (
-  data: any
-): Promise<UpdateSpottingResponse> => {
-  data = data.map((item: any) => {
-    return taxonSchemaResponseTransformer(item)
-  })
   return data
 }
 
@@ -1114,29 +1104,12 @@ export const samplingAddExternalOccurrenceResponseTransformer = async (
   return data
 }
 
-export const listSequencesResponseTransformer = async (
-  data: any
-): Promise<ListSequencesResponse> => {
-  data = data.map((item: any) => {
-    return sequenceSchemaResponseTransformer(item)
-  })
-  return data
-}
-
-export const deleteSequenceResponseTransformer = async (
-  data: any
-): Promise<DeleteSequenceResponse> => {
-  data = sequenceSchemaResponseTransformer(data)
-  return data
-}
-
-const sequenceWithDetailsSchemaResponseTransformer = (data: any) => {
+const sequenceListItemSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) => {
       return codeHistorySchemaResponseTransformer(item)
     })
   }
-  data.event = eventInnerSchemaResponseTransformer(data.event)
   if (data.external) {
     data.external = optionalExtSeqSpecificsBioMaterialSchemaResponseTransformer(data.external)
   }
@@ -1148,7 +1121,44 @@ const sequenceWithDetailsSchemaResponseTransformer = (data: any) => {
       return occurrenceReferenceSchemaResponseTransformer(item)
     })
   }
-  data.sampling = samplingSchemaResponseTransformer(data.sampling)
+  data.sampling = samplingInnerWithSiteSchemaResponseTransformer(data.sampling)
+  return data
+}
+
+export const listSequencesResponseTransformer = async (
+  data: any
+): Promise<ListSequencesResponse> => {
+  data = data.map((item: any) => {
+    return sequenceListItemSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+export const deleteSequenceResponseTransformer = async (
+  data: any
+): Promise<DeleteSequenceResponse> => {
+  data = sequenceListItemSchemaResponseTransformer(data)
+  return data
+}
+
+const sequenceWithDetailsSchemaResponseTransformer = (data: any) => {
+  if (data.code_history) {
+    data.code_history = data.code_history.map((item: any) => {
+      return codeHistorySchemaResponseTransformer(item)
+    })
+  }
+  if (data.external) {
+    data.external = optionalExtSeqSpecificsBioMaterialSchemaResponseTransformer(data.external)
+  }
+  data.gene = geneSchemaResponseTransformer(data.gene)
+  data.identification = identificationSchemaResponseTransformer(data.identification)
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.published_in) {
+    data.published_in = data.published_in.map((item: any) => {
+      return occurrenceReferenceSchemaResponseTransformer(item)
+    })
+  }
+  data.sampling = samplingWithSiteSchemaResponseTransformer(data.sampling)
   return data
 }
 
@@ -1206,23 +1216,81 @@ export const deleteMapPresetResponseTransformer = async (
   return data
 }
 
+export const listSitesResponseTransformer = async (data: any): Promise<ListSitesResponse> => {
+  data = data.map((item: any) => {
+    return siteItemSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+const abioticMeasurementSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  data.param = abioticParameterSchemaResponseTransformer(data.param)
+  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  return data
+}
+
+const flaggingSchemaResponseTransformer = (data: any) => {
+  if (data.abiotic_parameters) {
+    data.abiotic_parameters = data.abiotic_parameters.map((item: any) => {
+      return abioticParameterSchemaResponseTransformer(item)
+    })
+  }
+  if (data.target_taxa) {
+    data.target_taxa = data.target_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
+    })
+  }
+  return data
+}
+
+const samplingWithOccurrencesSchemaResponseTransformer = (data: any) => {
+  if (data.fixatives) {
+    data.fixatives = data.fixatives.map((item: any) => {
+      return fixativeSchemaResponseTransformer(item)
+    })
+  }
+  if (data.habitats) {
+    data.habitats = data.habitats.map((item: any) => {
+      return habitatSchemaResponseTransformer(item)
+    })
+  }
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.methods) {
+    data.methods = data.methods.map((item: any) => {
+      return samplingMethodSchemaResponseTransformer(item)
+    })
+  }
+  if (data.occurring_taxa) {
+    data.occurring_taxa = data.occurring_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
+    })
+  }
+  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  return data
+}
+
 const siteSchemaResponseTransformer = (data: any) => {
-  if (data.events) {
-    data.events = data.events.map((item: any) => {
-      return eventSchemaResponseTransformer(item)
+  if (data.abiotic_measurements) {
+    data.abiotic_measurements = data.abiotic_measurements.map((item: any) => {
+      return abioticMeasurementSchemaResponseTransformer(item)
+    })
+  }
+  if (data.flaggings) {
+    data.flaggings = data.flaggings.map((item: any) => {
+      return flaggingSchemaResponseTransformer(item)
     })
   }
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
   }
   data.meta = metaSchemaResponseTransformer(data.meta)
-  return data
-}
-
-export const listSitesResponseTransformer = async (data: any): Promise<ListSitesResponse> => {
-  data = data.map((item: any) => {
-    return siteSchemaResponseTransformer(item)
-  })
+  if (data.samplings) {
+    data.samplings = data.samplings.map((item: any) => {
+      return samplingWithOccurrencesSchemaResponseTransformer(item)
+    })
+  }
   return data
 }
 
@@ -1241,24 +1309,50 @@ export const updateSiteResponseTransformer = async (data: any): Promise<UpdateSi
   return data
 }
 
-export const listSiteEventsResponseTransformer = async (
-  data: any
-): Promise<ListSiteEventsResponse> => {
-  data = data.map((item: any) => {
-    return eventSchemaResponseTransformer(item)
-  })
-  return data
-}
-
-export const createEventResponseTransformer = async (data: any): Promise<CreateEventResponse> => {
-  data = eventSchemaResponseTransformer(data)
-  return data
-}
-
 export const siteAddExternalOccurrenceResponseTransformer = async (
   data: any
 ): Promise<SiteAddExternalOccurrenceResponse> => {
   data = bioMaterialWithDetailsSchemaResponseTransformer(data)
+  return data
+}
+
+const samplingDetailsWithOccurrencesSchemaResponseTransformer = (data: any) => {
+  if (data.fixatives) {
+    data.fixatives = data.fixatives.map((item: any) => {
+      return fixativeSchemaResponseTransformer(item)
+    })
+  }
+  if (data.habitats) {
+    data.habitats = data.habitats.map((item: any) => {
+      return habitatSchemaResponseTransformer(item)
+    })
+  }
+  if (data.meta) {
+    data.meta = metaSchemaResponseTransformer(data.meta)
+  }
+  if (data.methods) {
+    data.methods = data.methods.map((item: any) => {
+      return samplingMethodSchemaResponseTransformer(item)
+    })
+  }
+  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  return data
+}
+
+export const listSiteSamplingsResponseTransformer = async (
+  data: any
+): Promise<ListSiteSamplingsResponse> => {
+  data = data.map((item: any) => {
+    return samplingDetailsWithOccurrencesSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+export const createSamplingAtSiteResponseTransformer = async (
+  data: any
+): Promise<CreateSamplingAtSiteResponse> => {
+  data = samplingSchemaResponseTransformer(data)
   return data
 }
 

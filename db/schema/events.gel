@@ -1,18 +1,6 @@
 module events {
 
-  type Event extending default::Auditable {
-
-    required code := (
-      with
-        date := .performed_on.date,
-        precision := .performed_on.precision
-      select .site.code ++ "|" ++ (
-        if precision = date::DatePrecision.Unknown then "undated"
-        else if precision = date::DatePrecision.Year then <str>datetime_get(date, 'year')
-        else <str>datetime_get(date, 'year') ++ "-" ++ <str>datetime_get(date, 'month')
-      )
-    );
-
+  abstract type Action extending default::Auditable {
     required site: location::Site {
       on source delete allow;
       on target delete delete source;
@@ -29,27 +17,21 @@ module events {
         )
       )
     };
-
-    # Spotting: visiting a site without taking any samples,
-    # e.g. in preparation of future sampling
-    multi spottings: taxonomy::Taxon;
-    comments: str;
-
-    multi abiotic_measurements := .<event[is AbioticMeasurement];
-    multi samplings := .<event[is Sampling];
-
   }
 
-  # Several actions may have been performed during an event
-  #
-
-  # - Abiotic measurement: measuring environmental variables at the site
-  # - Sampling: sampling for the presence of one or several target taxa
-  abstract type Action extending default::Auditable {
-    required event: Event {
+  type Flagging extending default::Auditable {
+    required site: location::Site {
+      on source delete allow;
       on target delete delete source;
     };
-  }
+    multi target_taxa: taxonomy::Taxon {
+      on target delete allow;
+    };
+    multi abiotic_params: AbioticParameter {
+      on target delete allow;
+    };
+    indications: str;
+  };
 
   type AbioticParameter extending default::Vocabulary, default::Auditable {
     required unit: str;
@@ -60,7 +42,6 @@ module events {
       on target delete delete source;
     };
     required value: float32;
-    constraint exclusive on ((.event, .param))
   }
 
   scalar type SamplingTarget extending enum<Community, Unknown, Taxa>;
@@ -73,26 +54,8 @@ module events {
 
     required number: SamplingNumber {
       readonly := true;
+      constraint exclusive;
     };
-
-    required code := (
-        with
-          id := .id,
-          event := .event,
-          # siblings are all samplings of events having the same code
-          # event codes are not unique, but samplings are
-          siblings := (
-            select detached events::Sampling
-            filter .event = event
-            order by .number
-          ),
-          # if sampling is not found in siblings, it is the last one and was probably just created
-          rank := (
-            select assert_single(enumerate(siblings) filter .1.id = id).0
-          ) ?? count(siblings),
-          suffix := (if count(siblings) > 1 then '.' ++ <str>(rank + 1) else '')
-          select event.code ++ suffix
-      );
 
     # WARNING : during migration, remove pseudo-field when no sampling was performed
     multi methods: SamplingMethod;
@@ -125,4 +88,8 @@ module events {
       )
     );
   }
+
+  function sampling_code(sampling: Sampling) -> str {
+    using ( sampling.site.code ++ "." ++ <str>sampling.number ++ "|" ++ date::to_code(sampling.performed_on) );
+  };
 }

@@ -10,7 +10,7 @@
     :fetch-items="listSequencesOptions()"
     :delete="{
       mutation: deleteSequenceMutation,
-      params: ({ code }: Sequence) => ({ path: { code } })
+      params: ({ code }: SequenceListItem) => ({ path: { code } })
     }"
     :mobile="xs"
     :filter
@@ -101,7 +101,7 @@
       <GeneChip :gene size="small" />
     </template>
     <template
-      #item.event.site="{ value: { code, name }, item }: { value: SiteItem; item: BioMaterial }"
+      #item.sampling.site="{ value: { code, name }, item }: { value: SiteItem; item: BioMaterial }"
     >
       <RouterLink
         :class="{ 'font-monospace': !name }"
@@ -109,7 +109,7 @@
         :text="name || code"
       />
     </template>
-    <template #item.event.performed_on="{ value }: { value: DateWithPrecision }">
+    <template #item.sampling.performed_on="{ value }: { value: DateWithPrecision }">
       <span :class="{ 'text-muted': value.precision === 'Unknown' }">{{
         DateWithPrecision.format(value)
       }}</span>
@@ -148,7 +148,7 @@
                 "
               ></v-list-item>
               <v-list-item prepend-icon="mdi-database" title="Database references">
-                <SeqRefChip v-for="seqRef in item.external?.referenced_in" :seq-ref size="small" />
+                <SeqRefChip v-for="seqRef in item.external?.referenced_in" :seqRef size="small" />
               </v-list-item>
             </v-list>
           </v-card>
@@ -178,13 +178,14 @@ import {
   DateWithPrecision,
   ExtSeqOrigin,
   OccurrenceCategory,
+  SequenceListItem,
   SiteItem
 } from '@/api/adapters'
 import { deleteSequenceMutation, listSequencesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import PersonChip from '@/components/people/PersonChip'
 import GeneChip from '@/components/sequences/GeneChip'
 import GenePicker from '@/components/sequences/GenePicker.vue'
-import SeqRefChip from '@/components/sequences/SeqRefChip.vue'
+import SeqRefChip from '@/components/sequences/SeqRefChip'
 import TaxonChip from '@/components/taxonomy/TaxonChip'
 import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
@@ -212,11 +213,11 @@ const filter = computed(() => {
     case null:
       return undefined
     default:
-      return (item: Sequence) => item.category === category
+      return (item: SequenceListItem) => item.category === category
   }
 })
 
-const headers: CRUDTableHeader<Sequence>[] = [
+const headers: CRUDTableHeader<SequenceListItem>[] = [
   {
     children: [
       { key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } },
@@ -235,8 +236,8 @@ const headers: CRUDTableHeader<Sequence>[] = [
     align: 'center',
     headerProps: { class: 'border-s' },
     children: [
-      { key: 'event.site', title: 'Site' },
-      { key: 'event.performed_on', title: 'Date', align: 'end', sort: DateWithPrecision.compare }
+      { key: 'sampling.site', title: 'Site' },
+      { key: 'sampling.performed_on', title: 'Date', align: 'end', sort: DateWithPrecision.compare }
     ]
   },
   {

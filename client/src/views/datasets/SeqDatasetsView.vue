@@ -19,21 +19,19 @@
 </template>
 
 <script setup lang="ts">
-import { SequenceDataset } from '@/api'
+import { SequenceDataset, SequenceDatasetListItem } from '@/api'
 import { listSequenceDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { LineClampedText } from '@/components/toolkit/ui/LineClampedText'
 
-const headers: CRUDTableHeader<SequenceDataset>[] = [
+const headers: CRUDTableHeader<SequenceDatasetListItem>[] = [
   { key: 'label', title: 'Label' },
   { key: 'description', title: 'Description' },
+  { key: 'sites', title: 'Sites', width: 0 },
   {
     key: 'sequences',
     title: 'Sequences',
-    width: 0,
-    value(item: SequenceDataset, fallback) {
-      return item.sequences.length
-    }
+    width: 0
   }
 ]
 </script>

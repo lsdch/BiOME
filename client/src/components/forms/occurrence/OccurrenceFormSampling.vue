@@ -1,7 +1,7 @@
 <template>
   <v-card
     title="Sampling"
-    :subtitle="event ? 'From event' : 'Waiting for event definition'"
+    :subtitle="site ? 'At site' : 'Waiting for site definition'"
     class="small-card-title"
     prepend-icon="mdi-package-down"
     flat
@@ -30,15 +30,15 @@
 
       <v-card-subtitle v-else>
         {{
-          hasID(event)
+          hasID(site)
             ? 'Pick or register sampling'
-            : !!event
-              ? 'Register sampling at new event'
-              : 'Waiting for event definition'
+            : !!site
+              ? 'Register sampling at new site'
+              : 'Waiting for site definition'
         }}
       </v-card-subtitle>
     </template>
-    <template #append v-if="event">
+    <template #append v-if="site">
       <v-btn
         v-show="!!sampling && !hasID(sampling) && !showEdit"
         icon="mdi-pencil"
@@ -49,7 +49,7 @@
       <SamplingFormDialog
         v-show="!sampling || hasID(sampling) || showEdit"
         v-model:dialog="dialog"
-        :event
+        :site
         btn-text="Save"
         subtitle="Saving does not immediately persist the sampling in the DB"
         @submit="updateSampling"
@@ -75,14 +75,19 @@
       </SamplingFormDialog>
     </template>
     <v-card-text>
-      <v-list v-if="!!sampling && !hasID(sampling) && !showEdit">
-        <SamplingListItems :sampling="sampling" />
-      </v-list>
-      <SamplingSelectCarousel
-        v-else-if="hasID(event) && event.samplings"
-        :samplings="event.samplings"
+      <SiteSamplingPicker
+        v-if="hasID(site)"
+        :siteCode="site.code"
         @update:model-value="updateSampling"
       />
+      <v-list v-if="!!sampling">
+        <SamplingListItems :sampling="sampling" />
+      </v-list>
+      <!-- <SamplingSelectCarousel
+        v-else-if="hasID(site) && site.samplings"
+        :samplings="site.samplings"
+        @update:model-value="updateSampling"
+      /> -->
     </v-card-text>
     <template #actions v-if="showEdit && !!sampling">
       <v-spacer />
@@ -92,7 +97,7 @@
 </template>
 
 <script setup lang="ts">
-import { Event, Sampling } from '@/api'
+import { Sampling, Site } from '@/api'
 import SamplingListItems from '@/components/events/SamplingListItems.vue'
 import SamplingFormDialog from '@/components/forms/SamplingFormDialog.vue'
 import { hasID } from '@/functions/db'
@@ -102,15 +107,17 @@ import { SamplingFormModel } from '@/models/sampling'
 import { useToggle } from '@vueuse/core'
 import { watch } from 'vue'
 import SamplingSelectCarousel from './SamplingSelectCarousel.vue'
+import { SiteFormModel } from '@/models/site'
+import SiteSamplingPicker from './SiteSamplingPicker.vue'
 
 const sampling = defineModel<Sampling | SamplingFormModel>()
 const dialog = defineModel<boolean>('dialog')
-const props = defineProps<{ event?: EventModel | Event }>()
+const props = defineProps<{ site?: Site | SiteFormModel }>()
 
 const [showEdit, toggleEdit] = useToggle(false)
 
 watch(
-  () => props.event,
+  () => props.site,
   () => updateSampling(undefined)
 )
 

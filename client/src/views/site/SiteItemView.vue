@@ -77,6 +77,14 @@
             <span class="text-muted text-caption">Sampled taxa</span>
           </template>
         </v-list-item>
+        <v-list-item>
+          <span :class="['text-caption mx-1', last_sampled ? 'font-monospace' : 'font-italic']">
+            {{ last_sampled ? DateWithPrecision.format(last_sampled) : 'Never' }}
+          </span>
+          <template #append>
+            <span class="text-muted text-caption">Last sampled</span>
+          </template>
+        </v-list-item>
       </v-list>
     </v-card>
 
@@ -88,16 +96,18 @@
 
     <SiteFormDialog v-model="site" v-model:dialog="editDialog"></SiteFormDialog>
 
-    <div id="panels">
+    <SiteItemDetailTabs id="panels" :site> </SiteItemDetailTabs>
+
+    <!-- <div id="panels">
       <v-expansion-panels :disabled="isPending">
         <v-expansion-panel>
           <template #title>
-            Events and samples
-            <v-badge color="primary" inline :content="site?.events?.length ?? 0" />
+            Occurrences
+            <v-badge color="primary" inline :content="site?.samplings?.length ?? 0" />
           </template>
 
-          <template v-if="site" #text>
-            <SiteEventsTable :site />
+          <template #text>
+            <OccurrencesAtSiteTable v-if="site" :samplings="site.samplings ?? []" />
           </template>
         </v-expansion-panel>
         <v-expansion-panel class="dataset-expansion-panel">
@@ -130,8 +140,8 @@
           </template>
         </v-expansion-panel>
       </v-expansion-panels>
-    </div>
-    <div id="misc">
+    </div> -->
+    <!-- <div id="misc">
       <v-card>
         <v-list-item
           title="Abiotic measurements"
@@ -148,15 +158,14 @@
           </template>
         </v-list-item>
       </v-card>
-    </div>
+    </div> -->
     <SiteItemMap v-if="site" :site />
   </v-container>
 </template>
 
 <script setup lang="ts">
-import { Taxon } from '@/api'
+import { DateWithPrecision, Taxon } from '@/api'
 import { getSiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import SiteEventsTable from '@/components/events/SiteEventsTable.vue'
 import SiteFormDialog from '@/components/forms/SiteFormDialogMutation.vue'
 import CoordPrecisionChip from '@/components/sites/CoordPrecisionChip'
 import CountryChip from '@/components/sites/CountryChip'
@@ -169,6 +178,8 @@ import { useDisplay } from 'vuetify'
 import AbioticChartsDialog from './AbioticChartsDialog.vue'
 import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
 import SiteItemMap from './SiteItemMap.vue'
+import OccurrencesAtSiteTable from '@/components/occurrence/OccurrencesAtSiteTable.vue'
+import SiteItemDetailTabs from './SiteItemDetailTabs.vue'
 
 const { mdAndDown, xlAndUp } = useDisplay()
 
@@ -176,16 +187,20 @@ const [editDialog, toggleEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
 
-console.log('code', code)
 const { data: site, error, isPending } = useQuery(getSiteOptions({ path: { code } }))
+
+const last_sampled = computed(() => {
+  return site.value?.samplings?.reduce<DateWithPrecision | undefined>((acc, { performed_on }) => {
+    if (!acc) return performed_on
+    return DateWithPrecision.compare(acc, performed_on) > 0 ? acc : performed_on
+  }, undefined)
+})
 
 const targeted_taxa = computed(() => {
   return Object.values(
-    site.value?.events?.reduce<Record<string, Taxon>>((acc, event) => {
-      event.samplings?.forEach(({ target }) => {
-        target.taxa?.forEach((t) => {
-          acc[t.name] = t
-        })
+    site.value?.samplings?.reduce<Record<string, Taxon>>((acc, { target }) => {
+      target.taxa?.forEach((t) => {
+        acc[t.name] = t
       })
       return acc
     }, {}) ?? {}
@@ -194,34 +209,12 @@ const targeted_taxa = computed(() => {
 
 const occurring_taxa = computed(() => {
   return Object.values(
-    site.value?.events?.reduce<Record<string, Taxon>>((acc, event) => {
-      event.samplings?.forEach(({ occurring_taxa }) => {
-        occurring_taxa?.forEach((t) => {
-          acc[t.name] = t
-        })
+    site.value?.samplings?.reduce<Record<string, Taxon>>((acc, { occurring_taxa }) => {
+      occurring_taxa?.forEach((t) => {
+        acc[t.name] = t
       })
       return acc
     }, {}) ?? {}
-  )
-})
-
-const abiotic_measurements = computed(() => {
-  return (
-    site.value?.events?.reduce<Record<string, AbioticData>>(
-      (acc, { performed_on, abiotic_measurements }) => {
-        abiotic_measurements?.forEach(({ param, value }) => {
-          if (performed_on.date === undefined) return
-          acc[param.code] = {
-            param,
-            points: [{ y: value, date: performed_on.date }].concat(
-              acc[param.code]?.points ?? Array<AbioticDataPoint>()
-            )
-          }
-        })
-        return acc
-      },
-      {}
-    ) ?? {}
   )
 })
 </script>
@@ -254,7 +247,7 @@ const abiotic_measurements = computed(() => {
   &.large {
     grid-template-areas:
       'info map'
-      'panels misc';
+      'panels panels';
   }
   &.small {
     grid-template-areas:

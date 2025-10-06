@@ -25,15 +25,17 @@
 <script setup lang="ts">
 import { SiteWithOccurrences } from '@/api'
 import { getOccurrenceDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import BaseMap, { HexgridLayer } from '@/components/maps/BaseMap.vue'
+import BaseMap from '@/components/maps/BaseMap.vue'
 import MapViewHexPopup from '@/components/occurrence/MapViewHexPopup.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import { palette } from '@/functions/color_brewer'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
-import DatasetItemView from './DatasetItemView.vue'
-import DatasetTabs from './DatasetTabs.vue'
+import DatasetItemView from '@/views/datasets/DatasetItemView.vue'
+import DatasetTabs from '@/views/datasets/DatasetTabs.vue'
 import MapViewSitePopup from '@/components/occurrence/MapViewSitePopup.vue'
+import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
+import { HexgridLayer } from '@/components/maps/map-layers'
 
 const { slug } = defineProps<{
   slug: string

@@ -106,7 +106,14 @@ func main() {
 			return err
 		}
 
-		if err := seeds.SeedTaxonomyGBIF(tx, "Asellidae", "Stenasellidae"); err != nil {
+		if err := seeds.SeedTaxonomyGBIF(tx,
+			// Aselloidea families
+			"Asellidae", "Stenasellidae",
+			// Copepods families
+			"Cyclopidae", "Parastenocarididae", "Canthocamptidae", "Ameiridae",
+			"Chappuisiidae", "Diaptomidae", "Ectinosomatidae", "Gelyellidae",
+			"Halicyclopidae", "Miraciidae", "Phyllognathopodidae",
+		); err != nil {
 			logrus.Errorf("Failed to seed taxonomy: %v", err)
 			return err
 		}
@@ -129,21 +136,6 @@ func main() {
 	err = client.WithConfig(map[string]interface{}{
 		"session_idle_transaction_timeout": timeout,
 	}).Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
-		logrus.Info("🧪 Empirical datasets")
-		// logrus.Infof("🌱 Seeding WAD sampling sites")
-		// if err := seeds.SeedSites(tx, *aselloidea); err != nil {
-		// 	logrus.Errorf("Failed to seed Aselloidea sampling sites")
-		// 	return err
-		// }
-		logrus.Infof("🌱 Seeding WAD occurrences")
-		aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
-		if err != nil {
-			logrus.Errorf("Failed to load datasets: %v", err)
-			return err
-		}
-		if err := seeds.SeedOccurrencesDatasets(tx, []occurrence.OccurrenceDatasetInput{*aselloidea}); err != nil {
-			return err
-		}
 
 		logrus.Info("⚙ Artificial datasets")
 		datasets, err := seeds.LoadMultipleOccurrencesDatasets("data/datasets.json")
@@ -155,6 +147,33 @@ func main() {
 			logrus.Errorf("Failed to seed datasets: %v", err)
 			return err
 		}
+
+		logrus.Info("🧪 Empirical datasets")
+		// logrus.Infof("🌱 Seeding WAD sampling sites")
+		// if err := seeds.SeedSites(tx, *aselloidea); err != nil {
+		// 	logrus.Errorf("Failed to seed Aselloidea sampling sites")
+		// 	return err
+		// }
+		logrus.Infof("🌱 Seeding EGCop occurrences")
+		copepoda, err := seeds.LoadOccurrencesDataset("data/Copepoda/Copepoda_occurrences.json")
+		if err != nil {
+			logrus.Errorf("Failed to load datasets: %v", err)
+			return err
+		}
+		if err := seeds.SeedOccurrencesDatasets(tx, []occurrence.OccurrenceDatasetInput{*copepoda}); err != nil {
+			return err
+		}
+
+		logrus.Infof("🌱 Seeding WAD occurrences")
+		aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
+		if err != nil {
+			logrus.Errorf("Failed to load datasets: %v", err)
+			return err
+		}
+		if err := seeds.SeedOccurrencesDatasets(tx, []occurrence.OccurrenceDatasetInput{*aselloidea}); err != nil {
+			return err
+		}
+
 		logrus.Infof("⚙ Postprocessing...")
 		// logrus.Infof("• generate bio-material codes")
 		// if err := tx.Execute(context.Background(),

@@ -10,15 +10,42 @@
       <slot name="activator" v-bind="slotData"></slot>
     </template>
     <v-container>
-      <v-row v-if="hasID(event)">
+      <v-row>
         <v-col>
           <v-card variant="tonal">
             <template #title>
-              {{ event.site.name }}
+              {{ site.name }}
             </template>
-            <template #subtitle>
-              {{ DateWithPrecision.format(event.performed_on) }}
-            </template>
+            <v-card-text>
+              <v-row>
+                <v-col>
+                  <!-- No schema binding, component enforces constraints on its own -->
+                  <DateWithPrecisionField v-model="model.performed_on" />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <PersonPicker
+                    label="Performed by"
+                    v-model="model.performed_by"
+                    multiple
+                    return-object
+                    v-bind="schema('performed_by')"
+                  />
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col>
+                  <OrganisationPicker
+                    label="Performed by group(s)"
+                    v-model="model.performed_by_groups"
+                    multiple
+                    return-object
+                    v-bind="schema('performed_by_groups')"
+                  />
+                </v-col>
+              </v-row>
+            </v-card-text>
           </v-card>
         </v-col>
       </v-row>
@@ -124,21 +151,23 @@
 </template>
 
 <script setup lang="ts">
-import { $SamplingInput, $SamplingTargetKind, $SamplingUpdate, EventInner } from '@/api'
-import { DateWithPrecision, TaxonRank, TaxonWithParentRef } from '@/api/adapters'
-import { hasID } from '@/functions/db'
-import { FormProps } from '@/functions/mutations'
-import { SamplingModel } from '@/models'
-import { EventModel } from '@/models/event'
-import HabitatPicker from '@/components/occurrence/habitat/HabitatPicker.vue'
-import FixativePicker from '@/components/occurrence/FixativePicker.vue'
-import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
-import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
+import { $SamplingInput, $SamplingTargetKind, $SamplingUpdate } from '@/api'
+import { SiteItem, TaxonRank, TaxonWithParentRef } from '@/api/adapters'
 import AccessPointsPicker from '@/components/events/AccessPointsPicker.vue'
 import HoursMinutesInput from '@/components/events/HoursMinutesInput.vue'
 import SamplingMethodPicker from '@/components/events/SamplingMethodPicker.vue'
+import FixativePicker from '@/components/occurrence/FixativePicker.vue'
+import HabitatPicker from '@/components/occurrence/habitat/HabitatPicker.vue'
+import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
+import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { addRules, useSchema } from '@/composables/schema'
+import { FormProps } from '@/functions/mutations'
+import { SamplingModel } from '@/models'
+import { SiteFormModel } from '@/models/site'
 import { reactiveComputed } from '@vueuse/core'
+import OrganisationPicker from '../people/OrganisationPicker.vue'
+import PersonPicker from '../people/PersonPicker.vue'
+import DateWithPrecisionField from '../toolkit/forms/DateWithPrecisionField.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const model = defineModel<SamplingModel.SamplingFormModel>({
@@ -147,7 +176,7 @@ const model = defineModel<SamplingModel.SamplingFormModel>({
 
 const { mode = 'Create', ...props } = defineProps<
   {
-    event: EventInner | EventModel
+    site: SiteItem | SiteFormModel
   } & FormProps &
     FormDialogProps
 >()

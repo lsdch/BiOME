@@ -253,7 +253,7 @@
         :fillColor="i === 0 ? 'green' : 'orangered'"
         :color="i === 0 ? 'green' : 'orangered'"
         @click="
-          (ev) => {
+          () => {
             console.log('click', i)
             if (polygonMode && i === 0) {
               if (polyline.length == 2) {
@@ -311,7 +311,7 @@ import { nextTick, ref, unref, UnwrapRef, useTemplateRef, watch } from 'vue'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import { Geocoordinates } from '.'
 
-import MapColorLegend from '@/views/location/MapColorLegend.vue'
+import MapColorLegend from '@/components/maps/MapColorLegend.vue'
 import { vElementVisibility } from '@vueuse/components'
 import { HexgridLayer, MarkerLayer } from './map-layers'
 

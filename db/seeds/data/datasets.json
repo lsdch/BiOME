@@ -18,7 +18,22 @@
           "longitude": 4.867957950368035,
           "precision": "<100m"
         },
-        "events": [
+        "abiotic_measurements": [
+          {
+            "param": "WATER-TEMP",
+            "value": 19,
+            "performed_on": {
+              "precision": "Day",
+              "date": {
+                "day": 14,
+                "month": 12,
+                "year": 2021
+              }
+            },
+            "performed_by": [
+              "fmalard"
+            ]
+          },
           {
             "performed_on": {
               "precision": "Day",
@@ -31,24 +46,99 @@
             "performed_by": [
               "fmalard"
             ],
-            "spottings": [
-              "Proasellus"
-            ]
+            "param": "WATER-TEMP",
+            "value": 15
           },
           {
+            "param": "CONDUCTIVITY",
+            "value": 6.9,
             "performed_on": {
-              "precision": "Month",
+              "precision": "Day",
               "date": {
-                "month": 2,
-                "year": 2022
+                "day": 14,
+                "month": 12,
+                "year": 2021
+              }
+            },
+            "performed_by": [
+              "fmalard"
+            ]
+          }
+        ],
+        "samplings": [
+          {
+            "performed_on": {
+              "precision": "Day",
+              "date": {
+                "day": 3,
+                "month": 12,
+                "year": 2021
               }
             },
             "performed_by": [
               "fmalard"
             ],
-            "spottings": [
-              "Asellus aquaticus"
-            ]
+            "fixatives": [
+              "CRYO"
+            ],
+            "methods": [
+              "BAIT"
+            ],
+            "habitats": [
+              "Surface",
+              "Aquatic",
+              "Freshwater",
+              "Lentic"
+            ],
+            "access_points": [
+              "Pond"
+            ],
+            "target": {
+              "kind": "Taxa",
+              "taxa": [
+                "Proasellus"
+              ]
+            },
+            "is_donation": false,
+            "duration": 120,
+            "comments": "Sampling code collision test"
+          },
+          {
+            "performed_on": {
+              "precision": "Day",
+              "date": {
+                "day": 3,
+                "month": 12,
+                "year": 2021
+              }
+            },
+            "performed_by": [
+              "fmalard"
+            ],
+            "fixatives": [
+              "ALCOHOL"
+            ],
+            "methods": [
+              "BAIT"
+            ],
+            "habitats": [
+              "Surface",
+              "Aquatic",
+              "Freshwater",
+              "Lentic"
+            ],
+            "access_points": [
+              "Pond"
+            ],
+            "target": {
+              "kind": "Taxa",
+              "taxa": [
+                "Asellidae"
+              ]
+            },
+            "is_donation": false,
+            "duration": 120,
+            "comments": "Fishing for Asellidae"
           },
           {
             "performed_on": {
@@ -62,65 +152,83 @@
             "performed_by": [
               "fmalard"
             ],
-            "abiotic_measurements": [
+            "fixatives": [
+              "CRYO"
+            ],
+            "methods": [
+              "BOU-ROUCH",
+              "TRAP"
+            ],
+            "target": {
+              "kind": "Taxa",
+              "taxa": [
+                "Proasellus"
+              ]
+            },
+            "is_donation": false,
+            "duration": 90,
+            "comments": "Trapping Proasellus",
+            "internal_biomats": [
               {
-                "param": "WATER-TEMP",
-                "value": 19
-              },
-              {
-                "param": "CONDUCTIVITY",
-                "value": 6.9
+                "is_type": true,
+                "identification": {
+                  "identified_on": {
+                    "precision": "Month",
+                    "date": {
+                      "month": 2,
+                      "year": 2022
+                    }
+                  },
+                  "taxon": "Asellus aquaticus",
+                  "identified_by": "fmalard"
+                },
+                "comments": "Seed internal bio-material"
               }
             ],
-            "samplings": [
+            "external_biomats": [
               {
-                "fixatives": [
-                  "CRYO"
+                "code": "Pcavaticus[DOUA_POND|2021-12]",
+                "quantity": "One",
+                "in_collection": "Some museum",
+                "item_vouchers": [
+                  "ItemA",
+                  "ItemB"
                 ],
-                "methods": [
-                  "BOU-ROUCH",
-                  "TRAP"
-                ],
-                "target": {
-                  "kind": "Taxa",
-                  "taxa": [
-                    "Proasellus"
-                  ]
-                },
-                "is_donation": false,
-                "duration": 90,
-                "comments": "Trapping Proasellus",
-                "internal_biomats": [
+                "published_in": [
                   {
-                    "is_type": true,
-                    "identification": {
-                      "identified_on": {
-                        "precision": "Month",
-                        "date": {
-                          "month": 2,
-                          "year": 2022
-                        }
-                      },
-                      "taxon": "Asellus aquaticus",
-                      "identified_by": "fmalard"
-                    },
-                    "comments": "Seed internal bio-material"
+                    "code": "Palatov_Chertoprud_2024",
+                    "original": true
                   }
                 ],
-                "external_biomats": [
+                "identification": {
+                  "identified_on": {
+                    "precision": "Day",
+                    "date": {
+                      "day": 16,
+                      "month": 12,
+                      "year": 2021
+                    }
+                  },
+                  "taxon": "Proasellus cavaticus",
+                  "identified_by": "fmalard"
+                },
+                "comments": "Seed external bio-material",
+                "sequences": [
                   {
-                    "quantity": "One",
-                    "in_collection": "Some museum",
-                    "item_vouchers": [
-                      "ItemA",
-                      "ItemB"
-                    ],
-                    "published_in": [
+                    "origin": "Lab",
+                    "code": "Pcavaticus[DOUA_POND|2021-12]spec1|lab",
+                    "label": "Proasellus cavaticus external seed sequence",
+                    "gene": "COI",
+                    "comments": "Seed external sequence",
+                    "specimen_identifier": "spec1",
+                    "referenced_in": [
                       {
-                        "code": "Palatov_Chertoprud_2024",
-                        "original": true
+                        "db": "NCBI",
+                        "is_origin": false,
+                        "accession": "KY623873"
                       }
                     ],
+                    "original_taxon": "Proasellus sp.",
                     "identification": {
                       "identified_on": {
                         "precision": "Day",
@@ -133,148 +241,44 @@
                       "taxon": "Proasellus cavaticus",
                       "identified_by": "fmalard"
                     },
-                    "comments": "Seed external bio-material",
-                    "sequences": [
-                      {
-                        "origin": "Lab",
-                        "code": "Pcavaticus[DOUA_POND|2021-12]spec1|lab",
-                        "label": "Proasellus cavaticus external seed sequence",
-                        "gene": "COI",
-                        "comments": "Seed external sequence",
-                        "specimen_identifier": "spec1",
-                        "referenced_in": [
-                          {
-                            "db": "NCBI",
-                            "is_origin": false,
-                            "accession": "KY623873"
-                          }
-                        ],
-                        "original_taxon": "Proasellus sp.",
-                        "identification": {
-                          "identified_on": {
-                            "precision": "Day",
-                            "date": {
-                              "day": 16,
-                              "month": 12,
-                              "year": 2021
-                            }
-                          },
-                          "taxon": "Proasellus cavaticus",
-                          "identified_by": "fmalard"
-                        },
-                        "sequence": "CAACCTGGCAGCTTTATTGGTAACGATCAAATCTATAACGTAATTGTGACTGCGCACGCTTTTGTTATAATTTTTTTTTTGGTGATACCCGTTATAATCGGCGGGTTTGGAAACTGACTTATCCCGCTTATGCTCGGGGCCCCCGATATAGCTTTCCCGCGTATAAACAACATGAGATTCTGGCTTCTGCCCCCATCTCTTACGCTACTCCTCTCTAGCGGGCTTATTGAGAGAGGGGTAGGAACCGGGTGGACAGTATACCCACCACTGGCAGCAAGAATCGCCCACAGGGGCCCCGCTGTAGACCTAGCCATTTTCTCGCTACACCTCGCTGGGGCTAGGTCTATTTTAGGTTCCGTAAATTTTATCTCAACTGTAATCAACATGCGGTCTGAGGGAATAAGATTCGATAAAGTCCCCTTGTTTGTTTGATCTGTCTTTATTACCACATTTCTCCTCCTGCTTTCGCTACCTGTCTTAGCCGGGGCTATCACCATACTTTTAACAGACCGCAACTTAAATACTTCATTTTTTGACCCC"
-                      }
-                    ]
-                  }
-                ],
-                "sequences": [
-                  {
-                    "origin": "DB",
-                    "code": "Pmeridianus_NORARIVE_202107_Ase108A21125_OR112654|NCBI",
-                    "label": "Asellidae sp. voucher Ase.1-08A-(21_125) cytochrome oxidase subunit 1 (COI) gene, partial cds; mitochondrial",
-                    "gene": "COI",
-                    "comments": "Seed sequence using NCBI infos",
-                    "sequence": "AACTCTATATTTTATCTTTGGCGCCTGGGCTGGAAGGGTAGGCACAGCCCTAAGAATATTAATCCGGACAGAATTAGGCCAGCCTGGGAGTTTTATCGGCAATGACCAGATTTACAATGTACTTGTAACAGCACACGCCTTTGTAATAATTTTCTTTTTAGTTATACCTGTAATAATTGGGGGGTTTGGAAATTGGTTAATTCCTCTCATATTAGGAGCCCCCGACATAGCTTTCCCCCGCATAAATAACATAAGATTTTGACTCCTACCCCCTTCCTTAACTCTTCTTCTCTCCAGGGGCTTAATTGAATCGGGTGTTGGGACTGGCTGGACAGTTTACCCTCCTTTGGCGGCAAGTATCGCGCATAGTGGCCCTGCCGTAGACCTGGGAATCTTTTCTCTCCACTTGGCAGGCGCCAGCTCTATCTTAGGGTCAGTTAACTTTATCTCTACTGTTATTAATATGCGTTCAGAGGGGATAAGATTTGACAAGGTCCCACTTTTCGTGTGATCAGTTTTTATCACAACAATTCTTCTACTTCTCTCTCTTCCGGTGCTAGCGGGGGCAATTACCATATTACTGACAGATCGAAACTTAAACACTACTTTTTTTGATCCAAGGGGCGGAGGAGACCCCATCTTATACCAACATTTATTT",
-                    "referenced_in": [
-                      {
-                        "db": "NCBI",
-                        "is_origin": true,
-                        "accession": "OR112654"
-                      }
-                    ],
-                    "published_in": [
-                      {
-                        "code": "Palatov_Chertoprud_2024",
-                        "original": true
-                      }
-                    ],
-                    "specimen_identifier": "Ase.1-08A-(21_125)",
-                    "original_taxon": "Asellidae sp.",
-                    "identification": {
-                      "identified_on": {
-                        "precision": "Year",
-                        "date": {
-                          "year": 2024
-                        }
-                      },
-                      "taxon": "Proasellus meridianus",
-                      "identified_by": "fmalard"
-                    }
+                    "sequence": "CAACCTGGCAGCTTTATTGGTAACGATCAAATCTATAACGTAATTGTGACTGCGCACGCTTTTGTTATAATTTTTTTTTTGGTGATACCCGTTATAATCGGCGGGTTTGGAAACTGACTTATCCCGCTTATGCTCGGGGCCCCCGATATAGCTTTCCCGCGTATAAACAACATGAGATTCTGGCTTCTGCCCCCATCTCTTACGCTACTCCTCTCTAGCGGGCTTATTGAGAGAGGGGTAGGAACCGGGTGGACAGTATACCCACCACTGGCAGCAAGAATCGCCCACAGGGGCCCCGCTGTAGACCTAGCCATTTTCTCGCTACACCTCGCTGGGGCTAGGTCTATTTTAGGTTCCGTAAATTTTATCTCAACTGTAATCAACATGCGGTCTGAGGGAATAAGATTCGATAAAGTCCCCTTGTTTGTTTGATCTGTCTTTATTACCACATTTCTCCTCCTGCTTTCGCTACCTGTCTTAGCCGGGGCTATCACCATACTTTTAACAGACCGCAACTTAAATACTTCATTTTTTGACCCC"
                   }
                 ]
               }
-            ]
-          },
-          {
-            "performed_on": {
-              "precision": "Day",
-              "date": {
-                "day": 3,
-                "month": 12,
-                "year": 2021
-              }
-            },
-            "performed_by": [
-              "fmalard"
             ],
-            "abiotic_measurements": [
+            "sequences": [
               {
-                "param": "WATER-TEMP",
-                "value": 15
-              }
-            ],
-            "samplings": [
-              {
-                "fixatives": [
-                  "ALCOHOL"
+                "origin": "DB",
+                "code": "Pmeridianus_NORARIVE_202107_Ase108A21125_OR112654|NCBI",
+                "label": "Asellidae sp. voucher Ase.1-08A-(21_125) cytochrome oxidase subunit 1 (COI) gene, partial cds; mitochondrial",
+                "gene": "COI",
+                "comments": "Seed sequence using NCBI infos",
+                "sequence": "AACTCTATATTTTATCTTTGGCGCCTGGGCTGGAAGGGTAGGCACAGCCCTAAGAATATTAATCCGGACAGAATTAGGCCAGCCTGGGAGTTTTATCGGCAATGACCAGATTTACAATGTACTTGTAACAGCACACGCCTTTGTAATAATTTTCTTTTTAGTTATACCTGTAATAATTGGGGGGTTTGGAAATTGGTTAATTCCTCTCATATTAGGAGCCCCCGACATAGCTTTCCCCCGCATAAATAACATAAGATTTTGACTCCTACCCCCTTCCTTAACTCTTCTTCTCTCCAGGGGCTTAATTGAATCGGGTGTTGGGACTGGCTGGACAGTTTACCCTCCTTTGGCGGCAAGTATCGCGCATAGTGGCCCTGCCGTAGACCTGGGAATCTTTTCTCTCCACTTGGCAGGCGCCAGCTCTATCTTAGGGTCAGTTAACTTTATCTCTACTGTTATTAATATGCGTTCAGAGGGGATAAGATTTGACAAGGTCCCACTTTTCGTGTGATCAGTTTTTATCACAACAATTCTTCTACTTCTCTCTCTTCCGGTGCTAGCGGGGGCAATTACCATATTACTGACAGATCGAAACTTAAACACTACTTTTTTTGATCCAAGGGGCGGAGGAGACCCCATCTTATACCAACATTTATTT",
+                "referenced_in": [
+                  {
+                    "db": "NCBI",
+                    "is_origin": true,
+                    "accession": "OR112654"
+                  }
                 ],
-                "methods": [
-                  "BAIT"
+                "published_in": [
+                  {
+                    "code": "Palatov_Chertoprud_2024",
+                    "original": true
+                  }
                 ],
-                "habitats": [
-                  "Surface",
-                  "Aquatic",
-                  "Freshwater",
-                  "Lentic"
-                ],
-                "access_points": [
-                  "Pond"
-                ],
-                "target": {
-                  "kind": "Taxa",
-                  "taxa": [
-                    "Asellidae"
-                  ]
-                },
-                "is_donation": false,
-                "duration": 120,
-                "comments": "Fishing for Asellidae"
-              },
-              {
-                "fixatives": [
-                  "CRYO"
-                ],
-                "methods": [
-                  "BAIT"
-                ],
-                "habitats": [
-                  "Surface",
-                  "Aquatic",
-                  "Freshwater",
-                  "Lentic"
-                ],
-                "access_points": [
-                  "Pond"
-                ],
-                "target": {
-                  "kind": "Taxa",
-                  "taxa": [
-                    "Proasellus"
-                  ]
-                },
-                "is_donation": false,
-                "duration": 120,
-                "comments": "Sampling code collision test"
+                "specimen_identifier": "Ase.1-08A-(21_125)",
+                "original_taxon": "Asellidae sp.",
+                "identification": {
+                  "identified_on": {
+                    "precision": "Year",
+                    "date": {
+                      "year": 2024
+                    }
+                  },
+                  "taxon": "Proasellus meridianus",
+                  "identified_by": "fmalard"
+                }
               }
             ]
           }

@@ -54,13 +54,9 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 				sites: {
 					*,
 					country: { * },
-					samplings := (
-						.events.samplings
-					) {
+					samplings: {
 						id,
-						date := .event.performed_on,
-						sampling_target,
-						target_taxa: { * },
+						date := .performed_on,
 						occurring_taxa: { * },
 						occurrences := (
 							select (.occurrences intersect dataset.occurrences) {
@@ -129,10 +125,10 @@ func (i OccurrenceDatasetInput) SaveTx(tx geltypes.Tx) (created OccurrenceDatase
 					*,
 					country: { * },
 					samplings := (
-						.events.samplings
+						.samplings
 					) {
 						id,
-						date := .event.performed_on,
+						date := .performed_on,
 						sampling_target,
 						target_taxa: { * },
 						occurring_taxa: { * },

@@ -162,9 +162,9 @@
 </template>
 
 <script setup lang="ts">
-import LayerOptionsCard from '@/views/location/LayerOptionsCard.vue'
-import ScaleBindingSelect from '@/views/location/ScaleBindingSelect.vue'
-import SiteSamplingStatusFilter from '@/views/location/SiteSamplingStatusFilter.vue'
+import LayerOptionsCard from '@/components/maps/LayerOptionsCard.vue'
+import ScaleBindingSelect from '@/components/maps/ScaleBindingSelect.vue'
+import SiteSamplingStatusFilter from '@/components/maps/SiteSamplingStatusFilter.vue'
 import DataFeedPicker from '../occurrence/DataFeedPicker.vue'
 import ColorPalettePicker from '../toolkit/ui/ColorPalettePicker.vue'
 import ListItemInput from '../toolkit/ui/ListItemInput.vue'

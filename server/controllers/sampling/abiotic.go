@@ -1,4 +1,4 @@
-package events
+package sampling
 
 import (
 	"net/http"

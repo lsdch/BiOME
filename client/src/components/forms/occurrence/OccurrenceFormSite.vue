@@ -55,7 +55,10 @@
         </SitePreviewCard>
       </v-col>
       <v-col cols="12" style="min-height: 400px">
-        <SiteProximityMap :model-value="site?.coordinates ?? {}" />
+        <SiteProximityMap
+          :model-value="site?.coordinates ?? {}"
+          :omit-codes="site ? [site.code] : undefined"
+        />
       </v-col>
     </v-row>
   </v-card>

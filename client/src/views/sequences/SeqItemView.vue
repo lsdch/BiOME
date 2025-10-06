@@ -15,47 +15,24 @@
       <v-btn v-if="canEdit" color="primary" icon="mdi-pencil" variant="tonal" size="small" />
     </template>
     <template v-if="item" #subtitle>
-      <v-chip
-        class="mx-1"
-        size="small"
-        label
-        v-bind="
-          {
-            Internal: {
-              prependIcon: 'mdi-cube-scan',
-              color: 'primary'
-            },
-            External: {
-              prependIcon: 'mdi-arrow-collapse-all',
-              color: 'warning'
-            }
-          }[item.category]
-        "
-      >
-        {{ item.category }} sequence
-      </v-chip>
-      <GeneChip label size="small" :gene="item.gene" class="mx-1" prepend-icon="mdi-tag" />
-      <v-chip
-        :text="item.external?.origin"
-        :prepend-icon="ExtSeqOrigin.icon(item.external!.origin)"
-        :title="ExtSeqOrigin.description(item.external!.origin)"
-        label
-        class="mx-1"
-        size="small"
-      />
-      <v-chip
-        v-if="item.sequence"
-        prepend-icon="mdi-chevron-right"
-        text="ATCG"
-        class="font-monospace mx-1"
-        label
-        size="small"
-        title="Sequence available"
-        @click="
-          (fasta?.groupItem.select(true),
-          $nextTick(() => fasta?.$el.scrollIntoView({ behavior: 'smooth', block: 'start' })))
-        "
-      />
+      <div class="d-flex align-center ga-2">
+        <OccurrenceCategoryChip :category="item.category" element="Sequence" size="small" />
+        <GeneChip label size="small" :gene="item.gene" prepend-icon="mdi-tag" />
+        <ExternalSeqOriginChip v-if="item.external" :origin="item.external.origin" size="small" />
+        <v-chip
+          v-if="item.sequence"
+          prepend-icon="mdi-chevron-right"
+          text="ATCG"
+          class="font-monospace"
+          label
+          size="small"
+          v-tooltip="`Sequence available`"
+          @click="
+            (fasta?.groupItem.select(true),
+            $nextTick(() => fasta?.$el.scrollIntoView({ behavior: 'smooth', block: 'start' })))
+          "
+        />
+      </div>
       <!-- @click="fasta?.scrollIntoView()" -->
       <!-- <v-chip
         v-if="item.is_type"
@@ -81,12 +58,9 @@
         <v-col>
           <v-card>
             <v-list>
-              <template v-if="item.label">
-                <v-list-item prepend-icon="mdi-tag">
-                  {{ item.label }}
-                </v-list-item>
-                <v-divider />
-              </template>
+              <v-list-item v-if="item.label" prepend-icon="mdi-tag">
+                {{ item.label }}
+              </v-list-item>
               <v-list-item
                 v-if="item.comments"
                 prepend-icon="mdi-dots-horizontal"
@@ -139,15 +113,14 @@
               </v-tooltip>
             </template>
             <v-card-text>
-              <TaxonChip :taxon="item.identification.taxon" class="my-1" />
-              <span class="text-no-wrap">
-                by
-                <PersonChip
-                  v-if="item.identification.identified_by"
-                  :person="item.identification.identified_by"
-                />
-                <span class="text-muted" v-else>Unknown</span>
-              </span>
+              <div class="d-flex justify-space-between align-center">
+                <TaxonChip :taxon="item.identification.taxon" class="my-1" />
+                <span v-if="item.identification.identified_by" class="text-no-wrap">
+                  by
+                  <PersonChip :person="item.identification.identified_by" />
+                </span>
+                <span class="text-muted" v-else>Curator unspecified</span>
+              </div>
             </v-card-text>
             <v-divider />
             <v-list-item v-if="item.external?.original_taxon">
@@ -156,42 +129,40 @@
                 <span class="text-muted text-caption">Original ident.</span>
               </template>
             </v-list-item>
-          </v-card>
-          <v-card title="Origin sample" prepend-icon="mdi-package-variant">
-            <template #subtitle>
-              <v-chip
+            <v-list-item v-if="item.external">
+              <v-chip class="font-monospace" label size="small">{{
+                item.external.specimen_identifier
+              }}</v-chip>
+              <template #append>
+                <span class="text-muted text-caption"> Specimen identifier </span>
+              </template>
+            </v-list-item>
+            <v-list-item v-if="item.external">
+              <BioMaterialLinkChip
                 v-if="item.external?.source_sample"
-                :text="item.external.source_sample.identification.taxon.name"
-                :to="{ name: 'biomat-item', params: { code: item.external.source_sample.code } }"
-                prepend-icon="mdi-link-variant"
-                color="primary"
-                label
+                :biomat="item.external.source_sample"
                 size="small"
                 class="mx-1"
               />
-              <v-card-subtitle v-else>No attached bio-material</v-card-subtitle>
-            </template>
-            <v-list-item v-if="item.external" prepend-icon="mdi-tag">
-              <code>{{ item.external?.specimen_identifier }} </code>
+              <span class="text-muted font-italic" v-else>No attached bio-material</span>
               <template #append>
-                <span class="text-muted text-caption"> Specimen identifier </span>
+                <span class="text-muted text-caption"> Source sample </span>
               </template>
             </v-list-item>
           </v-card>
 
           <v-card v-if="item.external" title="References" prepend-icon="mdi-newspaper-variant">
-            <template #append>
-              <v-btn color="primary" variant="tonal" icon="mdi-link-variant" size="small" />
-            </template>
             <v-list>
               <v-list-item prepend-icon="mdi-database">
-                <SeqRefChip
-                  v-if="item.external.referenced_in"
-                  v-for="seqRef in item.external.referenced_in"
-                  :seq-ref
-                  class="ma-1"
-                />
-                <span v-else class="text-muted">None registered</span>
+                <div class="d-flex ga-1 align-center">
+                  <SeqRefChip
+                    v-if="item.external.referenced_in"
+                    v-for="seqRef in item.external.referenced_in"
+                    :seqRef
+                    size="small"
+                  />
+                  <span v-else class="text-muted">None registered</span>
+                </div>
                 <template #append>
                   <span class="text-muted text-caption">Repositories</span>
                 </template>
@@ -261,26 +232,29 @@
         </v-col>
       </v-row>
     </v-card-text>
-    <SamplingFormDialog
+    <SamplingFormDialogMutation
       v-if="item"
       v-model:dialog="samplingEdit"
       v-model="item.sampling"
-      :event="item.event"
+      :site="item.sampling.site"
     />
     <v-divider />
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { CodeIdentifier, DateWithPrecision, ExtSeqOrigin } from '@/api/adapters'
+import { CodeIdentifier, DateWithPrecision, ExtSeqOrigin, OccurrenceCategory } from '@/api/adapters'
 import { getSequenceOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import SamplingFormDialog from '@/components/forms/SamplingFormDialog.vue'
+import SamplingFormDialogMutation from '@/components/forms/SamplingFormDialogMutation.vue'
+import BioMaterialLinkChip from '@/components/occurrence/BioMaterialLinkChip'
+import OccurrenceCategoryChip from '@/components/occurrence/OccurrenceCategoryChip'
 // import SamplingFormDialog from '@/components/events/SamplingFormDialog.vue'
 import OccurrenceSamplingCard from '@/components/occurrence/OccurrenceSamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip'
 import ArticleChip from '@/components/references/ArticleChip'
+import ExternalSeqOriginChip from '@/components/sequences/ExternalSeqOriginChip'
 import GeneChip from '@/components/sequences/GeneChip'
-import SeqRefChip from '@/components/sequences/SeqRefChip.vue'
+import SeqRefChip from '@/components/sequences/SeqRefChip'
 import TaxonChip from '@/components/taxonomy/TaxonChip'
 import MetaChip from '@/components/toolkit/MetaChip'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'

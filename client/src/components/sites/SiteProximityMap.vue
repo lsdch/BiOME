@@ -1,64 +1,80 @@
 <template>
-  <v-progress-linear v-if="hasValidCoords && isPending" indeterminate />
-  <div class="flex-grow-1">
-    <BaseMap
-      ref="map"
-      :marker="hasValidCoords ? ({ coordinates: coords } as Geocoordinates) : undefined"
-      :items="
-        hasValidCoords ? data?.filter(({ distance }) => distance <= proximityRadius) : undefined
-      "
-      :auto-fit="proximityRadius"
-      clustered
-      :center="hasValidCoords ? [coords!.latitude!, coords!.longitude!] : undefined"
-      :zoom="hasValidCoords ? 10 : 0"
-      :min-zoom="1"
-      hide-marker-control
-    >
-      <!-- Coordinates marker -->
-      <template #marker="{ latLng }">
-        <LMarker
-          v-if="latLng"
-          :lat-lng
-          :draggable="hasModelBinding"
-          @update:latLng="updateFromMarkerCoords"
+  <div class="d-flex flex-column fill-height">
+    <v-progress-linear v-if="hasValidCoords && isPending" indeterminate />
+    <div class="flex-grow-1">
+      <BaseMap
+        ref="map"
+        :marker="hasValidCoords ? ({ coordinates: coords } as Geocoordinates) : undefined"
+        :marker-layers="
+          hasValidCoords
+            ? [
+                {
+                  name: 'Proximal sites',
+                  config: { radius: 4, fillColor: 'orangered', weight: 2, color: '#e41a1c' },
+                  active: true,
+                  clustered: true,
+                  data: data?.filter(
+                    ({ distance, code }) =>
+                      distance <= proximityRadius && !omitCodes?.includes(code)
+                  )
+                }
+              ]
+            : undefined
+        "
+        :auto-fit="proximityRadius"
+        clustered
+        :center="hasValidCoords ? [coords!.latitude!, coords!.longitude!] : undefined"
+        :zoom="hasValidCoords ? 10 : 0"
+        :min-zoom="1"
+        hide-marker-control
+      >
+        <!-- Coordinates marker -->
+        <template #marker="{ latLng }">
+          <LMarker
+            v-if="latLng"
+            :lat-lng
+            :draggable="hasModelBinding"
+            @update:latLng="updateFromMarkerCoords"
+          />
+        </template>
+
+        <!-- Proximity radius indicator -->
+        <LCircle
+          v-if="hasValidCoords && proximityRadius > 0"
+          :lat-lng="[coords!.latitude!, coords!.longitude!]"
+          :radius="proximityRadius"
+          :interactive="false"
         />
-      </template>
 
-      <!-- Proximity radius indicator -->
-      <LCircle
-        v-if="hasValidCoords && proximityRadius > 0"
-        :lat-lng="[coords!.latitude!, coords!.longitude!]"
-        :radius="proximityRadius"
-        :interactive="false"
-      />
-
-      <!-- Proximal sites popup -->
-      <template #popup="{ item }">
-        <SitePopup :item />
-      </template>
-    </BaseMap>
+        <!-- Proximal sites popup -->
+        <template #popup="{ item }">
+          <SitePopup :item />
+        </template>
+      </BaseMap>
+    </div>
+    <ProximityRadiusSlider
+      class="flex-grow-0"
+      @update:radius="(radius) => (proximityRadius = radius)"
+    />
   </div>
-  <ProximityRadiusSlider
-    class="flex-grow-0"
-    @update:radius="(radius) => (proximityRadius = radius)"
-  />
 </template>
 
 <script setup lang="ts">
+import { LatLongCoords } from '@/api'
 import { sitesProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
 import { LCircle, LMarker } from '@vue-leaflet/vue-leaflet'
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-import BaseMap from '../maps/BaseMap.vue'
-import SitePopup from './SitePopup.vue'
-import { Coordinates, Geocoordinates, MaybeCoordinates } from '../maps'
+import { useDebounceFn, useMousePressed } from '@vueuse/core'
 import { LatLngLiteral } from 'leaflet'
-import { useDebounceFn, useMousePressed, watchOnce } from '@vueuse/core'
-import { hasEventListener } from '../toolkit/vue-utils'
-import { LatLongCoords } from '@/api'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { Coordinates, Geocoordinates, MaybeCoordinates } from '../maps'
+import BaseMap from '../maps/BaseMap.vue'
 import ProximityRadiusSlider from '../maps/ProximityRadiusSlider.vue'
+import { hasEventListener } from '../toolkit/vue-utils'
+import SitePopup from './SitePopup.vue'
 
 const coords = defineModel<MaybeCoordinates>({ required: true })
+const { omitCodes } = defineProps<{ omitCodes?: string[] }>()
 
 const hasModelBinding = hasEventListener('onUpdate:modelValue')
 

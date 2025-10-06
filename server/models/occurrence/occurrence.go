@@ -7,6 +7,7 @@ import (
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/models/taxonomy"
 )
@@ -48,12 +49,17 @@ type OccurrenceWithCategory struct {
 	OccurrenceElement OccurrenceElement  `gel:"element" json:"element"`
 }
 
-type SamplingEventWithOccurrences struct {
+type SamplingDateWithOccurrences struct {
 	ID            geltypes.UUID      `gel:"id" json:"id" format:"uuid"`
 	Date          DateWithPrecision  `gel:"date" json:"date"`
-	Target        SamplingTarget     `gel:"$inline" json:"target"`
 	Occurrences   []OccurrenceAtSite `gel:"occurrences" json:"occurrences"`
 	OccurringTaxa []taxonomy.Taxon   `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
+}
+
+type SamplingDetailsWithOccurrences struct {
+	SamplingInner `gel:"$inline" json:",inline"`
+	Occurrences   []OccurrenceAtSite `gel:"occurrences" json:"occurrences"`
+	Meta          people.Meta        `gel:"meta" json:"meta,omitempty"`
 }
 
 type OccurrenceAtSite struct {
@@ -67,7 +73,53 @@ type OccurrenceAtSite struct {
 
 type SiteWithOccurrences struct {
 	SiteItem  `gel:"$inline" json:",inline"`
-	Samplings []SamplingEventWithOccurrences `gel:"samplings" json:"samplings"`
+	Samplings []SamplingDateWithOccurrences `gel:"samplings" json:"samplings"`
+}
+
+func ListSamplingsAtSite(db geltypes.Executor, siteCode string) ([]SamplingDetailsWithOccurrences, error) {
+	var samplings = []SamplingDetailsWithOccurrences{}
+	err := db.Query(context.Background(),
+		`#edgeql
+			with module occurrence,
+				site := (
+					select location::Site
+					filter .code = <str>$0
+				),
+			select site.samplings {
+				id,
+				date := .performed_on,
+				sampling_target,
+				target_taxa: { * },
+				habitats: { * },
+				fixatives: { * },
+				methods: { * },
+				meta: { * }
+				occurrences := (
+					with occurrences := (
+						select .occurrences filter (
+							(exists [is BioMaterial].id) or
+							(not exists [is seq::ExternalSequence].source_sample)
+						)
+					),
+					select occurrences {
+						id,
+						code,
+						required taxon := (
+								[is ExternalBioMat].seq_consensus ??
+								[is InternalBioMat].seq_consensus ??
+								.identification.taxon
+							) { name, status, rank},
+						required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
+						required element := (
+							if exists [is seq::Sequence].id then 'Sequence'
+							else 'BioMaterial'
+						)
+					}
+				)
+			}
+		`,
+		&samplings, siteCode)
+	return samplings, err
 }
 
 type SiteSamplingStatus string
@@ -102,20 +154,29 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 			with module occurrence,
 				filters := <json>$0,
 				country_codes := <str>json_array_unpack(json_get(filters, 'countries')),
+				taxa_names := <str>json_array_unpack(json_get(filters, 'taxa')),
 				taxa := (
-					select taxonomy::Taxon
-					filter .name in <str>json_array_unpack(json_get(filters, 'taxa'))
+					if exists taxa_names then (
+						select taxonomy::Taxon
+						filter .name in taxa_names
+					) else <taxonomy::Taxon>{}
 				),
+				dataset_slugs := <str>json_array_unpack(json_get(filters, 'datasets')),
 				datasets := (
-					select datasets::Dataset
-					filter .slug in <str>json_array_unpack(json_get(filters, 'datasets'))
+					if exists dataset_slugs then (
+						select datasets::Dataset
+						filter .slug in dataset_slugs
+					) else <datasets::Dataset>{}
 				),
 				whole_clade := <bool>json_get(filters, 'whole_clade'),
 				habitats := <str>json_array_unpack(json_get(filters, 'habitats')),
 				sampling_target_kinds := <events::SamplingTarget>json_array_unpack(json_get(filters, 'sampling_target_kinds')),
+				sampling_target_taxa_names := <str>json_array_unpack(json_get(filters, 'sampling_target_taxa')),
 				sampling_target_taxa := (
-					select taxonomy::Taxon
-					filter .name in <str>json_array_unpack(json_get(filters, 'sampling_target_taxa'))
+					if exists sampling_target_taxa_names then (
+						select taxonomy::Taxon
+						filter .name in sampling_target_taxa_names
+					) else <taxonomy::Taxon>{}
 				),
 				sampling_target_whole_clade := <bool>json_get(filters, 'sampling_target_whole_clade'),
 				sampling_status := <str>json_get(filters, 'include_sites'),
@@ -123,27 +184,25 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 				*,
 				country: { * },
 				samplings := (
-					select .events.samplings
+					select .samplings
 					filter (
-						not exists habitats or all(habitats in .habitats.label)
+						if exists habitats then all(habitats in .habitats.label) else true
 					)
 					and (
-						not exists sampling_target_kinds or (
+						if exists sampling_target_kinds then (
 							.sampling_target in sampling_target_kinds
-						)
+						) else true
 					)
 					and (
-						not exists sampling_target_taxa or (
+						if exists sampling_target_taxa then (
 							if sampling_target_whole_clade
-							then any(.target_taxa in sampling_target_taxa) or any(taxonomy::is_in_clade(.target_taxa, sampling_target_taxa))
+							then any(taxonomy::is_in_clade(.target_taxa, sampling_target_taxa))
 							else any(.target_taxa in sampling_target_taxa)
-						)
+						) else true
 					)
 				) {
 					id,
-					date := .event.performed_on,
-					sampling_target,
-					target_taxa: { * },
+					date := .performed_on,
 					occurring_taxa: { * },
 					occurrences := (
 						with occurrences := (
@@ -167,34 +226,36 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 							)
 						}
 						filter (
-							not exists taxa or (
+							if exists taxa then (
 								if whole_clade
-								then (.taxon in taxa) or any(taxonomy::is_in_clade(.taxon, taxa))
+								then any(taxonomy::is_in_clade(.taxon, taxa))
 								else .taxon in taxa
-							)
+							) else true
 						)
 						and (
-							not exists datasets
-							or occurrences in datasets[is datasets::OccurrenceDataset].occurrences
+							if exists datasets
+							then occurrences in datasets[is datasets::OccurrenceDataset].occurrences
+							else true
 						)
 					)
 				}
-		 } filter (
-			(
-				not exists sampling_status or sampling_status = "All" or (
-					sampling_status = "Sampled" and exists .samplings
-				) or (
-					sampling_status = "Occurrences" and exists .samplings.occurrences
-				)
-			) and
-			(not exists country_codes or .country.code in country_codes) and
+		 }
+		 filter (
+			# (
+			# 	not exists sampling_status or sampling_status = "All" or (
+			# 		sampling_status = "Sampled" and exists .samplings
+			# 	) or (
+			# 		sampling_status = "Occurrences" and exists .samplings.occurrences
+			# 	)
+			# ) and
+			(if exists country_codes then .country.code in country_codes else true) and
 			# (not exists habitats or exists .samplings) and
 			# (not exists taxa or exists .samplings.occurrences) and
 			# (not exists sampling_target_kinds or exists .samplings) and
-			(not exists datasets or (
+			(if exists datasets then (
 				location::Site in datasets[is datasets::SiteDataset].sites
 				?? datasets[is datasets::OccurrenceDataset].sites
-			))
+			) else true)
 		 )
 		`,
 		&sites, filters)
@@ -208,12 +269,12 @@ type OccurrenceInnerInput struct {
 	PublishedIn    []references.OccurrenceReferenceInput `gel:"published_in" json:"published_in,omitempty"`
 }
 
-func (occ *OccurrenceInnerInput) WithCreatedMetadata(c CreatedMetadata) OccurrenceInnerInput {
+func (occ *OccurrenceInnerInput) WithCreatedMetadata(c *CreatedMetadata) *OccurrenceInnerInput {
 	occ.Identification.WithPersonAliases(c.People)
 	for i := range occ.PublishedIn {
 		(&occ.PublishedIn[i]).WithArticleCode(c.Bibliography)
 	}
-	return *occ
+	return occ
 }
 
 type OccurrenceUpdate struct {

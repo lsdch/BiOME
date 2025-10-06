@@ -159,14 +159,13 @@
 import { HabitatRecord, OccurrencesBySiteData } from '@/api'
 import DatasetPicker from '@/components/datasets/DatasetPicker.vue'
 import HabitatPicker from '@/components/occurrence/habitat/HabitatPicker.vue'
+import SamplingTargetKindFilter from '@/components/occurrence/SamplingTargetKindPicker.vue'
 import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import TaxonRankPicker from '@/components/taxonomy/TaxonRankPicker'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { reactive, ref, watch } from 'vue'
-import SamplingTargetKindFilter from '@/components/occurrence/SamplingTargetKindPicker.vue'
-import SiteSamplingStatusFilter from '@/views/location/SiteSamplingStatusFilter.vue'
 
 export type MappingFilters = Overwrite<
   NonNullable<OccurrencesBySiteData['query']>,

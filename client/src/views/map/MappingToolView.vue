@@ -231,6 +231,9 @@ import BaseMap from '@/components/maps/BaseMap.vue'
 
 import { SiteWithOccurrences } from '@/api'
 import HexgridLayerCard from '@/components/maps/HexgridLayerCard.vue'
+import MapPresetLoadDialog from '@/components/maps/MapPresetLoadDialog.vue'
+import MapPresetManager from '@/components/maps/MapPresetManager.vue'
+import MapPresetSaveDialog from '@/components/maps/MapPresetSaveDialog.vue'
 import MarkerLayerCard from '@/components/maps/MarkerLayerCard.vue'
 import {
   HexgridLayer,
@@ -241,19 +244,16 @@ import {
 } from '@/components/maps/map-layers'
 import OccurrenceDataFeedManager from '@/components/occurrence/OccurrenceDataFeedManager.vue'
 import { useDataFeeds } from '@/components/occurrence/data_feeds'
+import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
 import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
 import { useScaleBinding } from '@/composables/occurrences'
 import { palette, withOpacity } from '@/functions/color_brewer'
+import { useFeedback } from '@/stores/feedback'
+import { useUserStore } from '@/stores/user'
 import { useLocalStorage, useToggle } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import MapViewHexPopup from '../../components/occurrence/MapViewHexPopup.vue'
 import MapViewSitePopup from '../../components/occurrence/MapViewSitePopup.vue'
-import MapPresetSaveDialog from '@/components/maps/MapPresetSaveDialog.vue'
-import MapPresetLoadDialog from '@/components/maps/MapPresetLoadDialog.vue'
-import { useFeedback } from '@/stores/feedback'
-import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
-import MapPresetManager from '@/components/maps/MapPresetManager.vue'
-import { useUserStore } from '@/stores/user'
 
 const [polygonMode, togglePolygonMode] = useToggle(false)
 
@@ -409,7 +409,11 @@ function resetLayers() {
     opacity: 0.8,
     opacityRange: [0, 1]
   }
-  hexgridLayerOptions.value.bindings = {}
+  hexgridLayerOptions.value.bindings = {
+    color: { log: false, binding: 'sites' },
+    opacity: { log: false },
+    radius: { log: false }
+  }
   markerLayerOptions.value.length = 0
 }
 </script>

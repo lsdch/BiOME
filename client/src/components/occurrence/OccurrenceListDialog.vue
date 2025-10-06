@@ -33,12 +33,7 @@
           >
             <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
           </RouterLink>
-          <v-icon
-            :color="item.category === 'Internal' ? 'primary' : 'warning'"
-            :icon="item.element === 'Sequence' ? 'mdi-dna' : OccurrenceCategory.icon(item.category)"
-            :title="`${item.category} ${item.element}`"
-            class="mx-1"
-          />
+          <OccurrenceIcon :item class="mx-1"></OccurrenceIcon>
         </div>
       </template>
       <template #item.site.code="{ value }: { value: string }">
@@ -84,6 +79,7 @@ import {
   OccurrenceCategory,
   SiteItem
 } from '@/api'
+import OccurrenceIcon from '@/components/occurrence/OccurrenceIcon'
 import TaxonChip from '@/components/taxonomy/TaxonChip'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
@@ -160,9 +156,13 @@ const headersWithSites: CRUDTableHeader<Occurrence>[] = [
   },
   {
     title: 'Taxon',
-    value: 'taxon',
+    key: 'taxon',
     sortable: true,
-    align: 'start'
+    align: 'start',
+    sort: (a, b) => a.name.localeCompare(b.name),
+    filter(value, query, item) {
+      return value.name.toLowerCase().includes(query.toLowerCase())
+    }
   }
 ]
 

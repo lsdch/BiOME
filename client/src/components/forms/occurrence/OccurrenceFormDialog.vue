@@ -17,8 +17,7 @@
         </v-col>
         <v-col cols="12" md="6">
           <div class="d-flex flex-column ga-3">
-            <EventFormComponent :site="model.site" v-model="model.event" />
-            <SamplingFormComponent :event="model.event" v-model="model.sampling" />
+            <SamplingFormComponent :site="model.site" v-model="model.sampling" />
           </div>
         </v-col>
       </v-row>

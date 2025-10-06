@@ -25,4 +25,13 @@ module date {
     ),
     message := "Failed to parse date with precision from JSON: " ++ to_str(value)
   ));
+
+  function to_code(value: tuple<date: datetime, precision: DatePrecision>) -> str
+  using (
+    if value.precision = DatePrecision.Year then to_str(datetime_get(value.date, 'year'))
+    else if value.precision = DatePrecision.Month then
+      to_str(datetime_get(value.date, 'year')) ++ "-" ++ str_pad_start(to_str(datetime_get(value.date, 'month')), 2, '0')
+    else "unknown"
+  )
+
 }

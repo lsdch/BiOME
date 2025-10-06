@@ -3,28 +3,7 @@
     <template #append>
       <span class="text-caption text-muted">Target</span>
     </template>
-    <v-chip
-      v-if="sampling.target.kind === 'Unknown'"
-      class="ma-1"
-      :text="sampling.target.kind"
-      prepend-icon="mdi-help-circle"
-      size="small"
-    />
-    <v-chip
-      v-else-if="sampling.target.kind === 'Community'"
-      class="ma-1"
-      :text="sampling.target.kind"
-      prepend-icon="mdi-grid"
-      size="small"
-    />
-    <TaxonChip
-      v-else-if="sampling.target.kind === 'Taxa'"
-      class="ma-1"
-      v-for="taxon in sampling.target.taxa"
-      :taxon
-      rounded
-      size="small"
-    />
+    <SamplingTargetChips :target="sampling.target"></SamplingTargetChips>
   </v-list-item>
 
   <v-list-item prepend-icon="mdi-update">
@@ -82,23 +61,28 @@
       <v-chip v-for="access in sampling.access_points" class="ma-1" :text="access" size="small" />
     </v-list-item>
   </v-list-item>
-  <v-list-item
-    v-if="sampling.comments"
-    prepend-icon="mdi-note-edit-outline"
-    title="Comments"
-    :subtitle="sampling.comments"
-  />
+  <v-list-item v-if="sampling.comments" prepend-icon="mdi-note-edit-outline">
+    <v-card variant="tonal" class="text-muted mr-4">
+      <template #text>
+        {{ sampling.comments }}
+      </template>
+    </v-card>
+    <template #append>
+      <span class="text-caption text-muted">Comments</span>
+    </template>
+  </v-list-item>
 </template>
 
 <script setup lang="ts">
-import { HabitatRecord, Sampling } from '@/api'
+import { DateWithPrecision, DateWithPrecisionInput, HabitatRecord, Sampling } from '@/api'
 import { Duration } from 'luxon'
-import TaxonChip from '../taxonomy/TaxonChip'
 import { Optional } from 'ts-toolbelt/out/Object/Optional'
+import SamplingTargetChips from './SamplingTargetChips.vue'
 
 const { sampling } = defineProps<{
-  sampling: Omit<Optional<Sampling, 'id' | 'meta' | 'code'>, 'habitats'> & {
+  sampling: Omit<Optional<Sampling, 'id' | 'meta' | 'number'>, 'habitats' | 'performed_on'> & {
     habitats?: Array<HabitatRecord>
+    performed_on?: DateWithPrecisionInput | DateWithPrecision
   }
 }>()
 </script>

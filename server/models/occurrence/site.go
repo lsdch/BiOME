@@ -125,7 +125,7 @@ type SiteInput struct {
 	Locality            models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
 	UserDefinedLocality bool                         `json:"user_defined_locality,omitempty" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
 	// If country code is not provided, country is inferred from coordinates
-	CountryCode models.OptionalInput[string] `json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{3}" example:"FRA" doc:"ISO 3166-1 alpha-3 country code"`
+	CountryCode models.OptionalInput[string] `json:"country,omitempty" format:"country-code" pattern:"[A-Z]{3}" example:"FRA" doc:"ISO 3166-1 alpha-3 country code"`
 }
 
 func (c SiteInput) LatLong() (float32, float32) {
@@ -156,10 +156,23 @@ type SiteItem struct {
 }
 
 type Site struct {
-	SiteItem `gel:"$inline" json:",inline"`
-	Datasets []dataset.DatasetInner `gel:"datasets" json:"datasets,omitempty"`
-	Events   []Event                `gel:"events" json:"events,omitempty"`
-	Meta     people.Meta            `gel:"meta" json:"meta"`
+	SiteItem            `gel:"$inline" json:",inline"`
+	Datasets            []dataset.DatasetInner    `gel:"datasets" json:"datasets,omitempty"`
+	AbioticMeasurements []AbioticMeasurement      `gel:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
+	Samplings           []SamplingWithOccurrences `gel:"samplings" json:"samplings,omitempty"`
+	Flaggings           []Flagging                `gel:"flaggings" json:"flaggings,omitempty"`
+	Meta                people.Meta               `gel:"meta" json:"meta"`
+}
+
+// AddAbioticMeasurement adds an abiotic measurement to the event.
+// If a value for a given parameter already exists, it will be overwritten.
+func (site *Site) AddAbioticMeasurement(db geltypes.Executor, measurements AbioticMeasurementInput) error {
+	created, err := measurements.Save(db, site.Code)
+	if err != nil {
+		return err
+	}
+	site.AbioticMeasurements = append(site.AbioticMeasurements, created)
+	return nil
 }
 
 type ListSitesOptions struct {
@@ -172,8 +185,8 @@ func (o ListSitesOptions) Options() ListSitesOptions {
 	return o
 }
 
-func ListSites(db geltypes.Executor, options ListSitesOptions) ([]Site, error) {
-	var sites []Site
+func ListSites(db geltypes.Executor, options ListSitesOptions) ([]SiteItem, error) {
+	var sites []SiteItem
 	opts, _ := json.Marshal(options)
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -181,10 +194,8 @@ func ListSites(db geltypes.Executor, options ListSitesOptions) ([]Site, error) {
       countries := <str>json_array_unpack(json_get(opts, 'countries'))
 			select location::Site {
 				*,
-				datasets: { * },
 				meta: { * },
 				country: { * },
-				events: { * } order by .performed_on.date desc
 			}
 			filter (not exists countries) or (.country.code in countries)
     `,
@@ -196,29 +207,49 @@ func GetSite(db geltypes.Executor, identifier string) (Site, error) {
 	var site Site
 	err := db.QuerySingle(context.Background(),
 		`#edgeql
+			with module occurrence,
 			select location::Site {
 				*,
 				country: { * },
 				datasets: { * },
 				meta: { * },
-				events: { *,
-					site: { *, country: { * } },
+				flaggings: { * },
+				abiotic_measurements: { *,
 					performed_by: { * },
 					performed_by_groups: { * },
-					spottings: { * },
-					abiotic_measurements: { *, param: { * }  },
-					samplings: {
-						*,
-						target_taxa: { * },
-						fixatives: { * },
-						methods: { * },
-						habitats: { * },
-						samples: {
-							**,
-							identification: { **, identified_by: { * } }
-						},
-						occurring_taxa: { * }
-					},
+					param: { * },
+					meta: { * }
+				},
+				samplings: { *,
+					performed_by: { * },
+					performed_by_groups: { * },
+					target_taxa: { * },
+					fixatives: { * },
+					methods: { * },
+					habitats: { * },
+					occurrences := (
+						with o := (
+							select .occurrences filter (
+								(exists [is BioMaterial].id) or
+								(not exists [is seq::ExternalSequence].source_sample)
+							)
+						),
+						select o {
+							id,
+							code,
+							required taxon := (
+									[is ExternalBioMat].seq_consensus ??
+									[is InternalBioMat].seq_consensus ??
+									.identification.taxon
+								) { name, status, rank},
+							required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
+							required element := (
+								if exists [is seq::Sequence].id then 'Sequence'
+								else 'BioMaterial'
+							)
+						}
+					),
+					occurring_taxa: { * },
 					meta: { * }
 				} order by .performed_on.date desc
 			} filter .code = <str>$0

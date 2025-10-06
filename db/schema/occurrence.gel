@@ -43,7 +43,7 @@ module occurrence {
   scalar type OccurrenceCategory extending enum<Internal, External>;
 
   function biomat_code(taxon: taxonomy::Taxon, sampling: events::Sampling) -> str {
-    using ( taxonomy::taxon_code(taxon) ++ "[" ++ sampling.code ++ "]" )
+    using ( taxonomy::taxon_code(taxon) ++ "[" ++ events::sampling_code(sampling) ++ "]" )
   };
 
   abstract type BioMaterial extending Occurrence {
@@ -80,13 +80,13 @@ module occurrence {
       )
     );
 
-
-
     # Defines whether this occurrence is the first scientific description of
     # the taxon
     required is_type: bool {
       default := false;
     };
+
+    constraint exclusive on ((.sampling, .identification.taxon));
   };
 
   type InternalBioMat extending BioMaterial {
@@ -126,6 +126,35 @@ module occurrence {
       )
     );
   }
+
+  function insert_internal_biomat(sampling: events::Sampling, data: json) -> InternalBioMat {
+    using (
+      with
+        identification := data['identification'],
+        taxon := taxonomy::taxonByName(<str>identification['taxon']),
+        publications := json_array_unpack(json_get(data, 'published_in')),
+      insert InternalBioMat {
+        sampling := sampling,
+        code := <str>json_get(data, 'code') ?? occurrence::biomat_code(taxon, sampling),
+        identification := (
+          insert occurrence::Identification {
+            taxon := taxon,
+            identified_by := people::personByAlias(<str>identification['identified_by']),
+            identified_on := date::from_json_with_precision(identification['identified_on']),
+          }
+        ),
+        is_type := <bool>json_get(data, 'is_type') ?? false,
+        comments := <str>json_get(data, 'comments'),
+        published_in := (select distinct
+          (for p in publications union (
+            select references::Article {
+              @original_source := <bool>json_get(p, 'original')
+            } filter .code = <str>p['code']
+          ))
+        )
+      }
+    )
+  };
 
   scalar type QuantityType extending enum<Unknown, One, Several, Ten, Tens, Hundred>;
 
@@ -187,6 +216,46 @@ module occurrence {
       )
     );
   };
+
+
+  function insert_external_biomat(sampling: events::Sampling, data: json) -> ExternalBioMat {
+    using (
+      with
+        identification := data['identification'],
+        taxon := taxonomy::taxonByName(<str>identification['taxon']),
+        publications := json_array_unpack(json_get(data, 'published_in')),
+      insert ExternalBioMat {
+        sampling := sampling,
+        code := <str>json_get(data, 'code') ?? occurrence::biomat_code(taxon, sampling),
+        original_source := (
+          with src := <str>json_get(data, 'original_source')
+          select (if exists src then default::get_vocabulary(src)[is references::DataSource] else <references::DataSource>{})
+        ),
+        original_link := <str>json_get(data, 'original_link'),
+        quantity := <occurrence::QuantityType>json_get(data, 'quantity'),
+        content_description := <str>json_get(data, 'content_description'),
+        in_collection := <str>json_get(data, 'collection'),
+        item_vouchers := <str>json_array_unpack(json_get(data, 'item_vouchers')),
+        comments := <str>json_get(data, 'comments'),
+        published_in := (select distinct
+          (for p in publications union (
+            select references::Article {
+              @original_source := <bool>json_get(p, 'original')
+            } filter .code = <str>p['code']
+          ))
+        ),
+        identification := (
+          insert occurrence::Identification {
+            taxon := taxon,
+            identified_by := people::personByAlias(<str>identification['identified_by']),
+            identified_on := date::from_json_with_precision(identification['identified_on']),
+          }
+        ),
+        is_type := <bool>json_get(data, 'is_type') ?? false,
+      }
+    )
+  };
+
 
   alias BioMaterialWithType := (
     select BioMaterial {

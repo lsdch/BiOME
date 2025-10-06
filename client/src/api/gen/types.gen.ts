@@ -2,7 +2,11 @@
 
 export type AbioticMeasurement = {
   id: string
+  meta: Meta
   param: AbioticParameter
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
+  performed_on: DateWithPrecision
   value: number
 }
 
@@ -156,7 +160,7 @@ export type BioMaterial = {
   seq_consensus?: OptionalTaxon
 }
 
-export type BioMaterialWithDetails = {
+export type BioMaterialListItem = {
   /**
    * A URL to the JSON Schema for this object.
    */
@@ -165,7 +169,6 @@ export type BioMaterialWithDetails = {
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
-  event: EventWithParticipants
   external?: OptionalExternalBioMatSpecific
   has_sequences: boolean
   id: string
@@ -175,7 +178,29 @@ export type BioMaterialWithDetails = {
   is_type: boolean
   meta: Meta
   published_in?: Array<OccurrenceReference>
-  sampling: Sampling
+  sampling: SamplingInnerWithSite
+  seq_consensus?: OptionalTaxon
+}
+
+export type BioMaterialWithDetails = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  category: OccurrenceCategory
+  code: string
+  code_history?: Array<CodeHistory>
+  comments?: string
+  external?: OptionalExternalBioMatSpecific
+  has_sequences: boolean
+  id: string
+  identification: Identification
+  is_congruent: boolean
+  is_homogenous: boolean
+  is_type: boolean
+  meta: Meta
+  published_in?: Array<OccurrenceReference>
+  sampling: SamplingWithSite
   seq_consensus?: OptionalTaxon
 }
 
@@ -242,7 +267,6 @@ export type CreateExternalBioMatInputBody = {
    */
   readonly $schema?: string
   bio_material: ExternalBioMatInput
-  event: EventInput
   sampling: SamplingInput
   site: SiteInput
 }
@@ -529,64 +553,6 @@ export type ErrorModel = {
   type?: string
 }
 
-export type Event = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  abiotic_measurements?: Array<AbioticMeasurement>
-  code: string
-  comments?: string
-  id: string
-  meta: Meta
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
-  performed_on: DateWithPrecision
-  samplings?: Array<Sampling>
-  site: SiteItem
-  spottings?: Array<Taxon>
-}
-
-export type EventInner = {
-  code: string
-  comments?: string
-  id: string
-  performed_on: DateWithPrecision
-  site: SiteItem
-}
-
-export type EventInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  performed_by?: Array<string>
-  performed_by_groups?: Array<string>
-  performed_on: DateWithPrecisionInput
-}
-
-export type EventUpdate = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  comments?: string | null
-  performed_by?: Array<string> | null
-  performed_by_groups?: Array<string> | null
-  performed_on?: DateWithPrecisionInput
-  spottings?: Array<string> | null
-}
-
-export type EventWithParticipants = {
-  code: string
-  comments?: string
-  id: string
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
-  performed_on: DateWithPrecision
-  site: SiteItem
-}
-
 /**
  * ExtSeqOrigin
  */
@@ -686,28 +652,12 @@ export type ExternalBioMatUpdate = {
   vouchers?: Array<string>
 }
 
-export type ExternalOccurrenceAtEventInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  /**
-   * New occurrence resulting from the sampling action
-   */
-  biomaterial: ExternalBioMatInput
-  /**
-   * New sampling action during referenced event
-   */
-  sampling: SamplingInput
-}
-
 export type ExternalOccurrenceAtSiteInput = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
   biomaterial: ExternalBioMatInput
-  event: EventInput
   sampling: SamplingInput
 }
 
@@ -741,6 +691,12 @@ export type FixativeUpdate = {
   code?: string
   description?: string | null
   label?: string
+}
+
+export type Flagging = {
+  abiotic_parameters?: Array<AbioticParameter>
+  indications?: string
+  target_taxa?: Array<Taxon>
 }
 
 export type Funder = {
@@ -1514,12 +1470,12 @@ export type Organization = {
   place?: Array<string>
 }
 
-export type PaginatedListBioMaterialWithDetails = {
+export type PaginatedListBioMaterialListItem = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  items: Array<BioMaterialWithDetails>
+  items: Array<BioMaterialListItem>
   total_count: number
 }
 
@@ -1778,7 +1734,6 @@ export type Sampling = {
    */
   readonly $schema?: string
   access_points?: Array<string>
-  code: string
   comments?: string
   /**
    * Sampling duration in minutes
@@ -1789,22 +1744,50 @@ export type Sampling = {
   id: string
   meta: Meta
   methods?: Array<SamplingMethod>
+  /**
+   * Auto-incrementing number, unique per sampling
+   */
+  number: number
   occurring_taxa?: Array<Taxon>
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
+  performed_on: DateWithPrecision
   samples?: Array<BioMaterial>
   target: SamplingTarget
 }
 
-export type SamplingEventWithOccurrences = {
+export type SamplingDateWithOccurrences = {
   date: DateWithPrecision
   id: string
   occurrences: Array<OccurrenceAtSite>
   occurring_taxa?: Array<Taxon>
+}
+
+export type SamplingDetailsWithOccurrences = {
+  access_points?: Array<string>
+  comments?: string
+  /**
+   * Sampling duration in minutes
+   */
+  duration?: number
+  fixatives?: Array<Fixative>
+  habitats?: Array<Habitat>
+  id: string
+  meta?: Meta
+  methods?: Array<SamplingMethod>
+  /**
+   * Auto-incrementing number, unique per sampling
+   */
+  number: number
+  occurrences: Array<OccurrenceAtSite>
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
+  performed_on: DateWithPrecision
   target: SamplingTarget
 }
 
 export type SamplingInner = {
   access_points?: Array<string>
-  code: string
   comments?: string
   /**
    * Sampling duration in minutes
@@ -1814,6 +1797,35 @@ export type SamplingInner = {
   habitats?: Array<Habitat>
   id: string
   methods?: Array<SamplingMethod>
+  /**
+   * Auto-incrementing number, unique per sampling
+   */
+  number: number
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
+  performed_on: DateWithPrecision
+  target: SamplingTarget
+}
+
+export type SamplingInnerWithSite = {
+  access_points?: Array<string>
+  comments?: string
+  /**
+   * Sampling duration in minutes
+   */
+  duration?: number
+  fixatives?: Array<Fixative>
+  habitats?: Array<Habitat>
+  id: string
+  methods?: Array<SamplingMethod>
+  /**
+   * Auto-incrementing number, unique per sampling
+   */
+  number: number
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
+  performed_on: DateWithPrecision
+  site: SiteItem
   target: SamplingTarget
 }
 
@@ -1831,10 +1843,13 @@ export type SamplingInput = {
   fixatives?: Array<string>
   habitats?: Array<string>
   methods?: Array<string>
+  performed_by?: Array<string>
+  performed_by_groups?: Array<string>
+  performed_on: DateWithPrecisionInput
   target: SamplingTargetInput
 }
 
-export type SamplingInputWithEvent = {
+export type SamplingInputAtSite = {
   /**
    * A URL to the JSON Schema for this object.
    */
@@ -1845,10 +1860,13 @@ export type SamplingInputWithEvent = {
    * Sampling duration in minutes
    */
   duration?: number
-  event_id: string
   fixatives?: Array<string>
   habitats?: Array<string>
   methods?: Array<string>
+  performed_by?: Array<string>
+  performed_by_groups?: Array<string>
+  performed_on: DateWithPrecisionInput
+  site_code: string
   target: SamplingTargetInput
 }
 
@@ -1913,7 +1931,59 @@ export type SamplingUpdate = {
   fixatives?: Array<string> | null
   habitats?: Array<string> | null
   methods?: Array<string> | null
+  performed_by?: Array<string> | null
+  performed_by_groups?: Array<string> | null
+  performed_on?: DateWithPrecisionInput
   target: SamplingTargetInput
+}
+
+export type SamplingWithOccurrences = {
+  access_points?: Array<string>
+  comments?: string
+  /**
+   * Sampling duration in minutes
+   */
+  duration?: number
+  fixatives?: Array<Fixative>
+  habitats?: Array<Habitat>
+  id: string
+  meta: Meta
+  methods?: Array<SamplingMethod>
+  /**
+   * Auto-incrementing number, unique per sampling
+   */
+  number: number
+  occurrences?: Array<OccurrenceAtSite>
+  occurring_taxa?: Array<Taxon>
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
+  performed_on: DateWithPrecision
+  target: SamplingTarget
+}
+
+export type SamplingWithSite = {
+  access_points?: Array<string>
+  comments?: string
+  /**
+   * Sampling duration in minutes
+   */
+  duration?: number
+  fixatives?: Array<Fixative>
+  habitats?: Array<Habitat>
+  id: string
+  meta: Meta
+  methods?: Array<SamplingMethod>
+  /**
+   * Auto-incrementing number, unique per sampling
+   */
+  number: number
+  occurring_taxa?: Array<Taxon>
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
+  performed_on: DateWithPrecision
+  samples?: Array<BioMaterial>
+  site: SiteItem
+  target: SamplingTarget
 }
 
 export type SecuritySettings = {
@@ -1962,15 +2032,10 @@ export type SeqReference = {
 }
 
 export type Sequence = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
   category: OccurrenceCategory
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
-  event: EventInner
   external?: OptionalExtSeqSpecificsBioMaterial
   gene: Gene
   id: string
@@ -1979,7 +2044,7 @@ export type Sequence = {
   legacy?: OptionalLegacySeqId
   meta: Meta
   published_in?: Array<OccurrenceReference>
-  sampling: SamplingInner
+  sampling: Sampling
   sequence?: string
 }
 
@@ -2001,6 +2066,38 @@ export type SequenceDataset = {
   slug: string
 }
 
+export type SequenceDatasetListItem = {
+  category: DatasetCategory
+  description: string
+  id: string
+  label: string
+  pinned: boolean
+  sequences: number
+  sites: number
+  slug: string
+}
+
+export type SequenceListItem = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  category: OccurrenceCategory
+  code: string
+  code_history?: Array<CodeHistory>
+  comments?: string
+  external?: OptionalExtSeqSpecificsBioMaterial
+  gene: Gene
+  id: string
+  identification: Identification
+  label?: string
+  legacy?: OptionalLegacySeqId
+  meta: Meta
+  published_in?: Array<OccurrenceReference>
+  sampling: SamplingInnerWithSite
+  sequence?: string
+}
+
 export type SequenceWithDetails = {
   /**
    * A URL to the JSON Schema for this object.
@@ -2010,7 +2107,6 @@ export type SequenceWithDetails = {
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
-  event: EventInner
   external?: OptionalExtSeqSpecificsBioMaterial
   gene: Gene
   id: string
@@ -2019,7 +2115,7 @@ export type SequenceWithDetails = {
   legacy?: OptionalLegacySeqId
   meta: Meta
   published_in?: Array<OccurrenceReference>
-  sampling: Sampling
+  sampling: SamplingWithSite
   sequence?: string
 }
 
@@ -2044,13 +2140,14 @@ export type Site = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  abiotic_measurements?: Array<AbioticMeasurement>
   altitude?: number
   code: string
   coordinates: Coordinates
   country?: OptionalCountry
   datasets?: Array<DatasetInner>
   description?: string
-  events?: Array<Event>
+  flaggings?: Array<Flagging>
   id: string
   /**
    * Last visit date with precision. If not set, site has never been visited.
@@ -2059,6 +2156,7 @@ export type Site = {
   locality?: string
   meta: Meta
   name?: string
+  samplings?: Array<SamplingWithOccurrences>
   user_defined_locality: boolean
 }
 
@@ -2123,7 +2221,7 @@ export type SiteInput = {
   /**
    * ISO 3166-1 alpha-3 country code
    */
-  country_code?: string
+  country?: string
   description?: string
   /**
    * Nearest populated place
@@ -2220,7 +2318,7 @@ export type SiteWithOccurrences = {
   last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
-  samplings: Array<SamplingEventWithOccurrences>
+  samplings: Array<SamplingDateWithOccurrences>
   user_defined_locality: boolean
 }
 
@@ -3259,7 +3357,7 @@ export type ListBioMaterialResponses = {
   /**
    * OK
    */
-  200: PaginatedListBioMaterialWithDetails
+  200: PaginatedListBioMaterialListItem
 }
 
 export type ListBioMaterialResponse = ListBioMaterialResponses[keyof ListBioMaterialResponses]
@@ -3370,7 +3468,7 @@ export type DeleteBioMaterialResponses = {
   /**
    * OK
    */
-  200: BioMaterialWithDetails
+  200: BioMaterialListItem
 }
 
 export type DeleteBioMaterialResponse = DeleteBioMaterialResponses[keyof DeleteBioMaterialResponses]
@@ -3833,7 +3931,7 @@ export type ListSequenceDatasetsResponses = {
   /**
    * OK
    */
-  200: Array<SequenceDataset>
+  200: Array<SequenceDatasetListItem>
 }
 
 export type ListSequenceDatasetsResponse =
@@ -4020,198 +4118,6 @@ export type GetDatasetResponses = {
 }
 
 export type GetDatasetResponse = GetDatasetResponses[keyof GetDatasetResponses]
-
-export type DeleteEventData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-  query?: never
-  url: '/events/{id}'
-}
-
-export type DeleteEventErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type DeleteEventError = DeleteEventErrors[keyof DeleteEventErrors]
-
-export type DeleteEventResponses = {
-  /**
-   * OK
-   */
-  200: Event
-}
-
-export type DeleteEventResponse = DeleteEventResponses[keyof DeleteEventResponses]
-
-export type UpdateEventData = {
-  body: EventUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-  query?: never
-  url: '/events/{id}'
-}
-
-export type UpdateEventErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type UpdateEventError = UpdateEventErrors[keyof UpdateEventErrors]
-
-export type UpdateEventResponses = {
-  /**
-   * OK
-   */
-  200: Event
-}
-
-export type UpdateEventResponse = UpdateEventResponses[keyof UpdateEventResponses]
-
-export type EventAddExternalOccurrenceData = {
-  body: ExternalOccurrenceAtEventInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    /**
-     * Event ID
-     */
-    id: string
-  }
-  query?: never
-  url: '/events/{id}/occurrences/external'
-}
-
-export type EventAddExternalOccurrenceErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type EventAddExternalOccurrenceError =
-  EventAddExternalOccurrenceErrors[keyof EventAddExternalOccurrenceErrors]
-
-export type EventAddExternalOccurrenceResponses = {
-  /**
-   * OK
-   */
-  200: BioMaterialWithDetails
-}
-
-export type EventAddExternalOccurrenceResponse =
-  EventAddExternalOccurrenceResponses[keyof EventAddExternalOccurrenceResponses]
-
-export type CreateSamplingAtEventData = {
-  body: SamplingInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-  query?: never
-  url: '/events/{id}/samplings'
-}
-
-export type CreateSamplingAtEventErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type CreateSamplingAtEventError =
-  CreateSamplingAtEventErrors[keyof CreateSamplingAtEventErrors]
-
-export type CreateSamplingAtEventResponses = {
-  /**
-   * OK
-   */
-  200: Sampling
-}
-
-export type CreateSamplingAtEventResponse =
-  CreateSamplingAtEventResponses[keyof CreateSamplingAtEventResponses]
-
-export type UpdateSpottingData = {
-  body: Array<string>
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    id: string
-  }
-  query?: never
-  url: '/events/{id}/spottings'
-}
-
-export type UpdateSpottingErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type UpdateSpottingError = UpdateSpottingErrors[keyof UpdateSpottingErrors]
-
-export type UpdateSpottingResponses = {
-  /**
-   * OK
-   */
-  200: Array<Taxon>
-}
-
-export type UpdateSpottingResponse = UpdateSpottingResponses[keyof UpdateSpottingResponses]
 
 export type ListFixativesData = {
   body?: never
@@ -5887,7 +5793,7 @@ export type UpdateSamplingMethodResponse =
   UpdateSamplingMethodResponses[keyof UpdateSamplingMethodResponses]
 
 export type CreateSamplingData = {
-  body: SamplingInputWithEvent
+  body: SamplingInputAtSite
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -6004,7 +5910,7 @@ export type SamplingAddExternalOccurrenceData = {
     Authorization?: string
   }
   path: {
-    id: string
+    number: number
   }
   query?: never
   url: '/samplings/{id}/occurrences/external'
@@ -6064,7 +5970,7 @@ export type ListSequencesResponses = {
   /**
    * OK
    */
-  200: Array<Sequence>
+  200: Array<SequenceListItem>
 }
 
 export type ListSequencesResponse = ListSequencesResponses[keyof ListSequencesResponses]
@@ -6101,7 +6007,7 @@ export type DeleteSequenceResponses = {
   /**
    * OK
    */
-  200: Sequence
+  200: SequenceListItem
 }
 
 export type DeleteSequenceResponse = DeleteSequenceResponses[keyof DeleteSequenceResponses]
@@ -6708,7 +6614,7 @@ export type ListSitesResponses = {
   /**
    * OK
    */
-  200: Array<Site>
+  200: Array<SiteItem>
 }
 
 export type ListSitesResponse = ListSitesResponses[keyof ListSitesResponses]
@@ -6822,80 +6728,6 @@ export type UpdateSiteResponses = {
 
 export type UpdateSiteResponse = UpdateSiteResponses[keyof UpdateSiteResponses]
 
-export type ListSiteEventsData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/sites/{code}/events'
-}
-
-export type ListSiteEventsErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ListSiteEventsError = ListSiteEventsErrors[keyof ListSiteEventsErrors]
-
-export type ListSiteEventsResponses = {
-  /**
-   * OK
-   */
-  200: Array<Event>
-}
-
-export type ListSiteEventsResponse = ListSiteEventsResponses[keyof ListSiteEventsResponses]
-
-export type CreateEventData = {
-  body: EventInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/sites/{code}/events'
-}
-
-export type CreateEventErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type CreateEventError = CreateEventErrors[keyof CreateEventErrors]
-
-export type CreateEventResponses = {
-  /**
-   * OK
-   */
-  200: Event
-}
-
-export type CreateEventResponse = CreateEventResponses[keyof CreateEventResponses]
-
 export type SiteAddExternalOccurrenceData = {
   body: ExternalOccurrenceAtSiteInput
   headers?: {
@@ -6934,6 +6766,81 @@ export type SiteAddExternalOccurrenceResponses = {
 
 export type SiteAddExternalOccurrenceResponse =
   SiteAddExternalOccurrenceResponses[keyof SiteAddExternalOccurrenceResponses]
+
+export type ListSiteSamplingsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/sites/{code}/samplings'
+}
+
+export type ListSiteSamplingsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListSiteSamplingsError = ListSiteSamplingsErrors[keyof ListSiteSamplingsErrors]
+
+export type ListSiteSamplingsResponses = {
+  /**
+   * OK
+   */
+  200: Array<SamplingDetailsWithOccurrences>
+}
+
+export type ListSiteSamplingsResponse = ListSiteSamplingsResponses[keyof ListSiteSamplingsResponses]
+
+export type CreateSamplingAtSiteData = {
+  body: SamplingInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/sites/{code}/samplings'
+}
+
+export type CreateSamplingAtSiteErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateSamplingAtSiteError = CreateSamplingAtSiteErrors[keyof CreateSamplingAtSiteErrors]
+
+export type CreateSamplingAtSiteResponses = {
+  /**
+   * OK
+   */
+  200: Sampling
+}
+
+export type CreateSamplingAtSiteResponse =
+  CreateSamplingAtSiteResponses[keyof CreateSamplingAtSiteResponses]
 
 export type GetTaxonomyData = {
   body?: never

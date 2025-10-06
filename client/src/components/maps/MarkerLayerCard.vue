@@ -95,11 +95,11 @@
 import { MarkerLayerDefinition } from '@/components/maps/map-layers'
 import SvgCircle from '@/components/toolkit/ui/SvgCircle.vue'
 import { withOpacity } from '@/functions/color_brewer'
-import LayerOptionsCard from '@/views/location/LayerOptionsCard.vue'
+import LayerOptionsCard from '@/components/maps/LayerOptionsCard.vue'
 import DataFeedPicker from '../occurrence/DataFeedPicker.vue'
 import ColorPickerMenu from '../toolkit/ui/ColorPickerMenu.vue'
 import ListItemInput from '../toolkit/ui/ListItemInput.vue'
-import SiteSamplingStatusFilter from '@/views/location/SiteSamplingStatusFilter.vue'
+import SiteSamplingStatusFilter from '@/components/maps/SiteSamplingStatusFilter.vue'
 
 const layer = defineModel<MarkerLayerDefinition>({ required: true })
 

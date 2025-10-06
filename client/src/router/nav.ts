@@ -26,7 +26,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
     path: "/mapping",
     name: "mapping",
     icon: "mdi-map-marker-circle",
-    component: () => import("@/views/location/MappingToolView.vue"),
+    component: () => import("@/views/map/MappingToolView.vue"),
     meta: {
       subtitle: "Mapping tool",
       drawer: { temporary: true }
@@ -65,7 +65,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/programs",
         name: "programs",
         icon: "mdi-notebook",
-        component: () => import("@/views/events/ProgramsView.vue"),
+        component: () => import("@/views/datasets/ProgramsView.vue"),
         meta: { subtitle: "Programs" }
       }
     ]
@@ -144,7 +144,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/habitats",
         name: "habitats",
         icon: "mdi-image-filter-hdr-outline",
-        component: () => import("@/views/sampling/HabitatsView.vue"),
+        component: () => import("@/views/registries/HabitatsView.vue"),
         meta: { subtitle: "Habitats" },
       },
       {
@@ -152,7 +152,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/abiotic-parameters",
         name: "abiotic-parameters",
         icon: "mdi-gauge",
-        component: () => import("@/views/sampling/AbioticParametersView.vue"),
+        component: () => import("@/views/registries/AbioticParametersView.vue"),
         meta: { subtitle: "Abiotic parameters" }
       },
       {
@@ -160,14 +160,14 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/sampling-methods",
         name: "sampling-methods",
         icon: "mdi-hook",
-        component: () => import("@/views/sampling/SamplingMethodsView.vue")
+        component: () => import("@/views/registries/SamplingMethodsView.vue")
       },
       {
         label: "Fixatives",
         path: "/fixatives",
         name: "fixatives",
         icon: "mdi-snowflake",
-        component: () => import("@/views/sampling/FixativesView.vue")
+        component: () => import("@/views/registries/FixativesView.vue")
       },
       { subgroup: "Sequences" },
       {
@@ -183,14 +183,14 @@ export const navRoutes: (RouterItem | Divider)[] = [
         icon: 'mdi-newspaper-variant-multiple',
         name: "bibliography",
         path: '/articles',
-        component: () => import('@/views/references/ArticlesView.vue')
+        component: () => import('@/views/registries/ArticlesView.vue')
       },
       {
         label: "Data sources",
         path: "/data-sources",
         name: "data-sources",
         icon: "mdi-database-sync",
-        component: () => import("@/views/references/DataSourcesView.vue")
+        component: () => import("@/views/registries/DataSourcesView.vue")
       }
 
     ]
@@ -206,7 +206,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
           path: "/admin/account-requests",
           name: "account-requests",
           icon: "mdi-account-plus",
-          component: () => import("@/views/registration/AccountsPendingView.vue"),
+          component: () => import("@/views/accounts/AccountsPendingView.vue"),
           meta: { subtitle: "Account requests" }
         }),
       routes.settings,

@@ -41,11 +41,11 @@
           {{ DateWithPrecision.format(value) }}
         </span>
       </template>
-      <template #item.target="{ value: { kind, taxa } }: { value: SamplingTarget }">
+      <!-- <template #item.target="{ value: { kind, taxa } }: { value: SamplingTarget }">
         <v-chip :text="kind" size="small" label />
         <span v-if="taxa?.length" class="text-overline ml-1">|</span>
         <TaxonChip v-for="taxon in taxa" :taxon size="small" class="ma-1" />
-      </template>
+      </template> -->
       <template #item.occurrences="{ value, toggleExpand, item }">
         <v-badge inline :content="value" color="success" @click="toggleExpand(item)" />
       </template>
@@ -63,7 +63,7 @@
 import {
   CodeIdentifier,
   DateWithPrecision,
-  SamplingEventWithOccurrences,
+  SamplingDateWithOccurrences,
   SamplingTarget,
   SiteItem
 } from '@/api'
@@ -74,8 +74,7 @@ import { computed, ref } from 'vue'
 import { ComponentSlots } from 'vue-component-type-helpers'
 import OccurrenceAtSiteList from './OccurrenceAtSiteList.vue'
 
-type SamplingEvent = SamplingEventWithOccurrences &
-  (WithSite extends true ? { site: SiteItem } : {})
+type SamplingEvent = SamplingDateWithOccurrences & (WithSite extends true ? { site: SiteItem } : {})
 
 const {
   title = 'Sampling events',
@@ -124,24 +123,23 @@ const headersWithSite: CRUDTableHeader<SamplingEvent>[] = [
       return DateWithPrecision.format(item.raw.date).toLowerCase().includes(query.toLowerCase())
     }
   },
-  {
-    title: 'Target',
-    value: 'target',
-    sort: (a: SamplingTarget, b: SamplingTarget) => a.kind.localeCompare(b.kind),
-    filter(value, query, item) {
-      if (!query) return true
-      if (item.raw.target.kind === 'Taxa') {
-        return (
-          item.raw.target.taxa?.some((taxon) =>
-            taxon.name.toLowerCase().includes(query.toLowerCase())
-          ) ?? false
-        )
-      }
-      return item.raw.target.kind.toLowerCase().includes(query.toLowerCase()) ?? false
-    },
-    sortable: true,
-    align: 'start'
-  },
+  // {
+  //   title: 'Target',
+  //   value: 'target',
+  //   sort: (a: SamplingTarget, b: SamplingTarget) => a.kind.localeCompare(b.kind),
+  //   filter(value: SamplingTarget, query) {
+  //     if (!query) return true
+  //     if (value.kind === 'Taxa') {
+  //       return (
+  //         value.taxa?.some((taxon) => taxon.name.toLowerCase().includes(query.toLowerCase())) ??
+  //         false
+  //       )
+  //     }
+  //     return value.kind.toLowerCase().includes(query.toLowerCase()) ?? false
+  //   },
+  //   sortable: true,
+  //   align: 'start'
+  // },
   {
     title: 'Occurrences',
     key: 'occurrences',

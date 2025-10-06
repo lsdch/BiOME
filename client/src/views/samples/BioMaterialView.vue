@@ -8,7 +8,7 @@
     :fetch-items="listBioMaterialOptions"
     :delete="{
       mutation: deleteBioMaterialMutation,
-      params: ({ code }: BioMaterialWithDetails) => ({ path: { code } })
+      params: ({ code }: BioMaterialListItem) => ({ path: { code } })
     }"
     :mobile="xs"
     show-expand
@@ -77,7 +77,7 @@
       </v-row>
     </template>
 
-    <template #item.code="{ value, item }: { value: string; item: BioMaterial }">
+    <template #item.code="{ value, item }: { value: string; item: BioMaterialListItem }">
       <span class="d-flex justify-space-between align-center">
         <RouterLink :text="value" :to="{ name: 'biomat-item', params: { code: value } }" />
         <span class="text-right">
@@ -104,10 +104,10 @@
         </span>
       </span>
     </template>
-    <template #item.event.site="{ value: { code, name } }: { value: SiteItem }">
+    <template #item.sampling.site="{ value: { code, name } }: { value: SiteItem }">
       <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name || code" />
     </template>
-    <template #item.event.performed_on="{ value }: { value: DateWithPrecision }">
+    <template #item.sampling.performed_on="{ value }: { value: DateWithPrecision }">
       <span
         :class="['font-monospace text-caption', { 'text-muted': value.precision == 'Unknown' }]"
       >
@@ -115,9 +115,7 @@
       </span>
     </template>
 
-    <template
-      #item.identification.taxon="{ value: taxon, item }: { value: Taxon; item: BioMaterial }"
-    >
+    <template #item.identification.taxon="{ value: taxon }: { value: Taxon }">
       <TaxonChip :taxon size="small" short />
     </template>
     <template #item.identification.identified_by="{ value }: { value: PersonInner | undefined }">
@@ -168,7 +166,7 @@
 <script setup lang="ts">
 import { BioMaterial, PersonInner, Taxon } from '@/api'
 import {
-  BioMaterialWithDetails,
+  BioMaterialListItem,
   BioMatSortKey,
   DateWithPrecision,
   OccurrenceCategory,
@@ -201,7 +199,7 @@ type BiomatTableFilters = {
 
 const filters = ref<BiomatTableFilters>({})
 
-const headers = [
+const headers: CRUDTableHeader<BioMaterialListItem>[] = [
   {
     title: 'BioMaterial',
     children: [{ key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } }]
@@ -212,10 +210,10 @@ const headers = [
     headerProps: { class: 'border-s' },
     children: [
       {
-        key: 'event.site',
+        key: 'sampling.site',
         title: 'Site'
       },
-      { key: 'event.performed_on', title: 'Date', align: 'end' }
+      { key: 'sampling.performed_on', title: 'Date', align: 'end' }
     ]
   },
   {
@@ -241,15 +239,19 @@ const headers = [
       }
     ]
   }
-] as const satisfies CRUDTableHeader<BioMaterialWithDetails>[]
+] as const
 
-type SortableColumn = Extract<
-  Exclude<(typeof headers)[number]['children'], undefined>[number]['key'] | 'meta.last_updated',
-  string
+type SortableColumn = Exclude<
+  Extract<
+    Exclude<(typeof headers)[number]['children'], undefined>[number]['key'] | 'meta.last_updated',
+    string
+  >,
+  `data-table-${string}`
 >
+
 const sortKeyMap: Record<SortableColumn, BioMatSortKey> = {
-  'event.site': 'site',
-  'event.performed_on': 'sampling_date',
+  'sampling.site': 'site',
+  'sampling.performed_on': 'sampling_date',
   'identification.taxon': 'taxon',
   'identification.identified_by': 'identified_by',
   'identification.identified_on': 'identified_on',

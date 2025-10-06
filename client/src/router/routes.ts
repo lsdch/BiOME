@@ -31,7 +31,7 @@ export const accountRoutes: Record<string, RouteRecordRaw> = {
   account: guardAuth({
     path: "/account",
     name: "account",
-    component: () => import("../views/AccountView.vue"),
+    component: () => import("../views/accounts/AccountView.vue"),
     meta: { subtitle: "Account infos" }
   }),
 }

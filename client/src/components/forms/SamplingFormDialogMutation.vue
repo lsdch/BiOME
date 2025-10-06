@@ -4,7 +4,7 @@
     v-model:dialog="dialog"
     :title="title ?? `${mode} sampling`"
     :mode
-    :event
+    :site
     :errors
     @submit="submit()"
   >
@@ -15,9 +15,9 @@
 </template>
 
 <script setup lang="ts">
-import { $SamplingInput, $SamplingUpdate, EventInner, Sampling } from '@/api'
+import { $SamplingInput, $SamplingUpdate, Sampling, SiteItem } from '@/api'
 import {
-  createSamplingAtEventMutation,
+  createSamplingAtSiteMutation,
   updateSamplingMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/functions/mutations'
@@ -29,17 +29,17 @@ import { FormDialogProps } from '../toolkit/forms/FormDialog.vue'
 const item = defineModel<Sampling>()
 const dialog = defineModel<boolean>('dialog')
 
-const { event } = defineProps<
+const { site } = defineProps<
   {
-    event: EventInner
+    site: SiteItem
   } & FormDialogProps
 >()
 
-const create = defineFormCreate(createSamplingAtEventMutation(), {
+const create = defineFormCreate(createSamplingAtSiteMutation(), {
   initial: SamplingModel.initialModel,
   schema: $SamplingInput,
   requestData: (model) => ({
-    path: { id: event.id },
+    path: { code: site.code },
     body: SamplingModel.toRequestBody(model)
   })
 })

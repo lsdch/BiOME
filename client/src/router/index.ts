@@ -50,7 +50,7 @@ function setupRouter(settings: InstanceSettings) {
       {
         path: "/init",
         name: "init",
-        component: () => import("../views/InitialSetup.vue"),
+        component: () => import("../views/settings/InitialSetup.vue"),
         meta: { hideNavbar: true }
       },
       guardRole('Admin', {
@@ -66,7 +66,7 @@ function setupRouter(settings: InstanceSettings) {
             temporary: true
           }
         },
-        component: () => import("../views/location/SiteImportView.vue")
+        component: () => import("../views/import/SiteImportView.vue")
       }),
       {
         path: "/datasets/sites/:slug",
@@ -77,13 +77,13 @@ function setupRouter(settings: InstanceSettings) {
       {
         path: "/datasets/occurrences/:slug",
         name: "occurrence-dataset-item",
-        component: () => import('@/views/datasets/OccurrenceDatasetItemView.vue'),
+        component: () => import('@/views/datasets/occurrence/OccurrenceDatasetItemView.vue'),
         props: route => ({ slug: route.params.slug }),
       },
       {
         path: "/sites/:code",
         name: "site-item",
-        component: () => import('@/views/location/SiteItemView.vue'),
+        component: () => import('@/views/site/SiteItemView.vue'),
         props: true
       },
       {
@@ -96,7 +96,10 @@ function setupRouter(settings: InstanceSettings) {
         path: "/sequences/:code",
         name: "sequence",
         component: () => import('@/views/sequences/SeqItemView.vue'),
-        props: true
+        props: true,
+        meta: {
+          title: makeTitle("API docs")
+        }
       },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       ...Object.values(routes),

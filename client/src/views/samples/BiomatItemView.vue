@@ -14,34 +14,19 @@
       <v-btn color="primary" icon="mdi-pencil" variant="tonal" size="small" />
     </template>
     <template v-if="item" #subtitle>
-      <v-chip
-        class="mx-1"
-        size="small"
-        label
-        v-bind="
-          {
-            Internal: {
-              prependIcon: 'mdi-cube-scan',
-              color: 'primary'
-            },
-            External: {
-              prependIcon: 'mdi-arrow-collapse-all',
-              color: 'warning'
-            }
-          }[item.category]
-        "
-      >
-        {{ item.category }} bio-material
-      </v-chip>
-      <v-chip
-        v-if="item.is_type"
-        class="mx-1"
-        prepend-icon="mdi-star-four-points"
-        size="small"
-        label
-      >
-        Nomenclatural type
-      </v-chip>
+      <div class="d-flex align-center ga-2">
+        <OccurrenceCategoryChip :category="item.category" element="BioMaterial" size="small" />
+        <v-chip v-if="item.is_type" prepend-icon="mdi-star-four-points" size="small" label>
+          Nomenclatural type
+        </v-chip>
+        <v-chip prepend-icon="mdi-dna" size="small" label>
+          {{
+            item.has_sequences
+              ? `${item.external?.content?.reduce((acc, { sequences }) => acc + sequences.length, 0)} sequences`
+              : 'No attached sequences'
+          }}
+        </v-chip>
+      </div>
     </template>
     <template v-if="item" #actions>
       <v-spacer />
@@ -110,15 +95,14 @@
               </v-tooltip>
             </template>
             <v-card-text>
-              <TaxonChip :taxon="item.identification.taxon" class="my-1" />
-              <span class="text-no-wrap">
-                by
-                <PersonChip
-                  v-if="item.identification.identified_by"
-                  :person="item.identification.identified_by"
-                />
-                <span class="text-muted" v-else>Unknown</span>
-              </span>
+              <div class="d-flex align-center justify-space-between ga-1">
+                <TaxonChip :taxon="item.identification.taxon" class="my-1" />
+                <span v-if="item.identification.identified_by" class="text-no-wrap">
+                  by
+                  <PersonChip :person="item.identification.identified_by" />
+                </span>
+                <span class="text-muted" v-else>Curator unspecified</span>
+              </div>
               <div v-if="item.external?.original_taxon">
                 Originally tagged as: {{ item.external.original_taxon }}
               </div>
@@ -182,29 +166,41 @@
                     <template #text>
                       <v-treeview
                         :items="
-                          item.external.content?.map(({ specimen, sequences }) => ({
-                            code: specimen,
-                            sequences
-                          }))
+                          item.external.content?.map<TreeViewSpecimenItem | ExternalBioMatSequence>(
+                            ({ specimen, sequences }) => ({
+                              code: specimen,
+                              sequences: sequences.map((seq) => ({
+                                ...seq,
+                                props: {
+                                  to: { name: 'sequence', params: { code: seq.code } }
+                                }
+                              }))
+                            })
+                          )
                         "
+                        indent-lines
                         item-children="sequences"
                         item-title="code"
                         open-on-click
                       >
-                        <template #title="{ title }">
-                          <code>{{ title }}</code>
+                        <template #title="{ title, item }">
+                          <code v-if="'sequences' in item">{{ title }}</code>
+                          <v-list-item-title v-else>{{
+                            item.identification.taxon.name
+                          }}</v-list-item-title>
                         </template>
-                        <template #item="{ item }">
-                          <v-treeview-item
-                            :title="item.identification.taxon.name"
-                            :subtitle="item.label"
-                            :prepend-icon="ExtSeqOrigin.icon(item.origin)"
-                            :to="{ name: 'sequence', params: { code: item.code } }"
-                          >
-                            <template #append>
-                              <GeneChip :gene="item.gene" size="small" />
-                            </template>
-                          </v-treeview-item>
+                        <template #subtitle="{ item }">
+                          <template v-if="!('sequences' in item)">
+                            {{ item.label }}
+                          </template>
+                        </template>
+                        <template #append="{ item }">
+                          <v-chip
+                            v-if="'sequences' in item"
+                            :text="item.sequences.length"
+                            size="small"
+                          />
+                          <GeneChip v-else :gene="item.gene" size="small" class="ma-1" />
                         </template>
                       </v-treeview>
                     </template>
@@ -272,13 +268,13 @@
 
     <v-divider />
   </v-card>
-  <SamplingFormDialog
+  <SamplingFormDialogMutation
     v-if="item"
     v-model:dialog="samplingEdit"
     v-model="item.sampling"
-    :event="item.event"
+    :site="item.sampling.site"
     @updated="
-      (sampling: Sampling) => {
+      (sampling: SamplingWithSite) => {
         item!.sampling = sampling
         toggleSamplingEdit(false)
       }
@@ -287,9 +283,16 @@
 </template>
 
 <script setup lang="ts">
-import { CodeIdentifier, DateWithPrecision, ExtSeqOrigin, Sampling } from '@/api/adapters'
+import {
+  CodeIdentifier,
+  DateWithPrecision,
+  ExternalBioMatSequence,
+  ExtSeqOrigin,
+  SamplingWithSite
+} from '@/api/adapters'
 import { getBioMaterialOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import SamplingFormDialog from '@/components/forms/SamplingFormDialog.vue'
+import SamplingFormDialogMutation from '@/components/forms/SamplingFormDialogMutation.vue'
+import OccurrenceCategoryChip from '@/components/occurrence/OccurrenceCategoryChip'
 import OccurrenceSamplingCard from '@/components/occurrence/OccurrenceSamplingCard.vue'
 import PersonChip from '@/components/people/PersonChip'
 import ArticleChip from '@/components/references/ArticleChip'
@@ -301,6 +304,11 @@ import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { computed } from 'vue'
+
+type TreeViewSpecimenItem = {
+  code: string
+  sequences: ExternalBioMatSequence[]
+}
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 

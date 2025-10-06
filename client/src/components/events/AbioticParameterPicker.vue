@@ -10,6 +10,9 @@
   >
     <template #item="{ item, props }">
       <v-list-item v-bind="props" :subtitle="item.raw.description">
+        <template #prepend="props">
+          <slot name="prepend" :props :item></slot>
+        </template>
         <template #append>
           <v-chip :text="item.raw.unit" />
         </template>

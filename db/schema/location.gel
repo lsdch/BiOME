@@ -33,6 +33,21 @@ module location {
     )
   }
 
+  function find_country_for_site(
+    code_or_name: optional str,
+    coords: tuple<precision: CoordinatesPrecision, latitude: float32, longitude: float32>
+  ) -> optional Country {
+    using (
+      assert_single(
+        (select
+          location::Country
+          filter .code = code_or_name or .name = code_or_name
+        ),
+        message := "More than one country match code or name : " ++ code_or_name
+      ) ?? site_coords_to_country(coords)
+    )
+  }
+
   type CountryBoundary {
     required country: Country {
       constraint exclusive;
@@ -121,13 +136,15 @@ module location {
 
     single last_visited := (
       assert_single((
-        select .events.performed_on
-        filter .date = max(__source__.events.performed_on.date)
+        select .samplings.performed_on
+        filter .date = max(__source__.samplings.performed_on.date)
         limit 1
       ))
     );
 
-    multi link events := .<site[is events::Event];
+    multi link samplings := .<site[is events::Sampling];
+    multi link abiotic_measurements := .<site[is events::AbioticMeasurement];
+    multi link flaggings := .<site[is events::Flagging];
     multi datasets := .<sites[is datasets::SiteDataset];
 
     # imported_in: datasets::AbstractDataset {
@@ -192,11 +209,11 @@ module location {
     )
   }
 
-  function insert_site(data: json) -> Site {
+  function insert_site(data: json, force_use_coords: optional bool = false) -> Site {
     using (
       with
         coords := coords_from_json(data['coordinates']),
-        country_code := <str>json_get(data, 'country_code'),
+        country_code := <str>json_get(data, 'country'),
       insert Site {
         name := <str>json_get(data, 'name'),
         code := <str>data['code'],
@@ -204,9 +221,9 @@ module location {
         coordinates := coords,
         locality := <str>json_get(data, 'locality'),
         country := (select(
-          if exists country_code
-          then find_country(country_code)
-          else site_coords_to_country(coords)
+          if force_use_coords
+          then site_coords_to_country(coords)
+          else find_country_for_site(country_code, coords)
         )),
         altitude := <int32>json_get(data, 'altitude'),
       }

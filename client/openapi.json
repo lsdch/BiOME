@@ -8,8 +8,26 @@
 						"format": "uuid",
 						"type": "string"
 					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
 					"param": {
 						"$ref": "#/components/schemas/AbioticParameter"
+					},
+					"performed_by": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecision"
 					},
 					"value": {
 						"format": "float",
@@ -19,7 +37,9 @@
 				"required": [
 					"id",
 					"param",
-					"value"
+					"value",
+					"performed_on",
+					"meta"
 				],
 				"type": "object"
 			},
@@ -474,13 +494,13 @@
 				],
 				"type": "object"
 			},
-			"BioMaterialWithDetails": {
+			"BioMaterialListItem": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/BioMaterialWithDetails.json"
+							"/api/v1/schemas/BioMaterialListItem.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -500,9 +520,6 @@
 					},
 					"comments": {
 						"type": "string"
-					},
-					"event": {
-						"$ref": "#/components/schemas/EventWithParticipants"
 					},
 					"external": {
 						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
@@ -536,14 +553,92 @@
 						"type": "array"
 					},
 					"sampling": {
-						"$ref": "#/components/schemas/Sampling"
+						"$ref": "#/components/schemas/SamplingInnerWithSite"
 					},
 					"seq_consensus": {
 						"$ref": "#/components/schemas/OptionalTaxon"
 					}
 				},
 				"required": [
-					"event",
+					"has_sequences",
+					"is_homogenous",
+					"is_congruent",
+					"meta",
+					"sampling",
+					"identification",
+					"id",
+					"category",
+					"is_type",
+					"code"
+				],
+				"type": "object"
+			},
+			"BioMaterialWithDetails": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/BioMaterialWithDetails.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
+					"code": {
+						"type": "string"
+					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"external": {
+						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
+					},
+					"has_sequences": {
+						"type": "boolean"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"is_congruent": {
+						"type": "boolean"
+					},
+					"is_homogenous": {
+						"type": "boolean"
+					},
+					"is_type": {
+						"type": "boolean"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceReference"
+						},
+						"type": "array"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingWithSite"
+					},
+					"seq_consensus": {
+						"$ref": "#/components/schemas/OptionalTaxon"
+					}
+				},
+				"required": [
 					"has_sequences",
 					"is_homogenous",
 					"is_congruent",
@@ -785,9 +880,6 @@
 					"bio_material": {
 						"$ref": "#/components/schemas/ExternalBioMatInput"
 					},
-					"event": {
-						"$ref": "#/components/schemas/EventInput"
-					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInput"
 					},
@@ -797,7 +889,6 @@
 				},
 				"required": [
 					"site",
-					"event",
 					"sampling",
 					"bio_material"
 				],
@@ -1483,229 +1574,6 @@
 				},
 				"type": "object"
 			},
-			"Event": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/Event.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"abiotic_measurements": {
-						"items": {
-							"$ref": "#/components/schemas/AbioticMeasurement"
-						},
-						"type": "array"
-					},
-					"code": {
-						"type": "string"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"performed_by": {
-						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
-						},
-						"type": "array"
-					},
-					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
-					},
-					"samplings": {
-						"items": {
-							"$ref": "#/components/schemas/Sampling"
-						},
-						"type": "array"
-					},
-					"site": {
-						"$ref": "#/components/schemas/SiteItem"
-					},
-					"spottings": {
-						"items": {
-							"$ref": "#/components/schemas/Taxon"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"meta",
-					"id",
-					"site",
-					"code",
-					"performed_on"
-				],
-				"type": "object"
-			},
-			"EventInner": {
-				"additionalProperties": false,
-				"properties": {
-					"code": {
-						"type": "string"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
-					},
-					"site": {
-						"$ref": "#/components/schemas/SiteItem"
-					}
-				},
-				"required": [
-					"id",
-					"site",
-					"code",
-					"performed_on"
-				],
-				"type": "object"
-			},
-			"EventInput": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/EventInput.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"performed_by": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecisionInput"
-					}
-				},
-				"required": [
-					"performed_on"
-				],
-				"type": "object"
-			},
-			"EventUpdate": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/EventUpdate.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"comments": {
-						"type": [
-							"string",
-							"null"
-						]
-					},
-					"performed_by": {
-						"items": {
-							"type": "string"
-						},
-						"type": [
-							"array",
-							"null"
-						]
-					},
-					"performed_by_groups": {
-						"items": {
-							"type": "string"
-						},
-						"type": [
-							"array",
-							"null"
-						]
-					},
-					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecisionInput"
-					},
-					"spottings": {
-						"items": {
-							"type": "string"
-						},
-						"type": [
-							"array",
-							"null"
-						]
-					}
-				},
-				"type": "object"
-			},
-			"EventWithParticipants": {
-				"additionalProperties": false,
-				"properties": {
-					"code": {
-						"type": "string"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"performed_by": {
-						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
-						},
-						"type": "array"
-					},
-					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
-					},
-					"site": {
-						"$ref": "#/components/schemas/SiteItem"
-					}
-				},
-				"required": [
-					"id",
-					"site",
-					"code",
-					"performed_on"
-				],
-				"type": "object"
-			},
 			"ExtSeqOrigin": {
 				"enum": [
 					"Lab",
@@ -2036,33 +1904,6 @@
 				],
 				"type": "object"
 			},
-			"ExternalOccurrenceAtEventInput": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/ExternalOccurrenceAtEventInput.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"biomaterial": {
-						"$ref": "#/components/schemas/ExternalBioMatInput",
-						"description": "New occurrence resulting from the sampling action"
-					},
-					"sampling": {
-						"$ref": "#/components/schemas/SamplingInput",
-						"description": "New sampling action during referenced event"
-					}
-				},
-				"required": [
-					"sampling",
-					"biomaterial"
-				],
-				"type": "object"
-			},
 			"ExternalOccurrenceAtSiteInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -2078,15 +1919,11 @@
 					"biomaterial": {
 						"$ref": "#/components/schemas/ExternalBioMatInput"
 					},
-					"event": {
-						"$ref": "#/components/schemas/EventInput"
-					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInput"
 					}
 				},
 				"required": [
-					"event",
 					"sampling",
 					"biomaterial"
 				],
@@ -2180,6 +2017,27 @@
 					},
 					"label": {
 						"type": "string"
+					}
+				},
+				"type": "object"
+			},
+			"Flagging": {
+				"additionalProperties": false,
+				"properties": {
+					"abiotic_parameters": {
+						"items": {
+							"$ref": "#/components/schemas/AbioticParameter"
+						},
+						"type": "array"
+					},
+					"indications": {
+						"type": "string"
+					},
+					"target_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
 					}
 				},
 				"type": "object"
@@ -4644,13 +4502,13 @@
 				},
 				"type": "object"
 			},
-			"PaginatedListBioMaterialWithDetails": {
+			"PaginatedListBioMaterialListItem": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/PaginatedListBioMaterialWithDetails.json"
+							"/api/v1/schemas/PaginatedListBioMaterialListItem.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -4658,7 +4516,7 @@
 					},
 					"items": {
 						"items": {
-							"$ref": "#/components/schemas/BioMaterialWithDetails"
+							"$ref": "#/components/schemas/BioMaterialListItem"
 						},
 						"type": "array"
 					},
@@ -5578,8 +5436,122 @@
 						},
 						"type": "array"
 					},
-					"code": {
+					"comments": {
 						"type": "string"
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int64",
+						"type": "integer"
+					},
+					"fixatives": {
+						"items": {
+							"$ref": "#/components/schemas/Fixative"
+						},
+						"type": "array"
+					},
+					"habitats": {
+						"items": {
+							"$ref": "#/components/schemas/Habitat"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"methods": {
+						"items": {
+							"$ref": "#/components/schemas/SamplingMethod"
+						},
+						"type": "array"
+					},
+					"number": {
+						"description": "Auto-incrementing number, unique per sampling",
+						"format": "int64",
+						"type": "integer"
+					},
+					"occurring_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					},
+					"performed_by": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
+					"samples": {
+						"items": {
+							"$ref": "#/components/schemas/BioMaterial"
+						},
+						"type": "array"
+					},
+					"target": {
+						"$ref": "#/components/schemas/SamplingTarget"
+					}
+				},
+				"required": [
+					"meta",
+					"target",
+					"id",
+					"number",
+					"performed_on"
+				],
+				"type": "object"
+			},
+			"SamplingDateWithOccurrences": {
+				"additionalProperties": false,
+				"properties": {
+					"date": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"occurrences": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceAtSite"
+						},
+						"type": "array"
+					},
+					"occurring_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"date",
+					"occurrences"
+				],
+				"type": "object"
+			},
+			"SamplingDetailsWithOccurrences": {
+				"additionalProperties": false,
+				"properties": {
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"comments": {
 						"type": "string"
@@ -5614,39 +5586,10 @@
 						},
 						"type": "array"
 					},
-					"occurring_taxa": {
-						"items": {
-							"$ref": "#/components/schemas/Taxon"
-						},
-						"type": "array"
-					},
-					"samples": {
-						"items": {
-							"$ref": "#/components/schemas/BioMaterial"
-						},
-						"type": "array"
-					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTarget"
-					}
-				},
-				"required": [
-					"meta",
-					"id",
-					"code",
-					"target"
-				],
-				"type": "object"
-			},
-			"SamplingEventWithOccurrences": {
-				"additionalProperties": false,
-				"properties": {
-					"date": {
-						"$ref": "#/components/schemas/DateWithPrecision"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
+					"number": {
+						"description": "Auto-incrementing number, unique per sampling",
+						"format": "int64",
+						"type": "integer"
 					},
 					"occurrences": {
 						"items": {
@@ -5654,21 +5597,31 @@
 						},
 						"type": "array"
 					},
-					"occurring_taxa": {
+					"performed_by": {
 						"items": {
-							"$ref": "#/components/schemas/Taxon"
+							"$ref": "#/components/schemas/PersonUser"
 						},
 						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecision"
 					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTarget"
 					}
 				},
 				"required": [
-					"id",
-					"date",
+					"occurrences",
 					"target",
-					"occurrences"
+					"id",
+					"number",
+					"performed_on"
 				],
 				"type": "object"
 			},
@@ -5680,9 +5633,6 @@
 							"type": "string"
 						},
 						"type": "array"
-					},
-					"code": {
-						"type": "string"
 					},
 					"comments": {
 						"type": "string"
@@ -5714,14 +5664,110 @@
 						},
 						"type": "array"
 					},
+					"number": {
+						"description": "Auto-incrementing number, unique per sampling",
+						"format": "int64",
+						"type": "integer"
+					},
+					"performed_by": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTarget"
 					}
 				},
 				"required": [
+					"target",
 					"id",
-					"code",
-					"target"
+					"number",
+					"performed_on"
+				],
+				"type": "object"
+			},
+			"SamplingInnerWithSite": {
+				"additionalProperties": false,
+				"properties": {
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int64",
+						"type": "integer"
+					},
+					"fixatives": {
+						"items": {
+							"$ref": "#/components/schemas/Fixative"
+						},
+						"type": "array"
+					},
+					"habitats": {
+						"items": {
+							"$ref": "#/components/schemas/Habitat"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"methods": {
+						"items": {
+							"$ref": "#/components/schemas/SamplingMethod"
+						},
+						"type": "array"
+					},
+					"number": {
+						"description": "Auto-incrementing number, unique per sampling",
+						"format": "int64",
+						"type": "integer"
+					},
+					"performed_by": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
+					"site": {
+						"$ref": "#/components/schemas/SiteItem"
+					},
+					"target": {
+						"$ref": "#/components/schemas/SamplingTarget"
+					}
+				},
+				"required": [
+					"site",
+					"target",
+					"id",
+					"number",
+					"performed_on"
 				],
 				"type": "object"
 			},
@@ -5769,22 +5815,38 @@
 						},
 						"type": "array"
 					},
+					"performed_by": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecisionInput"
+					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTargetInput"
 					}
 				},
 				"required": [
-					"target"
+					"target",
+					"performed_on"
 				],
 				"type": "object"
 			},
-			"SamplingInputWithEvent": {
+			"SamplingInputAtSite": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/SamplingInputWithEvent.json"
+							"/api/v1/schemas/SamplingInputAtSite.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -5804,9 +5866,6 @@
 						"format": "int32",
 						"type": "integer"
 					},
-					"event_id": {
-						"type": "string"
-					},
 					"fixatives": {
 						"items": {
 							"type": "string"
@@ -5825,13 +5884,32 @@
 						},
 						"type": "array"
 					},
+					"performed_by": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecisionInput"
+					},
+					"site_code": {
+						"type": "string"
+					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTargetInput"
 					}
 				},
 				"required": [
-					"event_id",
-					"target"
+					"site_code",
+					"target",
+					"performed_on"
 				],
 				"type": "object"
 			},
@@ -6034,12 +6112,211 @@
 							"null"
 						]
 					},
+					"performed_by": {
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"performed_by_groups": {
+						"items": {
+							"type": "string"
+						},
+						"type": [
+							"array",
+							"null"
+						]
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecisionInput"
+					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTargetInput"
 					}
 				},
 				"required": [
 					"target"
+				],
+				"type": "object"
+			},
+			"SamplingWithOccurrences": {
+				"additionalProperties": false,
+				"properties": {
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int64",
+						"type": "integer"
+					},
+					"fixatives": {
+						"items": {
+							"$ref": "#/components/schemas/Fixative"
+						},
+						"type": "array"
+					},
+					"habitats": {
+						"items": {
+							"$ref": "#/components/schemas/Habitat"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"methods": {
+						"items": {
+							"$ref": "#/components/schemas/SamplingMethod"
+						},
+						"type": "array"
+					},
+					"number": {
+						"description": "Auto-incrementing number, unique per sampling",
+						"format": "int64",
+						"type": "integer"
+					},
+					"occurrences": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceAtSite"
+						},
+						"type": "array"
+					},
+					"occurring_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					},
+					"performed_by": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
+					"target": {
+						"$ref": "#/components/schemas/SamplingTarget"
+					}
+				},
+				"required": [
+					"meta",
+					"target",
+					"id",
+					"number",
+					"performed_on"
+				],
+				"type": "object"
+			},
+			"SamplingWithSite": {
+				"additionalProperties": false,
+				"properties": {
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int64",
+						"type": "integer"
+					},
+					"fixatives": {
+						"items": {
+							"$ref": "#/components/schemas/Fixative"
+						},
+						"type": "array"
+					},
+					"habitats": {
+						"items": {
+							"$ref": "#/components/schemas/Habitat"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"methods": {
+						"items": {
+							"$ref": "#/components/schemas/SamplingMethod"
+						},
+						"type": "array"
+					},
+					"number": {
+						"description": "Auto-incrementing number, unique per sampling",
+						"format": "int64",
+						"type": "integer"
+					},
+					"occurring_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					},
+					"performed_by": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/DateWithPrecision"
+					},
+					"samples": {
+						"items": {
+							"$ref": "#/components/schemas/BioMaterial"
+						},
+						"type": "array"
+					},
+					"site": {
+						"$ref": "#/components/schemas/SiteItem"
+					},
+					"target": {
+						"$ref": "#/components/schemas/SamplingTarget"
+					}
+				},
+				"required": [
+					"site",
+					"meta",
+					"target",
+					"id",
+					"number",
+					"performed_on"
 				],
 				"type": "object"
 			},
@@ -6149,15 +6426,6 @@
 			"Sequence": {
 				"additionalProperties": false,
 				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/Sequence.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
 					"category": {
 						"$ref": "#/components/schemas/OccurrenceCategory"
 					},
@@ -6172,9 +6440,6 @@
 					},
 					"comments": {
 						"type": "string"
-					},
-					"event": {
-						"$ref": "#/components/schemas/EventInner"
 					},
 					"external": {
 						"$ref": "#/components/schemas/OptionalExtSeqSpecificsBioMaterial"
@@ -6205,7 +6470,7 @@
 						"type": "array"
 					},
 					"sampling": {
-						"$ref": "#/components/schemas/SamplingInner"
+						"$ref": "#/components/schemas/Sampling"
 					},
 					"sequence": {
 						"type": "string"
@@ -6213,7 +6478,6 @@
 				},
 				"required": [
 					"id",
-					"event",
 					"meta",
 					"sampling",
 					"identification",
@@ -6293,13 +6557,56 @@
 				],
 				"type": "object"
 			},
-			"SequenceWithDetails": {
+			"SequenceDatasetListItem": {
+				"additionalProperties": false,
+				"properties": {
+					"category": {
+						"$ref": "#/components/schemas/DatasetCategory"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"pinned": {
+						"type": "boolean"
+					},
+					"sequences": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"sites": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"slug": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"sites",
+					"sequences",
+					"id",
+					"label",
+					"slug",
+					"pinned",
+					"description",
+					"category"
+				],
+				"type": "object"
+			},
+			"SequenceListItem": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/SequenceWithDetails.json"
+							"/api/v1/schemas/SequenceListItem.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -6319,9 +6626,6 @@
 					},
 					"comments": {
 						"type": "string"
-					},
-					"event": {
-						"$ref": "#/components/schemas/EventInner"
 					},
 					"external": {
 						"$ref": "#/components/schemas/OptionalExtSeqSpecificsBioMaterial"
@@ -6352,7 +6656,7 @@
 						"type": "array"
 					},
 					"sampling": {
-						"$ref": "#/components/schemas/Sampling"
+						"$ref": "#/components/schemas/SamplingInnerWithSite"
 					},
 					"sequence": {
 						"type": "string"
@@ -6360,7 +6664,79 @@
 				},
 				"required": [
 					"id",
-					"event",
+					"meta",
+					"sampling",
+					"identification",
+					"gene",
+					"category",
+					"code"
+				],
+				"type": "object"
+			},
+			"SequenceWithDetails": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/SequenceWithDetails.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
+					"code": {
+						"type": "string"
+					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"external": {
+						"$ref": "#/components/schemas/OptionalExtSeqSpecificsBioMaterial"
+					},
+					"gene": {
+						"$ref": "#/components/schemas/Gene"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"label": {
+						"type": "string"
+					},
+					"legacy": {
+						"$ref": "#/components/schemas/OptionalLegacySeqID"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceReference"
+						},
+						"type": "array"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingWithSite"
+					},
+					"sequence": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
 					"meta",
 					"sampling",
 					"identification",
@@ -6427,6 +6803,12 @@
 						"readOnly": true,
 						"type": "string"
 					},
+					"abiotic_measurements": {
+						"items": {
+							"$ref": "#/components/schemas/AbioticMeasurement"
+						},
+						"type": "array"
+					},
 					"altitude": {
 						"format": "int64",
 						"type": "integer"
@@ -6451,9 +6833,9 @@
 					"description": {
 						"type": "string"
 					},
-					"events": {
+					"flaggings": {
 						"items": {
-							"$ref": "#/components/schemas/Event"
+							"$ref": "#/components/schemas/Flagging"
 						},
 						"type": "array"
 					},
@@ -6474,6 +6856,12 @@
 					"name": {
 						"minLength": 4,
 						"type": "string"
+					},
+					"samplings": {
+						"items": {
+							"$ref": "#/components/schemas/SamplingWithOccurrences"
+						},
+						"type": "array"
 					},
 					"user_defined_locality": {
 						"type": "boolean"
@@ -6641,7 +7029,7 @@
 						"$ref": "#/components/schemas/Coordinates",
 						"description": "Site coordinates in decimal degrees"
 					},
-					"country_code": {
+					"country": {
 						"description": "ISO 3166-1 alpha-3 country code",
 						"examples": [
 							"FRA"
@@ -6894,7 +7282,7 @@
 					},
 					"samplings": {
 						"items": {
-							"$ref": "#/components/schemas/SamplingEventWithOccurrences"
+							"$ref": "#/components/schemas/SamplingDateWithOccurrences"
 						},
 						"type": "array"
 					},
@@ -9371,7 +9759,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/PaginatedListBioMaterialWithDetails"
+									"$ref": "#/components/schemas/PaginatedListBioMaterialListItem"
 								}
 							}
 						},
@@ -9601,7 +9989,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/BioMaterialWithDetails"
+									"$ref": "#/components/schemas/BioMaterialListItem"
 								}
 							}
 						},
@@ -10542,7 +10930,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/SequenceDataset"
+										"$ref": "#/components/schemas/SequenceDatasetListItem"
 									},
 									"type": "array"
 								}
@@ -10939,424 +11327,6 @@
 				"summary": "Get dataset",
 				"tags": [
 					"Datasets"
-				]
-			}
-		},
-		"/events/{id}": {
-			"delete": {
-				"operationId": "DeleteEvent",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"format": "uuid",
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Event"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Delete event",
-				"tags": [
-					"Events"
-				]
-			},
-			"patch": {
-				"operationId": "UpdateEvent",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"format": "uuid",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/EventUpdate"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Event"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Update event",
-				"tags": [
-					"Events"
-				]
-			}
-		},
-		"/events/{id}/occurrences/external": {
-			"post": {
-				"description": "Register new occurrence resulting from the event, including sampling specification and biomaterial identification",
-				"operationId": "EventAddExternalOccurrence",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"description": "Event ID",
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"description": "Event ID",
-							"format": "uuid",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/ExternalOccurrenceAtEventInput"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/BioMaterialWithDetails"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Add occurrence from event",
-				"tags": [
-					"Occurrences",
-					"Events"
-				]
-			}
-		},
-		"/events/{id}/samplings": {
-			"post": {
-				"operationId": "CreateSamplingAtEvent",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"format": "uuid",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/SamplingInput"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Sampling"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Create sampling at event",
-				"tags": [
-					"Events"
-				]
-			}
-		},
-		"/events/{id}/spottings": {
-			"put": {
-				"operationId": "UpdateSpotting",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "id",
-						"required": true,
-						"schema": {
-							"format": "uuid",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"items": {
-									"type": "string"
-								},
-								"type": "array"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/Taxon"
-									},
-									"type": "array"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Update spotting",
-				"tags": [
-					"Events"
 				]
 			}
 		},
@@ -14841,7 +14811,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/SamplingInputWithEvent"
+								"$ref": "#/components/schemas/SamplingInputAtSite"
 							}
 						}
 					},
@@ -15070,11 +15040,11 @@
 					},
 					{
 						"in": "path",
-						"name": "id",
+						"name": "number",
 						"required": true,
 						"schema": {
-							"format": "uuid",
-							"type": "string"
+							"format": "int64",
+							"type": "integer"
 						}
 					}
 				],
@@ -15160,7 +15130,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/Sequence"
+										"$ref": "#/components/schemas/SequenceListItem"
 									},
 									"type": "array"
 								}
@@ -15235,7 +15205,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Sequence"
+									"$ref": "#/components/schemas/SequenceListItem"
 								}
 							}
 						},
@@ -16452,7 +16422,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/Site"
+										"$ref": "#/components/schemas/SiteItem"
 									},
 									"type": "array"
 								}
@@ -16717,164 +16687,6 @@
 				]
 			}
 		},
-		"/sites/{code}/events": {
-			"get": {
-				"operationId": "ListSiteEvents",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "code",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/Event"
-									},
-									"type": "array"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "List site events",
-				"tags": [
-					"Location"
-				]
-			},
-			"post": {
-				"description": "Register event on a site identified by its code",
-				"operationId": "CreateEvent",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "code",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/EventInput"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/Event"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Create event",
-				"tags": [
-					"Location"
-				]
-			}
-		},
 		"/sites/{code}/occurrences/external": {
 			"post": {
 				"description": "Register new occurrence at site, including event + sampling specification and biomaterial identification",
@@ -16956,6 +16768,164 @@
 				"summary": "Add occurrence at site",
 				"tags": [
 					"Occurrences",
+					"Location"
+				]
+			}
+		},
+		"/sites/{code}/samplings": {
+			"get": {
+				"operationId": "ListSiteSamplings",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/SamplingDetailsWithOccurrences"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List samplings at site",
+				"tags": [
+					"Location"
+				]
+			},
+			"post": {
+				"description": "Register sampling event on a site identified by its code",
+				"operationId": "CreateSamplingAtSite",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/SamplingInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Sampling"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create sampling at site",
+				"tags": [
 					"Location"
 				]
 			}

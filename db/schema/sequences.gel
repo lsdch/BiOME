@@ -213,7 +213,7 @@ module seq {
           select array_join(array_agg(sources.code), "|")
         )
       )
-      select taxonomy::taxon_code(seq.identification.taxon) ++ "[" ++ seq.sampling.code ++ "]" ++ seq.specimen_identifier ++ "|" ++ suffix
+      select taxonomy::taxon_code(seq.identification.taxon) ++ "[" ++ events::sampling_code(seq.sampling) ++ "]" ++ seq.specimen_identifier ++ "|" ++ suffix
     );
   };
 
@@ -242,5 +242,54 @@ module seq {
     original_taxon: str {
       annotation description := "The verbatim identification provided in the original source.";
     };
+  }
+
+
+  function insert_external_seq(sampling: events::Sampling, data: json) -> ExternalSequence {
+    using (
+      insert ExternalSequence {
+        sampling := sampling,
+        code := <str>data['code'],
+        label := <str>json_get(data, 'label'),
+        sequence := <str>json_get(data, 'sequence'),
+        gene := seq::geneByCode(<str>data['gene']),
+        legacy := <tuple<id: int32, code: str, alignment_code: str>>json_get(data, 'legacy'),
+        origin := <seq::ExtSeqOrigin>json_get(data, 'origin'),
+        published_in := (
+          with pubs := json_array_unpack(json_get(data, 'published_in'))
+          select distinct (
+            for p in pubs union (
+              select references::Article {
+                @original_source := <bool>json_get(p, 'original')
+              } filter .code = <str>p['code']
+            )
+          )
+        ),
+        identification := (
+          with identification := data['identification']
+          insert occurrence::Identification {
+            identified_by := people::personByAlias(<str>identification['identified_by']),
+            identified_on := date::from_json_with_precision(identification['identified_on']),
+            taxon := taxonomy::taxonByName(<str>identification['taxon']),
+          }
+        ),
+        referenced_in := (
+          for ref in json_array_unpack(json_get(data, 'referenced_in'))
+          insert references::SeqReference {
+            db := references::dataSourceByCode(<str>ref['db']),
+            accession := <str>ref['accession'],
+            is_origin := <bool>json_get(ref, 'is_origin'),
+          }
+        ),
+        specimen_identifier := <str>json_get(data, 'specimen_identifier'),
+        original_taxon := <str>json_get(data, 'original_taxon'),
+        source_sample := (
+          with source_sample := <str>json_get(data, 'source_sample')
+          select if exists source_sample
+          then occurrence::externalBiomatByCode(source_sample)
+          else <occurrence::ExternalBioMat>{}
+        )
+      }
+    )
   }
 }

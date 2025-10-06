@@ -61,7 +61,6 @@ type CreateExternalBioMatInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
 	Body struct {
 		Site        occurrence.SiteInput           `json:"site"`
-		Event       occurrence.EventInput          `json:"event"`
 		Sampling    occurrence.SamplingInput       `json:"sampling"`
 		Biomaterial occurrence.ExternalBioMatInput `json:"bio_material"`
 	}
@@ -72,15 +71,11 @@ func CreateExternalBioMat(ctx context.Context, input *CreateExternalBioMatInput)
 	if err != nil {
 		return nil, controllers.StatusError(err)
 	}
-	event, err := input.Body.Event.Save(input.DB(), site.Code)
+	sampling, err := input.Body.Sampling.Save(input.DB(), site.Code)
 	if err != nil {
 		return nil, controllers.StatusError(err)
 	}
-	sampling, err := input.Body.Sampling.Save(input.DB(), event.ID)
-	if err != nil {
-		return nil, controllers.StatusError(err)
-	}
-	bioMaterial, err := input.Body.Biomaterial.Save(input.DB(), sampling.ID)
+	bioMaterial, err := input.Body.Biomaterial.Save(input.DB(), sampling.Number)
 	if err != nil {
 		return nil, controllers.StatusError(err)
 	}

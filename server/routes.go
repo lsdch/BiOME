@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/lsdch/biome/controllers/datasets"
-	"github.com/lsdch/biome/controllers/events"
 	"github.com/lsdch/biome/controllers/habitats"
 	"github.com/lsdch/biome/controllers/location"
 	"github.com/lsdch/biome/controllers/occurrences"
 	"github.com/lsdch/biome/controllers/organisation"
 	"github.com/lsdch/biome/controllers/person"
 	"github.com/lsdch/biome/controllers/references"
+	"github.com/lsdch/biome/controllers/sampling"
 	"github.com/lsdch/biome/controllers/sequences"
 	"github.com/lsdch/biome/controllers/services"
 	"github.com/lsdch/biome/controllers/settings"
@@ -28,7 +28,7 @@ func registerRoutes(router router.Router) {
 	settings.RegisterRoutes(router)
 	sites.RegisterRoutes(router)
 	datasets.RegisterRoutes(router)
-	events.RegisterRoutes(router)
+	sampling.RegisterRoutes(router)
 	sequences.RegisterRoutes(router)
 	habitats.RegisterRoutes(router)
 	references.RegisterRoutes(router)

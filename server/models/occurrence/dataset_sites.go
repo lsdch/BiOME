@@ -18,8 +18,6 @@ import (
 	"github.com/gosimple/slug"
 )
 
-type OccurrencePerSite map[string]EventInputWithActions
-
 // SiteDataset represents a dataset of sites.
 type SiteDataset struct {
 	dataset.Dataset `gel:"$inline" json:",inline"`
@@ -141,7 +139,6 @@ func (d SiteInputList) FillPlaces(db geltypes.Executor, apiKey string) error {
 			d[i].Locality.SetValue(v.State)
 		case location.Unknown:
 			// skip
-			break
 		}
 	}
 	return nil
