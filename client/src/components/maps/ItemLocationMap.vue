@@ -30,8 +30,9 @@ import { Geocoordinates } from '.'
 import SiteRadius from '../sites/SiteRadius'
 import ProximityRadiusSlider from './ProximityRadiusSlider.vue'
 import SiteProximityRadius from './SiteProximityRadius.vue'
-import BaseMap, { MarkerLayer } from './BaseMap.vue'
+import BaseMap from './BaseMap.vue'
 import SitePopup from '../sites/SitePopup.vue'
+import { MarkerLayer } from './map-layers'
 
 const { site, height = 300 } = defineProps<{
   site: Geocoordinates & { code: string }
@@ -58,9 +59,10 @@ const {
 const proximalSitesMarkers = computed<MarkerLayer<SiteWithDistance>>(() => {
   return {
     active: true,
+    clustered: true,
+    maxClusterRadius: 5,
     data: nearbySites.value?.filter(({ distance }) => distance <= proximityRadius.value),
     config: {
-      clustered: false,
       radius: 6,
       color: '#FF0000BB',
       fillColor: '#FF000055',

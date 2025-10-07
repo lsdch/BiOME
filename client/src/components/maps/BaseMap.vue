@@ -171,7 +171,7 @@
             v-if="layer.clustered"
             remove-outside-visible-bounds
             show-coverage-on-hover
-            :maxClusterRadius="70"
+            :maxClusterRadius="layer.maxClusterRadius ?? 80"
           >
             <LCircleMarker
               v-for="item in unref(layer.data)"

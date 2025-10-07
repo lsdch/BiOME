@@ -45,6 +45,7 @@ export type MarkerLayer<Item extends Geocoordinates> = {
   active: boolean
   config: MarkerConfig
   clustered: boolean
+  maxClusterRadius?: number
   data?: Item[]
 }
 
