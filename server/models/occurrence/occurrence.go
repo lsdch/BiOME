@@ -50,10 +50,10 @@ type OccurrenceWithCategory struct {
 }
 
 type SamplingDateWithOccurrences struct {
-	ID            geltypes.UUID      `gel:"id" json:"id" format:"uuid"`
-	Date          DateWithPrecision  `gel:"date" json:"date"`
-	Occurrences   []OccurrenceAtSite `gel:"occurrences" json:"occurrences"`
-	OccurringTaxa []taxonomy.Taxon   `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
+	ID            geltypes.UUID             `gel:"id" json:"id" format:"uuid"`
+	Date          OptionalDateWithPrecision `gel:"date" json:"date,omitzero"`
+	Occurrences   []OccurrenceAtSite        `gel:"occurrences" json:"occurrences"`
+	OccurringTaxa []taxonomy.Taxon          `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
 }
 
 type SamplingDetailsWithOccurrences struct {

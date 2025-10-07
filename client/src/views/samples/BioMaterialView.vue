@@ -107,10 +107,8 @@
     <template #item.sampling.site="{ value: { code, name } }: { value: SiteItem }">
       <RouterLink :to="{ name: 'site-item', params: { code } }" :text="name || code" />
     </template>
-    <template #item.sampling.performed_on="{ value }: { value: DateWithPrecision }">
-      <span
-        :class="['font-monospace text-caption', { 'text-muted': value.precision == 'Unknown' }]"
-      >
+    <template #item.sampling.performed_on="{ value }: { value?: DateWithPrecision }">
+      <span :class="['font-monospace text-caption', { 'text-muted': !value }]">
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
@@ -122,10 +120,8 @@
       <PersonChip v-if="value" :person="value" size="small" short />
       <span v-else class="text-muted text-caption">Unknown</span>
     </template>
-    <template #item.identification.identified_on="{ value }: { value: DateWithPrecision }">
-      <span
-        :class="['font-monospace text-caption', { 'text-muted': value.precision == 'Unknown' }]"
-      >
+    <template #item.identification.identified_on="{ value }: { value?: DateWithPrecision }">
+      <span :class="['font-monospace text-caption', { 'text-muted': !value }]">
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>

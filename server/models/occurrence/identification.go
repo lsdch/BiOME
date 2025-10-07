@@ -22,7 +22,7 @@ type Identification struct {
 	ID           geltypes.UUID                            `gel:"id" json:"id" format:"uuid"`
 	Taxon        taxonomy.Taxon                           `gel:"taxon" json:"taxon"`
 	IdentifiedBy models.Optional[people.PersonInner]      `gel:"identified_by" json:"identified_by,omitempty"`
-	IdentifiedOn DateWithPrecision                        `gel:"identified_on" json:"identified_on"`
+	IdentifiedOn OptionalDateWithPrecision                `gel:"identified_on" json:"identified_on,omitzero"`
 	Qualifier    models.Optional[IdentificationQualifier] `gel:"qualifier" json:"qualifier,omitempty"`
 	Meta         people.Meta                              `gel:"meta" json:"meta"`
 }
@@ -30,7 +30,7 @@ type Identification struct {
 type IdentificationInput struct {
 	Taxon        string                                        `gel:"taxon" json:"taxon"`
 	IdentifiedBy models.OptionalInput[string]                  `gel:"identified_by" json:"identified_by,omitempty"`
-	IdentifiedOn DateWithPrecisionInput                        `gel:"identified_on" json:"identified_on"`
+	IdentifiedOn models.OptionalInput[DateWithPrecisionInput]  `gel:"identified_on" json:"identified_on,omitzero"`
 	Qualifier    models.OptionalInput[IdentificationQualifier] `gel:"qualifier" json:"qualifier,omitempty"`
 }
 

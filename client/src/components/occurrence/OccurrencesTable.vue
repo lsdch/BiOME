@@ -38,7 +38,7 @@
       </span>
     </template>
     <template #item.sampling_date="{ value }">
-      <span class="font-monospace">
+      <span :class="['font-monospace', { 'text-muted': !value }]">
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
@@ -55,7 +55,7 @@ import { computed, ref } from 'vue'
 import CRUDTable from '../toolkit/tables/CRUDTable.vue'
 import OccurrenceIcon from './OccurrenceIcon'
 
-type Occurrence = OccurrenceAtSite & { sampling_date: DateWithPrecision } & (WithSite extends true
+type Occurrence = OccurrenceAtSite & { sampling_date?: DateWithPrecision } & (WithSite extends true
     ? { site: SiteItem }
     : {})
 

@@ -7,7 +7,7 @@ module occurrence {
 
     identified_by: people::Person; # might be unknown
 
-    required identified_on: tuple<date: datetime, precision: date::DatePrecision>{
+    identified_on: tuple<date: datetime, precision: date::DatePrecision>{
       rewrite insert, update using (
         (date := date::rewrite_date(.identified_on), precision :=.identified_on.precision)
       )
@@ -86,7 +86,8 @@ module occurrence {
       default := false;
     };
 
-    constraint exclusive on ((.sampling, .identification.taxon));
+    # error: constraints cannot contain paths with more than one hop
+    # constraint exclusive on ((.sampling, .identification.taxon));
   };
 
   type InternalBioMat extending BioMaterial {

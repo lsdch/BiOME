@@ -124,13 +124,9 @@ func (i OccurrenceDatasetInput) SaveTx(tx geltypes.Tx) (created OccurrenceDatase
 				sites: {
 					*,
 					country: { * },
-					samplings := (
-						.samplings
-					) {
+					samplings: {
 						id,
 						date := .performed_on,
-						sampling_target,
-						target_taxa: { * },
 						occurring_taxa: { * },
 						occurrences := (
 							select (.occurrences intersect dataset.occurrences) {

@@ -82,7 +82,7 @@ type AbioticMeasurement struct {
 	ID                geltypes.UUID              `gel:"id" json:"id" format:"uuid"`
 	Param             AbioticParameter           `gel:"param" json:"param"`
 	Value             float32                    `gel:"value" json:"value"`
-	PerformedOn       DateWithPrecision          `gel:"performed_on" json:"performed_on"`
+	PerformedOn       OptionalDateWithPrecision  `gel:"performed_on" json:"performed_on,omitzero"`
 	PerformedBy       []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
 	PerformedByGroups []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
 	Meta              people.Meta                `gel:"meta" json:"meta"`
@@ -113,7 +113,7 @@ func (u AbioticMeasurementInput) Save(e geltypes.Executor, siteCode string) (upd
 						filter .code in <str>json_array_unpack(json_get(data,'performed_by_groups'))
 					),
 					performed_on := (
-						select date::from_json_with_precision(data['performed_on'])
+						select date::from_json_with_precision(json_get(data, 'performed_on'))
 					),
 					param := param,
 					value := <float32>item['value']

@@ -7,7 +7,7 @@ import {
   CompositeDate as CompositeDateType,
   DatePrecision,
   DateWithPrecisionInput,
-  DateWithPrecision as DateWithPrecisionType,
+  OptionalDateWithPrecision as TOptionalDateWithPrecision,
   Article as TArticle,
   ExtSeqOrigin as TExtSeqOrigin,
   OrgKind as TOrgKind,
@@ -35,7 +35,6 @@ export * from "./gen/types.gen"
 export type CompositeDate = CompositeDateType
 export namespace CompositeDate {
   export function fromDateWithPrecision({ precision, date }: DateWithPrecision): CompositeDate {
-    if (precision === 'Unknown' || !date) return {}
     switch (precision) {
       case 'Year':
         return { year: date.getFullYear() }
@@ -49,17 +48,17 @@ export namespace CompositeDate {
 }
 
 
-export type DateWithPrecision = DateWithPrecisionType
+export type DateWithPrecision = TOptionalDateWithPrecision
 export namespace DateWithPrecision {
   const formats: Record<DatePrecision, string> = {
     Day: 'dd LLL yyyy',
     Month: 'LLL yyyy',
     Year: 'yyyy',
-    Unknown: "'Unknown'"
   }
-  export function compare(a: DateWithPrecision, b: DateWithPrecision) {
-    if (a.precision === 'Unknown') return -1
-    if (b.precision === 'Unknown') return 1
+  export function compare(a?: DateWithPrecision, b?: DateWithPrecision) {
+    if (!a && !b) return 0
+    if (!a) return -1
+    if (!b) return 1
     return (DateWithPrecision.toDateTime(b) ?? 0) > (DateWithPrecision.toDateTime(a) ?? 0)
       ? -1
       : 1
@@ -71,7 +70,6 @@ export namespace DateWithPrecision {
 
   export function fromInput({ date, precision }: DateWithPrecisionInput):
     DateWithPrecision {
-    if (precision === 'Unknown' || !date) return { date: undefined, precision }
     return {
       date: new Date(date.year!, (date.month ?? 1) - 1, date.day ?? 1),
       precision
@@ -79,22 +77,21 @@ export namespace DateWithPrecision {
   }
 
   export function maybeFromInput(input: DateWithPrecisionInput | DateWithPrecision): DateWithPrecision {
-    if (input.date instanceof Date || input.precision === 'Unknown') {
+    if (input.date instanceof Date) {
       return input as DateWithPrecision
     }
     return fromInput(input as DateWithPrecisionInput)
   }
 
   export function toDateTime({ date, precision }: DateWithPrecision): DateTime | null {
-    if (precision === 'Unknown' || !date) return null
     return DateTime.fromJSDate(date)
   }
 
-  export function format({ date, precision }: DateWithPrecision, format?: string, unknownText = "Unknown"): string {
-    if (precision === 'Unknown' || !date) return unknownText
-    return DateTime.fromJSDate(date)
+  export function format(d?: DateWithPrecision, format?: string, unknownText = "Unknown"): string {
+    if (!d) return unknownText
+    return DateTime.fromJSDate(d.date)
       .setLocale('en-gb')
-      .toFormat(format ?? formats[precision])
+      .toFormat(format ?? formats[d.precision])
   }
 }
 

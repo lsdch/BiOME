@@ -1,37 +1,38 @@
 module date {
-  scalar type DatePrecision extending enum<Year, Month, Day, Unknown>;
+  scalar type DatePrecision extending enum<Year, Month, Day>;
 
   function rewrite_date(value: tuple<date:datetime, precision:DatePrecision>) -> optional datetime
   using (
       datetime_truncate(value.date, 'years') if value.precision = DatePrecision.Year else
       datetime_truncate(value.date, 'months') if value.precision = DatePrecision.Month else
-      datetime_truncate(value.date, 'days') if value.precision = DatePrecision.Day else
-      <datetime>to_datetime(0)
+      datetime_truncate(value.date, 'days')
   );
 
-  function from_json_with_precision(value: json) -> tuple<date: datetime, precision:DatePrecision>
-  using (assert_exists(
-    (
-      date := (
-        if (exists value['date']) and (<DatePrecision>value['precision'] != DatePrecision.Unknown)
-        then to_datetime(
+  function from_json_with_precision(value: optional json) -> optional tuple<date: datetime, precision:DatePrecision>
+  using (
+    if not exists value
+    then <tuple<date: datetime, precision:DatePrecision>>{}
+    else assert_exists((
+      date := (to_datetime(
           <int64>value['date']['year'],
           <int64>json_get(value, 'date', 'month') ?? 1,
           <int64>json_get(value, 'date', 'day') ?? 1,
           0, 0, 0, 'UTC'
-        ) else to_datetime(0)
-      ),
+        )),
       precision := <DatePrecision>value['precision']
     ),
-    message := "Failed to parse date with precision from JSON: " ++ to_str(value)
-  ));
+      message := "Failed to parse date with precision from JSON: " ++ to_str(value)
+    )
+  );
 
-  function to_code(value: tuple<date: datetime, precision: DatePrecision>) -> str
+  function to_code(value: optional tuple<date: datetime, precision: DatePrecision>) -> str
   using (
-    if value.precision = DatePrecision.Year then to_str(datetime_get(value.date, 'year'))
-    else if value.precision = DatePrecision.Month then
-      to_str(datetime_get(value.date, 'year')) ++ "-" ++ str_pad_start(to_str(datetime_get(value.date, 'month')), 2, '0')
-    else "unknown"
+    assert_exists((
+      if not exists value then "unknown"
+      else if value.precision = DatePrecision.Year
+      then to_str(datetime_get(value.date, 'year'))
+      else to_str(datetime_get(value.date, 'year')) ++ "-" ++ str_pad_start(to_str(datetime_get(value.date, 'month')), 2, '0')
+    ))
   )
 
 }

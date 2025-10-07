@@ -3,11 +3,17 @@ package occurrence
 import (
 	"time"
 
+	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
 )
 
+type OptionalDateWithPrecision struct {
+	geltypes.Optional `json:"-"`
+	DateWithPrecision `gel:"$inline" json:",inline"`
+}
+
 type DateWithPrecision struct {
-	Date      time.Time     `gel:"date" json:"date,omitempty"`
+	Date      time.Time     `gel:"date" json:"date"`
 	Precision DatePrecision `gel:"precision" json:"precision"`
 }
 
@@ -15,8 +21,6 @@ func (d DateWithPrecision) ToCode() string {
 	switch d.Precision {
 	case Year:
 		return d.Date.Format("2006")
-	case Unknown:
-		return "undated"
 	default:
 		return d.Date.Format("2006-01")
 	}
@@ -35,9 +39,9 @@ type DateWithPrecisionInput struct {
 }
 
 type ActionInput struct {
-	PerformedBy       []string               `json:"performed_by,omitempty"`
-	PerformedByGroups []string               `json:"performed_by_groups,omitempty"`
-	PerformedOn       DateWithPrecisionInput `json:"performed_on"`
+	PerformedBy       []string                                     `json:"performed_by,omitempty"`
+	PerformedByGroups []string                                     `json:"performed_by_groups,omitempty"`
+	PerformedOn       models.OptionalInput[DateWithPrecisionInput] `json:"performed_on,omitzero"`
 }
 
 func (ev *ActionInput) WithPersonAliases(aliases map[string]string) *ActionInput {

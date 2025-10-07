@@ -38,7 +38,7 @@
     </template>
     <template #item.sampling.performed_on="{ value, item }">
       <div class="d-flex flex-column">
-        <span class="font-monospace">
+        <span :class="['font-monospace', { 'text-muted': !value }]">
           {{ DateWithPrecision.format(value) }}
         </span>
         <span class="text-caption text-muted font-monospace"> #{{ item.sampling.number }} </span>

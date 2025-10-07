@@ -16,7 +16,6 @@ var DatePrecisionValues = []DatePrecision{
 	Day,
 	Month,
 	Year,
-	Unknown,
 }
 
 // Register enum in OpenAPI specification

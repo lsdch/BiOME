@@ -78,8 +78,12 @@
           </template>
         </v-list-item>
         <v-list-item>
-          <span :class="['text-caption mx-1', last_sampled ? 'font-monospace' : 'font-italic']">
-            {{ last_sampled ? DateWithPrecision.format(last_sampled) : 'Never' }}
+          <span :class="['mx-1', last_sampled ? 'font-monospace' : 'text-muted']">
+            {{
+              last_sampled === null
+                ? 'Never'
+                : DateWithPrecision.format(last_sampled, undefined, 'Unknown date')
+            }}
           </span>
           <template #append>
             <span class="text-muted text-caption">Last sampled</span>
@@ -190,6 +194,7 @@ const { code } = defineProps<{ code: string }>()
 const { data: site, error, isPending } = useQuery(getSiteOptions({ path: { code } }))
 
 const last_sampled = computed(() => {
+  if (!site.value?.samplings) return null
   return site.value?.samplings?.reduce<DateWithPrecision | undefined>((acc, { performed_on }) => {
     if (!acc) return performed_on
     return DateWithPrecision.compare(acc, performed_on) > 0 ? acc : performed_on

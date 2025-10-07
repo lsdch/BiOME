@@ -78,9 +78,9 @@ type SamplingTarget struct {
 }
 
 type SamplingOutline struct {
-	ID          geltypes.UUID     `gel:"id" json:"id" format:"uuid"`
-	Number      int64             `gel:"number" json:"number" doc:"Auto-incrementing number, unique per sampling"`
-	PerformedOn DateWithPrecision `gel:"performed_on" json:"performed_on"`
+	ID          geltypes.UUID             `gel:"id" json:"id" format:"uuid"`
+	Number      int64                     `gel:"number" json:"number" doc:"Auto-incrementing number, unique per sampling"`
+	PerformedOn OptionalDateWithPrecision `gel:"performed_on" json:"performed_on,omitzero"`
 }
 type SamplingInner struct {
 	SamplingOutline   `gel:"$inline" json:",inline"`
@@ -150,7 +150,7 @@ type SamplingInput struct {
 
 func (i SamplingInput) Save(e geltypes.Executor, siteCode string) (created Sampling, err error) {
 	data, _ := json.Marshal(i)
-	logrus.Debugf("Inserting sampling event: %s", string(data))
+	logrus.Infof("Inserting sampling event: %s", string(data))
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with module events,
@@ -169,7 +169,7 @@ func (i SamplingInput) Save(e geltypes.Executor, siteCode string) (created Sampl
 					filter .code in <str>json_array_unpack(json_get(data,'performed_by_groups'))
 				),
 				performed_on := (
-					select date::from_json_with_precision(data['performed_on'])
+					select date::from_json_with_precision(json_get(data, 'performed_on'))
 				),
 				methods := (
 					select SamplingMethod
@@ -247,7 +247,7 @@ func (u SamplingUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Sam
 					filter .code in <str>json_array_unpack(data['performed_by_groups'])
 				)`,
 			"performed_on": `#edgeql
-				date::from_json_with_precision(data['performed_on'])
+				date::from_json_with_precision(json_get(data,'performed_on'))
 			`,
 			"sampling_target": "<events::SamplingTarget>item['target_kind']",
 			"target_taxa": `#edgeql

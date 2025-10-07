@@ -8,7 +8,7 @@
     <template #item.performed_on="{ value, item }">
       <SamplingCardDialog :sampling="item">
         <template #activator="{ props }">
-          <a class="font-monospace" v-bind="props">
+          <a :class="['font-monospace cursor-pointer', { 'text-muted': !value }]" v-bind="props">
             {{ DateWithPrecision.format(value) }}
           </a>
         </template>

@@ -78,7 +78,7 @@ module samples {
       )
     };
 
-    required created_on: tuple<date: datetime, precision: date::DatePrecision> {
+    created_on: tuple<date: datetime, precision: date::DatePrecision> {
       rewrite insert, update using (
         (date := date::rewrite_date(.created_on), precision :=.created_on.precision)
       )

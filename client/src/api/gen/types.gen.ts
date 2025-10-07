@@ -6,7 +6,7 @@ export type AbioticMeasurement = {
   param: AbioticParameter
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
-  performed_on: DateWithPrecision
+  performed_on?: OptionalDateWithPrecision
   value: number
 }
 
@@ -440,16 +440,11 @@ export type DateObject = {
 /**
  * DatePrecision
  */
-export type DatePrecision = 'Day' | 'Month' | 'Year' | 'Unknown'
+export type DatePrecision = 'Day' | 'Month' | 'Year'
 
 export type DateRange = {
   'end-date'?: DateObject
   'start-date'?: DateObject
-}
-
-export type DateWithPrecision = {
-  date?: Date
-  precision: DatePrecision
 }
 
 export type DateWithPrecisionInput = {
@@ -878,7 +873,7 @@ export type HabitatUpdate = {
 export type Identification = {
   id: string
   identified_by?: OptionalPersonInner
-  identified_on: DateWithPrecision
+  identified_on?: OptionalDateWithPrecision
   meta: Meta
   qualifier?: OptionalIdentificationQualifier
   taxon: Taxon
@@ -886,7 +881,7 @@ export type Identification = {
 
 export type IdentificationInput = {
   identified_by?: string
-  identified_on: DateWithPrecisionInput
+  identified_on?: DateWithPrecisionInput
   qualifier?: IdentificationQualifier
   taxon: string
 }
@@ -1322,9 +1317,9 @@ export type OptionalDataSource = {
 } | null
 
 export type OptionalDateWithPrecision = {
-  date?: Date
+  date: Date
   precision: DatePrecision
-} | null
+}
 
 export type OptionalExtSeqSpecificsBioMaterial = {
   origin: ExtSeqOrigin
@@ -1751,13 +1746,13 @@ export type Sampling = {
   occurring_taxa?: Array<Taxon>
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
-  performed_on: DateWithPrecision
+  performed_on?: OptionalDateWithPrecision
   samples?: Array<BioMaterial>
   target: SamplingTarget
 }
 
 export type SamplingDateWithOccurrences = {
-  date: DateWithPrecision
+  date?: OptionalDateWithPrecision
   id: string
   occurrences: Array<OccurrenceAtSite>
   occurring_taxa?: Array<Taxon>
@@ -1782,7 +1777,7 @@ export type SamplingDetailsWithOccurrences = {
   occurrences: Array<OccurrenceAtSite>
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
-  performed_on: DateWithPrecision
+  performed_on?: OptionalDateWithPrecision
   target: SamplingTarget
 }
 
@@ -1803,7 +1798,7 @@ export type SamplingInner = {
   number: number
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
-  performed_on: DateWithPrecision
+  performed_on?: OptionalDateWithPrecision
   target: SamplingTarget
 }
 
@@ -1824,7 +1819,7 @@ export type SamplingInnerWithSite = {
   number: number
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
-  performed_on: DateWithPrecision
+  performed_on?: OptionalDateWithPrecision
   site: SiteItem
   target: SamplingTarget
 }
@@ -1845,7 +1840,7 @@ export type SamplingInput = {
   methods?: Array<string>
   performed_by?: Array<string>
   performed_by_groups?: Array<string>
-  performed_on: DateWithPrecisionInput
+  performed_on?: DateWithPrecisionInput
   target: SamplingTargetInput
 }
 
@@ -1865,7 +1860,7 @@ export type SamplingInputAtSite = {
   methods?: Array<string>
   performed_by?: Array<string>
   performed_by_groups?: Array<string>
-  performed_on: DateWithPrecisionInput
+  performed_on?: DateWithPrecisionInput
   site_code: string
   target: SamplingTargetInput
 }
@@ -1957,7 +1952,7 @@ export type SamplingWithOccurrences = {
   occurring_taxa?: Array<Taxon>
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
-  performed_on: DateWithPrecision
+  performed_on?: OptionalDateWithPrecision
   target: SamplingTarget
 }
 
@@ -1980,7 +1975,7 @@ export type SamplingWithSite = {
   occurring_taxa?: Array<Taxon>
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
-  performed_on: DateWithPrecision
+  performed_on?: OptionalDateWithPrecision
   samples?: Array<BioMaterial>
   site: SiteItem
   target: SamplingTarget

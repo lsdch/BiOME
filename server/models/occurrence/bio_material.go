@@ -393,7 +393,6 @@ func (i InternalBioMatInput) Save(e geltypes.Executor, samplingNumber int64) (cr
 					occurring_taxa: { * }
 				},
 				published_in: { *, @original_source },
-				site := .sampling.site { *, country: { * } },
 				identification: { **, identified_by: { * } },
 				meta: { * }
 			}
@@ -471,7 +470,7 @@ func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingNumber int64) (cr
           insert occurrence::Identification {
             taxon := taxon,
             identified_by := people::personByAlias(<str>identification['identified_by']),
-            identified_on := date::from_json_with_precision(identification['identified_on']),
+            identified_on := date::from_json_with_precision(json_get(identification, 'identified_on')),
           }
         ),
         sampling := sampling,
@@ -481,7 +480,6 @@ func (i ExternalBioMatInput) Save(e geltypes.Executor, samplingNumber int64) (cr
 				is_homogenous,
 				is_congruent,
 				seq_consensus: { * },
-				site := .sampling.site { *, country: { * } },
 				identification: { ** },
         external := [is occurrence::ExternalBioMat]{
           original_link,

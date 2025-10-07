@@ -9,7 +9,7 @@ module events {
     multi performed_by: people::Person;
     multi performed_by_groups: people::Organisation;
 
-    required performed_on: tuple<date: datetime, precision: date::DatePrecision> {
+    performed_on: tuple<date: datetime, precision: date::DatePrecision> {
       rewrite insert, update using (
         (
           date := date::rewrite_date(__subject__.performed_on),

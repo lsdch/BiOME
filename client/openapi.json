@@ -27,7 +27,7 @@
 						"type": "array"
 					},
 					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
 					"value": {
 						"format": "float",
@@ -38,7 +38,6 @@
 					"id",
 					"param",
 					"value",
-					"performed_on",
 					"meta"
 				],
 				"type": "object"
@@ -1346,8 +1345,7 @@
 				"enum": [
 					"Day",
 					"Month",
-					"Year",
-					"Unknown"
+					"Year"
 				],
 				"title": "DatePrecision",
 				"type": "string"
@@ -1362,22 +1360,6 @@
 						"$ref": "#/components/schemas/DateObject"
 					}
 				},
-				"type": "object"
-			},
-			"DateWithPrecision": {
-				"additionalProperties": false,
-				"properties": {
-					"date": {
-						"format": "date-time",
-						"type": "string"
-					},
-					"precision": {
-						"$ref": "#/components/schemas/DatePrecision"
-					}
-				},
-				"required": [
-					"precision"
-				],
 				"type": "object"
 			},
 			"DateWithPrecisionInput": {
@@ -2555,7 +2537,7 @@
 						"$ref": "#/components/schemas/OptionalPersonInner"
 					},
 					"identified_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
@@ -2570,7 +2552,6 @@
 				"required": [
 					"id",
 					"taxon",
-					"identified_on",
 					"meta"
 				],
 				"type": "object"
@@ -2592,8 +2573,7 @@
 					}
 				},
 				"required": [
-					"taxon",
-					"identified_on"
+					"taxon"
 				],
 				"type": "object"
 			},
@@ -3924,12 +3904,10 @@
 					}
 				},
 				"required": [
+					"date",
 					"precision"
 				],
-				"type": [
-					"object",
-					"null"
-				]
+				"type": "object"
 			},
 			"OptionalExtSeqSpecificsBioMaterial": {
 				"additionalProperties": false,
@@ -5493,7 +5471,7 @@
 						"type": "array"
 					},
 					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
 					"samples": {
 						"items": {
@@ -5509,8 +5487,7 @@
 					"meta",
 					"target",
 					"id",
-					"number",
-					"performed_on"
+					"number"
 				],
 				"type": "object"
 			},
@@ -5518,7 +5495,7 @@
 				"additionalProperties": false,
 				"properties": {
 					"date": {
-						"$ref": "#/components/schemas/DateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
 					"id": {
 						"format": "uuid",
@@ -5539,7 +5516,6 @@
 				},
 				"required": [
 					"id",
-					"date",
 					"occurrences"
 				],
 				"type": "object"
@@ -5610,7 +5586,7 @@
 						"type": "array"
 					},
 					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTarget"
@@ -5620,8 +5596,7 @@
 					"occurrences",
 					"target",
 					"id",
-					"number",
-					"performed_on"
+					"number"
 				],
 				"type": "object"
 			},
@@ -5682,7 +5657,7 @@
 						"type": "array"
 					},
 					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTarget"
@@ -5691,8 +5666,7 @@
 				"required": [
 					"target",
 					"id",
-					"number",
-					"performed_on"
+					"number"
 				],
 				"type": "object"
 			},
@@ -5753,7 +5727,7 @@
 						"type": "array"
 					},
 					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
 					"site": {
 						"$ref": "#/components/schemas/SiteItem"
@@ -5766,8 +5740,7 @@
 					"site",
 					"target",
 					"id",
-					"number",
-					"performed_on"
+					"number"
 				],
 				"type": "object"
 			},
@@ -5835,8 +5808,7 @@
 					}
 				},
 				"required": [
-					"target",
-					"performed_on"
+					"target"
 				],
 				"type": "object"
 			},
@@ -5908,8 +5880,7 @@
 				},
 				"required": [
 					"site_code",
-					"target",
-					"performed_on"
+					"target"
 				],
 				"type": "object"
 			},
@@ -6214,7 +6185,7 @@
 						"type": "array"
 					},
 					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTarget"
@@ -6224,8 +6195,7 @@
 					"meta",
 					"target",
 					"id",
-					"number",
-					"performed_on"
+					"number"
 				],
 				"type": "object"
 			},
@@ -6295,7 +6265,7 @@
 						"type": "array"
 					},
 					"performed_on": {
-						"$ref": "#/components/schemas/DateWithPrecision"
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
 					"samples": {
 						"items": {
@@ -6315,8 +6285,7 @@
 					"meta",
 					"target",
 					"id",
-					"number",
-					"performed_on"
+					"number"
 				],
 				"type": "object"
 			},

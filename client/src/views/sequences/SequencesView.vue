@@ -109,8 +109,8 @@
         :text="name || code"
       />
     </template>
-    <template #item.sampling.performed_on="{ value }: { value: DateWithPrecision }">
-      <span :class="{ 'text-muted': value.precision === 'Unknown' }">{{
+    <template #item.sampling.performed_on="{ value }: { value?: DateWithPrecision }">
+      <span :class="['font-monospace', { 'text-muted': !value }]">{{
         DateWithPrecision.format(value)
       }}</span>
     </template>
@@ -124,7 +124,9 @@
       <PersonChip :person="value" size="small" short />
     </template>
     <template #item.identification.identified_on="{ value }">
-      {{ DateWithPrecision.format(value) }}
+      <span :class="['font-monospace', { 'text-muted': !value }]">{{
+        DateWithPrecision.format(value)
+      }}</span>
     </template>
 
     <!-- ROW EXPANSION -->

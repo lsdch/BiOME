@@ -26,14 +26,14 @@ export const $AbioticMeasurement = {
       type: 'array'
     },
     performed_on: {
-      $ref: '#/components/schemas/DateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     value: {
       format: 'float',
       type: 'number'
     }
   },
-  required: ['id', 'param', 'value', 'performed_on', 'meta'],
+  required: ['id', 'param', 'value', 'meta'],
   type: 'object'
 } as const
 
@@ -1168,7 +1168,7 @@ export const $DateObject = {
 } as const
 
 export const $DatePrecision = {
-  enum: ['Day', 'Month', 'Year', 'Unknown'],
+  enum: ['Day', 'Month', 'Year'],
   title: 'DatePrecision',
   type: 'string'
 } as const
@@ -1183,21 +1183,6 @@ export const $DateRange = {
       $ref: '#/components/schemas/DateObject'
     }
   },
-  type: 'object'
-} as const
-
-export const $DateWithPrecision = {
-  additionalProperties: false,
-  properties: {
-    date: {
-      format: 'date-time',
-      type: 'string'
-    },
-    precision: {
-      $ref: '#/components/schemas/DatePrecision'
-    }
-  },
-  required: ['precision'],
   type: 'object'
 } as const
 
@@ -2234,7 +2219,7 @@ export const $Identification = {
       $ref: '#/components/schemas/OptionalPersonInner'
     },
     identified_on: {
-      $ref: '#/components/schemas/DateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     meta: {
       $ref: '#/components/schemas/Meta'
@@ -2246,7 +2231,7 @@ export const $Identification = {
       $ref: '#/components/schemas/Taxon'
     }
   },
-  required: ['id', 'taxon', 'identified_on', 'meta'],
+  required: ['id', 'taxon', 'meta'],
   type: 'object'
 } as const
 
@@ -2266,7 +2251,7 @@ export const $IdentificationInput = {
       type: 'string'
     }
   },
-  required: ['taxon', 'identified_on'],
+  required: ['taxon'],
   type: 'object'
 } as const
 
@@ -3479,8 +3464,8 @@ export const $OptionalDateWithPrecision = {
       $ref: '#/components/schemas/DatePrecision'
     }
   },
-  required: ['precision'],
-  type: ['object', 'null']
+  required: ['date', 'precision'],
+  type: 'object'
 } as const
 
 export const $OptionalExtSeqSpecificsBioMaterial = {
@@ -4765,7 +4750,7 @@ export const $Sampling = {
       type: 'array'
     },
     performed_on: {
-      $ref: '#/components/schemas/DateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     samples: {
       items: {
@@ -4777,7 +4762,7 @@ export const $Sampling = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['meta', 'target', 'id', 'number', 'performed_on'],
+  required: ['meta', 'target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -4785,7 +4770,7 @@ export const $SamplingDateWithOccurrences = {
   additionalProperties: false,
   properties: {
     date: {
-      $ref: '#/components/schemas/DateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     id: {
       format: 'uuid',
@@ -4804,7 +4789,7 @@ export const $SamplingDateWithOccurrences = {
       type: 'array'
     }
   },
-  required: ['id', 'date', 'occurrences'],
+  required: ['id', 'occurrences'],
   type: 'object'
 } as const
 
@@ -4874,13 +4859,13 @@ export const $SamplingDetailsWithOccurrences = {
       type: 'array'
     },
     performed_on: {
-      $ref: '#/components/schemas/DateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     target: {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['occurrences', 'target', 'id', 'number', 'performed_on'],
+  required: ['occurrences', 'target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -4941,13 +4926,13 @@ export const $SamplingInner = {
       type: 'array'
     },
     performed_on: {
-      $ref: '#/components/schemas/DateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     target: {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['target', 'id', 'number', 'performed_on'],
+  required: ['target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -5008,7 +4993,7 @@ export const $SamplingInnerWithSite = {
       type: 'array'
     },
     performed_on: {
-      $ref: '#/components/schemas/DateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     site: {
       $ref: '#/components/schemas/SiteItem'
@@ -5017,7 +5002,7 @@ export const $SamplingInnerWithSite = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['site', 'target', 'id', 'number', 'performed_on'],
+  required: ['site', 'target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -5082,7 +5067,7 @@ export const $SamplingInput = {
       $ref: '#/components/schemas/SamplingTargetInput'
     }
   },
-  required: ['target', 'performed_on'],
+  required: ['target'],
   type: 'object'
 } as const
 
@@ -5150,7 +5135,7 @@ export const $SamplingInputAtSite = {
       $ref: '#/components/schemas/SamplingTargetInput'
     }
   },
-  required: ['site_code', 'target', 'performed_on'],
+  required: ['site_code', 'target'],
   type: 'object'
 } as const
 
@@ -5409,13 +5394,13 @@ export const $SamplingWithOccurrences = {
       type: 'array'
     },
     performed_on: {
-      $ref: '#/components/schemas/DateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     target: {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['meta', 'target', 'id', 'number', 'performed_on'],
+  required: ['meta', 'target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -5485,7 +5470,7 @@ export const $SamplingWithSite = {
       type: 'array'
     },
     performed_on: {
-      $ref: '#/components/schemas/DateWithPrecision'
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
     samples: {
       items: {
@@ -5500,7 +5485,7 @@ export const $SamplingWithSite = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['site', 'meta', 'target', 'id', 'number', 'performed_on'],
+  required: ['site', 'meta', 'target', 'id', 'number'],
   type: 'object'
 } as const
 

@@ -211,10 +211,8 @@ const geneSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const dateWithPrecisionSchemaResponseTransformer = (data: any) => {
-  if (data.date) {
-    data.date = new Date(data.date)
-  }
+const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
+  data.date = new Date(data.date)
   return data
 }
 
@@ -224,7 +222,9 @@ const taxonSchemaResponseTransformer = (data: any) => {
 }
 
 const identificationSchemaResponseTransformer = (data: any) => {
-  data.identified_on = dateWithPrecisionSchemaResponseTransformer(data.identified_on)
+  if (data.identified_on) {
+    data.identified_on = optionalDateWithPrecisionSchemaResponseTransformer(data.identified_on)
+  }
   data.meta = metaSchemaResponseTransformer(data.meta)
   data.taxon = taxonSchemaResponseTransformer(data.taxon)
   return data
@@ -310,13 +310,6 @@ const samplingMethodSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
-  if (data.date) {
-    data.date = new Date(data.date)
-  }
-  return data
-}
-
 const siteItemSchemaResponseTransformer = (data: any) => {
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
@@ -349,7 +342,9 @@ const samplingInnerWithSiteSchemaResponseTransformer = (data: any) => {
       return samplingMethodSchemaResponseTransformer(item)
     })
   }
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  if (data.performed_on) {
+    data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  }
   data.site = siteItemSchemaResponseTransformer(data.site)
   data.target = samplingTargetSchemaResponseTransformer(data.target)
   return data
@@ -413,7 +408,9 @@ const samplingInnerSchemaResponseTransformer = (data: any) => {
       return samplingMethodSchemaResponseTransformer(item)
     })
   }
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  if (data.performed_on) {
+    data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  }
   data.target = samplingTargetSchemaResponseTransformer(data.target)
   return data
 }
@@ -463,7 +460,9 @@ const samplingWithSiteSchemaResponseTransformer = (data: any) => {
       return taxonSchemaResponseTransformer(item)
     })
   }
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  if (data.performed_on) {
+    data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  }
   if (data.samples) {
     data.samples = data.samples.map((item: any) => {
       return bioMaterialSchemaResponseTransformer(item)
@@ -600,7 +599,9 @@ export const listOccurrenceDatasetsResponseTransformer = async (
 }
 
 const samplingDateWithOccurrencesSchemaResponseTransformer = (data: any) => {
-  data.date = dateWithPrecisionSchemaResponseTransformer(data.date)
+  if (data.date) {
+    data.date = optionalDateWithPrecisionSchemaResponseTransformer(data.date)
+  }
   if (data.occurring_taxa) {
     data.occurring_taxa = data.occurring_taxa.map((item: any) => {
       return taxonSchemaResponseTransformer(item)
@@ -706,7 +707,9 @@ const samplingSchemaResponseTransformer = (data: any) => {
       return taxonSchemaResponseTransformer(item)
     })
   }
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  if (data.performed_on) {
+    data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  }
   if (data.samples) {
     data.samples = data.samples.map((item: any) => {
       return bioMaterialSchemaResponseTransformer(item)
@@ -1226,7 +1229,9 @@ export const listSitesResponseTransformer = async (data: any): Promise<ListSites
 const abioticMeasurementSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   data.param = abioticParameterSchemaResponseTransformer(data.param)
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  if (data.performed_on) {
+    data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  }
   return data
 }
 
@@ -1266,7 +1271,9 @@ const samplingWithOccurrencesSchemaResponseTransformer = (data: any) => {
       return taxonSchemaResponseTransformer(item)
     })
   }
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  if (data.performed_on) {
+    data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  }
   data.target = samplingTargetSchemaResponseTransformer(data.target)
   return data
 }
@@ -1335,7 +1342,9 @@ const samplingDetailsWithOccurrencesSchemaResponseTransformer = (data: any) => {
       return samplingMethodSchemaResponseTransformer(item)
     })
   }
-  data.performed_on = dateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  if (data.performed_on) {
+    data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
+  }
   data.target = samplingTargetSchemaResponseTransformer(data.target)
   return data
 }
