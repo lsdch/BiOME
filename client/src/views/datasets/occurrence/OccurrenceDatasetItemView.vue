@@ -1,41 +1,68 @@
 <template>
-  <DatasetItemView :slug :dataset="dataset">
-    <template #map="{ isDialog, toggleMobileMap }">
-      <BaseMap :hexgrid :closable="isDialog" @close="toggleMobileMap(false)" clustered>
-        <template #hex-popup="{ data }">
-          <MapViewHexPopup :data />
-        </template>
-        <template #popup="{ item, popupOpen, zoom }">
-          <KeepAlive>
-            <MapViewSitePopup :item :popupOpen :zoom :key="item.code" />
-          </KeepAlive>
-        </template>
-      </BaseMap>
+  <DatasetItemView :slug :dataset="dataset" :map-on-side>
+    <template #map>
+      <OccurrenceDatasetMap :sites="dataset?.sites ?? []" />
     </template>
     <template #details>
-      <CenteredSpinner v-if="isPending" :height="300" size="large" color="primary" />
+      <CenteredSpinner
+        v-if="isPending"
+        :height="300"
+        size="large"
+        color="primary"
+        class="flex-grow-1"
+      />
       <PageErrors v-else-if="error" :error class="flex-grow-1" />
-      <div v-else-if="dataset" class="flex-grow-1">
-        <DatasetTabs :dataset flat />
-      </div>
+      <v-card v-else-if="dataset" class="flex-grow-1 d-flex flex-column">
+        <v-tabs v-model="tab" mandatory>
+          <v-tab v-show="!mapOnSide" value="map" prepend-icon="mdi-map"> Map </v-tab>
+          <v-tab value="sites" prepend-icon="mdi-map-marker">
+            Sites
+            <v-chip class="mx-1" :text="dataset.sites?.length.toString()" density="compact" />
+          </v-tab>
+          <v-tab value="occurrences" prepend-icon="mdi-crosshairs-gps">
+            Occurrences
+            <v-chip class="mx-1" :text="occurrences?.length.toString()" density="compact" />
+          </v-tab>
+        </v-tabs>
+        <v-tabs-window v-model="tab" class="fill-height" crossfade>
+          <v-tabs-window-item value="map" key="map" :transition="false" id="map-tab">
+            <OccurrenceDatasetMap :sites="dataset.sites" style="min-height: 600px" />
+          </v-tabs-window-item>
+          <v-tabs-window-item value="sites" key="sites">
+            <SitesTable :sites="dataset.sites" />
+          </v-tabs-window-item>
+          <v-tabs-window-item value="occurrences" key="occurrences">
+            <OccurrencesTable :with-site="true" :occurrences />
+          </v-tabs-window-item>
+        </v-tabs-window>
+      </v-card>
     </template>
   </DatasetItemView>
 </template>
 
-<script setup lang="ts">
-import { SiteWithOccurrences } from '@/api'
+<script setup lang="tsx">
 import { getOccurrenceDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import BaseMap from '@/components/maps/BaseMap.vue'
-import MapViewHexPopup from '@/components/occurrence/MapViewHexPopup.vue'
+import OccurrencesTable from '@/components/occurrence/OccurrencesTable.vue'
+import SitesTable from '@/components/sites/SitesTable.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
-import { palette } from '@/functions/color_brewer'
-import { useQuery } from '@tanstack/vue-query'
-import { computed } from 'vue'
-import DatasetItemView from '@/views/datasets/DatasetItemView.vue'
-import DatasetTabs from '@/views/datasets/DatasetTabs.vue'
-import MapViewSitePopup from '@/components/occurrence/MapViewSitePopup.vue'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
-import { HexgridLayer } from '@/components/maps/map-layers'
+import DatasetItemView from '@/views/datasets/DatasetItemView.vue'
+import { useQuery } from '@tanstack/vue-query'
+import { computed, ref, watch } from 'vue'
+import { useDisplay } from 'vuetify/lib/composables/display.mjs'
+import OccurrenceDatasetMap from './OccurrenceDatasetMap.vue'
+
+type Tab = 'map' | 'sites' | 'occurrences'
+const tab = ref<Tab>('map')
+
+const { xlAndUp: mapOnSide } = useDisplay()
+watch(
+  mapOnSide,
+  (val) => {
+    if (val && tab.value === 'map') tab.value = 'sites'
+  },
+  { immediate: true }
+)
 
 const { slug } = defineProps<{
   slug: string
@@ -48,25 +75,17 @@ const {
   isPending
 } = useQuery(getOccurrenceDatasetOptions({ path: { slug } }))
 
-const hexgrid = computed<HexgridLayer<SiteWithOccurrences>>(() => {
-  return {
-    data: dataset.value?.sites,
-    active: true,
-    bindings: {
-      color: (d) =>
-        d.reduce((a, b) => a + b.data.samplings.flatMap(({ occurrences }) => occurrences).length, 0)
-    },
-    config: {
-      radius: 8,
-      opacity: 1,
-      colorRange: palette('Viridis'),
-      hover: {
-        fill: true,
-        useScale: false,
-        scale: 1
-      }
-    }
-  }
+// Occurrences table data
+const occurrences = computed(() => {
+  return dataset.value?.sites?.flatMap(({ samplings, ...site }) => {
+    return samplings.flatMap(({ occurrences, date }) =>
+      occurrences.map((o) => ({
+        ...o,
+        sampling_date: date,
+        site
+      }))
+    )
+  })
 })
 </script>
 

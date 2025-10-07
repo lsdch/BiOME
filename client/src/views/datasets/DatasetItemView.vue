@@ -3,8 +3,8 @@
     <v-sheet
       height="fit-content"
       min-height="100%"
-      :width="$vuetify.display.lgAndUp ? '50%' : '100%'"
-      :class="['d-flex bg-transparent', { 'pa-3': $vuetify.display.lgAndUp }]"
+      :width="mapOnSide ? '60%' : '100%'"
+      :class="['d-flex bg-transparent', { 'pa-3': mapOnSide }]"
     >
       <PageErrors v-if="error" :error />
       <v-card v-else-if="editing && dataset" class="align-self-stretch w-100 d-flex flex-column">
@@ -21,7 +21,7 @@
         v-else
         min-height="100%"
         :title="baseDataset?.label ?? slug"
-        :flat="!$vuetify.display.lgAndUp"
+        :flat="!mapOnSide"
         class="align-self-stretch w-100 d-flex flex-column"
       >
         <template #subtitle>
@@ -56,21 +56,21 @@
           <MetaChip v-if="baseDataset" :meta="baseDataset.meta" />
         </template>
 
-        <div class="flex-grow-1">
+        <div class="flex-grow-1 d-flex flex-column">
           <v-img
+            class="flex-grow-0"
             :src="`/api/v1/assets/images/datasets/${slug}/${slug}.jpg`"
             :min-height="20"
             :max-height="200"
             cover
             ref="image"
-            @error="noImage()"
             gradient="to top, rgba(var(--v-theme-surface)), #00000000"
           >
             <template #error>
               <v-divider class="my-3" />
             </template>
           </v-img>
-          <v-card-text v-if="baseDataset?.description" class="text-caption">
+          <v-card-text v-if="baseDataset?.description" class="flex-grow-0 text-caption">
             {{ baseDataset?.description }}
           </v-card-text>
 
@@ -98,23 +98,24 @@
       </v-card>
     </v-sheet>
 
-    <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!$vuetify.display.lgAndUp">
-      <template #="{ isDialog }">
-        <v-sheet
-          width="50%"
-          :class="['fill-height position-sticky top-0 bg-transparent', { 'py-4 px-3': !isDialog }]"
-          max-height="100vh"
-        >
-          <v-card :rounded="!mobileMap" class="fill-height">
-            <slot name="map" :baseDataset :toggleMobileMap :isDialog />
-          </v-card>
-        </v-sheet>
-      </template>
-    </ResponsiveDialog>
+    <!-- <ResponsiveDialog v-model:open="mobileMap" :as-dialog="!$vuetify.display.lgAndUp">
+      <template #="{ isDialog }"> -->
+    <v-sheet
+      v-if="mapOnSide"
+      width="40%"
+      :class="['fill-height position-sticky top-0 bg-transparent py-3 px-2']"
+      max-height="100vh"
+    >
+      <v-card :rounded="!mobileMap" class="fill-height" id="side-map-container">
+        <slot name="map" :baseDataset />
+      </v-card>
+    </v-sheet>
+    <!-- </template>
+    </ResponsiveDialog> -->
   </div>
-  <v-bottom-navigation :active="!$vuetify.display.lgAndUp">
+  <!-- <v-bottom-navigation :active="!$vuetify.display.lgAndUp">
     <v-btn color="primary" prepend-icon="mdi-map" @click="toggleMobileMap(true)" text="Map" />
-  </v-bottom-navigation>
+  </v-bottom-navigation> -->
 </template>
 
 <script setup lang="ts" generic="DatasetType extends OccurrenceDataset | SiteDataset">
@@ -123,7 +124,6 @@ import { getDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import PersonChip from '@/components/people/PersonChip'
 import MetaChip from '@/components/toolkit/MetaChip'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
-import ResponsiveDialog from '@/components/toolkit/ui/ResponsiveDialog.vue'
 import { useUserStore } from '@/stores/user'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
@@ -138,8 +138,9 @@ function noImage() {
   image.value?.remove()
 }
 
-const { slug } = defineProps<{
+const { slug, mapOnSide } = defineProps<{
   slug: string
+  mapOnSide?: boolean
 }>()
 
 const dataset = defineModel<DatasetType | undefined>('dataset')
