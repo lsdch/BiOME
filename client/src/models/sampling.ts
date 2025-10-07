@@ -6,7 +6,7 @@ export type SamplingFormModel = Omit<{
   [K in keyof SamplingInput]: K extends keyof Sampling ? Sampling[K] : never
 }, 'habitats' | 'performed_on'> & {
   habitats?: HabitatRecord[],
-  performed_on: DateWithPrecisionInput
+  performed_on?: DateWithPrecisionInput
 }
 
 export function initialModel(): Reactive<SamplingFormModel> {

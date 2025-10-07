@@ -64,8 +64,9 @@ export namespace DateWithPrecision {
       : 1
   }
 
-  export function toInput({ date, precision }: DateWithPrecision): DateWithPrecisionInput {
-    return { date: CompositeDate.fromDateWithPrecision({ date, precision }), precision }
+  export function toInput(d?: DateWithPrecision): DateWithPrecisionInput | undefined {
+    if (!d) return undefined
+    return { date: CompositeDate.fromDateWithPrecision(d), precision: d.precision }
   }
 
   export function fromInput({ date, precision }: DateWithPrecisionInput):
