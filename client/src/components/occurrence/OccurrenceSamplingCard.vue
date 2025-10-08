@@ -6,7 +6,10 @@
     prepend-icon="mdi-package-down"
     :subtitle="DateWithPrecision.format(item.sampling.performed_on, undefined, 'Date unspecified')"
   >
-    <template #append>
+    <template
+      v-if="isGranted('Maintainer') || (isGranted('Maintainer') && isOwner(item.sampling))"
+      #append
+    >
       <v-btn icon="mdi-pencil" variant="tonal" size="small" @click="emit('edit')" />
     </template>
 
@@ -78,7 +81,6 @@
 </template>
 
 <script setup lang="ts">
-import { Sampling } from '@/api'
 import { DateWithPrecision, OccurrenceCategory, SamplingWithSite } from '@/api/adapters'
 import { useSorted } from '@vueuse/core'
 import { computed } from 'vue'
@@ -86,6 +88,7 @@ import SamplingListItems from '../events/SamplingListItems.vue'
 import ItemLocationMap from '../maps/ItemLocationMap.vue'
 import PersonChip from '../people/PersonChip'
 import CountryChip from '../sites/CountryChip'
+import { useUserStore } from '@/stores/user'
 
 const { item } = defineProps<{
   item: { id: string; sampling: SamplingWithSite }
@@ -93,6 +96,8 @@ const { item } = defineProps<{
 const emit = defineEmits<{
   edit: []
 }>()
+
+const { isGranted, isOwner } = useUserStore()
 
 const samples = useSorted(
   computed(() => item.sampling.samples ?? []),
