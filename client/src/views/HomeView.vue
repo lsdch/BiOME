@@ -17,21 +17,31 @@
           <v-btn variant="text"> About </v-btn>
           <v-btn variant="text" :to="{ name: 'api-docs' }"> API Docs </v-btn>
         </div>
-        <v-btn
-          density="compact"
-          stacked
-          text="BiOME v0.0"
-          variant="text"
-          class="font-monospace text-caption"
-          color=""
-          active-color="primary"
-          target="_blank"
-          href="https://github.com/lsdch/biome"
-        >
-          <template #prepend>
-            <v-icon size="x-large">mdi-github</v-icon>
-          </template>
-        </v-btn>
+        <div class="d-flex align-center gap-2">
+          <v-btn
+            variant="text"
+            class="font-monospace text-caption"
+            color=""
+            rounded="md"
+            active-color="primary"
+            target="_blank"
+            href="https://github.com/lsdch/biome"
+          >
+            <div class="d-flex align-end">
+              <img
+                src="@/../../biome_logo.svg"
+                alt="BiOME Logo"
+                height="24"
+                class="py-1"
+                style="filter: brightness(0) invert(1)"
+              />
+              <span>v0.0</span>
+            </div>
+            <template #prepend>
+              <v-icon size="x-large">mdi-github</v-icon>
+            </template>
+          </v-btn>
+        </div>
       </v-row>
     </v-container>
   </v-footer>
