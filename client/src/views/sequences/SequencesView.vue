@@ -73,27 +73,24 @@
           :text="CodeIdentifier.textWrap(value)"
           :to="{ name: 'sequence', params: { code: value } }"
         />
-        <span class="text-right">
+        <span class="d-flex align-center ga-2 justify-end">
           <v-icon
             v-if="item.external != undefined"
             :icon="ExtSeqOrigin.icon(item.external.origin)"
-            :title="ExtSeqOrigin.description(item.external.origin)"
+            v-tooltip="ExtSeqOrigin.description(item.external.origin)"
             size="small"
-            class="mx-1"
           />
           <v-icon
             v-bind="OccurrenceCategory.props[item.category]"
-            :title="item.category"
-            class="mx-1"
+            v-tooltip="item.category"
             size="small"
           />
           <v-icon
             v-if="item.external?.source_sample"
-            class="mx-1"
             icon="mdi-package-variant"
-            title="Has related bio-material"
+            v-tooltip="`Has related bio-material`"
             size="small"
-          ></v-icon>
+          />
         </span>
       </span>
     </template>

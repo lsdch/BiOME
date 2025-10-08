@@ -80,26 +80,24 @@
     <template #item.code="{ value, item }: { value: string; item: BioMaterialListItem }">
       <span class="d-flex justify-space-between align-center">
         <RouterLink :text="value" :to="{ name: 'biomat-item', params: { code: value } }" />
-        <span class="text-right">
+        <span class="d-flex align-center ga-2 justify-end">
           <v-icon
             v-if="item.is_type"
             icon="mdi-star-four-points"
             size="small"
-            title="This is a nomenclatural type material"
+            v-tooltip="`This is a nomenclatural type material`"
             density="compact"
-            class="mx-1"
           />
           <v-icon
             v-if="item.has_sequences"
             size="small"
             icon="mdi-dna"
-            title="Sequence(s) available"
-            class="mx-1"
+            v-tooltip="`Sequence(s) available`"
           />
           <v-icon
             v-bind="OccurrenceCategory.props[item.category]"
-            :title="item.category"
-            class="mx-1"
+            v-tooltip="item.category"
+            size="small"
           />
         </span>
       </span>
