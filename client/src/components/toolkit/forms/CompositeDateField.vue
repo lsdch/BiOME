@@ -5,9 +5,8 @@
     clearable
     persistent-clear
     :focused="focused.day.value || focused.month.value || focused.year.value"
-    :disabled="precision === 'Unknown'"
     :rules="[
-      () => precision === 'Unknown' || !!model.year || `Date is required`,
+      () => !!model.year || `Date is required`,
       () => !precisionAtLeast('Month') || !!model.month || `Incomplete date`,
       () => precision !== 'Day' || !!model.day || `Incomplete date`,
       () =>
@@ -34,7 +33,6 @@
         <!-- :dirty="!!(model.day || model.month || model.year)" -->
         <template #="{}">
           <div class="v-field__input">
-            <span v-show="precision === 'Unknown'" class="text-grey">Unknown</span>
             <div
               v-show="precisionAtLeast('Day')"
               :class="['padded-input', { pad: model.day && model.day < 10 }]"
@@ -135,10 +133,10 @@ import { $CompositeDate, $DatePrecision, DatePrecision } from '@/api'
 import { CompositeDate } from '@/api/adapters'
 import { useFocus } from '@vueuse/core'
 import { DateTime } from 'luxon'
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import { VTextField } from 'vuetify/components'
 
-const model = defineModel<CompositeDate>({ required: true })
+const model = defineModel<CompositeDate>({ default: reactive({}) })
 
 const props = withDefaults(
   defineProps<{
