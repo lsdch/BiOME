@@ -130,9 +130,9 @@
               </template>
             </v-list-item>
             <v-list-item v-if="item.external">
-              <v-chip class="font-monospace" label size="small">{{
-                item.external.specimen_identifier
-              }}</v-chip>
+              <v-chip class="font-monospace" label size="small">
+                {{ item.external.specimen_identifier }}
+              </v-chip>
               <template #append>
                 <span class="text-muted text-caption"> Specimen identifier </span>
               </template>
@@ -171,7 +171,13 @@
                 :subtitle="item.external.published_in ? undefined : 'No registered references'"
                 prepend-icon="mdi-newspaper-variant"
               >
-                <ArticleChip v-for="article in item.external.published_in" :article class="ma-1" />
+                <div class="d-flex align-center ga-2">
+                  <ArticleChip
+                    v-for="article in item.external.published_in"
+                    :article
+                    size="small"
+                  />
+                </div>
                 <template #append>
                   <span class="text-muted text-caption"> Publication(s) </span>
                 </template>
