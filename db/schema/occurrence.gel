@@ -86,6 +86,13 @@ module occurrence {
       default := false;
     };
 
+    access policy no_duplicated_taxon_in_same_sampling
+      deny insert, update
+      using (
+        exists (
+          count((group .sampling.occurrences using taxon := .identification.taxon by taxon).elements) > 1
+        )
+      );
     # error: constraints cannot contain paths with more than one hop
     # constraint exclusive on ((.sampling, .identification.taxon));
   };
