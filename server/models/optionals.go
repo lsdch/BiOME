@@ -10,6 +10,7 @@ import (
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/geldata/gel-go/geltypes"
+	"github.com/sirupsen/logrus"
 )
 
 type StrUnmarshaler interface {
@@ -106,6 +107,13 @@ func (o OptionalInput[T]) Get() (T, bool) {
 	return o.Value, o.IsSet
 }
 
+func (o OptionalInput[T]) GetWithDefault(value T) T {
+	if o.IsSet {
+		return o.Value
+	}
+	return value
+}
+
 func (o OptionalInput[T]) HasValue() bool {
 	return o.IsSet
 }
@@ -114,6 +122,10 @@ func (o *OptionalInput[T]) SetValue(value T) OptionalInput[T] {
 	o.IsSet = true
 	o.Value = value
 	return *o
+}
+
+func (o OptionalInput[T]) IsZero() bool {
+	return !o.IsSet
 }
 
 func (o OptionalInput[T]) IsNull() bool {
@@ -208,7 +220,17 @@ func (o OptionalNull[T]) IsNull() bool {
 func (o OptionalNull[T]) Schema(r huma.Registry) *huma.Schema {
 	schemaRef := r.Schema(reflect.TypeOf(o.Value), true, "")
 	s := r.Schema(reflect.TypeOf(o.Value), false, "")
-	schemaRef.Type = s.Type
+
+	if s.Ref != "" {
+		sDeref := r.SchemaFromRef(s.Ref)
+		if sDeref == nil {
+			logrus.Errorf("Failed to follow schema reference: %s", s.Ref)
+			return schemaRef
+		}
+		schemaRef.Type = sDeref.Type
+	} else {
+		schemaRef.Type = s.Type
+	}
 	schemaRef.Nullable = true
 	return schemaRef
 }
