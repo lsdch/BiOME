@@ -13,7 +13,7 @@ import (
 )
 
 func registerBioMatRoutes(r router.Router) {
-	biomat_API := r.RouteGroup("/bio-material").WithTags([]string{"Occurrences"})
+	biomat_API := r.RouteGroup("/occurrences").WithTags([]string{"Occurrences"})
 
 	router.Register(biomat_API, "ListBioMaterial",
 		huma.Operation{
@@ -24,7 +24,7 @@ func registerBioMatRoutes(r router.Router) {
 		}, controllers.ListHandlerWithOpts[*struct {
 			resolvers.AuthResolver
 			occurrence.ListBioMaterialOptions
-		}](occurrence.ListBioMaterials))
+		}](occurrence.ListOccurrences))
 
 	router.Register(biomat_API, "GetBioMaterial",
 		huma.Operation{
@@ -32,21 +32,21 @@ func registerBioMatRoutes(r router.Router) {
 			Method:      http.MethodGet,
 			Summary:     "Get bio-material",
 			Description: "Both internal and external",
-		}, controllers.GetByCodeHandler(occurrence.GetBioMaterial))
+		}, controllers.GetByCodeHandler(occurrence.GetOccurrence))
 
-	router.Register(biomat_API, "CreateExternalBioMat",
+	router.Register(biomat_API, "CreateExternalOccurrence",
 		huma.Operation{
 			Path:    "/external",
 			Method:  http.MethodPost,
 			Summary: "Create external bio-material",
-		}, CreateExternalBioMat)
+		}, CreateExternalOccurrence)
 
 	router.Register(biomat_API, "UpdateExternalBioMat",
 		huma.Operation{
 			Path:    "/external",
 			Method:  http.MethodPatch,
 			Summary: "Update external bio-material",
-		}, controllers.UpdateByCodeHandler[occurrence.ExternalBioMatUpdate])
+		}, controllers.UpdateByCodeHandler[occurrence.ExternalOccurrenceUpdate])
 
 	router.Register(biomat_API, "DeleteBioMaterial",
 		huma.Operation{
@@ -54,19 +54,19 @@ func registerBioMatRoutes(r router.Router) {
 			Method:      http.MethodDelete,
 			Summary:     "Delete bio-material",
 			Description: "Delete any (internal/external) bio-material record by its code",
-		}, controllers.DeleteByCodeHandler(occurrence.DeleteBioMaterial))
+		}, controllers.DeleteByCodeHandler(occurrence.DeleteOccurrence))
 }
 
-type CreateExternalBioMatInput struct {
+type CreateExternalOccurrenceInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
 	Body struct {
-		Site        occurrence.SiteInput           `json:"site"`
-		Sampling    occurrence.SamplingInput       `json:"sampling"`
-		Biomaterial occurrence.ExternalBioMatInput `json:"bio_material"`
+		Site        occurrence.SiteInput               `json:"site"`
+		Sampling    occurrence.SamplingInput           `json:"sampling"`
+		Biomaterial occurrence.ExternalOccurrenceInput `json:"bio_material"`
 	}
 }
 
-func CreateExternalBioMat(ctx context.Context, input *CreateExternalBioMatInput) (*RegisterOccurrenceOutput, error) {
+func CreateExternalOccurrence(ctx context.Context, input *CreateExternalOccurrenceInput) (*RegisterOccurrenceOutput, error) {
 	site, err := input.Body.Site.Save(input.DB())
 	if err != nil {
 		return nil, controllers.StatusError(err)

@@ -18,7 +18,7 @@
     <v-card title="Content" class="small-card-title" flat>
       <v-row>
         <v-col cols="12" md="3">
-          <ExtBioMatQuantityPicker
+          <ExternalOccurrenceQuantityPicker
             v-model="model.quantity"
             label="Specimen quantity"
             v-bind="schema('quantity')"
@@ -66,16 +66,16 @@
 </template>
 
 <script setup lang="ts">
-import { $ExternalBioMatInput, $ExternalBioMatUpdate } from '@/api'
+import { $ExternalOccurrenceInput, $ExternalOccurrenceUpdate } from '@/api'
 import { useSchema } from '@/composables/schema'
 import { FormProps } from '@/functions/mutations'
 import { BiomatModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
 import ArticlesPicker from '@/components/references/ArticlesPicker.vue'
-import ExtBioMatQuantityPicker from '@/components/forms/occurrence/ExtBioMatQuantityPicker.vue'
+import ExternalOccurrenceQuantityPicker from '@/components/forms/occurrence/ExternalOccurrenceQuantityPicker.vue'
 import IdentificationFormFields from '@/components/forms/occurrence/IdentificationFormFields.vue'
 
-const model = defineModel<BiomatModel.ExternalBiomatModel>({
+const model = defineModel<BiomatModel.ExternalOccurrenceModel>({
   default: BiomatModel.initialModel
 })
 
@@ -84,7 +84,7 @@ const { mode = 'Create' } = defineProps<FormProps>()
 const {
   bind: { schema }
 } = reactiveComputed(() =>
-  useSchema(mode === 'Create' ? $ExternalBioMatInput : $ExternalBioMatUpdate)
+  useSchema(mode === 'Create' ? $ExternalOccurrenceInput : $ExternalOccurrenceUpdate)
 )
 
 // const item = defineModel<BioMaterialWithDetails>()
@@ -127,7 +127,7 @@ const {
 //   }
 // }
 
-// const create = defineFormCreate(createExternalBioMatMutation(), {
+// const create = defineFormCreate(createExternalOccurrenceMutation(), {
 //   initial,
 //   schema: $ExternalBioMatOccurrenceInput,
 //   requestData(model) {

@@ -4,7 +4,7 @@
       <div class="d-flex justify-space-between align-center">
         <RouterLink
           :to="{
-            name: item.element === 'Sequence' ? 'sequence' : 'biomat-item',
+            name: item.element === 'Sequence' ? 'sequence' : occurrence - item,
             params: { code: item.code }
           }"
           target="_blank"

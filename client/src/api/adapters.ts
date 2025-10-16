@@ -9,10 +9,8 @@ import {
   DateWithPrecisionInput,
   OptionalDateWithPrecision as TOptionalDateWithPrecision,
   Article as TArticle,
-  ExtSeqOrigin as TExtSeqOrigin,
   OrgKind as TOrgKind,
   OccurrenceCategory as TOccurrenceCategory,
-  OccurrenceElement as TOccurrenceElement,
   SeqReference as TSeqReference,
   Taxon as TTaxon,
   TaxonRank as TTaxonRank,
@@ -28,7 +26,7 @@ import {
   SamplingTargetKind as TSamplingTargetKind,
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/users/UserRoleChip"
-import QuantityChip from "@/components/occurrence/ExtBioMatQuantityChip"
+import QuantityChip from "@/components/occurrence/ExternalOccurrenceQuantityChip"
 
 export * from "./gen/types.gen"
 
@@ -117,17 +115,7 @@ export namespace OccurrenceCategory {
   }
 }
 
-export type OccurrenceElement = TOccurrenceElement
-export namespace OccurrenceElement {
-  export function humanize(element: OccurrenceElement) {
-    switch (element) {
-      case 'BioMaterial':
-        return 'bio-material'
-      case 'Sequence':
-        return 'sequence'
-    }
-  }
-}
+
 
 export type Article = TArticle
 export namespace Article {
@@ -144,22 +132,22 @@ export namespace Article {
 }
 
 
-export type ExtSeqOrigin = TExtSeqOrigin
-export namespace ExtSeqOrigin {
-  export const props: Record<ExtSeqOrigin, { icon: string, description: string }> = {
-    Lab: { icon: 'mdi-test-tube', description: 'Sequence was produced in the lab, but registered as external due to missing informations' },
-    DB: { icon: 'mdi-database-arrow-down', description: 'Sequence was imported from external database' },
-    PersCom: { icon: 'mdi-email', description: 'Sequence was provided as personal communication' }
-  }
+// export type ExtSeqOrigin = TExtSeqOrigin
+// export namespace ExtSeqOrigin {
+//   export const props: Record<ExtSeqOrigin, { icon: string, description: string }> = {
+//     Lab: { icon: 'mdi-test-tube', description: 'Sequence was produced in the lab, but registered as external due to missing informations' },
+//     DB: { icon: 'mdi-database-arrow-down', description: 'Sequence was imported from external database' },
+//     PersCom: { icon: 'mdi-email', description: 'Sequence was provided as personal communication' }
+//   }
 
-  export function icon(origin: ExtSeqOrigin) {
-    return props[origin].icon
-  }
+//   export function icon(origin: ExtSeqOrigin) {
+//     return props[origin].icon
+//   }
 
-  export function description(origin: ExtSeqOrigin) {
-    return props[origin].description
-  }
-}
+//   export function description(origin: ExtSeqOrigin) {
+//     return props[origin].description
+//   }
+// }
 
 export type SeqReference = TSeqReference
 export namespace SeqReference {

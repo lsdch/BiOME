@@ -70,21 +70,6 @@ import type {
   ListAnchorsData,
   ListAnchorsResponses,
   ListAnchorsErrors,
-  ListBioMaterialData,
-  ListBioMaterialResponses,
-  ListBioMaterialErrors,
-  UpdateExternalBioMatData,
-  UpdateExternalBioMatResponses,
-  UpdateExternalBioMatErrors,
-  CreateExternalBioMatData,
-  CreateExternalBioMatResponses,
-  CreateExternalBioMatErrors,
-  DeleteBioMaterialData,
-  DeleteBioMaterialResponses,
-  DeleteBioMaterialErrors,
-  GetBioMaterialData,
-  GetBioMaterialResponses,
-  GetBioMaterialErrors,
   CrossRefData,
   CrossRefResponses,
   CrossRefErrors,
@@ -202,12 +187,27 @@ import type {
   SearchSitesData,
   SearchSitesResponses,
   SearchSitesErrors,
+  ListBioMaterialData,
+  ListBioMaterialResponses,
+  ListBioMaterialErrors,
   OccurrencesBySiteData,
   OccurrencesBySiteResponses,
   OccurrencesBySiteErrors,
+  UpdateExternalBioMatData,
+  UpdateExternalBioMatResponses,
+  UpdateExternalBioMatErrors,
+  CreateExternalOccurrenceData,
+  CreateExternalOccurrenceResponses,
+  CreateExternalOccurrenceErrors,
   OccurrenceOverviewData,
   OccurrenceOverviewResponses,
   OccurrenceOverviewErrors,
+  DeleteBioMaterialData,
+  DeleteBioMaterialResponses,
+  DeleteBioMaterialErrors,
+  GetBioMaterialData,
+  GetBioMaterialResponses,
+  GetBioMaterialErrors,
   ListOrganisationsData,
   ListOrganisationsResponses,
   ListOrganisationsErrors,
@@ -389,11 +389,6 @@ import {
   refreshSessionResponseTransformer,
   claimInvitationResponseTransformer,
   listAnchorsResponseTransformer,
-  listBioMaterialResponseTransformer,
-  updateExternalBioMatResponseTransformer,
-  createExternalBioMatResponseTransformer,
-  deleteBioMaterialResponseTransformer,
-  getBioMaterialResponseTransformer,
   listDataSourcesResponseTransformer,
   createDataSourceResponseTransformer,
   deleteDataSourceResponseTransformer,
@@ -422,7 +417,12 @@ import {
   updateHabitatGroupResponseTransformer,
   sitesProximityResponseTransformer,
   searchSitesResponseTransformer,
+  listBioMaterialResponseTransformer,
   occurrencesBySiteResponseTransformer,
+  updateExternalBioMatResponseTransformer,
+  createExternalOccurrenceResponseTransformer,
+  deleteBioMaterialResponseTransformer,
+  getBioMaterialResponseTransformer,
   listOrganisationsResponseTransformer,
   createOrganisationResponseTransformer,
   deleteOrganisationResponseTransformer,
@@ -1658,286 +1658,6 @@ export class TaxonomyGbifService {
       ],
       url: '/import/taxonomy/monitor',
       ...options
-    })
-  }
-}
-
-export class OccurrencesService {
-  /**
-   * List bio-material
-   * Both internal and external
-   */
-  public static listBioMaterial<ThrowOnError extends boolean = false>(
-    options?: Options<ListBioMaterialData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      ListBioMaterialResponses,
-      ListBioMaterialErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listBioMaterialResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/bio-material',
-      ...options
-    })
-  }
-
-  /**
-   * Update external bio-material
-   */
-  public static updateExternalBioMat<ThrowOnError extends boolean = false>(
-    options: Options<UpdateExternalBioMatData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).patch<
-      UpdateExternalBioMatResponses,
-      UpdateExternalBioMatErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateExternalBioMatResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/bio-material/external',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Create external bio-material
-   */
-  public static createExternalBioMat<ThrowOnError extends boolean = false>(
-    options: Options<CreateExternalBioMatData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      CreateExternalBioMatResponses,
-      CreateExternalBioMatErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createExternalBioMatResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/bio-material/external',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete bio-material
-   * Delete any (internal/external) bio-material record by its code
-   */
-  public static deleteBioMaterial<ThrowOnError extends boolean = false>(
-    options: Options<DeleteBioMaterialData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).delete<
-      DeleteBioMaterialResponses,
-      DeleteBioMaterialErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteBioMaterialResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/bio-material/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Get bio-material
-   * Both internal and external
-   */
-  public static getBioMaterial<ThrowOnError extends boolean = false>(
-    options: Options<GetBioMaterialData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).get<
-      GetBioMaterialResponses,
-      GetBioMaterialErrors,
-      ThrowOnError
-    >({
-      responseTransformer: getBioMaterialResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/bio-material/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Occurrences by site
-   */
-  public static occurrencesBySite<ThrowOnError extends boolean = false>(
-    options?: Options<OccurrencesBySiteData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      OccurrencesBySiteResponses,
-      OccurrencesBySiteErrors,
-      ThrowOnError
-    >({
-      querySerializer: {
-        array: {
-          explode: false,
-          style: 'form'
-        }
-      },
-      responseTransformer: occurrencesBySiteResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/by-site',
-      ...options
-    })
-  }
-
-  /**
-   * Occurrences overview
-   */
-  public static occurrenceOverview<ThrowOnError extends boolean = false>(
-    options?: Options<OccurrenceOverviewData, ThrowOnError>
-  ) {
-    return (options?.client ?? _heyApiClient).get<
-      OccurrenceOverviewResponses,
-      OccurrenceOverviewErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/overview',
-      ...options
-    })
-  }
-
-  /**
-   * Add occurrence from sampling
-   * Register new occurrence resulting from the sampling action
-   */
-  public static samplingAddExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SamplingAddExternalOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      SamplingAddExternalOccurrenceResponses,
-      SamplingAddExternalOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/samplings/{id}/occurrences/external',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Add occurrence at site
-   * Register new occurrence at site, including event + sampling specification and biomaterial identification
-   */
-  public static siteAddExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SiteAddExternalOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? _heyApiClient).post<
-      SiteAddExternalOccurrenceResponses,
-      SiteAddExternalOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sites/{code}/occurrences/external',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
     })
   }
 }
@@ -3340,6 +3060,286 @@ export class LocationService {
         }
       ],
       url: '/sites/{code}/samplings',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+}
+
+export class OccurrencesService {
+  /**
+   * List bio-material
+   * Both internal and external
+   */
+  public static listBioMaterial<ThrowOnError extends boolean = false>(
+    options?: Options<ListBioMaterialData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      ListBioMaterialResponses,
+      ListBioMaterialErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listBioMaterialResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences',
+      ...options
+    })
+  }
+
+  /**
+   * Occurrences by site
+   */
+  public static occurrencesBySite<ThrowOnError extends boolean = false>(
+    options?: Options<OccurrencesBySiteData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      OccurrencesBySiteResponses,
+      OccurrencesBySiteErrors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        array: {
+          explode: false,
+          style: 'form'
+        }
+      },
+      responseTransformer: occurrencesBySiteResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/by-site',
+      ...options
+    })
+  }
+
+  /**
+   * Update external bio-material
+   */
+  public static updateExternalBioMat<ThrowOnError extends boolean = false>(
+    options: Options<UpdateExternalBioMatData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).patch<
+      UpdateExternalBioMatResponses,
+      UpdateExternalBioMatErrors,
+      ThrowOnError
+    >({
+      responseTransformer: updateExternalBioMatResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/external',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Create external bio-material
+   */
+  public static createExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<CreateExternalOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      CreateExternalOccurrenceResponses,
+      CreateExternalOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: createExternalOccurrenceResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/external',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Occurrences overview
+   */
+  public static occurrenceOverview<ThrowOnError extends boolean = false>(
+    options?: Options<OccurrenceOverviewData, ThrowOnError>
+  ) {
+    return (options?.client ?? _heyApiClient).get<
+      OccurrenceOverviewResponses,
+      OccurrenceOverviewErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/overview',
+      ...options
+    })
+  }
+
+  /**
+   * Delete bio-material
+   * Delete any (internal/external) bio-material record by its code
+   */
+  public static deleteBioMaterial<ThrowOnError extends boolean = false>(
+    options: Options<DeleteBioMaterialData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).delete<
+      DeleteBioMaterialResponses,
+      DeleteBioMaterialErrors,
+      ThrowOnError
+    >({
+      responseTransformer: deleteBioMaterialResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Get bio-material
+   * Both internal and external
+   */
+  public static getBioMaterial<ThrowOnError extends boolean = false>(
+    options: Options<GetBioMaterialData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).get<
+      GetBioMaterialResponses,
+      GetBioMaterialErrors,
+      ThrowOnError
+    >({
+      responseTransformer: getBioMaterialResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Add occurrence from sampling
+   * Register new occurrence resulting from the sampling action
+   */
+  public static samplingAddExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SamplingAddExternalOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      SamplingAddExternalOccurrenceResponses,
+      SamplingAddExternalOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/samplings/{id}/occurrences/external',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Add occurrence at site
+   * Register new occurrence at site, including event + sampling specification and biomaterial identification
+   */
+  public static siteAddExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SiteAddExternalOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? _heyApiClient).post<
+      SiteAddExternalOccurrenceResponses,
+      SiteAddExternalOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/sites/{code}/occurrences/external',
       ...options,
       headers: {
         'Content-Type': 'application/json',

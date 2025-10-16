@@ -9,7 +9,7 @@ export type OccurrenceModel = {
   sampling: SamplingFormModel | Sampling | undefined,
   biomaterial: {
     category: OccurrenceCategory | undefined,
-    external: BiomatModel.ExternalBiomatModel | undefined
+    external: BiomatModel.ExternalOccurrenceModel | undefined
     // internal: BiomatModel.InternalBiomatModel | undefined
   }
   // | {

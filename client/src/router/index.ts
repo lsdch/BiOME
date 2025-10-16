@@ -87,9 +87,9 @@ function setupRouter(settings: InstanceSettings) {
         props: true
       },
       {
-        path: "/bio-material/:code",
-        name: "biomat-item",
-        component: () => import('@/views/samples/BiomatItemView.vue'),
+        path: "/occurrences/:code",
+        name: "occurrence-item",
+        component: () => import('@/views/biomaterial/BiomatItemView.vue'),
         props: true
       },
       {

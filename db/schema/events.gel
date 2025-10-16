@@ -76,15 +76,19 @@ module events {
     multi habitats: sampling::Habitat;
     multi access_points: str;
 
-    multi link samples := .<sampling[is occurrence::BioMaterial];
-    multi link external_seqs := .<sampling[is seq::ExternalSequence];
     multi link occurrences := .<sampling[is occurrence::Occurrence];
 
     multi link occurring_taxa := (
+      with congruent_internal_occurrences := (
+        select .occurrences[is occurrence::InternalBioMat]
+        filter .is_congruent = true
+      ),
       select distinct (
-        .samples[is occurrence::ExternalBioMat].best_identification union
-        (select .external_seqs filter not exists .source_sample).identification.taxon union
-        .samples[is occurrence::InternalBioMat].identified_taxa
+        .occurrences[is occurrence::ExternalBioMat].identification.taxon union
+        (
+          congruent_internal_occurrences.seq_consensus ??
+          congruent_internal_occurrences.identification.taxon
+        )
       )
     );
   }

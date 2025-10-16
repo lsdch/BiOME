@@ -57,7 +57,7 @@ export type Article = {
   id: string
   journal?: string
   meta: Meta
-  original_source: boolean
+  sources: boolean
   title?: string
   verbatim?: string
   year: number
@@ -91,6 +91,11 @@ export type ArticleUpdate = {
   title?: string | null
   verbatim?: string | null
   year?: number
+}
+
+export type AssembledSequenceSpecifics = {
+  alignment_code: string
+  assembled_by?: Array<Person>
 }
 
 export type Assertion = {
@@ -141,68 +146,6 @@ export type BioMatSortKey =
   | 'taxon'
   | 'identified_by'
   | 'last_updated'
-
-export type BioMaterial = {
-  category: OccurrenceCategory
-  code: string
-  code_history?: Array<CodeHistory>
-  comments?: string
-  external?: OptionalExternalBioMatSpecific
-  has_sequences: boolean
-  id: string
-  identification: Identification
-  is_congruent: boolean
-  is_homogenous: boolean
-  is_type: boolean
-  meta: Meta
-  published_in?: Array<OccurrenceReference>
-  sampling: SamplingInner
-  seq_consensus?: OptionalTaxon
-}
-
-export type BioMaterialListItem = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  category: OccurrenceCategory
-  code: string
-  code_history?: Array<CodeHistory>
-  comments?: string
-  external?: OptionalExternalBioMatSpecific
-  has_sequences: boolean
-  id: string
-  identification: Identification
-  is_congruent: boolean
-  is_homogenous: boolean
-  is_type: boolean
-  meta: Meta
-  published_in?: Array<OccurrenceReference>
-  sampling: SamplingInnerWithSite
-  seq_consensus?: OptionalTaxon
-}
-
-export type BioMaterialWithDetails = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  category: OccurrenceCategory
-  code: string
-  code_history?: Array<CodeHistory>
-  comments?: string
-  external?: OptionalExternalBioMatSpecific
-  has_sequences: boolean
-  id: string
-  identification: Identification
-  is_congruent: boolean
-  is_homogenous: boolean
-  is_type: boolean
-  meta: Meta
-  published_in?: Array<OccurrenceReference>
-  sampling: SamplingWithSite
-  seq_consensus?: OptionalTaxon
-}
 
 export type ClinicalTrailNumber = {
   'clinical-trail-number'?: string
@@ -261,12 +204,12 @@ export type CountryWithSitesCount = {
   subcontinent: string
 }
 
-export type CreateExternalBioMatInputBody = {
+export type CreateExternalOccurrenceInputBody = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  bio_material: ExternalBioMatInput
+  bio_material: ExternalOccurrenceInput
   sampling: SamplingInput
   site: SiteInput
 }
@@ -548,26 +491,27 @@ export type ErrorModel = {
   type?: string
 }
 
-/**
- * ExtSeqOrigin
- */
-export type ExtSeqOrigin = 'Lab' | 'DB' | 'PersCom'
-
-export type ExtSeqSpecificsBioMaterial = {
-  origin: ExtSeqOrigin
+export type ExternalBioMatSpecific = {
+  archive: SpecimenVoucher
+  content_description?: string
+  external_link?: string
   original_taxon?: string
-  published_in?: Array<OccurrenceReference>
-  referenced_in?: Array<SeqReference>
-  source_sample?: OptionalBioMaterial
-  specimen_identifier: string
+  published_in?: Array<Article>
+  quantity?: OptionalQuantity
+  sequences?: Array<ExternalSequence>
+  sources?: Array<DataSource>
 }
 
-export type ExternalBioMatContent = {
-  sequences: Array<ExternalBioMatSequence>
-  specimen: string
+export type ExternalOccurrenceAtSiteInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  biomaterial: ExternalOccurrenceInput
+  sampling: SamplingInput
 }
 
-export type ExternalBioMatInput = {
+export type ExternalOccurrenceInput = {
   /**
    * A URL to the JSON Schema for this object.
    */
@@ -582,6 +526,7 @@ export type ExternalBioMatInput = {
    * Description of the content of the bio material
    */
   content_description?: string
+  external_link?: string
   /**
    * Occurrence identification
    */
@@ -590,44 +535,15 @@ export type ExternalBioMatInput = {
    * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
    */
   is_type?: boolean
-  original_link?: string
-  original_source?: string
-  published_in?: Array<OccurrenceReferenceInput>
-  quantity: Quantity
+  original_taxon?: string
+  published_in?: Array<string>
+  quantity?: Quantity
+  sequences?: Array<ExternalSequenceInput>
+  sources?: string
   vouchers?: Array<string>
 }
 
-export type ExternalBioMatSequence = {
-  accession_number: string
-  category: OccurrenceCategory
-  code: string
-  code_history?: Array<CodeHistory>
-  comments: string
-  gene: Gene
-  id: string
-  identification: Identification
-  label?: string
-  legacy?: OptionalLegacySeqId
-  origin: ExtSeqOrigin
-  original_taxon: string
-  published_in?: Array<Article>
-  referenced_in?: Array<SeqReference>
-  sequence?: string
-  specimen_identifier: string
-}
-
-export type ExternalBioMatSpecific = {
-  archive: SpecimenVoucher
-  comments: string
-  content?: Array<ExternalBioMatContent>
-  content_description?: string
-  original_link?: string
-  original_source?: OptionalDataSource
-  original_taxon?: string
-  quantity: Quantity
-}
-
-export type ExternalBioMatUpdate = {
+export type ExternalOccurrenceUpdate = {
   /**
    * A URL to the JSON Schema for this object.
    */
@@ -636,24 +552,43 @@ export type ExternalBioMatUpdate = {
   collection?: string | null
   comments?: string | null
   content_description?: string | null
+  external_link?: string | null
   identification?: IdentificationUpdate
   is_type?: boolean
-  original_link?: string | null
-  original_source?: string | null
   original_taxon?: string | null
-  published_in: Array<OccurrenceReferenceInput> | null
-  quantity?: Quantity
+  published_in?: Array<string> | null
+  quantity?: Quantity | null
   sampling_id: string
+  sources?: string | null
   vouchers?: Array<string>
 }
 
-export type ExternalOccurrenceAtSiteInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  biomaterial: ExternalBioMatInput
-  sampling: SamplingInput
+export type ExternalSequence = {
+  category: OccurrenceCategory
+  code: string
+  code_history?: Array<CodeHistory>
+  comments?: string
+  gene: Gene
+  id: string
+  is_identifying: boolean
+  label?: string
+  legacy?: OptionalLegacySeqId
+  meta: Meta
+  referenced_in?: Array<SeqReference>
+  sequence?: string
+  specimen_identifier?: string
+}
+
+export type ExternalSequenceInput = {
+  code: string
+  comments?: string
+  gene: string
+  is_identifying?: boolean
+  label?: string
+  legacy?: LegacySeqId
+  referenced_in?: Array<SeqReferenceInput>
+  sequence?: string
+  specimen_identifier?: string
 }
 
 export type Fixative = {
@@ -734,6 +669,36 @@ export type GeneUpdate = {
   description?: string | null
   is_MOTU_delimiter?: boolean
   label?: string
+}
+
+export type GenericOccurrenceSamplingInnerWithSite = {
+  category: OccurrenceCategory
+  code: string
+  code_history?: Array<CodeHistory>
+  comments?: string
+  has_sequences: boolean
+  id: string
+  identification: Identification
+  is_type: boolean
+  meta: Meta
+  sampling: SamplingInnerWithSite
+}
+
+export type GenericOccurrenceSamplingOutline = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  category: OccurrenceCategory
+  code: string
+  code_history?: Array<CodeHistory>
+  comments?: string
+  has_sequences: boolean
+  id: string
+  identification: Identification
+  is_type: boolean
+  meta: Meta
+  sampling: SamplingOutline
 }
 
 export type GeoapifyResult = {
@@ -973,6 +938,13 @@ export type InstanceSettingsInput = {
   public: boolean
 }
 
+export type InternalBioMatSpecific = {
+  has_sequences: boolean
+  is_congruent: boolean
+  is_homogenous: boolean
+  seq_consensus?: OptionalTaxon
+}
+
 export type InvitationInput = {
   /**
    * A URL to the JSON Schema for this object.
@@ -1179,7 +1151,6 @@ export type Meta = {
 export type OccurrenceAtSite = {
   category: OccurrenceCategory
   code: string
-  element: OccurrenceElement
   id: string
   taxon: TaxonInner
 }
@@ -1222,10 +1193,22 @@ export type OccurrenceDatasetListItem = {
   slug: string
 }
 
-/**
- * OccurrenceElement
- */
-export type OccurrenceElement = 'BioMaterial' | 'Sequence'
+export type OccurrenceListItem = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  category: OccurrenceCategory
+  code: string
+  code_history?: Array<CodeHistory>
+  comments?: string
+  has_sequences: boolean
+  id: string
+  identification: Identification
+  is_type: boolean
+  meta: Meta
+  sampling: SamplingInnerWithSite
+}
 
 export type OccurrenceOverviewItem = {
   name: string
@@ -1234,24 +1217,42 @@ export type OccurrenceOverviewItem = {
   rank: TaxonRank
 }
 
-export type OccurrenceReference = {
-  authors: Array<string>
+export type OccurrenceSamplingWithSite = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  category: OccurrenceCategory
   code: string
+  code_history?: Array<CodeHistory>
   comments?: string
-  doi?: string
+  external?: OptionalExternalBioMatSpecific
+  has_sequences: boolean
   id: string
-  journal?: string
+  identification: Identification
+  internal?: OptionalInternalBioMatSpecific
+  is_type: boolean
   meta: Meta
-  original?: boolean
-  original_source: boolean
-  title?: string
-  verbatim?: string
-  year: number
+  sampling: SamplingWithSite
 }
 
-export type OccurrenceReferenceInput = {
+export type OccurrenceStruct = {
+  category: OccurrenceCategory
   code: string
-  original?: boolean
+  code_history?: Array<CodeHistory>
+  comments?: string
+  external?: OptionalExternalBioMatSpecific
+  has_sequences: boolean
+  id: string
+  identification: Identification
+  internal?: OptionalInternalBioMatSpecific
+  is_type: boolean
+  meta: Meta
+  sampling: OccurrenceStructSamplingStruct
+}
+
+export type OccurrenceStructSamplingStruct = {
+  [key: string]: never
 }
 
 export type OptionalArticle = {
@@ -1266,28 +1267,15 @@ export type OptionalArticle = {
   id: string
   journal?: string
   meta: Meta
-  original_source: boolean
+  sources: boolean
   title?: string
   verbatim?: string
   year: number
 } | null
 
-export type OptionalBioMaterial = {
-  category: OccurrenceCategory
-  code: string
-  code_history?: Array<CodeHistory>
-  comments?: string
-  external?: OptionalExternalBioMatSpecific
-  has_sequences: boolean
-  id: string
-  identification: Identification
-  is_congruent: boolean
-  is_homogenous: boolean
-  is_type: boolean
-  meta: Meta
-  published_in?: Array<OccurrenceReference>
-  sampling: SamplingInner
-  seq_consensus?: OptionalTaxon
+export type OptionalAssembledSequenceSpecifics = {
+  alignment_code: string
+  assembled_by?: Array<Person>
 } | null
 
 export type OptionalCountry = {
@@ -1302,43 +1290,20 @@ export type OptionalCountry = {
   subcontinent: string
 } | null
 
-export type OptionalDataSource = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code: string
-  description?: string
-  id: string
-  label: string
-  link_template?: string
-  meta: Meta
-  url?: string
-} | null
-
 export type OptionalDateWithPrecision = {
   date: Date
   precision: DatePrecision
 }
 
-export type OptionalExtSeqSpecificsBioMaterial = {
-  origin: ExtSeqOrigin
-  original_taxon?: string
-  published_in?: Array<OccurrenceReference>
-  referenced_in?: Array<SeqReference>
-  source_sample?: OptionalBioMaterial
-  specimen_identifier: string
-} | null
-
 export type OptionalExternalBioMatSpecific = {
   archive: SpecimenVoucher
-  comments: string
-  content?: Array<ExternalBioMatContent>
   content_description?: string
-  original_link?: string
-  original_source?: OptionalDataSource
+  external_link?: string
   original_taxon?: string
-  quantity: Quantity
+  published_in?: Array<Article>
+  quantity?: OptionalQuantity
+  sequences?: Array<ExternalSequence>
+  sources?: Array<DataSource>
 } | null
 
 export type OptionalHabitatRecord = {
@@ -1356,6 +1321,13 @@ export type OptionalHabitatRecord = {
 
 export type OptionalIdentificationQualifier = IdentificationQualifier | null
 
+export type OptionalInternalBioMatSpecific = {
+  has_sequences: boolean
+  is_congruent: boolean
+  is_homogenous: boolean
+  seq_consensus?: OptionalTaxon
+} | null
+
 export type OptionalLegacySeqId = {
   alignment_code: string
   code: string
@@ -1372,6 +1344,8 @@ export type OptionalPersonInner = {
   last_name: string
   role?: UserRole
 } | null
+
+export type OptionalQuantity = Quantity | null
 
 export type OptionalTaxon = {
   /**
@@ -1465,12 +1439,12 @@ export type Organization = {
   place?: Array<string>
 }
 
-export type PaginatedListBioMaterialListItem = {
+export type PaginatedListOccurrenceListItem = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  items: Array<BioMaterialListItem>
+  items: Array<OccurrenceListItem>
   total_count: number
 }
 
@@ -1743,11 +1717,11 @@ export type Sampling = {
    * Auto-incrementing number, unique per sampling
    */
   number: number
+  occurrences?: Array<OccurrenceStruct>
   occurring_taxa?: Array<Taxon>
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
   performed_on?: OptionalDateWithPrecision
-  samples?: Array<BioMaterial>
   target: SamplingTarget
 }
 
@@ -1775,27 +1749,6 @@ export type SamplingDetailsWithOccurrences = {
    */
   number: number
   occurrences: Array<OccurrenceAtSite>
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
-  performed_on?: OptionalDateWithPrecision
-  target: SamplingTarget
-}
-
-export type SamplingInner = {
-  access_points?: Array<string>
-  comments?: string
-  /**
-   * Sampling duration in minutes
-   */
-  duration?: number
-  fixatives?: Array<Fixative>
-  habitats?: Array<Habitat>
-  id: string
-  methods?: Array<SamplingMethod>
-  /**
-   * Auto-incrementing number, unique per sampling
-   */
-  number: number
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
   performed_on?: OptionalDateWithPrecision
@@ -1897,6 +1850,15 @@ export type SamplingMethodUpdate = {
   label?: string
 }
 
+export type SamplingOutline = {
+  id: string
+  /**
+   * Auto-incrementing number, unique per sampling
+   */
+  number: number
+  performed_on?: OptionalDateWithPrecision
+}
+
 export type SamplingTarget = {
   kind: SamplingTargetKind
   taxa?: Array<Taxon>
@@ -1972,11 +1934,11 @@ export type SamplingWithSite = {
    * Auto-incrementing number, unique per sampling
    */
   number: number
+  occurrences?: Array<OccurrenceStruct>
   occurring_taxa?: Array<Taxon>
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
   performed_on?: OptionalDateWithPrecision
-  samples?: Array<BioMaterial>
   site: SiteItem
   target: SamplingTarget
 }
@@ -2026,20 +1988,33 @@ export type SeqReference = {
   is_origin: boolean
 }
 
+export type SeqReferenceInput = {
+  /**
+   * Accession number or sequence identifier in the data source
+   */
+  accession: string
+  /**
+   * Data source code identifier
+   */
+  db: string
+  /**
+   * Is this the origin of the sequence?
+   */
+  is_origin: boolean
+}
+
 export type Sequence = {
   category: OccurrenceCategory
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
-  external?: OptionalExtSeqSpecificsBioMaterial
   gene: Gene
   id: string
-  identification: Identification
+  is_identifying: boolean
   label?: string
   legacy?: OptionalLegacySeqId
   meta: Meta
-  published_in?: Array<OccurrenceReference>
-  sampling: Sampling
+  referenced_in?: Array<SeqReference>
   sequence?: string
 }
 
@@ -2081,16 +2056,15 @@ export type SequenceListItem = {
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
-  external?: OptionalExtSeqSpecificsBioMaterial
   gene: Gene
   id: string
   identification: Identification
+  is_identifying: boolean
   label?: string
   legacy?: OptionalLegacySeqId
-  meta: Meta
-  published_in?: Array<OccurrenceReference>
-  sampling: SamplingInnerWithSite
+  occurrence: GenericOccurrenceSamplingInnerWithSite
   sequence?: string
+  specimen_identifier?: string
 }
 
 export type SequenceWithDetails = {
@@ -2102,16 +2076,18 @@ export type SequenceWithDetails = {
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
-  external?: OptionalExtSeqSpecificsBioMaterial
   gene: Gene
   id: string
   identification: Identification
+  internal?: OptionalAssembledSequenceSpecifics
+  is_identifying: boolean
   label?: string
   legacy?: OptionalLegacySeqId
   meta: Meta
-  published_in?: Array<OccurrenceReference>
-  sampling: SamplingWithSite
+  occurrence: OccurrenceSamplingWithSite
+  referenced_in?: Array<SeqReference>
   sequence?: string
+  specimen_identifier?: string
 }
 
 export type ServiceSettings = {
@@ -2353,8 +2329,8 @@ export type SitesProximityQuery = {
 }
 
 export type SpecimenVoucher = {
-  collection: string
-  vouchers: Array<string>
+  collection?: string
+  vouchers?: Array<string>
 }
 
 export type Status = {
@@ -3309,201 +3285,6 @@ export type ListAnchorsResponses = {
 }
 
 export type ListAnchorsResponse = ListAnchorsResponses[keyof ListAnchorsResponses]
-
-export type ListBioMaterialData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: {
-    limit?: number
-    offset?: number
-    sort?: BioMatSortKey
-    order?: string
-    search?: string
-    owned?: boolean
-    category?: OccurrenceCategory
-    taxon?: string
-    whole_clade?: boolean
-    has_sequences?: boolean
-    is_type?: boolean
-  }
-  url: '/bio-material'
-}
-
-export type ListBioMaterialErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ListBioMaterialError = ListBioMaterialErrors[keyof ListBioMaterialErrors]
-
-export type ListBioMaterialResponses = {
-  /**
-   * OK
-   */
-  200: PaginatedListBioMaterialListItem
-}
-
-export type ListBioMaterialResponse = ListBioMaterialResponses[keyof ListBioMaterialResponses]
-
-export type UpdateExternalBioMatData = {
-  body: ExternalBioMatUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/bio-material/external'
-}
-
-export type UpdateExternalBioMatErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type UpdateExternalBioMatError = UpdateExternalBioMatErrors[keyof UpdateExternalBioMatErrors]
-
-export type UpdateExternalBioMatResponses = {
-  /**
-   * OK
-   */
-  200: BioMaterialWithDetails
-}
-
-export type UpdateExternalBioMatResponse =
-  UpdateExternalBioMatResponses[keyof UpdateExternalBioMatResponses]
-
-export type CreateExternalBioMatData = {
-  body: CreateExternalBioMatInputBody
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/bio-material/external'
-}
-
-export type CreateExternalBioMatErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type CreateExternalBioMatError = CreateExternalBioMatErrors[keyof CreateExternalBioMatErrors]
-
-export type CreateExternalBioMatResponses = {
-  /**
-   * OK
-   */
-  200: BioMaterialWithDetails
-}
-
-export type CreateExternalBioMatResponse =
-  CreateExternalBioMatResponses[keyof CreateExternalBioMatResponses]
-
-export type DeleteBioMaterialData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/bio-material/{code}'
-}
-
-export type DeleteBioMaterialErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type DeleteBioMaterialError = DeleteBioMaterialErrors[keyof DeleteBioMaterialErrors]
-
-export type DeleteBioMaterialResponses = {
-  /**
-   * OK
-   */
-  200: BioMaterialListItem
-}
-
-export type DeleteBioMaterialResponse = DeleteBioMaterialResponses[keyof DeleteBioMaterialResponses]
-
-export type GetBioMaterialData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/bio-material/{code}'
-}
-
-export type GetBioMaterialErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type GetBioMaterialError = GetBioMaterialErrors[keyof GetBioMaterialErrors]
-
-export type GetBioMaterialResponses = {
-  /**
-   * OK
-   */
-  200: BioMaterialWithDetails
-}
-
-export type GetBioMaterialResponse = GetBioMaterialResponses[keyof GetBioMaterialResponses]
 
 export type CrossRefData = {
   body?: never
@@ -4912,6 +4693,53 @@ export type SearchSitesResponses = {
 
 export type SearchSitesResponse = SearchSitesResponses[keyof SearchSitesResponses]
 
+export type ListBioMaterialData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: {
+    limit?: number
+    offset?: number
+    sort?: BioMatSortKey
+    order?: string
+    search?: string
+    owned?: boolean
+    category?: OccurrenceCategory
+    taxon?: string
+    whole_clade?: boolean
+    has_sequences?: boolean
+    is_type?: boolean
+  }
+  url: '/occurrences'
+}
+
+export type ListBioMaterialErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListBioMaterialError = ListBioMaterialErrors[keyof ListBioMaterialErrors]
+
+export type ListBioMaterialResponses = {
+  /**
+   * OK
+   */
+  200: PaginatedListOccurrenceListItem
+}
+
+export type ListBioMaterialResponse = ListBioMaterialResponses[keyof ListBioMaterialResponses]
+
 export type OccurrencesBySiteData = {
   body?: never
   headers?: {
@@ -4963,6 +4791,81 @@ export type OccurrencesBySiteResponses = {
 
 export type OccurrencesBySiteResponse = OccurrencesBySiteResponses[keyof OccurrencesBySiteResponses]
 
+export type UpdateExternalBioMatData = {
+  body: ExternalOccurrenceUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/occurrences/external'
+}
+
+export type UpdateExternalBioMatErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateExternalBioMatError = UpdateExternalBioMatErrors[keyof UpdateExternalBioMatErrors]
+
+export type UpdateExternalBioMatResponses = {
+  /**
+   * OK
+   */
+  200: GenericOccurrenceSamplingOutline
+}
+
+export type UpdateExternalBioMatResponse =
+  UpdateExternalBioMatResponses[keyof UpdateExternalBioMatResponses]
+
+export type CreateExternalOccurrenceData = {
+  body: CreateExternalOccurrenceInputBody
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/occurrences/external'
+}
+
+export type CreateExternalOccurrenceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateExternalOccurrenceError =
+  CreateExternalOccurrenceErrors[keyof CreateExternalOccurrenceErrors]
+
+export type CreateExternalOccurrenceResponses = {
+  /**
+   * OK
+   */
+  200: GenericOccurrenceSamplingOutline
+}
+
+export type CreateExternalOccurrenceResponse =
+  CreateExternalOccurrenceResponses[keyof CreateExternalOccurrenceResponses]
+
 export type OccurrenceOverviewData = {
   body?: never
   headers?: {
@@ -4998,6 +4901,80 @@ export type OccurrenceOverviewResponses = {
 
 export type OccurrenceOverviewResponse =
   OccurrenceOverviewResponses[keyof OccurrenceOverviewResponses]
+
+export type DeleteBioMaterialData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/occurrences/{code}'
+}
+
+export type DeleteBioMaterialErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteBioMaterialError = DeleteBioMaterialErrors[keyof DeleteBioMaterialErrors]
+
+export type DeleteBioMaterialResponses = {
+  /**
+   * OK
+   */
+  200: OccurrenceListItem
+}
+
+export type DeleteBioMaterialResponse = DeleteBioMaterialResponses[keyof DeleteBioMaterialResponses]
+
+export type GetBioMaterialData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/occurrences/{code}'
+}
+
+export type GetBioMaterialErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type GetBioMaterialError = GetBioMaterialErrors[keyof GetBioMaterialErrors]
+
+export type GetBioMaterialResponses = {
+  /**
+   * OK
+   */
+  200: OccurrenceSamplingWithSite
+}
+
+export type GetBioMaterialResponse = GetBioMaterialResponses[keyof GetBioMaterialResponses]
 
 export type ListOrganisationsData = {
   body?: never
@@ -5897,7 +5874,7 @@ export type UpdateSamplingResponses = {
 export type UpdateSamplingResponse = UpdateSamplingResponses[keyof UpdateSamplingResponses]
 
 export type SamplingAddExternalOccurrenceData = {
-  body: ExternalBioMatInput
+  body: ExternalOccurrenceInput
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -5929,7 +5906,7 @@ export type SamplingAddExternalOccurrenceResponses = {
   /**
    * OK
    */
-  200: BioMaterialWithDetails
+  200: GenericOccurrenceSamplingOutline
 }
 
 export type SamplingAddExternalOccurrenceResponse =
@@ -6756,7 +6733,7 @@ export type SiteAddExternalOccurrenceResponses = {
   /**
    * OK
    */
-  200: BioMaterialWithDetails
+  200: GenericOccurrenceSamplingOutline
 }
 
 export type SiteAddExternalOccurrenceResponse =

@@ -20,7 +20,7 @@ type Article struct {
 	Verbatim       geltypes.OptionalStr  `gel:"verbatim" json:"verbatim,omitempty"`
 	DOI            geltypes.OptionalStr  `gel:"doi" json:"doi,omitempty"`
 	Comments       geltypes.OptionalStr  `gel:"comments" json:"comments,omitempty"`
-	OriginalSource geltypes.OptionalBool `gel:"original_source" json:"original_source"`
+	OriginalSource geltypes.OptionalBool `gel:"sources" json:"sources"`
 	Meta           people.Meta           `gel:"meta" json:"meta"`
 }
 
@@ -107,25 +107,4 @@ func (u ArticleUpdate) Save(e geltypes.Executor, code string) (updated Article, 
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
 	return
-}
-
-// OccurrenceReference is a reference to an article for an occurrence
-// with optional flag indicating whether the article is the original source
-type OccurrenceReference struct {
-	Article  `gel:"$inline" json:",inline"`
-	Original bool `gel:"original_source" json:"original,omitempty"`
-}
-
-// OccurrenceReferenceInput helps binding Article references to occurrences,
-// with optional original source flag
-type OccurrenceReferenceInput struct {
-	ArticleCode string                     `json:"code"`
-	Original    models.OptionalInput[bool] `json:"original,omitempty"`
-}
-
-func (i *OccurrenceReferenceInput) WithArticleCode(codes map[string]string) OccurrenceReferenceInput {
-	if code, ok := codes[i.ArticleCode]; ok {
-		i.ArticleCode = code
-	}
-	return *i
 }

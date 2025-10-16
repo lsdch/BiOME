@@ -49,11 +49,7 @@ func GetSequenceDataset(db geltypes.Executor, slug string) (dataset SequenceData
 						referenced_in: { ** },
 						published_in: { ** },
 						specimen_identifier,
-						original_taxon,
-						source_sample : {
-							[is occurrence::BioMaterial].*,
-							identification: { ** }
-						}
+						original_taxon
 					}
 				}
 			} filter .slug = <str>$0

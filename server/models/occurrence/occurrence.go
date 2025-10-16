@@ -8,7 +8,6 @@ import (
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
-	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/models/taxonomy"
 )
 
@@ -20,34 +19,35 @@ const (
 	External OccurrenceCategory = "External"
 )
 
+type WithCategory struct {
+	Category OccurrenceCategory `gel:"category" json:"category"`
+}
+
 type GenericOccurrence[SamplingType any] struct {
-	Sampling       SamplingType                     `gel:"sampling" json:"sampling"`
-	Identification Identification                   `gel:"identification" json:"identification"`
-	PublishedIn    []references.OccurrenceReference `gel:"published_in" json:"published_in,omitempty"`
+	ID             geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+	CodeIdentifier `gel:"$inline" json:",inline"`
+	WithCategory   `gel:"$inline" json:",inline"`
+	HasSequences   bool                 `gel:"has_sequences" json:"has_sequences"`
+	Sampling       SamplingType         `gel:"sampling" json:"sampling"`
+	Identification Identification       `gel:"identification" json:"identification"`
+	IsType         bool                 `gel:"is_type" json:"is_type"`
+	Comments       geltypes.OptionalStr `gel:"comments" json:"comments,omitempty"`
+	Meta           people.Meta          `gel:"meta" json:"meta"`
 }
 
-type Occurrence struct {
-	ID                               geltypes.UUID `gel:"id" json:"id" format:"uuid"`
-	GenericOccurrence[SamplingInner] `gel:"$inline" json:",inline"`
-	Comments                         geltypes.OptionalStr `gel:"comments" json:"comments"`
+type Occurrence[SamplingType any] struct {
+	GenericOccurrence[SamplingType] `gel:"$inline" json:",inline"`
+	Internal                        models.Optional[InternalBioMatSpecific] `gel:"internal" json:"internal,omitempty"`
+	External                        models.Optional[ExternalBioMatSpecific] `gel:"external" json:"external,omitempty"`
 }
-
-type OccurrenceElement string
-
-//generate:enum
-const (
-	BioMaterialElement OccurrenceElement = "BioMaterial"
-	SequenceElement    OccurrenceElement = "Sequence"
-)
 
 // OccurrenceWithCategory represents any occurrence
 // with its category (internal, external) and element (biomaterial, sequence).
 // Internal sequences are not supposed to be included in this type.
-type OccurrenceWithCategory struct {
-	Occurrence        `gel:"$inline" json:",inline"`
-	Category          OccurrenceCategory `gel:"category" json:"category"`
-	OccurrenceElement OccurrenceElement  `gel:"element" json:"element"`
-}
+// type OccurrenceWithCategory struct {
+// 	Occurrence[SamplingInnerWithSite] `gel:"$inline" json:",inline"`
+// 	Category                          OccurrenceCategory `gel:"category" json:"category"`
+// }
 
 type SamplingDateWithOccurrences struct {
 	ID            geltypes.UUID             `gel:"id" json:"id" format:"uuid"`
@@ -67,8 +67,7 @@ type OccurrenceAtSite struct {
 	Code  string              `gel:"code" json:"code"`
 	Taxon taxonomy.TaxonInner `gel:"taxon" json:"taxon"`
 	// SamplingDate      DateWithPrecision   `gel:"sampling_date" json:"sampling_date"`
-	Category          OccurrenceCategory `gel:"category" json:"category"`
-	OccurrenceElement OccurrenceElement  `gel:"element" json:"element"`
+	Category OccurrenceCategory `gel:"category" json:"category"`
 }
 
 type SiteWithOccurrences struct {
@@ -81,10 +80,7 @@ func ListSamplingsAtSite(db geltypes.Executor, siteCode string) ([]SamplingDetai
 	err := db.Query(context.Background(),
 		`#edgeql
 			with module occurrence,
-				site := (
-					select location::Site
-					filter .code = <str>$0
-				),
+				site := (select location::Site filter .code = <str>$0),
 			select site.samplings {
 				id,
 				date := .performed_on,
@@ -95,25 +91,14 @@ func ListSamplingsAtSite(db geltypes.Executor, siteCode string) ([]SamplingDetai
 				methods: { * },
 				meta: { * }
 				occurrences := (
-					with occurrences := (
-						select .occurrences filter (
-							(exists [is BioMaterial].id) or
-							(not exists [is seq::ExternalSequence].source_sample)
-						)
-					),
-					select occurrences {
+					select .occurrences {
 						id,
 						code,
+						category,
 						required taxon := (
-								[is ExternalBioMat].seq_consensus ??
 								[is InternalBioMat].seq_consensus ??
 								.identification.taxon
 							) { name, status, rank},
-						required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
-						required element := (
-							if exists [is seq::Sequence].id then 'Sequence'
-							else 'BioMaterial'
-						)
 					}
 				)
 			}
@@ -205,25 +190,15 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 					date := .performed_on,
 					occurring_taxa: { * },
 					occurrences := (
-						with occurrences := (
-							select .occurrences filter (
-								(exists [is BioMaterial].id) or
-								(not exists [is seq::ExternalSequence].source_sample)
-							)
-						),
+						with occurrences := (select .occurrences),
 						select occurrences {
 							id,
 							code,
+							category,
 							required taxon := (
-									[is ExternalBioMat].seq_consensus ??
 									[is InternalBioMat].seq_consensus ??
 									.identification.taxon
 								) { name, status, rank},
-							required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
-							required element := (
-								if exists [is seq::Sequence].id then 'Sequence'
-								else 'BioMaterial'
-							)
 						}
 						filter (
 							if exists taxa then (
@@ -262,17 +237,25 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 	return sites, err
 }
 
-// OccurrenceInnerInput is meant to be embedded in other occurrence input type
-type OccurrenceInnerInput struct {
-	Identification IdentificationInput                   `json:"identification" doc:"Occurrence identification"`
-	Comments       models.OptionalInput[string]          `json:"comments"`
-	PublishedIn    []references.OccurrenceReferenceInput `gel:"published_in" json:"published_in,omitempty"`
+// OccurrenceInput is meant to be embedded in other occurrence input type
+type OccurrenceInput struct {
+	Identification IdentificationInput          `json:"identification" doc:"Occurrence identification"`
+	Comments       models.OptionalInput[string] `json:"comments,omitzero"`
+	PublishedIn    []string                     `gel:"published_in" json:"published_in,omitempty"`
+	Code           models.OptionalInput[string] `gel:"code" json:"code,omitzero" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
+	IsType         models.OptionalInput[bool]   `gel:"is_type" json:"is_type,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
 }
 
-func (occ *OccurrenceInnerInput) WithCreatedMetadata(c *CreatedMetadata) *OccurrenceInnerInput {
+func (i *OccurrenceInput) SetCode(code string) {
+	i.Code.SetValue(code)
+}
+
+func (occ *OccurrenceInput) WithCreatedMetadata(c *CreatedMetadata) *OccurrenceInput {
 	occ.Identification.WithPersonAliases(c.People)
-	for i := range occ.PublishedIn {
-		(&occ.PublishedIn[i]).WithArticleCode(c.Bibliography)
+	for i, code := range occ.PublishedIn {
+		if c, ok := c.Bibliography[code]; ok {
+			occ.PublishedIn[i] = c
+		}
 	}
 	return occ
 }
@@ -280,6 +263,8 @@ func (occ *OccurrenceInnerInput) WithCreatedMetadata(c *CreatedMetadata) *Occurr
 type OccurrenceUpdate struct {
 	SamplingID     models.OptionalInput[geltypes.UUID]        `json:"sampling_id" format:"uuid"`
 	Identification models.OptionalInput[IdentificationUpdate] `gel:"identification" json:"identification,omitempty"`
+	Code           models.OptionalInput[string]               `gel:"code" json:"code,omitempty"`
+	IsType         models.OptionalInput[bool]                 `gel:"is_type" json:"is_type,omitempty"`
 	Comments       models.OptionalNull[string]                `gel:"comments" json:"comments,omitempty"`
 }
 
@@ -309,16 +294,13 @@ func OccurrenceOverview(db geltypes.Executor) ([]OccurrenceOverviewItem, error) 
 			occ := (
 				select Occurrence {
 						# use most accurate identification
-						taxon:= (
-								[is ExternalBioMat].seq_consensus ??
+						taxon := (
 								[is InternalBioMat].seq_consensus ??
 								.identification.taxon
 						)
 				} filter (
-						# ignore external bio material that has sequences
-						not (Occurrence is ExternalBioMat and exists [is ExternalBioMat].sequences)
 						# only account for well identified bio-material
-						and [is ExternalBioMat].is_homogenous ?? [is InternalBioMat].is_homogenous ?? true
+						[is InternalBioMat].is_homogenous ?? true
 				)
 			),
 			groups := (select (group occ by .taxon) { arity := count(.elements)}),

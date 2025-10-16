@@ -74,21 +74,15 @@
           :to="{ name: 'sequence', params: { code: value } }"
         />
         <span class="d-flex align-center ga-2 justify-end">
-          <v-icon
+          <!-- <v-icon
             v-if="item.external != undefined"
             :icon="ExtSeqOrigin.icon(item.external.origin)"
             v-tooltip="ExtSeqOrigin.description(item.external.origin)"
             size="small"
-          />
+          /> -->
           <v-icon
             v-bind="OccurrenceCategory.props[item.category]"
             v-tooltip="item.category"
-            size="small"
-          />
-          <v-icon
-            v-if="item.external?.source_sample"
-            icon="mdi-package-variant"
-            v-tooltip="`Has related bio-material`"
             size="small"
           />
         </span>
@@ -98,7 +92,13 @@
       <GeneChip :gene size="small" />
     </template>
     <template
-      #item.sampling.site="{ value: { code, name }, item }: { value: SiteItem; item: BioMaterial }"
+      #item.occurrence.sampling.site="{
+        value: { code, name },
+        item
+      }: {
+        value: SiteItem
+        item: Sequence
+      }"
     >
       <RouterLink
         :class="{ 'font-monospace': !name }"
@@ -106,15 +106,13 @@
         :text="name || code"
       />
     </template>
-    <template #item.sampling.performed_on="{ value }: { value?: DateWithPrecision }">
+    <template #item.occurrence.sampling.performed_on="{ value }: { value?: DateWithPrecision }">
       <span :class="['font-monospace', { 'text-muted': !value }]">{{
         DateWithPrecision.format(value)
       }}</span>
     </template>
 
-    <template
-      #item.identification.taxon="{ value: taxon, item }: { value: Taxon; item: BioMaterial }"
-    >
+    <template #item.identification.taxon="{ value: taxon, item }: { value: Taxon; item: Sequence }">
       <TaxonChip :taxon size="small" short />
     </template>
     <template #item.identification.identified_by="{ value }: { value: PersonInner }">
@@ -127,7 +125,7 @@
     </template>
 
     <!-- ROW EXPANSION -->
-    <template #expanded-row-inject="{ item }">
+    <!-- <template #expanded-row-inject="{ item }">
       <v-row class="ma-0">
         <v-col cols="12" md="6">
           <v-card flat class="flex-grow-1">
@@ -140,7 +138,7 @@
                 :to="
                   item.external?.source_sample?.code
                     ? {
-                        name: 'biomat-item',
+                        name: occurrence-item,
                         params: { code: item.external?.source_sample?.code }
                       }
                     : undefined
@@ -166,16 +164,15 @@
           </v-card>
         </v-col>
       </v-row>
-    </template>
+    </template> -->
   </CRUDTable>
 </template>
 
 <script setup lang="ts">
-import { BioMaterial, Gene, PersonInner, Sequence, Taxon } from '@/api'
+import { Gene, PersonInner, Sequence, Taxon } from '@/api'
 import {
   CodeIdentifier,
   DateWithPrecision,
-  ExtSeqOrigin,
   OccurrenceCategory,
   SequenceListItem,
   SiteItem
@@ -184,7 +181,6 @@ import { deleteSequenceMutation, listSequencesOptions } from '@/api/gen/@tanstac
 import PersonChip from '@/components/people/PersonChip'
 import GeneChip from '@/components/sequences/GeneChip'
 import GenePicker from '@/components/sequences/GenePicker.vue'
-import SeqRefChip from '@/components/sequences/SeqRefChip'
 import TaxonChip from '@/components/taxonomy/TaxonChip'
 import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
 import OccurrenceCategorySelect from '@/components/toolkit/OccurrenceCategorySelect.vue'
@@ -235,8 +231,13 @@ const headers: CRUDTableHeader<SequenceListItem>[] = [
     align: 'center',
     headerProps: { class: 'border-s' },
     children: [
-      { key: 'sampling.site', title: 'Site' },
-      { key: 'sampling.performed_on', title: 'Date', align: 'end', sort: DateWithPrecision.compare }
+      { key: 'occurrence.sampling.site', title: 'Site' },
+      {
+        key: 'occurrence.sampling.performed_on',
+        title: 'Date',
+        align: 'end',
+        sort: DateWithPrecision.compare
+      }
     ]
   },
   {

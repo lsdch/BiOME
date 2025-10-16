@@ -4,7 +4,7 @@
       v-for="{ element, code, category, taxon, date } in occurrences"
       :subtitle="DateWithPrecision.format(date)"
       :to="{
-        name: element === 'Sequence' ? 'sequence' : 'biomat-item',
+        name: element === 'Sequence' ? 'sequence' : occurrence - item,
         params: { code: code }
       }"
       target="_blank"
@@ -18,7 +18,7 @@
       <template #title>
         <RouterLink
           :to="{
-            name: element === 'Sequence' ? 'sequence' : 'biomat-item',
+            name: element === 'Sequence' ? 'sequence' : occurrence - item,
             params: { code: code }
           }"
           class="font-monospace text-caption"

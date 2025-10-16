@@ -4,6 +4,11 @@ vars:
   TEST_DB_NAME: testing
   EMPTY_DB_NAME: schema
 
+includes:
+  seeds:
+    taskfile: ./seeds
+    dir: ./seeds
+
 tasks:
   install:
     desc: "Install Gel CLI"

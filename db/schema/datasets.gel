@@ -74,7 +74,6 @@ module datasets {
     required is_congruent := (all(
       (select .occurrences {
         is_congruent := (
-          [is occurrence::ExternalBioMat].is_congruent ??
           [is occurrence::InternalBioMat].is_congruent ??
           true
         )
@@ -87,7 +86,7 @@ module datasets {
       on target delete allow;
       on source delete allow;
     };
-    multi sites := (.sequences.sampling.site)
+    # multi sites := (.sequences.sampling.site)
   }
 
 

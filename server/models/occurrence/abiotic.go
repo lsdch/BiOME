@@ -99,11 +99,11 @@ func (u AbioticMeasurementInput) Save(e geltypes.Executor, siteCode string) (upd
 	data, _ := json.Marshal(u)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
-			with item := <json>$1,
-			param := (select events::AbioticParameter filter .code = <str>item['param']),
+			with data := <json>$1,
+			param := (select events::AbioticParameter filter .code = <str>data['param']),
 			select (
 				insert events::AbioticMeasurement {
-					site := (select location::Site filter .code = <uuid>$0),
+					site := (select location::Site filter .code = <str>$0),
 					performed_by := (
 						select people::Person
 						filter .alias in <str>json_array_unpack(json_get(data, 'performed_by'))
@@ -116,7 +116,7 @@ func (u AbioticMeasurementInput) Save(e geltypes.Executor, siteCode string) (upd
 						select date::from_json_with_precision(json_get(data, 'performed_on'))
 					),
 					param := param,
-					value := <float32>item['value']
+					value := <float32>data['value']
 				}
 			) { param: { * }, value}
 		`,

@@ -72,10 +72,10 @@ export const navRoutes: (RouterItem | Divider)[] = [
   },
   {
     label: "Occurrences",
-    path: "/bio-material",
-    name: "bio-material",
+    path: "/occurrences",
+    name: "occurrences",
     icon: "mdi-package-variant",
-    component: () => import("@/views/samples/BioMaterialView.vue")
+    component: () => import("@/views/biomaterial/BioMaterialView.vue")
   },
   {
     label: "Sequences",

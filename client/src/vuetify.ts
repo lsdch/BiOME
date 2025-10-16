@@ -58,6 +58,9 @@ export default createVuetify({
     VBtn: {
       rounded: true
     },
+    VBtnGroup: {
+      rounded: true
+    },
     VChip: { rounded: true },
     VTab: { rounded: false },
     VCombobox: { variant: "outlined" },

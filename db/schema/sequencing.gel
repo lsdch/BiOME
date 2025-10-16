@@ -1,0 +1,127 @@
+module sequencing {
+  type BatchRequest extending default::Auditable {
+    required label: str;
+    required target_gene: seq::Gene;
+
+    requested_on: datetime {
+      annotation description := "If empty, the request is a draft and can not be processed yet."
+    };
+    required requested_by: people::Person;
+
+    multi requested_to: people::Person; # or group of persons ?
+    achieved_on: datetime;
+
+    comments: str;
+    required multi content: DNA;
+  }
+
+  scalar type DNAQuality extending enum<Unknown, Contaminated, Bad, Good>;
+
+  type DNAExtractionMethod extending default::Vocabulary, default::Auditable;
+
+  type DNA extending default::Auditable {
+    required chelex_tube: tuple<color:str, number:int16>;
+    required specimen: samples::Specimen;
+    required code: str { constraint exclusive };
+    # maybe autogenerate, talk with Lara
+    # maybe use the container as a referential ?
+
+    concentration: float32 {
+      annotation title := "DNA concentration in ng/µL";
+      constraint min_value(1e-3);
+    };
+
+    required multi extracted_by: people::Person;
+    required extraction_method: DNAExtractionMethod;
+    extracted_on: tuple<date: datetime, precision: date::DatePrecision> {
+      rewrite insert, update using (
+        (date := date::rewrite_date(.extracted_on), precision :=.extracted_on.precision)
+      )
+    };
+
+    required quality : DNAQuality;
+    required is_empty: bool {
+      default := false
+    };
+    required stored_in: storage::DNAStorage;
+    multi link PCRs := .<DNA[is PCR];
+    comments: str;
+  }
+
+
+  abstract type Primer extending default::Auditable {
+    required label: str { constraint exclusive };
+    required code: str { constraint exclusive };
+    sequence: str {
+      constraint min_len_value(5);
+    };
+    description: str;
+  }
+
+  type PCRForwardPrimer extending Primer, default::Auditable;
+  type PCRReversePrimer extending Primer, default::Auditable;
+
+  type PCRSpecificity extending default::Auditable {
+    required label: str { constraint exclusive };
+    description: str;
+  }
+
+  scalar type PCRQuality extending enum<Failure, Acceptable, Good, Unknown>;
+
+  type PCR extending default::Auditable {
+    required DNA: DNA;
+    required gene: seq::Gene;
+    required code: str { constraint exclusive };
+    required forward_primer : PCRForwardPrimer;
+    required reverse_primer : PCRReversePrimer;
+    required quality: PCRQuality;
+    performed_on: tuple<date: datetime, precision: date::DatePrecision> {
+      rewrite insert, update using (
+        (date := date::rewrite_date(__subject__.performed_on), precision := __subject__.performed_on.precision)
+      )
+    };
+    comments: str;
+    multi link chromatograms := .<PCR[is Chromatogram];
+
+    # Questions for Lara :
+    # - change quality to be a 0-3 scale, with 0 being a failure, then 1,2 or 3 stars
+    # - Nested PCR: do we want the initial PCR to be saved ?
+    #     or only the nested one, while keeping the information on the initial primers ?
+    # - dilution: should we store the dilution factor as well ?
+    # - Utiliser un système de tags combinables pour la spécificité ?
+    # - how useful would storing files be ?
+
+    # Notes spécificité :
+    # - 3KB: taille de fragment suffisant pour avoir à la fois le 16S et le COI (?)
+   }
+
+
+  type ChromatoPrimer extending Primer, default::Auditable;
+
+  scalar type ChromatoQuality extending enum<Contaminated, Failure, Ok, Unknown>;
+
+
+  type SequencingInstitute extending default::Auditable {
+    required name: str { constraint exclusive };
+    comments: str;
+  }
+
+  type Chromatogram extending default::Auditable {
+    # store chromatogram files ? talk with hosting service about space availability
+    required PCR: PCR;
+    required YAS_number: str { constraint exclusive };
+    required primer: ChromatoPrimer;
+    required code: str {
+      constraint exclusive;
+      rewrite insert using (
+        .code ?? (select .YAS_number ++ "|" ++ .primer.code)
+      );
+    };
+    required quality: ChromatoQuality;
+    # What is the difference between 'NON DISPONIBLE' and "INCONNU" ?
+
+    required provider: SequencingInstitute;
+    comments: str;
+    multi link sequences := .<chromatograms[is seq::AssembledSequence]
+  }
+}

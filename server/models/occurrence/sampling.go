@@ -97,9 +97,9 @@ type SamplingInner struct {
 
 type Sampling struct {
 	SamplingInner `gel:"$inline" json:",inline"`
-	Samples       []BioMaterial    `gel:"samples" json:"samples,omitempty"`
-	OccurringTaxa []taxonomy.Taxon `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
-	Meta          people.Meta      `gel:"meta" json:"meta"`
+	Occurrences   []Occurrence[struct{}] `gel:"occurrences" json:"occurrences,omitempty"`
+	OccurringTaxa []taxonomy.Taxon       `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
+	Meta          people.Meta            `gel:"meta" json:"meta"`
 }
 
 func (s Sampling) Code(siteCode string) string {

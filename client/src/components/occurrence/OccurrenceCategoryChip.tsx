@@ -1,4 +1,4 @@
-import { OccurrenceCategory, OccurrenceElement } from '@/api'
+import { OccurrenceCategory } from '@/api'
 
 function chipProps(category: OccurrenceCategory) {
   const { prependIcon, color } = OccurrenceCategory.props[category]
@@ -9,12 +9,12 @@ function chipProps(category: OccurrenceCategory) {
  * A chip displaying an occurrence category and element.
  */
 export function OccurrenceCategoryChip(
-  { category, element }: { category: OccurrenceCategory; element: OccurrenceElement },
+  { category }: { category: OccurrenceCategory },
   context: { attrs?: object }
 ) {
   return (
     <v-chip label {...{ ...chipProps(category), ...context.attrs }}>
-      {category} {OccurrenceElement.humanize(element)}
+      {category} occurrence
     </v-chip>
   )
 }

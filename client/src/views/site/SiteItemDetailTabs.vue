@@ -4,7 +4,16 @@
       <v-tab :disabled value="occurrences" prepend-icon="mdi-crosshairs-gps">
         Occurrences
         <template #append>
-          <v-badge color="primary" inline :content="site?.samplings?.length ?? 0" />
+          <v-badge
+            color="primary"
+            inline
+            :content="
+              site?.samplings?.reduce(
+                (acc, { occurrences }) => acc + (occurrences?.length ?? 0),
+                0
+              ) ?? 0
+            "
+          />
         </template>
       </v-tab>
       <v-tab :disabled value="samplings" prepend-icon="mdi-package-down">
@@ -16,7 +25,11 @@
       <v-tab :disabled value="abiotics" prepend-icon="mdi-gauge">
         Abiotic
         <template #append>
-          <v-badge color="primary" inline :content="site?.samplings?.length ?? 0" />
+          <v-badge
+            :color="site?.abiotic_measurements?.length ? 'primary' : ''"
+            inline
+            :content="site?.abiotic_measurements?.length ?? 0"
+          />
         </template>
       </v-tab>
       <v-tab :disabled value="datasets">

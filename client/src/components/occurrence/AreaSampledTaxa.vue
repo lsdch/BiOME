@@ -4,7 +4,9 @@
       <v-list-item
         v-bind="props"
         append-icon="mdi-chevron-right"
-        :title="pluralizeWithCount(occurringTaxaCount ?? 0, 'sampled taxon', 'sampled taxa')"
+        :title="
+          pluralizeWithCount(occurringTaxaCount ?? 0, 'sampled taxon', { plural: 'sampled taxa' })
+        "
       >
       </v-list-item>
     </template>

@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import { BioMaterialWithDetails, ErrorModel } from '@/api'
+import { ErrorModel, GenericOccurrenceSamplingOutline } from '@/api'
 import {
-  createExternalBioMatMutation,
+  createExternalOccurrenceMutation,
   samplingAddExternalOccurrenceMutation,
   siteAddExternalOccurrenceMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
@@ -39,7 +39,7 @@ defineProps<FormDialogProps>()
 
 const addFromSampling = useMutation(samplingAddExternalOccurrenceMutation())
 const addFromSite = useMutation(siteAddExternalOccurrenceMutation())
-const createFromScratchExternal = useMutation(createExternalBioMatMutation())
+const createFromScratchExternal = useMutation(createExternalOccurrenceMutation())
 
 function getActiveMutation() {
   if (hasID(model.value?.sampling)) return addFromSampling
@@ -67,7 +67,7 @@ const errors = computed<IndexedValidationErrors | undefined>(() => {
 const { feedback } = useFeedback()
 
 const mutationCallbacks = {
-  onSuccess: (data: BioMaterialWithDetails) => {
+  onSuccess: (data: GenericOccurrenceSamplingOutline) => {
     feedback({
       type: 'success',
       message: `Occurrence ${data.code} created`

@@ -59,7 +59,7 @@
           :color="OccurrenceCategory.props[category].color"
           :prepend-icon="OccurrenceCategory.icon(category)"
           :class="['ma-1', { 'text-muted': id === item.id }]"
-          :to="id !== item.id ? { name: 'biomat-item', params: { code: code } } : undefined"
+          :to="id !== item.id ? { name: occurrence - item, params: { code: code } } : undefined"
           label
           v-tooltip="
             id === item.id

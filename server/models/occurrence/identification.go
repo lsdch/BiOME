@@ -29,9 +29,9 @@ type Identification struct {
 
 type IdentificationInput struct {
 	Taxon        string                                        `gel:"taxon" json:"taxon"`
-	IdentifiedBy models.OptionalInput[string]                  `gel:"identified_by" json:"identified_by,omitempty"`
+	IdentifiedBy models.OptionalInput[string]                  `gel:"identified_by" json:"identified_by,omitzero"`
 	IdentifiedOn models.OptionalInput[DateWithPrecisionInput]  `gel:"identified_on" json:"identified_on,omitzero"`
-	Qualifier    models.OptionalInput[IdentificationQualifier] `gel:"qualifier" json:"qualifier,omitempty"`
+	Qualifier    models.OptionalInput[IdentificationQualifier] `gel:"qualifier" json:"qualifier,omitzero"`
 }
 
 func (id *IdentificationInput) WithPersonAliases(aliases map[string]string) IdentificationInput {

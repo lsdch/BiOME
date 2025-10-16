@@ -179,11 +179,8 @@ import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
-import AbioticChartsDialog from './AbioticChartsDialog.vue'
-import { AbioticData, AbioticDataPoint } from './AbioticLineChart.vue'
-import SiteItemMap from './SiteItemMap.vue'
-import OccurrencesAtSiteTable from '@/components/occurrence/OccurrencesAtSiteTable.vue'
 import SiteItemDetailTabs from './SiteItemDetailTabs.vue'
+import SiteItemMap from './SiteItemMap.vue'
 
 const { mdAndDown, xlAndUp } = useDisplay()
 

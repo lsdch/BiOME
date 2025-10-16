@@ -18,13 +18,13 @@ module occurrence {
     };
   }
 
+  scalar type OccurrenceCategory extending enum<Internal, External>;
+
+  function occurrence_code(taxon: taxonomy::Taxon, sampling: events::Sampling) -> str {
+    using ( taxonomy::taxon_code(taxon) ++ "[" ++ events::sampling_code(sampling) ++ "]" )
+  };
+
   # Occurrences are reports of the presence of a taxon at a specific location and time.
-  # They can be based on physical samples (BioMaterial) or molecular sequences.
-  # Internal sequences are not occurrences, but are linked to internal bio-materials,
-  # which are occurrences.
-  # External sequences are occurrences and MIGHT be linked to external bio-materials.
-  # External sequences without bio-materials are occurrences by themselves.
-  # Otherwise, their purpose is to add molecular data to an existing occurrence.
   abstract type Occurrence extending default::Auditable, default::CodeIdentifier {
 
     required sampling: events::Sampling;
@@ -33,27 +33,12 @@ module occurrence {
       on source delete delete target;
     };
 
-    multi published_in: references::Article {
-      original_source: bool;
-    };
-
-    comments: str;
-  }
-
-  scalar type OccurrenceCategory extending enum<Internal, External>;
-
-  function biomat_code(taxon: taxonomy::Taxon, sampling: events::Sampling) -> str {
-    using ( taxonomy::taxon_code(taxon) ++ "[" ++ events::sampling_code(sampling) ++ "]" )
-  };
-
-  abstract type BioMaterial extending Occurrence {
-
     overloaded required code : str {
       constraint exclusive;
       annotation description := "Format like 'taxon_short_code[sampling_code]'";
       rewrite update using (
         if __specified__.code then .code # allow manual overwrite
-        else biomat_code(.identification.taxon, .sampling)
+        else occurrence_code(.identification.taxon, .sampling)
       );
 
       # 🚧 unsupported feature for now
@@ -61,7 +46,7 @@ module occurrence {
       # > this is a tempory implementation restriction
       # 🔗 see also: https://github.com/geldata/gel/issues/7384
       # -----
-      # default := gen_biomat_code(.identification, .sampling)
+      # default := gen_occurrence_code(.identification, .sampling)
       # rewrite insert, update using (
       #   if re_test(r'^\d+$', .code)  then (
       #     .identification.taxon.code ++ "|" ++ events::event_code(.sampling.event)
@@ -76,7 +61,7 @@ module occurrence {
           else if __source__ is ExternalBioMat then OccurrenceCategory.External
           else <OccurrenceCategory>{}
         ),
-        message:= "Occurrence category for occurrence::BioMaterial subtype " ++ __source__.__type__.name ++ " is undefined"
+        message:= "Occurrence category for subtype " ++ __source__.__type__.name ++ " is undefined"
       )
     );
 
@@ -86,24 +71,29 @@ module occurrence {
       default := false;
     };
 
+    comments: str;
+
+    access policy allow_insert_update allow all;
     access policy no_duplicated_taxon_in_same_sampling
       deny insert, update
       using (
-        exists (
-          count((group .sampling.occurrences using taxon := .identification.taxon by taxon).elements) > 1
-        )
-      );
+        with
+          id := .id,
+          taxon := .identification.taxon,
+        select exists (select .sampling.occurrences filter .id != id and .identification.taxon = taxon)
+      ) {
+        errmessage := 'Another occurrence with the same taxon already exists for this sampling event.';
+      };
     # error: constraints cannot contain paths with more than one hop
     # constraint exclusive on ((.sampling, .identification.taxon));
-  };
+  }
 
-  type InternalBioMat extending BioMaterial {
+  type InternalBioMat extending Occurrence {
     # multi link content := .<biomat[is samples::Sample];
     multi link specimens := .<biomat[is samples::Specimen];
     multi link bundles := .<biomat[is samples::BundledSpecimens];
-    multi link identified_taxa := (
-      select distinct .specimens.identification.taxon ?? .identification.taxon
-    );
+
+    required has_sequences := (exists .specimens.sequences);
 
     required is_homogenous := (
       select count(distinct .specimens.identification.taxon) <= 1
@@ -122,7 +112,7 @@ module occurrence {
       )
     );
 
-    # Molecular identification,if available, and homogenous
+    # Molecular identification, if available and homogenous
     single seq_consensus := (
       select (
         if .is_homogenous then
@@ -140,10 +130,9 @@ module occurrence {
       with
         identification := data['identification'],
         taxon := taxonomy::taxonByName(<str>identification['taxon']),
-        publications := json_array_unpack(json_get(data, 'published_in')),
       insert InternalBioMat {
         sampling := sampling,
-        code := <str>json_get(data, 'code') ?? occurrence::biomat_code(taxon, sampling),
+        code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling),
         identification := (
           insert occurrence::Identification {
             taxon := taxon,
@@ -151,69 +140,33 @@ module occurrence {
             identified_on := date::from_json_with_precision(identification['identified_on']),
           }
         ),
-        is_type := <bool>json_get(data, 'is_type') ?? false,
+        is_type := <bool>json_get(data, 'is_type'),
         comments := <str>json_get(data, 'comments'),
-        published_in := (select distinct
-          (for p in publications union (
-            select references::Article {
-              @original_source := <bool>json_get(p, 'original')
-            } filter .code = <str>p['code']
-          ))
-        )
       }
     )
   };
 
-  scalar type QuantityType extending enum<Unknown, One, Several, Ten, Tens, Hundred>;
+  scalar type QuantityType extending enum<One, Several, Ten, Tens, Hundred>;
 
-  type ExternalBioMat extending BioMaterial {
-    original_source: references::DataSource;
-    original_link: str; # link to original database
+  type ExternalBioMat extending Occurrence {
+    multi sources: references::DataSource;
+    external_link: str; # link to original database
 
     in_collection: str; # name of a collection where the specimen can be found
     multi item_vouchers: str; # specimen identifier(s) within the collection
 
-    required quantity: QuantityType;
+    quantity: QuantityType;
     content_description: str;
 
 
-    multi link sequences := .<source_sample[is seq::ExternalSequence];
+    multi published_in: references::Article;
 
+    original_taxon: str {
+      annotation description := "The verbatim identification provided in the original source.";
+    };
 
-    required is_homogenous := (
-      select count(distinct .sequences.identification.taxon) <= 1
-    );
-
-    required is_congruent := (
-      select assert_exists(
-        .is_homogenous and (
-          (not exists .sequences) or
-          .identification.taxon in (
-            assert_single(
-              distinct .sequences.identification.taxon,
-              message := "BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: " ++ <str>.id
-            ))
-        )
-      )
-    );
-
-    # Molecular identification,if available and homogenous
-    single seq_consensus := (
-      select (
-        if .is_homogenous then
-          assert_single(
-            distinct .sequences.identification.taxon,
-            message := "BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: " ++ <str>.id
-          )
-        else {}
-      )
-    );
-
-		# Consensus molecular identification, if available.
-		# If not available, use morphological identification.
-    single best_identification := (
-      select .seq_consensus ?? .identification.taxon
-    );
+    required has_sequences := exists .sequences;
+    multi sequences := .<biomat[is seq::ExternalSequence];
   }
 
   function externalBiomatByCode(code: optional str) -> ExternalBioMat {
@@ -231,32 +184,29 @@ module occurrence {
       with
         identification := data['identification'],
         taxon := taxonomy::taxonByName(<str>identification['taxon']),
-        publications := json_array_unpack(json_get(data, 'published_in')),
       insert ExternalBioMat {
         sampling := sampling,
-        code := <str>json_get(data, 'code') ?? occurrence::biomat_code(taxon, sampling),
-        original_source := (
-          with src := <str>json_get(data, 'original_source')
-          select (if exists src then default::get_vocabulary(src)[is references::DataSource] else <references::DataSource>{})
+        code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling),
+        sources := (
+          select references::DataSource
+          filter .code in <str>json_array_unpack(json_get(data, 'sources'))
         ),
-        original_link := <str>json_get(data, 'original_link'),
+        external_link := <str>json_get(data, 'external_link'),
+        original_taxon := <str>json_get(data, 'original_taxon'),
         quantity := <occurrence::QuantityType>json_get(data, 'quantity'),
         content_description := <str>json_get(data, 'content_description'),
         in_collection := <str>json_get(data, 'collection'),
         item_vouchers := <str>json_array_unpack(json_get(data, 'item_vouchers')),
         comments := <str>json_get(data, 'comments'),
-        published_in := (select distinct
-          (for p in publications union (
-            select references::Article {
-              @original_source := <bool>json_get(p, 'original')
-            } filter .code = <str>p['code']
-          ))
+        published_in := (
+          select distinct references::Article
+          filter .code in <str>json_array_unpack(json_get(data, 'published_in'))
         ),
         identification := (
           insert occurrence::Identification {
             taxon := taxon,
-            identified_by := people::personByAlias(<str>identification['identified_by']),
-            identified_on := date::from_json_with_precision(identification['identified_on']),
+            identified_by := people::personByAlias(<str>json_get(identification, 'identified_by')),
+            identified_on := date::from_json_with_precision(json_get(identification, 'identified_on')),
           }
         ),
         is_type := <bool>json_get(data, 'is_type') ?? false,
@@ -265,18 +215,21 @@ module occurrence {
   };
 
 
-  alias BioMaterialWithType := (
-    select BioMaterial {
+  alias OccurrenceWithType := (
+    select Occurrence {
       required has_sequences := (
-        exists ([is ExternalBioMat].sequences ?? [is InternalBioMat].specimens.sequences)
+        [is InternalBioMat].has_sequences ?? [is ExternalBioMat].has_sequences ?? false
       ),
-      required is_homogenous := (
-        ([is ExternalBioMat].is_homogenous ?? true) and ([is ExternalBioMat].is_homogenous ?? true)
-      ),
-      required is_congruent := <bool>[is ExternalBioMat].is_congruent ?? <bool>[is InternalBioMat].is_congruent ?? true,
-      seq_consensus := <taxonomy::Taxon>[is ExternalBioMat].seq_consensus ?? <taxonomy::Taxon>[is InternalBioMat].seq_consensus,
+      internal := [is InternalBioMat]{
+        is_homogenous,
+        is_congruent,
+        seq_consensus
+      },
       external:= [is ExternalBioMat]{
-        original_link,
+        sequences,
+        published_in,
+        original_taxon,
+        external_link,
         in_collection,
         item_vouchers,
         quantity,

@@ -22,7 +22,7 @@
       <div class="d-flex justify-space-between align-center">
         <RouterLink
           :to="{
-            name: item.element === 'Sequence' ? 'sequence' : 'biomat-item',
+            name: 'occurrence-item',
             params: { code: item.code }
           }"
         >
@@ -30,8 +30,8 @@
         </RouterLink>
         <v-icon
           :color="item.category === 'Internal' ? 'primary' : 'warning'"
-          :icon="item.element === 'Sequence' ? 'mdi-dna' : OccurrenceCategory.icon(item.category)"
-          v-tooltip="`${item.category} ${item.element}`"
+          :icon="OccurrenceCategory.icon(item.category)"
+          v-tooltip="`${item.category} occurrence`"
           class="mx-1"
         />
       </div>
@@ -56,7 +56,7 @@ import {
   DateWithPrecision,
   OccurrenceAtSite,
   OccurrenceCategory,
-  SamplingInner,
+  SamplingInnerWithSite,
   SamplingWithOccurrences
 } from '@/api/adapters'
 import { computed, ref } from 'vue'
@@ -72,7 +72,7 @@ const search = ref({
 })
 
 type OccurrenceTableItem = {
-  sampling: SamplingInner
+  sampling: SamplingWithOccurrences
 } & OccurrenceAtSite
 
 const items = computed(
@@ -80,7 +80,6 @@ const items = computed(
     samplings.reduce<OccurrenceTableItem[]>((acc, { occurrences, occurring_taxa, ...s }) => {
       occurrences?.forEach((o) => {
         if (
-          (search.value.occurrenceTypes.includes('sequence') && o.element === 'Sequence') ||
           (search.value.occurrenceTypes.includes('internal') && o.category === 'Internal') ||
           (search.value.occurrenceTypes.includes('external') && o.category === 'External')
         )

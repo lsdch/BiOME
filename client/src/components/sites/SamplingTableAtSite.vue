@@ -34,7 +34,7 @@
           v-for="occurrence in item.occurrences"
           :key="occurrence.code"
           :to="{
-            name: occurrence.element === 'Sequence' ? 'sequence' : 'biomat-item',
+            name: occurrence.element === 'Sequence' ? 'sequence' : occurrence - item,
             params: { code: occurrence.code }
           }"
           @click.self

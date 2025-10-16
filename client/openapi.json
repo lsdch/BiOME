@@ -185,7 +185,7 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"original_source": {
+					"sources": {
 						"type": "boolean"
 					},
 					"title": {
@@ -204,7 +204,7 @@
 					"code",
 					"authors",
 					"year",
-					"original_source",
+					"sources",
 					"meta"
 				],
 				"type": "object"
@@ -316,6 +316,24 @@
 				},
 				"type": "object"
 			},
+			"AssembledSequenceSpecifics": {
+				"additionalProperties": false,
+				"properties": {
+					"alignment_code": {
+						"type": "string"
+					},
+					"assembled_by": {
+						"items": {
+							"$ref": "#/components/schemas/Person"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"alignment_code"
+				],
+				"type": "object"
+			},
 			"Assertion": {
 				"additionalProperties": false,
 				"properties": {
@@ -422,234 +440,6 @@
 				],
 				"title": "BioMatSortKey",
 				"type": "string"
-			},
-			"BioMaterial": {
-				"additionalProperties": false,
-				"properties": {
-					"category": {
-						"$ref": "#/components/schemas/OccurrenceCategory"
-					},
-					"code": {
-						"type": "string"
-					},
-					"code_history": {
-						"items": {
-							"$ref": "#/components/schemas/CodeHistory"
-						},
-						"type": "array"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"external": {
-						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
-					},
-					"has_sequences": {
-						"type": "boolean"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"identification": {
-						"$ref": "#/components/schemas/Identification"
-					},
-					"is_congruent": {
-						"type": "boolean"
-					},
-					"is_homogenous": {
-						"type": "boolean"
-					},
-					"is_type": {
-						"type": "boolean"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"published_in": {
-						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
-						},
-						"type": "array"
-					},
-					"sampling": {
-						"$ref": "#/components/schemas/SamplingInner"
-					},
-					"seq_consensus": {
-						"$ref": "#/components/schemas/OptionalTaxon"
-					}
-				},
-				"required": [
-					"has_sequences",
-					"is_homogenous",
-					"is_congruent",
-					"meta",
-					"sampling",
-					"identification",
-					"id",
-					"category",
-					"is_type",
-					"code"
-				],
-				"type": "object"
-			},
-			"BioMaterialListItem": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/BioMaterialListItem.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"category": {
-						"$ref": "#/components/schemas/OccurrenceCategory"
-					},
-					"code": {
-						"type": "string"
-					},
-					"code_history": {
-						"items": {
-							"$ref": "#/components/schemas/CodeHistory"
-						},
-						"type": "array"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"external": {
-						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
-					},
-					"has_sequences": {
-						"type": "boolean"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"identification": {
-						"$ref": "#/components/schemas/Identification"
-					},
-					"is_congruent": {
-						"type": "boolean"
-					},
-					"is_homogenous": {
-						"type": "boolean"
-					},
-					"is_type": {
-						"type": "boolean"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"published_in": {
-						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
-						},
-						"type": "array"
-					},
-					"sampling": {
-						"$ref": "#/components/schemas/SamplingInnerWithSite"
-					},
-					"seq_consensus": {
-						"$ref": "#/components/schemas/OptionalTaxon"
-					}
-				},
-				"required": [
-					"has_sequences",
-					"is_homogenous",
-					"is_congruent",
-					"meta",
-					"sampling",
-					"identification",
-					"id",
-					"category",
-					"is_type",
-					"code"
-				],
-				"type": "object"
-			},
-			"BioMaterialWithDetails": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/BioMaterialWithDetails.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"category": {
-						"$ref": "#/components/schemas/OccurrenceCategory"
-					},
-					"code": {
-						"type": "string"
-					},
-					"code_history": {
-						"items": {
-							"$ref": "#/components/schemas/CodeHistory"
-						},
-						"type": "array"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"external": {
-						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
-					},
-					"has_sequences": {
-						"type": "boolean"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"identification": {
-						"$ref": "#/components/schemas/Identification"
-					},
-					"is_congruent": {
-						"type": "boolean"
-					},
-					"is_homogenous": {
-						"type": "boolean"
-					},
-					"is_type": {
-						"type": "boolean"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"published_in": {
-						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
-						},
-						"type": "array"
-					},
-					"sampling": {
-						"$ref": "#/components/schemas/SamplingWithSite"
-					},
-					"seq_consensus": {
-						"$ref": "#/components/schemas/OptionalTaxon"
-					}
-				},
-				"required": [
-					"has_sequences",
-					"is_homogenous",
-					"is_congruent",
-					"meta",
-					"sampling",
-					"identification",
-					"id",
-					"category",
-					"is_type",
-					"code"
-				],
-				"type": "object"
 			},
 			"ClinicalTrailNumber": {
 				"additionalProperties": false,
@@ -864,20 +654,20 @@
 				],
 				"type": "object"
 			},
-			"CreateExternalBioMatInputBody": {
+			"CreateExternalOccurrenceInputBody": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/CreateExternalBioMatInputBody.json"
+							"/api/v1/schemas/CreateExternalOccurrenceInputBody.json"
 						],
 						"format": "uri",
 						"readOnly": true,
 						"type": "string"
 					},
 					"bio_material": {
-						"$ref": "#/components/schemas/ExternalBioMatInput"
+						"$ref": "#/components/schemas/ExternalOccurrenceInput"
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInput"
@@ -1556,75 +1346,80 @@
 				},
 				"type": "object"
 			},
-			"ExtSeqOrigin": {
-				"enum": [
-					"Lab",
-					"DB",
-					"PersCom"
-				],
-				"title": "ExtSeqOrigin",
-				"type": "string"
-			},
-			"ExtSeqSpecificsBioMaterial": {
+			"ExternalBioMatSpecific": {
 				"additionalProperties": false,
 				"properties": {
-					"origin": {
-						"$ref": "#/components/schemas/ExtSeqOrigin"
+					"archive": {
+						"$ref": "#/components/schemas/SpecimenVoucher"
+					},
+					"content_description": {
+						"type": "string"
+					},
+					"external_link": {
+						"type": "string"
 					},
 					"original_taxon": {
 						"type": "string"
 					},
 					"published_in": {
 						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
+							"$ref": "#/components/schemas/Article"
 						},
 						"type": "array"
 					},
-					"referenced_in": {
-						"items": {
-							"$ref": "#/components/schemas/SeqReference"
-						},
-						"type": "array"
+					"quantity": {
+						"$ref": "#/components/schemas/OptionalQuantity"
 					},
-					"source_sample": {
-						"$ref": "#/components/schemas/OptionalBioMaterial"
-					},
-					"specimen_identifier": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"origin",
-					"specimen_identifier"
-				],
-				"type": "object"
-			},
-			"ExternalBioMatContent": {
-				"additionalProperties": false,
-				"properties": {
 					"sequences": {
 						"items": {
-							"$ref": "#/components/schemas/ExternalBioMatSequence"
+							"$ref": "#/components/schemas/ExternalSequence"
 						},
 						"type": "array"
 					},
-					"specimen": {
-						"type": "string"
+					"sources": {
+						"items": {
+							"$ref": "#/components/schemas/DataSource"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
-					"specimen",
-					"sequences"
+					"archive"
 				],
 				"type": "object"
 			},
-			"ExternalBioMatInput": {
+			"ExternalOccurrenceAtSiteInput": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/ExternalBioMatInput.json"
+							"/api/v1/schemas/ExternalOccurrenceAtSiteInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"biomaterial": {
+						"$ref": "#/components/schemas/ExternalOccurrenceInput"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingInput"
+					}
+				},
+				"required": [
+					"sampling",
+					"biomaterial"
+				],
+				"type": "object"
+			},
+			"ExternalOccurrenceInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ExternalOccurrenceInput.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1650,6 +1445,9 @@
 						],
 						"type": "string"
 					},
+					"external_link": {
+						"type": "string"
+					},
 					"identification": {
 						"$ref": "#/components/schemas/IdentificationInput",
 						"description": "Occurrence identification"
@@ -1658,20 +1456,26 @@
 						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.",
 						"type": "boolean"
 					},
-					"original_link": {
-						"type": "string"
-					},
-					"original_source": {
+					"original_taxon": {
 						"type": "string"
 					},
 					"published_in": {
 						"items": {
-							"$ref": "#/components/schemas/OccurrenceReferenceInput"
+							"type": "string"
 						},
 						"type": "array"
 					},
 					"quantity": {
 						"$ref": "#/components/schemas/Quantity"
+					},
+					"sequences": {
+						"items": {
+							"$ref": "#/components/schemas/ExternalSequenceInput"
+						},
+						"type": "array"
+					},
+					"sources": {
+						"type": "string"
 					},
 					"vouchers": {
 						"items": {
@@ -1681,132 +1485,17 @@
 					}
 				},
 				"required": [
-					"quantity",
 					"identification"
 				],
 				"type": "object"
 			},
-			"ExternalBioMatSequence": {
-				"additionalProperties": false,
-				"properties": {
-					"accession_number": {
-						"type": "string"
-					},
-					"category": {
-						"$ref": "#/components/schemas/OccurrenceCategory"
-					},
-					"code": {
-						"type": "string"
-					},
-					"code_history": {
-						"items": {
-							"$ref": "#/components/schemas/CodeHistory"
-						},
-						"type": "array"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"gene": {
-						"$ref": "#/components/schemas/Gene"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"identification": {
-						"$ref": "#/components/schemas/Identification"
-					},
-					"label": {
-						"type": "string"
-					},
-					"legacy": {
-						"$ref": "#/components/schemas/OptionalLegacySeqID"
-					},
-					"origin": {
-						"$ref": "#/components/schemas/ExtSeqOrigin"
-					},
-					"original_taxon": {
-						"type": "string"
-					},
-					"published_in": {
-						"items": {
-							"$ref": "#/components/schemas/Article"
-						},
-						"type": "array"
-					},
-					"referenced_in": {
-						"items": {
-							"$ref": "#/components/schemas/SeqReference"
-						},
-						"type": "array"
-					},
-					"sequence": {
-						"type": "string"
-					},
-					"specimen_identifier": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"id",
-					"category",
-					"origin",
-					"identification",
-					"comments",
-					"accession_number",
-					"specimen_identifier",
-					"original_taxon",
-					"gene",
-					"code"
-				],
-				"type": "object"
-			},
-			"ExternalBioMatSpecific": {
-				"additionalProperties": false,
-				"properties": {
-					"archive": {
-						"$ref": "#/components/schemas/SpecimenVoucher"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"content": {
-						"items": {
-							"$ref": "#/components/schemas/ExternalBioMatContent"
-						},
-						"type": "array"
-					},
-					"content_description": {
-						"type": "string"
-					},
-					"original_link": {
-						"type": "string"
-					},
-					"original_source": {
-						"$ref": "#/components/schemas/OptionalDataSource"
-					},
-					"original_taxon": {
-						"type": "string"
-					},
-					"quantity": {
-						"$ref": "#/components/schemas/Quantity"
-					}
-				},
-				"required": [
-					"quantity",
-					"archive",
-					"comments"
-				],
-				"type": "object"
-			},
-			"ExternalBioMatUpdate": {
+			"ExternalOccurrenceUpdate": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/ExternalBioMatUpdate.json"
+							"/api/v1/schemas/ExternalOccurrenceUpdate.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -1833,23 +1522,17 @@
 							"null"
 						]
 					},
+					"external_link": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
 					"identification": {
 						"$ref": "#/components/schemas/IdentificationUpdate"
 					},
 					"is_type": {
 						"type": "boolean"
-					},
-					"original_link": {
-						"type": [
-							"string",
-							"null"
-						]
-					},
-					"original_source": {
-						"type": [
-							"string",
-							"null"
-						]
 					},
 					"original_taxon": {
 						"type": [
@@ -1859,7 +1542,7 @@
 					},
 					"published_in": {
 						"items": {
-							"$ref": "#/components/schemas/OccurrenceReferenceInput"
+							"type": "string"
 						},
 						"type": [
 							"array",
@@ -1867,11 +1550,21 @@
 						]
 					},
 					"quantity": {
-						"$ref": "#/components/schemas/Quantity"
+						"$ref": "#/components/schemas/Quantity",
+						"type": [
+							"string",
+							"null"
+						]
 					},
 					"sampling_id": {
 						"format": "uuid",
 						"type": "string"
+					},
+					"sources": {
+						"type": [
+							"string",
+							"null"
+						]
 					},
 					"vouchers": {
 						"items": {
@@ -1881,33 +1574,107 @@
 					}
 				},
 				"required": [
-					"published_in",
 					"sampling_id"
 				],
 				"type": "object"
 			},
-			"ExternalOccurrenceAtSiteInput": {
+			"ExternalSequence": {
 				"additionalProperties": false,
 				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/ExternalOccurrenceAtSiteInput.json"
-						],
-						"format": "uri",
-						"readOnly": true,
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
+					"code": {
 						"type": "string"
 					},
-					"biomaterial": {
-						"$ref": "#/components/schemas/ExternalBioMatInput"
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
 					},
-					"sampling": {
-						"$ref": "#/components/schemas/SamplingInput"
+					"comments": {
+						"type": "string"
+					},
+					"gene": {
+						"$ref": "#/components/schemas/Gene"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"is_identifying": {
+						"type": "boolean"
+					},
+					"label": {
+						"type": "string"
+					},
+					"legacy": {
+						"$ref": "#/components/schemas/OptionalLegacySeqID"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"referenced_in": {
+						"items": {
+							"$ref": "#/components/schemas/SeqReference"
+						},
+						"type": "array"
+					},
+					"sequence": {
+						"type": "string"
+					},
+					"specimen_identifier": {
+						"type": "string"
 					}
 				},
 				"required": [
-					"sampling",
-					"biomaterial"
+					"meta",
+					"id",
+					"gene",
+					"is_identifying",
+					"code",
+					"category"
+				],
+				"type": "object"
+			},
+			"ExternalSequenceInput": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"gene": {
+						"type": "string"
+					},
+					"is_identifying": {
+						"type": "boolean"
+					},
+					"label": {
+						"type": "string"
+					},
+					"legacy": {
+						"$ref": "#/components/schemas/LegacySeqID"
+					},
+					"referenced_in": {
+						"items": {
+							"$ref": "#/components/schemas/SeqReferenceInput"
+						},
+						"type": "array"
+					},
+					"sequence": {
+						"type": "string"
+					},
+					"specimen_identifier": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"code",
+					"gene"
 				],
 				"type": "object"
 			},
@@ -2146,6 +1913,115 @@
 						"type": "string"
 					}
 				},
+				"type": "object"
+			},
+			"GenericOccurrenceSamplingInnerWithSite": {
+				"additionalProperties": false,
+				"properties": {
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
+					"code": {
+						"type": "string"
+					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"has_sequences": {
+						"type": "boolean"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"is_type": {
+						"type": "boolean"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingInnerWithSite"
+					}
+				},
+				"required": [
+					"id",
+					"has_sequences",
+					"sampling",
+					"identification",
+					"is_type",
+					"meta",
+					"code",
+					"category"
+				],
+				"type": "object"
+			},
+			"GenericOccurrenceSamplingOutline": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/GenericOccurrenceSamplingOutline.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
+					"code": {
+						"type": "string"
+					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"has_sequences": {
+						"type": "boolean"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"is_type": {
+						"type": "boolean"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingOutline"
+					}
+				},
+				"required": [
+					"id",
+					"has_sequences",
+					"sampling",
+					"identification",
+					"is_type",
+					"meta",
+					"code",
+					"category"
+				],
 				"type": "object"
 			},
 			"GeoapifyResult": {
@@ -2774,6 +2650,29 @@
 				],
 				"type": "object"
 			},
+			"InternalBioMatSpecific": {
+				"additionalProperties": false,
+				"properties": {
+					"has_sequences": {
+						"type": "boolean"
+					},
+					"is_congruent": {
+						"type": "boolean"
+					},
+					"is_homogenous": {
+						"type": "boolean"
+					},
+					"seq_consensus": {
+						"$ref": "#/components/schemas/OptionalTaxon"
+					}
+				},
+				"required": [
+					"has_sequences",
+					"is_homogenous",
+					"is_congruent"
+				],
+				"type": "object"
+			},
 			"InvitationInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -3397,9 +3296,6 @@
 					"code": {
 						"type": "string"
 					},
-					"element": {
-						"$ref": "#/components/schemas/OccurrenceElement"
-					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -3412,8 +3308,7 @@
 					"id",
 					"code",
 					"taxon",
-					"category",
-					"element"
+					"category"
 				],
 				"type": "object"
 			},
@@ -3553,13 +3448,64 @@
 				],
 				"type": "object"
 			},
-			"OccurrenceElement": {
-				"enum": [
-					"BioMaterial",
-					"Sequence"
+			"OccurrenceListItem": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/OccurrenceListItem.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
+					"code": {
+						"type": "string"
+					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"has_sequences": {
+						"type": "boolean"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"is_type": {
+						"type": "boolean"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingInnerWithSite"
+					}
+				},
+				"required": [
+					"id",
+					"has_sequences",
+					"sampling",
+					"identification",
+					"is_type",
+					"meta",
+					"code",
+					"category"
 				],
-				"title": "OccurrenceElement",
-				"type": "string"
+				"type": "object"
 			},
 			"OccurrenceOverviewItem": {
 				"additionalProperties": false,
@@ -3586,74 +3532,129 @@
 				],
 				"type": "object"
 			},
-			"OccurrenceReference": {
+			"OccurrenceSamplingWithSite": {
 				"additionalProperties": false,
 				"properties": {
-					"authors": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/OccurrenceSamplingWithSite.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
 					},
 					"code": {
 						"type": "string"
 					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
 					"comments": {
 						"type": "string"
 					},
-					"doi": {
-						"type": "string"
+					"external": {
+						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
+					},
+					"has_sequences": {
+						"type": "boolean"
 					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
 					},
-					"journal": {
-						"type": "string"
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"internal": {
+						"$ref": "#/components/schemas/OptionalInternalBioMatSpecific"
+					},
+					"is_type": {
+						"type": "boolean"
 					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"original": {
-						"type": "boolean"
-					},
-					"original_source": {
-						"type": "boolean"
-					},
-					"title": {
-						"type": "string"
-					},
-					"verbatim": {
-						"type": "string"
-					},
-					"year": {
-						"format": "int32",
-						"type": "integer"
+					"sampling": {
+						"$ref": "#/components/schemas/SamplingWithSite"
 					}
 				},
 				"required": [
 					"id",
+					"has_sequences",
+					"sampling",
+					"identification",
+					"is_type",
+					"meta",
 					"code",
-					"authors",
-					"year",
-					"original_source",
-					"meta"
+					"category"
 				],
 				"type": "object"
 			},
-			"OccurrenceReferenceInput": {
+			"OccurrenceStruct {}": {
 				"additionalProperties": false,
 				"properties": {
+					"category": {
+						"$ref": "#/components/schemas/OccurrenceCategory"
+					},
 					"code": {
 						"type": "string"
 					},
-					"original": {
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"external": {
+						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
+					},
+					"has_sequences": {
 						"type": "boolean"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
+					},
+					"internal": {
+						"$ref": "#/components/schemas/OptionalInternalBioMatSpecific"
+					},
+					"is_type": {
+						"type": "boolean"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"sampling": {
+						"$ref": "#/components/schemas/OccurrenceStruct {}SamplingStruct"
 					}
 				},
 				"required": [
-					"code"
+					"id",
+					"has_sequences",
+					"sampling",
+					"identification",
+					"is_type",
+					"meta",
+					"code",
+					"category"
 				],
+				"type": "object"
+			},
+			"OccurrenceStruct {}SamplingStruct": {
+				"additionalProperties": false,
 				"type": "object"
 			},
 			"OptionalArticle": {
@@ -3693,7 +3694,7 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"original_source": {
+					"sources": {
 						"type": "boolean"
 					},
 					"title": {
@@ -3712,7 +3713,7 @@
 					"code",
 					"authors",
 					"year",
-					"original_source",
+					"sources",
 					"meta"
 				],
 				"type": [
@@ -3720,73 +3721,21 @@
 					"null"
 				]
 			},
-			"OptionalBioMaterial": {
+			"OptionalAssembledSequenceSpecifics": {
 				"additionalProperties": false,
 				"properties": {
-					"category": {
-						"$ref": "#/components/schemas/OccurrenceCategory"
-					},
-					"code": {
+					"alignment_code": {
 						"type": "string"
 					},
-					"code_history": {
+					"assembled_by": {
 						"items": {
-							"$ref": "#/components/schemas/CodeHistory"
+							"$ref": "#/components/schemas/Person"
 						},
 						"type": "array"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"external": {
-						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
-					},
-					"has_sequences": {
-						"type": "boolean"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"identification": {
-						"$ref": "#/components/schemas/Identification"
-					},
-					"is_congruent": {
-						"type": "boolean"
-					},
-					"is_homogenous": {
-						"type": "boolean"
-					},
-					"is_type": {
-						"type": "boolean"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"published_in": {
-						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
-						},
-						"type": "array"
-					},
-					"sampling": {
-						"$ref": "#/components/schemas/SamplingInner"
-					},
-					"seq_consensus": {
-						"$ref": "#/components/schemas/OptionalTaxon"
 					}
 				},
 				"required": [
-					"has_sequences",
-					"is_homogenous",
-					"is_congruent",
-					"meta",
-					"sampling",
-					"identification",
-					"id",
-					"category",
-					"is_type",
-					"code"
+					"alignment_code"
 				],
 				"type": [
 					"object",
@@ -3846,52 +3795,6 @@
 					"null"
 				]
 			},
-			"OptionalDataSource": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/DataSource.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"code": {
-						"type": "string"
-					},
-					"description": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"link_template": {
-						"type": "string"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"url": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"meta",
-					"id",
-					"label",
-					"code"
-				],
-				"type": [
-					"object",
-					"null"
-				]
-			},
 			"OptionalDateWithPrecision": {
 				"additionalProperties": false,
 				"properties": {
@@ -3909,78 +3812,45 @@
 				],
 				"type": "object"
 			},
-			"OptionalExtSeqSpecificsBioMaterial": {
-				"additionalProperties": false,
-				"properties": {
-					"origin": {
-						"$ref": "#/components/schemas/ExtSeqOrigin"
-					},
-					"original_taxon": {
-						"type": "string"
-					},
-					"published_in": {
-						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
-						},
-						"type": "array"
-					},
-					"referenced_in": {
-						"items": {
-							"$ref": "#/components/schemas/SeqReference"
-						},
-						"type": "array"
-					},
-					"source_sample": {
-						"$ref": "#/components/schemas/OptionalBioMaterial"
-					},
-					"specimen_identifier": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"origin",
-					"specimen_identifier"
-				],
-				"type": [
-					"object",
-					"null"
-				]
-			},
 			"OptionalExternalBioMatSpecific": {
 				"additionalProperties": false,
 				"properties": {
 					"archive": {
 						"$ref": "#/components/schemas/SpecimenVoucher"
 					},
-					"comments": {
-						"type": "string"
-					},
-					"content": {
-						"items": {
-							"$ref": "#/components/schemas/ExternalBioMatContent"
-						},
-						"type": "array"
-					},
 					"content_description": {
 						"type": "string"
 					},
-					"original_link": {
+					"external_link": {
 						"type": "string"
-					},
-					"original_source": {
-						"$ref": "#/components/schemas/OptionalDataSource"
 					},
 					"original_taxon": {
 						"type": "string"
 					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
+					},
 					"quantity": {
-						"$ref": "#/components/schemas/Quantity"
+						"$ref": "#/components/schemas/OptionalQuantity"
+					},
+					"sequences": {
+						"items": {
+							"$ref": "#/components/schemas/ExternalSequence"
+						},
+						"type": "array"
+					},
+					"sources": {
+						"items": {
+							"$ref": "#/components/schemas/DataSource"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
-					"quantity",
-					"archive",
-					"comments"
+					"archive"
 				],
 				"type": [
 					"object",
@@ -4028,6 +3898,32 @@
 				"$ref": "#/components/schemas/IdentificationQualifier",
 				"type": [
 					"",
+					"null"
+				]
+			},
+			"OptionalInternalBioMatSpecific": {
+				"additionalProperties": false,
+				"properties": {
+					"has_sequences": {
+						"type": "boolean"
+					},
+					"is_congruent": {
+						"type": "boolean"
+					},
+					"is_homogenous": {
+						"type": "boolean"
+					},
+					"seq_consensus": {
+						"$ref": "#/components/schemas/OptionalTaxon"
+					}
+				},
+				"required": [
+					"has_sequences",
+					"is_homogenous",
+					"is_congruent"
+				],
+				"type": [
+					"object",
 					"null"
 				]
 			},
@@ -4100,6 +3996,13 @@
 				],
 				"type": [
 					"object",
+					"null"
+				]
+			},
+			"OptionalQuantity": {
+				"$ref": "#/components/schemas/Quantity",
+				"type": [
+					"",
 					"null"
 				]
 			},
@@ -4480,13 +4383,13 @@
 				},
 				"type": "object"
 			},
-			"PaginatedListBioMaterialListItem": {
+			"PaginatedListOccurrenceListItem": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/PaginatedListBioMaterialListItem.json"
+							"/api/v1/schemas/PaginatedListOccurrenceListItem.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -4494,7 +4397,7 @@
 					},
 					"items": {
 						"items": {
-							"$ref": "#/components/schemas/BioMaterialListItem"
+							"$ref": "#/components/schemas/OccurrenceListItem"
 						},
 						"type": "array"
 					},
@@ -5452,6 +5355,12 @@
 						"format": "int64",
 						"type": "integer"
 					},
+					"occurrences": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceStruct {}"
+						},
+						"type": "array"
+					},
 					"occurring_taxa": {
 						"items": {
 							"$ref": "#/components/schemas/Taxon"
@@ -5472,12 +5381,6 @@
 					},
 					"performed_on": {
 						"$ref": "#/components/schemas/OptionalDateWithPrecision"
-					},
-					"samples": {
-						"items": {
-							"$ref": "#/components/schemas/BioMaterial"
-						},
-						"type": "array"
 					},
 					"target": {
 						"$ref": "#/components/schemas/SamplingTarget"
@@ -5594,76 +5497,6 @@
 				},
 				"required": [
 					"occurrences",
-					"target",
-					"id",
-					"number"
-				],
-				"type": "object"
-			},
-			"SamplingInner": {
-				"additionalProperties": false,
-				"properties": {
-					"access_points": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"duration": {
-						"description": "Sampling duration in minutes",
-						"format": "int64",
-						"type": "integer"
-					},
-					"fixatives": {
-						"items": {
-							"$ref": "#/components/schemas/Fixative"
-						},
-						"type": "array"
-					},
-					"habitats": {
-						"items": {
-							"$ref": "#/components/schemas/Habitat"
-						},
-						"type": "array"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"methods": {
-						"items": {
-							"$ref": "#/components/schemas/SamplingMethod"
-						},
-						"type": "array"
-					},
-					"number": {
-						"description": "Auto-incrementing number, unique per sampling",
-						"format": "int64",
-						"type": "integer"
-					},
-					"performed_by": {
-						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
-						},
-						"type": "array"
-					},
-					"performed_on": {
-						"$ref": "#/components/schemas/OptionalDateWithPrecision"
-					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTarget"
-					}
-				},
-				"required": [
 					"target",
 					"id",
 					"number"
@@ -5976,6 +5809,28 @@
 				},
 				"type": "object"
 			},
+			"SamplingOutline": {
+				"additionalProperties": false,
+				"properties": {
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"number": {
+						"description": "Auto-incrementing number, unique per sampling",
+						"format": "int64",
+						"type": "integer"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
+					}
+				},
+				"required": [
+					"id",
+					"number"
+				],
+				"type": "object"
+			},
 			"SamplingTarget": {
 				"additionalProperties": false,
 				"properties": {
@@ -6246,6 +6101,12 @@
 						"format": "int64",
 						"type": "integer"
 					},
+					"occurrences": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceStruct {}"
+						},
+						"type": "array"
+					},
 					"occurring_taxa": {
 						"items": {
 							"$ref": "#/components/schemas/Taxon"
@@ -6266,12 +6127,6 @@
 					},
 					"performed_on": {
 						"$ref": "#/components/schemas/OptionalDateWithPrecision"
-					},
-					"samples": {
-						"items": {
-							"$ref": "#/components/schemas/BioMaterial"
-						},
-						"type": "array"
 					},
 					"site": {
 						"$ref": "#/components/schemas/SiteItem"
@@ -6392,6 +6247,29 @@
 				],
 				"type": "object"
 			},
+			"SeqReferenceInput": {
+				"additionalProperties": false,
+				"properties": {
+					"accession": {
+						"description": "Accession number or sequence identifier in the data source",
+						"type": "string"
+					},
+					"db": {
+						"description": "Data source code identifier",
+						"type": "string"
+					},
+					"is_origin": {
+						"description": "Is this the origin of the sequence?",
+						"type": "boolean"
+					}
+				},
+				"required": [
+					"db",
+					"accession",
+					"is_origin"
+				],
+				"type": "object"
+			},
 			"Sequence": {
 				"additionalProperties": false,
 				"properties": {
@@ -6410,9 +6288,6 @@
 					"comments": {
 						"type": "string"
 					},
-					"external": {
-						"$ref": "#/components/schemas/OptionalExtSeqSpecificsBioMaterial"
-					},
 					"gene": {
 						"$ref": "#/components/schemas/Gene"
 					},
@@ -6420,8 +6295,8 @@
 						"format": "uuid",
 						"type": "string"
 					},
-					"identification": {
-						"$ref": "#/components/schemas/Identification"
+					"is_identifying": {
+						"type": "boolean"
 					},
 					"label": {
 						"type": "string"
@@ -6432,27 +6307,23 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"published_in": {
+					"referenced_in": {
 						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
+							"$ref": "#/components/schemas/SeqReference"
 						},
 						"type": "array"
-					},
-					"sampling": {
-						"$ref": "#/components/schemas/Sampling"
 					},
 					"sequence": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"id",
 					"meta",
-					"sampling",
-					"identification",
+					"id",
 					"gene",
-					"category",
-					"code"
+					"is_identifying",
+					"code",
+					"category"
 				],
 				"type": "object"
 			},
@@ -6596,9 +6467,6 @@
 					"comments": {
 						"type": "string"
 					},
-					"external": {
-						"$ref": "#/components/schemas/OptionalExtSeqSpecificsBioMaterial"
-					},
 					"gene": {
 						"$ref": "#/components/schemas/Gene"
 					},
@@ -6609,36 +6477,33 @@
 					"identification": {
 						"$ref": "#/components/schemas/Identification"
 					},
+					"is_identifying": {
+						"type": "boolean"
+					},
 					"label": {
 						"type": "string"
 					},
 					"legacy": {
 						"$ref": "#/components/schemas/OptionalLegacySeqID"
 					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"published_in": {
-						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
-						},
-						"type": "array"
-					},
-					"sampling": {
-						"$ref": "#/components/schemas/SamplingInnerWithSite"
+					"occurrence": {
+						"$ref": "#/components/schemas/GenericOccurrenceSamplingInnerWithSite"
 					},
 					"sequence": {
+						"type": "string"
+					},
+					"specimen_identifier": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"id",
-					"meta",
-					"sampling",
+					"occurrence",
 					"identification",
+					"id",
 					"gene",
-					"category",
-					"code"
+					"is_identifying",
+					"code",
+					"category"
 				],
 				"type": "object"
 			},
@@ -6669,9 +6534,6 @@
 					"comments": {
 						"type": "string"
 					},
-					"external": {
-						"$ref": "#/components/schemas/OptionalExtSeqSpecificsBioMaterial"
-					},
 					"gene": {
 						"$ref": "#/components/schemas/Gene"
 					},
@@ -6682,6 +6544,12 @@
 					"identification": {
 						"$ref": "#/components/schemas/Identification"
 					},
+					"internal": {
+						"$ref": "#/components/schemas/OptionalAssembledSequenceSpecifics"
+					},
+					"is_identifying": {
+						"type": "boolean"
+					},
 					"label": {
 						"type": "string"
 					},
@@ -6691,27 +6559,31 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"published_in": {
+					"occurrence": {
+						"$ref": "#/components/schemas/OccurrenceSamplingWithSite"
+					},
+					"referenced_in": {
 						"items": {
-							"$ref": "#/components/schemas/OccurrenceReference"
+							"$ref": "#/components/schemas/SeqReference"
 						},
 						"type": "array"
 					},
-					"sampling": {
-						"$ref": "#/components/schemas/SamplingWithSite"
-					},
 					"sequence": {
+						"type": "string"
+					},
+					"specimen_identifier": {
 						"type": "string"
 					}
 				},
 				"required": [
-					"id",
-					"meta",
-					"sampling",
+					"occurrence",
 					"identification",
+					"meta",
+					"id",
 					"gene",
-					"category",
-					"code"
+					"is_identifying",
+					"code",
+					"category"
 				],
 				"type": "object"
 			},
@@ -7391,10 +7263,6 @@
 						"type": "array"
 					}
 				},
-				"required": [
-					"collection",
-					"vouchers"
-				],
 				"type": "object"
 			},
 			"Status": {
@@ -9602,464 +9470,6 @@
 				"summary": "List GBIF anchor clades",
 				"tags": [
 					"Taxonomy GBIF"
-				]
-			}
-		},
-		"/bio-material": {
-			"get": {
-				"description": "Both internal and external",
-				"operationId": "ListBioMaterial",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "limit",
-						"schema": {
-							"format": "int64",
-							"type": "integer"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "offset",
-						"schema": {
-							"format": "int64",
-							"type": "integer"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "sort",
-						"schema": {
-							"$ref": "#/components/schemas/BioMatSortKey"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "order",
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "search",
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "owned",
-						"schema": {
-							"type": "boolean"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "category",
-						"schema": {
-							"$ref": "#/components/schemas/OccurrenceCategory"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "taxon",
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "whole_clade",
-						"schema": {
-							"type": "boolean"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "has_sequences",
-						"schema": {
-							"type": "boolean"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "is_type",
-						"schema": {
-							"type": "boolean"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/PaginatedListBioMaterialListItem"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "List bio-material",
-				"tags": [
-					"Occurrences"
-				]
-			}
-		},
-		"/bio-material/external": {
-			"patch": {
-				"operationId": "UpdateExternalBioMat",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "code",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/ExternalBioMatUpdate"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/BioMaterialWithDetails"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Update external bio-material",
-				"tags": [
-					"Occurrences"
-				]
-			},
-			"post": {
-				"operationId": "CreateExternalBioMat",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/CreateExternalBioMatInputBody"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/BioMaterialWithDetails"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Create external bio-material",
-				"tags": [
-					"Occurrences"
-				]
-			}
-		},
-		"/bio-material/{code}": {
-			"delete": {
-				"description": "Delete any (internal/external) bio-material record by its code",
-				"operationId": "DeleteBioMaterial",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "code",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/BioMaterialListItem"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Delete bio-material",
-				"tags": [
-					"Occurrences"
-				]
-			},
-			"get": {
-				"description": "Both internal and external",
-				"operationId": "GetBioMaterial",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"in": "path",
-						"name": "code",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/BioMaterialWithDetails"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Get bio-material",
-				"tags": [
-					"Occurrences"
 				]
 			}
 		},
@@ -12896,6 +12306,162 @@
 				]
 			}
 		},
+		"/occurrences": {
+			"get": {
+				"description": "Both internal and external",
+				"operationId": "ListBioMaterial",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "offset",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "sort",
+						"schema": {
+							"$ref": "#/components/schemas/BioMatSortKey"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "order",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "search",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "owned",
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "category",
+						"schema": {
+							"$ref": "#/components/schemas/OccurrenceCategory"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "taxon",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "whole_clade",
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "has_sequences",
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "is_type",
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PaginatedListOccurrenceListItem"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List bio-material",
+				"tags": [
+					"Occurrences"
+				]
+			}
+		},
 		"/occurrences/by-site": {
 			"get": {
 				"operationId": "OccurrencesBySite",
@@ -13059,6 +12625,162 @@
 				]
 			}
 		},
+		"/occurrences/external": {
+			"patch": {
+				"operationId": "UpdateExternalBioMat",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ExternalOccurrenceUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GenericOccurrenceSamplingOutline"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update external bio-material",
+				"tags": [
+					"Occurrences"
+				]
+			},
+			"post": {
+				"operationId": "CreateExternalOccurrence",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CreateExternalOccurrenceInputBody"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/GenericOccurrenceSamplingOutline"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Create external bio-material",
+				"tags": [
+					"Occurrences"
+				]
+			}
+		},
 		"/occurrences/overview": {
 			"get": {
 				"operationId": "OccurrenceOverview",
@@ -13122,6 +12844,152 @@
 					}
 				},
 				"summary": "Occurrences overview",
+				"tags": [
+					"Occurrences"
+				]
+			}
+		},
+		"/occurrences/{code}": {
+			"delete": {
+				"description": "Delete any (internal/external) bio-material record by its code",
+				"operationId": "DeleteBioMaterial",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/OccurrenceListItem"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Delete bio-material",
+				"tags": [
+					"Occurrences"
+				]
+			},
+			"get": {
+				"description": "Both internal and external",
+				"operationId": "GetBioMaterial",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/OccurrenceSamplingWithSite"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Get bio-material",
 				"tags": [
 					"Occurrences"
 				]
@@ -15021,7 +14889,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/ExternalBioMatInput"
+								"$ref": "#/components/schemas/ExternalOccurrenceInput"
 							}
 						}
 					},
@@ -15032,7 +14900,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/BioMaterialWithDetails"
+									"$ref": "#/components/schemas/GenericOccurrenceSamplingOutline"
 								}
 							}
 						},
@@ -16707,7 +16575,7 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/BioMaterialWithDetails"
+									"$ref": "#/components/schemas/GenericOccurrenceSamplingOutline"
 								}
 							}
 						},

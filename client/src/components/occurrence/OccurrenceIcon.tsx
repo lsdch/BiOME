@@ -1,12 +1,10 @@
-import { OccurrenceCategory, OccurrenceElement } from '@/api'
+import { OccurrenceCategory } from '@/api'
 
 export function OccurrenceIcon(
-  {
-    item: { category, element }
-  }: { item: { category: OccurrenceCategory; element: OccurrenceElement } },
+  { item: { category } }: { item: { category: OccurrenceCategory } },
   context: { attrs?: object }
 ) {
-  const tooltip = `${category} ${element}`
+  const tooltip = `${category} occurrence`
   return (
     <v-tooltip>
       {{
@@ -14,7 +12,7 @@ export function OccurrenceIcon(
         activator: ({ props }: any) => (
           <v-icon
             color={category === 'Internal' ? 'primary' : 'warning'}
-            icon={element === 'Sequence' ? 'mdi-dna' : OccurrenceCategory.icon(category)}
+            icon={OccurrenceCategory.icon(category)}
             {...{ ...props, ...context.attrs }}
           />
         )

@@ -28,7 +28,7 @@
               <OccurrenceCategoryBtnToggle v-model="model.biomaterial.category" />
             </template>
             <v-divider v-if="model.biomaterial.category" class="mb-3" />
-            <ExternalBioMatForm
+            <ExternalOccurrenceForm
               v-if="model.biomaterial.category === 'External'"
               v-model="model.biomaterial.external"
             />
@@ -46,9 +46,8 @@
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { FormProps } from '@/functions/mutations'
 import { OccurrenceModel } from '@/models'
-import ExternalBioMatForm from './ExternalBioMatForm.vue'
+import ExternalOccurrenceForm from './ExternalOccurrenceForm.vue'
 import { OccurrenceCategoryBtnToggle } from './OccurrenceCategoryBtnToggle'
-import EventFormComponent from './OccurrenceFormEvent.vue'
 import SamplingFormComponent from './OccurrenceFormSampling.vue'
 import SiteFormComponent from './OccurrenceFormSite.vue'
 

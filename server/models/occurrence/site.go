@@ -117,15 +117,15 @@ type Coordinates struct {
 }
 
 type SiteInput struct {
-	Name                models.OptionalInput[string] `json:"name,omitempty" minLength:"4" doc:"A short descriptive name"`
+	Name                models.OptionalInput[string] `json:"name,omitzero" minLength:"4" doc:"A short descriptive name"`
 	Code                string                       `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
-	Description         models.OptionalInput[string] `json:"description,omitempty"`
+	Description         models.OptionalInput[string] `json:"description,omitzero"`
 	Coordinates         Coordinates                  `json:"coordinates" doc:"Site coordinates in decimal degrees"`
-	Altitude            models.OptionalInput[int32]  `json:"altitude,omitempty" doc:"Site altitude in meters"`
-	Locality            models.OptionalInput[string] `json:"locality,omitempty" doc:"Nearest populated place"`
-	UserDefinedLocality bool                         `json:"user_defined_locality,omitempty" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
+	Altitude            models.OptionalInput[int32]  `json:"altitude,omitzero" doc:"Site altitude in meters"`
+	Locality            models.OptionalInput[string] `json:"locality,omitzero" doc:"Nearest populated place"`
+	UserDefinedLocality bool                         `json:"user_defined_locality,omitzero" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
 	// If country code is not provided, country is inferred from coordinates
-	CountryCode models.OptionalInput[string] `json:"country,omitempty" format:"country-code" pattern:"[A-Z]{3}" example:"FRA" doc:"ISO 3166-1 alpha-3 country code"`
+	CountryCode models.OptionalInput[string] `json:"country,omitzero" format:"country-code" pattern:"[A-Z]{3}" example:"FRA" doc:"ISO 3166-1 alpha-3 country code"`
 }
 
 func (c SiteInput) LatLong() (float32, float32) {
@@ -228,25 +228,17 @@ func GetSite(db geltypes.Executor, identifier string) (Site, error) {
 					methods: { * },
 					habitats: { * },
 					occurrences := (
-						with o := (
-							select .occurrences filter (
-								(exists [is BioMaterial].id) or
-								(not exists [is seq::ExternalSequence].source_sample)
-							)
-						),
-						select o {
+						# with o := (
+						# 	select .occurrences
+						# ),
+						select .occurrences {
 							id,
 							code,
 							required taxon := (
-									[is ExternalBioMat].seq_consensus ??
 									[is InternalBioMat].seq_consensus ??
 									.identification.taxon
 								) { name, status, rank},
 							required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
-							required element := (
-								if exists [is seq::Sequence].id then 'Sequence'
-								else 'BioMaterial'
-							)
 						}
 					),
 					occurring_taxa: { * },

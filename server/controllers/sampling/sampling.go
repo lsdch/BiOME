@@ -104,7 +104,7 @@ func registerSamplingRoutes(r router.Router) {
 type SamplingAddExternalOccurrenceInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
 	controllers.NumberInput
-	Body occurrence.ExternalBioMatInput
+	Body occurrence.ExternalOccurrenceInput
 }
 
 func SamplingAddExternalOccurrence(ctx context.Context, input *SamplingAddExternalOccurrenceInput) (*occurrences.RegisterOccurrenceOutput, error) {

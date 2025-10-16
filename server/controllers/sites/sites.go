@@ -94,14 +94,14 @@ type SiteAddExternalOccurrenceInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
 	controllers.CodeInput
 	Body struct {
-		Sampling    occurrence.SamplingInput       `json:"sampling"`
-		BioMaterial occurrence.ExternalBioMatInput `json:"biomaterial"`
+		Sampling    occurrence.SamplingInput           `json:"sampling"`
+		BioMaterial occurrence.ExternalOccurrenceInput `json:"biomaterial"`
 	} `nameHint:"ExternalOccurrenceAtSiteInput"`
 }
 
 func SiteAddExternalOccurrence(ctx context.Context, input *SiteAddExternalOccurrenceInput) (*occurrences.RegisterOccurrenceOutput, error) {
 	siteCode := input.Identifier()
-	var created occurrence.BioMaterialWithDetails
+	var created occurrence.GenericOccurrence[occurrence.SamplingOutline]
 	err := input.DB().Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
 
 		sampling, err := input.Body.Sampling.Save(tx, siteCode)

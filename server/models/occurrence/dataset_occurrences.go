@@ -63,15 +63,10 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 								id,
 								code,
 								required taxon := (
-										[is ExternalBioMat].seq_consensus ??
 										[is InternalBioMat].seq_consensus ??
 										.identification.taxon
 									) { name, status, rank},
 								required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
-								required element := (
-									if exists [is seq::Sequence].id then 'Sequence'
-									else 'BioMaterial'
-								)
 							} filter.sampling.id = dataset.sites.samplings.id
 						)
 					}
@@ -133,15 +128,10 @@ func (i OccurrenceDatasetInput) SaveTx(tx geltypes.Tx) (created OccurrenceDatase
 								id,
 								code,
 								required taxon := (
-										[is ExternalBioMat].seq_consensus ??
 										[is InternalBioMat].seq_consensus ??
 										.identification.taxon
 									) { name, status, rank},
 								required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
-								required element := (
-									if exists [is seq::Sequence].id then 'Sequence'
-									else 'BioMaterial'
-								)
 							}
 						)
 					}

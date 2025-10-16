@@ -1,14 +1,14 @@
 <template>
   <CRUDTableServer
     class="fill-height"
-    entity-name="Bio-material"
+    entity-name="Occurrence"
     :headers
     :filters
     :toolbar="{ title: 'Occurrences', icon: 'mdi-package-variant' }"
     :fetch-items="listBioMaterialOptions"
     :delete="{
       mutation: deleteBioMaterialMutation,
-      params: ({ code }: BioMaterialListItem) => ({ path: { code } })
+      params: ({ code }: OccurrenceListItem) => ({ path: { code } })
     }"
     :mobile="xs"
     show-expand
@@ -77,9 +77,9 @@
       </v-row>
     </template>
 
-    <template #item.code="{ value, item }: { value: string; item: BioMaterialListItem }">
+    <template #item.code="{ value, item }: { value: string; item: OccurrenceListItem }">
       <span class="d-flex justify-space-between align-center">
-        <RouterLink :text="value" :to="{ name: 'biomat-item', params: { code: value } }" />
+        <RouterLink :text="value" :to="{ name: 'occurrence-item', params: { code: value } }" />
         <span class="d-flex align-center ga-2 justify-end">
           <v-icon
             v-if="item.is_type"
@@ -123,7 +123,7 @@
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
-    <template #expanded-row-inject="{ item }">
+    <!-- <template #expanded-row-inject="{ item }">
       <v-list v-if="item.external">
         <v-list-item prepend-icon="mdi-newspaper-variant">
           <template #append>
@@ -145,7 +145,7 @@
         </v-list-item>
       </v-list>
       <v-divider v-if="item.external" />
-    </template>
+    </template> -->
     <!-- <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
       <BioMaterialFormDialog
         :dialog
@@ -158,12 +158,12 @@
 </template>
 
 <script setup lang="ts">
-import { BioMaterial, PersonInner, Taxon } from '@/api'
+import { PersonInner, Taxon } from '@/api'
 import {
-  BioMaterialListItem,
   BioMatSortKey,
   DateWithPrecision,
   OccurrenceCategory,
+  OccurrenceListItem,
   SiteItem
 } from '@/api/adapters'
 import {
@@ -193,9 +193,9 @@ type BiomatTableFilters = {
 
 const filters = ref<BiomatTableFilters>({})
 
-const headers: CRUDTableHeader<BioMaterialListItem>[] = [
+const headers: CRUDTableHeader<OccurrenceListItem>[] = [
   {
-    title: 'BioMaterial',
+    title: 'Occurrence',
     children: [{ key: 'code', title: 'Code', cellProps: { class: 'font-monospace' } }]
   },
   {

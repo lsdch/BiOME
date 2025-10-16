@@ -5,13 +5,13 @@ import {
   SamplingService,
   AccountService,
   TaxonomyGbifService,
-  OccurrencesService,
   ReferencesService,
   DataSourcesService,
   DatasetsService,
   SequencesService,
   ServicesService,
   LocationService,
+  OccurrencesService,
   PeopleService,
   SettingsService,
   TaxonomyService
@@ -70,19 +70,6 @@ import type {
   ClaimInvitationError,
   ClaimInvitationResponse,
   ListAnchorsData,
-  ListBioMaterialData,
-  ListBioMaterialError,
-  ListBioMaterialResponse,
-  UpdateExternalBioMatData,
-  UpdateExternalBioMatError,
-  UpdateExternalBioMatResponse,
-  CreateExternalBioMatData,
-  CreateExternalBioMatError,
-  CreateExternalBioMatResponse,
-  DeleteBioMaterialData,
-  DeleteBioMaterialError,
-  DeleteBioMaterialResponse,
-  GetBioMaterialData,
   CrossRefData,
   CrossRefBibSearchData,
   CrossRefBibSearchError,
@@ -162,8 +149,21 @@ import type {
   ListCountriesData,
   GetSitesCountByCountryData,
   SearchSitesData,
+  ListBioMaterialData,
+  ListBioMaterialError,
+  ListBioMaterialResponse,
   OccurrencesBySiteData,
+  UpdateExternalBioMatData,
+  UpdateExternalBioMatError,
+  UpdateExternalBioMatResponse,
+  CreateExternalOccurrenceData,
+  CreateExternalOccurrenceError,
+  CreateExternalOccurrenceResponse,
   OccurrenceOverviewData,
+  DeleteBioMaterialData,
+  DeleteBioMaterialError,
+  DeleteBioMaterialResponse,
+  GetBioMaterialData,
   ListOrganisationsData,
   CreateOrganisationData,
   CreateOrganisationError,
@@ -1047,234 +1047,6 @@ export const listAnchorsOptions = (options?: Options<ListAnchorsData>) => {
       return data
     },
     queryKey: listAnchorsQueryKey(options)
-  })
-}
-
-export const listBioMaterialQueryKey = (options?: Options<ListBioMaterialData>) =>
-  createQueryKey('listBioMaterial', options)
-
-/**
- * List bio-material
- * Both internal and external
- */
-export const listBioMaterialOptions = (options?: Options<ListBioMaterialData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await OccurrencesService.listBioMaterial({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listBioMaterialQueryKey(options)
-  })
-}
-
-const createInfiniteParams = <
-  K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>
->(
-  queryKey: QueryKey<Options>,
-  page: K
-) => {
-  const params = {
-    ...queryKey[0]
-  }
-  if (page.body) {
-    params.body = {
-      ...(queryKey[0].body as any),
-      ...(page.body as any)
-    }
-  }
-  if (page.headers) {
-    params.headers = {
-      ...queryKey[0].headers,
-      ...page.headers
-    }
-  }
-  if (page.path) {
-    params.path = {
-      ...(queryKey[0].path as any),
-      ...(page.path as any)
-    }
-  }
-  if (page.query) {
-    params.query = {
-      ...(queryKey[0].query as any),
-      ...(page.query as any)
-    }
-  }
-  return params as unknown as typeof page
-}
-
-export const listBioMaterialInfiniteQueryKey = (
-  options?: Options<ListBioMaterialData>
-): QueryKey<Options<ListBioMaterialData>> => createQueryKey('listBioMaterial', options, true)
-
-/**
- * List bio-material
- * Both internal and external
- */
-export const listBioMaterialInfiniteOptions = (options?: Options<ListBioMaterialData>) => {
-  return infiniteQueryOptions<
-    ListBioMaterialResponse,
-    ListBioMaterialError,
-    InfiniteData<ListBioMaterialResponse>,
-    QueryKey<Options<ListBioMaterialData>>,
-    number | Pick<QueryKey<Options<ListBioMaterialData>>[0], 'body' | 'headers' | 'path' | 'query'>
-  >(
-    // @ts-ignore
-    {
-      queryFn: async ({ pageParam, queryKey, signal }) => {
-        // @ts-ignore
-        const page: Pick<
-          QueryKey<Options<ListBioMaterialData>>[0],
-          'body' | 'headers' | 'path' | 'query'
-        > =
-          typeof pageParam === 'object'
-            ? pageParam
-            : {
-                query: {
-                  offset: pageParam
-                }
-              }
-        const params = createInfiniteParams(queryKey, page)
-        const { data } = await OccurrencesService.listBioMaterial({
-          ...options,
-          ...params,
-          signal,
-          throwOnError: true
-        })
-        return data
-      },
-      queryKey: listBioMaterialInfiniteQueryKey(options)
-    }
-  )
-}
-
-/**
- * Update external bio-material
- */
-export const updateExternalBioMatMutation = (
-  options?: Partial<Options<UpdateExternalBioMatData>>
-): UseMutationOptions<
-  UpdateExternalBioMatResponse,
-  UpdateExternalBioMatError,
-  Options<UpdateExternalBioMatData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateExternalBioMatResponse,
-    UpdateExternalBioMatError,
-    Options<UpdateExternalBioMatData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await OccurrencesService.updateExternalBioMat({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const createExternalBioMatQueryKey = (options: Options<CreateExternalBioMatData>) =>
-  createQueryKey('createExternalBioMat', options)
-
-/**
- * Create external bio-material
- */
-export const createExternalBioMatOptions = (options: Options<CreateExternalBioMatData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await OccurrencesService.createExternalBioMat({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: createExternalBioMatQueryKey(options)
-  })
-}
-
-/**
- * Create external bio-material
- */
-export const createExternalBioMatMutation = (
-  options?: Partial<Options<CreateExternalBioMatData>>
-): UseMutationOptions<
-  CreateExternalBioMatResponse,
-  CreateExternalBioMatError,
-  Options<CreateExternalBioMatData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateExternalBioMatResponse,
-    CreateExternalBioMatError,
-    Options<CreateExternalBioMatData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await OccurrencesService.createExternalBioMat({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete bio-material
- * Delete any (internal/external) bio-material record by its code
- */
-export const deleteBioMaterialMutation = (
-  options?: Partial<Options<DeleteBioMaterialData>>
-): UseMutationOptions<
-  DeleteBioMaterialResponse,
-  DeleteBioMaterialError,
-  Options<DeleteBioMaterialData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteBioMaterialResponse,
-    DeleteBioMaterialError,
-    Options<DeleteBioMaterialData>
-  > = {
-    mutationFn: async (localOptions) => {
-      const { data } = await OccurrencesService.deleteBioMaterial({
-        ...options,
-        ...localOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const getBioMaterialQueryKey = (options: Options<GetBioMaterialData>) =>
-  createQueryKey('getBioMaterial', options)
-
-/**
- * Get bio-material
- * Both internal and external
- */
-export const getBioMaterialOptions = (options: Options<GetBioMaterialData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await OccurrencesService.getBioMaterial({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getBioMaterialQueryKey(options)
   })
 }
 
@@ -2379,6 +2151,109 @@ export const searchSitesOptions = (options?: Options<SearchSitesData>) => {
   })
 }
 
+export const listBioMaterialQueryKey = (options?: Options<ListBioMaterialData>) =>
+  createQueryKey('listBioMaterial', options)
+
+/**
+ * List bio-material
+ * Both internal and external
+ */
+export const listBioMaterialOptions = (options?: Options<ListBioMaterialData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.listBioMaterial({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listBioMaterialQueryKey(options)
+  })
+}
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>
+>(
+  queryKey: QueryKey<Options>,
+  page: K
+) => {
+  const params = {
+    ...queryKey[0]
+  }
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any)
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any)
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any)
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const listBioMaterialInfiniteQueryKey = (
+  options?: Options<ListBioMaterialData>
+): QueryKey<Options<ListBioMaterialData>> => createQueryKey('listBioMaterial', options, true)
+
+/**
+ * List bio-material
+ * Both internal and external
+ */
+export const listBioMaterialInfiniteOptions = (options?: Options<ListBioMaterialData>) => {
+  return infiniteQueryOptions<
+    ListBioMaterialResponse,
+    ListBioMaterialError,
+    InfiniteData<ListBioMaterialResponse>,
+    QueryKey<Options<ListBioMaterialData>>,
+    number | Pick<QueryKey<Options<ListBioMaterialData>>[0], 'body' | 'headers' | 'path' | 'query'>
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ListBioMaterialData>>[0],
+          'body' | 'headers' | 'path' | 'query'
+        > =
+          typeof pageParam === 'object'
+            ? pageParam
+            : {
+                query: {
+                  offset: pageParam
+                }
+              }
+        const params = createInfiniteParams(queryKey, page)
+        const { data } = await OccurrencesService.listBioMaterial({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true
+        })
+        return data
+      },
+      queryKey: listBioMaterialInfiniteQueryKey(options)
+    }
+  )
+}
+
 export const occurrencesBySiteQueryKey = (options?: Options<OccurrencesBySiteData>) =>
   createQueryKey('occurrencesBySite', options)
 
@@ -2400,6 +2275,81 @@ export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData
   })
 }
 
+/**
+ * Update external bio-material
+ */
+export const updateExternalBioMatMutation = (
+  options?: Partial<Options<UpdateExternalBioMatData>>
+): UseMutationOptions<
+  UpdateExternalBioMatResponse,
+  UpdateExternalBioMatError,
+  Options<UpdateExternalBioMatData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateExternalBioMatResponse,
+    UpdateExternalBioMatError,
+    Options<UpdateExternalBioMatData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await OccurrencesService.updateExternalBioMat({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const createExternalOccurrenceQueryKey = (options: Options<CreateExternalOccurrenceData>) =>
+  createQueryKey('createExternalOccurrence', options)
+
+/**
+ * Create external bio-material
+ */
+export const createExternalOccurrenceOptions = (options: Options<CreateExternalOccurrenceData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.createExternalOccurrence({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: createExternalOccurrenceQueryKey(options)
+  })
+}
+
+/**
+ * Create external bio-material
+ */
+export const createExternalOccurrenceMutation = (
+  options?: Partial<Options<CreateExternalOccurrenceData>>
+): UseMutationOptions<
+  CreateExternalOccurrenceResponse,
+  CreateExternalOccurrenceError,
+  Options<CreateExternalOccurrenceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateExternalOccurrenceResponse,
+    CreateExternalOccurrenceError,
+    Options<CreateExternalOccurrenceData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await OccurrencesService.createExternalOccurrence({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
 export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) =>
   createQueryKey('occurrenceOverview', options)
 
@@ -2418,6 +2368,56 @@ export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewDa
       return data
     },
     queryKey: occurrenceOverviewQueryKey(options)
+  })
+}
+
+/**
+ * Delete bio-material
+ * Delete any (internal/external) bio-material record by its code
+ */
+export const deleteBioMaterialMutation = (
+  options?: Partial<Options<DeleteBioMaterialData>>
+): UseMutationOptions<
+  DeleteBioMaterialResponse,
+  DeleteBioMaterialError,
+  Options<DeleteBioMaterialData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteBioMaterialResponse,
+    DeleteBioMaterialError,
+    Options<DeleteBioMaterialData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await OccurrencesService.deleteBioMaterial({
+        ...options,
+        ...localOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const getBioMaterialQueryKey = (options: Options<GetBioMaterialData>) =>
+  createQueryKey('getBioMaterial', options)
+
+/**
+ * Get bio-material
+ * Both internal and external
+ */
+export const getBioMaterialOptions = (options: Options<GetBioMaterialData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.getBioMaterial({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getBioMaterialQueryKey(options)
   })
 }
 

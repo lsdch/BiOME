@@ -47,7 +47,7 @@ const abiotic_data = computed(() => {
   return (
     abiotic_measurements?.reduce<Record<string, AbioticData>>(
       (acc, { performed_on, param, value }) => {
-        if (performed_on.date === undefined) return acc
+        if (performed_on?.date === undefined) return acc
         acc[param.code] = {
           param,
           points: [{ y: value, date: performed_on.date }].concat(

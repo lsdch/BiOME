@@ -2,21 +2,7 @@
   <v-toolbar flat dense extension-height="auto" class="px-3">
     <!-- Top left icon -->
     <template v-if="icon" #prepend>
-      <v-tooltip :disabled="!onReload">
-        <template #activator="{ props, isActive }">
-          <v-avatar color="secondary" variant="outlined" v-bind="props">
-            <v-icon
-              :class="{ 'cursor-default': !onReload }"
-              dark
-              color="secondary-darken-1"
-              @click="emit('reload')"
-            >
-              {{ isActive && onReload ? 'mdi-reload' : icon }}
-            </v-icon>
-          </v-avatar>
-        </template>
-        Reload items
-      </v-tooltip>
+      <ClickableAvatarIcon :icon hover-icon="mdi-reload" @click="onReload?.()" />
     </template>
 
     <v-toolbar-title v-if="title !== undefined" style="min-width: 150px" :text="title" />
@@ -44,6 +30,7 @@
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
 import { ToolbarProps } from '.'
+import ClickableAvatarIcon from '../ui/ClickableAvatarIcon.vue'
 
 defineProps<ToolbarProps>()
 

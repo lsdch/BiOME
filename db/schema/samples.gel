@@ -35,7 +35,7 @@ module samples {
 
   type Specimen extending Sample {
     annotation description := "A single specimen isolated in a tube.";
-    required morphological_code: str {
+    required code: str {
       constraint exclusive;
       rewrite insert, update using (
         (__subject__.biomat.code ++ "[" ++ .tube ++ "]")
@@ -56,7 +56,7 @@ module samples {
 
     multi link sequences := .<specimen[is seq::AssembledSequence];
     link identification := (
-      (select .sequences filter .is_reference).identification
+      (select .sequences filter .is_identifying).identification
     );
 
     multi pictures: default::Picture {
