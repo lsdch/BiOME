@@ -178,6 +178,7 @@ func ListOccurrences(db geltypes.Executor, opts ListBioMaterialOptions) (models.
 					*,
 					sampling: { *, site: { *, country: { * } } },
 					identification: { **, identified_by: { * } },
+					meta: { * }
 				},
 				total_count := count(items),
 			};
