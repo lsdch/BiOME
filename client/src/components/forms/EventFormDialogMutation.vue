@@ -14,10 +14,10 @@
 import { $EventInput, $EventUpdate, Event, SiteItem } from '@/api'
 import { SiteInput } from '@/api/adapters'
 import { createEventMutation, updateEventMutation } from '@/api/gen/@tanstack/vue-query.gen'
-import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/functions/mutations'
+import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
 import { EventModel } from '@/models'
-import { FormDialogProps } from '../toolkit/forms/FormDialog.vue'
-import EventFormDialog from '../forms/EventFormDialog.vue'
+import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
+import EventFormDialog from './EventFormDialog.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const item = defineModel<Event>()

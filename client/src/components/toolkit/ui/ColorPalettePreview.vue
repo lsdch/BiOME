@@ -10,7 +10,7 @@
 </template>
 
 <script setup lang="ts">
-import { ColorBrewerPaletteKey, palette } from '@/functions/color_brewer'
+import { ColorBrewerPaletteKey, palette } from '@/lib/color_brewer'
 
 const { width = 100, thickness = 50 } = defineProps<{
   gradient: ColorBrewerPaletteKey

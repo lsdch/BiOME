@@ -123,13 +123,13 @@
 
 <script setup lang="ts">
 import { $SiteInput, $SiteUpdate } from '@/api'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { SiteModel } from '@/models'
 import { useGeolocation, useToggle, watchOnce } from '@vueuse/core'
-import { useSchema } from '../../composables/schema'
-import FTextField from '../toolkit/forms/FTextField'
-import CoordPrecisionPicker from '@/components/sites/CoordPrecisionPicker.vue'
-import SiteProximityMap from '@/components/sites/SiteProximityMap.vue'
+import { useSchema } from '@/composables/schema'
+import FTextField from '@/components/toolkit/forms/FTextField'
+import CoordPrecisionPicker from '@/features/site/components/CoordPrecisionPicker.vue'
+import SiteProximityMap from '@/features/site/components/SiteProximityMap.vue'
 import SiteFormLocationField from './SiteFormLocationField.vue'
 
 const model = defineModel<SiteModel.SiteFormModel>({

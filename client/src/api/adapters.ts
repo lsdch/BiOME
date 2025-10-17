@@ -26,7 +26,7 @@ import {
   SamplingTargetKind as TSamplingTargetKind,
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/users/UserRoleChip"
-import QuantityChip from "@/components/occurrence/ExternalOccurrenceQuantityChip"
+import QuantityChip from "@/features/occurrences/components/ExternalOccurrenceQuantityChip"
 
 export * from "./gen/types.gen"
 

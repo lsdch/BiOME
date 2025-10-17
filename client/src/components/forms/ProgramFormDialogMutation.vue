@@ -12,11 +12,11 @@
 <script setup lang="ts">
 import { $ProgramInput, $ProgramUpdate, Program } from '@/api'
 import { createProgramMutation, updateProgramMutation } from '@/api/gen/@tanstack/vue-query.gen'
-import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/functions/mutations'
+import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
 import { ProgramModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
 import ProgramFormDialog from './ProgramFormDialog.vue'
-import { FormDialogProps } from '../toolkit/forms/FormDialog.vue'
+import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 
 const item = defineModel<Program>()
 const dialog = defineModel<boolean>('dialog')

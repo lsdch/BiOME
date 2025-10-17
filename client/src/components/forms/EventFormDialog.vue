@@ -19,7 +19,7 @@
 
 <script setup lang="ts">
 import { SiteItem } from '@/api'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { EventModel } from '@/models'
 import { SiteFormModel } from '@/models/site'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'

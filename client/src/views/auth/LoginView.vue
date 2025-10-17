@@ -45,7 +45,7 @@
 import { Ref, ref } from 'vue'
 import LoginForm from '@/components/users/LoginForm.vue'
 import PasswordResetForm from '@/components/users/PasswordResetRequestForm.vue'
-import { useInstanceSettings } from '@/components/settings'
+import { useInstanceSettings } from '@/features/settings/components'
 
 enum Mode {
   Login,

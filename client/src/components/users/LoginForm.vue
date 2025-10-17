@@ -42,7 +42,7 @@ import { useRouteQuery } from '@vueuse/router'
 import { StatusCodes } from 'http-status-codes'
 import { onBeforeMount, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import PasswordField from '../toolkit/forms/PasswordField.vue'
+import PasswordField from '@/components/toolkit/forms/PasswordField.vue'
 import { storeToRefs } from 'pinia'
 
 const credentials: UserCredentials = reactive({

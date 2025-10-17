@@ -68,10 +68,10 @@
 <script setup lang="ts">
 import { $ExternalOccurrenceInput, $ExternalOccurrenceUpdate } from '@/api'
 import { useSchema } from '@/composables/schema'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { BiomatModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
-import ArticlesPicker from '@/components/references/ArticlesPicker.vue'
+import ArticlesPicker from '@/features/registries/components/ArticlesPicker.vue'
 import ExternalOccurrenceQuantityPicker from '@/components/forms/occurrence/ExternalOccurrenceQuantityPicker.vue'
 import IdentificationFormFields from '@/components/forms/occurrence/IdentificationFormFields.vue'
 

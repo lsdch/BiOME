@@ -64,13 +64,13 @@
 </template>
 
 <script setup lang="ts">
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { PersonModel } from '@/models'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { reactiveComputed } from '@vueuse/core'
 import { useSchema } from '@/composables/schema'
 import { $PersonInput, $PersonUpdate } from '@/api'
-import OrganisationPicker from '@/components/people/OrganisationPicker.vue'
+import OrganisationPicker from '@/features/people/components/OrganisationPicker.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const model = defineModel<PersonModel.PersonFormModel>({

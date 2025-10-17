@@ -62,10 +62,10 @@
 import { $DataSourceInput, $DataSourceUpdate } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { useSchema } from '@/composables/schema'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { DataSourceModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
-import FTextField from '../toolkit/forms/FTextField'
+import FTextField from '@/components/toolkit/forms/FTextField'
 
 const dialog = defineModel<boolean>('dialog')
 const model = defineModel<DataSourceModel.DataSourceFormModel>({

@@ -19,10 +19,10 @@
 <script setup lang="ts">
 import { $InvitationInput, InvitationInput, PendingUserRequest, UserRole } from '@/api'
 import { ref, watch } from 'vue'
-import FormDialog from '../toolkit/forms/FormDialog.vue'
-import { useSchema } from '../../composables/schema'
+import FormDialog from '@/components/toolkit/forms/FormDialog.vue'
+import { useSchema } from '@/composables/schema'
 import UserRolePicker from './UserRolePicker.vue'
-import PersonPicker from '../people/PersonPicker.vue'
+import PersonPicker from '@/features/people/components/PersonPicker.vue'
 
 export type InitialContent = { pending?: PendingUserRequest; role?: UserRole }
 

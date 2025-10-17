@@ -42,7 +42,7 @@ function setupRouter(settings: InstanceSettings) {
       {
         path: '/docs/api',
         name: 'api-docs',
-        component: () => import('../views/APIDocs.vue'),
+        component: () => import('@/views/APIDocs.vue'),
         meta: {
           title: makeTitle("API docs")
         }
@@ -50,13 +50,13 @@ function setupRouter(settings: InstanceSettings) {
       {
         path: "/init",
         name: "init",
-        component: () => import("../views/settings/InitialSetup.vue"),
+        component: () => import("@/features/settings/views/InitialSetup.vue"),
         meta: { hideNavbar: true }
       },
       guardRole('Admin', {
         path: "/taxonomy/import",
         name: "import-GBIF",
-        component: () => import("../views/taxonomy/GBIFImportView.vue")
+        component: () => import("@/features/taxonomy/views/GBIFImportView.vue")
       }),
       guardRole('Contributor', {
         path: "/import/dataset",
@@ -66,36 +66,36 @@ function setupRouter(settings: InstanceSettings) {
             temporary: true
           }
         },
-        component: () => import("../views/import/SiteImportView.vue")
+        component: () => import("@/views/import/SiteImportView.vue")
       }),
       {
         path: "/datasets/sites/:slug",
         name: "site-dataset-item",
-        component: () => import('@/views/datasets/SiteDatasetItemView.vue'),
+        component: () => import('@/features/datasets/views/SiteDatasetItemView.vue'),
         props: route => ({ slug: route.params.slug, query: getSiteDatasetOptions }),
       },
       {
         path: "/datasets/occurrences/:slug",
         name: "occurrence-dataset-item",
-        component: () => import('@/views/datasets/occurrence/OccurrenceDatasetItemView.vue'),
+        component: () => import('@/features/datasets/views/occurrence/OccurrenceDatasetItemView.vue'),
         props: route => ({ slug: route.params.slug }),
       },
       {
         path: "/sites/:code",
         name: "site-item",
-        component: () => import('@/views/site/SiteItemView.vue'),
+        component: () => import('@/features/site/views/SiteItemView.vue'),
         props: true
       },
       {
         path: "/occurrences/:code",
         name: "occurrence-item",
-        component: () => import('@/views/biomaterial/BiomatItemView.vue'),
+        component: () => import('@/features/occurrences/views/OccurrenceItemView.vue'),
         props: true
       },
       {
         path: "/sequences/:code",
         name: "sequence",
-        component: () => import('@/views/sequences/SeqItemView.vue'),
+        component: () => import('@/features/sequences/views/SeqItemView.vue'),
         props: true,
         meta: {
           title: makeTitle("API docs")

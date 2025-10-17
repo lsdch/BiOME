@@ -28,12 +28,12 @@
   "
 >
 import { ErrorModel } from '@/api'
-import { FormCreateMutation, FormUpdateMutation, RequestData } from '@/functions/mutations'
+import { FormCreateMutation, FormUpdateMutation, RequestData } from '@/lib/mutations'
 import { useMutation } from '@tanstack/vue-query'
 import { reactiveComputed } from '@vueuse/core'
 import { StatusCodes } from 'http-status-codes'
 import { computed, ref, watch } from 'vue'
-import { Schema, useSchema } from '../../../composables/schema'
+import { Schema, useSchema } from '@/composables/schema'
 
 export type Mode = 'Create' | 'Edit'
 

@@ -17,7 +17,7 @@
 import { $PersonInput, $PersonUpdate, Person } from '@/api'
 import { createPersonMutation, updatePersonMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/functions/mutations'
+import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
 import { PersonModel } from '@/models'
 import PersonFormDialog from './PersonFormDialog.vue'
 

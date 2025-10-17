@@ -98,9 +98,9 @@
 
 <script setup lang="ts">
 import { Sampling, Site } from '@/api'
-import SamplingListItems from '@/components/events/SamplingListItems.vue'
+import SamplingListItems from '@/features/occurrences/components/sampling/SamplingListItems.vue'
 import SamplingFormDialog from '@/components/forms/SamplingFormDialog.vue'
-import { hasID } from '@/functions/db'
+import { hasID } from '@/lib/db'
 import { SamplingModel } from '@/models'
 import { EventModel } from '@/models/event'
 import { SamplingFormModel } from '@/models/sampling'

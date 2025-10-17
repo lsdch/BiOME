@@ -35,7 +35,7 @@ import {
   ColorBrewerPalette,
   ColorBrewerPaletteKey,
   palette
-} from '@/functions/color_brewer'
+} from '@/lib/color_brewer'
 import ColorPalettePreview from './ColorPalettePreview.vue'
 
 const model = defineModel<keyof typeof brewerPalettes>({

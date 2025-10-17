@@ -37,7 +37,7 @@
 import { $SamplingMethodInput, $SamplingMethodUpdate } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { useSchema } from '@/composables/schema'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { SamplingMethodModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
 

@@ -101,10 +101,10 @@ import {
   DatasetInput,
   DatasetsService
 } from '@/api'
-import PersonPicker from '@/components/people/PersonPicker.vue'
+import PersonPicker from '@/features/people/components/PersonPicker.vue'
 import { isGranted } from '@/components/people/userRole'
-import SiteDatasetPrimer from '@/components/sites/SiteDatasetPrimer.vue'
-import SiteTabularImport, { RecordElement } from '@/components/sites/SiteTabularImport.vue'
+import SiteDatasetPrimer from '@/features/site/imports/SiteDatasetPrimer.vue'
+import SiteTabularImport, { RecordElement } from '@/features/site/imports/SiteTabularImport.vue'
 import { FormProps, useForm, useSchema } from '@/components/toolkit/forms/form'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'

@@ -30,7 +30,7 @@
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
 import { ToolbarProps } from '.'
-import ClickableAvatarIcon from '../ui/ClickableAvatarIcon.vue'
+import ClickableAvatarIcon from '@/components/toolkit/ui/ClickableAvatarIcon.vue'
 
 defineProps<ToolbarProps>()
 

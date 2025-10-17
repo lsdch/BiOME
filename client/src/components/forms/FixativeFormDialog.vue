@@ -37,7 +37,7 @@
 import { $FixativeInput, $FixativeUpdate } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { useSchema } from '@/composables/schema'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { FixativeModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
 

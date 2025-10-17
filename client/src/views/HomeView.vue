@@ -48,8 +48,8 @@
 </template>
 
 <script setup lang="ts">
-import { useInstanceSettings } from '@/components/settings'
-import DashBoard from '../components/dashboard/DashBoard.vue'
+import { useInstanceSettings } from '@/features/settings/components'
+import DashBoard from '@/features/dashboard/views/DashBoard.vue'
 
 const { instance } = useInstanceSettings()
 </script>

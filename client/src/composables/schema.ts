@@ -1,7 +1,7 @@
 import { ErrorDetail, ErrorModel } from "@/api"
 import * as Schemas from "@/api/gen/schemas.gen"
 import { useErrorHandler, ResponseBody } from "@/api/responses"
-import { IndexedValidationErrors } from "@/functions/mutations"
+import { IndexedValidationErrors } from "@/lib/mutations"
 import { useCountries } from "@/stores/countries"
 import { OpenApi } from "@hey-api/openapi-ts"
 import { List, Union } from "ts-toolbelt"

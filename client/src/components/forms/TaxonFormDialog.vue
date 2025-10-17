@@ -69,11 +69,11 @@
 import { $TaxonInput, $TaxonUpdate, Taxon, TaxonRank } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { useSchema } from '@/composables/schema'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { TaxonModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
-import StatusPicker from '../taxonomy/StatusPicker.vue'
-import TaxonPicker from '../taxonomy/TaxonPicker.vue'
+import StatusPicker from '@/features/taxonomy/components/StatusPicker.vue'
+import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { watch } from 'vue'
 
 const dialog = defineModel<boolean>('dialog')

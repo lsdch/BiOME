@@ -50,7 +50,7 @@
 import { $GeneInput, $GeneUpdate } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { useSchema } from '@/composables/schema'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { GeneModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
 

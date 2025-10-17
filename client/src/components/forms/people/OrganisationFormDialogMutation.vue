@@ -18,7 +18,7 @@ import {
   updateOrganisationMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/functions/mutations'
+import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
 import { OrganisationModel } from '@/models'
 import OrganisationFormDialog from './OrganisationFormDialog.vue'
 

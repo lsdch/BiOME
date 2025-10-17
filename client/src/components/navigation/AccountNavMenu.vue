@@ -104,13 +104,10 @@ import { watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useDisplay } from 'vuetify'
 
-const { smAndDown } = useDisplay()
-
 const userStore = useUserStore()
 const { user, usePrivilege } = storeToRefs(userStore)
 
 import { useTheme } from 'vuetify'
-import { roleIcon } from '../icons/UserRoleIcon'
 const theme = useTheme()
 
 watch(theme.name, () => {

@@ -1,6 +1,6 @@
 import { ErrorModel, GeoapifyResult } from "@/api";
 import { getGeoapifyStatusOptions, reverseGeocodeOptions } from "@/api/gen/@tanstack/vue-query.gen";
-import { Coordinates, MaybeCoordinates } from "@/components/maps";
+import { Coordinates, MaybeCoordinates } from "@/features/cartography/components";
 import { QueryObserverOptions, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/vue-query";
 import { defineStore } from "pinia";
 import { computed, MaybeRef, unref, watch } from "vue";

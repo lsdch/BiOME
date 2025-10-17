@@ -1,10 +1,10 @@
 import { useAppConfirmDialog } from "@/composables/confirm_dialog"
 import { StatusCodes } from "http-status-codes"
 import { computed, ComputedRef, MaybeRef, Ref, ref, triggerRef, watch } from "vue"
-import { FeedbackProps } from "../CRUDFeedback.vue"
+import { FeedbackProps } from "@/components/toolkit/CRUDFeedback.vue"
 
 import { ErrorModel } from "@/api"
-import { Mode } from "@/functions/mutations"
+import { Mode } from "@/lib/mutations"
 import { DataTag, UndefinedInitialQueryOptions, useMutation, UseMutationOptions, useQuery } from "@tanstack/vue-query"
 import { DataTableSortItem } from "vuetify"
 import { VDataTable } from "vuetify/components"

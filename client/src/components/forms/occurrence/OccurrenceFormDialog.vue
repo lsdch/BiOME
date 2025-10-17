@@ -44,7 +44,7 @@
 
 <script setup lang="ts">
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { OccurrenceModel } from '@/models'
 import ExternalOccurrenceForm from './ExternalOccurrenceForm.vue'
 import { OccurrenceCategoryBtnToggle } from './OccurrenceCategoryBtnToggle'

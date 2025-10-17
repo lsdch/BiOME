@@ -27,7 +27,7 @@
 
 <script setup lang="ts" generic="Item extends Sampling | SamplingInner">
 import { Sampling, SamplingInner } from '@/api'
-import SamplingListItems from '@/components/events/SamplingListItems.vue'
+import SamplingListItems from '@/features/occurrences/components/sampling/SamplingListItems.vue'
 import { ref } from 'vue'
 
 defineProps<{ samplings: Item[] }>()

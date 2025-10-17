@@ -33,13 +33,13 @@
 
 <script setup lang="ts">
 import { $EventInput, $EventUpdate } from '@/api'
-import PersonPicker from '@/components/people/PersonPicker.vue'
+import PersonPicker from '@/features/people/components/PersonPicker.vue'
 import { useSchema } from '@/composables/schema'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { EventModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
-import OrganisationPicker from '../people/OrganisationPicker.vue'
-import DateWithPrecisionField from '../toolkit/forms/DateWithPrecisionField.vue'
+import OrganisationPicker from '@/features/people/components/OrganisationPicker.vue'
+import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
 
 const model = defineModel<EventModel.EventModel>({
   default: EventModel.initialModel

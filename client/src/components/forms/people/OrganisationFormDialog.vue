@@ -60,10 +60,10 @@ import {
   OrganisationInput,
   OrganisationUpdate
 } from '@/api'
-import OrgKindPicker from '@/components/people/OrgKindPicker.vue'
+import OrgKindPicker from '@/features/people/components/OrgKindPicker.vue'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { useSchema } from '@/composables/schema'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { OrganisationModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
 

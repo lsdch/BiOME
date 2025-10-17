@@ -22,7 +22,7 @@ import {
   updateHabitatGroupMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { defineFormCreate, defineFormUpdate, Mode, useMutationForm } from '@/functions/mutations'
+import { defineFormCreate, defineFormUpdate, Mode, useMutationForm } from '@/lib/mutations'
 import { HabitatModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
 import HabitatGroupFormDialog from './HabitatGroupFormDialog.vue'

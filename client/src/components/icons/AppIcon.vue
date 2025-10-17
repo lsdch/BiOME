@@ -5,7 +5,7 @@
 </template>
 
 <script setup lang="ts">
-import { useInstanceSettings } from '../settings'
+import { useInstanceSettings } from '@/features/settings/components'
 const { iconImgProps } = useInstanceSettings()
 
 defineProps<{ size?: number }>()

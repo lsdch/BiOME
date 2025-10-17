@@ -74,10 +74,10 @@
 
 <script setup lang="ts">
 import { $ArticleInput, $ArticleUpdate } from '@/api'
-import DoiInputFetcher from '@/components/references/DoiInputFetcher.vue'
+import DoiInputFetcher from '@/features/registries/components/DoiInputFetcher.vue'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { useSchema } from '@/composables/schema'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { ArticleModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
 import { ref } from 'vue'

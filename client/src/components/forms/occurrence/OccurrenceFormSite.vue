@@ -67,10 +67,10 @@
 <script setup lang="ts">
 import { SiteItem } from '@/api'
 import SiteFormDialog from '@/components/forms/SiteFormDialog.vue'
-import SiteAutocomplete from '@/components/sites/SiteAutocomplete.vue'
-import SitePreviewCard from '@/components/sites/SitePreviewCard.vue'
-import SiteProximityMap from '@/components/sites/SiteProximityMap.vue'
-import { hasID } from '@/functions/db'
+import SiteAutocomplete from '@/features/site/components/SiteAutocomplete.vue'
+import SitePreviewCard from '@/features/site/components/SitePreviewCard.vue'
+import SiteProximityMap from '@/features/site/components/SiteProximityMap.vue'
+import { hasID } from '@/lib/db'
 import { SiteModel } from '@/models'
 import { useToggle } from '@vueuse/core'
 

@@ -70,14 +70,14 @@
 </template>
 
 <script setup lang="ts">
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { ProgramModel } from '@/models'
-import FormDialog, { FormDialogProps } from '../toolkit/forms/FormDialog.vue'
+import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { reactiveComputed } from '@vueuse/core'
 import { useSchema } from '@/composables/schema'
 import { $ProgramInput, $ProgramUpdate } from '@/api'
-import PersonPicker from '../people/PersonPicker.vue'
-import OrganisationPicker from '../people/OrganisationPicker.vue'
+import PersonPicker from '@/features/people/components/PersonPicker.vue'
+import OrganisationPicker from '@/features/people/components/OrganisationPicker.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const model = defineModel<ProgramModel.ProgramModel>({

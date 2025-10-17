@@ -93,11 +93,11 @@ import { coordinatesToCountryOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useGeoapify } from '@/stores/geoapify'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, unref, watch } from 'vue'
-import { Coordinates } from '../maps'
-import CountryPicker from '../toolkit/forms/CountryPicker.vue'
-import GeoapifyStatusButton from '../toolkit/services/geoapify/GeoapifyStatusButton.vue'
-import CountryChip from '../sites/CountryChip'
-import { SchemaBinding } from '../../composables/schema'
+import { Coordinates } from '@/features/cartography/components'
+import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
+import GeoapifyStatusButton from '@/components/toolkit/services/geoapify/GeoapifyStatusButton.vue'
+import CountryChip from '@/features/site/components/CountryChip'
+import { SchemaBinding } from '@/composables/schema'
 const locality = defineModel<string | null | undefined>('locality', { required: true })
 const country_code = defineModel<string | null | undefined>('country_code', { required: true })
 const user_defined_locality = defineModel<boolean | undefined>('user_defined_locality')

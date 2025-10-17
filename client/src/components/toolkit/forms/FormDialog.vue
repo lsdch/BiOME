@@ -40,7 +40,7 @@
 
 <script setup lang="ts" generic="ItemType extends { id: string }">
 import { VCard, VDialog } from 'vuetify/components'
-import CardDialog, { CardDialogProps } from '../ui/CardDialog.vue'
+import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
 export type FormDialogProps = CardDialogProps & { btnText?: string }
 
 // dialog state exposed from CardDialog

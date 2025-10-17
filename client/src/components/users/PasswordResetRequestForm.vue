@@ -33,7 +33,7 @@
 <script setup lang="ts">
 import { $PasswordResetRequest, AccountService, PasswordResetRequest } from '@/api'
 import { ref } from 'vue'
-import { useSchema } from '../../composables/schema'
+import { useSchema } from '@/composables/schema'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()

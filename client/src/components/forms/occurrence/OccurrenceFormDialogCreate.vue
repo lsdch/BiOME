@@ -24,8 +24,8 @@ import {
   siteAddExternalOccurrenceMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { hasID } from '@/functions/db'
-import { IndexedValidationErrors } from '@/functions/mutations'
+import { hasID } from '@/lib/db'
+import { IndexedValidationErrors } from '@/lib/mutations'
 import { BiomatModel, OccurrenceModel, SamplingModel, SiteModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation } from '@tanstack/vue-query'

@@ -26,7 +26,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
     path: "/mapping",
     name: "mapping",
     icon: "mdi-map-marker-circle",
-    component: () => import("@/views/map/MappingToolView.vue"),
+    component: () => import("@/features/cartography/views/MappingToolView.vue"),
     meta: {
       subtitle: "Mapping tool",
       drawer: { temporary: true }
@@ -41,7 +41,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: '/datasets/sites',
         name: 'site-datasets',
         icon: 'mdi-map-marker-circle',
-        component: () => import('../views/datasets/SiteDatasetsView.vue'),
+        component: () => import('@/features/datasets/views/SiteDatasetsView.vue'),
         meta: { subtitle: "Site datasets" }
       },
       {
@@ -49,7 +49,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: '/datasets/occurrences',
         name: 'occurrence-datasets',
         icon: 'mdi-crosshairs-gps',
-        component: () => import('../views/datasets/OccurrenceDatasetsView.vue'),
+        component: () => import('@/features/datasets/views/OccurrenceDatasetsView.vue'),
         meta: { subtitle: "Occurrence datasets" }
       },
       {
@@ -57,7 +57,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: '/datasets/sequences',
         name: 'seq-datasets',
         icon: 'mdi-dna',
-        component: () => import('../views/datasets/SeqDatasetsView.vue'),
+        component: () => import('@/features/datasets/views/SeqDatasetsView.vue'),
         meta: { subtitle: "Sequence datasets" }
       },
       {
@@ -65,7 +65,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/programs",
         name: "programs",
         icon: "mdi-notebook",
-        component: () => import("@/views/datasets/ProgramsView.vue"),
+        component: () => import("@/features/datasets/views/ProgramsView.vue"),
         meta: { subtitle: "Programs" }
       }
     ]
@@ -75,14 +75,14 @@ export const navRoutes: (RouterItem | Divider)[] = [
     path: "/occurrences",
     name: "occurrences",
     icon: "mdi-package-variant",
-    component: () => import("@/views/biomaterial/BioMaterialView.vue")
+    component: () => import("@/features/occurrences/views/OccurrencesTableView.vue")
   },
   {
     label: "Sequences",
     path: "/sequences",
     name: "sequences",
     icon: "mdi-dna",
-    component: () => import("@/views/sequences/SequencesView.vue")
+    component: () => import("@/features/sequences/views/SequencesView.vue")
   },
   guardRole('Admin',
     {
@@ -103,7 +103,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
     label: "Taxonomy",
     path: '/taxonomy',
     name: 'taxonomy',
-    component: () => import('../views/taxonomy/TaxonomyView.vue'),
+    component: () => import('@/features/taxonomy/views/TaxonomyView.vue'),
     beforeEnter: (to, from) => {
       if (from.path === to.path) {
         return false
@@ -121,7 +121,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/people",
         name: "people",
         icon: "mdi-account",
-        component: () => import("../views/people/PersonView.vue"),
+        component: () => import("@/features/people/views/PersonView.vue"),
         meta: { subtitle: "Persons" }
       },
       {
@@ -129,7 +129,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/organisations",
         name: "organisations",
         icon: "mdi-domain",
-        component: () => import("../views/people/OrganisationView.vue"),
+        component: () => import("@/features/people/views/OrganisationView.vue"),
         meta: { subtitle: "Organisations" }
       },
     ]
@@ -144,7 +144,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/habitats",
         name: "habitats",
         icon: "mdi-image-filter-hdr-outline",
-        component: () => import("@/views/registries/HabitatsView.vue"),
+        component: () => import("@/features/registries/views/HabitatsView.vue"),
         meta: { subtitle: "Habitats" },
       },
       {
@@ -152,7 +152,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/abiotic-parameters",
         name: "abiotic-parameters",
         icon: "mdi-gauge",
-        component: () => import("@/views/registries/AbioticParametersView.vue"),
+        component: () => import("@/features/registries/views/AbioticParametersView.vue"),
         meta: { subtitle: "Abiotic parameters" }
       },
       {
@@ -160,14 +160,14 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/sampling-methods",
         name: "sampling-methods",
         icon: "mdi-hook",
-        component: () => import("@/views/registries/SamplingMethodsView.vue")
+        component: () => import("@/features/registries/views/SamplingMethodsView.vue")
       },
       {
         label: "Fixatives",
         path: "/fixatives",
         name: "fixatives",
         icon: "mdi-snowflake",
-        component: () => import("@/views/registries/FixativesView.vue")
+        component: () => import("@/features/registries/views/FixativesView.vue")
       },
       { subgroup: "Sequences" },
       {
@@ -175,7 +175,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         path: "/genes",
         name: "genes",
         icon: "mdi-tag",
-        component: () => import("@/views/sequences/GenesView.vue")
+        component: () => import("@/features/sequences/views/GenesView.vue")
       },
       { subgroup: "Sources" },
       {
@@ -183,14 +183,14 @@ export const navRoutes: (RouterItem | Divider)[] = [
         icon: 'mdi-newspaper-variant-multiple',
         name: "bibliography",
         path: '/articles',
-        component: () => import('@/views/registries/ArticlesView.vue')
+        component: () => import('@/features/registries/views/ArticlesView.vue')
       },
       {
         label: "Data sources",
         path: "/data-sources",
         name: "data-sources",
         icon: "mdi-database-sync",
-        component: () => import("@/views/registries/DataSourcesView.vue")
+        component: () => import("@/features/registries/views/DataSourcesView.vue")
       }
 
     ]

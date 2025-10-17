@@ -14,9 +14,9 @@
 </template>
 
 <script setup lang="ts">
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 import { SiteModel } from '@/models'
-import FormDialog, { FormDialogProps } from '../toolkit/forms/FormDialog.vue'
+import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import SiteForm from './SiteForm.vue'
 
 const dialog = defineModel<boolean>('dialog')

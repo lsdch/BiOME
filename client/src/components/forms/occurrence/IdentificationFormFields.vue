@@ -18,11 +18,11 @@ import {
   Taxon
 } from '@/api'
 import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
-import PersonPicker from '@/components/people/PersonPicker.vue'
-import TaxonPicker from '@/components/taxonomy/TaxonPicker.vue'
+import PersonPicker from '@/features/people/components/PersonPicker.vue'
+import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { useSchema } from '@/composables/schema'
 import { reactiveComputed } from '@vueuse/core'
-import { FormProps } from '@/functions/mutations'
+import { FormProps } from '@/lib/mutations'
 
 export type IdentificationModel = {
   identified_on: DateWithPrecisionInput

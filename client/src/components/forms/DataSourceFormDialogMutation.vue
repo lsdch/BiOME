@@ -22,7 +22,7 @@ import {
   updateDataSourceMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/functions/mutations'
+import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
 import { DataSourceModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
 import DataSourceFormDialog from './DataSourceFormDialog.vue'

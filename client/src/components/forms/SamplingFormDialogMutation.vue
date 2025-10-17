@@ -20,11 +20,11 @@ import {
   createSamplingAtSiteMutation,
   updateSamplingMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
-import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/functions/mutations'
+import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
 import { SamplingModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
-import SamplingFormDialog from '../forms/SamplingFormDialog.vue'
-import { FormDialogProps } from '../toolkit/forms/FormDialog.vue'
+import SamplingFormDialog from '@/components/forms/SamplingFormDialog.vue'
+import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 
 const item = defineModel<Sampling>()
 const dialog = defineModel<boolean>('dialog')
