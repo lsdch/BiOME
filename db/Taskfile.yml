@@ -110,6 +110,7 @@ tasks:
     dir: ..
     interactive: true
     cmd: gel migration create
+    deps: [init]
 
   migrate:
     desc: "Apply pending database migrations"
