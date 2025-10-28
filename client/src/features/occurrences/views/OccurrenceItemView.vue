@@ -2,8 +2,23 @@
   <div class="bg-main">
     <v-card class="w-100 d-flex flex-column" :title="code" flat :rounded="0" min-height="100%">
       <template #title>
-        <v-card-title class="font-monospace text-wrap">
-          {{ CodeIdentifier.textWrap(code) }}
+        <v-card-title class="d-flex">
+          <div class="font-monospace text-wrap w-auto d-flex align-center">
+            <v-menu v-if="item?.code_history" :close-on-content-click="false" target="parent">
+              <template #activator="{ props }">
+                {{ code }}
+                <v-btn
+                  icon="mdi-history"
+                  variant="plain"
+                  size="small"
+                  color=""
+                  class="ml-2"
+                  v-bind="props"
+                />
+              </template>
+              <CodeHistoryCard :codeHistory="item.code_history" />
+            </v-menu>
+          </div>
         </v-card-title>
       </template>
       <template #prepend>
@@ -173,14 +188,12 @@
                     <v-divider />
                     <v-list>
                       <v-list-item>
-                        <ArticleChip
-                          v-for="article in item.external.published_in"
-                          :article
-                          class="ma-1"
-                        />
                         <span v-if="!item.external.published_in" class="text-muted text-caption">
                           Unknown
                         </span>
+                        <div v-else class="d-flex ga-2">
+                          <ArticleChip v-for="article in item.external.published_in" :article />
+                        </div>
                         <template #append>
                           <span class="text-muted text-caption">Publication(s)</span>
                         </template>
@@ -284,6 +297,7 @@ import { useFeedback } from '@/stores/feedback'
 import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { ref } from 'vue'
+import CodeHistoryCard from '../components/CodeHistoryCard.vue'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
