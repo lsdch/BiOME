@@ -25,12 +25,7 @@
         class="align-self-stretch w-100 d-flex flex-column"
       >
         <template #subtitle>
-          <v-chip
-            label
-            text="Occurrences dataset"
-            size="small"
-            prepend-icon="mdi-map-marker-multiple"
-          />
+          <v-chip label text="Occurrences dataset" size="small" prepend-icon="mdi-crosshairs-gps" />
         </template>
         <template #prepend>
           <v-avatar variant="outlined">
