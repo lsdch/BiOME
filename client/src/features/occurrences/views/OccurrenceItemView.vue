@@ -77,6 +77,18 @@
               </v-badge>
             </template>
           </v-tab>
+          <v-tab value="datasets" prepend-icon="mdi-folder-table" :disabled="!item.datasets">
+            Datasets
+            <template #append>
+              <v-badge
+                v-if="item.datasets?.length"
+                :content="item.datasets.length"
+                color="primary"
+                inline
+              >
+              </v-badge>
+            </template>
+          </v-tab>
         </v-tabs>
         <v-tabs-window v-model="currentTab" crossfade>
           <v-tabs-window-item value="occurrence">
@@ -253,6 +265,31 @@
               </template>
             </CRUDTable>
           </v-tabs-window-item>
+          <v-tabs-window-item value="datasets">
+            <CRUDTable
+              v-if="item.datasets"
+              :headers="datasetTable.headers"
+              entityName="Dataset"
+              :items="item.datasets"
+            >
+              <template #item.label="{ value, item }">
+                <RouterLink :to="{ name: 'occurrence-dataset-item', params: { slug: item.slug } }">
+                  {{ value }}
+                </RouterLink>
+              </template>
+
+              <template #item.maintainers="{ value }">
+                <div class="d-flex ga-2">
+                  <PersonChip
+                    v-for="person in value"
+                    :key="person.code"
+                    :person="person"
+                    size="small"
+                  />
+                </div>
+              </template>
+            </CRUDTable>
+          </v-tabs-window-item>
         </v-tabs-window>
       </template>
     </v-card>
@@ -274,6 +311,7 @@
 <script setup lang="ts">
 import {
   CodeIdentifier,
+  Dataset,
   DateWithPrecision,
   ExternalSequence,
   Gene,
@@ -326,6 +364,12 @@ const sequenceTable: { headers: CRUDTableHeader<ExternalSequence>[] } = {
     { key: 'gene', title: 'Gene', sort: (a: Gene, b: Gene) => a.code.localeCompare(b.code) },
     { key: 'specimen_identifier', title: 'Specimen', cellProps: { class: 'font-monospace' } },
     { key: 'is_identifying', title: '', width: 0, align: 'end' }
+  ]
+}
+const datasetTable: { headers: CRUDTableHeader<Dataset>[] } = {
+  headers: [
+    { key: 'label', title: 'Label' },
+    { key: 'maintainers', title: 'Maintainers' }
   ]
 }
 </script>
