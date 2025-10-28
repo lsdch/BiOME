@@ -42,7 +42,7 @@ func (o *Optional[T]) Schema(r huma.Registry) *huma.Schema {
 
 // Gel Marshalling
 func (m *Optional[T]) UnmarshalEdgeDBStr(data []byte) error {
-	if s, ok := any(m.Value).(StrUnmarshaler); ok {
+	if s, ok := any(&m.Value).(StrUnmarshaler); ok {
 		return s.UnmarshalEdgeDBStr(data)
 	}
 	return nil
@@ -121,6 +121,13 @@ func (o OptionalInput[T]) HasValue() bool {
 func (o *OptionalInput[T]) SetValue(value T) OptionalInput[T] {
 	o.IsSet = true
 	o.Value = value
+	return *o
+}
+
+func (o *OptionalInput[T]) Clear() OptionalInput[T] {
+	o.IsSet = false
+	var zero T
+	o.Value = zero
 	return *o
 }
 
