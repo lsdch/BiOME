@@ -1,5 +1,5 @@
 <template>
-  <DatasetItemView :slug :dataset="dataset" :map-on-side>
+  <DatasetItemView :slug :dataset :map-on-side>
     <template #map>
       <OccurrenceDatasetMap :sites="dataset?.sites ?? []" />
     </template>
