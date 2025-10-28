@@ -4,6 +4,7 @@ import (
 	"context"
 	"flag"
 	"fmt"
+	"os"
 	"seeds"
 	"seeds/email"
 
@@ -11,15 +12,17 @@ import (
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/dataset"
 	"github.com/lsdch/biome/models/occurrence"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/settings"
+
+	_ "net/http/pprof"
 
 	"github.com/sirupsen/logrus"
 )
 
 var entities = []string{
-	// "countries",
 	"organisations",
 	"persons",
 	"users",
@@ -30,7 +33,6 @@ var entities = []string{
 	"abiotic",
 	"genes",
 	"data_sources",
-	// "datasets",
 }
 
 var superAdminInput = people.SuperAdminInput{
@@ -58,18 +60,32 @@ var superAdminInput = people.SuperAdminInput{
 
 func main() {
 
+	// logrus.Println("Enabling pprof for profiling")
+	// go func() {
+	// 	logrus.Println(http.ListenAndServe("localhost:6060", nil))
+	// }()
+
 	database := flag.String("db", "", "The name of the database to seed")
+	BATCH_SIZE := flag.Int("batch", 200, "The batch size for bulk inserts")
+	N_CORES := flag.Int("cores", 10, "The number of cores to use for parallel inserts")
 	flag.Parse()
 
-	client := db.Connect(gelcfg.Options{Database: *database})
+	timeout, _ := geltypes.ParseDuration("15m")
+	client := db.Connect(gelcfg.Options{Database: *database, Concurrency: 10}).WithConfig(map[string]interface{}{
+		"session_idle_transaction_timeout": timeout,
+	})
 
 	// aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json")
 	// if err != nil {
 	// 	logrus.Fatalf("Failed to load Asellidae sites: %v", err)
 	// }
+	path, err := os.Getwd()
+	if err != nil {
+		logrus.Println(err)
+	}
+	fmt.Println(path)
 
-	timeout, _ := geltypes.ParseDuration("15m")
-	err := client.WithConfig(map[string]interface{}{
+	err = client.WithConfig(map[string]interface{}{
 		"session_idle_transaction_timeout": timeout,
 	}).Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
 
@@ -133,67 +149,79 @@ func main() {
 		logrus.Errorf("Seeding failed: %v", err)
 	}
 
-	err = client.WithConfig(map[string]interface{}{
-		"session_idle_transaction_timeout": timeout,
-	}).Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
+	tracker := &occurrence.OccurrenceBatchProgressBar{}
 
-		logrus.Info("⚙ Artificial datasets")
-		datasets, err := seeds.LoadMultipleOccurrencesDatasets("data/datasets.json")
+	// err = client.WithConfig(map[string]interface{}{
+	// 	"session_idle_transaction_timeout": timeout,
+	// }).Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
+
+	var createdDatasets []dataset.Dataset
+	rollbackDatasets := func() {
+		for _, d := range createdDatasets {
+			logrus.Infof("Rolling back dataset %s", d.Slug)
+			if err := d.RollbackImport(client); err != nil {
+				logrus.Errorf("Failed to rollback dataset %s: %v", d.Slug, err)
+			}
+		}
+	}
+
+	logrus.Info("⚙ Artificial datasets")
+	datasets, err := seeds.LoadMultipleOccurrencesDatasets("data/datasets.json")
+	if err != nil {
+		logrus.Errorf("Failed to load datasets: %v", err)
+		return
+	}
+	for i := range datasets {
+		d, err := datasets[i].SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
 		if err != nil {
-			logrus.Errorf("Failed to load datasets: %v", err)
-			return err
+			rollbackDatasets()
+			logrus.Errorf("❗Failed to seed occurrence dataset: %v", err)
+			return
 		}
-		if err := seeds.SeedOccurrencesDatasets(tx, datasets); err != nil {
-			logrus.Errorf("Failed to seed datasets: %v", err)
-			return err
-		}
+		createdDatasets = append(createdDatasets, d)
+	}
 
-		logrus.Info("🧪 Empirical datasets")
-		// logrus.Infof("🌱 Seeding WAD sampling sites")
-		// if err := seeds.SeedSites(tx, *aselloidea); err != nil {
-		// 	logrus.Errorf("Failed to seed Aselloidea sampling sites")
-		// 	return err
-		// }
-		logrus.Infof("🌱 Seeding EGCop occurrences")
-		copepoda, err := seeds.LoadOccurrencesDataset("data/Copepoda/Copepoda_occurrences.json")
-		if err != nil {
-			logrus.Errorf("Failed to load datasets: %v", err)
-			return err
-		}
-		if err := seeds.SeedOccurrencesDatasets(tx, []occurrence.OccurrenceDatasetInput{*copepoda}); err != nil {
-			return err
-		}
+	logrus.Info("🧪 Empirical datasets")
+	logrus.Infof("🌱 Seeding EGCop occurrences")
+	copepoda, err := seeds.LoadOccurrencesDataset("data/Copepoda/Copepoda_occurrences.json")
+	if err != nil {
+		rollbackDatasets()
+		logrus.Fatalf("Failed to load datasets: %v", err)
+	}
+	datasetCopepoda, err := copepoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
+	if err != nil {
+		rollbackDatasets()
+		logrus.Fatalf("Failed to seed Copepoda occurrences: %v", err)
+	}
+	createdDatasets = append(createdDatasets, datasetCopepoda)
 
-		logrus.Infof("🌱 Seeding WAD occurrences")
-		aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
-		if err != nil {
-			logrus.Errorf("Failed to load datasets: %v", err)
-			return err
-		}
-		if err := seeds.SeedOccurrencesDatasets(tx, []occurrence.OccurrenceDatasetInput{*aselloidea}); err != nil {
-			return err
-		}
+	logrus.Infof("🌱 Seeding WAD occurrences")
+	aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
+	if err != nil {
+		rollbackDatasets()
+		logrus.Fatalf("Failed to load datasets: %v", err)
+	}
 
-		logrus.Infof("⚙ Postprocessing...")
-		// logrus.Infof("• generate bio-material codes")
-		// if err := tx.Execute(context.Background(),
-		// 	`#edgeql
-		// 		update occurrence::BioMaterial set {};
-		// 	`); err != nil {
-		// 	return err
-		// }
-		logrus.Infof("• generate sequence codes")
-		if err := tx.Execute(context.Background(),
-			`#edgeql
+	datasetAselloidea, err := aselloidea.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
+	if err != nil {
+		rollbackDatasets()
+		logrus.Fatalf("Failed to seed Aselloidea occurrences: %v", err)
+	}
+	createdDatasets = append(createdDatasets, datasetAselloidea)
+
+	logrus.Infof("⚙ Postprocessing...")
+	// logrus.Infof("• generate bio-material codes")
+	// if err := tx.Execute(context.Background(),
+	// 	`#edgeql
+	// 		update occurrence::BioMaterial set {};
+	// 	`); err != nil {
+	// 	return err
+	// }
+	logrus.Infof("• generate sequence codes")
+	if err := client.Execute(context.Background(),
+		`#edgeql
 				update seq::ExternalSequence set {};
 			`); err != nil {
-			return err
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		logrus.Errorf("Seeding failed: %v", err)
+		logrus.Fatalf("Failed to generate sequence codes: %v", err)
 	}
 }

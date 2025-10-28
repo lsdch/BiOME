@@ -63,22 +63,19 @@ module datasets {
   };
 
   type OccurrenceDataset extending Dataset {
-    multi occurrences: occurrence::Occurrence {
-      on target delete allow;
-      on source delete allow;
-    };
+    multi occurrences := .<datasets[is occurrence::Occurrence];
     multi sites := (.occurrences.sampling.site);
 
     # Dataset is congruent if all occurrences are congruent:
     # Morphological identification matches molecular identification
-    required is_congruent := (all(
-      (select .occurrences {
-        is_congruent := (
-          [is occurrence::InternalBioMat].is_congruent ??
-          true
-        )
-      }).is_congruent
-    ));
+    # required is_congruent := (all(
+    #   (select .occurrences {
+    #     is_congruent := (
+    #       [is occurrence::InternalBioMat].is_congruent ??
+    #       true
+    #     )
+    #   }).is_congruent
+    # ));
   }
 
   type SeqDataset extending Dataset {

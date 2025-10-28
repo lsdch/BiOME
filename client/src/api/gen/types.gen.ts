@@ -57,7 +57,6 @@ export type Article = {
   id: string
   journal?: string
   meta: Meta
-  sources: boolean
   title?: string
   verbatim?: string
   year: number
@@ -491,17 +490,6 @@ export type ErrorModel = {
   type?: string
 }
 
-export type ExternalBioMatSpecific = {
-  archive: SpecimenVoucher
-  content_description?: string
-  external_link?: string
-  original_taxon?: string
-  published_in?: Array<Article>
-  quantity?: OptionalQuantity
-  sequences?: Array<ExternalSequence>
-  sources?: Array<DataSource>
-}
-
 export type ExternalOccurrenceAtSiteInput = {
   /**
    * A URL to the JSON Schema for this object.
@@ -539,8 +527,19 @@ export type ExternalOccurrenceInput = {
   published_in?: Array<string>
   quantity?: Quantity
   sequences?: Array<ExternalSequenceInput>
-  sources?: string
+  sources?: Array<string>
   vouchers?: Array<string>
+}
+
+export type ExternalOccurrenceSpecific = {
+  archive: SpecimenVoucher
+  content_description?: string
+  external_link?: string
+  original_taxon?: string
+  published_in?: Array<Article>
+  quantity?: OptionalQuantity
+  sequences?: Array<ExternalSequence>
+  sources?: Array<DataSource>
 }
 
 export type ExternalOccurrenceUpdate = {
@@ -836,6 +835,7 @@ export type HabitatUpdate = {
 }
 
 export type Identification = {
+  addendum?: OptionalString
   id: string
   identified_by?: OptionalPersonInner
   identified_on?: OptionalDateWithPrecision
@@ -845,6 +845,7 @@ export type Identification = {
 }
 
 export type IdentificationInput = {
+  addendum?: string
   identified_by?: string
   identified_on?: DateWithPrecisionInput
   qualifier?: IdentificationQualifier
@@ -1141,6 +1142,7 @@ export type Message = {
 }
 
 export type Meta = {
+  batch_id?: string
   created: Date
   created_by?: OptionalUserShortIdentity
   last_updated: Date
@@ -1226,7 +1228,8 @@ export type OccurrenceSamplingWithSite = {
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
-  external?: OptionalExternalBioMatSpecific
+  datasets?: Array<Dataset>
+  external?: OptionalExternalOccurrenceSpecific
   has_sequences: boolean
   id: string
   identification: Identification
@@ -1241,7 +1244,8 @@ export type OccurrenceStruct = {
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
-  external?: OptionalExternalBioMatSpecific
+  datasets?: Array<Dataset>
+  external?: OptionalExternalOccurrenceSpecific
   has_sequences: boolean
   id: string
   identification: Identification
@@ -1267,7 +1271,6 @@ export type OptionalArticle = {
   id: string
   journal?: string
   meta: Meta
-  sources: boolean
   title?: string
   verbatim?: string
   year: number
@@ -1295,7 +1298,7 @@ export type OptionalDateWithPrecision = {
   precision: DatePrecision
 }
 
-export type OptionalExternalBioMatSpecific = {
+export type OptionalExternalOccurrenceSpecific = {
   archive: SpecimenVoucher
   content_description?: string
   external_link?: string
@@ -1346,6 +1349,8 @@ export type OptionalPersonInner = {
 } | null
 
 export type OptionalQuantity = Quantity | null
+
+export type OptionalString = string | null
 
 export type OptionalTaxon = {
   /**
@@ -1622,7 +1627,7 @@ export type Property = {
 /**
  * Quantity
  */
-export type Quantity = 'Unknown' | 'One' | 'Several' | 'Dozen' | 'Tens' | 'Hundred'
+export type Quantity = 'One' | 'Several' | 'Dozen' | 'Tens' | 'Hundred'
 
 export type Reference = {
   'article-title'?: string
@@ -1703,6 +1708,7 @@ export type Sampling = {
    */
   readonly $schema?: string
   access_points?: Array<string>
+  code: string
   comments?: string
   /**
    * Sampling duration in minutes
@@ -1734,6 +1740,7 @@ export type SamplingDateWithOccurrences = {
 
 export type SamplingDetailsWithOccurrences = {
   access_points?: Array<string>
+  code: string
   comments?: string
   /**
    * Sampling duration in minutes
@@ -1757,6 +1764,7 @@ export type SamplingDetailsWithOccurrences = {
 
 export type SamplingInnerWithSite = {
   access_points?: Array<string>
+  code: string
   comments?: string
   /**
    * Sampling duration in minutes
@@ -1896,6 +1904,7 @@ export type SamplingUpdate = {
 
 export type SamplingWithOccurrences = {
   access_points?: Array<string>
+  code: string
   comments?: string
   /**
    * Sampling duration in minutes
@@ -1920,6 +1929,7 @@ export type SamplingWithOccurrences = {
 
 export type SamplingWithSite = {
   access_points?: Array<string>
+  code: string
   comments?: string
   /**
    * Sampling duration in minutes
@@ -4791,7 +4801,7 @@ export type OccurrencesBySiteResponses = {
 
 export type OccurrencesBySiteResponse = OccurrencesBySiteResponses[keyof OccurrencesBySiteResponses]
 
-export type UpdateExternalBioMatData = {
+export type UpdateExternalOccurrenceData = {
   body: ExternalOccurrenceUpdate
   headers?: {
     /**
@@ -4806,7 +4816,7 @@ export type UpdateExternalBioMatData = {
   url: '/occurrences/external'
 }
 
-export type UpdateExternalBioMatErrors = {
+export type UpdateExternalOccurrenceErrors = {
   /**
    * Unprocessable Entity
    */
@@ -4817,17 +4827,18 @@ export type UpdateExternalBioMatErrors = {
   500: ErrorModel
 }
 
-export type UpdateExternalBioMatError = UpdateExternalBioMatErrors[keyof UpdateExternalBioMatErrors]
+export type UpdateExternalOccurrenceError =
+  UpdateExternalOccurrenceErrors[keyof UpdateExternalOccurrenceErrors]
 
-export type UpdateExternalBioMatResponses = {
+export type UpdateExternalOccurrenceResponses = {
   /**
    * OK
    */
   200: GenericOccurrenceSamplingOutline
 }
 
-export type UpdateExternalBioMatResponse =
-  UpdateExternalBioMatResponses[keyof UpdateExternalBioMatResponses]
+export type UpdateExternalOccurrenceResponse =
+  UpdateExternalOccurrenceResponses[keyof UpdateExternalOccurrenceResponses]
 
 export type CreateExternalOccurrenceData = {
   body: CreateExternalOccurrenceInputBody
@@ -6777,7 +6788,7 @@ export type ListSiteSamplingsResponses = {
 export type ListSiteSamplingsResponse = ListSiteSamplingsResponses[keyof ListSiteSamplingsResponses]
 
 export type CreateSamplingAtSiteData = {
-  body: SamplingInput
+  body?: SamplingInput
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.

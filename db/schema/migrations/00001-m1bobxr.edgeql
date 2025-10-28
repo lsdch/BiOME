@@ -1,4 +1,4 @@
-CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
+CREATE MIGRATION m1bobxrlnufvwgoqzhfrej5ychutbfmrnvradd6h6zo2rovs4tt7jq
     ONTO initial
 {
   CREATE EXTENSION pgcrypto VERSION '1.3';
@@ -126,7 +126,7 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
       CREATE ACCESS POLICY allow_insert_update
           ALLOW ALL ;
   };
-  CREATE TYPE occurrence::ExternalBioMat EXTENDING occurrence::Occurrence {
+  CREATE TYPE occurrence::ExternalOccurrence EXTENDING occurrence::Occurrence {
       CREATE PROPERTY content_description: std::str;
       CREATE PROPERTY external_link: std::str;
       CREATE PROPERTY in_collection: std::str;
@@ -165,7 +165,7 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
       CREATE PROPERTY title: std::str;
       CREATE PROPERTY verbatim: std::str;
   };
-  ALTER TYPE occurrence::ExternalBioMat {
+  ALTER TYPE occurrence::ExternalOccurrence {
       CREATE MULTI LINK published_in: references::Article;
   };
   CREATE ABSTRACT TYPE default::Vocabulary {
@@ -195,7 +195,7 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
       CREATE PROPERTY sequence: std::str;
   };
   CREATE TYPE seq::ExternalSequence EXTENDING seq::Sequence {
-      CREATE REQUIRED LINK biomat: occurrence::ExternalBioMat;
+      CREATE REQUIRED LINK biomat: occurrence::ExternalOccurrence;
       CREATE PROPERTY specimen_identifier: std::str {
           CREATE ANNOTATION std::description := 'An identifier for the organism from which the sequence was produced, provided in the original source';
       };
@@ -208,8 +208,9 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
           };
       };
   };
-  ALTER TYPE occurrence::ExternalBioMat {
-      CREATE LINK sequences := (.<biomat[IS seq::ExternalSequence]);
+  ALTER TYPE occurrence::ExternalOccurrence {
+      CREATE MULTI LINK sequences := (.<biomat[IS seq::ExternalSequence]);
+      CREATE REQUIRED PROPERTY has_sequences := (EXISTS (.sequences));
   };
   CREATE SCALAR TYPE occurrence::IdentificationQualifier EXTENDING enum<CF, AFF>;
   CREATE TYPE occurrence::Identification EXTENDING default::Auditable {
@@ -397,23 +398,24 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
       CREATE SINGLE LINK seq_consensus := (SELECT
           (IF .is_homogenous THEN std::assert_single(DISTINCT (.specimens.identification.taxon), message := ('BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: ' ++ <std::str>.id)) ELSE {})
       );
+      CREATE REQUIRED PROPERTY has_sequences := (EXISTS (.specimens.sequences));
       CREATE REQUIRED PROPERTY is_congruent := (SELECT
           std::assert_exists((.is_homogenous AND (NOT (EXISTS (.specimens)) OR (.identification.taxon IN std::assert_single(DISTINCT (.specimens.identification.taxon), message := ('BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: ' ++ <std::str>.id))))))
       );
   };
   ALTER TYPE occurrence::Occurrence {
-      CREATE REQUIRED PROPERTY category := (std::assert_exists((IF (__source__ IS occurrence::InternalBioMat) THEN occurrence::OccurrenceCategory.Internal ELSE (IF (__source__ IS occurrence::ExternalBioMat) THEN occurrence::OccurrenceCategory.External ELSE <occurrence::OccurrenceCategory>{})), message := (('Occurrence category for subtype ' ++ __source__.__type__.name) ++ ' is undefined')));
+      CREATE REQUIRED PROPERTY category := (std::assert_exists((IF (__source__ IS occurrence::InternalBioMat) THEN occurrence::OccurrenceCategory.Internal ELSE (IF (__source__ IS occurrence::ExternalOccurrence) THEN occurrence::OccurrenceCategory.External ELSE <occurrence::OccurrenceCategory>{})), message := (('Occurrence category for subtype ' ++ __source__.__type__.name) ++ ' is undefined')));
   };
   CREATE ALIAS occurrence::OccurrenceWithType := (
       SELECT
           occurrence::Occurrence {
+              required has_sequences := ([IS occurrence::InternalBioMat].has_sequences ?? ([IS occurrence::ExternalOccurrence].has_sequences ?? false)),
               internal := [IS occurrence::InternalBioMat] {
-                  has_sequences := EXISTS (.specimens.sequences),
                   is_homogenous,
                   is_congruent,
                   seq_consensus
               },
-              external := [IS occurrence::ExternalBioMat] {
+              external := [IS occurrence::ExternalOccurrence] {
                   sequences,
                   published_in,
                   original_taxon,
@@ -644,7 +646,7 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
       CREATE PROPERTY link_template: std::str;
       CREATE PROPERTY url: std::str;
   };
-  ALTER TYPE occurrence::ExternalBioMat {
+  ALTER TYPE occurrence::ExternalOccurrence {
       CREATE MULTI LINK sources: references::DataSource;
   };
   ALTER TYPE occurrence::Identification {
@@ -664,19 +666,19 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
               ));
       };
   };
-  CREATE FUNCTION occurrence::insert_external_biomat(sampling: events::Sampling, data: std::json) ->  occurrence::ExternalBioMat USING (WITH
+  CREATE FUNCTION occurrence::insert_external_occurrence(sampling: events::Sampling, data: std::json) ->  occurrence::ExternalOccurrence USING (WITH
       identification := 
           (data)['identification']
       ,
       taxon := 
           taxonomy::taxonByName(<std::str>(identification)['taxon'])
   INSERT
-      occurrence::ExternalBioMat
+      occurrence::ExternalOccurrence
       {
           sampling := sampling,
           code := (<std::str>std::json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling)),
           sources := (SELECT
-              DISTINCT (references::DataSource)
+              references::DataSource
           FILTER
               (.code IN <std::str>std::json_array_unpack(std::json_get(data, 'sources')))
           ),
@@ -696,10 +698,10 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
               occurrence::Identification
               {
                   taxon := taxon,
-                  identified_by := people::personByAlias(<std::str>(identification)['identified_by']),
-                  identified_on := date::from_json_with_precision((identification)['identified_on'])
+                  identified_by := people::personByAlias(<std::str>std::json_get(identification, 'identified_by')),
+                  identified_on := date::from_json_with_precision(std::json_get(identification, 'identified_on'))
               }),
-          is_type := <std::bool>std::json_get(data, 'is_type')
+          is_type := (<std::bool>std::json_get(data, 'is_type') ?? false)
       });
   CREATE FUNCTION occurrence::insert_internal_biomat(sampling: events::Sampling, data: std::json) ->  occurrence::InternalBioMat USING (WITH
       identification := 
@@ -1020,11 +1022,6 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
       , message := ('Invalid country code: ' ++ code))
   ) ELSE <location::Country>{}));
   CREATE FUNCTION location::site_fuzzy_search_score(site: location::Site, query: std::str) ->  std::float32 USING (std::max({ext::pg_trgm::word_similarity(query, site.name), ext::pg_trgm::word_similarity(query, site.code), ext::pg_trgm::word_similarity(query, site.locality)}));
-  CREATE FUNCTION occurrence::externalBiomatByCode(code: OPTIONAL std::str) ->  occurrence::ExternalBioMat USING (SELECT
-      std::assert_exists(occurrence::ExternalBioMat FILTER
-          (.code = code)
-      , message := ('Failed to find external biomaterial with code: ' ++ code))
-  );
   CREATE FUNCTION references::dataSourceByCode(code: std::str) ->  references::DataSource USING (SELECT
       std::assert_exists(references::DataSource FILTER
           (.code = code)
@@ -1035,7 +1032,7 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
           (.code = code)
       , message := ('Failed to find gene with code: ' ++ code))
   );
-  CREATE FUNCTION seq::insert_external_seq(biomat: occurrence::ExternalBioMat, data: std::json) ->  seq::ExternalSequence USING (INSERT
+  CREATE FUNCTION seq::insert_external_seq(biomat: occurrence::ExternalOccurrence, data: std::json) ->  seq::ExternalSequence USING (INSERT
       seq::ExternalSequence
       {
           biomat := biomat,
@@ -1088,6 +1085,12 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
           CREATE CONSTRAINT std::exclusive;
       };
   };
+  CREATE TYPE datasets::SeqDataset EXTENDING datasets::Dataset {
+      CREATE MULTI LINK sequences: seq::Sequence {
+          ON SOURCE DELETE ALLOW;
+          ON TARGET DELETE ALLOW;
+      };
+  };
   CREATE TYPE datasets::OccurrenceDataset EXTENDING datasets::Dataset {
       CREATE MULTI LINK occurrences: occurrence::Occurrence {
           ON SOURCE DELETE ALLOW;
@@ -1102,12 +1105,6 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
   };
   CREATE TYPE datasets::SiteDataset EXTENDING datasets::Dataset {
       CREATE MULTI LINK sites: location::Site {
-          ON SOURCE DELETE ALLOW;
-          ON TARGET DELETE ALLOW;
-      };
-  };
-  CREATE TYPE datasets::SeqDataset EXTENDING datasets::Dataset {
-      CREATE MULTI LINK sequences: seq::Sequence {
           ON SOURCE DELETE ALLOW;
           ON TARGET DELETE ALLOW;
       };
@@ -1144,19 +1141,16 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
           CREATE CONSTRAINT std::exclusive;
       };
   };
+  CREATE TYPE samples::ContentType EXTENDING default::Vocabulary, default::Auditable;
   CREATE TYPE events::AbioticParameter EXTENDING default::Vocabulary, default::Auditable {
       CREATE REQUIRED PROPERTY unit: std::str;
   };
-  ALTER TYPE events::Action {
-      CREATE MULTI LINK performed_by_groups: people::Organisation;
-  };
-  CREATE TYPE events::AbioticMeasurement EXTENDING events::Action {
-      CREATE REQUIRED LINK param: events::AbioticParameter {
-          ON TARGET DELETE DELETE SOURCE;
+  CREATE TYPE sequencing::PCRSpecificity EXTENDING default::Auditable {
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY label: std::str {
+          CREATE CONSTRAINT std::exclusive;
       };
-      CREATE REQUIRED PROPERTY value: std::float32;
   };
-  CREATE TYPE samples::ContentType EXTENDING default::Vocabulary, default::Auditable;
   CREATE ABSTRACT TYPE storage::Storage EXTENDING default::Auditable {
       CREATE REQUIRED PROPERTY code: std::str {
           CREATE CONSTRAINT std::exclusive;
@@ -1167,74 +1161,6 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
           CREATE CONSTRAINT std::min_len_value(4);
       };
   };
-  CREATE TYPE storage::SlideStorage EXTENDING storage::Storage;
-  CREATE TYPE sequencing::ChromatoPrimer EXTENDING sequencing::Primer, default::Auditable;
-  CREATE TYPE sequencing::BatchRequest EXTENDING default::Auditable {
-      CREATE REQUIRED LINK requested_by: people::Person;
-      CREATE MULTI LINK requested_to: people::Person;
-      CREATE REQUIRED LINK target_gene: seq::Gene;
-      CREATE REQUIRED MULTI LINK content: sequencing::DNA;
-      CREATE PROPERTY achieved_on: std::datetime;
-      CREATE PROPERTY comments: std::str;
-      CREATE REQUIRED PROPERTY label: std::str;
-      CREATE PROPERTY requested_on: std::datetime {
-          CREATE ANNOTATION std::description := 'If empty, the request is a draft and can not be processed yet.';
-      };
-  };
-  CREATE TYPE storage::BioMatStorage EXTENDING storage::Storage;
-  CREATE TYPE settings::AbstractSettingsSpec EXTENDING default::Auditable {
-      CREATE PROPERTY description: std::str;
-      CREATE REQUIRED PROPERTY is_global: std::bool {
-          SET default := false;
-      };
-      CREATE REQUIRED PROPERTY is_public: std::bool {
-          SET default := false;
-      };
-      CREATE REQUIRED PROPERTY name: std::str {
-          CREATE DELEGATED CONSTRAINT std::exclusive;
-      };
-      CREATE REQUIRED PROPERTY spec: std::json;
-  };
-  CREATE TYPE settings::DataFeedSpec EXTENDING settings::AbstractSettingsSpec;
-  CREATE ABSTRACT TYPE traits::AbstractTrait {
-      CREATE REQUIRED PROPERTY category: traits::Category;
-      CREATE PROPERTY description: std::str;
-      CREATE REQUIRED PROPERTY name: std::str;
-      CREATE REQUIRED MULTI PROPERTY scopes: traits::TraitDefinitionScope {
-          CREATE CONSTRAINT std::exclusive;
-      };
-      CREATE CONSTRAINT std::exclusive ON ((.category, .name));
-  };
-  CREATE TYPE traits::QualitativeTrait EXTENDING traits::AbstractTrait, default::Auditable {
-      CREATE REQUIRED PROPERTY value: std::str;
-      CREATE CONSTRAINT std::exclusive ON ((.name, .value));
-  };
-  CREATE TYPE sampling::Habitat EXTENDING default::Auditable {
-      CREATE REQUIRED PROPERTY label: std::str {
-          CREATE CONSTRAINT std::exclusive;
-      };
-      CREATE INDEX ON (.label);
-      CREATE PROPERTY description: std::str;
-  };
-  CREATE TYPE sampling::HabitatGroup EXTENDING default::Auditable {
-      CREATE REQUIRED PROPERTY exclusive_elements: std::bool {
-          SET default := true;
-      };
-      CREATE LINK depends: sampling::Habitat;
-      CREATE REQUIRED PROPERTY label: std::str {
-          CREATE CONSTRAINT std::exclusive;
-      };
-      CREATE INDEX ON (.label);
-  };
-  CREATE TYPE settings::MapToolPreset EXTENDING settings::AbstractSettingsSpec;
-  CREATE TYPE storage::DNAStorage EXTENDING storage::Storage;
-  CREATE TYPE sequencing::PCRSpecificity EXTENDING default::Auditable {
-      CREATE PROPERTY description: std::str;
-      CREATE REQUIRED PROPERTY label: std::str {
-          CREATE CONSTRAINT std::exclusive;
-      };
-  };
-  CREATE TYPE events::SamplingMethod EXTENDING default::Vocabulary, default::Auditable;
   CREATE TYPE samples::Fixative EXTENDING default::Vocabulary, default::Auditable {
       CREATE ANNOTATION std::description := 'Describes a conservation method for a sample.';
   };
@@ -1258,12 +1184,47 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
           CREATE CONSTRAINT std::min_value(2);
       };
   };
-  CREATE TYPE sequencing::SequencingInstitute EXTENDING default::Auditable {
-      CREATE PROPERTY comments: std::str;
+  CREATE TYPE settings::AbstractSettingsSpec EXTENDING default::Auditable {
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY is_global: std::bool {
+          SET default := false;
+      };
+      CREATE REQUIRED PROPERTY is_public: std::bool {
+          SET default := false;
+      };
       CREATE REQUIRED PROPERTY name: std::str {
-          CREATE CONSTRAINT std::exclusive;
+          CREATE DELEGATED CONSTRAINT std::exclusive;
+      };
+      CREATE REQUIRED PROPERTY spec: std::json;
+  };
+  CREATE TYPE settings::MapToolPreset EXTENDING settings::AbstractSettingsSpec;
+  CREATE TYPE sequencing::BatchRequest EXTENDING default::Auditable {
+      CREATE REQUIRED LINK requested_by: people::Person;
+      CREATE MULTI LINK requested_to: people::Person;
+      CREATE REQUIRED LINK target_gene: seq::Gene;
+      CREATE REQUIRED MULTI LINK content: sequencing::DNA;
+      CREATE PROPERTY achieved_on: std::datetime;
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY label: std::str;
+      CREATE PROPERTY requested_on: std::datetime {
+          CREATE ANNOTATION std::description := 'If empty, the request is a draft and can not be processed yet.';
       };
   };
+  CREATE ABSTRACT TYPE traits::AbstractTrait {
+      CREATE REQUIRED PROPERTY category: traits::Category;
+      CREATE PROPERTY description: std::str;
+      CREATE REQUIRED PROPERTY name: std::str;
+      CREATE REQUIRED MULTI PROPERTY scopes: traits::TraitDefinitionScope {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE CONSTRAINT std::exclusive ON ((.category, .name));
+  };
+  CREATE TYPE traits::QualitativeTrait EXTENDING traits::AbstractTrait, default::Auditable {
+      CREATE REQUIRED PROPERTY value: std::str;
+      CREATE CONSTRAINT std::exclusive ON ((.name, .value));
+  };
+  CREATE TYPE sequencing::ChromatoPrimer EXTENDING sequencing::Primer, default::Auditable;
+  CREATE TYPE settings::DataFeedSpec EXTENDING settings::AbstractSettingsSpec;
   CREATE TYPE events::Flagging EXTENDING default::Auditable {
       CREATE MULTI LINK abiotic_params: events::AbioticParameter {
           ON TARGET DELETE ALLOW;
@@ -1277,6 +1238,42 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
       };
       CREATE PROPERTY indications: std::str;
   };
+  CREATE TYPE storage::DNAStorage EXTENDING storage::Storage;
+  CREATE TYPE sequencing::SequencingInstitute EXTENDING default::Auditable {
+      CREATE PROPERTY comments: std::str;
+      CREATE REQUIRED PROPERTY name: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+  };
+  CREATE TYPE sampling::Habitat EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY label: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE INDEX ON (.label);
+      CREATE PROPERTY description: std::str;
+  };
+  CREATE TYPE storage::BioMatStorage EXTENDING storage::Storage;
+  CREATE TYPE events::SamplingMethod EXTENDING default::Vocabulary, default::Auditable;
+  ALTER TYPE events::Action {
+      CREATE MULTI LINK performed_by_groups: people::Organisation;
+  };
+  CREATE TYPE events::AbioticMeasurement EXTENDING events::Action {
+      CREATE REQUIRED LINK param: events::AbioticParameter {
+          ON TARGET DELETE DELETE SOURCE;
+      };
+      CREATE REQUIRED PROPERTY value: std::float32;
+  };
+  CREATE TYPE storage::SlideStorage EXTENDING storage::Storage;
+  CREATE TYPE sampling::HabitatGroup EXTENDING default::Auditable {
+      CREATE REQUIRED PROPERTY exclusive_elements: std::bool {
+          SET default := true;
+      };
+      CREATE LINK depends: sampling::Habitat;
+      CREATE REQUIRED PROPERTY label: std::str {
+          CREATE CONSTRAINT std::exclusive;
+      };
+      CREATE INDEX ON (.label);
+  };
   ALTER TYPE events::Sampling {
       CREATE MULTI LINK fixatives: samples::Fixative;
       CREATE MULTI LINK habitats: sampling::Habitat;
@@ -1289,7 +1286,7 @@ CREATE MIGRATION m1y7fygges5bpfvlvdjca3wuuwjrj6fqw5d5jijhrljefukykhcgxa
                   (.is_congruent = true)
               )
       SELECT
-          DISTINCT ((.occurrences[IS occurrence::ExternalBioMat].identification.taxon UNION (congruent_internal_occurrences.seq_consensus ?? congruent_internal_occurrences.identification.taxon)))
+          DISTINCT ((.occurrences[IS occurrence::ExternalOccurrence].identification.taxon UNION (congruent_internal_occurrences.seq_consensus ?? congruent_internal_occurrences.identification.taxon)))
       );
   };
   ALTER TYPE samples::Specimen {

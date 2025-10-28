@@ -1,19 +1,19 @@
-CREATE MIGRATION m1a7sbqwojujqrehmkur3yrgekqc554maggjpnmu2qdupbmub4blzq
-    ONTO m1ll6udrqcr4bfl6ywryw6aukliz6msicu3d2evmprky3p4it6qczq
+CREATE MIGRATION m1kjfhbmuwa65j4byyzeato7bzon6ydqxjpl2kttrz45izfmwqddba
+    ONTO m1nkgduvf2df6eqyrsimwsqmfpsbeu25obmxcsy5klvv2eedzjxvsa
 {
-  ALTER FUNCTION occurrence::insert_external_biomat(sampling: events::Sampling, data: std::json) USING (WITH
+  CREATE FUNCTION occurrence::insert_external_occurrence(sampling: events::Sampling, data: std::json) ->  occurrence::ExternalOccurrence USING (WITH
       identification := 
           (data)['identification']
       ,
       taxon := 
           taxonomy::taxonByName(<std::str>(identification)['taxon'])
   INSERT
-      occurrence::ExternalBioMat
+      occurrence::ExternalOccurrence
       {
           sampling := sampling,
-          code := (<std::str>std::json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling)),
+          code := (<std::str>std::json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling.code)),
           sources := (SELECT
-              DISTINCT (references::DataSource)
+              references::DataSource
           FILTER
               (.code IN <std::str>std::json_array_unpack(std::json_get(data, 'sources')))
           ),
@@ -37,5 +37,26 @@ CREATE MIGRATION m1a7sbqwojujqrehmkur3yrgekqc554maggjpnmu2qdupbmub4blzq
                   identified_on := date::from_json_with_precision(std::json_get(identification, 'identified_on'))
               }),
           is_type := (<std::bool>std::json_get(data, 'is_type') ?? false)
+      });
+  CREATE FUNCTION occurrence::insert_internal_biomat(sampling: events::Sampling, data: std::json) ->  occurrence::InternalBioMat USING (WITH
+      identification := 
+          (data)['identification']
+      ,
+      taxon := 
+          taxonomy::taxonByName(<std::str>(identification)['taxon'])
+  INSERT
+      occurrence::InternalBioMat
+      {
+          sampling := sampling,
+          code := (<std::str>std::json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling.code)),
+          identification := (INSERT
+              occurrence::Identification
+              {
+                  taxon := taxon,
+                  identified_by := people::personByAlias(<std::str>(identification)['identified_by']),
+                  identified_on := date::from_json_with_precision((identification)['identified_on'])
+              }),
+          is_type := <std::bool>std::json_get(data, 'is_type'),
+          comments := <std::str>std::json_get(data, 'comments')
       });
 };

@@ -5,5 +5,10 @@
     "description": "NCBI GenBank sequence repository",
     "link_template": "https://www.ncbi.nlm.nih.gov/nuccore/{accession}",
     "url": "https://www.ncbi.nlm.nih.gov/nuccore/"
+  },
+  {
+    "code": "PASCALIS",
+    "label": "PASCALIS Database",
+    "description": "PASCALIS Database EC Project Contract Number EVK2-CT-2001-00121"
   }
 ]

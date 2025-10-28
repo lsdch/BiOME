@@ -3,6 +3,8 @@ package references
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
@@ -11,17 +13,16 @@ import (
 )
 
 type Article struct {
-	ID             geltypes.UUID         `gel:"id" json:"id" format:"uuid"`
-	Code           string                `gel:"code" json:"code"`
-	Authors        []string              `gel:"authors" json:"authors"`
-	Year           int32                 `gel:"year" json:"year"`
-	Title          geltypes.OptionalStr  `gel:"title" json:"title,omitempty"`
-	Journal        geltypes.OptionalStr  `gel:"journal" json:"journal,omitempty"`
-	Verbatim       geltypes.OptionalStr  `gel:"verbatim" json:"verbatim,omitempty"`
-	DOI            geltypes.OptionalStr  `gel:"doi" json:"doi,omitempty"`
-	Comments       geltypes.OptionalStr  `gel:"comments" json:"comments,omitempty"`
-	OriginalSource geltypes.OptionalBool `gel:"sources" json:"sources"`
-	Meta           people.Meta           `gel:"meta" json:"meta"`
+	ID       geltypes.UUID        `gel:"id" json:"id" format:"uuid"`
+	Code     string               `gel:"code" json:"code"`
+	Authors  []string             `gel:"authors" json:"authors"`
+	Year     int32                `gel:"year" json:"year"`
+	Title    geltypes.OptionalStr `gel:"title" json:"title,omitempty"`
+	Journal  geltypes.OptionalStr `gel:"journal" json:"journal,omitempty"`
+	Verbatim geltypes.OptionalStr `gel:"verbatim" json:"verbatim,omitempty"`
+	DOI      geltypes.OptionalStr `gel:"doi" json:"doi,omitempty"`
+	Comments geltypes.OptionalStr `gel:"comments" json:"comments,omitempty"`
+	Meta     people.Meta          `gel:"meta" json:"meta"`
 }
 
 func ListArticles(db geltypes.Executor) ([]Article, error) {
@@ -46,22 +47,42 @@ func DeleteArticle(db geltypes.Executor, code string) (deleted Article, err erro
 }
 
 type ArticleInput struct {
-	Code     models.OptionalInput[string] `gel:"code" json:"code,omitempty"`
-	Authors  []string                     `gel:"authors" json:"authors"`
-	Year     int32                        `gel:"year" json:"year" minimum:"1500"`
-	Title    models.OptionalInput[string] `gel:"title" json:"title,omitempty"`
-	Journal  models.OptionalInput[string] `gel:"journal" json:"journal,omitempty"`
-	Verbatim models.OptionalInput[string] `gel:"verbatim" json:"verbatim,omitempty"`
-	Comments models.OptionalInput[string] `gel:"comments" json:"comments,omitempty"`
-	DOI      models.OptionalInput[string] `gel:"doi" json:"doi,omitempty"`
+	Code             models.OptionalInput[string] `gel:"code" json:"code,omitempty"`
+	CodeDiscriminant int                          `gel:"-" json:"-"`
+	Authors          []string                     `gel:"authors" json:"authors"`
+	Year             int32                        `gel:"year" json:"year" minimum:"1500"`
+	Title            models.OptionalInput[string] `gel:"title" json:"title,omitempty"`
+	Journal          models.OptionalInput[string] `gel:"journal" json:"journal,omitempty"`
+	Verbatim         models.OptionalInput[string] `gel:"verbatim" json:"verbatim,omitempty"`
+	Comments         models.OptionalInput[string] `gel:"comments" json:"comments,omitempty"`
+	DOI              models.OptionalInput[string] `gel:"doi" json:"doi,omitempty"`
+}
+
+func (i *ArticleInput) GenerateCode() {
+	code := ""
+	code += strings.Split(i.Authors[0], " ")[0]
+	if len(i.Authors) == 2 {
+		code += "_" + strings.Split(i.Authors[1], " ")[0]
+	} else if len(i.Authors) > 2 {
+		code += "_et_al"
+	}
+	code += "_" + fmt.Sprintf("%d", i.Year)
+	if i.CodeDiscriminant > 0 {
+		code += string('a' + rune(i.CodeDiscriminant-1))
+	}
+	i.Code.SetValue(code)
 }
 
 func (i ArticleInput) Save(e geltypes.Executor) (created Article, err error) {
+	if !i.Code.IsSet {
+		i.GenerateCode()
+	}
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
 			with data := <json>$0,
 			select (insert references::Article {
+				code := <str>data['code'],
 				authors := <array<str>>data['authors'],
 				year := <int32>data['year'],
 				title := <str>json_get(data, "title"),
@@ -71,6 +92,16 @@ func (i ArticleInput) Save(e geltypes.Executor) (created Article, err error) {
 				doi := <str>json_get(data, "doi"),
 			}) { ** }
 		`, &created, data)
+	if err == nil {
+		return
+	}
+	if ok, dbErr := db.IsConstraintViolation(err); ok {
+		if strings.Contains(dbErr.Error(), "code") {
+			i.CodeDiscriminant++
+			i.Code.Clear()
+			return i.Save(e)
+		}
+	}
 	return
 }
 

@@ -153,9 +153,9 @@ import type {
   ListBioMaterialError,
   ListBioMaterialResponse,
   OccurrencesBySiteData,
-  UpdateExternalBioMatData,
-  UpdateExternalBioMatError,
-  UpdateExternalBioMatResponse,
+  UpdateExternalOccurrenceData,
+  UpdateExternalOccurrenceError,
+  UpdateExternalOccurrenceResponse,
   CreateExternalOccurrenceData,
   CreateExternalOccurrenceError,
   CreateExternalOccurrenceResponse,
@@ -2276,22 +2276,22 @@ export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData
 }
 
 /**
- * Update external bio-material
+ * Update external occurrence
  */
-export const updateExternalBioMatMutation = (
-  options?: Partial<Options<UpdateExternalBioMatData>>
+export const updateExternalOccurrenceMutation = (
+  options?: Partial<Options<UpdateExternalOccurrenceData>>
 ): UseMutationOptions<
-  UpdateExternalBioMatResponse,
-  UpdateExternalBioMatError,
-  Options<UpdateExternalBioMatData>
+  UpdateExternalOccurrenceResponse,
+  UpdateExternalOccurrenceError,
+  Options<UpdateExternalOccurrenceData>
 > => {
   const mutationOptions: UseMutationOptions<
-    UpdateExternalBioMatResponse,
-    UpdateExternalBioMatError,
-    Options<UpdateExternalBioMatData>
+    UpdateExternalOccurrenceResponse,
+    UpdateExternalOccurrenceError,
+    Options<UpdateExternalOccurrenceData>
   > = {
     mutationFn: async (localOptions) => {
-      const { data } = await OccurrencesService.updateExternalBioMat({
+      const { data } = await OccurrencesService.updateExternalOccurrence({
         ...options,
         ...localOptions,
         throwOnError: true
@@ -2306,7 +2306,7 @@ export const createExternalOccurrenceQueryKey = (options: Options<CreateExternal
   createQueryKey('createExternalOccurrence', options)
 
 /**
- * Create external bio-material
+ * Create external occurrence
  */
 export const createExternalOccurrenceOptions = (options: Options<CreateExternalOccurrenceData>) => {
   return queryOptions({
@@ -2324,7 +2324,7 @@ export const createExternalOccurrenceOptions = (options: Options<CreateExternalO
 }
 
 /**
- * Create external bio-material
+ * Create external occurrence
  */
 export const createExternalOccurrenceMutation = (
   options?: Partial<Options<CreateExternalOccurrenceData>>

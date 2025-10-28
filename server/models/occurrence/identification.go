@@ -24,6 +24,7 @@ type Identification struct {
 	IdentifiedBy models.Optional[people.PersonInner]      `gel:"identified_by" json:"identified_by,omitempty"`
 	IdentifiedOn OptionalDateWithPrecision                `gel:"identified_on" json:"identified_on,omitzero"`
 	Qualifier    models.Optional[IdentificationQualifier] `gel:"qualifier" json:"qualifier,omitempty"`
+	Addendum     models.Optional[string]                  `gel:"addendum" json:"addendum,omitempty"`
 	Meta         people.Meta                              `gel:"meta" json:"meta"`
 }
 
@@ -32,6 +33,7 @@ type IdentificationInput struct {
 	IdentifiedBy models.OptionalInput[string]                  `gel:"identified_by" json:"identified_by,omitzero"`
 	IdentifiedOn models.OptionalInput[DateWithPrecisionInput]  `gel:"identified_on" json:"identified_on,omitzero"`
 	Qualifier    models.OptionalInput[IdentificationQualifier] `gel:"qualifier" json:"qualifier,omitzero"`
+	Addendum     models.OptionalInput[string]                  `gel:"addendum" json:"addendum,omitzero"`
 }
 
 func (id *IdentificationInput) WithPersonAliases(aliases map[string]string) IdentificationInput {

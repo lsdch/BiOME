@@ -30,6 +30,12 @@ module default {
     );
 
     property lastUpdated := (.modified ?? .created);
+
+    batch_import_id: str {
+      default := (global batch_import_id);
+    };
+
+    index on (.batch_import_id);
   }
 
   # Operations on auditable objects are automatically tracked
@@ -37,7 +43,6 @@ module default {
     annotation title := "Auto-generation of timestamps";
 
     required meta: Meta {
-      constraint exclusive;
       on source delete delete target;
       on target delete restrict;
       default := (insert Meta {});

@@ -2,10 +2,13 @@ package occurrence
 
 import (
 	"context"
-	"encoding/json"
 
+	"github.com/geldata/gel-go"
 	"github.com/geldata/gel-go/geltypes"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/dataset"
+	"github.com/oklog/ulid/v2"
+	"github.com/sirupsen/logrus"
 )
 
 type OccurrenceDatasetListItem struct {
@@ -79,65 +82,94 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 }
 
 type OccurrenceDatasetInput struct {
-	dataset.DatasetInput `gel:"$inline" json:",inline"`
+	dataset.DatasetInput `json:",inline"`
 	OccurrenceBatchInput `json:",inline"`
+	BatchULID            ulid.ULID `json:"batch_ulid,omitempty"`
 }
 
-func (i OccurrenceDatasetInput) SaveTx(tx geltypes.Tx) (created OccurrenceDataset, err error) {
-	occurrences, err := i.OccurrenceBatchInput.Save(tx)
-	if err != nil {
-		return created, err
+func (i *OccurrenceDatasetInput) GenerateBatchULID() *OccurrenceDatasetInput {
+	i.BatchULID = ulid.Make()
+	return i
+}
+
+func (i *OccurrenceDatasetInput) SetTracker(tracker OccurrenceBatchTracker) *OccurrenceDatasetInput {
+	i.OccurrenceBatchInput.Tracker = tracker
+	return i
+}
+
+func (i *OccurrenceDatasetInput) GatherBatch(db geltypes.Executor) error {
+	if i.BatchULID.IsZero() {
+		return nil
 	}
-
-	i.DatasetInput.GenerateSlug()
-	data, _ := json.Marshal(i.DatasetInput)
-	occurrencesData, _ := json.Marshal(occurrences)
-
-	err = tx.QuerySingle(context.Background(),
+	return db.Execute(context.Background(),
 		`#edgeql
-      with module occurrence,
-        data := <json>$0,
-        occurrences := <json>$1,
-				dataset := (
-					insert datasets::OccurrenceDataset {
-						label := <str>data['label'],
-						slug := <str>data['slug'],
-						description := <str>json_get(data, 'description'),
-						maintainers := (
-							select people::Person
-							filter .alias in <str>json_array_unpack(data['maintainers'])
-						) ?? (SELECT admin::Settings.superadmin.identity),
-						occurrences := (
-							select occurrence::Occurrence
-							filter .id in <uuid>json_array_unpack(occurrences)['id']
-						)
-					}
-				)
-      select dataset {
-        *,
-				maintainers: { * },
-				sites: {
-					*,
-					country: { * },
-					samplings: {
-						id,
-						date := .performed_on,
-						occurring_taxa: { * },
-						occurrences := (
-							select (.occurrences intersect dataset.occurrences) {
-								id,
-								code,
-								required taxon := (
-										[is InternalBioMat].seq_consensus ??
-										.identification.taxon
-									) { name, status, rank},
-								required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
-							}
-						)
-					}
+			with
+			dataset := (
+				assert_single((
+					select datasets::OccurrenceDataset
+					filter .meta.batch_import_id = <str>$0
+				),
+				message := "Multiple datasets found with the same batch_import_id")
+			),
+		  ext := (
+				update occurrence::ExternalOccurrence
+				filter .meta.batch_import_id = <str>$0
+				set {
+					datasets := dataset
+				}
+			),
+			int := (
+				update occurrence::InternalBioMat
+				filter .meta.batch_import_id = <str>$0
+				set {
+					datasets := dataset
+				}
+			),
+			select dataset
+		`, i.BatchULID.String(),
+	)
+}
+
+func (dataset *OccurrenceDatasetInput) SaveBulk(client *gel.Client, batchSize int) (created dataset.Dataset, err error) {
+	err = db.WithBatchMode(client, dataset.BatchULID).Tx(
+		context.Background(),
+		func(ctx context.Context, tx geltypes.Tx) error {
+
+			created, err = dataset.DatasetInput.Save(tx)
+			if err != nil {
+				return err
 			}
-      }
-      `, &created, data, occurrencesData,
+
+			err = dataset.OccurrenceBatchInput.WithBatchSize(batchSize).Save(tx)
+			if err != nil {
+				return err
+			}
+
+			return dataset.GatherBatch(tx)
+		},
 	)
 	return
+}
+
+func (dataset OccurrenceDatasetInput) SaveParallel(client *gel.Client, batchSize int, cores int) (created dataset.Dataset, err error) {
+	dataset.GenerateBatchULID()
+	client = db.WithBatchMode(client, dataset.BatchULID)
+	created, err = dataset.DatasetInput.Save(client)
+	if err != nil {
+		return
+	}
+
+	if err = dataset.OccurrenceBatchInput.WithBatchSize(batchSize).SaveParallel(client, cores); err != nil {
+		logrus.Infof("Rolling back dataset")
+		created.RollbackImport(client)
+		return
+	}
+	logrus.Infof("Gathering batch in dataset")
+	err = dataset.GatherBatch(client)
+	if err != nil {
+		logrus.Fatalf("Failed to gather batch: %v", err)
+	}
+	logrus.Infof("Done")
+	return
+
 }

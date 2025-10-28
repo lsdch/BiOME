@@ -81,9 +81,9 @@ func (person Person) Delete(db geltypes.Executor) (Person, error) {
 type PersonInput struct {
 	PersonIdentity
 	Organisations []string                     `json:"organisations,omitempty" fakesize:"2"`
-	Alias         models.OptionalInput[string] `json:"alias,omitempty" fake:"-"`
-	Contact       models.OptionalInput[string] `json:"contact,omitempty" format:"email"`
-	Comment       models.OptionalInput[string] `json:"comment,omitempty"`
+	Alias         models.OptionalInput[string] `json:"alias,omitzero" fake:"-"`
+	Contact       models.OptionalInput[string] `json:"contact,omitzero" format:"email"`
+	Comment       models.OptionalInput[string] `json:"comment,omitzero"`
 }
 
 func (p *PersonInput) WithOrganisationCodes(codes map[string]string) PersonInput {
@@ -121,12 +121,11 @@ func (p *PersonIdentity) GenerateAlias() string {
 }
 
 func (person PersonInput) Save(db geltypes.Executor) (created Person, err error) {
-	logrus.Infof("Creating person %+v", person)
 	if !person.Alias.IsSet {
 		person.Alias.Value = person.GenerateAlias()
 	}
 	args, _ := json.Marshal(person)
-	logrus.Infof("Creating person with args: %s", string(args))
+	logrus.Debugf("Creating person with args: %s", string(args))
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select people::insert_person(<json>$0) { ** }

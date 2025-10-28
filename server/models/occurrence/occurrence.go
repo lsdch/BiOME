@@ -7,6 +7,7 @@ import (
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/dataset"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/taxonomy"
 )
@@ -23,6 +24,13 @@ type WithCategory struct {
 	Category OccurrenceCategory `gel:"category" json:"category"`
 }
 
+type BaseOccurrence struct {
+	ID geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+	// Code is a unique identifier for the occurrence within the system.
+	Code         string `gel:"code" json:"code"`
+	WithCategory `gel:"$inline" json:",inline"`
+}
+
 type GenericOccurrence[SamplingType any] struct {
 	ID             geltypes.UUID `gel:"id" json:"id" format:"uuid"`
 	CodeIdentifier `gel:"$inline" json:",inline"`
@@ -37,8 +45,9 @@ type GenericOccurrence[SamplingType any] struct {
 
 type Occurrence[SamplingType any] struct {
 	GenericOccurrence[SamplingType] `gel:"$inline" json:",inline"`
-	Internal                        models.Optional[InternalBioMatSpecific] `gel:"internal" json:"internal,omitempty"`
-	External                        models.Optional[ExternalBioMatSpecific] `gel:"external" json:"external,omitempty"`
+	Datasets                        []dataset.Dataset                           `gel:"datasets" json:"datasets,omitempty"`
+	Internal                        models.Optional[InternalBioMatSpecific]     `gel:"internal" json:"internal,omitempty"`
+	External                        models.Optional[ExternalOccurrenceSpecific] `gel:"external" json:"external,omitempty"`
 }
 
 // OccurrenceWithCategory represents any occurrence

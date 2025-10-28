@@ -105,6 +105,8 @@ func seedTaxonomyGroup(db geltypes.Tx, group string) error {
 		})
 	_ = bar.AddDetail(fmt.Sprintf("Taxonomy setup: %d taxa imported", total))
 	_ = bar.Close()
+	_ = bar.Clear()
+	logrus.Infof("✅ Taxonomy group %s imported: %d taxa", group, total)
 
 	return err
 }

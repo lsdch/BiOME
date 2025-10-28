@@ -8,6 +8,7 @@ import (
 	"github.com/geldata/gel-go/gelcfg"
 	"github.com/geldata/gel-go/gelerr"
 	"github.com/geldata/gel-go/geltypes"
+	"github.com/oklog/ulid/v2"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -42,6 +43,10 @@ func Client() *gel.Client {
 // Get a connection to Gel instance with an authenticated user identified by an UUID
 func WithCurrentUser(userID geltypes.UUID) *gel.Client {
 	return db.WithGlobals(map[string]interface{}{"current_user_id": userID})
+}
+
+func WithBatchMode(db *gel.Client, batchULID ulid.ULID) *gel.Client {
+	return db.WithGlobals(map[string]interface{}{"batch_import_id": batchULID.String()})
 }
 
 type NoDataError struct {

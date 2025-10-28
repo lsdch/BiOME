@@ -13,7 +13,6 @@ import (
 
 
 var QuantityValues = []Quantity{
-	Unknown,
 	One,
 	Several,
 	Dozen,

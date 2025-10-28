@@ -1,23 +1,5 @@
 module references {
 
-  function generate_article_code(authors: array<str>, year: int32) -> str using (
-    select (
-      if len(authors) = 1
-      then str_split(authors[0], ' ')[0] ++ "_" ++ <str>year
-      else if len(authors) = 2
-      then (
-        array_join([
-          str_split(authors[0], ' ')[0],
-          str_split(authors[1], ' ')[0],
-        ]
-        , "_") ++ "_" ++ <str>year
-      )
-      else str_split(authors[0], ' ')[0] ++ "_et_al_" ++ <str>year
-    )
-  );
-
-  global alphabet := "abcdefghijklmnopqrstuvxyz";
-
   type Article extending default::Auditable {
     required authors: array<str>;
     required year: int32 {
@@ -30,19 +12,6 @@ module references {
     comments: str;
     required code: str {
       constraint exclusive;
-      default := (
-        with
-          gen_code := generate_article_code(.authors, .year),
-          # The discriminant is the number of articles with the same code
-          # that are already in the database, minus 1 (the current one)
-          # This is used to generate a unique code for the article
-          # by appending a letter from the alphabet to the code
-          discriminant := (select count(detached Article filter generate_article_code(.authors, .year) = gen_code) - 1),
-        select (
-          if discriminant >= 0 then generate_article_code(.authors, .year) ++ global alphabet[discriminant]
-          else generate_article_code(.authors, .year)
-        )
-      );
     };
 
     index on ((.code, .year));

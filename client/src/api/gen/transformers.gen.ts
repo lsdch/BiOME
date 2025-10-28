@@ -42,7 +42,7 @@ import type {
   SearchSitesResponse,
   ListBioMaterialResponse,
   OccurrencesBySiteResponse,
-  UpdateExternalBioMatResponse,
+  UpdateExternalOccurrenceResponse,
   CreateExternalOccurrenceResponse,
   DeleteBioMaterialResponse,
   GetBioMaterialResponse,
@@ -663,9 +663,9 @@ const genericOccurrenceSamplingOutlineSchemaResponseTransformer = (data: any) =>
   return data
 }
 
-export const updateExternalBioMatResponseTransformer = async (
+export const updateExternalOccurrenceResponseTransformer = async (
   data: any
-): Promise<UpdateExternalBioMatResponse> => {
+): Promise<UpdateExternalOccurrenceResponse> => {
   data = genericOccurrenceSamplingOutlineSchemaResponseTransformer(data)
   return data
 }
@@ -705,7 +705,7 @@ const externalSequenceSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const optionalExternalBioMatSpecificSchemaResponseTransformer = (data: any) => {
+const optionalExternalOccurrenceSpecificSchemaResponseTransformer = (data: any) => {
   if (data.published_in) {
     data.published_in = data.published_in.map((item: any) => {
       return articleSchemaResponseTransformer(item)
@@ -742,8 +742,13 @@ const occurrenceStructSchemaResponseTransformer = (data: any) => {
       return codeHistorySchemaResponseTransformer(item)
     })
   }
+  if (data.datasets) {
+    data.datasets = data.datasets.map((item: any) => {
+      return datasetSchemaResponseTransformer(item)
+    })
+  }
   if (data.external) {
-    data.external = optionalExternalBioMatSpecificSchemaResponseTransformer(data.external)
+    data.external = optionalExternalOccurrenceSpecificSchemaResponseTransformer(data.external)
   }
   data.identification = identificationSchemaResponseTransformer(data.identification)
   if (data.internal) {
@@ -794,8 +799,13 @@ const occurrenceSamplingWithSiteSchemaResponseTransformer = (data: any) => {
       return codeHistorySchemaResponseTransformer(item)
     })
   }
+  if (data.datasets) {
+    data.datasets = data.datasets.map((item: any) => {
+      return datasetSchemaResponseTransformer(item)
+    })
+  }
   if (data.external) {
-    data.external = optionalExternalBioMatSpecificSchemaResponseTransformer(data.external)
+    data.external = optionalExternalOccurrenceSpecificSchemaResponseTransformer(data.external)
   }
   data.identification = identificationSchemaResponseTransformer(data.identification)
   if (data.internal) {

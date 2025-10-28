@@ -7,6 +7,7 @@ import (
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/occurrence/queries"
 	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/models/specimen"
 	"github.com/lsdch/biome/models/taxonomy"
@@ -18,7 +19,7 @@ type SpecimenVoucher struct {
 	Item       []string             `gel:"item_vouchers" json:"vouchers,omitempty"`
 }
 
-type ExternalBioMatSpecific struct {
+type ExternalOccurrenceSpecific struct {
 	Sources            []references.DataSource            `gel:"sources" json:"sources,omitempty"`
 	PublishedIn        []references.Article               `gel:"published_in" json:"published_in,omitempty"`
 	ExternalLink       geltypes.OptionalStr               `gel:"external_link" json:"external_link,omitempty"`
@@ -46,6 +47,7 @@ func GetOccurrence(db geltypes.Executor, code string) (occurrence Occurrence[Sam
 		with module occurrence
 		select OccurrenceWithType {
 			**,
+			datasets: { *, maintainers: { * }, meta: { * } },
 			sampling: {
 				*,
 				performed_by: { * },
@@ -70,7 +72,7 @@ func GetOccurrence(db geltypes.Executor, code string) (occurrence Occurrence[Sam
 				in_collection,
 				item_vouchers,
 				quantity,
-				published_in,
+				published_in: { * },
 				content_description
 			}
 		} filter .code = <str>$0
@@ -203,7 +205,7 @@ func DeleteOccurrence(db geltypes.Executor, code string) (deleted OccurrenceList
 					is_congruent,
 					seq_consensus
 				}
-        external:= [is occurrence::ExternalBioMat]{
+        external:= [is occurrence::ExternalOccurrence]{
 					sources,
           external_link,
           in_collection,
@@ -227,44 +229,60 @@ func (i *InternalOccurrenceInput) WithCreatedMetadata(c *CreatedMetadata) *Inter
 	return i
 }
 
-func (i InternalOccurrenceInput) Save(e geltypes.Executor, samplingNumber int64) (created GenericOccurrence[SamplingOutline], err error) {
+var internalQuickSaveQuery = queries.InternalBioMatQuery(`#edgeql
+		select events::Sampling filter .number = <int64>$0
+	`,
+	`<json>$1`,
+	`#edgeql
+		{id, code, category}
+	`)
+
+func (i *InternalOccurrenceInput) QuickSave(e geltypes.Executor, samplingNumber int64) (created BaseOccurrence, err error) {
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
-		`#edgeql
-			with
-				sampling := (
-					assert_exists(
-						(select events::Sampling filter .number = <int64>$0),
-						message := "Failed to find sampling with number: " ++ <str><int64>$0
-					)
-				),
-				data := <json>$1,
-				identification := data['identification'],
-				taxon := taxonomy::taxonByName(<str>identification['taxon']),
-			select (insert occurrence::InternalBioMat {
-				code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling),
-				identification := (
-					insert occurrence::Identification {
-						taxon := taxon,
-						identified_by := people::personByAlias(<str>identification['identified_by']),
-						identified_on := date::from_json_with_precision(identification['identified_on']),
-					}
-				),
-				sampling := sampling,
-				is_type := <bool>json_get(data, 'is_type') ?? false,
-			}) {
-				[is occurrence::Occurrence].*,
-				sampling: { id, number, performed_on },
-				identification: { **, identified_by: { * } },
-				meta: { * }
-			}
-		`, &created, samplingNumber, data)
+		internalQuickSaveQuery,
+		&created, samplingNumber, data)
 	return
+}
+
+var internalSaveQuery = queries.InternalBioMatQuery(
+	`#edgeql
+		select events::Sampling filter .number = <int64>$0
+	`,
+	`<json>$1`,
+	`#edgeql
+		{
+			[is occurrence::Occurrence].*,
+			sampling: { id, number, performed_on },
+			identification: { **, identified_by: { * } },
+			meta: { * }
+		}
+	`)
+
+func (i *InternalOccurrenceInput) Save(e geltypes.Executor, samplingNumber int64) (created GenericOccurrence[SamplingOutline], err error) {
+	data, _ := json.Marshal(i)
+	err = e.QuerySingle(context.Background(),
+		internalSaveQuery,
+		&created, samplingNumber, data)
+	return
+}
+
+var internalSaveExecuteQuery = queries.InternalBioMatQuery(
+	`#edgeql
+		select events::Sampling filter .number = <int64>$0
+	`,
+	`<json>$1`,
+	"")
+
+func (i *InternalOccurrenceInput) SaveExecute(e geltypes.Executor, samplingNumber int64) error {
+	data, _ := json.Marshal(i)
+	return e.Execute(context.Background(),
+		internalSaveExecuteQuery, samplingNumber, data)
 }
 
 type ExternalOccurrenceInput struct {
 	OccurrenceInput    `gel:"$inline" json:",inline"`
-	OriginalSource     models.OptionalInput[string]            `json:"sources,omitzero"`
+	Sources            []string                                `json:"sources,omitzero"`
 	OriginalTaxon      models.OptionalInput[string]            `json:"original_taxon,omitzero"`
 	OriginalLink       models.OptionalInput[string]            `json:"external_link,omitzero"`
 	Quantity           models.OptionalInput[specimen.Quantity] `json:"quantity,omitzero"`
@@ -277,9 +295,9 @@ type ExternalOccurrenceInput struct {
 
 func (bm *ExternalOccurrenceInput) WithCreatedMetadata(c *CreatedMetadata) *ExternalOccurrenceInput {
 	bm.OccurrenceInput.WithCreatedMetadata(c)
-	if dataSource, ok := bm.OriginalSource.Get(); ok {
-		if s, ok := c.DataSources[dataSource]; ok {
-			bm.OriginalSource = (&bm.OriginalSource).SetValue(s)
+	for i, source := range bm.Sources {
+		if s, ok := c.DataSources[source]; ok {
+			bm.Sources[i] = s
 		}
 	}
 	for i := range bm.Sequences {
@@ -288,47 +306,55 @@ func (bm *ExternalOccurrenceInput) WithCreatedMetadata(c *CreatedMetadata) *Exte
 	return bm
 }
 
+var externalSaveExecuteQuery = queries.ExternalOccurrenceQuery(
+	`#edgeql
+		select events::Sampling filter .number = <int64>$0
+	`,
+	`<json>$1`,
+	"")
+
+func (i *ExternalOccurrenceInput) SaveExecute(e geltypes.Executor, samplingNumber int64) error {
+	data, _ := json.Marshal(i)
+	logrus.Debugf("Creating ExternalOccurrence with args: %s", string(data))
+	return e.Execute(context.Background(), externalSaveExecuteQuery, samplingNumber, data)
+}
+
+var externalQuickSaveQuery = queries.ExternalOccurrenceQuery(
+	`#edgeql
+		select events::Sampling filter .number = <int64>$0
+	`,
+	`<json>$1`,
+	`#edgeql
+		{id, code, category}
+	`)
+
+func (i *ExternalOccurrenceInput) QuickSave(e geltypes.Executor, samplingNumber int64) (created BaseOccurrence, err error) {
+	data, _ := json.Marshal(i)
+	logrus.Debugf("Creating ExternalOccurrence with args: %s", string(data))
+	err = e.QuerySingle(context.Background(), externalQuickSaveQuery, &created, samplingNumber, data)
+	return
+}
+
+var externalSaveQuery = queries.ExternalOccurrenceQuery(
+	`#edgeql
+		select events::Sampling filter .number = <int64>$0
+	`,
+	`<json>$1`,
+	`#edgeql
+		{
+			[is occurrence::Occurrence].*,
+			sampling: { id, number, performed_on },
+			identification: { **, identified_by: { * } },
+			meta: { * }
+		}
+	`)
+
 func (i ExternalOccurrenceInput) Save(e geltypes.Executor, samplingNumber int64) (created GenericOccurrence[SamplingOutline], err error) {
 	data, _ := json.Marshal(i)
-	logrus.Infof("Creating ExternalBioMat with args: %s", string(data))
+	logrus.Debugf("Creating ExternalOccurrence with args: %s", string(data))
 	err = e.QuerySingle(context.Background(),
-		`#edgeql
-			with
-				sampling := (assert_exists(
-					(select events::Sampling filter .number = <int64>$0),
-					message := "Failed to find sampling with number: " ++ <str><int64>$0
-				)),
-				data := <json>$1,
-				biomat := occurrence::insert_external_biomat(sampling, data),
-				sequences := (
-					for seq_data in json_array_unpack(json_get(data, 'sequences')) union (
-						insert seq::ExternalSequence {
-							biomat := biomat,
-							code := <str>seq_data['code'],
-							label := <str>seq_data['label'],
-							sequence := <str>seq_data['sequence'],
-							gene := seq::geneByCode(<str>seq_data['gene']),
-							legacy := <tuple<id: int32, code: str, alignment_code: str>>json_get(seq_data, 'legacy'),
-							specimen_identifier := <str>seq_data['specimen_identifier'],
-							referenced_in := (
-								for ref in json_array_unpack(json_get(seq_data, 'referenced_in'))
-								union (
-									insert references::SeqReference {
-										db := references::dataSourceByCode(<str>ref['db']),
-										accession := <str>ref['accession'],
-									}
-								)
-							)
-						}
-					)
-				)
-			select biomat {
-        [is occurrence::Occurrence].*,
-				sampling: { id, number, performed_on },
-				identification: { **, identified_by: { * } },
-				meta: { * }
-      }
-		`, &created, samplingNumber, data)
+		externalSaveQuery,
+		&created, samplingNumber, data)
 	return
 }
 
@@ -351,7 +377,7 @@ func (u ExternalOccurrenceUpdate) Save(e geltypes.Executor, code string) (update
 		Frame: `#edgeql
       with item := <json>$1,
       select (
-				update occurrence::ExternalBioMat
+				update occurrence::ExternalOccurrence
 				filter .code = <str>$0
 				set { %s }
 			 ) {

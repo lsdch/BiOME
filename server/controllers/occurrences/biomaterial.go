@@ -38,14 +38,14 @@ func registerBioMatRoutes(r router.Router) {
 		huma.Operation{
 			Path:    "/external",
 			Method:  http.MethodPost,
-			Summary: "Create external bio-material",
+			Summary: "Create external occurrence",
 		}, CreateExternalOccurrence)
 
-	router.Register(biomat_API, "UpdateExternalBioMat",
+	router.Register(biomat_API, "UpdateExternalOccurrence",
 		huma.Operation{
 			Path:    "/external",
 			Method:  http.MethodPatch,
-			Summary: "Update external bio-material",
+			Summary: "Update external occurrence",
 		}, controllers.UpdateByCodeHandler[occurrence.ExternalOccurrenceUpdate])
 
 	router.Register(biomat_API, "DeleteBioMaterial",

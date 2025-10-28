@@ -38,6 +38,7 @@ module seq {
 
     multi referenced_in: references::SeqReference {
       constraint exclusive;
+      on target delete allow;
     };
 
     required category := (
@@ -89,7 +90,9 @@ module seq {
 
   type ExternalSequence extending Sequence {
 
-    required biomat: occurrence::ExternalBioMat;
+    required biomat: occurrence::ExternalOccurrence {
+      on target delete delete source;
+    };
 
     overloaded required code: str {
       constraint exclusive;
@@ -111,7 +114,7 @@ module seq {
   }
 
 
-  function insert_external_seq(biomat: occurrence::ExternalBioMat, data: json) -> ExternalSequence {
+  function insert_external_seq(biomat: occurrence::ExternalOccurrence, data: json) -> ExternalSequence {
     using (
       insert ExternalSequence {
         biomat := biomat,
@@ -137,7 +140,7 @@ module seq {
     select Sequence {
       required occurrence := assert_exists(
         (
-          select occurrence::OccurrenceWithType
+          select occurrence::Occurrence
           filter .id = (Sequence[is AssembledSequence].specimen.biomat.id ?? Sequence[is ExternalSequence].biomat.id)
         ),
         message := "Failed to find upstream occurrence for seq::Sequence subtype"

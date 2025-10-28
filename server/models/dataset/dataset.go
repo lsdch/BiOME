@@ -31,6 +31,14 @@ type Dataset struct {
 	Meta         people.Meta                         `gel:"meta" json:"meta"`
 }
 
+func (d Dataset) RollbackImport(db geltypes.Executor) error {
+	return db.Execute(context.Background(),
+		`#edgeql
+			delete Auditable filter .meta.batch_import_id = <str>$0
+		`, d.Meta.BatchID,
+	)
+}
+
 func (d *Dataset) IsMaintainer(user people.UserInner) bool {
 	for _, u := range d.Maintainers {
 		if u.ID == user.ID {
@@ -111,6 +119,34 @@ type DatasetInput struct {
 
 func (i *DatasetInput) GenerateSlug() {
 	i.Slug = slug.Make(i.Label)
+}
+
+func (i *DatasetInput) Save(db geltypes.Executor) (created Dataset, err error) {
+	i.GenerateSlug()
+	data, _ := json.Marshal(i)
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+      with module occurrence,
+        data := <json>$0,
+				select (
+					insert datasets::OccurrenceDataset {
+						label := <str>data['label'],
+						slug := <str>data['slug'],
+						description := <str>json_get(data, 'description'),
+						maintainers := (
+							select people::Person
+							filter .alias in <str>json_array_unpack(data['maintainers'])
+						) ?? (SELECT admin::Settings.superadmin.identity),
+					}
+				) {
+        *,
+				maintainers: { * },
+				publication: { * },
+				meta: { * }
+      }
+      `, &created, data,
+	)
+	return
 }
 
 type DatasetUpdate struct {

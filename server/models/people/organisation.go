@@ -20,7 +20,7 @@ type OrganisationInfos struct {
 
 type OrganisationInput struct {
 	OrganisationInfos `gel:"$inline"`
-	Description       models.OptionalInput[string] `json:"description,omitempty" gel:"description" example:"Where this database was born."`
+	Description       models.OptionalInput[string] `json:"description,omitzero" gel:"description" example:"Where this database was born."`
 }
 
 type OrganisationInner struct {

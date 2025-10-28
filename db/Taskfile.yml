@@ -76,7 +76,7 @@ tasks:
       - go run ./cmd/seed/
       - gel branch drop {{.TEST_DB_NAME}} --non-interactive
       - gel branch create {{.TEST_DB_NAME}} --copy-data
-    deps: [dl-countries-dataset, migrate]
+    deps: [dl-countries-dataset]
 
   reset:
     desc: "Wipe database and reset initial seed"

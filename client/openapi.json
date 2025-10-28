@@ -185,9 +185,6 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"sources": {
-						"type": "boolean"
-					},
 					"title": {
 						"type": "string"
 					},
@@ -204,7 +201,6 @@
 					"code",
 					"authors",
 					"year",
-					"sources",
 					"meta"
 				],
 				"type": "object"
@@ -1346,48 +1342,6 @@
 				},
 				"type": "object"
 			},
-			"ExternalBioMatSpecific": {
-				"additionalProperties": false,
-				"properties": {
-					"archive": {
-						"$ref": "#/components/schemas/SpecimenVoucher"
-					},
-					"content_description": {
-						"type": "string"
-					},
-					"external_link": {
-						"type": "string"
-					},
-					"original_taxon": {
-						"type": "string"
-					},
-					"published_in": {
-						"items": {
-							"$ref": "#/components/schemas/Article"
-						},
-						"type": "array"
-					},
-					"quantity": {
-						"$ref": "#/components/schemas/OptionalQuantity"
-					},
-					"sequences": {
-						"items": {
-							"$ref": "#/components/schemas/ExternalSequence"
-						},
-						"type": "array"
-					},
-					"sources": {
-						"items": {
-							"$ref": "#/components/schemas/DataSource"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"archive"
-				],
-				"type": "object"
-			},
 			"ExternalOccurrenceAtSiteInput": {
 				"additionalProperties": false,
 				"properties": {
@@ -1475,7 +1429,10 @@
 						"type": "array"
 					},
 					"sources": {
-						"type": "string"
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"vouchers": {
 						"items": {
@@ -1486,6 +1443,48 @@
 				},
 				"required": [
 					"identification"
+				],
+				"type": "object"
+			},
+			"ExternalOccurrenceSpecific": {
+				"additionalProperties": false,
+				"properties": {
+					"archive": {
+						"$ref": "#/components/schemas/SpecimenVoucher"
+					},
+					"content_description": {
+						"type": "string"
+					},
+					"external_link": {
+						"type": "string"
+					},
+					"original_taxon": {
+						"type": "string"
+					},
+					"published_in": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
+					},
+					"quantity": {
+						"$ref": "#/components/schemas/OptionalQuantity"
+					},
+					"sequences": {
+						"items": {
+							"$ref": "#/components/schemas/ExternalSequence"
+						},
+						"type": "array"
+					},
+					"sources": {
+						"items": {
+							"$ref": "#/components/schemas/DataSource"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"archive"
 				],
 				"type": "object"
 			},
@@ -2405,6 +2404,9 @@
 			"Identification": {
 				"additionalProperties": false,
 				"properties": {
+					"addendum": {
+						"$ref": "#/components/schemas/OptionalString"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -2435,6 +2437,9 @@
 			"IdentificationInput": {
 				"additionalProperties": false,
 				"properties": {
+					"addendum": {
+						"type": "string"
+					},
 					"identified_by": {
 						"type": "string"
 					},
@@ -3262,6 +3267,9 @@
 			"Meta": {
 				"additionalProperties": false,
 				"properties": {
+					"batch_id": {
+						"type": "string"
+					},
 					"created": {
 						"format": "date-time",
 						"type": "string"
@@ -3559,8 +3567,14 @@
 					"comments": {
 						"type": "string"
 					},
+					"datasets": {
+						"items": {
+							"$ref": "#/components/schemas/Dataset"
+						},
+						"type": "array"
+					},
 					"external": {
-						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
+						"$ref": "#/components/schemas/OptionalExternalOccurrenceSpecific"
 					},
 					"has_sequences": {
 						"type": "boolean"
@@ -3615,8 +3629,14 @@
 					"comments": {
 						"type": "string"
 					},
+					"datasets": {
+						"items": {
+							"$ref": "#/components/schemas/Dataset"
+						},
+						"type": "array"
+					},
 					"external": {
-						"$ref": "#/components/schemas/OptionalExternalBioMatSpecific"
+						"$ref": "#/components/schemas/OptionalExternalOccurrenceSpecific"
 					},
 					"has_sequences": {
 						"type": "boolean"
@@ -3694,9 +3714,6 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"sources": {
-						"type": "boolean"
-					},
 					"title": {
 						"type": "string"
 					},
@@ -3713,7 +3730,6 @@
 					"code",
 					"authors",
 					"year",
-					"sources",
 					"meta"
 				],
 				"type": [
@@ -3812,7 +3828,7 @@
 				],
 				"type": "object"
 			},
-			"OptionalExternalBioMatSpecific": {
+			"OptionalExternalOccurrenceSpecific": {
 				"additionalProperties": false,
 				"properties": {
 					"archive": {
@@ -4003,6 +4019,12 @@
 				"$ref": "#/components/schemas/Quantity",
 				"type": [
 					"",
+					"null"
+				]
+			},
+			"OptionalString": {
+				"type": [
+					"string",
 					"null"
 				]
 			},
@@ -5082,7 +5104,6 @@
 			},
 			"Quantity": {
 				"enum": [
-					"Unknown",
 					"One",
 					"Several",
 					"Dozen",
@@ -5317,6 +5338,9 @@
 						},
 						"type": "array"
 					},
+					"code": {
+						"type": "string"
+					},
 					"comments": {
 						"type": "string"
 					},
@@ -5388,6 +5412,7 @@
 				},
 				"required": [
 					"meta",
+					"code",
 					"target",
 					"id",
 					"number"
@@ -5431,6 +5456,9 @@
 							"type": "string"
 						},
 						"type": "array"
+					},
+					"code": {
+						"type": "string"
 					},
 					"comments": {
 						"type": "string"
@@ -5497,6 +5525,7 @@
 				},
 				"required": [
 					"occurrences",
+					"code",
 					"target",
 					"id",
 					"number"
@@ -5511,6 +5540,9 @@
 							"type": "string"
 						},
 						"type": "array"
+					},
+					"code": {
+						"type": "string"
 					},
 					"comments": {
 						"type": "string"
@@ -5571,6 +5603,7 @@
 				},
 				"required": [
 					"site",
+					"code",
 					"target",
 					"id",
 					"number"
@@ -5977,6 +6010,9 @@
 						},
 						"type": "array"
 					},
+					"code": {
+						"type": "string"
+					},
 					"comments": {
 						"type": "string"
 					},
@@ -6048,6 +6084,7 @@
 				},
 				"required": [
 					"meta",
+					"code",
 					"target",
 					"id",
 					"number"
@@ -6062,6 +6099,9 @@
 							"type": "string"
 						},
 						"type": "array"
+					},
+					"code": {
+						"type": "string"
 					},
 					"comments": {
 						"type": "string"
@@ -6138,6 +6178,7 @@
 				"required": [
 					"site",
 					"meta",
+					"code",
 					"target",
 					"id",
 					"number"
@@ -12627,7 +12668,7 @@
 		},
 		"/occurrences/external": {
 			"patch": {
-				"operationId": "UpdateExternalBioMat",
+				"operationId": "UpdateExternalOccurrence",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -12702,7 +12743,7 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "Update external bio-material",
+				"summary": "Update external occurrence",
 				"tags": [
 					"Occurrences"
 				]
@@ -12775,7 +12816,7 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "Create external bio-material",
+				"summary": "Create external occurrence",
 				"tags": [
 					"Occurrences"
 				]
@@ -16726,8 +16767,7 @@
 								"$ref": "#/components/schemas/SamplingInput"
 							}
 						}
-					},
-					"required": true
+					}
 				},
 				"responses": {
 					"200": {

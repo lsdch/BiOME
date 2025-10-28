@@ -7,6 +7,10 @@ using extension postgis;
 
 module default {
 
+  global batch_import_id: str {
+    default := <str>{};
+  };
+
   global current_user_id: uuid {
     default := <uuid>{};
   };

@@ -160,9 +160,6 @@ export const $Article = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    sources: {
-      type: 'boolean'
-    },
     title: {
       type: 'string'
     },
@@ -174,7 +171,7 @@ export const $Article = {
       type: 'integer'
     }
   },
-  required: ['id', 'code', 'authors', 'year', 'sources', 'meta'],
+  required: ['id', 'code', 'authors', 'year', 'meta'],
   type: 'object'
 } as const
 
@@ -1143,47 +1140,6 @@ export const $ErrorModel = {
   type: 'object'
 } as const
 
-export const $ExternalBioMatSpecific = {
-  additionalProperties: false,
-  properties: {
-    archive: {
-      $ref: '#/components/schemas/SpecimenVoucher'
-    },
-    content_description: {
-      type: 'string'
-    },
-    external_link: {
-      type: 'string'
-    },
-    original_taxon: {
-      type: 'string'
-    },
-    published_in: {
-      items: {
-        $ref: '#/components/schemas/Article'
-      },
-      type: 'array'
-    },
-    quantity: {
-      $ref: '#/components/schemas/OptionalQuantity'
-    },
-    sequences: {
-      items: {
-        $ref: '#/components/schemas/ExternalSequence'
-      },
-      type: 'array'
-    },
-    sources: {
-      items: {
-        $ref: '#/components/schemas/DataSource'
-      },
-      type: 'array'
-    }
-  },
-  required: ['archive'],
-  type: 'object'
-} as const
-
 export const $ExternalOccurrenceAtSiteInput = {
   additionalProperties: false,
   properties: {
@@ -1263,7 +1219,10 @@ export const $ExternalOccurrenceInput = {
       type: 'array'
     },
     sources: {
-      type: 'string'
+      items: {
+        type: 'string'
+      },
+      type: 'array'
     },
     vouchers: {
       items: {
@@ -1273,6 +1232,47 @@ export const $ExternalOccurrenceInput = {
     }
   },
   required: ['identification'],
+  type: 'object'
+} as const
+
+export const $ExternalOccurrenceSpecific = {
+  additionalProperties: false,
+  properties: {
+    archive: {
+      $ref: '#/components/schemas/SpecimenVoucher'
+    },
+    content_description: {
+      type: 'string'
+    },
+    external_link: {
+      type: 'string'
+    },
+    original_taxon: {
+      type: 'string'
+    },
+    published_in: {
+      items: {
+        $ref: '#/components/schemas/Article'
+      },
+      type: 'array'
+    },
+    quantity: {
+      $ref: '#/components/schemas/OptionalQuantity'
+    },
+    sequences: {
+      items: {
+        $ref: '#/components/schemas/ExternalSequence'
+      },
+      type: 'array'
+    },
+    sources: {
+      items: {
+        $ref: '#/components/schemas/DataSource'
+      },
+      type: 'array'
+    }
+  },
+  required: ['archive'],
   type: 'object'
 } as const
 
@@ -2086,6 +2086,9 @@ export const $HabitatUpdate = {
 export const $Identification = {
   additionalProperties: false,
   properties: {
+    addendum: {
+      $ref: '#/components/schemas/OptionalString'
+    },
     id: {
       format: 'uuid',
       type: 'string'
@@ -2113,6 +2116,9 @@ export const $Identification = {
 export const $IdentificationInput = {
   additionalProperties: false,
   properties: {
+    addendum: {
+      type: 'string'
+    },
     identified_by: {
       type: 'string'
     },
@@ -2881,6 +2887,9 @@ export const $Message = {
 export const $Meta = {
   additionalProperties: false,
   properties: {
+    batch_id: {
+      type: 'string'
+    },
     created: {
       format: 'date-time',
       type: 'string'
@@ -3163,8 +3172,14 @@ export const $OccurrenceSamplingWithSite = {
     comments: {
       type: 'string'
     },
+    datasets: {
+      items: {
+        $ref: '#/components/schemas/Dataset'
+      },
+      type: 'array'
+    },
     external: {
-      $ref: '#/components/schemas/OptionalExternalBioMatSpecific'
+      $ref: '#/components/schemas/OptionalExternalOccurrenceSpecific'
     },
     has_sequences: {
       type: 'boolean'
@@ -3220,8 +3235,14 @@ export const $OccurrenceStruct___ = {
     comments: {
       type: 'string'
     },
+    datasets: {
+      items: {
+        $ref: '#/components/schemas/Dataset'
+      },
+      type: 'array'
+    },
     external: {
-      $ref: '#/components/schemas/OptionalExternalBioMatSpecific'
+      $ref: '#/components/schemas/OptionalExternalOccurrenceSpecific'
     },
     has_sequences: {
       type: 'boolean'
@@ -3299,9 +3320,6 @@ export const $OptionalArticle = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    sources: {
-      type: 'boolean'
-    },
     title: {
       type: 'string'
     },
@@ -3313,7 +3331,7 @@ export const $OptionalArticle = {
       type: 'integer'
     }
   },
-  required: ['id', 'code', 'authors', 'year', 'sources', 'meta'],
+  required: ['id', 'code', 'authors', 'year', 'meta'],
   type: ['object', 'null']
 } as const
 
@@ -3384,7 +3402,7 @@ export const $OptionalDateWithPrecision = {
   type: 'object'
 } as const
 
-export const $OptionalExternalBioMatSpecific = {
+export const $OptionalExternalOccurrenceSpecific = {
   additionalProperties: false,
   properties: {
     archive: {
@@ -3538,6 +3556,10 @@ export const $OptionalPersonInner = {
 export const $OptionalQuantity = {
   $ref: '#/components/schemas/Quantity',
   type: ['', 'null']
+} as const
+
+export const $OptionalString = {
+  type: ['string', 'null']
 } as const
 
 export const $OptionalTaxon = {
@@ -4396,7 +4418,7 @@ export const $Property = {
 } as const
 
 export const $Quantity = {
-  enum: ['Unknown', 'One', 'Several', 'Dozen', 'Tens', 'Hundred'],
+  enum: ['One', 'Several', 'Dozen', 'Tens', 'Hundred'],
   title: 'Quantity',
   type: 'string'
 } as const
@@ -4608,6 +4630,9 @@ export const $Sampling = {
       },
       type: 'array'
     },
+    code: {
+      type: 'string'
+    },
     comments: {
       type: 'string'
     },
@@ -4677,7 +4702,7 @@ export const $Sampling = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['meta', 'target', 'id', 'number'],
+  required: ['meta', 'code', 'target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -4716,6 +4741,9 @@ export const $SamplingDetailsWithOccurrences = {
         type: 'string'
       },
       type: 'array'
+    },
+    code: {
+      type: 'string'
     },
     comments: {
       type: 'string'
@@ -4780,7 +4808,7 @@ export const $SamplingDetailsWithOccurrences = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['occurrences', 'target', 'id', 'number'],
+  required: ['occurrences', 'code', 'target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -4792,6 +4820,9 @@ export const $SamplingInnerWithSite = {
         type: 'string'
       },
       type: 'array'
+    },
+    code: {
+      type: 'string'
     },
     comments: {
       type: 'string'
@@ -4850,7 +4881,7 @@ export const $SamplingInnerWithSite = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['site', 'target', 'id', 'number'],
+  required: ['site', 'code', 'target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -5199,6 +5230,9 @@ export const $SamplingWithOccurrences = {
       },
       type: 'array'
     },
+    code: {
+      type: 'string'
+    },
     comments: {
       type: 'string'
     },
@@ -5268,7 +5302,7 @@ export const $SamplingWithOccurrences = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['meta', 'target', 'id', 'number'],
+  required: ['meta', 'code', 'target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -5280,6 +5314,9 @@ export const $SamplingWithSite = {
         type: 'string'
       },
       type: 'array'
+    },
+    code: {
+      type: 'string'
     },
     comments: {
       type: 'string'
@@ -5353,7 +5390,7 @@ export const $SamplingWithSite = {
       $ref: '#/components/schemas/SamplingTarget'
     }
   },
-  required: ['site', 'meta', 'target', 'id', 'number'],
+  required: ['site', 'meta', 'code', 'target', 'id', 'number'],
   type: 'object'
 } as const
 

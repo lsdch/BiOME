@@ -193,9 +193,9 @@ import type {
   OccurrencesBySiteData,
   OccurrencesBySiteResponses,
   OccurrencesBySiteErrors,
-  UpdateExternalBioMatData,
-  UpdateExternalBioMatResponses,
-  UpdateExternalBioMatErrors,
+  UpdateExternalOccurrenceData,
+  UpdateExternalOccurrenceResponses,
+  UpdateExternalOccurrenceErrors,
   CreateExternalOccurrenceData,
   CreateExternalOccurrenceResponses,
   CreateExternalOccurrenceErrors,
@@ -419,7 +419,7 @@ import {
   searchSitesResponseTransformer,
   listBioMaterialResponseTransformer,
   occurrencesBySiteResponseTransformer,
-  updateExternalBioMatResponseTransformer,
+  updateExternalOccurrenceResponseTransformer,
   createExternalOccurrenceResponseTransformer,
   deleteBioMaterialResponseTransformer,
   getBioMaterialResponseTransformer,
@@ -3134,17 +3134,17 @@ export class OccurrencesService {
   }
 
   /**
-   * Update external bio-material
+   * Update external occurrence
    */
-  public static updateExternalBioMat<ThrowOnError extends boolean = false>(
-    options: Options<UpdateExternalBioMatData, ThrowOnError>
+  public static updateExternalOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<UpdateExternalOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).patch<
-      UpdateExternalBioMatResponses,
-      UpdateExternalBioMatErrors,
+      UpdateExternalOccurrenceResponses,
+      UpdateExternalOccurrenceErrors,
       ThrowOnError
     >({
-      responseTransformer: updateExternalBioMatResponseTransformer,
+      responseTransformer: updateExternalOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3166,7 +3166,7 @@ export class OccurrencesService {
   }
 
   /**
-   * Create external bio-material
+   * Create external occurrence
    */
   public static createExternalOccurrence<ThrowOnError extends boolean = false>(
     options: Options<CreateExternalOccurrenceData, ThrowOnError>

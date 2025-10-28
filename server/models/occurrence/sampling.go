@@ -8,9 +8,12 @@ import (
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/models/occurrence/queries"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/taxonomy"
 	"github.com/lsdch/biome/models/vocabulary"
+
+	_ "embed"
 
 	"github.com/sirupsen/logrus"
 )
@@ -84,6 +87,7 @@ type SamplingOutline struct {
 }
 type SamplingInner struct {
 	SamplingOutline   `gel:"$inline" json:",inline"`
+	Code              string                     `gel:"code" json:"code"`
 	PerformedBy       []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
 	PerformedByGroups []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
 	Target            SamplingTarget             `gel:"$inline" json:"target"`
@@ -148,58 +152,46 @@ type SamplingInput struct {
 	AccessPoints []string            `json:"access_points,omitempty"`
 }
 
-func (i SamplingInput) Save(e geltypes.Executor, siteCode string) (created Sampling, err error) {
+func (i *SamplingInput) QuickSave(e geltypes.Executor, siteCode string) (created SamplingOutline, err error) {
 	data, _ := json.Marshal(i)
-	logrus.Infof("Inserting sampling event: %s", string(data))
+	logrus.Debugf("Inserting sampling event at site %s: %s", siteCode, string(data))
 	err = e.QuerySingle(context.Background(),
-		`#edgeql
-			with module events,
-			data := <json>$1,
-			select (insert events::Sampling {
-				site := assert_exists(
-					(select location::Site filter .code = <str>$0),
-					message := 'Site with code ' ++ <str>$0 ++ ' does not exist'
-				),
-				performed_by := (
-					select people::Person
-					filter .alias in <str>json_array_unpack(json_get(data, 'performed_by'))
-				),
-				performed_by_groups := (
-					select people::Organisation
-					filter .code in <str>json_array_unpack(json_get(data,'performed_by_groups'))
-				),
-				performed_on := (
-					select date::from_json_with_precision(json_get(data, 'performed_on'))
-				),
-				methods := (
-					select SamplingMethod
-					filter .code in <str>json_array_unpack(json_get(data, 'methods'))
-				),
-				fixatives := (
-					select samples::Fixative
-					filter .code in <str>json_array_unpack(json_get(data, 'fixatives'))
-				),
-				sampling_target := <SamplingTarget>(data['target']['kind']),
-				target_taxa := (
-					select taxonomy::Taxon
-					filter .name in <str>json_array_unpack(json_get(data, 'target', 'taxa'))
-				),
-				sampling_duration := <int32>json_get(data, 'duration'),
-				comments := <str>json_get(data, 'comments'),
-				habitats := (
-					select sampling::Habitat
-					filter .label in <str>json_array_unpack(json_get(data, 'habitats'))
-				),
-				access_points := (<str>json_array_unpack(json_get(data, 'access_points')))
-			}) {
-				*,
-				habitats: { * },
-				target_taxa: { * },
-				fixatives: { * },
-				methods: { * },
-				meta: { * }
-			}
-		`, &created, siteCode, data)
+		queries.SamplingQuery(
+			`#edgeql
+				(select location::Site filter .code = <str>$0)
+			`,
+			"<json>$1",
+			`#edgeql
+				{ id, number, performed_on }
+			`,
+		),
+		&created, siteCode, data,
+	)
+	return
+}
+
+func (i *SamplingInput) Save(e geltypes.Executor, siteCode string) (created Sampling, err error) {
+	data, _ := json.Marshal(i)
+	logrus.Debugf("Inserting sampling event at site %s: %s", siteCode, string(data))
+	err = e.QuerySingle(
+		context.Background(),
+		queries.SamplingQuery(
+			`#edgeql
+				(select location::Site filter .code = <str>$0)
+			`,
+			"<json>$1",
+			`#edgeql
+				{
+					*,
+					habitats: { * },
+					target_taxa: { * },
+					fixatives: { * },
+					methods: { * },
+					meta: { * }
+				}
+			`,
+		),
+		&created, siteCode, data)
 	return
 }
 

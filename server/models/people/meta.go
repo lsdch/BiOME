@@ -24,6 +24,7 @@ type Meta struct {
 	LastUpdated time.Time                          `gel:"lastUpdated" json:"last_updated"`
 	CreatedBy   models.Optional[UserShortIdentity] `json:"created_by,omitempty" gel:"created_by"`
 	UpdatedBy   models.Optional[UserShortIdentity] `json:"updated_by,omitempty" gel:"updated_by"`
+	BatchID     geltypes.OptionalStr               `gel:"batch_import_id" json:"batch_id,omitempty"`
 }
 
 func (m *Meta) Save(db geltypes.Executor) {

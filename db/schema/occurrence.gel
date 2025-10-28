@@ -5,7 +5,7 @@ module occurrence {
   type Identification extending default::Auditable {
     required taxon: taxonomy::Taxon;
 
-    identified_by: people::Person; # might be unknown
+    identified_by: people::Person;
 
     identified_on: tuple<date: datetime, precision: date::DatePrecision>{
       rewrite insert, update using (
@@ -16,18 +16,28 @@ module occurrence {
     qualifier: IdentificationQualifier {
       annotation description := "Identification qualifier, e.g. 'cf.' or 'aff.'";
     };
+
+    addendum: str {
+      annotation description := "Additional information about the identification, e.g. 'group venustus' or 'form A'.";
+    };
   }
 
   scalar type OccurrenceCategory extending enum<Internal, External>;
 
-  function occurrence_code(taxon: taxonomy::Taxon, sampling: events::Sampling) -> str {
-    using ( taxonomy::taxon_code(taxon) ++ "[" ++ events::sampling_code(sampling) ++ "]" )
+  function occurrence_code(taxon: taxonomy::Taxon, sampling_code: str) -> str {
+    using ( taxonomy::taxon_code(taxon) ++ "[" ++ sampling_code ++ "]" )
   };
 
   # Occurrences are reports of the presence of a taxon at a specific location and time.
   abstract type Occurrence extending default::Auditable, default::CodeIdentifier {
 
-    required sampling: events::Sampling;
+    multi datasets: datasets::OccurrenceDataset {
+      on target delete allow;
+      on source delete allow;
+    };
+    required sampling: events::Sampling {
+      on target delete delete source;
+    };
     required identification: Identification {
       constraint exclusive;
       on source delete delete target;
@@ -36,10 +46,6 @@ module occurrence {
     overloaded required code : str {
       constraint exclusive;
       annotation description := "Format like 'taxon_short_code[sampling_code]'";
-      rewrite update using (
-        if __specified__.code then .code # allow manual overwrite
-        else occurrence_code(.identification.taxon, .sampling)
-      );
 
       # 🚧 unsupported feature for now
       # > error: default expression cannot refer to links of inserted object
@@ -58,7 +64,7 @@ module occurrence {
     required category := (
       assert_exists((
           if __source__ is InternalBioMat then OccurrenceCategory.Internal
-          else if __source__ is ExternalBioMat then OccurrenceCategory.External
+          else if __source__ is ExternalOccurrence then OccurrenceCategory.External
           else <OccurrenceCategory>{}
         ),
         message:= "Occurrence category for subtype " ++ __source__.__type__.name ++ " is undefined"
@@ -132,7 +138,7 @@ module occurrence {
         taxon := taxonomy::taxonByName(<str>identification['taxon']),
       insert InternalBioMat {
         sampling := sampling,
-        code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling),
+        code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling.code),
         identification := (
           insert occurrence::Identification {
             taxon := taxon,
@@ -148,7 +154,7 @@ module occurrence {
 
   scalar type QuantityType extending enum<One, Several, Ten, Tens, Hundred>;
 
-  type ExternalBioMat extending Occurrence {
+  type ExternalOccurrence extending Occurrence {
     multi sources: references::DataSource;
     external_link: str; # link to original database
 
@@ -165,28 +171,18 @@ module occurrence {
       annotation description := "The verbatim identification provided in the original source.";
     };
 
-    required has_sequences := exists .sequences;
+    required has_sequences := (exists .sequences);
     multi sequences := .<biomat[is seq::ExternalSequence];
   }
 
-  function externalBiomatByCode(code: optional str) -> ExternalBioMat {
-    using (
-      select assert_exists(
-        ExternalBioMat filter .code = code,
-        message := "Failed to find external biomaterial with code: " ++ code
-      )
-    );
-  };
-
-
-  function insert_external_biomat(sampling: events::Sampling, data: json) -> ExternalBioMat {
+  function insert_external_occurrence(sampling: events::Sampling, data: json) -> ExternalOccurrence {
     using (
       with
         identification := data['identification'],
         taxon := taxonomy::taxonByName(<str>identification['taxon']),
-      insert ExternalBioMat {
+      insert ExternalOccurrence {
         sampling := sampling,
-        code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling),
+        code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling.code),
         sources := (
           select references::DataSource
           filter .code in <str>json_array_unpack(json_get(data, 'sources'))
@@ -218,14 +214,14 @@ module occurrence {
   alias OccurrenceWithType := (
     select Occurrence {
       required has_sequences := (
-        [is InternalBioMat].has_sequences ?? [is ExternalBioMat].has_sequences ?? false
+        [is InternalBioMat].has_sequences ?? [is ExternalOccurrence].has_sequences ?? false
       ),
       internal := [is InternalBioMat]{
         is_homogenous,
         is_congruent,
         seq_consensus
       },
-      external:= [is ExternalBioMat]{
+      external:= [is ExternalOccurrence]{
         sequences,
         published_in,
         original_taxon,

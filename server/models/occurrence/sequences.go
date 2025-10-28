@@ -194,7 +194,7 @@ func (i ExternalSequenceInput) Save(e geltypes.Executor, occurrenceCode string) 
 		`#edgeql
 			with data := <json>$1,
 			select (insert seq::ExternalSequence {
-				biomat := (select occurrence::ExternalBioMat filter .code = <str>$0),
+				biomat := (select occurrence::ExternalOccurrence filter .code = <str>$0),
 				code := <str>data['code'],
 				label := <str>json_get(data, 'label'),
 				sequence := <str>json_get(data, 'sequence'),
