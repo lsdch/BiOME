@@ -45,6 +45,10 @@
     <template #item.authors="{ value }: { value: string[] }">
       {{ Article.shortAuthors(value) }}
     </template>
+    <template #item.title="{ value, item }">
+      <span v-if="value">{{ value }}</span>
+      <span v-else class="text-muted">{{ item.verbatim }}</span>
+    </template>
     <template #expanded-row-inject="{ item }">
       <v-card
         class="article-details"
@@ -91,13 +95,11 @@
 </template>
 
 <script setup lang="ts">
-import { ReferencesService } from '@/api'
 import { Article } from '@/api/adapters'
 import { deleteArticleMutation, listArticlesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ArticleFormDialogMutation from '@/components/forms/ArticleFormDialogMutation.vue'
-import ArticleFormDialog from '@/components/forms/ArticleFormDialogMutation.vue'
-import ArticlesImportDialog from '@/features/registries/components/ArticlesImportDialog.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import ArticlesImportDialog from '@/features/registries/components/ArticlesImportDialog.vue'
 import { useToggle } from '@vueuse/core'
 import { ref } from 'vue'
 
@@ -122,7 +124,13 @@ function filter({ authors, year }: Article) {
 const headers: CRUDTableHeader<Article>[] = [
   { key: 'authors', title: 'Authors' },
   { key: 'year', title: 'Year', width: 0 },
-  { key: 'journal', title: 'Journal' }
+  {
+    key: 'title',
+    title: 'Title / Verbatim',
+    sortRaw(i: Article, j: Article) {
+      return (i.title ?? i.verbatim ?? '').localeCompare(j.title ?? j.verbatim ?? '')
+    }
+  }
 ]
 </script>
 
