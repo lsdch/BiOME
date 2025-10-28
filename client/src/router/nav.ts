@@ -36,14 +36,14 @@ export const navRoutes: (RouterItem | Divider)[] = [
     label: "Datasets",
     icon: "mdi-folder-table",
     routes: [
-      {
-        label: "Sites",
-        path: '/datasets/sites',
-        name: 'site-datasets',
-        icon: 'mdi-map-marker-circle',
-        component: () => import('@/features/datasets/views/SiteDatasetsView.vue'),
-        meta: { subtitle: "Site datasets" }
-      },
+      // {
+      //   label: "Sites",
+      //   path: '/datasets/sites',
+      //   name: 'site-datasets',
+      //   icon: 'mdi-map-marker-circle',
+      //   component: () => import('@/features/datasets/views/SiteDatasetsView.vue'),
+      //   meta: { subtitle: "Site datasets" }
+      // },
       {
         label: "Occurrences",
         path: '/datasets/occurrences',
@@ -60,14 +60,14 @@ export const navRoutes: (RouterItem | Divider)[] = [
         component: () => import('@/features/datasets/views/SeqDatasetsView.vue'),
         meta: { subtitle: "Sequence datasets" }
       },
-      {
-        label: "Research programs",
-        path: "/programs",
-        name: "programs",
-        icon: "mdi-notebook",
-        component: () => import("@/features/datasets/views/ProgramsView.vue"),
-        meta: { subtitle: "Programs" }
-      }
+      // {
+      //   label: "Research programs",
+      //   path: "/programs",
+      //   name: "programs",
+      //   icon: "mdi-notebook",
+      //   component: () => import("@/features/datasets/views/ProgramsView.vue"),
+      //   meta: { subtitle: "Programs" }
+      // }
     ]
   },
   {
