@@ -16,15 +16,11 @@ export function ArticleChip({ article, ...chipProps }: ArticleChipProps) {
     >
       {{
         activator: ({ props }: { props: any }) => (
-          <v-chip
-            text={Article.toString(article)}
-            {...{ ...props, ...chipProps }}
-            color={article.original_source ? 'success' : undefined}
-          />
+          <v-chip text={Article.toString(article)} {...{ ...props, ...chipProps }} />
         ),
         default: () => (
           <v-card
-            title={article.title ?? 'Untitled'}
+            title={article.title ?? article.verbatim ?? 'Untitled article'}
             subtitle={article.journal ?? 'Unknown journal'}
             class="small-card-title bg-surface-light"
             density="compact"
@@ -34,16 +30,8 @@ export function ArticleChip({ article, ...chipProps }: ArticleChipProps) {
               append: () => <v-chip label text={article.year.toString()} />,
               default: () => <v-card-text>{article.authors.join(', ')}</v-card-text>,
               actions: () =>
-                article.doi || article.original_source ? (
+                article.doi ? (
                   <v-card-actions>
-                    {article.original_source ? (
-                      <v-chip
-                        label
-                        title="This is the original reference reporting the occurrence"
-                        text="Original source"
-                      />
-                    ) : null}
-
                     {article.doi ? (
                       <a href={Article.linkDOI(article)}>{Article.linkDOI(article)}</a>
                     ) : null}
