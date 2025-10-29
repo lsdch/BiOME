@@ -11,7 +11,7 @@ module occurrence {
       )
     };
 
-    confer: bool {
+    required confer: bool {
       default := false;
     };
 
