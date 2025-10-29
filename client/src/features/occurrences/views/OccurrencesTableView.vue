@@ -13,6 +13,7 @@
     :mobile="xs"
     show-expand
     :sort-key-transform
+    @clear-filters="filters = {}"
   >
     <!-- Search and filters panel -->
     <template #menu>
@@ -22,28 +23,6 @@
             <v-list-item prepend-icon="mdi-package-variant">
               <OccurrenceCategorySelect class="mt-1" v-model="filters.category" label="Category" />
             </v-list-item>
-            <v-divider />
-            <v-list-item prepend-icon="mdi-family-tree">
-              <TaxonPicker
-                v-model="filters.taxon"
-                item-value="name"
-                label="Assigned taxon"
-                density="compact"
-                class="mt-1"
-                hide-details
-                clearable
-              />
-              <v-switch
-                label="Include whole clade"
-                color="primary"
-                v-model="filters.whole_clade"
-                hide-details
-              />
-            </v-list-item>
-          </v-list>
-        </v-col>
-        <v-col cols="12" md="6">
-          <v-list density="compact">
             <v-list-item prepend-icon="mdi-star-four-points">
               <ClearableSwitch
                 v-model="filters.is_type"
@@ -69,6 +48,49 @@
                 color-false="red"
                 hint="Show only bio material having registered sequences"
                 persistent-hint
+                density="compact"
+              />
+            </v-list-item>
+          </v-list>
+        </v-col>
+        <v-col cols="12" md="6">
+          <v-list density="compact">
+            <v-list-item prepend-icon="mdi-family-tree">
+              <TaxonPicker
+                v-model="filters.taxon"
+                item-value="name"
+                label="Assigned taxon"
+                density="compact"
+                class="mt-1"
+                hide-details
+                clearable
+              />
+              <v-switch
+                label="Include whole clade"
+                color="primary"
+                v-model="filters.whole_clade"
+                hide-details
+              />
+              <v-select
+                v-model="filters.status"
+                :items="$TaxonStatus.enum"
+                label="Taxonomic status"
+                density="compact"
+                hide-details
+              />
+              <ClearableSwitch
+                v-model="filters.confer"
+                class="pl-2"
+                label="Confer (cf.)"
+                color-true="primary"
+                color-false="red"
+                :hint="
+                  filters.confer
+                    ? 'Show only bio material with a confer identification'
+                    : filters.confer !== undefined
+                      ? 'Show only bio material without a confer identification'
+                      : undefined
+                "
                 density="compact"
               />
             </v-list-item>
@@ -166,13 +188,14 @@
 </template>
 
 <script setup lang="ts">
-import { PersonInner, Taxon } from '@/api'
+import { $TaxonStatus, PersonInner, Taxon } from '@/api'
 import {
   BioMatSortKey,
   DateWithPrecision,
   OccurrenceCategory,
   OccurrenceListItem,
-  SiteItem
+  SiteItem,
+  TaxonStatus
 } from '@/api/adapters'
 import {
   deleteBioMaterialMutation,
@@ -195,8 +218,10 @@ type BiomatTableFilters = {
   category?: OccurrenceCategory
   is_type?: boolean
   has_sequences?: boolean
+  confer?: boolean
   taxon?: string
   whole_clade?: boolean
+  status?: TaxonStatus
 }
 
 const filters = ref<BiomatTableFilters>({})

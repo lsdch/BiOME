@@ -4716,7 +4716,9 @@ export type ListBioMaterialData = {
     taxon?: string
     whole_clade?: boolean
     has_sequences?: boolean
+    confer?: boolean
     is_type?: boolean
+    status?: TaxonStatus
   }
   url: '/occurrences'
 }

@@ -278,8 +278,14 @@ const genericFilters = ref<Filters>({
   search: '',
   owned: undefined
 })
+
+const emit = defineEmits<{
+  clearFilters: []
+}>()
+
 function resetFilters() {
   genericFilters.value = {}
+  emit('clearFilters')
 }
 
 const sortBy = ref<SortItemRemote<ItemSortKey>[]>()

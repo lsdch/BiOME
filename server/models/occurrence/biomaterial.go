@@ -108,11 +108,13 @@ type ListBioMaterialOptions struct {
 	models.Pagination `json:",inline"`
 	models.SortBy[BioMatSortKey]
 	models.Filter `json:",inline"`
-	Category      models.OptionalInput[OccurrenceCategory] `query:"category" json:"category,omitzero"`
-	Taxon         models.OptionalInput[string]             `query:"taxon" json:"taxon,omitzero"`
-	WholeClade    bool                                     `query:"whole_clade" json:"whole_clade"`
-	HasSequences  models.OptionalInput[bool]               `query:"has_sequences" json:"has_sequences,omitzero"`
-	IsType        models.OptionalInput[bool]               `query:"is_type" json:"is_type,omitzero"`
+	Category      models.OptionalInput[OccurrenceCategory]   `query:"category" json:"category,omitzero"`
+	Taxon         models.OptionalInput[string]               `query:"taxon" json:"taxon,omitzero"`
+	WholeClade    bool                                       `query:"whole_clade" json:"whole_clade"`
+	HasSequences  models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
+	Confer        models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
+	IsType        models.OptionalInput[bool]                 `query:"is_type" json:"is_type,omitzero"`
+	Status        models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
 }
 
 func (o ListBioMaterialOptions) Options() ListBioMaterialOptions {
@@ -151,6 +153,8 @@ func ListOccurrences(db geltypes.Executor, opts ListBioMaterialOptions) (models.
 				),
 				whole_clade := <bool>params['whole_clade'],
 				with_sequences := <bool>json_get(params, 'has_sequences'),
+				confer := <bool>json_get(params, 'confer'),
+				status := <taxonomy::TaxonStatus>json_get(params, 'status'),
 				is_type := <bool>json_get(params, 'is_type'),
 				is_own := <bool>params['owned'],
 			items := (
@@ -165,7 +169,9 @@ func ListOccurrences(db geltypes.Executor, opts ListBioMaterialOptions) (models.
 						)
 						if exists taxon else true
 					) and
+					(.identification.taxon.status = status if exists status else true) and
 					(.has_sequences = with_sequences if exists with_sequences else true) and
+					(.identification.confer = confer if exists confer else true) and
 					(.is_type = is_type if exists is_type else true) and
 					(.meta.created_by_user = global default::current_user if (is_own and exists global default::current_user) else true)
 				)

@@ -12445,9 +12445,25 @@
 					{
 						"explode": false,
 						"in": "query",
+						"name": "confer",
+						"schema": {
+							"type": "boolean"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
 						"name": "is_type",
 						"schema": {
 							"type": "boolean"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "status",
+						"schema": {
+							"$ref": "#/components/schemas/TaxonStatus"
 						}
 					}
 				],
