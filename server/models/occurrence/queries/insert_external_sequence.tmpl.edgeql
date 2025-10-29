@@ -17,7 +17,8 @@ with
           accession := <str>ref['accession'],
         }
       )
-    )
+    ),
+    is_identifying := <bool>json_get(seq_data, 'is_identifying') ?? false,
   }),
   select (
     if (select sequence.code) = "default_code"

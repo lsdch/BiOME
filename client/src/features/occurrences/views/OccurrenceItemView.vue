@@ -263,6 +263,14 @@
               <template #item.gene="{ value: gene }">
                 <GeneChip :gene size="small" />
               </template>
+              <template #item.is_identifying="{ value }">
+                <v-icon
+                  v-if="value"
+                  icon="mdi-tag"
+                  color="success"
+                  v-tooltip="`Used for identification`"
+                ></v-icon>
+              </template>
             </CRUDTable>
           </v-tabs-window-item>
           <v-tabs-window-item value="datasets">
