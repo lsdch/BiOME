@@ -13,11 +13,6 @@
           :to="{ name: 'occurrence-dataset-item', params: { slug: item.slug } }"
           :text="item.label"
         />
-        <v-icon
-          :color="item.is_congruent ? 'success' : 'warning'"
-          :icon="item.is_congruent ? 'mdi-check-circle' : 'mdi-alert-circle'"
-          :title="item.is_congruent ? 'Congruent' : 'Not congruent'"
-        ></v-icon>
       </div>
     </template>
     <template #item.description="{ value }">
