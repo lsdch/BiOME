@@ -10,30 +10,22 @@ import (
 	"github.com/lsdch/biome/models/taxonomy"
 )
 
-type IdentificationQualifier string
-
-//generate:enum
-const (
-	IdQualifCF  IdentificationQualifier = "CF"  // "Confer" - used when the identification is uncertain
-	IdQualifAFF IdentificationQualifier = "AFF" // "Affinis" - used when the identification is close but not exact
-)
-
 type Identification struct {
-	ID           geltypes.UUID                            `gel:"id" json:"id" format:"uuid"`
-	Taxon        taxonomy.Taxon                           `gel:"taxon" json:"taxon"`
-	IdentifiedBy models.Optional[people.PersonInner]      `gel:"identified_by" json:"identified_by,omitempty"`
-	IdentifiedOn OptionalDateWithPrecision                `gel:"identified_on" json:"identified_on,omitzero"`
-	Qualifier    models.Optional[IdentificationQualifier] `gel:"qualifier" json:"qualifier,omitempty"`
-	Addendum     models.Optional[string]                  `gel:"addendum" json:"addendum,omitempty"`
-	Meta         people.Meta                              `gel:"meta" json:"meta"`
+	ID           geltypes.UUID                       `gel:"id" json:"id" format:"uuid"`
+	Taxon        taxonomy.Taxon                      `gel:"taxon" json:"taxon"`
+	IdentifiedBy models.Optional[people.PersonInner] `gel:"identified_by" json:"identified_by,omitempty"`
+	IdentifiedOn OptionalDateWithPrecision           `gel:"identified_on" json:"identified_on,omitzero"`
+	Confer       bool                                `gel:"confer" json:"confer"`
+	Addendum     models.Optional[string]             `gel:"addendum" json:"addendum,omitempty"`
+	Meta         people.Meta                         `gel:"meta" json:"meta"`
 }
 
 type IdentificationInput struct {
-	Taxon        string                                        `gel:"taxon" json:"taxon"`
-	IdentifiedBy models.OptionalInput[string]                  `gel:"identified_by" json:"identified_by,omitzero"`
-	IdentifiedOn models.OptionalInput[DateWithPrecisionInput]  `gel:"identified_on" json:"identified_on,omitzero"`
-	Qualifier    models.OptionalInput[IdentificationQualifier] `gel:"qualifier" json:"qualifier,omitzero"`
-	Addendum     models.OptionalInput[string]                  `gel:"addendum" json:"addendum,omitzero"`
+	Taxon        string                                       `gel:"taxon" json:"taxon"`
+	IdentifiedBy models.OptionalInput[string]                 `gel:"identified_by" json:"identified_by,omitzero"`
+	IdentifiedOn models.OptionalInput[DateWithPrecisionInput] `gel:"identified_on" json:"identified_on,omitzero"`
+	Confer       bool                                         `gel:"confer" json:"confer,omitzero"`
+	Addendum     models.OptionalInput[string]                 `gel:"addendum" json:"addendum,omitzero"`
 }
 
 func (id *IdentificationInput) WithPersonAliases(aliases map[string]string) IdentificationInput {

@@ -27,6 +27,8 @@ with module occurrence,
           taxon := taxon,
           identified_by := people::personByAlias(<str>json_get(identification, 'identified_by')),
           identified_on := date::from_json_with_precision(json_get(identification, 'identified_on')),
+          confer := <bool>json_get(identification, 'confer') ?? false,
+          addendum := <str>json_get(identification, 'addendum'),
         }
       ),
       is_type := <bool>json_get(data, 'is_type') ?? false,

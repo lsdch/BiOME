@@ -2407,6 +2407,9 @@
 					"addendum": {
 						"$ref": "#/components/schemas/OptionalString"
 					},
+					"confer": {
+						"type": "boolean"
+					},
 					"id": {
 						"format": "uuid",
 						"type": "string"
@@ -2420,9 +2423,6 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"qualifier": {
-						"$ref": "#/components/schemas/OptionalIdentificationQualifier"
-					},
 					"taxon": {
 						"$ref": "#/components/schemas/Taxon"
 					}
@@ -2430,6 +2430,7 @@
 				"required": [
 					"id",
 					"taxon",
+					"confer",
 					"meta"
 				],
 				"type": "object"
@@ -2440,14 +2441,14 @@
 					"addendum": {
 						"type": "string"
 					},
+					"confer": {
+						"type": "boolean"
+					},
 					"identified_by": {
 						"type": "string"
 					},
 					"identified_on": {
 						"$ref": "#/components/schemas/DateWithPrecisionInput"
-					},
-					"qualifier": {
-						"$ref": "#/components/schemas/IdentificationQualifier"
 					},
 					"taxon": {
 						"type": "string"
@@ -2457,14 +2458,6 @@
 					"taxon"
 				],
 				"type": "object"
-			},
-			"IdentificationQualifier": {
-				"enum": [
-					"CF",
-					"AFF"
-				],
-				"title": "IdentificationQualifier",
-				"type": "string"
 			},
 			"IdentificationUpdate": {
 				"additionalProperties": false,
@@ -3907,13 +3900,6 @@
 				],
 				"type": [
 					"object",
-					"null"
-				]
-			},
-			"OptionalIdentificationQualifier": {
-				"$ref": "#/components/schemas/IdentificationQualifier",
-				"type": [
-					"",
 					"null"
 				]
 			},

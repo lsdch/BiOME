@@ -11,6 +11,8 @@ with
           taxon := taxon,
           identified_by := people::personByAlias(<str>identification['identified_by']),
           identified_on := date::from_json_with_precision(identification['identified_on']),
+          confer := <bool>json_get(identification, 'confer') ?? false,
+          addendum := <str>json_get(identification, 'addendum'),
         }
       ),
       sampling := sampling,

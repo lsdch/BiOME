@@ -1,7 +1,5 @@
 module occurrence {
 
-  scalar type IdentificationQualifier extending enum<CF, AFF>;
-
   type Identification extending default::Auditable {
     required taxon: taxonomy::Taxon;
 
@@ -13,12 +11,12 @@ module occurrence {
       )
     };
 
-    qualifier: IdentificationQualifier {
-      annotation description := "Identification qualifier, e.g. 'cf.' or 'aff.'";
+    confer: bool {
+      default := false;
     };
 
     addendum: str {
-      annotation description := "Additional information about the identification, e.g. 'group venustus' or 'form A'.";
+      annotation description := "Additional information about the identification, e.g. 'group venustus'.";
     };
   }
 

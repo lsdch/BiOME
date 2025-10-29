@@ -836,26 +836,21 @@ export type HabitatUpdate = {
 
 export type Identification = {
   addendum?: OptionalString
+  confer: boolean
   id: string
   identified_by?: OptionalPersonInner
   identified_on?: OptionalDateWithPrecision
   meta: Meta
-  qualifier?: OptionalIdentificationQualifier
   taxon: Taxon
 }
 
 export type IdentificationInput = {
   addendum?: string
+  confer?: boolean
   identified_by?: string
   identified_on?: DateWithPrecisionInput
-  qualifier?: IdentificationQualifier
   taxon: string
 }
-
-/**
- * IdentificationQualifier
- */
-export type IdentificationQualifier = 'CF' | 'AFF'
 
 export type IdentificationUpdate = {
   identified_by?: string | null
@@ -1321,8 +1316,6 @@ export type OptionalHabitatRecord = {
    */
   label: string
 } | null
-
-export type OptionalIdentificationQualifier = IdentificationQualifier | null
 
 export type OptionalInternalBioMatSpecific = {
   has_sequences: boolean

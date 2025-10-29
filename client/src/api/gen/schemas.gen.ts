@@ -2089,6 +2089,9 @@ export const $Identification = {
     addendum: {
       $ref: '#/components/schemas/OptionalString'
     },
+    confer: {
+      type: 'boolean'
+    },
     id: {
       format: 'uuid',
       type: 'string'
@@ -2102,14 +2105,11 @@ export const $Identification = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    qualifier: {
-      $ref: '#/components/schemas/OptionalIdentificationQualifier'
-    },
     taxon: {
       $ref: '#/components/schemas/Taxon'
     }
   },
-  required: ['id', 'taxon', 'meta'],
+  required: ['id', 'taxon', 'confer', 'meta'],
   type: 'object'
 } as const
 
@@ -2119,14 +2119,14 @@ export const $IdentificationInput = {
     addendum: {
       type: 'string'
     },
+    confer: {
+      type: 'boolean'
+    },
     identified_by: {
       type: 'string'
     },
     identified_on: {
       $ref: '#/components/schemas/DateWithPrecisionInput'
-    },
-    qualifier: {
-      $ref: '#/components/schemas/IdentificationQualifier'
     },
     taxon: {
       type: 'string'
@@ -2134,12 +2134,6 @@ export const $IdentificationInput = {
   },
   required: ['taxon'],
   type: 'object'
-} as const
-
-export const $IdentificationQualifier = {
-  enum: ['CF', 'AFF'],
-  title: 'IdentificationQualifier',
-  type: 'string'
 } as const
 
 export const $IdentificationUpdate = {
@@ -3470,11 +3464,6 @@ export const $OptionalHabitatRecord = {
   },
   required: ['incompatible', 'id', 'label'],
   type: ['object', 'null']
-} as const
-
-export const $OptionalIdentificationQualifier = {
-  $ref: '#/components/schemas/IdentificationQualifier',
-  type: ['', 'null']
 } as const
 
 export const $OptionalInternalBioMatSpecific = {
