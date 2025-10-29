@@ -6,8 +6,6 @@ for item in json_array_unpack(data) union (
     verbatim := <str>item['verbatim'],
     journal := <str>json_get(item, 'journal'),
     title := <str>json_get(item, 'title'),
-    code := <str>json_get(item, 'code') ?? references::generate_article_code(
-      <array<str>>item['authors'], <int32>item['year']
-    )
+    code := <str>json_get(item, 'code'),
   }
 );

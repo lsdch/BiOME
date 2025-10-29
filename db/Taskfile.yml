@@ -116,9 +116,12 @@ tasks:
     desc: "Apply pending database migrations"
     dir: ..
     cmds:
+      - task: init-testing
+      - task: init-schema
+      - task: switch-main
       - gel migrate
       - gel branch drop {{.TEST_DB_NAME}} --non-interactive
       - gel branch create {{.TEST_DB_NAME}} --copy-data
       - gel branch drop {{.EMPTY_DB_NAME}} --non-interactive
       - gel branch create {{.EMPTY_DB_NAME}}
-    deps: [init, init-testing, init-schema, switch-main]
+    deps: [init]

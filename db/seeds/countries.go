@@ -29,7 +29,9 @@ func SeedCountriesGeoJSON(db geltypes.Executor, path string) error {
 								message := "Country code is missing for " ++ <str>item['properties']['name']
 							)
 						)
-					} unless conflict
+					} unless conflict on (.code) else (
+						select Country filter .code = <str>item['properties']['alpha-3']
+					)
 				),
 				select (
 					if item['geometry'] != to_json("null") then (

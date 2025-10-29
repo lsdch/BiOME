@@ -353,7 +353,7 @@ func (batch *OccurrenceBatchInput) SaveParallel(client *gel.Client, cores int) e
 		}).
 		// WithTxOptions(gelcfg.NewTxOptions().WithIsolation(gelcfg.RepeatableRead)).
 		Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
-			batch.Tracker.Start(len(batch.Occurrences)).SetDescription("Saving occurrences")
+			batch.Tracker.Start(len(batch.Occurrences)).SetDescription("Saving occurrences").SetDetail("")
 			defer batch.Tracker.Finish()
 			for i := 0; i*batch.BatchSize < len(batch.Occurrences); i++ {
 				wg.Add(1)

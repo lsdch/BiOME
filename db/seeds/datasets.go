@@ -16,7 +16,7 @@ func LoadOccurrencesDataset(file string) (*occurrence.OccurrenceDatasetInput, er
 	return dataset, err
 }
 
-func LoadMultipleOccurrencesDatasets(file string) (datasets []occurrence.OccurrenceDatasetInput, err error) {
+func LoadMultipleOccurrencesDatasets(file string) (datasets []*occurrence.OccurrenceDatasetInput, err error) {
 	b, err := data.ReadFile(file)
 	if err != nil {
 		return nil, err

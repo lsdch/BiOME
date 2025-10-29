@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"flag"
 	"fmt"
 	"os"
@@ -75,15 +76,19 @@ func main() {
 		"session_idle_transaction_timeout": timeout,
 	})
 
-	// aselloidea, err := seeds.LoadSiteDataset(client, "data/Aselloidea/sites.json")
-	// if err != nil {
-	// 	logrus.Fatalf("Failed to load Asellidae sites: %v", err)
-	// }
-	path, err := os.Getwd()
+	logrus.Infof("Loading JSON datasets...")
+	datasets, err := seeds.LoadMultipleOccurrencesDatasets("data/datasets.json")
 	if err != nil {
-		logrus.Println(err)
+		logrus.Fatalf("Failed to load datasets: %v", err)
 	}
-	fmt.Println(path)
+	copepoda, err := seeds.LoadOccurrencesDataset("data/Copepoda/Copepoda_occurrences.json")
+	if err != nil {
+		logrus.Fatalf("Failed to load datasets: %v", err)
+	}
+	aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
+	if err != nil {
+		logrus.Fatalf("Failed to load datasets: %v", err)
+	}
 
 	err = client.WithConfig(map[string]interface{}{
 		"session_idle_transaction_timeout": timeout,
@@ -149,6 +154,12 @@ func main() {
 		logrus.Errorf("Seeding failed: %v", err)
 	}
 
+	logrus.Infof("Checking for missing taxa in datasets...")
+	err = CheckMissingTaxa(client, append(datasets, copepoda, aselloidea)...)
+	if err != nil {
+		logrus.Fatalf("Missing taxa detected: %v", err)
+	}
+
 	tracker := &occurrence.OccurrenceBatchProgressBar{}
 
 	// err = client.WithConfig(map[string]interface{}{
@@ -166,12 +177,12 @@ func main() {
 	}
 
 	logrus.Info("⚙ Artificial datasets")
-	datasets, err := seeds.LoadMultipleOccurrencesDatasets("data/datasets.json")
 	if err != nil {
 		logrus.Errorf("Failed to load datasets: %v", err)
 		return
 	}
 	for i := range datasets {
+		datasets[i].OccurrenceBatchMetadataInputs.Taxa = nil
 		d, err := datasets[i].SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
 		if err != nil {
 			rollbackDatasets()
@@ -183,11 +194,7 @@ func main() {
 
 	logrus.Info("🧪 Empirical datasets")
 	logrus.Infof("🌱 Seeding EGCop occurrences")
-	copepoda, err := seeds.LoadOccurrencesDataset("data/Copepoda/Copepoda_occurrences.json")
-	if err != nil {
-		rollbackDatasets()
-		logrus.Fatalf("Failed to load datasets: %v", err)
-	}
+	copepoda.OccurrenceBatchMetadataInputs.Taxa = nil
 	datasetCopepoda, err := copepoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
 	if err != nil {
 		rollbackDatasets()
@@ -196,12 +203,8 @@ func main() {
 	createdDatasets = append(createdDatasets, datasetCopepoda)
 
 	logrus.Infof("🌱 Seeding WAD occurrences")
-	aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
-	if err != nil {
-		rollbackDatasets()
-		logrus.Fatalf("Failed to load datasets: %v", err)
-	}
 
+	aselloidea.OccurrenceBatchMetadataInputs.Taxa = nil
 	datasetAselloidea, err := aselloidea.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
 	if err != nil {
 		rollbackDatasets()
@@ -224,4 +227,35 @@ func main() {
 			`); err != nil {
 		logrus.Fatalf("Failed to generate sequence codes: %v", err)
 	}
+}
+
+func CheckMissingTaxa(client geltypes.Executor, datasets ...*occurrence.OccurrenceDatasetInput) (err error) {
+	var missingTaxa = make(map[string][]string)
+	for _, dataset := range datasets {
+		for _, taxon := range dataset.OccurrenceBatchMetadataInputs.Taxa {
+			if _, err := taxon.Save(client); err != nil {
+				return fmt.Errorf("failed to save taxon %s: %w", taxon.Name, err)
+			}
+		}
+		dataset.OccurrenceBatchMetadataInputs.Taxa = nil
+		mt, err := dataset.ListMissingTaxa(client)
+		if err != nil {
+			logrus.Fatalf("Failed to find missing taxa in dataset %s: %v", dataset.Label, err)
+		}
+		if len(mt) > 0 {
+			missingTaxa[dataset.Label] = mt
+		}
+	}
+	if len(missingTaxa) > 0 {
+		logrus.Errorf("❗ Missing taxa detected in datasets")
+		fh, _ := os.Create("missing_taxa.txt")
+		defer fh.Close()
+		for ds, taxa := range missingTaxa {
+			for _, t := range taxa {
+				fmt.Fprintf(fh, "%s\t%s\n", ds, t)
+			}
+		}
+		return errors.New("Please add the missing taxa listed in missing_taxa.txt to the taxonomy before proceeding")
+	}
+	return nil
 }
