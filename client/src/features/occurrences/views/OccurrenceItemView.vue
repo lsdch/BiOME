@@ -112,7 +112,7 @@
                     </template>
                     <v-card-text>
                       <div class="d-flex align-center justify-space-between ga-1">
-                        <TaxonChip :taxon="item.identification.taxon" identification class="my-1" />
+                        <IdentificationChip :identification="item.identification" class="my-1" />
                         <span v-if="item.identification.identified_by" class="text-no-wrap">
                           by
                           <PersonChip :person="item.identification.identified_by" />
@@ -344,6 +344,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { ref } from 'vue'
 import CodeHistoryCard from '../components/CodeHistoryCard.vue'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 

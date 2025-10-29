@@ -24,6 +24,7 @@ import {
   Status as GeoapifyStatus,
   GeoapifyResult,
   SamplingTargetKind as TSamplingTargetKind,
+  Identification as TIdentification,
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/users/UserRoleChip"
 import QuantityChip from "@/features/occurrences/components/ExternalOccurrenceQuantityChip"
@@ -351,5 +352,17 @@ export namespace Geoapify {
         .trim()
       return s || null
     }
+  }
+}
+
+export type Identification = TIdentification
+export namespace Identification {
+
+  export function intersperseConfer(taxon: Taxon, confer: boolean) {
+    if (!confer) return taxon.name
+    const splitName = taxon.name.split(' ')
+    return splitName.length === 1
+      ? `cf. ${taxon.name}`
+      : `${splitName.slice(0, splitName.length - 1).join(' ')} cf. ${splitName[splitName.length - 1]}`
   }
 }

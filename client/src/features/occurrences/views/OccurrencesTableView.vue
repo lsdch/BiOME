@@ -111,8 +111,16 @@
       </span>
     </template>
 
-    <template #item.identification.taxon="{ value: taxon }: { value: Taxon }">
-      <TaxonChip :taxon size="small" short />
+    <template
+      #item.identification.taxon="{
+        value,
+        item: { identification }
+      }: {
+        value: Taxon
+        item: OccurrenceListItem
+      }"
+    >
+      <IdentificationChip :identification size="small" short />
     </template>
     <template #item.identification.identified_by="{ value }: { value: PersonInner | undefined }">
       <PersonChip v-if="value" :person="value" size="small" short />
@@ -179,6 +187,7 @@ import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 
 const { xs } = useDisplay()
 

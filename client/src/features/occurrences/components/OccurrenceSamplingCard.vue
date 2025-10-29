@@ -54,8 +54,7 @@
         <v-chip
           v-for="{ id, code, category, identification } in samples"
           :variant="id === item.id ? 'outlined' : 'tonal'"
-          :text="identification.taxon.name"
-          :title="category"
+          :text="Identification.intersperseConfer(identification.taxon, identification.confer)"
           :color="OccurrenceCategory.props[category].color"
           :prepend-icon="OccurrenceCategory.icon(category)"
           :class="['ma-1', { 'text-muted': id === item.id }]"
@@ -67,13 +66,13 @@
                   location: 'start',
                   origin: 'start',
                   openOnClick: true,
-                  text: 'Currently viewed sample'
+                  text: 'Currently viewed occurrence'
                 }
               : undefined
           "
         />
         <template #append>
-          <span class="text-muted text-caption">Samples bundle </span>
+          <span class="text-muted text-caption">Reported occurrences</span>
         </template>
       </v-list-item>
     </v-list>
@@ -81,7 +80,12 @@
 </template>
 
 <script setup lang="ts">
-import { DateWithPrecision, OccurrenceCategory, SamplingWithSite } from '@/api/adapters'
+import {
+  DateWithPrecision,
+  Identification,
+  OccurrenceCategory,
+  SamplingWithSite
+} from '@/api/adapters'
 import { useSorted } from '@vueuse/core'
 import { computed } from 'vue'
 import SamplingListItems from '@/features/occurrences/components/sampling/SamplingListItems.vue'
