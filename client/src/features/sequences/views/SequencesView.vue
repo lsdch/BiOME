@@ -48,22 +48,6 @@
             </v-list-item>
           </v-list>
         </v-col>
-        <v-col cols="12" md="6">
-          <v-list>
-            <v-list-item prepend-icon="mdi-package-variant">
-              <ClearableSwitch
-                v-model="search.hasBiomaterial"
-                class="pl-2"
-                label="Has bio-material parent sample"
-                color-true="primary"
-                color-false="red"
-                hint="Internal sequences always have related bio-material"
-                persistent-hint
-                density="compact"
-              />
-            </v-list-item>
-          </v-list>
-        </v-col>
       </v-row>
     </template>
     <template #item.code="{ value, item }: { value: string; item: Sequence }">
@@ -178,14 +162,13 @@ import {
   SiteItem
 } from '@/api/adapters'
 import { deleteSequenceMutation, listSequencesOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import OccurrenceCategorySelect from '@/features/occurrences/components/OccurrenceCategorySelect.vue'
 import PersonChip from '@/features/people/components/PersonChip'
 import GeneChip from '@/features/sequences/components/GeneChip'
 import GenePicker from '@/features/sequences/components/GenePicker.vue'
 import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
-import OccurrenceCategorySelect from '@/features/occurrences/components/OccurrenceCategorySelect.vue'
-import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
-import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
@@ -194,7 +177,6 @@ const { xs, mdAndUp } = useDisplay()
 type SeqTableFilters = {
   term?: string
   category?: OccurrenceCategory
-  hasBiomaterial?: boolean
   gene?: string
   taxon?: string
 }
