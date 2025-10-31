@@ -174,7 +174,7 @@
       <template #expanded-row="{ columns, item, ...others }">
         <slot name="expanded-row" v-bind="{ columns, item, ...others }">
           <tr class="expanded">
-            <td :colspan="columns.length" class="px-0">
+            <td :colspan="columns.length" class="px-0 h-auto">
               <div class="d-flex flex-column h-auto">
                 <div class="flex-grow-1">
                   <slot name="expanded-row-inject" :item> </slot>
