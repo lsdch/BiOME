@@ -34,7 +34,7 @@ const occurrences = computed(() => {
 })
 
 const occurringTaxaCount = computed(() => {
-  return occurrences.value?.reduce((acc, { taxon }) => {
+  return occurrences.value?.reduce((acc, { identification: { taxon } }) => {
     return acc.add(taxon.name)
   }, new Set()).size
 })

@@ -1,9 +1,9 @@
-import { OccurrenceAtSite, TaxonInner, TaxonRank } from "@/api";
+import { OccurrenceAtSite, Taxon, TaxonRank } from "@/api";
 
-export type SampledTaxa = Record<TaxonRank, Record<string, TaxonInner>>
+export type SampledTaxa = Record<TaxonRank, Record<string, Taxon>>
 export function occurringTaxa(occurrences: OccurrenceAtSite[]) {
   return occurrences.reduce<SampledTaxa>((acc, occurrence) => {
-    const taxon = occurrence.taxon
+    const taxon = occurrence.identification.taxon
     acc[taxon.rank][taxon.name] = taxon
     return acc
   }, {

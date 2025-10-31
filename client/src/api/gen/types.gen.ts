@@ -1149,7 +1149,7 @@ export type OccurrenceAtSite = {
   category: OccurrenceCategory
   code: string
   id: string
-  taxon: TaxonInner
+  identification: Identification
 }
 
 /**
@@ -1732,6 +1732,31 @@ export type Sampling = {
   target: SamplingTarget
 }
 
+export type SamplingAtSite = {
+  access_points?: Array<string>
+  code: string
+  comments?: string
+  /**
+   * Sampling duration in minutes
+   */
+  duration?: number
+  fixatives?: Array<Fixative>
+  habitats?: Array<Habitat>
+  id: string
+  meta: Meta
+  methods?: Array<SamplingMethod>
+  /**
+   * Auto-incrementing number, unique per sampling
+   */
+  number: number
+  occurrences?: Array<OccurrenceAtSite>
+  occurring_taxa?: Array<Taxon>
+  performed_by?: Array<PersonUser>
+  performed_by_groups?: Array<OrganisationInner>
+  performed_on?: OptionalDateWithPrecision
+  target: SamplingTarget
+}
+
 export type SamplingDateWithOccurrences = {
   date?: OptionalDateWithPrecision
   id: string
@@ -1901,31 +1926,6 @@ export type SamplingUpdate = {
   performed_by_groups?: Array<string> | null
   performed_on?: DateWithPrecisionInput
   target: SamplingTargetInput
-}
-
-export type SamplingWithOccurrences = {
-  access_points?: Array<string>
-  code: string
-  comments?: string
-  /**
-   * Sampling duration in minutes
-   */
-  duration?: number
-  fixatives?: Array<Fixative>
-  habitats?: Array<Habitat>
-  id: string
-  meta: Meta
-  methods?: Array<SamplingMethod>
-  /**
-   * Auto-incrementing number, unique per sampling
-   */
-  number: number
-  occurrences?: Array<OccurrenceAtSite>
-  occurring_taxa?: Array<Taxon>
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
-  performed_on?: OptionalDateWithPrecision
-  target: SamplingTarget
 }
 
 export type SamplingWithSite = {
@@ -2139,7 +2139,7 @@ export type Site = {
   locality?: string
   meta: Meta
   name?: string
-  samplings?: Array<SamplingWithOccurrences>
+  samplings?: Array<SamplingAtSite>
   user_defined_locality: boolean
 }
 
@@ -2368,12 +2368,6 @@ export type Taxon = {
   comment?: string
   id: string
   meta: Meta
-  name: string
-  rank: TaxonRank
-  status: TaxonStatus
-}
-
-export type TaxonInner = {
   name: string
   rank: TaxonRank
   status: TaxonStatus
@@ -4705,7 +4699,7 @@ export type SearchSitesResponses = {
 
 export type SearchSitesResponse = SearchSitesResponses[keyof SearchSitesResponses]
 
-export type ListBioMaterialData = {
+export type ListOccurrencesData = {
   body?: never
   headers?: {
     /**
@@ -4732,7 +4726,7 @@ export type ListBioMaterialData = {
   url: '/occurrences'
 }
 
-export type ListBioMaterialErrors = {
+export type ListOccurrencesErrors = {
   /**
    * Unprocessable Entity
    */
@@ -4743,16 +4737,16 @@ export type ListBioMaterialErrors = {
   500: ErrorModel
 }
 
-export type ListBioMaterialError = ListBioMaterialErrors[keyof ListBioMaterialErrors]
+export type ListOccurrencesError = ListOccurrencesErrors[keyof ListOccurrencesErrors]
 
-export type ListBioMaterialResponses = {
+export type ListOccurrencesResponses = {
   /**
    * OK
    */
   200: PaginatedListOccurrenceListItem
 }
 
-export type ListBioMaterialResponse = ListBioMaterialResponses[keyof ListBioMaterialResponses]
+export type ListOccurrencesResponse = ListOccurrencesResponses[keyof ListOccurrencesResponses]
 
 export type OccurrencesBySiteData = {
   body?: never
@@ -4917,7 +4911,7 @@ export type OccurrenceOverviewResponses = {
 export type OccurrenceOverviewResponse =
   OccurrenceOverviewResponses[keyof OccurrenceOverviewResponses]
 
-export type DeleteBioMaterialData = {
+export type DeleteOccurrenceData = {
   body?: never
   headers?: {
     /**
@@ -4932,7 +4926,7 @@ export type DeleteBioMaterialData = {
   url: '/occurrences/{code}'
 }
 
-export type DeleteBioMaterialErrors = {
+export type DeleteOccurrenceErrors = {
   /**
    * Unprocessable Entity
    */
@@ -4943,18 +4937,18 @@ export type DeleteBioMaterialErrors = {
   500: ErrorModel
 }
 
-export type DeleteBioMaterialError = DeleteBioMaterialErrors[keyof DeleteBioMaterialErrors]
+export type DeleteOccurrenceError = DeleteOccurrenceErrors[keyof DeleteOccurrenceErrors]
 
-export type DeleteBioMaterialResponses = {
+export type DeleteOccurrenceResponses = {
   /**
    * OK
    */
   200: OccurrenceListItem
 }
 
-export type DeleteBioMaterialResponse = DeleteBioMaterialResponses[keyof DeleteBioMaterialResponses]
+export type DeleteOccurrenceResponse = DeleteOccurrenceResponses[keyof DeleteOccurrenceResponses]
 
-export type GetBioMaterialData = {
+export type GetOccurrenceData = {
   body?: never
   headers?: {
     /**
@@ -4969,7 +4963,7 @@ export type GetBioMaterialData = {
   url: '/occurrences/{code}'
 }
 
-export type GetBioMaterialErrors = {
+export type GetOccurrenceErrors = {
   /**
    * Unprocessable Entity
    */
@@ -4980,16 +4974,16 @@ export type GetBioMaterialErrors = {
   500: ErrorModel
 }
 
-export type GetBioMaterialError = GetBioMaterialErrors[keyof GetBioMaterialErrors]
+export type GetOccurrenceError = GetOccurrenceErrors[keyof GetOccurrenceErrors]
 
-export type GetBioMaterialResponses = {
+export type GetOccurrenceResponses = {
   /**
    * OK
    */
   200: OccurrenceSamplingWithSite
 }
 
-export type GetBioMaterialResponse = GetBioMaterialResponses[keyof GetBioMaterialResponses]
+export type GetOccurrenceResponse = GetOccurrenceResponses[keyof GetOccurrenceResponses]
 
 export type ListOrganisationsData = {
   body?: never

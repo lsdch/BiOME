@@ -40,12 +40,12 @@ import type {
   UpdateHabitatGroupResponse,
   SitesProximityResponse,
   SearchSitesResponse,
-  ListBioMaterialResponse,
+  ListOccurrencesResponse,
   OccurrencesBySiteResponse,
   UpdateExternalOccurrenceResponse,
   CreateExternalOccurrenceResponse,
-  DeleteBioMaterialResponse,
-  GetBioMaterialResponse,
+  DeleteOccurrenceResponse,
+  GetOccurrenceResponse,
   ListOrganisationsResponse,
   CreateOrganisationResponse,
   DeleteOrganisationResponse,
@@ -296,8 +296,30 @@ const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+const optionalPersonSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 const taxonSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
+const identificationSchemaResponseTransformer = (data: any) => {
+  if (data.identified_by) {
+    data.identified_by = optionalPersonSchemaResponseTransformer(data.identified_by)
+  }
+  if (data.identified_on) {
+    data.identified_on = optionalDateWithPrecisionSchemaResponseTransformer(data.identified_on)
+  }
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  data.taxon = taxonSchemaResponseTransformer(data.taxon)
+  return data
+}
+
+const occurrenceAtSiteSchemaResponseTransformer = (data: any) => {
+  data.identification = identificationSchemaResponseTransformer(data.identification)
   return data
 }
 
@@ -305,6 +327,9 @@ const samplingDateWithOccurrencesSchemaResponseTransformer = (data: any) => {
   if (data.date) {
     data.date = optionalDateWithPrecisionSchemaResponseTransformer(data.date)
   }
+  data.occurrences = data.occurrences.map((item: any) => {
+    return occurrenceAtSiteSchemaResponseTransformer(item)
+  })
   if (data.occurring_taxa) {
     data.occurring_taxa = data.occurring_taxa.map((item: any) => {
       return taxonSchemaResponseTransformer(item)
@@ -577,23 +602,6 @@ export const searchSitesResponseTransformer = async (data: any): Promise<SearchS
   return data
 }
 
-const optionalPersonSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  return data
-}
-
-const identificationSchemaResponseTransformer = (data: any) => {
-  if (data.identified_by) {
-    data.identified_by = optionalPersonSchemaResponseTransformer(data.identified_by)
-  }
-  if (data.identified_on) {
-    data.identified_on = optionalDateWithPrecisionSchemaResponseTransformer(data.identified_on)
-  }
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  data.taxon = taxonSchemaResponseTransformer(data.taxon)
-  return data
-}
-
 const habitatSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
@@ -656,9 +664,9 @@ const paginatedListOccurrenceListItemSchemaResponseTransformer = (data: any) => 
   return data
 }
 
-export const listBioMaterialResponseTransformer = async (
+export const listOccurrencesResponseTransformer = async (
   data: any
-): Promise<ListBioMaterialResponse> => {
+): Promise<ListOccurrencesResponse> => {
   data = paginatedListOccurrenceListItemSchemaResponseTransformer(data)
   return data
 }
@@ -705,9 +713,9 @@ export const createExternalOccurrenceResponseTransformer = async (
   return data
 }
 
-export const deleteBioMaterialResponseTransformer = async (
+export const deleteOccurrenceResponseTransformer = async (
   data: any
-): Promise<DeleteBioMaterialResponse> => {
+): Promise<DeleteOccurrenceResponse> => {
   data = occurrenceListItemSchemaResponseTransformer(data)
   return data
 }
@@ -844,9 +852,9 @@ const occurrenceSamplingWithSiteSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const getBioMaterialResponseTransformer = async (
+export const getOccurrenceResponseTransformer = async (
   data: any
-): Promise<GetBioMaterialResponse> => {
+): Promise<GetOccurrenceResponse> => {
   data = occurrenceSamplingWithSiteSchemaResponseTransformer(data)
   return data
 }
@@ -1221,7 +1229,7 @@ const flaggingSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const samplingWithOccurrencesSchemaResponseTransformer = (data: any) => {
+const samplingAtSiteSchemaResponseTransformer = (data: any) => {
   if (data.fixatives) {
     data.fixatives = data.fixatives.map((item: any) => {
       return fixativeSchemaResponseTransformer(item)
@@ -1236,6 +1244,11 @@ const samplingWithOccurrencesSchemaResponseTransformer = (data: any) => {
   if (data.methods) {
     data.methods = data.methods.map((item: any) => {
       return samplingMethodSchemaResponseTransformer(item)
+    })
+  }
+  if (data.occurrences) {
+    data.occurrences = data.occurrences.map((item: any) => {
+      return occurrenceAtSiteSchemaResponseTransformer(item)
     })
   }
   if (data.occurring_taxa) {
@@ -1267,7 +1280,7 @@ const siteSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.samplings) {
     data.samplings = data.samplings.map((item: any) => {
-      return samplingWithOccurrencesSchemaResponseTransformer(item)
+      return samplingAtSiteSchemaResponseTransformer(item)
     })
   }
   return data
@@ -1314,6 +1327,9 @@ const samplingDetailsWithOccurrencesSchemaResponseTransformer = (data: any) => {
       return samplingMethodSchemaResponseTransformer(item)
     })
   }
+  data.occurrences = data.occurrences.map((item: any) => {
+    return occurrenceAtSiteSchemaResponseTransformer(item)
+  })
   if (data.performed_on) {
     data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
   }

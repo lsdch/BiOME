@@ -2920,11 +2920,11 @@ export const $OccurrenceAtSite = {
       format: 'uuid',
       type: 'string'
     },
-    taxon: {
-      $ref: '#/components/schemas/TaxonInner'
+    identification: {
+      $ref: '#/components/schemas/Identification'
     }
   },
-  required: ['id', 'code', 'taxon', 'category'],
+  required: ['id', 'code', 'identification', 'category'],
   type: 'object'
 } as const
 
@@ -4726,6 +4726,91 @@ export const $Sampling = {
   type: 'object'
 } as const
 
+export const $SamplingAtSite = {
+  additionalProperties: false,
+  properties: {
+    access_points: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    code: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    duration: {
+      description: 'Sampling duration in minutes',
+      format: 'int64',
+      type: 'integer'
+    },
+    fixatives: {
+      items: {
+        $ref: '#/components/schemas/Fixative'
+      },
+      type: 'array'
+    },
+    habitats: {
+      items: {
+        $ref: '#/components/schemas/Habitat'
+      },
+      type: 'array'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    methods: {
+      items: {
+        $ref: '#/components/schemas/SamplingMethod'
+      },
+      type: 'array'
+    },
+    number: {
+      description: 'Auto-incrementing number, unique per sampling',
+      format: 'int64',
+      type: 'integer'
+    },
+    occurrences: {
+      items: {
+        $ref: '#/components/schemas/OccurrenceAtSite'
+      },
+      type: 'array'
+    },
+    occurring_taxa: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
+    },
+    performed_by: {
+      items: {
+        $ref: '#/components/schemas/PersonUser'
+      },
+      type: 'array'
+    },
+    performed_by_groups: {
+      items: {
+        $ref: '#/components/schemas/OrganisationInner'
+      },
+      type: 'array'
+    },
+    performed_on: {
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
+    },
+    target: {
+      $ref: '#/components/schemas/SamplingTarget'
+    }
+  },
+  required: ['meta', 'code', 'target', 'id', 'number'],
+  type: 'object'
+} as const
+
 export const $SamplingDateWithOccurrences = {
   additionalProperties: false,
   properties: {
@@ -5238,91 +5323,6 @@ export const $SamplingUpdate = {
     }
   },
   required: ['target'],
-  type: 'object'
-} as const
-
-export const $SamplingWithOccurrences = {
-  additionalProperties: false,
-  properties: {
-    access_points: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    code: {
-      type: 'string'
-    },
-    comments: {
-      type: 'string'
-    },
-    duration: {
-      description: 'Sampling duration in minutes',
-      format: 'int64',
-      type: 'integer'
-    },
-    fixatives: {
-      items: {
-        $ref: '#/components/schemas/Fixative'
-      },
-      type: 'array'
-    },
-    habitats: {
-      items: {
-        $ref: '#/components/schemas/Habitat'
-      },
-      type: 'array'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    methods: {
-      items: {
-        $ref: '#/components/schemas/SamplingMethod'
-      },
-      type: 'array'
-    },
-    number: {
-      description: 'Auto-incrementing number, unique per sampling',
-      format: 'int64',
-      type: 'integer'
-    },
-    occurrences: {
-      items: {
-        $ref: '#/components/schemas/OccurrenceAtSite'
-      },
-      type: 'array'
-    },
-    occurring_taxa: {
-      items: {
-        $ref: '#/components/schemas/Taxon'
-      },
-      type: 'array'
-    },
-    performed_by: {
-      items: {
-        $ref: '#/components/schemas/PersonUser'
-      },
-      type: 'array'
-    },
-    performed_by_groups: {
-      items: {
-        $ref: '#/components/schemas/OrganisationInner'
-      },
-      type: 'array'
-    },
-    performed_on: {
-      $ref: '#/components/schemas/OptionalDateWithPrecision'
-    },
-    target: {
-      $ref: '#/components/schemas/SamplingTarget'
-    }
-  },
-  required: ['meta', 'code', 'target', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -5929,7 +5929,7 @@ export const $Site = {
     },
     samplings: {
       items: {
-        $ref: '#/components/schemas/SamplingWithOccurrences'
+        $ref: '#/components/schemas/SamplingAtSite'
       },
       type: 'array'
     },
@@ -6505,26 +6505,6 @@ export const $Taxon = {
     }
   },
   required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
-  type: 'object'
-} as const
-
-export const $TaxonInner = {
-  additionalProperties: false,
-  properties: {
-    name: {
-      examples: ['Asellus aquaticus'],
-      type: 'string'
-    },
-    rank: {
-      $ref: '#/components/schemas/TaxonRank',
-      examples: ['Species']
-    },
-    status: {
-      $ref: '#/components/schemas/TaxonStatus',
-      examples: ['Accepted']
-    }
-  },
-  required: ['name', 'status', 'rank'],
   type: 'object'
 } as const
 

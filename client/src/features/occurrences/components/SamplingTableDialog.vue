@@ -46,9 +46,9 @@
         <span v-if="taxa?.length" class="text-overline ml-1">|</span>
         <TaxonChip v-for="taxon in taxa" :taxon size="small" class="ma-1" />
       </template> -->
-      <template #item.occurrences="{ value, toggleExpand, item }">
+      <!-- <template #item.occurrences="{ value, toggleExpand, item }">
         <v-badge inline :content="value" color="success" @click="toggleExpand(item)" />
-      </template>
+      </template> -->
       <template #expanded-row-inject="{ item }: { item: SamplingEvent }">
         <OccurrencesAtSiteList
           v-if="item.occurrences.length"
@@ -139,6 +139,7 @@ const headersWithSite: CRUDTableHeader<SamplingEvent>[] = [
     value: (item: SamplingEvent) => {
       return item.occurrences.length
     },
+    cellProps: { class: 'font-monospace' },
     sortable: true,
     width: 0,
     align: 'end'

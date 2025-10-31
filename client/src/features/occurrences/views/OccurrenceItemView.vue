@@ -326,8 +326,12 @@ import {
   Gene,
   SamplingWithSite
 } from '@/api/adapters'
-import { getBioMaterialOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { getOccurrenceOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import SamplingFormDialogMutation from '@/components/forms/SamplingFormDialogMutation.vue'
+import MetaChip from '@/components/toolkit/MetaChip'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
+import ClickableAvatarIcon from '@/components/toolkit/ui/ClickableAvatarIcon.vue'
 import CongruenceChip from '@/features/occurrences/components/CongruenceChip'
 import OccurrenceCategoryChip from '@/features/occurrences/components/OccurrenceCategoryChip'
 import OccurrenceSamplingCard from '@/features/occurrences/components/OccurrenceSamplingCard.vue'
@@ -335,28 +339,18 @@ import PersonChip from '@/features/people/components/PersonChip'
 import ArticleChip from '@/features/registries/components/ArticleChip'
 import DataSourceChip from '@/features/registries/components/DataSourceChip'
 import GeneChip from '@/features/sequences/components/GeneChip'
-import TaxonChip from '@/features/taxonomy/components/TaxonChip'
-import MetaChip from '@/components/toolkit/MetaChip'
-import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
-import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
-import ClickableAvatarIcon from '@/components/toolkit/ui/ClickableAvatarIcon.vue'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import { useFeedback } from '@/stores/feedback'
 import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { ref } from 'vue'
 import CodeHistoryCard from '../components/CodeHistoryCard.vue'
-import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
 
-const {
-  data: item,
-  error,
-  isPending,
-  refetch
-} = useQuery(getBioMaterialOptions({ path: { code } }))
+const { data: item, error, isPending, refetch } = useQuery(getOccurrenceOptions({ path: { code } }))
 
 const { feedback } = useFeedback()
 

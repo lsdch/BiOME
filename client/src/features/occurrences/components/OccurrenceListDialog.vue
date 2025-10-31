@@ -64,8 +64,8 @@
           {{ DateWithPrecision.format(value) }}
         </span>
       </template>
-      <template #item.taxon="{ value }">
-        <TaxonChip :taxon="value" size="small" />
+      <template #item.identification="{ value: identification }">
+        <IdentificationChip :identification size="small" />
       </template>
     </CRUDTable>
   </CardDialog>
@@ -75,14 +75,14 @@
 import {
   CodeIdentifier,
   DateWithPrecision,
+  Identification,
   OccurrenceAtSite,
-  OccurrenceCategory,
   SiteItem
 } from '@/api'
-import OccurrenceIcon from '@/features/occurrences/components/OccurrenceIcon'
-import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
+import OccurrenceIcon from '@/features/occurrences/components/OccurrenceIcon'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import { computed, ref } from 'vue'
 import { ComponentSlots } from 'vue-component-type-helpers'
 
@@ -153,16 +153,7 @@ const headersWithSites: CRUDTableHeader<Occurrence>[] = [
     align: 'end',
     sort: DateWithPrecision.compare
   },
-  {
-    title: 'Taxon',
-    key: 'taxon',
-    sortable: true,
-    align: 'start',
-    sort: (a, b) => a.name.localeCompare(b.name),
-    filter(value, query, item) {
-      return value.name.toLowerCase().includes(query.toLowerCase())
-    }
-  }
+  Identification.tableHeader({ key: 'identification', align: 'center' })
 ]
 
 const headers = computed(() =>

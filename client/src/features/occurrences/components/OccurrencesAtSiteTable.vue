@@ -44,8 +44,8 @@
         <span class="text-caption text-muted font-monospace"> #{{ item.sampling.number }} </span>
       </div>
     </template>
-    <template #item.taxon="{ value }">
-      <TaxonChip :taxon="value" size="small" />
+    <template #item.identification="{ value: identification }">
+      <IdentificationChip :identification size="small" />
     </template>
   </CRUDTable>
 </template>
@@ -54,16 +54,16 @@
 import {
   CodeIdentifier,
   DateWithPrecision,
+  Identification,
   OccurrenceAtSite,
   OccurrenceCategory,
-  SamplingInnerWithSite,
-  SamplingWithOccurrences
+  SamplingAtSite
 } from '@/api/adapters'
-import { computed, ref } from 'vue'
-import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
+import { computed, ref } from 'vue'
 
-const { samplings } = defineProps<{ samplings: SamplingWithOccurrences[] }>()
+const { samplings } = defineProps<{ samplings: SamplingAtSite[] }>()
 
 const search = ref({
   term: undefined,
@@ -72,7 +72,7 @@ const search = ref({
 })
 
 type OccurrenceTableItem = {
-  sampling: SamplingWithOccurrences
+  sampling: SamplingAtSite
 } & OccurrenceAtSite
 
 const items = computed(
@@ -97,15 +97,7 @@ const headers: CRUDTableHeader<OccurrenceTableItem>[] = [
     key: 'sampling.performed_on',
     sort: DateWithPrecision.compare
   },
-  {
-    title: 'Taxon',
-    key: 'taxon',
-    sort: (a, b) => a.name.localeCompare(b.name),
-    filter(value, query, item) {
-      console.log(query)
-      return value.name.toLowerCase().includes(query.toLowerCase())
-    }
-  }
+  Identification.tableHeader({ key: 'identification' })
 ]
 </script>
 

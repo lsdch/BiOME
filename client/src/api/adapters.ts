@@ -365,4 +365,18 @@ export namespace Identification {
       ? `cf. ${taxon.name}`
       : `${splitName.slice(0, splitName.length - 1).join(' ')} cf. ${splitName[splitName.length - 1]}`
   }
+
+  export function tableHeader(props?: Omit<DataTableHeader, "filter">): HeaderDefinitionFor<Identification> {
+    return {
+      title: 'Taxon',
+      key: 'identification',
+      sortable: true,
+      align: 'start',
+      sort: (a, b) => a.taxon.name.localeCompare(b.name),
+      filter(value, query, item) {
+        return value.taxon.name.toLowerCase().includes(query.toLowerCase())
+      },
+      ...props
+    }
+  }
 }

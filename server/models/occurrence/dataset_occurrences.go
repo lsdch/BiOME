@@ -65,10 +65,7 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 							select (dataset.occurrences) {
 								id,
 								code,
-								required taxon := (
-										[is InternalBioMat].seq_consensus ??
-										.identification.taxon
-									) { name, status, rank},
+								identification: { ** },
 								required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
 							} filter.sampling.id = dataset.sites.samplings.id
 						)

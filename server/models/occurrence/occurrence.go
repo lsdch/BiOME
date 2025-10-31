@@ -72,9 +72,9 @@ type SamplingDetailsWithOccurrences struct {
 }
 
 type OccurrenceAtSite struct {
-	ID    geltypes.UUID       `gel:"id" json:"id" format:"uuid"`
-	Code  string              `gel:"code" json:"code"`
-	Taxon taxonomy.TaxonInner `gel:"taxon" json:"taxon"`
+	ID             geltypes.UUID  `gel:"id" json:"id" format:"uuid"`
+	Code           string         `gel:"code" json:"code"`
+	Identification Identification `gel:"identification" json:"identification"`
 	// SamplingDate      DateWithPrecision   `gel:"sampling_date" json:"sampling_date"`
 	Category OccurrenceCategory `gel:"category" json:"category"`
 }
@@ -104,10 +104,7 @@ func ListSamplingsAtSite(db geltypes.Executor, siteCode string) ([]SamplingDetai
 						id,
 						code,
 						category,
-						required taxon := (
-								[is InternalBioMat].seq_consensus ??
-								.identification.taxon
-							) { name, status, rank},
+						identification: { **, identified_by: { ** } },
 					}
 				)
 			}
@@ -204,16 +201,13 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 							id,
 							code,
 							category,
-							required taxon := (
-									[is InternalBioMat].seq_consensus ??
-									.identification.taxon
-								) { name, status, rank},
+							identification: { ** },
 						}
 						filter (
 							if exists taxa then (
 								if whole_clade
-								then any(taxonomy::is_in_clade(.taxon, taxa))
-								else .taxon in taxa
+								then any(taxonomy::is_in_clade(.identification.taxon, taxa))
+								else .identification.taxon in taxa
 							) else true
 						)
 						and (

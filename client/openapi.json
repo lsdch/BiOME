@@ -3301,14 +3301,14 @@
 						"format": "uuid",
 						"type": "string"
 					},
-					"taxon": {
-						"$ref": "#/components/schemas/TaxonInner"
+					"identification": {
+						"$ref": "#/components/schemas/Identification"
 					}
 				},
 				"required": [
 					"id",
 					"code",
-					"taxon",
+					"identification",
 					"category"
 				],
 				"type": "object"
@@ -5430,6 +5430,96 @@
 				],
 				"type": "object"
 			},
+			"SamplingAtSite": {
+				"additionalProperties": false,
+				"properties": {
+					"access_points": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"code": {
+						"type": "string"
+					},
+					"comments": {
+						"type": "string"
+					},
+					"duration": {
+						"description": "Sampling duration in minutes",
+						"format": "int64",
+						"type": "integer"
+					},
+					"fixatives": {
+						"items": {
+							"$ref": "#/components/schemas/Fixative"
+						},
+						"type": "array"
+					},
+					"habitats": {
+						"items": {
+							"$ref": "#/components/schemas/Habitat"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"methods": {
+						"items": {
+							"$ref": "#/components/schemas/SamplingMethod"
+						},
+						"type": "array"
+					},
+					"number": {
+						"description": "Auto-incrementing number, unique per sampling",
+						"format": "int64",
+						"type": "integer"
+					},
+					"occurrences": {
+						"items": {
+							"$ref": "#/components/schemas/OccurrenceAtSite"
+						},
+						"type": "array"
+					},
+					"occurring_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
+					},
+					"performed_by": {
+						"items": {
+							"$ref": "#/components/schemas/PersonUser"
+						},
+						"type": "array"
+					},
+					"performed_by_groups": {
+						"items": {
+							"$ref": "#/components/schemas/OrganisationInner"
+						},
+						"type": "array"
+					},
+					"performed_on": {
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
+					},
+					"target": {
+						"$ref": "#/components/schemas/SamplingTarget"
+					}
+				},
+				"required": [
+					"meta",
+					"code",
+					"target",
+					"id",
+					"number"
+				],
+				"type": "object"
+			},
 			"SamplingDateWithOccurrences": {
 				"additionalProperties": false,
 				"properties": {
@@ -6009,96 +6099,6 @@
 				},
 				"required": [
 					"target"
-				],
-				"type": "object"
-			},
-			"SamplingWithOccurrences": {
-				"additionalProperties": false,
-				"properties": {
-					"access_points": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"code": {
-						"type": "string"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"duration": {
-						"description": "Sampling duration in minutes",
-						"format": "int64",
-						"type": "integer"
-					},
-					"fixatives": {
-						"items": {
-							"$ref": "#/components/schemas/Fixative"
-						},
-						"type": "array"
-					},
-					"habitats": {
-						"items": {
-							"$ref": "#/components/schemas/Habitat"
-						},
-						"type": "array"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"methods": {
-						"items": {
-							"$ref": "#/components/schemas/SamplingMethod"
-						},
-						"type": "array"
-					},
-					"number": {
-						"description": "Auto-incrementing number, unique per sampling",
-						"format": "int64",
-						"type": "integer"
-					},
-					"occurrences": {
-						"items": {
-							"$ref": "#/components/schemas/OccurrenceAtSite"
-						},
-						"type": "array"
-					},
-					"occurring_taxa": {
-						"items": {
-							"$ref": "#/components/schemas/Taxon"
-						},
-						"type": "array"
-					},
-					"performed_by": {
-						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
-						},
-						"type": "array"
-					},
-					"performed_on": {
-						"$ref": "#/components/schemas/OptionalDateWithPrecision"
-					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTarget"
-					}
-				},
-				"required": [
-					"meta",
-					"code",
-					"target",
-					"id",
-					"number"
 				],
 				"type": "object"
 			},
@@ -6756,7 +6756,7 @@
 					},
 					"samplings": {
 						"items": {
-							"$ref": "#/components/schemas/SamplingWithOccurrences"
+							"$ref": "#/components/schemas/SamplingAtSite"
 						},
 						"type": "array"
 					},
@@ -7422,35 +7422,6 @@
 					"anchor",
 					"children_count",
 					"meta",
-					"name",
-					"status",
-					"rank"
-				],
-				"type": "object"
-			},
-			"TaxonInner": {
-				"additionalProperties": false,
-				"properties": {
-					"name": {
-						"examples": [
-							"Asellus aquaticus"
-						],
-						"type": "string"
-					},
-					"rank": {
-						"$ref": "#/components/schemas/TaxonRank",
-						"examples": [
-							"Species"
-						]
-					},
-					"status": {
-						"$ref": "#/components/schemas/TaxonStatus",
-						"examples": [
-							"Accepted"
-						]
-					}
-				},
-				"required": [
 					"name",
 					"status",
 					"rank"
@@ -12364,8 +12335,7 @@
 		},
 		"/occurrences": {
 			"get": {
-				"description": "Both internal and external",
-				"operationId": "ListBioMaterial",
+				"operationId": "ListOccurrences",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -12528,7 +12498,7 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "List bio-material",
+				"summary": "List occurrences",
 				"tags": [
 					"Occurrences"
 				]
@@ -12923,8 +12893,8 @@
 		},
 		"/occurrences/{code}": {
 			"delete": {
-				"description": "Delete any (internal/external) bio-material record by its code",
-				"operationId": "DeleteBioMaterial",
+				"description": "Delete an occurrence record by its code",
+				"operationId": "DeleteOccurrence",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -12989,14 +12959,13 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "Delete bio-material",
+				"summary": "Delete occurrence",
 				"tags": [
 					"Occurrences"
 				]
 			},
 			"get": {
-				"description": "Both internal and external",
-				"operationId": "GetBioMaterial",
+				"operationId": "GetOccurrence",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -13061,7 +13030,7 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "Get bio-material",
+				"summary": "Get occurrence",
 				"tags": [
 					"Occurrences"
 				]

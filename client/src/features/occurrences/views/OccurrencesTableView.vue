@@ -5,9 +5,9 @@
     :headers
     :filters
     :toolbar="{ title: 'Occurrences', icon: 'mdi-package-variant' }"
-    :fetch-items="listBioMaterialOptions"
+    :fetch-items="listOccurrencesOptions"
     :delete="{
-      mutation: deleteBioMaterialMutation,
+      mutation: deleteOccurrenceMutation,
       params: ({ code }: OccurrenceListItem) => ({ path: { code } })
     }"
     :mobile="xs"
@@ -133,19 +133,11 @@
       </span>
     </template>
 
-    <template
-      #item.identification.taxon="{
-        value,
-        item: { identification }
-      }: {
-        value: Taxon
-        item: OccurrenceListItem
-      }"
-    >
+    <template #item.identification="{ value: identification }: { value: Identification }">
       <IdentificationChip :identification size="small" short />
     </template>
-    <template #item.identification.identified_by="{ value }: { value: PersonInner | undefined }">
-      <PersonChip v-if="value" :person="value" size="small" short />
+    <template #item.identification.identified_by="{ value: person }">
+      <PersonChip v-if="person" :person size="small" short />
       <span v-else class="text-muted text-caption">Unknown</span>
     </template>
     <template #item.identification.identified_on="{ value }: { value?: DateWithPrecision }">
@@ -188,29 +180,27 @@
 </template>
 
 <script setup lang="ts">
-import { $TaxonStatus, PersonInner, Taxon } from '@/api'
+import { $TaxonStatus } from '@/api'
+
 import {
+  Identification,
   BioMatSortKey,
   DateWithPrecision,
   OccurrenceCategory,
   OccurrenceListItem,
   SiteItem,
   TaxonStatus
-} from '@/api/adapters'
-import {
-  deleteBioMaterialMutation,
-  listBioMaterialOptions
-} from '@/api/gen/@tanstack/vue-query.gen'
+} from '@/api'
+import { deleteOccurrenceMutation, listOccurrencesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 // import BioMaterialFormDialog from '@/features/occurrences/components/BioMaterialFormDialog.vue'
-import PersonChip from '@/features/people/components/PersonChip'
-import OccurrenceCategorySelect from '@/features/occurrences/components/OccurrenceCategorySelect.vue'
 import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
-import TaxonChip from '@/features/taxonomy/components/TaxonChip'
+import OccurrenceCategorySelect from '@/features/occurrences/components/OccurrenceCategorySelect.vue'
+import PersonChip from '@/features/people/components/PersonChip'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 
 const { xs } = useDisplay()
 
@@ -250,11 +240,7 @@ const headers: CRUDTableHeader<OccurrenceListItem>[] = [
     sortable: false,
     headerProps: { class: 'border-s' },
     children: [
-      {
-        key: 'identification.taxon',
-        title: 'Taxon',
-        align: 'center'
-      },
+      Identification.tableHeader({ key: 'identification' }),
       {
         key: 'identification.identified_by',
         title: 'Done by',

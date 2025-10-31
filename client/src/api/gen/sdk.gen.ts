@@ -187,9 +187,9 @@ import type {
   SearchSitesData,
   SearchSitesResponses,
   SearchSitesErrors,
-  ListBioMaterialData,
-  ListBioMaterialResponses,
-  ListBioMaterialErrors,
+  ListOccurrencesData,
+  ListOccurrencesResponses,
+  ListOccurrencesErrors,
   OccurrencesBySiteData,
   OccurrencesBySiteResponses,
   OccurrencesBySiteErrors,
@@ -202,12 +202,12 @@ import type {
   OccurrenceOverviewData,
   OccurrenceOverviewResponses,
   OccurrenceOverviewErrors,
-  DeleteBioMaterialData,
-  DeleteBioMaterialResponses,
-  DeleteBioMaterialErrors,
-  GetBioMaterialData,
-  GetBioMaterialResponses,
-  GetBioMaterialErrors,
+  DeleteOccurrenceData,
+  DeleteOccurrenceResponses,
+  DeleteOccurrenceErrors,
+  GetOccurrenceData,
+  GetOccurrenceResponses,
+  GetOccurrenceErrors,
   ListOrganisationsData,
   ListOrganisationsResponses,
   ListOrganisationsErrors,
@@ -417,12 +417,12 @@ import {
   updateHabitatGroupResponseTransformer,
   sitesProximityResponseTransformer,
   searchSitesResponseTransformer,
-  listBioMaterialResponseTransformer,
+  listOccurrencesResponseTransformer,
   occurrencesBySiteResponseTransformer,
   updateExternalOccurrenceResponseTransformer,
   createExternalOccurrenceResponseTransformer,
-  deleteBioMaterialResponseTransformer,
-  getBioMaterialResponseTransformer,
+  deleteOccurrenceResponseTransformer,
+  getOccurrenceResponseTransformer,
   listOrganisationsResponseTransformer,
   createOrganisationResponseTransformer,
   deleteOrganisationResponseTransformer,
@@ -3071,18 +3071,17 @@ export class LocationService {
 
 export class OccurrencesService {
   /**
-   * List bio-material
-   * Both internal and external
+   * List occurrences
    */
-  public static listBioMaterial<ThrowOnError extends boolean = false>(
-    options?: Options<ListBioMaterialData, ThrowOnError>
+  public static listOccurrences<ThrowOnError extends boolean = false>(
+    options?: Options<ListOccurrencesData, ThrowOnError>
   ) {
     return (options?.client ?? _heyApiClient).get<
-      ListBioMaterialResponses,
-      ListBioMaterialErrors,
+      ListOccurrencesResponses,
+      ListOccurrencesErrors,
       ThrowOnError
     >({
-      responseTransformer: listBioMaterialResponseTransformer,
+      responseTransformer: listOccurrencesResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3225,18 +3224,18 @@ export class OccurrencesService {
   }
 
   /**
-   * Delete bio-material
-   * Delete any (internal/external) bio-material record by its code
+   * Delete occurrence
+   * Delete an occurrence record by its code
    */
-  public static deleteBioMaterial<ThrowOnError extends boolean = false>(
-    options: Options<DeleteBioMaterialData, ThrowOnError>
+  public static deleteOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<DeleteOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).delete<
-      DeleteBioMaterialResponses,
-      DeleteBioMaterialErrors,
+      DeleteOccurrenceResponses,
+      DeleteOccurrenceErrors,
       ThrowOnError
     >({
-      responseTransformer: deleteBioMaterialResponseTransformer,
+      responseTransformer: deleteOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3254,18 +3253,17 @@ export class OccurrencesService {
   }
 
   /**
-   * Get bio-material
-   * Both internal and external
+   * Get occurrence
    */
-  public static getBioMaterial<ThrowOnError extends boolean = false>(
-    options: Options<GetBioMaterialData, ThrowOnError>
+  public static getOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<GetOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? _heyApiClient).get<
-      GetBioMaterialResponses,
-      GetBioMaterialErrors,
+      GetOccurrenceResponses,
+      GetOccurrenceErrors,
       ThrowOnError
     >({
-      responseTransformer: getBioMaterialResponseTransformer,
+      responseTransformer: getOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',

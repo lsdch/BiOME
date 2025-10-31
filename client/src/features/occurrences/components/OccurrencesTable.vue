@@ -42,17 +42,23 @@
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
-    <template #item.taxon="{ value }">
-      <TaxonChip :taxon="value" size="small" />
+    <template #item.identification="{ value: identification }">
+      <IdentificationChip :identification size="small" />
     </template>
   </CRUDTable>
 </template>
 
 <script setup lang="ts" generic="WithSite extends boolean">
-import { CodeIdentifier, DateWithPrecision, OccurrenceAtSite, SiteItem } from '@/api'
-import TaxonChip from '@/features/taxonomy/components/TaxonChip'
-import { computed, ref } from 'vue'
+import {
+  CodeIdentifier,
+  DateWithPrecision,
+  Identification,
+  OccurrenceAtSite,
+  SiteItem
+} from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
+import { computed, ref } from 'vue'
 import OccurrenceIcon from './OccurrenceIcon'
 
 type Occurrence = OccurrenceAtSite & { sampling_date?: DateWithPrecision } & (WithSite extends true
@@ -116,16 +122,7 @@ const headersWithSites: CRUDTableHeader<Occurrence>[] = [
     align: 'end',
     sort: DateWithPrecision.compare
   },
-  {
-    title: 'Taxon',
-    key: 'taxon',
-    sortable: true,
-    align: 'start',
-    sort: (a, b) => a.name.localeCompare(b.name),
-    filter(value, query, item) {
-      return value.name.toLowerCase().includes(query.toLowerCase())
-    }
-  }
+  Identification.tableHeader({ key: 'identification' })
 ]
 
 const headers = computed(() =>

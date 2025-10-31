@@ -110,7 +110,7 @@ func (s Sampling) Code(siteCode string) string {
 	return fmt.Sprintf("%s|%s", siteCode, s.PerformedOn.ToCode())
 }
 
-type SamplingWithOccurrences struct {
+type SamplingAtSite struct {
 	SamplingInner `gel:"$inline" json:",inline"`
 	Occurrences   []OccurrenceAtSite `gel:"occurrences" json:"occurrences,omitempty"`
 	OccurringTaxa []taxonomy.Taxon   `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`

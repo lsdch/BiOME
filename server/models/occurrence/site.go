@@ -157,11 +157,11 @@ type SiteItem struct {
 
 type Site struct {
 	SiteItem            `gel:"$inline" json:",inline"`
-	Datasets            []dataset.DatasetInner    `gel:"datasets" json:"datasets,omitempty"`
-	AbioticMeasurements []AbioticMeasurement      `gel:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
-	Samplings           []SamplingWithOccurrences `gel:"samplings" json:"samplings,omitempty"`
-	Flaggings           []Flagging                `gel:"flaggings" json:"flaggings,omitempty"`
-	Meta                people.Meta               `gel:"meta" json:"meta"`
+	Datasets            []dataset.DatasetInner `gel:"datasets" json:"datasets,omitempty"`
+	AbioticMeasurements []AbioticMeasurement   `gel:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
+	Samplings           []SamplingAtSite       `gel:"samplings" json:"samplings,omitempty"`
+	Flaggings           []Flagging             `gel:"flaggings" json:"flaggings,omitempty"`
+	Meta                people.Meta            `gel:"meta" json:"meta"`
 }
 
 // AddAbioticMeasurement adds an abiotic measurement to the event.
@@ -234,10 +234,7 @@ func GetSite(db geltypes.Executor, identifier string) (Site, error) {
 						select .occurrences {
 							id,
 							code,
-							required taxon := (
-									[is InternalBioMat].seq_consensus ??
-									.identification.taxon
-								) { name, status, rank},
+							identification: { **, identified_by: { ** } },
 							required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
 						}
 					),

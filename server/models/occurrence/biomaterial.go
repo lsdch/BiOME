@@ -104,7 +104,7 @@ var BioMatSortMap = map[BioMatSortKey]string{
 	BioMatSortLastUpdated:  ".meta.lastUpdated",
 }
 
-type ListBioMaterialOptions struct {
+type ListOccurrencesOptions struct {
 	models.Pagination `json:",inline"`
 	models.SortBy[BioMatSortKey]
 	models.Filter `json:",inline"`
@@ -117,11 +117,11 @@ type ListBioMaterialOptions struct {
 	Status        models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
 }
 
-func (o ListBioMaterialOptions) Options() ListBioMaterialOptions {
+func (o ListOccurrencesOptions) Options() ListOccurrencesOptions {
 	return o
 }
 
-func (i ListBioMaterialOptions) OrderByString() string {
+func (i ListOccurrencesOptions) OrderByString() string {
 	if i.SortBy.Key == "" {
 		return ""
 	}
@@ -133,7 +133,7 @@ func (i ListBioMaterialOptions) OrderByString() string {
 	}
 }
 
-func ListOccurrences(db geltypes.Executor, opts ListBioMaterialOptions) (models.PaginatedList[OccurrenceListItem], error) {
+func ListOccurrences(db geltypes.Executor, opts ListOccurrencesOptions) (models.PaginatedList[OccurrenceListItem], error) {
 	params, _ := json.Marshal(opts)
 	logrus.Debugf("Params: %s", string(params))
 	var result = models.PaginatedList[OccurrenceListItem]{
@@ -204,7 +204,7 @@ func DeleteOccurrence(db geltypes.Executor, code string) (deleted OccurrenceList
 			) {
         *,
 				sampling: { *, site: { *, country: { * } } },
-				identification: { **, identified_by: { * } },
+				identification: { **, identified_by: { ** } },
 				internal:= [is occurrence::InternalBioMat] {
 					has_sequences := exists(.specimens.sequences),
 					is_homogenous,

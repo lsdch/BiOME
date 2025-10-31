@@ -96,15 +96,7 @@
       }}</span>
     </template>
 
-    <template
-      #item.identification.taxon="{
-        value: taxon,
-        item: { identification }
-      }: {
-        value: Taxon
-        item: SequenceListItem
-      }"
-    >
+    <template #item.identification="{ value: identification }">
       <IdentificationChip :identification size="small" short />
     </template>
     <template #item.identification.identified_by="{ value }: { value: Person }">
@@ -177,6 +169,7 @@ import { Gene, Sequence, Taxon } from '@/api'
 import {
   CodeIdentifier,
   DateWithPrecision,
+  Identification,
   OccurrenceCategory,
   Person,
   SequenceListItem,
@@ -249,14 +242,7 @@ const headers: CRUDTableHeader<SequenceListItem>[] = [
     align: 'center',
     headerProps: { class: 'border-s' },
     children: [
-      {
-        key: 'identification.taxon',
-        title: 'Taxon',
-        align: 'center',
-        sort(a: { name: string }, b: { name: string }) {
-          return a.name.localeCompare(b.name)
-        }
-      },
+      Identification.tableHeader({ key: 'identification' }),
       { key: 'identification.identified_by', title: 'Done by', align: 'center', sortable: false },
       {
         key: 'identification.identified_on',

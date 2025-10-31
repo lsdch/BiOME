@@ -15,23 +15,21 @@ import (
 func registerBioMatRoutes(r router.Router) {
 	biomat_API := r.RouteGroup("/occurrences").WithTags([]string{"Occurrences"})
 
-	router.Register(biomat_API, "ListBioMaterial",
+	router.Register(biomat_API, "ListOccurrences",
 		huma.Operation{
-			Path:        "/",
-			Method:      http.MethodGet,
-			Summary:     "List bio-material",
-			Description: "Both internal and external",
+			Path:    "/",
+			Method:  http.MethodGet,
+			Summary: "List occurrences",
 		}, controllers.ListHandlerWithOpts[*struct {
 			resolvers.AuthResolver
-			occurrence.ListBioMaterialOptions
+			occurrence.ListOccurrencesOptions
 		}](occurrence.ListOccurrences))
 
-	router.Register(biomat_API, "GetBioMaterial",
+	router.Register(biomat_API, "GetOccurrence",
 		huma.Operation{
-			Path:        "/{code}",
-			Method:      http.MethodGet,
-			Summary:     "Get bio-material",
-			Description: "Both internal and external",
+			Path:    "/{code}",
+			Method:  http.MethodGet,
+			Summary: "Get occurrence",
 		}, controllers.GetByCodeHandler(occurrence.GetOccurrence))
 
 	router.Register(biomat_API, "CreateExternalOccurrence",
@@ -48,12 +46,12 @@ func registerBioMatRoutes(r router.Router) {
 			Summary: "Update external occurrence",
 		}, controllers.UpdateByCodeHandler[occurrence.ExternalOccurrenceUpdate])
 
-	router.Register(biomat_API, "DeleteBioMaterial",
+	router.Register(biomat_API, "DeleteOccurrence",
 		huma.Operation{
 			Path:        "/{code}",
 			Method:      http.MethodDelete,
-			Summary:     "Delete bio-material",
-			Description: "Delete any (internal/external) bio-material record by its code",
+			Summary:     "Delete occurrence",
+			Description: "Delete an occurrence record by its code",
 		}, controllers.DeleteByCodeHandler(occurrence.DeleteOccurrence))
 }
 

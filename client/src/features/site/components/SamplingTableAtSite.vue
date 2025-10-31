@@ -28,7 +28,7 @@
       <span v-else class="text-muted font-italic">None</span>
     </template>
 
-    <template #expanded-row-inject="{ item }: { item: SamplingWithOccurrences }">
+    <template #expanded-row-inject="{ item }: { item: SamplingAtSite }">
       <v-list density="compact">
         <v-list-item
           v-for="occurrence in item.occurrences"
@@ -43,7 +43,12 @@
             <a class="font-monospace">{{ CodeIdentifier.textWrap(occurrence.code) }}</a>
           </div>
           <template #append>
-            <TaxonChip :taxon="occurrence.taxon" size="small" class="ma-1" @click.stop />
+            <IdentificationChip
+              :identification="occurrence.identification"
+              size="small"
+              class="ma-1"
+              @click.stop
+            />
           </template>
         </v-list-item>
       </v-list>
@@ -52,16 +57,16 @@
 </template>
 
 <script setup lang="ts">
-import { CodeIdentifier, DateWithPrecision, SamplingWithOccurrences } from '@/api'
-import SamplingTargetChips from '@/features/occurrences/components/sampling/SamplingTargetChips.vue'
+import { CodeIdentifier, DateWithPrecision, SamplingAtSite } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
-import TaxonChip from '@/features/taxonomy/components/TaxonChip'
-import SamplingCardDialog from '@/features/occurrences/components/sampling/SamplingCardDialog.vue'
 import OccurrenceIcon from '@/features/occurrences/components/OccurrenceIcon'
+import SamplingCardDialog from '@/features/occurrences/components/sampling/SamplingCardDialog.vue'
+import SamplingTargetChips from '@/features/occurrences/components/sampling/SamplingTargetChips.vue'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 
-const { samplings } = defineProps<{ samplings: SamplingWithOccurrences[] }>()
+const { samplings } = defineProps<{ samplings: SamplingAtSite[] }>()
 
-const headers: CRUDTableHeader<SamplingWithOccurrences>[] = [
+const headers: CRUDTableHeader<SamplingAtSite>[] = [
   { title: 'Number', key: 'number', width: 0 },
   {
     title: 'Date',
