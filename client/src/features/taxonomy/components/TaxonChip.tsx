@@ -1,11 +1,11 @@
-import { Taxon, TaxonInner } from '@/api'
+import { Taxon } from '@/api'
 import { FTaxonStatusIndicator } from '@/features/taxonomy/components/functionals'
 import LinkIconGBIF from '@/features/taxonomy/components/LinkIconGBIF'
 import { withModifiers } from 'vue'
 import { VChip } from 'vuetify/components'
 
 export type TaxonChipProps = VChip['$props'] & {
-  taxon: TaxonInner & Partial<Taxon>
+  taxon: Taxon
   short?: boolean
 }
 
@@ -24,7 +24,9 @@ export function TaxonChip({ taxon, short, ...chipProps }: TaxonChipProps) {
             text={short ? shortName(taxon.name) : taxon.name}
             {...{ ...props, ...chipProps }}
             onClick={withModifiers(() => {}, ['stop'])}
-          />
+          >
+            {{ prepend: () => <FTaxonStatusIndicator status={taxon.status} /> }}
+          </v-chip>
         ),
         default: () => (
           <v-card
