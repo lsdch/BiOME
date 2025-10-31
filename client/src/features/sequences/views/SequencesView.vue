@@ -96,8 +96,16 @@
       }}</span>
     </template>
 
-    <template #item.identification.taxon="{ value: taxon, item }: { value: Taxon; item: Sequence }">
-      <TaxonChip :taxon size="small" short />
+    <template
+      #item.identification.taxon="{
+        value: taxon,
+        item: { identification }
+      }: {
+        value: Taxon
+        item: SequenceListItem
+      }"
+    >
+      <IdentificationChip :identification size="small" short />
     </template>
     <template #item.identification.identified_by="{ value }: { value: PersonInner }">
       <PersonChip :person="value" size="small" short />
@@ -109,6 +117,18 @@
     </template>
 
     <!-- ROW EXPANSION -->
+    <template #expanded-row-footer-append="{ item }">
+      <v-chip
+        :text="item.occurrence.code"
+        :to="{ name: 'occurrence-item', params: { code: item.occurrence.code } }"
+        label
+        :color="OccurrenceCategory.props[item.category].color"
+        prepend-icon="mdi-package-variant"
+        class="ma-2"
+        v-tooltip="'Related occurrence'"
+      >
+      </v-chip>
+    </template>
     <!-- <template #expanded-row-inject="{ item }">
       <v-row class="ma-0">
         <v-col cols="12" md="6">
@@ -167,6 +187,7 @@ import OccurrenceCategorySelect from '@/features/occurrences/components/Occurren
 import PersonChip from '@/features/people/components/PersonChip'
 import GeneChip from '@/features/sequences/components/GeneChip'
 import GenePicker from '@/features/sequences/components/GenePicker.vue'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { computed, ref } from 'vue'

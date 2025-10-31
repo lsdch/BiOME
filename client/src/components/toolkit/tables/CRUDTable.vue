@@ -192,6 +192,7 @@
                       class="ma-1 text-caption font-monospace"
                       @click="copyUUID(item)"
                     />
+                    <slot name="expanded-row-footer-append" :item />
                     <v-spacer />
 
                     <!-- Item actions -->

@@ -83,6 +83,7 @@ export type TableSlots<ItemType> = VDataTable['$slots'] & {
   menu: (props: { toggleMenu: (value?: boolean | undefined) => boolean; menuOpen: boolean }) => any
   'expanded-row-inject': (props: { item: ItemType }) => any
   'expanded-row-footer': (props: { item: ItemType }) => any
+  'expanded-row-footer-append': (props: { item: ItemType }) => any
   'toolbar-prepend-actions': () => any
   'toolbar-append-actions': () => any
   'footer.prepend-actions': () => any
