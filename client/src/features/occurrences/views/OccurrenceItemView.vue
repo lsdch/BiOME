@@ -4,10 +4,11 @@
       <template #title>
         <v-card-title class="d-flex">
           <div class="font-monospace text-wrap w-auto d-flex align-center">
-            <v-menu v-if="item?.code_history" :close-on-content-click="false" target="parent">
+            <v-menu :close-on-content-click="false" target="parent">
               <template #activator="{ props }">
                 {{ code }}
                 <v-btn
+                  v-if="item?.code_history"
                   icon="mdi-history"
                   variant="plain"
                   size="small"
@@ -16,7 +17,7 @@
                   v-bind="props"
                 />
               </template>
-              <CodeHistoryCard :codeHistory="item.code_history" />
+              <CodeHistoryCard v-if="item?.code_history" :codeHistory="item.code_history" />
             </v-menu>
           </div>
         </v-card-title>
