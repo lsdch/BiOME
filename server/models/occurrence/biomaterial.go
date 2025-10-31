@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
+	_ "embed"
+
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
@@ -133,6 +135,10 @@ func (i ListOccurrencesOptions) OrderByString() string {
 	}
 }
 
+//go:embed queries/list_occurrences.tmpl.edgeql
+var listOccurrencesQueryTemplate string
+var listOccurrencesQuery = queries.ParseTemplateOrDie("list_occurrences_query", listOccurrencesQueryTemplate)
+
 func ListOccurrences(db geltypes.Executor, opts ListOccurrencesOptions) (models.PaginatedList[OccurrenceListItem], error) {
 	params, _ := json.Marshal(opts)
 	logrus.Debugf("Params: %s", string(params))
@@ -140,57 +146,7 @@ func ListOccurrences(db geltypes.Executor, opts ListOccurrencesOptions) (models.
 		Items: []OccurrenceListItem{},
 	}
 	err := db.QuerySingle(context.Background(),
-		`#edgeql
-			with module occurrence,
-				params := <json>$0,
-				search_term := <str>json_get(params, 'search'),
-				category := <OccurrenceCategory>json_get(params, 'category'),
-				taxon_name := <str>json_get(params, 'taxon'),
-				taxon := (
-					(select taxonomy::Taxon filter .name = taxon_name)
-					if (exists taxon_name)
-					else <taxonomy::Taxon>{}
-				),
-				whole_clade := <bool>params['whole_clade'],
-				with_sequences := <bool>json_get(params, 'has_sequences'),
-				confer := <bool>json_get(params, 'confer'),
-				status := <taxonomy::TaxonStatus>json_get(params, 'status'),
-				is_type := <bool>json_get(params, 'is_type'),
-				is_own := <bool>params['owned'],
-			items := (
-				select OccurrenceWithType { * }
-				filter (
-					(.code ilike '%%' ++ search_term ++ '%%' if exists search_term else true) and
-					(.category = category if exists category else true) and
-					(
-						(
-							taxonomy::is_in_clade(.identification.taxon, taxon) if whole_clade
-							else .identification.taxon = taxon
-						)
-						if exists taxon else true
-					) and
-					(.identification.taxon.status = status if exists status else true) and
-					(.has_sequences = with_sequences if exists with_sequences else true) and
-					(.identification.confer = confer if exists confer else true) and
-					(.is_type = is_type if exists is_type else true) and
-					(.meta.created_by_user = global default::current_user if (is_own and exists global default::current_user) else true)
-				)
-			),
-			select {
-				items := (
-					select items
-					order by <str>$1
-					offset <optional int64>json_get(params, 'offset')
-					limit <optional int64>json_get(params, 'limit')
-				) {
-					*,
-					sampling: { *, site: { *, country: { * } } },
-					identification: { **, identified_by: { ** } },
-					meta: { * }
-				},
-				total_count := count(items),
-			};
-		`,
+		queries.CompileQuery(listOccurrencesQuery, opts),
 		&result, params, opts.OrderByString())
 	return result, err
 }

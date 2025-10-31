@@ -11,6 +11,7 @@
     v-model:items-per-page="pagination.itemsPerPage"
     v-model:page="pagination.page"
     v-model:sort-by="sortBy"
+    @update:page="prefetchNext"
   >
     <!-- Toolbar -->
     <template #top v-if="toolbar">
@@ -19,7 +20,12 @@
         id="table-toolbar"
         v-model:search="genericFilters.search"
         v-bind="toolbar"
-        @reload="refetch().then(() => feedback({ message: 'Data reload' }))"
+        @reload="
+          (emit('reload'),
+          refetch().then(() => {
+            feedback({ message: 'Data reload' })
+          }))
+        "
       >
         <template #extension>
           <slot name="toolbar-extension" />
@@ -243,8 +249,13 @@ import { ErrorModel, Meta } from '@/api'
 import { PaginatedList } from '@/api/responses'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
-import { keepPreviousData, UndefinedInitialQueryOptions, useQuery } from '@tanstack/vue-query'
-import { computedAsync, promiseTimeout, useToggle } from '@vueuse/core'
+import {
+  keepPreviousData,
+  UndefinedInitialQueryOptions,
+  useQuery,
+  useQueryClient
+} from '@tanstack/vue-query'
+import { computedAsync, promiseTimeout, set, useToggle } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
 import { computed, ComputedRef, reactive, ref, useSlots } from 'vue'
 import { TableSlots, ToolbarProps, useTableSort } from '.'
@@ -281,6 +292,7 @@ const genericFilters = ref<Filters>({
 
 const emit = defineEmits<{
   clearFilters: []
+  reload: []
 }>()
 
 function resetFilters() {
@@ -330,6 +342,7 @@ const processedHeaders = computed((): CRUDTableHeader<ItemType>[] => {
 
 const { data, error, isPending, isFetching, refetch } = useQuery(
   computed(() => ({
+    staleTime: Infinity,
     ...props.fetchItems({
       query: {
         limit: pagination.value.itemsPerPage,
@@ -344,11 +357,29 @@ const { data, error, isPending, isFetching, refetch } = useQuery(
   }))
 )
 
+const queryClient = useQueryClient()
+async function prefetchNext(currentPage: number) {
+  await setTimeout(() => {}, 500)
+  await queryClient.prefetchQuery({
+    staleTime: Infinity,
+    ...props.fetchItems({
+      query: {
+        limit: pagination.value.itemsPerPage,
+        offset: currentPage * pagination.value.itemsPerPage,
+        ...genericFilters.value,
+        ...props.filters,
+        order: sortBy.value?.[0]?.order,
+        sort: props.sortKeyTransform?.(sortBy.value?.[0]?.key) ?? sortBy.value?.[0]?.key
+      }
+    })
+  })
+}
+
 const loading = computedAsync(async () => {
   return (
     isPending.value ||
     (isFetching.value &&
-      (await promiseTimeout(500).then(() => {
+      (await promiseTimeout(1000).then(() => {
         return isFetching.value
       })))
   )

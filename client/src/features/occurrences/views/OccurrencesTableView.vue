@@ -14,6 +14,7 @@
     show-expand
     :sort-key-transform
     @clear-filters="filters = {}"
+    @reload="invalidateQuery()"
   >
     <!-- Search and filters panel -->
     <template #menu>
@@ -180,7 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import { $TaxonStatus } from '@/api'
+import { $TaxonStatus, OccurrencesService } from '@/api'
 
 import {
   Identification,
@@ -191,7 +192,11 @@ import {
   SiteItem,
   TaxonStatus
 } from '@/api'
-import { deleteOccurrenceMutation, listOccurrencesOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import {
+  deleteOccurrenceMutation,
+  listOccurrencesOptions,
+  listOccurrencesQueryKey
+} from '@/api/gen/@tanstack/vue-query.gen'
 // import BioMaterialFormDialog from '@/features/occurrences/components/BioMaterialFormDialog.vue'
 import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
@@ -199,7 +204,8 @@ import OccurrenceCategorySelect from '@/features/occurrences/components/Occurren
 import PersonChip from '@/features/people/components/PersonChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
-import { ref } from 'vue'
+import { useInfiniteQuery, useQueryClient } from '@tanstack/vue-query'
+import { onMounted, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
 const { xs } = useDisplay()
@@ -276,6 +282,12 @@ const sortKeyMap: Record<SortableColumn, BioMatSortKey> = {
 function sortKeyTransform(key: string | undefined): BioMatSortKey | undefined {
   return key ? sortKeyMap[key as SortableColumn] : undefined
 }
+
+const queryClient = useQueryClient()
+function invalidateQuery() {
+  queryClient.invalidateQueries({ queryKey: listOccurrencesQueryKey() })
+}
+onMounted(invalidateQuery)
 </script>
 
 <style scoped lang="scss"></style>

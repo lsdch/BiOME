@@ -16,14 +16,18 @@ type withShape interface {
 	Shape() string
 }
 
-func parseTemplateOrDie(name string, tmplStr string) *template.Template {
+func ParseTemplateOrDie(name string, tmplStr string) *template.Template {
 	return template.Must(template.New(name).Parse(tmplStr))
 }
 
 func buildQueryWithShape(q withShape, templ *template.Template) string {
+	return CompileQuery(templ, q) + " " + q.Shape() + "\n"
+}
+
+func CompileQuery(tmpl *template.Template, data any) string {
 	buf := new(bytes.Buffer)
-	_ = templ.Execute(buf, q)
-	return buf.String() + " " + q.Shape() + "\n"
+	_ = tmpl.Execute(buf, data)
+	return buf.String()
 }
 
 /****************************
@@ -32,7 +36,7 @@ func buildQueryWithShape(q withShape, templ *template.Template) string {
 
 //go:embed insert_sampling.tmpl.edgeql
 var insertSamplingQueryFile string
-var insertSamplingTemplate = parseTemplateOrDie(
+var insertSamplingTemplate = ParseTemplateOrDie(
 	"insert_sampling",
 	insertSamplingQueryFile,
 )
@@ -58,7 +62,7 @@ func SamplingQuery(site string, JSON string, shape string) (res string) {
 
 //go:embed insert_abiotic.tmpl.edgeql
 var insertAbioticQueryFile string
-var insertAbioticTemplate = parseTemplateOrDie(
+var insertAbioticTemplate = ParseTemplateOrDie(
 	"insert_abiotic",
 	insertAbioticQueryFile,
 )
@@ -84,7 +88,7 @@ func AbioticQuery(site string, JSON string, shape string) (res string) {
 
 //go:embed insert_internal_biomat.tmpl.edgeql
 var insertInternalBioMatQueryFile string
-var insertInternalBioMatTemplate = parseTemplateOrDie(
+var insertInternalBioMatTemplate = ParseTemplateOrDie(
 	"insert_internal_biomat",
 	insertInternalBioMatQueryFile,
 )
@@ -110,7 +114,7 @@ func InternalBioMatQuery(sampling string, JSON string, shape string) (res string
 
 //go:embed insert_external_occurrence.tmpl.edgeql
 var insertExternalOccurrenceQueryFile string
-var insertExternalOccurrenceTemplate = parseTemplateOrDie(
+var insertExternalOccurrenceTemplate = ParseTemplateOrDie(
 	"insert_external_occurrence",
 	insertExternalOccurrenceQueryFile,
 )
@@ -138,7 +142,7 @@ func ExternalOccurrenceQuery(sampling string, JSON string, shape string) (res st
 
 //go:embed insert_external_sequence.tmpl.edgeql
 var insertExternalSequenceQueryFile string
-var insertExternalSequenceTemplate = parseTemplateOrDie(
+var insertExternalSequenceTemplate = ParseTemplateOrDie(
 	"insert_external_sequence",
 	insertExternalSequenceQueryFile,
 )
