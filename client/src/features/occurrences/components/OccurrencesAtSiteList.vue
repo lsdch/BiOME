@@ -1,7 +1,7 @@
 <template>
   <v-list density="compact">
     <v-list-item
-      v-for="{ code, category, taxon, date } in occurrences"
+      v-for="{ code, category, identification, date } in occurrences"
       :subtitle="DateWithPrecision.format(date)"
       :to="{
         name: 'occurrence-item',
@@ -28,7 +28,7 @@
         </RouterLink>
       </template>
       <template #append>
-        <TaxonChip :taxon="taxon" size="small" />
+        <IdentificationChip :identification size="small" />
       </template>
     </v-list-item>
   </v-list>
@@ -36,9 +36,10 @@
 
 <script setup lang="ts">
 import { DateWithPrecision, OccurrenceAtSite } from '@/api'
+import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 
 defineProps<{
-  occurrences: (OccurrenceAtSite & { date: DateWithPrecision })[]
+  occurrences: (OccurrenceAtSite & { date?: DateWithPrecision })[]
 }>()
 </script>
 
