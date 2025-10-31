@@ -1,8 +1,10 @@
-import { PersonInner, UserRole } from '@/api'
+import { Organisation, OrganisationInner, Person, PersonInner, UserRole } from '@/api'
+import { roleIcon } from '@/components/icons/UserRoleIcon'
+import OrgChip from '@/features/people/components/OrgChip'
 import { VChip } from 'vuetify/components'
 
 export type PersonChipProps = {
-  person: PersonInner
+  person: Person
   short?: boolean
 } & VChip['$props']
 
@@ -14,7 +16,19 @@ export function PersonChip({ person, short, ...chipProps }: PersonChipProps) {
           <v-chip
             text={short ? `${person.first_name[0]}. ${person.last_name}` : person.full_name}
             {...{ ...props, ...chipProps }}
-          />
+          >
+            {{
+              prepend: person.role
+                ? () => (
+                    <v-icon
+                      icon="mdi-circle-medium"
+                      color={roleIcon(person.role).color}
+                      size="small"
+                    />
+                  )
+                : undefined
+            }}
+          </v-chip>
         ),
         default: () => (
           <v-card
@@ -24,6 +38,15 @@ export function PersonChip({ person, short, ...chipProps }: PersonChipProps) {
             density="compact"
           >
             {{
+              default: () =>
+                person.organisations?.length ? (
+                  <div class="my-1 d-flex align-center gap-1 flex-wrap">
+                    <v-icon class="mx-4" icon="mdi-domain" size="small" />
+                    {person.organisations.map((org: OrganisationInner) => (
+                      <OrgChip org={org} label size="small" cardProps={{ rounded: 'sm' }} />
+                    ))}
+                  </div>
+                ) : undefined,
               prepend: () => (
                 <div class="d-flex flex-column align-center mr-2">
                   <UserRole.Icon role={person.role} size="small" />

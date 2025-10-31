@@ -18,6 +18,12 @@
     <template #item.description="{ value }">
       <LineClampedText :title="value" :text="value" :lines="3" />
     </template>
+    <template #expanded-row-inject="{ item }">
+      <div class="d-flex ga-2 align-center ma-2">
+        <span class="text-muted"> Maintainers: </span>
+        <PersonChip v-for="person in item.maintainers" :person size="small" />
+      </div>
+    </template>
   </CRUDTable>
 </template>
 
@@ -26,6 +32,7 @@ import { OccurrenceDataset, OccurrenceDatasetListItem } from '@/api'
 import { listOccurrenceDatasetsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import { LineClampedText } from '@/components/toolkit/ui/LineClampedText'
+import PersonChip from '@/features/people/components/PersonChip'
 
 const headers: CRUDTableHeader<OccurrenceDatasetListItem>[] = [
   { key: 'label', title: 'Label' },

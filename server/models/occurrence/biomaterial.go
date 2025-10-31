@@ -59,7 +59,7 @@ func GetOccurrence(db geltypes.Executor, code string) (occurrence Occurrence[Sam
 				occurring_taxa: { * },
 				site: { *, country: { * } }
 			},
-			identification: { ** },
+			identification: { **, identified_by: { ** } },
 			internal: {
 				is_homogenous,
 				is_congruent,
@@ -185,7 +185,7 @@ func ListOccurrences(db geltypes.Executor, opts ListBioMaterialOptions) (models.
 				) {
 					*,
 					sampling: { *, site: { *, country: { * } } },
-					identification: { **, identified_by: { * } },
+					identification: { **, identified_by: { ** } },
 					meta: { * }
 				},
 				total_count := count(items),

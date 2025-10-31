@@ -107,7 +107,7 @@
     >
       <IdentificationChip :identification size="small" short />
     </template>
-    <template #item.identification.identified_by="{ value }: { value: PersonInner }">
+    <template #item.identification.identified_by="{ value }: { value: Person }">
       <PersonChip :person="value" size="small" short />
     </template>
     <template #item.identification.identified_on="{ value }">
@@ -173,11 +173,12 @@
 </template>
 
 <script setup lang="ts">
-import { Gene, PersonInner, Sequence, Taxon } from '@/api'
+import { Gene, Sequence, Taxon } from '@/api'
 import {
   CodeIdentifier,
   DateWithPrecision,
   OccurrenceCategory,
+  Person,
   SequenceListItem,
   SiteItem
 } from '@/api/adapters'
@@ -188,7 +189,6 @@ import PersonChip from '@/features/people/components/PersonChip'
 import GeneChip from '@/features/sequences/components/GeneChip'
 import GenePicker from '@/features/sequences/components/GenePicker.vue'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
-import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'

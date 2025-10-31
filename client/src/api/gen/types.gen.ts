@@ -337,7 +337,7 @@ export type Dataset = {
   description: string
   id: string
   label: string
-  maintainers: Array<PersonUser>
+  maintainers: Array<Person>
   meta: Meta
   pinned: boolean
   publication?: OptionalArticle
@@ -838,7 +838,7 @@ export type Identification = {
   addendum?: OptionalString
   confer: boolean
   id: string
-  identified_by?: OptionalPersonInner
+  identified_by?: OptionalPerson
   identified_on?: OptionalDateWithPrecision
   meta: Meta
   taxon: Taxon
@@ -1167,7 +1167,7 @@ export type OccurrenceDataset = {
   id: string
   is_congruent: boolean
   label: string
-  maintainers: Array<PersonUser>
+  maintainers: Array<Person>
   meta: Meta
   pinned: boolean
   publication?: OptionalArticle
@@ -1181,7 +1181,7 @@ export type OccurrenceDatasetListItem = {
   id: string
   is_congruent: boolean
   label: string
-  maintainers: Array<PersonUser>
+  maintainers: Array<Person>
   meta: Meta
   occurrences: number
   pinned: boolean
@@ -1330,7 +1330,11 @@ export type OptionalLegacySeqId = {
   id: number
 } | null
 
-export type OptionalPersonInner = {
+export type OptionalPerson = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
   alias: string
   comment: string
   contact: string
@@ -1338,7 +1342,10 @@ export type OptionalPersonInner = {
   full_name: string
   id: string
   last_name: string
+  meta: Meta
+  organisations?: Array<OrganisationInner>
   role?: UserRole
+  user: OptionalUserInner
 } | null
 
 export type OptionalQuantity = Quantity | null
@@ -1396,7 +1403,7 @@ export type Organisation = {
   /**
    * Known members of this organisation
    */
-  people?: Array<PersonUser>
+  people?: Array<Person>
 }
 
 export type OrganisationInner = {
@@ -1510,7 +1517,7 @@ export type Person = {
   id: string
   last_name: string
   meta: Meta
-  organisations: Array<OrganisationInner>
+  organisations?: Array<OrganisationInner>
   role?: UserRole
   user: OptionalUserInner
 }
@@ -1535,6 +1542,7 @@ export type PersonInput = {
   comment?: string
   contact?: string
   first_name: string
+  force_create?: boolean
   last_name: string
   organisations?: Array<string>
 }
@@ -2030,7 +2038,7 @@ export type SequenceDataset = {
   description: string
   id: string
   label: string
-  maintainers: Array<PersonUser>
+  maintainers: Array<Person>
   meta: Meta
   pinned: boolean
   publication?: OptionalArticle
@@ -2065,6 +2073,7 @@ export type SequenceListItem = {
   is_identifying: boolean
   label?: string
   legacy?: OptionalLegacySeqId
+  meta: Meta
   occurrence: GenericOccurrenceSamplingInnerWithSite
   sequence?: string
   specimen_identifier?: string
@@ -2143,7 +2152,7 @@ export type SiteDataset = {
   description: string
   id: string
   label: string
-  maintainers: Array<PersonUser>
+  maintainers: Array<Person>
   meta: Meta
   pinned: boolean
   publication?: OptionalArticle

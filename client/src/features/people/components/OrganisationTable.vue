@@ -71,8 +71,7 @@
     </template>
     <template #expanded-row-inject="{ item }">
       <div class="w-100">
-        <v-card density="compact" flat>
-          <v-card-title class="text-body-2">Description</v-card-title>
+        <v-card density="compact" flat v-if="item.description">
           <v-card-text class="text-caption">{{ item.description ?? 'None provided' }}</v-card-text>
         </v-card>
         <v-divider />

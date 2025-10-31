@@ -53,7 +53,7 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 			select dataset {
 				*,
 				meta: { * },
-				maintainers: { *, user: { * } },
+				maintainers: { *, user: { * }, organisations: { * } },
 				sites: {
 					*,
 					country: { * },

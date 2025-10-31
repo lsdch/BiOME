@@ -24,7 +24,9 @@ export function roleIcon(role?: UserRole) {
         color: 'green'
       }
     default:
-      return {}
+      return {
+        icon: 'mdi-circle-medium'
+      }
   }
 }
 
@@ -34,7 +36,16 @@ export type UserRoleIconProps = {
 
 export function UserRoleIcon({ role, ...props }: UserRoleIconProps, context: { attrs?: object }) {
   const { icon, color } = roleIcon(role)
-  return <v-icon icon={icon} color={color} title={role} {...{ ...props, ...context.attrs }} />
+  return (
+    <v-tooltip>
+      {{
+        default: () => `${role || 'No user account'}`,
+        activator: ({ props }: { props: any }) => (
+          <v-icon icon={icon} color={color} title={role} {...{ ...props, ...context.attrs }} />
+        )
+      }}
+    </v-tooltip>
+  )
 }
 
 export default UserRoleIcon

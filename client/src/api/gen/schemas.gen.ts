@@ -840,7 +840,7 @@ export const $Dataset = {
     },
     maintainers: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
+        $ref: '#/components/schemas/Person'
       },
       type: 'array'
     },
@@ -2097,7 +2097,7 @@ export const $Identification = {
       type: 'string'
     },
     identified_by: {
-      $ref: '#/components/schemas/OptionalPersonInner'
+      $ref: '#/components/schemas/OptionalPerson'
     },
     identified_on: {
       $ref: '#/components/schemas/OptionalDateWithPrecision'
@@ -2962,7 +2962,7 @@ export const $OccurrenceDataset = {
     },
     maintainers: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
+        $ref: '#/components/schemas/Person'
       },
       type: 'array'
     },
@@ -3021,7 +3021,7 @@ export const $OccurrenceDatasetListItem = {
     },
     maintainers: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
+        $ref: '#/components/schemas/Person'
       },
       type: 'array'
     },
@@ -3504,9 +3504,16 @@ export const $OptionalLegacySeqID = {
   type: ['object', 'null']
 } as const
 
-export const $OptionalPersonInner = {
+export const $OptionalPerson = {
   additionalProperties: false,
   properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Person.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
     alias: {
       type: 'string'
     },
@@ -3534,11 +3541,33 @@ export const $OptionalPersonInner = {
       minLength: 2,
       type: 'string'
     },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    organisations: {
+      items: {
+        $ref: '#/components/schemas/OrganisationInner'
+      },
+      type: 'array'
+    },
     role: {
       $ref: '#/components/schemas/UserRole'
+    },
+    user: {
+      $ref: '#/components/schemas/OptionalUserInner'
     }
   },
-  required: ['id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
+  required: [
+    'meta',
+    'user',
+    'id',
+    'full_name',
+    'alias',
+    'contact',
+    'comment',
+    'first_name',
+    'last_name'
+  ],
   type: ['object', 'null']
 } as const
 
@@ -3696,7 +3725,7 @@ export const $Organisation = {
     people: {
       description: 'Known members of this organisation',
       items: {
-        $ref: '#/components/schemas/PersonUser'
+        $ref: '#/components/schemas/Person'
       },
       type: 'array'
     }
@@ -4039,7 +4068,6 @@ export const $Person = {
     }
   },
   required: [
-    'organisations',
     'meta',
     'user',
     'id',
@@ -4115,6 +4143,9 @@ export const $PersonInput = {
       maxLength: 32,
       minLength: 2,
       type: 'string'
+    },
+    force_create: {
+      type: 'boolean'
     },
     last_name: {
       maxLength: 32,
@@ -5568,7 +5599,7 @@ export const $SequenceDataset = {
     },
     maintainers: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
+        $ref: '#/components/schemas/Person'
       },
       type: 'array'
     },
@@ -5691,6 +5722,9 @@ export const $SequenceListItem = {
     legacy: {
       $ref: '#/components/schemas/OptionalLegacySeqID'
     },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
     occurrence: {
       $ref: '#/components/schemas/GenericOccurrenceSamplingInnerWithSite'
     },
@@ -5701,7 +5735,16 @@ export const $SequenceListItem = {
       type: 'string'
     }
   },
-  required: ['occurrence', 'identification', 'id', 'gene', 'is_identifying', 'code', 'category'],
+  required: [
+    'occurrence',
+    'identification',
+    'meta',
+    'id',
+    'gene',
+    'is_identifying',
+    'code',
+    'category'
+  ],
   type: 'object'
 } as const
 
@@ -5923,7 +5966,7 @@ export const $SiteDataset = {
     },
     maintainers: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
+        $ref: '#/components/schemas/Person'
       },
       type: 'array'
     },

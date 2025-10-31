@@ -59,6 +59,7 @@ type SequenceListItem struct {
 	Occurrence         GenericOccurrence[SamplingInnerWithSite] `gel:"occurrence" json:"occurrence"`
 	Identification     Identification                           `gel:"identification" json:"identification"`
 	SpecimenIdentifier geltypes.OptionalStr                     `gel:"specimen_identifier" json:"specimen_identifier,omitempty"`
+	Meta               people.Meta                              `gel:"meta" json:"meta"`
 }
 
 type AssembledSequenceSpecifics struct {
@@ -89,7 +90,7 @@ func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, er
 				identification: { **, identified_by: { * } },
 				occurrence: {
 					*,
-					identification: { ** },
+					identification: { **, identified_by: { ** } },
 					sampling: {
 						*,
 						target_taxa: { * },
@@ -125,7 +126,7 @@ func ListSequences(db geltypes.Executor) ([]SequenceListItem, error) {
 				occurrence: {
 					id,
 					code,
-					identification: { ** },
+					identification: { **, identified_by: { ** } },
 					sampling: {
 						id,
 						number,
@@ -133,6 +134,7 @@ func ListSequences(db geltypes.Executor) ([]SequenceListItem, error) {
 						site: { *, country: { * } }
 					}
 				},
+				meta: { * }
 			}
 		`,
 		&items)
@@ -158,7 +160,7 @@ func DeleteSequence(db geltypes.Executor, code string) (deleted SequenceListItem
 				) {
 					id,
 					code,
-					identification: { ** },
+					identification: { **, identified_by: { ** } },
 					sampling: { id, number, performed_on, site: { *, country: { * } } }
 				},
 			}

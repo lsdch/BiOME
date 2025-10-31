@@ -46,14 +46,7 @@
       <span class="font-weight-light"> {{ `@${value}` }}</span>
     </template>
     <template #[`item.organisations`]="{ value }">
-      <OrgKindChip
-        v-for="inst in value"
-        :key="inst.code"
-        :kind="inst.kind"
-        :label="inst.code"
-        :hide-label="xs"
-        size="x-small"
-      />
+      <OrgChip v-for="org in value" :org label size="x-small" />
     </template>
 
     <template #[`expanded-row-inject`]="{ item }">
@@ -96,6 +89,7 @@ import OrgKindChip from './OrgKindChip'
 import type { AccountStatus, PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
 import PersonFormDialogMutation from '@/components/forms/people/PersonFormDialogMutation.vue'
+import OrgChip from './OrgChip'
 
 const { xs, smAndUp } = useDisplay()
 

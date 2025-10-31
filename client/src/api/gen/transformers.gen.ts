@@ -236,12 +236,20 @@ export const updateDataSourceResponseTransformer = async (
   return data
 }
 
+const personSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 const optionalArticleSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
 const datasetSchemaResponseTransformer = (data: any) => {
+  data.maintainers = data.maintainers.map((item: any) => {
+    return personSchemaResponseTransformer(item)
+  })
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.publication) {
     data.publication = optionalArticleSchemaResponseTransformer(data.publication)
@@ -264,6 +272,9 @@ export const updateDatasetResponseTransformer = async (
 }
 
 const occurrenceDatasetListItemSchemaResponseTransformer = (data: any) => {
+  data.maintainers = data.maintainers.map((item: any) => {
+    return personSchemaResponseTransformer(item)
+  })
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.publication) {
     data.publication = optionalArticleSchemaResponseTransformer(data.publication)
@@ -313,6 +324,9 @@ const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
 }
 
 const occurrenceDatasetSchemaResponseTransformer = (data: any) => {
+  data.maintainers = data.maintainers.map((item: any) => {
+    return personSchemaResponseTransformer(item)
+  })
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.publication) {
     data.publication = optionalArticleSchemaResponseTransformer(data.publication)
@@ -376,6 +390,9 @@ const siteItemSchemaResponseTransformer = (data: any) => {
 }
 
 const sequenceDatasetSchemaResponseTransformer = (data: any) => {
+  data.maintainers = data.maintainers.map((item: any) => {
+    return personSchemaResponseTransformer(item)
+  })
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.publication) {
     data.publication = optionalArticleSchemaResponseTransformer(data.publication)
@@ -397,6 +414,9 @@ export const getSequenceDatasetResponseTransformer = async (
 }
 
 const siteDatasetSchemaResponseTransformer = (data: any) => {
+  data.maintainers = data.maintainers.map((item: any) => {
+    return personSchemaResponseTransformer(item)
+  })
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.publication) {
     data.publication = optionalArticleSchemaResponseTransformer(data.publication)
@@ -557,7 +577,15 @@ export const searchSitesResponseTransformer = async (data: any): Promise<SearchS
   return data
 }
 
+const optionalPersonSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 const identificationSchemaResponseTransformer = (data: any) => {
+  if (data.identified_by) {
+    data.identified_by = optionalPersonSchemaResponseTransformer(data.identified_by)
+  }
   if (data.identified_on) {
     data.identified_on = optionalDateWithPrecisionSchemaResponseTransformer(data.identified_on)
   }
@@ -825,6 +853,11 @@ export const getBioMaterialResponseTransformer = async (
 
 const organisationSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.people) {
+    data.people = data.people.map((item: any) => {
+      return personSchemaResponseTransformer(item)
+    })
+  }
   return data
 }
 
@@ -855,11 +888,6 @@ export const updateOrganisationResponseTransformer = async (
   data: any
 ): Promise<UpdateOrganisationResponse> => {
   data = organisationSchemaResponseTransformer(data)
-  return data
-}
-
-const personSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -1058,6 +1086,7 @@ const sequenceListItemSchemaResponseTransformer = (data: any) => {
   }
   data.gene = geneSchemaResponseTransformer(data.gene)
   data.identification = identificationSchemaResponseTransformer(data.identification)
+  data.meta = metaSchemaResponseTransformer(data.meta)
   data.occurrence = genericOccurrenceSamplingInnerWithSiteSchemaResponseTransformer(data.occurrence)
   return data
 }

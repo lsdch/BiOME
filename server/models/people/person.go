@@ -39,7 +39,7 @@ type PersonUser struct {
 // Person is the complete informations about a person, including related entities
 type Person struct {
 	PersonUser    `gel:"$inline" json:",inline"`
-	Organisations []OrganisationInner `json:"organisations" gel:"organisations"`
+	Organisations []OrganisationInner `json:"organisations,omitempty" gel:"organisations"`
 	Meta          Meta                `json:"meta" gel:"meta"`
 }
 
@@ -84,6 +84,7 @@ type PersonInput struct {
 	Alias         models.OptionalInput[string] `json:"alias,omitzero" fake:"-"`
 	Contact       models.OptionalInput[string] `json:"contact,omitzero" format:"email"`
 	Comment       models.OptionalInput[string] `json:"comment,omitzero"`
+	ForceCreate   bool                         `json:"force_create,omitzero"`
 }
 
 func (p *PersonInput) WithOrganisationCodes(codes map[string]string) PersonInput {

@@ -11,13 +11,13 @@ import (
 )
 
 type Identification struct {
-	ID           geltypes.UUID                       `gel:"id" json:"id" format:"uuid"`
-	Taxon        taxonomy.Taxon                      `gel:"taxon" json:"taxon"`
-	IdentifiedBy models.Optional[people.PersonInner] `gel:"identified_by" json:"identified_by,omitempty"`
-	IdentifiedOn OptionalDateWithPrecision           `gel:"identified_on" json:"identified_on,omitzero"`
-	Confer       bool                                `gel:"confer" json:"confer"`
-	Addendum     models.Optional[string]             `gel:"addendum" json:"addendum,omitempty"`
-	Meta         people.Meta                         `gel:"meta" json:"meta"`
+	ID           geltypes.UUID                  `gel:"id" json:"id" format:"uuid"`
+	Taxon        taxonomy.Taxon                 `gel:"taxon" json:"taxon"`
+	IdentifiedBy models.Optional[people.Person] `gel:"identified_by" json:"identified_by,omitempty"`
+	IdentifiedOn OptionalDateWithPrecision      `gel:"identified_on" json:"identified_on,omitzero"`
+	Confer       bool                           `gel:"confer" json:"confer"`
+	Addendum     models.Optional[string]        `gel:"addendum" json:"addendum,omitempty"`
+	Meta         people.Meta                    `gel:"meta" json:"meta"`
 }
 
 type IdentificationInput struct {

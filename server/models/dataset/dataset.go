@@ -27,7 +27,7 @@ type DatasetInner struct {
 type Dataset struct {
 	DatasetInner `gel:"$inline" json:",inline"`
 	Publication  models.Optional[references.Article] `gel:"publication" json:"publication,omitempty"`
-	Maintainers  []people.PersonUser                 `gel:"maintainers" json:"maintainers"`
+	Maintainers  []people.Person                     `gel:"maintainers" json:"maintainers"`
 	Meta         people.Meta                         `gel:"meta" json:"meta"`
 }
 
@@ -66,7 +66,7 @@ func ListDatasets(db geltypes.Executor, options ListDatasetOptions) ([]Dataset, 
 	query := `#edgeql
 			with opts := <json>$0
 			select datasets::Dataset { *,
-				maintainers: { *, user: { * } },
+				maintainers: { ** },
 				meta: { * }
 			}
 			filter .pinned = (<bool>json_get(opts, 'pinned') ?? .pinned)
@@ -87,7 +87,7 @@ func GetDataset(db geltypes.Executor, slug string) (dataset Dataset, err error) 
 	err = db.QuerySingle(context.Background(), `#edgeql
 		select datasets::Dataset {
 			*,
-			maintainers: { *, user: { * } },
+			maintainers: { ** },
 			meta: { * },
 		} filter .slug = <str>$0
 	`, &dataset, slug)

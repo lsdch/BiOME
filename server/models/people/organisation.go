@@ -31,14 +31,14 @@ type OrganisationInner struct {
 
 type Organisation struct {
 	OrganisationInner `gel:"$inline" json:",inline"`
-	People            []PersonUser `json:"people,omitempty" gel:"people" doc:"Known members of this organisation"`
-	Meta              Meta         `json:"meta" gel:"meta"`
+	People            []Person `json:"people,omitempty" gel:"people" doc:"Known members of this organisation"`
+	Meta              Meta     `json:"meta" gel:"meta"`
 }
 
 func FindOrganisation(db geltypes.Executor, uuid geltypes.UUID) (org Organisation, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
-			select people::Organisation { *, people:{ *, user: { * } }, meta:{ * } }
+			select people::Organisation { *, people:{ ** }, meta:{ * } }
 			filter .id = <uuid>$0;
 		`, &org, uuid)
 	return org, err
@@ -47,7 +47,7 @@ func FindOrganisation(db geltypes.Executor, uuid geltypes.UUID) (org Organisatio
 func ListOrganisations(db geltypes.Executor) (organisations []Organisation, err error) {
 	err = db.Query(context.Background(),
 		`#edgeql
-			select people::Organisation { *, people:{ * }, meta:{ * } } order by .code;
+			select people::Organisation { *, people:{ ** }, meta:{ * } } order by .code;
 		`, &organisations)
 	return
 }
@@ -57,7 +57,7 @@ func DeleteOrganisation(db geltypes.Executor, code string) (org Organisation, er
 		`#edgeql
 			select(
 				delete people::Organisation filter .code = <str>$0 limit 1
-			) { *, people:{ * }, meta: { * }};
+			) { *, people:{ ** }, meta: { * }};
 		`, &org, code)
 	return
 }
@@ -72,7 +72,7 @@ func (inst OrganisationInput) Save(db geltypes.Executor) (created Organisation, 
 		`#edgeql
 		with module people,
   	data := <json>$0,
-		select (insert_organisation(data)) { *, people:{ * }, meta:{ * } };
+		select (insert_organisation(data)) { *, people:{ ** }, meta:{ * } };
 	`, &created, args)
 	return
 }
