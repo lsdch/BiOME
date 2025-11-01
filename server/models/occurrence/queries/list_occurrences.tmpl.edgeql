@@ -1,7 +1,7 @@
 with module occurrence,
   params := <json>$0,
   search_term := <str>json_get(params, 'search'),
-  category := <OccurrenceCategory>json_get(params, 'category'),
+  category := <str>json_get(params, 'category'),
   taxon_name := <str>json_get(params, 'taxon'),
   taxon := (
     (select taxonomy::Taxon filter .name = taxon_name)
@@ -21,7 +21,7 @@ items := (
       (.code ilike '%%' ++ search_term ++ '%%') and
     {{ end }}
     {{ if .Category.IsSet }}
-    (.category = category if exists category else true) and
+    (.category = ("occurrence::InternalBioMat" if category = "Internal" else "occurrence::ExternalOccurrence")) and
     {{ end }}
     {{ if .Taxon.IsSet }}
     (

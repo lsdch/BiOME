@@ -40,8 +40,9 @@ func main() {
 }
 
 type EnumDecl struct {
-	Decl    *ast.GenDecl
-	Ordered bool
+	Decl             *ast.GenDecl
+	SkipGelUnmarshal bool
+	Ordered          bool
 }
 
 func parseDir(path string) {
@@ -68,7 +69,10 @@ func parseDir(path string) {
 				if genEnum, ok := decl.(*ast.GenDecl); ok && genEnum.Doc != nil {
 					for _, comment := range genEnum.Doc.List {
 						if strings.Contains(comment.Text, "generate:enum") {
-							foundEnums = append(foundEnums, EnumDecl{Decl: genEnum})
+							foundEnums = append(foundEnums, EnumDecl{
+								Decl:             genEnum,
+								SkipGelUnmarshal: strings.Contains(comment.Text, "skip-gel-unmarshal"),
+							})
 						} else if strings.Contains(comment.Text, "generate:order-enum") {
 							foundEnums = append(foundEnums, EnumDecl{Decl: genEnum, Ordered: true})
 						}
@@ -83,9 +87,10 @@ func parseDir(path string) {
 }
 
 type EnumData struct {
-	EnumType   string
-	EnumValues []string
-	Ordered    bool
+	EnumType         string
+	EnumValues       []string
+	Ordered          bool
+	SkipGelUnmarshal bool
 }
 
 type EnumTemplateData struct {
@@ -121,9 +126,10 @@ func generateEnumTemplateData(decls []EnumDecl) []EnumData {
 		}
 		if enumType != "" && len(values) > 0 {
 			enums = append(enums, EnumData{
-				EnumType:   enumType,
-				EnumValues: values,
-				Ordered:    decl.Ordered,
+				EnumType:         enumType,
+				EnumValues:       values,
+				Ordered:          decl.Ordered,
+				SkipGelUnmarshal: decl.SkipGelUnmarshal,
 			})
 		}
 	}

@@ -20,8 +20,6 @@ module occurrence {
     };
   }
 
-  scalar type OccurrenceCategory extending enum<Internal, External>;
-
   function occurrence_code(taxon: taxonomy::Taxon, sampling_code: str) -> str {
     using ( taxonomy::taxon_code(taxon) ++ "[" ++ sampling_code ++ "]" )
   };
@@ -59,15 +57,7 @@ module occurrence {
       # );
     };
 
-    required category := (
-      assert_exists((
-          if __source__ is InternalBioMat then OccurrenceCategory.Internal
-          else if __source__ is ExternalOccurrence then OccurrenceCategory.External
-          else <OccurrenceCategory>{}
-        ),
-        message:= "Occurrence category for subtype " ++ __source__.__type__.name ++ " is undefined"
-      )
-    );
+    required category := (.__type__.name);
 
     # Defines whether this occurrence is the first scientific description of
     # the taxon

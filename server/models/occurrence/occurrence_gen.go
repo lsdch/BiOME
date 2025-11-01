@@ -40,11 +40,6 @@ func (m OccurrenceCategory) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }
 
-func (m *OccurrenceCategory) UnmarshalEdgeDBStr(data []byte) error {
-	*m = OccurrenceCategory(string(data))
-	return nil
-}
-
 
 
 var SiteSamplingStatusValues = []SiteSamplingStatus{

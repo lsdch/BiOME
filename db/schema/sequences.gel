@@ -41,14 +41,7 @@ module seq {
       on target delete allow;
     };
 
-    required category := (
-      assert_exists(
-        if (__source__ is AssembledSequence) then occurrence::OccurrenceCategory.Internal
-        else if (__source__ is ExternalSequence) then occurrence::OccurrenceCategory.External
-        else {},
-        message := "Occurrence category for seq::Sequence subtype " ++ __source__.__type__.name ++ " is undefined"
-      )
-    );
+    required category := (.__type__.name);
 
   }
 

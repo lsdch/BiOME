@@ -59,9 +59,11 @@ func (m {{.EnumType}}) MarshalEdgeDBStr() ([]byte, error) {
 	return []byte(m), nil
 }
 
+{{- if not .SkipGelUnmarshal }}
+
 func (m *{{.EnumType}}) UnmarshalEdgeDBStr(data []byte) error {
 	*m = {{.EnumType}}(string(data))
 	return nil
 }
-
+{{- end}}
 {{- end }}

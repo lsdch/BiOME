@@ -65,8 +65,8 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 							select (dataset.occurrences) {
 								id,
 								code,
-								identification: { ** },
-								required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
+								category,
+								identification: { confer, addendum, identified_on, taxon: { * } },
 							} filter.sampling.id = dataset.sites.samplings.id
 						)
 					}

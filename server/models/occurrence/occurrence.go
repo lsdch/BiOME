@@ -14,11 +14,26 @@ import (
 
 type OccurrenceCategory string
 
-//generate:enum
+//generate:enum skip-gel-unmarshal
 const (
 	Internal OccurrenceCategory = "Internal"
 	External OccurrenceCategory = "External"
 )
+
+func (m *OccurrenceCategory) UnmarshalEdgeDBStr(data []byte) error {
+	s := string(data)
+	switch s {
+	case "occurrence::InternalBioMat":
+	case "seq::AssembledSequence":
+		*m = Internal
+	case "seq::ExternalSequence":
+	case "occurrence::ExternalOccurrence":
+		*m = External
+	default:
+		*m = OccurrenceCategory(s)
+	}
+	return nil
+}
 
 type WithCategory struct {
 	Category OccurrenceCategory `gel:"category" json:"category"`
