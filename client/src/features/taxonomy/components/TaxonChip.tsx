@@ -12,8 +12,8 @@ export type TaxonChipProps = VChip['$props'] & {
 export function TaxonChip({ taxon, short, ...chipProps }: TaxonChipProps) {
   const shortName = (name: string) => {
     const splitName = name.split(' ')
-    if (splitName.length === 1) return name
-    else return `${splitName[0][0]}. ${splitName.slice(1).join(' ')}`
+    if (splitName.length <= 1) return name
+    else return `${splitName[0]![0]}. ${splitName.slice(1).join(' ')}`
   }
 
   return (
