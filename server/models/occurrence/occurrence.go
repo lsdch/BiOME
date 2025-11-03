@@ -5,9 +5,12 @@ import (
 	"encoding/json"
 	"slices"
 
+	_ "embed"
+
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/dataset"
+	"github.com/lsdch/biome/models/occurrence/queries"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/taxonomy"
 )
@@ -85,9 +88,9 @@ type SamplingDetailsWithOccurrences struct {
 }
 
 type OccurrenceAtSite struct {
-	ID             geltypes.UUID  `gel:"id" json:"id" format:"uuid"`
-	Code           string         `gel:"code" json:"code"`
-	Identification Identification `gel:"identification" json:"identification"`
+	ID             geltypes.UUID      `gel:"id" json:"id" format:"uuid"`
+	Code           string             `gel:"code" json:"code"`
+	Identification BaseIdentification `gel:"identification" json:"identification"`
 	// SamplingDate      DateWithPrecision   `gel:"sampling_date" json:"sampling_date"`
 	Category OccurrenceCategory `gel:"category" json:"category"`
 }
@@ -150,105 +153,18 @@ func (o OccurrencesBySiteOptions) Options() OccurrencesBySiteOptions {
 	return o
 }
 
+//go:embed queries/occurrences_by_site.tmpl.edgeql
+var occurrencesBySiteQueryTemplate string
+var occurrencesBySiteQuery = queries.ParseTemplateOrDie(
+	"occurrences_by_site",
+	occurrencesBySiteQueryTemplate,
+)
+
 func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]SiteWithOccurrences, error) {
 	var sites []SiteWithOccurrences
 	filters, _ := json.Marshal(opts)
 	err := db.Query(context.Background(),
-		`#edgeql
-			with module occurrence,
-				filters := <json>$0,
-				country_codes := <str>json_array_unpack(json_get(filters, 'countries')),
-				taxa_names := <str>json_array_unpack(json_get(filters, 'taxa')),
-				taxa := (
-					if exists taxa_names then (
-						select taxonomy::Taxon
-						filter .name in taxa_names
-					) else <taxonomy::Taxon>{}
-				),
-				dataset_slugs := <str>json_array_unpack(json_get(filters, 'datasets')),
-				datasets := (
-					if exists dataset_slugs then (
-						select datasets::Dataset
-						filter .slug in dataset_slugs
-					) else <datasets::Dataset>{}
-				),
-				whole_clade := <bool>json_get(filters, 'whole_clade'),
-				habitats := <str>json_array_unpack(json_get(filters, 'habitats')),
-				sampling_target_kinds := <events::SamplingTarget>json_array_unpack(json_get(filters, 'sampling_target_kinds')),
-				sampling_target_taxa_names := <str>json_array_unpack(json_get(filters, 'sampling_target_taxa')),
-				sampling_target_taxa := (
-					if exists sampling_target_taxa_names then (
-						select taxonomy::Taxon
-						filter .name in sampling_target_taxa_names
-					) else <taxonomy::Taxon>{}
-				),
-				sampling_target_whole_clade := <bool>json_get(filters, 'sampling_target_whole_clade'),
-				sampling_status := <str>json_get(filters, 'include_sites'),
-			select location::Site {
-				*,
-				country: { * },
-				samplings := (
-					select .samplings
-					filter (
-						if exists habitats then all(habitats in .habitats.label) else true
-					)
-					and (
-						if exists sampling_target_kinds then (
-							.sampling_target in sampling_target_kinds
-						) else true
-					)
-					and (
-						if exists sampling_target_taxa then (
-							if sampling_target_whole_clade
-							then any(taxonomy::is_in_clade(.target_taxa, sampling_target_taxa))
-							else any(.target_taxa in sampling_target_taxa)
-						) else true
-					)
-				) {
-					id,
-					date := .performed_on,
-					occurring_taxa: { * },
-					occurrences := (
-						with occurrences := (select .occurrences),
-						select occurrences {
-							id,
-							code,
-							category,
-							identification: { ** },
-						}
-						filter (
-							if exists taxa then (
-								if whole_clade
-								then any(taxonomy::is_in_clade(.identification.taxon, taxa))
-								else .identification.taxon in taxa
-							) else true
-						)
-						and (
-							if exists datasets
-							then occurrences in datasets[is datasets::OccurrenceDataset].occurrences
-							else true
-						)
-					)
-				}
-		 }
-		 filter (
-			# (
-			# 	not exists sampling_status or sampling_status = "All" or (
-			# 		sampling_status = "Sampled" and exists .samplings
-			# 	) or (
-			# 		sampling_status = "Occurrences" and exists .samplings.occurrences
-			# 	)
-			# ) and
-			(if exists country_codes then .country.code in country_codes else true) and
-			# (not exists habitats or exists .samplings) and
-			# (not exists taxa or exists .samplings.occurrences) and
-			# (not exists sampling_target_kinds or exists .samplings) and
-			(if exists datasets then (
-				location::Site in datasets[is datasets::SiteDataset].sites
-				?? datasets[is datasets::OccurrenceDataset].sites
-			) else true)
-		 )
-		`,
+		queries.CompileQuery(occurrencesBySiteQuery, opts),
 		&sites, filters)
 	return sites, err
 }
