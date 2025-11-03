@@ -395,6 +395,28 @@
 				],
 				"type": "object"
 			},
+			"BaseIdentification": {
+				"additionalProperties": false,
+				"properties": {
+					"addendum": {
+						"$ref": "#/components/schemas/OptionalString"
+					},
+					"confer": {
+						"type": "boolean"
+					},
+					"identified_on": {
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
+					},
+					"taxon": {
+						"$ref": "#/components/schemas/Taxon"
+					}
+				},
+				"required": [
+					"taxon",
+					"confer"
+				],
+				"type": "object"
+			},
 			"BibSearchResults": {
 				"additionalProperties": false,
 				"properties": {
@@ -2429,9 +2451,9 @@
 				},
 				"required": [
 					"id",
+					"meta",
 					"taxon",
-					"confer",
-					"meta"
+					"confer"
 				],
 				"type": "object"
 			},
@@ -3302,7 +3324,7 @@
 						"type": "string"
 					},
 					"identification": {
-						"$ref": "#/components/schemas/Identification"
+						"$ref": "#/components/schemas/BaseIdentification"
 					}
 				},
 				"required": [

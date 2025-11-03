@@ -336,6 +336,26 @@ export const $AuthenticationResponse = {
   type: 'object'
 } as const
 
+export const $BaseIdentification = {
+  additionalProperties: false,
+  properties: {
+    addendum: {
+      $ref: '#/components/schemas/OptionalString'
+    },
+    confer: {
+      type: 'boolean'
+    },
+    identified_on: {
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
+    },
+    taxon: {
+      $ref: '#/components/schemas/Taxon'
+    }
+  },
+  required: ['taxon', 'confer'],
+  type: 'object'
+} as const
+
 export const $BibSearchResults = {
   additionalProperties: false,
   properties: {
@@ -2109,7 +2129,7 @@ export const $Identification = {
       $ref: '#/components/schemas/Taxon'
     }
   },
-  required: ['id', 'taxon', 'confer', 'meta'],
+  required: ['id', 'meta', 'taxon', 'confer'],
   type: 'object'
 } as const
 
@@ -2921,7 +2941,7 @@ export const $OccurrenceAtSite = {
       type: 'string'
     },
     identification: {
-      $ref: '#/components/schemas/Identification'
+      $ref: '#/components/schemas/BaseIdentification'
     }
   },
   required: ['id', 'code', 'identification', 'category'],

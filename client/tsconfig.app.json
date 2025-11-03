@@ -4,7 +4,8 @@
     "src/types/*.d.ts",
     "src/**/*",
     "src/**/*.vue",
-    "openapi-ts.config.ts"
+    "openapi-ts.config.ts",
+    "src/api/openapi-client.cfg.ts"
   ],
   "exclude": [
     "src/db/edgeql-js/**/*",

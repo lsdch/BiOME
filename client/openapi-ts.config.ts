@@ -19,7 +19,7 @@ const config: Promise<UserConfig> = defineConfig({
     ...defaultPlugins,
     {
       name: '@hey-api/client-fetch',
-      runtimeConfigPath: './openapi-client.cfg.ts'
+      runtimeConfigPath: '../openapi-client.cfg.ts'
     },
     {
       name: '@tanstack/vue-query',
