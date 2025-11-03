@@ -23,11 +23,9 @@ const (
 func (m *OccurrenceCategory) UnmarshalEdgeDBStr(data []byte) error {
 	s := string(data)
 	switch s {
-	case "occurrence::InternalBioMat":
-	case "seq::AssembledSequence":
+	case "occurrence::InternalBioMat", "seq::AssembledSequence":
 		*m = Internal
-	case "seq::ExternalSequence":
-	case "occurrence::ExternalOccurrence":
+	case "seq::ExternalSequence", "occurrence::ExternalOccurrence":
 		*m = External
 	default:
 		*m = OccurrenceCategory(s)
