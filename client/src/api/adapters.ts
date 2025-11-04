@@ -358,6 +358,11 @@ export namespace Geoapify {
 export type Identification = TIdentification
 export namespace Identification {
 
+  export function taxonString({ taxon, confer }: Pick<Identification, 'taxon' | 'confer'>) {
+    const interspersed = intersperseConfer(taxon, confer)
+    return taxon.rank == 'Genus' ? `${interspersed} sp.` : interspersed
+  }
+
   export function intersperseConfer(taxon: Taxon, confer: boolean) {
     if (!confer) return taxon.name
     const splitName = taxon.name.split(' ')

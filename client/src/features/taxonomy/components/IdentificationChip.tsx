@@ -9,12 +9,6 @@ export type IdentificationChipProps = VChip['$props'] & {
   short?: boolean
 }
 
-function shortName(name: string) {
-  const splitName = name.split(' ')
-  if (splitName.length === 1) return name
-  else return `${splitName[0][0]}. ${splitName.slice(1).join(' ')}`
-}
-
 export function IdentificationChip({
   identification: { taxon, confer },
   short,
@@ -25,7 +19,9 @@ export function IdentificationChip({
       {{
         activator: ({ props }: { props: any }) => (
           <v-chip
-            text={short ? shortName(taxon.name) : Identification.intersperseConfer(taxon, confer)}
+            text={
+              short ? Taxon.shortName(taxon.name) : Identification.taxonString({ taxon, confer })
+            }
             {...{ ...props, ...chipProps }}
             onClick={withModifiers(() => {}, ['stop'])}
           >
