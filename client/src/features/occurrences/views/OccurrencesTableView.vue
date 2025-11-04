@@ -58,13 +58,16 @@
           <v-list density="compact">
             <v-list-item prepend-icon="mdi-family-tree">
               <TaxonPicker
-                v-model="filters.taxon"
+                v-model="filters.taxa"
                 item-value="name"
                 label="Assigned taxon"
                 density="compact"
                 class="mt-1"
                 hide-details
                 clearable
+                multiple
+                chips
+                clearable-chips
               />
               <v-switch
                 label="Include whole clade"
@@ -215,9 +218,9 @@ type BiomatTableFilters = {
   is_type?: boolean
   has_sequences?: boolean
   confer?: boolean
-  taxon?: string
   whole_clade?: boolean
   status?: TaxonStatus
+  taxa?: string[]
 }
 
 const filters = ref<BiomatTableFilters>({})

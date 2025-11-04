@@ -109,14 +109,13 @@ var BioMatSortMap = map[BioMatSortKey]string{
 type ListOccurrencesOptions struct {
 	models.Pagination `json:",inline"`
 	models.SortBy[BioMatSortKey]
-	models.Filter `json:",inline"`
-	Category      models.OptionalInput[OccurrenceCategory]   `query:"category" json:"category,omitzero"`
-	Taxon         models.OptionalInput[string]               `query:"taxon" json:"taxon,omitzero"`
-	WholeClade    bool                                       `query:"whole_clade" json:"whole_clade"`
-	HasSequences  models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
-	Confer        models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
-	IsType        models.OptionalInput[bool]                 `query:"is_type" json:"is_type,omitzero"`
-	Status        models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
+	models.Filter        `json:",inline"`
+	taxonomy.TaxaFilters `json:",inline"`
+	Category             models.OptionalInput[OccurrenceCategory]   `query:"category" json:"category,omitzero"`
+	HasSequences         models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
+	Confer               models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
+	IsType               models.OptionalInput[bool]                 `query:"is_type" json:"is_type,omitzero"`
+	Status               models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
 }
 
 func (o ListOccurrencesOptions) Options() ListOccurrencesOptions {
@@ -135,18 +134,17 @@ func (i ListOccurrencesOptions) OrderByString() string {
 	}
 }
 
-//go:embed queries/list_occurrences.tmpl.edgeql
-var listOccurrencesQueryTemplate string
-var listOccurrencesQuery = queries.ParseTemplateOrDie("list_occurrences_query", listOccurrencesQueryTemplate)
-
 func ListOccurrences(db geltypes.Executor, opts ListOccurrencesOptions) (models.PaginatedList[OccurrenceListItem], error) {
+	if err := opts.TaxaFilters.FetchTaxa(db); err != nil {
+		return models.PaginatedList[OccurrenceListItem]{}, err
+	}
 	params, _ := json.Marshal(opts)
 	logrus.Debugf("Params: %s", string(params))
 	var result = models.PaginatedList[OccurrenceListItem]{
 		Items: []OccurrenceListItem{},
 	}
 	err := db.QuerySingle(context.Background(),
-		queries.CompileQuery(listOccurrencesQuery, opts),
+		queries.RenderTemplate("list_occurrences.tmpl.edgeql", opts),
 		&result, params, opts.OrderByString())
 	return result, err
 }

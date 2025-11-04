@@ -3055,6 +3055,12 @@ export class OccurrencesService {
       ListOccurrencesErrors,
       ThrowOnError
     >({
+      querySerializer: {
+        array: {
+          explode: false,
+          style: 'form'
+        }
+      },
       responseTransformer: listOccurrencesResponseTransformer,
       security: [
         {

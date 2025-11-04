@@ -2,9 +2,18 @@ package queries
 
 import (
 	"bytes"
-	_ "embed"
+	"embed"
+	"strings"
 	"text/template"
+
+	"github.com/sirupsen/logrus"
 )
+
+//go:embed *.tmpl.edgeql
+var templateFS embed.FS
+var queryTemplates = template.Must(template.New("").Funcs(template.FuncMap{
+	"ToLower": strings.ToLower,
+}).ParseFS(templateFS, "*.tmpl.edgeql"))
 
 type shapeT string
 
@@ -20,8 +29,8 @@ func ParseTemplateOrDie(name string, tmplStr string) *template.Template {
 	return template.Must(template.New(name).Parse(tmplStr))
 }
 
-func buildQueryWithShape(q withShape, templ *template.Template) string {
-	return CompileQuery(templ, q) + " " + q.Shape() + "\n"
+func renderWithShape(name string, q withShape) string {
+	return RenderTemplate(name, q) + " " + q.Shape() + "\n"
 }
 
 func CompileQuery(tmpl *template.Template, data any) string {
@@ -30,16 +39,18 @@ func CompileQuery(tmpl *template.Template, data any) string {
 	return buf.String()
 }
 
+func RenderTemplate(name string, data any) string {
+	var buf = bytes.Buffer{}
+	err := queryTemplates.ExecuteTemplate(&buf, name, data)
+	if err != nil {
+		logrus.Error(err)
+	}
+	return buf.String()
+}
+
 /****************************
  * Sampling
  ****************************/
-
-//go:embed insert_sampling.tmpl.edgeql
-var insertSamplingQueryFile string
-var insertSamplingTemplate = ParseTemplateOrDie(
-	"insert_sampling",
-	insertSamplingQueryFile,
-)
 
 type insertSamplingQuery struct {
 	Site string
@@ -53,19 +64,12 @@ func SamplingQuery(site string, JSON string, shape string) (res string) {
 		JSON:   JSON,
 		shapeT: shapeT(shape),
 	}
-	return buildQueryWithShape(q, insertSamplingTemplate)
+	return renderWithShape("insert_sampling.tmpl.edgeql", q)
 }
 
 /****************************
  * Abiotics
  ****************************/
-
-//go:embed insert_abiotic.tmpl.edgeql
-var insertAbioticQueryFile string
-var insertAbioticTemplate = ParseTemplateOrDie(
-	"insert_abiotic",
-	insertAbioticQueryFile,
-)
 
 type insertAbioticQuery struct {
 	Site string
@@ -79,19 +83,12 @@ func AbioticQuery(site string, JSON string, shape string) (res string) {
 		JSON:   JSON,
 		shapeT: shapeT(shape),
 	}
-	return buildQueryWithShape(q, insertAbioticTemplate)
+	return renderWithShape("insert_abiotic.tmpl.edgeql", q)
 }
 
 /****************************
  * Internal Biomaterial
  ****************************/
-
-//go:embed insert_internal_biomat.tmpl.edgeql
-var insertInternalBioMatQueryFile string
-var insertInternalBioMatTemplate = ParseTemplateOrDie(
-	"insert_internal_biomat",
-	insertInternalBioMatQueryFile,
-)
 
 type insertInternalBioMatQuery struct {
 	Sampling string
@@ -105,24 +102,17 @@ func InternalBioMatQuery(sampling string, JSON string, shape string) (res string
 		JSON:     JSON,
 		shapeT:   shapeT(shape),
 	}
-	return buildQueryWithShape(q, insertInternalBioMatTemplate)
+	return renderWithShape("insert_internal_biomat.tmpl.edgeql", q)
 }
 
 /****************************
  * External Occurrence
  ****************************/
 
-//go:embed insert_external_occurrence.tmpl.edgeql
-var insertExternalOccurrenceQueryFile string
-var insertExternalOccurrenceTemplate = ParseTemplateOrDie(
-	"insert_external_occurrence",
-	insertExternalOccurrenceQueryFile,
-)
-
 type insertExternalOccurrenceQuery struct {
 	Sampling            string
 	JSON                string
-	InsertSequenceQuery string
+	InsertSequenceQuery insertExternalSequenceQuery
 	shapeT
 }
 
@@ -130,22 +120,15 @@ func ExternalOccurrenceQuery(sampling string, JSON string, shape string) (res st
 	q := insertExternalOccurrenceQuery{
 		Sampling:            sampling,
 		JSON:                JSON,
-		InsertSequenceQuery: ExternalSequenceQuery("occurrence", "seq_data", ""),
+		InsertSequenceQuery: insertExternalSequenceQuery{"occurrence", "seq_data", ""},
 		shapeT:              shapeT(shape),
 	}
-	return buildQueryWithShape(q, insertExternalOccurrenceTemplate)
+	return renderWithShape("insert_external_occurrence.tmpl.edgeql", q)
 }
 
 /****************************
  * External Sequence
  ****************************/
-
-//go:embed insert_external_sequence.tmpl.edgeql
-var insertExternalSequenceQueryFile string
-var insertExternalSequenceTemplate = ParseTemplateOrDie(
-	"insert_external_sequence",
-	insertExternalSequenceQueryFile,
-)
 
 type insertExternalSequenceQuery struct {
 	Occurrence string
@@ -157,5 +140,5 @@ func ExternalSequenceQuery(occurrence string, JSON string, shape string) (res st
 	q := insertExternalSequenceQuery{
 		occurrence, JSON, shapeT(shape),
 	}
-	return buildQueryWithShape(q, insertExternalSequenceTemplate)
+	return renderWithShape("insert_external_sequence.tmpl.edgeql", q)
 }

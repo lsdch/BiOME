@@ -4727,9 +4727,9 @@ export type ListOccurrencesData = {
     order?: string
     search?: string
     owned?: boolean
-    category?: OccurrenceCategory
-    taxon?: string
+    taxa?: Array<string>
     whole_clade?: boolean
+    category?: OccurrenceCategory
     has_sequences?: boolean
     confer?: boolean
     is_type?: boolean

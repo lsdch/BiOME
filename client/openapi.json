@@ -12434,17 +12434,12 @@
 					{
 						"explode": false,
 						"in": "query",
-						"name": "category",
+						"name": "taxa",
 						"schema": {
-							"$ref": "#/components/schemas/OccurrenceCategory"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "taxon",
-						"schema": {
-							"type": "string"
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
 						}
 					},
 					{
@@ -12453,6 +12448,14 @@
 						"name": "whole_clade",
 						"schema": {
 							"type": "boolean"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "category",
+						"schema": {
+							"$ref": "#/components/schemas/OccurrenceCategory"
 						}
 					},
 					{

@@ -140,8 +140,7 @@ const (
 
 type OccurrencesBySiteOptions struct {
 	ListSitesOptions
-	Taxa                     []string             `json:"taxa,omitempty" query:"taxa"`
-	WholeClade               bool                 `json:"whole_clade" query:"whole_clade"`
+	taxonomy.TaxaFilters     `json:",inline"`
 	Habitats                 []string             `json:"habitats,omitempty" query:"habitats"`
 	SamplingTargetKinds      []SamplingTargetKind `json:"sampling_target_kinds,omitempty" query:"sampling_target_kinds" doc:"List of sampling target names. \"Community\" "`
 	SamplingTargetTaxa       []string             `json:"sampling_target_taxa,omitempty" query:"sampling_target_taxa"`
@@ -153,18 +152,14 @@ func (o OccurrencesBySiteOptions) Options() OccurrencesBySiteOptions {
 	return o
 }
 
-//go:embed queries/occurrences_by_site.tmpl.edgeql
-var occurrencesBySiteQueryTemplate string
-var occurrencesBySiteQuery = queries.ParseTemplateOrDie(
-	"occurrences_by_site",
-	occurrencesBySiteQueryTemplate,
-)
-
 func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]SiteWithOccurrences, error) {
+	if err := opts.FetchTaxa(db); err != nil {
+		return nil, err
+	}
 	var sites []SiteWithOccurrences
 	filters, _ := json.Marshal(opts)
 	err := db.Query(context.Background(),
-		queries.CompileQuery(occurrencesBySiteQuery, opts),
+		queries.RenderTemplate("occurrences_by_site.tmpl.edgeql", opts),
 		&sites, filters)
 	return sites, err
 }

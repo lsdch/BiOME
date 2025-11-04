@@ -37,7 +37,7 @@ with module occurrence,
   sequences := (
     for seq_data in json_array_unpack(json_get(data, 'sequences'))
     union (
-      {{ .InsertSequenceQuery }}
+      {{ template "insert_external_sequence.tmpl.edgeql" .InsertSequenceQuery }}
     )
   ),
   select occurrence
