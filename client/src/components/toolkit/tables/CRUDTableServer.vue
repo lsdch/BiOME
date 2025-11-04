@@ -392,5 +392,6 @@ const loading = computedAsync(async () => {
 }
 #search-menu .v-overlay__content {
   left: 0px !important;
+  top: 0px !important;
 }
 </style>
