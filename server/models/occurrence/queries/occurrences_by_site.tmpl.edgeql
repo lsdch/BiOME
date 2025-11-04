@@ -61,7 +61,7 @@ select location::Site {
         filter (
           {{ template "taxa_filters" .TaxaFilters }}
           {{ if .Datasets }}
-            occurrences in datasets[is datasets::OccurrenceDataset].occurrences and
+            any(.datasets in datasets[is datasets::OccurrenceDataset]) and
           {{ end }}
           true
         )
