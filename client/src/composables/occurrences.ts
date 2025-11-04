@@ -36,7 +36,7 @@ export function computeRichness(data: SiteWithOccurrences[], rank: TaxonRank): n
   return data.reduce(
     (acc, { samplings }) => acc + samplings.flatMap(
       (s) => s.occurrences.filter(
-        (o) => o.taxon.rank === rank || (rank === 'Species' && o.taxon.rank === 'Subspecies')
+        (o) => o.identification.taxon.rank === rank || (rank === 'Species' && o.identification.taxon.rank === 'Subspecies')
       )
     ).length, 0)
 }
