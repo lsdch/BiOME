@@ -14,6 +14,7 @@ import (
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models/occurrence"
+	"github.com/lsdch/biome/models/taxonomy"
 	"github.com/lsdch/biome/services/crossref"
 
 	"github.com/caltechlibrary/crossrefapi"
@@ -47,6 +48,9 @@ func New(r *gin.Engine, basePath string, config huma.Config) Router {
 	registry.RegisterTypeAlias(reflect.TypeFor[occurrence.OptionalHabitatRecord](), reflect.TypeFor[occurrence.HabitatRecord]())
 
 	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.Person](), reflect.TypeFor[crossref.CrossRefPerson]())
+
+	registry.Map()[SchemaNamer(reflect.TypeFor[taxonomy.TaxaFilters](), "TaxaFilters")] = huma.SchemaFromType(registry, reflect.TypeFor[taxonomy.TaxaFilters]())
+
 	API.OpenAPI().Components.Schemas = registry
 
 	return Router{

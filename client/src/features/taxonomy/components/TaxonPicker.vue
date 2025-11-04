@@ -19,13 +19,16 @@
     :list-props="{ class: 'position-relative' }"
     v-bind="$attrs"
   >
+    <template #append-inner="props">
+      <slot name="append-inner" v-bind="props" />
+    </template>
     <template #prepend-inner="props">
       <slot name="prepend-inner" v-bind="props" />
     </template>
     <template #prepend-item>
       <slot name="prepend-item" />
     </template>
-    <template #chip="{ item, props }" v-if="chips">
+    <template #chip="{ item, props }" v-if="chips && returnObject">
       <slot name="chip" :props :item>
         <TaxonChip :taxon="item.raw" v-bind="props" />
       </slot>
@@ -39,10 +42,10 @@
           {{ item.raw.authorship }}
         </template>
         <template #append>
-          <v-chip>
+          <span class="text-muted text-caption">
             {{ item.raw.rank }}
-            <!-- <span v-html="highlight(item.raw, 'rank')"></span> -->
-          </v-chip>
+          </span>
+          <!-- <span v-html="highlight(item.raw, 'rank')"></span> -->
           <FTaxonStatusIndicator :status="item.raw.status" />
         </template>
       </v-list-item>

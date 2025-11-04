@@ -6475,6 +6475,23 @@ export const $Status = {
   type: 'object'
 } as const
 
+export const $TaxaFilters = {
+  additionalProperties: false,
+  properties: {
+    taxa: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    whole_clade: {
+      default: false,
+      type: 'boolean'
+    }
+  },
+  type: 'object'
+} as const
+
 export const $Taxon = {
   additionalProperties: false,
   properties: {

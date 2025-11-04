@@ -2367,6 +2367,11 @@ export type Status = {
   requests: number
 }
 
+export type TaxaFilters = {
+  taxa?: Array<string>
+  whole_clade?: boolean
+}
+
 export type Taxon = {
   /**
    * A URL to the JSON Schema for this object.

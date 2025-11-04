@@ -51,23 +51,22 @@ select location::Site {
     date := .performed_on,
     occurring_taxa: { * },
     occurrences := (
-      with occurrences := (select .occurrences),
-      select occurrences {
+      select .occurrences {
         id,
         code,
         category,
         identification: { confer, addendum, identified_on, taxon: { * } },
       }
-      {{ if or .Taxa .Datasets }}
-      filter (
-        {{ template "taxa_filters" .TaxaFilters }}
-        {{ if .Datasets }}
-          occurrences in datasets[is datasets::OccurrenceDataset].occurrences and
-        {{ end }}
-        true
-      )
-      {{ end}}
-    )
+      {{- if or .Taxa .Datasets }}
+        filter (
+          {{ template "taxa_filters" .TaxaFilters }}
+          {{ if .Datasets }}
+            occurrences in datasets[is datasets::OccurrenceDataset].occurrences and
+          {{ end }}
+          true
+        )
+        {{ end}}
+      ),
   }
 }
 filter (

@@ -8,7 +8,7 @@ import (
 
 type TaxaFilters struct {
 	Taxa       []string               `query:"taxa" json:"taxa,omitempty"`
-	WholeClade bool                   `query:"whole_clade" json:"whole_clade"`
+	WholeClade bool                   `query:"whole_clade" json:"whole_clade,omitempty" default:"false"`
 	TaxaByRank map[TaxonRank][]string `json:"-"`
 }
 

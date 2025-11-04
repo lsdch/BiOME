@@ -10,17 +10,15 @@
 
 {{define "taxa_filters"}}
 {{- if .Taxa }}
-  {{ if .WholeClade }}
-  (
-    (.identification.taxon in taxa) or
-    {{ range $rank, $names := .TaxaByRank }}
-      (.identification.taxon.{{- (printf "%s" $rank) | ToLower }} in taxa) or
-    {{ end }}
-    false
-  )
-  {{ else }}
+  {{- if .WholeClade }}
+  any({.identification.taxon
+  {{- range $rank, $names := .TaxaByRank -}}
+    , .identification.taxon.{{- (printf "%s" $rank) | ToLower -}}
+  {{- end -}}
+  } in taxa)
+  {{- else }}
   .identification.taxon in taxa
-  {{ end}}
+  {{- end}}
   and
 {{- end }}
 {{end}}

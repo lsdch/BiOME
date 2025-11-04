@@ -57,23 +57,17 @@
         <v-col cols="12" md="6">
           <v-list density="compact">
             <v-list-item prepend-icon="mdi-family-tree">
-              <TaxonPicker
-                v-model="filters.taxa"
+              <TaxonFilterPicker
+                v-model:taxa="filters.taxa"
+                v-model:whole-clade="filters.whole_clade"
                 item-value="name"
                 label="Assigned taxon"
                 density="compact"
                 class="mt-1"
-                hide-details
                 clearable
                 multiple
                 chips
                 clearable-chips
-              />
-              <v-switch
-                label="Include whole clade"
-                color="primary"
-                v-model="filters.whole_clade"
-                hide-details
               />
               <v-select
                 v-model="filters.status"
@@ -206,6 +200,7 @@ import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
 import OccurrenceCategorySelect from '@/features/occurrences/components/OccurrenceCategorySelect.vue'
 import PersonChip from '@/features/people/components/PersonChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
+import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { useInfiniteQuery, useQueryClient } from '@tanstack/vue-query'
 import { onMounted, ref } from 'vue'

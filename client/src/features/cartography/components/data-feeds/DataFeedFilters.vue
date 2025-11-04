@@ -17,59 +17,24 @@
       />
     </v-list-item>
     <v-list-item>
-      <TaxonPicker
-        v-model="filters.taxa"
-        item-value="name"
+      <TaxonFilterPicker
+        v-model:taxa="filters.taxa"
+        v-model:whole-clade="filters.whole_clade"
         density="compact"
         multiple
         chips
         closable-chips
         hide-details
-        :ranks="sampledTaxa.rank"
-        :sampled-only="sampledTaxa.sampledOnly"
-      >
-        <template #prepend-item>
-          <div class="d-flex px-4 align-start position-sticky ga-3">
-            <v-switch
-              v-model="sampledTaxa.sampledOnly"
-              label="Sampled only"
-              color="primary"
-              hide-details
-              density="compact"
-            />
-            <v-spacer />
-            <TaxonRankPicker
-              v-model="sampledTaxa.rank"
-              label="Rank"
-              hide-details
-              density="compact"
-            />
-          </div>
-          <v-divider />
-        </template>
-      </TaxonPicker>
-    </v-list-item>
-    <v-list-item>
-      <v-switch
-        class="px-2"
-        label="Use clade"
-        v-model="filters.whole_clade"
-        color="primary"
-        density="compact"
-        :disabled="!filters.taxa?.length"
-        hide-details
-      >
-        <template #append>
-          <InlineHelp>
-            When enabled, all occurrences of descendant taxa will be included.
-          </InlineHelp>
-        </template>
-      </v-switch>
+      />
     </v-list-item>
     <v-divider class="my-2" />
 
     <v-list-item>
-      <SamplingTargetKindFilter density="compact" v-model="filters.sampling_target_kinds">
+      <SamplingTargetKindFilter
+        density="compact"
+        v-model="filters.sampling_target_kinds"
+        hide-details
+      >
         <template #chip="{ item, props }">
           <v-chip
             v-bind="props"
@@ -98,8 +63,9 @@
       </SamplingTargetKindFilter>
     </v-list-item>
     <v-list-item>
-      <TaxonPicker
-        v-model="filters.sampling_target_taxa"
+      <TaxonFilterPicker
+        v-model:taxa="filters.sampling_target_taxa"
+        v-model:whole-clade="filters.sampling_target_whole_clade"
         label="Targeted taxa"
         item-value="name"
         density="compact"
@@ -109,23 +75,6 @@
         clearable
         hide-details
       />
-    </v-list-item>
-    <v-list-item>
-      <v-switch
-        class="px-2"
-        label="Use clade"
-        v-model="filters.sampling_target_whole_clade"
-        color="primary"
-        density="compact"
-        :disabled="!filters.sampling_target_taxa?.length"
-        hide-details
-      >
-        <template #append>
-          <InlineHelp>
-            When enabled, all occurrences of descendant taxa will be included.
-          </InlineHelp>
-        </template>
-      </v-switch>
     </v-list-item>
 
     <v-divider class="my-2" />
@@ -157,13 +106,11 @@
 
 <script setup lang="ts">
 import { HabitatRecord, OccurrencesBySiteData } from '@/api'
-import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
-import HabitatPicker from '@/features/registries/components/habitat/HabitatPicker.vue'
-import SamplingTargetKindFilter from '@/features/occurrences/components/SamplingTargetKindPicker.vue'
-import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
-import TaxonRankPicker from '@/features/taxonomy/components/TaxonRankPicker'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
-import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
+import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
+import SamplingTargetKindFilter from '@/features/occurrences/components/SamplingTargetKindPicker.vue'
+import HabitatPicker from '@/features/registries/components/habitat/HabitatPicker.vue'
+import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { reactive, ref, watch } from 'vue'
 

@@ -7378,6 +7378,22 @@
 				],
 				"type": "object"
 			},
+			"TaxaFilters": {
+				"additionalProperties": false,
+				"properties": {
+					"taxa": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"whole_clade": {
+						"default": false,
+						"type": "boolean"
+					}
+				},
+				"type": "object"
+			},
 			"Taxon": {
 				"additionalProperties": false,
 				"properties": {
@@ -12447,6 +12463,7 @@
 						"in": "query",
 						"name": "whole_clade",
 						"schema": {
+							"default": false,
 							"type": "boolean"
 						}
 					},
@@ -12593,6 +12610,7 @@
 						"in": "query",
 						"name": "whole_clade",
 						"schema": {
+							"default": false,
 							"type": "boolean"
 						}
 					},
