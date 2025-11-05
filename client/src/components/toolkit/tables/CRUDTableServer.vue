@@ -257,7 +257,7 @@ import {
 } from '@tanstack/vue-query'
 import { computedAsync, promiseTimeout, set, useToggle } from '@vueuse/core'
 import { storeToRefs } from 'pinia'
-import { computed, ComputedRef, reactive, ref, useSlots } from 'vue'
+import { computed, ComputedRef, onMounted, reactive, ref, useSlots } from 'vue'
 import { TableSlots, ToolbarProps, useTableSort } from '.'
 import MetaChip from '@/components/toolkit/MetaChip'
 import SortLastUpdatedBtn from '@/components/toolkit/ui/SortLastUpdatedBtn.vue'
@@ -374,6 +374,10 @@ async function prefetchNext(currentPage: number) {
     })
   })
 }
+
+onMounted(() => {
+  prefetchNext(pagination.value.page)
+})
 
 const loading = computedAsync(async () => {
   return (
