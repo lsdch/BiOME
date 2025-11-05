@@ -2838,9 +2838,17 @@ export class LocationService {
   ) {
     return (options?.client ?? client).get<ListSitesResponses, ListSitesErrors, ThrowOnError>({
       querySerializer: {
-        array: {
-          explode: false,
-          style: 'form'
+        parameters: {
+          datasets: {
+            array: {
+              explode: false
+            }
+          },
+          countries: {
+            array: {
+              explode: false
+            }
+          }
         }
       },
       responseTransformer: listSitesResponseTransformer,
@@ -3056,9 +3064,12 @@ export class OccurrencesService {
       ThrowOnError
     >({
       querySerializer: {
-        array: {
-          explode: false,
-          style: 'form'
+        parameters: {
+          taxa: {
+            array: {
+              explode: false
+            }
+          }
         }
       },
       responseTransformer: listOccurrencesResponseTransformer,
@@ -3090,9 +3101,37 @@ export class OccurrencesService {
       ThrowOnError
     >({
       querySerializer: {
-        array: {
-          explode: false,
-          style: 'form'
+        parameters: {
+          datasets: {
+            array: {
+              explode: false
+            }
+          },
+          countries: {
+            array: {
+              explode: false
+            }
+          },
+          taxa: {
+            array: {
+              explode: false
+            }
+          },
+          habitats: {
+            array: {
+              explode: false
+            }
+          },
+          sampling_target_kinds: {
+            array: {
+              explode: false
+            }
+          },
+          sampling_target_taxa: {
+            array: {
+              explode: false
+            }
+          }
         }
       },
       responseTransformer: occurrencesBySiteResponseTransformer,
@@ -4071,9 +4110,12 @@ export class TaxonomyService {
   ) {
     return (options?.client ?? client).get<ListTaxaResponses, ListTaxaErrors, ThrowOnError>({
       querySerializer: {
-        array: {
-          explode: false,
-          style: 'form'
+        parameters: {
+          ranks: {
+            array: {
+              explode: false
+            }
+          }
         }
       },
       responseTransformer: listTaxaResponseTransformer,

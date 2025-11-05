@@ -93,15 +93,6 @@ import type {
   UpdateTaxonResponse
 } from './types.gen'
 
-export const listAbioticParametersResponseTransformer = async (
-  data: any
-): Promise<ListAbioticParametersResponse> => {
-  data = data.map((item: any) => {
-    return abioticParameterSchemaResponseTransformer(item)
-  })
-  return data
-}
-
 const abioticParameterSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
@@ -113,6 +104,15 @@ const metaSchemaResponseTransformer = (data: any) => {
   if (data.modified) {
     data.modified = new Date(data.modified)
   }
+  return data
+}
+
+export const listAbioticParametersResponseTransformer = async (
+  data: any
+): Promise<ListAbioticParametersResponse> => {
+  data = data.map((item: any) => {
+    return abioticParameterSchemaResponseTransformer(item)
+  })
   return data
 }
 
@@ -137,13 +137,18 @@ export const updateAbioticParameterResponseTransformer = async (
   return data
 }
 
+const authenticationResponseSchemaResponseTransformer = (data: any) => {
+  data.auth_token_expiration = new Date(data.auth_token_expiration)
+  return data
+}
+
 export const loginResponseTransformer = async (data: any): Promise<LoginResponse> => {
   data = authenticationResponseSchemaResponseTransformer(data)
   return data
 }
 
-const authenticationResponseSchemaResponseTransformer = (data: any) => {
-  data.auth_token_expiration = new Date(data.auth_token_expiration)
+const pendingUserRequestSchemaResponseTransformer = (data: any) => {
+  data.created_on = new Date(data.created_on)
   return data
 }
 
@@ -153,11 +158,6 @@ export const listPendingUserRequestsResponseTransformer = async (
   data = data.map((item: any) => {
     return pendingUserRequestSchemaResponseTransformer(item)
   })
-  return data
-}
-
-const pendingUserRequestSchemaResponseTransformer = (data: any) => {
-  data.created_on = new Date(data.created_on)
   return data
 }
 
@@ -189,6 +189,11 @@ export const claimInvitationResponseTransformer = async (
   return data
 }
 
+const taxonWithParentRefSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 export const listAnchorsResponseTransformer = async (data: any): Promise<ListAnchorsResponse> => {
   data = data.map((item: any) => {
     return taxonWithParentRefSchemaResponseTransformer(item)
@@ -196,7 +201,7 @@ export const listAnchorsResponseTransformer = async (data: any): Promise<ListAnc
   return data
 }
 
-const taxonWithParentRefSchemaResponseTransformer = (data: any) => {
+const dataSourceSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
@@ -207,11 +212,6 @@ export const listDataSourcesResponseTransformer = async (
   data = data.map((item: any) => {
     return dataSourceSchemaResponseTransformer(item)
   })
-  return data
-}
-
-const dataSourceSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -236,13 +236,6 @@ export const updateDataSourceResponseTransformer = async (
   return data
 }
 
-export const listDatasetsResponseTransformer = async (data: any): Promise<ListDatasetsResponse> => {
-  data = data.map((item: any) => {
-    return datasetSchemaResponseTransformer(item)
-  })
-  return data
-}
-
 const datasetSchemaResponseTransformer = (data: any) => {
   data.maintainers = data.maintainers.map((item: any) => {
     return personSchemaResponseTransformer(item)
@@ -264,19 +257,17 @@ const optionalArticleSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+export const listDatasetsResponseTransformer = async (data: any): Promise<ListDatasetsResponse> => {
+  data = data.map((item: any) => {
+    return datasetSchemaResponseTransformer(item)
+  })
+  return data
+}
+
 export const updateDatasetResponseTransformer = async (
   data: any
 ): Promise<UpdateDatasetResponse> => {
   data = datasetSchemaResponseTransformer(data)
-  return data
-}
-
-export const listOccurrenceDatasetsResponseTransformer = async (
-  data: any
-): Promise<ListOccurrenceDatasetsResponse> => {
-  data = data.map((item: any) => {
-    return occurrenceDatasetListItemSchemaResponseTransformer(item)
-  })
   return data
 }
 
@@ -291,10 +282,12 @@ const occurrenceDatasetListItemSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const getOccurrenceDatasetResponseTransformer = async (
+export const listOccurrenceDatasetsResponseTransformer = async (
   data: any
-): Promise<GetOccurrenceDatasetResponse> => {
-  data = occurrenceDatasetSchemaResponseTransformer(data)
+): Promise<ListOccurrenceDatasetsResponse> => {
+  data = data.map((item: any) => {
+    return occurrenceDatasetListItemSchemaResponseTransformer(item)
+  })
   return data
 }
 
@@ -360,17 +353,17 @@ const taxonSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+export const getOccurrenceDatasetResponseTransformer = async (
+  data: any
+): Promise<GetOccurrenceDatasetResponse> => {
+  data = occurrenceDatasetSchemaResponseTransformer(data)
+  return data
+}
+
 export const togglePinDatasetResponseTransformer = async (
   data: any
 ): Promise<TogglePinDatasetResponse> => {
   data = datasetSchemaResponseTransformer(data)
-  return data
-}
-
-export const getSequenceDatasetResponseTransformer = async (
-  data: any
-): Promise<GetSequenceDatasetResponse> => {
-  data = sequenceDatasetSchemaResponseTransformer(data)
   return data
 }
 
@@ -429,12 +422,10 @@ const siteItemSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const listSiteDatasetsResponseTransformer = async (
+export const getSequenceDatasetResponseTransformer = async (
   data: any
-): Promise<ListSiteDatasetsResponse> => {
-  data = data.map((item: any) => {
-    return siteDatasetSchemaResponseTransformer(item)
-  })
+): Promise<GetSequenceDatasetResponse> => {
+  data = sequenceDatasetSchemaResponseTransformer(data)
   return data
 }
 
@@ -448,6 +439,15 @@ const siteDatasetSchemaResponseTransformer = (data: any) => {
   }
   data.sites = data.sites.map((item: any) => {
     return siteItemSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+export const listSiteDatasetsResponseTransformer = async (
+  data: any
+): Promise<ListSiteDatasetsResponse> => {
+  data = data.map((item: any) => {
+    return siteDatasetSchemaResponseTransformer(item)
   })
   return data
 }
@@ -471,17 +471,17 @@ export const getDatasetResponseTransformer = async (data: any): Promise<GetDatas
   return data
 }
 
+const fixativeSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 export const listFixativesResponseTransformer = async (
   data: any
 ): Promise<ListFixativesResponse> => {
   data = data.map((item: any) => {
     return fixativeSchemaResponseTransformer(item)
   })
-  return data
-}
-
-const fixativeSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -528,17 +528,17 @@ export const updateGeneResponseTransformer = async (data: any): Promise<UpdateGe
   return data
 }
 
+const habitatGroupSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 export const listHabitatGroupsResponseTransformer = async (
   data: any
 ): Promise<ListHabitatGroupsResponse> => {
   data = data.map((item: any) => {
     return habitatGroupSchemaResponseTransformer(item)
   })
-  return data
-}
-
-const habitatGroupSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -563,15 +563,6 @@ export const updateHabitatGroupResponseTransformer = async (
   return data
 }
 
-export const sitesProximityResponseTransformer = async (
-  data: any
-): Promise<SitesProximityResponse> => {
-  data = data.map((item: any) => {
-    return siteWithDistanceSchemaResponseTransformer(item)
-  })
-  return data
-}
-
 const siteWithDistanceSchemaResponseTransformer = (data: any) => {
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
@@ -579,9 +570,11 @@ const siteWithDistanceSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const searchSitesResponseTransformer = async (data: any): Promise<SearchSitesResponse> => {
+export const sitesProximityResponseTransformer = async (
+  data: any
+): Promise<SitesProximityResponse> => {
   data = data.map((item: any) => {
-    return siteWithScoreSchemaResponseTransformer(item)
+    return siteWithDistanceSchemaResponseTransformer(item)
   })
   return data
 }
@@ -593,10 +586,10 @@ const siteWithScoreSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const listOccurrencesResponseTransformer = async (
-  data: any
-): Promise<ListOccurrencesResponse> => {
-  data = paginatedListOccurrenceListItemSchemaResponseTransformer(data)
+export const searchSitesResponseTransformer = async (data: any): Promise<SearchSitesResponse> => {
+  data = data.map((item: any) => {
+    return siteWithScoreSchemaResponseTransformer(item)
+  })
   return data
 }
 
@@ -679,19 +672,19 @@ const samplingTargetSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+export const listOccurrencesResponseTransformer = async (
+  data: any
+): Promise<ListOccurrencesResponse> => {
+  data = paginatedListOccurrenceListItemSchemaResponseTransformer(data)
+  return data
+}
+
 export const occurrencesBySiteResponseTransformer = async (
   data: any
 ): Promise<OccurrencesBySiteResponse> => {
   data = data.map((item: any) => {
     return siteWithOccurrencesSchemaResponseTransformer(item)
   })
-  return data
-}
-
-export const updateExternalOccurrenceResponseTransformer = async (
-  data: any
-): Promise<UpdateExternalOccurrenceResponse> => {
-  data = genericOccurrenceSamplingOutlineSchemaResponseTransformer(data)
   return data
 }
 
@@ -714,6 +707,13 @@ const samplingOutlineSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+export const updateExternalOccurrenceResponseTransformer = async (
+  data: any
+): Promise<UpdateExternalOccurrenceResponse> => {
+  data = genericOccurrenceSamplingOutlineSchemaResponseTransformer(data)
+  return data
+}
+
 export const createExternalOccurrenceResponseTransformer = async (
   data: any
 ): Promise<CreateExternalOccurrenceResponse> => {
@@ -725,13 +725,6 @@ export const deleteOccurrenceResponseTransformer = async (
   data: any
 ): Promise<DeleteOccurrenceResponse> => {
   data = occurrenceListItemSchemaResponseTransformer(data)
-  return data
-}
-
-export const getOccurrenceResponseTransformer = async (
-  data: any
-): Promise<GetOccurrenceResponse> => {
-  data = occurrenceSamplingWithSiteSchemaResponseTransformer(data)
   return data
 }
 
@@ -867,12 +860,10 @@ const occurrenceStructSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const listOrganisationsResponseTransformer = async (
+export const getOccurrenceResponseTransformer = async (
   data: any
-): Promise<ListOrganisationsResponse> => {
-  data = data.map((item: any) => {
-    return organisationSchemaResponseTransformer(item)
-  })
+): Promise<GetOccurrenceResponse> => {
+  data = occurrenceSamplingWithSiteSchemaResponseTransformer(data)
   return data
 }
 
@@ -883,6 +874,15 @@ const organisationSchemaResponseTransformer = (data: any) => {
       return personSchemaResponseTransformer(item)
     })
   }
+  return data
+}
+
+export const listOrganisationsResponseTransformer = async (
+  data: any
+): Promise<ListOrganisationsResponse> => {
+  data = data.map((item: any) => {
+    return organisationSchemaResponseTransformer(item)
+  })
   return data
 }
 
@@ -929,15 +929,15 @@ export const updatePersonResponseTransformer = async (data: any): Promise<Update
   return data
 }
 
+const programSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 export const listProgramsResponseTransformer = async (data: any): Promise<ListProgramsResponse> => {
   data = data.map((item: any) => {
     return programSchemaResponseTransformer(item)
   })
-  return data
-}
-
-const programSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -1020,13 +1020,6 @@ export const updateSamplingMethodResponseTransformer = async (
   return data
 }
 
-export const createSamplingResponseTransformer = async (
-  data: any
-): Promise<CreateSamplingResponse> => {
-  data = samplingSchemaResponseTransformer(data)
-  return data
-}
-
 const samplingSchemaResponseTransformer = (data: any) => {
   if (data.fixatives) {
     data.fixatives = data.fixatives.map((item: any) => {
@@ -1061,6 +1054,13 @@ const samplingSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+export const createSamplingResponseTransformer = async (
+  data: any
+): Promise<CreateSamplingResponse> => {
+  data = samplingSchemaResponseTransformer(data)
+  return data
+}
+
 export const deleteSamplingResponseTransformer = async (
   data: any
 ): Promise<DeleteSamplingResponse> => {
@@ -1079,15 +1079,6 @@ export const samplingAddExternalOccurrenceResponseTransformer = async (
   data: any
 ): Promise<SamplingAddExternalOccurrenceResponse> => {
   data = genericOccurrenceSamplingOutlineSchemaResponseTransformer(data)
-  return data
-}
-
-export const listSequencesResponseTransformer = async (
-  data: any
-): Promise<ListSequencesResponse> => {
-  data = data.map((item: any) => {
-    return sequenceListItemSchemaResponseTransformer(item)
-  })
   return data
 }
 
@@ -1116,15 +1107,19 @@ const genericOccurrenceSamplingInnerWithSiteSchemaResponseTransformer = (data: a
   return data
 }
 
+export const listSequencesResponseTransformer = async (
+  data: any
+): Promise<ListSequencesResponse> => {
+  data = data.map((item: any) => {
+    return sequenceListItemSchemaResponseTransformer(item)
+  })
+  return data
+}
+
 export const deleteSequenceResponseTransformer = async (
   data: any
 ): Promise<DeleteSequenceResponse> => {
   data = sequenceListItemSchemaResponseTransformer(data)
-  return data
-}
-
-export const getSequenceResponseTransformer = async (data: any): Promise<GetSequenceResponse> => {
-  data = sequenceWithDetailsSchemaResponseTransformer(data)
   return data
 }
 
@@ -1158,17 +1153,22 @@ const optionalAssembledSequenceSpecificsSchemaResponseTransformer = (data: any) 
   return data
 }
 
+export const getSequenceResponseTransformer = async (data: any): Promise<GetSequenceResponse> => {
+  data = sequenceWithDetailsSchemaResponseTransformer(data)
+  return data
+}
+
+const dataFeedSpecSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 export const listDataFeedsResponseTransformer = async (
   data: any
 ): Promise<ListDataFeedsResponse> => {
   data = data.map((item: any) => {
     return dataFeedSpecSchemaResponseTransformer(item)
   })
-  return data
-}
-
-const dataFeedSpecSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -1179,17 +1179,17 @@ export const createDataFeedResponseTransformer = async (
   return data
 }
 
+const mapToolPresetSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 export const listMapPresetsResponseTransformer = async (
   data: any
 ): Promise<ListMapPresetsResponse> => {
   data = data.map((item: any) => {
     return mapToolPresetSchemaResponseTransformer(item)
   })
-  return data
-}
-
-const mapToolPresetSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -1211,11 +1211,6 @@ export const listSitesResponseTransformer = async (data: any): Promise<ListSites
   data = data.map((item: any) => {
     return siteItemSchemaResponseTransformer(item)
   })
-  return data
-}
-
-export const createSiteResponseTransformer = async (data: any): Promise<CreateSiteResponse> => {
-  data = siteSchemaResponseTransformer(data)
   return data
 }
 
@@ -1299,6 +1294,11 @@ const samplingAtSiteSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+export const createSiteResponseTransformer = async (data: any): Promise<CreateSiteResponse> => {
+  data = siteSchemaResponseTransformer(data)
+  return data
+}
+
 export const getSiteResponseTransformer = async (data: any): Promise<GetSiteResponse> => {
   data = siteSchemaResponseTransformer(data)
   return data
@@ -1313,15 +1313,6 @@ export const siteAddExternalOccurrenceResponseTransformer = async (
   data: any
 ): Promise<SiteAddExternalOccurrenceResponse> => {
   data = genericOccurrenceSamplingOutlineSchemaResponseTransformer(data)
-  return data
-}
-
-export const listSiteSamplingsResponseTransformer = async (
-  data: any
-): Promise<ListSiteSamplingsResponse> => {
-  data = data.map((item: any) => {
-    return samplingDetailsWithOccurrencesSchemaResponseTransformer(item)
-  })
   return data
 }
 
@@ -1354,15 +1345,19 @@ const samplingDetailsWithOccurrencesSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+export const listSiteSamplingsResponseTransformer = async (
+  data: any
+): Promise<ListSiteSamplingsResponse> => {
+  data = data.map((item: any) => {
+    return samplingDetailsWithOccurrencesSchemaResponseTransformer(item)
+  })
+  return data
+}
+
 export const createSamplingAtSiteResponseTransformer = async (
   data: any
 ): Promise<CreateSamplingAtSiteResponse> => {
   data = samplingSchemaResponseTransformer(data)
-  return data
-}
-
-export const getTaxonomyResponseTransformer = async (data: any): Promise<GetTaxonomyResponse> => {
-  data = taxonomySchemaResponseTransformer(data)
   return data
 }
 
@@ -1379,15 +1374,15 @@ const taxonomySchemaResponseTransformer = (data: any) => {
   return data
 }
 
+export const getTaxonomyResponseTransformer = async (data: any): Promise<GetTaxonomyResponse> => {
+  data = taxonomySchemaResponseTransformer(data)
+  return data
+}
+
 export const listTaxaResponseTransformer = async (data: any): Promise<ListTaxaResponse> => {
   data = data.map((item: any) => {
     return taxonWithParentRefSchemaResponseTransformer(item)
   })
-  return data
-}
-
-export const createTaxonResponseTransformer = async (data: any): Promise<CreateTaxonResponse> => {
-  data = taxonWithRelativesSchemaResponseTransformer(data)
   return data
 }
 
@@ -1404,13 +1399,13 @@ const taxonWithRelativesSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const deleteTaxonResponseTransformer = async (data: any): Promise<DeleteTaxonResponse> => {
+export const createTaxonResponseTransformer = async (data: any): Promise<CreateTaxonResponse> => {
   data = taxonWithRelativesSchemaResponseTransformer(data)
   return data
 }
 
-export const getTaxonResponseTransformer = async (data: any): Promise<GetTaxonResponse> => {
-  data = taxonWithLineageSchemaResponseTransformer(data)
+export const deleteTaxonResponseTransformer = async (data: any): Promise<DeleteTaxonResponse> => {
+  data = taxonWithRelativesSchemaResponseTransformer(data)
   return data
 }
 
@@ -1453,6 +1448,11 @@ const lineageSchemaResponseTransformer = (data: any) => {
   if (data.subspecies) {
     data.subspecies = optionalTaxonSchemaResponseTransformer(data.subspecies)
   }
+  return data
+}
+
+export const getTaxonResponseTransformer = async (data: any): Promise<GetTaxonResponse> => {
+  data = taxonWithLineageSchemaResponseTransformer(data)
   return data
 }
 

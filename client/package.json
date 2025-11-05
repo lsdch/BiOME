@@ -24,8 +24,8 @@
     "gen-client": "bash scripts/gen-client.sh"
   },
   "dependencies": {
-    "@dagrejs/dagre": "^1.1.5",
-    "@hey-api/openapi-ts": "^0.85.2",
+    "@dagrejs/dagre": "^1.1.8",
+    "@hey-api/openapi-ts": "^0.87.0",
     "@mdi/font": "^7.4.47",
     "@stoplight/elements": "^9.0.11",
     "@tanstack/vue-query": "^5.90.6",
@@ -78,15 +78,15 @@
     "@types/leaflet.fullscreen": "^3.0.3",
     "@types/luxon": "^3.7.1",
     "@types/node": "^24.10.0",
-    "@types/papaparse": "^5.3.16",
+    "@types/papaparse": "^5.5.0",
     "@vitejs/plugin-vue": "^6.0.1",
     "@vitejs/plugin-vue-jsx": "^5.1.1",
     "@vue/eslint-config-prettier": "^10.2.0",
     "@vue/eslint-config-typescript": "^14.6.0",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.8.1",
-    "cypress": "^15.5.0",
-    "eslint": "^9.39.0",
+    "cypress": "^15.6.0",
+    "eslint": "^9.39.1",
     "eslint-plugin-cypress": "^5.2.0",
     "eslint-plugin-vue": "^10.5.1",
     "jsdom": "^27.1.0",
@@ -97,11 +97,11 @@
     "start-server-and-test": "^2.1.2",
     "ts-toolbelt": "^9.6.0",
     "typescript": "^5.9.3",
-    "vite": "^7.1.12",
+    "vite": "^7.2.0",
     "vite-plugin-mkcert": "^1.17.9",
     "vite-plugin-vuetify": "^2.1.2",
     "vite-plugin-watch-and-run": "^1.7.5",
-    "vitest": "^4.0.6",
+    "vitest": "^4.0.7",
     "vue-tsc": "^3.1.3"
   }
 }
