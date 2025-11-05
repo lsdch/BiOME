@@ -2722,7 +2722,7 @@ export class LocationService {
   public static sitesProximity<ThrowOnError extends boolean = false>(
     options: Options<SitesProximityData, ThrowOnError>
   ) {
-    return (options.client ?? client).post<
+    return (options.client ?? client).get<
       SitesProximityResponses,
       SitesProximityErrors,
       ThrowOnError

@@ -226,8 +226,6 @@ import type {
   SiteAddExternalOccurrenceError,
   SiteAddExternalOccurrenceResponse,
   SitesProximityData,
-  SitesProximityError,
-  SitesProximityResponse,
   TestSmtpData,
   TestSmtpError,
   TestSmtpResponse,
@@ -1667,27 +1665,25 @@ export const coordinatesToCountryMutation = (
   return mutationOptions
 }
 
+export const sitesProximityQueryKey = (options: Options<SitesProximityData>) =>
+  createQueryKey('sitesProximity', options)
+
 /**
  * List sites within a radius of a point
  */
-export const sitesProximityMutation = (
-  options?: Partial<Options<SitesProximityData>>
-): UseMutationOptions<SitesProximityResponse, SitesProximityError, Options<SitesProximityData>> => {
-  const mutationOptions: UseMutationOptions<
-    SitesProximityResponse,
-    SitesProximityError,
-    Options<SitesProximityData>
-  > = {
-    mutationFn: async (fnOptions) => {
+export const sitesProximityOptions = (options: Options<SitesProximityData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.sitesProximity({
         ...options,
-        ...fnOptions,
+        ...queryKey[0],
+        signal,
         throwOnError: true
       })
       return data
-    }
-  }
-  return mutationOptions
+    },
+    queryKey: sitesProximityQueryKey(options)
+  })
 }
 
 export const listCountriesQueryKey = (options?: Options<ListCountriesData>) =>

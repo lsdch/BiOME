@@ -61,7 +61,7 @@ func RegisterRoutes(r router.Router) {
 	router.Register(locationAPI, "sitesProximity",
 		huma.Operation{
 			Path:    "/coordinates/proximity",
-			Method:  http.MethodPost,
+			Method:  http.MethodGet,
 			Summary: "List sites within a radius of a point",
 		}, SitesProximity)
 

@@ -12072,7 +12072,7 @@
 			}
 		},
 		"/locations/coordinates/proximity": {
-			"post": {
+			"get": {
 				"operationId": "sitesProximity",
 				"parameters": [
 					{

@@ -17,8 +17,8 @@ import (
 )
 
 type LatLongCoords struct {
-	Latitude  float32 `gel:"latitude" json:"latitude" minimum:"-90" maximum:"90" example:"43.5684"`
-	Longitude float32 `gel:"longitude" json:"longitude" minimum:"-180" maximum:"180" example:"3.5678"`
+	Latitude  float32 `gel:"latitude" json:"latitude" query:"latitude" minimum:"-90" maximum:"90" example:"43.5684"`
+	Longitude float32 `gel:"longitude" json:"longitude" query:"longitude" minimum:"-180" maximum:"180" example:"3.5678"`
 }
 
 func (c LatLongCoords) LatLong() (float32, float32) {
@@ -50,9 +50,9 @@ func (c LatLongCoords) SitesProximity(db geltypes.Executor, radius int32) ([]Sit
 
 type SitesProximityQuery struct {
 	LatLongCoords `json:",inline"`
-	Radius        int32                       `json:"radius" doc:"Radius in meters" example:"20000"`
-	Limit         models.OptionalInput[int64] `json:"limit,omitempty"`
-	Exclude       []string                    `json:"exclude,omitempty" doc:"List of site codes to exclude from the result"`
+	Radius        int32                       `query:"radius" json:"radius" doc:"Radius in meters" example:"20000"`
+	Limit         models.OptionalInput[int64] `query:"limit" json:"limit,omitempty"`
+	Exclude       []string                    `query:"exclude" json:"exclude,omitempty" doc:"List of site codes to exclude from the result"`
 }
 
 func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDistance, error) {
