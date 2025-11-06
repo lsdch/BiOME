@@ -206,12 +206,21 @@
         </template>
       </LLayerGroup>
 
-      <slot
-        v-if="marker"
-        name="marker"
-        :lat-lng="marker ? Geocoordinates.LatLng(marker) : undefined"
-      >
-        <LMarker :lat-lng="Geocoordinates.LatLng(marker)" />
+      <slot v-if="markers" name="markers" :markers>
+        <LMarker
+          v-for="marker in markers"
+          :lat-lng="Geocoordinates.LatLng(marker)"
+          :icon="
+            L.divIcon({
+              className: '',
+              iconSize: [36, 33],
+              iconAnchor: [18, 33],
+              shadowSize: [5, 5],
+              html: `<i class='mdi-map-marker mdi marker-icon v-icon v-icon--size-x-large' style='color: ${marker.color ?? 'orangered'}; text-shadow: black 1px 0 5px;'></i>`
+            })
+          "
+          v-bind="markerProps"
+        />
       </slot>
 
       <!-- Shared site popup -->
@@ -370,7 +379,10 @@ const props = withDefaults(
     /**
      * Place a single marker at the given coordinates.
      */
-    marker?: Geocoordinates
+    markers?: (Geocoordinates & { color?: string })[]
+    markerProps?: Partial<InstanceType<typeof LMarker>['$props']> & {
+      'onUpdate:latLng'?: (latLng: LatLngLiteral) => void
+    }
     bounds?: [LatLngExpression, LatLngExpression]
     autoFit?: boolean | number
     closable?: boolean
@@ -391,14 +403,14 @@ const props = withDefaults(
 const slots = defineSlots<{
   default: (props: { zoom: number; mapContainer: HTMLElement | null }) => any
   popup: (props: { item: Item; popupOpen: boolean; zoom: number }) => any
-  marker: (props: { latLng?: LatLngExpression }) => any
+  markers: (props: { markers: Geocoordinates[] }) => any
   'hex-popup': (props: { data?: HexPopupData<UnwrapRef<Item>>[] }) => any
 }>()
 
 const mapBounds = ref(L.latLngBounds(...props.bounds))
 
 watch(
-  () => [props.marker, props.autoFit, hexgrid.value.data, markerLayers.value?.map((l) => l.data)],
+  () => [props.markers, props.autoFit, hexgrid.value.data, markerLayers.value?.map((l) => l.data)],
   () => fitMapView()
 )
 
@@ -410,6 +422,10 @@ watch(
     }
   }
 )
+
+function fitViewToSite({ coordinates: { latitude, longitude } }: Geocoordinates) {
+  mapBounds.value = L.latLng(latitude, longitude).toBounds(500).pad(0.5)
+}
 
 function onReady(mapInstance: Map) {
   // nextTick(fitBounds)
@@ -424,28 +440,28 @@ function onVisible(visible: boolean) {
 function fitMapView() {
   if (props.autoFit !== false) {
     if (typeof props.autoFit == 'number') {
-      fitRadius(props.autoFit)
+      fitBounds(props.autoFit)
     } else {
       fitBounds()
     }
   }
 }
 
-const fitRadius = useDebounceFn((radius: number) => {
-  if (props.marker) {
+const fitRadius = useDebounceFn((coords: Coordinates, radius: number) => {
+  if (props.markers?.length === 1) {
     let r = Math.max(100, radius)
-    const { latitude, longitude } = props.marker.coordinates
+    const { latitude, longitude } = coords
     mapBounds.value = L.latLng(latitude, longitude)
       .toBounds(r + 100)
       .pad(0.5)
   }
 }, 200)
 
-function computeBounds(items: Item[]) {
+function computeBounds(items: Geocoordinates[]) {
   const minMaxCoords = items.reduce(
     (
       acc: { sw: LatLngLiteral; ne: LatLngLiteral } | null,
-      { coordinates: { latitude, longitude } }: Item
+      { coordinates: { latitude, longitude } }: Geocoordinates
     ): { sw: LatLngLiteral; ne: LatLngLiteral } | null => {
       return acc === null
         ? {
@@ -468,13 +484,36 @@ function computeBounds(items: Item[]) {
   return minMaxCoords ? latLngBounds(minMaxCoords.sw, minMaxCoords.ne) : undefined
 }
 
-const fitBounds = useDebounceFn(() => {
+const fitBounds = useDebounceFn((radius: number = 0) => {
   console.log('[Map] Fit bounds')
   let bounds = hexgrid.value.active ? computeBounds(unref(hexgrid.value.data) ?? []) : undefined
   markerLayers.value?.forEach((layer) => {
     if (!layer.active || !layer.data?.length) return
     const b = computeBounds(layer.data ?? [])
-    bounds?.extend(b ?? [])
+    if (bounds) {
+      bounds.extend(b ?? [])
+      return
+    } else {
+      bounds = b
+    }
+  })
+  props.markers?.forEach(({ coordinates: { latitude, longitude, precision } }) => {
+    const ll = latLng(latitude, longitude)
+    if (precision) {
+      const p = Math.max(CoordinatesPrecision.radius(precision), 100)
+      const pointBounds = ll.toBounds(p + radius)
+      if (bounds) {
+        bounds.extend(pointBounds)
+      } else {
+        bounds = pointBounds
+      }
+      return
+    }
+    if (bounds) {
+      bounds.extend(ll)
+    } else {
+      bounds = L.latLngBounds(ll, ll)
+    }
   })
 
   if (bounds) {
@@ -499,7 +538,7 @@ onKeyStroke('Escape', () => {
   }
 })
 
-defineExpose({ fitBounds, el: mapContainer })
+defineExpose({ fitBounds, fitViewToSite, el: mapContainer })
 </script>
 
 <style lang="scss">
@@ -534,5 +573,16 @@ defineExpose({ fitBounds, el: mapContainer })
     stroke-width: 2;
     stroke: orangered;
   }
+}
+
+.marker-icon {
+  // margin-left: -1.5em !important;
+  // width: 25px !important;
+  // height: auto !important;
+  // z-index: 509 !important;
+  // position: absolute;
+  // left: 0;
+  // top: 0;
+  font-size: 3em;
 }
 </style>

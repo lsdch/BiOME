@@ -1,7 +1,7 @@
 <template>
   <v-sheet :height>
     <BaseMap
-      :marker="site"
+      :markers="[site]"
       :marker-layers="[proximalSitesMarkers]"
       :auto-fit="proximityRadius || CoordinatesPrecision.radius(site?.coordinates.precision)"
       clustered

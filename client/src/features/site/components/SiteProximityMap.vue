@@ -4,7 +4,11 @@
     <div class="flex-grow-1">
       <BaseMap
         ref="map"
-        :marker="hasValidCoords ? ({ coordinates: coords } as Geocoordinates) : undefined"
+        :markers="hasValidCoords ? [{ coordinates: coords } as Geocoordinates] : undefined"
+        :marker-props="{
+          draggable: hasModelBinding,
+          'onUpdate:latLng': updateFromMarkerCoords
+        }"
         :marker-layers="
           hasValidCoords
             ? [
@@ -29,14 +33,14 @@
         hide-marker-control
       >
         <!-- Coordinates marker -->
-        <template #marker="{ latLng }">
+        <!-- <template #markers="{ latLng }">
           <LMarker
             v-if="latLng"
             :lat-lng
             :draggable="hasModelBinding"
             @update:latLng="updateFromMarkerCoords"
           />
-        </template>
+        </template> -->
 
         <!-- Proximity radius indicator -->
         <LCircle
