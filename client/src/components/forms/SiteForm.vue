@@ -112,7 +112,7 @@
     <v-divider />
 
     <SiteFormLocationField
-      v-model:country_code="model.country_code"
+      v-model:country_code="model.country"
       v-model:locality="model.locality"
       v-model:user_defined_locality="model.user_defined_locality"
       :coordinates="model.coordinates"
