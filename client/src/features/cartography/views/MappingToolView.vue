@@ -16,6 +16,7 @@
           Layers
           <v-badge inline :content="markerLayerOptions.length + 1" color="success" />
         </v-tab>
+        <v-tab value="sites" prepend-icon="mdi-map-marker"> Sites </v-tab>
         <v-tab value="config">
           <v-icon icon="mdi-cog" />
         </v-tab>
@@ -76,6 +77,9 @@
             </ConfirmDialog>
           </div>
           <v-divider />
+        </v-tabs-window-item>
+        <v-tabs-window-item value="sites">
+          <SiteSearchPanel v-model="siteMarkers" @focus-site="map?.fitViewToSite" />
         </v-tabs-window-item>
         <v-tabs-window-item value="config">
           <v-list>
@@ -189,9 +193,11 @@
         <BaseMap
           ref="map"
           auto-fit
+          :markers="siteMarkers"
           :marker-layers
           :hexgrid="hexgridLayer"
           v-model:polygon-mode="polygonMode"
+          :bounds="mapBounds"
         >
           <!-- <LControl v-if="isRefetching || isFetching" position="topleft">
             <v-progress-circular
@@ -229,12 +235,13 @@
 <script setup lang="ts">
 import BaseMap from '@/features/cartography/components/BaseMap.vue'
 
-import { SiteWithOccurrences } from '@/api'
+import { SiteItem, SiteWithOccurrences } from '@/api'
+import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
+import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
+import { useScaleBinding } from '@/composables/occurrences'
+import { useDataFeeds } from '@/features/cartography/components/data-feeds'
+import OccurrenceDataFeedManager from '@/features/cartography/components/data-feeds/DataFeedManager.vue'
 import HexgridLayerCard from '@/features/cartography/components/HexgridLayerCard.vue'
-import MapPresetLoadDialog from '@/features/cartography/components/map-presets/MapPresetLoadDialog.vue'
-import MapPresetManager from '@/features/cartography/components/map-presets/MapPresetManager.vue'
-import MapPresetSaveDialog from '@/features/cartography/components/map-presets/MapPresetSaveDialog.vue'
-import MarkerLayerCard from '@/features/cartography/components/MarkerLayerCard.vue'
 import {
   HexgridLayer,
   HexgridLayerSpec,
@@ -242,18 +249,22 @@ import {
   MarkerLayerDefinition,
   SitesFilter
 } from '@/features/cartography/components/map-layers'
-import OccurrenceDataFeedManager from '@/features/cartography/components/data-feeds/DataFeedManager.vue'
-import { useDataFeeds } from '@/features/cartography/components/data-feeds'
-import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
-import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
-import { useScaleBinding } from '@/composables/occurrences'
+import MapPresetLoadDialog from '@/features/cartography/components/map-presets/MapPresetLoadDialog.vue'
+import MapPresetManager from '@/features/cartography/components/map-presets/MapPresetManager.vue'
+import MapPresetSaveDialog from '@/features/cartography/components/map-presets/MapPresetSaveDialog.vue'
+import MapViewHexPopup from '@/features/cartography/components/MapViewHexPopup.vue'
+import MapViewSitePopup from '@/features/cartography/components/MapViewSitePopup.vue'
+import MarkerLayerCard from '@/features/cartography/components/MarkerLayerCard.vue'
 import { palette, withOpacity } from '@/lib/color_brewer'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import { useLocalStorage, useToggle } from '@vueuse/core'
-import { computed, ref } from 'vue'
-import MapViewHexPopup from '@/features/cartography/components/MapViewHexPopup.vue'
-import MapViewSitePopup from '@/features/cartography/components/MapViewSitePopup.vue'
+import { LatLngExpression } from 'leaflet'
+import { computed, ref, useTemplateRef } from 'vue'
+import SiteSearchPanel from '../components/SiteSearchPanel.vue'
+
+const siteMarkers = ref<SiteItem[]>([])
+const mapBounds = ref<[LatLngExpression, LatLngExpression]>()
 
 const [polygonMode, togglePolygonMode] = useToggle(false)
 
@@ -263,11 +274,12 @@ const drawerPinned = useLocalStorage('mapping-tool-drawer-pinned', false, {
   initOnMounted: true
 })
 
+const map = useTemplateRef('map')
 const userStore = useUserStore()
 
 const [drawer, toggleDrawer] = useToggle(false)
 
-type MappingToolTab = 'feeds' | 'bindings' | 'config'
+type MappingToolTab = 'feeds' | 'bindings' | 'sites' | 'config'
 
 const tab = ref<MappingToolTab>('feeds')
 
