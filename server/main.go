@@ -4,6 +4,20 @@ import (
 	"fmt"
 
 	"github.com/lsdch/biome/config"
+	"github.com/lsdch/biome/controllers/datasets"
+	"github.com/lsdch/biome/controllers/habitats"
+	"github.com/lsdch/biome/controllers/location"
+	"github.com/lsdch/biome/controllers/occurrences"
+	"github.com/lsdch/biome/controllers/organisation"
+	"github.com/lsdch/biome/controllers/person"
+	"github.com/lsdch/biome/controllers/references"
+	"github.com/lsdch/biome/controllers/sampling"
+	"github.com/lsdch/biome/controllers/sequences"
+	"github.com/lsdch/biome/controllers/services"
+	"github.com/lsdch/biome/controllers/settings"
+	"github.com/lsdch/biome/controllers/sites"
+	"github.com/lsdch/biome/controllers/taxonomy"
+	users "github.com/lsdch/biome/controllers/users"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/router"
 
@@ -51,7 +65,23 @@ func apiConfig(basePath string) huma.Config {
 func setupRoutes(r *gin.Engine, basePath string) *gin.RouterGroup {
 	apiConfig := apiConfig(basePath)
 	router := router.New(r, basePath, apiConfig)
-	registerRoutes(router)
+
+	users.RegisterRoutes(router)
+	organisation.RegisterRoutes(router)
+	person.RegisterRoutes(router)
+	location.RegisterRoutes(router)
+	taxonomy.RegisterRoutes(router)
+	taxonomy.RegisterImportRoutes(router)
+	settings.RegisterRoutes(router)
+	sites.RegisterRoutes(router)
+	datasets.RegisterRoutes(router)
+	sampling.RegisterRoutes(router)
+	sequences.RegisterRoutes(router)
+	habitats.RegisterRoutes(router)
+	references.RegisterRoutes(router)
+	occurrences.RegisterRoutes(router)
+	services.RegisterGeoapifyRoutes(router)
+
 	if err := router.WriteSpecJSON("../client/openapi.json"); err != nil {
 		panic(err)
 	}
