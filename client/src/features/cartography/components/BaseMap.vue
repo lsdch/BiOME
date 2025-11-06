@@ -151,7 +151,7 @@
         @update:color-scale-extent="(range) => console.log(range)"
         @click="
           (e) => {
-            if (e.length === 1) selectSite(e[0].data)
+            if (e.length === 1) selectSite(e[0]!.data)
           }
         "
       >
