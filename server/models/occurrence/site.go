@@ -234,8 +234,8 @@ func GetSite(db geltypes.Executor, identifier string) (Site, error) {
 						select .occurrences {
 							id,
 							code,
-							identification: { **, identified_by: { ** } },
-							required category := ([is InternalBioMat].category ?? OccurrenceCategory.External),
+							category,
+							identification: { taxon: { * }, confer, addendum, identified_on },
 						}
 					),
 					occurring_taxa: { * },
