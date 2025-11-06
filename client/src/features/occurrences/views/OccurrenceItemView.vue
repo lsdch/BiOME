@@ -64,7 +64,7 @@
         </v-alert>
       </v-card-text>
       <template v-else-if="item">
-        <v-tabs v-model="currentTab" v-if="item.external?.sequences">
+        <v-tabs v-model="currentTab" density="compact">
           <v-tab value="occurrence" prepend-icon="mdi-text-box-outline">Occurrence</v-tab>
           <v-tab value="sequences" prepend-icon="mdi-dna" :disabled="!item.external?.sequences">
             Sequences
