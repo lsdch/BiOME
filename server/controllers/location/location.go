@@ -43,7 +43,7 @@ func RegisterRoutes(r router.Router) {
 	router.Register(locationAPI, "coordinatesToCountry",
 		huma.Operation{
 			Path:    "/coordinates",
-			Method:  http.MethodPost,
+			Method:  http.MethodGet,
 			Summary: "Get country from WGS84 coordinates",
 			Responses: map[string]*huma.Response{
 				"200": {
@@ -76,14 +76,14 @@ func RegisterRoutes(r router.Router) {
 
 type CoordinatesToCountryInput struct {
 	resolvers.AuthResolver
-	Body occurrence.LatLongCoords
+	occurrence.LatLongCoords
 }
 type CoordinatesToCountryOutput struct {
 	Body location.Country
 }
 
 func CoordinatesToCountry(ctx context.Context, input *CoordinatesToCountryInput) (*CoordinatesToCountryOutput, error) {
-	country, err := input.Body.FindCountry(input.DB())
+	country, err := input.LatLongCoords.FindCountry(input.DB())
 	if db.IsNoData(err) {
 		return nil, nil
 	} else if err != nil {
@@ -95,14 +95,14 @@ func CoordinatesToCountry(ctx context.Context, input *CoordinatesToCountryInput)
 
 type SitesProximityInput struct {
 	resolvers.AuthResolver
-	Body occurrence.SitesProximityQuery
+	occurrence.SitesProximityQuery
 }
 type SitesProximityOutput struct {
 	Body []occurrence.SiteWithDistance
 }
 
 func SitesProximity(ctx context.Context, input *SitesProximityInput) (*SitesProximityOutput, error) {
-	sites, err := input.Body.SitesProximity(input.DB())
+	sites, err := input.SitesProximityQuery.SitesProximity(input.DB())
 	if err != nil {
 		return nil, err
 	}

@@ -984,10 +984,6 @@ export type JournalIssue = {
 }
 
 export type LatLongCoords = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
   latitude: number
   longitude: number
 }
@@ -1694,16 +1690,6 @@ export type ResendEmailVerificationInputBody = {
   verification_url: string
 }
 
-export type ReverseGeocodeInputBody = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  latitude: number
-  longitude: number
-  [key: string]: unknown | string | number | number | undefined
-}
-
 export type Review = {
   'competing-interest-statement'?: string
   language?: string
@@ -2331,24 +2317,6 @@ export type SiteWithScore = {
   name?: string
   score: number
   user_defined_locality: boolean
-}
-
-export type SitesProximityQuery = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  /**
-   * List of site codes to exclude from the result
-   */
-  exclude?: Array<string>
-  latitude: number
-  limit?: number
-  longitude: number
-  /**
-   * Radius in meters
-   */
-  radius: number
 }
 
 export type SpecimenVoucher = {
@@ -4206,7 +4174,7 @@ export type UpdateGeneResponses = {
 export type UpdateGeneResponse = UpdateGeneResponses[keyof UpdateGeneResponses]
 
 export type ReverseGeocodeData = {
-  body: ReverseGeocodeInputBody
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -4214,7 +4182,10 @@ export type ReverseGeocodeData = {
     Authorization?: string
   }
   path?: never
-  query?: never
+  query?: {
+    latitude?: number
+    longitude?: number
+  }
   url: '/geoapify/reverse-geocode'
 }
 
@@ -4532,7 +4503,7 @@ export type MonitorGbifResponses = {
 export type MonitorGbifResponse = MonitorGbifResponses[keyof MonitorGbifResponses]
 
 export type CoordinatesToCountryData = {
-  body: LatLongCoords
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -4540,7 +4511,10 @@ export type CoordinatesToCountryData = {
     Authorization?: string
   }
   path?: never
-  query?: never
+  query?: {
+    latitude?: number
+    longitude?: number
+  }
   url: '/locations/coordinates'
 }
 
@@ -4572,7 +4546,7 @@ export type CoordinatesToCountryResponse =
   CoordinatesToCountryResponses[keyof CoordinatesToCountryResponses]
 
 export type SitesProximityData = {
-  body: SitesProximityQuery
+  body?: never
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -4580,7 +4554,19 @@ export type SitesProximityData = {
     Authorization?: string
   }
   path?: never
-  query?: never
+  query?: {
+    latitude?: number
+    longitude?: number
+    /**
+     * Radius in meters
+     */
+    radius?: number
+    limit?: number
+    /**
+     * List of site codes to exclude from the result
+     */
+    exclude?: Array<string>
+  }
   url: '/locations/coordinates/proximity'
 }
 

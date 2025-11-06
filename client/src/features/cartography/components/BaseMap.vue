@@ -1,7 +1,7 @@
 <template>
   <!-- {{ polyline }} -->
   <div
-    ref="map"
+    ref="mapContainer"
     :class="['fill-height', { 'polygon-mode': polygonMode }]"
     v-element-visibility="onVisible"
     @mouseleave="cursorCoordinates = undefined"
@@ -126,7 +126,7 @@
         :opacity="0.75"
         :visible="regions"
       />
-      <slot name="default" :map :zoom></slot>
+      <slot name="default" :mapContainer :zoom></slot>
 
       <!-- Hexagon layer  -->
       <LHexbinLayer
@@ -311,6 +311,7 @@ import { nextTick, ref, unref, UnwrapRef, useTemplateRef, watch } from 'vue'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
 import { Geocoordinates } from '.'
 
+import { Coordinates, CoordinatesPrecision } from '@/api'
 import MapColorLegend from '@/features/cartography/components/MapColorLegend.vue'
 import { vElementVisibility } from '@vueuse/components'
 import { HexgridLayer, MarkerLayer } from './map-layers'
@@ -342,7 +343,7 @@ const hexgrid = defineModel<HexgridLayer<Item>>('hexgrid', {
 const hexgridColorRange = ref<[number, number]>()
 
 const zoom = ref(1)
-const map = ref<HTMLElement>()
+const mapContainer = useTemplateRef<HTMLElement, 'mapContainer'>('mapContainer')
 const popupLayer = useTemplateRef<InstanceType<typeof LLayerGroup>>('popup-layer')
 
 const popupOpen = ref(false)
@@ -356,7 +357,7 @@ function selectSite(item: Item) {
   nextTick(() => popupLayer.value?.leafletObject?.openPopup(Geocoordinates.LatLng(item)))
 }
 
-const { isFullscreen, enter, exit, toggle } = useFullscreen(map, {})
+const { isFullscreen, enter, exit, toggle } = useFullscreen(mapContainer, {})
 onKeyStroke('Escape', exit)
 const toggleFullscreen = useThrottleFn(toggle)
 
@@ -388,7 +389,7 @@ const props = withDefaults(
 )
 
 const slots = defineSlots<{
-  default: (props: { zoom: number; map?: HTMLElement }) => any
+  default: (props: { zoom: number; mapContainer: HTMLElement | null }) => any
   popup: (props: { item: Item; popupOpen: boolean; zoom: number }) => any
   marker: (props: { latLng?: LatLngExpression }) => any
   'hex-popup': (props: { data?: HexPopupData<UnwrapRef<Item>>[] }) => any
@@ -498,7 +499,7 @@ onKeyStroke('Escape', () => {
   }
 })
 
-defineExpose({ fitBounds })
+defineExpose({ fitBounds, el: mapContainer })
 </script>
 
 <style lang="scss">

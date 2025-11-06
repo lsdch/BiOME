@@ -50,6 +50,7 @@ func New(r *gin.Engine, basePath string, config huma.Config) Router {
 	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.Person](), reflect.TypeFor[crossref.CrossRefPerson]())
 
 	registry.Map()[SchemaNamer(reflect.TypeFor[taxonomy.TaxaFilters](), "TaxaFilters")] = huma.SchemaFromType(registry, reflect.TypeFor[taxonomy.TaxaFilters]())
+	registry.Map()[SchemaNamer(reflect.TypeFor[occurrence.LatLongCoords](), "LatLongCoords")] = huma.SchemaFromType(registry, reflect.TypeFor[occurrence.LatLongCoords]())
 
 	API.OpenAPI().Components.Schemas = registry
 

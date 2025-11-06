@@ -2762,15 +2762,6 @@
 			"LatLongCoords": {
 				"additionalProperties": false,
 				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/LatLongCoords.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
 					"latitude": {
 						"examples": [
 							43.5684
@@ -5289,43 +5280,6 @@
 				],
 				"type": "object"
 			},
-			"ReverseGeocodeInputBody": {
-				"additionalProperties": true,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/ReverseGeocodeInputBody.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"latitude": {
-						"examples": [
-							43.5684
-						],
-						"format": "float",
-						"maximum": 90,
-						"minimum": -90,
-						"type": "number"
-					},
-					"longitude": {
-						"examples": [
-							3.5678
-						],
-						"format": "float",
-						"maximum": 180,
-						"minimum": -180,
-						"type": "number"
-					}
-				},
-				"required": [
-					"latitude",
-					"longitude"
-				],
-				"type": "object"
-			},
 			"Review": {
 				"additionalProperties": false,
 				"properties": {
@@ -7268,63 +7222,6 @@
 					"code",
 					"coordinates",
 					"user_defined_locality"
-				],
-				"type": "object"
-			},
-			"SitesProximityQuery": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/SitesProximityQuery.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"exclude": {
-						"description": "List of site codes to exclude from the result",
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"latitude": {
-						"examples": [
-							43.5684
-						],
-						"format": "float",
-						"maximum": 90,
-						"minimum": -90,
-						"type": "number"
-					},
-					"limit": {
-						"format": "int64",
-						"type": "integer"
-					},
-					"longitude": {
-						"examples": [
-							3.5678
-						],
-						"format": "float",
-						"maximum": 180,
-						"minimum": -180,
-						"type": "number"
-					},
-					"radius": {
-						"description": "Radius in meters",
-						"examples": [
-							20000
-						],
-						"format": "int32",
-						"type": "integer"
-					}
-				},
-				"required": [
-					"radius",
-					"latitude",
-					"longitude"
 				],
 				"type": "object"
 			},
@@ -11365,7 +11262,7 @@
 			}
 		},
 		"/geoapify/reverse-geocode": {
-			"post": {
+			"get": {
 				"operationId": "ReverseGeocode",
 				"parameters": [
 					{
@@ -11389,18 +11286,38 @@
 							"description": "Session cookie containing JWT",
 							"type": "string"
 						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/ReverseGeocodeInputBody"
-							}
+					},
+					{
+						"example": 43.5684,
+						"explode": false,
+						"in": "query",
+						"name": "latitude",
+						"schema": {
+							"examples": [
+								43.5684
+							],
+							"format": "float",
+							"maximum": 90,
+							"minimum": -90,
+							"type": "number"
 						}
 					},
-					"required": true
-				},
+					{
+						"example": 3.5678,
+						"explode": false,
+						"in": "query",
+						"name": "longitude",
+						"schema": {
+							"examples": [
+								3.5678
+							],
+							"format": "float",
+							"maximum": 180,
+							"minimum": -180,
+							"type": "number"
+						}
+					}
+				],
 				"responses": {
 					"200": {
 						"content": {
@@ -11994,7 +11911,7 @@
 			}
 		},
 		"/locations/coordinates": {
-			"post": {
+			"get": {
 				"operationId": "coordinatesToCountry",
 				"parameters": [
 					{
@@ -12018,18 +11935,38 @@
 							"description": "Session cookie containing JWT",
 							"type": "string"
 						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/LatLongCoords"
-							}
+					},
+					{
+						"example": 43.5684,
+						"explode": false,
+						"in": "query",
+						"name": "latitude",
+						"schema": {
+							"examples": [
+								43.5684
+							],
+							"format": "float",
+							"maximum": 90,
+							"minimum": -90,
+							"type": "number"
 						}
 					},
-					"required": true
-				},
+					{
+						"example": 3.5678,
+						"explode": false,
+						"in": "query",
+						"name": "longitude",
+						"schema": {
+							"examples": [
+								3.5678
+							],
+							"format": "float",
+							"maximum": 180,
+							"minimum": -180,
+							"type": "number"
+						}
+					}
+				],
 				"responses": {
 					"200": {
 						"content": {
@@ -12096,18 +12033,75 @@
 							"description": "Session cookie containing JWT",
 							"type": "string"
 						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/SitesProximityQuery"
-							}
+					},
+					{
+						"example": 43.5684,
+						"explode": false,
+						"in": "query",
+						"name": "latitude",
+						"schema": {
+							"examples": [
+								43.5684
+							],
+							"format": "float",
+							"maximum": 90,
+							"minimum": -90,
+							"type": "number"
 						}
 					},
-					"required": true
-				},
+					{
+						"example": 3.5678,
+						"explode": false,
+						"in": "query",
+						"name": "longitude",
+						"schema": {
+							"examples": [
+								3.5678
+							],
+							"format": "float",
+							"maximum": 180,
+							"minimum": -180,
+							"type": "number"
+						}
+					},
+					{
+						"description": "Radius in meters",
+						"example": 20000,
+						"explode": false,
+						"in": "query",
+						"name": "radius",
+						"schema": {
+							"description": "Radius in meters",
+							"examples": [
+								20000
+							],
+							"format": "int32",
+							"type": "integer"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "limit",
+						"schema": {
+							"format": "int64",
+							"type": "integer"
+						}
+					},
+					{
+						"description": "List of site codes to exclude from the result",
+						"explode": false,
+						"in": "query",
+						"name": "exclude",
+						"schema": {
+							"description": "List of site codes to exclude from the result",
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					}
+				],
 				"responses": {
 					"200": {
 						"content": {

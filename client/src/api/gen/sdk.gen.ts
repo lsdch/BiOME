@@ -2602,9 +2602,9 @@ export class ServicesService {
    * Reverse geocode coordinates using Geoapify API
    */
   public static reverseGeocode<ThrowOnError extends boolean = false>(
-    options: Options<ReverseGeocodeData, ThrowOnError>
+    options?: Options<ReverseGeocodeData, ThrowOnError>
   ) {
-    return (options.client ?? client).post<
+    return (options?.client ?? client).get<
       ReverseGeocodeResponses,
       ReverseGeocodeErrors,
       ThrowOnError
@@ -2621,11 +2621,7 @@ export class ServicesService {
         }
       ],
       url: '/geoapify/reverse-geocode',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
+      ...options
     })
   }
 
@@ -2689,9 +2685,9 @@ export class LocationService {
    * Get country from WGS84 coordinates
    */
   public static coordinatesToCountry<ThrowOnError extends boolean = false>(
-    options: Options<CoordinatesToCountryData, ThrowOnError>
+    options?: Options<CoordinatesToCountryData, ThrowOnError>
   ) {
-    return (options.client ?? client).post<
+    return (options?.client ?? client).get<
       CoordinatesToCountryResponses,
       CoordinatesToCountryErrors,
       ThrowOnError
@@ -2708,11 +2704,7 @@ export class LocationService {
         }
       ],
       url: '/locations/coordinates',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
+      ...options
     })
   }
 
@@ -2720,13 +2712,22 @@ export class LocationService {
    * List sites within a radius of a point
    */
   public static sitesProximity<ThrowOnError extends boolean = false>(
-    options: Options<SitesProximityData, ThrowOnError>
+    options?: Options<SitesProximityData, ThrowOnError>
   ) {
-    return (options.client ?? client).get<
+    return (options?.client ?? client).get<
       SitesProximityResponses,
       SitesProximityErrors,
       ThrowOnError
     >({
+      querySerializer: {
+        parameters: {
+          exclude: {
+            array: {
+              explode: false
+            }
+          }
+        }
+      },
       responseTransformer: sitesProximityResponseTransformer,
       security: [
         {
@@ -2740,11 +2741,7 @@ export class LocationService {
         }
       ],
       url: '/locations/coordinates/proximity',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
+      ...options
     })
   }
 

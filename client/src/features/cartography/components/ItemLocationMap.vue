@@ -47,7 +47,7 @@ const {
   error
 } = useQuery(
   sitesProximityOptions({
-    body: {
+    query: {
       latitude: site.coordinates.latitude,
       longitude: site.coordinates.longitude,
       radius: 100_000,

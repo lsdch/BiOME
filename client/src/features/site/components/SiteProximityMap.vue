@@ -60,18 +60,18 @@
 </template>
 
 <script setup lang="ts">
-import { LatLongCoords } from '@/api'
 import { sitesProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { useQuery } from '@tanstack/vue-query'
-import { LCircle, LMarker } from '@vue-leaflet/vue-leaflet'
-import { useDebounceFn, useMousePressed } from '@vueuse/core'
-import { LatLngLiteral } from 'leaflet'
-import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
+import { hasEventListener } from '@/components/toolkit/vue-utils'
 import { Coordinates, Geocoordinates, MaybeCoordinates } from '@/features/cartography/components'
 import BaseMap from '@/features/cartography/components/BaseMap.vue'
 import ProximityRadiusSlider from '@/features/cartography/components/ProximityRadiusSlider.vue'
-import { hasEventListener } from '@/components/toolkit/vue-utils'
+import { useQuery } from '@tanstack/vue-query'
+import { LCircle } from '@vue-leaflet/vue-leaflet'
+import { useDebounceFn, useMousePressed } from '@vueuse/core'
+import { LatLngLiteral } from 'leaflet'
+import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
 import SitePopup from './SitePopup.vue'
+import { LatLongCoords } from '@/api'
 
 const coords = defineModel<MaybeCoordinates>({ required: true })
 const { omitCodes } = defineProps<{ omitCodes?: string[] }>()
@@ -85,7 +85,7 @@ const proximityRadius = ref(0)
 const proximityFetchOptions = computed(() => ({
   enabled: hasValidCoords.value,
   ...sitesProximityOptions({
-    body: {
+    query: {
       latitude: coords.value!.latitude!,
       longitude: coords.value!.longitude!,
       radius: 100_000
@@ -95,8 +95,8 @@ const proximityFetchOptions = computed(() => ({
 
 const { data, isPending } = useQuery(proximityFetchOptions)
 
-const map = useTemplateRef<HTMLElement>('map')
-const mouse = useMousePressed({ target: map })
+const map = useTemplateRef('map')
+const mouse = useMousePressed({ target: map.value?.el })
 
 const draggingCoords = ref<LatLongCoords>()
 

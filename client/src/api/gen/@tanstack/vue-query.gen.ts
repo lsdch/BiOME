@@ -30,8 +30,6 @@ import type {
   ClaimInvitationResponse,
   ConfirmEmailData,
   CoordinatesToCountryData,
-  CoordinatesToCountryError,
-  CoordinatesToCountryResponse,
   CreateAbioticParameterData,
   CreateAbioticParameterError,
   CreateAbioticParameterResponse,
@@ -211,8 +209,6 @@ import type {
   ResetPasswordError,
   ResetPasswordResponse,
   ReverseGeocodeData,
-  ReverseGeocodeError,
-  ReverseGeocodeResponse,
   SamplingAddExternalOccurrenceData,
   SamplingAddExternalOccurrenceError,
   SamplingAddExternalOccurrenceResponse,
@@ -1448,27 +1444,25 @@ export const updateGeneMutation = (
   return mutationOptions
 }
 
+export const reverseGeocodeQueryKey = (options?: Options<ReverseGeocodeData>) =>
+  createQueryKey('reverseGeocode', options)
+
 /**
  * Reverse geocode coordinates using Geoapify API
  */
-export const reverseGeocodeMutation = (
-  options?: Partial<Options<ReverseGeocodeData>>
-): UseMutationOptions<ReverseGeocodeResponse, ReverseGeocodeError, Options<ReverseGeocodeData>> => {
-  const mutationOptions: UseMutationOptions<
-    ReverseGeocodeResponse,
-    ReverseGeocodeError,
-    Options<ReverseGeocodeData>
-  > = {
-    mutationFn: async (fnOptions) => {
+export const reverseGeocodeOptions = (options?: Options<ReverseGeocodeData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
       const { data } = await ServicesService.reverseGeocode({
         ...options,
-        ...fnOptions,
+        ...queryKey[0],
+        signal,
         throwOnError: true
       })
       return data
-    }
-  }
-  return mutationOptions
+    },
+    queryKey: reverseGeocodeQueryKey(options)
+  })
 }
 
 export const getGeoapifyStatusQueryKey = (options?: Options<GetGeoapifyStatusData>) =>
@@ -1638,40 +1632,34 @@ export const importGbifMutation = (
   return mutationOptions
 }
 
+export const coordinatesToCountryQueryKey = (options?: Options<CoordinatesToCountryData>) =>
+  createQueryKey('coordinatesToCountry', options)
+
 /**
  * Get country from WGS84 coordinates
  */
-export const coordinatesToCountryMutation = (
-  options?: Partial<Options<CoordinatesToCountryData>>
-): UseMutationOptions<
-  CoordinatesToCountryResponse,
-  CoordinatesToCountryError,
-  Options<CoordinatesToCountryData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CoordinatesToCountryResponse,
-    CoordinatesToCountryError,
-    Options<CoordinatesToCountryData>
-  > = {
-    mutationFn: async (fnOptions) => {
+export const coordinatesToCountryOptions = (options?: Options<CoordinatesToCountryData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.coordinatesToCountry({
         ...options,
-        ...fnOptions,
+        ...queryKey[0],
+        signal,
         throwOnError: true
       })
       return data
-    }
-  }
-  return mutationOptions
+    },
+    queryKey: coordinatesToCountryQueryKey(options)
+  })
 }
 
-export const sitesProximityQueryKey = (options: Options<SitesProximityData>) =>
+export const sitesProximityQueryKey = (options?: Options<SitesProximityData>) =>
   createQueryKey('sitesProximity', options)
 
 /**
  * List sites within a radius of a point
  */
-export const sitesProximityOptions = (options: Options<SitesProximityData>) => {
+export const sitesProximityOptions = (options?: Options<SitesProximityData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.sitesProximity({

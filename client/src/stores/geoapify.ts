@@ -34,7 +34,7 @@ export const useGeoapify = defineStore("geoapify", () => {
       ),
 
       ...reverseGeocodeOptions({
-        body: unref(coords) as Coordinates
+        query: unref(coords) as Coordinates
       }),
     })))
 

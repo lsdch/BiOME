@@ -2401,13 +2401,6 @@ export const $JournalIssue = {
 export const $LatLongCoords = {
   additionalProperties: false,
   properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/LatLongCoords.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
     latitude: {
       examples: [43.5684],
       format: 'float',
@@ -4597,35 +4590,6 @@ export const $ResendEmailVerificationInputBody = {
   type: 'object'
 } as const
 
-export const $ReverseGeocodeInputBody = {
-  additionalProperties: true,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/ReverseGeocodeInputBody.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    latitude: {
-      examples: [43.5684],
-      format: 'float',
-      maximum: 90,
-      minimum: -90,
-      type: 'number'
-    },
-    longitude: {
-      examples: [3.5678],
-      format: 'float',
-      maximum: 180,
-      minimum: -180,
-      type: 'number'
-    }
-  },
-  required: ['latitude', 'longitude'],
-  type: 'object'
-} as const
-
 export const $Review = {
   additionalProperties: false,
   properties: {
@@ -6381,52 +6345,6 @@ export const $SiteWithScore = {
     }
   },
   required: ['score', 'id', 'code', 'coordinates', 'user_defined_locality'],
-  type: 'object'
-} as const
-
-export const $SitesProximityQuery = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/SitesProximityQuery.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    exclude: {
-      description: 'List of site codes to exclude from the result',
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    latitude: {
-      examples: [43.5684],
-      format: 'float',
-      maximum: 90,
-      minimum: -90,
-      type: 'number'
-    },
-    limit: {
-      format: 'int64',
-      type: 'integer'
-    },
-    longitude: {
-      examples: [3.5678],
-      format: 'float',
-      maximum: 180,
-      minimum: -180,
-      type: 'number'
-    },
-    radius: {
-      description: 'Radius in meters',
-      examples: [20000],
-      format: 'int32',
-      type: 'integer'
-    }
-  },
-  required: ['radius', 'latitude', 'longitude'],
   type: 'object'
 } as const
 

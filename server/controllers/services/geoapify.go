@@ -9,6 +9,7 @@ import (
 	"github.com/lsdch/biome/resolvers"
 	"github.com/lsdch/biome/router"
 	"github.com/lsdch/biome/services/geoapify"
+	"github.com/sirupsen/logrus"
 
 	"github.com/danielgtaylor/huma/v2"
 )
@@ -39,7 +40,7 @@ func RegisterGeoapifyRoutes(r router.Router) {
 
 	router.Register(group, "ReverseGeocode",
 		huma.Operation{Path: "/reverse-geocode",
-			Method:  http.MethodPost,
+			Method:  http.MethodGet,
 			Summary: "Reverse geocode coordinates using Geoapify API",
 		},
 		ReverseGeocode,
@@ -49,10 +50,7 @@ func RegisterGeoapifyRoutes(r router.Router) {
 
 type ReverseGeocodeInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
-	Body struct {
-		_ struct{} `json:"-" additionalProperties:"true"`
-		*occurrence.LatLongCoords
-	}
+	occurrence.LatLongCoords
 }
 
 type ReverseGeocodeOutput struct {
@@ -62,9 +60,10 @@ type ReverseGeocodeOutput struct {
 func ReverseGeocode(ctx context.Context, input *ReverseGeocodeInput) (*ReverseGeocodeOutput, error) {
 	client, err := geoapify.NewClient()
 	if err != nil {
+		logrus.Errorf("failed to create Geoapify client: %v", err)
 		return nil, huma.Error403Forbidden("Geoapify client was not configured")
 	}
-	res, err := client.ReverseGeocode(input.DB(), input.Body.ToGeoapify())
+	res, err := client.ReverseGeocode(input.DB(), input.LatLongCoords.ToGeoapify())
 	if err != nil {
 		return nil, err
 	}
