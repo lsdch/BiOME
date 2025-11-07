@@ -50,27 +50,10 @@
         </v-col>
       </v-row>
       <v-row>
-        <v-col cols="12" sm="3">
-          <v-select
-            label="Sampling target"
-            v-bind="schema('target', 'kind')"
-            :items="$SamplingTargetKind.enum"
-            v-model="model.target.kind"
-            hide-details
-          >
-          </v-select>
-        </v-col>
         <v-col>
           <TaxonPicker
-            v-model="model.target.taxa"
-            v-bind="
-              addRules(
-                schema('target', 'taxa'),
-                (v: TaxonWithParentRef[] | undefined) =>
-                  model.target.kind !== 'Taxa' || (v?.length ?? 0) > 0 || 'Target taxa are required'
-              )
-            "
-            :disabled="model.target.kind !== 'Taxa'"
+            v-model="model.target_taxa"
+            v-bind="schema('target_taxa')"
             label="Target taxa"
             item-value="name"
             return-object
@@ -79,7 +62,6 @@
             chips
             closable-chips
             clearable
-            :class="{ required: model.target.kind === 'Taxa' }"
           />
         </v-col>
       </v-row>
@@ -151,23 +133,23 @@
 </template>
 
 <script setup lang="ts">
-import { $SamplingInput, $SamplingTargetKind, $SamplingUpdate } from '@/api'
-import { SiteItem, TaxonRank, TaxonWithParentRef } from '@/api/adapters'
-import AccessPointsPicker from '@/features/occurrences/components/sampling/AccessPointsPicker.vue'
+import { $SamplingInput, $SamplingUpdate } from '@/api'
+import { SiteItem, TaxonRank } from '@/api/adapters'
+import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
+import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import HoursMinutesInput from '@/components/toolkit/forms/HoursMinutesInput.vue'
-import SamplingMethodPicker from '@/features/registries/components/SamplingMethodPicker.vue'
+import { useSchema } from '@/composables/schema'
+import AccessPointsPicker from '@/features/occurrences/components/sampling/AccessPointsPicker.vue'
+import OrganisationPicker from '@/features/people/components/OrganisationPicker.vue'
+import PersonPicker from '@/features/people/components/PersonPicker.vue'
 import FixativePicker from '@/features/registries/components/FixativePicker.vue'
 import HabitatPicker from '@/features/registries/components/habitat/HabitatPicker.vue'
+import SamplingMethodPicker from '@/features/registries/components/SamplingMethodPicker.vue'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
-import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { addRules, useSchema } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
 import { SamplingModel } from '@/models'
 import { SiteFormModel } from '@/models/site'
 import { reactiveComputed } from '@vueuse/core'
-import OrganisationPicker from '@/features/people/components/OrganisationPicker.vue'
-import PersonPicker from '@/features/people/components/PersonPicker.vue'
-import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const model = defineModel<SamplingModel.SamplingFormModel>({

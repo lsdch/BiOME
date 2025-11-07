@@ -4702,11 +4702,14 @@ export const $Sampling = {
     performed_on: {
       $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
-    target: {
-      $ref: '#/components/schemas/SamplingTarget'
+    target_taxa: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
     }
   },
-  required: ['meta', 'code', 'target', 'id', 'number'],
+  required: ['meta', 'code', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -4787,11 +4790,14 @@ export const $SamplingAtSite = {
     performed_on: {
       $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
-    target: {
-      $ref: '#/components/schemas/SamplingTarget'
+    target_taxa: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
     }
   },
-  required: ['meta', 'code', 'target', 'id', 'number'],
+  required: ['meta', 'code', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -4893,11 +4899,14 @@ export const $SamplingDetailsWithOccurrences = {
     performed_on: {
       $ref: '#/components/schemas/OptionalDateWithPrecision'
     },
-    target: {
-      $ref: '#/components/schemas/SamplingTarget'
+    target_taxa: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
     }
   },
-  required: ['occurrences', 'code', 'target', 'id', 'number'],
+  required: ['occurrences', 'code', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -4966,11 +4975,14 @@ export const $SamplingInnerWithSite = {
     site: {
       $ref: '#/components/schemas/SiteItem'
     },
-    target: {
-      $ref: '#/components/schemas/SamplingTarget'
+    target_taxa: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
     }
   },
-  required: ['site', 'code', 'target', 'id', 'number'],
+  required: ['site', 'code', 'id', 'number'],
   type: 'object'
 } as const
 
@@ -5031,11 +5043,13 @@ export const $SamplingInput = {
     performed_on: {
       $ref: '#/components/schemas/DateWithPrecisionInput'
     },
-    target: {
-      $ref: '#/components/schemas/SamplingTargetInput'
+    target_taxa: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
     }
   },
-  required: ['target'],
   type: 'object'
 } as const
 
@@ -5099,11 +5113,14 @@ export const $SamplingInputAtSite = {
     site_code: {
       type: 'string'
     },
-    target: {
-      $ref: '#/components/schemas/SamplingTargetInput'
+    target_taxa: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
     }
   },
-  required: ['site_code', 'target'],
+  required: ['site_code'],
   type: 'object'
 } as const
 
@@ -5205,46 +5222,6 @@ export const $SamplingOutline = {
   type: 'object'
 } as const
 
-export const $SamplingTarget = {
-  additionalProperties: false,
-  properties: {
-    kind: {
-      $ref: '#/components/schemas/SamplingTargetKind'
-    },
-    taxa: {
-      items: {
-        $ref: '#/components/schemas/Taxon'
-      },
-      type: 'array'
-    }
-  },
-  required: ['kind'],
-  type: 'object'
-} as const
-
-export const $SamplingTargetInput = {
-  additionalProperties: false,
-  properties: {
-    kind: {
-      $ref: '#/components/schemas/SamplingTargetKind'
-    },
-    taxa: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    }
-  },
-  required: ['kind'],
-  type: 'object'
-} as const
-
-export const $SamplingTargetKind = {
-  enum: ['Community', 'Unknown', 'Taxa'],
-  title: 'SamplingTargetKind',
-  type: 'string'
-} as const
-
 export const $SamplingUpdate = {
   additionalProperties: false,
   properties: {
@@ -5302,11 +5279,13 @@ export const $SamplingUpdate = {
     performed_on: {
       $ref: '#/components/schemas/DateWithPrecisionInput'
     },
-    target: {
-      $ref: '#/components/schemas/SamplingTargetInput'
+    target_taxa: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
     }
   },
-  required: ['target'],
   type: 'object'
 } as const
 
@@ -5390,11 +5369,14 @@ export const $SamplingWithSite = {
     site: {
       $ref: '#/components/schemas/SiteItem'
     },
-    target: {
-      $ref: '#/components/schemas/SamplingTarget'
+    target_taxa: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
     }
   },
-  required: ['site', 'meta', 'code', 'target', 'id', 'number'],
+  required: ['site', 'meta', 'code', 'id', 'number'],
   type: 'object'
 } as const
 

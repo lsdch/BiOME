@@ -11,9 +11,6 @@ export type SamplingFormModel = Omit<{
 
 export function initialModel(): Reactive<SamplingFormModel> {
   return reactive({
-    target: {
-      kind: "Taxa"
-    },
     performed_on: { precision: 'Day', date: {} }
   })
 }
@@ -23,7 +20,7 @@ export function fromSampling({
   access_points,
   fixatives,
   habitats,
-  target,
+  target_taxa,
   comments,
   methods,
   performed_on,
@@ -34,10 +31,7 @@ export function fromSampling({
     duration,
     access_points,
     comments,
-    target: {
-      kind: target.kind,
-      taxa: target.taxa
-    },
+    target_taxa,
     habitats,
     fixatives,
     methods,
@@ -51,7 +45,7 @@ export function toRequestBody({
   duration,
   access_points,
   comments,
-  target,
+  target_taxa,
   habitats,
   fixatives,
   methods,
@@ -63,10 +57,7 @@ export function toRequestBody({
     duration,
     access_points,
     comments,
-    target: {
-      kind: target.kind,
-      taxa: target.taxa?.map(({ name }) => name)
-    },
+    target_taxa: target_taxa?.map(({ name }) => name),
     habitats: habitats?.map(({ label }) => label),
     fixatives: fixatives?.map(({ code }) => code),
     methods: methods?.map(({ code }) => code),

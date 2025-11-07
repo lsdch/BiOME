@@ -3119,11 +3119,6 @@ export class OccurrencesService {
               explode: false
             }
           },
-          sampling_target_kinds: {
-            array: {
-              explode: false
-            }
-          },
           sampling_target_taxa: {
             array: {
               explode: false

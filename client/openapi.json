@@ -5393,14 +5393,16 @@
 					"performed_on": {
 						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTarget"
+					"target_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"meta",
 					"code",
-					"target",
 					"id",
 					"number"
 				],
@@ -5483,14 +5485,16 @@
 					"performed_on": {
 						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTarget"
+					"target_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"meta",
 					"code",
-					"target",
 					"id",
 					"number"
 				],
@@ -5596,14 +5600,16 @@
 					"performed_on": {
 						"$ref": "#/components/schemas/OptionalDateWithPrecision"
 					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTarget"
+					"target_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"occurrences",
 					"code",
-					"target",
 					"id",
 					"number"
 				],
@@ -5674,14 +5680,16 @@
 					"site": {
 						"$ref": "#/components/schemas/SiteItem"
 					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTarget"
+					"target_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"site",
 					"code",
-					"target",
 					"id",
 					"number"
 				],
@@ -5746,13 +5754,13 @@
 					"performed_on": {
 						"$ref": "#/components/schemas/DateWithPrecisionInput"
 					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTargetInput"
+					"target_taxa": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
-				"required": [
-					"target"
-				],
 				"type": "object"
 			},
 			"SamplingInputAtSite": {
@@ -5817,13 +5825,15 @@
 					"site_code": {
 						"type": "string"
 					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTargetInput"
+					"target_taxa": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
-					"site_code",
-					"target"
+					"site_code"
 				],
 				"type": "object"
 			},
@@ -5941,51 +5951,6 @@
 				],
 				"type": "object"
 			},
-			"SamplingTarget": {
-				"additionalProperties": false,
-				"properties": {
-					"kind": {
-						"$ref": "#/components/schemas/SamplingTargetKind"
-					},
-					"taxa": {
-						"items": {
-							"$ref": "#/components/schemas/Taxon"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"kind"
-				],
-				"type": "object"
-			},
-			"SamplingTargetInput": {
-				"additionalProperties": false,
-				"properties": {
-					"kind": {
-						"$ref": "#/components/schemas/SamplingTargetKind"
-					},
-					"taxa": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"kind"
-				],
-				"type": "object"
-			},
-			"SamplingTargetKind": {
-				"enum": [
-					"Community",
-					"Unknown",
-					"Taxa"
-				],
-				"title": "SamplingTargetKind",
-				"type": "string"
-			},
 			"SamplingUpdate": {
 				"additionalProperties": false,
 				"properties": {
@@ -6069,13 +6034,13 @@
 					"performed_on": {
 						"$ref": "#/components/schemas/DateWithPrecisionInput"
 					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTargetInput"
+					"target_taxa": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					}
 				},
-				"required": [
-					"target"
-				],
 				"type": "object"
 			},
 			"SamplingWithSite": {
@@ -6158,15 +6123,17 @@
 					"site": {
 						"$ref": "#/components/schemas/SiteItem"
 					},
-					"target": {
-						"$ref": "#/components/schemas/SamplingTarget"
+					"target_taxa": {
+						"items": {
+							"$ref": "#/components/schemas/Taxon"
+						},
+						"type": "array"
 					}
 				},
 				"required": [
 					"site",
 					"meta",
 					"code",
-					"target",
 					"id",
 					"number"
 				],
@@ -12615,19 +12582,6 @@
 						"schema": {
 							"items": {
 								"type": "string"
-							},
-							"type": "array"
-						}
-					},
-					{
-						"description": "List of sampling target names. \"Community\" ",
-						"explode": false,
-						"in": "query",
-						"name": "sampling_target_kinds",
-						"schema": {
-							"description": "List of sampling target names. \"Community\" ",
-							"items": {
-								"$ref": "#/components/schemas/SamplingTargetKind"
 							},
 							"type": "array"
 						}

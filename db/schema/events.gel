@@ -44,7 +44,6 @@ module events {
     required value: float32;
   }
 
-  scalar type SamplingTarget extending enum<Community, Unknown, Taxa>;
 
   type SamplingMethod extending default::Vocabulary, default::Auditable;
 
@@ -63,7 +62,6 @@ module events {
     multi methods: SamplingMethod;
     multi fixatives: samples::Fixative; # TODO : what is the relation with conservation of samples down the stream ?
 
-    required sampling_target: SamplingTarget;
     multi target_taxa: taxonomy::Taxon {
       annotation title := "Taxonomic groups that were the target of the sampling effort"
       # handle in application logic

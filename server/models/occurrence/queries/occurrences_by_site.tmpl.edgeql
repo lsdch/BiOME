@@ -12,7 +12,6 @@ with module occurrence,
   ),
   whole_clade := <bool>json_get(params, 'whole_clade'),
   habitats := <str>json_array_unpack(json_get(params, 'habitats')),
-  sampling_target_kinds := <events::SamplingTarget>json_array_unpack(json_get(params, 'sampling_target_kinds')),
   sampling_target_taxa_names := <str>json_array_unpack(json_get(params, 'sampling_target_taxa')),
   sampling_target_taxa := (
     if exists sampling_target_taxa_names then (
@@ -25,15 +24,12 @@ with module occurrence,
 select location::Site {
   *,
   country: { * },
-  {{ if or .Habitats .SamplingTargetKinds .SamplingTargetTaxa }}
+  {{ if or .Habitats .SamplingTargetTaxa }}
   samplings := (
     select .samplings
     filter (
       {{ if .Habitats }}
         all(habitats in .habitats.label) and
-      {{ end }}
-      {{ if .SamplingTargetKinds }}
-        .sampling_target in sampling_target_kinds and
       {{ end }}
       {{ if .SamplingTargetTaxa }}
         {{ if .SamplingTargetWholeClade }}

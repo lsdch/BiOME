@@ -1726,7 +1726,7 @@ export type Sampling = {
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
   performed_on?: OptionalDateWithPrecision
-  target: SamplingTarget
+  target_taxa?: Array<Taxon>
 }
 
 export type SamplingAtSite = {
@@ -1751,7 +1751,7 @@ export type SamplingAtSite = {
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
   performed_on?: OptionalDateWithPrecision
-  target: SamplingTarget
+  target_taxa?: Array<Taxon>
 }
 
 export type SamplingDateWithOccurrences = {
@@ -1782,7 +1782,7 @@ export type SamplingDetailsWithOccurrences = {
   performed_by?: Array<PersonUser>
   performed_by_groups?: Array<OrganisationInner>
   performed_on?: OptionalDateWithPrecision
-  target: SamplingTarget
+  target_taxa?: Array<Taxon>
 }
 
 export type SamplingInnerWithSite = {
@@ -1805,7 +1805,7 @@ export type SamplingInnerWithSite = {
   performed_by_groups?: Array<OrganisationInner>
   performed_on?: OptionalDateWithPrecision
   site: SiteItem
-  target: SamplingTarget
+  target_taxa?: Array<Taxon>
 }
 
 export type SamplingInput = {
@@ -1825,7 +1825,7 @@ export type SamplingInput = {
   performed_by?: Array<string>
   performed_by_groups?: Array<string>
   performed_on?: DateWithPrecisionInput
-  target: SamplingTargetInput
+  target_taxa?: Array<string>
 }
 
 export type SamplingInputAtSite = {
@@ -1846,7 +1846,7 @@ export type SamplingInputAtSite = {
   performed_by_groups?: Array<string>
   performed_on?: DateWithPrecisionInput
   site_code: string
-  target: SamplingTargetInput
+  target_taxa?: Array<string>
 }
 
 export type SamplingMethod = {
@@ -1890,21 +1890,6 @@ export type SamplingOutline = {
   performed_on?: OptionalDateWithPrecision
 }
 
-export type SamplingTarget = {
-  kind: SamplingTargetKind
-  taxa?: Array<Taxon>
-}
-
-export type SamplingTargetInput = {
-  kind: SamplingTargetKind
-  taxa?: Array<string>
-}
-
-/**
- * SamplingTargetKind
- */
-export type SamplingTargetKind = 'Community' | 'Unknown' | 'Taxa'
-
 export type SamplingUpdate = {
   /**
    * A URL to the JSON Schema for this object.
@@ -1922,7 +1907,7 @@ export type SamplingUpdate = {
   performed_by?: Array<string> | null
   performed_by_groups?: Array<string> | null
   performed_on?: DateWithPrecisionInput
-  target: SamplingTargetInput
+  target_taxa?: Array<string>
 }
 
 export type SamplingWithSite = {
@@ -1948,7 +1933,7 @@ export type SamplingWithSite = {
   performed_by_groups?: Array<OrganisationInner>
   performed_on?: OptionalDateWithPrecision
   site: SiteItem
-  target: SamplingTarget
+  target_taxa?: Array<Taxon>
 }
 
 export type SecuritySettings = {
@@ -4766,10 +4751,6 @@ export type OccurrencesBySiteData = {
     taxa?: Array<string>
     whole_clade?: boolean
     habitats?: Array<string>
-    /**
-     * List of sampling target names. "Community"
-     */
-    sampling_target_kinds?: Array<SamplingTargetKind>
     sampling_target_taxa?: Array<string>
     sampling_target_whole_clade?: boolean
     /**

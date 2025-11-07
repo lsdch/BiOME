@@ -75,11 +75,6 @@ func DeleteSamplingMethod(db geltypes.Executor, code string) (deleted SamplingMe
 	return
 }
 
-type SamplingTarget struct {
-	Kind       SamplingTargetKind `gel:"sampling_target" json:"kind"`
-	TargetTaxa []taxonomy.Taxon   `gel:"target_taxa" json:"taxa,omitempty"`
-}
-
 type SamplingOutline struct {
 	ID          geltypes.UUID             `gel:"id" json:"id" format:"uuid"`
 	Number      int64                     `gel:"number" json:"number" doc:"Auto-incrementing number, unique per sampling"`
@@ -90,7 +85,7 @@ type SamplingInner struct {
 	Code              string                     `gel:"code" json:"code"`
 	PerformedBy       []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
 	PerformedByGroups []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
-	Target            SamplingTarget             `gel:"$inline" json:"target"`
+	TargetTaxa        []taxonomy.Taxon           `gel:"target_taxa" json:"target_taxa,omitempty"`
 	Duration          geltypes.OptionalInt32     `gel:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
 	Methods           []SamplingMethod           `gel:"methods" json:"methods,omitempty"`
 	Fixatives         []vocabulary.Fixative      `gel:"fixatives" json:"fixatives,omitempty"`
@@ -136,20 +131,15 @@ func (i SamplingInputAtSite) Save(e geltypes.Executor) (Sampling, error) {
 	return i.SamplingInput.Save(e, i.SiteCode)
 }
 
-type SamplingTargetInput struct {
-	Kind SamplingTargetKind `json:"kind"`
-	Taxa []string           `json:"taxa,omitempty"`
-}
-
 type SamplingInput struct {
 	ActionInput  `json:",inline"`
-	Target       SamplingTargetInput `json:"target"`
-	Methods      []string            `json:"methods,omitempty"`
-	Fixatives    []string            `json:"fixatives,omitempty"`
-	Duration     *int32              `json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Comments     *string             `json:"comments,omitempty"`
-	Habitats     []string            `json:"habitats,omitempty"`
-	AccessPoints []string            `json:"access_points,omitempty"`
+	TargetTaxa   []string `json:"target_taxa,omitempty"`
+	Methods      []string `json:"methods,omitempty"`
+	Fixatives    []string `json:"fixatives,omitempty"`
+	Duration     *int32   `json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Comments     *string  `json:"comments,omitempty"`
+	Habitats     []string `json:"habitats,omitempty"`
+	AccessPoints []string `json:"access_points,omitempty"`
 }
 
 func (i *SamplingInput) QuickSave(e geltypes.Executor, siteCode string) (created SamplingOutline, err error) {
@@ -199,7 +189,7 @@ type SamplingUpdate struct {
 	PerformedBy       models.OptionalNull[[]string]                `gel:"performed_by" json:"performed_by,omitempty"`
 	PerformedByGroups models.OptionalNull[[]string]                `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
 	PerformedOn       models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
-	Target            models.OptionalInput[SamplingTargetInput]    `json:"target"`
+	Target            models.OptionalInput[[]string]               `gel:"target_taxa" json:"target_taxa,omitempty"`
 	Methods           models.OptionalNull[[]string]                `gel:"methods" json:"methods,omitempty"`
 	Fixatives         models.OptionalNull[[]string]                `gel:"fixatives" json:"fixatives,omitempty"`
 	Duration          models.OptionalNull[int32]                   `gel:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
@@ -241,7 +231,6 @@ func (u SamplingUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Sam
 			"performed_on": `#edgeql
 				date::from_json_with_precision(json_get(data,'performed_on'))
 			`,
-			"sampling_target": "<events::SamplingTarget>item['target_kind']",
 			"target_taxa": `#edgeql
 				(
 					select taxonomy::Taxon

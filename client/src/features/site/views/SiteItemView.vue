@@ -200,8 +200,8 @@ const last_sampled = computed(() => {
 
 const targeted_taxa = computed(() => {
   return Object.values(
-    site.value?.samplings?.reduce<Record<string, Taxon>>((acc, { target }) => {
-      target.taxa?.forEach((t) => {
+    site.value?.samplings?.reduce<Record<string, Taxon>>((acc, { target_taxa }) => {
+      target_taxa?.forEach((t) => {
         acc[t.name] = t
       })
       return acc

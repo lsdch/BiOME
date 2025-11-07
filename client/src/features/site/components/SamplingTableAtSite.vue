@@ -14,8 +14,10 @@
         </template>
       </SamplingCardDialog>
     </template>
-    <template #item.target="{ value }">
-      <SamplingTargetChips :target="value"></SamplingTargetChips>
+    <template #item.target_taxa="{ value }">
+      <div class="d-flex align-center ga-1">
+        <TaxonChip v-for="taxon in value" :taxon />
+      </div>
     </template>
     <template #item.occurrences="{ value, toggleExpand, internalItem }">
       <v-chip
@@ -61,8 +63,8 @@ import { CodeIdentifier, DateWithPrecision, SamplingAtSite } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import OccurrenceIcon from '@/features/occurrences/components/OccurrenceIcon'
 import SamplingCardDialog from '@/features/occurrences/components/sampling/SamplingCardDialog.vue'
-import SamplingTargetChips from '@/features/occurrences/components/sampling/SamplingTargetChips.vue'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
+import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 
 const { samplings } = defineProps<{ samplings: SamplingAtSite[] }>()
 
@@ -73,7 +75,7 @@ const headers: CRUDTableHeader<SamplingAtSite>[] = [
     key: 'performed_on',
     sort: DateWithPrecision.compare
   },
-  { title: 'Target', key: 'target', sortable: false },
+  { title: 'Target', key: 'target_taxa', sortable: false },
   {
     title: 'Occurrences',
     key: 'occurrences',

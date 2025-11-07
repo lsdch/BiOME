@@ -3,7 +3,9 @@
     <template #append>
       <span class="text-caption text-muted">Target</span>
     </template>
-    <SamplingTargetChips :target="sampling.target"></SamplingTargetChips>
+    <div class="d-flex align-center ga-1">
+      <TaxonChip v-for="taxon in sampling.target_taxa" :taxon />
+    </div>
   </v-list-item>
 
   <v-list-item prepend-icon="mdi-update">
@@ -75,9 +77,9 @@
 
 <script setup lang="ts">
 import { DateWithPrecision, DateWithPrecisionInput, HabitatRecord, Sampling } from '@/api'
+import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import { Duration } from 'luxon'
 import { Optional } from 'ts-toolbelt/out/Object/Optional'
-import SamplingTargetChips from './SamplingTargetChips.vue'
 
 const { sampling } = defineProps<{
   sampling: Omit<Optional<Sampling, 'id' | 'meta' | 'number'>, 'habitats' | 'performed_on'> & {

@@ -25,7 +25,7 @@ with module events,
     sampling_target := <SamplingTarget>(data['target']['kind']),
     target_taxa := (
       select taxonomy::Taxon
-      filter .name in <str>json_array_unpack(json_get(data, 'target', 'taxa'))
+      filter .name in <str>json_array_unpack(json_get(data, 'target_taxa'))
     ),
     sampling_duration := <int32>json_get(data, 'duration'),
     comments := <str>json_get(data, 'comments'),

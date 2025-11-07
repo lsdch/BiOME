@@ -72,35 +72,6 @@
       <SiteSamplingStatusFilter density="compact" v-model="filters.include_sites" />
     </v-list-item>
     <v-list-item>
-      <SamplingTargetKindFilter density="compact" v-model="filters.sampling_target_kinds">
-        <template #chip="{ item, props }">
-          <v-chip
-            v-bind="props"
-            :title="item.title"
-            :closable="item.value !== 'Taxa' || !filters.sampling_target_taxa?.length"
-          />
-        </template>
-        <template #item="{ item, props }">
-          <v-list-item
-            v-bind="props"
-            :title="item.title"
-            density="compact"
-            lines="one"
-            :disabled="item.value === 'Taxa' && !!filters.sampling_target_taxa?.length"
-          >
-            <template #prepend="{ isSelected, select }">
-              <v-checkbox
-                :model-value="isSelected"
-                @update:model-value="(v) => select(v ?? false)"
-                color=""
-                hide-details
-              />
-            </template>
-          </v-list-item>
-        </template>
-      </SamplingTargetKindFilter>
-    </v-list-item>
-    <v-list-item>
       <TaxonPicker
         v-model="filters.sampling_target_taxa"
         label="Targeted taxa"
@@ -168,7 +139,6 @@ import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { reactive, ref, watch } from 'vue'
-import SamplingTargetKindFilter from '@/features/occurrences/components/SamplingTargetKindPicker.vue'
 import SiteSamplingStatusFilter from '@/features/cartography/components/SiteSamplingStatusFilter.vue'
 
 export type MappingFilters = Overwrite<
@@ -182,15 +152,6 @@ const sampledTaxa = ref({
 })
 
 const filters = defineModel<MappingFilters>({ default: () => reactive({}) })
-
-watch(
-  () => filters.value.sampling_target_taxa,
-  (newValue) => {
-    if (newValue?.length && !filters.value.sampling_target_kinds?.includes('Taxa')) {
-      filters.value.sampling_target_kinds = [...(filters.value.sampling_target_kinds ?? []), 'Taxa']
-    }
-  }
-)
 </script>
 
 <style lang="scss">

@@ -141,11 +141,10 @@ const (
 type OccurrencesBySiteOptions struct {
 	ListSitesOptions
 	taxonomy.TaxaFilters     `json:",inline"`
-	Habitats                 []string             `json:"habitats,omitempty" query:"habitats"`
-	SamplingTargetKinds      []SamplingTargetKind `json:"sampling_target_kinds,omitempty" query:"sampling_target_kinds" doc:"List of sampling target names. \"Community\" "`
-	SamplingTargetTaxa       []string             `json:"sampling_target_taxa,omitempty" query:"sampling_target_taxa"`
-	SamplingTargetWholeClade bool                 `json:"sampling_target_whole_clade" query:"sampling_target_whole_clade"`
-	IncludeSites             SiteSamplingStatus   `json:"include_sites,omitempty" query:"include_sites" default:"All" doc:"Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence."`
+	Habitats                 []string           `json:"habitats,omitempty" query:"habitats"`
+	SamplingTargetTaxa       []string           `json:"sampling_target_taxa,omitempty" query:"sampling_target_taxa"`
+	SamplingTargetWholeClade bool               `json:"sampling_target_whole_clade" query:"sampling_target_whole_clade"`
+	IncludeSites             SiteSamplingStatus `json:"include_sites,omitempty" query:"include_sites" default:"All" doc:"Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence."`
 }
 
 func (o OccurrencesBySiteOptions) Options() OccurrencesBySiteOptions {

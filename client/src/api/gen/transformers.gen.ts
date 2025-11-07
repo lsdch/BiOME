@@ -649,7 +649,11 @@ const samplingInnerWithSiteSchemaResponseTransformer = (data: any) => {
     data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
   }
   data.site = siteItemSchemaResponseTransformer(data.site)
-  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  if (data.target_taxa) {
+    data.target_taxa = data.target_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
+    })
+  }
   return data
 }
 
@@ -660,15 +664,6 @@ const habitatSchemaResponseTransformer = (data: any) => {
 
 const samplingMethodSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
-  return data
-}
-
-const samplingTargetSchemaResponseTransformer = (data: any) => {
-  if (data.taxa) {
-    data.taxa = data.taxa.map((item: any) => {
-      return taxonSchemaResponseTransformer(item)
-    })
-  }
   return data
 }
 
@@ -834,7 +829,11 @@ const samplingWithSiteSchemaResponseTransformer = (data: any) => {
     data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
   }
   data.site = siteItemSchemaResponseTransformer(data.site)
-  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  if (data.target_taxa) {
+    data.target_taxa = data.target_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
+    })
+  }
   return data
 }
 
@@ -1050,7 +1049,11 @@ const samplingSchemaResponseTransformer = (data: any) => {
   if (data.performed_on) {
     data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
   }
-  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  if (data.target_taxa) {
+    data.target_taxa = data.target_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
+    })
+  }
   return data
 }
 
@@ -1290,7 +1293,11 @@ const samplingAtSiteSchemaResponseTransformer = (data: any) => {
   if (data.performed_on) {
     data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
   }
-  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  if (data.target_taxa) {
+    data.target_taxa = data.target_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
+    })
+  }
   return data
 }
 
@@ -1341,7 +1348,11 @@ const samplingDetailsWithOccurrencesSchemaResponseTransformer = (data: any) => {
   if (data.performed_on) {
     data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
   }
-  data.target = samplingTargetSchemaResponseTransformer(data.target)
+  if (data.target_taxa) {
+    data.target_taxa = data.target_taxa.map((item: any) => {
+      return taxonSchemaResponseTransformer(item)
+    })
+  }
   return data
 }
 
