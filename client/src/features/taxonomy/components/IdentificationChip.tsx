@@ -1,11 +1,11 @@
-import { Identification, Taxon } from '@/api'
+import { BaseIdentification, Identification, Taxon } from '@/api'
 import { FTaxonStatusIndicator } from '@/features/taxonomy/components/functionals'
 import LinkIconGBIF from '@/features/taxonomy/components/LinkIconGBIF'
 import { withModifiers } from 'vue'
 import { VChip } from 'vuetify/components'
 
 export type IdentificationChipProps = VChip['$props'] & {
-  identification: Identification & Partial<Taxon>
+  identification: BaseIdentification & Partial<Taxon>
   short?: boolean
 }
 
