@@ -23,7 +23,6 @@ import {
   DatasetCategory as TDatasetCategory,
   Status as GeoapifyStatus,
   GeoapifyResult,
-  SamplingTargetKind as TSamplingTargetKind,
   Identification as TIdentification,
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/users/UserRoleChip"
