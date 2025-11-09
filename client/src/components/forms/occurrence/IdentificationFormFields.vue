@@ -1,5 +1,33 @@
 <template>
-  <TaxonPicker v-model="model.taxon" return-object v-bind="schema('taxon')" />
+  <div class="d-flex">
+    <TaxonPicker v-model="model.taxon" :min-width="500" return-object v-bind="schema('taxon')">
+      <template #append-inner>
+        <v-btn
+          :active="model.confer"
+          @click="model.confer = !model.confer"
+          color=""
+          active-color="primary"
+          :variant="model.confer ? 'outlined' : 'plain'"
+          rounded="sm"
+          text="cf."
+          size="small"
+          class="font-monospace"
+          v-tooltip="{
+            location: 'top',
+            text: 'When active, indicates a tentative identification'
+          }"
+        />
+      </template>
+    </TaxonPicker>
+    <v-text-field
+      v-model="model.addendum"
+      label="Addendum"
+      class="ml-2 flex-grow-0"
+      :min-width="250"
+      v-bind="schema('addendum')"
+      placeholder="e.g. form A, group B..."
+    />
+  </div>
   <PersonPicker
     v-model="model.identified_by"
     label="Curator"
@@ -10,23 +38,20 @@
 </template>
 
 <script setup lang="ts">
-import {
-  $IdentificationInput,
-  $IdentificationUpdate,
-  DateWithPrecisionInput,
-  PersonUser,
-  Taxon
-} from '@/api'
+import { $IdentificationInput, $IdentificationUpdate, PersonUser, Taxon } from '@/api'
 import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
+import { useSchema } from '@/composables/schema'
 import PersonPicker from '@/features/people/components/PersonPicker.vue'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
-import { useSchema } from '@/composables/schema'
-import { reactiveComputed } from '@vueuse/core'
 import { FormProps } from '@/lib/mutations'
+import { DateWithPrecisionModel } from '@/models/date_with_precision'
+import { reactiveComputed } from '@vueuse/core'
 
 export type IdentificationModel = {
-  identified_on: DateWithPrecisionInput
+  identified_on: DateWithPrecisionModel
   identified_by?: PersonUser
+  confer?: boolean
+  addendum?: string
   taxon?: Taxon
 }
 

@@ -1,12 +1,12 @@
-import { DateWithPrecision, DateWithPrecisionInput, HabitatRecord, Sampling, SamplingInput, SamplingUpdate } from "@/api";
-import { reactive } from "vue";
-import { Reactive } from "vue";
+import { HabitatRecord, Sampling, SamplingInput, SamplingUpdate } from "@/api";
+import { DateWithPrecisionModel, toInput as DateWithPrecisionToInput, fromDateWithPrecision } from "@/models/date_with_precision";
+import { reactive, Reactive } from "vue";
 
 export type SamplingFormModel = Omit<{
   [K in keyof SamplingInput]: K extends keyof Sampling ? Sampling[K] : never
 }, 'habitats' | 'performed_on'> & {
   habitats?: HabitatRecord[],
-  performed_on?: DateWithPrecisionInput
+  performed_on: DateWithPrecisionModel
 }
 
 export function initialModel(): Reactive<SamplingFormModel> {
@@ -35,7 +35,7 @@ export function fromSampling({
     habitats,
     fixatives,
     methods,
-    performed_on: DateWithPrecision.toInput(performed_on),
+    performed_on: fromDateWithPrecision(performed_on),
     performed_by: performed_by ?? [],
     performed_by_groups: performed_by_groups ?? [],
   }
@@ -61,7 +61,7 @@ export function toRequestBody({
     habitats: habitats?.map(({ label }) => label),
     fixatives: fixatives?.map(({ code }) => code),
     methods: methods?.map(({ code }) => code),
-    performed_on: performed_on,
+    performed_on: DateWithPrecisionToInput(performed_on),
     performed_by: performed_by?.map(({ alias }) => alias),
     performed_by_groups: performed_by_groups?.map(({ code }) => code),
   } satisfies SamplingUpdate
