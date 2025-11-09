@@ -108,19 +108,19 @@ func ListSamplingsAtSite(db geltypes.Executor, siteCode string) ([]SamplingDetai
 				site := (select location::Site filter .code = <str>$0),
 			select site.samplings {
 				id,
-				date := .performed_on,
-				sampling_target,
+				number,
+				performed_on,
 				target_taxa: { * },
 				habitats: { * },
 				fixatives: { * },
 				methods: { * },
-				meta: { * }
+				meta: { * },
 				occurrences := (
 					select .occurrences {
 						id,
 						code,
 						category,
-						identification: { **, identified_by: { ** } },
+						identification: { identified_on, confer, addendum, taxon: { * } },
 					}
 				)
 			}
