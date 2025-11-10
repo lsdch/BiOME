@@ -31,7 +31,7 @@ with module occurrence,
           addendum := <str>json_get(identification, 'addendum'),
         }
       ),
-      is_type := <bool>json_get(data, 'is_type') ?? false,
+      type_status := <occurrence::TypeStatus>json_get(data, 'type_status'),
     }
   ),
   sequences := (

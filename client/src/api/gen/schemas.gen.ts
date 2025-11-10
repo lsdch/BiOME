@@ -1215,11 +1215,6 @@ export const $ExternalOccurrenceInput = {
       $ref: '#/components/schemas/IdentificationInput',
       description: 'Occurrence identification'
     },
-    is_type: {
-      description:
-        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.',
-      type: 'boolean'
-    },
     original_taxon: {
       type: 'string'
     },
@@ -1243,6 +1238,11 @@ export const $ExternalOccurrenceInput = {
         type: 'string'
       },
       type: 'array'
+    },
+    type_status: {
+      description:
+        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.',
+      type: 'boolean'
     },
     vouchers: {
       items: {
@@ -1324,9 +1324,6 @@ export const $ExternalOccurrenceUpdate = {
     identification: {
       $ref: '#/components/schemas/IdentificationUpdate'
     },
-    is_type: {
-      type: 'boolean'
-    },
     original_taxon: {
       type: ['string', 'null']
     },
@@ -1345,6 +1342,10 @@ export const $ExternalOccurrenceUpdate = {
       type: 'string'
     },
     sources: {
+      type: ['string', 'null']
+    },
+    type_status: {
+      $ref: '#/components/schemas/TypeStatus',
       type: ['string', 'null']
     },
     vouchers: {
@@ -1688,26 +1689,17 @@ export const $GenericOccurrenceSamplingInnerWithSite = {
     identification: {
       $ref: '#/components/schemas/Identification'
     },
-    is_type: {
-      type: 'boolean'
-    },
     meta: {
       $ref: '#/components/schemas/Meta'
     },
     sampling: {
       $ref: '#/components/schemas/SamplingInnerWithSite'
+    },
+    type_status: {
+      $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: [
-    'id',
-    'has_sequences',
-    'sampling',
-    'identification',
-    'is_type',
-    'meta',
-    'code',
-    'category'
-  ],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
   type: 'object'
 } as const
 
@@ -1746,26 +1738,17 @@ export const $GenericOccurrenceSamplingOutline = {
     identification: {
       $ref: '#/components/schemas/Identification'
     },
-    is_type: {
-      type: 'boolean'
-    },
     meta: {
       $ref: '#/components/schemas/Meta'
     },
     sampling: {
       $ref: '#/components/schemas/SamplingOutline'
+    },
+    type_status: {
+      $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: [
-    'id',
-    'has_sequences',
-    'sampling',
-    'identification',
-    'is_type',
-    'meta',
-    'code',
-    'category'
-  ],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
   type: 'object'
 } as const
 
@@ -3110,26 +3093,17 @@ export const $OccurrenceListItem = {
     identification: {
       $ref: '#/components/schemas/Identification'
     },
-    is_type: {
-      type: 'boolean'
-    },
     meta: {
       $ref: '#/components/schemas/Meta'
     },
     sampling: {
       $ref: '#/components/schemas/SamplingInnerWithSite'
+    },
+    type_status: {
+      $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: [
-    'id',
-    'has_sequences',
-    'sampling',
-    'identification',
-    'is_type',
-    'meta',
-    'code',
-    'category'
-  ],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
   type: 'object'
 } as const
 
@@ -3201,26 +3175,17 @@ export const $OccurrenceSamplingWithSite = {
     internal: {
       $ref: '#/components/schemas/OptionalInternalBioMatSpecific'
     },
-    is_type: {
-      type: 'boolean'
-    },
     meta: {
       $ref: '#/components/schemas/Meta'
     },
     sampling: {
       $ref: '#/components/schemas/SamplingWithSite'
+    },
+    type_status: {
+      $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: [
-    'id',
-    'has_sequences',
-    'sampling',
-    'identification',
-    'is_type',
-    'meta',
-    'code',
-    'category'
-  ],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
   type: 'object'
 } as const
 
@@ -3264,26 +3229,17 @@ export const $OccurrenceStruct___ = {
     internal: {
       $ref: '#/components/schemas/OptionalInternalBioMatSpecific'
     },
-    is_type: {
-      type: 'boolean'
-    },
     meta: {
       $ref: '#/components/schemas/Meta'
     },
     sampling: {
       $ref: '#/components/schemas/OccurrenceStruct {}SamplingStruct'
+    },
+    type_status: {
+      $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: [
-    'id',
-    'has_sequences',
-    'sampling',
-    'identification',
-    'is_type',
-    'meta',
-    'code',
-    'category'
-  ],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
   type: 'object'
 } as const
 
@@ -3644,6 +3600,11 @@ export const $OptionalTaxon = {
   },
   required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: ['object', 'null']
+} as const
+
+export const $OptionalTypeStatus = {
+  $ref: '#/components/schemas/TypeStatus',
+  type: ['', 'null']
 } as const
 
 export const $OptionalUserInner = {
@@ -6772,6 +6733,12 @@ export const $Taxonomy = {
   },
   required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
+} as const
+
+export const $TypeStatus = {
+  enum: ['Holotype', 'Neotype', 'Topotype'],
+  title: 'TypeStatus',
+  type: 'string'
 } as const
 
 export const $URL = {

@@ -37,9 +37,13 @@
       <template v-if="item" #subtitle>
         <div class="d-flex align-center ga-2">
           <OccurrenceCategoryChip :category="item.category" size="small" />
-          <v-chip v-if="item.is_type" prepend-icon="mdi-star-four-points" size="small" label>
-            Nomenclatural type
-          </v-chip>
+          <v-chip
+            v-if="item.type_status"
+            :text="item.type_status"
+            prepend-icon="mdi-star-four-points"
+            size="small"
+            label
+          />
           <v-chip
             v-if="!item.has_sequences"
             prepend-icon="mdi-dna"

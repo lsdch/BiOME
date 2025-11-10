@@ -23,6 +23,15 @@ const (
 	External OccurrenceCategory = "External"
 )
 
+type TypeStatus string
+
+//generate:enum skip-gel-unmarshal
+const (
+	Holotype TypeStatus = "Holotype"
+	Neotype  TypeStatus = "Neotype"
+	Topotype TypeStatus = "Topotype"
+)
+
 func (m *OccurrenceCategory) UnmarshalEdgeDBStr(data []byte) error {
 	s := string(data)
 	switch s {
@@ -51,12 +60,12 @@ type GenericOccurrence[SamplingType any] struct {
 	ID             geltypes.UUID `gel:"id" json:"id" format:"uuid"`
 	CodeIdentifier `gel:"$inline" json:",inline"`
 	WithCategory   `gel:"$inline" json:",inline"`
-	HasSequences   bool                 `gel:"has_sequences" json:"has_sequences"`
-	Sampling       SamplingType         `gel:"sampling" json:"sampling"`
-	Identification Identification       `gel:"identification" json:"identification"`
-	IsType         bool                 `gel:"is_type" json:"is_type"`
-	Comments       geltypes.OptionalStr `gel:"comments" json:"comments,omitempty"`
-	Meta           people.Meta          `gel:"meta" json:"meta"`
+	HasSequences   bool                        `gel:"has_sequences" json:"has_sequences"`
+	Sampling       SamplingType                `gel:"sampling" json:"sampling"`
+	Identification Identification              `gel:"identification" json:"identification"`
+	TypeStatus     models.Optional[TypeStatus] `gel:"type_status" json:"type_status,omitzero" nameHint:"TypeStatus"`
+	Comments       geltypes.OptionalStr        `gel:"comments" json:"comments,omitempty"`
+	Meta           people.Meta                 `gel:"meta" json:"meta"`
 }
 
 type Occurrence[SamplingType any] struct {
@@ -169,7 +178,7 @@ type OccurrenceInput struct {
 	Comments       models.OptionalInput[string] `json:"comments,omitzero"`
 	PublishedIn    []string                     `gel:"published_in" json:"published_in,omitempty"`
 	Code           models.OptionalInput[string] `gel:"code" json:"code,omitzero" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
-	IsType         models.OptionalInput[bool]   `gel:"is_type" json:"is_type,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
+	TypeStatus     models.OptionalInput[bool]   `gel:"type_status" json:"type_status,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
 }
 
 func (i *OccurrenceInput) SetCode(code string) {
@@ -190,7 +199,7 @@ type OccurrenceUpdate struct {
 	SamplingID     models.OptionalInput[geltypes.UUID]        `json:"sampling_id" format:"uuid"`
 	Identification models.OptionalInput[IdentificationUpdate] `gel:"identification" json:"identification,omitempty"`
 	Code           models.OptionalInput[string]               `gel:"code" json:"code,omitempty"`
-	IsType         models.OptionalInput[bool]                 `gel:"is_type" json:"is_type,omitempty"`
+	TypeStatus     models.OptionalNull[TypeStatus]            `gel:"type_status" json:"type_status,omitzero"`
 	Comments       models.OptionalNull[string]                `gel:"comments" json:"comments,omitempty"`
 }
 

@@ -1428,10 +1428,6 @@
 						"$ref": "#/components/schemas/IdentificationInput",
 						"description": "Occurrence identification"
 					},
-					"is_type": {
-						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.",
-						"type": "boolean"
-					},
 					"original_taxon": {
 						"type": "string"
 					},
@@ -1455,6 +1451,10 @@
 							"type": "string"
 						},
 						"type": "array"
+					},
+					"type_status": {
+						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.",
+						"type": "boolean"
 					},
 					"vouchers": {
 						"items": {
@@ -1552,9 +1552,6 @@
 					"identification": {
 						"$ref": "#/components/schemas/IdentificationUpdate"
 					},
-					"is_type": {
-						"type": "boolean"
-					},
 					"original_taxon": {
 						"type": [
 							"string",
@@ -1582,6 +1579,13 @@
 						"type": "string"
 					},
 					"sources": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"type_status": {
+						"$ref": "#/components/schemas/TypeStatus",
 						"type": [
 							"string",
 							"null"
@@ -1964,14 +1968,14 @@
 					"identification": {
 						"$ref": "#/components/schemas/Identification"
 					},
-					"is_type": {
-						"type": "boolean"
-					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInnerWithSite"
+					},
+					"type_status": {
+						"$ref": "#/components/schemas/OptionalTypeStatus"
 					}
 				},
 				"required": [
@@ -1979,7 +1983,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"is_type",
 					"meta",
 					"code",
 					"category"
@@ -2023,14 +2026,14 @@
 					"identification": {
 						"$ref": "#/components/schemas/Identification"
 					},
-					"is_type": {
-						"type": "boolean"
-					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingOutline"
+					},
+					"type_status": {
+						"$ref": "#/components/schemas/OptionalTypeStatus"
 					}
 				},
 				"required": [
@@ -2038,7 +2041,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"is_type",
 					"meta",
 					"code",
 					"category"
@@ -3499,14 +3501,14 @@
 					"identification": {
 						"$ref": "#/components/schemas/Identification"
 					},
-					"is_type": {
-						"type": "boolean"
-					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingInnerWithSite"
+					},
+					"type_status": {
+						"$ref": "#/components/schemas/OptionalTypeStatus"
 					}
 				},
 				"required": [
@@ -3514,7 +3516,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"is_type",
 					"meta",
 					"code",
 					"category"
@@ -3595,14 +3596,14 @@
 					"internal": {
 						"$ref": "#/components/schemas/OptionalInternalBioMatSpecific"
 					},
-					"is_type": {
-						"type": "boolean"
-					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/SamplingWithSite"
+					},
+					"type_status": {
+						"$ref": "#/components/schemas/OptionalTypeStatus"
 					}
 				},
 				"required": [
@@ -3610,7 +3611,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"is_type",
 					"meta",
 					"code",
 					"category"
@@ -3657,14 +3657,14 @@
 					"internal": {
 						"$ref": "#/components/schemas/OptionalInternalBioMatSpecific"
 					},
-					"is_type": {
-						"type": "boolean"
-					},
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
 					"sampling": {
 						"$ref": "#/components/schemas/OccurrenceStruct {}SamplingStruct"
+					},
+					"type_status": {
+						"$ref": "#/components/schemas/OptionalTypeStatus"
 					}
 				},
 				"required": [
@@ -3672,7 +3672,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"is_type",
 					"meta",
 					"code",
 					"category"
@@ -4122,6 +4121,13 @@
 				],
 				"type": [
 					"object",
+					"null"
+				]
+			},
+			"OptionalTypeStatus": {
+				"$ref": "#/components/schemas/TypeStatus",
+				"type": [
+					"",
 					"null"
 				]
 			},
@@ -7757,6 +7763,15 @@
 					"rank"
 				],
 				"type": "object"
+			},
+			"TypeStatus": {
+				"enum": [
+					"Holotype",
+					"Neotype",
+					"Topotype"
+				],
+				"title": "TypeStatus",
+				"type": "string"
 			},
 			"URL": {
 				"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
@@ -12455,9 +12470,9 @@
 					{
 						"explode": false,
 						"in": "query",
-						"name": "is_type",
+						"name": "type_status",
 						"schema": {
-							"type": "boolean"
+							"$ref": "#/components/schemas/TypeStatus"
 						}
 					},
 					{

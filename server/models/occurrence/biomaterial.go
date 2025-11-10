@@ -114,7 +114,7 @@ type ListOccurrencesOptions struct {
 	Category             models.OptionalInput[OccurrenceCategory]   `query:"category" json:"category,omitzero"`
 	HasSequences         models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
 	Confer               models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
-	IsType               models.OptionalInput[bool]                 `query:"is_type" json:"is_type,omitzero"`
+	TypeStatus           models.OptionalInput[TypeStatus]           `query:"type_status" json:"type_status,omitzero"`
 	Status               models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
 }
 
@@ -361,7 +361,7 @@ func (u ExternalOccurrenceUpdate) Save(e geltypes.Executor, code string) (update
 			"in_collection":       "<str>item['collection']",
 			"item_vouchers":       "<str>json_array_unpack(item['item_vouchers'])",
 			"comments":            "<str>item['comments']",
-			"is_type":             "<bool>item['is_type']",
+			"type_status":         "<bool>item['type_status']",
 			"identification":      u.Identification.Value.UpdateQuery(".identification"),
 			"published_in": `#edgeql
 					(

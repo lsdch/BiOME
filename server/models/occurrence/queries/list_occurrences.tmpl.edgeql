@@ -6,7 +6,7 @@ with module occurrence,
   with_sequences := <bool>json_get(params, 'has_sequences'),
   confer := <bool>json_get(params, 'confer'),
   status := <taxonomy::TaxonStatus>json_get(params, 'status'),
-  is_type := <bool>json_get(params, 'is_type'),
+  type_status := <TypeStatus>json_array_unpack(json_get(params, 'type_status')),
   is_own := <bool>params['owned'],
 items := (
   select OccurrenceWithType { * }
@@ -27,8 +27,8 @@ items := (
     {{- if .Confer.IsSet }}
       (.identification.confer = confer) and
     {{ end }}
-    {{- if .IsType.IsSet }}
-      (.is_type = is_type) and
+    {{- if .TypeStatus.IsSet }}
+      (.type_status in type_status) and
     {{ end }}
     {{- if .Filter.Owned }}
       (.meta.created_by_user = global default::current_user if (is_own and exists global default::current_user) else true)

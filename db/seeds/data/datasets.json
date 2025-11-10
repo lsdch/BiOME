@@ -170,7 +170,7 @@
             "comments": "Trapping Proasellus",
             "internal_occurrences": [
               {
-                "is_type": true,
+                "type_status": "Holotype",
                 "identification": {
                   "identified_on": {
                     "precision": "Month",

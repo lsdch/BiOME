@@ -530,15 +530,15 @@ export type ExternalOccurrenceInput = {
    * Occurrence identification
    */
   identification: IdentificationInput
-  /**
-   * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
-   */
-  is_type?: boolean
   original_taxon?: string
   published_in?: Array<string>
   quantity?: Quantity
   sequences?: Array<ExternalSequenceInput>
   sources?: Array<string>
+  /**
+   * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
+   */
+  type_status?: boolean
   vouchers?: Array<string>
 }
 
@@ -564,12 +564,12 @@ export type ExternalOccurrenceUpdate = {
   content_description?: string | null
   external_link?: string | null
   identification?: IdentificationUpdate
-  is_type?: boolean
   original_taxon?: string | null
   published_in?: Array<string> | null
   quantity?: Quantity | null
   sampling_id: string
   sources?: string | null
+  type_status?: TypeStatus | null
   vouchers?: Array<string>
 }
 
@@ -689,9 +689,9 @@ export type GenericOccurrenceSamplingInnerWithSite = {
   has_sequences: boolean
   id: string
   identification: Identification
-  is_type: boolean
   meta: Meta
   sampling: SamplingInnerWithSite
+  type_status?: OptionalTypeStatus
 }
 
 export type GenericOccurrenceSamplingOutline = {
@@ -706,9 +706,9 @@ export type GenericOccurrenceSamplingOutline = {
   has_sequences: boolean
   id: string
   identification: Identification
-  is_type: boolean
   meta: Meta
   sampling: SamplingOutline
+  type_status?: OptionalTypeStatus
 }
 
 export type GeoapifyResult = {
@@ -1209,9 +1209,9 @@ export type OccurrenceListItem = {
   has_sequences: boolean
   id: string
   identification: Identification
-  is_type: boolean
   meta: Meta
   sampling: SamplingInnerWithSite
+  type_status?: OptionalTypeStatus
 }
 
 export type OccurrenceOverviewItem = {
@@ -1236,9 +1236,9 @@ export type OccurrenceSamplingWithSite = {
   id: string
   identification: Identification
   internal?: OptionalInternalBioMatSpecific
-  is_type: boolean
   meta: Meta
   sampling: SamplingWithSite
+  type_status?: OptionalTypeStatus
 }
 
 export type OccurrenceStruct = {
@@ -1252,9 +1252,9 @@ export type OccurrenceStruct = {
   id: string
   identification: Identification
   internal?: OptionalInternalBioMatSpecific
-  is_type: boolean
   meta: Meta
   sampling: OccurrenceStructSamplingStruct
+  type_status?: OptionalTypeStatus
 }
 
 export type OccurrenceStructSamplingStruct = {
@@ -1375,6 +1375,8 @@ export type OptionalTaxon = {
   rank: TaxonRank
   status: TaxonStatus
 } | null
+
+export type OptionalTypeStatus = TypeStatus | null
 
 export type OptionalUserInner = {
   email: string
@@ -2458,6 +2460,11 @@ export type Taxonomy = {
   rank: TaxonRank
   status: TaxonStatus
 }
+
+/**
+ * TypeStatus
+ */
+export type TypeStatus = 'Holotype' | 'Neotype' | 'Topotype'
 
 /**
  * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
@@ -4708,7 +4715,7 @@ export type ListOccurrencesData = {
     category?: OccurrenceCategory
     has_sequences?: boolean
     confer?: boolean
-    is_type?: boolean
+    type_status?: TypeStatus
     status?: TaxonStatus
   }
   url: '/occurrences'

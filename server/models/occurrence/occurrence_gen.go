@@ -42,6 +42,37 @@ func (m OccurrenceCategory) MarshalEdgeDBStr() ([]byte, error) {
 
 
 
+var TypeStatusValues = []TypeStatus{
+	Holotype,
+	Neotype,
+	Topotype,
+}
+
+// Register enum in OpenAPI specification
+func (u TypeStatus) Schema(r huma.Registry) *huma.Schema {
+  if r.Map()["TypeStatus"] == nil {
+    schemaRef := r.Schema(reflect.TypeOf(""), true, "TypeStatus")
+    schemaRef.Title = "TypeStatus"
+    for _, v := range TypeStatusValues {
+      schemaRef.Enum = append(schemaRef.Enum, string(v))
+    }
+    r.Map()["TypeStatus"] = schemaRef
+  }
+
+	return &huma.Schema{Ref: "#/components/schemas/TypeStatus"}
+}
+
+func (m *TypeStatus) Fake(f *gofakeit.Faker) (any, error) {
+	return string(TypeStatusValues[f.IntN(len(TypeStatusValues) - 1)]), nil
+}
+
+// Gel Marshalling
+func (m TypeStatus) MarshalEdgeDBStr() ([]byte, error) {
+	return []byte(m), nil
+}
+
+
+
 var SiteSamplingStatusValues = []SiteSamplingStatus{
 	IncludeAllSites,
 	IncludeSampled,

@@ -25,20 +25,17 @@
               <OccurrenceCategorySelect class="mt-1" v-model="filters.category" label="Category" />
             </v-list-item>
             <v-list-item prepend-icon="mdi-star-four-points">
-              <ClearableSwitch
-                v-model="filters.is_type"
-                class="pl-2"
-                label="Nomenclatural type"
-                color-true="primary"
-                color-false="red"
-                hint="Show only <a href='https://en.wikipedia.org/wiki/Type_(biology)' target='_blank'>nomenclatural type</a> material"
-                persistent-hint
+              <TypeStatusPicker
+                v-model="filters.type_status"
+                class="mt-2"
+                label="Type status"
+                multiple
+                clearable
+                chips
+                closable-chips
                 density="compact"
-              >
-                <template #message="{ message }">
-                  <span v-html="message" />
-                </template>
-              </ClearableSwitch>
+                hide-details
+              />
             </v-list-item>
             <v-list-item prepend-icon="mdi-dna">
               <ClearableSwitch
@@ -102,10 +99,10 @@
         <RouterLink :text="value" :to="{ name: 'occurrence-item', params: { code: value } }" />
         <span class="d-flex align-center ga-2 justify-end">
           <v-icon
-            v-if="item.is_type"
+            v-if="item.type_status"
             icon="mdi-star-four-points"
             size="small"
-            v-tooltip="`This is a nomenclatural type material`"
+            v-tooltip="item.type_status"
             density="compact"
           />
           <v-icon
@@ -178,12 +175,12 @@
 </template>
 
 <script setup lang="ts">
-import { $TaxonStatus, OccurrencesService } from '@/api'
+import { $TaxonStatus, TypeStatus } from '@/api'
 
 import {
-  Identification,
   BioMatSortKey,
   DateWithPrecision,
+  Identification,
   OccurrenceCategory,
   OccurrenceListItem,
   SiteItem,
@@ -198,11 +195,11 @@ import {
 import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
 import OccurrenceCategorySelect from '@/features/occurrences/components/OccurrenceCategorySelect.vue'
+import TypeStatusPicker from '@/features/occurrences/components/TypeStatusPicker'
 import PersonChip from '@/features/people/components/PersonChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
-import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
-import { useInfiniteQuery, useQueryClient } from '@tanstack/vue-query'
+import { useQueryClient } from '@tanstack/vue-query'
 import { onMounted, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
@@ -210,7 +207,7 @@ const { xs } = useDisplay()
 
 type BiomatTableFilters = {
   category?: OccurrenceCategory
-  is_type?: boolean
+  type_status?: TypeStatus[]
   has_sequences?: boolean
   confer?: boolean
   whole_clade?: boolean

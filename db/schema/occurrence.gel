@@ -24,6 +24,8 @@ module occurrence {
     using ( taxonomy::taxon_code(taxon) ++ "[" ++ sampling_code ++ "]" )
   };
 
+  scalar type TypeStatus extending enum<Holotype, Neotype, Topotype>;
+
   # Occurrences are reports of the presence of a taxon at a specific location and time.
   abstract type Occurrence extending default::Auditable, default::CodeIdentifier {
 
@@ -61,9 +63,7 @@ module occurrence {
 
     # Defines whether this occurrence is the first scientific description of
     # the taxon
-    required is_type: bool {
-      default := false;
-    };
+    type_status : TypeStatus;
 
     comments: str;
 
@@ -134,7 +134,7 @@ module occurrence {
             identified_on := date::from_json_with_precision(identification['identified_on']),
           }
         ),
-        is_type := <bool>json_get(data, 'is_type'),
+        type_status := <TypeStatus>json_get(data, 'type_status'),
         comments := <str>json_get(data, 'comments'),
       }
     )
@@ -193,7 +193,7 @@ module occurrence {
             identified_on := date::from_json_with_precision(json_get(identification, 'identified_on')),
           }
         ),
-        is_type := <bool>json_get(data, 'is_type') ?? false,
+        type_status := <TypeStatus>json_get(data, 'type_status'),
       }
     )
   };
