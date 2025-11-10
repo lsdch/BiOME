@@ -67,7 +67,7 @@
                 clearable
                 multiple
                 chips
-                clearable-chips
+                closable-chips
               />
               <v-select
                 v-model="filters.status"
