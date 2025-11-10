@@ -86,62 +86,6 @@ const {
 } = reactiveComputed(() =>
   useSchema(mode === 'Create' ? $ExternalOccurrenceInput : $ExternalOccurrenceUpdate)
 )
-
-// const item = defineModel<BioMaterialWithDetails>()
-
-// const initial: Partial<Omit<ExternalBioMatOccurrenceInput, 'identification'>> & {
-//   identification: Partial<IdentificationInput>
-// } = {
-//   identification: { identified_on: { date: {}, precision: 'Day' } }
-// }
-
-// function updateTransformer({
-//   sampling,
-//   code,
-//   comments,
-//   identification: { identified_by, identified_on, taxon },
-//   is_type,
-//   external: { archive, quantity, content_description, original_link, original_taxon },
-//   published_in
-// }: BioMaterialWithDetails & {
-//   category: 'External'
-//   external: Exclude<BioMaterialWithDetails['external'], null | undefined>
-// }): ExternalBioMatUpdate {
-//   return {
-//     sampling_id: sampling.id,
-//     code,
-//     is_type,
-//     comments,
-//     identification: {
-//       identified_by: identified_by.alias,
-//       identified_on: DateWithPrecision.toInput(identified_on),
-//       taxon: taxon.name
-//     },
-//     collection: archive.collection,
-//     vouchers: archive.vouchers,
-//     quantity,
-//     content_description,
-//     original_link,
-//     original_taxon,
-//     published_in: published_in?.map(({ code, original }) => ({ code, original })) ?? null
-//   }
-// }
-
-// const create = defineFormCreate(createExternalOccurrenceMutation(), {
-//   initial,
-//   schema: $ExternalBioMatOccurrenceInput,
-//   requestData(model) {
-//     return {
-//       body: model as ExternalBioMatOccurrenceInput
-//     }
-//   }
-// })
-
-// const update = defineFormUpdate(updateExternalBioMatMutation(), {
-//   schema: $ExternalBioMatUpdate,
-//   itemToModel: updateTransformer,
-//   requestData: ({ code }) => ({ path: { code } })
-// })
 </script>
 
 <style scoped lang="scss"></style>
