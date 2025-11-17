@@ -16,13 +16,16 @@ with module events,
     ),
     methods := (
       select SamplingMethod
-      filter .code in <str>json_array_unpack(json_get(data, 'methods'))
+      filter (
+        any({.code, .label} in <str>json_array_unpack(json_get(data, 'methods')))
+      )
     ),
     fixatives := (
       select samples::Fixative
-      filter .code in <str>json_array_unpack(json_get(data, 'fixatives'))
+      filter (
+         any({.code, .label} in <str>json_array_unpack(json_get(data, 'fixatives')))
+      )
     ),
-    sampling_target := <SamplingTarget>(data['target']['kind']),
     target_taxa := (
       select taxonomy::Taxon
       filter .name in <str>json_array_unpack(json_get(data, 'target_taxa'))
