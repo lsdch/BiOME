@@ -81,10 +81,9 @@ for item in json_array_unpack(data) union (
               select events::SamplingMethod
               filter .code in <str>json_array_unpack(json_get(sampling, 'methods'))
             ),
-            sampling_target := <events::SamplingTarget>sampling['target']['kind'],
             target_taxa := (
               select taxonomy::Taxon
-              filter .code in <str>json_array_unpack(json_get(sampling, 'target', 'target_taxa'))
+              filter .code in <str>json_array_unpack(json_get(sampling, 'target_taxa'))
             ),
             habitats := (
               select sampling::Habitat
