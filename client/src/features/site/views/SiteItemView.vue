@@ -40,6 +40,14 @@
             <span class="text-muted text-caption">Coordinates</span>
           </template>
         </v-list-item>
+        <v-list-item prepend-icon="mdi-arrow-up-down">
+          <span :class="site.altitude ? 'font-monospace' : 'text-muted'">
+            {{ site.altitude || 'Unknown' }}
+          </span>
+          <template #append>
+            <span class="text-muted text-caption">Altitude (m)</span>
+          </template>
+        </v-list-item>
         <v-list-item prepend-icon="mdi-town-hall">
           <span :class="{ 'text-muted': !site.locality }">
             {{ site.locality || 'Unknown locality' }}
