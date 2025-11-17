@@ -4,6 +4,10 @@
     "code": "ALCOHOL"
   },
   {
+    "label": "Ethanol",
+    "code": "ETHANOL"
+  },
+  {
     "label": "Other",
     "code": "OTHER"
   },
