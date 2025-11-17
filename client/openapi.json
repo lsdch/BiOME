@@ -1453,8 +1453,8 @@
 						"type": "array"
 					},
 					"type_status": {
-						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.",
-						"type": "boolean"
+						"$ref": "#/components/schemas/TypeStatus",
+						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."
 					},
 					"vouchers": {
 						"items": {

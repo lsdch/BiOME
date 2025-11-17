@@ -538,7 +538,7 @@ export type ExternalOccurrenceInput = {
   /**
    * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
    */
-  type_status?: boolean
+  type_status?: TypeStatus
   vouchers?: Array<string>
 }
 

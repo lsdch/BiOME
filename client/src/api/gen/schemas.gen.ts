@@ -1240,9 +1240,9 @@ export const $ExternalOccurrenceInput = {
       type: 'array'
     },
     type_status: {
+      $ref: '#/components/schemas/TypeStatus',
       description:
-        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.',
-      type: 'boolean'
+        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.'
     },
     vouchers: {
       items: {

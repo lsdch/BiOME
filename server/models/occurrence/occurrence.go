@@ -174,11 +174,11 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 
 // OccurrenceInput is meant to be embedded in other occurrence input type
 type OccurrenceInput struct {
-	Identification IdentificationInput          `json:"identification" doc:"Occurrence identification"`
-	Comments       models.OptionalInput[string] `json:"comments,omitzero"`
-	PublishedIn    []string                     `gel:"published_in" json:"published_in,omitempty"`
-	Code           models.OptionalInput[string] `gel:"code" json:"code,omitzero" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
-	TypeStatus     models.OptionalInput[bool]   `gel:"type_status" json:"type_status,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
+	Identification IdentificationInput              `json:"identification" doc:"Occurrence identification"`
+	Comments       models.OptionalInput[string]     `json:"comments,omitzero"`
+	PublishedIn    []string                         `gel:"published_in" json:"published_in,omitempty"`
+	Code           models.OptionalInput[string]     `gel:"code" json:"code,omitzero" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
+	TypeStatus     models.OptionalInput[TypeStatus] `gel:"type_status" json:"type_status,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
 }
 
 func (i *OccurrenceInput) SetCode(code string) {
