@@ -399,7 +399,7 @@
 				"additionalProperties": false,
 				"properties": {
 					"addendum": {
-						"$ref": "#/components/schemas/OptionalString"
+						"type": "string"
 					},
 					"confer": {
 						"type": "boolean"
@@ -2429,7 +2429,7 @@
 				"additionalProperties": false,
 				"properties": {
 					"addendum": {
-						"$ref": "#/components/schemas/OptionalString"
+						"type": "string"
 					},
 					"confer": {
 						"type": "boolean"
@@ -4040,12 +4040,6 @@
 				"$ref": "#/components/schemas/Quantity",
 				"type": [
 					"",
-					"null"
-				]
-			},
-			"OptionalString": {
-				"type": [
-					"string",
 					"null"
 				]
 			},

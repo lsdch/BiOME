@@ -130,7 +130,7 @@ export type AuthenticationResponse = {
 }
 
 export type BaseIdentification = {
-  addendum?: OptionalString
+  addendum?: string
   confer: boolean
   identified_on?: OptionalDateWithPrecision
   taxon: Taxon
@@ -846,7 +846,7 @@ export type HabitatUpdate = {
 }
 
 export type Identification = {
-  addendum?: OptionalString
+  addendum?: string
   confer: boolean
   id: string
   identified_by?: OptionalPerson
@@ -1356,8 +1356,6 @@ export type OptionalPerson = {
 } | null
 
 export type OptionalQuantity = Quantity | null
-
-export type OptionalString = string | null
 
 export type OptionalTaxon = {
   /**

@@ -14,7 +14,7 @@ type BaseIdentification struct {
 	Taxon        taxonomy.Taxon            `gel:"taxon" json:"taxon"`
 	IdentifiedOn OptionalDateWithPrecision `gel:"identified_on" json:"identified_on,omitzero"`
 	Confer       bool                      `gel:"confer" json:"confer"`
-	Addendum     models.Optional[string]   `gel:"addendum" json:"addendum,omitempty"`
+	Addendum     geltypes.OptionalStr      `gel:"addendum" json:"addendum,omitzero"`
 }
 
 type Identification struct {

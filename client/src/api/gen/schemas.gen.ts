@@ -340,7 +340,7 @@ export const $BaseIdentification = {
   additionalProperties: false,
   properties: {
     addendum: {
-      $ref: '#/components/schemas/OptionalString'
+      type: 'string'
     },
     confer: {
       type: 'boolean'
@@ -2090,7 +2090,7 @@ export const $Identification = {
   additionalProperties: false,
   properties: {
     addendum: {
-      $ref: '#/components/schemas/OptionalString'
+      type: 'string'
     },
     confer: {
       type: 'boolean'
@@ -3543,10 +3543,6 @@ export const $OptionalPerson = {
 export const $OptionalQuantity = {
   $ref: '#/components/schemas/Quantity',
   type: ['', 'null']
-} as const
-
-export const $OptionalString = {
-  type: ['string', 'null']
 } as const
 
 export const $OptionalTaxon = {
