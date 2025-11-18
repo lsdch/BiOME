@@ -10,7 +10,7 @@ export type IdentificationChipProps = VChip['$props'] & {
 }
 
 export function IdentificationChip({
-  identification: { taxon, confer },
+  identification: { taxon, confer, addendum },
   short,
   ...chipProps
 }: IdentificationChipProps) {
@@ -20,7 +20,9 @@ export function IdentificationChip({
         activator: ({ props }: { props: any }) => (
           <v-chip
             text={
-              short ? Taxon.shortName(taxon.name) : Identification.taxonString({ taxon, confer })
+              short
+                ? Taxon.shortName(taxon.name)
+                : Identification.taxonString({ taxon, confer, addendum })
             }
             {...{ ...props, ...chipProps }}
             onClick={withModifiers(() => {}, ['stop'])}
@@ -60,6 +62,9 @@ export function IdentificationChip({
                 ),
               default: () => (
                 <div>
+                  <em v-if={addendum} class="mx-5">
+                    {addendum}
+                  </em>
                   <v-card-text>
                     <div class="d-flex justify-space-between">
                       <v-chip text={taxon.status} class="ma-1" size="small" />

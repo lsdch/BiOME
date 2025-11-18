@@ -357,9 +357,9 @@ export namespace Geoapify {
 export type Identification = TIdentification
 export namespace Identification {
 
-  export function taxonString({ taxon, confer }: Pick<Identification, 'taxon' | 'confer'>) {
+  export function taxonString({ taxon, confer, addendum }: Pick<Identification, 'taxon' | 'confer' | 'addendum'>) {
     const interspersed = intersperseConfer(taxon, confer)
-    return taxon.rank == 'Genus' ? `${interspersed} sp.` : interspersed
+    return (taxon.rank == 'Genus' ? `${interspersed} sp.` : interspersed) + (addendum ? ` ${addendum}` : '')
   }
 
   export function intersperseConfer(taxon: Taxon, confer: boolean) {
