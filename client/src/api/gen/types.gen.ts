@@ -4717,6 +4717,7 @@ export type ListOccurrencesData = {
     confer?: boolean
     type_status?: TypeStatus
     status?: TaxonStatus
+    rank?: Array<TaxonRank>
   }
   url: '/occurrences'
 }

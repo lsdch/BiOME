@@ -12482,6 +12482,17 @@
 						"schema": {
 							"$ref": "#/components/schemas/TaxonStatus"
 						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "rank",
+						"schema": {
+							"items": {
+								"$ref": "#/components/schemas/TaxonRank"
+							},
+							"type": "array"
+						}
 					}
 				],
 				"responses": {

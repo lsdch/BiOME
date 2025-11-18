@@ -6,6 +6,7 @@ with module occurrence,
   with_sequences := <bool>json_get(params, 'has_sequences'),
   confer := <bool>json_get(params, 'confer'),
   status := <taxonomy::TaxonStatus>json_get(params, 'status'),
+  ranks := <taxonomy::Rank>json_array_unpack(json_get(params, 'rank')),
   type_status := <TypeStatus>json_array_unpack(json_get(params, 'type_status')),
   is_own := <bool>params['owned'],
 items := (
@@ -18,6 +19,9 @@ items := (
     (.category = ("occurrence::InternalBioMat" if category = "Internal" else "occurrence::ExternalOccurrence")) and
     {{ end }}
     {{ template "taxa_filters" .TaxaFilters }}
+    {{- if .Rank }}
+      (.identification.taxon.rank in ranks) and
+    {{ end }}
     {{- if .Status.IsSet }}
       (.identification.taxon.status = status) and
     {{ end }}

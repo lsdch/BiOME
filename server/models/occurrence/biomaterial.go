@@ -116,6 +116,7 @@ type ListOccurrencesOptions struct {
 	Confer               models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
 	TypeStatus           models.OptionalInput[TypeStatus]           `query:"type_status" json:"type_status,omitzero"`
 	Status               models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
+	Rank                 []taxonomy.TaxonRank                       `query:"rank" json:"rank,omitzero"`
 }
 
 func (o ListOccurrencesOptions) Options() ListOccurrencesOptions {

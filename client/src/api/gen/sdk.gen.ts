@@ -3066,6 +3066,11 @@ export class OccurrencesService {
             array: {
               explode: false
             }
+          },
+          rank: {
+            array: {
+              explode: false
+            }
           }
         }
       },

@@ -66,13 +66,27 @@
                 chips
                 closable-chips
               />
-              <v-select
-                v-model="filters.status"
-                :items="$TaxonStatus.enum"
-                label="Taxonomic status"
-                density="compact"
-                hide-details
-              />
+              <div class="d-flex align-center ga-2">
+                <v-select
+                  v-model="filters.rank"
+                  :items="$TaxonRank.enum"
+                  label="Taxonomic rank"
+                  density="compact"
+                  hide-details
+                  clearable
+                  multiple
+                  chips
+                  closable-chips
+                />
+                <v-select
+                  v-model="filters.status"
+                  :items="$TaxonStatus.enum"
+                  label="Taxonomic status"
+                  density="compact"
+                  hide-details
+                  clearable
+                />
+              </div>
               <ClearableSwitch
                 v-model="filters.confer"
                 class="pl-2"
@@ -175,7 +189,7 @@
 </template>
 
 <script setup lang="ts">
-import { $TaxonStatus, TypeStatus } from '@/api'
+import { $TaxonRank, $TaxonStatus, TaxonRank, TypeStatus } from '@/api'
 
 import {
   BioMatSortKey,
@@ -211,6 +225,7 @@ type BiomatTableFilters = {
   has_sequences?: boolean
   confer?: boolean
   whole_clade?: boolean
+  rank?: TaxonRank[]
   status?: TaxonStatus
   taxa?: string[]
 }
