@@ -15,14 +15,20 @@
 
     <v-divider />
     <v-list-item
-      class="text-primary"
       prepend-icon="mdi-map-marker-outline"
       :title="item.sampling.site.name || item.sampling.site.code"
       :subtitle="item.sampling.site.locality"
-      :to="{ name: 'site-item', params: { code: item.sampling.site.code } }"
     >
+      <template #title>
+        <RouterLink :to="{ name: 'site-item', params: { code: item.sampling.site.code } }">
+          {{ item.sampling.site.name || item.sampling.site.code }}
+        </RouterLink>
+      </template>
       <template #append v-if="item.sampling.site.country">
-        <CountryChip :country="item.sampling.site.country" size="small" />
+        <div class="d-flex align-center ga-1">
+          <CoordinatesChip :coordinates="item.sampling.site.coordinates" size="small" label />
+          <CountryChip :country="item.sampling.site.country" size="small" />
+        </div>
       </template>
     </v-list-item>
     <ItemLocationMap :site="item.sampling.site" :height="300" />
@@ -93,6 +99,7 @@ import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.v
 import PersonChip from '@/features/people/components/PersonChip'
 import CountryChip from '@/features/site/components/CountryChip'
 import { useUserStore } from '@/stores/user'
+import CoordinatesChip from './CoordinatesChip'
 
 const { item } = defineProps<{
   item: { id: string; sampling: SamplingWithSite }

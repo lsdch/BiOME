@@ -27,15 +27,10 @@
       <v-alert v-else-if="error" color="error" icon="mdi-alert"> Failed to load site </v-alert>
       <v-list v-else-if="site">
         <v-list-item prepend-icon="mdi-crosshairs-gps">
-          <code class="text-wrap">
-            {{ site.coordinates.latitude }},
-            {{ site.coordinates.longitude }}
-          </code>
-          <CoordPrecisionChip
-            :precision="site.coordinates.precision"
-            class="ml-5"
-            density="compact"
-          />
+          <div class="d-flex align-center ga-1">
+            <CoordinatesChip :coordinates="site.coordinates" />
+            <CoordPrecisionChip :precision="site.coordinates.precision" />
+          </div>
           <template #append>
             <span class="text-muted text-caption">Coordinates</span>
           </template>
@@ -189,6 +184,7 @@ import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 import SiteItemDetailTabs from '../components/SiteItemDetailTabs.vue'
 import SiteItemMap from '../components/ResponsiveSiteItemMap.vue'
+import CoordinatesChip from '@/features/occurrences/components/CoordinatesChip'
 
 const { mdAndDown, xlAndUp } = useDisplay()
 
