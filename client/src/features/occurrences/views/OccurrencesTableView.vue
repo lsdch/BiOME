@@ -66,25 +66,27 @@
                 chips
                 closable-chips
               />
-              <div class="d-flex align-center ga-2">
+              <div class="d-flex align-center ga-2 flex-wrap">
                 <v-select
                   v-model="filters.rank"
                   :items="$TaxonRank.enum"
-                  label="Taxonomic rank"
+                  label="Rank"
                   density="compact"
                   hide-details
                   clearable
                   multiple
                   chips
                   closable-chips
+                  :min-width="200"
                 />
                 <v-select
                   v-model="filters.status"
                   :items="$TaxonStatus.enum"
-                  label="Taxonomic status"
+                  label="Status"
                   density="compact"
                   hide-details
                   clearable
+                  :min-width="200"
                 />
               </div>
               <ClearableSwitch
