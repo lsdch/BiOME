@@ -1,4 +1,8 @@
-# BiOME : Biodiversity and Occurrences for Molecular Ecology
+<div style="display:flex; justify-content: center;">
+<img src="./biome_logo.svg" height="100"/>
+</div>
+
+# Biodiversity and Occurrences for Molecular Ecology
 
 ![Status badge](https://img.shields.io/badge/status-in%20development-orange)
 
