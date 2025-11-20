@@ -1447,7 +1447,7 @@ export const $ExternalSequenceInput = {
       type: 'string'
     }
   },
-  required: ['code', 'gene'],
+  required: ['specimen_identifier', 'code', 'gene'],
   type: 'object'
 } as const
 
@@ -5740,6 +5740,7 @@ export const $SequenceWithDetails = {
   required: [
     'occurrence',
     'identification',
+    'specimen_identifier',
     'meta',
     'id',
     'gene',

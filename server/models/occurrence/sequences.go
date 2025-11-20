@@ -75,7 +75,7 @@ type SequenceWithDetails struct {
 	Sequence           `gel:"$inline" json:",inline"`
 	Occurrence         Occurrence[SamplingWithSite] `gel:"occurrence" json:"occurrence"`
 	Identification     Identification               `gel:"identification" json:"identification"`
-	SpecimenIdentifier geltypes.OptionalStr         `gel:"specimen_identifier" json:"specimen_identifier,omitempty"`
+	SpecimenIdentifier string                       `gel:"specimen_identifier" json:"specimen_identifier"`
 
 	Internal models.Optional[AssembledSequenceSpecifics] `gel:"internal" json:"internal,omitempty"`
 }
@@ -176,7 +176,7 @@ type ExternalSequence struct {
 
 type ExternalSequenceInput struct {
 	SequenceInput      `json:",inline"`
-	SpecimenIdentifier models.OptionalInput[string] `json:"specimen_identifier,omitzero"`
+	SpecimenIdentifier string `json:"specimen_identifier"`
 	// Origin             sequences.ExtSeqOrigin        `json:"origin"`
 }
 
@@ -184,7 +184,7 @@ func (i *ExternalSequenceInput) GenerateCode(taxonCode string, samplingCode stri
 	i.Code = fmt.Sprintf("%s[%s]%s|%s",
 		taxonCode,
 		samplingCode,
-		i.SpecimenIdentifier.GetWithDefault("unknown"),
+		i.SpecimenIdentifier,
 		i.Gene,
 	)
 }

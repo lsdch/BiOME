@@ -1698,6 +1698,7 @@
 					}
 				},
 				"required": [
+					"specimen_identifier",
 					"code",
 					"gene"
 				],
@@ -6577,6 +6578,7 @@
 				"required": [
 					"occurrence",
 					"identification",
+					"specimen_identifier",
 					"meta",
 					"id",
 					"gene",

@@ -100,10 +100,10 @@ module seq {
     # the following statement is not supported by Gel
     # constraint expression on (.has_references) except (.origin != ExtSeqOrigin.DB);
 
-    specimen_identifier: str {
+    required specimen_identifier: str {
       annotation description := "An identifier for the organism from which the sequence was produced, provided in the original source";
+      constraint min_len_value(1);
     };
-
   }
 
 
@@ -142,7 +142,7 @@ module seq {
         ([is AssembledSequence].identification ?? [is ExternalSequence].biomat.identification),
         message := "Failed to find identification for seq::Sequence subtype"
       ),
-      specimen_identifier := [is AssembledSequence].specimen.code ?? [is ExternalSequence].specimen_identifier,
+      required specimen_identifier := [is AssembledSequence].specimen.code ?? [is ExternalSequence].specimen_identifier,
       internal := [is AssembledSequence] {
         alignment_code,
         assembled_by,

@@ -598,7 +598,7 @@ export type ExternalSequenceInput = {
   legacy?: LegacySeqId
   referenced_in?: Array<SeqReferenceInput>
   sequence?: string
-  specimen_identifier?: string
+  specimen_identifier: string
 }
 
 export type Fixative = {
@@ -2081,7 +2081,7 @@ export type SequenceWithDetails = {
   occurrence: OccurrenceSamplingWithSite
   referenced_in?: Array<SeqReference>
   sequence?: string
-  specimen_identifier?: string
+  specimen_identifier: string
 }
 
 export type ServiceSettings = {
