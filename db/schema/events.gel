@@ -58,14 +58,11 @@ module events {
 
     required code := (.site.code ++ "." ++ <str>.number ++ "|" ++ date::to_code(.performed_on));
 
-    # WARNING : during migration, remove pseudo-field when no sampling was performed
     multi methods: SamplingMethod;
     multi fixatives: samples::Fixative; # TODO : what is the relation with conservation of samples down the stream ?
 
     multi target_taxa: taxonomy::Taxon {
       annotation title := "Taxonomic groups that were the target of the sampling effort"
-      # handle in application logic
-      # constraint expression on (exists .target_taxa) except (.sampling_target != SamplingTarget.Taxa);
     };
 
     # sampling duration in minutes
