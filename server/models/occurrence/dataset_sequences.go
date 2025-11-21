@@ -24,7 +24,6 @@ func ListSequenceDatasets(db geltypes.Executor) (datasets []SequenceDatasetListI
 		`#edgeql
 			select datasets::SeqDataset {
 				*,
-				sites_count := count(.sites),
 				sequences_count := count(.sequences),
 			}
 		`,
@@ -38,7 +37,6 @@ func GetSequenceDataset(db geltypes.Executor, slug string) (dataset SequenceData
 		`#edgeql
 			select datasets::SequenceDataset {
 				**,
-				sites: { *, country: { * } },
 				sequences: {
 					**,
 					gene: { * },
