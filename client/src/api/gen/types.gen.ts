@@ -190,6 +190,7 @@ export type BioMatSortKey =
   | 'sampling_date'
   | 'identified_on'
   | 'taxon'
+  | 'identification'
   | 'identified_by'
   | 'last_updated'
 

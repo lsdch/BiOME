@@ -49,6 +49,7 @@ var BioMatSortKeyValues = []BioMatSortKey{
 	BioMatSortSamplingDate,
 	BioMatSortIdentifiedOn,
 	BioMatSortTaxon,
+	BioMatSortIdentification,
 	BioMatSortIdentifiedBy,
 	BioMatSortLastUpdated,
 }

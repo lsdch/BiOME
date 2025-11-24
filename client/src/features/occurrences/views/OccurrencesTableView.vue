@@ -247,7 +247,7 @@ const headers: CRUDTableHeader<OccurrenceListItem>[] = [
     sortable: false,
     headerProps: { class: 'border-s' },
     children: [
-      Identification.tableHeader({ key: 'identification' }),
+      Identification.tableHeader({ key: 'identification', sort: undefined }),
       {
         key: 'identification.identified_by',
         title: 'Done by',

@@ -101,23 +101,25 @@ type BioMatSortKey string
 
 //generate:enum
 const (
-	BioMatSortCode         BioMatSortKey = "code"
-	BioMatSortSite         BioMatSortKey = "site"
-	BioMatSortSamplingDate BioMatSortKey = "sampling_date"
-	BioMatSortIdentifiedOn BioMatSortKey = "identified_on"
-	BioMatSortTaxon        BioMatSortKey = "taxon"
-	BioMatSortIdentifiedBy BioMatSortKey = "identified_by"
-	BioMatSortLastUpdated  BioMatSortKey = "last_updated"
+	BioMatSortCode           BioMatSortKey = "code"
+	BioMatSortSite           BioMatSortKey = "site"
+	BioMatSortSamplingDate   BioMatSortKey = "sampling_date"
+	BioMatSortIdentifiedOn   BioMatSortKey = "identified_on"
+	BioMatSortTaxon          BioMatSortKey = "taxon"
+	BioMatSortIdentification BioMatSortKey = "identification"
+	BioMatSortIdentifiedBy   BioMatSortKey = "identified_by"
+	BioMatSortLastUpdated    BioMatSortKey = "last_updated"
 )
 
 var BioMatSortMap = map[BioMatSortKey]string{
-	BioMatSortCode:         ".code",
-	BioMatSortSite:         "(.site.name ?? .site.code)",
-	BioMatSortSamplingDate: ".sampling.performed_on.date",
-	BioMatSortIdentifiedOn: ".identification.identified_on.date",
-	BioMatSortTaxon:        ".identification.taxon.name",
-	BioMatSortIdentifiedBy: ".identification.identified_by.last_name",
-	BioMatSortLastUpdated:  ".meta.lastUpdated",
+	BioMatSortCode:           ".code",
+	BioMatSortSite:           "(.site.name ?? .site.code)",
+	BioMatSortSamplingDate:   ".sampling.performed_on.date",
+	BioMatSortIdentification: ".identification.taxon.name",
+	BioMatSortIdentifiedOn:   ".identification.identified_on.date",
+	BioMatSortTaxon:          ".identification.taxon.name",
+	BioMatSortIdentifiedBy:   ".identification.identified_by.last_name",
+	BioMatSortLastUpdated:    ".meta.lastUpdated",
 }
 
 type ListOccurrencesOptions struct {
