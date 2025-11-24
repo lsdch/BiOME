@@ -142,7 +142,7 @@ module seq {
         ([is AssembledSequence].identification ?? [is ExternalSequence].biomat.identification),
         message := "Failed to find identification for seq::Sequence subtype"
       ),
-      required specimen_identifier := [is AssembledSequence].specimen.code ?? [is ExternalSequence].specimen_identifier,
+      required specimen_identifier := assert_exists([is AssembledSequence].specimen.code ?? [is ExternalSequence].specimen_identifier),
       internal := [is AssembledSequence] {
         alignment_code,
         assembled_by,

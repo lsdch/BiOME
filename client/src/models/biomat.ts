@@ -2,10 +2,13 @@ import { Article, DateWithPrecisionInput, ExternalOccurrenceInput, Quantity } fr
 import { IdentificationModel } from "@/components/forms/occurrence/IdentificationFormFields.vue";
 import { reactive, Reactive } from "vue";
 
+export type SpecimenQuantityRangeModel = { lower?: number, upper?: number }
+export type SpecimenQuantityModel = number | SpecimenQuantityRangeModel
+
 export type ExternalOccurrenceModel = Omit<ExternalOccurrenceInput, "published_in" | "identification" | "quantity"> & {
   identification: IdentificationModel
   published_in?: Article[],
-  quantity?: Quantity
+  quantity?: SpecimenQuantityModel
 }
 
 export function initialModel(): Reactive<ExternalOccurrenceModel> {
@@ -25,6 +28,8 @@ export function toRequestData({ identification, ...model }: ExternalOccurrenceMo
       identified_by: identification.identified_by!.alias,
       identified_on: identification.identified_on.precision === 'Unknown' ? undefined : identification.identified_on as DateWithPrecisionInput
     },
-    quantity: model.quantity!
+    quantity: model.quantity ? (
+      typeof model.quantity === 'number' ? [model.quantity, model.quantity] : [model.quantity.lower!, model.quantity.upper!])
+      : undefined
   }
 }

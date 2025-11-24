@@ -1438,7 +1438,13 @@
 						"type": "array"
 					},
 					"quantity": {
-						"$ref": "#/components/schemas/Quantity"
+						"items": {
+							"format": "int32",
+							"type": "integer"
+						},
+						"maxItems": 2,
+						"minItems": 1,
+						"type": "array"
 					},
 					"sequences": {
 						"items": {
@@ -1490,7 +1496,7 @@
 						"type": "array"
 					},
 					"quantity": {
-						"$ref": "#/components/schemas/OptionalQuantity"
+						"$ref": "#/components/schemas/OptionalQuantityRange"
 					},
 					"sequences": {
 						"items": {
@@ -1568,9 +1574,14 @@
 						]
 					},
 					"quantity": {
-						"$ref": "#/components/schemas/Quantity",
+						"items": {
+							"format": "int32",
+							"type": "integer"
+						},
+						"maxItems": 2,
+						"minItems": 2,
 						"type": [
-							"string",
+							"array",
 							"null"
 						]
 					},
@@ -3856,7 +3867,7 @@
 						"type": "array"
 					},
 					"quantity": {
-						"$ref": "#/components/schemas/OptionalQuantity"
+						"$ref": "#/components/schemas/OptionalQuantityRange"
 					},
 					"sequences": {
 						"items": {
@@ -4037,10 +4048,24 @@
 					"null"
 				]
 			},
-			"OptionalQuantity": {
-				"$ref": "#/components/schemas/Quantity",
+			"OptionalQuantityRange": {
+				"additionalProperties": false,
+				"properties": {
+					"lower": {
+						"format": "int32",
+						"type": "integer"
+					},
+					"upper": {
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"lower",
+					"upper"
+				],
 				"type": [
-					"",
+					"object",
 					"null"
 				]
 			},
@@ -5127,16 +5152,23 @@
 				},
 				"type": "object"
 			},
-			"Quantity": {
-				"enum": [
-					"One",
-					"Several",
-					"Dozen",
-					"Tens",
-					"Hundred"
+			"QuantityRange": {
+				"additionalProperties": false,
+				"properties": {
+					"lower": {
+						"format": "int32",
+						"type": "integer"
+					},
+					"upper": {
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"lower",
+					"upper"
 				],
-				"title": "Quantity",
-				"type": "string"
+				"type": "object"
 			},
 			"Reference": {
 				"additionalProperties": false,

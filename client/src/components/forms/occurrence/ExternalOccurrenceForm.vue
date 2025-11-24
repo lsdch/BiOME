@@ -17,17 +17,20 @@
     </v-card>
     <v-card title="Content" class="small-card-title" flat>
       <v-row>
-        <v-col cols="12" md="3">
+        <v-col>
           <ExternalOccurrenceQuantityPicker
             v-model="model.quantity"
             label="Specimen quantity"
             v-bind="schema('quantity')"
           />
         </v-col>
-        <v-col cols="12" md="9">
+      </v-row>
+      <v-row>
+        <v-col>
           <v-text-field
             v-model="model.content_description"
-            label="Additional details"
+            label="Content description"
+            placeholder="e.g. 3 males, 5 females"
             v-bind="schema('content_description')"
           />
         </v-col>

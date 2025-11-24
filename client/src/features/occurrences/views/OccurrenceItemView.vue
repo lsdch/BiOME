@@ -168,9 +168,9 @@
                     <v-list v-if="item.external">
                       <v-list-item>
                         <template #title>
-                          <v-chip
+                          <QuantityChip
                             v-if="item.external.quantity"
-                            :text="item.external.quantity"
+                            :quantity="item.external.quantity"
                             size="small"
                           />
                           <span v-else class="text-muted text-caption">Unknown</span>
@@ -349,6 +349,7 @@ import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
 import { ref } from 'vue'
 import CodeHistoryCard from '../components/CodeHistoryCard.vue'
+import QuantityChip from '../components/QuantityChip'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 

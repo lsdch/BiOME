@@ -140,8 +140,6 @@ module occurrence {
     )
   };
 
-  scalar type QuantityType extending enum<One, Several, Ten, Tens, Hundred>;
-
   type ExternalOccurrence extending Occurrence {
     multi sources: references::DataSource;
     external_link: str; # link to original database
@@ -149,7 +147,9 @@ module occurrence {
     in_collection: str; # name of a collection where the specimen can be found
     multi item_vouchers: str; # specimen identifier(s) within the collection
 
-    quantity: QuantityType;
+    quantity: tuple<lower: int32, upper: int32> {
+      annotation description := "The number of specimens reported in this occurrence.";
+    };
     content_description: str;
 
 
@@ -177,7 +177,10 @@ module occurrence {
         ),
         external_link := <str>json_get(data, 'external_link'),
         original_taxon := <str>json_get(data, 'original_taxon'),
-        quantity := <occurrence::QuantityType>json_get(data, 'quantity'),
+        quantity := <tuple<lower:int32, upper:int32>>(
+          lower := json_get(data, 'quantity', '0'),
+          upper := json_get(data, 'quantity', '1')
+        ),
         content_description := <str>json_get(data, 'content_description'),
         in_collection := <str>json_get(data, 'collection'),
         item_vouchers := <str>json_array_unpack(json_get(data, 'item_vouchers')),

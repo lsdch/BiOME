@@ -1225,7 +1225,13 @@ export const $ExternalOccurrenceInput = {
       type: 'array'
     },
     quantity: {
-      $ref: '#/components/schemas/Quantity'
+      items: {
+        format: 'int32',
+        type: 'integer'
+      },
+      maxItems: 2,
+      minItems: 1,
+      type: 'array'
     },
     sequences: {
       items: {
@@ -1277,7 +1283,7 @@ export const $ExternalOccurrenceSpecific = {
       type: 'array'
     },
     quantity: {
-      $ref: '#/components/schemas/OptionalQuantity'
+      $ref: '#/components/schemas/OptionalQuantityRange'
     },
     sequences: {
       items: {
@@ -1334,8 +1340,13 @@ export const $ExternalOccurrenceUpdate = {
       type: ['array', 'null']
     },
     quantity: {
-      $ref: '#/components/schemas/Quantity',
-      type: ['string', 'null']
+      items: {
+        format: 'int32',
+        type: 'integer'
+      },
+      maxItems: 2,
+      minItems: 2,
+      type: ['array', 'null']
     },
     sampling_id: {
       format: 'uuid',
@@ -3387,7 +3398,7 @@ export const $OptionalExternalOccurrenceSpecific = {
       type: 'array'
     },
     quantity: {
-      $ref: '#/components/schemas/OptionalQuantity'
+      $ref: '#/components/schemas/OptionalQuantityRange'
     },
     sequences: {
       items: {
@@ -3540,9 +3551,20 @@ export const $OptionalPerson = {
   type: ['object', 'null']
 } as const
 
-export const $OptionalQuantity = {
-  $ref: '#/components/schemas/Quantity',
-  type: ['', 'null']
+export const $OptionalQuantityRange = {
+  additionalProperties: false,
+  properties: {
+    lower: {
+      format: 'int32',
+      type: 'integer'
+    },
+    upper: {
+      format: 'int32',
+      type: 'integer'
+    }
+  },
+  required: ['lower', 'upper'],
+  type: ['object', 'null']
 } as const
 
 export const $OptionalTaxon = {
@@ -4407,10 +4429,20 @@ export const $Property = {
   type: 'object'
 } as const
 
-export const $Quantity = {
-  enum: ['One', 'Several', 'Dozen', 'Tens', 'Hundred'],
-  title: 'Quantity',
-  type: 'string'
+export const $QuantityRange = {
+  additionalProperties: false,
+  properties: {
+    lower: {
+      format: 'int32',
+      type: 'integer'
+    },
+    upper: {
+      format: 'int32',
+      type: 'integer'
+    }
+  },
+  required: ['lower', 'upper'],
+  type: 'object'
 } as const
 
 export const $Reference = {

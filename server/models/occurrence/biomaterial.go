@@ -11,7 +11,6 @@ import (
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/occurrence/queries"
 	"github.com/lsdch/biome/models/references"
-	"github.com/lsdch/biome/models/specimen"
 	"github.com/lsdch/biome/models/taxonomy"
 	"github.com/sirupsen/logrus"
 )
@@ -21,15 +20,20 @@ type SpecimenVoucher struct {
 	Item       []string             `gel:"item_vouchers" json:"vouchers,omitempty"`
 }
 
+type QuantityRange struct {
+	Lower int32 `gel:"lower" json:"lower"`
+	Upper int32 `gel:"upper" json:"upper"`
+}
+
 type ExternalOccurrenceSpecific struct {
-	Sources            []references.DataSource            `gel:"sources" json:"sources,omitempty"`
-	PublishedIn        []references.Article               `gel:"published_in" json:"published_in,omitempty"`
-	ExternalLink       geltypes.OptionalStr               `gel:"external_link" json:"external_link,omitempty"`
-	OriginalTaxon      geltypes.OptionalStr               `gel:"original_taxon" json:"original_taxon,omitempty"`
-	Quantity           models.Optional[specimen.Quantity] `gel:"quantity" json:"quantity,omitempty"`
-	ContentDescription geltypes.OptionalStr               `gel:"content_description" json:"content_description,omitempty"`
-	Archive            SpecimenVoucher                    `gel:"$inline" json:"archive"`
-	Sequences          []ExternalSequence                 `gel:"sequences" json:"sequences,omitempty"`
+	Sources            []references.DataSource        `gel:"sources" json:"sources,omitempty"`
+	PublishedIn        []references.Article           `gel:"published_in" json:"published_in,omitempty"`
+	ExternalLink       geltypes.OptionalStr           `gel:"external_link" json:"external_link,omitempty"`
+	OriginalTaxon      geltypes.OptionalStr           `gel:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           models.Optional[QuantityRange] `gel:"quantity" json:"quantity,omitempty"`
+	ContentDescription geltypes.OptionalStr           `gel:"content_description" json:"content_description,omitempty"`
+	Archive            SpecimenVoucher                `gel:"$inline" json:"archive"`
+	Sequences          []ExternalSequence             `gel:"sequences" json:"sequences,omitempty"`
 }
 
 type InternalBioMatSpecific struct {
@@ -243,15 +247,15 @@ func (i *InternalOccurrenceInput) SaveExecute(e geltypes.Executor, samplingNumbe
 
 type ExternalOccurrenceInput struct {
 	OccurrenceInput    `gel:"$inline" json:",inline"`
-	Sources            []string                                `json:"sources,omitzero"`
-	OriginalTaxon      models.OptionalInput[string]            `json:"original_taxon,omitzero"`
-	OriginalLink       models.OptionalInput[string]            `json:"external_link,omitzero"`
-	Quantity           models.OptionalInput[specimen.Quantity] `json:"quantity,omitzero"`
-	ContentDescription models.OptionalInput[string]            `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
-	Collection         models.OptionalInput[string]            `json:"collection,omitzero"`
-	ItemVouchers       []string                                `json:"vouchers,omitzero"`
-	Comments           models.OptionalInput[string]            `json:"comments,omitzero"`
-	Sequences          []ExternalSequenceInput                 `json:"sequences,omitzero"`
+	Sources            []string                      `json:"sources,omitzero"`
+	OriginalTaxon      models.OptionalInput[string]  `json:"original_taxon,omitzero"`
+	OriginalLink       models.OptionalInput[string]  `json:"external_link,omitzero"`
+	Quantity           models.OptionalInput[[]int32] `json:"quantity,omitzero" minItems:"1" maxItems:"2"`
+	ContentDescription models.OptionalInput[string]  `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
+	Collection         models.OptionalInput[string]  `json:"collection,omitzero"`
+	ItemVouchers       []string                      `json:"vouchers,omitzero"`
+	Comments           models.OptionalInput[string]  `json:"comments,omitzero"`
+	Sequences          []ExternalSequenceInput       `json:"sequences,omitzero"`
 }
 
 func (bm *ExternalOccurrenceInput) WithCreatedMetadata(c *CreatedMetadata) *ExternalOccurrenceInput {
@@ -321,15 +325,15 @@ func (i ExternalOccurrenceInput) Save(e geltypes.Executor, samplingNumber int64)
 
 type ExternalOccurrenceUpdate struct {
 	OccurrenceUpdate   `gel:"$inline" json:",inline"`
-	OriginalSource     models.OptionalNull[string]            `gel:"sources" json:"sources,omitempty"`
-	OriginalLink       models.OptionalNull[string]            `gel:"external_link" json:"external_link,omitempty"`
-	OriginalTaxon      models.OptionalNull[string]            `gel:"original_taxon" json:"original_taxon,omitempty"`
-	Quantity           models.OptionalNull[specimen.Quantity] `gel:"quantity" json:"quantity,omitempty"`
-	ContentDescription models.OptionalNull[string]            `gel:"content_description" json:"content_description,omitempty"`
-	Collection         models.OptionalNull[string]            `gel:"in_collection" json:"collection,omitempty"`
-	ItemVouchers       models.OptionalInput[[]string]         `gel:"item_vouchers" json:"vouchers,omitempty"`
-	Comments           models.OptionalNull[string]            `gel:"comments" json:"comments,omitempty"`
-	PublishedIn        models.OptionalNull[[]string]          `gel:"published_in" json:"published_in,omitempty"`
+	OriginalSource     models.OptionalNull[string]    `gel:"sources" json:"sources,omitempty"`
+	OriginalLink       models.OptionalNull[string]    `gel:"external_link" json:"external_link,omitempty"`
+	OriginalTaxon      models.OptionalNull[string]    `gel:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           models.OptionalNull[[]int32]   `gel:"quantity" json:"quantity,omitempty" minItems:"2" maxItems:"2"`
+	ContentDescription models.OptionalNull[string]    `gel:"content_description" json:"content_description,omitempty"`
+	Collection         models.OptionalNull[string]    `gel:"in_collection" json:"collection,omitempty"`
+	ItemVouchers       models.OptionalInput[[]string] `gel:"item_vouchers" json:"vouchers,omitempty"`
+	Comments           models.OptionalNull[string]    `gel:"comments" json:"comments,omitempty"`
+	PublishedIn        models.OptionalNull[[]string]  `gel:"published_in" json:"published_in,omitempty"`
 }
 
 func (u ExternalOccurrenceUpdate) Save(e geltypes.Executor, code string) (updated GenericOccurrence[SamplingOutline], err error) {
@@ -355,9 +359,14 @@ func (u ExternalOccurrenceUpdate) Save(e geltypes.Executor, code string) (update
 					select references::DataSource filter .code in <str>json_array_unpack(item['sources'])
 				)
 			`,
-			"external_link":       "<str>item['external_link']",
-			"original_taxon":      "<str>item['original_taxon']",
-			"quantity":            "<occurrence::QuantityType>item['quantity']",
+			"external_link":  "<str>item['external_link']",
+			"original_taxon": "<str>item['original_taxon']",
+			"quantity": `#edgeql
+				<tuple<lower: int32, upper: int32>>(
+					lower := <int32>item['quantity'][0],
+					upper := <int32>item['quantity'][1],
+					)
+			`,
 			"content_description": "<str>item['content_description']",
 			"in_collection":       "<str>item['collection']",
 			"item_vouchers":       "<str>json_array_unpack(item['item_vouchers'])",

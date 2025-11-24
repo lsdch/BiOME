@@ -17,7 +17,6 @@ import {
   UserRole as TUserRole,
   User as TUser,
   Meta as TMeta,
-  Quantity as TQuantity,
   CoordinatesPrecision as TCoordinatesPrecision,
   ArticleInput,
   DatasetCategory as TDatasetCategory,
@@ -26,9 +25,10 @@ import {
   Identification as TIdentification,
 } from "./gen/types.gen"
 import UserRoleChip from "@/components/users/UserRoleChip"
-import QuantityChip from "@/features/occurrences/components/ExternalOccurrenceQuantityChip"
 
 export * from "./gen/types.gen"
+
+export type Quantity = [number] | [number, number]
 
 export type CompositeDate = CompositeDateType
 export namespace CompositeDate {
@@ -246,15 +246,6 @@ export namespace UserRole {
   export const Icon = UserRoleIcon
 
   export const Chip = UserRoleChip
-}
-
-
-export type Quantity = TQuantity
-export namespace Quantity {
-
-  export function Chip({ quantity }: { quantity: Quantity }, context: { attrs?: object }) {
-    return QuantityChip({ quantity }, context)
-  }
 }
 
 export type User = TUser

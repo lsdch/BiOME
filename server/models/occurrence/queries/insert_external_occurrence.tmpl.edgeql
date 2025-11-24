@@ -13,7 +13,10 @@ with module occurrence,
       ),
       external_link := <str>json_get(data, 'external_link'),
       original_taxon := <str>json_get(data, 'original_taxon'),
-      quantity := <occurrence::QuantityType>json_get(data, 'quantity'),
+      quantity := <tuple<lower:int32, upper:int32>>(
+        lower := json_get(data, 'quantity', '0'),
+        upper := json_get(data, 'quantity', '1')
+      ),
       content_description := <str>json_get(data, 'content_description'),
       in_collection := <str>json_get(data, 'collection'),
       item_vouchers := <str>json_array_unpack(json_get(data, 'item_vouchers')),

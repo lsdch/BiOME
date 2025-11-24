@@ -532,7 +532,7 @@ export type ExternalOccurrenceInput = {
   identification: IdentificationInput
   original_taxon?: string
   published_in?: Array<string>
-  quantity?: Quantity
+  quantity?: Array<number>
   sequences?: Array<ExternalSequenceInput>
   sources?: Array<string>
   /**
@@ -548,7 +548,7 @@ export type ExternalOccurrenceSpecific = {
   external_link?: string
   original_taxon?: string
   published_in?: Array<Article>
-  quantity?: OptionalQuantity
+  quantity?: OptionalQuantityRange
   sequences?: Array<ExternalSequence>
   sources?: Array<DataSource>
 }
@@ -566,7 +566,7 @@ export type ExternalOccurrenceUpdate = {
   identification?: IdentificationUpdate
   original_taxon?: string | null
   published_in?: Array<string> | null
-  quantity?: Quantity | null
+  quantity?: [number, number] | null
   sampling_id: string
   sources?: string | null
   type_status?: TypeStatus | null
@@ -1306,7 +1306,7 @@ export type OptionalExternalOccurrenceSpecific = {
   external_link?: string
   original_taxon?: string
   published_in?: Array<Article>
-  quantity?: OptionalQuantity
+  quantity?: OptionalQuantityRange
   sequences?: Array<ExternalSequence>
   sources?: Array<DataSource>
 } | null
@@ -1355,7 +1355,10 @@ export type OptionalPerson = {
   user: OptionalUserInner
 } | null
 
-export type OptionalQuantity = Quantity | null
+export type OptionalQuantityRange = {
+  lower: number
+  upper: number
+} | null
 
 export type OptionalTaxon = {
   /**
@@ -1632,10 +1635,10 @@ export type Property = {
   'id-type'?: string
 }
 
-/**
- * Quantity
- */
-export type Quantity = 'One' | 'Several' | 'Dozen' | 'Tens' | 'Hundred'
+export type QuantityRange = {
+  lower: number
+  upper: number
+}
 
 export type Reference = {
   'article-title'?: string
