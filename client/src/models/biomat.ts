@@ -1,4 +1,4 @@
-import { Article, ExternalOccurrenceInput, Quantity } from "@/api";
+import { Article, DateWithPrecisionInput, ExternalOccurrenceInput, Quantity } from "@/api";
 import { IdentificationModel } from "@/components/forms/occurrence/IdentificationFormFields.vue";
 import { reactive, Reactive } from "vue";
 
@@ -23,7 +23,7 @@ export function toRequestData({ identification, ...model }: ExternalOccurrenceMo
     identification: {
       taxon: identification.taxon!.name,
       identified_by: identification.identified_by!.alias,
-      identified_on: identification.identified_on
+      identified_on: identification.identified_on.precision === 'Unknown' ? undefined : identification.identified_on as DateWithPrecisionInput
     },
     quantity: model.quantity!
   }
