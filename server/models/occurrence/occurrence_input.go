@@ -170,10 +170,9 @@ func (i OccurrenceBatchMetadataInputs) Save(tx geltypes.Tx, trackers ...Occurren
 // including all the necessary upstream data:
 // site, events, sampling.
 // Occurrences can be registered in bulk, with multiple events and samplings.
-// Occurrences types include: BioMaterial (internal/external) and external sequences.
 type OccurrenceBatchInput struct {
 	OccurrenceBatchMetadataInputs `json:",inline"`
-	Occurrences                   []SiteOccurrenceInput  `json:"occurrences"`
+	Content                       []SiteOccurrenceInput  `json:"content"`
 	BatchSize                     int                    `json:"batch_size,omitempty"`
 	Tracker                       OccurrenceBatchTracker `json:"-"`
 }
@@ -192,13 +191,10 @@ func (batch *OccurrenceBatchInput) WithBatchSize(size int) *OccurrenceBatchInput
 
 func (batch *OccurrenceBatchInput) ListMissingTaxa(tx geltypes.Tx) (missing []string, err error) {
 	taxa := mapset.NewSet[string]()
-	for _, siteWithOccurrences := range batch.Occurrences {
+	for _, siteWithOccurrences := range batch.Content {
 		for _, sampling := range siteWithOccurrences.Samplings {
-			for _, internalBiomat := range sampling.Internal {
-				taxa.Add(internalBiomat.Identification.Taxon)
-			}
-			for _, external := range sampling.External {
-				taxa.Add(external.Identification.Taxon)
+			for _, occ := range sampling.Occurrences {
+				taxa.Add(occ.Identification.Taxon)
 			}
 		}
 	}
@@ -217,23 +213,23 @@ func (batch *OccurrenceBatchInput) ListMissingTaxa(tx geltypes.Tx) (missing []st
 func (batch OccurrenceBatchInput) SaveSites(tx geltypes.Tx) error {
 
 	batch.ensureTracker()
-	batch.Tracker.Start(len(batch.Occurrences)).SetDescription("Saving sites")
+	batch.Tracker.Start(len(batch.Content)).SetDescription("Saving sites").SetDetail("")
 	defer batch.Tracker.Finish()
 
 	wg := &sync.WaitGroup{}
 	errorChan := make(chan error, 1)
 
-	for i := 0; i < len(batch.Occurrences); i += batch.BatchSize {
+	for i := 0; i < len(batch.Content); i += batch.BatchSize {
 		if len(errorChan) > 0 {
 			return <-errorChan
 		}
 		wg.Add(1)
 		go func(start int) {
 			defer wg.Done()
-			endIndex := min(start+batch.BatchSize, len(batch.Occurrences))
+			endIndex := min(start+batch.BatchSize, len(batch.Content))
 			batch.Tracker.SetDetail(fmt.Sprintf("Starting goroutine for site batch [%d, %d]", start, endIndex))
 
-			subBatch := batch.Occurrences[start:endIndex]
+			subBatch := batch.Content[start:endIndex]
 			data, _ := json.Marshal(subBatch)
 			err := tx.Execute(context.Background(),
 				`#edgeql
@@ -243,7 +239,7 @@ func (batch OccurrenceBatchInput) SaveSites(tx geltypes.Tx) error {
 					)
 				`, data)
 			if err != nil {
-				errorChan <- models.WrapErrorIndex(err, start).PrependPath("occurrences")
+				errorChan <- models.WrapErrorIndex(err, start).PrependPath("content")
 			}
 			batch.Tracker.Progress(len(subBatch))
 		}(i)
@@ -274,19 +270,19 @@ func (batch *OccurrenceBatchInput) Save(client geltypes.Tx) (err error) {
 		if err != nil {
 			logrus.Errorf("Failed to write missing taxa to file: %v", err)
 		}
-		return models.WrapErrorPath(fmt.Errorf("the following taxa are missing: %v.\nPlease add missing taxa definitions in the 'taxa' field of your occurrence batch input", missingTaxa), "occurrences")
+		return models.WrapErrorPath(fmt.Errorf("the following taxa are missing: %v.\nPlease add missing taxa definitions in the 'taxa' field of your occurrence batch input", missingTaxa), "content")
 	}
 	batch.Tracker.Finish()
 
 	if err := batch.SaveSites(client); err != nil {
-		return models.WrapErrorPath(err, "occurrences")
+		return models.WrapErrorPath(err, "content")
 	}
 
-	batch.Tracker.Start(len(batch.Occurrences)).SetDescription("Saving occurrences")
+	batch.Tracker.Start(len(batch.Content)).SetDescription("Saving occurrences")
 	defer batch.Tracker.Finish()
 
 	// errorChan := make(chan error, 1)
-	for j, siteOccurrence := range batch.Occurrences {
+	for j, siteOccurrence := range batch.Content {
 		// if len(errorChan) > 0 {
 		// 	err = <-errorChan
 		// 	break
@@ -295,13 +291,13 @@ func (batch *OccurrenceBatchInput) Save(client geltypes.Tx) (err error) {
 
 		siteOccurrence.WithCreatedMetadata(replacements)
 		if err := siteOccurrence.SaveAbiotics(client); err != nil {
-			return models.WrapErrorIndex(err, j).PrependPath("occurrences")
+			return models.WrapErrorIndex(err, j).PrependPath("content")
 		}
 
 		for k, sampling := range siteOccurrence.Samplings {
 			err := sampling.Save(client, siteOccurrence.Code)
 			if err != nil {
-				return models.WrapErrorIndex(err, k).PrependPath("samplings").PrependIndex(j).PrependPath("occurrences")
+				return models.WrapErrorIndex(err, k).PrependPath("samplings").PrependIndex(j).PrependPath("content")
 			}
 		}
 		batch.Tracker.Progress(1)
@@ -328,18 +324,18 @@ func (batch *OccurrenceBatchInput) SaveParallel(client *gel.Client, cores int) e
 		if err != nil {
 			logrus.Errorf("Failed to write missing taxa to file: %v", err)
 		}
-		return models.WrapErrorPath(fmt.Errorf("the following taxa are missing: %v.\nPlease add missing taxa definitions in the 'taxa' field of your occurrence batch input", missingTaxa), "occurrences")
+		return models.WrapErrorPath(fmt.Errorf("the following taxa are missing: %v.\nPlease add missing taxa definitions in the 'taxa' field of your occurrence batch input", missingTaxa), "content")
 	}
 	batch.Tracker.Finish()
 
 	if err := batch.SaveSites(client); err != nil {
-		return models.WrapErrorPath(err, "occurrences")
+		return models.WrapErrorPath(err, "content")
 	}
 
 	logrus.Infof("Saving abiotics")
-	for i, siteOccurrence := range batch.Occurrences {
+	for i, siteOccurrence := range batch.Content {
 		if err := siteOccurrence.SaveAbiotics(client); err != nil {
-			return models.WrapErrorIndex(err, i).PrependPath("occurrences")
+			return models.WrapErrorIndex(err, i).PrependPath("content")
 		}
 	}
 
@@ -353,14 +349,14 @@ func (batch *OccurrenceBatchInput) SaveParallel(client *gel.Client, cores int) e
 		}).
 		// WithTxOptions(gelcfg.NewTxOptions().WithIsolation(gelcfg.RepeatableRead)).
 		Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
-			batch.Tracker.Start(len(batch.Occurrences)).SetDescription("Saving occurrences").SetDetail("")
+			batch.Tracker.Start(len(batch.Content)).SetDescription("Saving occurrences").SetDetail("")
 			defer batch.Tracker.Finish()
-			for i := 0; i*batch.BatchSize < len(batch.Occurrences); i++ {
+			for i := 0; i*batch.BatchSize < len(batch.Content); i++ {
 				wg.Add(1)
 				go func(coreID int) {
 					defer wg.Done()
-					startIndex, endIndex := coreID*batch.BatchSize, min((coreID+1)*batch.BatchSize, len(batch.Occurrences))
-					for j, siteOccurrence := range batch.Occurrences[startIndex:endIndex] {
+					startIndex, endIndex := coreID*batch.BatchSize, min((coreID+1)*batch.BatchSize, len(batch.Content))
+					for j, siteOccurrence := range batch.Content[startIndex:endIndex] {
 						select {
 						case <-mainCtx.Done():
 							return
@@ -370,7 +366,7 @@ func (batch *OccurrenceBatchInput) SaveParallel(client *gel.Client, cores int) e
 
 						for k, sampling := range siteOccurrence.Samplings {
 							if err := sampling.Save(tx, siteOccurrence.Code); err != nil {
-								errorChan <- models.WrapErrorIndex(err, k).PrependPath("samplings").PrependIndex(j).PrependPath("occurrences")
+								errorChan <- models.WrapErrorIndex(err, k).PrependPath("samplings").PrependIndex(j).PrependPath("content")
 								cancel() // stop all other goroutines
 								return
 							}
@@ -397,7 +393,7 @@ func (batch *OccurrenceBatchInput) SaveOccurrencesBatch(db geltypes.Executor) (e
 
 	batchSize := batch.BatchSize
 	if batchSize == 0 {
-		batchSize = len(batch.Occurrences)
+		batchSize = len(batch.Content)
 	}
 
 	insertQuery := fmt.Sprintf(
@@ -419,16 +415,10 @@ func (batch *OccurrenceBatchInput) SaveOccurrencesBatch(db geltypes.Executor) (e
 							samp := (
 								%s
 							),
-							internal := (
-								for occ_data in json_array_unpack(json_get(<json>sampling_data, 'internal_occurrences'))
+							occurrences := (
+								for occ_data in json_array_unpack(json_get(<json>sampling_data, 'occurrences'))
 								union (
-									%s
-								)
-							),
-							external := (
-								for occ_data in json_array_unpack(json_get(<json>sampling_data, 'external_occurrences'))
-								union (
-									%s # insert external occurrence query
+									%s # insert occurrence query
 								)
 							),
 						select samp
@@ -440,12 +430,11 @@ func (batch *OccurrenceBatchInput) SaveOccurrencesBatch(db geltypes.Executor) (e
 
 		queries.AbioticQuery("site", "abiotic_data", ""),
 		queries.SamplingQuery("site", "sampling_data", ""),
-		queries.InternalBioMatQuery("samp", "occ_data", ""),
-		queries.ExternalOccurrenceQuery("samp", "occ_data", ""),
+		queries.OccurrenceQuery("samp", "occ_data", ""),
 	)
 
 	// logrus.Infof("Query:  \n%s", insertQuery)
-	batch.Tracker.Start(len(batch.Occurrences)).SetDescription("Saving occurrences")
+	batch.Tracker.Start(len(batch.Content)).SetDescription("Saving occurrences")
 	defer batch.Tracker.Finish()
 
 	batch.Tracker.SetDetail("Processing metadata dependencies")
@@ -454,7 +443,7 @@ func (batch *OccurrenceBatchInput) SaveOccurrencesBatch(db geltypes.Executor) (e
 		return err
 	}
 
-	for _, siteOccurrence := range batch.Occurrences {
+	for _, siteOccurrence := range batch.Content {
 		siteOccurrence.WithCreatedMetadata(replacements)
 	}
 
@@ -470,15 +459,15 @@ func (batch *OccurrenceBatchInput) SaveOccurrencesBatch(db geltypes.Executor) (e
 		return fmt.Errorf("the following taxa are missing: %v.\nPlease add missing taxa definitions in the 'taxa' field of your occurrence batch input", missingTaxa)
 	}
 
-	for i := 0; i < len(batch.Occurrences); i += batch.BatchSize {
+	for i := 0; i < len(batch.Content); i += batch.BatchSize {
 		batch.Tracker.SetDetail(fmt.Sprintf("Inserting batch %d", i))
-		endIndex := min(i+batchSize, len(batch.Occurrences))
+		endIndex := min(i+batchSize, len(batch.Content))
 		actualSize := endIndex - i
-		data, _ := json.Marshal(batch.Occurrences[i:endIndex])
+		data, _ := json.Marshal(batch.Content[i:endIndex])
 		// logrus.Infof("%v", string(data))
 		err = db.Execute(context.Background(), insertQuery, data)
 		if err != nil {
-			return models.WrapErrorPath(err, "occurrences")
+			return models.WrapErrorPath(err, "content")
 		}
 		logrus.Infof("Progress: %d", actualSize)
 		batch.Tracker.Progress(actualSize)
@@ -515,22 +504,18 @@ func (site *SiteOccurrenceInput) SaveAbiotics(tx geltypes.Tx) error {
 
 // EventInputWithActions is the input type for registering an event and its occurrences in bulk.
 // It includes the event data and a list of samplings.
-// Each sampling can have multiple internal and external occurrences, and sequences.
+// Each sampling can have multiple occurrences.
 // It also includes spottings and abiotic measurements.
 
 type SamplingInputWithOccurrences struct {
 	SamplingInput `json:",inline"`
-	Internal      []InternalOccurrenceInput `json:"internal_occurrences,omitempty"`
-	External      []ExternalOccurrenceInput `json:"external_occurrences,omitempty"`
+	Occurrences   []OccurrenceInput `json:"occurrences,omitempty"`
 }
 
 func (s *SamplingInputWithOccurrences) WithCreatedMetadata(c *CreatedMetadata) *SamplingInputWithOccurrences {
 	s.ActionInput.WithPersonAliases(c.People)
-	for i := range s.Internal {
-		(&s.Internal[i]).WithCreatedMetadata(c)
-	}
-	for i := range s.External {
-		(&s.External[i]).WithCreatedMetadata(c)
+	for i := range s.Occurrences {
+		(&s.Occurrences[i]).WithCreatedMetadata(c)
 	}
 	return s
 }
@@ -542,19 +527,11 @@ func (i SamplingInputWithOccurrences) Save(tx geltypes.Tx, siteCode string) (err
 		return err
 	}
 
-	// Save internal occurrences
-	for j, internalBiomat := range i.Internal {
-		err := internalBiomat.SaveExecute(tx, sampling.Number)
-		if err != nil {
-			return models.WrapErrorIndex(err, j).PrependPath("internal_biomats")
-		}
-	}
-
 	// Save external occurrences and their sequences
-	for j, external := range i.External {
-		err := external.SaveExecute(tx, sampling.Number)
+	for j, occurrence := range i.Occurrences {
+		err := occurrence.SaveExecute(tx, sampling.Number)
 		if err != nil {
-			return models.WrapErrorIndex(err, j).PrependPath("external_biomats")
+			return models.WrapErrorIndex(err, j).PrependPath("occurrences")
 		}
 	}
 

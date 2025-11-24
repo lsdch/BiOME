@@ -6,7 +6,7 @@
       "madmin",
       "fmalard"
     ],
-    "occurrences": [
+    "content": [
       {
         "name": "La Doua Pond",
         "code": "DOUA_POND",
@@ -168,7 +168,7 @@
             "is_donation": false,
             "duration": 90,
             "comments": "Trapping Proasellus",
-            "internal_occurrences": [
+            "occurrences": [
               {
                 "type_status": "Holotype",
                 "identification": {
@@ -183,12 +183,13 @@
                   "identified_by": "fmalard"
                 },
                 "comments": "Seed internal bio-material"
-              }
-            ],
-            "external_occurrences": [
+              },
               {
                 "code": "Pcavaticus[DOUA_POND|2021-12]",
-                "quantity": "One",
+                "quantity": [
+                  1,
+                  1
+                ],
                 "in_collection": "Some museum",
                 "item_vouchers": [
                   "ItemA",

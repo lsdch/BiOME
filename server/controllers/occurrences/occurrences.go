@@ -12,7 +12,7 @@ import (
 )
 
 type RegisterOccurrenceOutput struct {
-	Body occurrence.GenericOccurrence[occurrence.SamplingOutline]
+	Body occurrence.BaseOccurrence[occurrence.SamplingOutline]
 }
 
 func RegisterRoutes(r router.Router) {

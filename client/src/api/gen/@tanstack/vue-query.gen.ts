@@ -42,9 +42,6 @@ import type {
   CreateDataSourceData,
   CreateDataSourceError,
   CreateDataSourceResponse,
-  CreateExternalOccurrenceData,
-  CreateExternalOccurrenceError,
-  CreateExternalOccurrenceResponse,
   CreateFixativeData,
   CreateFixativeError,
   CreateFixativeResponse,
@@ -54,6 +51,9 @@ import type {
   CreateHabitatGroupData,
   CreateHabitatGroupError,
   CreateHabitatGroupResponse,
+  CreateOccurrenceData,
+  CreateOccurrenceError,
+  CreateOccurrenceResponse,
   CreateOrganisationData,
   CreateOrganisationError,
   CreateOrganisationResponse,
@@ -209,18 +209,18 @@ import type {
   ResetPasswordError,
   ResetPasswordResponse,
   ReverseGeocodeData,
-  SamplingAddExternalOccurrenceData,
-  SamplingAddExternalOccurrenceError,
-  SamplingAddExternalOccurrenceResponse,
+  SamplingAddOccurrenceData,
+  SamplingAddOccurrenceError,
+  SamplingAddOccurrenceResponse,
   SearchSitesData,
   SecuritySettingsData,
   ServiceSettingsData,
   SetAppIconData,
   SetAppIconError,
   SetAppIconResponse,
-  SiteAddExternalOccurrenceData,
-  SiteAddExternalOccurrenceError,
-  SiteAddExternalOccurrenceResponse,
+  SiteAddOccurrenceData,
+  SiteAddOccurrenceError,
+  SiteAddOccurrenceResponse,
   SitesProximityData,
   TestSmtpData,
   TestSmtpError,
@@ -243,9 +243,6 @@ import type {
   UpdateEmailSettingsData,
   UpdateEmailSettingsError,
   UpdateEmailSettingsResponse,
-  UpdateExternalOccurrenceData,
-  UpdateExternalOccurrenceError,
-  UpdateExternalOccurrenceResponse,
   UpdateFixativeData,
   UpdateFixativeError,
   UpdateFixativeResponse,
@@ -258,6 +255,9 @@ import type {
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsError,
   UpdateInstanceSettingsResponse,
+  UpdateOccurrenceData,
+  UpdateOccurrenceError,
+  UpdateOccurrenceResponse,
   UpdateOrganisationData,
   UpdateOrganisationError,
   UpdateOrganisationResponse,
@@ -1840,6 +1840,33 @@ export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrences
   )
 }
 
+/**
+ * Create occurrence
+ */
+export const createOccurrenceMutation = (
+  options?: Partial<Options<CreateOccurrenceData>>
+): UseMutationOptions<
+  CreateOccurrenceResponse,
+  CreateOccurrenceError,
+  Options<CreateOccurrenceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateOccurrenceResponse,
+    CreateOccurrenceError,
+    Options<CreateOccurrenceData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await OccurrencesService.createOccurrence({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
 export const occurrencesBySiteQueryKey = (options?: Options<OccurrencesBySiteData>) =>
   createQueryKey('occurrencesBySite', options)
 
@@ -1859,60 +1886,6 @@ export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData
     },
     queryKey: occurrencesBySiteQueryKey(options)
   })
-}
-
-/**
- * Update external occurrence
- */
-export const updateExternalOccurrenceMutation = (
-  options?: Partial<Options<UpdateExternalOccurrenceData>>
-): UseMutationOptions<
-  UpdateExternalOccurrenceResponse,
-  UpdateExternalOccurrenceError,
-  Options<UpdateExternalOccurrenceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateExternalOccurrenceResponse,
-    UpdateExternalOccurrenceError,
-    Options<UpdateExternalOccurrenceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.updateExternalOccurrence({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Create external occurrence
- */
-export const createExternalOccurrenceMutation = (
-  options?: Partial<Options<CreateExternalOccurrenceData>>
-): UseMutationOptions<
-  CreateExternalOccurrenceResponse,
-  CreateExternalOccurrenceError,
-  Options<CreateExternalOccurrenceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateExternalOccurrenceResponse,
-    CreateExternalOccurrenceError,
-    Options<CreateExternalOccurrenceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.createExternalOccurrence({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
 }
 
 export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) =>
@@ -1984,6 +1957,33 @@ export const getOccurrenceOptions = (options: Options<GetOccurrenceData>) => {
     },
     queryKey: getOccurrenceQueryKey(options)
   })
+}
+
+/**
+ * Update occurrence
+ */
+export const updateOccurrenceMutation = (
+  options?: Partial<Options<UpdateOccurrenceData>>
+): UseMutationOptions<
+  UpdateOccurrenceResponse,
+  UpdateOccurrenceError,
+  Options<UpdateOccurrenceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateOccurrenceResponse,
+    UpdateOccurrenceError,
+    Options<UpdateOccurrenceData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await OccurrencesService.updateOccurrence({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
 }
 
 export const listOrganisationsQueryKey = (options?: Options<ListOrganisationsData>) =>
@@ -2559,20 +2559,20 @@ export const updateSamplingMutation = (
  *
  * Register new occurrence resulting from the sampling action
  */
-export const samplingAddExternalOccurrenceMutation = (
-  options?: Partial<Options<SamplingAddExternalOccurrenceData>>
+export const samplingAddOccurrenceMutation = (
+  options?: Partial<Options<SamplingAddOccurrenceData>>
 ): UseMutationOptions<
-  SamplingAddExternalOccurrenceResponse,
-  SamplingAddExternalOccurrenceError,
-  Options<SamplingAddExternalOccurrenceData>
+  SamplingAddOccurrenceResponse,
+  SamplingAddOccurrenceError,
+  Options<SamplingAddOccurrenceData>
 > => {
   const mutationOptions: UseMutationOptions<
-    SamplingAddExternalOccurrenceResponse,
-    SamplingAddExternalOccurrenceError,
-    Options<SamplingAddExternalOccurrenceData>
+    SamplingAddOccurrenceResponse,
+    SamplingAddOccurrenceError,
+    Options<SamplingAddOccurrenceData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.samplingAddExternalOccurrence({
+      const { data } = await OccurrencesService.samplingAddOccurrence({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -3109,20 +3109,20 @@ export const updateSiteMutation = (
  *
  * Register new occurrence at site, including event + sampling specification and biomaterial identification
  */
-export const siteAddExternalOccurrenceMutation = (
-  options?: Partial<Options<SiteAddExternalOccurrenceData>>
+export const siteAddOccurrenceMutation = (
+  options?: Partial<Options<SiteAddOccurrenceData>>
 ): UseMutationOptions<
-  SiteAddExternalOccurrenceResponse,
-  SiteAddExternalOccurrenceError,
-  Options<SiteAddExternalOccurrenceData>
+  SiteAddOccurrenceResponse,
+  SiteAddOccurrenceError,
+  Options<SiteAddOccurrenceData>
 > => {
   const mutationOptions: UseMutationOptions<
-    SiteAddExternalOccurrenceResponse,
-    SiteAddExternalOccurrenceError,
-    Options<SiteAddExternalOccurrenceData>
+    SiteAddOccurrenceResponse,
+    SiteAddOccurrenceError,
+    Options<SiteAddOccurrenceData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.siteAddExternalOccurrence({
+      const { data } = await OccurrencesService.siteAddOccurrence({
         ...options,
         ...fnOptions,
         throwOnError: true

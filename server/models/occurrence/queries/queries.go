@@ -87,43 +87,24 @@ func AbioticQuery(site string, JSON string, shape string) (res string) {
 }
 
 /****************************
- * Internal Biomaterial
+ * Occurrence
  ****************************/
 
-type insertInternalBioMatQuery struct {
-	Sampling string
-	JSON     string
-	shapeT
-}
-
-func InternalBioMatQuery(sampling string, JSON string, shape string) (res string) {
-	q := insertInternalBioMatQuery{
-		Sampling: sampling,
-		JSON:     JSON,
-		shapeT:   shapeT(shape),
-	}
-	return renderWithShape("insert_internal_biomat.tmpl.edgeql", q)
-}
-
-/****************************
- * External Occurrence
- ****************************/
-
-type insertExternalOccurrenceQuery struct {
+type insertOccurrenceQuery struct {
 	Sampling            string
 	JSON                string
 	InsertSequenceQuery insertExternalSequenceQuery
 	shapeT
 }
 
-func ExternalOccurrenceQuery(sampling string, JSON string, shape string) (res string) {
-	q := insertExternalOccurrenceQuery{
+func OccurrenceQuery(sampling string, JSON string, shape string) (res string) {
+	q := insertOccurrenceQuery{
 		Sampling:            sampling,
 		JSON:                JSON,
 		InsertSequenceQuery: insertExternalSequenceQuery{"occurrence", "seq_data", ""},
 		shapeT:              shapeT(shape),
 	}
-	return renderWithShape("insert_external_occurrence.tmpl.edgeql", q)
+	return renderWithShape("insert_occurrence.tmpl.edgeql", q)
 }
 
 /****************************

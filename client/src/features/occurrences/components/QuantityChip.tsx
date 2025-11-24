@@ -25,7 +25,9 @@ export function QuantityChip(
   { quantity }: { quantity: QuantityRange },
   context: { attrs?: object }
 ) {
-  return <v-chip text={quantityIndicator(quantity)} {...context.attrs}></v-chip>
+  return (
+    <v-chip class="font-monospace" text={quantityIndicator(quantity)} {...context.attrs}></v-chip>
+  )
 }
 
 export default QuantityChip

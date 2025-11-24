@@ -7,7 +7,7 @@ module samples {
   type ContentType extending default::Vocabulary, default::Auditable;
 
   abstract type Sample extending default::Auditable {
-    required biomat: occurrence::InternalBioMat;
+    required biomat: occurrence::Occurrence;
     required type: ContentType;
     required conservation: Fixative;
 
@@ -55,9 +55,6 @@ module samples {
     };
 
     multi link sequences := .<specimen[is seq::AssembledSequence];
-    link identification := (
-      (select .sequences filter .is_identifying).identification
-    );
 
     multi pictures: default::Picture {
       on source delete delete target;

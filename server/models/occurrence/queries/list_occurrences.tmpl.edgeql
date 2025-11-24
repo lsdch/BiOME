@@ -1,7 +1,6 @@
 with module occurrence,
   params := <json>$0,
   search_term := <str>json_get(params, 'search'),
-  category := <str>json_get(params, 'category'),
   {{ template "taxa_variables" .TaxaFilters -}}
   with_sequences := <bool>json_get(params, 'has_sequences'),
   confer := <bool>json_get(params, 'confer'),
@@ -10,13 +9,10 @@ with module occurrence,
   type_status := <TypeStatus>json_array_unpack(json_get(params, 'type_status')),
   is_own := <bool>params['owned'],
 items := (
-  select OccurrenceWithType { * }
+  select Occurrence { * }
   filter (
     {{- if .SearchTerm }}
       (.code ilike '%%' ++ search_term ++ '%%') and
-    {{ end }}
-    {{- if .Category.IsSet }}
-    (.category = ("occurrence::InternalBioMat" if category = "Internal" else "occurrence::ExternalOccurrence")) and
     {{ end }}
     {{ template "taxa_filters" .TaxaFilters }}
     {{- if .Rank }}

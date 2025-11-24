@@ -13,10 +13,10 @@ import {
   createArticleResponseTransformer,
   createDataFeedResponseTransformer,
   createDataSourceResponseTransformer,
-  createExternalOccurrenceResponseTransformer,
   createFixativeResponseTransformer,
   createGeneResponseTransformer,
   createHabitatGroupResponseTransformer,
+  createOccurrenceResponseTransformer,
   createOrganisationResponseTransformer,
   createPersonResponseTransformer,
   createProgramResponseTransformer,
@@ -78,19 +78,19 @@ import {
   loginResponseTransformer,
   occurrencesBySiteResponseTransformer,
   refreshSessionResponseTransformer,
-  samplingAddExternalOccurrenceResponseTransformer,
+  samplingAddOccurrenceResponseTransformer,
   searchSitesResponseTransformer,
-  siteAddExternalOccurrenceResponseTransformer,
+  siteAddOccurrenceResponseTransformer,
   sitesProximityResponseTransformer,
   togglePinDatasetResponseTransformer,
   updateAbioticParameterResponseTransformer,
   updateArticleResponseTransformer,
   updateDatasetResponseTransformer,
   updateDataSourceResponseTransformer,
-  updateExternalOccurrenceResponseTransformer,
   updateFixativeResponseTransformer,
   updateGeneResponseTransformer,
   updateHabitatGroupResponseTransformer,
+  updateOccurrenceResponseTransformer,
   updateOrganisationResponseTransformer,
   updatePersonResponseTransformer,
   updateProgramResponseTransformer,
@@ -121,9 +121,6 @@ import type {
   CreateDataSourceData,
   CreateDataSourceErrors,
   CreateDataSourceResponses,
-  CreateExternalOccurrenceData,
-  CreateExternalOccurrenceErrors,
-  CreateExternalOccurrenceResponses,
   CreateFixativeData,
   CreateFixativeErrors,
   CreateFixativeResponses,
@@ -133,6 +130,9 @@ import type {
   CreateHabitatGroupData,
   CreateHabitatGroupErrors,
   CreateHabitatGroupResponses,
+  CreateOccurrenceData,
+  CreateOccurrenceErrors,
+  CreateOccurrenceResponses,
   CreateOrganisationData,
   CreateOrganisationErrors,
   CreateOrganisationResponses,
@@ -379,9 +379,9 @@ import type {
   ReverseGeocodeData,
   ReverseGeocodeErrors,
   ReverseGeocodeResponses,
-  SamplingAddExternalOccurrenceData,
-  SamplingAddExternalOccurrenceErrors,
-  SamplingAddExternalOccurrenceResponses,
+  SamplingAddOccurrenceData,
+  SamplingAddOccurrenceErrors,
+  SamplingAddOccurrenceResponses,
   SearchSitesData,
   SearchSitesErrors,
   SearchSitesResponses,
@@ -394,9 +394,9 @@ import type {
   SetAppIconData,
   SetAppIconErrors,
   SetAppIconResponses,
-  SiteAddExternalOccurrenceData,
-  SiteAddExternalOccurrenceErrors,
-  SiteAddExternalOccurrenceResponses,
+  SiteAddOccurrenceData,
+  SiteAddOccurrenceErrors,
+  SiteAddOccurrenceResponses,
   SitesProximityData,
   SitesProximityErrors,
   SitesProximityResponses,
@@ -421,9 +421,6 @@ import type {
   UpdateEmailSettingsData,
   UpdateEmailSettingsErrors,
   UpdateEmailSettingsResponses,
-  UpdateExternalOccurrenceData,
-  UpdateExternalOccurrenceErrors,
-  UpdateExternalOccurrenceResponses,
   UpdateFixativeData,
   UpdateFixativeErrors,
   UpdateFixativeResponses,
@@ -436,6 +433,9 @@ import type {
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsErrors,
   UpdateInstanceSettingsResponses,
+  UpdateOccurrenceData,
+  UpdateOccurrenceErrors,
+  UpdateOccurrenceResponses,
   UpdateOrganisationData,
   UpdateOrganisationErrors,
   UpdateOrganisationResponses,
@@ -1093,15 +1093,15 @@ export class SamplingService {
    *
    * Register new occurrence resulting from the sampling action
    */
-  public static samplingAddExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SamplingAddExternalOccurrenceData, ThrowOnError>
+  public static samplingAddOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SamplingAddOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? client).post<
-      SamplingAddExternalOccurrenceResponses,
-      SamplingAddExternalOccurrenceErrors,
+      SamplingAddOccurrenceResponses,
+      SamplingAddOccurrenceErrors,
       ThrowOnError
     >({
-      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
+      responseTransformer: samplingAddOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1113,7 +1113,7 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      url: '/samplings/{id}/occurrences/external',
+      url: '/samplings/{id}/occurrences',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -2956,15 +2956,15 @@ export class LocationService {
    *
    * Register new occurrence at site, including event + sampling specification and biomaterial identification
    */
-  public static siteAddExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SiteAddExternalOccurrenceData, ThrowOnError>
+  public static siteAddOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SiteAddOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? client).post<
-      SiteAddExternalOccurrenceResponses,
-      SiteAddExternalOccurrenceErrors,
+      SiteAddOccurrenceResponses,
+      SiteAddOccurrenceErrors,
       ThrowOnError
     >({
-      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
+      responseTransformer: siteAddOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -2976,7 +2976,7 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      url: '/sites/{code}/occurrences/external',
+      url: '/sites/{code}/occurrences',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -3092,6 +3092,38 @@ export class OccurrencesService {
   }
 
   /**
+   * Create occurrence
+   */
+  public static createOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<CreateOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      CreateOccurrenceResponses,
+      CreateOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: createOccurrenceResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
    * Occurrences by site
    */
   public static occurrencesBySite<ThrowOnError extends boolean = false>(
@@ -3145,70 +3177,6 @@ export class OccurrencesService {
       ],
       url: '/occurrences/by-site',
       ...options
-    })
-  }
-
-  /**
-   * Update external occurrence
-   */
-  public static updateExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<UpdateExternalOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateExternalOccurrenceResponses,
-      UpdateExternalOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateExternalOccurrenceResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/external',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Create external occurrence
-   */
-  public static createExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<CreateExternalOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateExternalOccurrenceResponses,
-      CreateExternalOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createExternalOccurrenceResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/external',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
     })
   }
 
@@ -3298,19 +3266,17 @@ export class OccurrencesService {
   }
 
   /**
-   * Add occurrence from sampling
-   *
-   * Register new occurrence resulting from the sampling action
+   * Update occurrence
    */
-  public static samplingAddExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SamplingAddExternalOccurrenceData, ThrowOnError>
+  public static updateOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<UpdateOccurrenceData, ThrowOnError>
   ) {
-    return (options.client ?? client).post<
-      SamplingAddExternalOccurrenceResponses,
-      SamplingAddExternalOccurrenceErrors,
+    return (options.client ?? client).patch<
+      UpdateOccurrenceResponses,
+      UpdateOccurrenceErrors,
       ThrowOnError
     >({
-      responseTransformer: samplingAddExternalOccurrenceResponseTransformer,
+      responseTransformer: updateOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3322,7 +3288,41 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      url: '/samplings/{id}/occurrences/external',
+      url: '/occurrences/{code}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Add occurrence from sampling
+   *
+   * Register new occurrence resulting from the sampling action
+   */
+  public static samplingAddOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SamplingAddOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      SamplingAddOccurrenceResponses,
+      SamplingAddOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: samplingAddOccurrenceResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/samplings/{id}/occurrences',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -3336,15 +3336,15 @@ export class OccurrencesService {
    *
    * Register new occurrence at site, including event + sampling specification and biomaterial identification
    */
-  public static siteAddExternalOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SiteAddExternalOccurrenceData, ThrowOnError>
+  public static siteAddOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SiteAddOccurrenceData, ThrowOnError>
   ) {
     return (options.client ?? client).post<
-      SiteAddExternalOccurrenceResponses,
-      SiteAddExternalOccurrenceErrors,
+      SiteAddOccurrenceResponses,
+      SiteAddOccurrenceErrors,
       ThrowOnError
     >({
-      responseTransformer: siteAddExternalOccurrenceResponseTransformer,
+      responseTransformer: siteAddOccurrenceResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -3356,7 +3356,7 @@ export class OccurrencesService {
           type: 'apiKey'
         }
       ],
-      url: '/sites/{code}/occurrences/external',
+      url: '/sites/{code}/occurrences',
       ...options,
       headers: {
         'Content-Type': 'application/json',

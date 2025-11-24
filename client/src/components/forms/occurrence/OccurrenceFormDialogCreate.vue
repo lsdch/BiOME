@@ -17,11 +17,11 @@
 </template>
 
 <script setup lang="ts">
-import { ErrorModel, GenericOccurrenceSamplingOutline } from '@/api'
+import { ErrorModel, BaseOccurrenceSamplingOutline } from '@/api'
 import {
-  createExternalOccurrenceMutation,
-  samplingAddExternalOccurrenceMutation,
-  siteAddExternalOccurrenceMutation
+  createOccurrenceMutation,
+  samplingAddOccurrenceMutation,
+  siteAddOccurrenceMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { hasID } from '@/lib/db'
@@ -37,9 +37,9 @@ const model = ref<OccurrenceModel.OccurrenceModel>(OccurrenceModel.initialModel(
 
 defineProps<FormDialogProps>()
 
-const addFromSampling = useMutation(samplingAddExternalOccurrenceMutation())
-const addFromSite = useMutation(siteAddExternalOccurrenceMutation())
-const createFromScratchExternal = useMutation(createExternalOccurrenceMutation())
+const addFromSampling = useMutation(samplingAddOccurrenceMutation())
+const addFromSite = useMutation(siteAddOccurrenceMutation())
+const createFromScratchExternal = useMutation(createOccurrenceMutation())
 
 function getActiveMutation() {
   if (hasID(model.value?.sampling)) return addFromSampling
@@ -67,7 +67,7 @@ const errors = computed<IndexedValidationErrors | undefined>(() => {
 const { feedback } = useFeedback()
 
 const mutationCallbacks = {
-  onSuccess: (data: GenericOccurrenceSamplingOutline) => {
+  onSuccess: (data: BaseOccurrenceSamplingOutline) => {
     feedback({
       type: 'success',
       message: `Occurrence ${data.code} created`

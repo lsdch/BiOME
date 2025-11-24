@@ -24,17 +24,8 @@
       <v-row>
         <v-col>
           <v-card title="Bio material" prepend-icon="mdi-package-variant">
-            <template #append v-if="mode === 'Create' && $vuetify.display.smAndUp">
-              <OccurrenceCategoryBtnToggle v-model="model.biomaterial.category" />
-            </template>
-            <v-divider v-if="model.biomaterial.category" class="mb-3" />
-            <ExternalOccurrenceForm
-              v-if="model.biomaterial.category === 'External'"
-              v-model="model.biomaterial.external"
-            />
-            <v-card-text v-else-if="model.biomaterial.category === 'Internal'">
-              [Internal bio mat form]
-            </v-card-text>
+            <v-divider />
+            <OccurrenceForm v-model="model.biomaterial.external" />
           </v-card>
         </v-col>
       </v-row>
@@ -46,8 +37,7 @@
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { FormProps } from '@/lib/mutations'
 import { OccurrenceModel } from '@/models'
-import ExternalOccurrenceForm from './ExternalOccurrenceForm.vue'
-import { OccurrenceCategoryBtnToggle } from './OccurrenceCategoryBtnToggle'
+import OccurrenceForm from './OccurrenceForm.vue'
 import SamplingFormComponent from './OccurrenceFormSampling.vue'
 import SiteFormComponent from './OccurrenceFormSite.vue'
 

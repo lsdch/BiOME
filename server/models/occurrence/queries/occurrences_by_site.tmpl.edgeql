@@ -50,7 +50,6 @@ select location::Site {
       select .occurrences {
         id,
         code,
-        category,
         identification: { confer, addendum, identified_on, taxon: { * } },
       }
       {{- if or .Taxa .Datasets }}

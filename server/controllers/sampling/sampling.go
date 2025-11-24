@@ -49,15 +49,15 @@ func registerSamplingRoutes(r router.Router) {
 	/**
 	 * OCCURRENCE
 	 */
-	router.Register(samplingAPI, "SamplingAddExternalOccurrence",
+	router.Register(samplingAPI, "SamplingAddOccurrence",
 		huma.Operation{
 			Tags:        []string{"Occurrences"},
-			Path:        "/{id}/occurrences/external",
+			Path:        "/{id}/occurrences/",
 			Method:      http.MethodPost,
 			Summary:     "Add occurrence from sampling",
 			Description: "Register new occurrence resulting from the sampling action",
 		},
-		SamplingAddExternalOccurrence)
+		SamplingAddOccurrence)
 
 	/**
 	 * FIXATIVES
@@ -101,13 +101,13 @@ func registerSamplingRoutes(r router.Router) {
 
 }
 
-type SamplingAddExternalOccurrenceInput struct {
+type SamplingAddOccurrenceInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
 	controllers.NumberInput
-	Body occurrence.ExternalOccurrenceInput
+	Body occurrence.OccurrenceInput
 }
 
-func SamplingAddExternalOccurrence(ctx context.Context, input *SamplingAddExternalOccurrenceInput) (*occurrences.RegisterOccurrenceOutput, error) {
+func SamplingAddOccurrence(ctx context.Context, input *SamplingAddOccurrenceInput) (*occurrences.RegisterOccurrenceOutput, error) {
 	sampling := input.Identifier()
 	biomat := input.Body
 	created, err := biomat.Save(input.DB(), sampling)

@@ -65,7 +65,6 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 							select (dataset.occurrences) {
 								id,
 								code,
-								category,
 								identification: { confer, addendum, identified_on, taxon: { * } },
 							} filter.sampling.id = dataset.sites.samplings.id
 						)
@@ -108,21 +107,11 @@ func (i *OccurrenceDatasetInput) GatherBatch(db geltypes.Executor) error {
 				),
 				message := "Multiple datasets found with the same batch_import_id")
 			),
-		  ext := (
-				update occurrence::ExternalOccurrence
-				filter .meta.batch_import_id = <str>$0
-				set {
-					datasets := dataset
-				}
-			),
-			int := (
-				update occurrence::InternalBioMat
-				filter .meta.batch_import_id = <str>$0
-				set {
-					datasets := dataset
-				}
-			),
-			select dataset
+			update occurrence::Occurrence
+			filter .meta.batch_import_id = <str>$0
+			set {
+				datasets := dataset
+			}
 		`, i.BatchULID.String(),
 	)
 }

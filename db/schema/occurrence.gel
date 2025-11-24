@@ -27,7 +27,7 @@ module occurrence {
   scalar type TypeStatus extending enum<Holotype, Neotype, Topotype>;
 
   # Occurrences are reports of the presence of a taxon at a specific location and time.
-  abstract type Occurrence extending default::Auditable, default::CodeIdentifier {
+  type Occurrence extending default::Auditable, default::CodeIdentifier {
 
     multi datasets: datasets::OccurrenceDataset {
       on target delete allow;
@@ -59,13 +59,31 @@ module occurrence {
       # );
     };
 
-    required category := (.__type__.name);
-
     # Defines whether this occurrence is the first scientific description of
     # the taxon
     type_status : TypeStatus;
 
     comments: str;
+
+    multi sources: references::DataSource;
+    in_collection: str; # name of a collection where the specimen can be found
+    multi item_vouchers: str; # specimen identifier(s) within the collection
+
+    multi published_in: references::Article;
+    original_taxon: str {
+      annotation description := "The verbatim identification provided in the original source.";
+    };
+
+    quantity: tuple<lower: int32, upper: int32> {
+      annotation description := "The number of specimens reported in this occurrence.";
+    };
+    content_description: str;
+
+    multi link specimens := .<biomat[is samples::Specimen];
+    multi link bundles := .<biomat[is samples::BundledSpecimens];
+
+    multi sequences := .<biomat[is seq::ExternalSequence];
+    required has_sequences := (exists .sequences);
 
     access policy allow_insert_update allow all;
     access policy no_duplicated_taxon_in_same_sampling
@@ -81,147 +99,4 @@ module occurrence {
     # error: constraints cannot contain paths with more than one hop
     # constraint exclusive on ((.sampling, .identification.taxon));
   }
-
-  type InternalBioMat extending Occurrence {
-    # multi link content := .<biomat[is samples::Sample];
-    multi link specimens := .<biomat[is samples::Specimen];
-    multi link bundles := .<biomat[is samples::BundledSpecimens];
-
-    required has_sequences := (exists .specimens.sequences);
-
-    required is_homogenous := (
-      select count(distinct .specimens.identification.taxon) <= 1
-    );
-
-    required is_congruent := (
-      select assert_exists(
-        .is_homogenous and (
-          (not exists .specimens) or
-          .identification.taxon in (
-            assert_single(
-              distinct .specimens.identification.taxon,
-              message := "BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: " ++ <str>.id
-            ))
-        )
-      )
-    );
-
-    # Molecular identification, if available and homogenous
-    single seq_consensus := (
-      select (
-        if .is_homogenous then
-          assert_single(
-            distinct .specimens.identification.taxon,
-            message := "BioMaterial is marked as homogenous, yet specimens have identification mismatch. UUID: " ++ <str>.id
-          )
-        else {}
-      )
-    );
-  }
-
-  function insert_internal_biomat(sampling: events::Sampling, data: json) -> InternalBioMat {
-    using (
-      with
-        identification := data['identification'],
-        taxon := taxonomy::taxonByName(<str>identification['taxon']),
-      insert InternalBioMat {
-        sampling := sampling,
-        code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling.code),
-        identification := (
-          insert occurrence::Identification {
-            taxon := taxon,
-            identified_by := people::personByAlias(<str>identification['identified_by']),
-            identified_on := date::from_json_with_precision(identification['identified_on']),
-          }
-        ),
-        type_status := <TypeStatus>json_get(data, 'type_status'),
-        comments := <str>json_get(data, 'comments'),
-      }
-    )
-  };
-
-  type ExternalOccurrence extending Occurrence {
-    multi sources: references::DataSource;
-    external_link: str; # link to original database
-
-    in_collection: str; # name of a collection where the specimen can be found
-    multi item_vouchers: str; # specimen identifier(s) within the collection
-
-    quantity: tuple<lower: int32, upper: int32> {
-      annotation description := "The number of specimens reported in this occurrence.";
-    };
-    content_description: str;
-
-
-    multi published_in: references::Article;
-
-    original_taxon: str {
-      annotation description := "The verbatim identification provided in the original source.";
-    };
-
-    required has_sequences := (exists .sequences);
-    multi sequences := .<biomat[is seq::ExternalSequence];
-  }
-
-  function insert_external_occurrence(sampling: events::Sampling, data: json) -> ExternalOccurrence {
-    using (
-      with
-        identification := data['identification'],
-        taxon := taxonomy::taxonByName(<str>identification['taxon']),
-      insert ExternalOccurrence {
-        sampling := sampling,
-        code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling.code),
-        sources := (
-          select references::DataSource
-          filter .code in <str>json_array_unpack(json_get(data, 'sources'))
-        ),
-        external_link := <str>json_get(data, 'external_link'),
-        original_taxon := <str>json_get(data, 'original_taxon'),
-        quantity := <tuple<lower:int32, upper:int32>>(
-          lower := json_get(data, 'quantity', '0'),
-          upper := json_get(data, 'quantity', '1')
-        ),
-        content_description := <str>json_get(data, 'content_description'),
-        in_collection := <str>json_get(data, 'collection'),
-        item_vouchers := <str>json_array_unpack(json_get(data, 'item_vouchers')),
-        comments := <str>json_get(data, 'comments'),
-        published_in := (
-          select distinct references::Article
-          filter .code in <str>json_array_unpack(json_get(data, 'published_in'))
-        ),
-        identification := (
-          insert occurrence::Identification {
-            taxon := taxon,
-            identified_by := people::personByAlias(<str>json_get(identification, 'identified_by')),
-            identified_on := date::from_json_with_precision(json_get(identification, 'identified_on')),
-          }
-        ),
-        type_status := <TypeStatus>json_get(data, 'type_status'),
-      }
-    )
-  };
-
-
-  alias OccurrenceWithType := (
-    select Occurrence {
-      required has_sequences := (
-        [is InternalBioMat].has_sequences ?? [is ExternalOccurrence].has_sequences ?? false
-      ),
-      internal := [is InternalBioMat]{
-        is_homogenous,
-        is_congruent,
-        seq_consensus
-      },
-      external:= [is ExternalOccurrence]{
-        sequences,
-        published_in,
-        original_taxon,
-        external_link,
-        in_collection,
-        item_vouchers,
-        quantity,
-        content_description,
-      }
-    }
-  )
 }

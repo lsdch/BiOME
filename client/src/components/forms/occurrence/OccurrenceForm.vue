@@ -18,7 +18,7 @@
     <v-card title="Content" class="small-card-title" flat>
       <v-row>
         <v-col>
-          <ExternalOccurrenceQuantityPicker
+          <QuantityPicker
             v-model="model.quantity"
             label="Specimen quantity"
             v-bind="schema('quantity')"
@@ -69,13 +69,13 @@
 </template>
 
 <script setup lang="ts">
-import { $ExternalOccurrenceInput, $ExternalOccurrenceUpdate } from '@/api'
+import { $OccurrenceInput, $OccurrenceUpdate } from '@/api'
 import { useSchema } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
 import { BiomatModel } from '@/models'
 import { reactiveComputed } from '@vueuse/core'
 import ArticlesPicker from '@/features/registries/components/ArticlesPicker.vue'
-import ExternalOccurrenceQuantityPicker from '@/components/forms/occurrence/ExternalOccurrenceQuantityPicker.vue'
+import QuantityPicker from '@/components/forms/occurrence/QuantityPicker.vue'
 import IdentificationFormFields from '@/components/forms/occurrence/IdentificationFormFields.vue'
 
 const model = defineModel<BiomatModel.ExternalOccurrenceModel>({
@@ -86,9 +86,7 @@ const { mode = 'Create' } = defineProps<FormProps>()
 
 const {
   bind: { schema }
-} = reactiveComputed(() =>
-  useSchema(mode === 'Create' ? $ExternalOccurrenceInput : $ExternalOccurrenceUpdate)
-)
+} = reactiveComputed(() => useSchema(mode === 'Create' ? $OccurrenceInput : $OccurrenceUpdate))
 </script>
 
 <style scoped lang="scss"></style>

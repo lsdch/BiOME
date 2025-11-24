@@ -58,11 +58,9 @@
 
       <v-list-item prepend-icon="mdi-package-variant ">
         <v-chip
-          v-for="{ id, code, category, identification } in samples"
+          v-for="{ id, code, identification } in samples"
           :variant="id === item.id ? 'outlined' : 'tonal'"
           :text="Identification.intersperseConfer(identification.taxon, identification.confer)"
-          :color="OccurrenceCategory.props[category].color"
-          :prepend-icon="OccurrenceCategory.icon(category)"
           :class="['ma-1', { 'text-muted': id === item.id }]"
           :to="id !== item.id ? { name: 'occurrence-item', params: { code: code } } : undefined"
           label

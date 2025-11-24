@@ -356,6 +356,115 @@ export const $BaseIdentification = {
   type: 'object'
 } as const
 
+export const $BaseOccurrenceSamplingInnerWithSite = {
+  additionalProperties: false,
+  properties: {
+    archive: {
+      $ref: '#/components/schemas/SpecimenVoucher'
+    },
+    code: {
+      type: 'string'
+    },
+    code_history: {
+      items: {
+        $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
+    },
+    comments: {
+      type: 'string'
+    },
+    content_description: {
+      type: 'string'
+    },
+    has_sequences: {
+      type: 'boolean'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    identification: {
+      $ref: '#/components/schemas/Identification'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    original_taxon: {
+      type: 'string'
+    },
+    quantity: {
+      $ref: '#/components/schemas/OptionalQuantityRange'
+    },
+    sampling: {
+      $ref: '#/components/schemas/SamplingInnerWithSite'
+    },
+    type_status: {
+      $ref: '#/components/schemas/OptionalTypeStatus'
+    }
+  },
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
+  type: 'object'
+} as const
+
+export const $BaseOccurrenceSamplingOutline = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/BaseOccurrenceSamplingOutline.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    archive: {
+      $ref: '#/components/schemas/SpecimenVoucher'
+    },
+    code: {
+      type: 'string'
+    },
+    code_history: {
+      items: {
+        $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
+    },
+    comments: {
+      type: 'string'
+    },
+    content_description: {
+      type: 'string'
+    },
+    has_sequences: {
+      type: 'boolean'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    identification: {
+      $ref: '#/components/schemas/Identification'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    original_taxon: {
+      type: 'string'
+    },
+    quantity: {
+      $ref: '#/components/schemas/OptionalQuantityRange'
+    },
+    sampling: {
+      $ref: '#/components/schemas/SamplingOutline'
+    },
+    type_status: {
+      $ref: '#/components/schemas/OptionalTypeStatus'
+    }
+  },
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
+  type: 'object'
+} as const
+
 export const $BibSearchResults = {
   additionalProperties: false,
   properties: {
@@ -568,18 +677,18 @@ export const $CountryWithSitesCount = {
   type: 'object'
 } as const
 
-export const $CreateExternalOccurrenceInputBody = {
+export const $CreateOccurrenceInputBody = {
   additionalProperties: false,
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/CreateExternalOccurrenceInputBody.json'],
+      examples: ['/api/v1/schemas/CreateOccurrenceInputBody.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
     },
     bio_material: {
-      $ref: '#/components/schemas/ExternalOccurrenceInput'
+      $ref: '#/components/schemas/OccurrenceInput'
     },
     sampling: {
       $ref: '#/components/schemas/SamplingInput'
@@ -1160,216 +1269,6 @@ export const $ErrorModel = {
   type: 'object'
 } as const
 
-export const $ExternalOccurrenceAtSiteInput = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/ExternalOccurrenceAtSiteInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    biomaterial: {
-      $ref: '#/components/schemas/ExternalOccurrenceInput'
-    },
-    sampling: {
-      $ref: '#/components/schemas/SamplingInput'
-    }
-  },
-  required: ['sampling', 'biomaterial'],
-  type: 'object'
-} as const
-
-export const $ExternalOccurrenceInput = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/ExternalOccurrenceInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      description:
-        'Unique code identifier for the bio material. Generated from taxon and sampling if not provided.',
-      examples: ['Genus_sp[SITE|2001-01]'],
-      type: 'string'
-    },
-    collection: {
-      type: 'string'
-    },
-    comments: {
-      type: 'string'
-    },
-    content_description: {
-      description: 'Description of the content of the bio material',
-      examples: ['2 females, 1 juvenile male'],
-      type: 'string'
-    },
-    external_link: {
-      type: 'string'
-    },
-    identification: {
-      $ref: '#/components/schemas/IdentificationInput',
-      description: 'Occurrence identification'
-    },
-    original_taxon: {
-      type: 'string'
-    },
-    published_in: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    quantity: {
-      items: {
-        format: 'int32',
-        type: 'integer'
-      },
-      maxItems: 2,
-      minItems: 1,
-      type: 'array'
-    },
-    sequences: {
-      items: {
-        $ref: '#/components/schemas/ExternalSequenceInput'
-      },
-      type: 'array'
-    },
-    sources: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    type_status: {
-      $ref: '#/components/schemas/TypeStatus',
-      description:
-        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.'
-    },
-    vouchers: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    }
-  },
-  required: ['identification'],
-  type: 'object'
-} as const
-
-export const $ExternalOccurrenceSpecific = {
-  additionalProperties: false,
-  properties: {
-    archive: {
-      $ref: '#/components/schemas/SpecimenVoucher'
-    },
-    content_description: {
-      type: 'string'
-    },
-    external_link: {
-      type: 'string'
-    },
-    original_taxon: {
-      type: 'string'
-    },
-    published_in: {
-      items: {
-        $ref: '#/components/schemas/Article'
-      },
-      type: 'array'
-    },
-    quantity: {
-      $ref: '#/components/schemas/OptionalQuantityRange'
-    },
-    sequences: {
-      items: {
-        $ref: '#/components/schemas/ExternalSequence'
-      },
-      type: 'array'
-    },
-    sources: {
-      items: {
-        $ref: '#/components/schemas/DataSource'
-      },
-      type: 'array'
-    }
-  },
-  required: ['archive'],
-  type: 'object'
-} as const
-
-export const $ExternalOccurrenceUpdate = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/ExternalOccurrenceUpdate.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      type: 'string'
-    },
-    collection: {
-      type: ['string', 'null']
-    },
-    comments: {
-      type: ['string', 'null']
-    },
-    content_description: {
-      type: ['string', 'null']
-    },
-    external_link: {
-      type: ['string', 'null']
-    },
-    identification: {
-      $ref: '#/components/schemas/IdentificationUpdate'
-    },
-    original_taxon: {
-      type: ['string', 'null']
-    },
-    published_in: {
-      items: {
-        type: 'string'
-      },
-      type: ['array', 'null']
-    },
-    quantity: {
-      items: {
-        format: 'int32',
-        type: 'integer'
-      },
-      maxItems: 2,
-      minItems: 2,
-      type: ['array', 'null']
-    },
-    sampling_id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    sources: {
-      type: ['string', 'null']
-    },
-    type_status: {
-      $ref: '#/components/schemas/TypeStatus',
-      type: ['string', 'null']
-    },
-    vouchers: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    }
-  },
-  required: ['sampling_id'],
-  type: 'object'
-} as const
-
 export const $ExternalSequence = {
   additionalProperties: false,
   properties: {
@@ -1669,97 +1568,6 @@ export const $GeneUpdate = {
       type: 'string'
     }
   },
-  type: 'object'
-} as const
-
-export const $GenericOccurrenceSamplingInnerWithSite = {
-  additionalProperties: false,
-  properties: {
-    category: {
-      $ref: '#/components/schemas/OccurrenceCategory'
-    },
-    code: {
-      type: 'string'
-    },
-    code_history: {
-      items: {
-        $ref: '#/components/schemas/CodeHistory'
-      },
-      type: 'array'
-    },
-    comments: {
-      type: 'string'
-    },
-    has_sequences: {
-      type: 'boolean'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    identification: {
-      $ref: '#/components/schemas/Identification'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    sampling: {
-      $ref: '#/components/schemas/SamplingInnerWithSite'
-    },
-    type_status: {
-      $ref: '#/components/schemas/OptionalTypeStatus'
-    }
-  },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
-  type: 'object'
-} as const
-
-export const $GenericOccurrenceSamplingOutline = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/GenericOccurrenceSamplingOutline.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    category: {
-      $ref: '#/components/schemas/OccurrenceCategory'
-    },
-    code: {
-      type: 'string'
-    },
-    code_history: {
-      items: {
-        $ref: '#/components/schemas/CodeHistory'
-      },
-      type: 'array'
-    },
-    comments: {
-      type: 'string'
-    },
-    has_sequences: {
-      type: 'boolean'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    identification: {
-      $ref: '#/components/schemas/Identification'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    sampling: {
-      $ref: '#/components/schemas/SamplingOutline'
-    },
-    type_status: {
-      $ref: '#/components/schemas/OptionalTypeStatus'
-    }
-  },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
   type: 'object'
 } as const
 
@@ -2309,26 +2117,6 @@ export const $InstanceSettingsInput = {
     }
   },
   required: ['name', 'public', 'allow_contributor_signup'],
-  type: 'object'
-} as const
-
-export const $InternalBioMatSpecific = {
-  additionalProperties: false,
-  properties: {
-    has_sequences: {
-      type: 'boolean'
-    },
-    is_congruent: {
-      type: 'boolean'
-    },
-    is_homogenous: {
-      type: 'boolean'
-    },
-    seq_consensus: {
-      $ref: '#/components/schemas/OptionalTaxon'
-    }
-  },
-  required: ['has_sequences', 'is_homogenous', 'is_congruent'],
   type: 'object'
 } as const
 
@@ -2917,9 +2705,6 @@ export const $Meta = {
 export const $OccurrenceAtSite = {
   additionalProperties: false,
   properties: {
-    category: {
-      $ref: '#/components/schemas/OccurrenceCategory'
-    },
     code: {
       type: 'string'
     },
@@ -2931,7 +2716,28 @@ export const $OccurrenceAtSite = {
       $ref: '#/components/schemas/BaseIdentification'
     }
   },
-  required: ['id', 'code', 'identification', 'category'],
+  required: ['id', 'code', 'identification'],
+  type: 'object'
+} as const
+
+export const $OccurrenceAtSiteInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/OccurrenceAtSiteInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    biomaterial: {
+      $ref: '#/components/schemas/OccurrenceInput'
+    },
+    sampling: {
+      $ref: '#/components/schemas/SamplingInput'
+    }
+  },
+  required: ['sampling', 'biomaterial'],
   type: 'object'
 } as const
 
@@ -3069,6 +2875,83 @@ export const $OccurrenceDatasetListItem = {
   type: 'object'
 } as const
 
+export const $OccurrenceInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/OccurrenceInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      description:
+        'Unique code identifier for the bio material. Generated from taxon and sampling if not provided.',
+      examples: ['Genus_sp[SITE|2001-01]'],
+      type: 'string'
+    },
+    collection: {
+      type: 'string'
+    },
+    comments: {
+      type: 'string'
+    },
+    content_description: {
+      description: 'Description of the content of the bio material',
+      examples: ['2 females, 1 juvenile male'],
+      type: 'string'
+    },
+    identification: {
+      $ref: '#/components/schemas/IdentificationInput',
+      description: 'Occurrence identification'
+    },
+    original_taxon: {
+      type: 'string'
+    },
+    published_in: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    quantity: {
+      items: {
+        format: 'int32',
+        type: 'integer'
+      },
+      maxItems: 2,
+      minItems: 1,
+      type: 'array'
+    },
+    sequences: {
+      items: {
+        $ref: '#/components/schemas/ExternalSequenceInput'
+      },
+      type: 'array'
+    },
+    sources: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    type_status: {
+      $ref: '#/components/schemas/TypeStatus',
+      description:
+        'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.'
+    },
+    vouchers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    }
+  },
+  required: ['identification'],
+  type: 'object'
+} as const
+
 export const $OccurrenceListItem = {
   additionalProperties: false,
   properties: {
@@ -3079,8 +2962,8 @@ export const $OccurrenceListItem = {
       readOnly: true,
       type: 'string'
     },
-    category: {
-      $ref: '#/components/schemas/OccurrenceCategory'
+    archive: {
+      $ref: '#/components/schemas/SpecimenVoucher'
     },
     code: {
       type: 'string'
@@ -3092,6 +2975,9 @@ export const $OccurrenceListItem = {
       type: 'array'
     },
     comments: {
+      type: 'string'
+    },
+    content_description: {
       type: 'string'
     },
     has_sequences: {
@@ -3107,6 +2993,12 @@ export const $OccurrenceListItem = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
+    original_taxon: {
+      type: 'string'
+    },
+    quantity: {
+      $ref: '#/components/schemas/OptionalQuantityRange'
+    },
     sampling: {
       $ref: '#/components/schemas/SamplingInnerWithSite'
     },
@@ -3114,7 +3006,7 @@ export const $OccurrenceListItem = {
       $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
   type: 'object'
 } as const
 
@@ -3149,8 +3041,8 @@ export const $OccurrenceSamplingWithSite = {
       readOnly: true,
       type: 'string'
     },
-    category: {
-      $ref: '#/components/schemas/OccurrenceCategory'
+    archive: {
+      $ref: '#/components/schemas/SpecimenVoucher'
     },
     code: {
       type: 'string'
@@ -3164,14 +3056,14 @@ export const $OccurrenceSamplingWithSite = {
     comments: {
       type: 'string'
     },
+    content_description: {
+      type: 'string'
+    },
     datasets: {
       items: {
         $ref: '#/components/schemas/Dataset'
       },
       type: 'array'
-    },
-    external: {
-      $ref: '#/components/schemas/OptionalExternalOccurrenceSpecific'
     },
     has_sequences: {
       type: 'boolean'
@@ -3183,28 +3075,49 @@ export const $OccurrenceSamplingWithSite = {
     identification: {
       $ref: '#/components/schemas/Identification'
     },
-    internal: {
-      $ref: '#/components/schemas/OptionalInternalBioMatSpecific'
-    },
     meta: {
       $ref: '#/components/schemas/Meta'
     },
+    original_taxon: {
+      type: 'string'
+    },
+    published_in: {
+      items: {
+        $ref: '#/components/schemas/Article'
+      },
+      type: 'array'
+    },
+    quantity: {
+      $ref: '#/components/schemas/OptionalQuantityRange'
+    },
     sampling: {
       $ref: '#/components/schemas/SamplingWithSite'
+    },
+    sequences: {
+      items: {
+        $ref: '#/components/schemas/ExternalSequence'
+      },
+      type: 'array'
+    },
+    sources: {
+      items: {
+        $ref: '#/components/schemas/DataSource'
+      },
+      type: 'array'
     },
     type_status: {
       $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
   type: 'object'
 } as const
 
 export const $OccurrenceStruct___ = {
   additionalProperties: false,
   properties: {
-    category: {
-      $ref: '#/components/schemas/OccurrenceCategory'
+    archive: {
+      $ref: '#/components/schemas/SpecimenVoucher'
     },
     code: {
       type: 'string'
@@ -3218,14 +3131,14 @@ export const $OccurrenceStruct___ = {
     comments: {
       type: 'string'
     },
+    content_description: {
+      type: 'string'
+    },
     datasets: {
       items: {
         $ref: '#/components/schemas/Dataset'
       },
       type: 'array'
-    },
-    external: {
-      $ref: '#/components/schemas/OptionalExternalOccurrenceSpecific'
     },
     has_sequences: {
       type: 'boolean'
@@ -3237,25 +3150,111 @@ export const $OccurrenceStruct___ = {
     identification: {
       $ref: '#/components/schemas/Identification'
     },
-    internal: {
-      $ref: '#/components/schemas/OptionalInternalBioMatSpecific'
-    },
     meta: {
       $ref: '#/components/schemas/Meta'
     },
+    original_taxon: {
+      type: 'string'
+    },
+    published_in: {
+      items: {
+        $ref: '#/components/schemas/Article'
+      },
+      type: 'array'
+    },
+    quantity: {
+      $ref: '#/components/schemas/OptionalQuantityRange'
+    },
     sampling: {
       $ref: '#/components/schemas/OccurrenceStruct {}SamplingStruct'
+    },
+    sequences: {
+      items: {
+        $ref: '#/components/schemas/ExternalSequence'
+      },
+      type: 'array'
+    },
+    sources: {
+      items: {
+        $ref: '#/components/schemas/DataSource'
+      },
+      type: 'array'
     },
     type_status: {
       $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code', 'category'],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
   type: 'object'
 } as const
 
 export const $OccurrenceStruct___SamplingStruct = {
   additionalProperties: false,
+  type: 'object'
+} as const
+
+export const $OccurrenceUpdate = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/OccurrenceUpdate.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    collection: {
+      type: ['string', 'null']
+    },
+    comments: {
+      type: ['string', 'null']
+    },
+    content_description: {
+      type: ['string', 'null']
+    },
+    identification: {
+      $ref: '#/components/schemas/IdentificationUpdate'
+    },
+    original_taxon: {
+      type: ['string', 'null']
+    },
+    published_in: {
+      items: {
+        type: 'string'
+      },
+      type: ['array', 'null']
+    },
+    quantity: {
+      items: {
+        format: 'int32',
+        type: 'integer'
+      },
+      maxItems: 2,
+      minItems: 2,
+      type: ['array', 'null']
+    },
+    sampling_id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    sources: {
+      type: ['string', 'null']
+    },
+    type_status: {
+      $ref: '#/components/schemas/TypeStatus',
+      type: ['string', 'null']
+    },
+    vouchers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    }
+  },
+  required: ['sampling_id'],
   type: 'object'
 } as const
 
@@ -3376,47 +3375,6 @@ export const $OptionalDateWithPrecision = {
   type: 'object'
 } as const
 
-export const $OptionalExternalOccurrenceSpecific = {
-  additionalProperties: false,
-  properties: {
-    archive: {
-      $ref: '#/components/schemas/SpecimenVoucher'
-    },
-    content_description: {
-      type: 'string'
-    },
-    external_link: {
-      type: 'string'
-    },
-    original_taxon: {
-      type: 'string'
-    },
-    published_in: {
-      items: {
-        $ref: '#/components/schemas/Article'
-      },
-      type: 'array'
-    },
-    quantity: {
-      $ref: '#/components/schemas/OptionalQuantityRange'
-    },
-    sequences: {
-      items: {
-        $ref: '#/components/schemas/ExternalSequence'
-      },
-      type: 'array'
-    },
-    sources: {
-      items: {
-        $ref: '#/components/schemas/DataSource'
-      },
-      type: 'array'
-    }
-  },
-  required: ['archive'],
-  type: ['object', 'null']
-} as const
-
 export const $OptionalHabitatRecord = {
   additionalProperties: false,
   properties: {
@@ -3443,26 +3401,6 @@ export const $OptionalHabitatRecord = {
     }
   },
   required: ['incompatible', 'id', 'label'],
-  type: ['object', 'null']
-} as const
-
-export const $OptionalInternalBioMatSpecific = {
-  additionalProperties: false,
-  properties: {
-    has_sequences: {
-      type: 'boolean'
-    },
-    is_congruent: {
-      type: 'boolean'
-    },
-    is_homogenous: {
-      type: 'boolean'
-    },
-    seq_consensus: {
-      $ref: '#/components/schemas/OptionalTaxon'
-    }
-  },
-  required: ['has_sequences', 'is_homogenous', 'is_congruent'],
   type: ['object', 'null']
 } as const
 
@@ -5681,7 +5619,7 @@ export const $SequenceListItem = {
       $ref: '#/components/schemas/Meta'
     },
     occurrence: {
-      $ref: '#/components/schemas/GenericOccurrenceSamplingInnerWithSite'
+      $ref: '#/components/schemas/BaseOccurrenceSamplingInnerWithSite'
     },
     sequence: {
       type: 'string'

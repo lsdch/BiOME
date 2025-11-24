@@ -6,10 +6,10 @@ import type {
   CreateArticleResponse,
   CreateDataFeedResponse,
   CreateDataSourceResponse,
-  CreateExternalOccurrenceResponse,
   CreateFixativeResponse,
   CreateGeneResponse,
   CreateHabitatGroupResponse,
+  CreateOccurrenceResponse,
   CreateOrganisationResponse,
   CreatePersonResponse,
   CreateProgramResponse,
@@ -71,19 +71,19 @@ import type {
   LoginResponse,
   OccurrencesBySiteResponse,
   RefreshSessionResponse,
-  SamplingAddExternalOccurrenceResponse,
+  SamplingAddOccurrenceResponse,
   SearchSitesResponse,
-  SiteAddExternalOccurrenceResponse,
+  SiteAddOccurrenceResponse,
   SitesProximityResponse,
   TogglePinDatasetResponse,
   UpdateAbioticParameterResponse,
   UpdateArticleResponse,
   UpdateDatasetResponse,
   UpdateDataSourceResponse,
-  UpdateExternalOccurrenceResponse,
   UpdateFixativeResponse,
   UpdateGeneResponse,
   UpdateHabitatGroupResponse,
+  UpdateOccurrenceResponse,
   UpdateOrganisationResponse,
   UpdatePersonResponse,
   UpdateProgramResponse,
@@ -674,16 +674,7 @@ export const listOccurrencesResponseTransformer = async (
   return data
 }
 
-export const occurrencesBySiteResponseTransformer = async (
-  data: any
-): Promise<OccurrencesBySiteResponse> => {
-  data = data.map((item: any) => {
-    return siteWithOccurrencesSchemaResponseTransformer(item)
-  })
-  return data
-}
-
-const genericOccurrenceSamplingOutlineSchemaResponseTransformer = (data: any) => {
+const baseOccurrenceSamplingOutlineSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) => {
       return codeHistorySchemaResponseTransformer(item)
@@ -702,17 +693,19 @@ const samplingOutlineSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const updateExternalOccurrenceResponseTransformer = async (
+export const createOccurrenceResponseTransformer = async (
   data: any
-): Promise<UpdateExternalOccurrenceResponse> => {
-  data = genericOccurrenceSamplingOutlineSchemaResponseTransformer(data)
+): Promise<CreateOccurrenceResponse> => {
+  data = baseOccurrenceSamplingOutlineSchemaResponseTransformer(data)
   return data
 }
 
-export const createExternalOccurrenceResponseTransformer = async (
+export const occurrencesBySiteResponseTransformer = async (
   data: any
-): Promise<CreateExternalOccurrenceResponse> => {
-  data = genericOccurrenceSamplingOutlineSchemaResponseTransformer(data)
+): Promise<OccurrencesBySiteResponse> => {
+  data = data.map((item: any) => {
+    return siteWithOccurrencesSchemaResponseTransformer(item)
+  })
   return data
 }
 
@@ -734,24 +727,14 @@ const occurrenceSamplingWithSiteSchemaResponseTransformer = (data: any) => {
       return datasetSchemaResponseTransformer(item)
     })
   }
-  if (data.external) {
-    data.external = optionalExternalOccurrenceSpecificSchemaResponseTransformer(data.external)
-  }
   data.identification = identificationSchemaResponseTransformer(data.identification)
-  if (data.internal) {
-    data.internal = optionalInternalBioMatSpecificSchemaResponseTransformer(data.internal)
-  }
   data.meta = metaSchemaResponseTransformer(data.meta)
-  data.sampling = samplingWithSiteSchemaResponseTransformer(data.sampling)
-  return data
-}
-
-const optionalExternalOccurrenceSpecificSchemaResponseTransformer = (data: any) => {
   if (data.published_in) {
     data.published_in = data.published_in.map((item: any) => {
       return articleSchemaResponseTransformer(item)
     })
   }
+  data.sampling = samplingWithSiteSchemaResponseTransformer(data.sampling)
   if (data.sequences) {
     data.sequences = data.sequences.map((item: any) => {
       return externalSequenceSchemaResponseTransformer(item)
@@ -766,34 +749,6 @@ const optionalExternalOccurrenceSpecificSchemaResponseTransformer = (data: any) 
 }
 
 const articleSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  return data
-}
-
-const externalSequenceSchemaResponseTransformer = (data: any) => {
-  if (data.code_history) {
-    data.code_history = data.code_history.map((item: any) => {
-      return codeHistorySchemaResponseTransformer(item)
-    })
-  }
-  data.gene = geneSchemaResponseTransformer(data.gene)
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  if (data.referenced_in) {
-    data.referenced_in = data.referenced_in.map((item: any) => {
-      return seqReferenceSchemaResponseTransformer(item)
-    })
-  }
-  return data
-}
-
-const optionalInternalBioMatSpecificSchemaResponseTransformer = (data: any) => {
-  if (data.seq_consensus) {
-    data.seq_consensus = optionalTaxonSchemaResponseTransformer(data.seq_consensus)
-  }
-  return data
-}
-
-const optionalTaxonSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
@@ -848,14 +803,39 @@ const occurrenceStructSchemaResponseTransformer = (data: any) => {
       return datasetSchemaResponseTransformer(item)
     })
   }
-  if (data.external) {
-    data.external = optionalExternalOccurrenceSpecificSchemaResponseTransformer(data.external)
-  }
   data.identification = identificationSchemaResponseTransformer(data.identification)
-  if (data.internal) {
-    data.internal = optionalInternalBioMatSpecificSchemaResponseTransformer(data.internal)
-  }
   data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.published_in) {
+    data.published_in = data.published_in.map((item: any) => {
+      return articleSchemaResponseTransformer(item)
+    })
+  }
+  if (data.sequences) {
+    data.sequences = data.sequences.map((item: any) => {
+      return externalSequenceSchemaResponseTransformer(item)
+    })
+  }
+  if (data.sources) {
+    data.sources = data.sources.map((item: any) => {
+      return dataSourceSchemaResponseTransformer(item)
+    })
+  }
+  return data
+}
+
+const externalSequenceSchemaResponseTransformer = (data: any) => {
+  if (data.code_history) {
+    data.code_history = data.code_history.map((item: any) => {
+      return codeHistorySchemaResponseTransformer(item)
+    })
+  }
+  data.gene = geneSchemaResponseTransformer(data.gene)
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  if (data.referenced_in) {
+    data.referenced_in = data.referenced_in.map((item: any) => {
+      return seqReferenceSchemaResponseTransformer(item)
+    })
+  }
   return data
 }
 
@@ -863,6 +843,13 @@ export const getOccurrenceResponseTransformer = async (
   data: any
 ): Promise<GetOccurrenceResponse> => {
   data = occurrenceSamplingWithSiteSchemaResponseTransformer(data)
+  return data
+}
+
+export const updateOccurrenceResponseTransformer = async (
+  data: any
+): Promise<UpdateOccurrenceResponse> => {
+  data = baseOccurrenceSamplingOutlineSchemaResponseTransformer(data)
   return data
 }
 
@@ -1078,10 +1065,10 @@ export const updateSamplingResponseTransformer = async (
   return data
 }
 
-export const samplingAddExternalOccurrenceResponseTransformer = async (
+export const samplingAddOccurrenceResponseTransformer = async (
   data: any
-): Promise<SamplingAddExternalOccurrenceResponse> => {
-  data = genericOccurrenceSamplingOutlineSchemaResponseTransformer(data)
+): Promise<SamplingAddOccurrenceResponse> => {
+  data = baseOccurrenceSamplingOutlineSchemaResponseTransformer(data)
   return data
 }
 
@@ -1094,11 +1081,11 @@ const sequenceListItemSchemaResponseTransformer = (data: any) => {
   data.gene = geneSchemaResponseTransformer(data.gene)
   data.identification = identificationSchemaResponseTransformer(data.identification)
   data.meta = metaSchemaResponseTransformer(data.meta)
-  data.occurrence = genericOccurrenceSamplingInnerWithSiteSchemaResponseTransformer(data.occurrence)
+  data.occurrence = baseOccurrenceSamplingInnerWithSiteSchemaResponseTransformer(data.occurrence)
   return data
 }
 
-const genericOccurrenceSamplingInnerWithSiteSchemaResponseTransformer = (data: any) => {
+const baseOccurrenceSamplingInnerWithSiteSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) => {
       return codeHistorySchemaResponseTransformer(item)
@@ -1316,10 +1303,10 @@ export const updateSiteResponseTransformer = async (data: any): Promise<UpdateSi
   return data
 }
 
-export const siteAddExternalOccurrenceResponseTransformer = async (
+export const siteAddOccurrenceResponseTransformer = async (
   data: any
-): Promise<SiteAddExternalOccurrenceResponse> => {
-  data = genericOccurrenceSamplingOutlineSchemaResponseTransformer(data)
+): Promise<SiteAddOccurrenceResponse> => {
+  data = baseOccurrenceSamplingOutlineSchemaResponseTransformer(data)
   return data
 }
 
@@ -1382,6 +1369,11 @@ const taxonomySchemaResponseTransformer = (data: any) => {
   if (data.parent) {
     data.parent = optionalTaxonSchemaResponseTransformer(data.parent)
   }
+  return data
+}
+
+const optionalTaxonSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 

@@ -4,14 +4,14 @@ with module occurrence,
   identification := data['identification'],
   taxon := taxonomy::taxonByName(<str>identification['taxon']),
   occurrence := (
-    insert ExternalOccurrence {
+    insert Occurrence {
       sampling := sampling,
       code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling.code),
       sources := (
         select references::DataSource
         filter .code in <str>json_array_unpack(json_get(data, 'sources'))
       ),
-      external_link := <str>json_get(data, 'external_link'),
+      # external_link := <str>json_get(data, 'external_link'),
       original_taxon := <str>json_get(data, 'original_taxon'),
       quantity := <tuple<lower:int32, upper:int32>>(
         lower := json_get(data, 'quantity', '0'),

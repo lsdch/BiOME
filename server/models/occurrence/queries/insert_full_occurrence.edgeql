@@ -21,13 +21,7 @@ with
       }
     )
   ),
-  internal := (
-    for occ_data in json_array_unpack(json_get(data, 'samplings', 'external_occurrences'))
-    union (
-      {{ .InsertInternalBioMatQuery }}
-    )
-  ),
-  for occ_data in json_array_unpack(json_get(data, 'samplings',  'internal_occurrences'))
+  for occ_data in json_array_unpack(json_get(data, 'samplings', 'occurrences'))
   union (
-    {{ .InsertExternalOccurrenceQuery }}
+    {{ .InsertOccurrenceQuery }}
   )

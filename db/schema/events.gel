@@ -76,17 +76,7 @@ module events {
     multi link occurrences := .<sampling[is occurrence::Occurrence];
 
     multi link occurring_taxa := (
-      with congruent_internal_occurrences := (
-        select .occurrences[is occurrence::InternalBioMat]
-        filter .is_congruent = true
-      ),
-      select distinct (
-        .occurrences[is occurrence::ExternalOccurrence].identification.taxon union
-        (
-          congruent_internal_occurrences.seq_consensus ??
-          congruent_internal_occurrences.identification.taxon
-        )
-      )
+      select distinct .occurrences.identification.taxon
     );
   }
 

@@ -46,12 +46,6 @@ module seq {
   }
 
   type AssembledSequence extending Sequence {
-
-    required identification: occurrence::Identification {
-      constraint exclusive;
-      on source delete delete target;
-    };
-
     required alignment_code: str { constraint exclusive };
 
     # required identification: occurrence::Identification;
@@ -83,7 +77,7 @@ module seq {
 
   type ExternalSequence extending Sequence {
 
-    required biomat: occurrence::ExternalOccurrence {
+    required biomat: occurrence::Occurrence {
       on target delete delete source;
     };
 
@@ -107,27 +101,27 @@ module seq {
   }
 
 
-  function insert_external_seq(biomat: occurrence::ExternalOccurrence, data: json) -> ExternalSequence {
-    using (
-      insert ExternalSequence {
-        biomat := biomat,
-        code := <str>data['code'],
-        label := <str>json_get(data, 'label'),
-        sequence := <str>json_get(data, 'sequence'),
-        gene := seq::geneByCode(<str>data['gene']),
-        legacy := <tuple<id: int32, code: str, alignment_code: str>>json_get(data, 'legacy'),
-        # origin := <seq::ExtSeqOrigin>json_get(data, 'origin'),
-        referenced_in := (
-          for ref in json_array_unpack(json_get(data, 'referenced_in'))
-          insert references::SeqReference {
-            db := references::dataSourceByCode(<str>ref['db']),
-            accession := <str>ref['accession'],
-          }
-        ),
-        specimen_identifier := <str>json_get(data, 'specimen_identifier'),
-      }
-    )
-  }
+  # function insert_external_seq(biomat: occurrence::Occurrence, data: json) -> ExternalSequence {
+  #   using (
+  #     insert ExternalSequence {
+  #       biomat := biomat,
+  #       code := <str>data['code'],
+  #       label := <str>json_get(data, 'label'),
+  #       sequence := <str>json_get(data, 'sequence'),
+  #       gene := seq::geneByCode(<str>data['gene']),
+  #       legacy := <tuple<id: int32, code: str, alignment_code: str>>json_get(data, 'legacy'),
+  #       # origin := <seq::ExtSeqOrigin>json_get(data, 'origin'),
+  #       referenced_in := (
+  #         for ref in json_array_unpack(json_get(data, 'referenced_in'))
+  #         insert references::SeqReference {
+  #           db := references::dataSourceByCode(<str>ref['db']),
+  #           accession := <str>ref['accession'],
+  #         }
+  #       ),
+  #       specimen_identifier := <str>json_get(data, 'specimen_identifier'),
+  #     }
+  #   )
+  # }
 
   alias GenericSequenceWithDetails := (
     select Sequence {
@@ -139,7 +133,7 @@ module seq {
         message := "Failed to find upstream occurrence for seq::Sequence subtype"
       ),
       required identification := assert_exists(
-        ([is AssembledSequence].identification ?? [is ExternalSequence].biomat.identification),
+        ([is AssembledSequence].specimen.biomat.identification ?? [is ExternalSequence].biomat.identification),
         message := "Failed to find identification for seq::Sequence subtype"
       ),
       required specimen_identifier := assert_exists([is AssembledSequence].specimen.code ?? [is ExternalSequence].specimen_identifier),

@@ -12,6 +12,31 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type OccurrenceCategory string
+
+//generate:enum skip-gel-unmarshal
+const (
+	Internal OccurrenceCategory = "Internal"
+	External OccurrenceCategory = "External"
+)
+
+func (m *OccurrenceCategory) UnmarshalEdgeDBStr(data []byte) error {
+	s := string(data)
+	switch s {
+	case "seq::AssembledSequence":
+		*m = Internal
+	case "seq::ExternalSequence":
+		*m = External
+	default:
+		*m = OccurrenceCategory(s)
+	}
+	return nil
+}
+
+type WithCategory struct {
+	Category OccurrenceCategory `gel:"category" json:"category"`
+}
+
 type LegacySeqID struct {
 	ID            int32  `gel:"id" json:"id"`
 	Code          string `gel:"code" json:"code"`
@@ -56,10 +81,10 @@ type Sequence struct {
 
 type SequenceListItem struct {
 	SequenceInner      `gel:"$inline" json:",inline"`
-	Occurrence         GenericOccurrence[SamplingInnerWithSite] `gel:"occurrence" json:"occurrence"`
-	Identification     Identification                           `gel:"identification" json:"identification"`
-	SpecimenIdentifier geltypes.OptionalStr                     `gel:"specimen_identifier" json:"specimen_identifier,omitempty"`
-	Meta               people.Meta                              `gel:"meta" json:"meta"`
+	Occurrence         BaseOccurrence[SamplingInnerWithSite] `gel:"occurrence" json:"occurrence"`
+	Identification     Identification                        `gel:"identification" json:"identification"`
+	SpecimenIdentifier geltypes.OptionalStr                  `gel:"specimen_identifier" json:"specimen_identifier,omitempty"`
+	Meta               people.Meta                           `gel:"meta" json:"meta"`
 }
 
 type AssembledSequenceSpecifics struct {
@@ -196,7 +221,7 @@ func (i ExternalSequenceInput) Save(e geltypes.Executor, occurrenceCode string) 
 		`#edgeql
 			with data := <json>$1,
 			select (insert seq::ExternalSequence {
-				biomat := (select occurrence::ExternalOccurrence filter .code = <str>$0),
+				biomat := (select occurrence::Occurrence filter .code = <str>$0),
 				code := <str>data['code'],
 				label := <str>json_get(data, 'label'),
 				sequence := <str>json_get(data, 'sequence'),

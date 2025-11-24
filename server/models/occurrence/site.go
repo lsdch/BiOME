@@ -234,7 +234,6 @@ func GetSite(db geltypes.Executor, identifier string) (Site, error) {
 						select .occurrences {
 							id,
 							code,
-							category,
 							identification: { taxon: { * }, confer, addendum, identified_on },
 						}
 					),

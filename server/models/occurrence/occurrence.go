@@ -8,20 +8,25 @@ import (
 	_ "embed"
 
 	"github.com/geldata/gel-go/geltypes"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/dataset"
 	"github.com/lsdch/biome/models/occurrence/queries"
 	"github.com/lsdch/biome/models/people"
+	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/models/taxonomy"
+	"github.com/sirupsen/logrus"
 )
 
-type OccurrenceCategory string
+type SpecimenVoucher struct {
+	Collection geltypes.OptionalStr `gel:"in_collection" json:"collection,omitempty"`
+	Item       []string             `gel:"item_vouchers" json:"vouchers,omitempty"`
+}
 
-//generate:enum skip-gel-unmarshal
-const (
-	Internal OccurrenceCategory = "Internal"
-	External OccurrenceCategory = "External"
-)
+type QuantityRange struct {
+	Lower int32 `gel:"lower" json:"lower"`
+	Upper int32 `gel:"upper" json:"upper"`
+}
 
 type TypeStatus string
 
@@ -32,56 +37,147 @@ const (
 	Topotype TypeStatus = "Topotype"
 )
 
-func (m *OccurrenceCategory) UnmarshalEdgeDBStr(data []byte) error {
-	s := string(data)
-	switch s {
-	case "occurrence::InternalBioMat", "seq::AssembledSequence":
-		*m = Internal
-	case "seq::ExternalSequence", "occurrence::ExternalOccurrence":
-		*m = External
-	default:
-		*m = OccurrenceCategory(s)
-	}
-	return nil
+type BaseOccurrence[SamplingType any] struct {
+	ID                 geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+	CodeIdentifier     `gel:"$inline" json:",inline"`
+	HasSequences       bool                           `gel:"has_sequences" json:"has_sequences"`
+	Sampling           SamplingType                   `gel:"sampling" json:"sampling"`
+	Identification     Identification                 `gel:"identification" json:"identification"`
+	TypeStatus         models.Optional[TypeStatus]    `gel:"type_status" json:"type_status,omitzero" nameHint:"TypeStatus"`
+	Comments           geltypes.OptionalStr           `gel:"comments" json:"comments,omitempty"`
+	Quantity           models.Optional[QuantityRange] `gel:"quantity" json:"quantity,omitempty"`
+	ContentDescription geltypes.OptionalStr           `gel:"content_description" json:"content_description,omitempty"`
+	OriginalTaxon      geltypes.OptionalStr           `gel:"original_taxon" json:"original_taxon,omitempty"`
+	Archive            SpecimenVoucher                `gel:"$inline" json:"archive"`
+	Meta               people.Meta                    `gel:"meta" json:"meta"`
 }
 
-type WithCategory struct {
-	Category OccurrenceCategory `gel:"category" json:"category"`
-}
-
-type BaseOccurrence struct {
-	ID geltypes.UUID `gel:"id" json:"id" format:"uuid"`
-	// Code is a unique identifier for the occurrence within the system.
-	Code         string `gel:"code" json:"code"`
-	WithCategory `gel:"$inline" json:",inline"`
-}
-
-type GenericOccurrence[SamplingType any] struct {
-	ID             geltypes.UUID `gel:"id" json:"id" format:"uuid"`
-	CodeIdentifier `gel:"$inline" json:",inline"`
-	WithCategory   `gel:"$inline" json:",inline"`
-	HasSequences   bool                        `gel:"has_sequences" json:"has_sequences"`
-	Sampling       SamplingType                `gel:"sampling" json:"sampling"`
-	Identification Identification              `gel:"identification" json:"identification"`
-	TypeStatus     models.Optional[TypeStatus] `gel:"type_status" json:"type_status,omitzero" nameHint:"TypeStatus"`
-	Comments       geltypes.OptionalStr        `gel:"comments" json:"comments,omitempty"`
-	Meta           people.Meta                 `gel:"meta" json:"meta"`
-}
+type OccurrenceListItem BaseOccurrence[SamplingInnerWithSite]
 
 type Occurrence[SamplingType any] struct {
-	GenericOccurrence[SamplingType] `gel:"$inline" json:",inline"`
-	Datasets                        []dataset.Dataset                           `gel:"datasets" json:"datasets,omitempty"`
-	Internal                        models.Optional[InternalBioMatSpecific]     `gel:"internal" json:"internal,omitempty"`
-	External                        models.Optional[ExternalOccurrenceSpecific] `gel:"external" json:"external,omitempty"`
+	BaseOccurrence[SamplingType] `gel:"$inline" json:",inline"`
+	// ExternalLink       geltypes.OptionalStr           `gel:"external_link" json:"external_link,omitempty"`
+	PublishedIn []references.Article    `gel:"published_in" json:"published_in,omitempty"`
+	Sources     []references.DataSource `gel:"sources" json:"sources,omitempty"`
+	Datasets    []dataset.Dataset       `gel:"datasets" json:"datasets,omitempty"`
+	Sequences   []ExternalSequence      `gel:"sequences" json:"sequences,omitempty"`
 }
 
-// OccurrenceWithCategory represents any occurrence
-// with its category (internal, external) and element (biomaterial, sequence).
-// Internal sequences are not supposed to be included in this type.
-// type OccurrenceWithCategory struct {
-// 	Occurrence[SamplingInnerWithSite] `gel:"$inline" json:",inline"`
-// 	Category                          OccurrenceCategory `gel:"category" json:"category"`
-// }
+func GetOccurrence(db geltypes.Executor, code string) (occurrence Occurrence[SamplingWithSite], err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+		with module occurrence
+		select Occurrence {
+			*,
+			meta: { * },
+			datasets: { *, maintainers: { * }, meta: { * } },
+			sampling: {
+				*,
+				performed_by: { * },
+				target_taxa: { * },
+				fixatives: { * },
+				methods: { * },
+				habitats: { * },
+				occurrences: { *, identification: { **, identified_by: { * } } },
+				occurring_taxa: { * },
+				site: { *, country: { * } }
+			},
+			identification: { **, identified_by: { ** } },
+			sources: { * },
+			sequences: { *, gene: { * }, referenced_in: { * }, meta: { * } },
+			# external_link,
+			in_collection,
+			item_vouchers,
+			quantity,
+			published_in: { * },
+			content_description
+		} filter .code = <str>$0
+	`,
+		&occurrence, code)
+	return occurrence, err
+}
+
+type BioMatSortKey string
+
+//generate:enum
+const (
+	BioMatSortCode         BioMatSortKey = "code"
+	BioMatSortSite         BioMatSortKey = "site"
+	BioMatSortSamplingDate BioMatSortKey = "sampling_date"
+	BioMatSortIdentifiedOn BioMatSortKey = "identified_on"
+	BioMatSortTaxon        BioMatSortKey = "taxon"
+	BioMatSortIdentifiedBy BioMatSortKey = "identified_by"
+	BioMatSortLastUpdated  BioMatSortKey = "last_updated"
+)
+
+var BioMatSortMap = map[BioMatSortKey]string{
+	BioMatSortCode:         ".code",
+	BioMatSortSite:         "(.site.name ?? .site.code)",
+	BioMatSortSamplingDate: ".sampling.performed_on.date",
+	BioMatSortIdentifiedOn: ".identification.identified_on.date",
+	BioMatSortTaxon:        ".identification.taxon.name",
+	BioMatSortIdentifiedBy: ".identification.identified_by.last_name",
+	BioMatSortLastUpdated:  ".meta.lastUpdated",
+}
+
+type ListOccurrencesOptions struct {
+	models.Pagination `json:",inline"`
+	models.SortBy[BioMatSortKey]
+	models.Filter        `json:",inline"`
+	taxonomy.TaxaFilters `json:",inline"`
+	HasSequences         models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
+	Confer               models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
+	TypeStatus           models.OptionalInput[TypeStatus]           `query:"type_status" json:"type_status,omitzero"`
+	Status               models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
+	Rank                 []taxonomy.TaxonRank                       `query:"rank" json:"rank,omitzero"`
+}
+
+func (o ListOccurrencesOptions) Options() ListOccurrencesOptions {
+	return o
+}
+
+func (i ListOccurrencesOptions) OrderByString() string {
+	if i.SortBy.Key == "" {
+		return ""
+	}
+	if term, ok := BioMatSortMap[i.SortBy.Key]; ok {
+		return term + " " + string(i.SortBy.Order)
+	} else {
+		logrus.Warnf("Unknown sort key: %s", i.SortBy.Key)
+		return ""
+	}
+}
+
+func ListOccurrences(db geltypes.Executor, opts ListOccurrencesOptions) (models.PaginatedList[OccurrenceListItem], error) {
+	if err := opts.TaxaFilters.FetchTaxa(db); err != nil {
+		return models.PaginatedList[OccurrenceListItem]{}, err
+	}
+	params, _ := json.Marshal(opts)
+	logrus.Debugf("Params: %s", string(params))
+	var result = models.PaginatedList[OccurrenceListItem]{
+		Items: []OccurrenceListItem{},
+	}
+	err := db.QuerySingle(context.Background(),
+		queries.RenderTemplate("list_occurrences.tmpl.edgeql", opts),
+		&result, params, opts.OrderByString())
+	return result, err
+}
+
+func DeleteOccurrence(db geltypes.Executor, code string) (deleted OccurrenceListItem, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+		with module occurrence
+			select (
+				delete Occurrence filter .code = <str>$0
+			) {
+        *,
+				sampling: { *, site: { *, country: { * } } },
+				identification: { **, identified_by: { ** } },
+      }
+		`,
+		&deleted, code)
+	return
+}
 
 type SamplingDateWithOccurrences struct {
 	ID            geltypes.UUID             `gel:"id" json:"id" format:"uuid"`
@@ -101,7 +197,6 @@ type OccurrenceAtSite struct {
 	Code           string             `gel:"code" json:"code"`
 	Identification BaseIdentification `gel:"identification" json:"identification"`
 	// SamplingDate      DateWithPrecision   `gel:"sampling_date" json:"sampling_date"`
-	Category OccurrenceCategory `gel:"category" json:"category"`
 }
 
 type SiteWithOccurrences struct {
@@ -128,7 +223,6 @@ func ListSamplingsAtSite(db geltypes.Executor, siteCode string) ([]SamplingDetai
 					select .occurrences {
 						id,
 						code,
-						category,
 						identification: { identified_on, confer, addendum, taxon: { * } },
 					}
 				)
@@ -172,13 +266,20 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 	return sites, err
 }
 
-// OccurrenceInput is meant to be embedded in other occurrence input type
 type OccurrenceInput struct {
 	Identification IdentificationInput              `json:"identification" doc:"Occurrence identification"`
-	Comments       models.OptionalInput[string]     `json:"comments,omitzero"`
 	PublishedIn    []string                         `gel:"published_in" json:"published_in,omitempty"`
 	Code           models.OptionalInput[string]     `gel:"code" json:"code,omitzero" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
 	TypeStatus     models.OptionalInput[TypeStatus] `gel:"type_status" json:"type_status,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
+	Sources        []string                         `json:"sources,omitzero"`
+	OriginalTaxon  models.OptionalInput[string]     `json:"original_taxon,omitzero"`
+	// OriginalLink       models.OptionalInput[string]  `json:"external_link,omitzero"`
+	Quantity           models.OptionalInput[[]int32] `json:"quantity,omitzero" minItems:"1" maxItems:"2"`
+	ContentDescription models.OptionalInput[string]  `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
+	Collection         models.OptionalInput[string]  `json:"collection,omitzero"`
+	ItemVouchers       []string                      `json:"vouchers,omitzero"`
+	Comments           models.OptionalInput[string]  `json:"comments,omitzero"`
+	Sequences          []ExternalSequenceInput       `json:"sequences,omitzero"`
 }
 
 func (i *OccurrenceInput) SetCode(code string) {
@@ -192,7 +293,67 @@ func (occ *OccurrenceInput) WithCreatedMetadata(c *CreatedMetadata) *OccurrenceI
 			occ.PublishedIn[i] = c
 		}
 	}
+	for i, source := range occ.Sources {
+		if s, ok := c.DataSources[source]; ok {
+			occ.Sources[i] = s
+		}
+	}
+	for i := range occ.Sequences {
+		(&occ.Sequences[i]).WithCreatedMetadata(c)
+	}
 	return occ
+}
+
+var OccurrenceSaveExecuteQuery = queries.OccurrenceQuery(
+	`#edgeql
+		select events::Sampling filter .number = <int64>$0
+	`,
+	`<json>$1`,
+	"")
+
+func (i *OccurrenceInput) SaveExecute(e geltypes.Executor, samplingNumber int64) error {
+	data, _ := json.Marshal(i)
+	logrus.Debugf("Creating Occurrence with args: %s", string(data))
+	return e.Execute(context.Background(), OccurrenceSaveExecuteQuery, samplingNumber, data)
+}
+
+var OccurrenceQuickSaveQuery = queries.OccurrenceQuery(
+	`#edgeql
+		select events::Sampling filter .number = <int64>$0
+	`,
+	`<json>$1`,
+	`#edgeql
+		{id, code}
+	`)
+
+func (i *OccurrenceInput) QuickSave(e geltypes.Executor, samplingNumber int64) (created CreatedCode, err error) {
+	data, _ := json.Marshal(i)
+	logrus.Debugf("Creating Occurrence with args: %s", string(data))
+	err = e.QuerySingle(context.Background(), OccurrenceQuickSaveQuery, &created, samplingNumber, data)
+	return
+}
+
+var OccurrenceSaveQuery = queries.OccurrenceQuery(
+	`#edgeql
+		select events::Sampling filter .number = <int64>$0
+	`,
+	`<json>$1`,
+	`#edgeql
+		{
+			[is occurrence::Occurrence].*,
+			sampling: { id, number, performed_on },
+			identification: { **, identified_by: { * } },
+			meta: { * }
+		}
+	`)
+
+func (i *OccurrenceInput) Save(e geltypes.Executor, samplingNumber int64) (created BaseOccurrence[SamplingOutline], err error) {
+	data, _ := json.Marshal(i)
+	logrus.Debugf("Creating Occurrence with args: %s", string(data))
+	err = e.QuerySingle(context.Background(),
+		OccurrenceSaveQuery,
+		&created, samplingNumber, data)
+	return
 }
 
 type OccurrenceUpdate struct {
@@ -200,7 +361,64 @@ type OccurrenceUpdate struct {
 	Identification models.OptionalInput[IdentificationUpdate] `gel:"identification" json:"identification,omitempty"`
 	Code           models.OptionalInput[string]               `gel:"code" json:"code,omitempty"`
 	TypeStatus     models.OptionalNull[TypeStatus]            `gel:"type_status" json:"type_status,omitzero"`
-	Comments       models.OptionalNull[string]                `gel:"comments" json:"comments,omitempty"`
+	OriginalSource models.OptionalNull[string]                `gel:"sources" json:"sources,omitempty"`
+	// OriginalLink       models.OptionalNull[string]    `gel:"external_link" json:"external_link,omitempty"`
+	OriginalTaxon      models.OptionalNull[string]    `gel:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           models.OptionalNull[[]int32]   `gel:"quantity" json:"quantity,omitempty" minItems:"2" maxItems:"2"`
+	ContentDescription models.OptionalNull[string]    `gel:"content_description" json:"content_description,omitempty"`
+	Collection         models.OptionalNull[string]    `gel:"in_collection" json:"collection,omitempty"`
+	ItemVouchers       models.OptionalInput[[]string] `gel:"item_vouchers" json:"vouchers,omitempty"`
+	PublishedIn        models.OptionalNull[[]string]  `gel:"published_in" json:"published_in,omitempty"`
+	Comments           models.OptionalNull[string]    `gel:"comments" json:"comments,omitempty"`
+}
+
+func (u OccurrenceUpdate) Save(e geltypes.Executor, code string) (updated BaseOccurrence[SamplingOutline], err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: `#edgeql
+      with item := <json>$1,
+      select (
+				update occurrence::ExternalOccurrence
+				filter .code = <str>$0
+				set { %s }
+			 ) {
+        [is occurrence::Occurrence].*,
+				sampling: { id, number, performed_on },
+				identification: { **, identified_by: { * } },
+				meta: { * }
+      }
+    `,
+		Mappings: map[string]string{
+			"code": "<str>item['code']", // if not explicitly provided, updated code is autogenerated
+			"sources": `#edgeql
+				(
+					select references::DataSource filter .code in <str>json_array_unpack(item['sources'])
+				)
+			`,
+			// "external_link":  "<str>item['external_link']",
+			"original_taxon": "<str>item['original_taxon']",
+			"quantity": `#edgeql
+				<tuple<lower: int32, upper: int32>>(
+					lower := <int32>item['quantity'][0],
+					upper := <int32>item['quantity'][1],
+					)
+			`,
+			"content_description": "<str>item['content_description']",
+			"in_collection":       "<str>item['collection']",
+			"item_vouchers":       "<str>json_array_unpack(item['item_vouchers'])",
+			"comments":            "<str>item['comments']",
+			"type_status":         "<bool>item['type_status']",
+			"identification":      u.Identification.Value.UpdateQuery(".identification"),
+			"published_in": `#edgeql
+					(
+						select distinct references::Article
+						filter .code in <str>json_array_unpack(json_get(item, 'published_in'))
+					),
+			`,
+		},
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
+	return
 }
 
 // OccurrenceOverviewItem is a representation of the occurrences count for one taxon
@@ -228,15 +446,8 @@ func OccurrenceOverview(db geltypes.Executor) ([]OccurrenceOverviewItem, error) 
 			with module occurrence,
 			occ := (
 				select Occurrence {
-						# use most accurate identification
-						taxon := (
-								[is InternalBioMat].seq_consensus ??
-								.identification.taxon
-						)
-				} filter (
-						# only account for well identified bio-material
-						[is InternalBioMat].is_homogenous ?? true
-				)
+						taxon := (.identification.taxon)
+				}
 			),
 			groups := (select (group occ by .taxon) { arity := count(.elements)}),
 			noOccTaxa := (

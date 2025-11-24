@@ -11,7 +11,6 @@
         >
           <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
         </RouterLink>
-        <OccurrenceIcon :item class="mx-1"></OccurrenceIcon>
       </div>
     </template>
     <template #item.site.code="{ value }: { value: string }">
@@ -75,15 +74,8 @@ const { occurrences, ...props } = defineProps<{
 }>()
 
 const items = computed(() => {
-  return occurrences?.filter((o) => {
-    return (
-      (occurrenceTypes.value.has('internal') && o.category === 'Internal') ||
-      (occurrenceTypes.value.has('external') && o.category === 'External')
-    )
-  })
+  return occurrences
 })
-
-const occurrenceTypes = computed(() => new Set(search.value.occurrenceTypes))
 
 const search = ref({
   term: undefined,

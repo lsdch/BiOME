@@ -36,7 +36,6 @@
       </template>
       <template v-if="item" #subtitle>
         <div class="d-flex align-center ga-2">
-          <OccurrenceCategoryChip :category="item.category" size="small" />
           <v-chip
             v-if="item.type_status"
             :text="item.type_status"
@@ -70,12 +69,12 @@
       <template v-else-if="item">
         <v-tabs v-model="currentTab" density="compact">
           <v-tab value="occurrence" prepend-icon="mdi-text-box-outline">Occurrence</v-tab>
-          <v-tab value="sequences" prepend-icon="mdi-dna" :disabled="!item.external?.sequences">
+          <v-tab value="sequences" prepend-icon="mdi-dna" :disabled="!item?.sequences">
             Sequences
             <template #append>
               <v-badge
-                v-if="item.external?.sequences?.length"
-                :content="item.external.sequences.length"
+                v-if="item.sequences?.length"
+                :content="item.sequences.length"
                 color="primary"
                 inline
               >
@@ -112,9 +111,6 @@
                     prepend-icon="mdi-microscope"
                     :subtitle="DateWithPrecision.format(item.identification.identified_on)"
                   >
-                    <template v-if="item.internal" #append>
-                      <CongruenceChip :is_congruent="item.internal.is_congruent" />
-                    </template>
                     <v-card-text>
                       <div class="d-flex align-center justify-space-between ga-1">
                         <IdentificationChip :identification="item.identification" class="my-1" />
@@ -124,8 +120,8 @@
                         </span>
                         <span class="text-muted" v-else>Curator unspecified</span>
                       </div>
-                      <div v-if="item.external?.original_taxon">
-                        Originally tagged as: {{ item.external.original_taxon }}
+                      <div v-if="item.original_taxon">
+                        Originally tagged as: {{ item.original_taxon }}
                       </div>
                     </v-card-text>
                   </v-card>
@@ -165,12 +161,12 @@
                       </template>
                     </v-tooltip>
                   </template> -->
-                    <v-list v-if="item.external">
+                    <v-list>
                       <v-list-item>
                         <template #title>
                           <QuantityChip
-                            v-if="item.external.quantity"
-                            :quantity="item.external.quantity"
+                            v-if="item.quantity"
+                            :quantity="item.quantity"
                             size="small"
                           />
                           <span v-else class="text-muted text-caption">Unknown</span>
@@ -179,25 +175,16 @@
                           <span class="text-muted text-caption">Quantity</span>
                         </template>
                       </v-list-item>
-                      <v-list-item>
-                        <template #title>
-                          <span
-                            :class="[
-                              'text-caption',
-                              { 'text-muted': !item.external.content_description }
-                            ]"
-                          >
-                            {{ item.external.content_description ?? 'None specified' }}
-                          </span>
-                        </template>
-                        <template #append>
-                          <span class="text-muted text-caption">Content description</span>
-                        </template>
-                      </v-list-item>
+                      <v-card-text>
+                        <v-card :elevation="-5" variant="tonal">
+                          <v-card-text>
+                            {{ item.content_description }}
+                          </v-card-text>
+                        </v-card>
+                      </v-card-text>
                     </v-list>
                   </v-card>
                   <v-card
-                    v-if="item.external"
                     class="small-card-title"
                     title="References"
                     prepend-icon="mdi-newspaper-variant"
@@ -205,36 +192,32 @@
                     <v-divider />
                     <v-list>
                       <v-list-item>
-                        <span v-if="!item.external.published_in" class="text-muted text-caption">
+                        <span v-if="!item.published_in" class="text-muted text-caption">
                           Unknown
                         </span>
                         <div v-else class="d-flex ga-2">
-                          <ArticleChip v-for="article in item.external.published_in" :article />
+                          <ArticleChip v-for="article in item.published_in" :article />
                         </div>
                         <template #append>
                           <span class="text-muted text-caption">Publication(s)</span>
                         </template>
                       </v-list-item>
                       <v-list-item>
-                        <DataSourceChip v-for="source in item.external.sources" :source />
-                        <span v-if="!item.external.sources" class="text-muted text-caption">
-                          Unknown
-                        </span>
+                        <DataSourceChip v-for="source in item.sources" :source />
+                        <span v-if="!item.sources" class="text-muted text-caption"> Unknown </span>
                         <template #append>
                           <span class="text-muted text-caption">Data sources</span>
                         </template>
                       </v-list-item>
                       <v-list-item>
-                        <b v-if="item.external.archive.collection">{{
-                          item.external.archive.collection
-                        }}</b>
+                        <b v-if="item.archive.collection">{{ item.archive.collection }}</b>
                         <span class="text-muted text-caption"> Unknown </span>
                         <template #append>
                           <span class="text-muted text-caption">Collection</span>
                         </template>
                         <template #subtitle>
                           <v-chip
-                            v-for="v in item.external.archive.vouchers"
+                            v-for="v in item.archive.vouchers"
                             :text="v"
                             size="small"
                             class="ma-1"
@@ -255,10 +238,9 @@
           </v-tabs-window-item>
           <v-tabs-window-item value="sequences">
             <CRUDTable
-              v-if="item.external"
               :headers="sequenceTable.headers"
               entityName="Sequence"
-              :items="item.external.sequences"
+              :items="item.sequences"
             >
               <template #item.code="{ value }">
                 <RouterLink :to="{ name: 'sequence', params: { code: value } }">
@@ -274,7 +256,7 @@
                   icon="mdi-tag"
                   color="success"
                   v-tooltip="`Used for identification`"
-                ></v-icon>
+                />
               </template>
             </CRUDTable>
           </v-tabs-window-item>

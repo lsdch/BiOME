@@ -136,6 +136,42 @@ export type BaseIdentification = {
   taxon: Taxon
 }
 
+export type BaseOccurrenceSamplingInnerWithSite = {
+  archive: SpecimenVoucher
+  code: string
+  code_history?: Array<CodeHistory>
+  comments?: string
+  content_description?: string
+  has_sequences: boolean
+  id: string
+  identification: Identification
+  meta: Meta
+  original_taxon?: string
+  quantity?: OptionalQuantityRange
+  sampling: SamplingInnerWithSite
+  type_status?: OptionalTypeStatus
+}
+
+export type BaseOccurrenceSamplingOutline = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  archive: SpecimenVoucher
+  code: string
+  code_history?: Array<CodeHistory>
+  comments?: string
+  content_description?: string
+  has_sequences: boolean
+  id: string
+  identification: Identification
+  meta: Meta
+  original_taxon?: string
+  quantity?: OptionalQuantityRange
+  sampling: SamplingOutline
+  type_status?: OptionalTypeStatus
+}
+
 export type BibSearchResults = {
   /**
    * A URL to the JSON Schema for this object.
@@ -214,12 +250,12 @@ export type CountryWithSitesCount = {
   subcontinent: string
 }
 
-export type CreateExternalOccurrenceInputBody = {
+export type CreateOccurrenceInputBody = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  bio_material: ExternalOccurrenceInput
+  bio_material: OccurrenceInput
   sampling: SamplingInput
   site: SiteInput
 }
@@ -501,78 +537,6 @@ export type ErrorModel = {
   type?: string
 }
 
-export type ExternalOccurrenceAtSiteInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  biomaterial: ExternalOccurrenceInput
-  sampling: SamplingInput
-}
-
-export type ExternalOccurrenceInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  /**
-   * Unique code identifier for the bio material. Generated from taxon and sampling if not provided.
-   */
-  code?: string
-  collection?: string
-  comments?: string
-  /**
-   * Description of the content of the bio material
-   */
-  content_description?: string
-  external_link?: string
-  /**
-   * Occurrence identification
-   */
-  identification: IdentificationInput
-  original_taxon?: string
-  published_in?: Array<string>
-  quantity?: Array<number>
-  sequences?: Array<ExternalSequenceInput>
-  sources?: Array<string>
-  /**
-   * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
-   */
-  type_status?: TypeStatus
-  vouchers?: Array<string>
-}
-
-export type ExternalOccurrenceSpecific = {
-  archive: SpecimenVoucher
-  content_description?: string
-  external_link?: string
-  original_taxon?: string
-  published_in?: Array<Article>
-  quantity?: OptionalQuantityRange
-  sequences?: Array<ExternalSequence>
-  sources?: Array<DataSource>
-}
-
-export type ExternalOccurrenceUpdate = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code?: string
-  collection?: string | null
-  comments?: string | null
-  content_description?: string | null
-  external_link?: string | null
-  identification?: IdentificationUpdate
-  original_taxon?: string | null
-  published_in?: Array<string> | null
-  quantity?: [number, number] | null
-  sampling_id: string
-  sources?: string | null
-  type_status?: TypeStatus | null
-  vouchers?: Array<string>
-}
-
 export type ExternalSequence = {
   category: OccurrenceCategory
   code: string
@@ -679,36 +643,6 @@ export type GeneUpdate = {
   description?: string | null
   is_MOTU_delimiter?: boolean
   label?: string
-}
-
-export type GenericOccurrenceSamplingInnerWithSite = {
-  category: OccurrenceCategory
-  code: string
-  code_history?: Array<CodeHistory>
-  comments?: string
-  has_sequences: boolean
-  id: string
-  identification: Identification
-  meta: Meta
-  sampling: SamplingInnerWithSite
-  type_status?: OptionalTypeStatus
-}
-
-export type GenericOccurrenceSamplingOutline = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  category: OccurrenceCategory
-  code: string
-  code_history?: Array<CodeHistory>
-  comments?: string
-  has_sequences: boolean
-  id: string
-  identification: Identification
-  meta: Meta
-  sampling: SamplingOutline
-  type_status?: OptionalTypeStatus
 }
 
 export type GeoapifyResult = {
@@ -945,13 +879,6 @@ export type InstanceSettingsInput = {
   public: boolean
 }
 
-export type InternalBioMatSpecific = {
-  has_sequences: boolean
-  is_congruent: boolean
-  is_homogenous: boolean
-  seq_consensus?: OptionalTaxon
-}
-
 export type InvitationInput = {
   /**
    * A URL to the JSON Schema for this object.
@@ -1153,10 +1080,18 @@ export type Meta = {
 }
 
 export type OccurrenceAtSite = {
-  category: OccurrenceCategory
   code: string
   id: string
   identification: BaseIdentification
+}
+
+export type OccurrenceAtSiteInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  biomaterial: OccurrenceInput
+  sampling: SamplingInput
 }
 
 /**
@@ -1197,19 +1132,53 @@ export type OccurrenceDatasetListItem = {
   slug: string
 }
 
+export type OccurrenceInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  /**
+   * Unique code identifier for the bio material. Generated from taxon and sampling if not provided.
+   */
+  code?: string
+  collection?: string
+  comments?: string
+  /**
+   * Description of the content of the bio material
+   */
+  content_description?: string
+  /**
+   * Occurrence identification
+   */
+  identification: IdentificationInput
+  original_taxon?: string
+  published_in?: Array<string>
+  quantity?: Array<number>
+  sequences?: Array<ExternalSequenceInput>
+  sources?: Array<string>
+  /**
+   * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
+   */
+  type_status?: TypeStatus
+  vouchers?: Array<string>
+}
+
 export type OccurrenceListItem = {
   /**
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  category: OccurrenceCategory
+  archive: SpecimenVoucher
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
+  content_description?: string
   has_sequences: boolean
   id: string
   identification: Identification
   meta: Meta
+  original_taxon?: string
+  quantity?: OptionalQuantityRange
   sampling: SamplingInnerWithSite
   type_status?: OptionalTypeStatus
 }
@@ -1226,39 +1195,66 @@ export type OccurrenceSamplingWithSite = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  category: OccurrenceCategory
+  archive: SpecimenVoucher
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
+  content_description?: string
   datasets?: Array<Dataset>
-  external?: OptionalExternalOccurrenceSpecific
   has_sequences: boolean
   id: string
   identification: Identification
-  internal?: OptionalInternalBioMatSpecific
   meta: Meta
+  original_taxon?: string
+  published_in?: Array<Article>
+  quantity?: OptionalQuantityRange
   sampling: SamplingWithSite
+  sequences?: Array<ExternalSequence>
+  sources?: Array<DataSource>
   type_status?: OptionalTypeStatus
 }
 
 export type OccurrenceStruct = {
-  category: OccurrenceCategory
+  archive: SpecimenVoucher
   code: string
   code_history?: Array<CodeHistory>
   comments?: string
+  content_description?: string
   datasets?: Array<Dataset>
-  external?: OptionalExternalOccurrenceSpecific
   has_sequences: boolean
   id: string
   identification: Identification
-  internal?: OptionalInternalBioMatSpecific
   meta: Meta
+  original_taxon?: string
+  published_in?: Array<Article>
+  quantity?: OptionalQuantityRange
   sampling: OccurrenceStructSamplingStruct
+  sequences?: Array<ExternalSequence>
+  sources?: Array<DataSource>
   type_status?: OptionalTypeStatus
 }
 
 export type OccurrenceStructSamplingStruct = {
   [key: string]: never
+}
+
+export type OccurrenceUpdate = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code?: string
+  collection?: string | null
+  comments?: string | null
+  content_description?: string | null
+  identification?: IdentificationUpdate
+  original_taxon?: string | null
+  published_in?: Array<string> | null
+  quantity?: [number, number] | null
+  sampling_id: string
+  sources?: string | null
+  type_status?: TypeStatus | null
+  vouchers?: Array<string>
 }
 
 export type OptionalArticle = {
@@ -1300,17 +1296,6 @@ export type OptionalDateWithPrecision = {
   precision: DatePrecision
 }
 
-export type OptionalExternalOccurrenceSpecific = {
-  archive: SpecimenVoucher
-  content_description?: string
-  external_link?: string
-  original_taxon?: string
-  published_in?: Array<Article>
-  quantity?: OptionalQuantityRange
-  sequences?: Array<ExternalSequence>
-  sources?: Array<DataSource>
-} | null
-
 export type OptionalHabitatRecord = {
   /**
    * Optional habitat description
@@ -1322,13 +1307,6 @@ export type OptionalHabitatRecord = {
    * A short label for the habitat.
    */
   label: string
-} | null
-
-export type OptionalInternalBioMatSpecific = {
-  has_sequences: boolean
-  is_congruent: boolean
-  is_homogenous: boolean
-  seq_consensus?: OptionalTaxon
 } | null
 
 export type OptionalLegacySeqId = {
@@ -2059,7 +2037,7 @@ export type SequenceListItem = {
   label?: string
   legacy?: OptionalLegacySeqId
   meta: Meta
-  occurrence: GenericOccurrenceSamplingInnerWithSite
+  occurrence: BaseOccurrenceSamplingInnerWithSite
   sequence?: string
   specimen_identifier?: string
 }
@@ -4713,7 +4691,6 @@ export type ListOccurrencesData = {
     owned?: boolean
     taxa?: Array<string>
     whole_clade?: boolean
-    category?: OccurrenceCategory
     has_sequences?: boolean
     confer?: boolean
     type_status?: TypeStatus
@@ -4744,6 +4721,41 @@ export type ListOccurrencesResponses = {
 }
 
 export type ListOccurrencesResponse = ListOccurrencesResponses[keyof ListOccurrencesResponses]
+
+export type CreateOccurrenceData = {
+  body: CreateOccurrenceInputBody
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/occurrences'
+}
+
+export type CreateOccurrenceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateOccurrenceError = CreateOccurrenceErrors[keyof CreateOccurrenceErrors]
+
+export type CreateOccurrenceResponses = {
+  /**
+   * OK
+   */
+  200: BaseOccurrenceSamplingOutline
+}
+
+export type CreateOccurrenceResponse = CreateOccurrenceResponses[keyof CreateOccurrenceResponses]
 
 export type OccurrencesBySiteData = {
   body?: never
@@ -4791,82 +4803,6 @@ export type OccurrencesBySiteResponses = {
 }
 
 export type OccurrencesBySiteResponse = OccurrencesBySiteResponses[keyof OccurrencesBySiteResponses]
-
-export type UpdateExternalOccurrenceData = {
-  body: ExternalOccurrenceUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/occurrences/external'
-}
-
-export type UpdateExternalOccurrenceErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type UpdateExternalOccurrenceError =
-  UpdateExternalOccurrenceErrors[keyof UpdateExternalOccurrenceErrors]
-
-export type UpdateExternalOccurrenceResponses = {
-  /**
-   * OK
-   */
-  200: GenericOccurrenceSamplingOutline
-}
-
-export type UpdateExternalOccurrenceResponse =
-  UpdateExternalOccurrenceResponses[keyof UpdateExternalOccurrenceResponses]
-
-export type CreateExternalOccurrenceData = {
-  body: CreateExternalOccurrenceInputBody
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/occurrences/external'
-}
-
-export type CreateExternalOccurrenceErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type CreateExternalOccurrenceError =
-  CreateExternalOccurrenceErrors[keyof CreateExternalOccurrenceErrors]
-
-export type CreateExternalOccurrenceResponses = {
-  /**
-   * OK
-   */
-  200: GenericOccurrenceSamplingOutline
-}
-
-export type CreateExternalOccurrenceResponse =
-  CreateExternalOccurrenceResponses[keyof CreateExternalOccurrenceResponses]
 
 export type OccurrenceOverviewData = {
   body?: never
@@ -4977,6 +4913,43 @@ export type GetOccurrenceResponses = {
 }
 
 export type GetOccurrenceResponse = GetOccurrenceResponses[keyof GetOccurrenceResponses]
+
+export type UpdateOccurrenceData = {
+  body: OccurrenceUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/occurrences/{code}'
+}
+
+export type UpdateOccurrenceErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateOccurrenceError = UpdateOccurrenceErrors[keyof UpdateOccurrenceErrors]
+
+export type UpdateOccurrenceResponses = {
+  /**
+   * OK
+   */
+  200: BaseOccurrenceSamplingOutline
+}
+
+export type UpdateOccurrenceResponse = UpdateOccurrenceResponses[keyof UpdateOccurrenceResponses]
 
 export type ListOrganisationsData = {
   body?: never
@@ -5875,8 +5848,8 @@ export type UpdateSamplingResponses = {
 
 export type UpdateSamplingResponse = UpdateSamplingResponses[keyof UpdateSamplingResponses]
 
-export type SamplingAddExternalOccurrenceData = {
-  body: ExternalOccurrenceInput
+export type SamplingAddOccurrenceData = {
+  body: OccurrenceInput
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -5887,10 +5860,10 @@ export type SamplingAddExternalOccurrenceData = {
     number: number
   }
   query?: never
-  url: '/samplings/{id}/occurrences/external'
+  url: '/samplings/{id}/occurrences'
 }
 
-export type SamplingAddExternalOccurrenceErrors = {
+export type SamplingAddOccurrenceErrors = {
   /**
    * Unprocessable Entity
    */
@@ -5901,18 +5874,18 @@ export type SamplingAddExternalOccurrenceErrors = {
   500: ErrorModel
 }
 
-export type SamplingAddExternalOccurrenceError =
-  SamplingAddExternalOccurrenceErrors[keyof SamplingAddExternalOccurrenceErrors]
+export type SamplingAddOccurrenceError =
+  SamplingAddOccurrenceErrors[keyof SamplingAddOccurrenceErrors]
 
-export type SamplingAddExternalOccurrenceResponses = {
+export type SamplingAddOccurrenceResponses = {
   /**
    * OK
    */
-  200: GenericOccurrenceSamplingOutline
+  200: BaseOccurrenceSamplingOutline
 }
 
-export type SamplingAddExternalOccurrenceResponse =
-  SamplingAddExternalOccurrenceResponses[keyof SamplingAddExternalOccurrenceResponses]
+export type SamplingAddOccurrenceResponse =
+  SamplingAddOccurrenceResponses[keyof SamplingAddOccurrenceResponses]
 
 export type ListSequencesData = {
   body?: never
@@ -6702,8 +6675,8 @@ export type UpdateSiteResponses = {
 
 export type UpdateSiteResponse = UpdateSiteResponses[keyof UpdateSiteResponses]
 
-export type SiteAddExternalOccurrenceData = {
-  body: ExternalOccurrenceAtSiteInput
+export type SiteAddOccurrenceData = {
+  body: OccurrenceAtSiteInput
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -6714,10 +6687,10 @@ export type SiteAddExternalOccurrenceData = {
     code: string
   }
   query?: never
-  url: '/sites/{code}/occurrences/external'
+  url: '/sites/{code}/occurrences'
 }
 
-export type SiteAddExternalOccurrenceErrors = {
+export type SiteAddOccurrenceErrors = {
   /**
    * Unprocessable Entity
    */
@@ -6728,18 +6701,16 @@ export type SiteAddExternalOccurrenceErrors = {
   500: ErrorModel
 }
 
-export type SiteAddExternalOccurrenceError =
-  SiteAddExternalOccurrenceErrors[keyof SiteAddExternalOccurrenceErrors]
+export type SiteAddOccurrenceError = SiteAddOccurrenceErrors[keyof SiteAddOccurrenceErrors]
 
-export type SiteAddExternalOccurrenceResponses = {
+export type SiteAddOccurrenceResponses = {
   /**
    * OK
    */
-  200: GenericOccurrenceSamplingOutline
+  200: BaseOccurrenceSamplingOutline
 }
 
-export type SiteAddExternalOccurrenceResponse =
-  SiteAddExternalOccurrenceResponses[keyof SiteAddExternalOccurrenceResponses]
+export type SiteAddOccurrenceResponse = SiteAddOccurrenceResponses[keyof SiteAddOccurrenceResponses]
 
 export type ListSiteSamplingsData = {
   body?: never

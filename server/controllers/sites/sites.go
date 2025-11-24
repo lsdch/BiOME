@@ -78,30 +78,30 @@ func RegisterRoutes(r router.Router) {
 		controllers.UpdateByCodeHandler[*occurrence.SamplingInput],
 	)
 
-	router.Register(sites_API, "SiteAddExternalOccurrence",
+	router.Register(sites_API, "SiteAddOccurrence",
 		huma.Operation{
 			Tags:        []string{"Occurrences"},
-			Path:        "/{code}/occurrences/external",
+			Path:        "/{code}/occurrences/",
 			Method:      http.MethodPost,
 			Summary:     "Add occurrence at site",
 			Description: "Register new occurrence at site, including event + sampling specification and biomaterial identification",
 		},
-		SiteAddExternalOccurrence,
+		SiteAddOccurrence,
 	)
 }
 
-type SiteAddExternalOccurrenceInput struct {
+type SiteAddOccurrenceInput struct {
 	resolvers.AccessRestricted[resolvers.Contributor]
 	controllers.CodeInput
 	Body struct {
-		Sampling    occurrence.SamplingInput           `json:"sampling"`
-		BioMaterial occurrence.ExternalOccurrenceInput `json:"biomaterial"`
-	} `nameHint:"ExternalOccurrenceAtSiteInput"`
+		Sampling    occurrence.SamplingInput   `json:"sampling"`
+		BioMaterial occurrence.OccurrenceInput `json:"biomaterial"`
+	} `nameHint:"OccurrenceAtSiteInput"`
 }
 
-func SiteAddExternalOccurrence(ctx context.Context, input *SiteAddExternalOccurrenceInput) (*occurrences.RegisterOccurrenceOutput, error) {
+func SiteAddOccurrence(ctx context.Context, input *SiteAddOccurrenceInput) (*occurrences.RegisterOccurrenceOutput, error) {
 	siteCode := input.Identifier()
-	var created occurrence.GenericOccurrence[occurrence.SamplingOutline]
+	var created occurrence.BaseOccurrence[occurrence.SamplingOutline]
 	err := input.DB().Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
 
 		sampling, err := input.Body.Sampling.Save(tx, siteCode)
