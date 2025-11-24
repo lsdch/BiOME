@@ -12,7 +12,10 @@ items := (
   select Occurrence { * }
   filter (
     {{- if .SearchTerm }}
-      (.code ilike '%%' ++ search_term ++ '%%') and
+    (
+      (.code ilike '%%' ++ search_term ++ '%%') or
+      (.sampling.site.name ilike '%%' ++ search_term ++ '%%')
+    ) and
     {{ end }}
     {{ template "taxa_filters" .TaxaFilters }}
     {{- if .Rank }}
