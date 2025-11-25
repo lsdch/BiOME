@@ -175,7 +175,7 @@
                           <span class="text-muted text-caption">Quantity</span>
                         </template>
                       </v-list-item>
-                      <v-card-text>
+                      <v-card-text v-if="item.content_description">
                         <v-card :elevation="-5" variant="tonal">
                           <v-card-text>
                             {{ item.content_description }}
