@@ -137,9 +137,9 @@ export type BaseIdentification = {
 }
 
 export type BaseOccurrenceSamplingInnerWithSite = {
-  archive: SpecimenVoucher
   code: string
   code_history?: Array<CodeHistory>
+  collections?: Array<CollectionWithVouchers>
   comments?: string
   content_description?: string
   has_sequences: boolean
@@ -157,9 +157,9 @@ export type BaseOccurrenceSamplingOutline = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  archive: SpecimenVoucher
   code: string
   code_history?: Array<CodeHistory>
+  collections?: Array<CollectionWithVouchers>
   comments?: string
   content_description?: string
   has_sequences: boolean
@@ -203,6 +203,21 @@ export type ClinicalTrailNumber = {
 export type CodeHistory = {
   code: string
   time: Date
+}
+
+export type CollectionField = {
+  name: string
+  vouchers?: Array<string>
+}
+
+export type CollectionWithVouchers = {
+  code: string
+  contact?: string
+  description?: string
+  id: string
+  label: string
+  meta: Meta
+  vouchers?: Array<string>
 }
 
 export type CompositeDate = {
@@ -1142,7 +1157,7 @@ export type OccurrenceInput = {
    * Unique code identifier for the bio material. Generated from taxon and sampling if not provided.
    */
   code?: string
-  collection?: string
+  collections?: Array<CollectionField>
   comments?: string
   /**
    * Description of the content of the bio material
@@ -1161,7 +1176,6 @@ export type OccurrenceInput = {
    * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
    */
   type_status?: TypeStatus
-  vouchers?: Array<string>
 }
 
 export type OccurrenceListItem = {
@@ -1169,9 +1183,9 @@ export type OccurrenceListItem = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  archive: SpecimenVoucher
   code: string
   code_history?: Array<CodeHistory>
+  collections?: Array<CollectionWithVouchers>
   comments?: string
   content_description?: string
   has_sequences: boolean
@@ -1196,9 +1210,9 @@ export type OccurrenceSamplingWithSite = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
-  archive: SpecimenVoucher
   code: string
   code_history?: Array<CodeHistory>
+  collections?: Array<CollectionWithVouchers>
   comments?: string
   content_description?: string
   datasets?: Array<Dataset>
@@ -1216,9 +1230,9 @@ export type OccurrenceSamplingWithSite = {
 }
 
 export type OccurrenceStruct = {
-  archive: SpecimenVoucher
   code: string
   code_history?: Array<CodeHistory>
+  collections?: Array<CollectionWithVouchers>
   comments?: string
   content_description?: string
   datasets?: Array<Dataset>
@@ -1245,7 +1259,7 @@ export type OccurrenceUpdate = {
    */
   readonly $schema?: string
   code?: string
-  collection?: string | null
+  collections?: Array<CollectionField> | null
   comments?: string | null
   content_description?: string | null
   identification?: IdentificationUpdate
@@ -1255,7 +1269,6 @@ export type OccurrenceUpdate = {
   sampling_id: string
   sources?: string | null
   type_status?: TypeStatus | null
-  vouchers?: Array<string>
 }
 
 export type OptionalArticle = {
@@ -2284,11 +2297,6 @@ export type SiteWithScore = {
   name?: string
   score: number
   user_defined_locality: boolean
-}
-
-export type SpecimenVoucher = {
-  collection?: string
-  vouchers?: Array<string>
 }
 
 export type Status = {

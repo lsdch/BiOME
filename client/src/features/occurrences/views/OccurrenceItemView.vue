@@ -206,22 +206,14 @@
                         <DataSourceChip v-for="source in item.sources" :source />
                         <span v-if="!item.sources" class="text-muted text-caption"> Unknown </span>
                         <template #append>
-                          <span class="text-muted text-caption">Data sources</span>
+                          <span class="text-muted text-caption">Data source(s)</span>
                         </template>
                       </v-list-item>
                       <v-list-item>
-                        <b v-if="item.archive.collection">{{ item.archive.collection }}</b>
+                        <b v-for="col in item.collections">{{ col }}</b>
                         <span class="text-muted text-caption"> Unknown </span>
                         <template #append>
-                          <span class="text-muted text-caption">Collection</span>
-                        </template>
-                        <template #subtitle>
-                          <v-chip
-                            v-for="v in item.archive.vouchers"
-                            :text="v"
-                            size="small"
-                            class="ma-1"
-                          />
+                          <span class="text-muted text-caption">Collection(s)</span>
                         </template>
                       </v-list-item>
                     </v-list>

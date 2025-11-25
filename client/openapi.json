@@ -420,15 +420,18 @@
 			"BaseOccurrenceSamplingInnerWithSite": {
 				"additionalProperties": false,
 				"properties": {
-					"archive": {
-						"$ref": "#/components/schemas/SpecimenVoucher"
-					},
 					"code": {
 						"type": "string"
 					},
 					"code_history": {
 						"items": {
 							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"collections": {
+						"items": {
+							"$ref": "#/components/schemas/CollectionWithVouchers"
 						},
 						"type": "array"
 					},
@@ -469,7 +472,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"archive",
 					"meta",
 					"code"
 				],
@@ -487,15 +489,18 @@
 						"readOnly": true,
 						"type": "string"
 					},
-					"archive": {
-						"$ref": "#/components/schemas/SpecimenVoucher"
-					},
 					"code": {
 						"type": "string"
 					},
 					"code_history": {
 						"items": {
 							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"collections": {
+						"items": {
+							"$ref": "#/components/schemas/CollectionWithVouchers"
 						},
 						"type": "array"
 					},
@@ -536,7 +541,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"archive",
 					"meta",
 					"code"
 				],
@@ -614,6 +618,61 @@
 				"required": [
 					"code",
 					"time"
+				],
+				"type": "object"
+			},
+			"CollectionField": {
+				"additionalProperties": false,
+				"properties": {
+					"name": {
+						"type": "string"
+					},
+					"vouchers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"name"
+				],
+				"type": "object"
+			},
+			"CollectionWithVouchers": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"contact": {
+						"type": "string"
+					},
+					"description": {
+						"type": "string"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					},
+					"meta": {
+						"$ref": "#/components/schemas/Meta"
+					},
+					"vouchers": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					}
+				},
+				"required": [
+					"id",
+					"label",
+					"code",
+					"meta"
 				],
 				"type": "object"
 			},
@@ -3262,8 +3321,11 @@
 						],
 						"type": "string"
 					},
-					"collection": {
-						"type": "string"
+					"collections": {
+						"items": {
+							"$ref": "#/components/schemas/CollectionField"
+						},
+						"type": "array"
 					},
 					"comments": {
 						"type": "string"
@@ -3312,12 +3374,6 @@
 					"type_status": {
 						"$ref": "#/components/schemas/TypeStatus",
 						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."
-					},
-					"vouchers": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
 					}
 				},
 				"required": [
@@ -3337,15 +3393,18 @@
 						"readOnly": true,
 						"type": "string"
 					},
-					"archive": {
-						"$ref": "#/components/schemas/SpecimenVoucher"
-					},
 					"code": {
 						"type": "string"
 					},
 					"code_history": {
 						"items": {
 							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"collections": {
+						"items": {
+							"$ref": "#/components/schemas/CollectionWithVouchers"
 						},
 						"type": "array"
 					},
@@ -3386,7 +3445,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"archive",
 					"meta",
 					"code"
 				],
@@ -3429,15 +3487,18 @@
 						"readOnly": true,
 						"type": "string"
 					},
-					"archive": {
-						"$ref": "#/components/schemas/SpecimenVoucher"
-					},
 					"code": {
 						"type": "string"
 					},
 					"code_history": {
 						"items": {
 							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"collections": {
+						"items": {
+							"$ref": "#/components/schemas/CollectionWithVouchers"
 						},
 						"type": "array"
 					},
@@ -3502,7 +3563,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"archive",
 					"meta",
 					"code"
 				],
@@ -3511,15 +3571,18 @@
 			"OccurrenceStruct {}": {
 				"additionalProperties": false,
 				"properties": {
-					"archive": {
-						"$ref": "#/components/schemas/SpecimenVoucher"
-					},
 					"code": {
 						"type": "string"
 					},
 					"code_history": {
 						"items": {
 							"$ref": "#/components/schemas/CodeHistory"
+						},
+						"type": "array"
+					},
+					"collections": {
+						"items": {
+							"$ref": "#/components/schemas/CollectionWithVouchers"
 						},
 						"type": "array"
 					},
@@ -3584,7 +3647,6 @@
 					"has_sequences",
 					"sampling",
 					"identification",
-					"archive",
 					"meta",
 					"code"
 				],
@@ -3609,9 +3671,12 @@
 					"code": {
 						"type": "string"
 					},
-					"collection": {
+					"collections": {
+						"items": {
+							"$ref": "#/components/schemas/CollectionField"
+						},
 						"type": [
-							"string",
+							"array",
 							"null"
 						]
 					},
@@ -3673,12 +3738,6 @@
 							"string",
 							"null"
 						]
-					},
-					"vouchers": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
 					}
 				},
 				"required": [
@@ -7145,21 +7204,6 @@
 					"coordinates",
 					"user_defined_locality"
 				],
-				"type": "object"
-			},
-			"SpecimenVoucher": {
-				"additionalProperties": false,
-				"properties": {
-					"collection": {
-						"type": "string"
-					},
-					"vouchers": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					}
-				},
 				"type": "object"
 			},
 			"Status": {

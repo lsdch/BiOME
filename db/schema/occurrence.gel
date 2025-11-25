@@ -66,8 +66,13 @@ module occurrence {
     comments: str;
 
     multi sources: references::DataSource;
-    in_collection: str; # name of a collection where the specimen can be found
-    multi item_vouchers: str; # specimen identifier(s) within the collection
+
+    multi collections: references::Collection {
+      vouchers: array<str>;
+    };
+
+    # in_collection: str; # name of a collection where the specimen can be found
+    # multi item_vouchers: str; # specimen identifier(s) within the collection
 
     multi published_in: references::Article;
     original_taxon: str {

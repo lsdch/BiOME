@@ -26,6 +26,10 @@ module references {
     );
   };
 
+  type Collection extending default::Auditable, default::Vocabulary {
+    contact: str;
+  };
+
   type DataSource extending default::Auditable, default::Vocabulary {
     url: str;
     link_template: str;

@@ -18,11 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type SpecimenVoucher struct {
-	Collection geltypes.OptionalStr `gel:"in_collection" json:"collection,omitempty"`
-	Item       []string             `gel:"item_vouchers" json:"vouchers,omitempty"`
-}
-
 type QuantityRange struct {
 	Lower int32 `gel:"lower" json:"lower"`
 	Upper int32 `gel:"upper" json:"upper"`
@@ -48,7 +43,7 @@ type BaseOccurrence[SamplingType any] struct {
 	Quantity           models.Optional[QuantityRange] `gel:"quantity" json:"quantity,omitempty"`
 	ContentDescription geltypes.OptionalStr           `gel:"content_description" json:"content_description,omitempty"`
 	OriginalTaxon      geltypes.OptionalStr           `gel:"original_taxon" json:"original_taxon,omitempty"`
-	Archive            SpecimenVoucher                `gel:"$inline" json:"archive"`
+	Collections        []CollectionWithVouchers       `gel:"collections" json:"collections,omitempty"`
 	Meta               people.Meta                    `gel:"meta" json:"meta"`
 }
 
@@ -86,8 +81,7 @@ func GetOccurrence(db geltypes.Executor, code string) (occurrence Occurrence[Sam
 			sources: { * },
 			sequences: { *, gene: { * }, referenced_in: { * }, meta: { * } },
 			# external_link,
-			in_collection,
-			item_vouchers,
+			collections: { *, @vouchers },
 			quantity,
 			published_in: { * },
 			content_description
@@ -276,12 +270,11 @@ type OccurrenceInput struct {
 	Sources        []string                         `json:"sources,omitzero"`
 	OriginalTaxon  models.OptionalInput[string]     `json:"original_taxon,omitzero"`
 	// OriginalLink       models.OptionalInput[string]  `json:"external_link,omitzero"`
-	Quantity           models.OptionalInput[[]int32] `json:"quantity,omitzero" minItems:"1" maxItems:"2"`
-	ContentDescription models.OptionalInput[string]  `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
-	Collection         models.OptionalInput[string]  `json:"collection,omitzero"`
-	ItemVouchers       []string                      `json:"vouchers,omitzero"`
-	Comments           models.OptionalInput[string]  `json:"comments,omitzero"`
-	Sequences          []ExternalSequenceInput       `json:"sequences,omitzero"`
+	Quantity           models.OptionalInput[[]int32]           `json:"quantity,omitzero" minItems:"1" maxItems:"2"`
+	ContentDescription models.OptionalInput[string]            `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
+	Collections        models.OptionalInput[[]CollectionField] `json:"collections,omitzero"`
+	Comments           models.OptionalInput[string]            `json:"comments,omitzero"`
+	Sequences          []ExternalSequenceInput                 `json:"sequences,omitzero"`
 }
 
 func (i *OccurrenceInput) SetCode(code string) {
@@ -365,13 +358,12 @@ type OccurrenceUpdate struct {
 	TypeStatus     models.OptionalNull[TypeStatus]            `gel:"type_status" json:"type_status,omitzero"`
 	OriginalSource models.OptionalNull[string]                `gel:"sources" json:"sources,omitempty"`
 	// OriginalLink       models.OptionalNull[string]    `gel:"external_link" json:"external_link,omitempty"`
-	OriginalTaxon      models.OptionalNull[string]    `gel:"original_taxon" json:"original_taxon,omitempty"`
-	Quantity           models.OptionalNull[[]int32]   `gel:"quantity" json:"quantity,omitempty" minItems:"2" maxItems:"2"`
-	ContentDescription models.OptionalNull[string]    `gel:"content_description" json:"content_description,omitempty"`
-	Collection         models.OptionalNull[string]    `gel:"in_collection" json:"collection,omitempty"`
-	ItemVouchers       models.OptionalInput[[]string] `gel:"item_vouchers" json:"vouchers,omitempty"`
-	PublishedIn        models.OptionalNull[[]string]  `gel:"published_in" json:"published_in,omitempty"`
-	Comments           models.OptionalNull[string]    `gel:"comments" json:"comments,omitempty"`
+	OriginalTaxon      models.OptionalNull[string]            `gel:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           models.OptionalNull[[]int32]           `gel:"quantity" json:"quantity,omitempty" minItems:"2" maxItems:"2"`
+	ContentDescription models.OptionalNull[string]            `gel:"content_description" json:"content_description,omitempty"`
+	Collections        models.OptionalNull[[]CollectionField] `gel:"collections" json:"collections,omitempty"`
+	PublishedIn        models.OptionalNull[[]string]          `gel:"published_in" json:"published_in,omitempty"`
+	Comments           models.OptionalNull[string]            `gel:"comments" json:"comments,omitempty"`
 }
 
 func (u OccurrenceUpdate) Save(e geltypes.Executor, code string) (updated BaseOccurrence[SamplingOutline], err error) {
@@ -406,11 +398,20 @@ func (u OccurrenceUpdate) Save(e geltypes.Executor, code string) (updated BaseOc
 					)
 			`,
 			"content_description": "<str>item['content_description']",
-			"in_collection":       "<str>item['collection']",
-			"item_vouchers":       "<str>json_array_unpack(item['item_vouchers'])",
-			"comments":            "<str>item['comments']",
-			"type_status":         "<bool>item['type_status']",
-			"identification":      u.Identification.Value.UpdateQuery(".identification"),
+			"collections": `#edgeql
+				(
+					for col in json_array_unpack(item['collections']) union (
+						select references::Collection {
+							@vouchers := <array<str>>col['vouchers']
+						}
+						filter .code = <str>col['name'] or .label = <str>col['name']
+					)
+				)
+			`,
+			"item_vouchers":  "<str>json_array_unpack(item['item_vouchers'])",
+			"comments":       "<str>item['comments']",
+			"type_status":    "<bool>item['type_status']",
+			"identification": u.Identification.Value.UpdateQuery(".identification"),
 			"published_in": `#edgeql
 					(
 						select distinct references::Article

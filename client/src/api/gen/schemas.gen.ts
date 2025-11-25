@@ -359,15 +359,18 @@ export const $BaseIdentification = {
 export const $BaseOccurrenceSamplingInnerWithSite = {
   additionalProperties: false,
   properties: {
-    archive: {
-      $ref: '#/components/schemas/SpecimenVoucher'
-    },
     code: {
       type: 'string'
     },
     code_history: {
       items: {
         $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
+    },
+    collections: {
+      items: {
+        $ref: '#/components/schemas/CollectionWithVouchers'
       },
       type: 'array'
     },
@@ -403,7 +406,7 @@ export const $BaseOccurrenceSamplingInnerWithSite = {
       $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
   type: 'object'
 } as const
 
@@ -417,15 +420,18 @@ export const $BaseOccurrenceSamplingOutline = {
       readOnly: true,
       type: 'string'
     },
-    archive: {
-      $ref: '#/components/schemas/SpecimenVoucher'
-    },
     code: {
       type: 'string'
     },
     code_history: {
       items: {
         $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
+    },
+    collections: {
+      items: {
+        $ref: '#/components/schemas/CollectionWithVouchers'
       },
       type: 'array'
     },
@@ -461,7 +467,7 @@ export const $BaseOccurrenceSamplingOutline = {
       $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
   type: 'object'
 } as const
 
@@ -533,6 +539,56 @@ export const $CodeHistory = {
     }
   },
   required: ['code', 'time'],
+  type: 'object'
+} as const
+
+export const $CollectionField = {
+  additionalProperties: false,
+  properties: {
+    name: {
+      type: 'string'
+    },
+    vouchers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    }
+  },
+  required: ['name'],
+  type: 'object'
+} as const
+
+export const $CollectionWithVouchers = {
+  additionalProperties: false,
+  properties: {
+    code: {
+      type: 'string'
+    },
+    contact: {
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    vouchers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    }
+  },
+  required: ['id', 'label', 'code', 'meta'],
   type: 'object'
 } as const
 
@@ -2892,8 +2948,11 @@ export const $OccurrenceInput = {
       examples: ['Genus_sp[SITE|2001-01]'],
       type: 'string'
     },
-    collection: {
-      type: 'string'
+    collections: {
+      items: {
+        $ref: '#/components/schemas/CollectionField'
+      },
+      type: 'array'
     },
     comments: {
       type: 'string'
@@ -2941,12 +3000,6 @@ export const $OccurrenceInput = {
       $ref: '#/components/schemas/TypeStatus',
       description:
         'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.'
-    },
-    vouchers: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
     }
   },
   required: ['identification'],
@@ -2963,15 +3016,18 @@ export const $OccurrenceListItem = {
       readOnly: true,
       type: 'string'
     },
-    archive: {
-      $ref: '#/components/schemas/SpecimenVoucher'
-    },
     code: {
       type: 'string'
     },
     code_history: {
       items: {
         $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
+    },
+    collections: {
+      items: {
+        $ref: '#/components/schemas/CollectionWithVouchers'
       },
       type: 'array'
     },
@@ -3007,7 +3063,7 @@ export const $OccurrenceListItem = {
       $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
   type: 'object'
 } as const
 
@@ -3042,15 +3098,18 @@ export const $OccurrenceSamplingWithSite = {
       readOnly: true,
       type: 'string'
     },
-    archive: {
-      $ref: '#/components/schemas/SpecimenVoucher'
-    },
     code: {
       type: 'string'
     },
     code_history: {
       items: {
         $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
+    },
+    collections: {
+      items: {
+        $ref: '#/components/schemas/CollectionWithVouchers'
       },
       type: 'array'
     },
@@ -3110,22 +3169,25 @@ export const $OccurrenceSamplingWithSite = {
       $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
   type: 'object'
 } as const
 
 export const $OccurrenceStruct___ = {
   additionalProperties: false,
   properties: {
-    archive: {
-      $ref: '#/components/schemas/SpecimenVoucher'
-    },
     code: {
       type: 'string'
     },
     code_history: {
       items: {
         $ref: '#/components/schemas/CodeHistory'
+      },
+      type: 'array'
+    },
+    collections: {
+      items: {
+        $ref: '#/components/schemas/CollectionWithVouchers'
       },
       type: 'array'
     },
@@ -3185,7 +3247,7 @@ export const $OccurrenceStruct___ = {
       $ref: '#/components/schemas/OptionalTypeStatus'
     }
   },
-  required: ['id', 'has_sequences', 'sampling', 'identification', 'archive', 'meta', 'code'],
+  required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
   type: 'object'
 } as const
 
@@ -3207,8 +3269,11 @@ export const $OccurrenceUpdate = {
     code: {
       type: 'string'
     },
-    collection: {
-      type: ['string', 'null']
+    collections: {
+      items: {
+        $ref: '#/components/schemas/CollectionField'
+      },
+      type: ['array', 'null']
     },
     comments: {
       type: ['string', 'null']
@@ -3247,12 +3312,6 @@ export const $OccurrenceUpdate = {
     type_status: {
       $ref: '#/components/schemas/TypeStatus',
       type: ['string', 'null']
-    },
-    vouchers: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
     }
   },
   required: ['sampling_id'],
@@ -6256,22 +6315,6 @@ export const $SiteWithScore = {
     }
   },
   required: ['score', 'id', 'code', 'coordinates', 'user_defined_locality'],
-  type: 'object'
-} as const
-
-export const $SpecimenVoucher = {
-  additionalProperties: false,
-  properties: {
-    collection: {
-      type: 'string'
-    },
-    vouchers: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    }
-  },
   type: 'object'
 } as const
 

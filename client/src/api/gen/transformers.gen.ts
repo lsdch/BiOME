@@ -654,9 +654,19 @@ const occurrenceListItemSchemaResponseTransformer = (data: any) => {
       return codeHistorySchemaResponseTransformer(item)
     })
   }
+  if (data.collections) {
+    data.collections = data.collections.map((item: any) => {
+      return collectionWithVouchersSchemaResponseTransformer(item)
+    })
+  }
   data.identification = identificationSchemaResponseTransformer(data.identification)
   data.meta = metaSchemaResponseTransformer(data.meta)
   data.sampling = samplingInnerWithSiteSchemaResponseTransformer(data.sampling)
+  return data
+}
+
+const collectionWithVouchersSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -728,6 +738,11 @@ const baseOccurrenceSamplingOutlineSchemaResponseTransformer = (data: any) => {
       return codeHistorySchemaResponseTransformer(item)
     })
   }
+  if (data.collections) {
+    data.collections = data.collections.map((item: any) => {
+      return collectionWithVouchersSchemaResponseTransformer(item)
+    })
+  }
   data.identification = identificationSchemaResponseTransformer(data.identification)
   data.meta = metaSchemaResponseTransformer(data.meta)
   data.sampling = samplingOutlineSchemaResponseTransformer(data.sampling)
@@ -768,6 +783,11 @@ const occurrenceSamplingWithSiteSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) => {
       return codeHistorySchemaResponseTransformer(item)
+    })
+  }
+  if (data.collections) {
+    data.collections = data.collections.map((item: any) => {
+      return collectionWithVouchersSchemaResponseTransformer(item)
     })
   }
   if (data.datasets) {
@@ -844,6 +864,11 @@ const occurrenceStructSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) => {
       return codeHistorySchemaResponseTransformer(item)
+    })
+  }
+  if (data.collections) {
+    data.collections = data.collections.map((item: any) => {
+      return collectionWithVouchersSchemaResponseTransformer(item)
     })
   }
   if (data.datasets) {
@@ -1137,6 +1162,11 @@ const baseOccurrenceSamplingInnerWithSiteSchemaResponseTransformer = (data: any)
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) => {
       return codeHistorySchemaResponseTransformer(item)
+    })
+  }
+  if (data.collections) {
+    data.collections = data.collections.map((item: any) => {
+      return collectionWithVouchersSchemaResponseTransformer(item)
     })
   }
   data.identification = identificationSchemaResponseTransformer(data.identification)
