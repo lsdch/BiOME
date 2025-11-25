@@ -8,7 +8,6 @@ import {
 } from './client'
 import { client } from './client.gen'
 import {
-  claimInvitationResponseTransformer,
   createAbioticParameterResponseTransformer,
   createArticleResponseTransformer,
   createDataFeedResponseTransformer,
@@ -27,6 +26,7 @@ import {
   createSiteResponseTransformer,
   createTaxonResponseTransformer,
   createUpdateMapPresetResponseTransformer,
+  currentUserResponseTransformer,
   deleteAbioticParameterResponseTransformer,
   deleteArticleResponseTransformer,
   deleteDataSourceResponseTransformer,
@@ -100,9 +100,6 @@ import {
   updateTaxonResponseTransformer
 } from './transformers.gen'
 import type {
-  ClaimInvitationData,
-  ClaimInvitationErrors,
-  ClaimInvitationResponses,
   ConfirmEmailData,
   ConfirmEmailErrors,
   ConfirmEmailResponses,
@@ -223,9 +220,6 @@ import type {
   EmailSettingsData,
   EmailSettingsErrors,
   EmailSettingsResponses,
-  GetAccessPointsData,
-  GetAccessPointsErrors,
-  GetAccessPointsResponses,
   GetDatasetData,
   GetDatasetErrors,
   GetDatasetResponses,
@@ -274,6 +268,9 @@ import type {
   ListAbioticParametersData,
   ListAbioticParametersErrors,
   ListAbioticParametersResponses,
+  ListAccessPointsData,
+  ListAccessPointsErrors,
+  ListAccessPointsResponses,
   ListAnchorsData,
   ListAnchorsErrors,
   ListAnchorsResponses,
@@ -364,15 +361,6 @@ import type {
   RefreshSessionData,
   RefreshSessionErrors,
   RefreshSessionResponses,
-  RegisterData,
-  RegisterErrors,
-  RegisterResponses,
-  RequestPasswordResetData,
-  RequestPasswordResetErrors,
-  RequestPasswordResetResponses,
-  ResendEmailVerificationData,
-  ResendEmailVerificationErrors,
-  ResendEmailVerificationResponses,
   ResetPasswordData,
   ResetPasswordErrors,
   ResetPasswordResponses,
@@ -612,12 +600,12 @@ export class SamplingService {
   /**
    * List access points
    */
-  public static getAccessPoints<ThrowOnError extends boolean = false>(
-    options?: Options<GetAccessPointsData, ThrowOnError>
+  public static listAccessPoints<ThrowOnError extends boolean = false>(
+    options?: Options<ListAccessPointsData, ThrowOnError>
   ) {
     return (options?.client ?? client).get<
-      GetAccessPointsResponses,
-      GetAccessPointsErrors,
+      ListAccessPointsResponses,
+      ListAccessPointsErrors,
       ThrowOnError
     >({
       security: [
@@ -1133,6 +1121,7 @@ export class AccountService {
     options?: Options<CurrentUserData, ThrowOnError>
   ) {
     return (options?.client ?? client).get<CurrentUserResponses, CurrentUserErrors, ThrowOnError>({
+      responseTransformer: currentUserResponseTransformer,
       security: [
         {
           scheme: 'bearer',
@@ -1174,72 +1163,6 @@ export class AccountService {
         ...options
       }
     )
-  }
-
-  /**
-   * Resend e-mail verification link
-   *
-   * Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.
-   */
-  public static resendEmailVerification<ThrowOnError extends boolean = false>(
-    options: Options<ResendEmailVerificationData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      ResendEmailVerificationResponses,
-      ResendEmailVerificationErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/email-confirmation/resend',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Request password reset
-   *
-   * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
-   */
-  public static requestPasswordReset<ThrowOnError extends boolean = false>(
-    options: Options<RequestPasswordResetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      RequestPasswordResetResponses,
-      RequestPasswordResetErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/forgotten-password',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
   }
 
   /**
@@ -1517,149 +1440,6 @@ export class AccountService {
         'Content-Type': 'application/json',
         ...options.headers
       }
-    })
-  }
-
-  /**
-   * Register new account
-   *
-   * Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link. The target URL can be set by the client, otherwise it defaults to the API endpoint: `/api/v1/account/email-confirmation`
-   */
-  public static register<ThrowOnError extends boolean = false>(
-    options: Options<RegisterData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/register',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Claim invitation
-   *
-   * Register an account with pre-assigned role and identity, using an invitation token
-   */
-  public static claimInvitation<ThrowOnError extends boolean = false>(
-    options: Options<ClaimInvitationData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      ClaimInvitationResponses,
-      ClaimInvitationErrors,
-      ThrowOnError
-    >({
-      responseTransformer: claimInvitationResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/register/{token}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-}
-
-export class TaxonomyGbifService {
-  /**
-   * List GBIF anchor clades
-   */
-  public static listAnchors<ThrowOnError extends boolean = false>(
-    options?: Options<ListAnchorsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ListAnchorsResponses, ListAnchorsErrors, ThrowOnError>({
-      responseTransformer: listAnchorsResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/anchors/',
-      ...options
-    })
-  }
-
-  /**
-   * Import GBIF clade
-   */
-  public static importGbif<ThrowOnError extends boolean = false>(
-    options: Options<ImportGbifData, ThrowOnError>
-  ) {
-    return (options.client ?? client).put<ImportGbifResponses, ImportGbifErrors, ThrowOnError>({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/import/taxonomy',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Monitor GBIF taxonomy imports
-   */
-  public static monitorGbif<ThrowOnError extends boolean = false>(
-    options?: Options<MonitorGbifData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).sse.get<
-      MonitorGbifResponses,
-      MonitorGbifErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/import/taxonomy/monitor',
-      ...options
     })
   }
 }
@@ -2137,7 +1917,7 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      url: '/datasets/sequences',
+      url: '/datasets/sequence',
       ...options
     })
   }
@@ -2167,7 +1947,7 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      url: '/datasets/sequences/{slug}',
+      url: '/datasets/sequence/{slug}',
       ...options
     })
   }
@@ -2197,7 +1977,7 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      url: '/datasets/sites',
+      url: '/datasets/site',
       ...options
     })
   }
@@ -2227,7 +2007,7 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      url: '/datasets/sites',
+      url: '/datasets/site',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -2261,7 +2041,7 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      url: '/datasets/sites/{slug}',
+      url: '/datasets/site/{slug}',
       ...options
     })
   }
@@ -2680,6 +2460,86 @@ export class ServicesService {
   }
 }
 
+export class TaxonomyGbifService {
+  /**
+   * Monitor GBIF taxonomy imports
+   */
+  public static monitorGbif<ThrowOnError extends boolean = false>(
+    options?: Options<MonitorGbifData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).sse.get<
+      MonitorGbifResponses,
+      MonitorGbifErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/import/taxonomy/monitor',
+      ...options
+    })
+  }
+
+  /**
+   * List GBIF anchor clades
+   */
+  public static listAnchors<ThrowOnError extends boolean = false>(
+    options?: Options<ListAnchorsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<ListAnchorsResponses, ListAnchorsErrors, ThrowOnError>({
+      responseTransformer: listAnchorsResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/taxonomy/gbif/anchors',
+      ...options
+    })
+  }
+
+  /**
+   * Import GBIF clade
+   */
+  public static importGbif<ThrowOnError extends boolean = false>(
+    options: Options<ImportGbifData, ThrowOnError>
+  ) {
+    return (options.client ?? client).put<ImportGbifResponses, ImportGbifErrors, ThrowOnError>({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/taxonomy/gbif/import',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+}
+
 export class LocationService {
   /**
    * Get country from WGS84 coordinates
@@ -3048,6 +2908,447 @@ export class LocationService {
   }
 }
 
+export class SettingsService {
+  /**
+   * List saved data feeds
+   */
+  public static listDataFeeds<ThrowOnError extends boolean = false>(
+    options?: Options<ListDataFeedsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListDataFeedsResponses,
+      ListDataFeedsErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listDataFeedsResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/mapping/data-feeds',
+      ...options
+    })
+  }
+
+  /**
+   * Save data feed
+   */
+  public static createDataFeed<ThrowOnError extends boolean = false>(
+    options: Options<CreateDataFeedData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      CreateDataFeedResponses,
+      CreateDataFeedErrors,
+      ThrowOnError
+    >({
+      responseTransformer: createDataFeedResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/mapping/data-feeds',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * List saved map presets
+   */
+  public static listMapPresets<ThrowOnError extends boolean = false>(
+    options?: Options<ListMapPresetsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListMapPresetsResponses,
+      ListMapPresetsErrors,
+      ThrowOnError
+    >({
+      responseTransformer: listMapPresetsResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/mapping/map-presets',
+      ...options
+    })
+  }
+
+  /**
+   * Save map preset
+   *
+   * Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.
+   */
+  public static createUpdateMapPreset<ThrowOnError extends boolean = false>(
+    options: Options<CreateUpdateMapPresetData, ThrowOnError>
+  ) {
+    return (options.client ?? client).put<
+      CreateUpdateMapPresetResponses,
+      CreateUpdateMapPresetErrors,
+      ThrowOnError
+    >({
+      responseTransformer: createUpdateMapPresetResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/mapping/map-presets',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Delete map preset
+   *
+   * Deletes a map preset by name. Only the owner of the preset or an admin can delete it.
+   */
+  public static deleteMapPreset<ThrowOnError extends boolean = false>(
+    options: Options<DeleteMapPresetData, ThrowOnError>
+  ) {
+    return (options.client ?? client).delete<
+      DeleteMapPresetResponses,
+      DeleteMapPresetErrors,
+      ThrowOnError
+    >({
+      responseTransformer: deleteMapPresetResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/mapping/map-presets/{name}',
+      ...options
+    })
+  }
+
+  /**
+   * Email settings
+   */
+  public static emailSettings<ThrowOnError extends boolean = false>(
+    options?: Options<EmailSettingsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      EmailSettingsResponses,
+      EmailSettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/emailing',
+      ...options
+    })
+  }
+
+  /**
+   * Update email settings
+   */
+  public static updateEmailSettings<ThrowOnError extends boolean = false>(
+    options: Options<UpdateEmailSettingsData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      UpdateEmailSettingsResponses,
+      UpdateEmailSettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/emailing',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Test SMTP connection
+   */
+  public static testSmtp<ThrowOnError extends boolean = false>(
+    options: Options<TestSmtpData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<TestSmtpResponses, TestSmtpErrors, ThrowOnError>({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/emailing/test-dial',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Set app icon
+   */
+  public static setAppIcon<ThrowOnError extends boolean = false>(
+    options?: Options<SetAppIconData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).post<SetAppIconResponses, SetAppIconErrors, ThrowOnError>({
+      ...formDataBodySerializer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/icon',
+      ...options,
+      headers: {
+        'Content-Type': null,
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Instance settings
+   */
+  public static instanceSettings<ThrowOnError extends boolean = false>(
+    options?: Options<InstanceSettingsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      InstanceSettingsResponses,
+      InstanceSettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/instance',
+      ...options
+    })
+  }
+
+  /**
+   * Update instance settings
+   */
+  public static updateInstanceSettings<ThrowOnError extends boolean = false>(
+    options: Options<UpdateInstanceSettingsData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      UpdateInstanceSettingsResponses,
+      UpdateInstanceSettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/instance',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Security settings
+   */
+  public static securitySettings<ThrowOnError extends boolean = false>(
+    options?: Options<SecuritySettingsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      SecuritySettingsResponses,
+      SecuritySettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/security',
+      ...options
+    })
+  }
+
+  /**
+   * Update security settings
+   */
+  public static updateSecuritySettings<ThrowOnError extends boolean = false>(
+    options: Options<UpdateSecuritySettingsData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      UpdateSecuritySettingsResponses,
+      UpdateSecuritySettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/security',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Service settings
+   */
+  public static serviceSettings<ThrowOnError extends boolean = false>(
+    options?: Options<ServiceSettingsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ServiceSettingsResponses,
+      ServiceSettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/services',
+      ...options
+    })
+  }
+
+  /**
+   * Update service settings
+   */
+  public static updateServiceSettings<ThrowOnError extends boolean = false>(
+    options: Options<UpdateServiceSettingsData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      UpdateServiceSettingsResponses,
+      UpdateServiceSettingsErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/services',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+}
+
 export class OccurrencesService {
   /**
    * List occurrences
@@ -3289,40 +3590,6 @@ export class OccurrencesService {
         }
       ],
       url: '/occurrences/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Add occurrence from sampling
-   *
-   * Register new occurrence resulting from the sampling action
-   */
-  public static samplingAddOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SamplingAddOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      SamplingAddOccurrenceResponses,
-      SamplingAddOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: samplingAddOccurrenceResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/samplings/{id}/occurrences',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -3630,447 +3897,6 @@ export class PeopleService {
         }
       }
     )
-  }
-}
-
-export class SettingsService {
-  /**
-   * Email settings
-   */
-  public static emailSettings<ThrowOnError extends boolean = false>(
-    options?: Options<EmailSettingsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      EmailSettingsResponses,
-      EmailSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/emailing',
-      ...options
-    })
-  }
-
-  /**
-   * Update email settings
-   */
-  public static updateEmailSettings<ThrowOnError extends boolean = false>(
-    options: Options<UpdateEmailSettingsData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      UpdateEmailSettingsResponses,
-      UpdateEmailSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/emailing',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Test SMTP connection
-   */
-  public static testSmtp<ThrowOnError extends boolean = false>(
-    options: Options<TestSmtpData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<TestSmtpResponses, TestSmtpErrors, ThrowOnError>({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/emailing/test-dial',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Set app icon
-   */
-  public static setAppIcon<ThrowOnError extends boolean = false>(
-    options?: Options<SetAppIconData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).post<SetAppIconResponses, SetAppIconErrors, ThrowOnError>({
-      ...formDataBodySerializer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/icon',
-      ...options,
-      headers: {
-        'Content-Type': null,
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Instance settings
-   */
-  public static instanceSettings<ThrowOnError extends boolean = false>(
-    options?: Options<InstanceSettingsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      InstanceSettingsResponses,
-      InstanceSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/instance',
-      ...options
-    })
-  }
-
-  /**
-   * Update instance settings
-   */
-  public static updateInstanceSettings<ThrowOnError extends boolean = false>(
-    options: Options<UpdateInstanceSettingsData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      UpdateInstanceSettingsResponses,
-      UpdateInstanceSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/instance',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List saved data feeds
-   */
-  public static listDataFeeds<ThrowOnError extends boolean = false>(
-    options?: Options<ListDataFeedsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListDataFeedsResponses,
-      ListDataFeedsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listDataFeedsResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/mapping/data-feeds',
-      ...options
-    })
-  }
-
-  /**
-   * Save data feed
-   */
-  public static createDataFeed<ThrowOnError extends boolean = false>(
-    options: Options<CreateDataFeedData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateDataFeedResponses,
-      CreateDataFeedErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createDataFeedResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/mapping/data-feeds',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List saved map presets
-   */
-  public static listMapPresets<ThrowOnError extends boolean = false>(
-    options?: Options<ListMapPresetsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListMapPresetsResponses,
-      ListMapPresetsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listMapPresetsResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/mapping/map-presets',
-      ...options
-    })
-  }
-
-  /**
-   * Save map preset
-   *
-   * Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.
-   */
-  public static createUpdateMapPreset<ThrowOnError extends boolean = false>(
-    options: Options<CreateUpdateMapPresetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).put<
-      CreateUpdateMapPresetResponses,
-      CreateUpdateMapPresetErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createUpdateMapPresetResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/mapping/map-presets',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete map preset
-   *
-   * Deletes a map preset by name. Only the owner of the preset or an admin can delete it.
-   */
-  public static deleteMapPreset<ThrowOnError extends boolean = false>(
-    options: Options<DeleteMapPresetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteMapPresetResponses,
-      DeleteMapPresetErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteMapPresetResponseTransformer,
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/mapping/map-presets/{name}',
-      ...options
-    })
-  }
-
-  /**
-   * Security settings
-   */
-  public static securitySettings<ThrowOnError extends boolean = false>(
-    options?: Options<SecuritySettingsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      SecuritySettingsResponses,
-      SecuritySettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/security',
-      ...options
-    })
-  }
-
-  /**
-   * Update security settings
-   */
-  public static updateSecuritySettings<ThrowOnError extends boolean = false>(
-    options: Options<UpdateSecuritySettingsData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      UpdateSecuritySettingsResponses,
-      UpdateSecuritySettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/security',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Service settings
-   */
-  public static serviceSettings<ThrowOnError extends boolean = false>(
-    options?: Options<ServiceSettingsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ServiceSettingsResponses,
-      ServiceSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/services',
-      ...options
-    })
-  }
-
-  /**
-   * Update service settings
-   */
-  public static updateServiceSettings<ThrowOnError extends boolean = false>(
-    options: Options<UpdateServiceSettingsData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateServiceSettingsResponses,
-      UpdateServiceSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/services',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
   }
 }
 

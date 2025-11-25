@@ -1457,18 +1457,6 @@ export type PasswordInput = {
   password_confirmation: string
 }
 
-export type PasswordResetRequest = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  email: string
-  /**
-   * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
-   */
-  handler?: string
-}
-
 export type PendingUserRequest = {
   /**
    * A URL to the JSON Schema for this object.
@@ -1480,14 +1468,6 @@ export type PendingUserRequest = {
   first_name: string
   full_name: string
   id: string
-  last_name: string
-  motive?: string
-  organisation?: string
-}
-
-export type PendingUserRequestInput = {
-  email: string
-  first_name: string
   last_name: string
   motive?: string
   organisation?: string
@@ -1649,27 +1629,6 @@ export type RefreshTokenBody = {
    */
   readonly $schema?: string
   refresh_token: string
-}
-
-export type RegisterInputBody = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  data: PendingUserRequestInput
-  verification_path: string
-}
-
-export type ResendEmailVerificationInputBody = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  email: string
-  /**
-   * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
-   */
-  verification_url: string
 }
 
 export type Review = {
@@ -2446,10 +2405,7 @@ export type Taxonomy = {
  */
 export type TypeStatus = 'Holotype' | 'Neotype' | 'Topotype'
 
-/**
- * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
- */
-export type Url = string
+export type Url = string | null
 
 export type UpdatePasswordInput = {
   /**
@@ -2494,23 +2450,6 @@ export type UserInner = {
   id: string
   login: string
   role: UserRole
-}
-
-export type UserInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  email: string
-  login: string
-  /**
-   * Your new password
-   */
-  password: string
-  /**
-   * New password confirmation
-   */
-  password_confirmation: string
 }
 
 /**
@@ -2688,7 +2627,7 @@ export type UpdateAbioticParameterResponses = {
 export type UpdateAbioticParameterResponse =
   UpdateAbioticParameterResponses[keyof UpdateAbioticParameterResponses]
 
-export type GetAccessPointsData = {
+export type ListAccessPointsData = {
   body?: never
   headers?: {
     /**
@@ -2701,23 +2640,27 @@ export type GetAccessPointsData = {
   url: '/access-points'
 }
 
-export type GetAccessPointsErrors = {
+export type ListAccessPointsErrors = {
   /**
-   * Error
+   * Unprocessable Entity
    */
-  default: ErrorModel
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
 }
 
-export type GetAccessPointsError = GetAccessPointsErrors[keyof GetAccessPointsErrors]
+export type ListAccessPointsError = ListAccessPointsErrors[keyof ListAccessPointsErrors]
 
-export type GetAccessPointsResponses = {
+export type ListAccessPointsResponses = {
   /**
    * OK
    */
   200: Array<string>
 }
 
-export type GetAccessPointsResponse = GetAccessPointsResponses[keyof GetAccessPointsResponses]
+export type ListAccessPointsResponse = ListAccessPointsResponses[keyof ListAccessPointsResponses]
 
 export type CurrentUserData = {
   body?: never
@@ -2747,13 +2690,9 @@ export type CurrentUserError = CurrentUserErrors[keyof CurrentUserErrors]
 
 export type CurrentUserResponses = {
   /**
-   * The currently authenticated user
+   * OK
    */
   200: CurrentUserResponse
-  /**
-   * No active user session
-   */
-  204: void
 }
 
 export type CurrentUserResponse2 = CurrentUserResponses[keyof CurrentUserResponses]
@@ -2788,67 +2727,6 @@ export type ConfirmEmailResponses = {
 }
 
 export type ConfirmEmailResponse = ConfirmEmailResponses[keyof ConfirmEmailResponses]
-
-export type ResendEmailVerificationData = {
-  body: ResendEmailVerificationInputBody
-  path?: never
-  query?: never
-  url: '/account/email-confirmation/resend'
-}
-
-export type ResendEmailVerificationErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ResendEmailVerificationError =
-  ResendEmailVerificationErrors[keyof ResendEmailVerificationErrors]
-
-export type ResendEmailVerificationResponses = {
-  /**
-   * No Content
-   */
-  204: void
-}
-
-export type ResendEmailVerificationResponse =
-  ResendEmailVerificationResponses[keyof ResendEmailVerificationResponses]
-
-export type RequestPasswordResetData = {
-  body: PasswordResetRequest
-  path?: never
-  query?: never
-  url: '/account/forgotten-password'
-}
-
-export type RequestPasswordResetErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type RequestPasswordResetError = RequestPasswordResetErrors[keyof RequestPasswordResetErrors]
-
-export type RequestPasswordResetResponses = {
-  /**
-   * No Content
-   */
-  204: void
-}
-
-export type RequestPasswordResetResponse =
-  RequestPasswordResetResponses[keyof RequestPasswordResetResponses]
 
 export type LoginData = {
   body: UserCredentials
@@ -3153,101 +3031,6 @@ export type RefreshSessionResponses = {
 
 export type RefreshSessionResponse = RefreshSessionResponses[keyof RefreshSessionResponses]
 
-export type RegisterData = {
-  body: RegisterInputBody
-  path?: never
-  query?: never
-  url: '/account/register'
-}
-
-export type RegisterErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type RegisterError = RegisterErrors[keyof RegisterErrors]
-
-export type RegisterResponses = {
-  /**
-   * Created
-   */
-  201: string
-}
-
-export type RegisterResponse = RegisterResponses[keyof RegisterResponses]
-
-export type ClaimInvitationData = {
-  body: UserInput
-  path: {
-    token: string
-  }
-  query?: never
-  url: '/account/register/{token}'
-}
-
-export type ClaimInvitationErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ClaimInvitationError = ClaimInvitationErrors[keyof ClaimInvitationErrors]
-
-export type ClaimInvitationResponses = {
-  /**
-   * OK
-   */
-  200: AuthenticationResponse
-}
-
-export type ClaimInvitationResponse = ClaimInvitationResponses[keyof ClaimInvitationResponses]
-
-export type ListAnchorsData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/anchors/'
-}
-
-export type ListAnchorsErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ListAnchorsError = ListAnchorsErrors[keyof ListAnchorsErrors]
-
-export type ListAnchorsResponses = {
-  /**
-   * OK
-   */
-  200: Array<TaxonWithParentRef>
-}
-
-export type ListAnchorsResponse = ListAnchorsResponses[keyof ListAnchorsResponses]
-
 export type CrossRefData = {
   body?: never
   headers?: {
@@ -3265,9 +3048,13 @@ export type CrossRefData = {
 
 export type CrossRefErrors = {
   /**
-   * Error
+   * Unprocessable Entity
    */
-  default: ErrorModel
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
 }
 
 export type CrossRefError = CrossRefErrors[keyof CrossRefErrors]
@@ -3290,9 +3077,13 @@ export type CrossRefBibSearchData = {
 
 export type CrossRefBibSearchErrors = {
   /**
-   * Error
+   * Unprocessable Entity
    */
-  default: ErrorModel
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
 }
 
 export type CrossRefBibSearchError = CrossRefBibSearchErrors[keyof CrossRefBibSearchErrors]
@@ -3649,7 +3440,7 @@ export type ListSequenceDatasetsData = {
   }
   path?: never
   query?: never
-  url: '/datasets/sequences'
+  url: '/datasets/sequence'
 }
 
 export type ListSequenceDatasetsErrors = {
@@ -3687,7 +3478,7 @@ export type GetSequenceDatasetData = {
     slug: string
   }
   query?: never
-  url: '/datasets/sequences/{slug}'
+  url: '/datasets/sequence/{slug}'
 }
 
 export type GetSequenceDatasetErrors = {
@@ -3723,7 +3514,7 @@ export type ListSiteDatasetsData = {
   }
   path?: never
   query?: never
-  url: '/datasets/sites'
+  url: '/datasets/site'
 }
 
 export type ListSiteDatasetsErrors = {
@@ -3758,7 +3549,7 @@ export type CreateSiteDatasetData = {
   }
   path?: never
   query?: never
-  url: '/datasets/sites'
+  url: '/datasets/site'
 }
 
 export type CreateSiteDatasetErrors = {
@@ -3795,7 +3586,7 @@ export type GetSiteDatasetData = {
     slug: string
   }
   query?: never
-  url: '/datasets/sites/{slug}'
+  url: '/datasets/site/{slug}'
 }
 
 export type GetSiteDatasetErrors = {
@@ -4400,37 +4191,6 @@ export type UpdateHabitatGroupResponses = {
 export type UpdateHabitatGroupResponse =
   UpdateHabitatGroupResponses[keyof UpdateHabitatGroupResponses]
 
-export type ImportGbifData = {
-  body: ImportRequestGbif
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/import/taxonomy'
-}
-
-export type ImportGbifErrors = {
-  /**
-   * Error
-   */
-  default: ErrorModel
-}
-
-export type ImportGbifError = ImportGbifErrors[keyof ImportGbifErrors]
-
-export type ImportGbifResponses = {
-  /**
-   * No Content
-   */
-  204: void
-}
-
-export type ImportGbifResponse = ImportGbifResponses[keyof ImportGbifResponses]
-
 export type MonitorGbifData = {
   body?: never
   path?: never
@@ -4505,13 +4265,9 @@ export type CoordinatesToCountryError = CoordinatesToCountryErrors[keyof Coordin
 
 export type CoordinatesToCountryResponses = {
   /**
-   * The country that contains the coordinates
+   * OK
    */
   200: Country
-  /**
-   * No country matches the provided coordinates
-   */
-  204: void
 }
 
 export type CoordinatesToCountryResponse =
@@ -4673,6 +4429,189 @@ export type SearchSitesResponses = {
 }
 
 export type SearchSitesResponse = SearchSitesResponses[keyof SearchSitesResponses]
+
+export type ListDataFeedsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: {
+    all?: boolean
+  }
+  url: '/mapping/data-feeds'
+}
+
+export type ListDataFeedsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListDataFeedsError = ListDataFeedsErrors[keyof ListDataFeedsErrors]
+
+export type ListDataFeedsResponses = {
+  /**
+   * OK
+   */
+  200: Array<DataFeedSpec>
+}
+
+export type ListDataFeedsResponse = ListDataFeedsResponses[keyof ListDataFeedsResponses]
+
+export type CreateDataFeedData = {
+  body: DataFeedSpecInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/mapping/data-feeds'
+}
+
+export type CreateDataFeedErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateDataFeedError = CreateDataFeedErrors[keyof CreateDataFeedErrors]
+
+export type CreateDataFeedResponses = {
+  /**
+   * OK
+   */
+  200: DataFeedSpec
+}
+
+export type CreateDataFeedResponse = CreateDataFeedResponses[keyof CreateDataFeedResponses]
+
+export type ListMapPresetsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: {
+    all?: boolean
+  }
+  url: '/mapping/map-presets'
+}
+
+export type ListMapPresetsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListMapPresetsError = ListMapPresetsErrors[keyof ListMapPresetsErrors]
+
+export type ListMapPresetsResponses = {
+  /**
+   * OK
+   */
+  200: Array<MapToolPreset>
+}
+
+export type ListMapPresetsResponse = ListMapPresetsResponses[keyof ListMapPresetsResponses]
+
+export type CreateUpdateMapPresetData = {
+  body: MapToolPresetInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/mapping/map-presets'
+}
+
+export type CreateUpdateMapPresetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateUpdateMapPresetError =
+  CreateUpdateMapPresetErrors[keyof CreateUpdateMapPresetErrors]
+
+export type CreateUpdateMapPresetResponses = {
+  /**
+   * OK
+   */
+  200: MapToolPreset
+}
+
+export type CreateUpdateMapPresetResponse =
+  CreateUpdateMapPresetResponses[keyof CreateUpdateMapPresetResponses]
+
+export type DeleteMapPresetData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    name: string
+  }
+  query?: never
+  url: '/mapping/map-presets/{name}'
+}
+
+export type DeleteMapPresetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteMapPresetError = DeleteMapPresetErrors[keyof DeleteMapPresetErrors]
+
+export type DeleteMapPresetResponses = {
+  /**
+   * OK
+   */
+  200: MapToolPreset
+}
+
+export type DeleteMapPresetResponse = DeleteMapPresetResponses[keyof DeleteMapPresetResponses]
 
 export type ListOccurrencesData = {
   body?: never
@@ -6202,189 +6141,6 @@ export type UpdateInstanceSettingsResponses = {
 export type UpdateInstanceSettingsResponse =
   UpdateInstanceSettingsResponses[keyof UpdateInstanceSettingsResponses]
 
-export type ListDataFeedsData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: {
-    all?: boolean
-  }
-  url: '/settings/mapping/data-feeds'
-}
-
-export type ListDataFeedsErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ListDataFeedsError = ListDataFeedsErrors[keyof ListDataFeedsErrors]
-
-export type ListDataFeedsResponses = {
-  /**
-   * OK
-   */
-  200: Array<DataFeedSpec>
-}
-
-export type ListDataFeedsResponse = ListDataFeedsResponses[keyof ListDataFeedsResponses]
-
-export type CreateDataFeedData = {
-  body: DataFeedSpecInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/settings/mapping/data-feeds'
-}
-
-export type CreateDataFeedErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type CreateDataFeedError = CreateDataFeedErrors[keyof CreateDataFeedErrors]
-
-export type CreateDataFeedResponses = {
-  /**
-   * OK
-   */
-  200: DataFeedSpec
-}
-
-export type CreateDataFeedResponse = CreateDataFeedResponses[keyof CreateDataFeedResponses]
-
-export type ListMapPresetsData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: {
-    all?: boolean
-  }
-  url: '/settings/mapping/map-presets'
-}
-
-export type ListMapPresetsErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ListMapPresetsError = ListMapPresetsErrors[keyof ListMapPresetsErrors]
-
-export type ListMapPresetsResponses = {
-  /**
-   * OK
-   */
-  200: Array<MapToolPreset>
-}
-
-export type ListMapPresetsResponse = ListMapPresetsResponses[keyof ListMapPresetsResponses]
-
-export type CreateUpdateMapPresetData = {
-  body: MapToolPresetInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/settings/mapping/map-presets'
-}
-
-export type CreateUpdateMapPresetErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type CreateUpdateMapPresetError =
-  CreateUpdateMapPresetErrors[keyof CreateUpdateMapPresetErrors]
-
-export type CreateUpdateMapPresetResponses = {
-  /**
-   * OK
-   */
-  200: MapToolPreset
-}
-
-export type CreateUpdateMapPresetResponse =
-  CreateUpdateMapPresetResponses[keyof CreateUpdateMapPresetResponses]
-
-export type DeleteMapPresetData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    name: string
-  }
-  query?: never
-  url: '/settings/mapping/map-presets/{name}'
-}
-
-export type DeleteMapPresetErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type DeleteMapPresetError = DeleteMapPresetErrors[keyof DeleteMapPresetErrors]
-
-export type DeleteMapPresetResponses = {
-  /**
-   * OK
-   */
-  200: MapToolPreset
-}
-
-export type DeleteMapPresetResponse = DeleteMapPresetResponses[keyof DeleteMapPresetResponses]
-
 export type SecuritySettingsData = {
   body?: never
   headers?: {
@@ -6828,6 +6584,76 @@ export type GetTaxonomyResponses = {
 }
 
 export type GetTaxonomyResponse = GetTaxonomyResponses[keyof GetTaxonomyResponses]
+
+export type ListAnchorsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/taxonomy/gbif/anchors'
+}
+
+export type ListAnchorsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListAnchorsError = ListAnchorsErrors[keyof ListAnchorsErrors]
+
+export type ListAnchorsResponses = {
+  /**
+   * OK
+   */
+  200: Array<TaxonWithParentRef>
+}
+
+export type ListAnchorsResponse = ListAnchorsResponses[keyof ListAnchorsResponses]
+
+export type ImportGbifData = {
+  body: ImportRequestGbif
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/taxonomy/gbif/import'
+}
+
+export type ImportGbifErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ImportGbifError = ImportGbifErrors[keyof ImportGbifErrors]
+
+export type ImportGbifResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ImportGbifResponse = ImportGbifResponses[keyof ImportGbifResponses]
 
 export type ListTaxaData = {
   body?: never

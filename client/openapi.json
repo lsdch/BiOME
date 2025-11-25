@@ -4430,33 +4430,6 @@
 				],
 				"type": "object"
 			},
-			"PasswordResetRequest": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/PasswordResetRequest.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"email": {
-						"format": "email",
-						"type": "string"
-					},
-					"handler": {
-						"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
-						"format": "uri",
-						"type": "string"
-					}
-				},
-				"required": [
-					"email"
-				],
-				"type": "object"
-			},
 			"PendingUserRequest": {
 				"additionalProperties": false,
 				"properties": {
@@ -4508,37 +4481,6 @@
 					"full_name",
 					"created_on",
 					"email_verified",
-					"email",
-					"first_name",
-					"last_name"
-				],
-				"type": "object"
-			},
-			"PendingUserRequestInput": {
-				"additionalProperties": false,
-				"properties": {
-					"email": {
-						"format": "email",
-						"type": "string"
-					},
-					"first_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					},
-					"last_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					},
-					"motive": {
-						"type": "string"
-					},
-					"organisation": {
-						"type": "string"
-					}
-				},
-				"required": [
 					"email",
 					"first_name",
 					"last_name"
@@ -5178,59 +5120,6 @@
 				},
 				"required": [
 					"refresh_token"
-				],
-				"type": "object"
-			},
-			"RegisterInputBody": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/RegisterInputBody.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"data": {
-						"$ref": "#/components/schemas/PendingUserRequestInput"
-					},
-					"verification_path": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"data",
-					"verification_path"
-				],
-				"type": "object"
-			},
-			"ResendEmailVerificationInputBody": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/ResendEmailVerificationInputBody.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"email": {
-						"format": "email",
-						"type": "string"
-					},
-					"verification_url": {
-						"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
-						"format": "uri",
-						"type": "string"
-					}
-				},
-				"required": [
-					"email",
-					"verification_url"
 				],
 				"type": "object"
 			},
@@ -7723,9 +7612,11 @@
 				"type": "string"
 			},
 			"URL": {
-				"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
 				"format": "uri",
-				"type": "string"
+				"type": [
+					"string",
+					"null"
+				]
 			},
 			"UpdatePasswordInput": {
 				"additionalProperties": false,
@@ -7857,42 +7748,6 @@
 					"login",
 					"role",
 					"email_confirmed"
-				],
-				"type": "object"
-			},
-			"UserInput": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/UserInput.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"email": {
-						"format": "email",
-						"type": "string"
-					},
-					"login": {
-						"type": "string"
-					},
-					"password": {
-						"description": "Your new password",
-						"type": "string"
-					},
-					"password_confirmation": {
-						"description": "New password confirmation",
-						"type": "string"
-					}
-				},
-				"required": [
-					"login",
-					"email",
-					"password",
-					"password_confirmation"
 				],
 				"type": "object"
 			},
@@ -8280,6 +8135,7 @@
 		},
 		"/access-points": {
 			"get": {
+				"operationId": "ListAccessPoints",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -8318,7 +8174,7 @@
 						},
 						"description": "OK"
 					},
-					"default": {
+					"422": {
 						"content": {
 							"application/problem+json": {
 								"schema": {
@@ -8326,7 +8182,17 @@
 								}
 							}
 						},
-						"description": "Error"
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
 					}
 				},
 				"summary": "List access points",
@@ -8372,10 +8238,7 @@
 								}
 							}
 						},
-						"description": "The currently authenticated user"
-					},
-					"204": {
-						"description": "No active user session"
+						"description": "OK"
 					},
 					"422": {
 						"content": {
@@ -8451,96 +8314,6 @@
 					}
 				},
 				"summary": "Confirm e-mail",
-				"tags": [
-					"Account"
-				]
-			}
-		},
-		"/account/email-confirmation/resend": {
-			"post": {
-				"description": "Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.",
-				"operationId": "ResendEmailVerification",
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/ResendEmailVerificationInputBody"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"204": {
-						"description": "No Content"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Resend e-mail verification link",
-				"tags": [
-					"Account"
-				]
-			}
-		},
-		"/account/forgotten-password": {
-			"post": {
-				"description": "Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.",
-				"operationId": "RequestPasswordReset",
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/PasswordResetRequest"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"204": {
-						"description": "No Content"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Request password reset",
 				"tags": [
 					"Account"
 				]
@@ -9176,196 +8949,6 @@
 				]
 			}
 		},
-		"/account/register": {
-			"post": {
-				"description": "Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link. The target URL can be set by the client, otherwise it defaults to the API endpoint: `/api/v1/account/email-confirmation`",
-				"operationId": "Register",
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/RegisterInputBody"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"201": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"type": "string"
-								}
-							}
-						},
-						"description": "Created"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Register new account",
-				"tags": [
-					"Account"
-				]
-			}
-		},
-		"/account/register/{token}": {
-			"post": {
-				"description": "Register an account with pre-assigned role and identity, using an invitation token",
-				"operationId": "ClaimInvitation",
-				"parameters": [
-					{
-						"in": "path",
-						"name": "token",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/UserInput"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/AuthenticationResponse"
-								}
-							}
-						},
-						"description": "OK",
-						"headers": {
-							"Set-Cookie": {
-								"schema": {
-									"description": "Session cookie storing JWT",
-									"type": "string"
-								}
-							}
-						}
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Claim invitation",
-				"tags": [
-					"Account"
-				]
-			}
-		},
-		"/anchors/": {
-			"get": {
-				"operationId": "ListAnchors",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/TaxonWithParentRef"
-									},
-									"type": "array"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "List GBIF anchor clades",
-				"tags": [
-					"Taxonomy GBIF"
-				]
-			}
-		},
 		"/crossref": {
 			"get": {
 				"operationId": "CrossRef",
@@ -9413,7 +8996,7 @@
 						},
 						"description": "OK"
 					},
-					"default": {
+					"422": {
 						"content": {
 							"application/problem+json": {
 								"schema": {
@@ -9421,7 +9004,17 @@
 								}
 							}
 						},
-						"description": "Error"
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
 					}
 				},
 				"summary": "Retrieve article infos from DOI",
@@ -9452,7 +9045,7 @@
 						},
 						"description": "OK"
 					},
-					"default": {
+					"422": {
 						"content": {
 							"application/problem+json": {
 								"schema": {
@@ -9460,7 +9053,17 @@
 								}
 							}
 						},
-						"description": "Error"
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
 					}
 				},
 				"summary": "Retrieve article infos from query string",
@@ -10168,7 +9771,7 @@
 				]
 			}
 		},
-		"/datasets/sequences": {
+		"/datasets/sequence": {
 			"get": {
 				"description": "List all sequence datasets",
 				"operationId": "ListSequenceDatasets",
@@ -10237,7 +9840,7 @@
 				]
 			}
 		},
-		"/datasets/sequences/{slug}": {
+		"/datasets/sequence/{slug}": {
 			"get": {
 				"description": "Get infos for an sequence dataset",
 				"operationId": "GetSequenceDataset",
@@ -10311,7 +9914,7 @@
 				]
 			}
 		},
-		"/datasets/sites": {
+		"/datasets/site": {
 			"get": {
 				"description": "List all site datasets",
 				"operationId": "ListSiteDatasets",
@@ -10454,7 +10057,7 @@
 				]
 			}
 		},
-		"/datasets/sites/{slug}": {
+		"/datasets/site/{slug}": {
 			"get": {
 				"description": "Get infos for a site dataset",
 				"operationId": "GetSiteDataset",
@@ -11717,64 +11320,6 @@
 				]
 			}
 		},
-		"/import/taxonomy": {
-			"put": {
-				"operationId": "ImportGBIF",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/ImportRequestGBIF"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"204": {
-						"description": "No Content"
-					},
-					"default": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Error"
-					}
-				},
-				"summary": "Import GBIF clade",
-				"tags": [
-					"Taxonomy GBIF"
-				]
-			}
-		},
 		"/import/taxonomy/monitor": {
 			"get": {
 				"operationId": "MonitorGBIF",
@@ -11907,10 +11452,7 @@
 								}
 							}
 						},
-						"description": "The country that contains the coordinates"
-					},
-					"204": {
-						"description": "No country matches the provided coordinates"
+						"description": "OK"
 					},
 					"422": {
 						"content": {
@@ -12293,6 +11835,379 @@
 				"summary": "Search sites",
 				"tags": [
 					"Location"
+				]
+			}
+		},
+		"/mapping/data-feeds": {
+			"get": {
+				"operationId": "ListDataFeeds",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "all",
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/DataFeedSpec"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List saved data feeds",
+				"tags": [
+					"Settings"
+				]
+			},
+			"post": {
+				"operationId": "CreateDataFeed",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/DataFeedSpecInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/DataFeedSpec"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Save data feed",
+				"tags": [
+					"Settings"
+				]
+			}
+		},
+		"/mapping/map-presets": {
+			"get": {
+				"operationId": "ListMapPresets",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "all",
+						"schema": {
+							"type": "boolean"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/MapToolPreset"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List saved map presets",
+				"tags": [
+					"Settings"
+				]
+			},
+			"put": {
+				"description": "Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.",
+				"operationId": "CreateUpdateMapPreset",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/MapToolPresetInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MapToolPreset"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Save map preset",
+				"tags": [
+					"Settings"
+				]
+			}
+		},
+		"/mapping/map-presets/{name}": {
+			"delete": {
+				"description": "Deletes a map preset by name. Only the owner of the preset or an admin can delete it.",
+				"operationId": "DeleteMapPreset",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "name",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/MapToolPreset"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Delete map preset",
+				"tags": [
+					"Settings"
 				]
 			}
 		},
@@ -14926,7 +14841,6 @@
 				},
 				"summary": "Add occurrence from sampling",
 				"tags": [
-					"Occurrences",
 					"Sampling"
 				]
 			}
@@ -15546,379 +15460,6 @@
 					}
 				},
 				"summary": "Update instance settings",
-				"tags": [
-					"Settings"
-				]
-			}
-		},
-		"/settings/mapping/data-feeds": {
-			"get": {
-				"operationId": "ListDataFeeds",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "all",
-						"schema": {
-							"type": "boolean"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/DataFeedSpec"
-									},
-									"type": "array"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "List saved data feeds",
-				"tags": [
-					"Settings"
-				]
-			},
-			"post": {
-				"operationId": "CreateDataFeed",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/DataFeedSpecInput"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/DataFeedSpec"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Save data feed",
-				"tags": [
-					"Settings"
-				]
-			}
-		},
-		"/settings/mapping/map-presets": {
-			"get": {
-				"operationId": "ListMapPresets",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "all",
-						"schema": {
-							"type": "boolean"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"items": {
-										"$ref": "#/components/schemas/MapToolPreset"
-									},
-									"type": "array"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "List saved map presets",
-				"tags": [
-					"Settings"
-				]
-			},
-			"put": {
-				"description": "Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.",
-				"operationId": "CreateUpdateMapPreset",
-				"parameters": [
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/MapToolPresetInput"
-							}
-						}
-					},
-					"required": true
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/MapToolPreset"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Save map preset",
-				"tags": [
-					"Settings"
-				]
-			}
-		},
-		"/settings/mapping/map-presets/{name}": {
-			"delete": {
-				"description": "Deletes a map preset by name. Only the owner of the preset or an admin can delete it.",
-				"operationId": "DeleteMapPreset",
-				"parameters": [
-					{
-						"in": "path",
-						"name": "name",
-						"required": true,
-						"schema": {
-							"type": "string"
-						}
-					},
-					{
-						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
-						"in": "header",
-						"name": "Authorization",
-						"schema": {
-							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-							"examples": [
-								"Bearer \u003cJWT string\u003e"
-							],
-							"type": "string"
-						}
-					},
-					{
-						"description": "Session cookie containing JWT",
-						"in": "cookie",
-						"name": "auth_token",
-						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
-						}
-					}
-				],
-				"responses": {
-					"200": {
-						"content": {
-							"application/json": {
-								"schema": {
-									"$ref": "#/components/schemas/MapToolPreset"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Delete map preset",
 				"tags": [
 					"Settings"
 				]
@@ -16843,6 +16384,142 @@
 				"summary": "Get taxonomy",
 				"tags": [
 					"Taxonomy"
+				]
+			}
+		},
+		"/taxonomy/gbif/anchors": {
+			"get": {
+				"operationId": "ListAnchors",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/TaxonWithParentRef"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List GBIF anchor clades",
+				"tags": [
+					"Taxonomy GBIF"
+				]
+			}
+		},
+		"/taxonomy/gbif/import": {
+			"put": {
+				"operationId": "ImportGBIF",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ImportRequestGBIF"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Import GBIF clade",
+				"tags": [
+					"Taxonomy GBIF"
 				]
 			}
 		},

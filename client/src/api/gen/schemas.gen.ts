@@ -3844,31 +3844,6 @@ export const $PasswordInput = {
   type: 'object'
 } as const
 
-export const $PasswordResetRequest = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/PasswordResetRequest.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    email: {
-      format: 'email',
-      type: 'string'
-    },
-    handler: {
-      description:
-        'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
-      format: 'uri',
-      type: 'string'
-    }
-  },
-  required: ['email'],
-  type: 'object'
-} as const
-
 export const $PendingUserRequest = {
   additionalProperties: false,
   properties: {
@@ -3914,34 +3889,6 @@ export const $PendingUserRequest = {
     }
   },
   required: ['id', 'full_name', 'created_on', 'email_verified', 'email', 'first_name', 'last_name'],
-  type: 'object'
-} as const
-
-export const $PendingUserRequestInput = {
-  additionalProperties: false,
-  properties: {
-    email: {
-      format: 'email',
-      type: 'string'
-    },
-    first_name: {
-      maxLength: 32,
-      minLength: 2,
-      type: 'string'
-    },
-    last_name: {
-      maxLength: 32,
-      minLength: 2,
-      type: 'string'
-    },
-    motive: {
-      type: 'string'
-    },
-    organisation: {
-      type: 'string'
-    }
-  },
-  required: ['email', 'first_name', 'last_name'],
   type: 'object'
 } as const
 
@@ -4469,52 +4416,6 @@ export const $RefreshTokenBody = {
     }
   },
   required: ['refresh_token'],
-  type: 'object'
-} as const
-
-export const $RegisterInputBody = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/RegisterInputBody.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    data: {
-      $ref: '#/components/schemas/PendingUserRequestInput'
-    },
-    verification_path: {
-      type: 'string'
-    }
-  },
-  required: ['data', 'verification_path'],
-  type: 'object'
-} as const
-
-export const $ResendEmailVerificationInputBody = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/ResendEmailVerificationInputBody.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    email: {
-      format: 'email',
-      type: 'string'
-    },
-    verification_url: {
-      description:
-        'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
-      format: 'uri',
-      type: 'string'
-    }
-  },
-  required: ['email', 'verification_url'],
   type: 'object'
 } as const
 
@@ -6710,10 +6611,8 @@ export const $TypeStatus = {
 } as const
 
 export const $URL = {
-  description:
-    'A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.',
   format: 'uri',
-  type: 'string'
+  type: ['string', 'null']
 } as const
 
 export const $UpdatePasswordInput = {
@@ -6828,36 +6727,6 @@ export const $UserInner = {
     }
   },
   required: ['id', 'email', 'login', 'role', 'email_confirmed'],
-  type: 'object'
-} as const
-
-export const $UserInput = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/UserInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    email: {
-      format: 'email',
-      type: 'string'
-    },
-    login: {
-      type: 'string'
-    },
-    password: {
-      description: 'Your new password',
-      type: 'string'
-    },
-    password_confirmation: {
-      description: 'New password confirmation',
-      type: 'string'
-    }
-  },
-  required: ['login', 'email', 'password', 'password_confirmation'],
   type: 'object'
 } as const
 

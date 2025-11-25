@@ -25,9 +25,6 @@ import {
   TaxonomyService
 } from '../sdk.gen'
 import type {
-  ClaimInvitationData,
-  ClaimInvitationError,
-  ClaimInvitationResponse,
   ConfirmEmailData,
   CoordinatesToCountryData,
   CreateAbioticParameterData,
@@ -138,7 +135,6 @@ import type {
   DeleteTaxonError,
   DeleteTaxonResponse,
   EmailSettingsData,
-  GetAccessPointsData,
   GetDatasetData,
   GetGeoapifyStatusData,
   GetOccurrenceData,
@@ -159,6 +155,7 @@ import type {
   InvitePersonError,
   InvitePersonResponse,
   ListAbioticParametersData,
+  ListAccessPointsData,
   ListAnchorsData,
   ListArticlesData,
   ListCountriesData,
@@ -196,15 +193,6 @@ import type {
   RefreshSessionData,
   RefreshSessionError,
   RefreshSessionResponse,
-  RegisterData,
-  RegisterError,
-  RegisterResponse,
-  RequestPasswordResetData,
-  RequestPasswordResetError,
-  RequestPasswordResetResponse,
-  ResendEmailVerificationData,
-  ResendEmailVerificationError,
-  ResendEmailVerificationResponse,
   ResetPasswordData,
   ResetPasswordError,
   ResetPasswordResponse,
@@ -432,16 +420,16 @@ export const updateAbioticParameterMutation = (
   return mutationOptions
 }
 
-export const getAccessPointsQueryKey = (options?: Options<GetAccessPointsData>) =>
-  createQueryKey('getAccessPoints', options)
+export const listAccessPointsQueryKey = (options?: Options<ListAccessPointsData>) =>
+  createQueryKey('listAccessPoints', options)
 
 /**
  * List access points
  */
-export const getAccessPointsOptions = (options?: Options<GetAccessPointsData>) => {
+export const listAccessPointsOptions = (options?: Options<ListAccessPointsData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SamplingService.getAccessPoints({
+      const { data } = await SamplingService.listAccessPoints({
         ...options,
         ...queryKey[0],
         signal,
@@ -449,7 +437,7 @@ export const getAccessPointsOptions = (options?: Options<GetAccessPointsData>) =
       })
       return data
     },
-    queryKey: getAccessPointsQueryKey(options)
+    queryKey: listAccessPointsQueryKey(options)
   })
 }
 
@@ -497,64 +485,6 @@ export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) => {
     },
     queryKey: confirmEmailQueryKey(options)
   })
-}
-
-/**
- * Resend e-mail verification link
- *
- * Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.
- */
-export const resendEmailVerificationMutation = (
-  options?: Partial<Options<ResendEmailVerificationData>>
-): UseMutationOptions<
-  ResendEmailVerificationResponse,
-  ResendEmailVerificationError,
-  Options<ResendEmailVerificationData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    ResendEmailVerificationResponse,
-    ResendEmailVerificationError,
-    Options<ResendEmailVerificationData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.resendEmailVerification({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Request password reset
- *
- * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
- */
-export const requestPasswordResetMutation = (
-  options?: Partial<Options<RequestPasswordResetData>>
-): UseMutationOptions<
-  RequestPasswordResetResponse,
-  RequestPasswordResetError,
-  Options<RequestPasswordResetData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    RequestPasswordResetResponse,
-    RequestPasswordResetError,
-    Options<RequestPasswordResetData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.requestPasswordReset({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
 }
 
 /**
@@ -770,81 +700,6 @@ export const refreshSessionMutation = (
     }
   }
   return mutationOptions
-}
-
-/**
- * Register new account
- *
- * Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link. The target URL can be set by the client, otherwise it defaults to the API endpoint: `/api/v1/account/email-confirmation`
- */
-export const registerMutation = (
-  options?: Partial<Options<RegisterData>>
-): UseMutationOptions<RegisterResponse, RegisterError, Options<RegisterData>> => {
-  const mutationOptions: UseMutationOptions<
-    RegisterResponse,
-    RegisterError,
-    Options<RegisterData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.register({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Claim invitation
- *
- * Register an account with pre-assigned role and identity, using an invitation token
- */
-export const claimInvitationMutation = (
-  options?: Partial<Options<ClaimInvitationData>>
-): UseMutationOptions<
-  ClaimInvitationResponse,
-  ClaimInvitationError,
-  Options<ClaimInvitationData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    ClaimInvitationResponse,
-    ClaimInvitationError,
-    Options<ClaimInvitationData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.claimInvitation({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listAnchorsQueryKey = (options?: Options<ListAnchorsData>) =>
-  createQueryKey('listAnchors', options)
-
-/**
- * List GBIF anchor clades
- */
-export const listAnchorsOptions = (options?: Options<ListAnchorsData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await TaxonomyGbifService.listAnchors({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listAnchorsQueryKey(options)
-  })
 }
 
 export const crossRefQueryKey = (options: Options<CrossRefData>) =>
@@ -1609,29 +1464,6 @@ export const updateHabitatGroupMutation = (
   return mutationOptions
 }
 
-/**
- * Import GBIF clade
- */
-export const importGbifMutation = (
-  options?: Partial<Options<ImportGbifData>>
-): UseMutationOptions<ImportGbifResponse, ImportGbifError, Options<ImportGbifData>> => {
-  const mutationOptions: UseMutationOptions<
-    ImportGbifResponse,
-    ImportGbifError,
-    Options<ImportGbifData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await TaxonomyGbifService.importGbif({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
 export const coordinatesToCountryQueryKey = (options?: Options<CoordinatesToCountryData>) =>
   createQueryKey('coordinatesToCountry', options)
 
@@ -1737,6 +1569,129 @@ export const searchSitesOptions = (options?: Options<SearchSitesData>) => {
     },
     queryKey: searchSitesQueryKey(options)
   })
+}
+
+export const listDataFeedsQueryKey = (options?: Options<ListDataFeedsData>) =>
+  createQueryKey('listDataFeeds', options)
+
+/**
+ * List saved data feeds
+ */
+export const listDataFeedsOptions = (options?: Options<ListDataFeedsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.listDataFeeds({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listDataFeedsQueryKey(options)
+  })
+}
+
+/**
+ * Save data feed
+ */
+export const createDataFeedMutation = (
+  options?: Partial<Options<CreateDataFeedData>>
+): UseMutationOptions<CreateDataFeedResponse, CreateDataFeedError, Options<CreateDataFeedData>> => {
+  const mutationOptions: UseMutationOptions<
+    CreateDataFeedResponse,
+    CreateDataFeedError,
+    Options<CreateDataFeedData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.createDataFeed({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const listMapPresetsQueryKey = (options?: Options<ListMapPresetsData>) =>
+  createQueryKey('listMapPresets', options)
+
+/**
+ * List saved map presets
+ */
+export const listMapPresetsOptions = (options?: Options<ListMapPresetsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.listMapPresets({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listMapPresetsQueryKey(options)
+  })
+}
+
+/**
+ * Save map preset
+ *
+ * Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.
+ */
+export const createUpdateMapPresetMutation = (
+  options?: Partial<Options<CreateUpdateMapPresetData>>
+): UseMutationOptions<
+  CreateUpdateMapPresetResponse,
+  CreateUpdateMapPresetError,
+  Options<CreateUpdateMapPresetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateUpdateMapPresetResponse,
+    CreateUpdateMapPresetError,
+    Options<CreateUpdateMapPresetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.createUpdateMapPreset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Delete map preset
+ *
+ * Deletes a map preset by name. Only the owner of the preset or an admin can delete it.
+ */
+export const deleteMapPresetMutation = (
+  options?: Partial<Options<DeleteMapPresetData>>
+): UseMutationOptions<
+  DeleteMapPresetResponse,
+  DeleteMapPresetError,
+  Options<DeleteMapPresetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteMapPresetResponse,
+    DeleteMapPresetError,
+    Options<DeleteMapPresetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.deleteMapPreset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
 }
 
 export const listOccurrencesQueryKey = (options?: Options<ListOccurrencesData>) =>
@@ -2572,7 +2527,7 @@ export const samplingAddOccurrenceMutation = (
     Options<SamplingAddOccurrenceData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.samplingAddOccurrence({
+      const { data } = await SamplingService.samplingAddOccurrence({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -2780,129 +2735,6 @@ export const updateInstanceSettingsMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await SettingsService.updateInstanceSettings({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listDataFeedsQueryKey = (options?: Options<ListDataFeedsData>) =>
-  createQueryKey('listDataFeeds', options)
-
-/**
- * List saved data feeds
- */
-export const listDataFeedsOptions = (options?: Options<ListDataFeedsData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SettingsService.listDataFeeds({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listDataFeedsQueryKey(options)
-  })
-}
-
-/**
- * Save data feed
- */
-export const createDataFeedMutation = (
-  options?: Partial<Options<CreateDataFeedData>>
-): UseMutationOptions<CreateDataFeedResponse, CreateDataFeedError, Options<CreateDataFeedData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreateDataFeedResponse,
-    CreateDataFeedError,
-    Options<CreateDataFeedData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.createDataFeed({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listMapPresetsQueryKey = (options?: Options<ListMapPresetsData>) =>
-  createQueryKey('listMapPresets', options)
-
-/**
- * List saved map presets
- */
-export const listMapPresetsOptions = (options?: Options<ListMapPresetsData>) => {
-  return queryOptions({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SettingsService.listMapPresets({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listMapPresetsQueryKey(options)
-  })
-}
-
-/**
- * Save map preset
- *
- * Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.
- */
-export const createUpdateMapPresetMutation = (
-  options?: Partial<Options<CreateUpdateMapPresetData>>
-): UseMutationOptions<
-  CreateUpdateMapPresetResponse,
-  CreateUpdateMapPresetError,
-  Options<CreateUpdateMapPresetData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateUpdateMapPresetResponse,
-    CreateUpdateMapPresetError,
-    Options<CreateUpdateMapPresetData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.createUpdateMapPreset({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete map preset
- *
- * Deletes a map preset by name. Only the owner of the preset or an admin can delete it.
- */
-export const deleteMapPresetMutation = (
-  options?: Partial<Options<DeleteMapPresetData>>
-): UseMutationOptions<
-  DeleteMapPresetResponse,
-  DeleteMapPresetError,
-  Options<DeleteMapPresetData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteMapPresetResponse,
-    DeleteMapPresetError,
-    Options<DeleteMapPresetData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.deleteMapPreset({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -3202,6 +3034,50 @@ export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) => {
     },
     queryKey: getTaxonomyQueryKey(options)
   })
+}
+
+export const listAnchorsQueryKey = (options?: Options<ListAnchorsData>) =>
+  createQueryKey('listAnchors', options)
+
+/**
+ * List GBIF anchor clades
+ */
+export const listAnchorsOptions = (options?: Options<ListAnchorsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await TaxonomyGbifService.listAnchors({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listAnchorsQueryKey(options)
+  })
+}
+
+/**
+ * Import GBIF clade
+ */
+export const importGbifMutation = (
+  options?: Partial<Options<ImportGbifData>>
+): UseMutationOptions<ImportGbifResponse, ImportGbifError, Options<ImportGbifData>> => {
+  const mutationOptions: UseMutationOptions<
+    ImportGbifResponse,
+    ImportGbifError,
+    Options<ImportGbifData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await TaxonomyGbifService.importGbif({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
 }
 
 export const listTaxaQueryKey = (options?: Options<ListTaxaData>) =>
