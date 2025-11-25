@@ -18,10 +18,10 @@
 </template>
 
 <script setup lang="ts">
-import { getAccessPointsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { listAccessPointsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
 
-const { data: items, isPending, error } = useQuery(getAccessPointsOptions())
+const { data: items, isPending, error } = useQuery(listAccessPointsOptions())
 </script>
 
 <style scoped lang="scss"></style>
