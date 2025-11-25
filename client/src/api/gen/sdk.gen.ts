@@ -8,6 +8,7 @@ import {
 } from './client'
 import { client } from './client.gen'
 import {
+  claimInvitationResponseTransformer,
   createAbioticParameterResponseTransformer,
   createArticleResponseTransformer,
   createDataFeedResponseTransformer,
@@ -100,6 +101,9 @@ import {
   updateTaxonResponseTransformer
 } from './transformers.gen'
 import type {
+  ClaimInvitationData,
+  ClaimInvitationErrors,
+  ClaimInvitationResponses,
   ConfirmEmailData,
   ConfirmEmailErrors,
   ConfirmEmailResponses,
@@ -361,6 +365,15 @@ import type {
   RefreshSessionData,
   RefreshSessionErrors,
   RefreshSessionResponses,
+  RegisterData,
+  RegisterErrors,
+  RegisterResponses,
+  RequestPasswordResetData,
+  RequestPasswordResetErrors,
+  RequestPasswordResetResponses,
+  ResendEmailVerificationData,
+  ResendEmailVerificationErrors,
+  ResendEmailVerificationResponses,
   ResetPasswordData,
   ResetPasswordErrors,
   ResetPasswordResponses,
@@ -1166,6 +1179,72 @@ export class AccountService {
   }
 
   /**
+   * Resend e-mail verification link
+   *
+   * Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.
+   */
+  public static resendEmailVerification<ThrowOnError extends boolean = false>(
+    options: Options<ResendEmailVerificationData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      ResendEmailVerificationResponses,
+      ResendEmailVerificationErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/account/email-confirmation/resend',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Request password reset
+   *
+   * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
+   */
+  public static requestPasswordReset<ThrowOnError extends boolean = false>(
+    options: Options<RequestPasswordResetData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      RequestPasswordResetResponses,
+      RequestPasswordResetErrors,
+      ThrowOnError
+    >({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/account/forgotten-password',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
    * Login
    *
    * Authenticate using user credentials
@@ -1435,6 +1514,69 @@ export class AccountService {
         }
       ],
       url: '/account/refresh',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Register new account
+   *
+   * Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link.
+   */
+  public static register<ThrowOnError extends boolean = false>(
+    options: Options<RegisterData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/account/register',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Claim invitation
+   *
+   * Register an account with pre-assigned role and identity, using an invitation token
+   */
+  public static claimInvitation<ThrowOnError extends boolean = false>(
+    options: Options<ClaimInvitationData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      ClaimInvitationResponses,
+      ClaimInvitationErrors,
+      ThrowOnError
+    >({
+      responseTransformer: claimInvitationResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/account/register/{token}',
       ...options,
       headers: {
         'Content-Type': 'application/json',

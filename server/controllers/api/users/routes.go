@@ -103,7 +103,7 @@ func init() {
 		ValidatePasswordToken)
 
 	router.RegisterCustom(func(r *router.Router) {
-		router.RegisterSpec(
+		router.NewSpec(
 			accountAPI,
 			"RequestPasswordReset",
 			huma.Operation{
@@ -113,7 +113,7 @@ func init() {
 				Description: fmt.Sprintf("Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `%s`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.", pwdResetRoute.Path(r)),
 				Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 			},
-			RequestPasswordReset(pwdResetRoute.Path(r)))
+			RequestPasswordReset(pwdResetRoute.Path(r))).Register(r)
 	})
 
 	confirmEmailRoute := router.RegisterSpec(
@@ -129,7 +129,7 @@ func init() {
 		ConfirmEmail)
 
 	router.RegisterCustom(func(r *router.Router) {
-		router.RegisterSpec(
+		router.NewSpec(
 			accountAPI,
 			"ResendEmailVerification",
 			huma.Operation{
@@ -139,7 +139,7 @@ func init() {
 				Description: "Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.",
 				Errors:      []int{http.StatusUnprocessableEntity, http.StatusInternalServerError},
 			},
-			ResendEmailVerification(confirmEmailRoute.Path(r)))
+			ResendEmailVerification(confirmEmailRoute.Path(r))).Register(r)
 	})
 
 	router.RegisterSpec(
@@ -184,7 +184,7 @@ func init() {
 		}](people.DeletePendingUserRequest))
 
 	router.RegisterCustom(func(r *router.Router) {
-		router.RegisterSpec(
+		router.NewSpec(
 			accountAPI,
 			"Register",
 			huma.Operation{
@@ -194,11 +194,11 @@ func init() {
 				Description:   "Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link.",
 				DefaultStatus: http.StatusCreated,
 			},
-			Register(confirmEmailRoute.Path(r)))
+			Register(confirmEmailRoute.Path(r))).Register(r)
 	})
 	router.RegisterCustom(func(r *router.Router) {
 		// Setting global InvitationClaimPath variable
-		InvitationClaimPath = router.RegisterSpec(
+		InvitationClaimPath = router.NewSpec(
 			accountAPI,
 			"ClaimInvitation",
 			huma.Operation{
@@ -207,6 +207,6 @@ func init() {
 				Summary:     "Claim invitation",
 				Description: "Register an account with pre-assigned role and identity, using an invitation token",
 			},
-			ClaimInvitation).Path(r)
+			ClaimInvitation).Register(r).Path(r)
 	})
 }

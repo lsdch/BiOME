@@ -25,6 +25,9 @@ import {
   TaxonomyService
 } from '../sdk.gen'
 import type {
+  ClaimInvitationData,
+  ClaimInvitationError,
+  ClaimInvitationResponse,
   ConfirmEmailData,
   CoordinatesToCountryData,
   CreateAbioticParameterData,
@@ -193,6 +196,15 @@ import type {
   RefreshSessionData,
   RefreshSessionError,
   RefreshSessionResponse,
+  RegisterData,
+  RegisterError,
+  RegisterResponse,
+  RequestPasswordResetData,
+  RequestPasswordResetError,
+  RequestPasswordResetResponse,
+  ResendEmailVerificationData,
+  ResendEmailVerificationError,
+  ResendEmailVerificationResponse,
   ResetPasswordData,
   ResetPasswordError,
   ResetPasswordResponse,
@@ -488,6 +500,64 @@ export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) => {
 }
 
 /**
+ * Resend e-mail verification link
+ *
+ * Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.
+ */
+export const resendEmailVerificationMutation = (
+  options?: Partial<Options<ResendEmailVerificationData>>
+): UseMutationOptions<
+  ResendEmailVerificationResponse,
+  ResendEmailVerificationError,
+  Options<ResendEmailVerificationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ResendEmailVerificationResponse,
+    ResendEmailVerificationError,
+    Options<ResendEmailVerificationData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await AccountService.resendEmailVerification({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Request password reset
+ *
+ * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
+ */
+export const requestPasswordResetMutation = (
+  options?: Partial<Options<RequestPasswordResetData>>
+): UseMutationOptions<
+  RequestPasswordResetResponse,
+  RequestPasswordResetError,
+  Options<RequestPasswordResetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    RequestPasswordResetResponse,
+    RequestPasswordResetError,
+    Options<RequestPasswordResetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await AccountService.requestPasswordReset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
  * Login
  *
  * Authenticate using user credentials
@@ -692,6 +762,60 @@ export const refreshSessionMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await AccountService.refreshSession({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Register new account
+ *
+ * Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link.
+ */
+export const registerMutation = (
+  options?: Partial<Options<RegisterData>>
+): UseMutationOptions<RegisterResponse, RegisterError, Options<RegisterData>> => {
+  const mutationOptions: UseMutationOptions<
+    RegisterResponse,
+    RegisterError,
+    Options<RegisterData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await AccountService.register({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Claim invitation
+ *
+ * Register an account with pre-assigned role and identity, using an invitation token
+ */
+export const claimInvitationMutation = (
+  options?: Partial<Options<ClaimInvitationData>>
+): UseMutationOptions<
+  ClaimInvitationResponse,
+  ClaimInvitationError,
+  Options<ClaimInvitationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ClaimInvitationResponse,
+    ClaimInvitationError,
+    Options<ClaimInvitationData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await AccountService.claimInvitation({
         ...options,
         ...fnOptions,
         throwOnError: true

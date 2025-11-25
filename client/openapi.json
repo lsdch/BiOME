@@ -4430,6 +4430,33 @@
 				],
 				"type": "object"
 			},
+			"PasswordResetRequest": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/PasswordResetRequest.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"email": {
+						"format": "email",
+						"type": "string"
+					},
+					"handler": {
+						"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
+						"format": "uri",
+						"type": "string"
+					}
+				},
+				"required": [
+					"email"
+				],
+				"type": "object"
+			},
 			"PendingUserRequest": {
 				"additionalProperties": false,
 				"properties": {
@@ -4481,6 +4508,37 @@
 					"full_name",
 					"created_on",
 					"email_verified",
+					"email",
+					"first_name",
+					"last_name"
+				],
+				"type": "object"
+			},
+			"PendingUserRequestInput": {
+				"additionalProperties": false,
+				"properties": {
+					"email": {
+						"format": "email",
+						"type": "string"
+					},
+					"first_name": {
+						"maxLength": 32,
+						"minLength": 2,
+						"type": "string"
+					},
+					"last_name": {
+						"maxLength": 32,
+						"minLength": 2,
+						"type": "string"
+					},
+					"motive": {
+						"type": "string"
+					},
+					"organisation": {
+						"type": "string"
+					}
+				},
+				"required": [
 					"email",
 					"first_name",
 					"last_name"
@@ -5120,6 +5178,59 @@
 				},
 				"required": [
 					"refresh_token"
+				],
+				"type": "object"
+			},
+			"RegisterInputBody": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/RegisterInputBody.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"data": {
+						"$ref": "#/components/schemas/PendingUserRequestInput"
+					},
+					"verification_path": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"data",
+					"verification_path"
+				],
+				"type": "object"
+			},
+			"ResendEmailVerificationInputBody": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/ResendEmailVerificationInputBody.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"email": {
+						"format": "email",
+						"type": "string"
+					},
+					"verification_url": {
+						"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
+						"format": "uri",
+						"type": "string"
+					}
+				},
+				"required": [
+					"email",
+					"verification_url"
 				],
 				"type": "object"
 			},
@@ -7612,11 +7723,9 @@
 				"type": "string"
 			},
 			"URL": {
+				"description": "A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.",
 				"format": "uri",
-				"type": [
-					"string",
-					"null"
-				]
+				"type": "string"
 			},
 			"UpdatePasswordInput": {
 				"additionalProperties": false,
@@ -7748,6 +7857,42 @@
 					"login",
 					"role",
 					"email_confirmed"
+				],
+				"type": "object"
+			},
+			"UserInput": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/UserInput.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"email": {
+						"format": "email",
+						"type": "string"
+					},
+					"login": {
+						"type": "string"
+					},
+					"password": {
+						"description": "Your new password",
+						"type": "string"
+					},
+					"password_confirmation": {
+						"description": "New password confirmation",
+						"type": "string"
+					}
+				},
+				"required": [
+					"login",
+					"email",
+					"password",
+					"password_confirmation"
 				],
 				"type": "object"
 			},
@@ -8314,6 +8459,96 @@
 					}
 				},
 				"summary": "Confirm e-mail",
+				"tags": [
+					"Account"
+				]
+			}
+		},
+		"/account/email-confirmation/resend": {
+			"post": {
+				"description": "Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.",
+				"operationId": "ResendEmailVerification",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/ResendEmailVerificationInputBody"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Resend e-mail verification link",
+				"tags": [
+					"Account"
+				]
+			}
+		},
+		"/account/forgotten-password": {
+			"post": {
+				"description": "Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.",
+				"operationId": "RequestPasswordReset",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PasswordResetRequest"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"204": {
+						"description": "No Content"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Request password reset",
 				"tags": [
 					"Account"
 				]
@@ -8944,6 +9179,128 @@
 					}
 				},
 				"summary": "Refresh auth token",
+				"tags": [
+					"Account"
+				]
+			}
+		},
+		"/account/register": {
+			"post": {
+				"description": "Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link.",
+				"operationId": "Register",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RegisterInputBody"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"201": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "string"
+								}
+							}
+						},
+						"description": "Created"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Register new account",
+				"tags": [
+					"Account"
+				]
+			}
+		},
+		"/account/register/{token}": {
+			"post": {
+				"description": "Register an account with pre-assigned role and identity, using an invitation token",
+				"operationId": "ClaimInvitation",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "token",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/UserInput"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/AuthenticationResponse"
+								}
+							}
+						},
+						"description": "OK",
+						"headers": {
+							"Set-Cookie": {
+								"schema": {
+									"description": "Session cookie storing JWT",
+									"type": "string"
+								}
+							}
+						}
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Claim invitation",
 				"tags": [
 					"Account"
 				]

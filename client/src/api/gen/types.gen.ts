@@ -1457,6 +1457,18 @@ export type PasswordInput = {
   password_confirmation: string
 }
 
+export type PasswordResetRequest = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  email: string
+  /**
+   * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
+   */
+  handler?: string
+}
+
 export type PendingUserRequest = {
   /**
    * A URL to the JSON Schema for this object.
@@ -1468,6 +1480,14 @@ export type PendingUserRequest = {
   first_name: string
   full_name: string
   id: string
+  last_name: string
+  motive?: string
+  organisation?: string
+}
+
+export type PendingUserRequestInput = {
+  email: string
+  first_name: string
   last_name: string
   motive?: string
   organisation?: string
@@ -1629,6 +1649,27 @@ export type RefreshTokenBody = {
    */
   readonly $schema?: string
   refresh_token: string
+}
+
+export type RegisterInputBody = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  data: PendingUserRequestInput
+  verification_path: string
+}
+
+export type ResendEmailVerificationInputBody = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  email: string
+  /**
+   * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
+   */
+  verification_url: string
 }
 
 export type Review = {
@@ -2405,7 +2446,10 @@ export type Taxonomy = {
  */
 export type TypeStatus = 'Holotype' | 'Neotype' | 'Topotype'
 
-export type Url = string | null
+/**
+ * A URL used to generate the verification link, which can be set by the web client. Verification token will be added as a URL query parameter.
+ */
+export type Url = string
 
 export type UpdatePasswordInput = {
   /**
@@ -2450,6 +2494,23 @@ export type UserInner = {
   id: string
   login: string
   role: UserRole
+}
+
+export type UserInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  email: string
+  login: string
+  /**
+   * Your new password
+   */
+  password: string
+  /**
+   * New password confirmation
+   */
+  password_confirmation: string
 }
 
 /**
@@ -2727,6 +2788,67 @@ export type ConfirmEmailResponses = {
 }
 
 export type ConfirmEmailResponse = ConfirmEmailResponses[keyof ConfirmEmailResponses]
+
+export type ResendEmailVerificationData = {
+  body: ResendEmailVerificationInputBody
+  path?: never
+  query?: never
+  url: '/account/email-confirmation/resend'
+}
+
+export type ResendEmailVerificationErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ResendEmailVerificationError =
+  ResendEmailVerificationErrors[keyof ResendEmailVerificationErrors]
+
+export type ResendEmailVerificationResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type ResendEmailVerificationResponse =
+  ResendEmailVerificationResponses[keyof ResendEmailVerificationResponses]
+
+export type RequestPasswordResetData = {
+  body: PasswordResetRequest
+  path?: never
+  query?: never
+  url: '/account/forgotten-password'
+}
+
+export type RequestPasswordResetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type RequestPasswordResetError = RequestPasswordResetErrors[keyof RequestPasswordResetErrors]
+
+export type RequestPasswordResetResponses = {
+  /**
+   * No Content
+   */
+  204: void
+}
+
+export type RequestPasswordResetResponse =
+  RequestPasswordResetResponses[keyof RequestPasswordResetResponses]
 
 export type LoginData = {
   body: UserCredentials
@@ -3030,6 +3152,66 @@ export type RefreshSessionResponses = {
 }
 
 export type RefreshSessionResponse = RefreshSessionResponses[keyof RefreshSessionResponses]
+
+export type RegisterData = {
+  body: RegisterInputBody
+  path?: never
+  query?: never
+  url: '/account/register'
+}
+
+export type RegisterErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type RegisterError = RegisterErrors[keyof RegisterErrors]
+
+export type RegisterResponses = {
+  /**
+   * Created
+   */
+  201: string
+}
+
+export type RegisterResponse = RegisterResponses[keyof RegisterResponses]
+
+export type ClaimInvitationData = {
+  body: UserInput
+  path: {
+    token: string
+  }
+  query?: never
+  url: '/account/register/{token}'
+}
+
+export type ClaimInvitationErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ClaimInvitationError = ClaimInvitationErrors[keyof ClaimInvitationErrors]
+
+export type ClaimInvitationResponses = {
+  /**
+   * OK
+   */
+  200: AuthenticationResponse
+}
+
+export type ClaimInvitationResponse = ClaimInvitationResponses[keyof ClaimInvitationResponses]
 
 export type CrossRefData = {
   body?: never

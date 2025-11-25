@@ -123,7 +123,7 @@ func Register[I, O any](
 }
 
 type RouteSpec interface {
-	register(r *Router)
+	Register(r *Router) RouteSpec
 	Path(r *Router) string
 }
 
@@ -134,8 +134,9 @@ type routeSpec[I, O any] struct {
 	Handler func(context.Context, *I) (*O, error)
 }
 
-func (spec routeSpec[I, O]) register(r *Router) {
+func (spec routeSpec[I, O]) Register(r *Router) RouteSpec {
 	Register(spec.Group(r), spec.OperationID, spec.Operation, spec.Handler)
+	return spec
 }
 
 func (spec routeSpec[I, O]) Path(r *Router) string {
@@ -144,18 +145,27 @@ func (spec routeSpec[I, O]) Path(r *Router) string {
 
 var routeSpecs = make([]RouteSpec, 0)
 
+func NewSpec[I, O any](
+	groupFunc func(r *Router) Group,
+	operationID string,
+	op huma.Operation,
+	handler func(context.Context, *I) (*O, error),
+) RouteSpec {
+	return routeSpec[I, O]{
+		Group:       groupFunc,
+		OperationID: operationID,
+		Operation:   op,
+		Handler:     handler,
+	}
+}
+
 func RegisterSpec[I, O any](
 	groupFunc func(r *Router) Group,
 	operationID string,
 	op huma.Operation,
 	handler func(context.Context, *I) (*O, error),
 ) RouteSpec {
-	spec := routeSpec[I, O]{
-		Group:       groupFunc,
-		OperationID: operationID,
-		Operation:   op,
-		Handler:     handler,
-	}
+	spec := NewSpec(groupFunc, operationID, op, handler)
 	routeSpecs = append(routeSpecs, spec)
 	return spec
 }
@@ -164,8 +174,9 @@ type customRouteSpec struct {
 	registerFunc func(r *Router)
 }
 
-func (spec customRouteSpec) register(r *Router) {
+func (spec customRouteSpec) Register(r *Router) RouteSpec {
 	spec.registerFunc(r)
+	return spec
 }
 
 func (spec customRouteSpec) Path(r *Router) string {
@@ -183,6 +194,6 @@ Must be called after all route specs have been registered, typically at the end 
 */
 func (r *Router) CollectRoutes() {
 	for _, spec := range routeSpecs {
-		spec.register(r)
+		spec.Register(r)
 	}
 }
