@@ -49,3 +49,8 @@
       description: Loose soil or sediment
     - label: Hyporheic zone
       description: Region where there is mixing of shallow groundwater and surface water
+
+- label: SSH
+  elements:
+    - label: Shallow subterranean habitat (SSH)
+      description: Habitat located just below the surface of the ground, typically within the top few centimeters to meters.
