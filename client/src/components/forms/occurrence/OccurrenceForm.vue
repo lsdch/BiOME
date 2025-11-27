@@ -78,7 +78,7 @@ import ArticlesPicker from '@/features/registries/components/ArticlesPicker.vue'
 import QuantityPicker from '@/components/forms/occurrence/QuantityPicker.vue'
 import IdentificationFormFields from '@/components/forms/occurrence/IdentificationFormFields.vue'
 
-const model = defineModel<BiomatModel.ExternalOccurrenceModel>({
+const model = defineModel<BiomatModel.BiomatModel>({
   default: BiomatModel.initialModel
 })
 

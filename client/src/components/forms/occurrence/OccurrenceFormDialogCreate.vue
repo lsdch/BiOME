@@ -39,12 +39,12 @@ defineProps<FormDialogProps>()
 
 const addFromSampling = useMutation(samplingAddOccurrenceMutation())
 const addFromSite = useMutation(siteAddOccurrenceMutation())
-const createFromScratchExternal = useMutation(createOccurrenceMutation())
+const createFromScratch = useMutation(createOccurrenceMutation())
 
 function getActiveMutation() {
   if (hasID(model.value?.sampling)) return addFromSampling
   else if (hasID(model.value?.site)) return addFromSite
-  else return createFromScratchExternal
+  else return createFromScratch
 }
 
 const activeMutation = computed(getActiveMutation)
@@ -80,16 +80,11 @@ const mutationCallbacks = {
 }
 
 function submit() {
-  if (model.value?.biomaterial.category !== 'External') {
-    console.error('Internal pipeline is not implemented yet')
-    console.log(model.value)
-    return
-  }
   if (hasID(model.value?.sampling))
     return addFromSampling.mutate(
       {
         path: { number: model.value.sampling.number },
-        body: BiomatModel.toRequestData(model.value.biomaterial.external!)
+        body: BiomatModel.toRequestData(model.value.biomaterial!)
       },
       mutationCallbacks
     )
@@ -99,18 +94,18 @@ function submit() {
         path: { code: model.value.site.code },
         body: {
           sampling: SamplingModel.toRequestBody(model.value.sampling!),
-          biomaterial: BiomatModel.toRequestData(model.value.biomaterial.external!)
+          biomaterial: BiomatModel.toRequestData(model.value.biomaterial!)
         }
       },
       mutationCallbacks
     )
   else
-    return createFromScratchExternal.mutate(
+    return createFromScratch.mutate(
       {
         body: {
           site: SiteModel.toRequestBody(model.value.site!),
           sampling: SamplingModel.toRequestBody(model.value.sampling!),
-          bio_material: BiomatModel.toRequestData(model.value.biomaterial.external!)
+          bio_material: BiomatModel.toRequestData(model.value.biomaterial!)
         }
       },
       mutationCallbacks

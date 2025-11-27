@@ -58,7 +58,6 @@ import {
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import { computed, ref } from 'vue'
-import OccurrenceIcon from './OccurrenceIcon'
 
 type Occurrence = OccurrenceAtSite & { sampling_date?: DateWithPrecision } & (WithSite extends true
     ? { site: SiteItem }
@@ -79,8 +78,7 @@ const items = computed(() => {
 
 const search = ref({
   term: undefined,
-  owned: undefined,
-  occurrenceTypes: ['internal', 'external', 'sequence']
+  owned: undefined
 })
 
 const headersWithSites: CRUDTableHeader<Occurrence>[] = [

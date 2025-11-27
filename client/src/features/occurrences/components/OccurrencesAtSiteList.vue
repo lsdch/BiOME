@@ -1,7 +1,7 @@
 <template>
   <v-list density="compact">
     <v-list-item
-      v-for="{ code, category, identification, date } in occurrences"
+      v-for="{ code, identification, date } in occurrences"
       :subtitle="DateWithPrecision.format(date)"
       :to="{
         name: 'occurrence-item',
@@ -9,12 +9,6 @@
       }"
       target="_blank"
     >
-      <template #prepend>
-        <v-icon
-          icon="mdi-package-variant"
-          :color="category === 'Internal' ? 'primary' : 'warning'"
-        />
-      </template>
       <template #title>
         <RouterLink
           :to="{

@@ -41,7 +41,6 @@
           }"
           @click.self
           ><div class="d-flex align-center">
-            <OccurrenceIcon :item="occurrence" class="mx-2" />
             <a class="font-monospace">{{ CodeIdentifier.textWrap(occurrence.code) }}</a>
           </div>
           <template #append>
@@ -61,7 +60,6 @@
 <script setup lang="ts">
 import { CodeIdentifier, DateWithPrecision, SamplingAtSite } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
-import OccurrenceIcon from '@/features/occurrences/components/OccurrenceIcon'
 import SamplingCardDialog from '@/features/occurrences/components/sampling/SamplingCardDialog.vue'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonChip from '@/features/taxonomy/components/TaxonChip'

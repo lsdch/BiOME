@@ -25,7 +25,7 @@
         <v-col>
           <v-card title="Bio material" prepend-icon="mdi-package-variant">
             <v-divider />
-            <OccurrenceForm v-model="model.biomaterial.external" />
+            <OccurrenceForm v-model="model.biomaterial" />
           </v-card>
         </v-col>
       </v-row>

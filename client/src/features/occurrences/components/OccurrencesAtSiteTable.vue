@@ -8,14 +8,6 @@
       clearable
       density="compact"
     />
-    Types:
-    <v-chip-group multiple mandatory v-model="search.occurrenceTypes">
-      <v-chip prepend-icon="mdi-cube-scan" color="primary" value="internal">Internal</v-chip>
-      <v-chip prepend-icon="mdi-arrow-collapse-all" color="warning" value="external"
-        >External</v-chip
-      >
-      <v-chip prepend-icon="mdi-dna" color="warning" value="sequence">Seq.</v-chip>
-    </v-chip-group>
   </div>
   <CRUDTable :items :headers entityName="Occurrence" :search filter-mode="some">
     <template #item.code="{ item, value }: { item: OccurrenceAtSite; value: string }">
@@ -28,12 +20,6 @@
         >
           <span class="text-wrap font-monospace">{{ CodeIdentifier.textWrap(value) }}</span>
         </RouterLink>
-        <v-icon
-          :color="item.category === 'Internal' ? 'primary' : 'warning'"
-          :icon="OccurrenceCategory.icon(item.category)"
-          v-tooltip="`${item.category} occurrence`"
-          class="mx-1"
-        />
       </div>
     </template>
     <template #item.sampling.performed_on="{ value, item }">
@@ -56,7 +42,6 @@ import {
   DateWithPrecision,
   Identification,
   OccurrenceAtSite,
-  OccurrenceCategory,
   SamplingAtSite
 } from '@/api/adapters'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
@@ -67,8 +52,7 @@ const { samplings } = defineProps<{ samplings: SamplingAtSite[] }>()
 
 const search = ref({
   term: undefined,
-  owned: undefined,
-  occurrenceTypes: ['internal', 'external', 'sequence']
+  owned: undefined
 })
 
 type OccurrenceTableItem = {
@@ -79,11 +63,7 @@ const items = computed(
   () =>
     samplings.reduce<OccurrenceTableItem[]>((acc, { occurrences, occurring_taxa, ...s }) => {
       occurrences?.forEach((o) => {
-        if (
-          (search.value.occurrenceTypes.includes('internal') && o.category === 'Internal') ||
-          (search.value.occurrenceTypes.includes('external') && o.category === 'External')
-        )
-          acc.push({ sampling: s, ...o })
+        acc.push({ sampling: s, ...o })
       })
       return acc
     }, []) ?? []

@@ -1,18 +1,18 @@
-import { GenericOccurrenceSamplingOutline, OccurrenceCategory } from '@/api'
+import { BaseOccurrenceSamplingOutline } from '@/api'
 
 /**
  * A chip displaying an occurrence category and element.
  */
 export function OccurrenceLinkChip(
-  { biomat: { identification, category, code } }: { biomat: GenericOccurrenceSamplingOutline },
+  { biomat: { identification, code } }: { biomat: BaseOccurrenceSamplingOutline },
   context: { attrs?: object }
 ) {
   return (
     <v-chip
       variant="tonal"
       text={identification.taxon.name}
-      color={OccurrenceCategory.props[category].color}
-      prepend-icon={OccurrenceCategory.icon(category)}
+      color="primary"
+      prepend-icon="mdi-package-variant"
       to={{ name: 'occurrence-item', params: { code: code } }}
       label
       {...context.attrs}

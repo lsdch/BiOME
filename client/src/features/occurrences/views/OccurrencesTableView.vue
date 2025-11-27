@@ -148,29 +148,7 @@
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
-    <!-- <template #expanded-row-inject="{ item }">
-      <v-list v-if="item.external">
-        <v-list-item prepend-icon="mdi-newspaper-variant">
-          <template #append>
-            <span class="text-muted text-caption">Publications</span>
-          </template>
-          <ArticleChip v-for="article in item.published_in" :article class="ma-1" size="small" />
-        </v-list-item>
-        <v-list-item
-          lines="one"
-          :subtitle="item.external.content_description ?? 'No further description'"
-          prepend-icon="mdi-hexagon-multiple"
-        >
-          <template #append>
-            <span class="text-muted text-caption">Content</span>
-          </template>
-          <template #title>
-            <v-chip :text="item.external.quantity" size="small" />
-          </template>
-        </v-list-item>
-      </v-list>
-      <v-divider v-if="item.external" />
-    </template> -->
+
     <!-- <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
       <BioMaterialFormDialog
         :dialog

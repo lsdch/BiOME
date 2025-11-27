@@ -12,16 +12,8 @@
         clearable
         density="compact"
       />
-      Types:
-      <v-chip-group multiple mandatory v-model="search.occurrenceTypes">
-        <v-chip prepend-icon="mdi-cube-scan" color="primary" value="internal">Internal</v-chip>
-        <v-chip prepend-icon="mdi-arrow-collapse-all" color="warning" value="external"
-          >External</v-chip
-        >
-        <v-chip prepend-icon="mdi-dna" color="warning" value="sequence">Seq.</v-chip>
-      </v-chip-group>
     </div>
-    <CRUDTable :items entity-name="Occurrences" :headers :search>
+    <CRUDTable :items="occurrences" entity-name="Occurrences" :headers :search>
       <template #item.code="{ item, value }: { item: OccurrenceAtSite; value: string }">
         <div class="d-flex justify-space-between align-center">
           <RouterLink
@@ -33,7 +25,6 @@
           >
             <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
           </RouterLink>
-          <OccurrenceIcon :item class="mx-1"></OccurrenceIcon>
         </div>
       </template>
       <template #item.site.code="{ value }: { value: string }">
@@ -81,7 +72,6 @@ import {
 } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
-import OccurrenceIcon from '@/features/occurrences/components/OccurrenceIcon'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import { computed, ref } from 'vue'
 import { ComponentSlots } from 'vue-component-type-helpers'
@@ -105,21 +95,9 @@ const {
   } & CardDialogProps
 >()
 
-const items = computed(() => {
-  return occurrences?.filter((o) => {
-    return (
-      (occurrenceTypes.value.has('internal') && o.category === 'Internal') ||
-      (occurrenceTypes.value.has('external') && o.category === 'External')
-    )
-  })
-})
-
-const occurrenceTypes = computed(() => new Set(search.value.occurrenceTypes))
-
 const search = ref({
   term: undefined,
-  owned: undefined,
-  occurrenceTypes: ['internal', 'external', 'sequence']
+  owned: undefined
 })
 
 const headersWithSites: CRUDTableHeader<Occurrence>[] = [

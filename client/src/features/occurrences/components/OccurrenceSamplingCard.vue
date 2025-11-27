@@ -84,19 +84,14 @@
 </template>
 
 <script setup lang="ts">
-import {
-  DateWithPrecision,
-  Identification,
-  OccurrenceCategory,
-  SamplingWithSite
-} from '@/api/adapters'
-import { useSorted } from '@vueuse/core'
-import { computed } from 'vue'
-import SamplingListItems from '@/features/occurrences/components/sampling/SamplingListItems.vue'
+import { DateWithPrecision, Identification, SamplingWithSite } from '@/api/adapters'
 import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.vue'
+import SamplingListItems from '@/features/occurrences/components/sampling/SamplingListItems.vue'
 import PersonChip from '@/features/people/components/PersonChip'
 import CountryChip from '@/features/site/components/CountryChip'
 import { useUserStore } from '@/stores/user'
+import { useSorted } from '@vueuse/core'
+import { computed } from 'vue'
 import CoordinatesChip from './CoordinatesChip'
 
 const { item } = defineProps<{

@@ -33,7 +33,6 @@
           v-if="sampling.occurrences?.length"
           v-for="sample in sampling.occurrences"
           :text="sample.identification.taxon.name"
-          :title="sample.category"
           class="ma-1"
         />
         <span v-else class="text-muted font-italic">None registered</span>

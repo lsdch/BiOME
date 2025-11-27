@@ -117,8 +117,8 @@
               </div>
             </v-card-text>
             <v-divider />
-            <v-list-item v-if="item.occurrence.external?.original_taxon">
-              <code>{{ item.occurrence.external.original_taxon }}</code>
+            <v-list-item v-if="item.occurrence.original_taxon">
+              <code>{{ item.occurrence.original_taxon }}</code>
               <template #append>
                 <span class="text-muted text-caption">Original ident.</span>
               </template>
@@ -162,16 +162,12 @@
                 </template>
               </v-list-item>
               <v-list-item
-                v-if="item.occurrence.external"
-                :subtitle="
-                  item.occurrence.external.published_in ? undefined : 'No registered references'
-                "
+                :subtitle="item.occurrence.published_in ? undefined : 'No registered references'"
                 prepend-icon="mdi-newspaper-variant"
               >
                 <div class="d-flex align-center ga-2">
                   <ArticleChip
-                    v-if="item.occurrence.external"
-                    v-for="article in item.occurrence.external.published_in"
+                    v-for="article in item.occurrence.published_in"
                     :article
                     size="small"
                   />
