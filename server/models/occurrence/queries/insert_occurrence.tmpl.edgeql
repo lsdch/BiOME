@@ -18,13 +18,13 @@ with module occurrence,
         upper := json_get(data, 'quantity', '1')
       ),
       content_description := <str>json_get(data, 'content_description'),
-      collections := (
+      collections := assert_distinct((
         for col in json_array_unpack(json_get(data, 'collections')) union (
           select references::Collection {
             @vouchers := <array<str>>json_get(col, 'vouchers')
-          } filter any({.code, .label} = col['name'])
+          } filter any({.code, .label} = <str>col['name'])
         )
-      ),
+      )),
       comments := <str>json_get(data, 'comments'),
       published_in := (
         select distinct references::Article
