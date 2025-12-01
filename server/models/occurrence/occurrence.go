@@ -121,6 +121,7 @@ type ListOccurrencesOptions struct {
 	models.SortBy[BioMatSortKey]
 	models.Filter        `json:",inline"`
 	taxonomy.TaxaFilters `json:",inline"`
+	Datasets             []string                                   `query:"datasets" json:"datasets,omitzero"`
 	HasSequences         models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
 	Confer               models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
 	TypeStatus           models.OptionalInput[TypeStatus]           `query:"type_status" json:"type_status,omitzero"`

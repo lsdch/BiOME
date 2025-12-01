@@ -4821,6 +4821,7 @@ export type ListOccurrencesData = {
     owned?: boolean
     taxa?: Array<string>
     whole_clade?: boolean
+    datasets?: Array<string>
     has_sequences?: boolean
     confer?: boolean
     type_status?: TypeStatus

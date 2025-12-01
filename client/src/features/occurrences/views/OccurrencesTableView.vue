@@ -21,6 +21,20 @@
       <v-row class="ma-0">
         <v-col cols="12" md="6">
           <v-list>
+            <v-list-item prepend-icon="mdi-folder-table">
+              <DatasetPicker
+                v-model="filters.datasets"
+                label="Datasets"
+                class="mt-2"
+                item-value="label"
+                clearable
+                multiple
+                chips
+                closable-chips
+                density="compact"
+                hide-details
+              />
+            </v-list-item>
             <v-list-item prepend-icon="mdi-star-four-points">
               <TypeStatusPicker
                 v-model="filters.type_status"
@@ -179,6 +193,7 @@ import {
 // import BioMaterialFormDialog from '@/features/occurrences/components/BioMaterialFormDialog.vue'
 import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
+import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import TypeStatusPicker from '@/features/occurrences/components/TypeStatusPicker'
 import PersonChip from '@/features/people/components/PersonChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
@@ -190,6 +205,7 @@ import { useDisplay } from 'vuetify'
 const { xs } = useDisplay()
 
 type BiomatTableFilters = {
+  datasets?: string[]
   type_status?: TypeStatus[]
   has_sequences?: boolean
   confer?: boolean

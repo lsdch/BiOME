@@ -2,6 +2,7 @@ with module occurrence,
   params := <json>$0,
   search_term := <str>json_get(params, 'search'),
   {{ template "taxa_variables" .TaxaFilters -}}
+  datasets := <str>json_array_unpack(json_get(params, 'datasets')),
   with_sequences := <bool>json_get(params, 'has_sequences'),
   confer := <bool>json_get(params, 'confer'),
   status := <taxonomy::TaxonStatus>json_get(params, 'status'),
@@ -11,6 +12,9 @@ with module occurrence,
 items := (
   select Occurrence { * }
   filter (
+    {{- if .Datasets }}
+      any(.datasets.label in datasets) and
+    {{ end }}
     {{- if .SearchTerm }}
     (
       (.code ilike '%%' ++ search_term ++ '%%') or

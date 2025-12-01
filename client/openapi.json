@@ -12711,6 +12711,17 @@
 					{
 						"explode": false,
 						"in": "query",
+						"name": "datasets",
+						"schema": {
+							"items": {
+								"type": "string"
+							},
+							"type": "array"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
 						"name": "has_sequences",
 						"schema": {
 							"type": "boolean"

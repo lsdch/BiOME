@@ -3510,6 +3510,11 @@ export class OccurrencesService {
               explode: false
             }
           },
+          datasets: {
+            array: {
+              explode: false
+            }
+          },
           rank: {
             array: {
               explode: false
