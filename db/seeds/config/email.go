@@ -1,15 +1,107 @@
-package email
+package config
 
 import (
+	"errors"
 	"fmt"
+	"io/fs"
+	"os"
 	"strconv"
 	"strings"
+
+	"github.com/geldata/gel-go/geltypes"
+	"github.com/lsdch/biome/models/settings"
 
 	"github.com/charmbracelet/bubbles/spinner"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
+	"github.com/sirupsen/logrus"
+	"github.com/spf13/viper"
 )
+
+func loadEmailConfig(path string) (settings.EmailSettingsInput, error) {
+	var config settings.EmailSettingsInput
+	viper.SetConfigFile(path)
+
+	if err := viper.ReadInConfig(); err != nil {
+		return config, err
+	}
+	err := viper.Unmarshal(&config)
+	return config, err
+}
+
+type EmailSetupArgs struct {
+	NoAuto bool
+	Skip   bool
+	Config settings.EmailSettingsInput
+}
+
+type EmailSetup struct {
+	settings.EmailSettingsInput
+	connectionOK bool
+	EmailSetupArgs
+}
+
+func SetupEmailConfig(db geltypes.Executor, args EmailSetupArgs) (settings.EmailSettingsInput, error) {
+
+	var setup = EmailSetup{
+		EmailSettingsInput: args.Config,
+		connectionOK:       false,
+		EmailSetupArgs:     args,
+	}
+	_, err := tea.NewProgram(initialModel(&setup)).Run()
+	if err != nil {
+		return args.Config, fmt.Errorf("SMTP configuration error: %v", err)
+	}
+
+	if setup.Skip {
+		logrus.Infof("SMTP configuration skipped.")
+		return args.Config, nil
+	}
+
+	if !setup.connectionOK {
+		logrus.Fatalf("Connection failed")
+	}
+	logrus.Info(successStyle.Render("🟢 Connection succeeded"))
+
+	if _, err := setup.Save(db); err != nil {
+		return args.Config, fmt.Errorf(
+			"Failed to save SMTP configuration in DB settings: %v",
+			err)
+	}
+	logrus.Info(successStyle.Render(
+		"💾 SMTP configuration saved to database",
+	))
+	return setup.EmailSettingsInput, fmt.Errorf("Failed to write SMTP configuration to file: %v", err)
+
+}
+
+func loadOrCreateEmailConfig(path string) (emailConfig settings.EmailSettingsInput, err error) {
+	_, err = os.Stat(path)
+	if err != nil && errors.Is(err, fs.ErrNotExist) {
+		emailConfig = settings.EmailSettingsInput{}
+		if err = emailConfig.WriteYAML(path); err != nil {
+			err = fmt.Errorf("Failed to create email config file: %v", err)
+			return
+		}
+		logrus.Infof(
+			"No existing SMTP config file. Generated empty config @ %s",
+			path)
+	} else {
+		emailConfig, err = loadEmailConfig(path)
+		if err != nil {
+			err = fmt.Errorf("Failed to load SMTP configuration: %v", err)
+			return
+		}
+		logrus.Infof("Existing SMTP configuration loaded from %s : %+v",
+			path, emailConfig)
+	}
+	return
+}
+
+/* ---------------------------------
+	Interactive Tea UI
+------------------------------------*/
 
 type model struct {
 	focusIndex        int

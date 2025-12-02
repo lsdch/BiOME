@@ -4,6 +4,7 @@ import type {
   ClaimInvitationResponse,
   CreateAbioticParameterResponse,
   CreateArticleResponse,
+  CreateCollectionResponse,
   CreateDataFeedResponse,
   CreateDataSourceResponse,
   CreateFixativeResponse,
@@ -23,6 +24,7 @@ import type {
   CurrentUserResponse2,
   DeleteAbioticParameterResponse,
   DeleteArticleResponse,
+  DeleteCollectionResponse,
   DeleteDataSourceResponse,
   DeleteFixativeResponse,
   DeleteGeneResponse,
@@ -50,6 +52,7 @@ import type {
   ListAbioticParametersResponse,
   ListAnchorsResponse,
   ListArticlesResponse,
+  ListCollectionsResponse,
   ListDataFeedsResponse,
   ListDatasetsResponse,
   ListDataSourcesResponse,
@@ -197,6 +200,34 @@ export const claimInvitationResponseTransformer = async (
   data: any
 ): Promise<ClaimInvitationResponse> => {
   data = authenticationResponseSchemaResponseTransformer(data)
+  return data
+}
+
+const collectionSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
+export const listCollectionsResponseTransformer = async (
+  data: any
+): Promise<ListCollectionsResponse> => {
+  data = data.map((item: any) => {
+    return collectionSchemaResponseTransformer(item)
+  })
+  return data
+}
+
+export const createCollectionResponseTransformer = async (
+  data: any
+): Promise<CreateCollectionResponse> => {
+  data = collectionSchemaResponseTransformer(data)
+  return data
+}
+
+export const deleteCollectionResponseTransformer = async (
+  data: any
+): Promise<DeleteCollectionResponse> => {
+  data = collectionSchemaResponseTransformer(data)
   return data
 }
 

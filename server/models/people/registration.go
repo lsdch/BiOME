@@ -18,14 +18,16 @@ import (
 	email_templates "github.com/lsdch/biome/templates"
 )
 
+// @mapstructure
 type EmailField struct {
-	Email string `gel:"email" json:"email" format:"email" fake:"{email}"`
+	Email string `gel:"email" json:"email" format:"email" fake:"{email}" mapstructure:"email"`
 }
 
+// @mapstructure
 type UserInput struct {
-	Login         string `gel:"login" json:"login" binding:"login,required,unique_login" fake:"{username}"`
-	EmailField    `gel:"$inline" json:",inline"`
-	PasswordInput `json:",inline"`
+	Login		string	`gel:"login" json:"login" binding:"login,required,unique_login" fake:"{username}" mapstructure:"login"`
+	EmailField	`gel:"$inline" json:",inline" mapstructure:",squash"`
+	PasswordInput	`json:",inline" mapstructure:",squash"`
 }
 
 func (u UserInput) Save(db geltypes.Executor, role UserRole, identity PersonInner) (*User, error) {
@@ -64,10 +66,10 @@ func (u UserInput) RegisterWithToken(db geltypes.Executor, token tokens.Token) (
 }
 
 type PendingUserRequestInput struct {
-	EmailField     `json:",inline" gel:"$inline"`
-	PersonIdentity `gel:"$inline" json:",inline"`
-	Organisation   string `json:"organisation,omitempty" gel:"organisation" fake:"{word}"`
-	Motive         string `json:"motive,omitempty" gel:"motive" fake:"{sentence:10}"`
+	EmailField	`json:",inline" gel:"$inline"`
+	PersonIdentity	`gel:"$inline" json:",inline"`
+	Organisation	string	`json:"organisation,omitempty" gel:"organisation" fake:"{word}"`
+	Motive		string	`json:"motive,omitempty" gel:"motive" fake:"{sentence:10}"`
 }
 
 //go:embed queries/register_pending_user.edgeql
@@ -83,14 +85,14 @@ func (u *PendingUserRequestInput) Register(db geltypes.Executor) (*PendingUserRe
 }
 
 type PendingUserRequest struct {
-	ID             geltypes.UUID `gel:"id" json:"id"`
-	EmailField     `json:",inline" gel:"$inline"`
-	PersonIdentity `gel:"$inline" json:",inline"`
-	FullName       string               `gel:"full_name" json:"full_name"`
-	Organisation   geltypes.OptionalStr `json:"organisation,omitempty" gel:"organisation"`
-	Motive         geltypes.OptionalStr `json:"motive,omitempty" gel:"motive"`
-	CreatedOn      time.Time            `json:"created_on" gel:"created_on"`
-	EmailVerified  bool                 `gel:"email_verified" json:"email_verified"`
+	ID		geltypes.UUID	`gel:"id" json:"id"`
+	EmailField	`json:",inline" gel:"$inline"`
+	PersonIdentity	`gel:"$inline" json:",inline"`
+	FullName	string			`gel:"full_name" json:"full_name"`
+	Organisation	geltypes.OptionalStr	`json:"organisation,omitempty" gel:"organisation"`
+	Motive		geltypes.OptionalStr	`json:"motive,omitempty" gel:"motive"`
+	CreatedOn	time.Time		`json:"created_on" gel:"created_on"`
+	EmailVerified	bool			`gel:"email_verified" json:"email_verified"`
 }
 
 func (p *PendingUserRequest) Delete(db geltypes.Executor) error {
@@ -158,15 +160,15 @@ func (p *PendingUserRequest) SendConfirmationEmail(db *gel.Client, target url.UR
 	target.RawQuery = params.Encode()
 
 	templateData := email_templates.EmailVerificationData{
-		Name: p.FirstName,
-		URL:  target,
+		Name:	p.FirstName,
+		URL:	target,
 	}
 
 	return (&email.EmailData{
-		To:       emailToken.Email,
-		From:     settings.Email().FromHeader(),
-		Subject:  templateData.Subject(),
-		Template: email_templates.EmailVerification(templateData),
+		To:		emailToken.Email,
+		From:		settings.Email().FromHeader(),
+		Subject:	templateData.Subject(),
+		Template:	email_templates.EmailVerification(templateData),
 	}).Send(settings.Email().FromHeader())
 }
 
@@ -210,11 +212,12 @@ func VerifyEmail(edb *gel.Client, token tokens.Token) (ok bool, err error) {
 	return true, nil
 }
 
+// @mapstructure
 type SuperAdminInput struct {
-	UserInput      `gel:"$inline" json:",inline"`
-	PersonIdentity `gel:"$inline" json:",inline"`
-	Alias          models.OptionalInput[string] `json:"alias,omitempty" fake:"-"`
-	Organisation   OrganisationInput            `gel:"organisation" json:"organisation"`
+	UserInput	`gel:"$inline" json:",inline" mapstructure:",squash"`
+	PersonIdentity	`gel:"$inline" json:",inline" mapstructure:",squash"`
+	Alias		models.OptionalInput[string]	`json:"alias,omitempty" fake:"-" mapstructure:"alias"`
+	Organisation	models.OptionalInput[string]	`gel:"organisation" json:"organisation" mapstructure:"organisation"`
 }
 
 func (i SuperAdminInput) Save(e geltypes.Executor) (created User, err error) {
@@ -236,12 +239,10 @@ func (i SuperAdminInput) Save(e geltypes.Executor) (created User, err error) {
 					last_name := <str>data['last_name'],
 					contact := <str>data['email'],
 					alias := <str>json_get(data, 'alias') ?? {},
-					organisations := (insert people::Organisation {
-						name := <str>data['organisation']['name'],
-						code := <str>data['organisation']['code'],
-						description := <str>json_get(data['organisation'], 'description'),
-						kind := <OrgKind>data['organisation']['kind']
-					})
+					organisations := (
+						select Organisation
+						filter any({.name, .code} = <str>json_get(data, 'organisation'))
+					)
 				})
 			}),
 			select user { ** }

@@ -9,38 +9,34 @@ import (
 	"github.com/lsdch/biome/db"
 
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
 )
 
 type SuperAdmin struct {
-	Email string `gel:"email" json:"email"`
-	Name  string `gel:"name" json:"name"`
+	Email	string	`gel:"email" json:"email"`
+	Name	string	`gel:"name" json:"name"`
 }
 
 type Settings struct {
-	ID              geltypes.UUID    `gel:"id" json:"-"`
-	Instance        InstanceSettings `gel:"instance" json:"instance"`
-	Email           EmailSettings    `gel:"email" json:"email,omitempty"`
-	Security        SecuritySettings `gel:"security" json:"security"`
-	SuperAdmin      SuperAdmin       `gel:"superadmin" json:"superadmin"`
-	ServiceSettings `gel:"$inline" json:"services"`
+	ID		geltypes.UUID		`gel:"id" json:"-"`
+	Instance	InstanceSettings	`gel:"instance" json:"instance"`
+	Email		EmailSettings		`gel:"email" json:"email,omitempty"`
+	Security	SecuritySettings	`gel:"security" json:"security"`
+	SuperAdmin	SuperAdmin		`gel:"superadmin" json:"superadmin"`
+	ServiceSettings	`gel:"$inline" json:"services"`
 }
 
 var settings = new(Settings)
 
-type SettingsInput struct {
-	Instance       InstanceSettingsInput `json:"instance"`
-	SuperAdminID   geltypes.UUID         `json:"super_admin_id"`
-	GeoapifyApiKey *string               `json:"geoapify_api_key,omitempty" map_structure:"GEOAPIFY_API_KEY"`
+// @mapstructure
+type ServicesSettingsInput struct {
+	GeoapifyApiKey *string `json:"geoapify_api_key,omitempty" map_structure:"GEOAPIFY_API_KEY" mapstructure:"geoapify_api_key"`
 }
 
-func (i *SettingsInput) LoadConfig(path string) error {
-	viper.SetConfigFile(path)
-	if err := viper.ReadInConfig(); err != nil {
-		return err
-	}
-	err := viper.Unmarshal(i)
-	return err
+// @mapstructure
+type SettingsInput struct {
+	Instance	InstanceSettingsInput	`json:"instance" mapstructure:"instance"`
+	SuperAdminID	geltypes.UUID		`json:"super_admin_id" mapstructure:"super_admin_id"`
+	Services	ServicesSettingsInput	`json:"services" mapstructure:"services"`
 }
 
 func (i SettingsInput) SaveTx(tx geltypes.Tx) error {
@@ -71,7 +67,7 @@ func (i SettingsInput) SaveTx(tx geltypes.Tx) error {
 					<people::User><uuid>data['super_admin_id'],
 					message := 'Super admin not found'
 				)),
-				geoapify_api_key := <str>json_get(data, 'geoapify_api_key')
+				geoapify_api_key := <str>json_get(data, "services", 'geoapify_api_key')
 			}) {
 				**,
 				superadmin: { email, name := .identity.full_name }
@@ -81,6 +77,21 @@ func (i SettingsInput) SaveTx(tx geltypes.Tx) error {
 		return fmt.Errorf("Failed to initialize settings: %v", err)
 	}
 	return nil
+}
+
+func CheckSettingsInitialized(e geltypes.Executor) (ok bool) {
+	err := e.QuerySingle(context.Background(),
+		`#edgeql
+			select admin::Settings { id } limit 1;
+		`, new(Settings),
+	)
+	if db.IsNoData(err) {
+		return false
+	}
+	if err != nil {
+		logrus.Fatalf("Failed to check settings initialization: %v", err)
+	}
+	return true
 }
 
 func Get() *Settings {

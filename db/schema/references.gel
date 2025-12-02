@@ -27,6 +27,10 @@ module references {
   };
 
   type Collection extending default::Auditable, default::Vocabulary {
+    required personal: bool {
+      default := false;
+    };
+    location: str;
     contact: str;
   };
 

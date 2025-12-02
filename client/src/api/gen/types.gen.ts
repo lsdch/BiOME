@@ -205,8 +205,36 @@ export type CodeHistory = {
   time: Date
 }
 
+export type Collection = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code: string
+  contact?: string
+  description?: string
+  id: string
+  label: string
+  location?: string
+  meta: Meta
+  personal: boolean
+}
+
 export type CollectionField = {
   name: string
+  vouchers?: Array<string>
+}
+
+export type CollectionInput = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code: string
+  contact?: string
+  label: string
+  location?: string
+  personal?: boolean
   vouchers?: Array<string>
 }
 
@@ -216,7 +244,9 @@ export type CollectionWithVouchers = {
   description?: string
   id: string
   label: string
+  location?: string
   meta: Meta
+  personal: boolean
   vouchers?: Array<string>
 }
 
@@ -3220,6 +3250,113 @@ export type ClaimInvitationResponses = {
 }
 
 export type ClaimInvitationResponse = ClaimInvitationResponses[keyof ClaimInvitationResponses]
+
+export type ListCollectionsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/collections'
+}
+
+export type ListCollectionsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListCollectionsError = ListCollectionsErrors[keyof ListCollectionsErrors]
+
+export type ListCollectionsResponses = {
+  /**
+   * OK
+   */
+  200: Array<Collection>
+}
+
+export type ListCollectionsResponse = ListCollectionsResponses[keyof ListCollectionsResponses]
+
+export type CreateCollectionData = {
+  body?: CollectionInput
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/collections'
+}
+
+export type CreateCollectionErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type CreateCollectionError = CreateCollectionErrors[keyof CreateCollectionErrors]
+
+export type CreateCollectionResponses = {
+  /**
+   * OK
+   */
+  200: Collection
+}
+
+export type CreateCollectionResponse = CreateCollectionResponses[keyof CreateCollectionResponses]
+
+export type DeleteCollectionData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/collections/{code}'
+}
+
+export type DeleteCollectionErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type DeleteCollectionError = DeleteCollectionErrors[keyof DeleteCollectionErrors]
+
+export type DeleteCollectionResponses = {
+  /**
+   * OK
+   */
+  200: Collection
+}
+
+export type DeleteCollectionResponse = DeleteCollectionResponses[keyof DeleteCollectionResponses]
 
 export type CrossRefData = {
   body?: never

@@ -16,7 +16,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-//go:generate go run generators/generate_enums.go
+//go:generate go run generators/enums/generate_enums.go
+//go:generate go run generators/mapstructure/generate_mapstructure.go models
 
 func apiConfig(basePath string) huma.Config {
 	title := "BiOME API"

@@ -36,6 +36,9 @@ import type {
   CreateArticleData,
   CreateArticleError,
   CreateArticleResponse,
+  CreateCollectionData,
+  CreateCollectionError,
+  CreateCollectionResponse,
   CreateDataFeedData,
   CreateDataFeedError,
   CreateDataFeedResponse,
@@ -95,6 +98,9 @@ import type {
   DeleteArticleData,
   DeleteArticleError,
   DeleteArticleResponse,
+  DeleteCollectionData,
+  DeleteCollectionError,
+  DeleteCollectionResponse,
   DeleteDataSourceData,
   DeleteDataSourceError,
   DeleteDataSourceResponse,
@@ -161,6 +167,7 @@ import type {
   ListAccessPointsData,
   ListAnchorsData,
   ListArticlesData,
+  ListCollectionsData,
   ListCountriesData,
   ListDataFeedsData,
   ListDatasetsData,
@@ -816,6 +823,81 @@ export const claimInvitationMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await AccountService.claimInvitation({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const listCollectionsQueryKey = (options?: Options<ListCollectionsData>) =>
+  createQueryKey('listCollections', options)
+
+/**
+ * List collections
+ */
+export const listCollectionsOptions = (options?: Options<ListCollectionsData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await ReferencesService.listCollections({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listCollectionsQueryKey(options)
+  })
+}
+
+/**
+ * Create a new collection
+ */
+export const createCollectionMutation = (
+  options?: Partial<Options<CreateCollectionData>>
+): UseMutationOptions<
+  CreateCollectionResponse,
+  CreateCollectionError,
+  Options<CreateCollectionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateCollectionResponse,
+    CreateCollectionError,
+    Options<CreateCollectionData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await ReferencesService.createCollection({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Delete a collection by its code
+ */
+export const deleteCollectionMutation = (
+  options?: Partial<Options<DeleteCollectionData>>
+): UseMutationOptions<
+  DeleteCollectionResponse,
+  DeleteCollectionError,
+  Options<DeleteCollectionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteCollectionResponse,
+    DeleteCollectionError,
+    Options<DeleteCollectionData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await ReferencesService.deleteCollection({
         ...options,
         ...fnOptions,
         throwOnError: true

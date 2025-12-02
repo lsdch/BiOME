@@ -68,8 +68,11 @@ func (e *EmailSettingsInput) Dialer() *gomail.Dialer {
 }
 
 func (e *EmailSettingsInput) TestConnection() error {
-	_, err := e.Dialer().Dial()
-	return err
+	closer, err := e.Dialer().Dial()
+	if err != nil {
+		return err
+	}
+	return closer.Close()
 }
 
 func (e *EmailSettingsInput) WriteYAML(path string) error {

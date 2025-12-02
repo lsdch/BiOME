@@ -35,16 +35,16 @@ const (
 type BaseOccurrence[SamplingType any] struct {
 	ID                 geltypes.UUID `gel:"id" json:"id" format:"uuid"`
 	CodeIdentifier     `gel:"$inline" json:",inline"`
-	HasSequences       bool                           `gel:"has_sequences" json:"has_sequences"`
-	Sampling           SamplingType                   `gel:"sampling" json:"sampling"`
-	Identification     Identification                 `gel:"identification" json:"identification"`
-	TypeStatus         models.Optional[TypeStatus]    `gel:"type_status" json:"type_status,omitzero" nameHint:"TypeStatus"`
-	Comments           geltypes.OptionalStr           `gel:"comments" json:"comments,omitempty"`
-	Quantity           models.Optional[QuantityRange] `gel:"quantity" json:"quantity,omitempty"`
-	ContentDescription geltypes.OptionalStr           `gel:"content_description" json:"content_description,omitempty"`
-	OriginalTaxon      geltypes.OptionalStr           `gel:"original_taxon" json:"original_taxon,omitempty"`
-	Collections        []CollectionWithVouchers       `gel:"collections" json:"collections,omitempty"`
-	Meta               people.Meta                    `gel:"meta" json:"meta"`
+	HasSequences       bool                                `gel:"has_sequences" json:"has_sequences"`
+	Sampling           SamplingType                        `gel:"sampling" json:"sampling"`
+	Identification     Identification                      `gel:"identification" json:"identification"`
+	TypeStatus         models.Optional[TypeStatus]         `gel:"type_status" json:"type_status,omitzero" nameHint:"TypeStatus"`
+	Comments           geltypes.OptionalStr                `gel:"comments" json:"comments,omitempty"`
+	Quantity           models.Optional[QuantityRange]      `gel:"quantity" json:"quantity,omitempty"`
+	ContentDescription geltypes.OptionalStr                `gel:"content_description" json:"content_description,omitempty"`
+	OriginalTaxon      geltypes.OptionalStr                `gel:"original_taxon" json:"original_taxon,omitempty"`
+	Collections        []references.CollectionWithVouchers `gel:"collections" json:"collections,omitempty"`
+	Meta               people.Meta                         `gel:"meta" json:"meta"`
 }
 
 type OccurrenceListItem BaseOccurrence[SamplingInnerWithSite]
@@ -271,11 +271,11 @@ type OccurrenceInput struct {
 	Sources        []string                         `json:"sources,omitzero"`
 	OriginalTaxon  models.OptionalInput[string]     `json:"original_taxon,omitzero"`
 	// OriginalLink       models.OptionalInput[string]  `json:"external_link,omitzero"`
-	Quantity           models.OptionalInput[[]int32]           `json:"quantity,omitzero" minItems:"1" maxItems:"2"`
-	ContentDescription models.OptionalInput[string]            `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
-	Collections        models.OptionalInput[[]CollectionField] `json:"collections,omitzero"`
-	Comments           models.OptionalInput[string]            `json:"comments,omitzero"`
-	Sequences          []ExternalSequenceInput                 `json:"sequences,omitzero"`
+	Quantity           models.OptionalInput[[]int32] `json:"quantity,omitzero" minItems:"1" maxItems:"2"`
+	ContentDescription models.OptionalInput[string]  `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
+	Collections        []references.CollectionField  `json:"collections,omitzero"`
+	Comments           models.OptionalInput[string]  `json:"comments,omitzero"`
+	Sequences          []ExternalSequenceInput       `json:"sequences,omitzero"`
 }
 
 func (i *OccurrenceInput) SetCode(code string) {
@@ -292,6 +292,11 @@ func (occ *OccurrenceInput) WithCreatedMetadata(c *CreatedMetadata) *OccurrenceI
 	for i, source := range occ.Sources {
 		if s, ok := c.DataSources[source]; ok {
 			occ.Sources[i] = s
+		}
+	}
+	for i, col := range occ.Collections {
+		if c, ok := c.Collections[col.Name]; ok {
+			occ.Collections[i].Name = c
 		}
 	}
 	for i := range occ.Sequences {
@@ -359,12 +364,12 @@ type OccurrenceUpdate struct {
 	TypeStatus     models.OptionalNull[TypeStatus]            `gel:"type_status" json:"type_status,omitzero"`
 	OriginalSource models.OptionalNull[string]                `gel:"sources" json:"sources,omitempty"`
 	// OriginalLink       models.OptionalNull[string]    `gel:"external_link" json:"external_link,omitempty"`
-	OriginalTaxon      models.OptionalNull[string]            `gel:"original_taxon" json:"original_taxon,omitempty"`
-	Quantity           models.OptionalNull[[]int32]           `gel:"quantity" json:"quantity,omitempty" minItems:"2" maxItems:"2"`
-	ContentDescription models.OptionalNull[string]            `gel:"content_description" json:"content_description,omitempty"`
-	Collections        models.OptionalNull[[]CollectionField] `gel:"collections" json:"collections,omitempty"`
-	PublishedIn        models.OptionalNull[[]string]          `gel:"published_in" json:"published_in,omitempty"`
-	Comments           models.OptionalNull[string]            `gel:"comments" json:"comments,omitempty"`
+	OriginalTaxon      models.OptionalNull[string]                       `gel:"original_taxon" json:"original_taxon,omitempty"`
+	Quantity           models.OptionalNull[[]int32]                      `gel:"quantity" json:"quantity,omitempty" minItems:"2" maxItems:"2"`
+	ContentDescription models.OptionalNull[string]                       `gel:"content_description" json:"content_description,omitempty"`
+	Collections        models.OptionalNull[[]references.CollectionField] `gel:"collections" json:"collections,omitempty"`
+	PublishedIn        models.OptionalNull[[]string]                     `gel:"published_in" json:"published_in,omitempty"`
+	Comments           models.OptionalNull[string]                       `gel:"comments" json:"comments,omitempty"`
 }
 
 func (u OccurrenceUpdate) Save(e geltypes.Executor, code string) (updated BaseOccurrence[SamplingOutline], err error) {
@@ -477,4 +482,33 @@ func OccurrenceOverview(db geltypes.Executor) ([]OccurrenceOverviewItem, error) 
 		`,
 		&items)
 	return items.toItems(), err
+}
+
+type DateRange struct {
+	MinDate geltypes.OptionalDateTime `gel:"min_date" json:"min_date,omitzero"`
+	MaxDate geltypes.OptionalDateTime `gel:"max_date" json:"max_date,omitzero"`
+}
+
+func GetOccurrenceDateRange(db geltypes.Executor) (dateRange DateRange, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+		with module occurrence,
+		min_date := (
+			select min(Occurrence.sampling.performed_on.date)
+		)
+		select {
+			min_date := min(
+				select Occurrence
+				filter .sampling.performed_on.date != null
+				return datetime_get(.sampling.performed_on.date, 'year')
+			),
+			max_date := max(
+				select Occurrence
+				filter .sampling.performed_on.date != null
+				return datetime_get(.sampling.performed_on.date, 'year')
+			)
+		}
+		`,
+		&dateRange)
+	return dateRange, err
 }

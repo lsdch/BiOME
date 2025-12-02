@@ -29,7 +29,7 @@ func TestCreateOrganisation(t *testing.T) {
 
 func TestFindOrganisation(t *testing.T) {
 	inst := SetupOrganisation(t)
-	res, err := people.FindOrganisation(db.Client(), inst.ID)
+	res, err := people.FindOrganisationUUID(db.Client(), inst.ID)
 	require.NoError(t, err)
 	assert.Equal(t, inst, res)
 }

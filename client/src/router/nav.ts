@@ -191,8 +191,14 @@ export const navRoutes: (RouterItem | Divider)[] = [
         name: "data-sources",
         icon: "mdi-database-sync",
         component: () => import("@/features/registries/views/DataSourcesView.vue")
+      },
+      {
+        label: "Collections",
+        path: "/collections",
+        name: "collections",
+        icon: "mdi-library-shelves",
+        component: () => import("@/features/registries/views/CollectionsView.vue")
       }
-
     ]
   },
   {

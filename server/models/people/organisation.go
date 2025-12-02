@@ -12,35 +12,46 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// @mapstructure
 type OrganisationInfos struct {
-	Name string  `json:"name" gel:"name" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés" minLength:"10" maxLength:"128" fake:"{company}"`
-	Code string  `json:"code" gel:"code" example:"LEHNA" minLength:"2" maxLength:"12" fake:"{word}"`
-	Kind OrgKind `json:"kind" gel:"kind" example:"Lab"`
+	Name	string	`json:"name" gel:"name" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés" minLength:"10" maxLength:"128" fake:"{company}" mapstructure:"name"`
+	Code	string	`json:"code" gel:"code" example:"LEHNA" minLength:"2" maxLength:"12" fake:"{word}" mapstructure:"code"`
+	Kind	OrgKind	`json:"kind" gel:"kind" example:"Lab" mapstructure:"kind"`
 }
 
+// @mapstructure
 type OrganisationInput struct {
-	OrganisationInfos `gel:"$inline"`
-	Description       models.OptionalInput[string] `json:"description,omitzero" gel:"description" example:"Where this database was born."`
+	OrganisationInfos	`gel:"$inline" json:",inline" mapstructure:",squash"`
+	Description		models.OptionalInput[string]	`json:"description,omitzero" gel:"description" example:"Where this database was born." mapstructure:"description"`
 }
 
 type OrganisationInner struct {
-	ID                geltypes.UUID `json:"id" gel:"id" format:"uuid" binding:"required"`
-	OrganisationInfos `gel:"$inline" json:",inline"`
-	Description       geltypes.OptionalStr `json:"description,omitempty" gel:"description" example:"Where this database was born."`
+	ID			geltypes.UUID	`json:"id" gel:"id" format:"uuid" binding:"required"`
+	OrganisationInfos	`gel:"$inline" json:",inline"`
+	Description		geltypes.OptionalStr	`json:"description,omitempty" gel:"description" example:"Where this database was born."`
 }
 
 type Organisation struct {
-	OrganisationInner `gel:"$inline" json:",inline"`
-	People            []Person `json:"people,omitempty" gel:"people" doc:"Known members of this organisation"`
-	Meta              Meta     `json:"meta" gel:"meta"`
+	OrganisationInner	`gel:"$inline" json:",inline"`
+	People			[]Person	`json:"people,omitempty" gel:"people" doc:"Known members of this organisation"`
+	Meta			Meta		`json:"meta" gel:"meta"`
 }
 
-func FindOrganisation(db geltypes.Executor, uuid geltypes.UUID) (org Organisation, err error) {
+func FindOrganisationUUID(db geltypes.Executor, uuid geltypes.UUID) (org Organisation, err error) {
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
 			select people::Organisation { *, people:{ ** }, meta:{ * } }
 			filter .id = <uuid>$0;
 		`, &org, uuid)
+	return org, err
+}
+
+func FindOrganisation(db geltypes.Executor, code string) (org OrganisationInner, err error) {
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			select people::Organisation { * }
+			filter .code = <str>$0
+		`, &org, code)
 	return org, err
 }
 
@@ -78,10 +89,10 @@ func (inst OrganisationInput) Save(db geltypes.Executor) (created Organisation, 
 }
 
 type OrganisationUpdate struct {
-	Name        models.OptionalInput[string]  `gel:"name" json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
-	Code        models.OptionalInput[string]  `gel:"code" json:"code,omitempty" example:"LEHNA"`
-	Description models.OptionalNull[string]   `gel:"description" json:"description,omitempty" example:"Where this database was born."`
-	Kind        models.OptionalInput[OrgKind] `gel:"kind" json:"kind,omitempty" example:"Lab"`
+	Name		models.OptionalInput[string]	`gel:"name" json:"name,omitempty" example:"Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"`
+	Code		models.OptionalInput[string]	`gel:"code" json:"code,omitempty" example:"LEHNA"`
+	Description	models.OptionalNull[string]	`gel:"description" json:"description,omitempty" example:"Where this database was born."`
+	Kind		models.OptionalInput[OrgKind]	`gel:"kind" json:"kind,omitempty" example:"Lab"`
 }
 
 func (org OrganisationUpdate) Save(e geltypes.Executor, code string) (updated Organisation, err error) {
@@ -94,10 +105,10 @@ func (org OrganisationUpdate) Save(e geltypes.Executor, code string) (updated Or
 			) { *, people:{ *, user: { * } }, meta:{ * } }
 		`,
 		Mappings: map[string]string{
-			"name":        "<str>data['name']",
-			"code":        "<str>data['code']",
-			"description": "<str>data['description']",
-			"kind":        "<OrgKind>data['kind']",
+			"name":		"<str>data['name']",
+			"code":		"<str>data['code']",
+			"description":	"<str>data['description']",
+			"kind":		"<OrgKind>data['kind']",
 		},
 	}
 	args, _ := json.Marshal(org)

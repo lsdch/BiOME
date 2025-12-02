@@ -7198,10 +7198,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -16494,8 +16491,10 @@
                 "confer": false,
                 "taxon": "Nitocrella stammeri"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -19314,10 +19313,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -20316,10 +20312,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Ceuthonectes serbicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -21392,10 +21385,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops clandestinus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -21431,10 +21421,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops kieferi"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -23142,8 +23129,10 @@
                 "confer": false,
                 "taxon": "Nitocrella stammeri"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -23886,10 +23875,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Ceuthonectes serbicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -29092,10 +29078,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -32384,10 +32367,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Megacyclops brachypus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -33568,10 +33548,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Ceuthonectes serbicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -36957,10 +36934,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -37231,8 +37205,10 @@
                 "confer": false,
                 "taxon": "Nitocrella stammeri"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -40833,8 +40809,10 @@
                 "confer": false,
                 "taxon": "Nitocrella stammeri"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -40935,10 +40913,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -40963,10 +40938,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -41197,10 +41169,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Speocyclops cerberus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -42088,8 +42057,10 @@
                 "confer": false,
                 "taxon": "Parapseudoleptomesochra italica"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -42126,8 +42097,10 @@
                 "confer": false,
                 "taxon": "Parapseudoleptomesochra italica"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -44518,8 +44491,10 @@
                 "confer": false,
                 "taxon": "Parapseudoleptomesochra italica"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -44726,8 +44701,10 @@
                 "confer": false,
                 "taxon": "Nitocrella stammeri"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -46001,8 +45978,10 @@
                 "confer": false,
                 "taxon": "Parapseudoleptomesochra italica"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -46560,10 +46539,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -46587,10 +46563,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -47581,10 +47554,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Megacyclops brachypus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -52413,10 +52383,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella sp. I1"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -52922,8 +52889,10 @@
                 "confer": false,
                 "taxon": "Elaphoidella elaphoides elaphoides"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -52960,8 +52929,10 @@
                 "confer": false,
                 "taxon": "Moraria stankovitchi"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -53210,8 +53181,10 @@
                 "confer": false,
                 "taxon": "Moraria stankovitchi"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -53285,8 +53258,10 @@
                 "confer": false,
                 "taxon": "Moraria stankovitchi"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -53311,8 +53286,10 @@
                 "confer": false,
                 "taxon": "Moraria stankovitchi"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -55191,10 +55168,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Nitocrella achaiae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -55662,10 +55636,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -55819,8 +55790,10 @@
                 "confer": false,
                 "taxon": "Nitocrella morettii"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -59347,10 +59320,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -59991,10 +59961,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella sp. I1"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -60066,10 +60033,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Moraria stankovitchi"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -60105,10 +60069,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -60133,10 +60094,7 @@
                 "confer": false,
                 "taxon": "Acanthocyclops",
                 "addendum": "group venustus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -60161,10 +60119,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -60603,10 +60558,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Nitocrella psammophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -61081,10 +61033,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella pseudophreatica"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -61220,10 +61169,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella pseudophreatica"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -62637,10 +62583,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella sp. I1"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -62894,10 +62837,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella sp. I1"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -63462,10 +63402,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella pseudophreatica"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -63500,10 +63437,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella sp. I1"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -63573,10 +63507,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella sp. I1"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -65182,8 +65113,10 @@
                 "confer": false,
                 "taxon": "Nitocrella achaiae"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -65541,8 +65474,10 @@
                 "confer": false,
                 "taxon": "Nitocrella achaiae"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -65789,10 +65724,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Ceuthonectes serbicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -70903,10 +70835,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops paolae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -70931,10 +70860,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -71008,8 +70934,10 @@
                 "confer": false,
                 "taxon": "Nitocrella psammophila"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -71838,8 +71766,10 @@
                 "confer": false,
                 "taxon": "Nitocrella morettii"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -72741,8 +72671,10 @@
                 "confer": false,
                 "taxon": "Nitocrella morettii"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -72918,8 +72850,10 @@
                 "confer": false,
                 "taxon": "Nitocrella stammeri"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -74847,8 +74781,10 @@
                 "confer": false,
                 "taxon": "Nitocrella stammeri"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -75165,10 +75101,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops sensitivus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -75190,10 +75123,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella phreatica"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -76178,10 +76108,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -77607,10 +77534,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Nitocrella psammophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -81672,10 +81596,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella cvetkae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -82146,8 +82067,10 @@
                 "confer": false,
                 "taxon": "Moraria stankovitchi"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -83975,10 +83898,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella sp. B"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -84575,10 +84495,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella jeanneli"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -85018,10 +84935,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -85602,10 +85516,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -86352,8 +86263,10 @@
                 "confer": false,
                 "taxon": "Stammericaris lorenzae"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -86441,10 +86354,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Moraria stankovitchi"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -87225,10 +87135,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Megacyclops brachypus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -87992,10 +87899,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -88654,10 +88558,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Megacyclops brachypus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -88915,10 +88816,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus dentatus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -89312,10 +89210,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -90200,8 +90095,10 @@
                 "confer": false,
                 "taxon": "Parapseudoleptomesochra italica"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -90587,8 +90484,10 @@
                 "confer": false,
                 "taxon": "Nitocrella kunzi"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -90625,8 +90524,10 @@
                 "confer": false,
                 "taxon": "Nitocrella kunzi"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -90663,8 +90564,10 @@
                 "confer": false,
                 "taxon": "Nitocrella pescei"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -90916,8 +90819,10 @@
                 "confer": false,
                 "taxon": "Italicocaris italica"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -91247,8 +91152,10 @@
                 "confer": false,
                 "taxon": "Elaphoidella plutonis"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -91273,8 +91180,10 @@
                 "confer": false,
                 "taxon": "Nitocrella pescei"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -91310,10 +91219,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus unisaetosus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -91419,8 +91325,10 @@
                 "confer": false,
                 "taxon": "Italicocaris italica"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -91496,8 +91404,10 @@
                 "confer": false,
                 "taxon": "Elaphoidella elaphoides elaphoides"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -91534,8 +91444,10 @@
                 "confer": false,
                 "taxon": "Stammericaris lorenzae"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -91610,8 +91522,10 @@
                 "confer": false,
                 "taxon": "Italicocaris italica"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -92026,10 +91940,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Megacyclops brachypus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -92523,10 +92434,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella cvetkae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -92769,10 +92677,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Nitocrella psammophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -92834,8 +92739,10 @@
                 "confer": false,
                 "taxon": "Elaphoidella elaphoides elaphoides"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -93464,10 +93371,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops kieferi"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -93696,8 +93600,10 @@
                 "confer": false,
                 "taxon": "Parapseudoleptomesochra italica"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -94539,10 +94445,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -94577,10 +94480,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -94768,8 +94668,10 @@
                 "confer": false,
                 "taxon": "Parastenocaris crenobia"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -94794,8 +94696,10 @@
                 "confer": false,
                 "taxon": "Pseudectinosoma reductum"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -94832,8 +94736,10 @@
                 "confer": false,
                 "taxon": "Nitocrella kunzi"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -94941,10 +94847,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -94979,10 +94882,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -95005,10 +94905,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus unisaetosus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -95604,10 +95501,7 @@
                 "confer": false,
                 "taxon": "Acanthocyclops",
                 "addendum": "group venustus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -95644,10 +95538,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -95671,10 +95562,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Megacyclops brachypus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -96761,10 +96649,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella cvetkae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -96799,10 +96684,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -96825,10 +96707,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella cvetkae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -96863,10 +96742,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -96979,10 +96855,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Metacyclops stammeri"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -97128,10 +97001,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -97166,10 +97036,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -97420,10 +97287,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus unisaetosus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -97459,10 +97323,7 @@
                 "confer": false,
                 "taxon": "Moraria sp. SLO1",
                 "addendum": "subgenus Moraria"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -99883,10 +99744,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -99909,10 +99767,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella cvetkae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -99947,10 +99802,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -99973,10 +99825,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Ceuthonectes serbicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -99999,10 +99848,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella cvetkae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -100245,10 +100091,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -100283,10 +100126,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -100359,10 +100199,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -100385,10 +100222,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -100423,10 +100257,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -100449,10 +100280,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -101039,10 +100867,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -101537,10 +101362,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -102045,10 +101867,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102097,10 +101916,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Ceuthonectes serbicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102123,10 +101939,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops belgicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102201,10 +102014,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella cvetkae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102253,10 +102063,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella jeanneli"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102397,10 +102204,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102423,10 +102227,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella cvetkae"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102627,10 +102428,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops charon"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -102665,10 +102463,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops kieferi"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102691,10 +102486,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops charon"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102717,10 +102509,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella stammeri"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102743,10 +102532,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -102781,10 +102567,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella stammeri"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -102807,10 +102590,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -103575,10 +103355,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -103825,10 +103602,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -103890,10 +103664,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -103928,10 +103699,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -103954,10 +103722,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Morariopsis scotenophila"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -104044,10 +103809,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -109081,10 +108843,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella stammeri"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -109107,10 +108866,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Lessinocamptus sp. SLO1"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -109145,10 +108901,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops troglophilus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -109183,10 +108936,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops kieferi"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -109261,10 +109011,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus balcanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -109287,10 +109034,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops charon"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -109313,10 +109057,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops goticus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -109444,10 +109185,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella jeanneli"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -109470,10 +109208,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella stammeri"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -109572,10 +109307,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Speocyclops infernus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -112728,10 +112460,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -118083,10 +117812,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus unisaetosus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -118147,10 +117873,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella jeanneli"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -118185,10 +117908,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus dacicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -118234,10 +117954,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella jeanneli"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -119175,10 +118892,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -119517,10 +119231,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella jeanneli"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -119555,10 +119266,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella jeanneli"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -120031,10 +119739,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Speocyclops infernus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -120558,10 +120263,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Moraria stankovitchi"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -121136,10 +120838,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops stammeri stammeri"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -121162,10 +120861,7 @@
               "identification": {
                 "confer": true,
                 "taxon": "Diacyclops tantalus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -122693,10 +122389,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops troglophilus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -122719,10 +122412,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops charon"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -122745,10 +122435,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops slovenicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -122771,10 +122458,7 @@
               "identification": {
                 "confer": true,
                 "taxon": "Diacyclops tantalus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -122885,10 +122569,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -122923,10 +122604,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops stammeri stammeri"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -122949,10 +122627,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops troglophilus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -122975,10 +122650,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -123001,10 +122673,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops charon"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -123027,10 +122696,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops slovenicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -123053,10 +122719,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella jeanneli"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -123079,10 +122742,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella phreatica"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -123792,10 +123452,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops stammeri stammeri"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -123818,10 +123475,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops charon"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -123844,10 +123498,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Elaphoidella jeanneli"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -132195,8 +131846,10 @@
                 "confer": false,
                 "taxon": "Nitocrella stammeri"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -149672,10 +149325,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Ceuthonectes hungaricus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -171181,10 +170831,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -178309,10 +177956,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -182656,10 +182300,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Diacyclops clandestinus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -193581,10 +193222,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -198077,10 +197715,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -199162,10 +198797,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -199943,10 +199575,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -199971,10 +199600,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -207759,8 +207385,10 @@
                 "confer": false,
                 "taxon": "Nitocrella hirta hirta"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -209236,10 +208864,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -213744,8 +213369,10 @@
                 "confer": false,
                 "taxon": "Proserpinicaris meridionalis"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -213771,8 +213398,10 @@
                 "confer": false,
                 "taxon": "Proserpinicaris meridionalis"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -214412,10 +214041,7 @@
                 "confer": false,
                 "taxon": "Diacyclops",
                 "addendum": "group languidoides"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         },
@@ -214982,8 +214608,10 @@
                 "confer": false,
                 "taxon": "Fontinalicaris fontinalis fontinalis"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -215219,10 +214847,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -217546,8 +217171,10 @@
                 "confer": false,
                 "taxon": "Parastenocaris glareola"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -219543,8 +219170,10 @@
                 "confer": false,
                 "taxon": "Monchenkocyclops biarticulataus"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -219767,8 +219396,10 @@
                 "confer": false,
                 "taxon": "Parastenocaris glareola"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -227604,10 +227235,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Bryocamptus pyrenaicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -228227,10 +227855,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops hispanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -228768,8 +228393,10 @@
                 "confer": false,
                 "taxon": "Parapseudoleptomesochra minoricae"
               },
-              "sources": [
-                "GALASSI"
+              "collections": [
+                {
+                  "name": "GALASSI"
+                }
               ]
             }
           ]
@@ -230222,10 +229849,7 @@
               "identification": {
                 "confer": false,
                 "taxon": "Acanthocyclops hispanicus"
-              },
-              "sources": [
-                "Collection: F. Stoch"
-              ]
+              }
             }
           ]
         }
@@ -235983,15 +235607,20 @@
       "status": "Unclassified"
     }
   ],
-  "data_sources": {
+  "collections": {
     "STOCH": {
-      "label": "F. Stoch (2002) Collection (Rome)",
-      "code": "STOCH"
+      "label": "F. Stoch (2002) personal collection",
+      "location": "Rome, Italy",
+      "code": "STOCH",
+      "personal": true
     },
     "GALASSI": {
-      "label": "D. Galassi Personal Collection",
-      "code": "GALASSI"
-    },
+      "label": "D. Galassi personal collection",
+      "code": "GALASSI",
+      "personal": true
+    }
+  },
+  "data_sources": {
     "ATBI_MERCANTOUR": {
       "label": "ATBI Mercantour Database",
       "code": "ATBI_MERCANTOUR"

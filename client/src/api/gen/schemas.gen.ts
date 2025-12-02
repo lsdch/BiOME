@@ -542,6 +542,46 @@ export const $CodeHistory = {
   type: 'object'
 } as const
 
+export const $Collection = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/Collection.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    contact: {
+      type: 'string'
+    },
+    description: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    location: {
+      type: 'string'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    personal: {
+      type: 'boolean'
+    }
+  },
+  required: ['id', 'label', 'code', 'personal', 'meta'],
+  type: 'object'
+} as const
+
 export const $CollectionField = {
   additionalProperties: false,
   properties: {
@@ -556,6 +596,42 @@ export const $CollectionField = {
     }
   },
   required: ['name'],
+  type: 'object'
+} as const
+
+export const $CollectionInput = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/CollectionInput.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    contact: {
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    },
+    location: {
+      type: 'string'
+    },
+    personal: {
+      type: 'boolean'
+    },
+    vouchers: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    }
+  },
+  required: ['label', 'code'],
   type: 'object'
 } as const
 
@@ -578,8 +654,14 @@ export const $CollectionWithVouchers = {
     label: {
       type: 'string'
     },
+    location: {
+      type: 'string'
+    },
     meta: {
       $ref: '#/components/schemas/Meta'
+    },
+    personal: {
+      type: 'boolean'
     },
     vouchers: {
       items: {
@@ -588,7 +670,7 @@ export const $CollectionWithVouchers = {
       type: 'array'
     }
   },
-  required: ['id', 'label', 'code', 'meta'],
+  required: ['id', 'label', 'code', 'personal', 'meta'],
   type: 'object'
 } as const
 
