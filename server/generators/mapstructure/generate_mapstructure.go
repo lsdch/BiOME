@@ -4,152 +4,221 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"go/ast"
 	"go/parser"
-	"go/printer"
 	"go/token"
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
+var jsonTagRegexp = regexp.MustCompile(`json:"([^",]+)`)
+
+// an edit to apply to the original source: replace [start:end) with newText
+type edit struct {
+	start   int // byte offset
+	end     int // byte offset
+	newText string
+}
+
 func main() {
 	if len(os.Args) < 2 {
-		fmt.Println("Usage: go run gen_mapstructure_tags.go <file_or_dir>")
+		fmt.Println("Usage: go run gen_mapstructure_preserve.go <file-or-dir>")
 		os.Exit(1)
 	}
-	root := os.Args[1]
 
+	root := os.Args[1]
 	info, err := os.Stat(root)
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "stat error: %v\n", err)
+		os.Exit(1)
 	}
 
 	var files []string
 	if info.IsDir() {
-		// Walk directory recursively
-		err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
+		err := filepath.Walk(root, func(path string, fi os.FileInfo, err error) error {
 			if err != nil {
 				return err
 			}
-			if !info.IsDir() && strings.HasSuffix(path, ".go") {
+			if fi.IsDir() {
+				return nil
+			}
+			if strings.HasSuffix(path, ".go") && !strings.HasSuffix(path, "_test.go") {
 				files = append(files, path)
 			}
 			return nil
 		})
 		if err != nil {
-			panic(err)
+			fmt.Fprintf(os.Stderr, "walk error: %v\n", err)
+			os.Exit(1)
 		}
 	} else {
 		files = append(files, root)
 	}
 
-	for _, filename := range files {
-		err := processFile(filename)
-		if err != nil {
-			fmt.Printf("Error processing %s: %v\n", filename, err)
+	if len(files) == 0 {
+		fmt.Println("No .go files found")
+		return
+	}
+
+	for _, f := range files {
+		if err := processFile(f); err != nil {
+			fmt.Fprintf(os.Stderr, "error processing %s: %v\n", f, err)
 		}
 	}
 }
 
 func processFile(filename string) error {
+	srcBytes, err := os.ReadFile(filename)
+	if err != nil {
+		return err
+	}
+	src := string(srcBytes)
+
 	fset := token.NewFileSet()
-	f, err := parser.ParseFile(fset, filename, nil, parser.ParseComments)
+	// parse with comments
+	fileAST, err := parser.ParseFile(fset, filename, src, parser.ParseComments)
 	if err != nil {
 		return err
 	}
 
+	var edits []edit
 	modified := false
 
-	jsonTagRegexp := regexp.MustCompile(`json:"([^",]+)`)
-
-	for _, decl := range f.Decls {
+	// iterate declarations so we can read the GenDecl.Doc (preceding comments)
+	for _, decl := range fileAST.Decls {
 		gd, ok := decl.(*ast.GenDecl)
 		if !ok || gd.Tok != token.TYPE {
 			continue
 		}
+
+		// check for the @mapstructure annotation in the GenDecl (the comment block above type)
+		hasAnnotation := false
+		if gd.Doc != nil {
+			for _, c := range gd.Doc.List {
+				if strings.Contains(c.Text, "@mapstructure") {
+					hasAnnotation = true
+					break
+				}
+			}
+		}
+		if !hasAnnotation {
+			// also check line comments attached to the decl (rare), and specs' docs below
+			// we'll check per TypeSpec below as well, so continue.
+		}
+
 		for _, spec := range gd.Specs {
 			ts, ok := spec.(*ast.TypeSpec)
 			if !ok {
 				continue
 			}
 			st, ok := ts.Type.(*ast.StructType)
-			if !ok {
+			if !ok || st.Fields == nil {
 				continue
 			}
 
-			// check for preceding comment with @mapstructure
-			hasTagComment := false
-			if gd.Doc != nil {
-				for _, c := range gd.Doc.List {
-					if strings.Contains(c.Text, "@mapstructure") {
-						hasTagComment = true
-						break
+			// allow annotation either on the GenDecl or the TypeSpec's doc/comment
+			typeHasAnnotation := hasAnnotation
+			if !typeHasAnnotation {
+				if ts.Doc != nil {
+					for _, c := range ts.Doc.List {
+						if strings.Contains(c.Text, "@mapstructure") {
+							typeHasAnnotation = true
+							break
+						}
 					}
 				}
-			}
-			if !hasTagComment && st.Fields != nil {
-				// also check field-level comment
-				for _, f := range st.Fields.List {
-					if f.Doc != nil {
-						for _, c := range f.Doc.List {
-							if strings.Contains(c.Text, "@mapstructure") {
-								hasTagComment = true
-								break
-							}
+				if !typeHasAnnotation && ts.Comment != nil {
+					for _, c := range ts.Comment.List {
+						if strings.Contains(c.Text, "@mapstructure") {
+							typeHasAnnotation = true
+							break
 						}
 					}
 				}
 			}
-
-			if !hasTagComment {
-				continue // skip this struct
+			if !typeHasAnnotation {
+				// skip this type
+				continue
 			}
 
-			// modify struct fields
+			// process each field inside the struct
 			for _, field := range st.Fields.List {
 				if field.Tag == nil {
+					// no tag to update
 					continue
 				}
 
-				tagValue := strings.Trim(field.Tag.Value, "`") // remove backticks
+				// compute byte offsets of the tag in the original file using fset.Position
+				start := fset.Position(field.Tag.Pos()).Offset
+				end := fset.Position(field.Tag.End()).Offset
+				if start < 0 || end > len(srcBytes) || start >= end {
+					// fallback - skip if positions aren't sane
+					continue
+				}
 
-				// Parse JSON tag name
-				jsonMatches := jsonTagRegexp.FindStringSubmatch(tagValue)
-				var jsonName string
+				rawTag := src[start:end] // includes backticks
+				tagInner := strings.Trim(rawTag, "`")
+
+				origTagInner := tagInner // remember for comparison
+
+				// If json inline is present and mapstructure doesn't have squash, add it
+				if strings.Contains(tagInner, "inline") && !strings.Contains(tagInner, "mapstructure") {
+					// only add squash if not already present
+					tagInner += ` mapstructure:",squash"`
+				}
+
+				// Parse json tag name and add mapstructure:"name" if missing
+				jsonMatches := jsonTagRegexp.FindStringSubmatch(tagInner)
 				if len(jsonMatches) > 1 {
-					jsonName = jsonMatches[1]
+					jsonName := jsonMatches[1]
+					if jsonName != "-" && !strings.Contains(tagInner, "mapstructure:") {
+						// add corresponding mapstructure tag
+						tagInner += fmt.Sprintf(` mapstructure:"%s"`, jsonName)
+					}
 				}
 
-				// Handle inline embedded struct
-				if strings.Contains(tagValue, "inline") && !strings.Contains(tagValue, "mapstructure") {
-					tagValue += ` mapstructure:",squash"`
-				} else if jsonName != "" && !strings.Contains(tagValue, "mapstructure") {
-					tagValue += fmt.Sprintf(` mapstructure:"%s"`, jsonName)
+				// if tagInner changed, schedule an edit
+				if tagInner != origTagInner {
+					newTag := "`" + tagInner + "`"
+					edits = append(edits, edit{
+						start:   start,
+						end:     end,
+						newText: newTag,
+					})
+					modified = true
 				}
-
-				field.Tag.Value = "`" + tagValue + "`"
-				modified = true
 			}
 		}
 	}
 
 	if !modified {
-		// nothing changed
+		// nothing to do
 		return nil
 	}
 
-	var buf bytes.Buffer
-	printer.Fprint(&buf, fset, f)
+	// apply edits in reverse order of start offset so indices remain valid
+	sort.Slice(edits, func(i, j int) bool { return edits[i].start > edits[j].start })
 
-	err = os.WriteFile(filename, buf.Bytes(), 0644)
-	if err != nil {
-		return err
+	out := []byte(src)
+	for _, e := range edits {
+		if e.start < 0 || e.end > len(out) || e.start > e.end {
+			return fmt.Errorf("invalid edit range %d-%d (file %s)", e.start, e.end, filename)
+		}
+		newOut := make([]byte, 0, len(out)+len(e.newText)-(e.end-e.start))
+		newOut = append(newOut, out[:e.start]...)
+		newOut = append(newOut, []byte(e.newText)...)
+		newOut = append(newOut, out[e.end:]...)
+		out = newOut
 	}
 
-	fmt.Printf("Updated struct(s) in %s\n", filename)
+	// overwrite file
+	if err := os.WriteFile(filename, out, 0644); err != nil {
+		return err
+	}
+	fmt.Printf("Updated %s (%d edits)\n", filename, len(edits))
 	return nil
 }

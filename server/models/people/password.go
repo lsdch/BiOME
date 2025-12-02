@@ -15,14 +15,14 @@ import (
 )
 
 type UpdatePasswordInput struct {
-	Password	string		`json:"password" doc:"Your current password"`
-	NewPassword	PasswordInput	`json:"new_password"`
+	Password    string        `json:"password" doc:"Your current password"`
+	NewPassword PasswordInput `json:"new_password"`
 }
 
 // @mapstructure
 type PasswordInput struct {
-	Password	string	`json:"password" doc:"Your new password" mapstructure:"password"`
-	ConfirmPwd	string	`json:"password_confirmation" doc:"New password confirmation" mapstructure:"password_confirmation"`
+	Password   string `json:"password" doc:"Your new password" mapstructure:"password"`
+	ConfirmPwd string `json:"password_confirmation" doc:"New password confirmation" mapstructure:"password_confirmation"`
 }
 
 func (p PasswordInput) ValidateEqual() bool {
@@ -30,10 +30,10 @@ func (p PasswordInput) ValidateEqual() bool {
 }
 
 type PasswordSensitiveInfos struct {
-	Email		string
-	Login		string
-	FirstName	string
-	LastName	string
+	Email     string
+	Login     string
+	FirstName string
+	LastName  string
 }
 
 func (p *PasswordSensitiveInfos) ToSlice() []string {
@@ -99,8 +99,8 @@ func (user *User) RequestPasswordReset(db *gel.Client, target url.URL) error {
 
 	logrus.Debugf("Sending password reset email to %s", user.Person.FullName)
 	template := email_templates.PasswordReset(email_templates.PasswordResetData{
-		Name:	user.Person.FirstName,
-		URL:	target,
+		Name: user.Person.FirstName,
+		URL:  target,
 	})
 	return user.SendEmail("Reset your account password", template)
 }

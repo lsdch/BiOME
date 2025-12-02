@@ -16,37 +16,37 @@ import (
 
 // @mapstructure
 type PersonIdentity struct {
-	FirstName	string	`json:"first_name" gel:"first_name" minLength:"2" maxLength:"32" fake:"{firstname}" mapstructure:"first_name"`
-	LastName	string	`json:"last_name" gel:"last_name" minLength:"2" maxLength:"32" fake:"{lastname}" mapstructure:"last_name"`
+	FirstName string `json:"first_name" gel:"first_name" minLength:"2" maxLength:"32" fake:"{firstname}" mapstructure:"first_name"`
+	LastName  string `json:"last_name" gel:"last_name" minLength:"2" maxLength:"32" fake:"{lastname}" mapstructure:"last_name"`
 }
 
 // PersonInner contains all properties defining a person, excluding links to related entities
 type PersonInner struct {
-	PersonIdentity	`gel:"$inline"`
-	ID		geltypes.UUID		`gel:"id" json:"id" binding:"required" format:"uuid"`
-	FullName	string			`json:"full_name" gel:"full_name" binding:"required"`
-	Alias		string			`json:"alias" gel:"alias" binding:"required"`
-	Role		OptionalUserRole	`json:"role,omitempty" gel:"role"`
-	Contact		geltypes.OptionalStr	`json:"contact" gel:"contact" format:"email"`
-	Comment		geltypes.OptionalStr	`json:"comment" gel:"comment"`
+	PersonIdentity `gel:"$inline"`
+	ID             geltypes.UUID        `gel:"id" json:"id" binding:"required" format:"uuid"`
+	FullName       string               `json:"full_name" gel:"full_name" binding:"required"`
+	Alias          string               `json:"alias" gel:"alias" binding:"required"`
+	Role           OptionalUserRole     `json:"role,omitempty" gel:"role"`
+	Contact        geltypes.OptionalStr `json:"contact" gel:"contact" format:"email"`
+	Comment        geltypes.OptionalStr `json:"comment" gel:"comment"`
 }
 
 // PersonUser is PersonInner with optional user informations attached
 type PersonUser struct {
-	PersonInner	`gel:"$inline" json:",inline"`
-	User		models.Optional[UserInner]	`gel:"user" json:"user"`
+	PersonInner `gel:"$inline" json:",inline"`
+	User        models.Optional[UserInner] `gel:"user" json:"user"`
 }
 
 // Person is the complete informations about a person, including related entities
 type Person struct {
-	PersonUser	`gel:"$inline" json:",inline"`
-	Organisations	[]OrganisationInner	`json:"organisations,omitempty" gel:"organisations"`
-	Meta		Meta			`json:"meta" gel:"meta"`
+	PersonUser    `gel:"$inline" json:",inline"`
+	Organisations []OrganisationInner `json:"organisations,omitempty" gel:"organisations"`
+	Meta          Meta                `json:"meta" gel:"meta"`
 }
 
 type OptionalPerson struct {
 	geltypes.Optional
-	PersonInner	`gel:"$inline" json:",inline"`
+	PersonInner `gel:"$inline" json:",inline"`
 }
 
 func FindPerson(db geltypes.Executor, id geltypes.UUID) (person Person, err error) {
@@ -81,11 +81,11 @@ func (person Person) Delete(db geltypes.Executor) (Person, error) {
 
 type PersonInput struct {
 	PersonIdentity
-	Organisations	[]string			`json:"organisations,omitempty" fakesize:"2"`
-	Alias		models.OptionalInput[string]	`json:"alias,omitzero" fake:"-"`
-	Contact		models.OptionalInput[string]	`json:"contact,omitzero" format:"email"`
-	Comment		models.OptionalInput[string]	`json:"comment,omitzero"`
-	ForceCreate	bool				`json:"force_create,omitzero"`
+	Organisations []string                     `json:"organisations,omitempty" fakesize:"2"`
+	Alias         models.OptionalInput[string] `json:"alias,omitzero" fake:"-"`
+	Contact       models.OptionalInput[string] `json:"contact,omitzero" format:"email"`
+	Comment       models.OptionalInput[string] `json:"comment,omitzero"`
+	ForceCreate   bool                         `json:"force_create,omitzero"`
 }
 
 func (p *PersonInput) WithOrganisationCodes(codes map[string]string) PersonInput {
@@ -136,12 +136,12 @@ func (person PersonInput) Save(db geltypes.Executor) (created Person, err error)
 }
 
 type PersonUpdate struct {
-	FirstName	models.OptionalInput[string]	`gel:"first_name" json:"first_name,omitempty" minLength:"2" maxLength:"32"`
-	LastName	models.OptionalInput[string]	`gel:"last_name" json:"last_name,omitempty" minLength:"2" maxLength:"32"`
-	Contact		models.OptionalNull[string]	`gel:"contact" json:"contact,omitempty" `
-	Organisations	models.OptionalInput[[]string]	`gel:"organisations" json:"organisations,omitempty" fakesize:"3"`	// Organisation codes
-	Alias		models.OptionalInput[string]	`gel:"alias" json:"alias,omitempty"`
-	Comment		models.OptionalNull[string]	`gel:"comment" json:"comment,omitempty"`
+	FirstName     models.OptionalInput[string]   `gel:"first_name" json:"first_name,omitempty" minLength:"2" maxLength:"32"`
+	LastName      models.OptionalInput[string]   `gel:"last_name" json:"last_name,omitempty" minLength:"2" maxLength:"32"`
+	Contact       models.OptionalNull[string]    `gel:"contact" json:"contact,omitempty" `
+	Organisations models.OptionalInput[[]string] `gel:"organisations" json:"organisations,omitempty" fakesize:"3"` // Organisation codes
+	Alias         models.OptionalInput[string]   `gel:"alias" json:"alias,omitempty"`
+	Comment       models.OptionalNull[string]    `gel:"comment" json:"comment,omitempty"`
 }
 
 func (u PersonUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Person, err error) {
@@ -154,11 +154,11 @@ func (u PersonUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Perso
 			}) { ** }
 		`,
 		Mappings: map[string]string{
-			"first_name":	"<str>item['first_name']",
-			"last_name":	"<str>item['last_name']",
-			"contact":	"<str>item['contact']",
-			"alias":	"<str>item['alias']",
-			"comment":	"<str>item['comment']",
+			"first_name": "<str>item['first_name']",
+			"last_name":  "<str>item['last_name']",
+			"contact":    "<str>item['contact']",
+			"alias":      "<str>item['alias']",
+			"comment":    "<str>item['comment']",
 			"organisations": `#edgeql
 				(
 					select people::Organisation

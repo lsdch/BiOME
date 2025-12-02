@@ -10,21 +10,21 @@ import (
 
 // @mapstructure
 type InstanceSettingsInner struct {
-	Name			string	`gel:"name" json:"name" doc:"The name of this database platform" fake:"{word}" mapstructure:"name"`
-	IsPublic		bool	`gel:"public" json:"public" doc:"Whether the platform is accessible to unauthenticated users" mapstructure:"public"`
-	AllowContribSignup	bool	`gel:"allow_contributor_signup" json:"allow_contributor_signup" doc:"Whether requests to contribute to the database can be made." mapstructure:"allow_contributor_signup"`
+	Name               string `gel:"name" json:"name" doc:"The name of this database platform" fake:"{word}" mapstructure:"name"`
+	IsPublic           bool   `gel:"public" json:"public" doc:"Whether the platform is accessible to unauthenticated users" mapstructure:"public"`
+	AllowContribSignup bool   `gel:"allow_contributor_signup" json:"allow_contributor_signup" doc:"Whether requests to contribute to the database can be made." mapstructure:"allow_contributor_signup"`
 }
 
 // @mapstructure
 type InstanceSettingsInput struct {
-	InstanceSettingsInner	`gel:"$inline" json:",inline" mapstructure:",squash"`
-	Description		models.OptionalNull[string]	`json:"description,omitempty" mapstructure:"description"`
+	InstanceSettingsInner `gel:"$inline" json:",inline" mapstructure:",squash"`
+	Description           models.OptionalNull[string] `json:"description,omitempty" mapstructure:"description"`
 }
 
 type InstanceSettings struct {
-	ID			geltypes.UUID	`gel:"id" json:"-"`
-	InstanceSettingsInner	`gel:"$inline" json:",inline"`
-	Description		geltypes.OptionalStr	`gel:"description" json:"description"`
+	ID                    geltypes.UUID `gel:"id" json:"-"`
+	InstanceSettingsInner `gel:"$inline" json:",inline"`
+	Description           geltypes.OptionalStr `gel:"description" json:"description"`
 }
 
 func (input *InstanceSettingsInput) Save(db geltypes.Executor) (*InstanceSettings, error) {

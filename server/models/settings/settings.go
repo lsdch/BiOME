@@ -12,17 +12,17 @@ import (
 )
 
 type SuperAdmin struct {
-	Email	string	`gel:"email" json:"email"`
-	Name	string	`gel:"name" json:"name"`
+	Email string `gel:"email" json:"email"`
+	Name  string `gel:"name" json:"name"`
 }
 
 type Settings struct {
-	ID		geltypes.UUID		`gel:"id" json:"-"`
-	Instance	InstanceSettings	`gel:"instance" json:"instance"`
-	Email		EmailSettings		`gel:"email" json:"email,omitempty"`
-	Security	SecuritySettings	`gel:"security" json:"security"`
-	SuperAdmin	SuperAdmin		`gel:"superadmin" json:"superadmin"`
-	ServiceSettings	`gel:"$inline" json:"services"`
+	ID              geltypes.UUID    `gel:"id" json:"-"`
+	Instance        InstanceSettings `gel:"instance" json:"instance"`
+	Email           EmailSettings    `gel:"email" json:"email,omitempty"`
+	Security        SecuritySettings `gel:"security" json:"security"`
+	SuperAdmin      SuperAdmin       `gel:"superadmin" json:"superadmin"`
+	ServiceSettings `gel:"$inline" json:"services"`
 }
 
 var settings = new(Settings)
@@ -34,9 +34,9 @@ type ServicesSettingsInput struct {
 
 // @mapstructure
 type SettingsInput struct {
-	Instance	InstanceSettingsInput	`json:"instance" mapstructure:"instance"`
-	SuperAdminID	geltypes.UUID		`json:"super_admin_id" mapstructure:"super_admin_id"`
-	Services	ServicesSettingsInput	`json:"services" mapstructure:"services"`
+	Instance     InstanceSettingsInput `json:"instance" mapstructure:"instance"`
+	SuperAdminID geltypes.UUID         `json:"super_admin_id" mapstructure:"super_admin_id"`
+	Services     ServicesSettingsInput `json:"services" mapstructure:"services"`
 }
 
 func (i SettingsInput) SaveTx(tx geltypes.Tx) error {
