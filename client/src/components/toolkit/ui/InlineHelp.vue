@@ -15,12 +15,18 @@
     </template>
     <v-card :max-width="300">
       <v-card-text>
-        <slot />
+        <slot :text>
+          {{ text }}
+        </slot>
       </v-card-text>
     </v-card>
   </v-menu>
 </template>
 
-<script setup lang="ts"></script>
+<script setup lang="ts">
+defineProps<{
+  text?: string
+}>()
+</script>
 
 <style scoped lang="scss"></style>
