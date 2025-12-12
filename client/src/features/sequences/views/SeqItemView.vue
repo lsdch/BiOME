@@ -117,8 +117,8 @@
               </div>
             </v-card-text>
             <v-divider />
-            <v-list-item v-if="item.occurrence.original_taxon">
-              <code>{{ item.occurrence.original_taxon }}</code>
+            <v-list-item v-if="item.occurrence.verbatim_identification">
+              <code>{{ item.occurrence.verbatim_identification }}</code>
               <template #append>
                 <span class="text-muted text-caption">Original ident.</span>
               </template>

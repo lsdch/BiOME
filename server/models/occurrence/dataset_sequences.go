@@ -47,7 +47,7 @@ func GetSequenceDataset(db geltypes.Executor, slug string) (dataset SequenceData
 						referenced_in: { ** },
 						published_in: { ** },
 						specimen_identifier,
-						original_taxon
+						verbatim_identification
 					}
 				}
 			} filter .slug = <str>$0

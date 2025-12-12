@@ -120,8 +120,15 @@
                         </span>
                         <span class="text-muted" v-else>Curator unspecified</span>
                       </div>
-                      <div v-if="item.original_taxon">
-                        Originally tagged as: {{ item.original_taxon }}
+                      <div
+                        v-if="item.verbatim_identification"
+                        class="d-flex align-center ga-2 mt-3 text-muted"
+                      >
+                        Verbatim :
+                        <span class="font-monospace">{{ item.verbatim_identification }}</span>
+                        <InlineHelp
+                          text="Verbatim name from the source. For traceability purpose only. This is always superseded by the identification above."
+                        />
                       </div>
                     </v-card-text>
                   </v-card>
@@ -322,6 +329,7 @@ import { useToggle } from '@vueuse/core'
 import { ref } from 'vue'
 import CodeHistoryCard from '../components/CodeHistoryCard.vue'
 import QuantityChip from '../components/QuantityChip'
+import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 

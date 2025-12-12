@@ -75,7 +75,7 @@ module occurrence {
     # multi item_vouchers: str; # specimen identifier(s) within the collection
 
     multi published_in: references::Article;
-    original_taxon: str {
+    verbatim_identification: str {
       annotation description := "The verbatim identification provided in the original source.";
     };
 

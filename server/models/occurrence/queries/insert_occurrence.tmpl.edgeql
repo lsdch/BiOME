@@ -12,7 +12,7 @@ with module occurrence,
         filter .code in <str>json_array_unpack(json_get(data, 'sources'))
       ),
       # external_link := <str>json_get(data, 'external_link'),
-      original_taxon := <str>json_get(data, 'original_taxon'),
+      verbatim_identification := <str>json_get(data, 'verbatim_identification'),
       quantity := <tuple<lower:int32, upper:int32>>(
         lower := json_get(data, 'quantity', '0'),
         upper := json_get(data, 'quantity', '1')

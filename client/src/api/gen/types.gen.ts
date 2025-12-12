@@ -146,10 +146,10 @@ export type BaseOccurrenceSamplingInnerWithSite = {
   id: string
   identification: Identification
   meta: Meta
-  original_taxon?: string
   quantity?: OptionalQuantityRange
   sampling: SamplingInnerWithSite
   type_status?: OptionalTypeStatus
+  verbatim_identification?: string
 }
 
 export type BaseOccurrenceSamplingOutline = {
@@ -166,10 +166,10 @@ export type BaseOccurrenceSamplingOutline = {
   id: string
   identification: Identification
   meta: Meta
-  original_taxon?: string
   quantity?: OptionalQuantityRange
   sampling: SamplingOutline
   type_status?: OptionalTypeStatus
+  verbatim_identification?: string
 }
 
 export type BibSearchResults = {
@@ -1197,7 +1197,6 @@ export type OccurrenceInput = {
    * Occurrence identification
    */
   identification: IdentificationInput
-  original_taxon?: string
   published_in?: Array<string>
   quantity?: Array<number>
   sequences?: Array<ExternalSequenceInput>
@@ -1206,6 +1205,7 @@ export type OccurrenceInput = {
    * Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.
    */
   type_status?: TypeStatus
+  verbatim_identification?: string
 }
 
 export type OccurrenceListItem = {
@@ -1222,10 +1222,10 @@ export type OccurrenceListItem = {
   id: string
   identification: Identification
   meta: Meta
-  original_taxon?: string
   quantity?: OptionalQuantityRange
   sampling: SamplingInnerWithSite
   type_status?: OptionalTypeStatus
+  verbatim_identification?: string
 }
 
 export type OccurrenceOverviewItem = {
@@ -1250,13 +1250,13 @@ export type OccurrenceSamplingWithSite = {
   id: string
   identification: Identification
   meta: Meta
-  original_taxon?: string
   published_in?: Array<Article>
   quantity?: OptionalQuantityRange
   sampling: SamplingWithSite
   sequences?: Array<ExternalSequence>
   sources?: Array<DataSource>
   type_status?: OptionalTypeStatus
+  verbatim_identification?: string
 }
 
 export type OccurrenceStruct = {
@@ -1270,13 +1270,13 @@ export type OccurrenceStruct = {
   id: string
   identification: Identification
   meta: Meta
-  original_taxon?: string
   published_in?: Array<Article>
   quantity?: OptionalQuantityRange
   sampling: OccurrenceStructSamplingStruct
   sequences?: Array<ExternalSequence>
   sources?: Array<DataSource>
   type_status?: OptionalTypeStatus
+  verbatim_identification?: string
 }
 
 export type OccurrenceStructSamplingStruct = {
@@ -1293,12 +1293,12 @@ export type OccurrenceUpdate = {
   comments?: string | null
   content_description?: string | null
   identification?: IdentificationUpdate
-  original_taxon?: string | null
   published_in?: Array<string> | null
   quantity?: [number, number] | null
   sampling_id: string
   sources?: string | null
   type_status?: TypeStatus | null
+  verbatim_identification?: string | null
 }
 
 export type OptionalArticle = {

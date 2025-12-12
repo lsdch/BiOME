@@ -393,9 +393,6 @@ export const $BaseOccurrenceSamplingInnerWithSite = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    original_taxon: {
-      type: 'string'
-    },
     quantity: {
       $ref: '#/components/schemas/OptionalQuantityRange'
     },
@@ -404,6 +401,9 @@ export const $BaseOccurrenceSamplingInnerWithSite = {
     },
     type_status: {
       $ref: '#/components/schemas/OptionalTypeStatus'
+    },
+    verbatim_identification: {
+      type: 'string'
     }
   },
   required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
@@ -454,9 +454,6 @@ export const $BaseOccurrenceSamplingOutline = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    original_taxon: {
-      type: 'string'
-    },
     quantity: {
       $ref: '#/components/schemas/OptionalQuantityRange'
     },
@@ -465,6 +462,9 @@ export const $BaseOccurrenceSamplingOutline = {
     },
     type_status: {
       $ref: '#/components/schemas/OptionalTypeStatus'
+    },
+    verbatim_identification: {
+      type: 'string'
     }
   },
   required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
@@ -3048,9 +3048,6 @@ export const $OccurrenceInput = {
       $ref: '#/components/schemas/IdentificationInput',
       description: 'Occurrence identification'
     },
-    original_taxon: {
-      type: 'string'
-    },
     published_in: {
       items: {
         type: 'string'
@@ -3082,6 +3079,9 @@ export const $OccurrenceInput = {
       $ref: '#/components/schemas/TypeStatus',
       description:
         'Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species.'
+    },
+    verbatim_identification: {
+      type: 'string'
     }
   },
   required: ['identification'],
@@ -3132,9 +3132,6 @@ export const $OccurrenceListItem = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    original_taxon: {
-      type: 'string'
-    },
     quantity: {
       $ref: '#/components/schemas/OptionalQuantityRange'
     },
@@ -3143,6 +3140,9 @@ export const $OccurrenceListItem = {
     },
     type_status: {
       $ref: '#/components/schemas/OptionalTypeStatus'
+    },
+    verbatim_identification: {
+      type: 'string'
     }
   },
   required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
@@ -3220,9 +3220,6 @@ export const $OccurrenceSamplingWithSite = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    original_taxon: {
-      type: 'string'
-    },
     published_in: {
       items: {
         $ref: '#/components/schemas/Article'
@@ -3249,6 +3246,9 @@ export const $OccurrenceSamplingWithSite = {
     },
     type_status: {
       $ref: '#/components/schemas/OptionalTypeStatus'
+    },
+    verbatim_identification: {
+      type: 'string'
     }
   },
   required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
@@ -3298,9 +3298,6 @@ export const $OccurrenceStruct___ = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    original_taxon: {
-      type: 'string'
-    },
     published_in: {
       items: {
         $ref: '#/components/schemas/Article'
@@ -3327,6 +3324,9 @@ export const $OccurrenceStruct___ = {
     },
     type_status: {
       $ref: '#/components/schemas/OptionalTypeStatus'
+    },
+    verbatim_identification: {
+      type: 'string'
     }
   },
   required: ['id', 'has_sequences', 'sampling', 'identification', 'meta', 'code'],
@@ -3366,9 +3366,6 @@ export const $OccurrenceUpdate = {
     identification: {
       $ref: '#/components/schemas/IdentificationUpdate'
     },
-    original_taxon: {
-      type: ['string', 'null']
-    },
     published_in: {
       items: {
         type: 'string'
@@ -3393,6 +3390,9 @@ export const $OccurrenceUpdate = {
     },
     type_status: {
       $ref: '#/components/schemas/TypeStatus',
+      type: ['string', 'null']
+    },
+    verbatim_identification: {
       type: ['string', 'null']
     }
   },

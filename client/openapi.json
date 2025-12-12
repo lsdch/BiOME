@@ -454,9 +454,6 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"original_taxon": {
-						"type": "string"
-					},
 					"quantity": {
 						"$ref": "#/components/schemas/OptionalQuantityRange"
 					},
@@ -465,6 +462,9 @@
 					},
 					"type_status": {
 						"$ref": "#/components/schemas/OptionalTypeStatus"
+					},
+					"verbatim_identification": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -523,9 +523,6 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"original_taxon": {
-						"type": "string"
-					},
 					"quantity": {
 						"$ref": "#/components/schemas/OptionalQuantityRange"
 					},
@@ -534,6 +531,9 @@
 					},
 					"type_status": {
 						"$ref": "#/components/schemas/OptionalTypeStatus"
+					},
+					"verbatim_identification": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -3435,9 +3435,6 @@
 						"$ref": "#/components/schemas/IdentificationInput",
 						"description": "Occurrence identification"
 					},
-					"original_taxon": {
-						"type": "string"
-					},
 					"published_in": {
 						"items": {
 							"type": "string"
@@ -3468,6 +3465,9 @@
 					"type_status": {
 						"$ref": "#/components/schemas/TypeStatus",
 						"description": "Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."
+					},
+					"verbatim_identification": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -3521,9 +3521,6 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"original_taxon": {
-						"type": "string"
-					},
 					"quantity": {
 						"$ref": "#/components/schemas/OptionalQuantityRange"
 					},
@@ -3532,6 +3529,9 @@
 					},
 					"type_status": {
 						"$ref": "#/components/schemas/OptionalTypeStatus"
+					},
+					"verbatim_identification": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -3621,9 +3621,6 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"original_taxon": {
-						"type": "string"
-					},
 					"published_in": {
 						"items": {
 							"$ref": "#/components/schemas/Article"
@@ -3650,6 +3647,9 @@
 					},
 					"type_status": {
 						"$ref": "#/components/schemas/OptionalTypeStatus"
+					},
+					"verbatim_identification": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -3705,9 +3705,6 @@
 					"meta": {
 						"$ref": "#/components/schemas/Meta"
 					},
-					"original_taxon": {
-						"type": "string"
-					},
 					"published_in": {
 						"items": {
 							"$ref": "#/components/schemas/Article"
@@ -3734,6 +3731,9 @@
 					},
 					"type_status": {
 						"$ref": "#/components/schemas/OptionalTypeStatus"
+					},
+					"verbatim_identification": {
+						"type": "string"
 					}
 				},
 				"required": [
@@ -3789,12 +3789,6 @@
 					"identification": {
 						"$ref": "#/components/schemas/IdentificationUpdate"
 					},
-					"original_taxon": {
-						"type": [
-							"string",
-							"null"
-						]
-					},
 					"published_in": {
 						"items": {
 							"type": "string"
@@ -3828,6 +3822,12 @@
 					},
 					"type_status": {
 						"$ref": "#/components/schemas/TypeStatus",
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"verbatim_identification": {
 						"type": [
 							"string",
 							"null"
