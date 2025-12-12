@@ -6,7 +6,7 @@
       :flat="$vuetify.display.mdAndDown"
       :rounded="$vuetify.display.mdAndDown ? 0 : undefined"
     >
-      <ItemLocationMap :site />
+      <ItemLocationMap v-model:radius="proximityRadius" :site :height="350" />
       <template #actions v-if="site">
         <!-- :href="`https://www.google.com/maps/place/${site.coordinates.latitude}+${site.coordinates.longitude}/@${site.coordinates.latitude},${site.coordinates.longitude},10z`" -->
         <v-menu>
@@ -40,6 +40,8 @@ import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.v
 const { site } = defineProps<{
   site: Site
 }>()
+
+const proximityRadius = defineModel<number>('radius')
 </script>
 
 <style scoped lang="scss"></style>

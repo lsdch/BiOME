@@ -73,7 +73,13 @@ func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDis
 			select Site {
 				*,
 				country: { * },
-				distance := assert_exists(site_distance(Site, lat, lon))
+				distance := assert_exists(site_distance(Site, lat, lon)),
+				samplings: {
+					id,
+					date := .performed_on,
+					occurring_taxa: { * },
+					occurrences: { id, code, identification: { confer, addendum, identified_on, taxon: { * } } }
+				}
 			}
 			filter ext::postgis::covers(area, ext::postgis::to_geography(site_as_point(Site)))
 			and not .code in exclude_sites
@@ -85,8 +91,8 @@ func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDis
 }
 
 type SiteWithDistance struct {
-	SiteItem `gel:"$inline" json:",inline"`
-	Distance float64 `gel:"distance" json:"distance"`
+	SiteWithOccurrences `gel:"$inline" json:",inline"`
+	Distance            float64 `gel:"distance" json:"distance"`
 }
 
 type SiteWithScore struct {

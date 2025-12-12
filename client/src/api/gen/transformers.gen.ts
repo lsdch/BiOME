@@ -597,6 +597,9 @@ const siteWithDistanceSchemaResponseTransformer = (data: any) => {
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
   }
+  data.samplings = data.samplings.map((item: any) => {
+    return samplingDateWithOccurrencesSchemaResponseTransformer(item)
+  })
   return data
 }
 

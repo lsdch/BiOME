@@ -1,7 +1,8 @@
 <template>
   <v-slider
     v-model="model"
-    label="Show nearby sites"
+    @update:model-value="(v) => emit('update:radius', radiusOptions[v]?.value!)"
+    :label
     hide-details
     :min="0"
     :max="5"
@@ -9,7 +10,6 @@
     glow
     :color="model > 0 ? 'primary' : ''"
     :thumb-size="15"
-    @update:model-value="emit('update:radius', proximityRadius.value)"
   >
     <template #append>
       <span class="text-caption text-muted">
@@ -20,7 +20,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+
+const { label = 'Show nearby sites' } = defineProps<{ label?: string }>()
 
 const model = defineModel<number>({ default: 0 })
 
@@ -31,14 +33,14 @@ const radiusOptions = [
   { value: 10_000, label: '10km' },
   { value: 50_000, label: '50km' },
   { value: 100_000, label: '100km' }
-]
+] as const
 
 const emit = defineEmits<{
   'update:radius': [radius: number]
 }>()
 
 const proximityRadius = computed(() => {
-  return radiusOptions[model.value]
+  return radiusOptions[model.value] ?? radiusOptions[0]!
 })
 </script>
 

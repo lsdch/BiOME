@@ -7179,12 +7179,19 @@
 						"minLength": 4,
 						"type": "string"
 					},
+					"samplings": {
+						"items": {
+							"$ref": "#/components/schemas/SamplingDateWithOccurrences"
+						},
+						"type": "array"
+					},
 					"user_defined_locality": {
 						"type": "boolean"
 					}
 				},
 				"required": [
 					"distance",
+					"samplings",
 					"id",
 					"code",
 					"coordinates",

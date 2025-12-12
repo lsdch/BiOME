@@ -2292,6 +2292,7 @@ export type SiteWithDistance = {
   last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
+  samplings: Array<SamplingDateWithOccurrences>
   user_defined_locality: boolean
 }
 

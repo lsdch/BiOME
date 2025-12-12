@@ -6294,11 +6294,17 @@ export const $SiteWithDistance = {
       minLength: 4,
       type: 'string'
     },
+    samplings: {
+      items: {
+        $ref: '#/components/schemas/SamplingDateWithOccurrences'
+      },
+      type: 'array'
+    },
     user_defined_locality: {
       type: 'boolean'
     }
   },
-  required: ['distance', 'id', 'code', 'coordinates', 'user_defined_locality'],
+  required: ['distance', 'samplings', 'id', 'code', 'coordinates', 'user_defined_locality'],
   type: 'object'
 } as const
 
