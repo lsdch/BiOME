@@ -29,9 +29,9 @@ func (c *InstanceConfig) saveOrganisation(tx geltypes.Tx) error {
 		if _, err := c.Organisation.Save(tx); err != nil {
 			return fmt.Errorf("Organisation: %v", err)
 		}
+	} else {
+		logrus.Infof("✅ Found existing organisation: [%s] %s", maybeOrg.Code, maybeOrg.Name)
 	}
-
-	logrus.Infof("✅ Found existing organisation: [%s] %s", maybeOrg.Code, maybeOrg.Name)
 	return nil
 }
 
@@ -40,9 +40,11 @@ func (c *InstanceConfig) SaveTx(tx geltypes.Tx) error {
 		return err
 	}
 
+	var appSettings = new(settings.Settings)
 	if settings.CheckSettingsInitialized(tx) {
 		logrus.Infof("✅ Instance settings already initialized, skipping.")
 	} else {
+		logrus.Infof("Initializing instance settings...")
 		superAdmin, err := c.SuperAdmin.Save(tx)
 		if err != nil {
 			return fmt.Errorf("SuperAdmin: %v", err)
@@ -53,12 +55,13 @@ func (c *InstanceConfig) SaveTx(tx geltypes.Tx) error {
 			Services:     c.Services,
 		}
 
-		if err := settings.SaveTx(tx); err != nil {
+		appSettings, err = settings.SaveTx(tx)
+		if err != nil {
 			return fmt.Errorf("Settings: %v", err)
 		}
 	}
-
-	emailSettings := settings.Email()
+	logrus.Infof("Setting up email configuration...")
+	emailSettings := appSettings.Email
 	if emailSettings.Missing() {
 		emailCfg, err := SetupEmailConfig(tx, EmailSetupArgs{Config: c.Email})
 		if err != nil {

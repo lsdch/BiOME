@@ -72,7 +72,7 @@ func SetupEmailConfig(db geltypes.Executor, args EmailSetupArgs) (settings.Email
 	logrus.Info(successStyle.Render(
 		"💾 SMTP configuration saved to database",
 	))
-	return setup.EmailSettingsInput, fmt.Errorf("Failed to write SMTP configuration to file: %v", err)
+	return setup.EmailSettingsInput, nil
 
 }
 

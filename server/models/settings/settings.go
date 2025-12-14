@@ -39,7 +39,7 @@ type SettingsInput struct {
 	Services     ServicesSettingsInput `json:"services" mapstructure:"services"`
 }
 
-func (i SettingsInput) SaveTx(tx geltypes.Tx) error {
+func (i SettingsInput) SaveTx(tx geltypes.Tx) (*Settings, error) {
 	// Init security settings with JWT secret key
 	secretKey := generateSecretKeyJWT()
 	if err := tx.Execute(context.Background(),
@@ -47,16 +47,16 @@ func (i SettingsInput) SaveTx(tx geltypes.Tx) error {
 			insert admin::SecuritySettings { jwt_secret_key := <str>$0 }
 		`, secretKey,
 	); err != nil {
-		return fmt.Errorf("Failed to initialize security settings: %v", err)
+		return settings, fmt.Errorf("Failed to initialize security settings: %v", err)
 	}
 
 	if _, err := i.Instance.Save(tx); err != nil {
-		return fmt.Errorf("Failed to initialize instance settings: %v", err)
+		return settings, fmt.Errorf("Failed to initialize instance settings: %v", err)
 	}
 
 	data, err := json.Marshal(i)
 	if err != nil {
-		return err
+		return settings, err
 	}
 
 	if err := tx.QuerySingle(context.Background(),
@@ -74,9 +74,9 @@ func (i SettingsInput) SaveTx(tx geltypes.Tx) error {
 			} limit 1
 		`, settings, data,
 	); err != nil {
-		return fmt.Errorf("Failed to initialize settings: %v", err)
+		return settings, fmt.Errorf("Failed to initialize settings: %v", err)
 	}
-	return nil
+	return settings, nil
 }
 
 func CheckSettingsInitialized(e geltypes.Executor) (ok bool) {
