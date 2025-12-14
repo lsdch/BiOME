@@ -1,13 +1,11 @@
 module github.com/lsdch/biome
 
-go 1.24.0
-
-toolchain go1.24.1
+go 1.25
 
 // replace github.com/danielgtaylor/huma/v2 => ../../huma
 
 require (
-	github.com/a-h/templ v0.3.943
+	github.com/a-h/templ v0.3.960
 	github.com/brianvoe/gofakeit/v7 v7.7.2
 	github.com/caltechlibrary/crossrefapi v1.0.9
 	// github.com/cshum/imagor v1.4.16
@@ -37,8 +35,12 @@ require (
 )
 
 require (
+	dario.cat/mergo v1.0.2 // indirect
 	github.com/a-h/parse v0.0.0-20250122154542-74294addb73e // indirect
+	github.com/air-verse/air v1.63.4 // indirect
 	github.com/andybalholm/brotli v1.2.0 // indirect
+	github.com/bep/godartsass/v2 v2.5.0 // indirect
+	github.com/bep/golibsass v1.2.0 // indirect
 	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.14.1 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
@@ -56,7 +58,9 @@ require (
 	github.com/go-playground/locales v0.14.1 // indirect
 	github.com/go-playground/universal-translator v0.18.1 // indirect
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
+	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/goccy/go-json v0.10.5 // indirect
+	github.com/gohugoio/hugo v0.149.1 // indirect
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/gosimple/unidecode v1.0.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
@@ -67,6 +71,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/natefinch/atomic v1.0.1 // indirect
+	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect
 	github.com/pmezard/go-difflib v1.0.1-0.20181226105442-5d4384ee4fb2 // indirect
 	github.com/quic-go/qpack v0.5.1 // indirect
@@ -79,6 +84,7 @@ require (
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
+	github.com/tdewolff/parse/v2 v2.8.3 // indirect
 	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
 	github.com/ugorji/go/codec v1.3.0 // indirect
 	github.com/xdg/scram v1.0.5 // indirect
@@ -99,4 +105,7 @@ require (
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c // indirect
 )
 
-tool github.com/a-h/templ/cmd/templ
+tool (
+	github.com/a-h/templ/cmd/templ
+	github.com/air-verse/air
+)
