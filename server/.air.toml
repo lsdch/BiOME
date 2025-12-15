@@ -28,8 +28,9 @@ poll_interval = 0
 post_cmd = []
 # run code generation
 pre_cmd = [
-  "go generate",
   "go tool templ generate",
+  "go get",
+  "go generate",
   # "cd ../client && pnpm gen-client"
 ]
 rerun = false
