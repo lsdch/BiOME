@@ -40,7 +40,7 @@
           <v-divider />
           <MarkerLayerCard
             v-for="(markerLayer, i) in markerLayerOptions"
-            v-model="markerLayerOptions[i]"
+            v-model="markerLayerOptions[i]!"
             @delete="markerLayerOptions.splice(i, 1)"
             @reset="resetMarkerLayer(i)"
           />

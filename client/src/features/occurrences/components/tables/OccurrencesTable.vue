@@ -1,17 +1,25 @@
 <template>
+  <div v-if="(occurrences?.length ?? 0) > 10" class="d-flex align-center ga-2">
+    <v-text-field
+      v-model="search.term"
+      class="mx-5"
+      hide-details
+      label="Search"
+      clearable
+      density="compact"
+    />
+  </div>
   <CRUDTable :items entity-name="Occurrences" :headers :search>
     <template #item.code="{ item, value }: { item: OccurrenceAtSite; value: string }">
-      <div class="d-flex justify-space-between align-center">
-        <RouterLink
-          :to="{
-            name: 'occurrence-item',
-            params: { code: item.code }
-          }"
-          target="_blank"
-        >
-          <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
-        </RouterLink>
-      </div>
+      <RouterLink
+        :to="{
+          name: 'occurrence-item',
+          params: { code: item.code }
+        }"
+        target="_blank"
+      >
+        <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
+      </RouterLink>
     </template>
     <template #item.site.code="{ value }: { value: string }">
       <RouterLink
@@ -59,9 +67,11 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import { computed, ref } from 'vue'
 
-type Occurrence = OccurrenceAtSite & { sampling_date?: DateWithPrecision } & (WithSite extends true
-    ? { site: SiteItem }
-    : {})
+export type OccurrenceTableItem<WithSite extends boolean> = OccurrenceAtSite & {
+  sampling_date?: DateWithPrecision
+} & (WithSite extends true ? { site: SiteItem } : {})
+
+type Occurrence = OccurrenceTableItem<WithSite>
 
 const { occurrences, ...props } = defineProps<{
   /**

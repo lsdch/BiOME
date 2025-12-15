@@ -42,7 +42,7 @@
 
 <script setup lang="tsx">
 import { getOccurrenceDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import OccurrencesTable from '@/features/occurrences/components/OccurrencesTable.vue'
+import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SitesTable from '@/features/site/components/SitesTable.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
