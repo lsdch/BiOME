@@ -12,7 +12,7 @@
       v-model="selected"
       v-model:sort-by="sortBy"
       v-bind="$attrs"
-      show-expand
+      :show-expand
       must-sort
       fixed-header
       fixed-footer
@@ -279,6 +279,7 @@ type Props = TableProps<ItemType, ItemsQueryData, ItemsDeleteData> & {
   filterKeys?: string | string[]
   filterMode?: VDataTable['filterMode']
   mobile?: boolean
+  showExpand?: boolean
 }
 
 const { xs, smAndUp } = useDisplay()
@@ -290,7 +291,7 @@ const slotNames = Object.keys(tableSlots) as 'default'[]
 const items = defineModel<ItemType[]>('items', { default: reactive([]) })
 const selected = defineModel<string[]>('selected', { default: [] })
 const search = defineModel<Partial<Filters>>('search', { default: {} })
-const props = defineProps<Props>()
+const { showExpand = true, ...props } = defineProps<Props>()
 const emit = defineEmits<{
   itemCreated: [item: ItemType, index: number]
   itemEdited: [item: ItemType, index: number]
