@@ -5,7 +5,7 @@
     :label
     hide-details
     :min="0"
-    :max="5"
+    :max="radiusOptions.length - 1"
     :step="1"
     glow
     :color="model > 0 ? 'primary' : ''"
@@ -31,6 +31,7 @@ const radiusOptions = [
   { value: 100, label: '100m' },
   { value: 1_000, label: '1km' },
   { value: 10_000, label: '10km' },
+  { value: 20_000, label: '20km' },
   { value: 50_000, label: '50km' },
   { value: 100_000, label: '100km' }
 ] as const
