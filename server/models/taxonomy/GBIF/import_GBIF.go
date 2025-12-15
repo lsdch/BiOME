@@ -75,8 +75,7 @@ func makeRequest(strURL string, offset int) (body []byte, err error) {
 	params.Set("limit", fmt.Sprint(PAGE_SIZE))
 	params.Set("offset", fmt.Sprint(offset))
 	URL.RawQuery = params.Encode()
-	strURL = fmt.Sprint(URL)
-	response, err := http.Get(strURL)
+	response, err := http.Get(URL.String())
 	if err != nil {
 		return
 	}
@@ -134,11 +133,7 @@ func upsertTaxa(tx geltypes.Tx, taxa []TaxonGBIF) (n int, err error) {
 					authorship := <str>data['authorship'],
 					anchor := anchor
 				}
-				unless conflict on .GBIF_ID else (
-					update Taxon set {
-						anchor := anchor if not .anchor else .anchor
-					}
-				)
+				unless conflict on .GBIF_ID
 			`, args); err != nil {
 			return
 		} else {

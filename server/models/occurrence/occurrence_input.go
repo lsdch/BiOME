@@ -16,6 +16,7 @@ import (
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/models/taxonomy"
+	gbif "github.com/lsdch/biome/models/taxonomy/GBIF"
 	"github.com/sirupsen/logrus"
 )
 
@@ -236,6 +237,22 @@ func (batch *OccurrenceBatchInput) ListMissingTaxa(tx geltypes.Tx) (missing []st
 		`,
 		&missingTaxa, taxaList)
 	return missingTaxa, err
+}
+
+func (batch *OccurrenceBatchInput) ImportTaxaGBIF(e geltypes.Executor) error {
+	missingTaxa, err := batch.ListMissingTaxa(e)
+	if err != nil {
+		return err
+	}
+	for _, taxonName := range missingTaxa {
+		gbifTaxa, err := gbif.ImportTaxon(e, gbif.ImportRequestGBIF{
+			Key: ,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to fetch GBIF suggestions for taxon %s: %w", taxonName, err)
+		}
+	}
+
 }
 
 func (batch OccurrenceBatchInput) SaveSites(tx geltypes.Tx) error {

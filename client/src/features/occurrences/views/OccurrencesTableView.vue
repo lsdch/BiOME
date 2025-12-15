@@ -60,6 +60,52 @@
                 density="compact"
               />
             </v-list-item>
+            <v-list-item prepend-icon="mdi-calendar">
+              <div class="d-flex align-center mt-2">
+                <v-number-input
+                  v-model="filters.year"
+                  label="Year"
+                  type="number"
+                  :min="0"
+                  density="compact"
+                  hide-details
+                  contentClass="rounded-e-0"
+                />
+                <v-btn
+                  :active="useDateRange"
+                  @click="toggleUseDateRange()"
+                  color=""
+                  active-color="primary"
+                  variant="plain"
+                  icon="mdi-calendar-expand-horizontal"
+                  size="small"
+                  class="rounded-s-0"
+                  v-tooltip="`Toggle date range`"
+                />
+                <v-number-input
+                  v-if="useDateRange"
+                  v-model="filters.year_end"
+                  label="End year"
+                  type="number"
+                  :min="filters.year || 0"
+                  density="compact"
+                  hide-details
+                  contentClass="rounded-se-0"
+                  :disabled="filters.year_end === null"
+                >
+                  <template #append-inner>
+                    <v-btn
+                      :active="filters.year_end === null"
+                      @click="filters.year_end = filters.year_end === null ? undefined : null"
+                      icon="mdi-calendar-arrow-right"
+                    />
+                  </template>
+                </v-number-input>
+              </div>
+            </v-list-item>
+            <v-list-item prepend-icon="mdi-calendar">
+              <v-slider></v-slider>
+            </v-list-item>
           </v-list>
         </v-col>
         <v-col cols="12" md="6">
@@ -77,7 +123,7 @@
                 chips
                 closable-chips
               />
-              <div class="d-flex align-center ga-2 flex-wrap">
+              <div class="d-flex align-center ga-3 flex-wrap">
                 <v-select
                   v-model="filters.rank"
                   :items="$TaxonRank.enum"
@@ -199,12 +245,17 @@ import PersonChip from '@/features/people/components/PersonChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
 import { useQueryClient } from '@tanstack/vue-query'
+import { useToggle } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
 const { xs } = useDisplay()
 
+const [useDateRange, toggleUseDateRange] = useToggle(false)
+
 type BiomatTableFilters = {
+  year?: number | null
+  year_end?: number | null
   datasets?: string[]
   type_status?: TypeStatus[]
   has_sequences?: boolean

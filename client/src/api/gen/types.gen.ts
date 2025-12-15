@@ -4958,6 +4958,8 @@ export type ListOccurrencesData = {
     owned?: boolean
     taxa?: Array<string>
     whole_clade?: boolean
+    year?: number
+    year_end?: number | null
     datasets?: Array<string>
     has_sequences?: boolean
     confer?: boolean

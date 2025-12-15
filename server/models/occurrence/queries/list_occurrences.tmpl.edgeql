@@ -3,6 +3,8 @@ with module occurrence,
   search_term := <str>json_get(params, 'search'),
   {{ template "taxa_variables" .TaxaFilters -}}
   datasets := <str>json_array_unpack(json_get(params, 'datasets')),
+  year := <int32>json_get(params, 'year'),
+  year_end := <int32>json_get(params, 'year_end'),
   with_sequences := <bool>json_get(params, 'has_sequences'),
   confer := <bool>json_get(params, 'confer'),
   status := <taxonomy::TaxonStatus>json_get(params, 'status'),
@@ -12,6 +14,16 @@ with module occurrence,
 items := (
   select Occurrence { * }
   filter (
+    {{- if .Year.IsSet }}
+      {{- if .YearEnd.IsNull }}
+      (datetime_get(.sampling.performed_on.date, 'year') >= <float64>year) and
+      {{- else if .YearEnd.IsSet }}
+      (datetime_get(.sampling.performed_on.date, 'year') >= <float64>year) and
+      (datetime_get(.sampling.performed_on.date, 'year') <= <float64>year_end) and
+      {{- else }}
+      (datetime_get(.sampling.performed_on.date, 'year') = <float64>year) and
+      {{- end}}
+    {{ end }}
     {{- if .Datasets }}
       any(.datasets.label in datasets) and
     {{ end }}

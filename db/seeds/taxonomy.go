@@ -19,7 +19,7 @@ import (
 func SeedTaxonomyGBIF(db geltypes.Tx, groups ...string) error {
 	_ = db.Execute(context.Background(), "delete taxonomy::Taxon")
 	for _, g := range groups {
-		err := seedTaxonomyGroup(db, g)
+		err := SeedTaxonomyGroup(db, g, true)
 		if err != nil {
 			return fmt.Errorf("failed to seed taxonomy group %s: %w", g, err)
 		}
@@ -81,7 +81,7 @@ func FetchSpeciesSuggestions(name string) (*gbif.TaxonInnerGBIF, error) {
 	return &taxa[0], nil
 }
 
-func seedTaxonomyGroup(db geltypes.Tx, group string) error {
+func SeedTaxonomyGroup(db geltypes.Tx, group string, includeChildren bool) error {
 	bar := progressbar.NewOptions(-1,
 		progressbar.OptionSetDescription(fmt.Sprintf("Importing %s taxonomy from GBIF", group)),
 		progressbar.OptionSetMaxDetailRow(2),
@@ -94,7 +94,7 @@ func seedTaxonomyGroup(db geltypes.Tx, group string) error {
 	_ = bar.AddDetail(fmt.Sprintf("Taxon: %s (%d)", taxon.Name, taxon.Key))
 	var total int
 	err = gbif.ImportTaxonTx(db,
-		gbif.ImportRequestGBIF{Key: taxon.Key, Children: true},
+		gbif.ImportRequestGBIF{Key: taxon.Key, Children: includeChildren},
 		func(p *gbif.ImportProcess) {
 			total = p.Imported
 			_ = bar.Set(p.Imported)

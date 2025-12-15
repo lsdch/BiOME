@@ -13018,6 +13018,27 @@
 					{
 						"explode": false,
 						"in": "query",
+						"name": "year",
+						"schema": {
+							"format": "int32",
+							"type": "integer"
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
+						"name": "year_end",
+						"schema": {
+							"format": "int32",
+							"type": [
+								"integer",
+								"null"
+							]
+						}
+					},
+					{
+						"explode": false,
+						"in": "query",
 						"name": "datasets",
 						"schema": {
 							"items": {
