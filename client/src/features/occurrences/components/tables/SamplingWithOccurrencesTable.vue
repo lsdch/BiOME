@@ -37,33 +37,40 @@
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
-    <!-- <template #item.target="{ value: { kind, taxa } }: { value: SamplingTarget }">
-        <v-chip :text="kind" size="small" label />
-        <span v-if="taxa?.length" class="text-overline ml-1">|</span>
-        <TaxonChip v-for="taxon in taxa" :taxon size="small" class="ma-1" />
-      </template> -->
-    <!-- <template #item.occurrences="{ value, toggleExpand, item }">
-        <v-badge inline :content="value" color="success" @click="toggleExpand(item)" />
-      </template> -->
     <template #expanded-row-inject="{ item }: { item: SamplingEvent }">
       <OccurrencesAtSiteList
         v-if="item.occurrences.length"
         :occurrences="item.occurrences.map((o) => ({ ...o, date: item.date }))"
       />
     </template>
+    <template v-for="name in Object.keys(slots)" :key="name" v-slot:[name]="slotProps">
+      <slot :name="name" v-bind="slotProps" />
+    </template>
   </CRUDTable>
 </template>
 
-<script setup lang="ts" generic="WithSite extends boolean">
+<script
+  setup
+  lang="ts"
+  generic="
+    WithSite extends boolean,
+    SamplingData extends SamplingDateWithOccurrences,
+    Site extends SiteItem
+  "
+>
 import { CodeIdentifier, DateWithPrecision, SamplingDateWithOccurrences, SiteItem } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import OccurrencesAtSiteList from '@/features/occurrences/components/OccurrencesAtSiteList.vue'
-import { computed, ref } from 'vue'
+import { HeaderExtension, mergeHeaders } from '@/features/occurrences/components/tables/headers'
+import { computed, ref, useSlots } from 'vue'
 
-export type SamplingTableItem<WithSite extends boolean> = SamplingDateWithOccurrences &
-  (WithSite extends true ? { site: SiteItem } : {})
+export type SamplingTableItem<
+  S extends SamplingDateWithOccurrences,
+  WithSite extends boolean,
+  Site extends SiteItem
+> = S & (WithSite extends true ? { site: Site } : {})
 
-type SamplingEvent = SamplingTableItem<WithSite>
+type SamplingEvent = SamplingTableItem<SamplingData, WithSite, Site>
 
 const { samplings, ...props } = defineProps<{
   /**
@@ -72,11 +79,12 @@ const { samplings, ...props } = defineProps<{
    */
   withSite: WithSite
   samplings?: SamplingEvent[]
+  extendHeaders?: HeaderExtension<SamplingEvent>[]
 }>()
 
 const search = ref({ term: undefined, owned: undefined })
 
-const headersWithSite: CRUDTableHeader<SamplingEvent>[] = [
+const headersWithSite = [
   {
     title: 'Site',
     value: 'site.code',
@@ -110,23 +118,6 @@ const headersWithSite: CRUDTableHeader<SamplingEvent>[] = [
       return DateWithPrecision.format(item.raw.date).toLowerCase().includes(query.toLowerCase())
     }
   },
-  // {
-  //   title: 'Target',
-  //   value: 'target',
-  //   sort: (a: SamplingTarget, b: SamplingTarget) => a.kind.localeCompare(b.kind),
-  //   filter(value: SamplingTarget, query) {
-  //     if (!query) return true
-  //     if (value.kind === 'Taxa') {
-  //       return (
-  //         value.taxa?.some((taxon) => taxon.name.toLowerCase().includes(query.toLowerCase())) ??
-  //         false
-  //       )
-  //     }
-  //     return value.kind.toLowerCase().includes(query.toLowerCase()) ?? false
-  //   },
-  //   sortable: true,
-  //   align: 'start'
-  // },
   {
     title: 'Occurrences',
     key: 'occurrences',
@@ -138,15 +129,18 @@ const headersWithSite: CRUDTableHeader<SamplingEvent>[] = [
     width: 0,
     align: 'end'
   }
-]
+] as const satisfies CRUDTableHeader<SamplingEvent>[]
 
-const headers = computed(() =>
-  headersWithSite.filter(
+const headers = computed(() => {
+  const h = headersWithSite.filter(
     (header) =>
       props.withSite !== false ||
       !(typeof header.value === 'string' && header.value?.startsWith('site.'))
   )
-)
+  return mergeHeaders(h, props.extendHeaders) satisfies CRUDTableHeader<SamplingEvent>[]
+})
+
+const slots = useSlots()
 </script>
 
 <style scoped lang="scss"></style>

@@ -21,7 +21,44 @@
     <template #prepend>
       <OccurrencesOverviewDialog
         :data="nearbySites?.filter(({ distance }) => distance <= proximityRadius) ?? []"
+        :max-width="1400"
       >
+        <template #sites-table="{ sites }">
+          <SiteWithOccurrencesTable :sites="sites" :extend-headers="[distanceHeader.direct]">
+            <template #item.distance="{ value }">
+              <DistanceDisplay :distance="value" />
+            </template>
+          </SiteWithOccurrencesTable>
+        </template>
+        <template #samplings-table="{ samplings }">
+          <SamplingWithOccurrencesTable
+            with-site
+            :samplings="samplings"
+            :extend-headers="[distanceHeader.nested]"
+          >
+            <template #item.site.distance="{ value }">
+              <DistanceDisplay :distance="value" />
+            </template>
+          </SamplingWithOccurrencesTable>
+        </template>
+        <template #occurrences-table="{ occurrences }">
+          <OccurrencesTable
+            with-site
+            :occurrences="occurrences"
+            :extend-headers="[distanceHeader.nested]"
+          >
+            <template #item.site.distance="{ value }">
+              <DistanceDisplay :distance="value" />
+            </template>
+          </OccurrencesTable>
+        </template>
+        <template #sampled-taxa-table="{ occurrences }">
+          <SampledTaxaTable :occurrences="occurrences" :extend-headers="[distanceHeader.nested]">
+            <template #item.site.distance="{ value }: {value: number}">
+              <DistanceDisplay :distance="value" />
+            </template>
+          </SampledTaxaTable>
+        </template>
         <template #prepend-body>
           <v-card-text>
             <ProximityRadiusSlider
@@ -35,7 +72,7 @@
           <v-btn
             icon="mdi-list-box"
             size="small"
-            variant="tonal"
+            variant="plain"
             v-tooltip="`See list of sites and occurrences within radius`"
             v-bind="props"
           />
@@ -45,12 +82,17 @@
   </v-list-item>
 </template>
 
-<script setup lang="ts">
+<script setup lang="tsx">
 import { CoordinatesPrecision, SiteWithDistance } from '@/api'
 import { sitesProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import OccurrencesOverviewDialog from '@/features/occurrences/components/tables/OccurrencesOverviewDialog.vue'
+import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
+import SampledTaxaTable from '@/features/occurrences/components/tables/SampledTaxaTable.vue'
+import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
+import SiteWithOccurrencesTable from '@/features/occurrences/components/tables/SiteWithOccurrencesTable.vue'
 import SitePopup from '@/features/site/components/SitePopup.vue'
 import SiteRadius from '@/features/site/components/SiteRadius'
+import { formatDistance } from '@/lib/distances'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 import { Geocoordinates } from '.'
@@ -58,6 +100,23 @@ import BaseMap from './BaseMap.vue'
 import { MarkerLayer } from './map-layers'
 import ProximityRadiusSlider from './ProximityRadiusSlider.vue'
 import SiteProximityRadius from './SiteProximityRadius.vue'
+
+const distanceHeader = {
+  direct: {
+    position: 1,
+    key: 'distance',
+    title: 'Distance'
+  },
+  nested: {
+    position: 1,
+    key: 'site.distance',
+    title: 'Distance'
+  }
+}
+
+const DistanceDisplay = (props: { distance: number }) => {
+  return <span class="font-monospace">{formatDistance(props.distance)}</span>
+}
 
 const { site, height = 350 } = defineProps<{
   site: Geocoordinates & { code: string }

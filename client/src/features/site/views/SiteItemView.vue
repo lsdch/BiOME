@@ -105,6 +105,7 @@
 
     <SiteItemDetailTabs id="panels" :site> </SiteItemDetailTabs>
 
+    <SiteItemMap v-if="site" :site />
     <!-- <div id="panels">
       <v-expansion-panels :disabled="isPending">
         <v-expansion-panel>
@@ -166,7 +167,6 @@
         </v-list-item>
       </v-card>
     </div> -->
-    <SiteItemMap v-if="site" :site />
   </v-container>
 </template>
 

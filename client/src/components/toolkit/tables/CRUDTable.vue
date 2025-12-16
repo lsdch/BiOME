@@ -147,6 +147,10 @@
         <slot :name="id" v-bind="{ ...slotData, actions }" />
       </template>
 
+      <!-- <template v-for="{ key } in processedHeaders" #[`item.${key}`]="slotData" :key>
+        <slot :name="`item.${key}`" v-bind="{ ...slotData, actions }" />
+      </template> -->
+
       <!-- <template v-for="header in processedHeaders" #[`header.${header.key}`]="data">
         <slot :name="`header.${header.key}`" v-bind="data" />
       </template> -->

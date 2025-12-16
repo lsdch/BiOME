@@ -52,10 +52,17 @@
     <template #item.identification="{ value: identification }">
       <IdentificationChip :identification size="small" />
     </template>
+    <template v-for="name in Object.keys(slots)" :key="name" v-slot:[name]="slotProps">
+      <slot :name="name" v-bind="slotProps" />
+    </template>
   </CRUDTable>
 </template>
 
-<script setup lang="ts" generic="WithSite extends boolean">
+<script
+  setup
+  lang="ts"
+  generic="Data extends OccurrenceAtSite, WithSite extends boolean, Site extends SiteItem"
+>
 import {
   CodeIdentifier,
   DateWithPrecision,
@@ -64,15 +71,19 @@ import {
   SiteItem
 } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import { HeaderExtension, mergeHeaders } from '@/features/occurrences/components/tables/headers'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
-import { computed, ref } from 'vue'
+import { computed, ref, useSlots } from 'vue'
 
-export type OccurrenceTableItem<WithSite extends boolean> = OccurrenceAtSite & {
+export type OccurrenceTableItem<
+  Data extends OccurrenceAtSite,
+  WithSite extends boolean,
+  Site extends SiteItem
+> = Data & {
   sampling_date?: DateWithPrecision
-} & (WithSite extends true ? { site: SiteItem } : {})
+} & (WithSite extends true ? { site: Site } : {})
 
-type Occurrence = OccurrenceTableItem<WithSite>
-
+type Occurrence = OccurrenceTableItem<Data, WithSite, Site>
 const { occurrences, ...props } = defineProps<{
   /**
    * If true, the site information is included with each occurrence.
@@ -80,6 +91,7 @@ const { occurrences, ...props } = defineProps<{
    */
   withSite: WithSite
   occurrences?: Occurrence[]
+  extendHeaders?: HeaderExtension<Occurrence>[]
 }>()
 
 const items = computed(() => {
@@ -91,7 +103,7 @@ const search = ref({
   owned: undefined
 })
 
-const headersWithSites: CRUDTableHeader<Occurrence>[] = [
+const headersWithSites = [
   {
     title: 'Code',
     value: 'code',
@@ -123,16 +135,18 @@ const headersWithSites: CRUDTableHeader<Occurrence>[] = [
     sort: DateWithPrecision.compare
   },
   Identification.tableHeader({ key: 'identification' })
-]
+] as const satisfies CRUDTableHeader<Occurrence>[]
 
-const headers = computed(() =>
-  headersWithSites.filter(
+const headers = computed(() => {
+  const h = headersWithSites.filter(
     (header) =>
       props.withSite !== false ||
-      typeof header.value != 'string' ||
-      !header.value.startsWith('site.')
+      !(typeof header.value === 'string' && header.value?.startsWith('site.'))
   )
-)
+  return mergeHeaders(h, props.extendHeaders) satisfies CRUDTableHeader<Occurrence>[]
+})
+
+const slots = useSlots()
 </script>
 
 <style scoped lang="scss"></style>

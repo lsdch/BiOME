@@ -49,30 +49,43 @@
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
+    <template v-for="name in Object.keys(slots)" :key="name" v-slot:[name]="slotProps">
+      <slot :name="name" v-bind="slotProps" />
+    </template>
   </CRUDTable>
 </template>
 
-<script setup lang="ts">
-import { CodeIdentifier, DateWithPrecision, OccurrenceAtSite } from '@/api';
+<script setup lang="ts" generic="Occurrence extends OccurrenceAtSite, Site extends SiteItem">
+import { CodeIdentifier, DateWithPrecision, OccurrenceAtSite, SiteItem } from '@/api';
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue';
+import { HeaderExtension, mergeHeaders } from '@/features/occurrences/components/tables/headers';
 import { OccurrenceTableItem } from '@/features/occurrences/components/tables/OccurrencesTable.vue';
+import { computed, useSlots } from 'vue';
 import { Group } from 'vuetify/lib/components/VDataTable/composables/group.mjs';
 
-defineProps<{
-  occurrences: OccurrenceTableItem<true>[];
+type OccurrenceItem = OccurrenceTableItem<Occurrence, true, Site>;
+
+const { occurrences, extendHeaders } = defineProps<{
+  occurrences: OccurrenceItem[];
+  extendHeaders?: HeaderExtension<OccurrenceItem>[]
 }>();
 
-const headers = [
+const baseHeaders = [
   { key: 'code', title: 'Code' },
   { key: 'site.code', title: 'Site' },
   { key: 'sampling_date', title: 'Sampling date' }
 ]
+
+const headers = computed(() => {
+  return mergeHeaders(baseHeaders, extendHeaders) satisfies CRUDTableHeader<Occurrence>[]
+})
 
 const groupBy = [
   { key: 'identification.taxon.rank' },
   { key: 'identification.taxon.name', order: 'asc' }
 ]
 
+const slots = useSlots()
 </script>
 
 <style scoped lang="scss"></style>

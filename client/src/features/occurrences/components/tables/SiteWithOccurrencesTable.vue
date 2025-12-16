@@ -31,7 +31,7 @@
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
-    <template #expanded-row-inject="{ item }: { item: SiteWithOccurrences }">
+    <template #expanded-row-inject="{ item }: { item: Data }">
       <OccurrenceAtSiteList
         v-if="item.samplings.length"
         :occurrences="
@@ -44,20 +44,26 @@
         "
       />
     </template>
+    <template v-for="name in Object.keys(slots)" :key="name" v-slot:[name]="slotProps">
+      <slot :name="name" v-bind="slotProps" />
+    </template>
   </CRUDTable>
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="Data extends SiteWithOccurrences">
 import { CodeIdentifier, DateWithPrecision, SiteWithOccurrences } from '@/api'
-import CountryChip from '@/features/site/components/CountryChip'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import OccurrenceAtSiteList from '@/features/occurrences/components/OccurrencesAtSiteList.vue'
+import { HeaderExtension, mergeHeaders } from '@/features/occurrences/components/tables/headers'
+import CountryChip from '@/features/site/components/CountryChip'
+import { computed, useSlots } from 'vue'
 
-const { sites } = defineProps<{
-  sites?: SiteWithOccurrences[]
+const { sites, extendHeaders } = defineProps<{
+  sites?: Data[]
+  extendHeaders?: HeaderExtension<Data>[]
 }>()
 
-const headers: CRUDTableHeader<SiteWithOccurrences>[] = [
+const baseHeaders = [
   {
     title: 'Code',
     value: 'code',
@@ -91,11 +97,17 @@ const headers: CRUDTableHeader<SiteWithOccurrences>[] = [
     align: 'end',
     width: 0,
     value(item: SiteWithOccurrences) {
-      return item.samplings.reduce((sum, s) => sum + s.occurrences?.length, 0)
+      return item.samplings.reduce((sum, s) => sum + (s.occurrences?.length ?? 0), 0)
     },
     sortable: true
   }
-]
+] as const satisfies CRUDTableHeader<Data>[]
+
+const headers = computed(() => {
+  return mergeHeaders(baseHeaders, extendHeaders)
+})
+
+const slots = useSlots()
 </script>
 
 <style scoped lang="scss"></style>

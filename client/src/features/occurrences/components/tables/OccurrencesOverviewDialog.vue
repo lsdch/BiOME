@@ -37,46 +37,59 @@
     <slot name="prepend-body" />
     <v-tabs-window v-model="tab" class="overflow-y-auto">
       <v-tabs-window-item value="sites">
-        <SiteWithOccurrencesTable :sites="data" />
+        <slot name="sites-table" :sites="data">
+          <SiteWithOccurrencesTable :sites="data" />
+        </slot>
       </v-tabs-window-item>
       <v-tabs-window-item value="samplings">
-        <SamplingWithOccurrencesTable with-site :samplings />
+        <slot name="samplings-table" :samplings>
+          <SamplingWithOccurrencesTable with-site :samplings />
+        </slot>
       </v-tabs-window-item>
       <v-tabs-window-item value="occurrences">
-        <OccurrencesTable with-site :occurrences />
+        <slot name="occurrences-table" :occurrences>
+          <OccurrencesTable with-site :occurrences />
+        </slot>
       </v-tabs-window-item>
       <v-tabs-window-item value="sampled_taxa">
-        <SampledTaxaTable :occurrences />
+        <slot name="sampled-taxa-table" :occurrences>
+          <SampledTaxaTable :occurrences />
+        </slot>
       </v-tabs-window-item>
     </v-tabs-window>
   </CardDialog>
 </template>
 
-<script setup lang="ts">
-import { SiteWithOccurrences } from '@/api'
+<script setup lang="ts" generic="Data extends SiteWithOccurrences">
+import { OccurrenceAtSite, SiteWithOccurrences } from '@/api'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
-import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
+import OccurrencesTable, {
+  type OccurrenceTableItem
+} from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SampledTaxaTable from '@/features/occurrences/components/tables/SampledTaxaTable.vue'
-import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
+import SamplingWithOccurrencesTable, {
+  SamplingTableItem
+} from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
 import SiteWithOccurrencesTable from '@/features/occurrences/components/tables/SiteWithOccurrencesTable.vue'
-import { computed } from 'vue'
+import { computed, useSlots } from 'vue'
 
 const dialog = defineModel<boolean>({ default: false })
 
 const { data, ...props } = defineProps<
   {
-    data: SiteWithOccurrences[]
+    data: Data[]
   } & CardDialogProps
 >()
 
 type Tab = 'sites' | 'samplings' | 'occurrences' | 'sampled_taxa'
 const tab = defineModel<Tab>('tab', { default: 'sites' })
 
-const samplings = computed(() =>
+type Sampling = SamplingTableItem<Data['samplings'][number], true, Omit<Data, 'samplings'>>
+const samplings = computed<Array<Sampling>>(() =>
   data.flatMap(({ samplings, ...site }) => samplings.map((s) => ({ ...s, site })))
 )
-
-const occurrences = computed(() =>
+type Occurrence = OccurrenceTableItem<OccurrenceAtSite, true, Omit<Data, 'samplings'>>
+const occurrences = computed<Array<Occurrence>>(() =>
   data.flatMap(({ samplings, ...site }) =>
     samplings.flatMap(({ occurrences, date }) =>
       occurrences.map((o) => ({ sampling_date: date, site, ...o }))
@@ -90,6 +103,8 @@ function open(target: Tab = 'sites') {
 }
 
 defineExpose({ open })
+
+useSlots()
 </script>
 
 <style scoped lang="scss"></style>
