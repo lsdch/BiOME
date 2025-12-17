@@ -69,13 +69,15 @@
         <div id="inline-map-container" />
         <v-divider />
         <v-list-item>
-          <TaxonChip v-for="taxon in targeted_taxa" class="ma-1" :taxon size="small" />
+          <span class="text-muted font-italic" v-if="!targeted_taxa?.length">Unknown</span>
+          <TaxonChip v-else v-for="taxon in targeted_taxa" class="ma-1" :taxon size="small" />
           <template #append>
             <span class="text-muted text-caption">Targeted taxa</span>
           </template>
         </v-list-item>
         <v-list-item>
-          <TaxonChip v-for="taxon in occurring_taxa" class="ma-1" :taxon size="small" />
+          <span class="text-muted font-italic" v-if="!occurring_taxa?.length">None</span>
+          <TaxonChip v-else v-for="taxon in occurring_taxa" class="ma-1" :taxon size="small" />
           <template #append>
             <span class="text-muted text-caption">Sampled taxa</span>
           </template>
