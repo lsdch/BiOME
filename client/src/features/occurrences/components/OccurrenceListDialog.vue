@@ -9,6 +9,7 @@
 </template>
 
 <script setup lang="ts" generic="WithSite extends boolean">
+import { OccurrenceAtSite, SiteItem } from '@/api'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
 import OccurrencesTable, {
   OccurrenceTableItem
@@ -26,7 +27,7 @@ const {
      * If false, only the occurrence information is included.
      */
     withSite: WithSite
-    occurrences?: OccurrenceTableItem<WithSite>[]
+    occurrences?: OccurrenceTableItem<OccurrenceAtSite, WithSite, SiteItem>[]
   } & CardDialogProps
 >()
 
