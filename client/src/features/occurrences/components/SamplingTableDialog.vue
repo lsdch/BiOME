@@ -9,6 +9,7 @@
 </template>
 
 <script setup lang="ts" generic="WithSite extends boolean">
+import { SamplingDateWithOccurrences, SiteItem } from '@/api'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
 import SamplingWithOccurrencesTable, {
   SamplingTableItem
@@ -26,7 +27,7 @@ const {
      * If false, only the occurrence information is included.
      */
     withSite: WithSite
-    samplings?: SamplingTableItem<WithSite>[]
+    samplings?: SamplingTableItem<SamplingDateWithOccurrences, WithSite, SiteItem>[]
   } & CardDialogProps
 >()
 
