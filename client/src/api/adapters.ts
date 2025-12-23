@@ -120,7 +120,7 @@ export namespace OccurrenceCategory {
 export type Article = TArticle
 export namespace Article {
   export function shortAuthors(authors: string[]): string {
-    return authors.length == 1 ? authors[0] : authors.length == 2 ? authors.join(' & ') : `${authors[0]} et al`
+    return authors.length == 1 ? authors[0]! : authors.length == 2 ? authors.join(' & ') : `${authors[0]} et al`
   }
   export function toString({ authors, year }: Article) {
     return `${shortAuthors(authors)} ${year}`
