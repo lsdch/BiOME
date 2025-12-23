@@ -88,14 +88,15 @@ const settings = ref<{
 type SunburstData = {
   name: string
   children?: SunburstData[]
-  value: [number, number]
+  value: [number, number] // [byClade, byTaxon]
   rank: TaxonRank
 }
 
 type SunburstIndex = Record<string, SunburstData>
 
 const data = ref<SunburstData[]>([])
-const maxOccurrences = ref([0, 0])
+
+const maxOccurrences = ref({ byClade: 0, byTaxon: 0 })
 
 watch(
   () => props.items,
@@ -128,7 +129,7 @@ function buildPlotData(items: OccurrenceOverviewItem[]) {
     },
     {}
   )
-  maxOccurrences.value = [0, 0]
+  maxOccurrences.value = { byClade: 0, byTaxon: 0 }
   computeTotalOccurrences(itemsByName['Animalia']!)
   return trim([itemsByName['Animalia']!], settings.value.scope)
 }
@@ -153,16 +154,19 @@ function computeTotalOccurrences(d: SunburstData) {
   if (!d.children) return
   d.children.forEach((v) => computeTotalOccurrences(v))
   d.value[0] += d.children.reduce<number>((a, b) => a + b.value[0], 0) ?? 0
-  maxOccurrences.value = [
-    Math.max(maxOccurrences.value[0] ?? 0, d.value[0]),
-    Math.max(maxOccurrences.value[1] ?? 0, d.value[1])
-  ]
+  maxOccurrences.value = {
+    byClade: Math.max(maxOccurrences.value.byClade ?? 0, d.value[0]),
+    byTaxon: Math.max(maxOccurrences.value.byTaxon ?? 0, d.value[1])
+  }
 }
 
 const visualMap = computed<VisualMapComponentOption>(() => ({
   min: 0,
-  max: maxOccurrences.value[settings.value.totalByClade ? 0 : 1],
-  text: [maxOccurrences.value[settings.value.totalByClade ? 0 : 1]?.toString() ?? '0', '0'],
+  max: maxOccurrences.value[settings.value.totalByClade ? 'byClade' : 'byTaxon'],
+  text: [
+    maxOccurrences.value[settings.value.totalByClade ? 'byClade' : 'byTaxon']?.toString() ?? '0',
+    '0'
+  ],
   dimension: settings.value.totalByClade ? 0 : 1,
   top: 'center',
   left: 0,
