@@ -1231,7 +1231,7 @@ export type OccurrenceListItem = {
 export type OccurrenceOverviewItem = {
   name: string
   occurrences: number
-  parent_name: string
+  parent_name?: string
   rank: TaxonRank
 }
 

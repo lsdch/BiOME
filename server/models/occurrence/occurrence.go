@@ -432,10 +432,10 @@ func (u OccurrenceUpdate) Save(e geltypes.Executor, code string) (updated BaseOc
 
 // OccurrenceOverviewItem is a representation of the occurrences count for one taxon
 type OccurrenceOverviewItem struct {
-	Name        string             `gel:"name" json:"name"`
-	ParentName  string             `gel:"parent_name" json:"parent_name"`
-	Occurrences int32              `gel:"occurrences" json:"occurrences"`
-	Rank        taxonomy.TaxonRank `gel:"rank" json:"rank"`
+	Name        string               `gel:"name" json:"name"`
+	ParentName  geltypes.OptionalStr `gel:"parent_name" json:"parent_name,omitempty"`
+	Occurrences int32                `gel:"occurrences" json:"occurrences"`
+	Rank        taxonomy.TaxonRank   `gel:"rank" json:"rank"`
 }
 
 type occurrenceOverviewQueryResult struct {
@@ -460,14 +460,14 @@ func OccurrenceOverview(db geltypes.Executor) ([]OccurrenceOverviewItem, error) 
 			),
 			groups := (select (group occ by .taxon) { arity := count(.elements)}),
 			noOccTaxa := (
-				select (taxonomy::Taxon except occ.taxon) filter .rank != taxonomy::Rank.Kingdom
+				select (taxonomy::Taxon except occ.taxon)
 			),
 
 			select {
 				occurrences := groups {
 					required name:= .key.taxon.name,
 					required rank:= .key.taxon.rank,
-					required parent_name:= assert_exists(.key.taxon.parent.name),
+					parent_name:= .key.taxon.parent.name,
 					required occurrences := <int32>.arity
 				},
 				no_occurrences := (
@@ -475,7 +475,7 @@ func OccurrenceOverview(db geltypes.Executor) ([]OccurrenceOverviewItem, error) 
 					select noOccTaxa {
 					required name := .name,
 					required rank := .rank,
-					required parent_name:= assert_exists(noOccTaxa.parent.name),
+					parent_name:= noOccTaxa.parent.name,
 					required occurrences := <int32>0
 				})
 			}

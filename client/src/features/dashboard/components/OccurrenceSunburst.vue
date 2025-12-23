@@ -69,7 +69,7 @@ const [fullscreen, toggleFullscreen] = useToggle(false)
 const { data: items, error, isPending } = useQuery(occurrenceOverviewOptions())
 
 const settings = ref<{
-  scope: TaxonRank[]
+  scope: [TaxonRank, TaxonRank]
   totalByClade: boolean
 }>({
   scope: ['Order', 'Species'],
@@ -97,29 +97,31 @@ function buildPlotData(items: OccurrenceOverviewItem[]) {
       acc[name] = acc[name] ?? {
         name: Taxon.shortName(name),
         children: [],
+        rank,
         value: [occurrences, occurrences]
       }
       acc[name].rank = rank
 
-      acc[parent_name] = acc[parent_name] ?? {
-        name: Taxon.shortName(parent_name),
-        children: [],
-        value: [0, 0],
-        rank: TaxonRank.parentRank(rank)
+      if (parent_name) {
+        acc[parent_name] = acc[parent_name] ?? {
+          name: Taxon.shortName(parent_name),
+          children: [],
+          value: [0, 0],
+          rank: TaxonRank.parentRank(rank)!
+        }
+        acc[parent_name].children!.push(acc[name])
       }
-      acc[parent_name].children!.push(acc[name])
-
       return acc
     },
     {}
   )
   maxOccurrences.value = [0, 0]
-  computeTotalOccurrences(itemsByName.Animalia)
-  return trim([itemsByName.Animalia], settings.value.scope)
+  computeTotalOccurrences(itemsByName['Animalia']!)
+  return trim([itemsByName['Animalia']!], settings.value.scope)
 }
 
 // Trims sunburst data to show only the selected ranks
-function trim(data: SunburstData[], [r1, r2]: TaxonRank[]) {
+function trim(data: SunburstData[], [r1, r2]: [TaxonRank, TaxonRank]): SunburstData[] {
   const children_updated = data.map((d) => {
     if (!d.children) return d
     d.children = trim(d.children, [r1, r2])
@@ -139,15 +141,15 @@ function computeTotalOccurrences(d: SunburstData) {
   d.children.forEach((v) => computeTotalOccurrences(v))
   d.value[0] += d.children.reduce<number>((a, b) => a + b.value[0], 0) ?? 0
   maxOccurrences.value = [
-    Math.max(maxOccurrences.value[0], d.value[0]),
-    Math.max(maxOccurrences.value[1], d.value[1])
+    Math.max(maxOccurrences.value[0] ?? 0, d.value[0]),
+    Math.max(maxOccurrences.value[1] ?? 0, d.value[1])
   ]
 }
 
 const visualMap = computed<VisualMapComponentOption>(() => ({
   min: 0,
   max: maxOccurrences.value[settings.value.totalByClade ? 0 : 1],
-  text: [maxOccurrences.value[settings.value.totalByClade ? 0 : 1].toString(), '0'],
+  text: [maxOccurrences.value[settings.value.totalByClade ? 0 : 1]?.toString() ?? '0', '0'],
   dimension: settings.value.totalByClade ? 0 : 1,
   top: 'center',
   left: 0,

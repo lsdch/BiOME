@@ -3166,7 +3166,7 @@ export const $OccurrenceOverviewItem = {
       $ref: '#/components/schemas/TaxonRank'
     }
   },
-  required: ['name', 'parent_name', 'occurrences', 'rank'],
+  required: ['name', 'occurrences', 'rank'],
   type: 'object'
 } as const
 
