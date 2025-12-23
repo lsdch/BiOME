@@ -38,18 +38,25 @@
         @click="toggleFullscreen()"
       />
     </template>
-    <CenteredSpinner v-if="isPending" :height="200" size="large" color="primary" />
-    <v-card-text v-else-if="error">
-      <v-alert color="error"> Failed to load occurrences </v-alert>
+    <slot v-if="error != null" name="loading">
+      <CenteredSpinner v-if="loading" :height="200" size="large" color="primary" />
+    </slot>
+    <slot v-else-if="error" name="error">
+      <v-card-text>
+        <v-alert color="error"> Failed to load occurrences </v-alert>
+      </v-card-text>
+    </slot>
+    <VChart v-else-if="items?.length" class="chart" :option autoresize />
+    <v-card-text v-else>
+      <v-alert>No occurrences to display</v-alert>
     </v-card-text>
-    <VChart v-else class="chart" :option autoresize />
   </ActivableCardDialog>
 </template>
 
 <script setup lang="ts">
-import { OccurrenceOverviewItem, Taxon, TaxonRank } from '@/api/adapters'
-import { occurrenceOverviewOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { useQuery } from '@tanstack/vue-query'
+import { ErrorModel, OccurrenceOverviewItem, Taxon, TaxonRank } from '@/api/adapters'
+import ActivableCardDialog from '@/components/toolkit/ui/ActivableCardDialog.vue'
+import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import { useToggle } from '@vueuse/core'
 import { SunburstChart } from 'echarts/charts'
 import { DataZoomComponent, TitleComponent, VisualMapComponent } from 'echarts/components'
@@ -58,15 +65,17 @@ import { SVGRenderer } from 'echarts/renderers'
 import { ECBasicOption, VisualMapComponentOption } from 'echarts/types/dist/shared'
 import { computed, ref, watch } from 'vue'
 import VChart from 'vue-echarts'
-import ActivableCardDialog from '@/components/toolkit/ui/ActivableCardDialog.vue'
-import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import TaxonRankSlider from './TaxonRankSlider.vue'
 
 use([SVGRenderer, TitleComponent, SunburstChart, VisualMapComponent, DataZoomComponent])
 
 const [fullscreen, toggleFullscreen] = useToggle(false)
 
-const { data: items, error, isPending } = useQuery(occurrenceOverviewOptions())
+const props = defineProps<{
+  items?: OccurrenceOverviewItem[]
+  loading?: boolean
+  error?: ErrorModel | string | null
+}>()
 
 const settings = ref<{
   scope: [TaxonRank, TaxonRank]
@@ -88,8 +97,12 @@ type SunburstIndex = Record<string, SunburstData>
 const data = ref<SunburstData[]>([])
 const maxOccurrences = ref([0, 0])
 
-watch(items, (items) => (data.value = items ? buildPlotData(items) : []), { immediate: true })
-watch(settings, () => (data.value = buildPlotData(items.value ?? [])), { deep: true })
+watch(
+  () => props.items,
+  (items) => (data.value = items ? buildPlotData(items) : []),
+  { immediate: true }
+)
+watch(settings, () => (data.value = buildPlotData(props.items ?? [])), { deep: true })
 
 function buildPlotData(items: OccurrenceOverviewItem[]) {
   const itemsByName = items.reduce<SunburstIndex>(
