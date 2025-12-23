@@ -225,6 +225,7 @@ export type Taxon = TTaxon
 export namespace Taxon {
   export function shortName(name: string) {
     const [n, ...rest] = name.split(' ')
+    if (!n?.length) return ""
     return rest.length ? `${n[0]}. ${rest.join(' ')}` : n
   }
 }
