@@ -784,7 +784,7 @@ export const $Country = {
   type: 'object'
 } as const
 
-export const $CountryWithSitesCount = {
+export const $CountrySummary = {
   additionalProperties: false,
   properties: {
     code: {
@@ -803,6 +803,10 @@ export const $CountryWithSitesCount = {
       examples: ['Germany'],
       type: 'string'
     },
+    occurrences_count: {
+      format: 'int64',
+      type: 'integer'
+    },
     sites_count: {
       format: 'int64',
       type: 'integer'
@@ -812,7 +816,7 @@ export const $CountryWithSitesCount = {
       type: 'string'
     }
   },
-  required: ['sites_count', 'id', 'name', 'code', 'continent', 'subcontinent'],
+  required: ['sites_count', 'occurrences_count', 'id', 'name', 'code', 'continent', 'subcontinent'],
   type: 'object'
 } as const
 

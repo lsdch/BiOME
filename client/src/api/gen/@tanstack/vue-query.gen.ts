@@ -144,6 +144,7 @@ import type {
   DeleteTaxonError,
   DeleteTaxonResponse,
   EmailSettingsData,
+  GetCountriesSummaryData,
   GetDatasetData,
   GetGeoapifyStatusData,
   GetOccurrenceData,
@@ -153,7 +154,6 @@ import type {
   GetSequenceDatasetData,
   GetSiteData,
   GetSiteDatasetData,
-  GetSitesCountByCountryData,
   GetTaxonData,
   GetTaxonomyData,
   ImportGbifData,
@@ -1733,16 +1733,16 @@ export const listCountriesOptions = (options?: Options<ListCountriesData>) => {
   })
 }
 
-export const getSitesCountByCountryQueryKey = (options?: Options<GetSitesCountByCountryData>) =>
-  createQueryKey('getSitesCountByCountry', options)
+export const getCountriesSummaryQueryKey = (options?: Options<GetCountriesSummaryData>) =>
+  createQueryKey('getCountriesSummary', options)
 
 /**
- * Get country list with sites count
+ * Get country list with sites and occurrences count
  */
-export const getSitesCountByCountryOptions = (options?: Options<GetSitesCountByCountryData>) => {
+export const getCountriesSummaryOptions = (options?: Options<GetCountriesSummaryData>) => {
   return queryOptions({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.getSitesCountByCountry({
+      const { data } = await LocationService.getCountriesSummary({
         ...options,
         ...queryKey[0],
         signal,
@@ -1750,7 +1750,7 @@ export const getSitesCountByCountryOptions = (options?: Options<GetSitesCountByC
       })
       return data
     },
-    queryKey: getSitesCountByCountryQueryKey(options)
+    queryKey: getCountriesSummaryQueryKey(options)
   })
 }
 

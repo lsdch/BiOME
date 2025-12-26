@@ -233,6 +233,9 @@ import type {
   EmailSettingsData,
   EmailSettingsErrors,
   EmailSettingsResponses,
+  GetCountriesSummaryData,
+  GetCountriesSummaryErrors,
+  GetCountriesSummaryResponses,
   GetDatasetData,
   GetDatasetErrors,
   GetDatasetResponses,
@@ -260,9 +263,6 @@ import type {
   GetSiteDatasetResponses,
   GetSiteErrors,
   GetSiteResponses,
-  GetSitesCountByCountryData,
-  GetSitesCountByCountryErrors,
-  GetSitesCountByCountryResponses,
   GetTaxonData,
   GetTaxonErrors,
   GetTaxonomyData,
@@ -2875,14 +2875,14 @@ export class LocationService {
   }
 
   /**
-   * Get country list with sites count
+   * Get country list with sites and occurrences count
    */
-  public static getSitesCountByCountry<ThrowOnError extends boolean = false>(
-    options?: Options<GetSitesCountByCountryData, ThrowOnError>
+  public static getCountriesSummary<ThrowOnError extends boolean = false>(
+    options?: Options<GetCountriesSummaryData, ThrowOnError>
   ) {
     return (options?.client ?? client).get<
-      GetSitesCountByCountryResponses,
-      GetSitesCountByCountryErrors,
+      GetCountriesSummaryResponses,
+      GetCountriesSummaryErrors,
       ThrowOnError
     >({
       security: [
@@ -2896,7 +2896,7 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      url: '/locations/countries/sites-count',
+      url: '/locations/countries/summary',
       ...options
     })
   }

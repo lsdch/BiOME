@@ -287,11 +287,12 @@ export type Country = {
   subcontinent: string
 }
 
-export type CountryWithSitesCount = {
+export type CountrySummary = {
   code: string
   continent: string
   id: string
   name: string
+  occurrences_count: number
   sites_count: number
   subcontinent: string
 }
@@ -4683,7 +4684,7 @@ export type ListCountriesResponses = {
 
 export type ListCountriesResponse = ListCountriesResponses[keyof ListCountriesResponses]
 
-export type GetSitesCountByCountryData = {
+export type GetCountriesSummaryData = {
   body?: never
   headers?: {
     /**
@@ -4693,10 +4694,10 @@ export type GetSitesCountByCountryData = {
   }
   path?: never
   query?: never
-  url: '/locations/countries/sites-count'
+  url: '/locations/countries/summary'
 }
 
-export type GetSitesCountByCountryErrors = {
+export type GetCountriesSummaryErrors = {
   /**
    * Unprocessable Entity
    */
@@ -4707,18 +4708,17 @@ export type GetSitesCountByCountryErrors = {
   500: ErrorModel
 }
 
-export type GetSitesCountByCountryError =
-  GetSitesCountByCountryErrors[keyof GetSitesCountByCountryErrors]
+export type GetCountriesSummaryError = GetCountriesSummaryErrors[keyof GetCountriesSummaryErrors]
 
-export type GetSitesCountByCountryResponses = {
+export type GetCountriesSummaryResponses = {
   /**
    * OK
    */
-  200: Array<CountryWithSitesCount>
+  200: Array<CountrySummary>
 }
 
-export type GetSitesCountByCountryResponse =
-  GetSitesCountByCountryResponses[keyof GetSitesCountByCountryResponses]
+export type GetCountriesSummaryResponse =
+  GetCountriesSummaryResponses[keyof GetCountriesSummaryResponses]
 
 export type SearchSitesData = {
   body?: never

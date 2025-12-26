@@ -36,15 +36,15 @@ func init() {
 
 	router.RegisterSpec(
 		locationAPI,
-		"getSitesCountByCountry",
+		"getCountriesSummary",
 		huma.Operation{
-			Path:    "/countries/sites-count",
+			Path:    "/countries/summary",
 			Method:  http.MethodGet,
-			Summary: "Get country list with sites count",
+			Summary: "Get country list with sites and occurrences count",
 		},
 		controllers.ListHandler[*struct {
 			resolvers.AuthResolver
-		}](location.SitesCountByCountry),
+		}](location.CountriesSummary),
 	)
 
 	router.RegisterSpec(

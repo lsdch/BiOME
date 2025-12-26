@@ -47,17 +47,22 @@ func ListCountries(db geltypes.Executor) ([]Country, error) {
 	return countries, err
 }
 
-type CountryWithSitesCount struct {
-	Country    `json:",inline" gel:"$inline"`
-	SitesCount int64 `json:"sites_count" gel:"sites_count"`
+type CountrySummary struct {
+	Country          `json:",inline" gel:"$inline"`
+	SitesCount       int64 `json:"sites_count" gel:"sites_count"`
+	OccurrencesCount int64 `json:"occurrences_count" gel:"occurrences_count"`
 }
 
-func SitesCountByCountry(db geltypes.Executor) ([]CountryWithSitesCount, error) {
-	var res []CountryWithSitesCount
+func CountriesSummary(db geltypes.Executor) ([]CountrySummary, error) {
+	var res = []CountrySummary{}
 	err := db.Query(context.Background(),
 		`#edgeql
-			select location::Country { *, sites_count := count(.sites) }
-			order by .sites_count desc
+			select location::Country {
+				*,
+				sites_count := count(.sites),
+				occurrences_count := count(.sites.samplings.occurrences)
+				}
+			order by .name asc
 		`, &res)
 	return res, err
 }

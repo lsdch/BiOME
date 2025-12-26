@@ -905,7 +905,7 @@
 				],
 				"type": "object"
 			},
-			"CountryWithSitesCount": {
+			"CountrySummary": {
 				"additionalProperties": false,
 				"properties": {
 					"code": {
@@ -930,6 +930,10 @@
 						],
 						"type": "string"
 					},
+					"occurrences_count": {
+						"format": "int64",
+						"type": "integer"
+					},
 					"sites_count": {
 						"format": "int64",
 						"type": "integer"
@@ -943,6 +947,7 @@
 				},
 				"required": [
 					"sites_count",
+					"occurrences_count",
 					"id",
 					"name",
 					"code",
@@ -12398,9 +12403,9 @@
 				]
 			}
 		},
-		"/locations/countries/sites-count": {
+		"/locations/countries/summary": {
 			"get": {
-				"operationId": "getSitesCountByCountry",
+				"operationId": "getCountriesSummary",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -12431,7 +12436,7 @@
 							"application/json": {
 								"schema": {
 									"items": {
-										"$ref": "#/components/schemas/CountryWithSitesCount"
+										"$ref": "#/components/schemas/CountrySummary"
 									},
 									"type": "array"
 								}
@@ -12460,7 +12465,7 @@
 						"description": "Internal Server Error"
 					}
 				},
-				"summary": "Get country list with sites count",
+				"summary": "Get country list with sites and occurrences count",
 				"tags": [
 					"Location"
 				]
