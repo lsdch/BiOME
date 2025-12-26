@@ -11,9 +11,10 @@
   >
     <template #append>
       <v-btn
+        v-if="!fullscreen"
         color=""
         variant="text"
-        :icon="fullscreen ? 'mdi-close' : 'mdi-fullscreen'"
+        icon="mdi-fullscreen"
         @click="toggleFullscreen()"
       ></v-btn>
     </template>
