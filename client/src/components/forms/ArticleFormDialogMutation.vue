@@ -45,12 +45,13 @@ const update = defineFormUpdate(updateArticleMutation(), {
 })
 
 const { feedback } = useFeedback()
-
+const emit = defineEmits<{ success: [item: Article] }>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
   update,
   onSuccess(item, mode) {
     dialog.value = false
+    emit('success', item)
     feedback({
       type: 'success',
       message: mode === 'Create' ? `Article created` : `Article updated`

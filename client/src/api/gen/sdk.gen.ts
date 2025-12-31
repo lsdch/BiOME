@@ -89,6 +89,7 @@ import {
   togglePinDatasetResponseTransformer,
   updateAbioticParameterResponseTransformer,
   updateArticleResponseTransformer,
+  updateCollectionResponseTransformer,
   updateDatasetResponseTransformer,
   updateDataSourceResponseTransformer,
   updateFixativeResponseTransformer,
@@ -425,6 +426,9 @@ import type {
   UpdateArticleData,
   UpdateArticleErrors,
   UpdateArticleResponses,
+  UpdateCollectionData,
+  UpdateCollectionErrors,
+  UpdateCollectionResponses,
   UpdateDatasetData,
   UpdateDatasetErrors,
   UpdateDatasetResponses,
@@ -1631,9 +1635,9 @@ export class ReferencesService {
    * Create a new collection
    */
   public static createCollection<ThrowOnError extends boolean = false>(
-    options?: Options<CreateCollectionData, ThrowOnError>
+    options: Options<CreateCollectionData, ThrowOnError>
   ) {
-    return (options?.client ?? client).post<
+    return (options.client ?? client).post<
       CreateCollectionResponses,
       CreateCollectionErrors,
       ThrowOnError
@@ -1654,7 +1658,7 @@ export class ReferencesService {
       ...options,
       headers: {
         'Content-Type': 'application/json',
-        ...options?.headers
+        ...options.headers
       }
     })
   }
@@ -1684,6 +1688,38 @@ export class ReferencesService {
       ],
       url: '/collections/{code}',
       ...options
+    })
+  }
+
+  /**
+   * Update a collection by its code
+   */
+  public static updateCollection<ThrowOnError extends boolean = false>(
+    options: Options<UpdateCollectionData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      UpdateCollectionResponses,
+      UpdateCollectionErrors,
+      ThrowOnError
+    >({
+      responseTransformer: updateCollectionResponseTransformer,
+      security: [
+        {
+          scheme: 'bearer',
+          type: 'http'
+        },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/collections/{code}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
     })
   }
 

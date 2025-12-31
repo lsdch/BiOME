@@ -241,6 +241,9 @@ import type {
   UpdateArticleData,
   UpdateArticleError,
   UpdateArticleResponse,
+  UpdateCollectionData,
+  UpdateCollectionError,
+  UpdateCollectionResponse,
   UpdateDatasetData,
   UpdateDatasetError,
   UpdateDatasetResponse,
@@ -898,6 +901,33 @@ export const deleteCollectionMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await ReferencesService.deleteCollection({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Update a collection by its code
+ */
+export const updateCollectionMutation = (
+  options?: Partial<Options<UpdateCollectionData>>
+): UseMutationOptions<
+  UpdateCollectionResponse,
+  UpdateCollectionError,
+  Options<UpdateCollectionData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateCollectionResponse,
+    UpdateCollectionError,
+    Options<UpdateCollectionData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await ReferencesService.updateCollection({
         ...options,
         ...fnOptions,
         throwOnError: true

@@ -103,7 +103,7 @@
       </v-card>
     </div>
 
-    <SiteFormDialog v-model="site" v-model:dialog="editDialog"></SiteFormDialog>
+    <SiteFormDialog v-model:item="site" v-model:dialog="editDialog"></SiteFormDialog>
 
     <SiteItemDetailTabs id="panels" :site> </SiteItemDetailTabs>
 

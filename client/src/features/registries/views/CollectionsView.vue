@@ -15,6 +15,20 @@
     <template #item.personal="{ value }: { value: boolean }">
       <v-icon v-if="value" icon="mdi-account"></v-icon>
     </template>
+    <template #form="{ dialog, mode, onClose, onSuccess, editItem }">
+      <CollectionFormDialogMutation
+        :dialog
+        :item="editItem"
+        @close="onClose"
+        @success="onSuccess"
+      />
+      <!-- @update:dialog="
+          (v) => {
+            console.log(editItem)
+            !v && onClose()
+          }
+        " -->
+    </template>
   </CRUDTable>
 </template>
 
@@ -22,6 +36,7 @@
 import { type Collection } from '@/api'
 import { deleteCollectionMutation, listCollectionsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import CollectionFormDialogMutation from '@/features/registries/components/forms/CollectionFormDialogMutation.vue'
 import { ref } from 'vue'
 
 type CollectionFilters = {

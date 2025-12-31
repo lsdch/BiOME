@@ -704,6 +704,9 @@
 					"contact": {
 						"type": "string"
 					},
+					"description": {
+						"type": "string"
+					},
 					"label": {
 						"type": "string"
 					},
@@ -712,18 +715,54 @@
 					},
 					"personal": {
 						"type": "boolean"
-					},
-					"vouchers": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
 					}
 				},
 				"required": [
 					"label",
 					"code"
 				],
+				"type": "object"
+			},
+			"CollectionUpdate": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"/api/v1/schemas/CollectionUpdate.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"code": {
+						"type": "string"
+					},
+					"contact": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"description": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"label": {
+						"type": "string"
+					},
+					"location": {
+						"type": [
+							"string",
+							"null"
+						]
+					},
+					"personal": {
+						"type": "boolean"
+					}
+				},
 				"type": "object"
 			},
 			"CollectionWithVouchers": {
@@ -9555,7 +9594,8 @@
 								"$ref": "#/components/schemas/CollectionInput"
 							}
 						}
-					}
+					},
+					"required": true
 				},
 				"responses": {
 					"200": {
@@ -9663,6 +9703,87 @@
 					}
 				},
 				"summary": "Delete a collection by its code",
+				"tags": [
+					"References"
+				]
+			},
+			"patch": {
+				"operationId": "UpdateCollection",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"example": "Bearer \u003cJWT string\u003e",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"description": "Session cookie containing JWT",
+							"type": "string"
+						}
+					},
+					{
+						"in": "path",
+						"name": "code",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/CollectionUpdate"
+							}
+						}
+					},
+					"required": true
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Collection"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update a collection by its code",
 				"tags": [
 					"References"
 				]

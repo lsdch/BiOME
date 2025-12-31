@@ -1,7 +1,7 @@
 <template>
   <v-form @submit.prevent>
     <template #="{ isValid, isDisabled }">
-      <CardDialog v-model="model" v-bind="props">
+      <CardDialog v-model="model" v-bind="props" @close="emit('close')">
         <template #subtitle v-if="$slots['subtitle']">
           <slot name="subtitle" />
         </template>
@@ -46,7 +46,7 @@ export type FormDialogProps = CardDialogProps & { btnText?: string }
 // dialog state exposed from CardDialog
 const model = defineModel<boolean>()
 
-const emit = defineEmits<{ submit: [] }>()
+const emit = defineEmits<{ submit: []; close: [] }>()
 
 const props = withDefaults(defineProps<FormDialogProps>(), {
   btnText: 'Submit',

@@ -75,7 +75,7 @@
       <ArticleFormDialogMutation
         :dialog
         @update:dialog="(v) => !v && onClose()"
-        :model-value="editItem"
+        :item="editItem"
         @close="onClose"
         @success="onSuccess"
       />

@@ -262,21 +262,21 @@
   "
 >
 import { Meta, User, UserRole } from '@/api'
+import CRUDFeedback from '@/components/toolkit/CRUDFeedback.vue'
+import MetaChip from '@/components/toolkit/MetaChip'
+import ExportDialog from '@/components/toolkit/ui/ExportDialog.vue'
+import SortLastUpdatedBtn from '@/components/toolkit/ui/SortLastUpdatedBtn.vue'
+import { hasSlotContent } from '@/components/toolkit/vue-utils'
+import { useUserStore } from '@/stores/user'
 import { useArrayFilter, useClipboard, useToggle } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
 import { Ref, UnwrapRef, reactive, ref, triggerRef, useSlots } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { useDisplay } from 'vuetify'
 import { VDataTable } from 'vuetify/components'
 import { TableProps, TableSlots, useTable, useTableSort } from '.'
-import CRUDFeedback from '@/components/toolkit/CRUDFeedback.vue'
-import ExportDialog from '@/components/toolkit/ui/ExportDialog.vue'
-import MetaChip from '@/components/toolkit/MetaChip'
-import SortLastUpdatedBtn from '@/components/toolkit/ui/SortLastUpdatedBtn.vue'
-import { hasSlotContent } from '@/components/toolkit/vue-utils'
 import CRUDTableSearchBar from './CRUDTableSearchBar.vue'
 import TableToolbar from './TableToolbar.vue'
-import { storeToRefs } from 'pinia'
-import { useUserStore } from '@/stores/user'
 
 type Props = TableProps<ItemType, ItemsQueryData, ItemsDeleteData> & {
   filter?: (item: ItemType) => boolean

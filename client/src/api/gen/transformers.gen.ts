@@ -82,6 +82,7 @@ import type {
   TogglePinDatasetResponse,
   UpdateAbioticParameterResponse,
   UpdateArticleResponse,
+  UpdateCollectionResponse,
   UpdateDatasetResponse,
   UpdateDataSourceResponse,
   UpdateFixativeResponse,
@@ -227,6 +228,13 @@ export const createCollectionResponseTransformer = async (
 export const deleteCollectionResponseTransformer = async (
   data: any
 ): Promise<DeleteCollectionResponse> => {
+  data = collectionSchemaResponseTransformer(data)
+  return data
+}
+
+export const updateCollectionResponseTransformer = async (
+  data: any
+): Promise<UpdateCollectionResponse> => {
   data = collectionSchemaResponseTransformer(data)
   return data
 }

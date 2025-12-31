@@ -232,10 +232,23 @@ export type CollectionInput = {
   readonly $schema?: string
   code: string
   contact?: string
+  description?: string
   label: string
   location?: string
   personal?: boolean
-  vouchers?: Array<string>
+}
+
+export type CollectionUpdate = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  code?: string
+  contact?: string | null
+  description?: string | null
+  label?: string
+  location?: string | null
+  personal?: boolean
 }
 
 export type CollectionWithVouchers = {
@@ -3289,7 +3302,7 @@ export type ListCollectionsResponses = {
 export type ListCollectionsResponse = ListCollectionsResponses[keyof ListCollectionsResponses]
 
 export type CreateCollectionData = {
-  body?: CollectionInput
+  body: CollectionInput
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -3359,6 +3372,43 @@ export type DeleteCollectionResponses = {
 }
 
 export type DeleteCollectionResponse = DeleteCollectionResponses[keyof DeleteCollectionResponses]
+
+export type UpdateCollectionData = {
+  body: CollectionUpdate
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    code: string
+  }
+  query?: never
+  url: '/collections/{code}'
+}
+
+export type UpdateCollectionErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateCollectionError = UpdateCollectionErrors[keyof UpdateCollectionErrors]
+
+export type UpdateCollectionResponses = {
+  /**
+   * OK
+   */
+  200: Collection
+}
+
+export type UpdateCollectionResponse = UpdateCollectionResponses[keyof UpdateCollectionResponses]
 
 export type CrossRefData = {
   body?: never

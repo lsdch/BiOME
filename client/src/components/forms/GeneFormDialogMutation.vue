@@ -41,11 +41,12 @@ const update = defineFormUpdate(updateGeneMutation(), {
 })
 
 const { feedback } = useFeedback()
-
+const emit = defineEmits<{ success: [item: Gene] }>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
   update,
   onSuccess(item, mode) {
+    emit('success', item)
     dialog.value = false
     feedback({
       type: 'success',

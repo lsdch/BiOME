@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/geldata/gel-go/geltypes"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 )
@@ -26,12 +27,12 @@ type CollectionWithVouchers struct {
 }
 
 type CollectionInput struct {
-	Label    string                       `json:"label" validate:"required"`
-	Code     string                       `json:"code" validate:"required"`
-	Contact  models.OptionalInput[string] `json:"contact,omitempty"`
-	Location models.OptionalInput[string] `json:"location,omitempty"`
-	Personal models.OptionalInput[bool]   `json:"personal,omitempty"`
-	Vouchers []string                     `json:"vouchers,omitempty"`
+	Label       string                       `json:"label" validate:"required"`
+	Code        string                       `json:"code" validate:"required"`
+	Contact     models.OptionalInput[string] `json:"contact,omitempty"`
+	Location    models.OptionalInput[string] `json:"location,omitempty"`
+	Personal    models.OptionalInput[bool]   `json:"personal,omitempty"`
+	Description models.OptionalInput[string] `json:"description,omitempty"`
 }
 
 // Used to link to an existing collections, with optional vouchers
@@ -40,7 +41,7 @@ type CollectionField struct {
 	Vouchers []string `gel:"vouchers" json:"vouchers,omitempty"`
 }
 
-func (c *CollectionInput) Save(db geltypes.Executor) (created Collection, err error) {
+func (c CollectionInput) Save(db geltypes.Executor) (created Collection, err error) {
 	coll, _ := json.Marshal(c)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
@@ -78,5 +79,36 @@ func DeleteCollection(db geltypes.Executor, codeOrName string) (deleted Collecti
 			*, meta: { * }
 		}`,
 		&deleted, codeOrName)
+	return
+}
+
+type CollectionUpdate struct {
+	Label       models.OptionalInput[string] `gel:"label" json:"label,omitempty"`
+	Code        models.OptionalInput[string] `gel:"code" json:"code,omitempty"`
+	Contact     models.OptionalNull[string]  `gel:"contact" json:"contact,omitempty"`
+	Location    models.OptionalNull[string]  `gel:"location" json:"location,omitempty"`
+	Personal    models.OptionalInput[bool]   `gel:"personal" json:"personal,omitempty"`
+	Description models.OptionalNull[string]  `gel:"description" json:"description,omitempty"`
+}
+
+func (u CollectionUpdate) Save(e geltypes.Executor, code string) (updated Collection, err error) {
+	data, _ := json.Marshal(u)
+	query := db.UpdateQuery{
+		Frame: `#edgeql
+			with item := <json>$1,
+			select (update references::Collection filter .code = <str>$0 set {
+				%s
+			}) { *, meta: { * } }
+		`,
+		Mappings: map[string]string{
+			"label":       "<str>item['label']",
+			"code":        "<str>item['code']",
+			"contact":     "<str>item['contact']",
+			"location":    "<str>item['location']",
+			"personal":    "<bool>item['personal']",
+			"description": "<str>item['description']",
+		},
+	}
+	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
 	return
 }

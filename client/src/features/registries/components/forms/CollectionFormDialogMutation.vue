@@ -1,51 +1,55 @@
 <template>
-  <SiteFormDialog
+  <CollectionFormDialog
     v-model="model"
     v-model:dialog="dialog"
     :mode
     :errors
-    :title="`${mode} site`"
+    :title="`${mode} Collection`"
     :loading="loading || activeMutation.isPending.value"
     :fullscreen="fullscreen || $vuetify.display.mdAndDown"
     @submit="submit()"
+    v-bind="$attrs"
   >
     <template #activator="slotData">
       <slot name="activator" v-bind="slotData"></slot>
     </template>
-  </SiteFormDialog>
+  </CollectionFormDialog>
 </template>
 
 <script setup lang="ts">
-import { $SiteInput, $SiteUpdate, Site } from '@/api'
-import { createSiteMutation, updateSiteMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import { $CollectionInput, $CollectionUpdate, Collection } from '@/api'
+import {
+  createCollectionMutation,
+  updateCollectionMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
-import { SiteModel } from '@/models'
+import { CollectionModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
-import SiteFormDialog from './SiteFormDialog.vue'
+import CollectionFormDialog from './CollectionFormDialog.vue'
 
 const dialog = defineModel<boolean>('dialog')
-const item = defineModel<Site>('item')
+const item = defineModel<Collection>('item')
 
 defineProps<FormDialogProps>()
 
-const create = defineFormCreate(createSiteMutation(), {
-  initial: SiteModel.initialModel,
-  schema: $SiteInput,
-  requestData: (model) => ({ body: SiteModel.toRequestBody(model) })
+const create = defineFormCreate(createCollectionMutation(), {
+  initial: CollectionModel.initialModel,
+  schema: $CollectionInput
+  // requestData: (model): RequestData<CollectionInput> => ({ body: model })
 })
 
-const update = defineFormUpdate(updateSiteMutation(), {
-  itemToModel: SiteModel.fromSite,
-  schema: $SiteUpdate,
+const update = defineFormUpdate(updateCollectionMutation(), {
+  itemToModel: CollectionModel.fromCollection,
+  schema: $CollectionUpdate,
   requestData: ({ code }, model) => ({
-    path: { code },
-    body: SiteModel.toRequestBody(model)
+    path: { code }
+    // body: model
   })
 })
 
 const { feedback } = useFeedback()
-const emit = defineEmits<{ success: [item: Site] }>()
+const emit = defineEmits<{ success: [item: Collection] }>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
   update,
@@ -54,7 +58,7 @@ const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
     dialog.value = false
     feedback({
       type: 'success',
-      message: mode === 'Create' ? `Site created` : `Site updated`
+      message: mode === 'Create' ? `Collection created` : `Collection updated`
     })
   }
 })

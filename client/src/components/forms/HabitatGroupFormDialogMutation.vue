@@ -48,11 +48,12 @@ const update = defineFormUpdate(updateHabitatGroupMutation(), {
 })
 
 const { feedback } = useFeedback()
-
+const emit = defineEmits<{ success: [item: HabitatGroup] }>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
   update,
   onSuccess(item, mode) {
+    emit('success', item)
     dialog.value = false
     feedback({
       type: 'success',

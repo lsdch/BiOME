@@ -15,16 +15,23 @@
 </template>
 
 <script setup lang="ts">
-import { $SamplingInput, $SamplingUpdate, Sampling, SiteItem } from '@/api'
+import {
+  $SamplingInput,
+  $SamplingUpdate,
+  CreateSamplingAtSiteData,
+  Sampling,
+  SiteItem
+} from '@/api'
 import {
   createSamplingAtSiteMutation,
   updateSamplingMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
-import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
+import { defineFormCreate, defineFormUpdate, RequestData, useMutationForm } from '@/lib/mutations'
 import { SamplingModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
 import SamplingFormDialog from '@/components/forms/SamplingFormDialog.vue'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
+import { Options } from '@/api/gen/client'
 
 const item = defineModel<Sampling>()
 const dialog = defineModel<boolean>('dialog')
@@ -38,7 +45,7 @@ const { site } = defineProps<
 const create = defineFormCreate(createSamplingAtSiteMutation(), {
   initial: SamplingModel.initialModel,
   schema: $SamplingInput,
-  requestData: (model) => ({
+  requestData: (model): Options<CreateSamplingAtSiteData> => ({
     path: { code: site.code },
     body: SamplingModel.toRequestBody(model)
   })
@@ -54,11 +61,12 @@ const update = defineFormUpdate(updateSamplingMutation(), {
 })
 
 const { feedback } = useFeedback()
-
+const emit = defineEmits<{ success: [item: Sampling] }>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
   update,
   onSuccess(item, mode) {
+    emit('success', item)
     dialog.value = false
     feedback({
       type: 'success',

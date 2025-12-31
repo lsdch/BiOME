@@ -615,6 +615,9 @@ export const $CollectionInput = {
     contact: {
       type: 'string'
     },
+    description: {
+      type: 'string'
+    },
     label: {
       type: 'string'
     },
@@ -623,15 +626,41 @@ export const $CollectionInput = {
     },
     personal: {
       type: 'boolean'
-    },
-    vouchers: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
     }
   },
   required: ['label', 'code'],
+  type: 'object'
+} as const
+
+export const $CollectionUpdate = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/CollectionUpdate.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    code: {
+      type: 'string'
+    },
+    contact: {
+      type: ['string', 'null']
+    },
+    description: {
+      type: ['string', 'null']
+    },
+    label: {
+      type: 'string'
+    },
+    location: {
+      type: ['string', 'null']
+    },
+    personal: {
+      type: 'boolean'
+    }
+  },
   type: 'object'
 } as const
 

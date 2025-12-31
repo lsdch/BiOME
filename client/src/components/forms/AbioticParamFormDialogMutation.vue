@@ -46,12 +46,13 @@ const update = defineFormUpdate(updateAbioticParameterMutation(), {
 })
 
 const { feedback } = useFeedback()
-
+const emit = defineEmits<{ success: [item: AbioticParameter] }>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
   update,
   onSuccess(item, mode) {
     dialog.value = false
+    emit('success', item)
     feedback({
       type: 'success',
       message: mode === 'Create' ? `AbioticParameter created` : `AbioticParameter updated`

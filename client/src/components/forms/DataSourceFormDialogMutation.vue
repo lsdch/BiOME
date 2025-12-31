@@ -44,12 +44,13 @@ const update = defineFormUpdate(updateDataSourceMutation(), {
 })
 
 const { feedback } = useFeedback()
-
+const emit = defineEmits<{ success: [item: DataSource] }>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
   update,
   onSuccess(item, mode) {
     dialog.value = false
+    emit('success', item)
     feedback({
       type: 'success',
       message: mode === 'Create' ? `DataSource created` : `DataSource updated`

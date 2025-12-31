@@ -56,7 +56,7 @@
           color="error"
           prepend-icon="mdi-close"
           text="Drop dependency"
-          @click="askDeleteEdge(getSelectedEdges[0])"
+          @click="askDeleteEdge(getSelectedEdges[0]!)"
         />
         <v-btn
           :color="creating ? 'error' : 'primary'"
@@ -88,7 +88,7 @@
       New group
     </div>
     <HabitatFormDialog
-      v-model="form.edit"
+      v-model:item="form.edit"
       v-model:dialog="form.open"
       @created="addCreatedNode"
       @updated="updateNode"
@@ -132,7 +132,7 @@ const { isGranted } = useUserStore()
 
 function handleDelete() {
   if (selectedGroups.value.length) askDeleteGroups(selectedGroups.value)
-  else if (getSelectedEdges.value.length == 1) askDeleteEdge(getSelectedEdges.value[0])
+  else if (getSelectedEdges.value.length == 1) askDeleteEdge(getSelectedEdges.value[0]!)
 }
 
 onKeyStroke('Delete', handleDelete)
@@ -234,7 +234,7 @@ async function askDeleteGroups(groups: HabitatGroup[]) {
   if (groups.length === 0) return
   const title =
     groups.length === 1
-      ? `Delete habitat group ${groups[0].label} ?`
+      ? `Delete habitat group ${groups[0]!.label} ?`
       : `Delete ${groups.length} habitat groups ?`
   askConfirm({
     title,
@@ -268,7 +268,7 @@ async function askDeleteGroups(groups: HabitatGroup[]) {
           message:
             data.length > 1
               ? `Deleted ${data.length} habitat group`
-              : `Deleted habitat group ${data[0].label}`
+              : `Deleted habitat group ${data[0]!.label}`
         })
       })
   }

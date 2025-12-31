@@ -37,7 +37,22 @@ func init() {
 			Method:  http.MethodPost,
 			Summary: "Create a new collection",
 		},
-		controllers.CreateHandler[*references.CollectionInput],
+		controllers.CreateHandler[references.CollectionInput],
+	)
+
+	router.RegisterSpec(
+		collectionsAPI,
+		"UpdateCollection",
+		huma.Operation{
+			Path:    "/{code}",
+			Method:  http.MethodPatch,
+			Summary: "Update a collection by its code",
+		},
+		controllers.UpdateHandler[*struct {
+			resolvers.AuthRequired
+			controllers.CodeInput
+			controllers.UpdateInput[references.CollectionUpdate, string, references.Collection]
+		}],
 	)
 
 	router.RegisterSpec(
