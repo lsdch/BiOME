@@ -85,7 +85,35 @@ export const createClient = (config: Config = {}): Client => {
     // fetch must be assigned here, otherwise it would throw the error:
     // TypeError: Failed to execute 'fetch' on 'Window': Illegal invocation
     const _fetch = opts.fetch!
-    let response = await _fetch(request)
+    let response: Response
+
+    try {
+      response = await _fetch(request)
+    } catch (error) {
+      // Handle fetch exceptions (AbortError, network errors, etc.)
+      let finalError = error
+
+      for (const fn of interceptors.error.fns) {
+        if (fn) {
+          finalError = (await fn(error, undefined as any, request, opts)) as unknown
+        }
+      }
+
+      finalError = finalError || ({} as unknown)
+
+      if (opts.throwOnError) {
+        throw finalError
+      }
+
+      // Return error response
+      return opts.responseStyle === 'data'
+        ? undefined
+        : {
+            error: finalError,
+            request,
+            response: undefined as any
+          }
+    }
 
     for (const fn of interceptors.response.fns) {
       if (fn) {
@@ -219,6 +247,7 @@ export const createClient = (config: Config = {}): Client => {
         }
         return request
       },
+      serializedBody: getValidRequestBody(opts) as BodyInit | null | undefined,
       url
     })
   }

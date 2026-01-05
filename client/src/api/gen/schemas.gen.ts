@@ -1648,6 +1648,12 @@ export const $Funder = {
     'doi-asserted-by': {
       type: 'string'
     },
+    id: {
+      items: {
+        $ref: '#/components/schemas/Identifier'
+      },
+      type: 'array'
+    },
     name: {
       type: 'string'
     }

@@ -29,7 +29,11 @@ import type {
   ClaimInvitationError,
   ClaimInvitationResponse,
   ConfirmEmailData,
+  ConfirmEmailError,
+  ConfirmEmailResponse,
   CoordinatesToCountryData,
+  CoordinatesToCountryError,
+  CoordinatesToCountryResponse,
   CreateAbioticParameterData,
   CreateAbioticParameterError,
   CreateAbioticParameterResponse,
@@ -91,7 +95,11 @@ import type {
   CrossRefBibSearchError,
   CrossRefBibSearchResponse,
   CrossRefData,
+  CrossRefError,
+  CrossRefResponse,
   CurrentUserData,
+  CurrentUserError,
+  CurrentUserResponse2,
   DeleteAbioticParameterData,
   DeleteAbioticParameterError,
   DeleteAbioticParameterResponse,
@@ -144,54 +152,134 @@ import type {
   DeleteTaxonError,
   DeleteTaxonResponse,
   EmailSettingsData,
+  EmailSettingsError,
+  EmailSettingsResponse,
   GetCountriesSummaryData,
+  GetCountriesSummaryError,
+  GetCountriesSummaryResponse,
   GetDatasetData,
+  GetDatasetError,
+  GetDatasetResponse,
   GetGeoapifyStatusData,
+  GetGeoapifyStatusError,
+  GetGeoapifyStatusResponse,
   GetOccurrenceData,
   GetOccurrenceDatasetData,
+  GetOccurrenceDatasetError,
+  GetOccurrenceDatasetResponse,
+  GetOccurrenceError,
+  GetOccurrenceResponse,
   GetPendingUserRequestData,
+  GetPendingUserRequestError,
+  GetPendingUserRequestResponse,
   GetSequenceData,
   GetSequenceDatasetData,
+  GetSequenceDatasetError,
+  GetSequenceDatasetResponse,
+  GetSequenceError,
+  GetSequenceResponse,
   GetSiteData,
   GetSiteDatasetData,
+  GetSiteDatasetError,
+  GetSiteDatasetResponse,
+  GetSiteError,
+  GetSiteResponse,
   GetTaxonData,
+  GetTaxonError,
   GetTaxonomyData,
+  GetTaxonomyError,
+  GetTaxonomyResponse,
+  GetTaxonResponse,
   ImportGbifData,
   ImportGbifError,
   ImportGbifResponse,
   InstanceSettingsData,
+  InstanceSettingsError,
+  InstanceSettingsResponse,
   InvitePersonData,
   InvitePersonError,
   InvitePersonResponse,
   ListAbioticParametersData,
+  ListAbioticParametersError,
+  ListAbioticParametersResponse,
   ListAccessPointsData,
+  ListAccessPointsError,
+  ListAccessPointsResponse,
   ListAnchorsData,
+  ListAnchorsError,
+  ListAnchorsResponse,
   ListArticlesData,
+  ListArticlesError,
+  ListArticlesResponse,
   ListCollectionsData,
+  ListCollectionsError,
+  ListCollectionsResponse,
   ListCountriesData,
+  ListCountriesError,
+  ListCountriesResponse,
   ListDataFeedsData,
+  ListDataFeedsError,
+  ListDataFeedsResponse,
   ListDatasetsData,
+  ListDatasetsError,
+  ListDatasetsResponse,
   ListDataSourcesData,
+  ListDataSourcesError,
+  ListDataSourcesResponse,
   ListFixativesData,
+  ListFixativesError,
+  ListFixativesResponse,
   ListGenesData,
+  ListGenesError,
+  ListGenesResponse,
   ListGeoapifyUsageData,
+  ListGeoapifyUsageError,
+  ListGeoapifyUsageResponse,
   ListHabitatGroupsData,
+  ListHabitatGroupsError,
+  ListHabitatGroupsResponse,
   ListMapPresetsData,
+  ListMapPresetsError,
+  ListMapPresetsResponse,
   ListOccurrenceDatasetsData,
+  ListOccurrenceDatasetsError,
+  ListOccurrenceDatasetsResponse,
   ListOccurrencesData,
   ListOccurrencesError,
   ListOccurrencesResponse,
   ListOrganisationsData,
+  ListOrganisationsError,
+  ListOrganisationsResponse,
   ListPendingUserRequestsData,
+  ListPendingUserRequestsError,
+  ListPendingUserRequestsResponse,
   ListPersonsData,
+  ListPersonsError,
+  ListPersonsResponse,
   ListProgramsData,
+  ListProgramsError,
+  ListProgramsResponse,
   ListSamplingMethodsData,
+  ListSamplingMethodsError,
+  ListSamplingMethodsResponse,
   ListSequenceDatasetsData,
+  ListSequenceDatasetsError,
+  ListSequenceDatasetsResponse,
   ListSequencesData,
+  ListSequencesError,
+  ListSequencesResponse,
   ListSiteDatasetsData,
+  ListSiteDatasetsError,
+  ListSiteDatasetsResponse,
   ListSiteSamplingsData,
+  ListSiteSamplingsError,
+  ListSiteSamplingsResponse,
   ListSitesData,
+  ListSitesError,
+  ListSitesResponse,
   ListTaxaData,
+  ListTaxaError,
+  ListTaxaResponse,
   LoginData,
   LoginError,
   LoginResponse,
@@ -199,7 +287,11 @@ import type {
   LogoutError,
   LogoutResponse,
   OccurrenceOverviewData,
+  OccurrenceOverviewError,
+  OccurrenceOverviewResponse,
   OccurrencesBySiteData,
+  OccurrencesBySiteError,
+  OccurrencesBySiteResponse,
   RefreshSessionData,
   RefreshSessionError,
   RefreshSessionResponse,
@@ -216,12 +308,20 @@ import type {
   ResetPasswordError,
   ResetPasswordResponse,
   ReverseGeocodeData,
+  ReverseGeocodeError,
+  ReverseGeocodeResponse,
   SamplingAddOccurrenceData,
   SamplingAddOccurrenceError,
   SamplingAddOccurrenceResponse,
   SearchSitesData,
+  SearchSitesError,
+  SearchSitesResponse,
   SecuritySettingsData,
+  SecuritySettingsError,
+  SecuritySettingsResponse,
   ServiceSettingsData,
+  ServiceSettingsError,
+  ServiceSettingsResponse,
   SetAppIconData,
   SetAppIconError,
   SetAppIconResponse,
@@ -229,6 +329,8 @@ import type {
   SiteAddOccurrenceError,
   SiteAddOccurrenceResponse,
   SitesProximityData,
+  SitesProximityError,
+  SitesProximityResponse,
   TestSmtpData,
   TestSmtpError,
   TestSmtpResponse,
@@ -298,7 +400,9 @@ import type {
   UpdateTaxonData,
   UpdateTaxonError,
   UpdateTaxonResponse,
-  ValidatePasswordTokenData
+  ValidatePasswordTokenData,
+  ValidatePasswordTokenError,
+  ValidatePasswordTokenResponse
 } from '../types.gen'
 
 export type QueryKey<TOptions extends Options> = [
@@ -346,8 +450,13 @@ export const listAbioticParametersQueryKey = (options?: Options<ListAbioticParam
 /**
  * List abiotic parameters
  */
-export const listAbioticParametersOptions = (options?: Options<ListAbioticParametersData>) => {
-  return queryOptions({
+export const listAbioticParametersOptions = (options?: Options<ListAbioticParametersData>) =>
+  queryOptions<
+    ListAbioticParametersResponse,
+    ListAbioticParametersError,
+    ListAbioticParametersResponse,
+    ReturnType<typeof listAbioticParametersQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SamplingService.listAbioticParameters({
         ...options,
@@ -359,7 +468,6 @@ export const listAbioticParametersOptions = (options?: Options<ListAbioticParame
     },
     queryKey: listAbioticParametersQueryKey(options)
   })
-}
 
 /**
  * Create abiotic parameter
@@ -448,8 +556,13 @@ export const listAccessPointsQueryKey = (options?: Options<ListAccessPointsData>
 /**
  * List access points
  */
-export const listAccessPointsOptions = (options?: Options<ListAccessPointsData>) => {
-  return queryOptions({
+export const listAccessPointsOptions = (options?: Options<ListAccessPointsData>) =>
+  queryOptions<
+    ListAccessPointsResponse,
+    ListAccessPointsError,
+    ListAccessPointsResponse,
+    ReturnType<typeof listAccessPointsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SamplingService.listAccessPoints({
         ...options,
@@ -461,7 +574,6 @@ export const listAccessPointsOptions = (options?: Options<ListAccessPointsData>)
     },
     queryKey: listAccessPointsQueryKey(options)
   })
-}
 
 export const currentUserQueryKey = (options?: Options<CurrentUserData>) =>
   createQueryKey('currentUser', options)
@@ -471,8 +583,13 @@ export const currentUserQueryKey = (options?: Options<CurrentUserData>) =>
  *
  * Get infos of currently authenticated user account
  */
-export const currentUserOptions = (options?: Options<CurrentUserData>) => {
-  return queryOptions({
+export const currentUserOptions = (options?: Options<CurrentUserData>) =>
+  queryOptions<
+    CurrentUserResponse2,
+    CurrentUserError,
+    CurrentUserResponse2,
+    ReturnType<typeof currentUserQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await AccountService.currentUser({
         ...options,
@@ -484,7 +601,6 @@ export const currentUserOptions = (options?: Options<CurrentUserData>) => {
     },
     queryKey: currentUserQueryKey(options)
   })
-}
 
 export const confirmEmailQueryKey = (options?: Options<ConfirmEmailData>) =>
   createQueryKey('confirmEmail', options)
@@ -494,8 +610,13 @@ export const confirmEmailQueryKey = (options?: Options<ConfirmEmailData>) =>
  *
  * Confirms the validity of an e-mail address associated to an account, using a token issued at the end of user registration.
  */
-export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) => {
-  return queryOptions({
+export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) =>
+  queryOptions<
+    ConfirmEmailResponse,
+    ConfirmEmailError,
+    ConfirmEmailResponse,
+    ReturnType<typeof confirmEmailQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await AccountService.confirmEmail({
         ...options,
@@ -507,7 +628,6 @@ export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) => {
     },
     queryKey: confirmEmailQueryKey(options)
   })
-}
 
 /**
  * Resend e-mail verification link
@@ -642,8 +762,13 @@ export const validatePasswordTokenQueryKey = (options: Options<ValidatePasswordT
  *
  * Verifies that the password token is valid and can be used to reset a password
  */
-export const validatePasswordTokenOptions = (options: Options<ValidatePasswordTokenData>) => {
-  return queryOptions({
+export const validatePasswordTokenOptions = (options: Options<ValidatePasswordTokenData>) =>
+  queryOptions<
+    ValidatePasswordTokenResponse,
+    ValidatePasswordTokenError,
+    ValidatePasswordTokenResponse,
+    ReturnType<typeof validatePasswordTokenQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await AccountService.validatePasswordToken({
         ...options,
@@ -655,7 +780,6 @@ export const validatePasswordTokenOptions = (options: Options<ValidatePasswordTo
     },
     queryKey: validatePasswordTokenQueryKey(options)
   })
-}
 
 /**
  * Reset password
@@ -690,8 +814,13 @@ export const listPendingUserRequestsQueryKey = (options?: Options<ListPendingUse
  *
  * Lists all account requests pending validation from an administrator
  */
-export const listPendingUserRequestsOptions = (options?: Options<ListPendingUserRequestsData>) => {
-  return queryOptions({
+export const listPendingUserRequestsOptions = (options?: Options<ListPendingUserRequestsData>) =>
+  queryOptions<
+    ListPendingUserRequestsResponse,
+    ListPendingUserRequestsError,
+    ListPendingUserRequestsResponse,
+    ReturnType<typeof listPendingUserRequestsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await AccountService.listPendingUserRequests({
         ...options,
@@ -703,7 +832,6 @@ export const listPendingUserRequestsOptions = (options?: Options<ListPendingUser
     },
     queryKey: listPendingUserRequestsQueryKey(options)
   })
-}
 
 /**
  * Delete pending user request
@@ -742,8 +870,13 @@ export const getPendingUserRequestQueryKey = (options?: Options<GetPendingUserRe
  *
  * Get account request pending validation using the associated email
  */
-export const getPendingUserRequestOptions = (options?: Options<GetPendingUserRequestData>) => {
-  return queryOptions({
+export const getPendingUserRequestOptions = (options?: Options<GetPendingUserRequestData>) =>
+  queryOptions<
+    GetPendingUserRequestResponse,
+    GetPendingUserRequestError,
+    GetPendingUserRequestResponse,
+    ReturnType<typeof getPendingUserRequestQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await AccountService.getPendingUserRequest({
         ...options,
@@ -755,7 +888,6 @@ export const getPendingUserRequestOptions = (options?: Options<GetPendingUserReq
     },
     queryKey: getPendingUserRequestQueryKey(options)
   })
-}
 
 /**
  * Refresh auth token
@@ -842,8 +974,13 @@ export const listCollectionsQueryKey = (options?: Options<ListCollectionsData>) 
 /**
  * List collections
  */
-export const listCollectionsOptions = (options?: Options<ListCollectionsData>) => {
-  return queryOptions({
+export const listCollectionsOptions = (options?: Options<ListCollectionsData>) =>
+  queryOptions<
+    ListCollectionsResponse,
+    ListCollectionsError,
+    ListCollectionsResponse,
+    ReturnType<typeof listCollectionsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await ReferencesService.listCollections({
         ...options,
@@ -855,7 +992,6 @@ export const listCollectionsOptions = (options?: Options<ListCollectionsData>) =
     },
     queryKey: listCollectionsQueryKey(options)
   })
-}
 
 /**
  * Create a new collection
@@ -944,8 +1080,13 @@ export const crossRefQueryKey = (options: Options<CrossRefData>) =>
 /**
  * Retrieve article infos from DOI
  */
-export const crossRefOptions = (options: Options<CrossRefData>) => {
-  return queryOptions({
+export const crossRefOptions = (options: Options<CrossRefData>) =>
+  queryOptions<
+    CrossRefResponse,
+    CrossRefError,
+    CrossRefResponse,
+    ReturnType<typeof crossRefQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await ReferencesService.crossRef({
         ...options,
@@ -957,7 +1098,6 @@ export const crossRefOptions = (options: Options<CrossRefData>) => {
     },
     queryKey: crossRefQueryKey(options)
   })
-}
 
 /**
  * Retrieve article infos from query string
@@ -992,8 +1132,13 @@ export const listDataSourcesQueryKey = (options?: Options<ListDataSourcesData>) 
 /**
  * List external data sources
  */
-export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) => {
-  return queryOptions({
+export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) =>
+  queryOptions<
+    ListDataSourcesResponse,
+    ListDataSourcesError,
+    ListDataSourcesResponse,
+    ReturnType<typeof listDataSourcesQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DataSourcesService.listDataSources({
         ...options,
@@ -1005,7 +1150,6 @@ export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) =
     },
     queryKey: listDataSourcesQueryKey(options)
   })
-}
 
 /**
  * Register external data source
@@ -1096,8 +1240,13 @@ export const listDatasetsQueryKey = (options?: Options<ListDatasetsData>) =>
  *
  * List all datasets with optional filters and category discriminator
  */
-export const listDatasetsOptions = (options?: Options<ListDatasetsData>) => {
-  return queryOptions({
+export const listDatasetsOptions = (options?: Options<ListDatasetsData>) =>
+  queryOptions<
+    ListDatasetsResponse,
+    ListDatasetsError,
+    ListDatasetsResponse,
+    ReturnType<typeof listDatasetsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DatasetsService.listDatasets({
         ...options,
@@ -1109,7 +1258,6 @@ export const listDatasetsOptions = (options?: Options<ListDatasetsData>) => {
     },
     queryKey: listDatasetsQueryKey(options)
   })
-}
 
 /**
  * Update dataset
@@ -1144,8 +1292,13 @@ export const listOccurrenceDatasetsQueryKey = (options?: Options<ListOccurrenceD
  *
  * List all occurrence datasets
  */
-export const listOccurrenceDatasetsOptions = (options?: Options<ListOccurrenceDatasetsData>) => {
-  return queryOptions({
+export const listOccurrenceDatasetsOptions = (options?: Options<ListOccurrenceDatasetsData>) =>
+  queryOptions<
+    ListOccurrenceDatasetsResponse,
+    ListOccurrenceDatasetsError,
+    ListOccurrenceDatasetsResponse,
+    ReturnType<typeof listOccurrenceDatasetsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DatasetsService.listOccurrenceDatasets({
         ...options,
@@ -1157,7 +1310,6 @@ export const listOccurrenceDatasetsOptions = (options?: Options<ListOccurrenceDa
     },
     queryKey: listOccurrenceDatasetsQueryKey(options)
   })
-}
 
 export const getOccurrenceDatasetQueryKey = (options: Options<GetOccurrenceDatasetData>) =>
   createQueryKey('getOccurrenceDataset', options)
@@ -1167,8 +1319,13 @@ export const getOccurrenceDatasetQueryKey = (options: Options<GetOccurrenceDatas
  *
  * Get infos for an occurrence dataset
  */
-export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatasetData>) => {
-  return queryOptions({
+export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatasetData>) =>
+  queryOptions<
+    GetOccurrenceDatasetResponse,
+    GetOccurrenceDatasetError,
+    GetOccurrenceDatasetResponse,
+    ReturnType<typeof getOccurrenceDatasetQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DatasetsService.getOccurrenceDataset({
         ...options,
@@ -1180,7 +1337,6 @@ export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatase
     },
     queryKey: getOccurrenceDatasetQueryKey(options)
   })
-}
 
 /**
  * Pin/unpin dataset
@@ -1219,8 +1375,13 @@ export const listSequenceDatasetsQueryKey = (options?: Options<ListSequenceDatas
  *
  * List all sequence datasets
  */
-export const listSequenceDatasetsOptions = (options?: Options<ListSequenceDatasetsData>) => {
-  return queryOptions({
+export const listSequenceDatasetsOptions = (options?: Options<ListSequenceDatasetsData>) =>
+  queryOptions<
+    ListSequenceDatasetsResponse,
+    ListSequenceDatasetsError,
+    ListSequenceDatasetsResponse,
+    ReturnType<typeof listSequenceDatasetsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DatasetsService.listSequenceDatasets({
         ...options,
@@ -1232,7 +1393,6 @@ export const listSequenceDatasetsOptions = (options?: Options<ListSequenceDatase
     },
     queryKey: listSequenceDatasetsQueryKey(options)
   })
-}
 
 export const getSequenceDatasetQueryKey = (options: Options<GetSequenceDatasetData>) =>
   createQueryKey('getSequenceDataset', options)
@@ -1242,8 +1402,13 @@ export const getSequenceDatasetQueryKey = (options: Options<GetSequenceDatasetDa
  *
  * Get infos for an sequence dataset
  */
-export const getSequenceDatasetOptions = (options: Options<GetSequenceDatasetData>) => {
-  return queryOptions({
+export const getSequenceDatasetOptions = (options: Options<GetSequenceDatasetData>) =>
+  queryOptions<
+    GetSequenceDatasetResponse,
+    GetSequenceDatasetError,
+    GetSequenceDatasetResponse,
+    ReturnType<typeof getSequenceDatasetQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DatasetsService.getSequenceDataset({
         ...options,
@@ -1255,7 +1420,6 @@ export const getSequenceDatasetOptions = (options: Options<GetSequenceDatasetDat
     },
     queryKey: getSequenceDatasetQueryKey(options)
   })
-}
 
 export const listSiteDatasetsQueryKey = (options?: Options<ListSiteDatasetsData>) =>
   createQueryKey('listSiteDatasets', options)
@@ -1265,8 +1429,13 @@ export const listSiteDatasetsQueryKey = (options?: Options<ListSiteDatasetsData>
  *
  * List all site datasets
  */
-export const listSiteDatasetsOptions = (options?: Options<ListSiteDatasetsData>) => {
-  return queryOptions({
+export const listSiteDatasetsOptions = (options?: Options<ListSiteDatasetsData>) =>
+  queryOptions<
+    ListSiteDatasetsResponse,
+    ListSiteDatasetsError,
+    ListSiteDatasetsResponse,
+    ReturnType<typeof listSiteDatasetsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DatasetsService.listSiteDatasets({
         ...options,
@@ -1278,7 +1447,6 @@ export const listSiteDatasetsOptions = (options?: Options<ListSiteDatasetsData>)
     },
     queryKey: listSiteDatasetsQueryKey(options)
   })
-}
 
 /**
  * Create site dataset
@@ -1317,8 +1485,13 @@ export const getSiteDatasetQueryKey = (options: Options<GetSiteDatasetData>) =>
  *
  * Get infos for a site dataset
  */
-export const getSiteDatasetOptions = (options: Options<GetSiteDatasetData>) => {
-  return queryOptions({
+export const getSiteDatasetOptions = (options: Options<GetSiteDatasetData>) =>
+  queryOptions<
+    GetSiteDatasetResponse,
+    GetSiteDatasetError,
+    GetSiteDatasetResponse,
+    ReturnType<typeof getSiteDatasetQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DatasetsService.getSiteDataset({
         ...options,
@@ -1330,7 +1503,6 @@ export const getSiteDatasetOptions = (options: Options<GetSiteDatasetData>) => {
     },
     queryKey: getSiteDatasetQueryKey(options)
   })
-}
 
 export const getDatasetQueryKey = (options: Options<GetDatasetData>) =>
   createQueryKey('getDataset', options)
@@ -1340,8 +1512,13 @@ export const getDatasetQueryKey = (options: Options<GetDatasetData>) =>
  *
  * Retrieve dataset infos by slug
  */
-export const getDatasetOptions = (options: Options<GetDatasetData>) => {
-  return queryOptions({
+export const getDatasetOptions = (options: Options<GetDatasetData>) =>
+  queryOptions<
+    GetDatasetResponse,
+    GetDatasetError,
+    GetDatasetResponse,
+    ReturnType<typeof getDatasetQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DatasetsService.getDataset({
         ...options,
@@ -1353,7 +1530,6 @@ export const getDatasetOptions = (options: Options<GetDatasetData>) => {
     },
     queryKey: getDatasetQueryKey(options)
   })
-}
 
 export const listFixativesQueryKey = (options?: Options<ListFixativesData>) =>
   createQueryKey('listFixatives', options)
@@ -1361,8 +1537,13 @@ export const listFixativesQueryKey = (options?: Options<ListFixativesData>) =>
 /**
  * List fixatives
  */
-export const listFixativesOptions = (options?: Options<ListFixativesData>) => {
-  return queryOptions({
+export const listFixativesOptions = (options?: Options<ListFixativesData>) =>
+  queryOptions<
+    ListFixativesResponse,
+    ListFixativesError,
+    ListFixativesResponse,
+    ReturnType<typeof listFixativesQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SamplingService.listFixatives({
         ...options,
@@ -1374,7 +1555,6 @@ export const listFixativesOptions = (options?: Options<ListFixativesData>) => {
     },
     queryKey: listFixativesQueryKey(options)
   })
-}
 
 /**
  * Create fixative
@@ -1451,8 +1631,13 @@ export const listGenesQueryKey = (options?: Options<ListGenesData>) =>
 /**
  * List genes
  */
-export const listGenesOptions = (options?: Options<ListGenesData>) => {
-  return queryOptions({
+export const listGenesOptions = (options?: Options<ListGenesData>) =>
+  queryOptions<
+    ListGenesResponse,
+    ListGenesError,
+    ListGenesResponse,
+    ReturnType<typeof listGenesQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SequencesService.listGenes({
         ...options,
@@ -1464,7 +1649,6 @@ export const listGenesOptions = (options?: Options<ListGenesData>) => {
     },
     queryKey: listGenesQueryKey(options)
   })
-}
 
 /**
  * Create gene
@@ -1541,8 +1725,13 @@ export const reverseGeocodeQueryKey = (options?: Options<ReverseGeocodeData>) =>
 /**
  * Reverse geocode coordinates using Geoapify API
  */
-export const reverseGeocodeOptions = (options?: Options<ReverseGeocodeData>) => {
-  return queryOptions({
+export const reverseGeocodeOptions = (options?: Options<ReverseGeocodeData>) =>
+  queryOptions<
+    ReverseGeocodeResponse,
+    ReverseGeocodeError,
+    ReverseGeocodeResponse,
+    ReturnType<typeof reverseGeocodeQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await ServicesService.reverseGeocode({
         ...options,
@@ -1554,7 +1743,6 @@ export const reverseGeocodeOptions = (options?: Options<ReverseGeocodeData>) => 
     },
     queryKey: reverseGeocodeQueryKey(options)
   })
-}
 
 export const getGeoapifyStatusQueryKey = (options?: Options<GetGeoapifyStatusData>) =>
   createQueryKey('getGeoapifyStatus', options)
@@ -1562,8 +1750,13 @@ export const getGeoapifyStatusQueryKey = (options?: Options<GetGeoapifyStatusDat
 /**
  * Get Geoapify API status
  */
-export const getGeoapifyStatusOptions = (options?: Options<GetGeoapifyStatusData>) => {
-  return queryOptions({
+export const getGeoapifyStatusOptions = (options?: Options<GetGeoapifyStatusData>) =>
+  queryOptions<
+    GetGeoapifyStatusResponse,
+    GetGeoapifyStatusError,
+    GetGeoapifyStatusResponse,
+    ReturnType<typeof getGeoapifyStatusQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await ServicesService.getGeoapifyStatus({
         ...options,
@@ -1575,7 +1768,6 @@ export const getGeoapifyStatusOptions = (options?: Options<GetGeoapifyStatusData
     },
     queryKey: getGeoapifyStatusQueryKey(options)
   })
-}
 
 export const listGeoapifyUsageQueryKey = (options?: Options<ListGeoapifyUsageData>) =>
   createQueryKey('listGeoapifyUsage', options)
@@ -1583,8 +1775,13 @@ export const listGeoapifyUsageQueryKey = (options?: Options<ListGeoapifyUsageDat
 /**
  * List Geoapify usage
  */
-export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData>) => {
-  return queryOptions({
+export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData>) =>
+  queryOptions<
+    ListGeoapifyUsageResponse,
+    ListGeoapifyUsageError,
+    ListGeoapifyUsageResponse,
+    ReturnType<typeof listGeoapifyUsageQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await ServicesService.listGeoapifyUsage({
         ...options,
@@ -1596,7 +1793,6 @@ export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData
     },
     queryKey: listGeoapifyUsageQueryKey(options)
   })
-}
 
 export const listHabitatGroupsQueryKey = (options?: Options<ListHabitatGroupsData>) =>
   createQueryKey('listHabitatGroups', options)
@@ -1604,8 +1800,13 @@ export const listHabitatGroupsQueryKey = (options?: Options<ListHabitatGroupsDat
 /**
  * List habitats
  */
-export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData>) => {
-  return queryOptions({
+export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData>) =>
+  queryOptions<
+    ListHabitatGroupsResponse,
+    ListHabitatGroupsError,
+    ListHabitatGroupsResponse,
+    ReturnType<typeof listHabitatGroupsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SamplingService.listHabitatGroups({
         ...options,
@@ -1617,7 +1818,6 @@ export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData
     },
     queryKey: listHabitatGroupsQueryKey(options)
   })
-}
 
 /**
  * Create habitat group
@@ -1706,8 +1906,13 @@ export const coordinatesToCountryQueryKey = (options?: Options<CoordinatesToCoun
 /**
  * Get country from WGS84 coordinates
  */
-export const coordinatesToCountryOptions = (options?: Options<CoordinatesToCountryData>) => {
-  return queryOptions({
+export const coordinatesToCountryOptions = (options?: Options<CoordinatesToCountryData>) =>
+  queryOptions<
+    CoordinatesToCountryResponse,
+    CoordinatesToCountryError,
+    CoordinatesToCountryResponse,
+    ReturnType<typeof coordinatesToCountryQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.coordinatesToCountry({
         ...options,
@@ -1719,7 +1924,6 @@ export const coordinatesToCountryOptions = (options?: Options<CoordinatesToCount
     },
     queryKey: coordinatesToCountryQueryKey(options)
   })
-}
 
 export const sitesProximityQueryKey = (options?: Options<SitesProximityData>) =>
   createQueryKey('sitesProximity', options)
@@ -1727,8 +1931,13 @@ export const sitesProximityQueryKey = (options?: Options<SitesProximityData>) =>
 /**
  * List sites within a radius of a point
  */
-export const sitesProximityOptions = (options?: Options<SitesProximityData>) => {
-  return queryOptions({
+export const sitesProximityOptions = (options?: Options<SitesProximityData>) =>
+  queryOptions<
+    SitesProximityResponse,
+    SitesProximityError,
+    SitesProximityResponse,
+    ReturnType<typeof sitesProximityQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.sitesProximity({
         ...options,
@@ -1740,7 +1949,6 @@ export const sitesProximityOptions = (options?: Options<SitesProximityData>) => 
     },
     queryKey: sitesProximityQueryKey(options)
   })
-}
 
 export const listCountriesQueryKey = (options?: Options<ListCountriesData>) =>
   createQueryKey('listCountries', options)
@@ -1748,8 +1956,13 @@ export const listCountriesQueryKey = (options?: Options<ListCountriesData>) =>
 /**
  * List countries
  */
-export const listCountriesOptions = (options?: Options<ListCountriesData>) => {
-  return queryOptions({
+export const listCountriesOptions = (options?: Options<ListCountriesData>) =>
+  queryOptions<
+    ListCountriesResponse,
+    ListCountriesError,
+    ListCountriesResponse,
+    ReturnType<typeof listCountriesQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.listCountries({
         ...options,
@@ -1761,7 +1974,6 @@ export const listCountriesOptions = (options?: Options<ListCountriesData>) => {
     },
     queryKey: listCountriesQueryKey(options)
   })
-}
 
 export const getCountriesSummaryQueryKey = (options?: Options<GetCountriesSummaryData>) =>
   createQueryKey('getCountriesSummary', options)
@@ -1769,8 +1981,13 @@ export const getCountriesSummaryQueryKey = (options?: Options<GetCountriesSummar
 /**
  * Get country list with sites and occurrences count
  */
-export const getCountriesSummaryOptions = (options?: Options<GetCountriesSummaryData>) => {
-  return queryOptions({
+export const getCountriesSummaryOptions = (options?: Options<GetCountriesSummaryData>) =>
+  queryOptions<
+    GetCountriesSummaryResponse,
+    GetCountriesSummaryError,
+    GetCountriesSummaryResponse,
+    ReturnType<typeof getCountriesSummaryQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.getCountriesSummary({
         ...options,
@@ -1782,7 +1999,6 @@ export const getCountriesSummaryOptions = (options?: Options<GetCountriesSummary
     },
     queryKey: getCountriesSummaryQueryKey(options)
   })
-}
 
 export const searchSitesQueryKey = (options?: Options<SearchSitesData>) =>
   createQueryKey('searchSites', options)
@@ -1792,8 +2008,13 @@ export const searchSitesQueryKey = (options?: Options<SearchSitesData>) =>
  *
  * Search sites by name, code or locality fuzzy matching a query. Returns a list of sites sorted by similarity.
  */
-export const searchSitesOptions = (options?: Options<SearchSitesData>) => {
-  return queryOptions({
+export const searchSitesOptions = (options?: Options<SearchSitesData>) =>
+  queryOptions<
+    SearchSitesResponse,
+    SearchSitesError,
+    SearchSitesResponse,
+    ReturnType<typeof searchSitesQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.searchSites({
         ...options,
@@ -1805,7 +2026,6 @@ export const searchSitesOptions = (options?: Options<SearchSitesData>) => {
     },
     queryKey: searchSitesQueryKey(options)
   })
-}
 
 export const listDataFeedsQueryKey = (options?: Options<ListDataFeedsData>) =>
   createQueryKey('listDataFeeds', options)
@@ -1813,8 +2033,13 @@ export const listDataFeedsQueryKey = (options?: Options<ListDataFeedsData>) =>
 /**
  * List saved data feeds
  */
-export const listDataFeedsOptions = (options?: Options<ListDataFeedsData>) => {
-  return queryOptions({
+export const listDataFeedsOptions = (options?: Options<ListDataFeedsData>) =>
+  queryOptions<
+    ListDataFeedsResponse,
+    ListDataFeedsError,
+    ListDataFeedsResponse,
+    ReturnType<typeof listDataFeedsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SettingsService.listDataFeeds({
         ...options,
@@ -1826,7 +2051,6 @@ export const listDataFeedsOptions = (options?: Options<ListDataFeedsData>) => {
     },
     queryKey: listDataFeedsQueryKey(options)
   })
-}
 
 /**
  * Save data feed
@@ -1857,8 +2081,13 @@ export const listMapPresetsQueryKey = (options?: Options<ListMapPresetsData>) =>
 /**
  * List saved map presets
  */
-export const listMapPresetsOptions = (options?: Options<ListMapPresetsData>) => {
-  return queryOptions({
+export const listMapPresetsOptions = (options?: Options<ListMapPresetsData>) =>
+  queryOptions<
+    ListMapPresetsResponse,
+    ListMapPresetsError,
+    ListMapPresetsResponse,
+    ReturnType<typeof listMapPresetsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SettingsService.listMapPresets({
         ...options,
@@ -1870,7 +2099,6 @@ export const listMapPresetsOptions = (options?: Options<ListMapPresetsData>) => 
     },
     queryKey: listMapPresetsQueryKey(options)
   })
-}
 
 /**
  * Save map preset
@@ -1936,8 +2164,13 @@ export const listOccurrencesQueryKey = (options?: Options<ListOccurrencesData>) 
 /**
  * List occurrences
  */
-export const listOccurrencesOptions = (options?: Options<ListOccurrencesData>) => {
-  return queryOptions({
+export const listOccurrencesOptions = (options?: Options<ListOccurrencesData>) =>
+  queryOptions<
+    ListOccurrencesResponse,
+    ListOccurrencesError,
+    ListOccurrencesResponse,
+    ReturnType<typeof listOccurrencesQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await OccurrencesService.listOccurrences({
         ...options,
@@ -1949,7 +2182,6 @@ export const listOccurrencesOptions = (options?: Options<ListOccurrencesData>) =
     },
     queryKey: listOccurrencesQueryKey(options)
   })
-}
 
 const createInfiniteParams = <
   K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>
@@ -1957,9 +2189,7 @@ const createInfiniteParams = <
   queryKey: QueryKey<Options>,
   page: K
 ) => {
-  const params = {
-    ...queryKey[0]
-  }
+  const params = { ...queryKey[0] }
   if (page.body) {
     params.body = {
       ...(queryKey[0].body as any),
@@ -1994,8 +2224,8 @@ export const listOccurrencesInfiniteQueryKey = (
 /**
  * List occurrences
  */
-export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrencesData>) => {
-  return infiniteQueryOptions<
+export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrencesData>) =>
+  infiniteQueryOptions<
     ListOccurrencesResponse,
     ListOccurrencesError,
     InfiniteData<ListOccurrencesResponse>,
@@ -2029,7 +2259,6 @@ export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrences
       queryKey: listOccurrencesInfiniteQueryKey(options)
     }
   )
-}
 
 /**
  * Create occurrence
@@ -2064,8 +2293,13 @@ export const occurrencesBySiteQueryKey = (options?: Options<OccurrencesBySiteDat
 /**
  * Occurrences by site
  */
-export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData>) => {
-  return queryOptions({
+export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData>) =>
+  queryOptions<
+    OccurrencesBySiteResponse,
+    OccurrencesBySiteError,
+    OccurrencesBySiteResponse,
+    ReturnType<typeof occurrencesBySiteQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await OccurrencesService.occurrencesBySite({
         ...options,
@@ -2077,7 +2311,6 @@ export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData
     },
     queryKey: occurrencesBySiteQueryKey(options)
   })
-}
 
 export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) =>
   createQueryKey('occurrenceOverview', options)
@@ -2085,8 +2318,13 @@ export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewD
 /**
  * Occurrences overview
  */
-export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewData>) => {
-  return queryOptions({
+export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewData>) =>
+  queryOptions<
+    OccurrenceOverviewResponse,
+    OccurrenceOverviewError,
+    OccurrenceOverviewResponse,
+    ReturnType<typeof occurrenceOverviewQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await OccurrencesService.occurrenceOverview({
         ...options,
@@ -2098,7 +2336,6 @@ export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewDa
     },
     queryKey: occurrenceOverviewQueryKey(options)
   })
-}
 
 /**
  * Delete occurrence
@@ -2135,8 +2372,13 @@ export const getOccurrenceQueryKey = (options: Options<GetOccurrenceData>) =>
 /**
  * Get occurrence
  */
-export const getOccurrenceOptions = (options: Options<GetOccurrenceData>) => {
-  return queryOptions({
+export const getOccurrenceOptions = (options: Options<GetOccurrenceData>) =>
+  queryOptions<
+    GetOccurrenceResponse,
+    GetOccurrenceError,
+    GetOccurrenceResponse,
+    ReturnType<typeof getOccurrenceQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await OccurrencesService.getOccurrence({
         ...options,
@@ -2148,7 +2390,6 @@ export const getOccurrenceOptions = (options: Options<GetOccurrenceData>) => {
     },
     queryKey: getOccurrenceQueryKey(options)
   })
-}
 
 /**
  * Update occurrence
@@ -2183,8 +2424,13 @@ export const listOrganisationsQueryKey = (options?: Options<ListOrganisationsDat
 /**
  * List organisations
  */
-export const listOrganisationsOptions = (options?: Options<ListOrganisationsData>) => {
-  return queryOptions({
+export const listOrganisationsOptions = (options?: Options<ListOrganisationsData>) =>
+  queryOptions<
+    ListOrganisationsResponse,
+    ListOrganisationsError,
+    ListOrganisationsResponse,
+    ReturnType<typeof listOrganisationsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await PeopleService.listOrganisations({
         ...options,
@@ -2196,7 +2442,6 @@ export const listOrganisationsOptions = (options?: Options<ListOrganisationsData
     },
     queryKey: listOrganisationsQueryKey(options)
   })
-}
 
 /**
  * Create organisation
@@ -2285,8 +2530,13 @@ export const listPersonsQueryKey = (options?: Options<ListPersonsData>) =>
 /**
  * List persons
  */
-export const listPersonsOptions = (options?: Options<ListPersonsData>) => {
-  return queryOptions({
+export const listPersonsOptions = (options?: Options<ListPersonsData>) =>
+  queryOptions<
+    ListPersonsResponse,
+    ListPersonsError,
+    ListPersonsResponse,
+    ReturnType<typeof listPersonsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await PeopleService.listPersons({
         ...options,
@@ -2298,7 +2548,6 @@ export const listPersonsOptions = (options?: Options<ListPersonsData>) => {
     },
     queryKey: listPersonsQueryKey(options)
   })
-}
 
 /**
  * Create person
@@ -2400,8 +2649,13 @@ export const listProgramsQueryKey = (options?: Options<ListProgramsData>) =>
 /**
  * List programs
  */
-export const listProgramsOptions = (options?: Options<ListProgramsData>) => {
-  return queryOptions({
+export const listProgramsOptions = (options?: Options<ListProgramsData>) =>
+  queryOptions<
+    ListProgramsResponse,
+    ListProgramsError,
+    ListProgramsResponse,
+    ReturnType<typeof listProgramsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await DatasetsService.listPrograms({
         ...options,
@@ -2413,7 +2667,6 @@ export const listProgramsOptions = (options?: Options<ListProgramsData>) => {
     },
     queryKey: listProgramsQueryKey(options)
   })
-}
 
 /**
  * Create program
@@ -2490,8 +2743,13 @@ export const listArticlesQueryKey = (options?: Options<ListArticlesData>) =>
 /**
  * List articles
  */
-export const listArticlesOptions = (options?: Options<ListArticlesData>) => {
-  return queryOptions({
+export const listArticlesOptions = (options?: Options<ListArticlesData>) =>
+  queryOptions<
+    ListArticlesResponse,
+    ListArticlesError,
+    ListArticlesResponse,
+    ReturnType<typeof listArticlesQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await ReferencesService.listArticles({
         ...options,
@@ -2503,7 +2761,6 @@ export const listArticlesOptions = (options?: Options<ListArticlesData>) => {
     },
     queryKey: listArticlesQueryKey(options)
   })
-}
 
 /**
  * Create article
@@ -2580,8 +2837,13 @@ export const listSamplingMethodsQueryKey = (options?: Options<ListSamplingMethod
 /**
  * List sampling methods
  */
-export const listSamplingMethodsOptions = (options?: Options<ListSamplingMethodsData>) => {
-  return queryOptions({
+export const listSamplingMethodsOptions = (options?: Options<ListSamplingMethodsData>) =>
+  queryOptions<
+    ListSamplingMethodsResponse,
+    ListSamplingMethodsError,
+    ListSamplingMethodsResponse,
+    ReturnType<typeof listSamplingMethodsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SamplingService.listSamplingMethods({
         ...options,
@@ -2593,7 +2855,6 @@ export const listSamplingMethodsOptions = (options?: Options<ListSamplingMethods
     },
     queryKey: listSamplingMethodsQueryKey(options)
   })
-}
 
 /**
  * Create sampling method
@@ -2780,8 +3041,13 @@ export const listSequencesQueryKey = (options?: Options<ListSequencesData>) =>
 /**
  * List sequences
  */
-export const listSequencesOptions = (options?: Options<ListSequencesData>) => {
-  return queryOptions({
+export const listSequencesOptions = (options?: Options<ListSequencesData>) =>
+  queryOptions<
+    ListSequencesResponse,
+    ListSequencesError,
+    ListSequencesResponse,
+    ReturnType<typeof listSequencesQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SequencesService.listSequences({
         ...options,
@@ -2793,7 +3059,6 @@ export const listSequencesOptions = (options?: Options<ListSequencesData>) => {
     },
     queryKey: listSequencesQueryKey(options)
   })
-}
 
 /**
  * Delete sequence
@@ -2824,8 +3089,13 @@ export const getSequenceQueryKey = (options: Options<GetSequenceData>) =>
 /**
  * Get sequence
  */
-export const getSequenceOptions = (options: Options<GetSequenceData>) => {
-  return queryOptions({
+export const getSequenceOptions = (options: Options<GetSequenceData>) =>
+  queryOptions<
+    GetSequenceResponse,
+    GetSequenceError,
+    GetSequenceResponse,
+    ReturnType<typeof getSequenceQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SequencesService.getSequence({
         ...options,
@@ -2837,7 +3107,6 @@ export const getSequenceOptions = (options: Options<GetSequenceData>) => {
     },
     queryKey: getSequenceQueryKey(options)
   })
-}
 
 export const emailSettingsQueryKey = (options?: Options<EmailSettingsData>) =>
   createQueryKey('emailSettings', options)
@@ -2845,8 +3114,13 @@ export const emailSettingsQueryKey = (options?: Options<EmailSettingsData>) =>
 /**
  * Email settings
  */
-export const emailSettingsOptions = (options?: Options<EmailSettingsData>) => {
-  return queryOptions({
+export const emailSettingsOptions = (options?: Options<EmailSettingsData>) =>
+  queryOptions<
+    EmailSettingsResponse,
+    EmailSettingsError,
+    EmailSettingsResponse,
+    ReturnType<typeof emailSettingsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SettingsService.emailSettings({
         ...options,
@@ -2858,7 +3132,6 @@ export const emailSettingsOptions = (options?: Options<EmailSettingsData>) => {
     },
     queryKey: emailSettingsQueryKey(options)
   })
-}
 
 /**
  * Update email settings
@@ -2939,8 +3212,13 @@ export const instanceSettingsQueryKey = (options?: Options<InstanceSettingsData>
 /**
  * Instance settings
  */
-export const instanceSettingsOptions = (options?: Options<InstanceSettingsData>) => {
-  return queryOptions({
+export const instanceSettingsOptions = (options?: Options<InstanceSettingsData>) =>
+  queryOptions<
+    InstanceSettingsResponse,
+    InstanceSettingsError,
+    InstanceSettingsResponse,
+    ReturnType<typeof instanceSettingsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SettingsService.instanceSettings({
         ...options,
@@ -2952,7 +3230,6 @@ export const instanceSettingsOptions = (options?: Options<InstanceSettingsData>)
     },
     queryKey: instanceSettingsQueryKey(options)
   })
-}
 
 /**
  * Update instance settings
@@ -2987,8 +3264,13 @@ export const securitySettingsQueryKey = (options?: Options<SecuritySettingsData>
 /**
  * Security settings
  */
-export const securitySettingsOptions = (options?: Options<SecuritySettingsData>) => {
-  return queryOptions({
+export const securitySettingsOptions = (options?: Options<SecuritySettingsData>) =>
+  queryOptions<
+    SecuritySettingsResponse,
+    SecuritySettingsError,
+    SecuritySettingsResponse,
+    ReturnType<typeof securitySettingsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SettingsService.securitySettings({
         ...options,
@@ -3000,7 +3282,6 @@ export const securitySettingsOptions = (options?: Options<SecuritySettingsData>)
     },
     queryKey: securitySettingsQueryKey(options)
   })
-}
 
 /**
  * Update security settings
@@ -3035,8 +3316,13 @@ export const serviceSettingsQueryKey = (options?: Options<ServiceSettingsData>) 
 /**
  * Service settings
  */
-export const serviceSettingsOptions = (options?: Options<ServiceSettingsData>) => {
-  return queryOptions({
+export const serviceSettingsOptions = (options?: Options<ServiceSettingsData>) =>
+  queryOptions<
+    ServiceSettingsResponse,
+    ServiceSettingsError,
+    ServiceSettingsResponse,
+    ReturnType<typeof serviceSettingsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await SettingsService.serviceSettings({
         ...options,
@@ -3048,7 +3334,6 @@ export const serviceSettingsOptions = (options?: Options<ServiceSettingsData>) =
     },
     queryKey: serviceSettingsQueryKey(options)
   })
-}
 
 /**
  * Update service settings
@@ -3085,8 +3370,13 @@ export const listSitesQueryKey = (options?: Options<ListSitesData>) =>
  *
  * List all registered sites
  */
-export const listSitesOptions = (options?: Options<ListSitesData>) => {
-  return queryOptions({
+export const listSitesOptions = (options?: Options<ListSitesData>) =>
+  queryOptions<
+    ListSitesResponse,
+    ListSitesError,
+    ListSitesResponse,
+    ReturnType<typeof listSitesQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.listSites({
         ...options,
@@ -3098,7 +3388,6 @@ export const listSitesOptions = (options?: Options<ListSitesData>) => {
     },
     queryKey: listSitesQueryKey(options)
   })
-}
 
 /**
  * Create site
@@ -3132,8 +3421,8 @@ export const getSiteQueryKey = (options: Options<GetSiteData>) => createQueryKey
  *
  * Get site infos using its code
  */
-export const getSiteOptions = (options: Options<GetSiteData>) => {
-  return queryOptions({
+export const getSiteOptions = (options: Options<GetSiteData>) =>
+  queryOptions<GetSiteResponse, GetSiteError, GetSiteResponse, ReturnType<typeof getSiteQueryKey>>({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.getSite({
         ...options,
@@ -3145,7 +3434,6 @@ export const getSiteOptions = (options: Options<GetSiteData>) => {
     },
     queryKey: getSiteQueryKey(options)
   })
-}
 
 /**
  * Update site
@@ -3190,7 +3478,7 @@ export const siteAddOccurrenceMutation = (
     Options<SiteAddOccurrenceData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.siteAddOccurrence({
+      const { data } = await LocationService.siteAddOccurrence({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -3207,8 +3495,13 @@ export const listSiteSamplingsQueryKey = (options: Options<ListSiteSamplingsData
 /**
  * List samplings at site
  */
-export const listSiteSamplingsOptions = (options: Options<ListSiteSamplingsData>) => {
-  return queryOptions({
+export const listSiteSamplingsOptions = (options: Options<ListSiteSamplingsData>) =>
+  queryOptions<
+    ListSiteSamplingsResponse,
+    ListSiteSamplingsError,
+    ListSiteSamplingsResponse,
+    ReturnType<typeof listSiteSamplingsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await LocationService.listSiteSamplings({
         ...options,
@@ -3220,7 +3513,6 @@ export const listSiteSamplingsOptions = (options: Options<ListSiteSamplingsData>
     },
     queryKey: listSiteSamplingsQueryKey(options)
   })
-}
 
 /**
  * Create sampling at site
@@ -3257,8 +3549,13 @@ export const getTaxonomyQueryKey = (options?: Options<GetTaxonomyData>) =>
 /**
  * Get taxonomy
  */
-export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) => {
-  return queryOptions({
+export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) =>
+  queryOptions<
+    GetTaxonomyResponse,
+    GetTaxonomyError,
+    GetTaxonomyResponse,
+    ReturnType<typeof getTaxonomyQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await TaxonomyService.getTaxonomy({
         ...options,
@@ -3270,7 +3567,6 @@ export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) => {
     },
     queryKey: getTaxonomyQueryKey(options)
   })
-}
 
 export const listAnchorsQueryKey = (options?: Options<ListAnchorsData>) =>
   createQueryKey('listAnchors', options)
@@ -3278,8 +3574,13 @@ export const listAnchorsQueryKey = (options?: Options<ListAnchorsData>) =>
 /**
  * List GBIF anchor clades
  */
-export const listAnchorsOptions = (options?: Options<ListAnchorsData>) => {
-  return queryOptions({
+export const listAnchorsOptions = (options?: Options<ListAnchorsData>) =>
+  queryOptions<
+    ListAnchorsResponse,
+    ListAnchorsError,
+    ListAnchorsResponse,
+    ReturnType<typeof listAnchorsQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await TaxonomyGbifService.listAnchors({
         ...options,
@@ -3291,7 +3592,6 @@ export const listAnchorsOptions = (options?: Options<ListAnchorsData>) => {
     },
     queryKey: listAnchorsQueryKey(options)
   })
-}
 
 /**
  * Import GBIF clade
@@ -3322,8 +3622,13 @@ export const listTaxaQueryKey = (options?: Options<ListTaxaData>) =>
 /**
  * List taxa
  */
-export const listTaxaOptions = (options?: Options<ListTaxaData>) => {
-  return queryOptions({
+export const listTaxaOptions = (options?: Options<ListTaxaData>) =>
+  queryOptions<
+    ListTaxaResponse,
+    ListTaxaError,
+    ListTaxaResponse,
+    ReturnType<typeof listTaxaQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await TaxonomyService.listTaxa({
         ...options,
@@ -3335,7 +3640,6 @@ export const listTaxaOptions = (options?: Options<ListTaxaData>) => {
     },
     queryKey: listTaxaQueryKey(options)
   })
-}
 
 /**
  * Create taxon
@@ -3389,8 +3693,13 @@ export const getTaxonQueryKey = (options: Options<GetTaxonData>) =>
 /**
  * Get taxon
  */
-export const getTaxonOptions = (options: Options<GetTaxonData>) => {
-  return queryOptions({
+export const getTaxonOptions = (options: Options<GetTaxonData>) =>
+  queryOptions<
+    GetTaxonResponse,
+    GetTaxonError,
+    GetTaxonResponse,
+    ReturnType<typeof getTaxonQueryKey>
+  >({
     queryFn: async ({ queryKey, signal }) => {
       const { data } = await TaxonomyService.getTaxon({
         ...options,
@@ -3402,7 +3711,6 @@ export const getTaxonOptions = (options: Options<GetTaxonData>) => {
     },
     queryKey: getTaxonQueryKey(options)
   })
-}
 
 /**
  * Update taxon

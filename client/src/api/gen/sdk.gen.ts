@@ -519,10 +519,7 @@ export class SamplingService {
     >({
       responseTransformer: listAbioticParametersResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -547,10 +544,7 @@ export class SamplingService {
     >({
       responseTransformer: createAbioticParameterResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -579,10 +573,7 @@ export class SamplingService {
     >({
       responseTransformer: deleteAbioticParameterResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -607,10 +598,7 @@ export class SamplingService {
     >({
       responseTransformer: updateAbioticParameterResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -638,10 +626,7 @@ export class SamplingService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -666,10 +651,7 @@ export class SamplingService {
     >({
       responseTransformer: listFixativesResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -694,10 +676,7 @@ export class SamplingService {
     >({
       responseTransformer: createFixativeResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -726,10 +705,7 @@ export class SamplingService {
     >({
       responseTransformer: deleteFixativeResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -754,10 +730,7 @@ export class SamplingService {
     >({
       responseTransformer: updateFixativeResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -786,10 +759,7 @@ export class SamplingService {
     >({
       responseTransformer: listHabitatGroupsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -814,10 +784,7 @@ export class SamplingService {
     >({
       responseTransformer: createHabitatGroupResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -846,10 +813,7 @@ export class SamplingService {
     >({
       responseTransformer: deleteHabitatGroupResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -874,10 +838,7 @@ export class SamplingService {
     >({
       responseTransformer: updateHabitatGroupResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -906,10 +867,7 @@ export class SamplingService {
     >({
       responseTransformer: listSamplingMethodsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -934,10 +892,7 @@ export class SamplingService {
     >({
       responseTransformer: createSamplingMethodResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -966,10 +921,7 @@ export class SamplingService {
     >({
       responseTransformer: deleteSamplingMethodResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -994,10 +946,7 @@ export class SamplingService {
     >({
       responseTransformer: updateSamplingMethodResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1026,10 +975,7 @@ export class SamplingService {
     >({
       responseTransformer: createSamplingResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1058,10 +1004,7 @@ export class SamplingService {
     >({
       responseTransformer: deleteSamplingResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1086,10 +1029,7 @@ export class SamplingService {
     >({
       responseTransformer: updateSamplingResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1120,10 +1060,7 @@ export class SamplingService {
     >({
       responseTransformer: samplingAddOccurrenceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1152,10 +1089,7 @@ export class AccountService {
     return (options?.client ?? client).get<CurrentUserResponses, CurrentUserErrors, ThrowOnError>({
       responseTransformer: currentUserResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1178,10 +1112,7 @@ export class AccountService {
     return (options?.client ?? client).get<ConfirmEmailResponses, ConfirmEmailErrors, ThrowOnError>(
       {
         security: [
-          {
-            scheme: 'bearer',
-            type: 'http'
-          },
+          { scheme: 'bearer', type: 'http' },
           {
             in: 'cookie',
             name: 'auth_token',
@@ -1208,10 +1139,7 @@ export class AccountService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1241,10 +1169,7 @@ export class AccountService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1271,10 +1196,7 @@ export class AccountService {
     return (options.client ?? client).post<LoginResponses, LoginErrors, ThrowOnError>({
       responseTransformer: loginResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1300,10 +1222,7 @@ export class AccountService {
   ) {
     return (options.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1333,10 +1252,7 @@ export class AccountService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1366,10 +1282,7 @@ export class AccountService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1395,10 +1308,7 @@ export class AccountService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1429,10 +1339,7 @@ export class AccountService {
     >({
       responseTransformer: listPendingUserRequestsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1459,10 +1366,7 @@ export class AccountService {
     >({
       responseTransformer: deletePendingUserRequestResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1489,10 +1393,7 @@ export class AccountService {
     >({
       responseTransformer: getPendingUserRequestResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1519,10 +1420,7 @@ export class AccountService {
     >({
       responseTransformer: refreshSessionResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1548,10 +1446,7 @@ export class AccountService {
   ) {
     return (options.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1582,10 +1477,7 @@ export class AccountService {
     >({
       responseTransformer: claimInvitationResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1616,10 +1508,7 @@ export class ReferencesService {
     >({
       responseTransformer: listCollectionsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1644,10 +1533,7 @@ export class ReferencesService {
     >({
       responseTransformer: createCollectionResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1676,10 +1562,7 @@ export class ReferencesService {
     >({
       responseTransformer: deleteCollectionResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1704,10 +1587,7 @@ export class ReferencesService {
     >({
       responseTransformer: updateCollectionResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1731,10 +1611,7 @@ export class ReferencesService {
   ) {
     return (options.client ?? client).get<CrossRefResponses, CrossRefErrors, ThrowOnError>({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1758,10 +1635,7 @@ export class ReferencesService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1787,10 +1661,7 @@ export class ReferencesService {
       {
         responseTransformer: listArticlesResponseTransformer,
         security: [
-          {
-            scheme: 'bearer',
-            type: 'http'
-          },
+          { scheme: 'bearer', type: 'http' },
           {
             in: 'cookie',
             name: 'auth_token',
@@ -1816,10 +1687,7 @@ export class ReferencesService {
     >({
       responseTransformer: createArticleResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1848,10 +1716,7 @@ export class ReferencesService {
     >({
       responseTransformer: deleteArticleResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1876,10 +1741,7 @@ export class ReferencesService {
     >({
       responseTransformer: updateArticleResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1910,10 +1772,7 @@ export class DataSourcesService {
     >({
       responseTransformer: listDataSourcesResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1938,10 +1797,7 @@ export class DataSourcesService {
     >({
       responseTransformer: createDataSourceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1970,10 +1826,7 @@ export class DataSourcesService {
     >({
       responseTransformer: deleteDataSourceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -1998,10 +1851,7 @@ export class DataSourcesService {
     >({
       responseTransformer: updateDataSourceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2031,10 +1881,7 @@ export class DatasetsService {
       {
         responseTransformer: listDatasetsResponseTransformer,
         security: [
-          {
-            scheme: 'bearer',
-            type: 'http'
-          },
+          { scheme: 'bearer', type: 'http' },
           {
             in: 'cookie',
             name: 'auth_token',
@@ -2062,10 +1909,7 @@ export class DatasetsService {
     >({
       responseTransformer: updateDatasetResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2096,10 +1940,7 @@ export class DatasetsService {
     >({
       responseTransformer: listOccurrenceDatasetsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2126,10 +1967,7 @@ export class DatasetsService {
     >({
       responseTransformer: getOccurrenceDatasetResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2156,10 +1994,7 @@ export class DatasetsService {
     >({
       responseTransformer: togglePinDatasetResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2185,10 +2020,7 @@ export class DatasetsService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2215,10 +2047,7 @@ export class DatasetsService {
     >({
       responseTransformer: getSequenceDatasetResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2245,10 +2074,7 @@ export class DatasetsService {
     >({
       responseTransformer: listSiteDatasetsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2275,10 +2101,7 @@ export class DatasetsService {
     >({
       responseTransformer: createSiteDatasetResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2309,10 +2132,7 @@ export class DatasetsService {
     >({
       responseTransformer: getSiteDatasetResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2335,10 +2155,7 @@ export class DatasetsService {
     return (options.client ?? client).get<GetDatasetResponses, GetDatasetErrors, ThrowOnError>({
       responseTransformer: getDatasetResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2360,10 +2177,7 @@ export class DatasetsService {
       {
         responseTransformer: listProgramsResponseTransformer,
         security: [
-          {
-            scheme: 'bearer',
-            type: 'http'
-          },
+          { scheme: 'bearer', type: 'http' },
           {
             in: 'cookie',
             name: 'auth_token',
@@ -2389,10 +2203,7 @@ export class DatasetsService {
     >({
       responseTransformer: createProgramResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2421,10 +2232,7 @@ export class DatasetsService {
     >({
       responseTransformer: deleteProgramResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2449,10 +2257,7 @@ export class DatasetsService {
     >({
       responseTransformer: updateProgramResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2479,10 +2284,7 @@ export class SequencesService {
     return (options?.client ?? client).get<ListGenesResponses, ListGenesErrors, ThrowOnError>({
       responseTransformer: listGenesResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2503,10 +2305,7 @@ export class SequencesService {
     return (options.client ?? client).post<CreateGeneResponses, CreateGeneErrors, ThrowOnError>({
       responseTransformer: createGeneResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2531,10 +2330,7 @@ export class SequencesService {
     return (options.client ?? client).delete<DeleteGeneResponses, DeleteGeneErrors, ThrowOnError>({
       responseTransformer: deleteGeneResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2555,10 +2351,7 @@ export class SequencesService {
     return (options.client ?? client).patch<UpdateGeneResponses, UpdateGeneErrors, ThrowOnError>({
       responseTransformer: updateGeneResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2587,10 +2380,7 @@ export class SequencesService {
     >({
       responseTransformer: listSequencesResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2615,10 +2405,7 @@ export class SequencesService {
     >({
       responseTransformer: deleteSequenceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2639,10 +2426,7 @@ export class SequencesService {
     return (options.client ?? client).get<GetSequenceResponses, GetSequenceErrors, ThrowOnError>({
       responseTransformer: getSequenceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2668,10 +2452,7 @@ export class ServicesService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2695,10 +2476,7 @@ export class ServicesService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2722,10 +2500,7 @@ export class ServicesService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2751,10 +2526,7 @@ export class TaxonomyGbifService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2775,10 +2547,7 @@ export class TaxonomyGbifService {
     return (options?.client ?? client).get<ListAnchorsResponses, ListAnchorsErrors, ThrowOnError>({
       responseTransformer: listAnchorsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2798,10 +2567,7 @@ export class TaxonomyGbifService {
   ) {
     return (options.client ?? client).put<ImportGbifResponses, ImportGbifErrors, ThrowOnError>({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2831,10 +2597,7 @@ export class LocationService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2857,21 +2620,10 @@ export class LocationService {
       SitesProximityErrors,
       ThrowOnError
     >({
-      querySerializer: {
-        parameters: {
-          exclude: {
-            array: {
-              explode: false
-            }
-          }
-        }
-      },
+      querySerializer: { parameters: { exclude: { array: { explode: false } } } },
       responseTransformer: sitesProximityResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2895,10 +2647,7 @@ export class LocationService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2922,10 +2671,7 @@ export class LocationService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2948,10 +2694,7 @@ export class LocationService {
     return (options?.client ?? client).get<SearchSitesResponses, SearchSitesErrors, ThrowOnError>({
       responseTransformer: searchSitesResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -2974,24 +2717,13 @@ export class LocationService {
     return (options?.client ?? client).get<ListSitesResponses, ListSitesErrors, ThrowOnError>({
       querySerializer: {
         parameters: {
-          datasets: {
-            array: {
-              explode: false
-            }
-          },
-          countries: {
-            array: {
-              explode: false
-            }
-          }
+          datasets: { array: { explode: false } },
+          countries: { array: { explode: false } }
         }
       },
       responseTransformer: listSitesResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3014,10 +2746,7 @@ export class LocationService {
     return (options.client ?? client).post<CreateSiteResponses, CreateSiteErrors, ThrowOnError>({
       responseTransformer: createSiteResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3044,10 +2773,7 @@ export class LocationService {
     return (options.client ?? client).get<GetSiteResponses, GetSiteErrors, ThrowOnError>({
       responseTransformer: getSiteResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3070,10 +2796,7 @@ export class LocationService {
     return (options.client ?? client).patch<UpdateSiteResponses, UpdateSiteErrors, ThrowOnError>({
       responseTransformer: updateSiteResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3104,10 +2827,7 @@ export class LocationService {
     >({
       responseTransformer: siteAddOccurrenceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3136,10 +2856,7 @@ export class LocationService {
     >({
       responseTransformer: listSiteSamplingsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3166,10 +2883,7 @@ export class LocationService {
     >({
       responseTransformer: createSamplingAtSiteResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3200,10 +2914,7 @@ export class SettingsService {
     >({
       responseTransformer: listDataFeedsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3228,10 +2939,7 @@ export class SettingsService {
     >({
       responseTransformer: createDataFeedResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3260,10 +2968,7 @@ export class SettingsService {
     >({
       responseTransformer: listMapPresetsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3290,10 +2995,7 @@ export class SettingsService {
     >({
       responseTransformer: createUpdateMapPresetResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3324,10 +3026,7 @@ export class SettingsService {
     >({
       responseTransformer: deleteMapPresetResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3351,10 +3050,7 @@ export class SettingsService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3378,10 +3074,7 @@ export class SettingsService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3405,10 +3098,7 @@ export class SettingsService {
   ) {
     return (options.client ?? client).post<TestSmtpResponses, TestSmtpErrors, ThrowOnError>({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3433,10 +3123,7 @@ export class SettingsService {
     return (options?.client ?? client).post<SetAppIconResponses, SetAppIconErrors, ThrowOnError>({
       ...formDataBodySerializer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3464,10 +3151,7 @@ export class SettingsService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3491,10 +3175,7 @@ export class SettingsService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3522,10 +3203,7 @@ export class SettingsService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3549,10 +3227,7 @@ export class SettingsService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3580,10 +3255,7 @@ export class SettingsService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3607,10 +3279,7 @@ export class SettingsService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3641,29 +3310,14 @@ export class OccurrencesService {
     >({
       querySerializer: {
         parameters: {
-          taxa: {
-            array: {
-              explode: false
-            }
-          },
-          datasets: {
-            array: {
-              explode: false
-            }
-          },
-          rank: {
-            array: {
-              explode: false
-            }
-          }
+          taxa: { array: { explode: false } },
+          datasets: { array: { explode: false } },
+          rank: { array: { explode: false } }
         }
       },
       responseTransformer: listOccurrencesResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3688,10 +3342,7 @@ export class OccurrencesService {
     >({
       responseTransformer: createOccurrenceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3720,39 +3371,16 @@ export class OccurrencesService {
     >({
       querySerializer: {
         parameters: {
-          datasets: {
-            array: {
-              explode: false
-            }
-          },
-          countries: {
-            array: {
-              explode: false
-            }
-          },
-          taxa: {
-            array: {
-              explode: false
-            }
-          },
-          habitats: {
-            array: {
-              explode: false
-            }
-          },
-          sampling_target_taxa: {
-            array: {
-              explode: false
-            }
-          }
+          datasets: { array: { explode: false } },
+          countries: { array: { explode: false } },
+          taxa: { array: { explode: false } },
+          habitats: { array: { explode: false } },
+          sampling_target_taxa: { array: { explode: false } }
         }
       },
       responseTransformer: occurrencesBySiteResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3776,10 +3404,7 @@ export class OccurrencesService {
       ThrowOnError
     >({
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3806,10 +3431,7 @@ export class OccurrencesService {
     >({
       responseTransformer: deleteOccurrenceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3834,10 +3456,7 @@ export class OccurrencesService {
     >({
       responseTransformer: getOccurrenceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3862,10 +3481,7 @@ export class OccurrencesService {
     >({
       responseTransformer: updateOccurrenceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3896,10 +3512,7 @@ export class OccurrencesService {
     >({
       responseTransformer: siteAddOccurrenceResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3930,10 +3543,7 @@ export class PeopleService {
     >({
       responseTransformer: listOrganisationsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3958,10 +3568,7 @@ export class PeopleService {
     >({
       responseTransformer: createOrganisationResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -3990,10 +3597,7 @@ export class PeopleService {
     >({
       responseTransformer: deleteOrganisationResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -4018,10 +3622,7 @@ export class PeopleService {
     >({
       responseTransformer: updateOrganisationResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -4046,10 +3647,7 @@ export class PeopleService {
     return (options?.client ?? client).get<ListPersonsResponses, ListPersonsErrors, ThrowOnError>({
       responseTransformer: listPersonsResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -4071,10 +3669,7 @@ export class PeopleService {
       {
         responseTransformer: createPersonResponseTransformer,
         security: [
-          {
-            scheme: 'bearer',
-            type: 'http'
-          },
+          { scheme: 'bearer', type: 'http' },
           {
             in: 'cookie',
             name: 'auth_token',
@@ -4104,10 +3699,7 @@ export class PeopleService {
     >({
       responseTransformer: deletePersonResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -4132,10 +3724,7 @@ export class PeopleService {
     >({
       responseTransformer: updatePersonResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -4162,10 +3751,7 @@ export class PeopleService {
     return (options.client ?? client).post<InvitePersonResponses, InvitePersonErrors, ThrowOnError>(
       {
         security: [
-          {
-            scheme: 'bearer',
-            type: 'http'
-          },
+          { scheme: 'bearer', type: 'http' },
           {
             in: 'cookie',
             name: 'auth_token',
@@ -4193,10 +3779,7 @@ export class TaxonomyService {
     return (options?.client ?? client).get<GetTaxonomyResponses, GetTaxonomyErrors, ThrowOnError>({
       responseTransformer: getTaxonomyResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -4215,21 +3798,10 @@ export class TaxonomyService {
     options?: Options<ListTaxaData, ThrowOnError>
   ) {
     return (options?.client ?? client).get<ListTaxaResponses, ListTaxaErrors, ThrowOnError>({
-      querySerializer: {
-        parameters: {
-          ranks: {
-            array: {
-              explode: false
-            }
-          }
-        }
-      },
+      querySerializer: { parameters: { ranks: { array: { explode: false } } } },
       responseTransformer: listTaxaResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -4250,10 +3822,7 @@ export class TaxonomyService {
     return (options.client ?? client).post<CreateTaxonResponses, CreateTaxonErrors, ThrowOnError>({
       responseTransformer: createTaxonResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -4279,10 +3848,7 @@ export class TaxonomyService {
       {
         responseTransformer: deleteTaxonResponseTransformer,
         security: [
-          {
-            scheme: 'bearer',
-            type: 'http'
-          },
+          { scheme: 'bearer', type: 'http' },
           {
             in: 'cookie',
             name: 'auth_token',
@@ -4304,10 +3870,7 @@ export class TaxonomyService {
     return (options.client ?? client).get<GetTaxonResponses, GetTaxonErrors, ThrowOnError>({
       responseTransformer: getTaxonResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',
@@ -4328,10 +3891,7 @@ export class TaxonomyService {
     return (options.client ?? client).patch<UpdateTaxonResponses, UpdateTaxonErrors, ThrowOnError>({
       responseTransformer: updateTaxonResponseTransformer,
       security: [
-        {
-          scheme: 'bearer',
-          type: 'http'
-        },
+        { scheme: 'bearer', type: 'http' },
         {
           in: 'cookie',
           name: 'auth_token',

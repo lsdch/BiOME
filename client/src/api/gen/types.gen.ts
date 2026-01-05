@@ -667,6 +667,7 @@ export type Funder = {
   DOI?: string
   award?: Array<string>
   'doi-asserted-by'?: string
+  id?: Array<Identifier>
   name?: string
 }
 
