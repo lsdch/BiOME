@@ -107,7 +107,7 @@ const (
 
 var BioMatSortMap = map[BioMatSortKey]string{
 	BioMatSortCode:           ".code",
-	BioMatSortSite:           "(.site.name ?? .site.code)",
+	BioMatSortSite:           "(.sampling.site.name ?? .sampling.site.code)",
 	BioMatSortSamplingDate:   ".sampling.performed_on.date",
 	BioMatSortIdentification: ".identification.taxon.name",
 	BioMatSortIdentifiedOn:   ".identification.identified_on.date",
@@ -151,12 +151,13 @@ func ListOccurrences(db geltypes.Executor, opts ListOccurrencesOptions) (models.
 	}
 	params, _ := json.Marshal(opts)
 	logrus.Debugf("Params: %s", string(params))
+
 	var result = models.PaginatedList[OccurrenceListItem]{
 		Items: []OccurrenceListItem{},
 	}
 	err := db.QuerySingle(context.Background(),
 		queries.RenderTemplate("list_occurrences.tmpl.edgeql", opts),
-		&result, params, opts.OrderByString())
+		&result, params)
 	return result, err
 }
 

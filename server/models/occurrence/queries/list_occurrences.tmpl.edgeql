@@ -46,7 +46,9 @@ items := (
 select {
   items := (
     select items
-    order by <str>$1
+    {{- if .Key }}
+    order by {{ .OrderByString }}
+    {{- end }}
     offset <optional int64>json_get(params, 'offset')
     limit <optional int64>json_get(params, 'limit')
   ) {
