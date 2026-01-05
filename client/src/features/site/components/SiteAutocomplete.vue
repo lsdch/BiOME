@@ -72,7 +72,10 @@ const isSearchCoordinates = computed(
 )
 
 function asCoordinates(value: string): { latitude: number; longitude: number } {
-  const [latitude, longitude] = value.split(',').map((v) => parseFloat(v.trim()))
+  const [latitude, longitude] = value.split(',').map((v) => parseFloat(v.trim())) as [
+    number,
+    number
+  ]
   return { latitude, longitude }
 }
 
@@ -87,7 +90,7 @@ const sitesAtProximity = useQuery(
   computed(() => ({
     enabled: isSearchCoordinates.value,
     ...sitesProximityOptions({
-      body: {
+      query: {
         radius: radius.value,
         ...(searchValue.value ? asCoordinates(searchValue.value) : { latitude: 0, longitude: 0 })
       }
