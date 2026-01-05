@@ -39,7 +39,8 @@
         @click="toggleFullscreen()"
       />
     </template>
-    <slot v-if="error != null" name="loading">
+
+    <slot v-if="loading" name="loading">
       <CenteredSpinner v-if="loading" :height="200" size="large" color="primary" />
     </slot>
     <slot v-else-if="error" name="error">
