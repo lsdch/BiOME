@@ -642,15 +642,7 @@ const collectionWithVouchersSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const optionalPersonSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  return data
-}
-
 const identificationSchemaResponseTransformer = (data: any) => {
-  if (data.identified_by) {
-    data.identified_by = optionalPersonSchemaResponseTransformer(data.identified_by)
-  }
   if (data.identified_on) {
     data.identified_on = optionalDateWithPrecisionSchemaResponseTransformer(data.identified_on)
   }

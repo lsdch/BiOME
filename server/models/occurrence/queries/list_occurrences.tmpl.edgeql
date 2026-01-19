@@ -54,7 +54,7 @@ select {
   ) {
     *,
     sampling: { *, site: { *, country: { * } } },
-    identification: { **, identified_by: { ** } },
+    identification: { ** },
     meta: { * }
   },
   total_count := count(items),

@@ -38,23 +38,26 @@ type DateWithPrecisionInput struct {
 	Precision DatePrecision `json:"precision"`
 }
 
-type ActionInput struct {
-	PerformedBy       []string                                     `json:"performed_by,omitempty"`
-	PerformedByGroups []string                                     `json:"performed_by_groups,omitempty"`
-	PerformedOn       models.OptionalInput[DateWithPrecisionInput] `json:"performed_on,omitzero"`
+type Action struct {
+	PerformedBy []string                  `json:"performed_by,omitempty" gel:"performed_by"`
+	PerformedOn OptionalDateWithPrecision `json:"performed_on,omitzero" gel:"performed_on"`
 }
 
-func (ev *ActionInput) WithPersonAliases(aliases map[string]string) *ActionInput {
-	for i, alias := range ev.PerformedBy {
-		if _, ok := aliases[alias]; ok {
-			ev.PerformedBy[i] = aliases[alias]
-		}
-	}
-	return ev
+type ActionInput struct {
+	PerformedBy []string                                     `json:"performed_by,omitempty"`
+	PerformedOn models.OptionalInput[DateWithPrecisionInput] `json:"performed_on,omitzero"`
 }
+
+// func (ev *ActionInput) WithPersonAliases(aliases map[string]string) *ActionInput {
+// 	for i, alias := range ev.PerformedBy {
+// 		if _, ok := aliases[alias]; ok {
+// 			ev.PerformedBy[i] = aliases[alias]
+// 		}
+// 	}
+// 	return ev
+// }
 
 type ActionUpdate struct {
-	PerformedBy       models.OptionalNull[[]string]                `gel:"performed_by" json:"performed_by,omitempty"`
-	PerformedByGroups models.OptionalNull[[]string]                `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
-	PerformedOn       models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
+	PerformedBy models.OptionalNull[[]string]                `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedOn models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
 }

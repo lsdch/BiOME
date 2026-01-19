@@ -15,13 +15,7 @@ export const $AbioticMeasurement = {
     },
     performed_by: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
-      },
-      type: 'array'
-    },
-    performed_by_groups: {
-      items: {
-        $ref: '#/components/schemas/OrganisationInner'
+        type: 'string'
       },
       type: 'array'
     },
@@ -1033,6 +1027,9 @@ export const $DataSource = {
     code: {
       type: 'string'
     },
+    contact: {
+      type: 'string'
+    },
     description: {
       type: 'string'
     },
@@ -1068,6 +1065,9 @@ export const $DataSourceInput = {
       type: 'string'
     },
     code: {
+      type: 'string'
+    },
+    contact: {
       type: 'string'
     },
     description: {
@@ -2097,7 +2097,10 @@ export const $Identification = {
       type: 'string'
     },
     identified_by: {
-      $ref: '#/components/schemas/OptionalPerson'
+      items: {
+        type: 'string'
+      },
+      type: 'array'
     },
     identified_on: {
       $ref: '#/components/schemas/OptionalDateWithPrecision'
@@ -2123,7 +2126,10 @@ export const $IdentificationInput = {
       type: 'boolean'
     },
     identified_by: {
-      type: 'string'
+      items: {
+        type: 'string'
+      },
+      type: 'array'
     },
     identified_on: {
       $ref: '#/components/schemas/DateWithPrecisionInput'
@@ -2140,7 +2146,10 @@ export const $IdentificationUpdate = {
   additionalProperties: false,
   properties: {
     identified_by: {
-      type: ['string', 'null']
+      items: {
+        type: 'string'
+      },
+      type: ['array', 'null']
     },
     identified_on: {
       $ref: '#/components/schemas/DateWithPrecisionInput'
@@ -3603,73 +3612,6 @@ export const $OptionalLegacySeqID = {
   type: ['object', 'null']
 } as const
 
-export const $OptionalPerson = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/Person.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    alias: {
-      type: 'string'
-    },
-    comment: {
-      type: 'string'
-    },
-    contact: {
-      format: 'email',
-      type: 'string'
-    },
-    first_name: {
-      maxLength: 32,
-      minLength: 2,
-      type: 'string'
-    },
-    full_name: {
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    last_name: {
-      maxLength: 32,
-      minLength: 2,
-      type: 'string'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    organisations: {
-      items: {
-        $ref: '#/components/schemas/OrganisationInner'
-      },
-      type: 'array'
-    },
-    role: {
-      $ref: '#/components/schemas/UserRole'
-    },
-    user: {
-      $ref: '#/components/schemas/OptionalUserInner'
-    }
-  },
-  required: [
-    'meta',
-    'user',
-    'id',
-    'full_name',
-    'alias',
-    'contact',
-    'comment',
-    'first_name',
-    'last_name'
-  ],
-  type: ['object', 'null']
-} as const
-
 export const $OptionalQuantityRange = {
   additionalProperties: false,
   properties: {
@@ -4313,47 +4255,6 @@ export const $PersonUpdate = {
   type: 'object'
 } as const
 
-export const $PersonUser = {
-  additionalProperties: false,
-  properties: {
-    alias: {
-      type: 'string'
-    },
-    comment: {
-      type: 'string'
-    },
-    contact: {
-      format: 'email',
-      type: 'string'
-    },
-    first_name: {
-      maxLength: 32,
-      minLength: 2,
-      type: 'string'
-    },
-    full_name: {
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    last_name: {
-      maxLength: 32,
-      minLength: 2,
-      type: 'string'
-    },
-    role: {
-      $ref: '#/components/schemas/UserRole'
-    },
-    user: {
-      $ref: '#/components/schemas/OptionalUserInner'
-    }
-  },
-  required: ['user', 'id', 'full_name', 'alias', 'contact', 'comment', 'first_name', 'last_name'],
-  type: 'object'
-} as const
-
 export const $Program = {
   additionalProperties: false,
   properties: {
@@ -4797,13 +4698,7 @@ export const $Sampling = {
     },
     performed_by: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
-      },
-      type: 'array'
-    },
-    performed_by_groups: {
-      items: {
-        $ref: '#/components/schemas/OrganisationInner'
+        type: 'string'
       },
       type: 'array'
     },
@@ -4885,13 +4780,7 @@ export const $SamplingAtSite = {
     },
     performed_by: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
-      },
-      type: 'array'
-    },
-    performed_by_groups: {
-      items: {
-        $ref: '#/components/schemas/OrganisationInner'
+        type: 'string'
       },
       type: 'array'
     },
@@ -4994,13 +4883,7 @@ export const $SamplingDetailsWithOccurrences = {
     },
     performed_by: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
-      },
-      type: 'array'
-    },
-    performed_by_groups: {
-      items: {
-        $ref: '#/components/schemas/OrganisationInner'
+        type: 'string'
       },
       type: 'array'
     },
@@ -5067,13 +4950,7 @@ export const $SamplingInnerWithSite = {
     },
     performed_by: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
-      },
-      type: 'array'
-    },
-    performed_by_groups: {
-      items: {
-        $ref: '#/components/schemas/OrganisationInner'
+        type: 'string'
       },
       type: 'array'
     },
@@ -5142,12 +5019,6 @@ export const $SamplingInput = {
       },
       type: 'array'
     },
-    performed_by_groups: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
     performed_on: {
       $ref: '#/components/schemas/DateWithPrecisionInput'
     },
@@ -5204,12 +5075,6 @@ export const $SamplingInputAtSite = {
       type: 'array'
     },
     performed_by: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    performed_by_groups: {
       items: {
         type: 'string'
       },
@@ -5321,6 +5186,12 @@ export const $SamplingOutline = {
       description: 'Auto-incrementing number, unique per sampling',
       format: 'int64',
       type: 'integer'
+    },
+    performed_by: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
     },
     performed_on: {
       $ref: '#/components/schemas/OptionalDateWithPrecision'
@@ -5461,13 +5332,7 @@ export const $SamplingWithSite = {
     },
     performed_by: {
       items: {
-        $ref: '#/components/schemas/PersonUser'
-      },
-      type: 'array'
-    },
-    performed_by_groups: {
-      items: {
-        $ref: '#/components/schemas/OrganisationInner'
+        type: 'string'
       },
       type: 'array'
     },

@@ -6,9 +6,9 @@ module sequencing {
     requested_on: datetime {
       annotation description := "If empty, the request is a draft and can not be processed yet."
     };
-    required requested_by: people::Person;
+    required multi requested_by: str;
 
-    multi requested_to: people::Person; # or group of persons ?
+    multi requested_to: str;
     achieved_on: datetime;
 
     comments: str;
@@ -31,7 +31,7 @@ module sequencing {
       constraint min_value(1e-3);
     };
 
-    required multi extracted_by: people::Person;
+    required multi extracted_by: str;
     required extraction_method: DNAExtractionMethod;
     extracted_on: tuple<date: datetime, precision: date::DatePrecision> {
       rewrite insert, update using (

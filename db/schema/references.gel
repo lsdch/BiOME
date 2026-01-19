@@ -37,6 +37,7 @@ module references {
   type DataSource extending default::Auditable, default::Vocabulary {
     url: str;
     link_template: str;
+    contact: str;
   };
 
   type SeqReference {

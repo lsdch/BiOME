@@ -58,7 +58,7 @@ func (u SamplingMethodUpdate) Save(e geltypes.Executor, code string) (updated Sa
 				%s
 			}) { ** }
 		`,
-		Mappings: vocabulary.VocabularyUpdate(u).FieldMappingsWith("item"),
+		Mappings: vocabulary.VocabularyUpdate(u).VocabularyFieldMappingsWith("item"),
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
 	return
@@ -76,22 +76,20 @@ func DeleteSamplingMethod(db geltypes.Executor, code string) (deleted SamplingMe
 }
 
 type SamplingOutline struct {
-	ID          geltypes.UUID             `gel:"id" json:"id" format:"uuid"`
-	Number      int64                     `gel:"number" json:"number" doc:"Auto-incrementing number, unique per sampling"`
-	PerformedOn OptionalDateWithPrecision `gel:"performed_on" json:"performed_on,omitzero"`
+	ID     geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+	Number int64         `gel:"number" json:"number" doc:"Auto-incrementing number, unique per sampling"`
+	Action `gel:"$inline" json:",inline"`
 }
 type SamplingInner struct {
-	SamplingOutline   `gel:"$inline" json:",inline"`
-	Code              string                     `gel:"code" json:"code"`
-	PerformedBy       []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
-	PerformedByGroups []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
-	TargetTaxa        []taxonomy.Taxon           `gel:"target_taxa" json:"target_taxa,omitempty"`
-	Duration          geltypes.OptionalInt32     `gel:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Methods           []SamplingMethod           `gel:"methods" json:"methods,omitempty"`
-	Fixatives         []vocabulary.Fixative      `gel:"fixatives" json:"fixatives,omitempty"`
-	Habitats          []Habitat                  `gel:"habitats" json:"habitats,omitempty"`
-	AccessPoints      []string                   `gel:"access_points" json:"access_points,omitempty"`
-	Comments          geltypes.OptionalStr       `gel:"comments" json:"comments,omitempty"`
+	SamplingOutline `gel:"$inline" json:",inline"`
+	Code            string                 `gel:"code" json:"code"`
+	TargetTaxa      []taxonomy.Taxon       `gel:"target_taxa" json:"target_taxa,omitempty"`
+	Duration        geltypes.OptionalInt32 `gel:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Methods         []SamplingMethod       `gel:"methods" json:"methods,omitempty"`
+	Fixatives       []vocabulary.Fixative  `gel:"fixatives" json:"fixatives,omitempty"`
+	Habitats        []Habitat              `gel:"habitats" json:"habitats,omitempty"`
+	AccessPoints    []string               `gel:"access_points" json:"access_points,omitempty"`
+	Comments        geltypes.OptionalStr   `gel:"comments" json:"comments,omitempty"`
 }
 
 type Sampling struct {

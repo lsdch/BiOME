@@ -73,11 +73,11 @@ func GetOccurrence(db geltypes.Executor, code string) (occurrence Occurrence[Sam
 				fixatives: { * },
 				methods: { * },
 				habitats: { * },
-				occurrences: { *, identification: { **, identified_by: { * } } },
+				occurrences: { *, identification: { ** } },
 				occurring_taxa: { * },
 				site: { *, country: { * } }
 			},
-			identification: { **, identified_by: { ** } },
+			identification: { ** },
 			sources: { * },
 			sequences: { *, gene: { * }, referenced_in: { * }, meta: { * } },
 			# external_link,
@@ -112,7 +112,7 @@ var BioMatSortMap = map[BioMatSortKey]string{
 	BioMatSortIdentification: ".identification.taxon.name",
 	BioMatSortIdentifiedOn:   ".identification.identified_on.date",
 	BioMatSortTaxon:          ".identification.taxon.name",
-	BioMatSortIdentifiedBy:   ".identification.identified_by.last_name",
+	BioMatSortIdentifiedBy:   ".identification.identified_by",
 	BioMatSortLastUpdated:    ".meta.lastUpdated",
 }
 
@@ -170,7 +170,7 @@ func DeleteOccurrence(db geltypes.Executor, code string) (deleted OccurrenceList
 			) {
         *,
 				sampling: { *, site: { *, country: { * } } },
-				identification: { **, identified_by: { ** } },
+				identification: { ** },
       }
 		`,
 		&deleted, code)
@@ -284,7 +284,6 @@ func (i *OccurrenceInput) SetCode(code string) {
 }
 
 func (occ *OccurrenceInput) WithCreatedMetadata(c *CreatedMetadata) *OccurrenceInput {
-	occ.Identification.WithPersonAliases(c.People)
 	for i, code := range occ.PublishedIn {
 		if c, ok := c.Bibliography[code]; ok {
 			occ.PublishedIn[i] = c
@@ -344,7 +343,7 @@ var OccurrenceSaveQuery = queries.OccurrenceQuery(
 		{
 			[is occurrence::Occurrence].*,
 			sampling: { id, number, performed_on },
-			identification: { **, identified_by: { * } },
+			identification: { ** },
 			meta: { * }
 		}
 	`)
@@ -385,7 +384,7 @@ func (u OccurrenceUpdate) Save(e geltypes.Executor, code string) (updated BaseOc
 			 ) {
         [is occurrence::Occurrence].*,
 				sampling: { id, number, performed_on },
-				identification: { **, identified_by: { * } },
+				identification: { ** },
 				meta: { * }
       }
     `,

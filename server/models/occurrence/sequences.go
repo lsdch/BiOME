@@ -112,10 +112,10 @@ func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, er
 				**,
 				referenced_in: { ** },
 				gene: { * },
-				identification: { **, identified_by: { * } },
+				identification: { ** },
 				occurrence: {
 					*,
-					identification: { **, identified_by: { ** } },
+					identification: { ** },
 					sampling: {
 						*,
 						target_taxa: { * },
@@ -151,7 +151,7 @@ func ListSequences(db geltypes.Executor) ([]SequenceListItem, error) {
 				occurrence: {
 					id,
 					code,
-					identification: { **, identified_by: { ** } },
+					identification: { ** },
 					sampling: {
 						id,
 						number,
@@ -176,7 +176,7 @@ func DeleteSequence(db geltypes.Executor, code string) (deleted SequenceListItem
 				gene: { * },
 				required identification := (
 					[is AssembledSequence].identification ?? .biomat.identification
-				) { **, identified_by: { * } },
+				) { ** },
 				required occurrence := (
 					assert_exists(
 						([is AssembledSequence].specimen.biomat ?? [is ExternalSequence].biomat ?? {}),
@@ -185,7 +185,7 @@ func DeleteSequence(db geltypes.Executor, code string) (deleted SequenceListItem
 				) {
 					id,
 					code,
-					identification: { **, identified_by: { ** } },
+					identification: { ** },
 					sampling: { id, number, performed_on, site: { *, country: { * } } }
 				},
 			}

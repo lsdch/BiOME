@@ -27,10 +27,10 @@ type VocabularyUpdate struct {
 	Description models.OptionalNull[string]  `gel:"description" json:"description,omitempty"`
 }
 
-// FieldMappingsWith defines Vocabulary field mappings to be used with db.UpdateQuery.
+// VocabularyFieldMappingsWith defines Vocabulary field mappings to be used with db.UpdateQuery.
 // Variadic parameters allow adding extra mappings,
 // e.g. when VocularyUpdate is embedded in another struct
-func (v VocabularyUpdate) FieldMappingsWith(jsonItem string, extend ...map[string]string) map[string]string {
+func (v VocabularyUpdate) VocabularyFieldMappingsWith(jsonItem string, extend ...map[string]string) map[string]string {
 	m := map[string]string{
 		"label":       fmt.Sprintf("<str>%s['label']", jsonItem),
 		"code":        fmt.Sprintf("<str>%s['code']", jsonItem),

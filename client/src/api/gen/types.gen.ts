@@ -8,8 +8,7 @@ export type AbioticMeasurement = {
   id: string
   meta: Meta
   param: AbioticParameter
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
+  performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
   value: number
 }
@@ -403,6 +402,7 @@ export type DataSource = {
    */
   readonly $schema?: string
   code: string
+  contact?: string
   description?: string
   id: string
   label: string
@@ -417,6 +417,7 @@ export type DataSourceInput = {
    */
   readonly $schema?: string
   code: string
+  contact?: string
   description?: string
   label: string
   link_template?: string
@@ -844,7 +845,7 @@ export type Identification = {
   addendum?: string
   confer: boolean
   id: string
-  identified_by?: OptionalPerson
+  identified_by?: Array<string>
   identified_on?: OptionalDateWithPrecision
   meta: Meta
   taxon: Taxon
@@ -853,13 +854,13 @@ export type Identification = {
 export type IdentificationInput = {
   addendum?: string
   confer?: boolean
-  identified_by?: string
+  identified_by?: Array<string>
   identified_on?: DateWithPrecisionInput
   taxon: string
 }
 
 export type IdentificationUpdate = {
-  identified_by?: string | null
+  identified_by?: Array<string> | null
   identified_on?: DateWithPrecisionInput
   taxon?: string
 }
@@ -1374,24 +1375,6 @@ export type OptionalLegacySeqId = {
   id: number
 } | null
 
-export type OptionalPerson = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  alias: string
-  comment: string
-  contact: string
-  first_name: string
-  full_name: string
-  id: string
-  last_name: string
-  meta: Meta
-  organisations?: Array<OrganisationInner>
-  role?: UserRole
-  user: OptionalUserInner
-} | null
-
 export type OptionalQuantityRange = {
   lower: number
   upper: number
@@ -1607,18 +1590,6 @@ export type PersonUpdate = {
   organisations?: Array<string>
 }
 
-export type PersonUser = {
-  alias: string
-  comment: string
-  contact: string
-  first_name: string
-  full_name: string
-  id: string
-  last_name: string
-  role?: UserRole
-  user: OptionalUserInner
-}
-
 export type Program = {
   /**
    * A URL to the JSON Schema for this object.
@@ -1763,8 +1734,7 @@ export type Sampling = {
   number: number
   occurrences?: Array<OccurrenceStruct>
   occurring_taxa?: Array<Taxon>
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
+  performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
   target_taxa?: Array<Taxon>
 }
@@ -1788,8 +1758,7 @@ export type SamplingAtSite = {
   number: number
   occurrences?: Array<OccurrenceAtSite>
   occurring_taxa?: Array<Taxon>
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
+  performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
   target_taxa?: Array<Taxon>
 }
@@ -1819,8 +1788,7 @@ export type SamplingDetailsWithOccurrences = {
    */
   number: number
   occurrences: Array<OccurrenceAtSite>
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
+  performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
   target_taxa?: Array<Taxon>
 }
@@ -1841,8 +1809,7 @@ export type SamplingInnerWithSite = {
    * Auto-incrementing number, unique per sampling
    */
   number: number
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
+  performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
   site: SiteItem
   target_taxa?: Array<Taxon>
@@ -1863,7 +1830,6 @@ export type SamplingInput = {
   habitats?: Array<string>
   methods?: Array<string>
   performed_by?: Array<string>
-  performed_by_groups?: Array<string>
   performed_on?: DateWithPrecisionInput
   target_taxa?: Array<string>
 }
@@ -1883,7 +1849,6 @@ export type SamplingInputAtSite = {
   habitats?: Array<string>
   methods?: Array<string>
   performed_by?: Array<string>
-  performed_by_groups?: Array<string>
   performed_on?: DateWithPrecisionInput
   site_code: string
   target_taxa?: Array<string>
@@ -1927,6 +1892,7 @@ export type SamplingOutline = {
    * Auto-incrementing number, unique per sampling
    */
   number: number
+  performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
 }
 
@@ -1969,8 +1935,7 @@ export type SamplingWithSite = {
   number: number
   occurrences?: Array<OccurrenceStruct>
   occurring_taxa?: Array<Taxon>
-  performed_by?: Array<PersonUser>
-  performed_by_groups?: Array<OrganisationInner>
+  performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
   site: SiteItem
   target_taxa?: Array<Taxon>

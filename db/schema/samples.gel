@@ -42,7 +42,7 @@ module samples {
       )
     };
 
-    dissected_by: people::Person;
+    multi dissected_by: str;
 
     molecular_code: str {
       constraint exclusive;
@@ -81,7 +81,7 @@ module samples {
       )
     };
 
-    required multi mounted_by: people::Person;
+    required multi mounted_by: str;
 
     required storage: storage::SlideStorage;
     required storage_position: int16;

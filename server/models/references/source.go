@@ -15,6 +15,7 @@ type DataSource struct {
 	vocabulary.Vocabulary `gel:"$inline" json:",inline"`
 	LinkTemplate          geltypes.OptionalStr `gel:"link_template" json:"link_template,omitempty"`
 	URL                   geltypes.OptionalStr `gel:"url" json:"url,omitempty"`
+	Contact               geltypes.OptionalStr `gel:"contact" json:"contact,omitempty"`
 	Meta                  people.Meta          `gel:"meta" json:"meta"`
 }
 
@@ -43,6 +44,7 @@ type DataSourceInput struct {
 	vocabulary.VocabularyInput `gel:"$inline" json:",inline"`
 	LinkTemplate               models.OptionalInput[string] `gel:"link_template" json:"link_template,omitempty"`
 	URL                        models.OptionalInput[string] `gel:"url" json:"url,omitempty"`
+	Contact                    models.OptionalInput[string] `gel:"contact" json:"contact,omitempty"`
 }
 
 func (i DataSourceInput) Save(e geltypes.Executor) (created DataSource, err error) {
@@ -55,7 +57,8 @@ func (i DataSourceInput) Save(e geltypes.Executor) (created DataSource, err erro
 				code := <str>data['code'],
 				description := <str>json_get(data, 'description'),
 				link_template := <str>json_get(data, 'link_template'),
-				url := <str>json_get(data, 'url')
+				url := <str>json_get(data, 'url'),
+				contact := <str>json_get(data, 'contact'),
 			}) { ** }
 		`, &created, data)
 	return
@@ -76,8 +79,10 @@ func (u DataSourceUpdate) Save(e geltypes.Executor, code string) (updated DataSo
 				%s
 			}) { ** }
 		`,
-		Mappings: u.FieldMappingsWith("item", map[string]string{
+		Mappings: u.VocabularyFieldMappingsWith("item", map[string]string{
 			"link_template": "<str>item['link_template']",
+			"url":           "<str>item['url']",
+			"contact":       "<str>item['contact']",
 		}),
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)

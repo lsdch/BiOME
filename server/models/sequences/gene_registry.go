@@ -59,7 +59,7 @@ func (u GeneUpdate) Save(e geltypes.Executor, code string) (updated Gene, err er
 				%s
 			}) { ** }
 		`,
-		Mappings: u.FieldMappingsWith("item", map[string]string{
+		Mappings: u.VocabularyFieldMappingsWith("item", map[string]string{
 			"motu": "<bool>json_get(item, 'is_MOTU_delimiter')",
 		}),
 	}

@@ -3,7 +3,7 @@ module occurrence {
   type Identification extending default::Auditable {
     required taxon: taxonomy::Taxon;
 
-    identified_by: people::Person;
+    identified_by: str;
 
     identified_on: tuple<date: datetime, precision: date::DatePrecision>{
       rewrite insert, update using (

@@ -50,7 +50,7 @@ func (u FixativeUpdate) Save(e geltypes.Executor, code string) (updated Fixative
 				%s
 			}) { ** }
 		`,
-		Mappings: VocabularyUpdate(u).FieldMappingsWith("item"),
+		Mappings: VocabularyUpdate(u).VocabularyFieldMappingsWith("item"),
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, code, data)
 	return

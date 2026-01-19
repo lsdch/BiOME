@@ -16,13 +16,7 @@
 					},
 					"performed_by": {
 						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
+							"type": "string"
 						},
 						"type": "array"
 					},
@@ -1205,6 +1199,9 @@
 					"code": {
 						"type": "string"
 					},
+					"contact": {
+						"type": "string"
+					},
 					"description": {
 						"type": "string"
 					},
@@ -1246,6 +1243,9 @@
 						"type": "string"
 					},
 					"code": {
+						"type": "string"
+					},
+					"contact": {
 						"type": "string"
 					},
 					"description": {
@@ -2423,7 +2423,10 @@
 						"type": "string"
 					},
 					"identified_by": {
-						"$ref": "#/components/schemas/OptionalPerson"
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"identified_on": {
 						"$ref": "#/components/schemas/OptionalDateWithPrecision"
@@ -2453,7 +2456,10 @@
 						"type": "boolean"
 					},
 					"identified_by": {
-						"type": "string"
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"identified_on": {
 						"$ref": "#/components/schemas/DateWithPrecisionInput"
@@ -2471,8 +2477,11 @@
 				"additionalProperties": false,
 				"properties": {
 					"identified_by": {
+						"items": {
+							"type": "string"
+						},
 						"type": [
-							"string",
+							"array",
 							"null"
 						]
 					},
@@ -4100,77 +4109,6 @@
 					"null"
 				]
 			},
-			"OptionalPerson": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/Person.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"alias": {
-						"type": "string"
-					},
-					"comment": {
-						"type": "string"
-					},
-					"contact": {
-						"format": "email",
-						"type": "string"
-					},
-					"first_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					},
-					"full_name": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"last_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"organisations": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
-						},
-						"type": "array"
-					},
-					"role": {
-						"$ref": "#/components/schemas/UserRole"
-					},
-					"user": {
-						"$ref": "#/components/schemas/OptionalUserInner"
-					}
-				},
-				"required": [
-					"meta",
-					"user",
-					"id",
-					"full_name",
-					"alias",
-					"contact",
-					"comment",
-					"first_name",
-					"last_name"
-				],
-				"type": [
-					"object",
-					"null"
-				]
-			},
 			"OptionalQuantityRange": {
 				"additionalProperties": false,
 				"properties": {
@@ -4954,55 +4892,6 @@
 				},
 				"type": "object"
 			},
-			"PersonUser": {
-				"additionalProperties": false,
-				"properties": {
-					"alias": {
-						"type": "string"
-					},
-					"comment": {
-						"type": "string"
-					},
-					"contact": {
-						"format": "email",
-						"type": "string"
-					},
-					"first_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					},
-					"full_name": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"last_name": {
-						"maxLength": 32,
-						"minLength": 2,
-						"type": "string"
-					},
-					"role": {
-						"$ref": "#/components/schemas/UserRole"
-					},
-					"user": {
-						"$ref": "#/components/schemas/OptionalUserInner"
-					}
-				},
-				"required": [
-					"user",
-					"id",
-					"full_name",
-					"alias",
-					"contact",
-					"comment",
-					"first_name",
-					"last_name"
-				],
-				"type": "object"
-			},
 			"Program": {
 				"additionalProperties": false,
 				"properties": {
@@ -5536,13 +5425,7 @@
 					},
 					"performed_by": {
 						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
+							"type": "string"
 						},
 						"type": "array"
 					},
@@ -5628,13 +5511,7 @@
 					},
 					"performed_by": {
 						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
+							"type": "string"
 						},
 						"type": "array"
 					},
@@ -5743,13 +5620,7 @@
 					},
 					"performed_by": {
 						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
+							"type": "string"
 						},
 						"type": "array"
 					},
@@ -5820,13 +5691,7 @@
 					},
 					"performed_by": {
 						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
+							"type": "string"
 						},
 						"type": "array"
 					},
@@ -5901,12 +5766,6 @@
 						},
 						"type": "array"
 					},
-					"performed_by_groups": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
 					"performed_on": {
 						"$ref": "#/components/schemas/DateWithPrecisionInput"
 					},
@@ -5964,12 +5823,6 @@
 						"type": "array"
 					},
 					"performed_by": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
 						"items": {
 							"type": "string"
 						},
@@ -6096,6 +5949,12 @@
 						"description": "Auto-incrementing number, unique per sampling",
 						"format": "int64",
 						"type": "integer"
+					},
+					"performed_by": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"performed_on": {
 						"$ref": "#/components/schemas/OptionalDateWithPrecision"
@@ -6263,13 +6122,7 @@
 					},
 					"performed_by": {
 						"items": {
-							"$ref": "#/components/schemas/PersonUser"
-						},
-						"type": "array"
-					},
-					"performed_by_groups": {
-						"items": {
-							"$ref": "#/components/schemas/OrganisationInner"
+							"type": "string"
 						},
 						"type": "array"
 					},

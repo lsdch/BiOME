@@ -6,8 +6,7 @@ module events {
       on target delete delete source;
     };
 
-    multi performed_by: people::Person;
-    multi performed_by_groups: people::Organisation;
+    multi performed_by: str;
 
     performed_on: tuple<date: datetime, precision: date::DatePrecision> {
       rewrite insert, update using (

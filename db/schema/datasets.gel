@@ -4,7 +4,7 @@ module datasets {
     required label: str { constraint exclusive };
     required code: str { constraint exclusive };
 
-    required multi managers: people::Person;
+    required multi managers: str;
     multi funding_agencies: people::Organisation;
 
     start_year: int32 {
@@ -91,7 +91,7 @@ module datasets {
     required label: str;
     multi link MOTUs := .<dataset[is MOTU];
     published_in: references::Article;
-    required multi generated_by: people::Person;
+    required multi generated_by: str;
     comments: str;
   }
 

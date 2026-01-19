@@ -100,7 +100,7 @@ for item in json_array_unpack(data) union (
           with identification := (
             insert occurrence::Identification {
               taxon := (select taxonomy::Taxon filter .name = <str>intbm['identification']['taxon']),
-              identified_by := (select people::Person filter .alias = <str>json_get(intbm, 'identification', 'identified_by')),
+              identified_by := (<str>json_array_unpack(json_get(intbm, 'identification', 'identified_by'))),
               identified_on := ((
                 date := <datetime>intbm['identification']['identified_on']['date'],
                 precision := <date::DatePrecision>intbm['identification']['identified_on']['precision'],
@@ -127,7 +127,7 @@ for item in json_array_unpack(data) union (
           with identification := (
             insert occurrence::Identification {
               taxon := (select taxonomy::Taxon filter .name = <str>extbm['identification']['taxon']),
-              identified_by := (select people::Person filter .alias = <str>json_get(extbm, 'identification', 'identified_by')),
+              identified_by := (<str>json_array_unpack(json_get(extbm, 'identification', 'identified_by'))),
               identified_on := ((
                 date := <datetime>extbm['identification']['identified_on']['date'],
                 precision := <date::DatePrecision>extbm['identification']['identified_on']['precision'],
@@ -184,7 +184,7 @@ for item in json_array_unpack(data) union (
             identification := (
               insert occurrence::Identification {
                 taxon := (select taxonomy::Taxon filter .name = <str>extseq['identification']['taxon']),
-                identified_by := (select people::Person filter .alias = <str>json_get(extseq, 'identification', 'identified_by')),
+                identified_by := (<str>json_array_unpack(json_get(extseq, 'identification', ']@'))),
                 identified_on := ((
                   date := <datetime>extseq['identification']['identified_on']['date'],
                   precision := <date::DatePrecision>extseq['identification']['identified_on']['precision'],

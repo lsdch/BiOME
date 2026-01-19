@@ -541,7 +541,6 @@ type SamplingInputWithOccurrences struct {
 }
 
 func (s *SamplingInputWithOccurrences) WithCreatedMetadata(c *CreatedMetadata) *SamplingInputWithOccurrences {
-	s.ActionInput.WithPersonAliases(c.People)
 	for i := range s.Occurrences {
 		(&s.Occurrences[i]).WithCreatedMetadata(c)
 	}

@@ -33,7 +33,7 @@ with module occurrence,
       identification := (
         insert occurrence::Identification {
           taxon := taxon,
-          identified_by := people::personByAlias(<str>json_get(identification, 'identified_by')),
+          identified_by := <str>json_array_unpack(json_get(identification, 'identified_by')),
           identified_on := date::from_json_with_precision(json_get(identification, 'identified_on')),
           confer := <bool>json_get(identification, 'confer') ?? false,
           addendum := <str>json_get(identification, 'addendum'),

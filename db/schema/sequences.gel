@@ -50,7 +50,7 @@ module seq {
 
     # required identification: occurrence::Identification;
 
-    required multi assembled_by: people::Person;
+    required multi assembled_by: str;
     multi chromatograms: sequencing::Chromatogram;
     required specimen: samples::Specimen;
   }
@@ -123,28 +123,28 @@ module seq {
   #   )
   # }
 
-  alias GenericSequenceWithDetails := (
-    select Sequence {
-      required occurrence := assert_exists(
-        (
-          select occurrence::Occurrence
-          filter .id = (Sequence[is AssembledSequence].specimen.biomat.id ?? Sequence[is ExternalSequence].biomat.id)
-        ),
-        message := "Failed to find upstream occurrence for seq::Sequence subtype"
-      ),
-      required identification := assert_exists(
-        ([is AssembledSequence].specimen.biomat.identification ?? [is ExternalSequence].biomat.identification),
-        message := "Failed to find identification for seq::Sequence subtype"
-      ),
-      required specimen_identifier := assert_exists([is AssembledSequence].specimen.code ?? [is ExternalSequence].specimen_identifier),
-      internal := [is AssembledSequence] {
-        alignment_code,
-        assembled_by,
-        chromatograms,
-        specimen
-      },
-    }
-  );
+  # alias GenericSequenceWithDetails := (
+  #   select Sequence {
+  #     required occurrence := assert_exists(
+  #       (
+  #         select occurrence::Occurrence
+  #         filter .id = (Sequence[is AssembledSequence].specimen.biomat.id ?? Sequence[is ExternalSequence].biomat.id)
+  #       ),
+  #       message := "Failed to find upstream occurrence for seq::Sequence subtype"
+  #     ),
+  #     required identification := assert_exists(
+  #       ([is AssembledSequence].specimen.biomat.identification ?? [is ExternalSequence].biomat.identification),
+  #       message := "Failed to find identification for seq::Sequence subtype"
+  #     ),
+  #     required specimen_identifier := assert_exists([is AssembledSequence].specimen.code ?? [is ExternalSequence].specimen_identifier),
+  #     internal := [is AssembledSequence] {
+  #       alignment_code,
+  #       assembled_by,
+  #       chromatograms,
+  #       specimen
+  #     },
+  #   }
+  # );
 }
 
 

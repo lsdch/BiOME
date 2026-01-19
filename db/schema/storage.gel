@@ -27,7 +27,7 @@ module storage {
       constraint min_len_value(4)
     };
     required taxon: taxonomy::Taxon;
-    required maintainers: people::Person;
+    required multi maintainers: str;
     comments: str;
 
     multi link bio_mat_storages := .<collection[is BioMatStorage];

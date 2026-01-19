@@ -154,7 +154,7 @@
       <IdentificationChip :identification size="small" short />
     </template>
     <template #item.identification.identified_by="{ value: person }">
-      <PersonChip v-if="person" :person size="small" short />
+      <span v-if="person">{{ person }}</span>
       <span v-else class="text-muted text-caption">Unknown</span>
     </template>
     <template #item.identification.identified_on="{ value }: { value?: DateWithPrecision }">

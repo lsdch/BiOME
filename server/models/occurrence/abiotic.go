@@ -59,7 +59,7 @@ func (u AbioticParameterUpdate) Save(e geltypes.Executor, code string) (updated 
 				%s
 			}) { ** }
 		`,
-		Mappings: u.FieldMappingsWith("item", map[string]string{
+		Mappings: u.VocabularyFieldMappingsWith("item", map[string]string{
 			"unit": "<str>item['unit']",
 		}),
 	}
@@ -79,13 +79,11 @@ func DeleteAbioticParameter(db geltypes.Executor, code string) (deleted AbioticP
 }
 
 type AbioticMeasurement struct {
-	ID                geltypes.UUID              `gel:"id" json:"id" format:"uuid"`
-	Param             AbioticParameter           `gel:"param" json:"param"`
-	Value             float32                    `gel:"value" json:"value"`
-	PerformedOn       OptionalDateWithPrecision  `gel:"performed_on" json:"performed_on,omitzero"`
-	PerformedBy       []people.PersonUser        `gel:"performed_by" json:"performed_by,omitempty"`
-	PerformedByGroups []people.OrganisationInner `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
-	Meta              people.Meta                `gel:"meta" json:"meta"`
+	Action `gel:"$inline" json:",inline"`
+	ID     geltypes.UUID    `gel:"id" json:"id" format:"uuid"`
+	Param  AbioticParameter `gel:"param" json:"param"`
+	Value  float32          `gel:"value" json:"value"`
+	Meta   people.Meta      `gel:"meta" json:"meta"`
 }
 
 type AbioticMeasurementInput struct {
