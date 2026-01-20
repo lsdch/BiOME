@@ -1209,6 +1209,7 @@ export type OccurrenceInput = {
    * Description of the content of the bio material
    */
   content_description?: string
+  dois?: Array<string>
   /**
    * Occurrence identification
    */

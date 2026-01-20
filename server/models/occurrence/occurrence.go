@@ -3,6 +3,7 @@ package occurrence
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"slices"
 
 	_ "embed"
@@ -15,6 +16,7 @@ import (
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/models/taxonomy"
+	"github.com/lsdch/biome/services/crossref"
 	"github.com/sirupsen/logrus"
 )
 
@@ -266,7 +268,8 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 
 type OccurrenceInput struct {
 	Identification         IdentificationInput              `json:"identification" doc:"Occurrence identification"`
-	PublishedIn            []string                         `gel:"published_in" json:"published_in,omitempty"`
+	PublishedIn            []string                         `json:"published_in,omitempty"`
+	DOIs                   []string                         `json:"dois,omitempty"`
 	Code                   models.OptionalInput[string]     `gel:"code" json:"code,omitzero" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
 	TypeStatus             models.OptionalInput[TypeStatus] `gel:"type_status" json:"type_status,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
 	Sources                []string                         `json:"sources,omitzero"`
@@ -277,6 +280,36 @@ type OccurrenceInput struct {
 	Collections        []references.CollectionField  `json:"collections,omitzero"`
 	Comments           models.OptionalInput[string]  `json:"comments,omitzero"`
 	Sequences          []ExternalSequenceInput       `json:"sequences,omitzero"`
+}
+
+func (i *OccurrenceInput) FetchDOIs(db geltypes.Executor) error {
+	if len(i.DOIs) == 0 {
+		return nil
+	}
+	for _, doi := range i.DOIs {
+		doiExists := false
+		err := db.Query(context.Background(), `#edgeql
+			select exists references::Article
+			filter .doi = <str>$0
+		`, &doiExists, doi,
+		)
+		if err != nil {
+			return fmt.Errorf("failed to check if doi %s exists : %v", doi, err)
+		}
+		if doiExists {
+			continue
+		}
+		cr, err := crossref.RetrieveDOI(doi)
+		if err != nil {
+			return err
+		}
+		article, err := references.ArticleInputFromCrossref(cr).Save(db)
+		if err != nil {
+			return err
+		}
+		i.PublishedIn = append(i.PublishedIn, article.Code)
+	}
+	return nil
 }
 
 func (i *OccurrenceInput) SetCode(code string) {
@@ -313,6 +346,9 @@ var OccurrenceSaveExecuteQuery = queries.OccurrenceQuery(
 	"")
 
 func (i *OccurrenceInput) SaveExecute(e geltypes.Executor, samplingNumber int64) error {
+	if err := i.FetchDOIs(e); err != nil {
+		return err
+	}
 	data, _ := json.Marshal(i)
 	logrus.Debugf("Creating Occurrence with args: %s", string(data))
 	return e.Execute(context.Background(), OccurrenceSaveExecuteQuery, samplingNumber, data)
@@ -328,6 +364,9 @@ var OccurrenceQuickSaveQuery = queries.OccurrenceQuery(
 	`)
 
 func (i *OccurrenceInput) QuickSave(e geltypes.Executor, samplingNumber int64) (created CreatedCode, err error) {
+	if err = i.FetchDOIs(e); err != nil {
+		return created, err
+	}
 	data, _ := json.Marshal(i)
 	logrus.Debugf("Creating Occurrence with args: %s", string(data))
 	err = e.QuerySingle(context.Background(), OccurrenceQuickSaveQuery, &created, samplingNumber, data)
@@ -349,6 +388,9 @@ var OccurrenceSaveQuery = queries.OccurrenceQuery(
 	`)
 
 func (i *OccurrenceInput) Save(e geltypes.Executor, samplingNumber int64) (created BaseOccurrence[SamplingOutline], err error) {
+	if err = i.FetchDOIs(e); err != nil {
+		return created, err
+	}
 	data, _ := json.Marshal(i)
 	logrus.Debugf("Creating Occurrence with args: %s", string(data))
 	err = e.QuerySingle(context.Background(),

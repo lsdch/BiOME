@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 
+	"github.com/caltechlibrary/crossrefapi"
 	"github.com/lsdch/biome/controllers"
 	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/resolvers"
@@ -57,7 +58,13 @@ func init() {
 			Method:  http.MethodGet,
 			Summary: "Retrieve article infos from DOI",
 		},
-		controllers.GetHandler[*SearchDoiInput](crossref.RetrieveDOI),
+		func(ctx context.Context, i *SearchDoiInput) (*controllers.BodyResponse[*crossrefapi.Works], error) {
+			ref, err := crossref.RetrieveDOI(i.DOI)
+			if err != nil {
+				return nil, err
+			}
+			return &controllers.BodyResponse[*crossrefapi.Works]{Body: ref}, err
+		},
 	)
 
 	router.RegisterSpec(

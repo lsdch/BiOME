@@ -3092,6 +3092,12 @@ export const $OccurrenceInput = {
       examples: ['2 females, 1 juvenile male'],
       type: 'string'
     },
+    dois: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
     identification: {
       $ref: '#/components/schemas/IdentificationInput',
       description: 'Occurrence identification'

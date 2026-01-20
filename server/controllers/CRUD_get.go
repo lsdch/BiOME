@@ -24,7 +24,7 @@ type GetByIDHandlerInput[Item any] struct {
 	UUIDInput
 }
 
-type GetHandlerOutput[Item any] struct {
+type BodyResponse[Item any] struct {
 	Body Item
 }
 
@@ -34,13 +34,13 @@ func GetHandler[
 	ID any,
 ](
 	find models.ItemFinder[ID, Item],
-) func(context.Context, OperationInput) (*GetHandlerOutput[Item], error) {
-	return func(ctx context.Context, input OperationInput) (*GetHandlerOutput[Item], error) {
+) func(context.Context, OperationInput) (*BodyResponse[Item], error) {
+	return func(ctx context.Context, input OperationInput) (*BodyResponse[Item], error) {
 		item, err := find(input.DB(), input.Identifier())
 		if err = StatusError(err); err != nil {
 			return nil, err
 		}
-		return &GetHandlerOutput[Item]{Body: item}, err
+		return &BodyResponse[Item]{Body: item}, err
 	}
 }
 
@@ -48,7 +48,7 @@ func GetByIDHandler[Item any](
 	find models.ItemFinder[geltypes.UUID, Item],
 ) router.Endpoint[
 	GetByIDHandlerInput[Item],
-	GetHandlerOutput[Item],
+	BodyResponse[Item],
 ] {
 	return GetHandler[*GetByIDHandlerInput[Item]](find)
 }
@@ -57,7 +57,7 @@ func GetByCodeHandler[Item any](
 	find models.ItemFinder[string, Item],
 ) router.Endpoint[
 	GetByCodeHandlerInput[Item],
-	GetHandlerOutput[Item],
+	BodyResponse[Item],
 ] {
 	return GetHandler[*GetByCodeHandlerInput[Item]](find)
 }

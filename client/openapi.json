@@ -3490,6 +3490,12 @@
 						],
 						"type": "string"
 					},
+					"dois": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
 					"identification": {
 						"$ref": "#/components/schemas/IdentificationInput",
 						"description": "Occurrence identification"
