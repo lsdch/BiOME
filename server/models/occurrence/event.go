@@ -18,13 +18,13 @@ type DateWithPrecision struct {
 }
 
 func (d DateWithPrecision) ToCode() string {
+	//exhaustive:ignore
 	switch d.Precision {
 	case Year:
 		return d.Date.Format("2006")
 	default:
 		return d.Date.Format("2006-01")
 	}
-
 }
 
 type CompositeDate struct {
