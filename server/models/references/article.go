@@ -11,6 +11,7 @@ import (
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
+	"github.com/sirupsen/logrus"
 )
 
 type Article struct {
@@ -60,6 +61,7 @@ type ArticleInput struct {
 }
 
 func (i *ArticleInput) GenerateCode() {
+	logrus.Debugf("Generating code for article: %+v", i)
 	code := ""
 	code += strings.Split(i.Authors[0], " ")[0]
 	if len(i.Authors) == 2 {
@@ -107,6 +109,7 @@ func (i ArticleInput) Save(e geltypes.Executor) (created Article, err error) {
 }
 
 func ArticleInputFromCrossref(cr *crossrefapi.Works) ArticleInput {
+	logrus.Debugf("Creating ArticleInput from Crossref data: %+v", cr)
 	authors := []string{}
 	for _, author := range cr.Message.Author {
 		nameParts := []string{}
