@@ -36,7 +36,16 @@ var entities = []string{
 }
 
 func main() {
+	// logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.InfoLevel)
 
+	fh, err := os.OpenFile("seed.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		logrus.Fatalf("Failed to open log file: %v", err)
+	}
+	defer fh.Close()
+	logrus.SetOutput(fh)
+	//
 	// logrus.Println("Enabling pprof for profiling")
 	// go func() {
 	// 	logrus.Println(http.ListenAndServe("localhost:6060", nil))
@@ -54,6 +63,8 @@ func main() {
 		"session_idle_transaction_timeout": timeout,
 	})
 
+	logrus.Infof("Loading configuration\n")
+
 	cwd, _ := os.Getwd()
 	logrus.Infof("Using configuration directory: %s/%s", cwd, *configPath)
 	v := viper.New()
@@ -68,18 +79,24 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("Failed to load datasets: %v", err)
 	}
+	ostracoda, err := seeds.LoadOccurrencesDataset("data/Ostracoda/Ostracoda_occurrences.json")
+	if err != nil {
+		logrus.Fatalf("Failed to load datasets: %v", err)
+	}
 	aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
 	if err != nil {
 		logrus.Fatalf("Failed to load datasets: %v", err)
 	}
 
 	subcommand := flag.Arg(0)
+	logrus.Infof("Running seed subcommand: %s", subcommand)
 	switch subcommand {
 
 	case "":
 		logrus.Fatalf("Please provide a subcommand")
 
 	case "init":
+		logrus.Infof("🌱 Initializing instance configuration")
 		err := client.Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
 			cfg, err := config.LoadConfig[config.InstanceConfig](v, "config")
 			if err != nil {
@@ -127,6 +144,10 @@ func main() {
 			"Cyclopidae", "Parastenocarididae", "Canthocamptidae", "Ameiridae",
 			"Chappuisiidae", "Diaptomidae", "Ectinosomatidae", "Gelyellidae",
 			"Halicyclopidae", "Miraciidae", "Phyllognathopodidae",
+			// Ostracoda
+			"Candonidae", "Cyprididae", "Cyclocyprididae",
+			"Darwinulidae", "Entocytheridae", "Kliellidae",
+			"Limnocytheridae", "Loxoconchidae",
 		); err != nil {
 			logrus.Errorf("Failed to seed taxonomy: %v", err)
 			return
@@ -186,6 +207,16 @@ func main() {
 			}
 
 			logrus.Info("🧪 Empirical datasets")
+
+			logrus.Infof("🌱 Seeding Ostracoda occurrences")
+			ostracoda.OccurrenceBatchMetadataInputs.Taxa = nil
+			datasetOstracoda, err := ostracoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
+			if err != nil {
+				rollbackDatasets()
+				logrus.Fatalf("Failed to seed Ostracoda occurrences: %v", err)
+			}
+			createdDatasets = append(createdDatasets, datasetOstracoda)
+
 			logrus.Infof("🌱 Seeding EGCop occurrences")
 			copepoda.OccurrenceBatchMetadataInputs.Taxa = nil
 			datasetCopepoda, err := copepoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
@@ -196,7 +227,6 @@ func main() {
 			createdDatasets = append(createdDatasets, datasetCopepoda)
 
 			logrus.Infof("🌱 Seeding WAD occurrences")
-
 			aselloidea.OccurrenceBatchMetadataInputs.Taxa = nil
 			datasetAselloidea, err := aselloidea.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
 			if err != nil {
@@ -222,6 +252,9 @@ func main() {
 			}
 			return nil
 		})
+		if err != nil {
+			logrus.Errorf("Seeding datasets failed: %v", err)
+		}
 		return
 	}
 

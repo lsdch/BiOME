@@ -73,7 +73,13 @@ tasks:
     cmds:
       - cmd: echo "Seeding database..."
         silent: true
-      - go run ./cmd/seed/
+      - go run ./cmd/seed/ --cfg config init
+      - go run ./cmd/seed/ countries
+      - go run ./cmd/seed/ habitats
+      - go run ./cmd/seed/ metadata
+      - go run ./cmd/seed/ taxonomy
+      - go run ./cmd/seed/ missing-taxa
+      - go run ./cmd/seed/ datasets
       - gel branch drop {{.TEST_DB_NAME}} --non-interactive
       - gel branch create {{.TEST_DB_NAME}} --copy-data
     deps: [dl-countries-dataset]
