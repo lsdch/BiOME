@@ -2,6 +2,7 @@ package occurrence
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/geldata/gel-go"
 	"github.com/geldata/gel-go/geltypes"
@@ -142,10 +143,12 @@ func (dataset OccurrenceDatasetInput) SaveParallel(client *gel.Client, batchSize
 	client = db.WithBatchMode(client, dataset.BatchULID)
 	created, err = dataset.DatasetInput.Save(client)
 	if err != nil {
-		return
+		return created, fmt.Errorf("failed to initialize dataset '%s': %v", dataset.Label, err)
 	}
+	logrus.Debugf("Initialized dataset '%s'", dataset.Label)
 
 	if err = dataset.OccurrenceBatchInput.WithBatchSize(batchSize).SaveParallel(client, cores); err != nil {
+		logrus.Errorf("%v", err)
 		logrus.Infof("Rolling back dataset")
 		created.RollbackImport(client)
 		return
