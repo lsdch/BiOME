@@ -70,7 +70,6 @@ func GetOccurrence(db geltypes.Executor, code string) (occurrence Occurrence[Sam
 			datasets: { *, maintainers: { * }, meta: { * } },
 			sampling: {
 				*,
-				performed_by: { * },
 				target_taxa: { * },
 				fixatives: { * },
 				methods: { * },
