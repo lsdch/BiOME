@@ -144,8 +144,8 @@ func main() {
 			"Cyclopidae", "Parastenocarididae", "Canthocamptidae", "Ameiridae",
 			"Chappuisiidae", "Diaptomidae", "Ectinosomatidae", "Gelyellidae",
 			"Halicyclopidae", "Miraciidae", "Phyllognathopodidae",
-			// Ostracoda
-			"Candonidae", "Cyprididae", "Cyclocyprididae",
+			// // Ostracoda
+			"Candonidae", "Candoninae", "Cyprididae", "Cyclocyprididae",
 			"Darwinulidae", "Entocytheridae", "Kliellidae",
 			"Limnocytheridae", "Loxoconchidae",
 		); err != nil {
