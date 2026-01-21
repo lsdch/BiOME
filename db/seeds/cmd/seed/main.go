@@ -209,7 +209,6 @@ func main() {
 			logrus.Info("🧪 Empirical datasets")
 
 			logrus.Infof("🌱 Seeding Ostracoda occurrences")
-			ostracoda.OccurrenceBatchMetadataInputs.Taxa = nil
 			datasetOstracoda, err := ostracoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
 			if err != nil {
 				rollbackDatasets()
@@ -218,7 +217,6 @@ func main() {
 			createdDatasets = append(createdDatasets, datasetOstracoda)
 
 			logrus.Infof("🌱 Seeding EGCop occurrences")
-			copepoda.OccurrenceBatchMetadataInputs.Taxa = nil
 			datasetCopepoda, err := copepoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
 			if err != nil {
 				rollbackDatasets()
@@ -227,7 +225,6 @@ func main() {
 			createdDatasets = append(createdDatasets, datasetCopepoda)
 
 			logrus.Infof("🌱 Seeding WAD occurrences")
-			aselloidea.OccurrenceBatchMetadataInputs.Taxa = nil
 			datasetAselloidea, err := aselloidea.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
 			if err != nil {
 				rollbackDatasets()
