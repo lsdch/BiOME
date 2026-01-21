@@ -77,11 +77,12 @@ func newClient(maxConcurrent int) *CrossRefScheduler {
 	return client
 }
 
-func init() {
-	client = newClient(maxConcurrentRequests)
-	go client.Start()
-}
+var crossRefClient = new(CrossRefScheduler)
 
 func Client() *CrossRefScheduler {
-	return client
+	if crossRefClient == nil {
+		crossRefClient = newClient(maxConcurrentRequests)
+		go crossRefClient.Start()
+	}
+	return crossRefClient
 }
