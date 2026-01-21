@@ -267,12 +267,18 @@ func (batch OccurrenceBatchInput) SaveSites(tx geltypes.Tx) error {
 					)
 				`, data)
 			if err != nil {
+				if len(errorChan) > 0 {
+					return
+				}
 				errorChan <- models.WrapErrorIndex(err, start).PrependPath("content")
 			}
 			batch.Tracker.Progress(len(subBatch))
 		}(i)
 	}
 	wg.Wait()
+	if len(errorChan) > 0 {
+		return <-errorChan
+	}
 	return nil
 }
 
@@ -394,7 +400,10 @@ func (batch *OccurrenceBatchInput) SaveParallel(client *gel.Client, cores int) e
 
 						for k, sampling := range siteOccurrence.Samplings {
 							if err := sampling.Save(tx, siteOccurrence.Code); err != nil {
-								errorChan <- models.WrapErrorIndex(err, k).PrependPath("samplings").PrependIndex(j).PrependPath("content")
+								if len(errorChan) > 0 {
+									return
+								}
+								errorChan <- models.WrapErrorIndex(fmt.Errorf("%v [%+v]", err, sampling), k).PrependPath("samplings").PrependIndex(j).PrependPath("content")
 								cancel() // stop all other goroutines
 								return
 							}
