@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/lsdch/biome/models/taxonomy"
 	gbif "github.com/lsdch/biome/models/taxonomy/GBIF"
 
 	"github.com/geldata/gel-go/geltypes"
@@ -17,9 +18,13 @@ import (
 )
 
 func SeedTaxonomyGBIF(db geltypes.Tx, groups ...string) error {
-	_ = db.Execute(context.Background(), "delete taxonomy::Taxon")
 	for _, g := range groups {
-		err := seedTaxonomyGroup(db, g)
+		_, err := taxonomy.FindByName(db, g)
+		if err == nil {
+			logrus.Infof("✅ Taxonomy group %s already exists, skipping import", g)
+			continue
+		}
+		err = seedTaxonomyGroup(db, g)
 		if err != nil {
 			return fmt.Errorf("failed to seed taxonomy group %s: %w", g, err)
 		}
