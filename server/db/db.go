@@ -10,7 +10,6 @@ import (
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/oklog/ulid/v2"
 	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 )
 
 // Opens a new connection to Gel instance
@@ -21,12 +20,13 @@ func Connect(options gelcfg.Options) (db *gel.Client) {
 	if testing.Testing() {
 		options.Branch = "testing"
 	}
-	logrus.Infof("Attempting connection to database branch'%s'", options.Branch)
+	logrus.Debugf("Attempting connection to database branch '%s'", options.Branch)
 	db, err := gel.CreateClient(options)
 
 	if err != nil {
-		log.Fatalf("Failed to connect to database branch: %+v", err)
+		logrus.Fatalf("Failed to connect to database branch: %+v", err)
 	}
+	logrus.Debugf("Connected to database branch '%s'", options.Branch)
 
 	return
 }
