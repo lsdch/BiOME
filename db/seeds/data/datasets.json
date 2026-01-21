@@ -4,7 +4,7 @@
     "description": "Database seed dataset for testing purposes.",
     "maintainers": [
       "madmin",
-      "fmalard"
+      "Florian Malard"
     ],
     "content": [
       {
@@ -31,7 +31,7 @@
               }
             },
             "performed_by": [
-              "fmalard"
+              "Florian Malard"
             ]
           },
           {
@@ -44,7 +44,7 @@
               }
             },
             "performed_by": [
-              "fmalard"
+              "Florian Malard"
             ],
             "param": "WATER-TEMP",
             "value": 15
@@ -61,7 +61,7 @@
               }
             },
             "performed_by": [
-              "fmalard"
+              "Florian Malard"
             ]
           }
         ],
@@ -76,7 +76,7 @@
               }
             },
             "performed_by": [
-              "fmalard"
+              "Florian Malard"
             ],
             "fixatives": [
               "CRYO"
@@ -113,7 +113,7 @@
               }
             },
             "performed_by": [
-              "fmalard"
+              "Florian Malard"
             ],
             "fixatives": [
               "ALCOHOL"
@@ -150,7 +150,7 @@
               }
             },
             "performed_by": [
-              "fmalard"
+              "Florian Malard"
             ],
             "fixatives": [
               "CRYO"
@@ -180,7 +180,9 @@
                     }
                   },
                   "taxon": "Asellus aquaticus",
-                  "identified_by": "fmalard"
+                  "identified_by": [
+                    "Florian Malard"
+                  ]
                 },
                 "comments": "Seed internal bio-material"
               },
@@ -208,7 +210,9 @@
                     }
                   },
                   "taxon": "Proasellus cavaticus",
-                  "identified_by": "fmalard"
+                  "identified_by": [
+                    "Florian Malard"
+                  ]
                 },
                 "original_taxon": "Asellidae sp.",
                 "comments": "Seed external bio-material",
