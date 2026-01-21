@@ -161,7 +161,7 @@ module taxonomy {
   function taxon_code(taxon: Taxon) -> str {
     using (
       re_replace(
-        "[^()a-zA-Z0-9]",
+        "[^()a-zA-Z0-9]+",
         "_",
         str_replace(taxon.name, "sp. ", "sp."),
         flags := 'ig'
