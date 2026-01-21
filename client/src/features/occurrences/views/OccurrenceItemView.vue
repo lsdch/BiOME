@@ -124,7 +124,7 @@
                         v-if="item.verbatim_identification"
                         class="d-flex align-center ga-2 mt-3 text-muted"
                       >
-                        Verbatim :
+                        Verbatim&nbsp;:
                         <span class="font-monospace">{{ item.verbatim_identification }}</span>
                         <InlineHelp
                           text="Verbatim name from the source. For traceability purpose only. This is always superseded by the identification above."
