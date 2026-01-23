@@ -102,7 +102,6 @@ const (
 	BioMatSortIdentifiedOn   BioMatSortKey = "identified_on"
 	BioMatSortTaxon          BioMatSortKey = "taxon"
 	BioMatSortIdentification BioMatSortKey = "identification"
-	BioMatSortIdentifiedBy   BioMatSortKey = "identified_by"
 	BioMatSortLastUpdated    BioMatSortKey = "last_updated"
 )
 
@@ -113,7 +112,6 @@ var BioMatSortMap = map[BioMatSortKey]string{
 	BioMatSortIdentification: ".identification.taxon.name",
 	BioMatSortIdentifiedOn:   ".identification.identified_on.date",
 	BioMatSortTaxon:          ".identification.taxon.name",
-	BioMatSortIdentifiedBy:   ".identification.identified_by",
 	BioMatSortLastUpdated:    ".meta.lastUpdated",
 }
 

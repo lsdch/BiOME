@@ -153,8 +153,10 @@
     <template #item.identification="{ value: identification }: { value: Identification }">
       <IdentificationChip :identification size="small" short />
     </template>
-    <template #item.identification.identified_by="{ value: person }">
-      <span v-if="person">{{ person }}</span>
+    <template #item.identification.identified_by="{ value: identificators }: { value?: string[] }">
+      <template v-if="identificators?.length">
+        <v-chip v-for="name in identificators" :text="name" size="small"></v-chip>
+      </template>
       <span v-else class="text-muted text-caption">Unknown</span>
     </template>
     <template #item.identification.identified_on="{ value }: { value?: DateWithPrecision }">
@@ -245,7 +247,8 @@ const headers: CRUDTableHeader<OccurrenceListItem>[] = [
       {
         key: 'identification.identified_by',
         title: 'Done by',
-        align: 'center'
+        align: 'center',
+        sortable: false
       },
       {
         key: 'identification.identified_on',

@@ -190,7 +190,6 @@ export type BioMatSortKey =
   | 'identified_on'
   | 'taxon'
   | 'identification'
-  | 'identified_by'
   | 'last_updated'
 
 export type ClinicalTrailNumber = {

@@ -498,7 +498,6 @@ export const $BioMatSortKey = {
     'identified_on',
     'taxon',
     'identification',
-    'identified_by',
     'last_updated'
   ],
   title: 'BioMatSortKey',
