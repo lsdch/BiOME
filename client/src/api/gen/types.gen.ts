@@ -1165,6 +1165,7 @@ export type OccurrenceDataset = {
    * A URL to the JSON Schema for this object.
    */
   readonly $schema?: string
+  bibliography?: Array<Article>
   category: DatasetCategory
   contributors?: Array<string>
   description: string

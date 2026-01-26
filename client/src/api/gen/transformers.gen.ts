@@ -362,6 +362,9 @@ const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
 }
 
 const occurrenceDatasetSchemaResponseTransformer = (data: any) => {
+  if (data.bibliography) {
+    data.bibliography = data.bibliography.map((item: any) => articleSchemaResponseTransformer(item))
+  }
   data.maintainers = data.maintainers.map((item: any) => personSchemaResponseTransformer(item))
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.publications) {

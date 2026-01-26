@@ -2949,6 +2949,12 @@ export const $OccurrenceDataset = {
       readOnly: true,
       type: 'string'
     },
+    bibliography: {
+      items: {
+        $ref: '#/components/schemas/Article'
+      },
+      type: 'array'
+    },
     category: {
       $ref: '#/components/schemas/DatasetCategory'
     },

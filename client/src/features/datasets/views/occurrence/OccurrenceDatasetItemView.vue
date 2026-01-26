@@ -23,6 +23,14 @@
             Occurrences
             <v-chip class="mx-1" :text="occurrences?.length.toString()" density="compact" />
           </v-tab>
+          <v-tab value="bibliography" prepend-icon="mdi-newspaper">
+            Bibliography
+            <v-chip
+              class="mx-1"
+              :text="dataset?.bibliography?.length.toString()"
+              density="compact"
+            />
+          </v-tab>
         </v-tabs>
         <v-tabs-window v-model="tab" class="fill-height" crossfade>
           <v-tabs-window-item value="map" key="map" :transition="false" id="map-tab">
@@ -33,6 +41,9 @@
           </v-tabs-window-item>
           <v-tabs-window-item value="occurrences" key="occurrences">
             <OccurrencesTable :with-site="true" :occurrences />
+          </v-tabs-window-item>
+          <v-tabs-window-item value="bibliography" key="bibliography">
+            <OccurrenceDatasetBibliography :dataset />
           </v-tabs-window-item>
         </v-tabs-window>
       </v-card>
@@ -59,8 +70,12 @@ import { useDisplay } from 'vuetify/lib/composables/display.mjs'
 import OccurrenceDatasetMap from '@/features/datasets/components/OccurrenceDatasetMap.vue'
 import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
 import OccurrenceDatasetParticipants from '@/features/datasets/components/OccurrenceDatasetParticipants.vue'
+import { Article } from '@/api'
+import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
+import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
+import OccurrenceDatasetBibliography from '@/features/datasets/components/OccurrenceDatasetBibliography.vue'
 
-type Tab = 'map' | 'sites' | 'occurrences'
+type Tab = 'map' | 'sites' | 'occurrences' | 'bibliography'
 const tab = ref<Tab>('map')
 
 const { xlAndUp: mapOnSide } = useDisplay()

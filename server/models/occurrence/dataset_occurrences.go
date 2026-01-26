@@ -8,6 +8,7 @@ import (
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/dataset"
+	"github.com/lsdch/biome/models/references"
 	"github.com/oklog/ulid/v2"
 	"github.com/sirupsen/logrus"
 )
@@ -40,8 +41,9 @@ type OccurrenceDataset struct {
 	dataset.Dataset `gel:"$inline" json:",inline"`
 	Sites           []SiteWithOccurrences `gel:"sites" json:"sites"`
 	// Occurrences     []OccurrenceWithCategory `gel:"occurrences" json:"occurrences"`
-	IsCongruent  bool     `gel:"is_congruent" json:"is_congruent"`
-	Contributors []string `gel:"contributors" json:"contributors,omitempty"`
+	IsCongruent  bool                 `gel:"is_congruent" json:"is_congruent"`
+	Contributors []string             `gel:"contributors" json:"contributors,omitempty"`
+	Bibliography []references.Article `gel:"bibliography" json:"bibliography,omitempty"`
 }
 
 func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset OccurrenceDataset, err error) {
@@ -57,6 +59,7 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 				meta: { * },
 				maintainers: { *, user: { * }, organisations: { * } },
 				contributors := distinct (.occurrences.identification.identified_by union .occurrences.sampling.performed_by),
+				bibliography := distinct .occurrences.published_in { *, meta: { * } },
 				sites: {
 					*,
 					country: { * },
