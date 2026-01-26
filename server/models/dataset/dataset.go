@@ -26,9 +26,9 @@ type DatasetInner struct {
 
 type Dataset struct {
 	DatasetInner `gel:"$inline" json:",inline"`
-	Publication  models.Optional[references.Article] `gel:"publication" json:"publication,omitempty"`
-	Maintainers  []people.Person                     `gel:"maintainers" json:"maintainers"`
-	Meta         people.Meta                         `gel:"meta" json:"meta"`
+	Publications []references.Article `gel:"publications" json:"publications,omitempty"`
+	Maintainers  []people.Person      `gel:"maintainers" json:"maintainers"`
+	Meta         people.Meta          `gel:"meta" json:"meta"`
 }
 
 func (d Dataset) RollbackImport(db geltypes.Executor) error {
@@ -66,6 +66,7 @@ func ListDatasets(db geltypes.Executor, options ListDatasetOptions) ([]Dataset, 
 	query := `#edgeql
 			with opts := <json>$0
 			select datasets::Dataset { *,
+				publications: { * },
 				maintainers: { ** },
 				meta: { * }
 			}
@@ -87,6 +88,7 @@ func GetDataset(db geltypes.Executor, slug string) (dataset Dataset, err error) 
 	err = db.QuerySingle(context.Background(), `#edgeql
 		select datasets::Dataset {
 			*,
+			publications: { * },
 			maintainers: { ** },
 			meta: { * },
 		} filter .slug = <str>$0
@@ -109,12 +111,12 @@ func (dm DatasetMaintainersInput) Validate(edb geltypes.Executor) ([]geltypes.UU
 }
 
 type DatasetInput struct {
-	Label       string                       `json:"label" minLength:"4" maxLength:"32"`
-	Slug        string                       `json:"slug"`
-	Publication models.OptionalInput[string] `json:"publication,omitempty"`
-	Pinned      models.OptionalInput[bool]   `json:"pinned,omitempty"`
-	Description models.OptionalInput[string] `json:"description,omitempty"`
-	Maintainers DatasetMaintainersInput      `json:"maintainers" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
+	Label        string                         `json:"label" minLength:"4" maxLength:"32"`
+	Slug         string                         `json:"slug"`
+	Publications models.OptionalInput[[]string] `json:"publications,omitempty"`
+	Pinned       models.OptionalInput[bool]     `json:"pinned,omitempty"`
+	Description  models.OptionalInput[string]   `json:"description,omitempty"`
+	Maintainers  DatasetMaintainersInput        `json:"maintainers" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
 
 func (i *DatasetInput) GenerateSlug() {
@@ -133,6 +135,11 @@ func (i *DatasetInput) Save(db geltypes.Executor) (created Dataset, err error) {
 						label := <str>data['label'],
 						slug := <str>data['slug'],
 						description := <str>json_get(data, 'description'),
+						publications := (
+							select references::Article
+							filter .code in <str>json_array_unpack(json_get(data, 'publications'))
+						),
+						pinned := <bool>json_get(data, 'pinned') ?? false,
 						maintainers := (
 							select people::Person
 							filter .alias in <str>json_array_unpack(data['maintainers'])
@@ -141,7 +148,7 @@ func (i *DatasetInput) Save(db geltypes.Executor) (created Dataset, err error) {
 				) {
         *,
 				maintainers: { * },
-				publication: { * },
+				publications: { * },
 				meta: { * }
       }
       `, &created, data,
@@ -150,11 +157,11 @@ func (i *DatasetInput) Save(db geltypes.Executor) (created Dataset, err error) {
 }
 
 type DatasetUpdate struct {
-	Label       models.OptionalInput[string]                  `gel:"label" json:"label,omitempty" minLength:"4" maxLength:"32"`
-	Description models.OptionalNull[string]                   `gel:"description" json:"description,omitempty"`
-	Publication models.OptionalNull[string]                   `gel:"publication" json:"publication,omitempty"`
-	Pinned      models.OptionalNull[bool]                     `gel:"pinned" json:"pinned,omitempty"`
-	Maintainers models.OptionalInput[DatasetMaintainersInput] `gel:"maintainers" json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
+	Label        models.OptionalInput[string]                  `gel:"label" json:"label,omitempty" minLength:"4" maxLength:"32"`
+	Description  models.OptionalNull[string]                   `gel:"description" json:"description,omitempty"`
+	Publications models.OptionalNull[[]string]                 `gel:"publication" json:"publication,omitempty"`
+	Pinned       models.OptionalNull[bool]                     `gel:"pinned" json:"pinned,omitempty"`
+	Maintainers  models.OptionalInput[DatasetMaintainersInput] `gel:"maintainers" json:"maintainers,omitempty" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
 
 func (u DatasetUpdate) Save(e geltypes.Executor, slug string) (updated Dataset, err error) {
@@ -168,10 +175,10 @@ func (u DatasetUpdate) Save(e geltypes.Executor, slug string) (updated Dataset, 
 		`,
 		Mappings: map[string]string{
 			"label": "<str>item['label']",
-			"publication": `#edgeql
+			"publications": `#edgeql
 				(
 					select references::Article
-					filter .code = <str>item['publication']
+					filter .code in <str>json_array_unpack(item['publications'])
 				)`,
 			"description": "<str>item['description']",
 			"pinned":      "<bool>item['pinned']",

@@ -1342,8 +1342,11 @@
 					"pinned": {
 						"type": "boolean"
 					},
-					"publication": {
-						"$ref": "#/components/schemas/OptionalArticle"
+					"publications": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
 					},
 					"slug": {
 						"type": "string"
@@ -1440,8 +1443,11 @@
 						]
 					},
 					"publication": {
+						"items": {
+							"type": "string"
+						},
 						"type": [
-							"string",
+							"array",
 							"null"
 						]
 					}
@@ -3366,8 +3372,11 @@
 					"pinned": {
 						"type": "boolean"
 					},
-					"publication": {
-						"$ref": "#/components/schemas/OptionalArticle"
+					"publications": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
 					},
 					"sites": {
 						"items": {
@@ -3428,8 +3437,11 @@
 					"pinned": {
 						"type": "boolean"
 					},
-					"publication": {
-						"$ref": "#/components/schemas/OptionalArticle"
+					"publications": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
 					},
 					"sites": {
 						"format": "int64",
@@ -3901,66 +3913,6 @@
 					"sampling_id"
 				],
 				"type": "object"
-			},
-			"OptionalArticle": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/Article.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"authors": {
-						"items": {
-							"type": "string"
-						},
-						"type": "array"
-					},
-					"code": {
-						"type": "string"
-					},
-					"comments": {
-						"type": "string"
-					},
-					"doi": {
-						"type": "string"
-					},
-					"id": {
-						"format": "uuid",
-						"type": "string"
-					},
-					"journal": {
-						"type": "string"
-					},
-					"meta": {
-						"$ref": "#/components/schemas/Meta"
-					},
-					"title": {
-						"type": "string"
-					},
-					"verbatim": {
-						"type": "string"
-					},
-					"year": {
-						"format": "int32",
-						"type": "integer"
-					}
-				},
-				"required": [
-					"id",
-					"code",
-					"authors",
-					"year",
-					"meta"
-				],
-				"type": [
-					"object",
-					"null"
-				]
 			},
 			"OptionalAssembledSequenceSpecifics": {
 				"additionalProperties": false,
@@ -6373,8 +6325,11 @@
 					"pinned": {
 						"type": "boolean"
 					},
-					"publication": {
-						"$ref": "#/components/schemas/OptionalArticle"
+					"publications": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
 					},
 					"sequences": {
 						"items": {
@@ -6768,8 +6723,11 @@
 					"pinned": {
 						"type": "boolean"
 					},
-					"publication": {
-						"$ref": "#/components/schemas/OptionalArticle"
+					"publications": {
+						"items": {
+							"$ref": "#/components/schemas/Article"
+						},
+						"type": "array"
 					},
 					"sites": {
 						"items": {
@@ -6831,8 +6789,11 @@
 					"pinned": {
 						"type": "boolean"
 					},
-					"publication": {
-						"type": "string"
+					"publications": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
 					},
 					"sites": {
 						"description": "Existing site codes to include in the dataset",

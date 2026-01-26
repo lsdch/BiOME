@@ -271,7 +271,7 @@ const personSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const optionalArticleSchemaResponseTransformer = (data: any) => {
+const articleSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
@@ -279,8 +279,8 @@ const optionalArticleSchemaResponseTransformer = (data: any) => {
 const datasetSchemaResponseTransformer = (data: any) => {
   data.maintainers = data.maintainers.map((item: any) => personSchemaResponseTransformer(item))
   data.meta = metaSchemaResponseTransformer(data.meta)
-  if (data.publication) {
-    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  if (data.publications) {
+    data.publications = data.publications.map((item: any) => articleSchemaResponseTransformer(item))
   }
   return data
 }
@@ -300,8 +300,8 @@ export const updateDatasetResponseTransformer = async (
 const occurrenceDatasetListItemSchemaResponseTransformer = (data: any) => {
   data.maintainers = data.maintainers.map((item: any) => personSchemaResponseTransformer(item))
   data.meta = metaSchemaResponseTransformer(data.meta)
-  if (data.publication) {
-    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  if (data.publications) {
+    data.publications = data.publications.map((item: any) => articleSchemaResponseTransformer(item))
   }
   return data
 }
@@ -364,8 +364,8 @@ const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
 const occurrenceDatasetSchemaResponseTransformer = (data: any) => {
   data.maintainers = data.maintainers.map((item: any) => personSchemaResponseTransformer(item))
   data.meta = metaSchemaResponseTransformer(data.meta)
-  if (data.publication) {
-    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  if (data.publications) {
+    data.publications = data.publications.map((item: any) => articleSchemaResponseTransformer(item))
   }
   data.sites = data.sites.map((item: any) => siteWithOccurrencesSchemaResponseTransformer(item))
   return data
@@ -426,8 +426,8 @@ const siteItemSchemaResponseTransformer = (data: any) => {
 const sequenceDatasetSchemaResponseTransformer = (data: any) => {
   data.maintainers = data.maintainers.map((item: any) => personSchemaResponseTransformer(item))
   data.meta = metaSchemaResponseTransformer(data.meta)
-  if (data.publication) {
-    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  if (data.publications) {
+    data.publications = data.publications.map((item: any) => articleSchemaResponseTransformer(item))
   }
   data.sequences = data.sequences.map((item: any) => sequenceSchemaResponseTransformer(item))
   data.sites = data.sites.map((item: any) => siteItemSchemaResponseTransformer(item))
@@ -444,8 +444,8 @@ export const getSequenceDatasetResponseTransformer = async (
 const siteDatasetSchemaResponseTransformer = (data: any) => {
   data.maintainers = data.maintainers.map((item: any) => personSchemaResponseTransformer(item))
   data.meta = metaSchemaResponseTransformer(data.meta)
-  if (data.publication) {
-    data.publication = optionalArticleSchemaResponseTransformer(data.publication)
+  if (data.publications) {
+    data.publications = data.publications.map((item: any) => articleSchemaResponseTransformer(item))
   }
   data.sites = data.sites.map((item: any) => siteItemSchemaResponseTransformer(item))
   return data
@@ -752,11 +752,6 @@ export const deleteOccurrenceResponseTransformer = async (
   data: any
 ): Promise<DeleteOccurrenceResponse> => {
   data = occurrenceListItemSchemaResponseTransformer(data)
-  return data
-}
-
-const articleSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 

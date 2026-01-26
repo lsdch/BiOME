@@ -570,7 +570,6 @@ export type {
   OccurrenceStruct,
   OccurrenceStructSamplingStruct,
   OccurrenceUpdate,
-  OptionalArticle,
   OptionalAssembledSequenceSpecifics,
   OptionalCountry,
   OptionalDateWithPrecision,

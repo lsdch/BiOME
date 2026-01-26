@@ -50,7 +50,7 @@ module datasets {
       "Dataset", ""
     );
 
-    publication: references::Article {
+    multi publications: references::Article {
       on source delete allow;
     };
   }

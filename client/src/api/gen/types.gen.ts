@@ -447,7 +447,7 @@ export type Dataset = {
   maintainers: Array<Person>
   meta: Meta
   pinned: boolean
-  publication?: OptionalArticle
+  publications?: Array<Article>
   slug: string
 }
 
@@ -477,7 +477,7 @@ export type DatasetUpdate = {
    */
   maintainers?: Array<string>
   pinned?: boolean | null
-  publication?: string | null
+  publication?: Array<string> | null
 }
 
 export type DateObject = {
@@ -1173,7 +1173,7 @@ export type OccurrenceDataset = {
   maintainers: Array<Person>
   meta: Meta
   pinned: boolean
-  publication?: OptionalArticle
+  publications?: Array<Article>
   sites: Array<SiteWithOccurrences>
   slug: string
 }
@@ -1188,7 +1188,7 @@ export type OccurrenceDatasetListItem = {
   meta: Meta
   occurrences: number
   pinned: boolean
-  publication?: OptionalArticle
+  publications?: Array<Article>
   sites: number
   slug: string
 }
@@ -1316,23 +1316,6 @@ export type OccurrenceUpdate = {
   type_status?: TypeStatus | null
   verbatim_identification?: string | null
 }
-
-export type OptionalArticle = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  authors: Array<string>
-  code: string
-  comments?: string
-  doi?: string
-  id: string
-  journal?: string
-  meta: Meta
-  title?: string
-  verbatim?: string
-  year: number
-} | null
 
 export type OptionalAssembledSequenceSpecifics = {
   alignment_code: string
@@ -2028,7 +2011,7 @@ export type SequenceDataset = {
   maintainers: Array<Person>
   meta: Meta
   pinned: boolean
-  publication?: OptionalArticle
+  publications?: Array<Article>
   sequences: Array<Sequence>
   sites: Array<SiteItem>
   slug: string
@@ -2142,7 +2125,7 @@ export type SiteDataset = {
   maintainers: Array<Person>
   meta: Meta
   pinned: boolean
-  publication?: OptionalArticle
+  publications?: Array<Article>
   sites: Array<SiteItem>
   slug: string
 }
@@ -2163,7 +2146,7 @@ export type SiteDatasetInput = {
    */
   new_sites?: Array<SiteInput>
   pinned?: boolean
-  publication?: string
+  publications?: Array<string>
   /**
    * Existing site codes to include in the dataset
    */

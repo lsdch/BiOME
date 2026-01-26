@@ -1150,8 +1150,11 @@ export const $Dataset = {
     pinned: {
       type: 'boolean'
     },
-    publication: {
-      $ref: '#/components/schemas/OptionalArticle'
+    publications: {
+      items: {
+        $ref: '#/components/schemas/Article'
+      },
+      type: 'array'
     },
     slug: {
       type: 'string'
@@ -1224,7 +1227,10 @@ export const $DatasetUpdate = {
       type: ['boolean', 'null']
     },
     publication: {
-      type: ['string', 'null']
+      items: {
+        type: 'string'
+      },
+      type: ['array', 'null']
     }
   },
   type: 'object'
@@ -2971,8 +2977,11 @@ export const $OccurrenceDataset = {
     pinned: {
       type: 'boolean'
     },
-    publication: {
-      $ref: '#/components/schemas/OptionalArticle'
+    publications: {
+      items: {
+        $ref: '#/components/schemas/Article'
+      },
+      type: 'array'
     },
     sites: {
       items: {
@@ -3034,8 +3043,11 @@ export const $OccurrenceDatasetListItem = {
     pinned: {
       type: 'boolean'
     },
-    publication: {
-      $ref: '#/components/schemas/OptionalArticle'
+    publications: {
+      items: {
+        $ref: '#/components/schemas/Article'
+      },
+      type: 'array'
     },
     sites: {
       format: 'int64',
@@ -3451,56 +3463,6 @@ export const $OccurrenceUpdate = {
   },
   required: ['sampling_id'],
   type: 'object'
-} as const
-
-export const $OptionalArticle = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/Article.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    authors: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    },
-    code: {
-      type: 'string'
-    },
-    comments: {
-      type: 'string'
-    },
-    doi: {
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    journal: {
-      type: 'string'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    title: {
-      type: 'string'
-    },
-    verbatim: {
-      type: 'string'
-    },
-    year: {
-      format: 'int32',
-      type: 'integer'
-    }
-  },
-  required: ['id', 'code', 'authors', 'year', 'meta'],
-  type: ['object', 'null']
 } as const
 
 export const $OptionalAssembledSequenceSpecifics = {
@@ -5553,8 +5515,11 @@ export const $SequenceDataset = {
     pinned: {
       type: 'boolean'
     },
-    publication: {
-      $ref: '#/components/schemas/OptionalArticle'
+    publications: {
+      items: {
+        $ref: '#/components/schemas/Article'
+      },
+      type: 'array'
     },
     sequences: {
       items: {
@@ -5921,8 +5886,11 @@ export const $SiteDataset = {
     pinned: {
       type: 'boolean'
     },
-    publication: {
-      $ref: '#/components/schemas/OptionalArticle'
+    publications: {
+      items: {
+        $ref: '#/components/schemas/Article'
+      },
+      type: 'array'
     },
     sites: {
       items: {
@@ -5984,8 +5952,11 @@ export const $SiteDatasetInput = {
     pinned: {
       type: 'boolean'
     },
-    publication: {
-      type: 'string'
+    publications: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
     },
     sites: {
       description: 'Existing site codes to include in the dataset',
