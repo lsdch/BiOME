@@ -1,5 +1,5 @@
 <template>
-  <v-text-field v-model="search.term" label="Search term" class="ma-2" clearable />
+  <v-text-field v-model="search.term" label="Search" class="ma-2" clearable />
   <CRUDTable :headers :items="sites" entityName="Site" density="compact" :search>
     <template #[`item.name`]="{ item }: { item: SiteItem }">
       <RouterLink :to="{ name: 'site-item', params: { code: item.code } }">

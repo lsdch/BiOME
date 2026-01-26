@@ -1,13 +1,6 @@
 <template>
   <div v-if="(occurrences?.length ?? 0) > 10" class="d-flex align-center ga-2">
-    <v-text-field
-      v-model="search.term"
-      class="mx-5"
-      hide-details
-      label="Search"
-      clearable
-      density="compact"
-    />
+    <v-text-field v-model="search.term" class="ma-2" hide-details label="Search" clearable />
   </div>
   <CRUDTable :items entity-name="Occurrences" :headers :search>
     <template #item.code="{ item, value }: { item: OccurrenceAtSite; value: string }">

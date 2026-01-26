@@ -1,5 +1,5 @@
 <template>
-  <v-text-field v-model="search.term" label="Search term" class="ma-2" clearable />
+  <v-text-field v-model="search.term" label="Search" class="ma-2" clearable />
   <CRUDTable
     entity-name="Bibliography"
     :items="dataset?.bibliography ?? []"
