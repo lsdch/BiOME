@@ -1,5 +1,6 @@
 <template>
-  <CRUDTable :headers :items="sites" entityName="Site" density="compact">
+  <v-text-field v-model="search.term" label="Search term" class="ma-2" clearable />
+  <CRUDTable :headers :items="sites" entityName="Site" density="compact" :search>
     <template #[`item.name`]="{ item }: { item: SiteItem }">
       <RouterLink :to="{ name: 'site-item', params: { code: item.code } }">
         {{ item.name || item.code }}
@@ -15,8 +16,11 @@
 import { SiteItem } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import CountryChip from './CountryChip'
+import { ref } from 'vue'
 
 const { sites } = defineProps<{ sites: SiteItem[] }>()
+
+const search = ref({ term: undefined })
 
 const headers: CRUDTableHeader<SiteItem>[] = [
   { key: 'name', title: 'Name' },
