@@ -2952,6 +2952,12 @@ export const $OccurrenceDataset = {
     category: {
       $ref: '#/components/schemas/DatasetCategory'
     },
+    contributors: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
     description: {
       type: 'string'
     },

@@ -25,7 +25,7 @@
         class="align-self-stretch w-100 d-flex flex-column"
       >
         <template #subtitle>
-          <v-chip label text="Occurrences dataset" size="small" prepend-icon="mdi-crosshairs-gps" />
+          <slot name="subtitle"></slot>
         </template>
         <template #prepend>
           <v-avatar variant="outlined">
@@ -47,6 +47,7 @@
           />
         </template>
         <template #actions>
+          <slot name="prepend-footer"></slot>
           <v-spacer />
           <MetaChip v-if="baseDataset" :meta="baseDataset.meta" />
         </template>

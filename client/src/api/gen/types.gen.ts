@@ -1166,6 +1166,7 @@ export type OccurrenceDataset = {
    */
   readonly $schema?: string
   category: DatasetCategory
+  contributors?: Array<string>
   description: string
   id: string
   is_congruent: boolean

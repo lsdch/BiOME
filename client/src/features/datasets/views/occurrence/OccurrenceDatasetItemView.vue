@@ -37,6 +37,12 @@
         </v-tabs-window>
       </v-card>
     </template>
+    <template #subtitle>
+      <div class="d-flex ga-1">
+        <v-chip label text="Occurrences dataset" size="small" prepend-icon="mdi-crosshairs-gps" />
+        <OccurrenceDatasetParticipants :dataset v-if="dataset?.contributors" />
+      </div>
+    </template>
   </DatasetItemView>
 </template>
 
@@ -51,6 +57,8 @@ import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify/lib/composables/display.mjs'
 import OccurrenceDatasetMap from '@/features/datasets/components/OccurrenceDatasetMap.vue'
+import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
+import OccurrenceDatasetParticipants from '@/features/datasets/components/OccurrenceDatasetParticipants.vue'
 
 type Tab = 'map' | 'sites' | 'occurrences'
 const tab = ref<Tab>('map')

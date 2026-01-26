@@ -40,7 +40,8 @@ type OccurrenceDataset struct {
 	dataset.Dataset `gel:"$inline" json:",inline"`
 	Sites           []SiteWithOccurrences `gel:"sites" json:"sites"`
 	// Occurrences     []OccurrenceWithCategory `gel:"occurrences" json:"occurrences"`
-	IsCongruent bool `gel:"is_congruent" json:"is_congruent"`
+	IsCongruent  bool     `gel:"is_congruent" json:"is_congruent"`
+	Contributors []string `gel:"contributors" json:"contributors,omitempty"`
 }
 
 func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset OccurrenceDataset, err error) {
@@ -55,6 +56,7 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 				*,
 				meta: { * },
 				maintainers: { *, user: { * }, organisations: { * } },
+				contributors := distinct (.occurrences.identification.identified_by union .occurrences.sampling.performed_by),
 				sites: {
 					*,
 					country: { * },
