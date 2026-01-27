@@ -1,7 +1,7 @@
 <template>
   <ActivableCardDialog
     ref="country-overview"
-    title="Sampled sites by country"
+    :title="`Sampled ${facet} by country`"
     class="w-100 d-flex flex-column"
     v-model="fullscreen"
     fullscreen
