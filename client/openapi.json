@@ -8657,79 +8657,7 @@
 					"204": {
 						"description": "No Content",
 						"headers": {
-							"Domain": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"Expires": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"HttpOnly": {
-								"schema": {
-									"type": "boolean"
-								}
-							},
-							"MaxAge": {
-								"schema": {
-									"format": "int64",
-									"type": "integer"
-								}
-							},
-							"Name": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"Partitioned": {
-								"schema": {
-									"type": "boolean"
-								}
-							},
-							"Path": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"Quoted": {
-								"schema": {
-									"type": "boolean"
-								}
-							},
-							"Raw": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"RawExpires": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"SameSite": {
-								"schema": {
-									"format": "int64",
-									"type": "integer"
-								}
-							},
-							"Secure": {
-								"schema": {
-									"type": "boolean"
-								}
-							},
 							"Set-Cookie": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"Unparsed": {
-								"schema": {
-									"type": "string"
-								}
-							},
-							"Value": {
 								"schema": {
 									"type": "string"
 								}
