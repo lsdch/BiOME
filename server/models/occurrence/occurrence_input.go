@@ -185,6 +185,11 @@ func (i OccurrenceBatchMetadataInputs) Save(tx geltypes.Tx, trackers ...Occurren
 	if err != nil {
 		return nil, models.WrapErrorPath(err, "people")
 	}
+
+	for _, tracker := range trackers {
+		tracker.Finish()
+	}
+
 	return &CreatedMetadata{
 		Organisations: organisations,
 		People:        personAliases,
