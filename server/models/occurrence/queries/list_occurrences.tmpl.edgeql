@@ -18,7 +18,8 @@ items := (
     {{- if .SearchTerm }}
     (
       (.code ilike '%%' ++ search_term ++ '%%') or
-      (.sampling.site.name ilike '%%' ++ search_term ++ '%%')
+      (.sampling.site.name ilike '%%' ++ search_term ++ '%%') or
+      any(.identification.identified_by ilike '%%' ++ search_term ++ '%%')
     ) and
     {{ end }}
     {{ template "taxa_filters" .TaxaFilters }}
