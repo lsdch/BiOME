@@ -271,7 +271,6 @@ const sortKeyMap: Record<SortableColumn, BioMatSortKey> = {
   'sampling.site': 'site',
   'sampling.performed_on': 'sampling_date',
   'identification.taxon': 'taxon',
-  'identification.identified_by': 'identified_by',
   'identification.identified_on': 'identified_on',
   'meta.last_updated': 'last_updated',
   code: 'code'
