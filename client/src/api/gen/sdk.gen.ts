@@ -375,6 +375,9 @@ import type {
   OccurrencesBySiteData,
   OccurrencesBySiteErrors,
   OccurrencesBySiteResponses,
+  OccurrencesDateRangeData,
+  OccurrencesDateRangeErrors,
+  OccurrencesDateRangeResponses,
   RefreshSessionData,
   RefreshSessionErrors,
   RefreshSessionResponses,
@@ -3525,6 +3528,32 @@ export class OccurrencesService {
         'Content-Type': 'application/json',
         ...options.headers
       }
+    })
+  }
+}
+
+export class DefaultService {
+  /**
+   * Get the min and max year for occurrence sampling dates
+   */
+  public static occurrencesDateRange<ThrowOnError extends boolean = false>(
+    options?: Options<OccurrencesDateRangeData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      OccurrencesDateRangeResponses,
+      OccurrencesDateRangeErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences-date-range',
+      ...options
     })
   }
 }

@@ -49,6 +49,7 @@ func New(r *gin.Engine, basePath string, config huma.Config) Router {
 	registry.RegisterTypeAlias(reflect.TypeFor[occurrence.OptionalHabitatRecord](), reflect.TypeFor[occurrence.HabitatRecord]())
 
 	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.Person](), reflect.TypeFor[crossref.CrossRefPerson]())
+	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.DateRange](), reflect.TypeFor[crossref.CrossRefDateRange]())
 
 	registry.Map()[SchemaNamer(reflect.TypeFor[taxonomy.TaxaFilters](), "TaxaFilters")] = huma.SchemaFromType(registry, reflect.TypeFor[taxonomy.TaxaFilters]())
 	registry.Map()[SchemaNamer(reflect.TypeFor[occurrence.LatLongCoords](), "LatLongCoords")] = huma.SchemaFromType(registry, reflect.TypeFor[occurrence.LatLongCoords]())

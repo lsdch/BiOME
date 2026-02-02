@@ -12,6 +12,7 @@ import {
   AccountService,
   DatasetsService,
   DataSourcesService,
+  DefaultService,
   LocationService,
   OccurrencesService,
   type Options,
@@ -292,6 +293,9 @@ import type {
   OccurrencesBySiteData,
   OccurrencesBySiteError,
   OccurrencesBySiteResponse,
+  OccurrencesDateRangeData,
+  OccurrencesDateRangeError,
+  OccurrencesDateRangeResponse,
   RefreshSessionData,
   RefreshSessionError,
   RefreshSessionResponse,
@@ -2286,6 +2290,31 @@ export const createOccurrenceMutation = (
   }
   return mutationOptions
 }
+
+export const occurrencesDateRangeQueryKey = (options?: Options<OccurrencesDateRangeData>) =>
+  createQueryKey('occurrencesDateRange', options)
+
+/**
+ * Get the min and max year for occurrence sampling dates
+ */
+export const occurrencesDateRangeOptions = (options?: Options<OccurrencesDateRangeData>) =>
+  queryOptions<
+    OccurrencesDateRangeResponse,
+    OccurrencesDateRangeError,
+    OccurrencesDateRangeResponse,
+    ReturnType<typeof occurrencesDateRangeQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await DefaultService.occurrencesDateRange({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: occurrencesDateRangeQueryKey(options)
+  })
 
 export const occurrencesBySiteQueryKey = (options?: Options<OccurrencesBySiteData>) =>
   createQueryKey('occurrencesBySite', options)

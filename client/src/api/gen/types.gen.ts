@@ -318,6 +318,11 @@ export type CreateOccurrenceInputBody = {
   site: SiteInput
 }
 
+export type CrossRefDateRange = {
+  'end-date'?: DateObject
+  'start-date'?: DateObject
+}
+
 export type CrossRefPerson = {
   ORCID?: string
   affiliation?: Array<Organization>
@@ -490,11 +495,6 @@ export type DateObject = {
  * DatePrecision
  */
 export type DatePrecision = 'Day' | 'Month' | 'Year'
-
-export type DateRange = {
-  'end-date'?: DateObject
-  'start-date'?: DateObject
-}
 
 export type DateWithPrecisionInput = {
   date: CompositeDate
@@ -1083,7 +1083,7 @@ export type Message = {
   doi?: string
   'edition-number'?: string
   editor?: Array<CrossRefPerson>
-  'free-to-read'?: DateRange
+  'free-to-read'?: CrossRefDateRange
   funder?: Array<Funder>
   'group-title'?: string
   indexed?: DateObject
@@ -2538,6 +2538,15 @@ export type Works = {
   'message-type'?: string
   'message-version'?: string
   status?: string
+}
+
+export type YearRange = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  max?: number
+  min?: number
 }
 
 export type ListAbioticParametersData = {
@@ -4960,6 +4969,8 @@ export type ListOccurrencesData = {
     owned?: boolean
     taxa?: Array<string>
     whole_clade?: boolean
+    year?: number
+    year_end?: number | null
     datasets?: Array<string>
     has_sequences?: boolean
     confer?: boolean
@@ -5026,6 +5037,42 @@ export type CreateOccurrenceResponses = {
 }
 
 export type CreateOccurrenceResponse = CreateOccurrenceResponses[keyof CreateOccurrenceResponses]
+
+export type OccurrencesDateRangeData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/occurrences-date-range'
+}
+
+export type OccurrencesDateRangeErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type OccurrencesDateRangeError = OccurrencesDateRangeErrors[keyof OccurrencesDateRangeErrors]
+
+export type OccurrencesDateRangeResponses = {
+  /**
+   * OK
+   */
+  200: YearRange
+}
+
+export type OccurrencesDateRangeResponse =
+  OccurrencesDateRangeResponses[keyof OccurrencesDateRangeResponses]
 
 export type OccurrencesBySiteData = {
   body?: never

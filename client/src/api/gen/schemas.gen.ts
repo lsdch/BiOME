@@ -866,6 +866,19 @@ export const $CreateOccurrenceInputBody = {
   type: 'object'
 } as const
 
+export const $CrossRefDateRange = {
+  additionalProperties: false,
+  properties: {
+    'end-date': {
+      $ref: '#/components/schemas/DateObject'
+    },
+    'start-date': {
+      $ref: '#/components/schemas/DateObject'
+    }
+  },
+  type: 'object'
+} as const
+
 export const $CrossRefPerson = {
   additionalProperties: false,
   properties: {
@@ -1264,19 +1277,6 @@ export const $DatePrecision = {
   enum: ['Day', 'Month', 'Year'],
   title: 'DatePrecision',
   type: 'string'
-} as const
-
-export const $DateRange = {
-  additionalProperties: false,
-  properties: {
-    'end-date': {
-      $ref: '#/components/schemas/DateObject'
-    },
-    'start-date': {
-      $ref: '#/components/schemas/DateObject'
-    }
-  },
-  type: 'object'
 } as const
 
 export const $DateWithPrecisionInput = {
@@ -2668,7 +2668,7 @@ export const $Message = {
       type: 'array'
     },
     'free-to-read': {
-      $ref: '#/components/schemas/DateRange'
+      $ref: '#/components/schemas/CrossRefDateRange'
     },
     funder: {
       items: {
@@ -6932,6 +6932,28 @@ export const $Works = {
     },
     status: {
       type: 'string'
+    }
+  },
+  type: 'object'
+} as const
+
+export const $YearRange = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/YearRange.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    max: {
+      format: 'int64',
+      type: 'integer'
+    },
+    min: {
+      format: 'int64',
+      type: 'integer'
     }
   },
   type: 'object'

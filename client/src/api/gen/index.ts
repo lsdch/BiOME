@@ -4,6 +4,7 @@ export {
   AccountService,
   DatasetsService,
   DataSourcesService,
+  DefaultService,
   LocationService,
   OccurrencesService,
   type Options,
@@ -163,6 +164,7 @@ export type {
   CrossRefBibSearchResponse,
   CrossRefBibSearchResponses,
   CrossRefData,
+  CrossRefDateRange,
   CrossRefError,
   CrossRefErrors,
   CrossRefPerson,
@@ -185,7 +187,6 @@ export type {
   DataSourceUpdate,
   DateObject,
   DatePrecision,
-  DateRange,
   DateWithPrecisionInput,
   DeleteAbioticParameterData,
   DeleteAbioticParameterError,
@@ -567,6 +568,11 @@ export type {
   OccurrencesBySiteErrors,
   OccurrencesBySiteResponse,
   OccurrencesBySiteResponses,
+  OccurrencesDateRangeData,
+  OccurrencesDateRangeError,
+  OccurrencesDateRangeErrors,
+  OccurrencesDateRangeResponse,
+  OccurrencesDateRangeResponses,
   OccurrenceStruct,
   OccurrenceStructSamplingStruct,
   OccurrenceUpdate,
@@ -845,5 +851,6 @@ export type {
   ValidatePasswordTokenErrors,
   ValidatePasswordTokenResponse,
   ValidatePasswordTokenResponses,
-  Works
+  Works,
+  YearRange
 } from './types.gen'

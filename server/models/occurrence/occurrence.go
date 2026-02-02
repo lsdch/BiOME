@@ -120,6 +120,8 @@ type ListOccurrencesOptions struct {
 	models.SortBy[BioMatSortKey]
 	models.Filter        `json:",inline"`
 	taxonomy.TaxaFilters `json:",inline"`
+	Year                 models.OptionalInput[int32]                `query:"year" json:"year,omitzero"`
+	YearEnd              models.OptionalNull[int32]                 `query:"year_end" json:"year_end,omitzero"`
 	Datasets             []string                                   `query:"datasets" json:"datasets,omitzero"`
 	HasSequences         models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
 	Confer               models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
@@ -521,33 +523,4 @@ func OccurrenceOverview(db geltypes.Executor) ([]OccurrenceOverviewItem, error) 
 		`,
 		&items)
 	return items.toItems(), err
-}
-
-type DateRange struct {
-	MinDate geltypes.OptionalDateTime `gel:"min_date" json:"min_date,omitzero"`
-	MaxDate geltypes.OptionalDateTime `gel:"max_date" json:"max_date,omitzero"`
-}
-
-func GetOccurrenceDateRange(db geltypes.Executor) (dateRange DateRange, err error) {
-	err = db.QuerySingle(context.Background(),
-		`#edgeql
-		with module occurrence,
-		min_date := (
-			select min(Occurrence.sampling.performed_on.date)
-		)
-		select {
-			min_date := min(
-				select Occurrence
-				filter .sampling.performed_on.date != null
-				return datetime_get(.sampling.performed_on.date, 'year')
-			),
-			max_date := max(
-				select Occurrence
-				filter .sampling.performed_on.date != null
-				return datetime_get(.sampling.performed_on.date, 'year')
-			)
-		}
-		`,
-		&dateRange)
-	return dateRange, err
 }

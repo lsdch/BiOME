@@ -60,6 +60,42 @@
                 density="compact"
               />
             </v-list-item>
+            <v-list-item prepend-icon="mdi-calendar" v-if="yearRange?.min && yearRange?.max">
+              <div class="d-flex align-start mt-7">
+                <v-checkbox
+                  class=""
+                  density="compact"
+                  :model-value="useYearRange"
+                  @update:model-value="toggleYearRange"
+                  hide-details
+                  color="primary"
+                ></v-checkbox>
+                <v-range-slider
+                  :disabled="!useYearRange"
+                  class="mx-5 mt-1"
+                  :min="yearRange.min"
+                  :max="yearRange.max"
+                  :step="1"
+                  :width="400"
+                  thumb-label="always"
+                  clearable
+                  :model-value="[filters.year ?? yearRange.min, filters.year_end ?? yearRange.max]"
+                  @update:model-value="
+                    ([start, end]: [number, number]) => {
+                      filters.year = start
+                      filters.year_end = end
+                    }
+                  "
+                >
+                </v-range-slider>
+              </div>
+              <template #append>
+                <InlineHelp
+                  class="mr-4"
+                  text="Filters occurrences by sampling date. If sampling date is not available, identification date is used as fallback. If neither sampling nor identification dates are available, the earliest bibliographic reference year is used."
+                />
+              </template>
+            </v-list-item>
           </v-list>
         </v-col>
         <v-col cols="12" md="6">
@@ -77,7 +113,7 @@
                 chips
                 closable-chips
               />
-              <div class="d-flex align-center ga-2 flex-wrap">
+              <div class="d-flex align-center ga-3 flex-wrap">
                 <v-select
                   v-model="filters.rank"
                   :items="$TaxonRank.enum"
@@ -190,23 +226,39 @@ import {
 import {
   deleteOccurrenceMutation,
   listOccurrencesOptions,
-  listOccurrencesQueryKey
+  listOccurrencesQueryKey,
+  occurrencesDateRangeOptions
 } from '@/api/gen/@tanstack/vue-query.gen'
 // import BioMaterialFormDialog from '@/features/occurrences/components/BioMaterialFormDialog.vue'
 import CRUDTableServer from '@/components/toolkit/tables/CRUDTableServer.vue'
 import ClearableSwitch from '@/components/toolkit/ui/ClearableSwitch.vue'
+import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import TypeStatusPicker from '@/features/occurrences/components/TypeStatusPicker'
-import PersonChip from '@/features/people/components/PersonChip'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
-import { useQueryClient } from '@tanstack/vue-query'
+import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { useToggle } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
 const { xs } = useDisplay()
 
+const { data: yearRange } = useQuery(occurrencesDateRangeOptions())
+
+const [useYearRange, _toggleYearRange] = useToggle(false)
+
+function toggleYearRange(v: boolean | null) {
+  if (!v) {
+    filters.value.year = undefined
+    filters.value.year_end = undefined
+  }
+  _toggleYearRange(!!v)
+}
+
 type BiomatTableFilters = {
+  year?: number | null
+  year_end?: number | null
   datasets?: string[]
   type_status?: TypeStatus[]
   has_sequences?: boolean
