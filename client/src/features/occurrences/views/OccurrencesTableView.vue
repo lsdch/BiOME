@@ -13,7 +13,9 @@
     :mobile="xs"
     show-expand
     :sort-key-transform
-    @clear-filters="filters = {}"
+    @clear-filters="
+      Object.keys(filters).forEach((key) => (filters[key as keyof BiomatTableFilters] = undefined))
+    "
     @reload="invalidateQuery()"
   >
     <!-- Search and filters panel -->
@@ -238,7 +240,7 @@ import TypeStatusPicker from '@/features/occurrences/components/TypeStatusPicker
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
-import { useToggle } from '@vueuse/core'
+import { useToggle, useUrlSearchParams } from '@vueuse/core'
 import { onMounted, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 
@@ -250,8 +252,8 @@ const [useYearRange, _toggleYearRange] = useToggle(false)
 
 function toggleYearRange(v: boolean | null) {
   if (!v) {
-    filters.value.year = undefined
-    filters.value.year_end = undefined
+    filters.year = undefined
+    filters.year_end = undefined
   }
   _toggleYearRange(!!v)
 }
@@ -269,7 +271,7 @@ type BiomatTableFilters = {
   taxa?: string[]
 }
 
-const filters = ref<BiomatTableFilters>({})
+const filters = useUrlSearchParams<BiomatTableFilters>('history', { removeNullishValues: true })
 
 const headers: CRUDTableHeader<OccurrenceListItem>[] = [
   {
