@@ -116,7 +116,11 @@
                         <IdentificationChip :identification="item.identification" class="my-1" />
                         <span v-if="item.identification.identified_by" class="text-no-wrap">
                           by
-                          <PersonChip :person="item.identification.identified_by" />
+                          <v-chip
+                            v-for="person in item.identification.identified_by"
+                            :key="person"
+                            :text="person"
+                          />
                         </span>
                         <span class="text-muted" v-else>Curator unspecified</span>
                       </div>

@@ -35,9 +35,10 @@
     <v-divider />
     <v-list>
       <v-list-item prepend-icon="mdi-account-multiple">
-        <PersonChip
+        <v-chip
           v-for="person in item.sampling.performed_by"
-          :person
+          :key="person"
+          :text="person"
           size="small"
           class="ma-1"
         />
