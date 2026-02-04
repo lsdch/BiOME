@@ -29,7 +29,7 @@ with module events,
     comments := <str>json_get(data, 'comments'),
     habitats := (
       select sampling::Habitat
-      filter .label in <str>json_array_unpack(json_get(data, 'habitats'))
+      filter any(.label ilike <str>json_array_unpack(json_get(data, 'habitats')))
     ),
     access_points := (<str>json_array_unpack(json_get(data, 'access_points')))
   })
