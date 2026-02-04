@@ -36,6 +36,21 @@ var entities = []string{
 }
 
 func main() {
+	// logrus.SetLevel(logrus.DebugLevel)
+	logrus.SetLevel(logrus.InfoLevel)
+
+	// fh, err := os.OpenFile("seed.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	// if err != nil {
+	// 	logrus.Fatalf("Failed to open log file: %v", err)
+	// }
+	// defer fh.Close()
+	// logrus.SetOutput(fh)
+	//
+	// logrus.Println("Enabling pprof for profiling")
+	// go func() {
+	// 	logrus.Println(http.ListenAndServe("localhost:6060", nil))
+	// }()
+
 	configPath := flag.String("cfg", "db/seeds/config", "Path to the configuration directory")
 
 	database := flag.String("db", "", "The name of the database to seed")
@@ -86,6 +101,7 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("Failed to load datasets: %v", err)
 	}
+
 	aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
 	if err != nil {
 		logrus.Fatalf("Failed to load datasets: %v", err)
@@ -118,7 +134,7 @@ func main() {
 
 	case "countries":
 		logrus.Infof("🌱 Seeding countries")
-		if err := seeds.SeedCountriesGeoJSON(client, "./data/remote/countries.json"); err != nil {
+		if err := seeds.SeedCountriesGeoJSON(client, "../../data/remote/countries.json"); err != nil {
 			logrus.Fatalf("Failed to seed countries: %v", err)
 		}
 		return
@@ -176,6 +192,7 @@ func main() {
 		return
 
 	case "datasets":
+		target_dataset := flag.Arg(1)
 		err = client.WithConfig(map[string]interface{}{
 			"session_idle_transaction_timeout": timeout,
 		}).Tx(context.Background(), func(ctx context.Context, tx geltypes.Tx) error {
@@ -195,46 +212,52 @@ func main() {
 				}
 			}
 
-			// logrus.Info("⚙ Artificial datasets")
-			// if err != nil {
-			// 	return fmt.Errorf("Failed to load datasets: %v", err)
-			// }
-			// for i := range datasets {
-			// 	datasets[i].OccurrenceBatchMetadataInputs.Taxa = nil
-			// 	d, err := datasets[i].SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
-			// 	if err != nil {
-			// 		rollbackDatasets()
-			// 		return fmt.Errorf("❗Failed to seed occurrence dataset: %v", err)
-			// 	}
-			// 	createdDatasets = append(createdDatasets, d)
-			// }
+			if target_dataset == "" || target_dataset == "artificial" {
+				logrus.Info("⚙ Artificial datasets")
+				if err != nil {
+					return fmt.Errorf("Failed to load datasets: %v", err)
+				}
+				for i := range datasets {
+					datasets[i].OccurrenceBatchMetadataInputs.Taxa = nil
+					d, err := datasets[i].SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
+					if err != nil {
+						rollbackDatasets()
+						return fmt.Errorf("❗Failed to seed occurrence dataset: %v", err)
+					}
+					createdDatasets = append(createdDatasets, d)
+				}
+			}
 
 			logrus.Info("🧪 Empirical datasets")
 
-			// logrus.Infof("🌱 Seeding EGCop occurrences")
-			// datasetCopepoda, err := copepoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
-			// if err != nil {
-			// 	rollbackDatasets()
-			// 	logrus.Fatalf("Failed to seed Copepoda occurrences: %v", err)
-			// }
-			// createdDatasets = append(createdDatasets, datasetCopepoda)
+			if target_dataset == "" || target_dataset == "ostracoda" {
+				logrus.Infof("🌱 Seeding Ostracoda occurrences")
+				datasetOstracoda, err := ostracoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
+				if err != nil {
+					rollbackDatasets()
+					logrus.Fatalf("Failed to seed Ostracoda occurrences: %v", err)
+				}
+				createdDatasets = append(createdDatasets, datasetOstracoda)
 
-			logrus.Infof("🌱 Seeding Ostracoda occurrences")
-			datasetOstracoda, err := ostracoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
-			if err != nil {
-				rollbackDatasets()
-				logrus.Fatalf("Failed to seed Ostracoda occurrences: %v", err)
 			}
-			createdDatasets = append(createdDatasets, datasetOstracoda)
-
-			// logrus.Infof("🌱 Seeding WAD occurrences")
-			// datasetAselloidea, err := aselloidea.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
-			// if err != nil {
-			// 	rollbackDatasets()
-			// 	logrus.Fatalf("Failed to seed Aselloidea occurrences: %v", err)
-			// }
-			// createdDatasets = append(createdDatasets, datasetAselloidea)
-
+			if target_dataset == "" || target_dataset == "copepoda" {
+				logrus.Infof("🌱 Seeding Copepoda occurrences")
+				datasetCopepoda, err := copepoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
+				if err != nil {
+					rollbackDatasets()
+					logrus.Fatalf("Failed to seed Copepoda occurrences: %v", err)
+				}
+				createdDatasets = append(createdDatasets, datasetCopepoda)
+			}
+			if target_dataset == "" || target_dataset == "aselloidea" {
+				logrus.Infof("🌱 Seeding Aselloidea occurrences")
+				datasetAselloidea, err := aselloidea.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
+				if err != nil {
+					rollbackDatasets()
+					logrus.Fatalf("Failed to seed Aselloidea occurrences: %v", err)
+				}
+				createdDatasets = append(createdDatasets, datasetAselloidea)
+			}
 			logrus.Infof("⚙ Postprocessing...")
 			// logrus.Infof("• generate bio-material codes")
 			// if err := tx.Execute(context.Background(),
