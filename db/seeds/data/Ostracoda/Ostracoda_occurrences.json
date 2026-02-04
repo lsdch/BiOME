@@ -1,6 +1,6 @@
 {
   "label": "Ostracoda",
-  "description": "Ostracoda occurrence data from various sources.",
+  "description": "A comprehensive occurrence dataset for European Ostracoda inhabiting groundwater and groundwater-dependent ecosystems",
   "maintainers": [
     "pmarmonier",
     "nmori"
@@ -4737,7 +4737,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -5113,7 +5113,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -5161,7 +5161,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -5209,7 +5209,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -5675,7 +5675,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -5786,7 +5786,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -5835,7 +5835,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -5898,7 +5898,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -5995,7 +5995,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -7480,7 +7480,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -8139,7 +8139,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -8465,7 +8465,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -8528,7 +8528,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -8863,7 +8863,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -8926,7 +8926,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -9083,7 +9083,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -9505,7 +9505,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -9783,7 +9783,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -9832,7 +9832,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -9881,7 +9881,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -9930,7 +9930,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -9979,7 +9979,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -10076,7 +10076,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -10975,7 +10975,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11280,7 +11280,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11329,7 +11329,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11451,7 +11451,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11514,7 +11514,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11563,7 +11563,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11612,7 +11612,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11661,7 +11661,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11710,7 +11710,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11759,7 +11759,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11942,7 +11942,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -11991,7 +11991,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -12135,7 +12135,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -12184,7 +12184,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -12233,7 +12233,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -12281,7 +12281,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -12330,7 +12330,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -12393,7 +12393,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -12452,7 +12452,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -12777,7 +12777,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -13022,7 +13022,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -13122,7 +13122,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -13170,7 +13170,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -13244,7 +13244,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -13318,7 +13318,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -13366,7 +13366,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -13652,7 +13652,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -13746,7 +13746,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -14207,7 +14207,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -14256,7 +14256,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -14317,7 +14317,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -14577,7 +14577,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -14625,7 +14625,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -14673,7 +14673,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -14812,7 +14812,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -16034,7 +16034,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -16314,7 +16314,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -16363,7 +16363,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -16971,7 +16971,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -17020,7 +17020,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -17069,7 +17069,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -17118,7 +17118,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -17211,7 +17211,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -17259,7 +17259,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -17295,7 +17295,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -17343,7 +17343,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -17508,7 +17508,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -17557,7 +17557,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -19656,7 +19656,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -19705,7 +19705,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -19754,7 +19754,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -19803,7 +19803,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -19852,7 +19852,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -20235,7 +20235,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone",
+            "Hyporheic zone",
             "Alluvial"
           ],
           "occurrences": [
@@ -20555,7 +20555,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -20773,7 +20773,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -20987,7 +20987,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21045,7 +21045,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21093,7 +21093,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21161,7 +21161,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21239,7 +21239,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21287,7 +21287,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21335,7 +21335,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21383,7 +21383,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21441,7 +21441,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21609,7 +21609,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21657,7 +21657,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21785,7 +21785,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21833,7 +21833,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21881,7 +21881,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21929,7 +21929,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -21977,7 +21977,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -22025,7 +22025,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -22073,7 +22073,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -22121,7 +22121,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -22182,7 +22182,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -22230,7 +22230,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -28508,7 +28508,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -28571,7 +28571,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -28648,7 +28648,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -28726,7 +28726,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -28775,7 +28775,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -28823,7 +28823,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -28872,7 +28872,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -28968,7 +28968,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -29388,7 +29388,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -29725,7 +29725,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -29788,7 +29788,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -30256,7 +30256,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -30292,7 +30292,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -30354,7 +30354,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -30403,7 +30403,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -30465,7 +30465,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -30527,7 +30527,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -30589,7 +30589,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -31176,7 +31176,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -31279,7 +31279,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -31328,7 +31328,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -31377,7 +31377,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -31426,7 +31426,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -31642,7 +31642,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -32130,7 +32130,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -32179,7 +32179,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -32508,7 +32508,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -32557,7 +32557,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -32606,7 +32606,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -32655,7 +32655,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -32989,7 +32989,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33038,7 +33038,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33087,7 +33087,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33136,7 +33136,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33185,7 +33185,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33234,7 +33234,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33283,7 +33283,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33332,7 +33332,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33381,7 +33381,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33475,7 +33475,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33524,7 +33524,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33688,7 +33688,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -33830,7 +33830,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -34018,7 +34018,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -34103,7 +34103,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -34210,7 +34210,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -34562,7 +34562,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -35412,7 +35412,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -35566,7 +35566,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -35677,7 +35677,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -35864,7 +35864,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -35926,7 +35926,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -36661,7 +36661,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -37252,7 +37252,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -37300,7 +37300,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -37348,7 +37348,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -37396,7 +37396,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -37444,7 +37444,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -39666,7 +39666,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -39760,7 +39760,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -40457,7 +40457,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -40505,7 +40505,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -40554,7 +40554,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -40715,7 +40715,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -40764,7 +40764,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -40813,7 +40813,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -40886,7 +40886,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -41262,7 +41262,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -41518,7 +41518,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -41567,7 +41567,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -41616,7 +41616,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -41910,7 +41910,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -41989,7 +41989,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -42052,7 +42052,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -42197,7 +42197,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -43076,7 +43076,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -43124,7 +43124,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -43770,7 +43770,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47331,7 +47331,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47379,7 +47379,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47427,7 +47427,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47475,7 +47475,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47523,7 +47523,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47597,7 +47597,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47658,7 +47658,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47758,7 +47758,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47845,7 +47845,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -47893,7 +47893,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48337,7 +48337,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48398,7 +48398,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48459,7 +48459,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48507,7 +48507,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48568,7 +48568,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48629,7 +48629,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48677,7 +48677,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48738,7 +48738,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48786,7 +48786,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48834,7 +48834,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48908,7 +48908,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -48969,7 +48969,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49017,7 +49017,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49065,7 +49065,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49113,7 +49113,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49161,7 +49161,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49209,7 +49209,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49257,7 +49257,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49305,7 +49305,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49353,7 +49353,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49414,7 +49414,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49462,7 +49462,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49510,7 +49510,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49558,7 +49558,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49632,7 +49632,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49693,7 +49693,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49767,7 +49767,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -49924,7 +49924,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50227,7 +50227,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50264,7 +50264,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50471,7 +50471,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50520,7 +50520,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50569,7 +50569,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50617,7 +50617,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50665,7 +50665,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50713,7 +50713,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50761,7 +50761,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50819,7 +50819,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -50967,7 +50967,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -51484,7 +51484,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -51702,7 +51702,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -51751,7 +51751,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -52742,7 +52742,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -52957,7 +52957,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -53006,7 +53006,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -53621,7 +53621,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -53669,7 +53669,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -53717,7 +53717,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -53765,7 +53765,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -53905,7 +53905,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -53954,7 +53954,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -60009,7 +60009,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -60125,7 +60125,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -60174,7 +60174,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -60237,7 +60237,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -60332,7 +60332,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -61234,7 +61234,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -61308,7 +61308,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -61356,7 +61356,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -61481,7 +61481,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -61918,7 +61918,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -62147,7 +62147,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -62196,7 +62196,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -63528,7 +63528,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -64300,7 +64300,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -64513,7 +64513,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -64562,7 +64562,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -64611,7 +64611,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -68860,7 +68860,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -68908,7 +68908,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -68956,7 +68956,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -69004,7 +69004,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -69098,7 +69098,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -69823,7 +69823,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -69872,7 +69872,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -69920,7 +69920,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -70178,7 +70178,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -70577,7 +70577,7 @@
             "Subsurface",
             "Aquifer",
             "Saturated",
-            "Hyporheic Zone"
+            "Hyporheic zone"
           ],
           "occurrences": [
             {
@@ -73117,6 +73117,22 @@
       ],
       "year": 1953,
       "verbatim": "Brehm V (1953) Bemerkenswerte Entomostracken aus der Salzburger Brunnenfauna. Österreichische Zoologische Zeitschrift 4.1: 9–18."
+    }
+  },
+  "people": {
+    "pmarmonier": {
+      "first_name": "Pierre",
+      "last_name": "Marmonier",
+      "institutions": [
+        "LEHNA"
+      ]
+    },
+    "nmori": {
+      "first_name": "Nataša",
+      "last_name": "Mori",
+      "institutions": [
+        "NIB"
+      ]
     }
   },
   "data_sources": {
