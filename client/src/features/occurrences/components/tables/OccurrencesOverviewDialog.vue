@@ -32,6 +32,9 @@
           </template>
         </v-tab>
         <v-tab value="sampled_taxa"> Sampled taxa </v-tab>
+        <v-tab value="sunburst">
+          <v-icon size="x-large">mdi-chart-donut-variant</v-icon>
+        </v-tab>
       </v-tabs>
     </template>
     <slot name="prepend-body" />
@@ -56,13 +59,17 @@
           <SampledTaxaTable :occurrences />
         </slot>
       </v-tabs-window-item>
+      <v-tabs-window-item value="sunburst">
+        <OccurrenceSunburst :items="sunburstData" />
+      </v-tabs-window-item>
     </v-tabs-window>
   </CardDialog>
 </template>
 
 <script setup lang="ts" generic="Data extends SiteWithOccurrences">
-import { OccurrenceAtSite, SiteWithOccurrences } from '@/api'
+import { OccurrenceAtSite, OccurrenceOverviewItem, SiteWithOccurrences, TaxonRank } from '@/api'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
+import OccurrenceSunburst from '@/features/dashboard/components/OccurrenceSunburst.vue'
 import OccurrencesTable, {
   type OccurrenceTableItem
 } from '@/features/occurrences/components/tables/OccurrencesTable.vue'
@@ -81,7 +88,7 @@ const { data, ...props } = defineProps<
   } & CardDialogProps
 >()
 
-type Tab = 'sites' | 'samplings' | 'occurrences' | 'sampled_taxa'
+type Tab = 'sites' | 'samplings' | 'occurrences' | 'sampled_taxa' | 'sunburst'
 const tab = defineModel<Tab>('tab', { default: 'sites' })
 
 type Sampling = SamplingTableItem<Data['samplings'][number], true, Omit<Data, 'samplings'>>
@@ -96,6 +103,23 @@ const occurrences = computed<Array<Occurrence>>(() =>
     )
   )
 )
+
+// const sunburstData = computed(() => {
+//   const taxonMap: Record<
+//     string,
+//     OccurrenceOverviewItem
+//   > = {}
+
+//   occurrences.value.forEach((occ) => {
+//     const taxon = occ.identification.taxon
+//     if (!taxonMap[taxon.name]) {
+//       taxonMap[taxon.name] = { name: taxon.name, rank: taxon.rank, occurrences: 0, parent_name: taxon. }
+//     }
+//     taxonMap[taxon.name]!.occurrences += 1
+//   })
+
+//   return Object.values(taxonMap)
+// })
 
 function open(target: Tab = 'sites') {
   tab.value = target
