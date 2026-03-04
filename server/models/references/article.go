@@ -143,13 +143,13 @@ func ArticleInputFromCrossref(cr *crossrefapi.Works) ArticleInput {
 	authors := []string{}
 	for _, author := range cr.Message.Author {
 		nameParts := []string{}
-		if author.Given != "" {
-			nameParts = append(nameParts, author.Given)
-		}
 		if author.Family != "" {
 			nameParts = append(nameParts, author.Family)
 		}
-		authors = append(authors, strings.Join(nameParts, " "))
+		if author.Given != "" {
+			nameParts = append(nameParts, author.Given)
+		}
+		authors = append(authors, strings.Join(nameParts, ", "))
 	}
 	year := int32(0)
 	if cr.Message.PublishedPrint != nil && len(cr.Message.PublishedPrint.DateParts) > 0 && len(cr.Message.PublishedPrint.DateParts[0]) > 0 {
