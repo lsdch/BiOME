@@ -61,11 +61,10 @@ type ArticleInput struct {
 }
 
 func (i *ArticleInput) GenerateCode() {
-	logrus.Debugf("Generating code for article: %+v", i)
 	code := ""
-	code += strings.Split(i.Authors[0], " ")[0]
+	code += strings.Trim(strings.Split(i.Authors[0], " ")[0], ", ")
 	if len(i.Authors) == 2 {
-		code += "_" + strings.Split(i.Authors[1], " ")[0]
+		code += "_" + strings.Trim(strings.Split(i.Authors[1], " ")[0], ", ")
 	} else if len(i.Authors) > 2 {
 		code += "_et_al"
 	}
@@ -74,12 +73,50 @@ func (i *ArticleInput) GenerateCode() {
 		code += string('a' + rune(i.CodeDiscriminant-1))
 	}
 	i.Code.SetValue(code)
+	logrus.Debugf("Generated code '%s' for article: %+v", code, i)
 }
 
-func (i ArticleInput) Save(e geltypes.Executor) (created Article, err error) {
+func (i *ArticleInput) CheckCodeUniqueness(db geltypes.Executor) (isUnique bool, err error) {
+	var existing bool
+	err = db.QuerySingle(context.Background(),
+		`#edgeql
+			with code := <str>$0
+			select exists(
+				select references::Article filter .code = code
+			)
+		`,
+		&existing, i.Code.Value,
+	)
+	return !existing, err
+}
+
+func (i *ArticleInput) EnsureUniqueCode(db geltypes.Executor) error {
 	if !i.Code.IsSet {
 		i.GenerateCode()
 	}
+	for {
+		isUnique, err := i.CheckCodeUniqueness(db)
+		if err != nil {
+			return err
+		}
+		if isUnique {
+			return nil
+		}
+		logrus.Warnf("Generated code '%s' is not unique, incrementing discriminant and regenerating", i.Code.Value)
+		i.CodeDiscriminant++
+		i.GenerateCode()
+	}
+}
+
+func (i ArticleInput) Save(e geltypes.Executor) (created Article, err error) {
+	for j, authors := range i.Authors {
+		i.Authors[j] = strings.TrimSpace(authors)
+	}
+
+	if err = i.EnsureUniqueCode(e); err != nil {
+		return
+	}
+
 	data, _ := json.Marshal(i)
 	err = e.QuerySingle(context.Background(),
 		`#edgeql
@@ -97,13 +134,6 @@ func (i ArticleInput) Save(e geltypes.Executor) (created Article, err error) {
 		`, &created, data)
 	if err == nil {
 		return
-	}
-	if ok, dbErr := db.IsConstraintViolation(err); ok {
-		if strings.Contains(dbErr.Error(), "code") {
-			i.CodeDiscriminant++
-			i.Code.Clear()
-			return i.Save(e)
-		}
 	}
 	return
 }
