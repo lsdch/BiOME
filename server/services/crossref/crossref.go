@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/lsdch/biome/services"
+	"github.com/sirupsen/logrus"
 
 	"github.com/caltechlibrary/crossrefapi"
 	"github.com/danielgtaylor/huma/v2"
@@ -16,6 +17,7 @@ func RetrieveDOI(doi string) (*crossrefapi.Works, error) {
 
 	queueItem := services.NewQueueItem(
 		func(client *crossrefapi.CrossRefClient) services.ApiResponse[crossrefapi.Works] {
+			logrus.Debugf("Querying crossref for DOI : %s", doi)
 			data, err := client.Works(doi)
 			return services.ApiResponse[crossrefapi.Works]{
 				Data:  data,
@@ -24,6 +26,7 @@ func RetrieveDOI(doi string) (*crossrefapi.Works, error) {
 		},
 	)
 
+	logrus.Debugf("Enqueuing DOI query for %s", doi)
 	Client().DoiQueue <- queueItem
 
 	// Wait for response
@@ -32,6 +35,8 @@ func RetrieveDOI(doi string) (*crossrefapi.Works, error) {
 	if data == nil || err != nil {
 		return nil, huma.Error404NotFound("No match found")
 	}
+
+	logrus.Debugf("Received response for DOI %s: %+v", doi, data)
 
 	return data, err
 }
