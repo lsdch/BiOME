@@ -287,24 +287,26 @@ func (i *OccurrenceInput) FetchDOIs(db geltypes.Executor) error {
 	}
 	for _, doi := range i.DOIs {
 		doiExists := false
-		err := db.Query(context.Background(), `#edgeql
-			select exists references::Article
-			filter .doi = <str>$0
+		err := db.QuerySingle(context.Background(), `#edgeql
+			select exists (select references::Article filter .doi = <str>$0)
 		`, &doiExists, doi,
 		)
 		if err != nil {
 			return fmt.Errorf("failed to check if doi %s exists : %v", doi, err)
 		}
 		if doiExists {
+			logrus.Infof("DOI %s already exists, skipping retrieval", doi)
 			continue
 		}
+		logrus.Infof("Retrieving DOI %s from Crossref", doi)
 		cr, err := crossref.RetrieveDOI(doi)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to retrieve DOI %s from Crossref: %v", doi, err)
 		}
-		article, err := references.ArticleInputFromCrossref(cr).Save(db)
+		articleInput := references.ArticleInputFromCrossref(cr)
+		article, err := articleInput.Save(db)
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to save article for DOI %s: %v", doi, err)
 		}
 		i.PublishedIn = append(i.PublishedIn, article.Code)
 	}
