@@ -2142,7 +2142,7 @@ export type SiteDatasetInput = {
   /**
    * Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default.
    */
-  maintainers: Array<string>
+  maintainers?: Array<string>
   /**
    * New sites to include in the dataset
    */

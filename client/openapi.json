@@ -6820,8 +6820,7 @@
 				},
 				"required": [
 					"label",
-					"slug",
-					"maintainers"
+					"slug"
 				],
 				"type": "object"
 			},

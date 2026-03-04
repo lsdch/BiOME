@@ -113,10 +113,10 @@ func (dm DatasetMaintainersInput) Validate(edb geltypes.Executor) ([]geltypes.UU
 type DatasetInput struct {
 	Label        string                         `json:"label" minLength:"4" maxLength:"32"`
 	Slug         string                         `json:"slug"`
-	Publications models.OptionalInput[[]string] `json:"publications,omitempty"`
+	Publications models.OptionalInput[[]string] `json:"publications,omitzero"`
 	Pinned       models.OptionalInput[bool]     `json:"pinned,omitempty"`
 	Description  models.OptionalInput[string]   `json:"description,omitempty"`
-	Maintainers  DatasetMaintainersInput        `json:"maintainers" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
+	Maintainers  DatasetMaintainersInput        `json:"maintainers,omitzero" doc:"Dataset maintainers identified by their person alias. Dataset creator is always a maintainer by default."`
 }
 
 func (i *DatasetInput) GenerateSlug() {
@@ -125,6 +125,7 @@ func (i *DatasetInput) GenerateSlug() {
 
 func (i *DatasetInput) Save(db geltypes.Executor) (created Dataset, err error) {
 	i.GenerateSlug()
+	logrus.Debugf("Saving dataset : %+v", i)
 	data, _ := json.Marshal(i)
 	err = db.QuerySingle(context.Background(),
 		`#edgeql
@@ -137,12 +138,12 @@ func (i *DatasetInput) Save(db geltypes.Executor) (created Dataset, err error) {
 						description := <str>json_get(data, 'description'),
 						publications := (
 							select references::Article
-							filter .code in <str>json_array_unpack(json_get(data, 'publications'))
+							filter .code in <str>json_array_unpack(json_get(data, 'publications') ?? to_json("[]"))
 						),
 						pinned := <bool>json_get(data, 'pinned') ?? false,
 						maintainers := (
 							select people::Person
-							filter .alias in <str>json_array_unpack(data['maintainers'])
+							filter .alias in <str>json_array_unpack(json_get(data, 'maintainers') ?? to_json("[]"))
 						) ?? (SELECT admin::Settings.superadmin.identity),
 					}
 				) {

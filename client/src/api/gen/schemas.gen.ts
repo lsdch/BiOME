@@ -5981,7 +5981,7 @@ export const $SiteDatasetInput = {
       type: 'string'
     }
   },
-  required: ['label', 'slug', 'maintainers'],
+  required: ['label', 'slug'],
   type: 'object'
 } as const
 
