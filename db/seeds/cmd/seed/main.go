@@ -67,6 +67,8 @@ func main() {
 		logrus.SetLevel(logrus.InfoLevel)
 	}
 
+	logrus.Debug("Debug logging enabled")
+
 	if LOG_OUTPUT != nil && *LOG_OUTPUT != "" {
 		fh, err := os.OpenFile("seed.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 		if err != nil {
@@ -93,16 +95,21 @@ func main() {
 	if err != nil {
 		logrus.Fatalf("Failed to load datasets: %v", err)
 	}
-	copepoda, err := seeds.LoadOccurrencesDataset("data/Copepoda/Copepoda_occurrences.json")
+	copepoda, err := seeds.LoadOccurrencesDataset("data/datasets/Copepoda_occurrences.json")
 	if err != nil {
 		logrus.Fatalf("Failed to load datasets: %v", err)
 	}
-	ostracoda, err := seeds.LoadOccurrencesDataset("data/Ostracoda/Ostracoda_occurrences.json")
+	ostracoda, err := seeds.LoadOccurrencesDataset("data/datasets/Ostracoda_occurrences.json")
 	if err != nil {
 		logrus.Fatalf("Failed to load datasets: %v", err)
 	}
 
-	aselloidea, err := seeds.LoadOccurrencesDataset("data/Aselloidea/Aselloidea_occurrences.json")
+	aselloidea, err := seeds.LoadOccurrencesDataset("data/datasets/Aselloidea_occurrences.json")
+	if err != nil {
+		logrus.Fatalf("Failed to load datasets: %v", err)
+	}
+
+	austria, err := seeds.LoadOccurrencesDataset("data/datasets/Asellidae_Austria.json")
 	if err != nil {
 		logrus.Fatalf("Failed to load datasets: %v", err)
 	}
@@ -230,6 +237,16 @@ func main() {
 
 			logrus.Info("🧪 Empirical datasets")
 
+			if target_dataset == "" || target_dataset == "austria" {
+				logrus.Infof("🌱 Seeding Asellidae occurrences from Austria")
+				datasetAustria, err := austria.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
+				if err != nil {
+					rollbackDatasets()
+					logrus.Fatalf("Failed to seed Asellidae occurrences from Austria: %v", err)
+				}
+				createdDatasets = append(createdDatasets, datasetAustria)
+			}
+
 			if target_dataset == "" || target_dataset == "ostracoda" {
 				logrus.Infof("🌱 Seeding Ostracoda occurrences")
 				datasetOstracoda, err := ostracoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
@@ -238,8 +255,8 @@ func main() {
 					logrus.Fatalf("Failed to seed Ostracoda occurrences: %v", err)
 				}
 				createdDatasets = append(createdDatasets, datasetOstracoda)
-
 			}
+
 			if target_dataset == "" || target_dataset == "copepoda" {
 				logrus.Infof("🌱 Seeding Copepoda occurrences")
 				datasetCopepoda, err := copepoda.SetTracker(tracker).SaveParallel(client, *BATCH_SIZE, *N_CORES)
