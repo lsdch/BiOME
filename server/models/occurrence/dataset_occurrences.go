@@ -86,6 +86,7 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 type OccurrenceDatasetInput struct {
 	dataset.DatasetInput `json:",inline"`
 	OccurrenceBatchInput `json:",inline"`
+	AddOccurrences       []string  `json:"add_occurrences,omitempty"`
 	BatchULID            ulid.ULID `json:"batch_ulid,omitempty"`
 }
 
@@ -99,26 +100,57 @@ func (i *OccurrenceDatasetInput) SetTracker(tracker OccurrenceBatchTracker) *Occ
 	return i
 }
 
+func (i *OccurrenceDatasetInput) CheckAdditionalOccurrenceCodes(db geltypes.Executor) error {
+	if len(i.AddOccurrences) == 0 {
+		return nil
+	}
+	var missing []string
+	err := db.Query(context.Background(),
+		`#edgeql
+			with module occurrence,
+			codes := <str>array_unpack(<array<str>>$0),
+			existing := (select Occurrence filter .code in codes),
+			missing := codes except existing.code
+			select missing`,
+		&missing, i.AddOccurrences)
+	if err != nil {
+		return err
+	}
+	if len(missing) > 0 {
+		return fmt.Errorf("the following occurrence codes are not in the database: %v", missing)
+	}
+	logrus.Infof("Adding %d existing occurrences to dataset %s", len(i.AddOccurrences), i.Label)
+	return nil
+}
+
 func (i *OccurrenceDatasetInput) GatherBatch(db geltypes.Executor) error {
+	if err := i.CheckAdditionalOccurrenceCodes(db); err != nil {
+		return err
+	}
 	if i.BatchULID.IsZero() {
 		return nil
 	}
 	return db.Execute(context.Background(),
 		`#edgeql
 			with
+			import_id := <str>$0,
+			occurrences := (
+				select occurrence::Occurrence
+				filter .meta.batch_import_id = import_id
+				or .code in <str>array_unpack(<array<str>>$1)
+			),
 			dataset := (
 				assert_single((
 					select datasets::OccurrenceDataset
-					filter .meta.batch_import_id = <str>$0
+					filter .meta.batch_import_id = import_id
 				),
 				message := "Multiple datasets found with the same batch_import_id")
 			),
-			update occurrence::Occurrence
-			filter .meta.batch_import_id = <str>$0
+			update occurrences
 			set {
-				datasets := dataset
+				datasets := distinct (.datasets union dataset)
 			}
-		`, i.BatchULID.String(),
+		`, i.BatchULID.String(), i.AddOccurrences,
 	)
 }
 
@@ -154,14 +186,15 @@ func (dataset OccurrenceDatasetInput) SaveParallel(client *gel.Client, batchSize
 
 	if err = dataset.OccurrenceBatchInput.WithBatchSize(batchSize).SaveParallel(client, cores); err != nil {
 		logrus.Errorf("%v", err)
-		logrus.Infof("Rolling back dataset")
 		created.RollbackImport(client)
 		return
 	}
 	logrus.Infof("Gathering batch in dataset")
 	err = dataset.GatherBatch(client)
 	if err != nil {
-		logrus.Fatalf("Failed to gather batch: %v", err)
+		logrus.Errorf("Failed to gather batch: %v", err)
+		created.RollbackImport(client)
+		return
 	}
 	logrus.Infof("Done")
 	return

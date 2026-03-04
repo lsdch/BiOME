@@ -32,6 +32,7 @@ type Dataset struct {
 }
 
 func (d Dataset) RollbackImport(db geltypes.Executor) error {
+	logrus.Infof("Rolling back dataset '%s'", d.Label)
 	return db.Execute(context.Background(),
 		`#edgeql
 			delete Auditable filter .meta.batch_import_id = <str>$0
