@@ -1,8 +1,6 @@
 package crossref
 
 import (
-	"time"
-
 	"github.com/lsdch/biome/models/settings"
 	"github.com/lsdch/biome/services"
 
@@ -19,8 +17,8 @@ type CrossRefScheduler struct {
 	crossrefapi.CrossRefClient
 	DoiQueue         services.Queue[crossrefapi.Works, crossrefapi.CrossRefClient]
 	QueryQueue       services.Queue[crossrefapi.WorksQueryResponse, crossrefapi.CrossRefClient]
-	ActiveQueries    int
 	MaxActiveQueries int
+	semaphor         chan struct{} // handles throttling by limiting concurrent access to the API
 }
 
 // Start initiates a continuous processing loop for handling API requests.
@@ -32,24 +30,33 @@ type CrossRefScheduler struct {
 // The method runs indefinitely and spawns goroutines for each request execution.
 // Each request is processed asynchronously, and the active query count is decremented
 // upon completion.
-func (c CrossRefScheduler) Start() {
+func (c *CrossRefScheduler) Start() {
+	logrus.Debugf("[crossref] Starting CrossRef Scheduler with max concurrent requests: %d", c.MaxActiveQueries)
+	c.semaphor = make(chan struct{}, c.MaxActiveQueries)
 	for {
-		if c.ActiveQueries >= c.MaxActiveQueries {
-			time.Sleep(time.Millisecond * 300)
-			continue
-		}
+		// if c.ActiveQueries >= c.MaxActiveQueries {
+		// 	time.Sleep(time.Millisecond * 300)
+		// 	continue
+		// }
 		var item services.ApiRequestItem[crossrefapi.CrossRefClient]
 		select {
 		case item = <-c.DoiQueue:
+			logrus.Infof("[crossref] Received DOI query request; active queries: %d", len(c.semaphor))
+			go c.Execute(item)
 		case item = <-c.QueryQueue:
+			logrus.Infof("[crossref] Received general query request; active queries: %d", len(c.semaphor))
+			go c.Execute(item)
 		}
-		c.ActiveQueries++
-		logrus.Debugf("Sending query ; interval: %d ; limit: %d; active: %d", c.RateLimitInterval, c.RateLimitLimit, c.ActiveQueries)
-		go func() {
-			item.Execute(&c.CrossRefClient)
-			c.ActiveQueries--
-		}()
 	}
+}
+
+func (c *CrossRefScheduler) Execute(item services.ApiRequestItem[crossrefapi.CrossRefClient]) {
+	c.semaphor <- struct{}{} // acquire a slot
+	defer func() {
+		<-c.semaphor // release the slot after execution
+	}()
+	logrus.Infof("[crossref] Sending query ; interval: %d ; limit: %d; active: %d", c.RateLimitInterval, c.RateLimitLimit, len(c.semaphor))
+	item.Execute(&c.CrossRefClient)
 }
 
 var client *CrossRefScheduler
@@ -71,13 +78,12 @@ func newClient(maxConcurrent int) *CrossRefScheduler {
 		CrossRefClient:   *crefClient,
 		DoiQueue:         services.NewQueue[crossrefapi.Works, crossrefapi.CrossRefClient](maxConcurrentRequests),
 		QueryQueue:       services.NewQueue[crossrefapi.WorksQueryResponse, crossrefapi.CrossRefClient](maxConcurrentRequests),
-		ActiveQueries:    0,
 		MaxActiveQueries: maxConcurrent,
 	}
 	return client
 }
 
-var crossRefClient = new(CrossRefScheduler)
+var crossRefClient *CrossRefScheduler
 
 func Client() *CrossRefScheduler {
 	if crossRefClient == nil {
