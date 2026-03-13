@@ -137,7 +137,7 @@ func (i *OccurrenceDatasetInput) GatherBatch(db geltypes.Executor) error {
 			occurrences := (
 				select occurrence::Occurrence
 				filter .meta.batch_import_id = import_id
-				or .code in <str>array_unpack(<array<str>>$1)
+				or .code in <str>array_unpack(<optional array<str>>$1)
 			),
 			dataset := (
 				assert_single((
