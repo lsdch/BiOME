@@ -11,7 +11,6 @@ import {
   claimInvitationResponseTransformer,
   createAbioticParameterResponseTransformer,
   createArticleResponseTransformer,
-  createCollectionResponseTransformer,
   createDataFeedResponseTransformer,
   createDataSourceResponseTransformer,
   createFixativeResponseTransformer,
@@ -31,7 +30,6 @@ import {
   currentUserResponseTransformer,
   deleteAbioticParameterResponseTransformer,
   deleteArticleResponseTransformer,
-  deleteCollectionResponseTransformer,
   deleteDataSourceResponseTransformer,
   deleteFixativeResponseTransformer,
   deleteGeneResponseTransformer,
@@ -59,7 +57,6 @@ import {
   listAbioticParametersResponseTransformer,
   listAnchorsResponseTransformer,
   listArticlesResponseTransformer,
-  listCollectionsResponseTransformer,
   listDataFeedsResponseTransformer,
   listDatasetsResponseTransformer,
   listDataSourcesResponseTransformer,
@@ -89,7 +86,6 @@ import {
   togglePinDatasetResponseTransformer,
   updateAbioticParameterResponseTransformer,
   updateArticleResponseTransformer,
-  updateCollectionResponseTransformer,
   updateDatasetResponseTransformer,
   updateDataSourceResponseTransformer,
   updateFixativeResponseTransformer,
@@ -120,9 +116,6 @@ import type {
   CreateArticleData,
   CreateArticleErrors,
   CreateArticleResponses,
-  CreateCollectionData,
-  CreateCollectionErrors,
-  CreateCollectionResponses,
   CreateDataFeedData,
   CreateDataFeedErrors,
   CreateDataFeedResponses,
@@ -186,9 +179,6 @@ import type {
   DeleteArticleData,
   DeleteArticleErrors,
   DeleteArticleResponses,
-  DeleteCollectionData,
-  DeleteCollectionErrors,
-  DeleteCollectionResponses,
   DeleteDataSourceData,
   DeleteDataSourceErrors,
   DeleteDataSourceResponses,
@@ -291,9 +281,6 @@ import type {
   ListArticlesData,
   ListArticlesErrors,
   ListArticlesResponses,
-  ListCollectionsData,
-  ListCollectionsErrors,
-  ListCollectionsResponses,
   ListCountriesData,
   ListCountriesErrors,
   ListCountriesResponses,
@@ -429,9 +416,6 @@ import type {
   UpdateArticleData,
   UpdateArticleErrors,
   UpdateArticleResponses,
-  UpdateCollectionData,
-  UpdateCollectionErrors,
-  UpdateCollectionResponses,
   UpdateDatasetData,
   UpdateDatasetErrors,
   UpdateDatasetResponses,
@@ -1498,114 +1482,6 @@ export class AccountService {
 }
 
 export class ReferencesService {
-  /**
-   * List collections
-   */
-  public static listCollections<ThrowOnError extends boolean = false>(
-    options?: Options<ListCollectionsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListCollectionsResponses,
-      ListCollectionsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listCollectionsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/collections',
-      ...options
-    })
-  }
-
-  /**
-   * Create a new collection
-   */
-  public static createCollection<ThrowOnError extends boolean = false>(
-    options: Options<CreateCollectionData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateCollectionResponses,
-      CreateCollectionErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createCollectionResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/collections',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete a collection by its code
-   */
-  public static deleteCollection<ThrowOnError extends boolean = false>(
-    options: Options<DeleteCollectionData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteCollectionResponses,
-      DeleteCollectionErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteCollectionResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/collections/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update a collection by its code
-   */
-  public static updateCollection<ThrowOnError extends boolean = false>(
-    options: Options<UpdateCollectionData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateCollectionResponses,
-      UpdateCollectionErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateCollectionResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/collections/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
   /**
    * Retrieve article infos from DOI
    */

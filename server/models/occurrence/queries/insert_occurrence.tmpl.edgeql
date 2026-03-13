@@ -20,9 +20,10 @@ with module occurrence,
       content_description := <str>json_get(data, 'content_description'),
       collections := assert_distinct((
         for col in json_array_unpack(json_get(data, 'collections')) union (
-          select references::Collection {
-            @vouchers := <array<str>>json_get(col, 'vouchers')
-          } filter any({.code, .label} = <str>col['name'])
+          <tuple<name: str, vouchers: array<str>>>(
+            name := <str>col['name'],
+            vouchers := <array<str>>(json_get(col, 'vouchers') ?? <json>[])
+          )
         )
       )),
       comments := <str>json_get(data, 'comments'),

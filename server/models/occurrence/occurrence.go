@@ -34,19 +34,24 @@ const (
 	Topotype TypeStatus = "Topotype"
 )
 
+type CollectionField struct {
+	Name     string   `gel:"name" json:"name"`
+	Vouchers []string `gel:"vouchers" json:"vouchers,omitempty"`
+}
+
 type BaseOccurrence[SamplingType any] struct {
 	ID                     geltypes.UUID `gel:"id" json:"id" format:"uuid"`
 	CodeIdentifier         `gel:"$inline" json:",inline"`
-	HasSequences           bool                                `gel:"has_sequences" json:"has_sequences"`
-	Sampling               SamplingType                        `gel:"sampling" json:"sampling"`
-	Identification         Identification                      `gel:"identification" json:"identification"`
-	TypeStatus             models.Optional[TypeStatus]         `gel:"type_status" json:"type_status,omitzero" nameHint:"TypeStatus"`
-	Comments               geltypes.OptionalStr                `gel:"comments" json:"comments,omitempty"`
-	Quantity               models.Optional[QuantityRange]      `gel:"quantity" json:"quantity,omitempty"`
-	ContentDescription     geltypes.OptionalStr                `gel:"content_description" json:"content_description,omitempty"`
-	VerbatimIdentification geltypes.OptionalStr                `gel:"verbatim_identification" json:"verbatim_identification,omitempty"`
-	Collections            []references.CollectionWithVouchers `gel:"collections" json:"collections,omitempty"`
-	Meta                   people.Meta                         `gel:"meta" json:"meta"`
+	HasSequences           bool                           `gel:"has_sequences" json:"has_sequences"`
+	Sampling               SamplingType                   `gel:"sampling" json:"sampling"`
+	Identification         Identification                 `gel:"identification" json:"identification"`
+	TypeStatus             models.Optional[TypeStatus]    `gel:"type_status" json:"type_status,omitzero" nameHint:"TypeStatus"`
+	Comments               geltypes.OptionalStr           `gel:"comments" json:"comments,omitempty"`
+	Quantity               models.Optional[QuantityRange] `gel:"quantity" json:"quantity,omitempty"`
+	ContentDescription     geltypes.OptionalStr           `gel:"content_description" json:"content_description,omitempty"`
+	VerbatimIdentification geltypes.OptionalStr           `gel:"verbatim_identification" json:"verbatim_identification,omitempty"`
+	Collections            []CollectionField              `gel:"collections" json:"collections,omitempty"`
+	Meta                   people.Meta                    `gel:"meta" json:"meta"`
 }
 
 type OccurrenceListItem BaseOccurrence[SamplingInnerWithSite]
@@ -276,7 +281,7 @@ type OccurrenceInput struct {
 	// OriginalLink       models.OptionalInput[string]  `json:"external_link,omitzero"`
 	Quantity           models.OptionalInput[[]int32] `json:"quantity,omitzero" minItems:"1" maxItems:"2"`
 	ContentDescription models.OptionalInput[string]  `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
-	Collections        []references.CollectionField  `json:"collections,omitzero"`
+	Collections        []CollectionField             `json:"collections,omitzero"`
 	Comments           models.OptionalInput[string]  `json:"comments,omitzero"`
 	Sequences          []ExternalSequenceInput       `json:"sequences,omitzero"`
 }
@@ -407,12 +412,12 @@ type OccurrenceUpdate struct {
 	TypeStatus     models.OptionalNull[TypeStatus]            `gel:"type_status" json:"type_status,omitzero"`
 	OriginalSource models.OptionalNull[string]                `gel:"sources" json:"sources,omitempty"`
 	// OriginalLink       models.OptionalNull[string]    `gel:"external_link" json:"external_link,omitempty"`
-	VerbatimIdentification models.OptionalNull[string]                       `gel:"verbatim_identification" json:"verbatim_identification,omitempty"`
-	Quantity               models.OptionalNull[[]int32]                      `gel:"quantity" json:"quantity,omitempty" minItems:"2" maxItems:"2"`
-	ContentDescription     models.OptionalNull[string]                       `gel:"content_description" json:"content_description,omitempty"`
-	Collections            models.OptionalNull[[]references.CollectionField] `gel:"collections" json:"collections,omitempty"`
-	PublishedIn            models.OptionalNull[[]string]                     `gel:"published_in" json:"published_in,omitempty"`
-	Comments               models.OptionalNull[string]                       `gel:"comments" json:"comments,omitempty"`
+	VerbatimIdentification models.OptionalNull[string]            `gel:"verbatim_identification" json:"verbatim_identification,omitempty"`
+	Quantity               models.OptionalNull[[]int32]           `gel:"quantity" json:"quantity,omitempty" minItems:"2" maxItems:"2"`
+	ContentDescription     models.OptionalNull[string]            `gel:"content_description" json:"content_description,omitempty"`
+	Collections            models.OptionalNull[[]CollectionField] `gel:"collections" json:"collections,omitempty"`
+	PublishedIn            models.OptionalNull[[]string]          `gel:"published_in" json:"published_in,omitempty"`
+	Comments               models.OptionalNull[string]            `gel:"comments" json:"comments,omitempty"`
 }
 
 func (u OccurrenceUpdate) Save(e geltypes.Executor, code string) (updated BaseOccurrence[SamplingOutline], err error) {
@@ -449,11 +454,11 @@ func (u OccurrenceUpdate) Save(e geltypes.Executor, code string) (updated BaseOc
 			"content_description": "<str>item['content_description']",
 			"collections": `#edgeql
 				(
-					for col in json_array_unpack(item['collections']) union (
-						select references::Collection {
-							@vouchers := <array<str>>col['vouchers']
-						}
-						filter .code = <str>col['name'] or .label = <str>col['name']
+					for col in json_array_unpack(json_get(data, 'collections')) union (
+						<tuple<name: str, vouchers: array<str>>>(
+							name := <str>col['name'],
+							vouchers := <array<str>>(json_get(col, 'vouchers') ?? <json>[])
+						)
 					)
 				)
 			`,

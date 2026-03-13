@@ -138,7 +138,7 @@ export type BaseIdentification = {
 export type BaseOccurrenceSamplingInnerWithSite = {
   code: string
   code_history?: Array<CodeHistory>
-  collections?: Array<CollectionWithVouchers>
+  collections?: Array<CollectionField>
   comments?: string
   content_description?: string
   has_sequences: boolean
@@ -158,7 +158,7 @@ export type BaseOccurrenceSamplingOutline = {
   readonly $schema?: string
   code: string
   code_history?: Array<CodeHistory>
-  collections?: Array<CollectionWithVouchers>
+  collections?: Array<CollectionField>
   comments?: string
   content_description?: string
   has_sequences: boolean
@@ -203,61 +203,8 @@ export type CodeHistory = {
   time: Date
 }
 
-export type Collection = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code: string
-  contact?: string
-  description?: string
-  id: string
-  label: string
-  location?: string
-  meta: Meta
-  personal: boolean
-}
-
 export type CollectionField = {
   name: string
-  vouchers?: Array<string>
-}
-
-export type CollectionInput = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code: string
-  contact?: string
-  description?: string
-  label: string
-  location?: string
-  personal?: boolean
-}
-
-export type CollectionUpdate = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  code?: string
-  contact?: string | null
-  description?: string | null
-  label?: string
-  location?: string | null
-  personal?: boolean
-}
-
-export type CollectionWithVouchers = {
-  code: string
-  contact?: string
-  description?: string
-  id: string
-  label: string
-  location?: string
-  meta: Meta
-  personal: boolean
   vouchers?: Array<string>
 }
 
@@ -1233,7 +1180,7 @@ export type OccurrenceListItem = {
   readonly $schema?: string
   code: string
   code_history?: Array<CodeHistory>
-  collections?: Array<CollectionWithVouchers>
+  collections?: Array<CollectionField>
   comments?: string
   content_description?: string
   has_sequences: boolean
@@ -1260,7 +1207,7 @@ export type OccurrenceSamplingWithSite = {
   readonly $schema?: string
   code: string
   code_history?: Array<CodeHistory>
-  collections?: Array<CollectionWithVouchers>
+  collections?: Array<CollectionField>
   comments?: string
   content_description?: string
   datasets?: Array<Dataset>
@@ -1280,7 +1227,7 @@ export type OccurrenceSamplingWithSite = {
 export type OccurrenceStruct = {
   code: string
   code_history?: Array<CodeHistory>
-  collections?: Array<CollectionWithVouchers>
+  collections?: Array<CollectionField>
   comments?: string
   content_description?: string
   datasets?: Array<Dataset>
@@ -3225,150 +3172,6 @@ export type ClaimInvitationResponses = {
 }
 
 export type ClaimInvitationResponse = ClaimInvitationResponses[keyof ClaimInvitationResponses]
-
-export type ListCollectionsData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/collections'
-}
-
-export type ListCollectionsErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ListCollectionsError = ListCollectionsErrors[keyof ListCollectionsErrors]
-
-export type ListCollectionsResponses = {
-  /**
-   * OK
-   */
-  200: Array<Collection>
-}
-
-export type ListCollectionsResponse = ListCollectionsResponses[keyof ListCollectionsResponses]
-
-export type CreateCollectionData = {
-  body: CollectionInput
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/collections'
-}
-
-export type CreateCollectionErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type CreateCollectionError = CreateCollectionErrors[keyof CreateCollectionErrors]
-
-export type CreateCollectionResponses = {
-  /**
-   * OK
-   */
-  200: Collection
-}
-
-export type CreateCollectionResponse = CreateCollectionResponses[keyof CreateCollectionResponses]
-
-export type DeleteCollectionData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/collections/{code}'
-}
-
-export type DeleteCollectionErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type DeleteCollectionError = DeleteCollectionErrors[keyof DeleteCollectionErrors]
-
-export type DeleteCollectionResponses = {
-  /**
-   * OK
-   */
-  200: Collection
-}
-
-export type DeleteCollectionResponse = DeleteCollectionResponses[keyof DeleteCollectionResponses]
-
-export type UpdateCollectionData = {
-  body: CollectionUpdate
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path: {
-    code: string
-  }
-  query?: never
-  url: '/collections/{code}'
-}
-
-export type UpdateCollectionErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type UpdateCollectionError = UpdateCollectionErrors[keyof UpdateCollectionErrors]
-
-export type UpdateCollectionResponses = {
-  /**
-   * OK
-   */
-  200: Collection
-}
-
-export type UpdateCollectionResponse = UpdateCollectionResponses[keyof UpdateCollectionResponses]
 
 export type CrossRefData = {
   body?: never

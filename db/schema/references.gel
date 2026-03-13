@@ -26,14 +26,6 @@ module references {
     );
   };
 
-  type Collection extending default::Auditable, default::Vocabulary {
-    required personal: bool {
-      default := false;
-    };
-    location: str;
-    contact: str;
-  };
-
   type DataSource extending default::Auditable, default::Vocabulary {
     url: str;
     link_template: str;

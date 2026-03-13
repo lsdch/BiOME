@@ -4,7 +4,6 @@ import type {
   ClaimInvitationResponse,
   CreateAbioticParameterResponse,
   CreateArticleResponse,
-  CreateCollectionResponse,
   CreateDataFeedResponse,
   CreateDataSourceResponse,
   CreateFixativeResponse,
@@ -24,7 +23,6 @@ import type {
   CurrentUserResponse2,
   DeleteAbioticParameterResponse,
   DeleteArticleResponse,
-  DeleteCollectionResponse,
   DeleteDataSourceResponse,
   DeleteFixativeResponse,
   DeleteGeneResponse,
@@ -52,7 +50,6 @@ import type {
   ListAbioticParametersResponse,
   ListAnchorsResponse,
   ListArticlesResponse,
-  ListCollectionsResponse,
   ListDataFeedsResponse,
   ListDatasetsResponse,
   ListDataSourcesResponse,
@@ -82,7 +79,6 @@ import type {
   TogglePinDatasetResponse,
   UpdateAbioticParameterResponse,
   UpdateArticleResponse,
-  UpdateCollectionResponse,
   UpdateDatasetResponse,
   UpdateDataSourceResponse,
   UpdateFixativeResponse,
@@ -197,39 +193,6 @@ export const claimInvitationResponseTransformer = async (
   data: any
 ): Promise<ClaimInvitationResponse> => {
   data = authenticationResponseSchemaResponseTransformer(data)
-  return data
-}
-
-const collectionSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  return data
-}
-
-export const listCollectionsResponseTransformer = async (
-  data: any
-): Promise<ListCollectionsResponse> => {
-  data = data.map((item: any) => collectionSchemaResponseTransformer(item))
-  return data
-}
-
-export const createCollectionResponseTransformer = async (
-  data: any
-): Promise<CreateCollectionResponse> => {
-  data = collectionSchemaResponseTransformer(data)
-  return data
-}
-
-export const deleteCollectionResponseTransformer = async (
-  data: any
-): Promise<DeleteCollectionResponse> => {
-  data = collectionSchemaResponseTransformer(data)
-  return data
-}
-
-export const updateCollectionResponseTransformer = async (
-  data: any
-): Promise<UpdateCollectionResponse> => {
-  data = collectionSchemaResponseTransformer(data)
   return data
 }
 
@@ -640,11 +603,6 @@ export const deleteMapPresetResponseTransformer = async (
   return data
 }
 
-const collectionWithVouchersSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  return data
-}
-
 const identificationSchemaResponseTransformer = (data: any) => {
   if (data.identified_on) {
     data.identified_on = optionalDateWithPrecisionSchemaResponseTransformer(data.identified_on)
@@ -690,11 +648,6 @@ const occurrenceListItemSchemaResponseTransformer = (data: any) => {
       codeHistorySchemaResponseTransformer(item)
     )
   }
-  if (data.collections) {
-    data.collections = data.collections.map((item: any) =>
-      collectionWithVouchersSchemaResponseTransformer(item)
-    )
-  }
   data.identification = identificationSchemaResponseTransformer(data.identification)
   data.meta = metaSchemaResponseTransformer(data.meta)
   data.sampling = samplingInnerWithSiteSchemaResponseTransformer(data.sampling)
@@ -724,11 +677,6 @@ const baseOccurrenceSamplingOutlineSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) =>
       codeHistorySchemaResponseTransformer(item)
-    )
-  }
-  if (data.collections) {
-    data.collections = data.collections.map((item: any) =>
-      collectionWithVouchersSchemaResponseTransformer(item)
     )
   }
   data.identification = identificationSchemaResponseTransformer(data.identification)
@@ -778,11 +726,6 @@ const occurrenceStructSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) =>
       codeHistorySchemaResponseTransformer(item)
-    )
-  }
-  if (data.collections) {
-    data.collections = data.collections.map((item: any) =>
-      collectionWithVouchersSchemaResponseTransformer(item)
     )
   }
   if (data.datasets) {
@@ -839,11 +782,6 @@ const occurrenceSamplingWithSiteSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) =>
       codeHistorySchemaResponseTransformer(item)
-    )
-  }
-  if (data.collections) {
-    data.collections = data.collections.map((item: any) =>
-      collectionWithVouchersSchemaResponseTransformer(item)
     )
   }
   if (data.datasets) {
@@ -1083,11 +1021,6 @@ const baseOccurrenceSamplingInnerWithSiteSchemaResponseTransformer = (data: any)
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) =>
       codeHistorySchemaResponseTransformer(item)
-    )
-  }
-  if (data.collections) {
-    data.collections = data.collections.map((item: any) =>
-      collectionWithVouchersSchemaResponseTransformer(item)
     )
   }
   data.identification = identificationSchemaResponseTransformer(data.identification)
