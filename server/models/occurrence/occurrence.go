@@ -87,7 +87,7 @@ func GetOccurrence(db geltypes.Executor, code string) (occurrence Occurrence[Sam
 			sources: { * },
 			sequences: { *, gene: { * }, referenced_in: { * }, meta: { * } },
 			# external_link,
-			collections: { *, @vouchers },
+			collections,
 			quantity,
 			published_in: { * },
 			content_description
