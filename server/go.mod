@@ -1,6 +1,6 @@
 module github.com/lsdch/biome
 
-go 1.25
+go 1.25.0
 
 // replace github.com/danielgtaylor/huma/v2 => ../../huma
 
@@ -33,6 +33,8 @@ require (
 	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gopkg.in/yaml.v3 v3.0.1
 )
+
+require golang.org/x/time v0.15.0
 
 require (
 	dario.cat/mergo v1.0.2 // indirect

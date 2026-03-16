@@ -50,7 +50,6 @@ import type {
   GetTaxonomyResponse,
   GetTaxonResponse,
   ListAbioticParametersResponse,
-  ListAnchorsResponse,
   ListArticlesResponse,
   ListCollectionsResponse,
   ListDataFeedsResponse,
@@ -1307,6 +1306,9 @@ const taxonomySchemaResponseTransformer = (data: any) => {
   if (data.parent) {
     data.parent = optionalTaxonSchemaResponseTransformer(data.parent)
   }
+  if (data.synonyms) {
+    data.synonyms = data.synonyms.map((item: any) => taxonSchemaResponseTransformer(item))
+  }
   return data
 }
 
@@ -1317,11 +1319,6 @@ export const getTaxonomyResponseTransformer = async (data: any): Promise<GetTaxo
 
 const taxonWithParentRefSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
-  return data
-}
-
-export const listAnchorsResponseTransformer = async (data: any): Promise<ListAnchorsResponse> => {
-  data = data.map((item: any) => taxonWithParentRefSchemaResponseTransformer(item))
   return data
 }
 
@@ -1337,6 +1334,9 @@ const taxonWithRelativesSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.parent) {
     data.parent = optionalTaxonSchemaResponseTransformer(data.parent)
+  }
+  if (data.synonyms) {
+    data.synonyms = data.synonyms.map((item: any) => taxonSchemaResponseTransformer(item))
   }
   return data
 }
@@ -1387,6 +1387,9 @@ const taxonWithLineageSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.parent) {
     data.parent = optionalTaxonSchemaResponseTransformer(data.parent)
+  }
+  if (data.synonyms) {
+    data.synonyms = data.synonyms.map((item: any) => taxonSchemaResponseTransformer(item))
   }
   return data
 }

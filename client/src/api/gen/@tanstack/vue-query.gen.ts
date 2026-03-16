@@ -22,7 +22,6 @@ import {
   SequencesService,
   ServicesService,
   SettingsService,
-  TaxonomyGbifService,
   TaxonomyService
 } from '../sdk.gen'
 import type {
@@ -191,9 +190,6 @@ import type {
   GetTaxonomyError,
   GetTaxonomyResponse,
   GetTaxonResponse,
-  ImportGbifData,
-  ImportGbifError,
-  ImportGbifResponse,
   InstanceSettingsData,
   InstanceSettingsError,
   InstanceSettingsResponse,
@@ -206,9 +202,6 @@ import type {
   ListAccessPointsData,
   ListAccessPointsError,
   ListAccessPointsResponse,
-  ListAnchorsData,
-  ListAnchorsError,
-  ListAnchorsResponse,
   ListArticlesData,
   ListArticlesError,
   ListArticlesResponse,
@@ -3596,54 +3589,6 @@ export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) =>
     },
     queryKey: getTaxonomyQueryKey(options)
   })
-
-export const listAnchorsQueryKey = (options?: Options<ListAnchorsData>) =>
-  createQueryKey('listAnchors', options)
-
-/**
- * List GBIF anchor clades
- */
-export const listAnchorsOptions = (options?: Options<ListAnchorsData>) =>
-  queryOptions<
-    ListAnchorsResponse,
-    ListAnchorsError,
-    ListAnchorsResponse,
-    ReturnType<typeof listAnchorsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await TaxonomyGbifService.listAnchors({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listAnchorsQueryKey(options)
-  })
-
-/**
- * Import GBIF clade
- */
-export const importGbifMutation = (
-  options?: Partial<Options<ImportGbifData>>
-): UseMutationOptions<ImportGbifResponse, ImportGbifError, Options<ImportGbifData>> => {
-  const mutationOptions: UseMutationOptions<
-    ImportGbifResponse,
-    ImportGbifError,
-    Options<ImportGbifData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await TaxonomyGbifService.importGbif({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
 
 export const listTaxaQueryKey = (options?: Options<ListTaxaData>) =>
   createQueryKey('listTaxa', options)

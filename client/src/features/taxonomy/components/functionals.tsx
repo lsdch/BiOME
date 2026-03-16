@@ -28,6 +28,13 @@ export function taxonStatusIndicatorProps(status: TaxonStatus): TaxonStatusProps
         color: 'success',
         description: 'Taxon definition is accepted in GBIF database.'
       }
+    case 'Synonym':
+      return {
+        icon: 'mdi-circle-medium',
+        color: 'purple',
+        description:
+          'Taxon definition is not accepted in GBIF database, and is considered a synonym of another taxon.'
+      }
     case 'Unreferenced':
       return {
         icon: 'mdi-circle-medium',

@@ -90,12 +90,7 @@
 
     <!-- FOOTER -->
     <div class="taxonomy-footer bg-surface pa-3 border-t-thin d-flex">
-      <v-spacer />
-      <v-btn color="primary" variant="plain" text="GBIF Imports" :to="{ name: 'import-GBIF' }">
-        <template #prepend>
-          <IconGBIF />
-        </template>
-      </v-btn>
+      
     </div>
 
     <!-- MODALS -->

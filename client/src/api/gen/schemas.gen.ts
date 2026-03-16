@@ -2194,64 +2194,6 @@ export const $Identifier = {
   type: 'object'
 } as const
 
-export const $ImportProcess = {
-  additionalProperties: false,
-  properties: {
-    GBIF_ID: {
-      format: 'int64',
-      type: 'integer'
-    },
-    done: {
-      type: 'boolean'
-    },
-    error: {},
-    expected: {
-      format: 'int64',
-      type: 'integer'
-    },
-    imported: {
-      format: 'int64',
-      type: 'integer'
-    },
-    name: {
-      type: 'string'
-    },
-    rank: {
-      $ref: '#/components/schemas/TaxonRank'
-    },
-    started: {
-      format: 'date-time',
-      type: 'string'
-    }
-  },
-  required: ['name', 'GBIF_ID', 'expected', 'imported', 'rank', 'started', 'done', 'error'],
-  type: 'object'
-} as const
-
-export const $ImportRequestGBIF = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/ImportRequestGBIF.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    children: {
-      description: 'Import whole clade, including the taxon descendants',
-      type: 'boolean'
-    },
-    key: {
-      description: 'Target GBIF taxon key',
-      format: 'int64',
-      type: 'integer'
-    }
-  },
-  required: ['key', 'children'],
-  type: 'object'
-} as const
-
 export const $InstanceSettings = {
   additionalProperties: false,
   properties: {
@@ -6428,6 +6370,9 @@ export const $TaxonInput = {
     status: {
       $ref: '#/components/schemas/TaxonStatus',
       examples: ['Accepted']
+    },
+    synonym_of: {
+      type: 'string'
     }
   },
   required: ['parent', 'name', 'status', 'rank'],
@@ -6451,7 +6396,7 @@ export const $TaxonRank = {
 } as const
 
 export const $TaxonStatus = {
-  enum: ['Accepted', 'Unreferenced', 'Unclassified'],
+  enum: ['Accepted', 'Synonym', 'Unreferenced', 'Unclassified'],
   title: 'TaxonStatus',
   type: 'string'
 } as const
@@ -6547,6 +6492,12 @@ export const $TaxonWithLineage = {
     status: {
       $ref: '#/components/schemas/TaxonStatus',
       examples: ['Accepted']
+    },
+    synonyms: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
     }
   },
   required: ['lineage', 'id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
@@ -6658,6 +6609,12 @@ export const $TaxonWithRelatives = {
     status: {
       $ref: '#/components/schemas/TaxonStatus',
       examples: ['Accepted']
+    },
+    synonyms: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
     }
   },
   required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
@@ -6720,6 +6677,12 @@ export const $Taxonomy = {
     status: {
       $ref: '#/components/schemas/TaxonStatus',
       examples: ['Accepted']
+    },
+    synonyms: {
+      items: {
+        $ref: '#/components/schemas/Taxon'
+      },
+      type: 'array'
     }
   },
   required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],

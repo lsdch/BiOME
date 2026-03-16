@@ -47,17 +47,6 @@ function setupRouter(settings: InstanceSettings) {
           title: makeTitle("API docs")
         }
       },
-      {
-        path: "/init",
-        name: "init",
-        component: () => import("@/features/settings/views/InitialSetup.vue"),
-        meta: { hideNavbar: true }
-      },
-      guardRole('Admin', {
-        path: "/taxonomy/import",
-        name: "import-GBIF",
-        component: () => import("@/features/taxonomy/views/GBIFImportView.vue")
-      }),
       guardRole('Contributor', {
         path: "/import/dataset",
         name: "import-dataset",

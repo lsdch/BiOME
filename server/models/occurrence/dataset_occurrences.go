@@ -9,6 +9,7 @@ import (
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/dataset"
 	"github.com/lsdch/biome/models/references"
+	gbif "github.com/lsdch/biome/models/taxonomy/GBIF"
 	"github.com/oklog/ulid/v2"
 	"github.com/sirupsen/logrus"
 )
@@ -86,8 +87,57 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 type OccurrenceDatasetInput struct {
 	dataset.DatasetInput `json:",inline"`
 	OccurrenceBatchInput `json:",inline"`
-	AddOccurrences       []string  `json:"add_occurrences,omitempty"`
+	AddOccurrences       []string  `json:"add_occurrences,omitempty" default:"[]"`
 	BatchULID            ulid.ULID `json:"batch_ulid,omitempty"`
+	Kingdom              string    `json:"kingdom,omitempty" doc:"This is used to discriminate between homonymous taxa from different kingdoms. For example, if the dataset only contains occurrences of plants, the taxonomic scope can be set to 'Plantae' to avoid fetching homonymous animal taxa from GBIF."`
+}
+
+func (i *OccurrenceDatasetInput) FetchMissingTaxa(tx geltypes.Executor) (notFound []string, err error) {
+	missingTaxa, err := i.OccurrenceBatchInput.ListMissingTaxa(tx)
+	if err != nil || len(missingTaxa) == 0 {
+		return
+	}
+
+	logrus.Infof("Fetching %d missing GBIF taxa for dataset '%s'", len(missingTaxa), i.Label)
+	client := gbif.Client()
+	var kingdomKey int32
+	if i.Kingdom != "" {
+		logrus.Warnf("Taxonomic scope is set to '%s' for dataset '%s', fetching kingdom key from GBIF", i.Kingdom, i.Label)
+		kingdom, err := gbif.FetchByName(client, gbif.SearchParams{
+			Query: i.Kingdom,
+			Rank:  "KINGDOM",
+			Limit: 1,
+		})
+		if err != nil {
+			return nil, fmt.Errorf("Failed to fetch kingdom '%s' from GBIF: %v", i.Kingdom, err)
+		}
+		kingdomKey = kingdom.Key
+	}
+	gbifTaxa, err := gbif.FetchNames(client, missingTaxa,
+		// 0 value will be ignored by the search params encoder
+		gbif.WithHigherTaxonKey(kingdomKey),
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	logrus.Infof("Fetching parents and synonyms for up to %d GBIF taxa for dataset '%s'", gbifTaxa.Taxa.Count(), i.Label)
+	if err := gbifTaxa.Taxa.FetchParentsAndSynonyms(tx); err != nil {
+		return nil, err
+	}
+
+	logrus.Infof("Persisting up to %d GBIF taxa for dataset '%s'", gbifTaxa.Taxa.Count(), i.Label)
+	if err := gbifTaxa.Taxa.Persist(tx); err != nil {
+		return nil, err
+	}
+
+	if len(gbifTaxa.NotFound) > 0 {
+		logrus.Warnf("%d taxa were not found in GBIF for dataset '%s'", len(gbifTaxa.NotFound), i.Label)
+		return gbifTaxa.NotFound, fmt.Errorf("%d missing taxa were not found in GBIF for dataset '%s'", len(gbifTaxa.NotFound), i.Label)
+	}
+
+	return nil, nil
 }
 
 func (i *OccurrenceDatasetInput) GenerateBatchULID() *OccurrenceDatasetInput {
@@ -137,7 +187,7 @@ func (i *OccurrenceDatasetInput) GatherBatch(db geltypes.Executor) error {
 			occurrences := (
 				select occurrence::Occurrence
 				filter .meta.batch_import_id = import_id
-				or .code in <str>array_unpack(<array<str>>$1)
+				or .code in <str>array_unpack(<optional array<str>>$1)
 			),
 			dataset := (
 				assert_single((
@@ -154,7 +204,7 @@ func (i *OccurrenceDatasetInput) GatherBatch(db geltypes.Executor) error {
 	)
 }
 
-func (dataset *OccurrenceDatasetInput) SaveBulk(client *gel.Client, batchSize int) (created dataset.Dataset, err error) {
+func (dataset *OccurrenceDatasetInput) Save(client *gel.Client, batchSize int) (created dataset.Dataset, err error) {
 	err = db.WithBatchMode(client, dataset.BatchULID).Tx(
 		context.Background(),
 		func(ctx context.Context, tx geltypes.Tx) error {
@@ -176,6 +226,16 @@ func (dataset *OccurrenceDatasetInput) SaveBulk(client *gel.Client, batchSize in
 }
 
 func (dataset OccurrenceDatasetInput) SaveParallel(client *gel.Client, batchSize int, cores int) (created dataset.Dataset, err error) {
+
+	notFound, err := dataset.FetchMissingTaxa(client)
+	if err != nil {
+		if len(notFound) > 0 {
+			return created, fmt.Errorf("The following %d taxa were not found in GBIF for dataset '%s':\n%v", len(notFound), dataset.Label, notFound)
+		} else {
+			return created, fmt.Errorf("Failed to fetch missing taxa for dataset '%s': %v", dataset.Label, err)
+		}
+	}
+
 	dataset.GenerateBatchULID()
 	client = db.WithBatchMode(client, dataset.BatchULID)
 	created, err = dataset.DatasetInput.Save(client)

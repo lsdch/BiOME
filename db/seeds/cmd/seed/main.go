@@ -27,7 +27,7 @@ var entities = []string{
 	"persons",
 	"users",
 	"articles",
-	"programs",
+	// "programs",
 	"sampling_methods",
 	"fixatives",
 	"abiotic",
@@ -37,7 +37,7 @@ var entities = []string{
 
 func main() {
 	// logrus.SetLevel(logrus.DebugLevel)
-	logrus.SetLevel(logrus.InfoLevel)
+	// logrus.SetLevel(logrus.InfoLevel)
 
 	// fh, err := os.OpenFile("seed.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
 	// if err != nil {
@@ -54,7 +54,7 @@ func main() {
 	configPath := flag.String("cfg", "db/seeds/config", "Path to the configuration directory")
 
 	database := flag.String("db", "", "The name of the database to seed")
-	BATCH_SIZE := flag.Int("batch", 200, "The batch size for bulk inserts")
+	BATCH_SIZE := flag.Int("batch", 100, "The batch size for bulk inserts")
 	N_CORES := flag.Int("cores", 10, "The number of cores to use for parallel inserts")
 	LOG_OUTPUT := flag.String("log", "", "Path to log output file (default: stdout)")
 	DEBUG := flag.Bool("debug", false, "Enable debug logging")
@@ -161,23 +161,6 @@ func main() {
 			return
 		}
 		return
-
-	case "taxonomy":
-		if err := seeds.SeedTaxonomyGBIF(client,
-			// Aselloidea families
-			"Asellidae", "Stenasellidae",
-			// Copepods families
-			"Cyclopidae", "Parastenocarididae", "Canthocamptidae", "Ameiridae",
-			"Chappuisiidae", "Diaptomidae", "Ectinosomatidae", "Gelyellidae",
-			"Halicyclopidae", "Miraciidae", "Phyllognathopodidae",
-			// // Ostracoda
-			"Candonidae", "Candoninae", "Cyprididae", "Cyclocyprididae",
-			"Darwinulidae", "Entocytheridae", "Kliellidae",
-			"Limnocytheridae", "Loxoconchidae",
-		); err != nil {
-			logrus.Errorf("Failed to seed taxonomy: %v", err)
-			return
-		}
 
 	case "metadata":
 		logrus.Infof("🌱 Seeding...")

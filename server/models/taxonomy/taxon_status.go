@@ -6,6 +6,7 @@ type TaxonStatus string // @name TaxonStatus
 //generate:enum
 const (
 	Accepted     TaxonStatus = "Accepted"
+	Synonym      TaxonStatus = "Synonym"
 	Unreferenced TaxonStatus = "Unreferenced"
 	Unclassified TaxonStatus = "Unclassified"
 )

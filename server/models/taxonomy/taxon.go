@@ -35,20 +35,11 @@ type TaxonInner struct {
 }
 
 type TaxonInput struct {
-	TaxonInner `gel:"$inline"`
+	TaxonInner `gel:"$inline" json:",inline"`
+	SynonymOf  models.OptionalInput[string] `gel:"synonym_of" json:"synonym_of,omitempty"`                // name of the taxon this taxon is a synonym of
 	Parent     string                       `json:"parent" binding:"required,exist=taxonomy::Taxon.name"` // Parent taxon name
 	Authorship models.OptionalInput[string] `json:"authorship,omitempty" example:"(Linnaeus, 1758)"`
 	Comment    models.OptionalInput[string] `json:"comment,omitempty" gel:"comment"`
-}
-
-func (i *TaxonInput) UnmarshalJSON(data []byte) error {
-	type innerType TaxonInput
-	inner := &innerType{}
-	if err := json.Unmarshal(data, inner); err != nil {
-		return err
-	}
-	*i = TaxonInput(*inner)
-	return nil
 }
 
 type Taxon struct {
@@ -81,6 +72,7 @@ type Lineage struct {
 type TaxonWithRelatives struct {
 	Taxon    `gel:"$inline" json:",inline"`
 	Parent   models.Optional[Taxon] `gel:"parent" json:"parent,omitempty"`
+	Synonyms []Taxon                `gel:"synonyms" json:"synonyms,omitempty"`
 	Children []Taxon                `gel:"children" json:"children,omitempty"`
 }
 
@@ -93,6 +85,7 @@ type TaxonWithLineage struct {
 type Taxonomy struct {
 	Taxon    `gel:"$inline" json:",inline"`
 	Parent   models.Optional[Taxon] `gel:"parent" json:"parent,omitempty"`
+	Synonyms []Taxon                `gel:"synonyms" json:"synonyms,omitempty"`
 	Children []Taxonomy             `gel:"children" json:"children,omitempty"`
 }
 
@@ -116,7 +109,7 @@ func GetTaxonomyChildren(db geltypes.Executor, parent Taxonomy) ([]Taxonomy, err
 	} else {
 		query := `#edgeql
 			with module taxonomy,
-			select Taxon { *, meta: {*}, parent: { * } }
+			select Taxon { *, meta: {*}, parent: { * }, synonyms: { * } }
 			filter .parent.name = <str>$0
 			order by .name
 		`
@@ -152,7 +145,7 @@ func GetTaxonomy(db geltypes.Executor, q TaxonomyQuery) (*Taxonomy, error) {
 		query := `#edgeql
 			with module taxonomy,
 			select assert_single(
-				Taxon { *, meta: {*}, parent: { * } }
+				Taxon { *, meta: {*}, parent: { * }, synonyms: { * } }
 				filter .name = <str>$0 or .id = <uuid>$1
 			);`
 		if err := db.QuerySingle(context.Background(), query, &taxonomy, q.Identifier, maybeUUID); err != nil {
@@ -176,6 +169,7 @@ type ListFilters struct {
 	Parent      string                `json:"parent,omitempty" query:"parent"`
 	Limit       int64                 `json:"limit,omitempty" query:"limit"`
 	SampledOnly bool                  `json:"sampled_only,omitempty" query:"sampled_only"`
+	SynonymOf   string                `json:"synonym_of,omitempty" query:"synonym_of"`
 }
 
 func ListTaxa(db geltypes.Executor, filters ListFilters) ([]TaxonWithParentRef, error) {
@@ -204,11 +198,13 @@ func ListTaxa(db geltypes.Executor, filters ListFilters) ([]TaxonWithParentRef, 
 			is_anchor := <optional bool>$3,
 			parent := <optional str>$4,
 			sampled_only := <bool>$5,
+			synonym_of := <optional str>$6
 		select Taxon { *, meta: {*}, parent_name := .parent.name }
 		filter (.rank in ranks if exists ranks else true)
 		and (.status = status if exists status else true)
 		and (.anchor = is_anchor if exists is_anchor else true)
 		and (.parent.name ilike parent if len(parent) > 0 else true)
+		and (any(.synonyms.name = synonym_of) if exists synonym_of else true)
 		and (exists (
 			select occurrence::Occurrence
 			filter .identification.taxon = Taxon
@@ -217,7 +213,7 @@ func ListTaxa(db geltypes.Executor, filters ListFilters) ([]TaxonWithParentRef, 
 		"order by " + order_by + " then .rank asc then .name asc " +
 		"limit " + limit
 	err := db.Query(context.Background(), query, &taxa,
-		filters.Pattern, filters.Ranks, filters.Status, filters.IsAnchor, filters.Parent, filters.SampledOnly)
+		filters.Pattern, filters.Ranks, filters.Status, filters.IsAnchor, filters.Parent, filters.SampledOnly, filters.SynonymOf)
 	return taxa, err
 }
 
@@ -273,6 +269,11 @@ func (taxon TaxonInput) Save(db geltypes.Executor) (created TaxonWithRelatives, 
 				parent := (
 					select detached Taxon filter .name = <str>data['parent']
 				),
+				synonym_group := (
+					select detached Taxon 
+					filter .name = <str>json_get(data, 'synonym_of') 
+					and .name != <str>json_get(data, 'name')
+				).synonym_group,
 				rank := <Rank>data['rank'],
 				authorship := <str>json_get(data, 'authorship')
 			}
@@ -312,4 +313,16 @@ func (u TaxonUpdate) Save(e geltypes.Executor, name string) (updated Taxon, err 
 	}
 	err = e.QuerySingle(context.Background(), query.Query(u), &updated, name, data)
 	return
+}
+
+func CheckMissingTaxa(db geltypes.Executor, taxa []string) ([]string, error) {
+	var missingTaxa []string
+	err := db.Query(context.Background(),
+		`#edgeql
+			with module taxonomy,
+			existing := (select Taxon.name)
+			select distinct (array_unpack(<array<str>>$0) except existing)
+		`,
+		&missingTaxa, taxa)
+	return missingTaxa, err
 }

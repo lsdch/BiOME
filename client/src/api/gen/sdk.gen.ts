@@ -57,7 +57,6 @@ import {
   getTaxonomyResponseTransformer,
   getTaxonResponseTransformer,
   listAbioticParametersResponseTransformer,
-  listAnchorsResponseTransformer,
   listArticlesResponseTransformer,
   listCollectionsResponseTransformer,
   listDataFeedsResponseTransformer,
@@ -270,9 +269,6 @@ import type {
   GetTaxonomyErrors,
   GetTaxonomyResponses,
   GetTaxonResponses,
-  ImportGbifData,
-  ImportGbifErrors,
-  ImportGbifResponses,
   InstanceSettingsData,
   InstanceSettingsErrors,
   InstanceSettingsResponses,
@@ -285,9 +281,6 @@ import type {
   ListAccessPointsData,
   ListAccessPointsErrors,
   ListAccessPointsResponses,
-  ListAnchorsData,
-  ListAnchorsErrors,
-  ListAnchorsResponses,
   ListArticlesData,
   ListArticlesErrors,
   ListArticlesResponses,
@@ -366,9 +359,6 @@ import type {
   LogoutData,
   LogoutErrors,
   LogoutResponses,
-  MonitorGbifData,
-  MonitorGbifErrors,
-  MonitorGbifResponses,
   OccurrenceOverviewData,
   OccurrenceOverviewErrors,
   OccurrenceOverviewResponses,
@@ -2512,77 +2502,6 @@ export class ServicesService {
       ],
       url: '/geoapify/usage',
       ...options
-    })
-  }
-}
-
-export class TaxonomyGbifService {
-  /**
-   * Monitor GBIF taxonomy imports
-   */
-  public static monitorGbif<ThrowOnError extends boolean = false>(
-    options?: Options<MonitorGbifData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).sse.get<
-      MonitorGbifResponses,
-      MonitorGbifErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/import/taxonomy/monitor',
-      ...options
-    })
-  }
-
-  /**
-   * List GBIF anchor clades
-   */
-  public static listAnchors<ThrowOnError extends boolean = false>(
-    options?: Options<ListAnchorsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ListAnchorsResponses, ListAnchorsErrors, ThrowOnError>({
-      responseTransformer: listAnchorsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/taxonomy/gbif/anchors',
-      ...options
-    })
-  }
-
-  /**
-   * Import GBIF clade
-   */
-  public static importGbif<ThrowOnError extends boolean = false>(
-    options: Options<ImportGbifData, ThrowOnError>
-  ) {
-    return (options.client ?? client).put<ImportGbifResponses, ImportGbifErrors, ThrowOnError>({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/taxonomy/gbif/import',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
     })
   }
 }

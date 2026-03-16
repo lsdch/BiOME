@@ -27,7 +27,7 @@ module taxonomy {
   # Accepted: referenced in GBIF with status "ACCEPTED"
   # Unreferenced: not "ACCEPTED" in GBIF yet, but a scientific consensus exists for the taxon
   # Unclassified: taxon description is currently on-going
-  scalar type TaxonStatus extending enum<Accepted, Unreferenced, Unclassified>;
+  scalar type TaxonStatus extending enum<Accepted, Synonym, Unreferenced, Unclassified>;
 
   type Taxon extending default::Auditable {
     GBIF_ID: int32 {
@@ -36,7 +36,7 @@ module taxonomy {
 
     required name: str {
       constraint exclusive;
-      constraint min_len_value(4);
+      constraint min_len_value(2);
     };
 
     # Note: constraint is too stringent when working with e.g. unclassified genus "Family gen. X1"
@@ -153,7 +153,14 @@ module taxonomy {
       union .species
     );
 
-    comment: str;
+    synonym_group : SynonymGroup {
+      on target delete allow;
+      on source delete delete target if orphan;
+    };
+
+    multi link synonyms := .synonym_group.synonyms except __source__;
+
+    comment: str; 
 
     index on ((.name, .rank, .status));
   }
@@ -174,4 +181,8 @@ module taxonomy {
       select (ancestor in taxon.lineage or taxon = ancestor)
     );
   };
+
+  type SynonymGroup {
+    required multi synonyms := assert_exists(.<synonym_group[is Taxon]);
+  }
 }

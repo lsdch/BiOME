@@ -874,32 +874,6 @@ export type Identifier = {
   value?: string
 }
 
-export type ImportProcess = {
-  GBIF_ID: number
-  done: boolean
-  error: unknown
-  expected: number
-  imported: number
-  name: string
-  rank: TaxonRank
-  started: Date
-}
-
-export type ImportRequestGbif = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  /**
-   * Import whole clade, including the taxon descendants
-   */
-  children: boolean
-  /**
-   * Target GBIF taxon key
-   */
-  key: number
-}
-
 export type InstanceSettings = {
   /**
    * A URL to the JSON Schema for this object.
@@ -2339,6 +2313,7 @@ export type TaxonInput = {
   parent: string
   rank: TaxonRank
   status: TaxonStatus
+  synonym_of?: string
 }
 
 /**
@@ -2358,7 +2333,7 @@ export type TaxonRank =
 /**
  * TaxonStatus
  */
-export type TaxonStatus = 'Accepted' | 'Unreferenced' | 'Unclassified'
+export type TaxonStatus = 'Accepted' | 'Synonym' | 'Unreferenced' | 'Unclassified'
 
 export type TaxonUpdate = {
   /**
@@ -2391,6 +2366,7 @@ export type TaxonWithLineage = {
   parent?: OptionalTaxon
   rank: TaxonRank
   status: TaxonStatus
+  synonyms?: Array<Taxon>
 }
 
 export type TaxonWithParentRef = {
@@ -2424,6 +2400,7 @@ export type TaxonWithRelatives = {
   parent?: OptionalTaxon
   rank: TaxonRank
   status: TaxonStatus
+  synonyms?: Array<Taxon>
 }
 
 export type Taxonomy = {
@@ -2443,6 +2420,7 @@ export type Taxonomy = {
   parent?: OptionalTaxon
   rank: TaxonRank
   status: TaxonStatus
+  synonyms?: Array<Taxon>
 }
 
 /**
@@ -4529,49 +4507,6 @@ export type UpdateHabitatGroupResponses = {
 
 export type UpdateHabitatGroupResponse =
   UpdateHabitatGroupResponses[keyof UpdateHabitatGroupResponses]
-
-export type MonitorGbifData = {
-  body?: never
-  path?: never
-  query?: never
-  url: '/import/taxonomy/monitor'
-}
-
-export type MonitorGbifErrors = {
-  /**
-   * Error
-   */
-  default: ErrorModel
-}
-
-export type MonitorGbifError = MonitorGbifErrors[keyof MonitorGbifErrors]
-
-export type MonitorGbifResponses = {
-  /**
-   * Server Sent Events
-   *
-   * Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.
-   */
-  200: Array<{
-    data: {
-      [key: string]: ImportProcess
-    }
-    /**
-     * The event name.
-     */
-    event: 'state'
-    /**
-     * The event ID.
-     */
-    id?: number
-    /**
-     * The retry time in milliseconds.
-     */
-    retry?: number
-  }>
-}
-
-export type MonitorGbifResponse = MonitorGbifResponses[keyof MonitorGbifResponses]
 
 export type CoordinatesToCountryData = {
   body?: never
@@ -6962,76 +6897,6 @@ export type GetTaxonomyResponses = {
 
 export type GetTaxonomyResponse = GetTaxonomyResponses[keyof GetTaxonomyResponses]
 
-export type ListAnchorsData = {
-  body?: never
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/taxonomy/gbif/anchors'
-}
-
-export type ListAnchorsErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ListAnchorsError = ListAnchorsErrors[keyof ListAnchorsErrors]
-
-export type ListAnchorsResponses = {
-  /**
-   * OK
-   */
-  200: Array<TaxonWithParentRef>
-}
-
-export type ListAnchorsResponse = ListAnchorsResponses[keyof ListAnchorsResponses]
-
-export type ImportGbifData = {
-  body: ImportRequestGbif
-  headers?: {
-    /**
-     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
-     */
-    Authorization?: string
-  }
-  path?: never
-  query?: never
-  url: '/taxonomy/gbif/import'
-}
-
-export type ImportGbifErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ImportGbifError = ImportGbifErrors[keyof ImportGbifErrors]
-
-export type ImportGbifResponses = {
-  /**
-   * No Content
-   */
-  204: void
-}
-
-export type ImportGbifResponse = ImportGbifResponses[keyof ImportGbifResponses]
-
 export type ListTaxaData = {
   body?: never
   path?: never
@@ -7043,6 +6908,7 @@ export type ListTaxaData = {
     parent?: string
     limit?: number
     sampled_only?: boolean
+    synonym_of?: string
   }
   url: '/taxonomy/taxa'
 }

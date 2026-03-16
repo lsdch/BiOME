@@ -28,6 +28,14 @@ type OccurrenceBatchMetadataInputs struct {
 	Bibliography  map[string]references.ArticleInput    `json:"bibliography,omitempty"`
 }
 
+func (i OccurrenceBatchMetadataInputs) TaxaByName() map[string]taxonomy.TaxonInput {
+	taxa := make(map[string]taxonomy.TaxonInput)
+	for _, taxon := range i.Taxa {
+		taxa[taxon.Name] = taxon
+	}
+	return taxa
+}
+
 type CreatedMetadata struct {
 	Organisations map[string]string `json:"organisations,omitempty"` // input string to code map
 	People        map[string]string `json:"people,omitempty"`        // input string to alias map
@@ -222,25 +230,36 @@ func (batch *OccurrenceBatchInput) WithBatchSize(size int) *OccurrenceBatchInput
 	return batch
 }
 
-func (batch *OccurrenceBatchInput) ListMissingTaxa(tx geltypes.Tx) (missing []string, err error) {
+// TaxaSet returns a set of all taxa names present in the batch
+func (batch *OccurrenceBatchInput) TaxaSet() mapset.Set[string] {
 	taxa := mapset.NewSet[string]()
 	for _, siteWithOccurrences := range batch.Content {
 		for _, sampling := range siteWithOccurrences.Samplings {
+			for _, t := range sampling.TargetTaxa {
+				taxa.Add(t)
+			}
 			for _, occ := range sampling.Occurrences {
 				taxa.Add(occ.Identification.Taxon)
 			}
 		}
 	}
-	taxaList := taxa.ToSlice()
-	missingTaxa := []string{}
-	err = tx.Query(context.Background(),
-		`#edgeql
-			with module taxonomy,
-			existing := (select Taxon.name)
-			select array_unpack(<array<str>>$0) except existing
-		`,
-		&missingTaxa, taxaList)
-	return missingTaxa, err
+	return taxa
+}
+
+func (batch *OccurrenceBatchInput) ListMissingTaxa(tx geltypes.Tx) (missing []string, err error) {
+	ocurringTaxa := batch.TaxaSet()
+	providedTaxa := batch.OccurrenceBatchMetadataInputs.TaxaByName()
+	taxaToCheck := ocurringTaxa.Difference(mapset.NewSetFromMapKeys(providedTaxa))
+	for _, taxon := range providedTaxa {
+		if _, parentProvided := providedTaxa[taxon.Parent]; !parentProvided {
+			taxaToCheck.Add(taxon.Parent)
+		}
+	}
+	if taxaToCheck.Cardinality() == 0 {
+		return nil, nil
+	}
+
+	return taxonomy.CheckMissingTaxa(tx, taxaToCheck.ToSlice())
 }
 
 func (batch OccurrenceBatchInput) SaveSites(tx geltypes.Tx) error {
