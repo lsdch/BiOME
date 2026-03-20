@@ -67,8 +67,8 @@ module occurrence {
 
     multi sources: references::DataSource;
 
-    multi collections: references::Collection {
-      vouchers: array<str>;
+    multi collections: tuple<name: str, vouchers: array<str>> {
+      annotation description := "Collections where the specimen(s) can be found, with optional voucher identifiers.";
     };
 
     # in_collection: str; # name of a collection where the specimen can be found

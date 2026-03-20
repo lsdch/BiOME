@@ -364,7 +364,7 @@ export const $BaseOccurrenceSamplingInnerWithSite = {
     },
     collections: {
       items: {
-        $ref: '#/components/schemas/CollectionWithVouchers'
+        $ref: '#/components/schemas/CollectionField'
       },
       type: 'array'
     },
@@ -425,7 +425,7 @@ export const $BaseOccurrenceSamplingOutline = {
     },
     collections: {
       items: {
-        $ref: '#/components/schemas/CollectionWithVouchers'
+        $ref: '#/components/schemas/CollectionField'
       },
       type: 'array'
     },
@@ -535,46 +535,6 @@ export const $CodeHistory = {
   type: 'object'
 } as const
 
-export const $Collection = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/Collection.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      type: 'string'
-    },
-    contact: {
-      type: 'string'
-    },
-    description: {
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    label: {
-      type: 'string'
-    },
-    location: {
-      type: 'string'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    personal: {
-      type: 'boolean'
-    }
-  },
-  required: ['id', 'label', 'code', 'personal', 'meta'],
-  type: 'object'
-} as const
-
 export const $CollectionField = {
   additionalProperties: false,
   properties: {
@@ -589,110 +549,6 @@ export const $CollectionField = {
     }
   },
   required: ['name'],
-  type: 'object'
-} as const
-
-export const $CollectionInput = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/CollectionInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      type: 'string'
-    },
-    contact: {
-      type: 'string'
-    },
-    description: {
-      type: 'string'
-    },
-    label: {
-      type: 'string'
-    },
-    location: {
-      type: 'string'
-    },
-    personal: {
-      type: 'boolean'
-    }
-  },
-  required: ['label', 'code'],
-  type: 'object'
-} as const
-
-export const $CollectionUpdate = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/CollectionUpdate.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      type: 'string'
-    },
-    contact: {
-      type: ['string', 'null']
-    },
-    description: {
-      type: ['string', 'null']
-    },
-    label: {
-      type: 'string'
-    },
-    location: {
-      type: ['string', 'null']
-    },
-    personal: {
-      type: 'boolean'
-    }
-  },
-  type: 'object'
-} as const
-
-export const $CollectionWithVouchers = {
-  additionalProperties: false,
-  properties: {
-    code: {
-      type: 'string'
-    },
-    contact: {
-      type: 'string'
-    },
-    description: {
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    label: {
-      type: 'string'
-    },
-    location: {
-      type: 'string'
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    personal: {
-      type: 'boolean'
-    },
-    vouchers: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
-    }
-  },
-  required: ['id', 'label', 'code', 'personal', 'meta'],
   type: 'object'
 } as const
 
@@ -3128,7 +2984,7 @@ export const $OccurrenceListItem = {
     },
     collections: {
       items: {
-        $ref: '#/components/schemas/CollectionWithVouchers'
+        $ref: '#/components/schemas/CollectionField'
       },
       type: 'array'
     },
@@ -3210,7 +3066,7 @@ export const $OccurrenceSamplingWithSite = {
     },
     collections: {
       items: {
-        $ref: '#/components/schemas/CollectionWithVouchers'
+        $ref: '#/components/schemas/CollectionField'
       },
       type: 'array'
     },
@@ -3288,7 +3144,7 @@ export const $OccurrenceStruct___ = {
     },
     collections: {
       items: {
-        $ref: '#/components/schemas/CollectionWithVouchers'
+        $ref: '#/components/schemas/CollectionField'
       },
       type: 'array'
     },

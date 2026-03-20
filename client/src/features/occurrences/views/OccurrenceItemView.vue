@@ -220,9 +220,27 @@
                           <span class="text-muted text-caption">Data source(s)</span>
                         </template>
                       </v-list-item>
+                      <v-divider></v-divider>
                       <v-list-item>
-                        <b v-for="col in item.collections">{{ col }}</b>
-                        <span class="text-muted text-caption"> Unknown </span>
+                        <v-list class="mr-2">
+                          <v-list-item
+                            v-for="col in item.collections"
+                            class="text-wrap text-caption rounded-sm"
+                            link
+                          >
+                            {{ col.name }}
+                            <v-chip
+                              v-for="voucher in col.vouchers"
+                              size="small"
+                              prepend-icon="mdi-pound"
+                            >
+                              {{ voucher }}
+                            </v-chip>
+                          </v-list-item>
+                        </v-list>
+                        <span v-if="!item.collections?.length" class="text-muted text-caption">
+                          None/unknown
+                        </span>
                         <template #append>
                           <span class="text-muted text-caption">Collection(s)</span>
                         </template>
@@ -330,7 +348,7 @@ import IdentificationChip from '@/features/taxonomy/components/IdentificationChi
 import { useFeedback } from '@/stores/feedback'
 import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
-import { ref } from 'vue'
+import { compile, ref } from 'vue'
 import CodeHistoryCard from '../components/CodeHistoryCard.vue'
 import QuantityChip from '../components/QuantityChip'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'

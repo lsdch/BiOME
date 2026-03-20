@@ -23,7 +23,6 @@ type OccurrenceBatchMetadataInputs struct {
 	Organisations map[string]people.OrganisationInput   `json:"organisations,omitempty"`
 	People        map[string]people.PersonInput         `json:"people,omitempty"`
 	DataSources   map[string]references.DataSourceInput `json:"data_sources,omitempty"`
-	Collections   map[string]references.CollectionInput `json:"collections,omitempty"`
 	Taxa          []taxonomy.TaxonInput                 `json:"taxa,omitempty"`
 	Bibliography  map[string]references.ArticleInput    `json:"bibliography,omitempty"`
 }
@@ -42,22 +41,6 @@ type CreatedMetadata struct {
 	DataSources   map[string]string `json:"data_sources,omitempty"`  // input string to code map
 	Bibliography  map[string]string `json:"bibliography,omitempty"`  // input string to code map
 	Collections   map[string]string `json:"collections,omitempty"`   // input string to code map
-}
-
-func (i OccurrenceBatchMetadataInputs) saveNewCollections(tx geltypes.Tx, trackers ...OccurrenceBatchTracker) (map[string]string, error) {
-
-	codes := make(map[string]string)
-	for rawColl, coll := range i.Collections {
-		created, err := coll.Save(tx)
-		if err != nil {
-			return nil, models.WrapErrorPath(err, rawColl)
-		}
-		codes[rawColl] = created.Code
-		for _, tracker := range trackers {
-			tracker.Progress(1)
-		}
-	}
-	return codes, nil
 }
 
 func (i OccurrenceBatchMetadataInputs) saveNewDataSources(tx geltypes.Tx, trackers ...OccurrenceBatchTracker) (map[string]string, error) {
@@ -159,15 +142,6 @@ func (i OccurrenceBatchMetadataInputs) Save(tx geltypes.Tx, trackers ...Occurren
 	}
 
 	for _, tracker := range trackers {
-		tracker.SetDetail(fmt.Sprintf("Saving %d data sources", len(i.Collections)))
-	}
-
-	collections, err := i.saveNewCollections(tx, trackers...)
-	if err != nil {
-		return nil, models.WrapErrorPath(err, "collections")
-	}
-
-	for _, tracker := range trackers {
 		tracker.SetDetail(fmt.Sprintf("Saving %d bibliography entries", len(i.Bibliography)))
 	}
 
@@ -203,7 +177,6 @@ func (i OccurrenceBatchMetadataInputs) Save(tx geltypes.Tx, trackers ...Occurren
 		People:        personAliases,
 		DataSources:   dataSources,
 		Bibliography:  bibliography,
-		Collections:   collections,
 	}, nil
 }
 
