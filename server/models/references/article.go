@@ -82,7 +82,7 @@ func (i *ArticleInput) CheckCodeUniqueness(db geltypes.Executor) (isUnique bool,
 		`#edgeql
 			with code := <str>$0
 			select exists(
-				select references::Article filter .code = code
+				select references::Article filter .code ilike code
 			)
 		`,
 		&existing, i.Code.Value,
