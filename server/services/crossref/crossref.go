@@ -3,6 +3,7 @@ package crossref
 import (
 	"fmt"
 
+	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/services"
 	"github.com/sirupsen/logrus"
 
@@ -13,12 +14,12 @@ import (
 // RetrieveDOI queries the CrossRef API to retrieve metadata for a given DOI.
 // The function enqueues the request to the CrossRef client queue and waits for the response.
 // If no match is found or there's an error, returns a 404 Not Found error.
-func RetrieveDOI(doi string) (*crossrefapi.Works, error) {
-
+func RetrieveDOI(doi references.DOI) (*crossrefapi.Works, error) {
+	doiString := doi.String()
 	queueItem := services.NewQueueItem(
 		func(client *crossrefapi.CrossRefClient) services.ApiResponse[crossrefapi.Works] {
-			logrus.Debugf("Querying crossref for DOI : %s", doi)
-			data, err := client.Works(doi)
+			logrus.Debugf("Querying crossref for DOI : %s", doiString)
+			data, err := client.Works(doiString)
 			return services.ApiResponse[crossrefapi.Works]{
 				Data:  data,
 				Error: err,

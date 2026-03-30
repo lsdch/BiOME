@@ -16,6 +16,7 @@ import (
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/references"
 	"github.com/lsdch/biome/models/taxonomy"
+	"github.com/lsdch/biome/services/crossref"
 	"github.com/sirupsen/logrus"
 )
 
@@ -233,6 +234,47 @@ func (batch *OccurrenceBatchInput) ListMissingTaxa(tx geltypes.Tx) (missing []st
 	}
 
 	return taxonomy.CheckMissingTaxa(tx, taxaToCheck.ToSlice())
+}
+
+func (batch *OccurrenceBatchInput) CollectDOIs() mapset.Set[references.DOI] {
+	doiSet := mapset.NewSet[references.DOI]()
+	for _, siteWithOccurrences := range batch.Content {
+		for _, sampling := range siteWithOccurrences.Samplings {
+			for _, occ := range sampling.Occurrences {
+				for _, doi := range occ.DOIs {
+					doiSet.Add(doi)
+				}
+			}
+		}
+	}
+	return doiSet
+}
+
+func (batch *OccurrenceBatchInput) FetchMissingDOIs(client geltypes.Tx) error {
+	dois := batch.CollectDOIs()
+	toFetch := []references.DOI{}
+	err := client.Query(context.Background(),
+		`#edgeql
+			with doi_set := <str>array_unpack(<array<str>>$0),
+			select doi_set except (select distinct references::Article.doi)
+		`, &toFetch, dois.ToSlice())
+	if err != nil {
+		return err
+	}
+	logrus.Infof("Saving %d missing DOIs", len(toFetch))
+	for _, doi := range toFetch {
+		cr, err := crossref.RetrieveDOI(doi)
+		if err != nil {
+			return err
+		}
+		articleInput := references.ArticleInputFromCrossref(cr)
+		_, err = articleInput.Save(client)
+		if err != nil {
+			logrus.Errorf("Failed to save article for DOI %s: %+v\n%v", doi, articleInput, err)
+			return fmt.Errorf("failed to save article for DOI %s: %v", doi, err)
+		}
+	}
+	return nil
 }
 
 func (batch OccurrenceBatchInput) SaveSites(tx geltypes.Tx) error {

@@ -14,6 +14,39 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type DOI string
+
+func (d *DOI) UnmarshalJSON(data []byte) error {
+	var s string
+	if err := json.Unmarshal(data, &s); err != nil {
+		return err
+	}
+	s = strings.ToLower(s)
+	s = strings.TrimPrefix(s, "https://doi.org/")
+	s = strings.TrimPrefix(s, "http://doi.org/")
+	s = strings.TrimPrefix(s, "doi:")
+	s = strings.TrimPrefix(s, "doi/")
+	*d = DOI(s)
+	return nil
+}
+
+func ParseDOI(s string) DOI {
+	s = strings.ToLower(s)
+	s = strings.TrimPrefix(s, "https://doi.org/")
+	s = strings.TrimPrefix(s, "http://doi.org/")
+	s = strings.TrimPrefix(s, "doi:")
+	s = strings.TrimPrefix(s, "doi/")
+	return DOI(s)
+}
+
+func (d DOI) MarshalEdgeDBStr() ([]byte, error) {
+	return []byte(d), nil
+}
+
+func (d DOI) String() string {
+	return string(d)
+}
+
 type Article struct {
 	ID       geltypes.UUID        `gel:"id" json:"id" format:"uuid"`
 	Code     string               `gel:"code" json:"code"`

@@ -16,11 +16,7 @@ import (
 
 type SearchDoiInput struct {
 	resolvers.AuthResolver
-	DOI string `query:"doi" required:"true"`
-}
-
-func (i SearchDoiInput) Identifier() string {
-	return i.DOI
+	DOI references.DOI `query:"doi" required:"true"`
 }
 
 type BibSearchInput struct {

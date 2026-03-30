@@ -117,7 +117,6 @@ func (i *OccurrenceDatasetInput) FetchMissingTaxa(tx geltypes.Executor) (notFoun
 		// 0 value will be ignored by the search params encoder
 		gbif.WithHigherTaxonKey(kingdomKey),
 	)
-
 	if err != nil {
 		return nil, err
 	}
@@ -243,6 +242,14 @@ func (dataset OccurrenceDatasetInput) SaveParallel(client *gel.Client, batchSize
 		return created, fmt.Errorf("failed to initialize dataset '%s': %v", dataset.Label, err)
 	}
 	logrus.Debugf("Initialized dataset '%s'", dataset.Label)
+
+	logrus.Infof("Fetching DOIs for dataset '%s'", dataset.Label)
+	err = dataset.FetchMissingDOIs(client)
+	if err != nil {
+		logrus.Errorf("failed to fetch missing DOIs for dataset '%s': %v", dataset.Label, err)
+		created.RollbackImport(client)
+		return
+	}
 
 	if err = dataset.OccurrenceBatchInput.WithBatchSize(batchSize).SaveParallel(client, cores); err != nil {
 		logrus.Errorf("%v", err)

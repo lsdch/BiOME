@@ -273,7 +273,7 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 type OccurrenceInput struct {
 	Identification         IdentificationInput              `json:"identification" doc:"Occurrence identification"`
 	PublishedIn            []string                         `json:"published_in,omitempty"`
-	DOIs                   []string                         `json:"dois,omitempty"`
+	DOIs                   []references.DOI                 `json:"dois,omitempty"`
 	Code                   models.OptionalInput[string]     `gel:"code" json:"code,omitzero" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
 	TypeStatus             models.OptionalInput[TypeStatus] `gel:"type_status" json:"type_status,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
 	Sources                []string                         `json:"sources,omitzero"`
@@ -293,8 +293,8 @@ func (i *OccurrenceInput) FetchDOIs(db geltypes.Executor) error {
 	for _, doi := range i.DOIs {
 		doiExists := false
 		err := db.QuerySingle(context.Background(), `#edgeql
-			select exists (select references::Article filter .doi = <str>$0)
-		`, &doiExists, doi,
+			select exists (select references::Article filter .doi ilike <str>$0)
+		`, &doiExists, doi.String(),
 		)
 		if err != nil {
 			return fmt.Errorf("failed to check if doi %s exists : %v", doi, err)
