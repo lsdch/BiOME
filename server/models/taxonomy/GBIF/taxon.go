@@ -12,18 +12,18 @@ import (
 
 	"github.com/sirupsen/logrus"
 
-	"github.com/thoas/go-funk"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
 
 type TaxonInnerGBIF struct {
-	Key      int32  `json:"key" gel:"GBIF_ID"`
-	Parent   int32  `json:"parentKey" gel:"parentID"`
-	Name     string `json:"canonicalName" gel:"name"`
-	Status   string `json:"taxonomicStatus" gel:"status"`
-	Rank     string `json:"rank" gel:"rank"`
-	NameType string `json:"nameType" gel:"name_type"`
+	Key       int32  `json:"key" gel:"GBIF_ID"`
+	Parent    string `json:"parent"`
+	ParentKey int32  `json:"parentKey" gel:"parentID"`
+	Name      string `json:"canonicalName" gel:"name"`
+	Status    string `json:"taxonomicStatus" gel:"status"`
+	Rank      string `json:"rank" gel:"rank"`
+	NameType  string `json:"nameType" gel:"name_type"`
 }
 
 func (taxon *TaxonInnerGBIF) GetRank() taxonomy.TaxonRank {
@@ -34,7 +34,7 @@ func (t *TaxonInnerGBIF) normalize() *TaxonInnerGBIF {
 	switch t.Status {
 	case "ACCEPTED":
 		t.Status = "Accepted"
-	case "SYNONYM":
+	case "SYNONYM", "HETEROTYPIC_SYNONYM", "HOMOTYPIC_SYNONYM", "PROPARTE_SYNONYM":
 		t.Status = "Synonym"
 	default:
 		t.Status = "Unclassified"
@@ -94,14 +94,11 @@ func (taxon *TaxonGBIF) normalize() *TaxonGBIF {
 }
 
 func UpsertTaxa(tx geltypes.Tx, taxa []TaxonGBIF) (n int, err error) {
-	taxa = funk.Map(taxa, func(taxon TaxonGBIF) TaxonGBIF {
-		taxon.normalize()
-		return taxon
-	}).([]TaxonGBIF)
 
 	ctx := context.Background()
 
 	for _, taxon := range taxa {
+		taxon.normalize()
 		logrus.Debugf("Inserting taxon from GBIF %+v", &taxon)
 		args, _ := json.Marshal(&taxon)
 		if err = tx.Execute(ctx,
@@ -123,7 +120,7 @@ func UpsertTaxa(tx geltypes.Tx, taxa []TaxonGBIF) (n int, err error) {
 					GBIF_ID := <int32>data['key'],
 					status := <TaxonStatus>data['taxonomicStatus'],
 					parent := (
-						select detached Taxon filter .GBIF_ID = <int32>data['parentKey']
+						select detached Taxon filter .name = <str>data['parent']
 					),
 					rank := <Rank>data['rank'],
 					authorship := <str>data['authorship'],
