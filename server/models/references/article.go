@@ -16,6 +16,10 @@ import (
 
 type DOI string
 
+func (d *DOI) UnmarshalEdgeDBStr(data []byte) error {
+	return d.UnmarshalJSON(data)
+}
+
 func (d *DOI) UnmarshalJSON(data []byte) error {
 	var s string
 	if err := json.Unmarshal(data, &s); err != nil {
