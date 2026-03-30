@@ -1,5 +1,5 @@
-CREATE MIGRATION m1kva3mqa6keqqabpj4tdc4cmcckhxgwy4u3hgtwoldth3o7qwkjra
-    ONTO m1z5nazo2qcdec4ru2hv6356o73qxfgo27qmtcctzdepv6gnlqe6rq
+CREATE MIGRATION m15czjri44kvqhifef3m5p53s3roabgaozwtpocw7hloxswcmnia6q
+    ONTO m14xzezsvdeffja6ewwjv4ngugttyli6oifdiihuqb7dzv3cwueoba
 {
   ALTER TYPE occurrence::Occurrence {
       DROP LINK collections;
