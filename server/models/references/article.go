@@ -16,8 +16,22 @@ import (
 
 type DOI string
 
+func normalizeDOI(s string) string {
+	s = strings.ToLower(s)
+	s = strings.TrimPrefix(s, "https://doi.org/")
+	s = strings.TrimPrefix(s, "http://doi.org/")
+	s = strings.TrimPrefix(s, "doi:")
+	s = strings.TrimPrefix(s, "doi/")
+	return s
+}
+
+func (d DOI) MarshalEdgeDBStr() ([]byte, error) {
+	return []byte(d), nil
+}
+
 func (d *DOI) UnmarshalEdgeDBStr(data []byte) error {
-	return d.UnmarshalJSON(data)
+	*d = ParseDOI(string(data))
+	return nil
 }
 
 func (d *DOI) UnmarshalJSON(data []byte) error {
@@ -25,26 +39,14 @@ func (d *DOI) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &s); err != nil {
 		return err
 	}
-	s = strings.ToLower(s)
-	s = strings.TrimPrefix(s, "https://doi.org/")
-	s = strings.TrimPrefix(s, "http://doi.org/")
-	s = strings.TrimPrefix(s, "doi:")
-	s = strings.TrimPrefix(s, "doi/")
+	s = normalizeDOI(s)
 	*d = DOI(s)
 	return nil
 }
 
 func ParseDOI(s string) DOI {
-	s = strings.ToLower(s)
-	s = strings.TrimPrefix(s, "https://doi.org/")
-	s = strings.TrimPrefix(s, "http://doi.org/")
-	s = strings.TrimPrefix(s, "doi:")
-	s = strings.TrimPrefix(s, "doi/")
+	s = normalizeDOI(s)
 	return DOI(s)
-}
-
-func (d DOI) MarshalEdgeDBStr() ([]byte, error) {
-	return []byte(d), nil
 }
 
 func (d DOI) String() string {
