@@ -35,6 +35,13 @@ export function taxonStatusIndicatorProps(status: TaxonStatus): TaxonStatusProps
         description:
           'Taxon definition is not accepted in GBIF database, and is considered a synonym of another taxon.'
       }
+    case 'Doubtful':
+      return {
+        icon: 'mdi-circle-medium',
+        color: 'error',
+        description:
+          'Taxon definition is considered doubtful in GBIF database.'
+      }
     case 'Unreferenced':
       return {
         icon: 'mdi-circle-medium',
