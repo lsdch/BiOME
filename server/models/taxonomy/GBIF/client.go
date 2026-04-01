@@ -262,7 +262,7 @@ type SearchResponse struct {
 func (resp SearchResponse) GetExactMatch(name string) (*TaxonGBIF, bool) {
 	matches := []TaxonGBIF{}
 	for _, taxon := range resp.Results {
-		if taxon.Name == name {
+		if taxon.ScientificName == name || taxon.Name == name {
 			matches = append(matches, taxon)
 		}
 	}

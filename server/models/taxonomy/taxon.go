@@ -29,9 +29,10 @@ func TaxonShortCode(name string) string {
 }
 
 type TaxonInner struct {
-	Name   string      `gel:"name" json:"name" example:"Asellus aquaticus" binding:"required,alpha"`
-	Status TaxonStatus `gel:"status" json:"status" example:"Accepted" binding:"required"`
-	Rank   TaxonRank   `gel:"rank" json:"rank" example:"Species" binding:"required"`
+	Name           string      `gel:"name" json:"name" example:"Asellus aquaticus" binding:"required,alpha"`
+	ScientificName string      `gel:"scientific_name" json:"scientific_name,omitempty" example:"Asellus aquaticus (Linnaeus, 1758)"`
+	Status         TaxonStatus `gel:"status" json:"status" example:"Accepted" binding:"required"`
+	Rank           TaxonRank   `gel:"rank" json:"rank" example:"Species" binding:"required"`
 }
 
 type TaxonInput struct {
@@ -320,7 +321,7 @@ func CheckMissingTaxa(db geltypes.Executor, taxa []string) ([]string, error) {
 	err := db.Query(context.Background(),
 		`#edgeql
 			with module taxonomy,
-			existing := (select Taxon.name)
+			existing := (select Taxon.name union Taxon.scientific_name),
 			select distinct (array_unpack(<array<str>>$0) except existing)
 		`,
 		&missingTaxa, taxa)

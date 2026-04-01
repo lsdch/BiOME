@@ -7,6 +7,7 @@ type TaxonStatus string // @name TaxonStatus
 const (
 	Accepted     TaxonStatus = "Accepted"
 	Synonym      TaxonStatus = "Synonym"
+	Doubtful     TaxonStatus = "Doubtful"
 	Unreferenced TaxonStatus = "Unreferenced"
 	Unclassified TaxonStatus = "Unclassified"
 )

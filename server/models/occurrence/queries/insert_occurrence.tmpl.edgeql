@@ -2,7 +2,14 @@ with module occurrence,
   sampling := ({{.Sampling}}),
   data := {{.JSON}},
   identification := data['identification'],
-  taxon := taxonomy::taxonByName(<str>identification['taxon']),
+  taxname := <str>identification['taxon'],
+  taxon := assert_single((
+    select taxonomy::Taxon 
+    filter .name = taxname
+  ) ?? (
+    select taxonomy::Taxon
+    filter .scientific_name = taxname
+  )),
   occurrence := (
     insert Occurrence {
       sampling := sampling,

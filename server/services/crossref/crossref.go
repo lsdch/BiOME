@@ -34,7 +34,7 @@ func RetrieveDOI(doi references.DOI) (*crossrefapi.Works, error) {
 	resp := <-queueItem.Receiver
 	data, err := resp.Data, resp.Error
 	if data == nil || err != nil {
-		return nil, huma.Error404NotFound("No match found")
+		return nil, huma.Error404NotFound(fmt.Sprintf("No match found for DOI %s", doi))
 	}
 
 	logrus.Debugf("Received response for DOI %s: %+v", doi, data)

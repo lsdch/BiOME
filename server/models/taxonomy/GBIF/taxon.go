@@ -17,13 +17,14 @@ import (
 )
 
 type TaxonInnerGBIF struct {
-	Key       int32  `json:"key" gel:"GBIF_ID"`
-	Parent    string `json:"parent"`
-	ParentKey int32  `json:"parentKey" gel:"parentID"`
-	Name      string `json:"canonicalName" gel:"name"`
-	Status    string `json:"taxonomicStatus" gel:"status"`
-	Rank      string `json:"rank" gel:"rank"`
-	NameType  string `json:"nameType" gel:"name_type"`
+	Key            int32  `json:"key" gel:"GBIF_ID"`
+	Parent         string `json:"parent"`
+	ParentKey      int32  `json:"parentKey" gel:"parentID"`
+	Name           string `json:"canonicalName" gel:"name"`
+	ScientificName string `json:"scientificName" gel:"scientific_name"`
+	Status         string `json:"taxonomicStatus" gel:"status"`
+	Rank           string `json:"rank" gel:"rank"`
+	NameType       string `json:"nameType" gel:"name_type"`
 }
 
 func (taxon *TaxonInnerGBIF) GetRank() taxonomy.TaxonRank {
@@ -36,6 +37,8 @@ func (t *TaxonInnerGBIF) normalize() *TaxonInnerGBIF {
 		t.Status = "Accepted"
 	case "SYNONYM", "HETEROTYPIC_SYNONYM", "HOMOTYPIC_SYNONYM", "PROPARTE_SYNONYM":
 		t.Status = "Synonym"
+	case "DOUBTFUL":
+		t.Status = "Doubtful"
 	default:
 		t.Status = "Unclassified"
 	}

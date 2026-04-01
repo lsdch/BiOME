@@ -27,7 +27,7 @@ module taxonomy {
   # Accepted: referenced in GBIF with status "ACCEPTED"
   # Unreferenced: not "ACCEPTED" in GBIF yet, but a scientific consensus exists for the taxon
   # Unclassified: taxon description is currently on-going
-  scalar type TaxonStatus extending enum<Accepted, Synonym, Unreferenced, Unclassified>;
+  scalar type TaxonStatus extending enum<Accepted, Synonym, Doubtful, Unreferenced, Unclassified>;
 
   type Taxon extending default::Auditable {
     GBIF_ID: int32 {
@@ -38,6 +38,12 @@ module taxonomy {
       constraint exclusive;
       constraint min_len_value(2);
     };
+
+    required scientific_name: str {
+      constraint exclusive;
+      default := .name ++ ((" " ++ .authorship) ?? "");
+      rewrite insert, update using (.name ++ ((" " ++ .authorship) ?? ""));
+    }
 
     # Note: constraint is too stringent when working with e.g. unclassified genus "Family gen. X1"
     # constraint expression on (not contains(.name, " "))

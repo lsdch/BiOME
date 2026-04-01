@@ -15,7 +15,7 @@ import (
 )
 
 type OccurrenceDatasetListItem struct {
-	dataset.Dataset `gel:"$inline" json:",inline"`
+	dataset.Dataset `gel:"$inline"`
 	Sites           int64 `gel:"sites_count" json:"sites"`
 	Occurrences     int64 `gel:"occurrences_count" json:"occurrences"`
 	IsCongruent     bool  `gel:"is_congruent" json:"is_congruent"`
@@ -39,7 +39,7 @@ func ListOccurrenceDatasets(db geltypes.Executor) ([]OccurrenceDatasetListItem, 
 }
 
 type OccurrenceDataset struct {
-	dataset.Dataset `gel:"$inline" json:",inline"`
+	dataset.Dataset `gel:"$inline"`
 	Sites           []SiteWithOccurrences `gel:"sites" json:"sites"`
 	// Occurrences     []OccurrenceWithCategory `gel:"occurrences" json:"occurrences"`
 	IsCongruent  bool                 `gel:"is_congruent" json:"is_congruent"`
@@ -85,11 +85,11 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 }
 
 type OccurrenceDatasetInput struct {
-	dataset.DatasetInput `json:",inline"`
-	OccurrenceBatchInput `json:",inline"`
-	AddOccurrences       []string  `json:"add_occurrences,omitempty" default:"[]"`
-	BatchULID            ulid.ULID `json:"batch_ulid,omitempty"`
-	Kingdom              string    `json:"kingdom,omitempty" doc:"This is used to discriminate between homonymous taxa from different kingdoms. For example, if the dataset only contains occurrences of plants, the taxonomic scope can be set to 'Plantae' to avoid fetching homonymous animal taxa from GBIF."`
+	dataset.DatasetInput
+	OccurrenceBatchInput
+	AddOccurrences []string  `json:"add_occurrences,omitempty" default:"[]"`
+	BatchULID      ulid.ULID `json:"batch_ulid,omitempty"`
+	Kingdom        string    `json:"kingdom,omitempty" doc:"This is used to discriminate between homonymous taxa from different kingdoms. For example, if the dataset only contains occurrences of plants, the taxonomic scope can be set to 'Plantae' to avoid fetching homonymous animal taxa from GBIF."`
 }
 
 func (i *OccurrenceDatasetInput) FetchMissingTaxa(tx geltypes.Executor) (notFound []string, err error) {

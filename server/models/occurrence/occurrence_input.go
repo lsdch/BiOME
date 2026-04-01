@@ -220,6 +220,10 @@ func (batch *OccurrenceBatchInput) TaxaSet() mapset.Set[string] {
 	return taxa
 }
 
+/**
+ * ListMissingTaxa checks which taxa from the batch are missing in the database,
+ * and not provided in the batch metadata inputs. It returns a list of missing taxa names.
+ **/
 func (batch *OccurrenceBatchInput) ListMissingTaxa(tx geltypes.Tx) (missing []string, err error) {
 	ocurringTaxa := batch.TaxaSet()
 	providedTaxa := batch.OccurrenceBatchMetadataInputs.TaxaByName()
@@ -251,15 +255,15 @@ func (batch *OccurrenceBatchInput) CollectDOIs() mapset.Set[references.DOI] {
 }
 
 func (batch *OccurrenceBatchInput) FetchMissingDOIs(client geltypes.Tx) error {
-	dois := batch.CollectDOIs()
+	dois, _ := json.Marshal(batch.CollectDOIs())
 	toFetch := []references.DOI{}
 	err := client.Query(context.Background(),
 		`#edgeql
-			with doi_set := <str>array_unpack(<array<str>>$0),
+			with doi_set := <str>json_array_unpack(<json>$0),
 			select doi_set except (select distinct references::Article.doi)
-		`, &toFetch, dois.ToSlice())
+		`, &toFetch, dois)
 	if err != nil {
-		return err
+		return fmt.Errorf("failed to query missing DOIs: %v", err)
 	}
 	logrus.Infof("Saving %d missing DOIs", len(toFetch))
 	for _, doi := range toFetch {

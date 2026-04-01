@@ -260757,7 +260757,7 @@
             },
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               }
             },
@@ -266218,7 +266218,7 @@
           "occurrences": [
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               }
             }
@@ -336302,7 +336302,7 @@
             },
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               },
               "dois": [
@@ -378557,7 +378557,7 @@
           "occurrences": [
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               }
             }
@@ -432145,7 +432145,7 @@
             },
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               },
               "dois": [
@@ -432499,7 +432499,7 @@
           "occurrences": [
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               }
             }
@@ -432847,7 +432847,7 @@
             },
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               },
               "dois": [
@@ -432916,7 +432916,7 @@
             },
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               }
             }
@@ -433805,7 +433805,7 @@
           "occurrences": [
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               },
               "dois": [
@@ -434008,7 +434008,7 @@
           "occurrences": [
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               }
             }
@@ -434047,7 +434047,7 @@
             },
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               }
             }
@@ -434077,7 +434077,7 @@
           "occurrences": [
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               },
               "dois": [
@@ -434119,7 +434119,7 @@
             },
             {
               "identification": {
-                "taxon": "Porrhomma myops",
+                "taxon": "Porrhomma myops Simon, 1884",
                 "confer": false
               }
             }
@@ -456669,6 +456669,7 @@
       ]
     }
   ],
+  "kingdom": "Animalia",
   "bibliography": {
     "Absolon, K. & Kratochvl, J. (1932). Zur Kenntnis der hhlenbewohnenden Araneae des illyrischen Karstgebiete.Mitteilungen ber Hhlen- und Karstforschung1932: 73-81.": {
       "authors": [
@@ -456922,8 +456923,7 @@
     },
     "Depoli, G. (1925). La grotta di Zamet e la sua fauna. Liburnia. Rivista Trimestrale della Sezione di Fiume del Club Alpino Italiano, 18(2), 4246.": {
       "authors": [
-        "Depoli",
-        "G."
+        "Depoli, G."
       ],
       "year": 1925,
       "title": "La grotta di Zamet e la sua fauna",
@@ -456932,16 +456932,11 @@
     },
     "Draina, T., Pavlek, M., Cindri, K., Bedek, J. & Jali, B. 2018: Speleoloka i biospeleoloka istraivanja otoka olte. Speleolog, 66, 1, 48-59.": {
       "authors": [
-        "Draina",
-        "T.",
-        "Pavlek",
-        "M.",
-        "Cindri",
-        "K.",
-        "Bedek",
-        "J.",
-        "Jali",
-        "B."
+        "Draina, T.",
+        "Pavlek, M.",
+        "Cindri, K.",
+        "Bedek, J.",
+        "Jali, B."
       ],
       "year": 2018,
       "title": "Speleoloka i biospeleoloka istraivanja otoka olte",
@@ -456986,10 +456981,8 @@
     },
     "Ferrndez, M. A., & Fernndez de Cspedes, H. (1990). Nuevos datos sobre las especies ibricas del gnero Harpactea Bristowe, 1939 (Araneae: Dysderidae).Boletn de la Real Sociedad espaola de Historia Natural (Seccin Biolgica),86(1-4), 39-53.": {
       "authors": [
-        "Ferrndez",
-        "M. A.",
-        "Fernndez de Cspedes",
-        "H."
+        "Ferrndez, M. A.",
+        "Fernndez de Cspedes, H."
       ],
       "year": 1990,
       "title": "Nuevos datos sobre las especies ibericas del genereo Harpactea Bristowe, 1939 (Araneae, Dysderidae)",
@@ -456998,9 +456991,8 @@
     },
     "Gasparo, F. & K. Thaler, 2000. I ragni caverniocoli della Venezia Giulia (Italia nord-orientale) (Arachnida, Araneae). Atti e Memorie della Commissione Grotte \"E. Boegan\" 37: 1755., 2000": {
       "authors": [
-        "Gasparo",
-        "F. Thaler",
-        "K."
+        "Gasparo, F.",
+        "Thaler, K."
       ],
       "year": 2000,
       "title": "I ragni caverniocoli della Venezia Giulia (Italia nord-orientale) (Arachnida, Araneae)",
@@ -457009,8 +457001,7 @@
     },
     "Gasparo, F. (1999). Stalita comottii n. sp., un nuovo ragno cavernicolo della Dalmazia centrale (Araneae, Dysderidae). Atti e Memorie, Commissione Grotte Eugenio Boegan, 36, 1725.": {
       "authors": [
-        "Gasparo",
-        "F."
+        "Gasparo, F."
       ],
       "year": 1999,
       "title": "Stalita comottii n. sp., un nuovo ragno cavernicolo della Dalmazia centrale (Araneae, Dysderidae)",
@@ -457019,8 +457010,7 @@
     },
     "Girometta, U. (1913). Prilog poznavanju troglobijske i troglofilne faune Dalmacije uz geomorfoloke biljeke o istraenim piljama i jamama.Fauna Cavernarum Dalmatiae. Program Velike gimnazije u Spljetu za kolsku godinu,1914, 3-16.": {
       "authors": [
-        "Girometta",
-        "U."
+        "Girometta, U."
       ],
       "year": 1913,
       "title": "Prilog poznavanju troglobijske i troglofilne faune Dalmacije uz geomorfoloke biljeke o istraenim piljama i jamama.Fauna Cavernarum Dalmatiae",
@@ -457029,29 +457019,8 @@
     },
     "Hlava, P., & Jali, B. 2010. Endogean and cavernicolous Coleoptera of the Balkan. X. Two new species of Machaerites (Coleoptera: Staphylinidae: Pselaphinae) from Croatia. Natura Croatica: Periodicum Musei Historiae Naturalis Croatici, 19(1), 111-119.": {
       "authors": [
-        "H",
-        "l",
-        "a",
-        "v",
-        "a",
-        "",
-        "",
-        "",
-        "",
-        "P",
-        ".",
-        "",
-        "",
-        "",
-        "J",
-        "a",
-        "l",
-        "",
-        "i",
-        "",
-        "",
-        "B",
-        "."
+        "Hlava, P.",
+        "Jali B."
       ],
       "year": 2010,
       "title": "Endogean and cavernicolous Coleoptera of the Balkan. X. Two new species of Machaerites (Coleoptera: Staphylinidae: Pselaphinae) from Croatia",
@@ -457060,10 +457029,8 @@
     },
     "Janjanin, ., & Vui, V. (2014). piljski sustav ulin ponor - Medvedica - Speleoloki vodi [Sistema di grotte ulin ponor - Medvedica - Guida speleologica]. Speleoloko drutvo ula - Medvedica, Ogulin, 1-74.": {
       "authors": [
-        "Janjanin",
-        ".",
-        "Vui",
-        "V."
+        "Janjanin, .",
+        "Vui, V."
       ],
       "year": 2014,
       "title": "piljski sustav ulin ponor - Medvedica - Speleoloki vodi [Sistema di grotte ulin ponor - Medvedica - Guida speleologica]",
@@ -457072,8 +457039,7 @@
     },
     "Joseph, G. (1881). Erfahrgungen im wissenschaftlichen Sammeln und Beobachten der den Krainer Tropfsteingrotten eigenen Arthropoden. Berliner Entomologische Zeitschrift 25: 233-282.": {
       "authors": [
-        "Joseph",
-        "G."
+        "Joseph, G."
       ],
       "year": 1881,
       "title": "Erfahrgungen im wissenschaftlichen Sammeln und Beobachten der den Krainer Tropfsteingrotten eigenen Arthropoden",
@@ -457082,8 +457048,7 @@
     },
     "Joseph, G. (1882). Systematisches Verzeichniss der in Tropfsteingrotten von Krain einheimischen Arthropoden, nebst Diagnosen der vom Verfasser entdecken und bischer noch nicht beschreibenen Arten. Berliner Entomologische Zeitschrift 1882: 1-50.": {
       "authors": [
-        "Joseph",
-        "G."
+        "Joseph, G."
       ],
       "year": 1882,
       "title": "Systematisches Verzeichniss der in Tropfsteingrotten von Krain einheimischen Arthropoden, nebst Diagnosen der vom Verfasser entdecken und bischer noch nicht beschreibenen Arten",
@@ -457092,8 +457057,7 @@
     },
     "Jurinac, A. E. (1886). Faunistini pabirci po okolini krapinskoj.Glasnik Hrvatskoga Naravoslovnoga drutva,1, 145-153.": {
       "authors": [
-        "Jurinac",
-        "A. E."
+        "Jurinac, A. E."
       ],
       "year": 1886,
       "title": "Faunistini pabirci po okolini krapinskoj",
@@ -457102,10 +457066,8 @@
     },
     "Kiauta, B. & F. Leben, 1960. Sistematski opis jam v okolici kofje Loke. Loki razgledi, kofja Loka 7: 157178., 1960": {
       "authors": [
-        "Kiauta",
-        "B.",
-        "Leben",
-        "F."
+        "Kiauta, B.",
+        "Leben, F."
       ],
       "year": 1960,
       "title": "Sistematski opis jam v okolici kofje Loke",
@@ -457114,8 +457076,7 @@
     },
     "Komnenov, M. (2014). Spider fauna of the Osogovo Mt. Range, Northeastern Macedonia.Fauna Balkana,2(2013), 1-267.": {
       "authors": [
-        "Komnenov",
-        "M."
+        "Komnenov, M."
       ],
       "year": 2014,
       "title": "Spider fauna of the Osogovo Mt. Range, Northeastern Macedonia",
@@ -457124,10 +457085,8 @@
     },
     "Kranjc, A., & Novak, T. (1978). Golerjev ali Jamniki pekel pod Olevo (= Golerjev or Jamniki pekel cave under Mt. Oleva). Nae jame (Ljubljana), 19, 2936.": {
       "authors": [
-        "Kranjc",
-        "A.",
-        "Novak",
-        "T."
+        "Kranjc, A.",
+        "Novak, T."
       ],
       "year": 1978,
       "title": "Golerjev ali Jamniki pekel pod Olevo (= Golerjev or Jamniki pekel cave under Mt. Oleva)",
@@ -457244,10 +457203,8 @@
     },
     "Kratochvl, J., & Miller, F. (1938). Sur le Probleme des araignees cavernicoles du genre Centromerus de la Peninsule balkanique. Izvestiya Na Tsarskite Prirodonauchni Instituti v Sofia, 11, 107113.": {
       "authors": [
-        "Kratochvl",
-        "J.",
-        "Miller",
-        "F."
+        "Kratochvl, J.",
+        "Miller, F."
       ],
       "year": 1938,
       "title": "Sur le Probleme des araignees cavernicoles du genre Centromerus de la Peninsule balkanique",
@@ -457257,8 +457214,7 @@
     "Kratochvl, J., & Miller, F. (1938). Sur le problme des araignes cavernicoles du genre Centromerus de la Pninsule balkanique.Mitteilungen aus den Kniglichen Naturwissenschaftlichen Instituten in Sofia,11, 107-113.": {
       "authors": [
         "Kratochvl J.",
-        "Miller",
-        "F."
+        "Miller, F."
       ],
       "year": 1938,
       "title": "Sur le problme des araignes cavernicoles du genre Centromerus de la Pninsule balkanique.",
@@ -457267,10 +457223,8 @@
     },
     "Kratochvl, J., & Miller, F. (1939). Espces nouvelles cavernicoles du genre Paraleptoneta (aranides) dcouvertes en Yougoslavie. Archives de Zoologie Exprimentale et Gnrale, 80, 96115.": {
       "authors": [
-        "Kratochvl",
-        "J.",
-        "Miller",
-        "F."
+        "Kratochvl, J.",
+        "Miller, F."
       ],
       "year": 1939,
       "title": "Espces nouvelles cavernicoles du genre Paraleptoneta (aranides) dcouvertes en Yougoslavie",
@@ -457280,8 +457234,7 @@
     "Kratochvl, J., & Miller, F. (1940). Neue Hhlenspinnen der Gattung Tegenaria aus Jugoslavien.Zoologischer Anzeiger,131, 188-201.": {
       "authors": [
         "Kratochvl J.",
-        "Miller",
-        "F."
+        "Miller, F."
       ],
       "year": 1940,
       "title": "Neue Hhlenspinnen der Gattung Tegenaria aus Jugoslavien",
@@ -457317,12 +457270,9 @@
     },
     "Ledoux, J. C., Emerit, M., & Pinault, G. (1996). Les araignes et opilions de Nohdes (Pyrnes Orientales). Office pour lInformation co-entomologique du Languedoc-Rousillon.": {
       "authors": [
-        "Ledoux",
-        "J. C.",
-        "Emerit",
-        "M.",
-        "Pinault",
-        "G."
+        "Ledoux, J. C.",
+        "Emerit, M.",
+        "Pinault, G."
       ],
       "year": 1996,
       "title": "Les araignes et opilions de Nohdes (Pyrnes Orientales)",
@@ -457331,23 +457281,15 @@
     },
     "Luki et al (2011): Speleoloka i biospeleoloka istraivanja u razdoblju od 2010. do 2011. na podruju opine Kostrena. Zbornik Katedre akavskoga sabora Kostrena: ivot, kultura i povijest Kostrene. 57, 4-38.": {
       "authors": [
-        "Luki",
-        "M.",
-        "Rubini",
-        "A.",
-        "Ozimec",
-        "R.",
-        "Kukuljan",
-        "L.",
-        "Pavlek",
-        "M.",
-        "Bedek",
-        "J.",
-        "Jali",
-        "B.",
-        "Draina",
-        "T. Komeriki",
-        "A."
+        "Luki, M.",
+        "Rubini, A.",
+        "Ozimec, R.",
+        "Kukuljan, L.",
+        "Pavlek, M.",
+        "Bedek, J.",
+        "Jali, B.",
+        "Draina, T.",
+        "Komeriki, A."
       ],
       "year": 2011,
       "title": "Speleoloka i biospeleoloka istraivanja u razdoblju od 2010. do 2011. na podruju opine Kostrena",
@@ -457356,35 +457298,21 @@
     },
     "Margu, D., Barii, T., Bedek, J., Draina, T., Gracin, J., Hamidovi, D., Jali, B., Komeriki, A., Luki, M., Margu, M., Menui, M., Miculini, K., Miheli, G., Ozimec, R. & Pavlek, M. (2012) Secrets of the Underworld. Javna ustanova Nacionalni park Krka, ibenik, pp. 1-132.": {
       "authors": [
-        "Margu",
-        "D.",
-        "Barii",
-        "T.",
-        "Bedek",
-        "J.",
-        "Draina",
-        "T.",
-        "Gracin",
-        "J.",
-        "Hamidovi",
-        "D.",
-        "Jali",
-        "B.",
-        "Komeriki",
-        "A.",
-        "Luki",
-        "M.",
-        "Margu",
-        "M.",
-        "Menui",
-        "M.",
-        "Miculini",
-        "K.",
-        "Miheli",
-        "G.",
-        "Ozimec",
-        "R. Pavlek",
-        "M."
+        "Margu, D.",
+        "Barii, T.",
+        "Bedek, J.",
+        "Draina, T.",
+        "Gracin, J.",
+        "Hamidovi, D.",
+        "Jali, B.",
+        "Komeriki, A.",
+        "Luki, M.",
+        "Margu, M.",
+        "Menui, M.",
+        "Miculini, K.",
+        "Miheli, G.",
+        "Ozimec, R.",
+        "Pavlek, M."
       ],
       "year": 2012,
       "title": "Secrets of the Underworld (spesso citato anche con il titolo originale croato: Tajne podzemlja)",
@@ -457393,8 +457321,7 @@
     },
     "Miller, F. (1938). Zwei neue Hhlenspinnen aus Grotten Jugoslawiens. Festschr. E. Strand., 2, 629633.": {
       "authors": [
-        "Miller",
-        "F."
+        "Miller, F."
       ],
       "year": 1938,
       "title": "Zwei neue Hhlenspinnen aus Grotten Jugoslawiens",
@@ -457403,8 +457330,7 @@
     },
     "Miller, F. (1978). Lepthyphantes spelaeorum und L. korulensis (Araneae) aus den grossen sddalmatinischen Hhlen. Prodovdn prce stav eskoslovensk Akademie Vd v Brn (N. S.) 12(4): 59-64.": {
       "authors": [
-        "Miller",
-        "F."
+        "Miller, F."
       ],
       "year": 1978,
       "title": "Lepthyphantes spelaeorum und L. korulensis (Araneae) aus den grossen sddalmatinischen Hhlen",
@@ -457413,8 +457339,7 @@
     },
     "Nikoli, F. (1963). Pauci iz nekih peina Slovenije. In T. Kanaet (Ed.), Trei Jugoslavenski speleoloki kongres (pp. 157167).": {
       "authors": [
-        "Nikoli",
-        "F."
+        "Nikoli, F."
       ],
       "year": 1963,
       "title": "Pauci iz nekih peina Slovenije",
@@ -457432,10 +457357,8 @@
     },
     "Novak, T., & Kutor, V. (1982). Zur Fauna der Wnde dreier Hhlen Nordostsloweniens (Jugoslawien). Die Hhle, 33, 2732.": {
       "authors": [
-        "Novak",
-        "T.",
-        "Kutor",
-        "V."
+        "Novak, T.",
+        "Kutor, V."
       ],
       "year": 1982,
       "title": "Zur Fauna der Wnde dreier Hhlen Nordostsloweniens (Jugoslawien)",
@@ -457444,10 +457367,8 @@
     },
     "Novak, T., & Kutor, V. (1983). On the ecology of an alpine ice cave. Mmoires de biospologie, 10, 117125.": {
       "authors": [
-        "Novak",
-        "T.",
-        "Kutor",
-        "V."
+        "Novak, T.",
+        "Kutor, V."
       ],
       "year": 1983,
       "title": "On the ecology of an alpine ice cave",
@@ -457456,10 +457377,8 @@
     },
     "Novak, T., & Sivec, I. (1977). Biological researches of pegmatite caves in Slovenia. Proceedings of the 7th International Congress of Speleology, Sheffield: Biological Research, 328331.": {
       "authors": [
-        "Novak",
-        "T.",
-        "Sivec",
-        "I."
+        "Novak, T.",
+        "Sivec, I."
       ],
       "year": 1977,
       "title": "Biological researches of pegmatite caves in Slovenia",
@@ -457468,30 +457387,17 @@
     },
     "Ozimec, R., Bedek, J., Gottstein, S., Jali, B., Slapnik, R., tamol, V., Bilandija, H., Draina, T., Kleteki, E., Komeriki, A., Luki, M., Pavlek, M., 2009: Red book of Croatian cave dwelling fauna, Ministarstvo kulture, Dravni Zavod za zatitu prirode, Zagreb, pp. 371": {
       "authors": [
-        "Ozimec",
-        "R.",
-        "Bedek",
-        "J.",
-        "Gottstein",
-        "S.",
-        "Jali",
-        "B.",
-        "Slapnik",
-        "R.",
-        "tamol",
-        "V.",
-        "Bilandija",
-        "H.",
-        "Draina",
-        "T.",
-        "Kleteki",
-        "E.",
-        "Komeriki",
-        "A.",
-        "Luki",
-        "M.",
-        "Pavlek",
-        "M."
+        "Ozimec, R.",
+        "Bedek, J.",
+        "Gottstein, S.",
+        "Jali, B.",
+        "Slapnik, R., tamol, V.",
+        "Bilandija, H.",
+        "Draina, T.",
+        "Kleteki, E.",
+        "Komeriki, A.",
+        "Luki, M.",
+        "Pavlek, M."
       ],
       "year": 2009,
       "title": "Red book of Croatian cave dwelling fauna",
@@ -457500,10 +457406,8 @@
     },
     "Pavlek, M., & Ozimec, R. (2009). New cave-dwelling species of genus Troglohyphantes (Araneae, Linyphiidae) for Croatian fauna. Natura Craotica, 18(1), 2937.": {
       "authors": [
-        "Pavlek",
-        "M.",
-        "Ozimec",
-        "R."
+        "Pavlek, M.",
+        "Ozimec, R."
       ],
       "year": 2009,
       "title": "New cave-dwelling species of genus Troglohyphantes (Araneae, Linyphiidae) for Croatian fauna",
@@ -457512,30 +457416,8 @@
     },
     "Jali, B. & Rnjak, G. 2019: Glogova jama na Snijenici. Subterranea Croatica, 17, 2, 44-50.": {
       "authors": [
-        "J",
-        "a",
-        "l",
-        "",
-        "i",
-        "",
-        "",
-        "",
-        "",
-        "B",
-        ".",
-        "",
-        "",
-        "",
-        "R",
-        "n",
-        "j",
-        "a",
-        "k",
-        "",
-        "",
-        "",
-        "G",
-        "."
+        "Jali, B.",
+        "Rnjak, G."
       ],
       "year": 2019,
       "title": "Glogova jama na Snijenici",
@@ -457544,31 +457426,8 @@
     },
     "Pavlek, M., & Ozimec, R. (2009). New cave-dwelling species of genus Troglohyphantes (Araneae, Linyphiidae) for Croatian fauna. Natura Craotica, 18(1), 2937": {
       "authors": [
-        "P",
-        "a",
-        "v",
-        "l",
-        "e",
-        "k",
-        "",
-        "",
-        "",
-        "M",
-        ".",
-        "",
-        "",
-        "",
-        "O",
-        "z",
-        "i",
-        "m",
-        "e",
-        "c",
-        "",
-        "",
-        "",
-        "R",
-        "."
+        "Pavlek, M.",
+        "Ozimec, R."
       ],
       "year": 2009,
       "title": "New cave-dwelling species of genus Troglohyphantes (Araneae, Linyphiidae) for Croatian fauna",
@@ -457577,16 +457436,11 @@
     },
     "Pavlek, M., Bedek, J., Luki, M., Tvrtkovi, N., & Komeriki, A. (2023). Biospeleologija parone jame. In parona jama zaboravljena primadona Klasinog kra (pp. 6774). Hrvatski speleoloki savez.": {
       "authors": [
-        "Pavlek",
-        "M.",
-        "Bedek",
-        "J.",
-        "Luki",
-        "M.",
-        "Tvrtkovi",
-        "N.",
-        "Komeriki",
-        "A."
+        "Pavlek, M.",
+        "Bedek, J.",
+        "Luki, M.",
+        "Tvrtkovi, N.",
+        "Komeriki, A."
       ],
       "year": 2023,
       "title": "Biospeleologija parone jame",
@@ -457595,14 +457449,10 @@
     },
     "Pavlek, M., Bregovi, P., Deli, T., Bedek, J. (2018). Biospeleologija verde. In: Cvitanovi H. (ed.) verda - Speleololoka istraivanja zalea izvora Rjeine. Subterranea Croatica, Vol. 16 No. supplementum 2. 41-50": {
       "authors": [
-        "Pavlek",
-        "M.",
-        "Bregovi",
-        "P.",
-        "Deli",
-        "T.",
-        "Bedek",
-        "J."
+        "Pavlek, M.",
+        "Bregovi, P.",
+        "Deli, T.",
+        "Bedek, J."
       ],
       "year": 2018,
       "title": "Biospeleologija verde",
@@ -457611,56 +457461,10 @@
     },
     "Pavlek, M.; Bregovi, P.; Deli, T.; Bedek, J., 2018: Biospeleologija verde. In: Cvitanovi H. (ed.) verda - Speleololoka istraivanja zalea izvora Rjeine. Subterranea Croatica, Vol. 16 No. supplementum 2. 41-50": {
       "authors": [
-        "P",
-        "a",
-        "v",
-        "l",
-        "e",
-        "k",
-        "",
-        "",
-        "",
-        "M",
-        ".",
-        ";",
-        "",
-        "B",
-        "r",
-        "e",
-        "g",
-        "o",
-        "v",
-        "i",
-        "",
-        "",
-        "",
-        "",
-        "P",
-        ".",
-        ";",
-        "",
-        "D",
-        "e",
-        "l",
-        "i",
-        "",
-        "",
-        "",
-        "",
-        "T",
-        ".",
-        ";",
-        "",
-        "B",
-        "e",
-        "d",
-        "e",
-        "k",
-        "",
-        "",
-        "",
-        "J",
-        "."
+        "Pavlek, M.",
+        "Bregovi, P.",
+        "Deli, T.",
+        "Bedek, J."
       ],
       "year": 2022,
       "title": "Biospeleologija verde",
@@ -457669,8 +457473,7 @@
     },
     "Pax, F. (1938) Beitrag zur Kenntnis der Hhlenfauna von Leme. Mitteilungen ber Hhlen- und Karstforschung, 1938, 113-119.": {
       "authors": [
-        "Pax",
-        "F."
+        "Pax, F."
       ],
       "year": 1938,
       "title": "Beitrag zur Kenntnis der Hhlenfauna von Leme",
@@ -457679,14 +457482,10 @@
     },
     "Polak, S., Bedek, J., Ozimec, R., & Zaksek, V. (2012). Subterranean Fauna of twelve Istrian caves/Fauna Sotterranea di dodici grotte istriane. InAnnales: Series Historia Naturalis(Vol. 22, No. 1, p. 7). Scientific and Research Center of the Republic of Slovenia.": {
       "authors": [
-        "Polak",
-        "S.",
-        "Bedek",
-        "J.",
-        "Ozimec",
-        "R.",
-        "Zaksek",
-        "V."
+        "Polak, S.",
+        "Bedek, J.",
+        "Ozimec, R.",
+        "Zaksek, V."
       ],
       "year": 2012,
       "title": "Subterranean Fauna of twelve Istrian caves/Fauna Sotterranea di dodici grotte istriane",
@@ -457695,14 +457494,10 @@
     },
     "Polak, S., Bedek, J., Ozimec, R., Zakek, V. (2012). Subterranean fauna of twelve Istrian caves. Annales Series Historia Naturalis, 22, 724.": {
       "authors": [
-        "Polak",
-        "S.",
-        "Bedek",
-        "J.",
-        "Ozimec",
-        "R.",
-        "Zakek",
-        "V."
+        "Polak, S.",
+        "Bedek, J.",
+        "Ozimec, R.",
+        "Zakek, V."
       ],
       "year": 2012,
       "title": "Subterranean fauna of twelve Istrian caves",
@@ -457711,8 +457506,7 @@
     },
     "Polenec, A. (1972). Nekaj posebnosti in zanimivosti iz ivalstva Lokega ozemlja. Loki razgledi, kofja Loka 19: 356374., 1973": {
       "authors": [
-        "Polenec",
-        "A."
+        "Polenec, A."
       ],
       "year": 1972,
       "title": "Nekaj posebnosti in zanimivosti iz ivalstva Lokega ozemlja",
@@ -457721,8 +457515,7 @@
     },
     "Poljugan, D. (1915). O Pauku Stalita Gracilipes Kulcz., a Napose o Njegovom Mujaku. Glasnik hrvatskog prirodoslovnog drutva drutva, 176181.": {
       "authors": [
-        "Poljugan",
-        "D."
+        "Poljugan, D."
       ],
       "year": 1915,
       "title": "O Pauku Stalita Gracilipes Kulcz., a Napose o Njegovom Mujaku",
@@ -457731,8 +457524,7 @@
     },
     "Reimoser, E. (1929). Eine neue Hhlenspinne aus Dalmatien. Senckenbergiana, 11, 235237.": {
       "authors": [
-        "Reimoser",
-        "E."
+        "Reimoser, E."
       ],
       "year": 1929,
       "title": "Eine neue Hhlenspinne aus Dalmatien",
@@ -457741,8 +457533,7 @@
     },
     "Reimoser, E. (1929). Wissenschaftliche Ergebnisse einer Reise nach Norddalmatien in Jahre 1928. Annalen Des Naturhistorischen Museums in Wien, 187230.": {
       "authors": [
-        "Reimoser",
-        "E."
+        "Reimoser, E."
       ],
       "year": 1929,
       "title": "Wissenschaftliche Ergebnisse einer Reise nach Norddalmatien in Jahre 1928",
@@ -457771,8 +457562,7 @@
     },
     "Roewer, C. F. (1931). Arachnoideen aus sdostalpinen Hhlen gesammelt von Herrn Karl Strasser in den Jahren 1929 und 1930. Mittelteilungen ber Hhlen- und Karsiforschung, Berlin, Jahrgang 1931, Heft 2: 4046, 3: 69-80.": {
       "authors": [
-        "Roewer",
-        "C. F."
+        "Roewer, C. F."
       ],
       "year": 1931,
       "title": "Arachnoideen aus sdostalpinen Hhlen gesammelt von Herrn Karl Strasser in den Jahren 1929 und 1930",
@@ -457781,7 +457571,8 @@
     },
     "Rucner D. Rucner R. (1995). Beitrag zur Kenntnis einiger Arthropoden (Scorpiones, Pseu- doscorpiones, Araneae, Acari, Diplopoda und Chilopoda) in den Waldassoziationen Kroa- tiens. Natura Croatica, 4(4), 185225.": {
       "authors": [
-        "Rucner D. Rucner R."
+        "Rucner D.",
+        "Rucner R."
       ],
       "year": 1995,
       "title": "Beitrag zur Kenntnis einiger Arthropoden (Scorpiones, Pseu- doscorpiones, Araneae, Acari, Diplopoda und Chilopoda) in den Waldassoziationen Kroa- tiens",
@@ -457790,8 +457581,7 @@
     },
     "Simon, E. (1926). Les arachnides de France. Synopsis gnrale et catalogue des espces franaises de l'ordre des Araneae. Tome VI. 2e partie. Roret, Paris, pp. 309-532.": {
       "authors": [
-        "Simon",
-        "E."
+        "Simon, E."
       ],
       "year": 1926,
       "title": "Les arachnides de France. Synopsis gnrale et catalogue des espces franaises de l'ordre des Araneae",
@@ -457800,10 +457590,8 @@
     },
     "Stepinik, U., Ramak, L., 2006. Tikina jama. Nae jame, 46: 2633.": {
       "authors": [
-        "Stepinik",
-        "U.",
-        "Ramak",
-        "L."
+        "Stepinik, U.",
+        "Ramak, L."
       ],
       "year": 2006,
       "title": "Tikina jama",
@@ -457812,8 +457600,7 @@
     },
     "Stoch, F., 2009. Servizio di integrazione al catasto grotte nel Sito Natura 2000 SIC IT3340006 Carso Triestino e Goriziano e ZPS IT3341002 Aree Carsiche della Venezia Giulia. Relazione Finale. Udine, 232 pp.": {
       "authors": [
-        "Stoch",
-        "F."
+        "Stoch, F."
       ],
       "year": 2009,
       "title": "Servizio di integrazione al catasto grotte nel Sito Natura 2000 SIC IT3340006 Carso Triestino e Goriziano e ZPS IT3341002 Aree Carsiche della Venezia Giulia",
@@ -457822,8 +457609,7 @@
     },
     "Thaler, K. (1990). Das Mnnchen von Rhode aspinifera (Nikoli) (Arachnida: Araneae, Dysderidae). Mitteilungen Der Schweizerischen Entomologischen Gesellschaft, 63(12), 147149.": {
       "authors": [
-        "Thaler",
-        "K."
+        "Thaler, K."
       ],
       "year": 1990,
       "title": "Das Mnnchen von Rhode aspinifera (Nikoli) (Arachnida: Araneae, Dysderidae)",
@@ -457832,8 +457618,7 @@
     },
     "Thaler, K. (2000). Paolo M. Brignoli and the spider world of the Mediterranean. Memorie della Societ Entomologica Italiana, 78(2): 187-197.": {
       "authors": [
-        "Thaler",
-        "K."
+        "Thaler, K."
       ],
       "year": 2000,
       "title": "Paolo M. Brignoli and the spider world of the Mediterranean",
@@ -457842,10 +457627,8 @@
     },
     "Thaler, K., & Gasparo, F. (1999). Zur Genitalmorphologie von Typhlonyphia reimoseri KRATOCHVIL, 1936 (Arachnida: Araneae, Linyphiidae). Bericht Naturwissenschaftlich Medizinischer Verein Innsbruck, 86, 159164.": {
       "authors": [
-        "Thaler",
-        "K.",
-        "Gasparo",
-        "F."
+        "Thaler, K.",
+        "Gasparo, F."
       ],
       "year": 1999,
       "title": "Zur Genitalmorphologie von Typhlonyphia reimoseri KRATOCHVIL, 1936 (Arachnida: Araneae, Linyphiidae)",
@@ -457854,10 +457637,8 @@
     },
     "Ubick, D., & Ozimec, R. (2019). A new critically endangered species of the harvestman genus Lola Kratochvl 1937 (Opiliones: Laniatores: Phalangodidae) from the Dalmatian karst, with notes on troglomorphy in European phalangodids. Journal of Arachnology, 47, 142153.": {
       "authors": [
-        "Ubick",
-        "D.",
-        "Ozimec",
-        "R."
+        "Ubick, D.",
+        "Ozimec, R."
       ],
       "year": 2019,
       "title": "A new critically endangered species of the harvestman genus Lola Kratochvl 1937 (Opiliones: Laniatores: Phalangodidae) from the Dalmatian karst, with notes on troglomorphy in European phalangodids",
@@ -457866,7 +457647,8 @@
     },
     "Vuji Karlo S. & Raa T. (2004). Biospeleoloka istraivanja na podruju Nacionalnog parka Paklenica. Pakleniki Zbornik 2. 65-74.": {
       "authors": [
-        "Vuji Karlo S.",
+        "Vuji",
+        "Karlo S.",
         "Raa T."
       ],
       "year": 2004,
@@ -457876,8 +457658,7 @@
     },
     "Willmann, C. (1941). Die Acari der Hhlen der Balkanhalbinsel. (Nach dem Material der Biospeologica balcanica). Studien aus dem Gebiete der Allgemeinen Karstforschung, der Wissenschaftlichen Hhlenkunde, der Eiszeitforschung und den Nachbargebieten. B Biologische Serie, Brnn, 8, 180.": {
       "authors": [
-        "Willmann",
-        "C."
+        "Willmann, C."
       ],
       "year": 1941,
       "title": "Die Acari der Hhlen der Balkanhalbinsel. (Nach dem Material der Biospeologica balcanica). Studien aus dem Gebiete der Allgemeinen Karstforschung, der Wissenschaftlichen Hhlenkunde, der Eiszeitforschung und den Nachbargebieten",
@@ -457916,16 +457697,12 @@
     },
     "uica, N., Cvitanovi, H., Baurin, ., Tresi Pavii, D., & Kuhari, N. (2022). Istraivanja speleolokih objekata dijela kanjona rijeke Korane u NP Plitvika jezera. Subterranea Croatica, 20(32), 1856.": {
       "authors": [
-        "uica",
-        "N.",
-        "Cvitanovi",
-        "H.",
-        "Baurin",
-        ".",
-        "Tresi Pavii",
-        "D.",
-        "Kuhari",
-        "N."
+        "uica, N.",
+        "Cvitanovi, H.",
+        "Baurin, .",
+        "Tresi",
+        "Pavii, D.",
+        "Kuhari, N."
       ],
       "year": 2022,
       "title": "Istraivanja speleolokih objekata dijela kanjona rijeke Korane u NP Plitvika jezera",

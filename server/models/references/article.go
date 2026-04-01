@@ -18,10 +18,13 @@ type DOI string
 
 func normalizeDOI(s string) string {
 	s = strings.ToLower(s)
+	s = strings.TrimPrefix(s, "http://")
+	s = strings.TrimPrefix(s, "https://")
 	s = strings.TrimPrefix(s, "https://doi.org/")
 	s = strings.TrimPrefix(s, "http://doi.org/")
 	s = strings.TrimPrefix(s, "doi:")
 	s = strings.TrimPrefix(s, "doi/")
+	s = strings.TrimPrefix(s, "doi.org/")
 	return s
 }
 

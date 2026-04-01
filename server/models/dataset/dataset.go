@@ -25,7 +25,7 @@ type DatasetInner struct {
 }
 
 type Dataset struct {
-	DatasetInner `gel:"$inline" json:",inline"`
+	DatasetInner `gel:"$inline"`
 	Publications []references.Article `gel:"publications" json:"publications,omitempty"`
 	Maintainers  []people.Person      `gel:"maintainers" json:"maintainers"`
 	Meta         people.Meta          `gel:"meta" json:"meta"`

@@ -143,13 +143,13 @@ func (t TaxaByRank) fetchLineageTaxa(tx geltypes.Executor, taxon TaxonGBIF) ([]T
 	if err != nil {
 		return nil, err
 	}
-	logrus.Debugf(
-		"%d taxa for lineage of taxon '%s' already exist in the database",
-		len(toCheck), taxon.Name,
-	)
 	if len(missing) == 0 {
 		return nil, nil
 	}
+	logrus.Infof(
+		"%d/%d taxa for lineage of taxon '%s' must be fetched",
+		len(missing), len(toCheck), taxon.Name,
+	)
 
 	logrus.Debugf("Fetching %d taxa for lineage of taxon '%s' from GBIF", len(missing), taxon.Name)
 	taxa := make([]TaxonGBIF, 0, len(missing))
@@ -157,13 +157,6 @@ func (t TaxaByRank) fetchLineageTaxa(tx geltypes.Executor, taxon TaxonGBIF) ([]T
 		taxon, err := FetchKey(toCheck[name])
 		if err != nil {
 			return nil, err
-		}
-		if taxon.Status != "ACCEPTED" {
-			logrus.Warnf("Taxon '%s' with key %d in lineage of taxon '%s' is not accepted (status: %s), fetching by name", taxon.Name, taxon.Key, taxon.Name, taxon.Status)
-			taxon, err = FetchByName(Client(), SearchParams{Query: name, Status: "ACCEPTED"})
-			if err != nil {
-				return nil, err
-			}
 		}
 		taxa = append(taxa, *taxon)
 	}
