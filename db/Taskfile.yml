@@ -84,6 +84,17 @@ tasks:
       - gel branch create {{.TEST_DB_NAME}} --copy-data
     deps: [dl-countries-dataset]
 
+  seed:dataset:
+    desc: "Seed a specific dataset by name"
+    interactive: true
+    dir: seeds
+    requires:
+      vars: 
+        - name: CLI_ARGS
+          enum: [ostracoda, copepoda, aselloidea, austria, spiders]
+    cmd: go run ./cmd/seed/ datasets {{.CLI_ARGS}}
+
+
   reset:
     desc: "Wipe database and reset initial seed"
     dir: ..
