@@ -8,13 +8,13 @@ import (
 )
 
 type SequenceDatasetListItem struct {
-	dataset.DatasetInner `gel:"$inline" json:",inline"`
+	dataset.DatasetInner `gel:"$inline"`
 	Sites                int64 `gel:"sites_count" json:"sites"`
 	Sequences            int64 `gel:"sequences_count" json:"sequences"`
 }
 
 type SequenceDataset struct {
-	dataset.Dataset `gel:"$inline" json:",inline"`
+	dataset.Dataset `gel:"$inline"`
 	Sites           []SiteItem `gel:"sites" json:"sites"`
 	Sequences       []Sequence `gel:"sequences" json:"sequences"`
 }

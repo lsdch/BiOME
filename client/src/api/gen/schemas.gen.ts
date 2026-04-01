@@ -595,6 +595,77 @@ export const $ContentDomain = {
   type: 'object'
 } as const
 
+export const $Cookie = {
+  additionalProperties: false,
+  properties: {
+    Domain: {
+      type: 'string'
+    },
+    Expires: {
+      format: 'date-time',
+      type: 'string'
+    },
+    HttpOnly: {
+      type: 'boolean'
+    },
+    MaxAge: {
+      format: 'int64',
+      type: 'integer'
+    },
+    Name: {
+      type: 'string'
+    },
+    Partitioned: {
+      type: 'boolean'
+    },
+    Path: {
+      type: 'string'
+    },
+    Quoted: {
+      type: 'boolean'
+    },
+    Raw: {
+      type: 'string'
+    },
+    RawExpires: {
+      type: 'string'
+    },
+    SameSite: {
+      format: 'int64',
+      type: 'integer'
+    },
+    Secure: {
+      type: 'boolean'
+    },
+    Unparsed: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    Value: {
+      type: 'string'
+    }
+  },
+  required: [
+    'Name',
+    'Value',
+    'Quoted',
+    'Path',
+    'Domain',
+    'Expires',
+    'RawExpires',
+    'MaxAge',
+    'Secure',
+    'HttpOnly',
+    'SameSite',
+    'Partitioned',
+    'Raw',
+    'Unparsed'
+  ],
+  type: 'object'
+} as const
+
 export const $Coordinates = {
   additionalProperties: false,
   properties: {
@@ -1491,6 +1562,27 @@ export const $Flagging = {
       type: 'array'
     }
   },
+  type: 'object'
+} as const
+
+export const $FormFile = {
+  additionalProperties: false,
+  properties: {
+    ContentType: {
+      type: 'string'
+    },
+    Filename: {
+      type: 'string'
+    },
+    IsSet: {
+      type: 'boolean'
+    },
+    Size: {
+      format: 'int64',
+      type: 'integer'
+    }
+  },
+  required: ['ContentType', 'IsSet', 'Size', 'Filename'],
   type: 'object'
 } as const
 
@@ -3448,6 +3540,10 @@ export const $OptionalTaxon = {
     rank: {
       $ref: '#/components/schemas/TaxonRank',
       examples: ['Species']
+    },
+    scientific_name: {
+      examples: ['Asellus aquaticus (Linnaeus, 1758)'],
+      type: 'string'
     },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
@@ -6186,6 +6282,10 @@ export const $Taxon = {
       $ref: '#/components/schemas/TaxonRank',
       examples: ['Species']
     },
+    scientific_name: {
+      examples: ['Asellus aquaticus (Linnaeus, 1758)'],
+      type: 'string'
+    },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
       examples: ['Accepted']
@@ -6223,6 +6323,10 @@ export const $TaxonInput = {
       $ref: '#/components/schemas/TaxonRank',
       examples: ['Species']
     },
+    scientific_name: {
+      examples: ['Asellus aquaticus (Linnaeus, 1758)'],
+      type: 'string'
+    },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
       examples: ['Accepted']
@@ -6252,7 +6356,7 @@ export const $TaxonRank = {
 } as const
 
 export const $TaxonStatus = {
-  enum: ['Accepted', 'Synonym', 'Unreferenced', 'Unclassified'],
+  enum: ['Accepted', 'Synonym', 'Doubtful', 'Unreferenced', 'Unclassified'],
   title: 'TaxonStatus',
   type: 'string'
 } as const
@@ -6345,6 +6449,10 @@ export const $TaxonWithLineage = {
       $ref: '#/components/schemas/TaxonRank',
       examples: ['Species']
     },
+    scientific_name: {
+      examples: ['Asellus aquaticus (Linnaeus, 1758)'],
+      type: 'string'
+    },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
       examples: ['Accepted']
@@ -6399,6 +6507,10 @@ export const $TaxonWithParentRef = {
     rank: {
       $ref: '#/components/schemas/TaxonRank',
       examples: ['Species']
+    },
+    scientific_name: {
+      examples: ['Asellus aquaticus (Linnaeus, 1758)'],
+      type: 'string'
     },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
@@ -6461,6 +6573,10 @@ export const $TaxonWithRelatives = {
     rank: {
       $ref: '#/components/schemas/TaxonRank',
       examples: ['Species']
+    },
+    scientific_name: {
+      examples: ['Asellus aquaticus (Linnaeus, 1758)'],
+      type: 'string'
     },
     status: {
       $ref: '#/components/schemas/TaxonStatus',
@@ -6529,6 +6645,10 @@ export const $Taxonomy = {
     rank: {
       $ref: '#/components/schemas/TaxonRank',
       examples: ['Species']
+    },
+    scientific_name: {
+      examples: ['Asellus aquaticus (Linnaeus, 1758)'],
+      type: 'string'
     },
     status: {
       $ref: '#/components/schemas/TaxonStatus',

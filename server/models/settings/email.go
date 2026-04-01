@@ -23,7 +23,7 @@ type EmailSettingsInput struct {
 type EmailSettings struct {
 	geltypes.Optional
 	ID                 geltypes.UUID `gel:"id" json:"-"`
-	EmailSettingsInput `gel:"$inline" json:",inline"`
+	EmailSettingsInput `gel:"$inline"`
 }
 
 func (e EmailSettingsInput) FromHeader() string {

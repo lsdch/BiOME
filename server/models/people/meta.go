@@ -38,7 +38,7 @@ func (m *Meta) Save(db geltypes.Executor) {
 }
 
 type MetaWithUser struct {
-	Meta          `gel:"$inline" json:",inline"`
+	Meta          `gel:"$inline"`
 	CreatedByUser OptionalUser `json:"created_by_user,omitempty" gel:"created_by_user"`
 	UpdatedByUser OptionalUser `json:"updated_by_user,omitempty" gel:"modified_by_user"`
 }

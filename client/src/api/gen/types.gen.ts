@@ -219,6 +219,23 @@ export type ContentDomain = {
   domain?: Array<string>
 }
 
+export type Cookie = {
+  Domain: string
+  Expires: Date
+  HttpOnly: boolean
+  MaxAge: number
+  Name: string
+  Partitioned: boolean
+  Path: string
+  Quoted: boolean
+  Raw: string
+  RawExpires: string
+  SameSite: number
+  Secure: boolean
+  Unparsed: Array<string>
+  Value: string
+}
+
 export type Coordinates = {
   latitude: number
   longitude: number
@@ -608,6 +625,13 @@ export type Flagging = {
   abiotic_parameters?: Array<AbioticParameter>
   indications?: string
   target_taxa?: Array<Taxon>
+}
+
+export type FormFile = {
+  ContentType: string
+  Filename: string
+  IsSet: boolean
+  Size: number
 }
 
 export type Funder = {
@@ -1300,6 +1324,7 @@ export type OptionalTaxon = {
   meta: Meta
   name: string
   rank: TaxonRank
+  scientific_name?: string
   status: TaxonStatus
 } | null
 
@@ -2246,6 +2271,7 @@ export type Taxon = {
   meta: Meta
   name: string
   rank: TaxonRank
+  scientific_name?: string
   status: TaxonStatus
 }
 
@@ -2259,6 +2285,7 @@ export type TaxonInput = {
   name: string
   parent: string
   rank: TaxonRank
+  scientific_name?: string
   status: TaxonStatus
   synonym_of?: string
 }
@@ -2280,7 +2307,7 @@ export type TaxonRank =
 /**
  * TaxonStatus
  */
-export type TaxonStatus = 'Accepted' | 'Synonym' | 'Unreferenced' | 'Unclassified'
+export type TaxonStatus = 'Accepted' | 'Synonym' | 'Doubtful' | 'Unreferenced' | 'Unclassified'
 
 export type TaxonUpdate = {
   /**
@@ -2312,6 +2339,7 @@ export type TaxonWithLineage = {
   name: string
   parent?: OptionalTaxon
   rank: TaxonRank
+  scientific_name?: string
   status: TaxonStatus
   synonyms?: Array<Taxon>
 }
@@ -2327,6 +2355,7 @@ export type TaxonWithParentRef = {
   name: string
   parent: string
   rank: TaxonRank
+  scientific_name?: string
   status: TaxonStatus
 }
 
@@ -2346,6 +2375,7 @@ export type TaxonWithRelatives = {
   name: string
   parent?: OptionalTaxon
   rank: TaxonRank
+  scientific_name?: string
   status: TaxonStatus
   synonyms?: Array<Taxon>
 }
@@ -2366,6 +2396,7 @@ export type Taxonomy = {
   name: string
   parent?: OptionalTaxon
   rank: TaxonRank
+  scientific_name?: string
   status: TaxonStatus
   synonyms?: Array<Taxon>
 }

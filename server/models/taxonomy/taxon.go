@@ -36,7 +36,7 @@ type TaxonInner struct {
 }
 
 type TaxonInput struct {
-	TaxonInner `gel:"$inline" json:",inline"`
+	TaxonInner `gel:"$inline"`
 	SynonymOf  models.OptionalInput[string] `gel:"synonym_of" json:"synonym_of,omitempty"`                // name of the taxon this taxon is a synonym of
 	Parent     string                       `json:"parent" binding:"required,exist=taxonomy::Taxon.name"` // Parent taxon name
 	Authorship models.OptionalInput[string] `json:"authorship,omitempty" example:"(Linnaeus, 1758)"`
@@ -55,7 +55,7 @@ type Taxon struct {
 }
 
 type TaxonWithParentRef struct {
-	Taxon  `gel:"$inline" json:",inline"`
+	Taxon  `gel:"$inline"`
 	Parent geltypes.OptionalStr `gel:"parent_name" json:"parent"`
 }
 
@@ -71,20 +71,20 @@ type Lineage struct {
 }
 
 type TaxonWithRelatives struct {
-	Taxon    `gel:"$inline" json:",inline"`
+	Taxon    `gel:"$inline"`
 	Parent   models.Optional[Taxon] `gel:"parent" json:"parent,omitempty"`
 	Synonyms []Taxon                `gel:"synonyms" json:"synonyms,omitempty"`
 	Children []Taxon                `gel:"children" json:"children,omitempty"`
 }
 
 type TaxonWithLineage struct {
-	TaxonWithRelatives `gel:"$inline" json:",inline"`
+	TaxonWithRelatives `gel:"$inline"`
 	Lineage            Lineage `gel:"$inline" json:"lineage"`
 }
 
 // Taxonomy type is a tree like representation of the taxonomy, or part of it.
 type Taxonomy struct {
-	Taxon    `gel:"$inline" json:",inline"`
+	Taxon    `gel:"$inline"`
 	Parent   models.Optional[Taxon] `gel:"parent" json:"parent,omitempty"`
 	Synonyms []Taxon                `gel:"synonyms" json:"synonyms,omitempty"`
 	Children []Taxonomy             `gel:"children" json:"children,omitempty"`

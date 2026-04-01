@@ -18,7 +18,7 @@ type PresetsInner struct {
 
 type PresetsInput struct {
 	ID           models.OptionalInput[geltypes.UUID] `json:"id,omitempty" gel:"id"`
-	PresetsInner `json:",inline" gel:"$inline"`
+	PresetsInner `gel:"$inline"`
 	Description  models.OptionalInput[string] `json:"description,omitempty" gel:"description"`
 }
 
@@ -28,7 +28,7 @@ type MapToolPresetInput PresetsInput
 type Presets struct {
 	ID           geltypes.UUID        `edgedb:"id" json:"id" format:"uuid"`
 	Description  geltypes.OptionalStr `json:"description,omitempty" gel:"description"`
-	PresetsInput `json:",inline" gel:"$inline"`
+	PresetsInput `gel:"$inline"`
 	Meta         people.Meta `json:"meta" gel:"meta"`
 }
 

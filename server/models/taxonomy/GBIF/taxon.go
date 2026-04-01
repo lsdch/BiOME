@@ -47,7 +47,7 @@ func (t *TaxonInnerGBIF) normalize() *TaxonInnerGBIF {
 }
 
 type TaxonGBIF struct {
-	TaxonInnerGBIF          `json:",inline" gel:"$inline"`
+	TaxonInnerGBIF          `gel:"$inline"`
 	KingdomKey              int32                        `json:"kingdomKey"`
 	PhylumKey               int32                        `json:"phylumKey"`
 	ClassKey                int32                        `json:"classKey"`

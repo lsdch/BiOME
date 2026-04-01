@@ -31,18 +31,18 @@ type OrganisationInfos struct {
 
 // @mapstructure
 type OrganisationInput struct {
-	OrganisationInfos `gel:"$inline" json:",inline" mapstructure:",squash"`
+	OrganisationInfos `gel:"$inline" mapstructure:",squash"`
 	Description       models.OptionalInput[string] `json:"description,omitzero" gel:"description" example:"Where this database was born." mapstructure:"description"`
 }
 
 type OrganisationInner struct {
 	ID                geltypes.UUID `json:"id" gel:"id" format:"uuid" binding:"required"`
-	OrganisationInfos `gel:"$inline" json:",inline"`
+	OrganisationInfos `gel:"$inline"`
 	Description       geltypes.OptionalStr `json:"description,omitempty" gel:"description" example:"Where this database was born."`
 }
 
 type Organisation struct {
-	OrganisationInner `gel:"$inline" json:",inline"`
+	OrganisationInner `gel:"$inline"`
 	People            []Person `json:"people,omitempty" gel:"people" doc:"Known members of this organisation"`
 	Meta              Meta     `json:"meta" gel:"meta"`
 }

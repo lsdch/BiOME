@@ -9,7 +9,7 @@ import (
 
 type OptionalDateWithPrecision struct {
 	geltypes.Optional `json:"-"`
-	DateWithPrecision `gel:"$inline" json:",inline"`
+	DateWithPrecision `gel:"$inline"`
 }
 
 type DateWithPrecision struct {

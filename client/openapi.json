@@ -673,6 +673,76 @@
 				},
 				"type": "object"
 			},
+			"Cookie": {
+				"additionalProperties": false,
+				"properties": {
+					"Domain": {
+						"type": "string"
+					},
+					"Expires": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"HttpOnly": {
+						"type": "boolean"
+					},
+					"MaxAge": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"Name": {
+						"type": "string"
+					},
+					"Partitioned": {
+						"type": "boolean"
+					},
+					"Path": {
+						"type": "string"
+					},
+					"Quoted": {
+						"type": "boolean"
+					},
+					"Raw": {
+						"type": "string"
+					},
+					"RawExpires": {
+						"type": "string"
+					},
+					"SameSite": {
+						"format": "int64",
+						"type": "integer"
+					},
+					"Secure": {
+						"type": "boolean"
+					},
+					"Unparsed": {
+						"items": {
+							"type": "string"
+						},
+						"type": "array"
+					},
+					"Value": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"Name",
+					"Value",
+					"Quoted",
+					"Path",
+					"Domain",
+					"Expires",
+					"RawExpires",
+					"MaxAge",
+					"Secure",
+					"HttpOnly",
+					"SameSite",
+					"Partitioned",
+					"Raw",
+					"Unparsed"
+				],
+				"type": "object"
+			},
 			"Coordinates": {
 				"additionalProperties": false,
 				"properties": {
@@ -1734,6 +1804,31 @@
 						"type": "array"
 					}
 				},
+				"type": "object"
+			},
+			"FormFile": {
+				"additionalProperties": false,
+				"properties": {
+					"ContentType": {
+						"type": "string"
+					},
+					"Filename": {
+						"type": "string"
+					},
+					"IsSet": {
+						"type": "boolean"
+					},
+					"Size": {
+						"format": "int64",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"ContentType",
+					"IsSet",
+					"Size",
+					"Filename"
+				],
 				"type": "object"
 			},
 			"Funder": {
@@ -3912,6 +4007,12 @@
 						"examples": [
 							"Species"
 						]
+					},
+					"scientific_name": {
+						"examples": [
+							"Asellus aquaticus (Linnaeus, 1758)"
+						],
+						"type": "string"
 					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
@@ -7051,6 +7152,12 @@
 							"Species"
 						]
 					},
+					"scientific_name": {
+						"examples": [
+							"Asellus aquaticus (Linnaeus, 1758)"
+						],
+						"type": "string"
+					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
 						"examples": [
@@ -7105,6 +7212,12 @@
 							"Species"
 						]
 					},
+					"scientific_name": {
+						"examples": [
+							"Asellus aquaticus (Linnaeus, 1758)"
+						],
+						"type": "string"
+					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
 						"examples": [
@@ -7142,6 +7255,7 @@
 				"enum": [
 					"Accepted",
 					"Synonym",
+					"Doubtful",
 					"Unreferenced",
 					"Unclassified"
 				],
@@ -7253,6 +7367,12 @@
 							"Species"
 						]
 					},
+					"scientific_name": {
+						"examples": [
+							"Asellus aquaticus (Linnaeus, 1758)"
+						],
+						"type": "string"
+					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
 						"examples": [
@@ -7325,6 +7445,12 @@
 						"examples": [
 							"Species"
 						]
+					},
+					"scientific_name": {
+						"examples": [
+							"Asellus aquaticus (Linnaeus, 1758)"
+						],
+						"type": "string"
 					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
@@ -7407,6 +7533,12 @@
 						"examples": [
 							"Species"
 						]
+					},
+					"scientific_name": {
+						"examples": [
+							"Asellus aquaticus (Linnaeus, 1758)"
+						],
+						"type": "string"
 					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
@@ -7494,6 +7626,12 @@
 						"examples": [
 							"Species"
 						]
+					},
+					"scientific_name": {
+						"examples": [
+							"Asellus aquaticus (Linnaeus, 1758)"
+						],
+						"type": "string"
 					},
 					"status": {
 						"$ref": "#/components/schemas/TaxonStatus",
@@ -7818,7 +7956,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -7834,8 +7971,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -7884,7 +8021,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -7900,8 +8036,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -7959,7 +8095,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -7975,8 +8110,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -8030,7 +8165,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -8046,8 +8180,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -8113,7 +8247,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -8129,8 +8262,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -8182,7 +8315,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -8198,8 +8330,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -8502,7 +8634,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -8518,8 +8649,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -8681,7 +8812,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -8697,8 +8827,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -8758,7 +8888,6 @@
 					},
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -8774,8 +8903,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -8822,7 +8951,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -8838,8 +8966,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -9069,7 +9197,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9085,8 +9212,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -9192,7 +9319,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9208,8 +9334,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -9258,7 +9384,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9274,8 +9399,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -9333,7 +9458,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9349,8 +9473,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -9404,7 +9528,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9420,8 +9543,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -9488,7 +9611,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9504,8 +9626,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -9591,7 +9713,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9607,8 +9728,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -9675,7 +9796,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9691,8 +9811,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -9744,7 +9864,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9760,8 +9879,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -9818,7 +9937,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9834,8 +9952,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -9892,7 +10010,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9908,8 +10025,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -9961,7 +10078,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -9977,8 +10093,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -10035,7 +10151,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10051,8 +10166,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -10102,7 +10217,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10118,8 +10232,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -10178,7 +10292,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10194,8 +10307,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -10252,7 +10365,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10268,8 +10380,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -10325,7 +10437,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10341,8 +10452,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -10391,7 +10502,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10407,8 +10517,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -10466,7 +10576,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10482,8 +10591,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -10537,7 +10646,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10553,8 +10661,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -10620,7 +10728,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10636,8 +10743,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -10686,7 +10793,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10702,8 +10808,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -10761,7 +10867,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10777,8 +10882,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -10832,7 +10937,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10848,8 +10952,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -10915,7 +11019,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -10931,12 +11034,11 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
-						"example": 43.5684,
 						"explode": false,
 						"in": "query",
 						"name": "latitude",
@@ -10951,7 +11053,6 @@
 						}
 					},
 					{
-						"example": 3.5678,
 						"explode": false,
 						"in": "query",
 						"name": "longitude",
@@ -11010,7 +11111,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11026,8 +11126,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -11075,7 +11175,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11091,8 +11190,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -11143,7 +11242,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11159,8 +11257,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -11209,7 +11307,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11225,8 +11322,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -11284,7 +11381,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11300,8 +11396,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -11357,7 +11453,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11373,8 +11468,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -11440,7 +11535,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11456,12 +11550,11 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
-						"example": 43.5684,
 						"explode": false,
 						"in": "query",
 						"name": "latitude",
@@ -11476,7 +11569,6 @@
 						}
 					},
 					{
-						"example": 3.5678,
 						"explode": false,
 						"in": "query",
 						"name": "longitude",
@@ -11535,7 +11627,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11551,12 +11642,11 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
-						"example": 43.5684,
 						"explode": false,
 						"in": "query",
 						"name": "latitude",
@@ -11571,7 +11661,6 @@
 						}
 					},
 					{
-						"example": 3.5678,
 						"explode": false,
 						"in": "query",
 						"name": "longitude",
@@ -11587,7 +11676,6 @@
 					},
 					{
 						"description": "Radius in meters",
-						"example": 20000,
 						"explode": false,
 						"in": "query",
 						"name": "radius",
@@ -11670,7 +11758,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11686,8 +11773,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -11738,7 +11825,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11754,8 +11840,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -11807,7 +11893,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11823,8 +11908,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -11892,7 +11977,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11908,8 +11992,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -11966,7 +12050,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -11982,8 +12065,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -12041,7 +12124,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12057,8 +12139,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -12116,7 +12198,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12132,8 +12213,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -12200,7 +12281,6 @@
 					},
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12216,8 +12296,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -12265,7 +12345,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12281,8 +12360,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -12473,7 +12552,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12489,8 +12567,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -12548,7 +12626,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12564,8 +12641,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -12610,7 +12687,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12626,8 +12702,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -12761,7 +12837,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12777,8 +12852,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -12830,7 +12905,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12846,8 +12920,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -12901,7 +12975,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12917,8 +12990,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -12972,7 +13045,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -12988,8 +13060,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -13055,7 +13127,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13071,8 +13142,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -13121,7 +13192,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13137,8 +13207,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -13206,7 +13276,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13222,8 +13291,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -13287,7 +13356,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13303,8 +13371,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -13380,7 +13448,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13396,8 +13463,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -13446,7 +13513,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13462,8 +13528,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -13531,7 +13597,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13547,8 +13612,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -13613,7 +13678,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13629,8 +13693,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -13708,7 +13772,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13724,8 +13787,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -13792,7 +13855,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13808,8 +13870,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -13858,7 +13920,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13874,8 +13935,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -13933,7 +13994,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -13949,8 +14009,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -14004,7 +14064,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14020,8 +14079,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -14087,7 +14146,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14103,8 +14161,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -14153,7 +14211,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14169,8 +14226,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -14228,7 +14285,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14244,8 +14300,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -14299,7 +14355,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14315,8 +14370,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -14382,7 +14437,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14398,8 +14452,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -14448,7 +14502,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14464,8 +14517,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -14523,7 +14576,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14539,8 +14591,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -14594,7 +14646,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14610,8 +14661,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -14677,7 +14728,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14693,8 +14743,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -14752,7 +14802,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14768,8 +14817,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -14824,7 +14873,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14840,8 +14888,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -14909,7 +14957,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -14925,8 +14972,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -14993,7 +15040,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15009,8 +15055,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15061,7 +15107,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15077,8 +15122,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -15132,7 +15177,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15148,8 +15192,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -15205,7 +15249,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15221,8 +15264,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15268,7 +15311,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15284,8 +15326,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15343,7 +15385,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15359,8 +15400,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15418,7 +15459,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15434,8 +15474,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15538,7 +15578,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15554,8 +15593,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15613,7 +15652,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15629,8 +15667,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15676,7 +15714,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15692,8 +15729,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15751,7 +15788,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15767,8 +15803,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15814,7 +15850,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15830,8 +15865,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -15890,7 +15925,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15906,8 +15940,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -15979,7 +16013,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -15995,8 +16028,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -16055,7 +16088,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -16071,8 +16103,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -16127,7 +16159,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -16143,8 +16174,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -16211,7 +16242,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -16227,8 +16257,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -16295,7 +16325,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -16311,8 +16340,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -16370,7 +16399,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -16386,8 +16414,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -16452,7 +16480,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -16468,8 +16495,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -16647,7 +16674,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -16663,8 +16689,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					}
 				],
@@ -16732,7 +16758,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -16748,8 +16773,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{
@@ -16882,7 +16907,6 @@
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
-						"example": "Bearer \u003cJWT string\u003e",
 						"in": "header",
 						"name": "Authorization",
 						"schema": {
@@ -16898,8 +16922,8 @@
 						"in": "cookie",
 						"name": "auth_token",
 						"schema": {
-							"description": "Session cookie containing JWT",
-							"type": "string"
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
 						}
 					},
 					{

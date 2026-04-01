@@ -12,7 +12,7 @@ import (
 )
 
 type AbioticParameter struct {
-	vocabulary.Vocabulary `gel:"$inline" json:",inline"`
+	vocabulary.Vocabulary `gel:"$inline"`
 	Unit                  string      `gel:"unit" json:"unit"`
 	Meta                  people.Meta `gel:"meta" json:"meta"`
 }
@@ -26,8 +26,8 @@ func ListAbioticParameters(db geltypes.Executor) ([]AbioticParameter, error) {
 }
 
 type AbioticParameterInput struct {
-	vocabulary.VocabularyInput `json:",inline"`
-	Unit                       string `json:"unit"`
+	vocabulary.VocabularyInput
+	Unit string `json:"unit"`
 }
 
 func (i AbioticParameterInput) Save(e geltypes.Executor) (created AbioticParameter, err error) {
@@ -46,7 +46,7 @@ func (i AbioticParameterInput) Save(e geltypes.Executor) (created AbioticParamet
 }
 
 type AbioticParameterUpdate struct {
-	vocabulary.VocabularyUpdate `gel:"$inline" json:",inline"`
+	vocabulary.VocabularyUpdate `gel:"$inline"`
 	Unit                        models.OptionalInput[string] `gel:"unit" json:"unit"`
 }
 
@@ -79,7 +79,7 @@ func DeleteAbioticParameter(db geltypes.Executor, code string) (deleted AbioticP
 }
 
 type AbioticMeasurement struct {
-	Action `gel:"$inline" json:",inline"`
+	Action `gel:"$inline"`
 	ID     geltypes.UUID    `gel:"id" json:"id" format:"uuid"`
 	Param  AbioticParameter `gel:"param" json:"param"`
 	Value  float32          `gel:"value" json:"value"`
@@ -87,9 +87,9 @@ type AbioticMeasurement struct {
 }
 
 type AbioticMeasurementInput struct {
-	ActionInput `json:",inline"`
-	Param       string  `json:"param"` // Parameter code
-	Value       float32 `json:"value"`
+	ActionInput
+	Param string  `json:"param"` // Parameter code
+	Value float32 `json:"value"`
 }
 
 // Upsert AbioticMeasurement with the given event ID

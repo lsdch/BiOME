@@ -12,7 +12,7 @@ import (
 )
 
 type Gene struct {
-	vocabulary.Vocabulary `gel:"$inline" json:",inline"`
+	vocabulary.Vocabulary `gel:"$inline"`
 	IsMOTUDelimiter       bool        `gel:"motu" json:"is_MOTU_delimiter"`
 	Meta                  people.Meta `gel:"meta" json:"meta"`
 }
@@ -26,8 +26,8 @@ func ListGenes(db geltypes.Executor) ([]Gene, error) {
 }
 
 type GeneInput struct {
-	vocabulary.VocabularyInput `json:",inline"`
-	IsMOTUDelimiter            bool `json:"is_MOTU_delimiter,omitempty" default:"false"`
+	vocabulary.VocabularyInput
+	IsMOTUDelimiter bool `json:"is_MOTU_delimiter,omitempty" default:"false"`
 }
 
 func (i GeneInput) Save(e geltypes.Executor) (created Gene, err error) {
@@ -46,7 +46,7 @@ func (i GeneInput) Save(e geltypes.Executor) (created Gene, err error) {
 }
 
 type GeneUpdate struct {
-	vocabulary.VocabularyUpdate `gel:"$inline" json:",inline"`
+	vocabulary.VocabularyUpdate `gel:"$inline"`
 	IsMOTUDelimiter             models.OptionalInput[bool] `gel:"motu" json:"is_MOTU_delimiter,omitempty"`
 }
 

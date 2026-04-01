@@ -48,7 +48,7 @@ func ListCountries(db geltypes.Executor) ([]Country, error) {
 }
 
 type CountrySummary struct {
-	Country          `json:",inline" gel:"$inline"`
+	Country          `gel:"$inline"`
 	SitesCount       int64 `json:"sites_count" gel:"sites_count"`
 	OccurrencesCount int64 `json:"occurrences_count" gel:"occurrences_count"`
 }

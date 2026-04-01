@@ -41,7 +41,7 @@ type CollectionField struct {
 
 type BaseOccurrence[SamplingType any] struct {
 	ID                     geltypes.UUID `gel:"id" json:"id" format:"uuid"`
-	CodeIdentifier         `gel:"$inline" json:",inline"`
+	CodeIdentifier         `gel:"$inline"`
 	HasSequences           bool                           `gel:"has_sequences" json:"has_sequences"`
 	Sampling               SamplingType                   `gel:"sampling" json:"sampling"`
 	Identification         Identification                 `gel:"identification" json:"identification"`
@@ -57,7 +57,7 @@ type BaseOccurrence[SamplingType any] struct {
 type OccurrenceListItem BaseOccurrence[SamplingInnerWithSite]
 
 type Occurrence[SamplingType any] struct {
-	BaseOccurrence[SamplingType] `gel:"$inline" json:",inline"`
+	BaseOccurrence[SamplingType] `gel:"$inline"`
 	// ExternalLink       geltypes.OptionalStr           `gel:"external_link" json:"external_link,omitempty"`
 	PublishedIn []references.Article    `gel:"published_in" json:"published_in,omitempty"`
 	Sources     []references.DataSource `gel:"sources" json:"sources,omitempty"`
@@ -121,18 +121,18 @@ var BioMatSortMap = map[BioMatSortKey]string{
 }
 
 type ListOccurrencesOptions struct {
-	models.Pagination `json:",inline"`
+	models.Pagination
 	models.SortBy[BioMatSortKey]
-	models.Filter        `json:",inline"`
-	taxonomy.TaxaFilters `json:",inline"`
-	Year                 models.OptionalInput[int32]                `query:"year" json:"year,omitzero"`
-	YearEnd              models.OptionalNull[int32]                 `query:"year_end" json:"year_end,omitzero"`
-	Datasets             []string                                   `query:"datasets" json:"datasets,omitzero"`
-	HasSequences         models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
-	Confer               models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
-	TypeStatus           models.OptionalInput[TypeStatus]           `query:"type_status" json:"type_status,omitzero"`
-	Status               models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
-	Rank                 []taxonomy.TaxonRank                       `query:"rank" json:"rank,omitzero"`
+	models.Filter
+	taxonomy.TaxaFilters
+	Year         models.OptionalInput[int32]                `query:"year" json:"year,omitzero"`
+	YearEnd      models.OptionalNull[int32]                 `query:"year_end" json:"year_end,omitzero"`
+	Datasets     []string                                   `query:"datasets" json:"datasets,omitzero"`
+	HasSequences models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
+	Confer       models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
+	TypeStatus   models.OptionalInput[TypeStatus]           `query:"type_status" json:"type_status,omitzero"`
+	Status       models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
+	Rank         []taxonomy.TaxonRank                       `query:"rank" json:"rank,omitzero"`
 }
 
 func (o ListOccurrencesOptions) Options() ListOccurrencesOptions {
@@ -191,7 +191,7 @@ type SamplingDateWithOccurrences struct {
 }
 
 type SamplingDetailsWithOccurrences struct {
-	SamplingInner `gel:"$inline" json:",inline"`
+	SamplingInner `gel:"$inline"`
 	Occurrences   []OccurrenceAtSite `gel:"occurrences" json:"occurrences"`
 	Meta          people.Meta        `gel:"meta" json:"meta,omitempty"`
 }
@@ -204,7 +204,7 @@ type OccurrenceAtSite struct {
 }
 
 type SiteWithOccurrences struct {
-	SiteItem  `gel:"$inline" json:",inline"`
+	SiteItem  `gel:"$inline"`
 	Samplings []SamplingDateWithOccurrences `gel:"samplings" json:"samplings"`
 }
 
@@ -247,7 +247,7 @@ const (
 
 type OccurrencesBySiteOptions struct {
 	ListSitesOptions
-	taxonomy.TaxaFilters     `json:",inline"`
+	taxonomy.TaxaFilters
 	Habitats                 []string           `json:"habitats,omitempty" query:"habitats"`
 	SamplingTargetTaxa       []string           `json:"sampling_target_taxa,omitempty" query:"sampling_target_taxa"`
 	SamplingTargetWholeClade bool               `json:"sampling_target_whole_clade" query:"sampling_target_whole_clade"`

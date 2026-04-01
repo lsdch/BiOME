@@ -21,7 +21,7 @@ type ProgramInner struct {
 }
 
 type Program struct {
-	ProgramInner    `gel:"$inline" json:",inline"`
+	ProgramInner    `gel:"$inline"`
 	Managers        []people.PersonInner       `gel:"managers" json:"managers" minItems:"1"`
 	FundingAgencies []people.OrganisationInner `gel:"funding_agencies" json:"funding_agencies"`
 	Datasets        []dataset.DatasetInner     `gel:"datasets" json:"datasets"`

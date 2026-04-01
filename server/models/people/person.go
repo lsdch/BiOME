@@ -33,20 +33,20 @@ type PersonInner struct {
 
 // PersonUser is PersonInner with optional user informations attached
 type PersonUser struct {
-	PersonInner `gel:"$inline" json:",inline"`
+	PersonInner `gel:"$inline"`
 	User        models.Optional[UserInner] `gel:"user" json:"user"`
 }
 
 // Person is the complete informations about a person, including related entities
 type Person struct {
-	PersonUser    `gel:"$inline" json:",inline"`
+	PersonUser    `gel:"$inline"`
 	Organisations []OrganisationInner `json:"organisations,omitempty" gel:"organisations"`
 	Meta          Meta                `json:"meta" gel:"meta"`
 }
 
 type OptionalPerson struct {
 	geltypes.Optional
-	PersonInner `gel:"$inline" json:",inline"`
+	PersonInner `gel:"$inline"`
 }
 
 func FindPerson(db geltypes.Executor, id geltypes.UUID) (person Person, err error) {

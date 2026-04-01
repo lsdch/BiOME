@@ -17,13 +17,13 @@ type InstanceSettingsInner struct {
 
 // @mapstructure
 type InstanceSettingsInput struct {
-	InstanceSettingsInner `gel:"$inline" json:",inline" mapstructure:",squash"`
+	InstanceSettingsInner `gel:"$inline" mapstructure:",squash"`
 	Description           models.OptionalNull[string] `json:"description,omitempty" mapstructure:"description"`
 }
 
 type InstanceSettings struct {
 	ID                    geltypes.UUID `gel:"id" json:"-"`
-	InstanceSettingsInner `gel:"$inline" json:",inline"`
+	InstanceSettingsInner `gel:"$inline"`
 	Description           geltypes.OptionalStr `gel:"description" json:"description"`
 }
 

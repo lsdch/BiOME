@@ -18,14 +18,14 @@ type InvitationOptions struct {
 
 type InvitationInput struct {
 	Person             PersonInner `gel:"identity" json:"identity"`
-	InvitationOptions  `gel:"$inline" json:",inline"`
-	tokens.TokenRecord `gel:"$inline" json:",inline"`
+	InvitationOptions  `gel:"$inline"`
+	tokens.TokenRecord `gel:"$inline"`
 }
 
 type Invitation struct {
 	ID              geltypes.UUID `gel:"id" json:"id"`
 	IssuedBy        User          `gel:"issued_by" json:"issued_by"`
-	InvitationInput `gel:"$inline" json:",inline"`
+	InvitationInput `gel:"$inline"`
 }
 
 func (i InvitationInput) Save(db geltypes.Executor) (Invitation, error) {

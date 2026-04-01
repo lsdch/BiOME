@@ -30,8 +30,8 @@ type CurrentUserInput struct {
 }
 
 type CurrentUserResponse struct {
-	User              *users.User `json:"user"`
-	AuthTokenResponse `json:",inline"`
+	User *users.User `json:"user"`
+	AuthTokenResponse
 }
 
 type CurrentUserOutput struct {
@@ -61,9 +61,9 @@ type LoginInput struct {
 }
 
 type AuthenticationResponse struct {
-	Messages          []string `json:"messages"`
-	AuthTokenResponse `json:",inline"`
-	User              *users.User `json:"user"`
+	Messages []string `json:"messages"`
+	AuthTokenResponse
+	User *users.User `json:"user"`
 }
 
 type LoginOutput struct {

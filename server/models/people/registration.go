@@ -26,8 +26,8 @@ type EmailField struct {
 // @mapstructure
 type UserInput struct {
 	Login         string `gel:"login" json:"login" binding:"login,required,unique_login" fake:"{username}" mapstructure:"login"`
-	EmailField    `gel:"$inline" json:",inline" mapstructure:",squash"`
-	PasswordInput `json:",inline" mapstructure:",squash"`
+	EmailField    `gel:"$inline" mapstructure:",squash"`
+	PasswordInput `mapstructure:",squash"`
 }
 
 func (u UserInput) Save(db geltypes.Executor, role UserRole, identity PersonInner) (*User, error) {
@@ -66,8 +66,8 @@ func (u UserInput) RegisterWithToken(db geltypes.Executor, token tokens.Token) (
 }
 
 type PendingUserRequestInput struct {
-	EmailField     `json:",inline" gel:"$inline"`
-	PersonIdentity `gel:"$inline" json:",inline"`
+	EmailField     `gel:"$inline"`
+	PersonIdentity `gel:"$inline"`
 	Organisation   string `json:"organisation,omitempty" gel:"organisation" fake:"{word}"`
 	Motive         string `json:"motive,omitempty" gel:"motive" fake:"{sentence:10}"`
 }
@@ -86,8 +86,8 @@ func (u *PendingUserRequestInput) Register(db geltypes.Executor) (*PendingUserRe
 
 type PendingUserRequest struct {
 	ID             geltypes.UUID `gel:"id" json:"id"`
-	EmailField     `json:",inline" gel:"$inline"`
-	PersonIdentity `gel:"$inline" json:",inline"`
+	EmailField     `gel:"$inline"`
+	PersonIdentity `gel:"$inline"`
 	FullName       string               `gel:"full_name" json:"full_name"`
 	Organisation   geltypes.OptionalStr `json:"organisation,omitempty" gel:"organisation"`
 	Motive         geltypes.OptionalStr `json:"motive,omitempty" gel:"motive"`
@@ -214,8 +214,8 @@ func VerifyEmail(edb *gel.Client, token tokens.Token) (ok bool, err error) {
 
 // @mapstructure
 type SuperAdminInput struct {
-	UserInput      `gel:"$inline" json:",inline" mapstructure:",squash"`
-	PersonIdentity `gel:"$inline" json:",inline" mapstructure:",squash"`
+	UserInput      `gel:"$inline" mapstructure:",squash"`
+	PersonIdentity `gel:"$inline" mapstructure:",squash"`
 	Alias          models.OptionalInput[string] `json:"alias,omitempty" fake:"-" mapstructure:"alias"`
 	Organisation   models.OptionalInput[string] `gel:"organisation" json:"organisation" mapstructure:"organisation"`
 }

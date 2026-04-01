@@ -10,7 +10,7 @@ import (
 )
 
 type Fixative struct {
-	Vocabulary `gel:"$inline" json:",inline"`
+	Vocabulary `gel:"$inline"`
 	Meta       people.Meta `gel:"meta" json:"meta"`
 }
 

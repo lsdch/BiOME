@@ -8,7 +8,7 @@ import (
 )
 
 type emailVerificationToken struct {
-	TokenRecord `gel:"$inline" json:",inline"`
+	TokenRecord `gel:"$inline"`
 	Email       string `gel:"email" json:"email"`
 }
 

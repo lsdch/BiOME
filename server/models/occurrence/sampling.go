@@ -19,7 +19,7 @@ import (
 )
 
 type SamplingMethod struct {
-	vocabulary.Vocabulary `gel:"$inline" json:",inline"`
+	vocabulary.Vocabulary `gel:"$inline"`
 	Meta                  people.Meta `gel:"meta" json:"meta"`
 }
 
@@ -78,10 +78,10 @@ func DeleteSamplingMethod(db geltypes.Executor, code string) (deleted SamplingMe
 type SamplingOutline struct {
 	ID     geltypes.UUID `gel:"id" json:"id" format:"uuid"`
 	Number int64         `gel:"number" json:"number" doc:"Auto-incrementing number, unique per sampling"`
-	Action `gel:"$inline" json:",inline"`
+	Action `gel:"$inline"`
 }
 type SamplingInner struct {
-	SamplingOutline `gel:"$inline" json:",inline"`
+	SamplingOutline `gel:"$inline"`
 	Code            string                 `gel:"code" json:"code"`
 	TargetTaxa      []taxonomy.Taxon       `gel:"target_taxa" json:"target_taxa,omitempty"`
 	Duration        geltypes.OptionalInt32 `gel:"sampling_duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
@@ -93,7 +93,7 @@ type SamplingInner struct {
 }
 
 type Sampling struct {
-	SamplingInner `gel:"$inline" json:",inline"`
+	SamplingInner `gel:"$inline"`
 	Occurrences   []Occurrence[struct{}] `gel:"occurrences" json:"occurrences,omitempty"`
 	OccurringTaxa []taxonomy.Taxon       `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
 	Meta          people.Meta            `gel:"meta" json:"meta"`
@@ -104,25 +104,25 @@ func (s Sampling) Code(siteCode string) string {
 }
 
 type SamplingAtSite struct {
-	SamplingInner `gel:"$inline" json:",inline"`
+	SamplingInner `gel:"$inline"`
 	Occurrences   []OccurrenceAtSite `gel:"occurrences" json:"occurrences,omitempty"`
 	OccurringTaxa []taxonomy.Taxon   `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
 	Meta          people.Meta        `gel:"meta" json:"meta"`
 }
 
 type SamplingWithSite struct {
-	Sampling `gel:"$inline" json:",inline"`
+	Sampling `gel:"$inline"`
 	Site     SiteItem `gel:"site" json:"site"`
 }
 
 type SamplingInnerWithSite struct {
-	SamplingInner `gel:"$inline" json:",inline"`
+	SamplingInner `gel:"$inline"`
 	Site          SiteItem `gel:"site" json:"site"`
 }
 
 type SamplingInputAtSite struct {
-	SamplingInput `json:",inline"`
-	SiteCode      string `json:"site_code"`
+	SamplingInput
+	SiteCode string `json:"site_code"`
 }
 
 func (i SamplingInputAtSite) Save(e geltypes.Executor) (Sampling, error) {
@@ -130,7 +130,7 @@ func (i SamplingInputAtSite) Save(e geltypes.Executor) (Sampling, error) {
 }
 
 type SamplingInput struct {
-	ActionInput  `json:",inline"`
+	ActionInput
 	TargetTaxa   []string `json:"target_taxa,omitempty"`
 	Methods      []string `json:"methods,omitempty"`
 	Fixatives    []string `json:"fixatives,omitempty"`

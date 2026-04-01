@@ -20,7 +20,7 @@ type SecuritySettingsInput struct {
 
 type SecuritySettings struct {
 	ID                    geltypes.UUID `gel:"id" json:"-"`
-	SecuritySettingsInput `gel:"$inline" json:",inline"`
+	SecuritySettingsInput `gel:"$inline"`
 	SecretKey             string `gel:"jwt_secret_key" json:"-" doc:"Used to verify session tokens. Changing it will revoke all currently active user sessions." minLength:"32" fake:"{password:true,true,true,true,true,32}"`
 }
 

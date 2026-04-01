@@ -10,7 +10,7 @@ import (
 )
 
 type pwdResetToken struct {
-	TokenRecord `gel:"$inline" json:",inline"`
+	TokenRecord `gel:"$inline"`
 	UserID      geltypes.UUID `gel:"user_id" json:"user_id"`
 }
 

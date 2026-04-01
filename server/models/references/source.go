@@ -12,7 +12,7 @@ import (
 )
 
 type DataSource struct {
-	vocabulary.Vocabulary `gel:"$inline" json:",inline"`
+	vocabulary.Vocabulary `gel:"$inline"`
 	LinkTemplate          geltypes.OptionalStr `gel:"link_template" json:"link_template,omitempty"`
 	URL                   geltypes.OptionalStr `gel:"url" json:"url,omitempty"`
 	Contact               geltypes.OptionalStr `gel:"contact" json:"contact,omitempty"`
@@ -41,7 +41,7 @@ func DeleteDataSources(db geltypes.Executor, code string) (deleted DataSource, e
 }
 
 type DataSourceInput struct {
-	vocabulary.VocabularyInput `gel:"$inline" json:",inline"`
+	vocabulary.VocabularyInput `gel:"$inline"`
 	LinkTemplate               models.OptionalInput[string] `gel:"link_template" json:"link_template,omitempty"`
 	URL                        models.OptionalInput[string] `gel:"url" json:"url,omitempty"`
 	Contact                    models.OptionalInput[string] `gel:"contact" json:"contact,omitempty"`
@@ -65,7 +65,7 @@ func (i DataSourceInput) Save(e geltypes.Executor) (created DataSource, err erro
 }
 
 type DataSourceUpdate struct {
-	vocabulary.VocabularyUpdate `gel:"$inline" json:",inline"`
+	vocabulary.VocabularyUpdate `gel:"$inline"`
 	LinkTemplate                models.OptionalNull[string] `gel:"link_template" json:"link_template,omitempty"`
 	URL                         models.OptionalNull[string] `gel:"url" json:"url,omitempty"`
 }

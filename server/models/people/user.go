@@ -28,17 +28,17 @@ func (u *UserInner) IsGranted(role UserRole) bool {
 
 type OptionalUserInner struct {
 	geltypes.Optional
-	UserInner `gel:"$inline" json:",inline"`
+	UserInner `gel:"$inline"`
 }
 
 type User struct {
-	UserInner `gel:"$inline" json:",inline"`
+	UserInner `gel:"$inline"`
 	Person    PersonInner `gel:"identity" json:"identity" binding:"required"`
 }
 
 type OptionalUser struct {
 	geltypes.Optional
-	User `gel:"$inline" json:",inline"`
+	User `gel:"$inline"`
 }
 
 func (user *User) SetIdentity(db geltypes.Executor, person *PersonInner) error {

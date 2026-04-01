@@ -18,7 +18,7 @@ type BaseIdentification struct {
 }
 
 type Identification struct {
-	BaseIdentification `gel:"$inline" json:",inline"`
+	BaseIdentification `gel:"$inline"`
 	ID                 geltypes.UUID `gel:"id" json:"id" format:"uuid"`
 	IdentifiedBy       []string      `gel:"identified_by" json:"identified_by,omitempty"`
 	Meta               people.Meta   `gel:"meta" json:"meta"`

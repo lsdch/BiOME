@@ -45,8 +45,8 @@ type LegacySeqID struct {
 
 type SequenceInner struct {
 	ID             geltypes.UUID `gel:"id" json:"id" format:"uuid"`
-	CodeIdentifier `gel:"$inline" json:",inline"`
-	WithCategory   `gel:"$inline" json:",inline"`
+	CodeIdentifier `gel:"$inline"`
+	WithCategory   `gel:"$inline"`
 	Label          geltypes.OptionalStr         `gel:"label" json:"label,omitempty"`
 	Sequence       geltypes.OptionalStr         `gel:"sequence" json:"sequence,omitempty"`
 	Gene           sequences.Gene               `gel:"gene" json:"gene"`
@@ -74,13 +74,13 @@ func (seq *SequenceInput) WithCreatedMetadata(c *CreatedMetadata) *SequenceInput
 }
 
 type Sequence struct {
-	SequenceInner `gel:"$inline" json:",inline"`
+	SequenceInner `gel:"$inline"`
 	ReferencedIn  []sequences.SeqReference `gel:"referenced_in" json:"referenced_in,omitempty"`
 	Meta          people.Meta              `gel:"meta" json:"meta"`
 }
 
 type SequenceListItem struct {
-	SequenceInner      `gel:"$inline" json:",inline"`
+	SequenceInner      `gel:"$inline"`
 	Occurrence         BaseOccurrence[SamplingInnerWithSite] `gel:"occurrence" json:"occurrence"`
 	Identification     Identification                        `gel:"identification" json:"identification"`
 	SpecimenIdentifier geltypes.OptionalStr                  `gel:"specimen_identifier" json:"specimen_identifier,omitempty"`
@@ -97,7 +97,7 @@ type AssembledSequenceSpecifics struct {
 
 // type SequenceListItem GenericSequence[SamplingInnerWithSite]
 type SequenceWithDetails struct {
-	Sequence           `gel:"$inline" json:",inline"`
+	Sequence           `gel:"$inline"`
 	Occurrence         Occurrence[SamplingWithSite] `gel:"occurrence" json:"occurrence"`
 	Identification     Identification               `gel:"identification" json:"identification"`
 	SpecimenIdentifier string                       `gel:"specimen_identifier" json:"specimen_identifier"`
@@ -195,12 +195,12 @@ func DeleteSequence(db geltypes.Executor, code string) (deleted SequenceListItem
 }
 
 type ExternalSequence struct {
-	Sequence           `gel:"$inline" json:",inline"`
+	Sequence           `gel:"$inline"`
 	SpecimenIdentifier geltypes.OptionalStr `gel:"specimen_identifier" json:"specimen_identifier,omitempty"`
 }
 
 type ExternalSequenceInput struct {
-	SequenceInput      `json:",inline"`
+	SequenceInput
 	SpecimenIdentifier string `json:"specimen_identifier"`
 	// Origin             sequences.ExtSeqOrigin        `json:"origin"`
 }

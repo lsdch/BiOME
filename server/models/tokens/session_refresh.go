@@ -10,13 +10,13 @@ import (
 
 type HashedSessionRefreshToken struct {
 	UserID      geltypes.UUID `gel:"user_id" json:"user_id"`
-	TokenRecord `gel:"$inline" json:",inline"`
+	TokenRecord `gel:"$inline"`
 }
 
 // Unhashed session refresh token to be shared with the client after authentication
 type SessionRefreshToken struct {
 	UserID      geltypes.UUID `gel:"user_id" json:"user_id"`
-	TokenRecord `gel:"$inline" json:",inline"`
+	TokenRecord `gel:"$inline"`
 }
 
 // Consumes the session refresh token and issues a new one

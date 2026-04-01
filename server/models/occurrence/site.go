@@ -49,10 +49,10 @@ func (c LatLongCoords) SitesProximity(db geltypes.Executor, radius int32) ([]Sit
 }
 
 type SitesProximityQuery struct {
-	LatLongCoords `json:",inline"`
-	Radius        int32                       `query:"radius" json:"radius" doc:"Radius in meters" example:"20000"`
-	Limit         models.OptionalInput[int64] `query:"limit" json:"limit,omitempty"`
-	Exclude       []string                    `query:"exclude" json:"exclude,omitempty" doc:"List of site codes to exclude from the result"`
+	LatLongCoords
+	Radius  int32                       `query:"radius" json:"radius" doc:"Radius in meters" example:"20000"`
+	Limit   models.OptionalInput[int64] `query:"limit" json:"limit,omitempty"`
+	Exclude []string                    `query:"exclude" json:"exclude,omitempty" doc:"List of site codes to exclude from the result"`
 }
 
 func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDistance, error) {
@@ -91,12 +91,12 @@ func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDis
 }
 
 type SiteWithDistance struct {
-	SiteWithOccurrences `gel:"$inline" json:",inline"`
+	SiteWithOccurrences `gel:"$inline"`
 	Distance            float64 `gel:"distance" json:"distance"`
 }
 
 type SiteWithScore struct {
-	SiteItem `gel:"$inline" json:",inline"`
+	SiteItem `gel:"$inline"`
 	Score    float32 `gel:"score" json:"score"`
 }
 
@@ -119,7 +119,7 @@ func SearchSites(db geltypes.Executor, query string, threshold models.OptionalIn
 
 type Coordinates struct {
 	Precision     location.CoordinatesPrecision `gel:"precision" json:"precision" doc:"Where the coordinates point to"`
-	LatLongCoords `gel:"$inline" json:",inline"`
+	LatLongCoords `gel:"$inline"`
 }
 
 type SiteInput struct {
@@ -162,7 +162,7 @@ type SiteItem struct {
 }
 
 type Site struct {
-	SiteItem            `gel:"$inline" json:",inline"`
+	SiteItem            `gel:"$inline"`
 	Datasets            []dataset.DatasetInner `gel:"datasets" json:"datasets,omitempty"`
 	AbioticMeasurements []AbioticMeasurement   `gel:"abiotic_measurements" json:"abiotic_measurements,omitempty"`
 	Samplings           []SamplingAtSite       `gel:"samplings" json:"samplings,omitempty"`

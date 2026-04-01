@@ -19,12 +19,12 @@ type HabitatLabel struct {
 
 type HabitatInner struct {
 	ID           geltypes.UUID `gel:"id" json:"id" format:"uuid"`
-	HabitatLabel `gel:"$inline" json:",inline"`
+	HabitatLabel `gel:"$inline"`
 	Description  geltypes.OptionalStr `gel:"description" json:"description,omitempty" doc:"Optional habitat description"`
 }
 
 type HabitatRecord struct {
-	HabitatInner `gel:"$inline" json:",inline"`
+	HabitatInner `gel:"$inline"`
 	Incompatible []HabitatInner `gel:"incompatible" json:"incompatible"`
 }
 
@@ -35,13 +35,13 @@ type OptionalHabitatRecord struct {
 }
 
 type Habitat struct {
-	HabitatRecord `gel:"$inline" json:",inline"`
+	HabitatRecord `gel:"$inline"`
 	Meta          people.Meta `gel:"meta" json:"meta"`
 }
 
 type HabitatInput struct {
-	HabitatLabel `json:",inline"`
-	Description  *string `json:"description,omitempty" doc:"Optional habitat description"`
+	HabitatLabel
+	Description *string `json:"description,omitempty" doc:"Optional habitat description"`
 }
 
 func (i HabitatInput) Save(db geltypes.Executor) (Habitat, error) {

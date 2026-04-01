@@ -186,10 +186,10 @@ func (i OccurrenceBatchMetadataInputs) Save(tx geltypes.Tx, trackers ...Occurren
 // site, events, sampling.
 // Occurrences can be registered in bulk, with multiple events and samplings.
 type OccurrenceBatchInput struct {
-	OccurrenceBatchMetadataInputs `json:",inline"`
-	Content                       []SiteOccurrenceInput  `json:"content"`
-	BatchSize                     int                    `json:"batch_size,omitempty"`
-	Tracker                       OccurrenceBatchTracker `json:"-"`
+	OccurrenceBatchMetadataInputs
+	Content   []SiteOccurrenceInput  `json:"content"`
+	BatchSize int                    `json:"batch_size,omitempty"`
+	Tracker   OccurrenceBatchTracker `json:"-"`
 }
 
 func (i *OccurrenceBatchInput) ensureTracker() *OccurrenceBatchInput {
@@ -560,7 +560,7 @@ SiteOccurrenceInput is the input type for registering a site and its occurrences
 It includes the site data and a list of samplings and abiotic measurements.
 */
 type SiteOccurrenceInput struct {
-	SiteInput           `json:",inline"`
+	SiteInput
 	Samplings           []SamplingInputWithOccurrences `json:"samplings,omitempty"`
 	AbioticMeasurements []AbioticMeasurementInput      `json:"abiotic_measurements,omitempty"`
 }
@@ -588,8 +588,8 @@ func (site *SiteOccurrenceInput) SaveAbiotics(tx geltypes.Tx) error {
 // It also includes spottings and abiotic measurements.
 
 type SamplingInputWithOccurrences struct {
-	SamplingInput `json:",inline"`
-	Occurrences   []OccurrenceInput `json:"occurrences,omitempty"`
+	SamplingInput
+	Occurrences []OccurrenceInput `json:"occurrences,omitempty"`
 }
 
 func (s *SamplingInputWithOccurrences) WithCreatedMetadata(c *CreatedMetadata) *SamplingInputWithOccurrences {

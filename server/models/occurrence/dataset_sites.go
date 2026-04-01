@@ -20,7 +20,7 @@ import (
 
 // SiteDataset represents a dataset of sites.
 type SiteDataset struct {
-	dataset.Dataset `gel:"$inline" json:",inline"`
+	dataset.Dataset `gel:"$inline"`
 	Sites           []SiteItem `gel:"sites" json:"sites"`
 }
 
@@ -162,9 +162,9 @@ func (i SiteInputList) Save(e geltypes.Executor) (created []Site, err error) {
 // SiteDatasetInput represents the input for creating a dataset of sites.
 // Dataset is populated with existing sites using their codes and new sites are created from the input.
 type SiteDatasetInput struct {
-	dataset.DatasetInput `json:",inline"`
-	Sites                []string      `json:"sites,omitempty" doc:"Existing site codes to include in the dataset"`
-	NewSites             SiteInputList `json:"new_sites,omitempty" doc:"New sites to include in the dataset"`
+	dataset.DatasetInput
+	Sites    []string      `json:"sites,omitempty" doc:"Existing site codes to include in the dataset"`
+	NewSites SiteInputList `json:"new_sites,omitempty" doc:"New sites to include in the dataset"`
 }
 
 // ValidateExistingSites checks if the sites in the input exist in the database.
