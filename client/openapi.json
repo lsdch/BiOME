@@ -16590,14 +16590,6 @@
 					{
 						"explode": false,
 						"in": "query",
-						"name": "anchor",
-						"schema": {
-							"type": "boolean"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
 						"name": "parent",
 						"schema": {
 							"type": "string"

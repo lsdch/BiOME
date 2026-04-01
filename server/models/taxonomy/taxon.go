@@ -6,11 +6,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"slices"
-	"strconv"
 	"strings"
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/db/queries"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/people"
 )
@@ -163,58 +163,20 @@ func GetTaxonomy(db geltypes.Executor, q TaxonomyQuery) (*Taxonomy, error) {
 }
 
 type ListFilters struct {
-	Pattern     string                `json:"pattern,omitempty" query:"pattern"`
-	Ranks       []TaxonRank           `query:"ranks"`
-	Status      TaxonStatus           `json:"status,omitempty" query:"status"`
-	IsAnchor    geltypes.OptionalBool `json:"anchors_only,omitempty" query:"anchor"`
-	Parent      string                `json:"parent,omitempty" query:"parent"`
-	Limit       int64                 `json:"limit,omitempty" query:"limit"`
-	SampledOnly bool                  `json:"sampled_only,omitempty" query:"sampled_only"`
-	SynonymOf   string                `json:"synonym_of,omitempty" query:"synonym_of"`
+	Pattern     string      `json:"pattern,omitempty" query:"pattern"`
+	Ranks       []TaxonRank `query:"ranks"`
+	Status      TaxonStatus `json:"status,omitempty" query:"status"`
+	Parent      string      `json:"parent,omitempty" query:"parent"`
+	Limit       int64       `json:"limit,omitempty" query:"limit"`
+	SampledOnly bool        `json:"sampled_only,omitempty" query:"sampled_only"`
+	SynonymOf   string      `json:"synonym_of,omitempty" query:"synonym_of"`
 }
 
 func ListTaxa(db geltypes.Executor, filters ListFilters) ([]TaxonWithParentRef, error) {
-
 	var taxa = []TaxonWithParentRef{}
-	if filters.Ranks == nil {
-		filters.Ranks = []TaxonRank{}
-	}
-	var (
-		order_by = ".name"
-		limit    = "{}"
-	)
-	if filters.Pattern != "" {
-		order_by = `#edgeql
-			ext::pg_trgm::word_similarity_dist(pattern, .name)
-		`
-	}
-	if filters.Limit > 0 {
-		limit = strconv.FormatInt(filters.Limit, 10)
-	}
-	query := `#edgeql
-		with module taxonomy,
-			pattern := <str>$0,
-			ranks := <Rank>(array_unpack(<array<str>>$1) if len(<array<str>>$1) > 0 else <str>{}),
-			status := <TaxonStatus>(<str>$2 if len(<str>$2) > 0 else <str>{}),
-			is_anchor := <optional bool>$3,
-			parent := <optional str>$4,
-			sampled_only := <bool>$5,
-			synonym_of := <optional str>$6
-		select Taxon { *, meta: {*}, parent_name := .parent.name }
-		filter (.rank in ranks if exists ranks else true)
-		and (.status = status if exists status else true)
-		and (.anchor = is_anchor if exists is_anchor else true)
-		and (.parent.name ilike parent if len(parent) > 0 else true)
-		and (any(.synonyms.name = synonym_of) if exists synonym_of else true)
-		and (exists (
-			select occurrence::Occurrence
-			filter .identification.taxon = Taxon
-		) if sampled_only else true)` +
-		" " +
-		"order by " + order_by + " then .rank asc then .name asc " +
-		"limit " + limit
+	query := queries.RenderTemplate("list_taxa.tmpl.edgeql", filters)
 	err := db.Query(context.Background(), query, &taxa,
-		filters.Pattern, filters.Ranks, filters.Status, filters.IsAnchor, filters.Parent, filters.SampledOnly, filters.SynonymOf)
+		filters.Pattern, filters.Ranks, filters.Status, filters.Parent, filters.SampledOnly, filters.SynonymOf, filters.Limit)
 	return taxa, err
 }
 

@@ -4,7 +4,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/taxonomy"
 
@@ -20,14 +19,6 @@ func TestTaxonomyList(t *testing.T) {
 		{
 			taxonomy.ListFilters{}, func(taxa []taxonomy.TaxonWithParentRef) {
 				assert.NotEmpty(t, taxa)
-			},
-		},
-		{
-			taxonomy.ListFilters{IsAnchor: geltypes.NewOptionalBool(false)},
-			func(taxa []taxonomy.TaxonWithParentRef) {
-				for _, taxon := range taxa {
-					assert.False(t, taxon.Anchor)
-				}
 			},
 		},
 		{

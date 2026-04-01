@@ -7,8 +7,8 @@ import (
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/db/queries"
 	"github.com/lsdch/biome/models"
-	"github.com/lsdch/biome/models/occurrence/queries"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/taxonomy"
 	"github.com/lsdch/biome/models/vocabulary"

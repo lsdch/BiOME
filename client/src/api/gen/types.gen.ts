@@ -6738,7 +6738,6 @@ export type ListTaxaData = {
     pattern?: string
     ranks?: Array<TaxonRank>
     status?: TaxonStatus
-    anchor?: boolean
     parent?: string
     limit?: number
     sampled_only?: boolean
