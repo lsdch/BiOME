@@ -61,8 +61,15 @@
         >
           {{ countsByRank[rank] }}
           <template #append>
+            <v-progress-circular
+              v-if="isRankFetching(rank)"
+              class="ml-1"
+              size="14"
+              width="2"
+              indeterminate
+            />
             <v-icon
-              v-if="rank !== 'Subspecies'"
+              v-else-if="rank !== 'Subspecies'"
               class="ml-1"
               :icon="isFolded(rank) ? 'mdi-plus-box-outline' : 'mdi-minus-box-outline'"
             />
@@ -114,22 +121,18 @@
 <script setup lang="ts">
 import {
   $TaxonRank,
-  GetTaxonomyData,
   Taxon,
-  Taxonomy,
-  TaxonomyService,
   TaxonRank,
   TaxonStatus
 } from '@/api'
-import { getTaxonomyOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import { useErrorHandler } from '@/api/responses'
+import { getTaxonomyAtRankOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import TaxonFormDialogMutation from '@/components/forms/TaxonFormDialogMutation.vue'
+import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useQuery } from '@tanstack/vue-query'
 import { refDebounced } from '@vueuse/core'
 import { useRouteHash } from '@vueuse/router'
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import IconGBIF from '@/components/icons/IconGBIF'
-import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import {
   maxRankDisplay,
   scrollToTaxon,
@@ -140,7 +143,7 @@ import {
 import { FTaxaNestedList } from './functionals'
 import StatusPicker from './StatusPicker.vue'
 import TaxonCard from './TaxonCard.vue'
-import TaxonFormDialogMutation from '@/components/forms/TaxonFormDialogMutation.vue'
+import { TaxonomyElement } from './TaxonomyItem.vue'
 import TaxonRankPicker from './TaxonRankPicker'
 
 const { smAndDown } = useDisplay()
@@ -176,14 +179,113 @@ const headers: Header[] = [
 
 const { toggleFold, isFolded, unfold } = useRankFoldState()
 
-const { data: items, isPending: loading, error, suspense, refetch } = useQuery(getTaxonomyOptions())
+const RANKS_TO_LOAD : TaxonRank[] = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Subspecies'] as const
+const TAXONOMY_STALE_MS = 5 * 60 * 1000
+const TAXONOMY_GC_MS = 30 * 60 * 1000
+
+
+// Helper to assemble tree structure from flat rank-filtered lists
+function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): TaxonomyElement {
+  // Build maps for each rank for O(1) lookup
+  const rankMap: Record<string, Map<string, TaxonomyElement>> = RANKS_TO_LOAD.reduce(
+    (acc, rank) => {
+      const taxaMap = new Map<string, TaxonomyElement>()
+      const rankTaxa = rankData[rank] ?? []
+      rankTaxa.forEach((taxon) => {
+        taxaMap.set(taxon.name, { ...taxon, children: [] } as TaxonomyElement)
+      })
+      acc[rank] = taxaMap
+      return acc
+    },
+    {} as Record<string, Map<string, TaxonomyElement>>
+  )
+
+  // Link parents to children
+  RANKS_TO_LOAD.forEach((rank) => {
+    const rankMapForRank = rankMap[rank]
+    if (!rankMapForRank) return
+    
+    const parentRank = TaxonRank.parentRank(rank)
+    console.log(`Linking ${rank} to parent rank ${parentRank}`)
+    rankMapForRank.values().forEach((taxon) => {
+      if (taxon.parent?.name) {
+        try {
+          const parent = parentRank ? rankMap[parentRank]?.get(taxon.parent.name) : null
+          if (parent) {
+            parent.children = parent.children || []
+            parent.children.push(taxon)
+          }
+        } catch (e) {
+          console.log("error:", e)
+          // Continue if parent rank resolution fails
+        }
+      }
+    })
+  })
+
+  // Return root with kingdom children
+  const kingdomMap = rankMap.Kingdom
+  const now = new Date()
+  return {
+    id: '' as any,
+    name: 'ROOT',
+    rank: '' as any,
+    status: 'Accepted' as TaxonStatus,
+    meta: { created: now, last_updated: now } as any,
+    anchor: false,
+    children_count: 0,
+    children: kingdomMap ? Array.from(kingdomMap.values()) : []
+  }
+}
+
+// Create queries for each rank in parallel
+const rankQueries = RANKS_TO_LOAD.map((rank) => {
+  const options = getTaxonomyAtRankOptions({
+    path: { rank }
+  })
+  return useQuery({
+    ...options,
+    staleTime: TAXONOMY_STALE_MS,
+    gcTime: TAXONOMY_GC_MS
+  })
+})
+
+const loading = computed(() => rankQueries.some((q) => q.isPending.value))
+const error = computed(() => rankQueries.find((q) => q.error.value)?.error.value)
+
+function isRankFetching(rank: TaxonRank.NoSubgenus): boolean {
+  const rankIndex = RANKS_TO_LOAD.indexOf(rank)
+  if (rankIndex === -1) return false
+  const query = rankQueries[rankIndex]
+  return Boolean(query?.isPending.value || query?.isFetching.value)
+}
+
+// Unified data from all ranks assembled into tree
+const items = computed(() => {
+  const rankData: Record<string, TaxonomyElement[]> = {}
+  RANKS_TO_LOAD.forEach((rank, index) => {
+    const query = rankQueries[index]
+    if (!query) return
+
+    const data = query.data.value
+    const rankKey = String(rank)    
+    rankData[rankKey] = data ?? []
+  })
+  return assembleTreeFromRanks(rankData)
+})
+
+const suspense = Promise.all(rankQueries.map((q) => q.suspense))
 
 onMounted(async () => {
-  await suspense()
+  await suspense
   nextTick(() => {
     if (taxonHash.value) scrollToTaxon(taxonHash.value.replace('#', ''))
   })
 })
+
+const refetch = async () => {
+  await Promise.all(rankQueries.map((q) => q.refetch?.()))
+}
 
 const filterStatus = ref<TaxonStatus>()
 const searchTerm = ref<string>()
@@ -194,7 +296,7 @@ type SearchFilters = {
   term?: RegExp
 }
 
-function taxonMatches(taxon: Taxonomy, filters: SearchFilters) {
+function taxonMatches(taxon: TaxonomyElement, filters: SearchFilters) {
   return (
     (filters.status ? taxon.status === filters.status : true) &&
     (filters.term ? taxon.name.match(filters.term) : true)
@@ -202,7 +304,7 @@ function taxonMatches(taxon: Taxonomy, filters: SearchFilters) {
 }
 
 function matchSearch(filters: SearchFilters) {
-  return (taxon: Taxonomy): Taxonomy | undefined => {
+  return (taxon: TaxonomyElement): TaxonomyElement | undefined => {
     if (taxonMatches(taxon, filters)) {
       if (isFolded(taxon.rank)) unfold(taxon.rank)
       return taxon
@@ -225,19 +327,10 @@ const filteredItems = computed(() => {
   }
 })
 
-async function fetchPartial(query: GetTaxonomyData['query']) {
-  loading.value = true
-  const taxonomy = await TaxonomyService.getTaxonomy({ query }).then(
-    useErrorHandler((err) => console.error(err))
-  )
-  loading.value = false
-  return taxonomy
-}
-
-function find(subtree: Taxonomy, taxonID: string) {
+function find(subtree: TaxonomyElement, taxonID: string) {
   const match = subtree.children?.find(({ id }) => id === taxonID)
   if (match) return match
-  return subtree.children?.reduce<Taxonomy | undefined>((acc, item): Taxonomy | undefined => {
+  return subtree.children?.reduce<TaxonomyElement | undefined>((acc, item): TaxonomyElement | undefined => {
     if (acc !== undefined) return acc
     if (!item.children) return acc
     return find(item, taxonID)
@@ -249,17 +342,10 @@ async function update(taxonID: string | undefined) {
     await refetch()
     return
   }
-  if (!items.value) return
-  const toUpdate = find(items.value, taxonID)
-  if (toUpdate === undefined) {
-    console.error('Failed to find taxon with ID: ', taxonID)
-    return
-  }
-  const subtree = await fetchPartial({ identifier: taxonID })
-  Object.assign(toUpdate, subtree)
+  await refetch()
 }
 
-async function onTaxonCreated(taxon: Taxonomy) {
+async function onTaxonCreated(taxon: TaxonomyElement) {
   await update(taxon.parent?.id)
   const { show } = useTaxonFoldState(taxon)
   show()
@@ -279,15 +365,6 @@ type RanksCount = {
   [k in TaxonRank.NoSubgenus]: number
 }
 
-function _countsByRank(acc: RanksCount, taxonomy: Taxonomy | undefined) {
-  taxonomy?.children?.forEach((child) => {
-    if (child.rank === 'Subgenus') return
-    acc[child.rank] += 1
-    if (child.children_count > 0) _countsByRank(acc, child)
-  })
-  return acc
-}
-
 const countsByRank = computed(() => {
   const acc: RanksCount = {
     Kingdom: 0,
@@ -299,8 +376,14 @@ const countsByRank = computed(() => {
     Species: 0,
     Subspecies: 0
   }
+  
+  // Count items from parallel rank queries
+  RANKS_TO_LOAD.forEach((rank, index) => {
+    const count = rankQueries[index]?.data.value?.length ?? 0
+    acc[rank as TaxonRank.NoSubgenus] = count
+  })
 
-  return _countsByRank(acc, items.value)
+  return acc
 })
 </script>
 

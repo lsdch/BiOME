@@ -180,9 +180,9 @@ import type {
   GetSiteResponse,
   GetTaxonData,
   GetTaxonError,
-  GetTaxonomyData,
-  GetTaxonomyError,
-  GetTaxonomyResponse,
+  GetTaxonomyAtRankData,
+  GetTaxonomyAtRankError,
+  GetTaxonomyAtRankResponse,
   GetTaxonResponse,
   InstanceSettingsData,
   InstanceSettingsError,
@@ -3447,21 +3447,21 @@ export const createSamplingAtSiteMutation = (
   return mutationOptions
 }
 
-export const getTaxonomyQueryKey = (options?: Options<GetTaxonomyData>) =>
-  createQueryKey('getTaxonomy', options)
+export const getTaxonomyAtRankQueryKey = (options: Options<GetTaxonomyAtRankData>) =>
+  createQueryKey('getTaxonomyAtRank', options)
 
 /**
  * Get taxonomy
  */
-export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) =>
+export const getTaxonomyAtRankOptions = (options: Options<GetTaxonomyAtRankData>) =>
   queryOptions<
-    GetTaxonomyResponse,
-    GetTaxonomyError,
-    GetTaxonomyResponse,
-    ReturnType<typeof getTaxonomyQueryKey>
+    GetTaxonomyAtRankResponse,
+    GetTaxonomyAtRankError,
+    GetTaxonomyAtRankResponse,
+    ReturnType<typeof getTaxonomyAtRankQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await TaxonomyService.getTaxonomy({
+      const { data } = await TaxonomyService.getTaxonomyAtRank({
         ...options,
         ...queryKey[0],
         signal,
@@ -3469,7 +3469,7 @@ export const getTaxonomyOptions = (options?: Options<GetTaxonomyData>) =>
       })
       return data
     },
-    queryKey: getTaxonomyQueryKey(options)
+    queryKey: getTaxonomyAtRankQueryKey(options)
   })
 
 export const listTaxaQueryKey = (options?: Options<ListTaxaData>) =>

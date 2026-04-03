@@ -45,7 +45,7 @@ import type {
   GetSequenceResponse,
   GetSiteDatasetResponse,
   GetSiteResponse,
-  GetTaxonomyResponse,
+  GetTaxonomyAtRankResponse,
   GetTaxonResponse,
   ListAbioticParametersResponse,
   ListArticlesResponse,
@@ -1231,10 +1231,7 @@ const optionalTaxonSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const taxonomySchemaResponseTransformer = (data: any) => {
-  if (data.children) {
-    data.children = data.children.map((item: any) => taxonomySchemaResponseTransformer(item))
-  }
+const taxonomyItemSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   if (data.parent) {
     data.parent = optionalTaxonSchemaResponseTransformer(data.parent)
@@ -1245,8 +1242,10 @@ const taxonomySchemaResponseTransformer = (data: any) => {
   return data
 }
 
-export const getTaxonomyResponseTransformer = async (data: any): Promise<GetTaxonomyResponse> => {
-  data = taxonomySchemaResponseTransformer(data)
+export const getTaxonomyAtRankResponseTransformer = async (
+  data: any
+): Promise<GetTaxonomyAtRankResponse> => {
+  data = data.map((item: any) => taxonomyItemSchemaResponseTransformer(item))
   return data
 }
 

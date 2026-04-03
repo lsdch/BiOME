@@ -5,7 +5,6 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
-	"slices"
 	"strings"
 
 	"github.com/geldata/gel-go/geltypes"
@@ -82,84 +81,26 @@ type TaxonWithLineage struct {
 	Lineage            Lineage `gel:"$inline" json:"lineage"`
 }
 
-// Taxonomy type is a tree like representation of the taxonomy, or part of it.
-type Taxonomy struct {
+// TaxonomyItem type is a tree like representation of the taxonomy, or part of it.
+type TaxonomyItem struct {
 	Taxon    `gel:"$inline"`
 	Parent   models.Optional[Taxon] `gel:"parent" json:"parent,omitempty"`
 	Synonyms []Taxon                `gel:"synonyms" json:"synonyms,omitempty"`
-	Children []Taxonomy             `gel:"children" json:"children,omitempty"`
 }
 
-type TaxonomyQuery struct {
-	Identifier string    `json:"identifier,omitempty" query:"identifier" doc:"Taxon name or UUID"`
-	MaxDepth   TaxonRank `json:"max_depth" query:"max-depth"`
-}
-
-func GetTaxonomyChildren(db geltypes.Executor, parent Taxonomy) ([]Taxonomy, error) {
-	var children []Taxonomy
-	if parent.Name == "ROOT" {
-		query := `#edgeql
-			with module taxonomy,
-			select Taxon { *, meta: {*} }
-			filter .rank = Rank.Kingdom
-			order by .name;
-		`
-		if err := db.Query(context.Background(), query, &children); err != nil {
-			return nil, err
-		}
-	} else {
-		query := `#edgeql
-			with module taxonomy,
-			select Taxon { *, meta: {*}, parent: { * }, synonyms: { * } }
-			filter .parent.name = <str>$0
-			order by .name
-		`
-		if err := db.Query(context.Background(), query, &children, parent.Name); err != nil {
-			return nil, err
-		}
-	}
-
-	for i, taxon := range children {
-		descendants, err := GetTaxonomyChildren(db, taxon)
-		if err != nil {
-			return nil, err
-		}
-		(&children[i]).Children = slices.Concat(taxon.Children, descendants)
-	}
-	return children, nil
-}
-
-// GetTaxonomy returns a taxonomy tree or subtree,
-// with a pseudo root node when querying for the full taxonomy.
-func GetTaxonomy(db geltypes.Executor, q TaxonomyQuery) (*Taxonomy, error) {
-
-	var taxonomy = Taxonomy{
-		Taxon: Taxon{
-			TaxonInner: TaxonInner{
-				Name: "ROOT",
-			},
-		},
-	}
-
-	if q.Identifier != "" {
-		maybeUUID, _ := geltypes.ParseUUID(q.Identifier)
-		query := `#edgeql
-			with module taxonomy,
-			select assert_single(
-				Taxon { *, meta: {*}, parent: { * }, synonyms: { * } }
-				filter .name = <str>$0 or .id = <uuid>$1
-			);`
-		if err := db.QuerySingle(context.Background(), query, &taxonomy, q.Identifier, maybeUUID); err != nil {
-			return nil, err
-		}
-	}
-	if descendants, err := GetTaxonomyChildren(db, taxonomy); err != nil {
+// GetTaxonomyByRank returns a flat list of taxa at a specific rank with parent linkage.
+func GetTaxonomyByRank(db geltypes.Executor, rank TaxonRank) ([]TaxonomyItem, error) {
+	var taxa []TaxonomyItem
+	query := `#edgeql
+		with module taxonomy,
+		select Taxon { *, meta: {*}, parent: { id, name, rank } }
+		filter .rank = <Rank>$0
+		order by .name;
+	`
+	if err := db.Query(context.Background(), query, &taxa, rank); err != nil {
 		return nil, err
-	} else {
-		taxonomy.Children = descendants
 	}
-
-	return &taxonomy, nil
+	return taxa, nil
 }
 
 type ListFilters struct {

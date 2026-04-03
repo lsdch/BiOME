@@ -39,20 +39,20 @@ func GetTaxon(ctx context.Context, input *GetTaxonInput) (*GetTaxonOutput, error
 	return &GetTaxonOutput{Body: taxon}, err
 }
 
-type GetTaxonomyInput struct {
+type GetTaxonomyAtRankInput struct {
 	resolvers.AuthResolver
-	taxonomy.TaxonomyQuery
+	Rank taxonomy.TaxonRank `json:"rank,omitempty" path:"rank"`
 }
-type GetTaxonomyOutput struct {
-	Body *taxonomy.Taxonomy
+type GetTaxonomyAtRankOutput struct {
+	Body []taxonomy.TaxonomyItem
 }
 
-func GetTaxonomy(ctx context.Context, input *GetTaxonomyInput) (*GetTaxonomyOutput, error) {
-	var taxonomy, err = taxonomy.GetTaxonomy(input.DB(), input.TaxonomyQuery)
+func GetTaxonomyAtRank(ctx context.Context, input *GetTaxonomyAtRankInput) (*GetTaxonomyAtRankOutput, error) {
+	var taxonomy, err = taxonomy.GetTaxonomyByRank(input.DB(), input.Rank)
 	if err != nil {
 		return nil, huma.Error500InternalServerError("Failed to fetch taxonomy", err)
 	}
-	return &GetTaxonomyOutput{Body: taxonomy}, nil
+	return &GetTaxonomyAtRankOutput{Body: taxonomy}, nil
 }
 
 type CreateTaxonInput struct {

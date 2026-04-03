@@ -30,14 +30,14 @@
   </div>
 
   <FTaxaNestedList
-    v-if="expanded && item.children"
+    v-if="expanded && item.children?.length"
     :items="item.children"
-    :rank="item.children[0].rank"
+    :rank="item.children[0]!.rank"
   />
 </template>
 
 <script setup lang="ts">
-import { Taxonomy, TaxonRank } from '@/api'
+import { TaxonomyItem, TaxonRank } from '@/api'
 import { useElementVisibility } from '@vueuse/core'
 import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import {
@@ -48,7 +48,9 @@ import {
 } from '../composables'
 import { FTaxaNestedList, FTaxonStatusIndicator } from './functionals'
 
-const props = defineProps<{ item: Taxonomy }>()
+export type TaxonomyElement = TaxonomyItem & { children?: TaxonomyElement[] }
+
+const props = defineProps<{ item: TaxonomyElement }>()
 
 const { select, selected } = useTaxonSelection()
 const hilight = computed(() => {

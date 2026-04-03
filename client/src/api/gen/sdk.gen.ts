@@ -52,7 +52,7 @@ import {
   getSequenceResponseTransformer,
   getSiteDatasetResponseTransformer,
   getSiteResponseTransformer,
-  getTaxonomyResponseTransformer,
+  getTaxonomyAtRankResponseTransformer,
   getTaxonResponseTransformer,
   listAbioticParametersResponseTransformer,
   listArticlesResponseTransformer,
@@ -255,9 +255,9 @@ import type {
   GetSiteResponses,
   GetTaxonData,
   GetTaxonErrors,
-  GetTaxonomyData,
-  GetTaxonomyErrors,
-  GetTaxonomyResponses,
+  GetTaxonomyAtRankData,
+  GetTaxonomyAtRankErrors,
+  GetTaxonomyAtRankResponses,
   GetTaxonResponses,
   InstanceSettingsData,
   InstanceSettingsErrors,
@@ -3597,11 +3597,15 @@ export class TaxonomyService {
   /**
    * Get taxonomy
    */
-  public static getTaxonomy<ThrowOnError extends boolean = false>(
-    options?: Options<GetTaxonomyData, ThrowOnError>
+  public static getTaxonomyAtRank<ThrowOnError extends boolean = false>(
+    options: Options<GetTaxonomyAtRankData, ThrowOnError>
   ) {
-    return (options?.client ?? client).get<GetTaxonomyResponses, GetTaxonomyErrors, ThrowOnError>({
-      responseTransformer: getTaxonomyResponseTransformer,
+    return (options.client ?? client).get<
+      GetTaxonomyAtRankResponses,
+      GetTaxonomyAtRankErrors,
+      ThrowOnError
+    >({
+      responseTransformer: getTaxonomyAtRankResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -3610,7 +3614,7 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      url: '/taxonomy',
+      url: '/taxonomy/by-rank/{rank}',
       ...options
     })
   }

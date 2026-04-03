@@ -11,19 +11,19 @@ import (
 
 func init() {
 	taxonomyAPI := func(r *router.Router) router.Group {
-		return r.RouteGroup("/taxonomy").
+		return r.RouteGroup("/taxonomy/by-rank").
 			WithTags([]string{"Taxonomy"})
 	}
 
 	router.RegisterSpec(
 		taxonomyAPI,
-		"GetTaxonomy",
+		"GetTaxonomyAtRank",
 		huma.Operation{
-			Path:    "/",
+			Path:    "/{rank}",
 			Method:  http.MethodGet,
 			Summary: "Get taxonomy",
 		},
-		GetTaxonomy)
+		GetTaxonomyAtRank)
 
 	taxaAPI := func(r *router.Router) router.Group {
 		return r.RouteGroup("/taxonomy/taxa").

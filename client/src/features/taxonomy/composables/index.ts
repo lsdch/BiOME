@@ -1,6 +1,7 @@
-import { Taxon, Taxonomy, TaxonRank } from "@/api";
+import { Taxon, TaxonRank } from "@/api";
 import { createEventHook, useEventBus, useLocalStorage } from "@vueuse/core";
 import { nextTick, reactive, Reactive, ref, ToRefs, toRefs } from "vue";
+import { TaxonomyElement } from "../components/TaxonomyItem.vue";
 
 
 export const maxRankDisplay = useLocalStorage<TaxonRank>('max-taxon-rank', 'Kingdom')
@@ -28,20 +29,24 @@ type TaxonFoldState = ToRefs<Reactive<{ expanded: boolean, parent: string | unde
 const taxonFoldState: Record<string, TaxonFoldState> = {}
 
 function foldTaxon(taxonID: string) {
-  return taxonFoldState[taxonID].expanded.value = false
+  const state = taxonFoldState[taxonID]
+  if (!state) return false
+  state.expanded.value = false
+  return true
 }
 
 async function unfoldTaxon(taxonID: string) {
   const state = taxonFoldState[taxonID]
+  if (!state) return false
   if (state.parent.value !== undefined) {
-    unfoldTaxon(state.parent.value)
+    await unfoldTaxon(state.parent.value)
     await nextTick()
   }
-  return state.expanded.value = true
-
+  state.expanded.value = true
+  return true
 }
 
-export async function showTaxon(taxon: Taxonomy) {
+export async function showTaxon(taxon: TaxonomyElement) {
   if (taxon.parent) await unfoldTaxon(taxon.parent.id)
   return nextTick(() =>
     scrollToTaxon(taxon.name)
@@ -52,10 +57,11 @@ export function scrollToTaxon(name: string) {
   document.getElementById(name)!.scrollIntoView({ block: 'center' })
 }
 
-export function useTaxonFoldState(taxon: Taxonomy, initial?: boolean) {
+export function useTaxonFoldState(taxon: TaxonomyElement, initial?: boolean) {
   if (!(taxon.id in taxonFoldState))
     taxonFoldState[taxon.id] = toRefs(reactive({ expanded: initial ?? true, parent: taxon.parent?.id }))
   const state = taxonFoldState[taxon.id]
+  if(!state) throw new Error(`Failed to initialize fold state for taxon ${taxon.id}`)
 
   function fold() {
     return foldTaxon(taxon.id)
@@ -66,7 +72,7 @@ export function useTaxonFoldState(taxon: Taxonomy, initial?: boolean) {
   }
 
   function toggleFold() {
-    return state.expanded.value ? fold() : unfold()
+    return state?.expanded.value ? fold() : unfold()
   }
 
   async function show() {

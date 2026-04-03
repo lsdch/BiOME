@@ -2380,15 +2380,10 @@ export type TaxonWithRelatives = {
   synonyms?: Array<Taxon>
 }
 
-export type Taxonomy = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
+export type TaxonomyItem = {
   GBIF_ID?: number
   anchor: boolean
   authorship?: string
-  children?: Array<Taxonomy>
   children_count: number
   comment?: string
   id: string
@@ -6690,7 +6685,7 @@ export type CreateSamplingAtSiteResponses = {
 export type CreateSamplingAtSiteResponse =
   CreateSamplingAtSiteResponses[keyof CreateSamplingAtSiteResponses]
 
-export type GetTaxonomyData = {
+export type GetTaxonomyAtRankData = {
   body?: never
   headers?: {
     /**
@@ -6698,18 +6693,14 @@ export type GetTaxonomyData = {
      */
     Authorization?: string
   }
-  path?: never
-  query?: {
-    /**
-     * Taxon name or UUID
-     */
-    identifier?: string
-    'max-depth'?: TaxonRank
+  path: {
+    rank: TaxonRank
   }
-  url: '/taxonomy'
+  query?: never
+  url: '/taxonomy/by-rank/{rank}'
 }
 
-export type GetTaxonomyErrors = {
+export type GetTaxonomyAtRankErrors = {
   /**
    * Unprocessable Entity
    */
@@ -6720,16 +6711,16 @@ export type GetTaxonomyErrors = {
   500: ErrorModel
 }
 
-export type GetTaxonomyError = GetTaxonomyErrors[keyof GetTaxonomyErrors]
+export type GetTaxonomyAtRankError = GetTaxonomyAtRankErrors[keyof GetTaxonomyAtRankErrors]
 
-export type GetTaxonomyResponses = {
+export type GetTaxonomyAtRankResponses = {
   /**
    * OK
    */
-  200: Taxonomy
+  200: Array<TaxonomyItem>
 }
 
-export type GetTaxonomyResponse = GetTaxonomyResponses[keyof GetTaxonomyResponses]
+export type GetTaxonomyAtRankResponse = GetTaxonomyAtRankResponses[keyof GetTaxonomyAtRankResponses]
 
 export type ListTaxaData = {
   body?: never

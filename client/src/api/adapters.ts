@@ -197,6 +197,8 @@ export namespace TaxonRank {
   }
 
   export function parentRank(rank: TaxonRank): TaxonRank | undefined {
+    if (rank === 'Species') return 'Genus'
+    if (rank === 'Subgenus') return 'Genus'
     return $TaxonRank.enum[index(rank) - 1]
   }
 

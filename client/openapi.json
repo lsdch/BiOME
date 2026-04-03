@@ -7564,18 +7564,9 @@
 				],
 				"type": "object"
 			},
-			"Taxonomy": {
+			"TaxonomyItem": {
 				"additionalProperties": false,
 				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"/api/v1/schemas/Taxonomy.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
 					"GBIF_ID": {
 						"examples": [
 							2206247
@@ -7591,12 +7582,6 @@
 							"(Linnaeus, 1758)"
 						],
 						"type": "string"
-					},
-					"children": {
-						"items": {
-							"$ref": "#/components/schemas/Taxonomy"
-						},
-						"type": "array"
 					},
 					"children_count": {
 						"format": "int64",
@@ -16474,9 +16459,9 @@
 				]
 			}
 		},
-		"/taxonomy": {
+		"/taxonomy/by-rank/{rank}": {
 			"get": {
-				"operationId": "GetTaxonomy",
+				"operationId": "GetTaxonomyAtRank",
 				"parameters": [
 					{
 						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
@@ -16500,19 +16485,9 @@
 						}
 					},
 					{
-						"description": "Taxon name or UUID",
-						"explode": false,
-						"in": "query",
-						"name": "identifier",
-						"schema": {
-							"description": "Taxon name or UUID",
-							"type": "string"
-						}
-					},
-					{
-						"explode": false,
-						"in": "query",
-						"name": "max-depth",
+						"in": "path",
+						"name": "rank",
+						"required": true,
 						"schema": {
 							"$ref": "#/components/schemas/TaxonRank"
 						}
@@ -16523,7 +16498,10 @@
 						"content": {
 							"application/json": {
 								"schema": {
-									"$ref": "#/components/schemas/Taxonomy"
+									"items": {
+										"$ref": "#/components/schemas/TaxonomyItem"
+									},
+									"type": "array"
 								}
 							}
 						},

@@ -6593,16 +6593,9 @@ export const $TaxonWithRelatives = {
   type: 'object'
 } as const
 
-export const $Taxonomy = {
+export const $TaxonomyItem = {
   additionalProperties: false,
   properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/Taxonomy.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
     GBIF_ID: {
       examples: [2206247],
       format: 'int64',
@@ -6614,12 +6607,6 @@ export const $Taxonomy = {
     authorship: {
       examples: ['(Linnaeus, 1758)'],
       type: 'string'
-    },
-    children: {
-      items: {
-        $ref: '#/components/schemas/Taxonomy'
-      },
-      type: 'array'
     },
     children_count: {
       format: 'int64',
