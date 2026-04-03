@@ -59,7 +59,7 @@
           color="primary"
           @click="rank == 'Subspecies' ? unfold(TaxonRank.parentRank(rank)!) : toggleFold(rank)"
         >
-          {{ countsByRank[rank] }}
+          {{ countsByRank[rank] + (rank == "Species" ? countsByRank["Subgenus"] : 0) }}
           <template #append>
             <v-progress-circular
               v-if="isRankFetching(rank)"
@@ -84,8 +84,8 @@
           <v-alert type="error" icon="mdi-alert"> Failed to load taxonomy </v-alert>
         </v-container>
         <FTaxaNestedList
-          v-else-if="filteredItems?.children?.length"
-          :items="filteredItems?.children"
+          v-else-if="filteredItems?.length"
+          :items="filteredItems"
           rank="Kingdom"
         />
         <div v-else class="mx-auto my-5" style="grid-column: start / span end">
@@ -157,7 +157,7 @@ function addDescendant(taxon: Taxon) {
 
 
 const { selected, onSelect, select } = useTaxonSelection()
-onSelect((taxon) => {
+onSelect((_taxon) => {
   showTaxonCard.value = true
 })
  
@@ -176,13 +176,13 @@ const headers: Header[] = [
 
 const { toggleFold, isFolded, unfold } = useRankFoldState()
 
-const RANKS_TO_LOAD : TaxonRank[] = ['Kingdom', 'Phylum', 'Class', 'Order', 'Family', 'Genus', 'Species', 'Subspecies'] as const
+const RANKS_TO_LOAD = $TaxonRank.enum
 const TAXONOMY_STALE_MS = 5 * 60 * 1000
 const TAXONOMY_GC_MS = 30 * 60 * 1000
 
 
 // Helper to assemble tree structure from flat rank-filtered lists
-function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): TaxonomyElement {
+function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): TaxonomyElement[] {
   // Build maps for each rank for O(1) lookup
   const rankMap: Record<string, Map<string, TaxonomyElement>> = RANKS_TO_LOAD.reduce(
     (acc, rank) => {
@@ -203,7 +203,6 @@ function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): Tax
     if (!rankMapForRank) return
     
     const parentRank = TaxonRank.parentRank(rank)
-    console.log(`Linking ${rank} to parent rank ${parentRank}`)
     rankMapForRank.values().forEach((taxon) => {
       if (taxon.parent?.name) {
         try {
@@ -220,19 +219,7 @@ function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): Tax
     })
   })
 
-  // Return root with kingdom children
-  const kingdomMap = rankMap.Kingdom
-  const now = new Date()
-  return {
-    id: '' as any,
-    name: 'ROOT',
-    rank: '' as any,
-    status: 'Accepted' as TaxonStatus,
-    meta: { created: now, last_updated: now } as any,
-    anchor: false,
-    children_count: 0,
-    children: kingdomMap ? Array.from(kingdomMap.values()) : []
-  }
+  return Array.from(rankMap.Kingdom?.values() ?? []) 
 }
 
 // Create queries for each rank in parallel
@@ -311,7 +298,7 @@ const filteredItems = computed(() => {
   }
   return {
     ...items.value,
-    children: items.value.children?.map(matchSearch(filters)).filter((t) => t !== undefined)
+    children: items.value?.map(matchSearch(filters)).filter((t) => t !== undefined)
   }
 })
 
@@ -329,6 +316,7 @@ async function onTaxonCreated(taxon: TaxonomyElement) {
   show()
 }
 
+// CSS grid template columns based on ranks and maxRankDisplay
 const templateColumns = computed(() => {
   return $TaxonRank.enum
     .reduce((acc, rank) => {
@@ -340,7 +328,7 @@ const templateColumns = computed(() => {
 })
 
 type RanksCount = {
-  [k in TaxonRank.NoSubgenus]: number
+  [k in TaxonRank]: number
 }
 
 const countsByRank = computed(() => {
@@ -351,14 +339,14 @@ const countsByRank = computed(() => {
     Order: 0,
     Family: 0,
     Genus: 0,
+    Subgenus: 0,
     Species: 0,
     Subspecies: 0
   }
   
   // Count items from parallel rank queries
   RANKS_TO_LOAD.forEach((rank, index) => {
-    const count = rankQueries[index]?.data.value?.length ?? 0
-    acc[rank as TaxonRank.NoSubgenus] = count
+    acc[rank as TaxonRank] = rankQueries[index]?.data.value?.length ?? 0
   })
 
   return acc
