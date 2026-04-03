@@ -6,7 +6,13 @@
           <div class="font-monospace text-wrap w-auto d-flex align-center">
             <v-menu :close-on-content-click="false" target="parent">
               <template #activator="{ props }">
-                {{ code }}
+                <span
+                  class="cursor-pointer hover:opacity-70 transition-opacity"
+                  @click="copyCodeToClipboard"
+                  v-tooltip="'Click to copy'"
+                >
+                  {{ code }}
+                </span>
                 <v-btn
                   v-if="item?.code_history"
                   icon="mdi-history"
@@ -364,6 +370,15 @@ const { feedback } = useFeedback()
 async function reload() {
   await refetch()
   feedback({ message: 'Data reloaded', type: 'info' })
+}
+
+async function copyCodeToClipboard() {
+  try {
+    await navigator.clipboard.writeText(code)
+    feedback({ message: 'Code copied to clipboard', type: 'success' })
+  } catch (err) {
+    feedback({ message: 'Failed to copy code', type: 'error' })
+  }
 }
 
 type Tabs = 'occurrence' | 'sequences'
