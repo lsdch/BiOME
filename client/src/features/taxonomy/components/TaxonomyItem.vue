@@ -57,10 +57,6 @@ const hilight = computed(() => {
   return props.item.id === selected.value?.id
 })
 
-onMounted(() => {
-  if (`#${props.item.name}` === location.hash) select(props.item)
-})
-
 const { onFold: onRankFold, onUnfold: onRankUnfold, isFolded: isRankFolded } = useRankFoldState()
 const { expanded, toggleFold } = useTaxonFoldState(props.item, !isRankFolded(props.item.rank))
 

@@ -130,12 +130,10 @@ import TaxonFormDialogMutation from '@/components/forms/TaxonFormDialogMutation.
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
 import { useQuery } from '@tanstack/vue-query'
 import { refDebounced } from '@vueuse/core'
-import { useRouteHash } from '@vueuse/router'
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
 import {
   maxRankDisplay,
-  scrollToTaxon,
   useRankFoldState,
   useTaxonFoldState,
   useTaxonSelection
@@ -157,13 +155,12 @@ function addDescendant(taxon: Taxon) {
   parentTaxon.value = taxon
 }
 
-const taxonHash = useRouteHash(undefined)
 
 const { selected, onSelect, select } = useTaxonSelection()
 onSelect((taxon) => {
   showTaxonCard.value = true
 })
-
+ 
 type Header = { rank: TaxonRank.NoSubgenus }
 
 const headers: Header[] = [
@@ -274,15 +271,6 @@ const items = computed(() => {
   return assembleTreeFromRanks(rankData)
 })
 
-const suspense = Promise.all(rankQueries.map((q) => q.suspense))
-
-onMounted(async () => {
-  await suspense
-  nextTick(() => {
-    if (taxonHash.value) scrollToTaxon(taxonHash.value.replace('#', ''))
-  })
-})
-
 const refetch = async () => {
   await Promise.all(rankQueries.map((q) => q.refetch?.()))
 }
@@ -326,16 +314,6 @@ const filteredItems = computed(() => {
     children: items.value.children?.map(matchSearch(filters)).filter((t) => t !== undefined)
   }
 })
-
-function find(subtree: TaxonomyElement, taxonID: string) {
-  const match = subtree.children?.find(({ id }) => id === taxonID)
-  if (match) return match
-  return subtree.children?.reduce<TaxonomyElement | undefined>((acc, item): TaxonomyElement | undefined => {
-    if (acc !== undefined) return acc
-    if (!item.children) return acc
-    return find(item, taxonID)
-  }, undefined)
-}
 
 async function update(taxonID: string | undefined) {
   if (!taxonID) {
