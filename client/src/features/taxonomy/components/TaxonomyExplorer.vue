@@ -296,10 +296,7 @@ const filteredItems = computed(() => {
     term: debouncedSearchTerm.value ? new RegExp(debouncedSearchTerm.value, 'i') : undefined,
     status: filterStatus.value
   }
-  return {
-    ...items.value,
-    children: items.value?.map(matchSearch(filters)).filter((t) => t !== undefined)
-  }
+  return items.value?.map(matchSearch(filters)).filter((t) => t !== undefined)
 })
 
 async function update(taxonID: string | undefined) {
