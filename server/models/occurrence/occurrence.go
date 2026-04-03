@@ -300,10 +300,10 @@ func (i *OccurrenceInput) FetchDOIs(db geltypes.Executor) error {
 			return fmt.Errorf("failed to check if doi %s exists : %v", doi, err)
 		}
 		if doiExists {
-			logrus.Infof("DOI %s already exists, skipping retrieval", doi)
+			logrus.Debugf("DOI %s already exists, skipping retrieval", doi)
 			continue
 		}
-		logrus.Infof("Retrieving DOI %s from Crossref", doi)
+		logrus.Debugf("Retrieving DOI %s from Crossref", doi)
 		cr, err := crossref.RetrieveDOI(doi)
 		if err != nil {
 			return fmt.Errorf("failed to retrieve DOI %s from Crossref: %v", doi, err)
