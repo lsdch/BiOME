@@ -107,7 +107,7 @@
       v-model="selected"
       @add-child="addDescendant"
       @navigate="(target) => (selected = target)"
-      @deleted="({ parent }) => update(parent?.id)"
+      @deleted="refetch()"
     />
     <TaxonFormDialogMutation
       v-if="parentTaxon"
@@ -299,16 +299,8 @@ const filteredItems = computed(() => {
   return items.value?.map(matchSearch(filters)).filter((t) => t !== undefined)
 })
 
-async function update(taxonID: string | undefined) {
-  if (!taxonID) {
-    await refetch()
-    return
-  }
-  await refetch()
-}
-
 async function onTaxonCreated(taxon: TaxonomyElement) {
-  await update(taxon.parent?.id)
+  await refetch()
   const { show } = useTaxonFoldState(taxon)
   show()
 }
