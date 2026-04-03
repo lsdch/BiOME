@@ -97,6 +97,16 @@ func init() {
 
 	router.RegisterSpec(
 		occDatasetsAPI,
+		"UpdateOccurrenceCodesInDataset",
+		huma.Operation{
+			Path:        "/{slug}/update-codes",
+			Method:      http.MethodPatch,
+			Summary:     "Update occurrence codes in dataset",
+			Description: "Update occurrence codes based on the current taxon and sampling data",
+		}, controllers.GetHandler[*GetDatasetInput](occurrence.UpdateOccurrenceCodesInDataset))
+
+	router.RegisterSpec(
+		occDatasetsAPI,
 		"ListOccurrenceDatasets",
 		huma.Operation{
 			Path:        "/",

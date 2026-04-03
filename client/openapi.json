@@ -597,6 +597,30 @@
 				},
 				"type": "object"
 			},
+			"CodeChange": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"code_history": {
+						"items": {
+							"$ref": "#/components/schemas/Item"
+						},
+						"type": "array"
+					},
+					"id": {
+						"format": "uuid",
+						"type": "string"
+					}
+				},
+				"required": [
+					"id",
+					"code",
+					"code_history"
+				],
+				"type": "object"
+			},
 			"CodeHistory": {
 				"additionalProperties": false,
 				"properties": {
@@ -2579,6 +2603,23 @@
 				},
 				"required": [
 					"invitation_link"
+				],
+				"type": "object"
+			},
+			"Item": {
+				"additionalProperties": false,
+				"properties": {
+					"code": {
+						"type": "string"
+					},
+					"time": {
+						"format": "date-time",
+						"type": "string"
+					}
+				},
+				"required": [
+					"code",
+					"time"
 				],
 				"type": "object"
 			},
@@ -9910,6 +9951,82 @@
 					}
 				},
 				"summary": "Get occurrence dataset",
+				"tags": [
+					"Datasets"
+				]
+			}
+		},
+		"/datasets/occurrence/{slug}/update-codes": {
+			"patch": {
+				"description": "Update occurrence codes based on the current taxon and sampling data",
+				"operationId": "UpdateOccurrenceCodesInDataset",
+				"parameters": [
+					{
+						"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+						"in": "header",
+						"name": "Authorization",
+						"schema": {
+							"description": "Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set.",
+							"examples": [
+								"Bearer \u003cJWT string\u003e"
+							],
+							"type": "string"
+						}
+					},
+					{
+						"description": "Session cookie containing JWT",
+						"in": "cookie",
+						"name": "auth_token",
+						"schema": {
+							"$ref": "#/components/schemas/Cookie",
+							"description": "Session cookie containing JWT"
+						}
+					},
+					{
+						"in": "path",
+						"name": "slug",
+						"required": true,
+						"schema": {
+							"type": "string"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/CodeChange"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Update occurrence codes in dataset",
 				"tags": [
 					"Datasets"
 				]

@@ -83,6 +83,7 @@ import type {
   UpdateFixativeResponse,
   UpdateGeneResponse,
   UpdateHabitatGroupResponse,
+  UpdateOccurrenceCodesInDatasetResponse,
   UpdateOccurrenceResponse,
   UpdateOrganisationResponse,
   UpdatePersonResponse,
@@ -340,6 +341,23 @@ export const getOccurrenceDatasetResponseTransformer = async (
   data: any
 ): Promise<GetOccurrenceDatasetResponse> => {
   data = occurrenceDatasetSchemaResponseTransformer(data)
+  return data
+}
+
+const itemSchemaResponseTransformer = (data: any) => {
+  data.time = new Date(data.time)
+  return data
+}
+
+const codeChangeSchemaResponseTransformer = (data: any) => {
+  data.code_history = data.code_history.map((item: any) => itemSchemaResponseTransformer(item))
+  return data
+}
+
+export const updateOccurrenceCodesInDatasetResponseTransformer = async (
+  data: any
+): Promise<UpdateOccurrenceCodesInDatasetResponse> => {
+  data = data.map((item: any) => codeChangeSchemaResponseTransformer(item))
   return data
 }
 

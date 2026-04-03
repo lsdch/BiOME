@@ -13,7 +13,8 @@ with module occurrence,
   occurrence := (
     insert Occurrence {
       sampling := sampling,
-      code := <str>json_get(data, 'code') ?? occurrence::occurrence_code(taxon, sampling.code),
+      code := occurrence::occurrence_code(taxon, sampling.code),
+      code_history := <tuple<code: str, time: datetime>>(code := json_get(data, 'code'), time := datetime_of_statement()),
       sources := (
         select references::DataSource
         filter .code in <str>json_array_unpack(json_get(data, 'sources'))

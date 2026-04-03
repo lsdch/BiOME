@@ -90,6 +90,7 @@ import {
   updateFixativeResponseTransformer,
   updateGeneResponseTransformer,
   updateHabitatGroupResponseTransformer,
+  updateOccurrenceCodesInDatasetResponseTransformer,
   updateOccurrenceResponseTransformer,
   updateOrganisationResponseTransformer,
   updatePersonResponseTransformer,
@@ -427,6 +428,9 @@ import type {
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsErrors,
   UpdateInstanceSettingsResponses,
+  UpdateOccurrenceCodesInDatasetData,
+  UpdateOccurrenceCodesInDatasetErrors,
+  UpdateOccurrenceCodesInDatasetResponses,
   UpdateOccurrenceData,
   UpdateOccurrenceErrors,
   UpdateOccurrenceResponses,
@@ -1844,6 +1848,33 @@ export class DatasetsService {
         }
       ],
       url: '/datasets/occurrence/{slug}',
+      ...options
+    })
+  }
+
+  /**
+   * Update occurrence codes in dataset
+   *
+   * Update occurrence codes based on the current taxon and sampling data
+   */
+  public static updateOccurrenceCodesInDataset<ThrowOnError extends boolean = false>(
+    options: Options<UpdateOccurrenceCodesInDatasetData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      UpdateOccurrenceCodesInDatasetResponses,
+      UpdateOccurrenceCodesInDatasetErrors,
+      ThrowOnError
+    >({
+      responseTransformer: updateOccurrenceCodesInDatasetResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/datasets/occurrence/{slug}/update-codes',
       ...options
     })
   }

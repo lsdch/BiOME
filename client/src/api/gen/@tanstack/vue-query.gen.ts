@@ -352,6 +352,9 @@ import type {
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsError,
   UpdateInstanceSettingsResponse,
+  UpdateOccurrenceCodesInDatasetData,
+  UpdateOccurrenceCodesInDatasetError,
+  UpdateOccurrenceCodesInDatasetResponse,
   UpdateOccurrenceData,
   UpdateOccurrenceError,
   UpdateOccurrenceResponse,
@@ -1216,6 +1219,35 @@ export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatase
     },
     queryKey: getOccurrenceDatasetQueryKey(options)
   })
+
+/**
+ * Update occurrence codes in dataset
+ *
+ * Update occurrence codes based on the current taxon and sampling data
+ */
+export const updateOccurrenceCodesInDatasetMutation = (
+  options?: Partial<Options<UpdateOccurrenceCodesInDatasetData>>
+): UseMutationOptions<
+  UpdateOccurrenceCodesInDatasetResponse,
+  UpdateOccurrenceCodesInDatasetError,
+  Options<UpdateOccurrenceCodesInDatasetData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateOccurrenceCodesInDatasetResponse,
+    UpdateOccurrenceCodesInDatasetError,
+    Options<UpdateOccurrenceCodesInDatasetData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await DatasetsService.updateOccurrenceCodesInDataset({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
 
 /**
  * Pin/unpin dataset

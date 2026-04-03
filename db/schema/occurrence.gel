@@ -1,5 +1,10 @@
 module occurrence {
 
+  global block_code_update : bool {
+    default := false;
+    annotation description := "When true, prevents updates to the occurrence code. This is used to enforce immutability of occurrence codes after creation.";
+  }
+
   type Identification extending default::Auditable {
     required taxon: taxonomy::Taxon;
 
@@ -26,6 +31,9 @@ module occurrence {
 
   scalar type TypeStatus extending enum<Holotype, Neotype, Topotype>;
 
+
+  scalar type DefaultOccurrenceCode extending sequence;  
+
   # Occurrences are reports of the presence of a taxon at a specific location and time.
   type Occurrence extending default::Auditable, default::CodeIdentifier {
 
@@ -50,13 +58,12 @@ module occurrence {
       # > this is a tempory implementation restriction
       # 🔗 see also: https://github.com/geldata/gel/issues/7384
       # -----
-      # default := gen_occurrence_code(.identification, .sampling)
-      # rewrite insert, update using (
-      #   if re_test(r'^\d+$', .code)  then (
-      #     .identification.taxon.code ++ "|" ++ events::event_code(.sampling.event)
-      #   )
-      #   else .code
-      # );
+      default := <str>sequence_next(introspect DefaultOccurrenceCode);
+      rewrite insert, update using (
+        if global block_code_update 
+        then .code
+        else taxonomy::taxon_code(.identification.taxon) ++ "[" ++ .sampling.code ++ "]"
+      );
     };
 
     # Defines whether this occurrence is the first scientific description of

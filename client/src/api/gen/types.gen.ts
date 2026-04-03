@@ -198,6 +198,12 @@ export type ClinicalTrailNumber = {
   type?: string
 }
 
+export type CodeChange = {
+  code: string
+  code_history: Array<Item>
+  id: string
+}
+
 export type CodeHistory = {
   code: string
   time: Date
@@ -910,6 +916,11 @@ export type InvitationLink = {
    * The generated URL containing a registration token that can be shared to the invitee.
    */
   invitation_link: Url
+}
+
+export type Item = {
+  code: string
+  time: Date
 }
 
 export type JournalIssue = {
@@ -3538,6 +3549,45 @@ export type GetOccurrenceDatasetResponses = {
 
 export type GetOccurrenceDatasetResponse =
   GetOccurrenceDatasetResponses[keyof GetOccurrenceDatasetResponses]
+
+export type UpdateOccurrenceCodesInDatasetData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path: {
+    slug: string
+  }
+  query?: never
+  url: '/datasets/occurrence/{slug}/update-codes'
+}
+
+export type UpdateOccurrenceCodesInDatasetErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type UpdateOccurrenceCodesInDatasetError =
+  UpdateOccurrenceCodesInDatasetErrors[keyof UpdateOccurrenceCodesInDatasetErrors]
+
+export type UpdateOccurrenceCodesInDatasetResponses = {
+  /**
+   * OK
+   */
+  200: Array<CodeChange>
+}
+
+export type UpdateOccurrenceCodesInDatasetResponse =
+  UpdateOccurrenceCodesInDatasetResponses[keyof UpdateOccurrenceCodesInDatasetResponses]
 
 export type TogglePinDatasetData = {
   body?: never

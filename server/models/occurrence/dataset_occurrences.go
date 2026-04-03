@@ -3,6 +3,7 @@ package occurrence
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/geldata/gel-go"
 	"github.com/geldata/gel-go/geltypes"
@@ -82,6 +83,47 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 		&dataset, slug,
 	)
 	return
+}
+
+type CodeChange struct {
+	ID          geltypes.UUID `gel:"id" json:"id" format:"uuid"`
+	Code        string        `gel:"code" json:"code"`
+	CodeHistory []struct {
+		Code string    `gel:"code" json:"code"`
+		Time time.Time `gel:"time" json:"time"`
+	} `gel:"code_history" json:"code_history"`
+}
+
+func UpdateOccurrenceCodesInDataset(db geltypes.Executor, slug string) ([]CodeChange, error) {
+	var changes = []CodeChange{}
+	err := db.Query(context.Background(),
+		`#edgeql
+			with module occurrence,
+			dataset := (
+				select datasets::OccurrenceDataset
+				filter .slug = <str>$0
+			),
+			update_pool := (update dataset.occurrences
+			filter (
+				with new_code := occurrence::occurrence_code(.identification.taxon, .sampling.code)
+				select .code != new_code
+			)
+			 set {
+				code_history := (
+					(.code_history union (code := .code, time := datetime_of_statement())) 
+					if not .code in .code_history.code 
+					else .code_history
+				)
+			}) 
+			select update_pool {
+				id,
+				code,
+				code_history
+			}
+		`,
+		&changes, slug,
+	)
+	return changes, err
 }
 
 type OccurrenceDatasetInput struct {

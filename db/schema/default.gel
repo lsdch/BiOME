@@ -37,13 +37,7 @@ module default {
     };
 
     # Stores the history of code changes
-    code_history: array<tuple<code: str, time: datetime>> {
-      rewrite update using (
-        if __old__.code != .code then
-        __old__.code_history ?? [] ++ [(code := __old__.code, time := datetime_of_statement())]
-        else .code_history
-      );
-    }
+    multi code_history: tuple<code: str, time: datetime>;
   }
 
   abstract type Vocabulary {

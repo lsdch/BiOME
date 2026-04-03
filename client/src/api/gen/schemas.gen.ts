@@ -520,6 +520,27 @@ export const $ClinicalTrailNumber = {
   type: 'object'
 } as const
 
+export const $CodeChange = {
+  additionalProperties: false,
+  properties: {
+    code: {
+      type: 'string'
+    },
+    code_history: {
+      items: {
+        $ref: '#/components/schemas/Item'
+      },
+      type: 'array'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    }
+  },
+  required: ['id', 'code', 'code_history'],
+  type: 'object'
+} as const
+
 export const $CodeHistory = {
   additionalProperties: false,
   properties: {
@@ -2249,6 +2270,21 @@ export const $InvitationLink = {
     }
   },
   required: ['invitation_link'],
+  type: 'object'
+} as const
+
+export const $Item = {
+  additionalProperties: false,
+  properties: {
+    code: {
+      type: 'string'
+    },
+    time: {
+      format: 'date-time',
+      type: 'string'
+    }
+  },
+  required: ['code', 'time'],
   type: 'object'
 } as const
 

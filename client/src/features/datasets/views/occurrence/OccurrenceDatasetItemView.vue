@@ -31,6 +31,13 @@
               density="compact"
             />
           </v-tab>
+          <v-spacer></v-spacer>
+          <v-tab
+            value="administration"
+            prepend-icon="mdi-cog"
+            v-if="isUserMaintainer || userStore.isGranted('Admin')"
+          >
+          </v-tab>
         </v-tabs>
         <v-tabs-window v-model="tab" class="fill-height" crossfade>
           <v-tabs-window-item value="map" key="map" :transition="false" id="map-tab">
@@ -44,6 +51,9 @@
           </v-tabs-window-item>
           <v-tabs-window-item value="bibliography" key="bibliography">
             <OccurrenceDatasetBibliography :dataset />
+          </v-tabs-window-item>
+          <v-tabs-window-item value="administration" key="administration">
+            <OccurrenceDatasetAdministration :dataset @refresh="refetch()" />
           </v-tabs-window-item>
         </v-tabs-window>
       </v-card>
@@ -59,26 +69,30 @@
 
 <script setup lang="tsx">
 import { getOccurrenceDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
-import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
-import SitesTable from '@/features/site/components/SitesTable.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
+import OccurrenceDatasetBibliography from '@/features/datasets/components/OccurrenceDatasetBibliography.vue'
+import OccurrenceDatasetMap from '@/features/datasets/components/OccurrenceDatasetMap.vue'
+import OccurrenceDatasetParticipants from '@/features/datasets/components/OccurrenceDatasetParticipants.vue'
 import DatasetItemView from '@/features/datasets/views/DatasetItemView.vue'
+import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
+import SitesTable from '@/features/site/components/SitesTable.vue'
+import { useUserStore } from '@/stores/user'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref, watch } from 'vue'
 import { useDisplay } from 'vuetify/lib/composables/display.mjs'
-import OccurrenceDatasetMap from '@/features/datasets/components/OccurrenceDatasetMap.vue'
-import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
-import OccurrenceDatasetParticipants from '@/features/datasets/components/OccurrenceDatasetParticipants.vue'
-import { Article } from '@/api'
-import ItemDateChip from '@/components/toolkit/ItemDateChip.vue'
-import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
-import OccurrenceDatasetBibliography from '@/features/datasets/components/OccurrenceDatasetBibliography.vue'
+import OccurrenceDatasetAdministration from '../../components/OccurrenceDatasetAdministration.vue'
 
-type Tab = 'map' | 'sites' | 'occurrences' | 'bibliography'
+type Tab = 'map' | 'sites' | 'occurrences' | 'bibliography' | 'administration'
 const tab = ref<Tab>('map')
 
 const { xlAndUp: mapOnSide } = useDisplay()
+
+const userStore = useUserStore()
+const isUserMaintainer = computed(() => {
+  return dataset.value?.maintainers?.some((m) => m.id === userStore.user?.id)
+})
+
 watch(
   mapOnSide,
   (val) => {
