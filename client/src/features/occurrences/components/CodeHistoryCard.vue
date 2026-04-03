@@ -2,7 +2,7 @@
   <v-card class="rounded-t-0">
     <v-list>
       <v-list-subheader>Code history</v-list-subheader>
-      <v-list-item v-for="item in codeHistory" :title="item.code" @click="onClick">
+      <v-list-item v-for="item in sortedHistory" :title="item.code" @click="onClick">
         <template #title="{ title }">
           <span class="font-monospace">{{ title }}</span>
         </template>
@@ -30,11 +30,15 @@
 import { CodeHistory } from '@/api'
 import { useClipboard, useThrottleFn } from '@vueuse/core'
 import { DateTime } from 'luxon'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps<{
   codeHistory: CodeHistory[]
 }>()
+
+const sortedHistory = computed(() => {
+  return props.codeHistory.toSorted((a, b) => b.time.getTime() - a.time.getTime())
+})
 
 const { copy } = useClipboard()
 const copied = ref<string>()
