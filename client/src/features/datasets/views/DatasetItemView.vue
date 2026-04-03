@@ -53,19 +53,6 @@
         </template>
 
         <div class="flex-grow-1 d-flex flex-column">
-          <v-img
-            class="flex-grow-0"
-            :src="`/api/v1/assets/images/datasets/${slug}/${slug}.jpg`"
-            :min-height="20"
-            :max-height="200"
-            cover
-            ref="image"
-            gradient="to top, rgba(var(--v-theme-surface)), #00000000"
-          >
-            <template #error>
-              <v-divider class="my-3" />
-            </template>
-          </v-img>
           <v-card-text v-if="baseDataset?.description" class="flex-grow-0 text-caption">
             {{ baseDataset?.description }}
           </v-card-text>
