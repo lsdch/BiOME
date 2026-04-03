@@ -99,8 +99,10 @@
     <template #item.identification="{ value: identification }">
       <IdentificationChip :identification size="small" short />
     </template>
-    <template #item.identification.identified_by="{ value }: { value: Person }">
-      <PersonChip :person="value" size="small" short />
+    <template #item.identification.identified_by="{ value: identificators }: { value?: string[] }">
+      <div v-if="identificators?.length" class="d-flex flex-wrap ga-1">
+        <v-chip v-for="name in identificators" :text="name" size="small"></v-chip>
+      </div>
     </template>
     <template #item.identification.identified_on="{ value }">
       <span :class="['font-monospace', { 'text-muted': !value }]">{{
