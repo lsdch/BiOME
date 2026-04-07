@@ -1,7 +1,7 @@
-import { Taxonomy, TaxonRank, TaxonStatus } from '@/api'
+import { TaxonomyItem as TItem, TaxonRank, TaxonStatus } from '@/api'
 import TaxonomyItem from './TaxonomyItem.vue'
 
-export function FTaxaNestedList(props: { items: Taxonomy[]; rank: TaxonRank }) {
+export function FTaxaNestedList(props: { items: TItem[]; rank: TaxonRank }) {
   return (
     <div
       class="pa-0 taxa-list bg-surface"
