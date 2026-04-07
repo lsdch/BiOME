@@ -25,7 +25,6 @@ export function fromSampling({
   methods,
   performed_on,
   performed_by,
-  performed_by_groups
 }: Sampling): SamplingFormModel {
   return {
     duration,
@@ -37,7 +36,6 @@ export function fromSampling({
     methods,
     performed_on: fromDateWithPrecision(performed_on),
     performed_by: performed_by ?? [],
-    performed_by_groups: performed_by_groups ?? [],
   }
 }
 
@@ -50,8 +48,7 @@ export function toRequestBody({
   fixatives,
   methods,
   performed_on,
-  performed_by,
-  performed_by_groups
+  performed_by
 }: SamplingFormModel): SamplingInput {
   return {
     duration,
@@ -62,7 +59,6 @@ export function toRequestBody({
     fixatives: fixatives?.map(({ code }) => code),
     methods: methods?.map(({ code }) => code),
     performed_on: DateWithPrecisionToInput(performed_on),
-    performed_by: performed_by?.map(({ alias }) => alias),
-    performed_by_groups: performed_by_groups?.map(({ code }) => code),
+    performed_by: performed_by,
   } satisfies SamplingUpdate
 }
