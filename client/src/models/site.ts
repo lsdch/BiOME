@@ -35,7 +35,7 @@ export function fromSite({
   id,
   meta,
   $schema,
-  events,
+  samplings,
   datasets,
   country,
   coordinates,
@@ -43,7 +43,7 @@ export function fromSite({
 }: Site): SiteFormModel {
   return {
     ...rest,
-    country_code: country?.code,
+    country: country?.code,
     coordinates: {
       latitude: coordinates.latitude,
       longitude: coordinates.longitude,
