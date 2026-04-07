@@ -141,7 +141,7 @@ fieldset {
 legend.node-label {
   position: absolute;
   top: -30px;
-  font-size: x-small;
+  font-size: small;
   opacity: 0.5;
 }
 </style>

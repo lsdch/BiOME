@@ -6,7 +6,7 @@
     <template #item="{ item, props }">
       <v-list-item :title="item.title" v-bind="props">
         <template #prepend>
-          <v-icon v-bind="OrgKind.props[item.raw.value]" />
+          <v-icon v-bind="OrgKind.props[item.value]" />
         </template>
       </v-list-item>
     </template>

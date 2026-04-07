@@ -19,10 +19,10 @@
         />
       </div>
     </template>
-    <template #item="{ item, props }">
-      <v-list-item :title="item.title" v-bind="props">
+    <template #item="{ item, internalItem, props }">
+      <v-list-item :title="internalItem.title" v-bind="props">
         <template #append>
-          <ColorPalettePreview :gradient="item.raw.name" />
+          <ColorPalettePreview :gradient="item.name" />
         </template>
       </v-list-item>
     </template>

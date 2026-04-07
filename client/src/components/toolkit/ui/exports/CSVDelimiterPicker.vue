@@ -1,7 +1,7 @@
 <template>
   <v-select label="Delimiter" :items="delimiters" v-model="model" item-value="value">
     <template #selection="{ item }">
-      {{ item.raw.subtitle }}
+      {{ item.subtitle }}
       &nbsp;
       <v-chip :text="item.title" label size="small" class="font-monospace"></v-chip>
     </template>
@@ -11,7 +11,7 @@
           <v-chip :text="item.title" label size="small" class="font-monospace"></v-chip>
         </template>
         <template #append>
-          <span class="text-caption text-muted">{{ item.raw.subtitle }}</span>
+          <span class="text-caption text-muted">{{ item.subtitle }}</span>
         </template>
       </v-list-item>
     </template>

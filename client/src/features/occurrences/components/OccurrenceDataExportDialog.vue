@@ -25,15 +25,15 @@
         :rounded="format == 'CSV' ? 'b-0' : undefined"
       >
         <template #selection="{ item }">
-          <code> {{ item.value }}</code>
+          <code> {{ item }}</code>
         </template>
         <template #item="{ item, props }">
           <v-list-item
             v-bind="props"
-            :prepend-icon="item.value == 'CSV' ? 'mdi-table' : 'mdi-code-braces'"
+            :prepend-icon="item == 'CSV' ? 'mdi-table' : 'mdi-code-braces'"
           >
             <template #title>
-              <code> {{ item.value }}</code>
+              <code> {{ item }}</code>
             </template>
           </v-list-item>
         </template>

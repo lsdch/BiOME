@@ -30,23 +30,19 @@
     </template>
     <template #chip="{ item, props }" v-if="chips && returnObject">
       <slot name="chip" :props :item>
-        <TaxonChip :taxon="item.raw" v-bind="props" />
+        <TaxonChip :taxon="item" v-bind="props" />
       </slot>
     </template>
     <template #item="{ props, item }">
-      <v-list-item v-bind="props" :title="item.raw.name" class="fuzzy-search-item">
-        <!-- <template #title>
-          <v-list-item-title v-html="highlight(item.raw, 'name')" />
-        </template> -->
+      <v-list-item v-bind="props" :title="item.name" class="fuzzy-search-item">
         <template #subtitle>
-          {{ item.raw.authorship }}
+          {{ item.authorship }}
         </template>
         <template #append>
           <span class="text-muted text-caption">
-            {{ item.raw.rank }}
+            {{ item.rank }}
           </span>
-          <!-- <span v-html="highlight(item.raw, 'rank')"></span> -->
-          <FTaxonStatusIndicator :status="item.raw.status" />
+          <FTaxonStatusIndicator :status="item.status" />
         </template>
       </v-list-item>
     </template>

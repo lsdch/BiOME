@@ -18,12 +18,12 @@
       <slot :name="name" v-bind="slotData" />
     </template>
     <template #item="{ item, props }">
-      <v-list-item v-bind="props" :subtitle="item.raw.alias">
+      <v-list-item v-bind="props" :subtitle="item.alias">
         <template #prepend="{ isSelected }" v-if="multiple">
           <v-checkbox :modelValue="isSelected" hide-details density="compact" class="mx-1" />
         </template>
-        <template v-if="item.raw.user" #append>
-          <UserRole.Chip :role="item.raw.role" />
+        <template v-if="item.user" #append>
+          <UserRole.Chip :role="item.role" />
         </template>
       </v-list-item>
     </template>

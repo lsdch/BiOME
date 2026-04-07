@@ -9,12 +9,12 @@
     :error-messages="error?.detail"
   >
     <template #item="{ item, props }">
-      <v-list-item v-bind="props" :subtitle="item.raw.description">
+      <v-list-item v-bind="props" :subtitle="item.description">
         <template #prepend="props">
           <slot name="prepend" :props :item></slot>
         </template>
         <template #append>
-          <v-chip :text="item.raw.unit" />
+          <v-chip :text="item.unit" />
         </template>
       </v-list-item>
     </template>

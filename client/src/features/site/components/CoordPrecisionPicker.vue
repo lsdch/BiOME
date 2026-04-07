@@ -7,8 +7,8 @@
     item-value="value"
     :label="noLabel ? undefined : label"
   >
-    <template #item="{ item, props }">
-      <v-list-item v-bind="props" :title="item.title" :subtitle="item.raw.description" />
+    <template #item="{ item, internalItem, props }">
+      <v-list-item v-bind="props" :title="internalItem.title" :subtitle="item.description" />
     </template>
   </v-select>
 </template>

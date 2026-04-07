@@ -18,21 +18,21 @@
     return-object
   >
     <template #chip="{ item, props }">
-      <v-chip closable v-bind="props" @click:close="onDelete(item.raw)" :text="item.title" />
+      <v-chip closable v-bind="props" @click:close="onDelete(item)" :text="item.label" />
     </template>
     <template #item="{ item, props }">
       <v-list-item
-        :title="item.title"
+        :title="item.label"
         :subtitle="
           graph
-            .habitat(item.raw.id)
+            .habitat(item.id)
             .dependencies.map(({ label }) => label)
             .join(' › ')
         "
         v-bind="props"
       >
         <template #title="{ title }">
-          <span :class="{ 'font-weight-bold': !graph.habitat(item.raw.id).dependencies?.length }">{{
+          <span :class="{ 'font-weight-bold': !graph.habitat(item.id).dependencies?.length }">{{
             title
           }}</span>
         </template>
@@ -43,7 +43,7 @@
           <v-chip
             class="text-overline"
             color="primary"
-            :text="graph.habitat(item.raw.id).group.label"
+            :text="graph.habitat(item.id).group.label"
           />
         </template>
       </v-list-item>

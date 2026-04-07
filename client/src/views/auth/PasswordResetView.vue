@@ -1,6 +1,6 @@
 <template>
-  <v-container class="fill-height">
-    <v-row :align="smAndDown ? 'baseline' : 'center'">
+  <v-container class="fill-height d-flex align-center flex-wrap">
+    <v-row :class="smAndDown ? 'align-baseline' : 'align-center'">
       <v-col lg="6" offset-lg="3">
         <v-card
           :variant="smAndDown ? 'flat' : 'elevated'"

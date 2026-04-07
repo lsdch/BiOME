@@ -2,19 +2,11 @@
   <v-app>
     <v-app-bar id="app-bar" color="primary" v-if="!$route.meta.hideNavbar" density="compact">
       <v-app-bar-nav-icon @click="drawer = !drawer" />
-      <v-app-bar-title :to="{ name: 'home' }">
-        <v-btn
-          class="app-title opacity-100"
-          variant="plain"
-          :ripple="false"
-          :to="{ name: 'home' }"
-          :text="xs ? undefined : settings.instance.value?.name"
-          :loading="settings.isPending.value"
-        >
-          <template #prepend>
-            <AppIcon :size="30" />
-          </template>
-        </v-btn>
+      <v-app-bar-title>
+        <RouterLink :to="{ name: 'home' }" class="app-title d-flex align-center ga-3">
+          <AppIcon :size="28" />
+          <span>{{ settings.instance.value?.name }}</span>
+        </RouterLink>
       </v-app-bar-title>
       <v-spacer />
       <SettingsMenu v-if="!user" />
@@ -145,23 +137,4 @@ client.interceptors.response.use(async (response) => {
 const cookiesAccepted = useLocalStorage('cookies-accepted', false)
 </script>
 
-<style>
-/* #main {
-  background: initial;
-  background-image: radial-gradient(#64646433 1px, transparent 0px);
-  background-size: 25px 25px;
-  background-position: -10px -10px;
-} */
-
-.app-title {
-  color: white;
-  font-weight: bold;
-  font-size: larger;
-  text-transform: none;
-  font-family: Verdana, Geneva, Tahoma, sans-serif;
-}
-
-.noTransition {
-  transition-duration: 0s !important;
-}
-</style>
+<style></style>

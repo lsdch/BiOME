@@ -5,7 +5,7 @@
     </template>
     <v-card>
       <v-toolbar dark dense flat>
-        <v-toolbar-title class="text-body-2 font-weight-bold grey--text">
+        <v-toolbar-title class="text-body-2 font-weight-bold text-medium-emphasis">
           {{ title }}
         </v-toolbar-title>
       </v-toolbar>

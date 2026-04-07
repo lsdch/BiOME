@@ -9,7 +9,11 @@
         :items="existing"
       >
         <template #item="{ item, props }">
-          <v-list-item :title="item.raw.label" :subtitle="item.raw.description" v-bind="props" />
+          <v-list-item
+            :title="item.label"
+            :subtitle="item.description"
+            v-bind="props"
+          />
         </template>
       </v-select>
     </v-col>

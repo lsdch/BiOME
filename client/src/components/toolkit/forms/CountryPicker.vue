@@ -12,7 +12,7 @@
     :loading="isPending || loading"
     :error-messages="error?.detail"
     :custom-filter="
-      (_: any, q: string, item: InternalItem<CountryWithSitesCount> | undefined) => {
+      (_: any, q: string, item: InternalItem<CountrySummary> | undefined) => {
         if (q == '') return true
         if (!item) return false
         const { code, name } = item.raw
@@ -27,12 +27,12 @@
     <template #item="{ item, props }">
       <v-list-item
         v-bind="props"
-        :title="item.raw.name"
-        :subtitle="item.raw.sites_count ? `${item.raw.sites_count} sites` : undefined"
+        :title="item.name"
+        :subtitle="item.sites_count ? `${item.sites_count} sites` : undefined"
       >
         <template #append>
           <span class="text-overline">
-            {{ item.raw.code }}
+            {{ item.code }}
           </span>
         </template>
       </v-list-item>
@@ -49,7 +49,7 @@
     ReturnObject extends boolean
   "
 >
-import { Country, CountryWithSitesCount } from '@/api'
+import { Country, CountrySummary } from '@/api'
 import { useCountries } from '@/stores/countries'
 import { storeToRefs } from 'pinia'
 import { InternalItem } from 'vuetify'
@@ -57,7 +57,7 @@ import { Value } from 'vuetify/lib/components/VAutocomplete/VAutocomplete.mjs'
 
 type Model = ItemValue extends 'code' | 'name' ? Country[ItemValue] : Country
 
-const model = defineModel<Value<CountryWithSitesCount, boolean, Multiple>>()
+const model = defineModel<Value<CountrySummary, boolean, Multiple>>()
 
 const { countries: items, isPending, error } = storeToRefs(useCountries())
 

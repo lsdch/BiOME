@@ -21,13 +21,13 @@
           <v-checkbox :model-value="isSelected" hide-details />
         </template>
         <template #append>
-          <OrgKindChip :kind="item.raw.kind" />
+          <OrgKindChip :kind="item.kind" />
         </template>
       </v-list-item>
     </template>
     <template #chip="{ item, props }">
-      <OrgKindChip :kind="item.raw.kind" v-bind="props" size="small">
-        {{ item.raw.code }}
+      <OrgKindChip :kind="item.kind" v-bind="props" size="small">
+        {{ item.code }}
       </OrgKindChip>
     </template>
   </v-autocomplete>

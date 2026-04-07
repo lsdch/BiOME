@@ -63,7 +63,7 @@
               />
             </v-list-item>
             <v-list-item prepend-icon="mdi-calendar" v-if="yearRange?.min && yearRange?.max">
-              <div class="d-flex align-start mt-7">
+              <div class="d-flex align-start mt-5">
                 <v-checkbox
                   class=""
                   density="compact"

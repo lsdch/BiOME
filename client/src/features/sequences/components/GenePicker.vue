@@ -7,8 +7,8 @@
     item-title="code"
     :error-messages="error?.detail"
   >
-    <template #item="{ item, props }">
-      <v-list-item :subtitle="item.raw.label" v-bind="props" />
+        <template #item="{ item, props }">
+          <v-list-item :subtitle="item.label" v-bind="props" />
     </template>
   </v-select>
 </template>

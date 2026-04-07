@@ -4,9 +4,9 @@
       <UserRole.Icon :role="model" />
     </template>
     <template #item="{ props, item }">
-      <v-list-item v-bind="props" density="compact" :subtitle="hints[item.raw]">
+      <v-list-item v-bind="props" density="compact" :subtitle="hints[item]">
         <template #prepend>
-          <UserRole.Icon :role="item.raw" />
+          <UserRole.Icon :role="item" />
         </template>
       </v-list-item>
     </template>

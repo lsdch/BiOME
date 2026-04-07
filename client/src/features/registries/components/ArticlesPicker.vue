@@ -24,19 +24,19 @@
       </div>
     </template>
     <template #chip="{ item, props }">
-      <ArticleChip :article="item.raw.obj" v-bind="props" />
+      <ArticleChip :article="item.obj" v-bind="props" />
     </template>
     <template #item="{ item, props }">
       <v-list-item
         v-bind="props"
-        :title="Article.shortAuthors(item.raw.obj.authors)"
+        :title="Article.shortAuthors(item.obj.authors)"
         class="fuzzy-search-item"
       >
         <template #title>
           <v-list-item-title
             v-html="
-              highlight(item.raw, 'authors', {
-                baseValue: Article.shortAuthors(item.raw.obj.authors)
+              highlight(item, 'authors', {
+                baseValue: Article.shortAuthors(item.obj.authors)
               })
             "
           />
@@ -47,14 +47,14 @@
         <template #subtitle>
           <v-list-item-subtitle style="max-width: 100%">
             <div class="d-flex flex-column">
-              <span v-html="highlight(item.raw, 'title')"> </span>
-              <div class="text-caption" v-html="highlight(item.raw, 'journal')"></div>
+              <span v-html="highlight(item, 'title')"> </span>
+              <div class="text-caption" v-html="highlight(item, 'journal')"></div>
             </div>
           </v-list-item-subtitle>
         </template>
         <template #append>
           <v-chip size="small">
-            <span v-html="highlight(item.raw, 'year')"></span>
+            <span v-html="highlight(item, 'year')"></span>
           </v-chip>
         </template>
       </v-list-item>

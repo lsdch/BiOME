@@ -61,7 +61,7 @@
           <v-checkbox :modelValue="isSelected" hide-details density="compact" class="mx-1" />
         </template>
         <template #append>
-          <DatasetCategoryIcon :category="item.raw.category" size="x-small" />
+          <DatasetCategoryIcon :category="item.category" size="x-small" />
         </template>
       </v-list-item>
     </template>

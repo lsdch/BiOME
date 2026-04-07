@@ -19,7 +19,28 @@ ul {
 
 a {
   text-decoration: none;
+}
+
+td a {
+  text-decoration: none;
   color: rgb(var(--v-theme-primary));
+}
+
+.app-title {
+  color: white;
+  font-weight: bold;
+  font-size: large;
+  text-transform: none;
+  text-decoration: none;
+
+  span {
+    font-family: 'Segoe UI', Roboto, Oxygen-Sans, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  }
+}
+
+.text-overline {
+  font-family: 'Courier New', Courier, monospace;
+  text-transform: uppercase;
 }
 
 .v-card {
@@ -56,7 +77,7 @@ a {
 // }
 
 .input-overline input {
-  @extend .text-overline;
+  @extend .text-label-small;
   text-transform: none;
   line-height: unset;
 }

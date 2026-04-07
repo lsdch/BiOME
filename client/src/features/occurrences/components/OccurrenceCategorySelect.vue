@@ -17,9 +17,9 @@
       <v-list-item
         v-bind="{
           ...props,
-          ...OccurrenceCategory.props[item.raw]
+          ...OccurrenceCategory.props[item]
         }"
-        :class="`text-${OccurrenceCategory.props[item.raw].color}`"
+        :class="`text-${OccurrenceCategory.props[item].color}`"
       ></v-list-item>
     </template>
   </v-select>

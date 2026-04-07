@@ -12,7 +12,7 @@
       item-value="id"
       return-object
     >
-      <template #selection="{ item: { raw: sampling } }">
+      <template #selection="{ item: sampling }">
         <v-list-item :title="DateWithPrecision.format(sampling.performed_on)" class="px-0">
           <template #append>
             <v-chip :text="sampling.number.toString()" size="small" prepend-icon="mdi-pound" />
@@ -20,7 +20,7 @@
         </v-list-item>
       </template>
 
-      <template #item="{ item: { raw: sampling }, props }">
+      <template #item="{ item: sampling, props }">
         <v-list-item v-bind="props" :title="DateWithPrecision.format(sampling.performed_on)">
           <template #append>
             <v-chip :text="sampling.number.toString()" size="small" prepend-icon="mdi-pound" />

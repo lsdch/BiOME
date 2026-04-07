@@ -16,9 +16,9 @@
         ]"
       >
         <template #item="{ item, props }">
-          <v-list-item v-bind="props" :title="item.title">
+          <v-list-item v-bind="props" :title="item.label">
             <template #append>
-              {{ item.raw.symbol }}
+              {{ item.symbol }}
             </template>
           </v-list-item>
         </template>

@@ -1,11 +1,11 @@
 <template>
   <v-autocomplete v-model="model" :items="presets" item-title="name" return-object v-bind="$attrs">
     <template #item="{ item, props }">
-      <v-list-item :title="item.raw.name" v-bind="props">
-        <template #subtitle> by {{ item.raw.meta.created_by?.name }} </template>
+      <v-list-item :title="item.name" v-bind="props">
+        <template #subtitle> by {{ item.meta.created_by?.name }} </template>
         <template #append>
           <div class="d-flex ga-3 align-center">
-            <MapPresetSummaryIcons :spec="item.raw.spec" />
+            <MapPresetSummaryIcons :spec="item.spec" />
           </div>
         </template>
       </v-list-item>

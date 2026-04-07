@@ -16,7 +16,7 @@
     persistent-placeholder
     v-bind="$attrs"
   >
-    <template #item="{ item: { raw: site }, props }">
+    <template #item="{ item: site, props }">
       <v-list-item :title="site.name" v-bind="props">
         <template #subtitle>
           <v-list-item-subtitle>

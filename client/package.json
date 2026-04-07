@@ -66,7 +66,7 @@
     "vue-leaflet-hexbin": "^0.2.2",
     "vue-leaflet-markercluster": "^0.6.1",
     "vue-router": "^4.6.4",
-    "vuetify": "^3.12.5"
+    "vuetify": "^4"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.16.1",

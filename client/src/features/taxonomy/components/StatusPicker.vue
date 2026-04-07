@@ -8,9 +8,9 @@
     v-bind="$attrs"
   >
     <template #item="{ item, props }">
-      <v-list-item :title="item.value" :subtitle="item.raw.description" v-bind="props">
+      <v-list-item :title="item.status" :subtitle="item.description" v-bind="props">
         <template #prepend>
-          <FTaxonStatusIndicator :status="item.value" />
+          <FTaxonStatusIndicator :status="item.status" />
         </template>
       </v-list-item>
     </template>

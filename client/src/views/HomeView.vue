@@ -11,7 +11,7 @@
   </v-sheet>
   <v-footer border="t-sm">
     <v-container fluid>
-      <v-row justify="space-between" align="center">
+      <v-row class="justify-space-between align-center">
         <div></div>
         <div>
           <v-btn variant="text"> About </v-btn>
