@@ -4,8 +4,7 @@ const config: Promise<UserConfig> = defineConfig({
   input: "./openapi.json",
   output: {
     path: "src/api/gen/",
-    format: "prettier",
-    lint: "eslint",
+    postProcess: ["eslint", "prettier"],
   },
   parser: {
     transforms: {
@@ -32,13 +31,14 @@ const config: Promise<UserConfig> = defineConfig({
     },
     {
       name: "@hey-api/typescript",
-      style: "PascalCase",
     },
     {
       name: "@hey-api/sdk",
-      asClass: true,
-      classNameBuilder(name) {
-        return `${name}Service`
+      operations: {
+        strategy: 'byTags',
+        containerName(name) {
+          return `${name}Service`
+        },
       },
       transformer: true,
     },

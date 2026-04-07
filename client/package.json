@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@dagrejs/dagre": "^3.0.0",
-    "@hey-api/openapi-ts": "^0.90.10",
+    "@hey-api/openapi-ts": "^0.95.0",
     "@mdi/font": "^7.4.47",
     "@stoplight/elements": "^9.0.16",
     "@tanstack/vue-query": "^5.96.2",
