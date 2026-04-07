@@ -20,7 +20,7 @@
                     size: 'small'
                   }
             "
-            :disabled="!isValid.value || isDisabled.value"
+            :disabled="!isValid || isDisabled"
             @click="emit('submit')"
             rounded="sm"
           />
