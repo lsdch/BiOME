@@ -1,8 +1,7 @@
 {
   "extends": "./tsconfig.app.json",
   "include": [
-    "src/db/**/*",
-    "src/api/__tests__/**/*.ts"
+    "src/**/*",
   ],
   "exclude": [],
   "compilerOptions": {
