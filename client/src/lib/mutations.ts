@@ -3,7 +3,7 @@ import { joinPath, PathPrefix, Schema, useSchema } from "@/composables/schema"
 import { useMutation, UseMutationOptions } from "@tanstack/vue-query"
 import { reactiveComputed } from "@vueuse/core"
 import { StatusCodes } from "http-status-codes"
-import { Equal } from "node_modules/@tanstack/vue-query/build/modern/types"
+import { Equals } from "ts-toolbelt/out/Any/Equals"
 import { Optional } from "ts-toolbelt/out/Object/Optional"
 import { computed, ModelRef, ref, watch } from "vue"
 
@@ -104,7 +104,7 @@ export function defineFormCreate<
     schema: S,
   } &
     (
-      Equal<PickRequired<Omit<RData, 'url'>>, { body: InputModel }> extends true
+      Equals<PickRequired<Omit<RData, 'url'>>, { body: InputModel }> extends true
       ? {
         /**
          * Form model matches request data model and request does not require additional parameters:
@@ -170,7 +170,7 @@ export function defineFormUpdate<
      *  e.g. when `initToModel` generates a model of the same shape as `ItemUpdate`.
      */
     requestData(item: Item, model: UpdateModel):
-      Equal<UpdateModel, ItemUpdate> extends true ? Optional<RData, 'body'> : RData
+      Equals<UpdateModel, ItemUpdate> extends true ? Optional<RData, 'body'> : RData
   })
 ): FormUpdateMutation<Item, ItemUpdate, UpdateModel, S, ItemID, RData> {
   return {
