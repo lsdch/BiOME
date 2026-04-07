@@ -2,7 +2,7 @@ import { OrganisationInner, Person, PersonInput, PersonUpdate } from "@/api";
 import { reactive, Reactive } from "vue";
 
 export type PersonFormModel = Omit<PersonInput, "organisations"> & {
-  organisations: OrganisationInner[]
+  organisations?: OrganisationInner[]
 }
 
 export function initialModel(): Reactive<PersonFormModel> {
@@ -34,6 +34,6 @@ export function fromPerson({
 export function toRequestBody({ organisations, ...model }: PersonFormModel): PersonInput {
   return {
     ...model,
-    organisations: organisations.map(({ code }) => code)
+    organisations: organisations?.map(({ code }) => code)
   } satisfies PersonUpdate
 }
