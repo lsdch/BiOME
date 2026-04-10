@@ -1327,7 +1327,6 @@ export type OptionalTaxon = {
    */
   readonly $schema?: string
   GBIF_ID?: number
-  anchor: boolean
   authorship?: string
   children_count: number
   comment?: string
@@ -2274,7 +2273,6 @@ export type Taxon = {
    */
   readonly $schema?: string
   GBIF_ID?: number
-  anchor: boolean
   authorship?: string
   children_count: number
   comment?: string
@@ -2339,7 +2337,6 @@ export type TaxonWithLineage = {
    */
   readonly $schema?: string
   GBIF_ID?: number
-  anchor: boolean
   authorship?: string
   children?: Array<Taxon>
   children_count: number
@@ -2357,7 +2354,6 @@ export type TaxonWithLineage = {
 
 export type TaxonWithParentRef = {
   GBIF_ID?: number
-  anchor: boolean
   authorship?: string
   children_count: number
   comment?: string
@@ -2376,7 +2372,6 @@ export type TaxonWithRelatives = {
    */
   readonly $schema?: string
   GBIF_ID?: number
-  anchor: boolean
   authorship?: string
   children?: Array<Taxon>
   children_count: number
@@ -2393,7 +2388,6 @@ export type TaxonWithRelatives = {
 
 export type TaxonomyItem = {
   GBIF_ID?: number
-  anchor: boolean
   authorship?: string
   children_count: number
   comment?: string

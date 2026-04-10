@@ -4014,9 +4014,6 @@
 						"format": "int64",
 						"type": "integer"
 					},
-					"anchor": {
-						"type": "boolean"
-					},
 					"authorship": {
 						"examples": [
 							"(Linnaeus, 1758)"
@@ -4064,7 +4061,6 @@
 				},
 				"required": [
 					"id",
-					"anchor",
 					"children_count",
 					"meta",
 					"name",
@@ -7158,9 +7154,6 @@
 						"format": "int64",
 						"type": "integer"
 					},
-					"anchor": {
-						"type": "boolean"
-					},
 					"authorship": {
 						"examples": [
 							"(Linnaeus, 1758)"
@@ -7208,7 +7201,6 @@
 				},
 				"required": [
 					"id",
-					"anchor",
 					"children_count",
 					"meta",
 					"name",
@@ -7361,9 +7353,6 @@
 						"format": "int64",
 						"type": "integer"
 					},
-					"anchor": {
-						"type": "boolean"
-					},
 					"authorship": {
 						"examples": [
 							"(Linnaeus, 1758)"
@@ -7430,7 +7419,6 @@
 				"required": [
 					"lineage",
 					"id",
-					"anchor",
 					"children_count",
 					"meta",
 					"name",
@@ -7448,9 +7436,6 @@
 						],
 						"format": "int64",
 						"type": "integer"
-					},
-					"anchor": {
-						"type": "boolean"
 					},
 					"authorship": {
 						"examples": [
@@ -7503,7 +7488,6 @@
 				"required": [
 					"parent",
 					"id",
-					"anchor",
 					"children_count",
 					"meta",
 					"name",
@@ -7530,9 +7514,6 @@
 						],
 						"format": "int64",
 						"type": "integer"
-					},
-					"anchor": {
-						"type": "boolean"
 					},
 					"authorship": {
 						"examples": [
@@ -7596,7 +7577,6 @@
 				},
 				"required": [
 					"id",
-					"anchor",
 					"children_count",
 					"meta",
 					"name",
@@ -7614,9 +7594,6 @@
 						],
 						"format": "int64",
 						"type": "integer"
-					},
-					"anchor": {
-						"type": "boolean"
 					},
 					"authorship": {
 						"examples": [
@@ -7674,7 +7651,6 @@
 				},
 				"required": [
 					"id",
-					"anchor",
 					"children_count",
 					"meta",
 					"name",

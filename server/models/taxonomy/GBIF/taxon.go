@@ -58,7 +58,6 @@ type TaxonGBIF struct {
 	HigherClassificationMap map[int32]string             `json:"higherClassificationMap"`
 	Authorship              models.OptionalInput[string] `json:"authorship,omitempty" gel:"authorship,omitempty"`
 	NumDescendants          int                          `json:"numDescendants" gel:"-"`
-	Anchor                  bool                         `json:"anchor" gel:"anchor"`
 	AcceptedKey             int32                        `json:"acceptedKey"`
 	AcceptedName            string                       `json:"accepted"`
 }
@@ -108,7 +107,6 @@ func UpsertTaxa(tx geltypes.Tx, taxa []TaxonGBIF) (n int, err error) {
 			`#edgeql
 				with module taxonomy,
 					data := <json>$0,
-					anchor := <bool>data['anchor'],
 					accepted := (
 						select Taxon
 						filter .GBIF_ID = <int32>data['acceptedKey']
@@ -127,14 +125,9 @@ func UpsertTaxa(tx geltypes.Tx, taxa []TaxonGBIF) (n int, err error) {
 					),
 					rank := <Rank>data['rank'],
 					authorship := <str>data['authorship'],
-					anchor := anchor,
 					synonym_group := synonym_group,
 				}
-				unless conflict on .GBIF_ID else (
-					update Taxon set {
-						anchor := anchor if not .anchor else .anchor
-					}
-				)
+				unless conflict on .GBIF_ID
 			`, args); err != nil {
 			return n, fmt.Errorf("Error inserting taxon %s[%d] %v", taxon.Name, taxon.Key, err)
 		} else {

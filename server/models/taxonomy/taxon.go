@@ -47,7 +47,6 @@ type Taxon struct {
 	GBIF_ID       geltypes.OptionalInt32 `gel:"GBIF_ID" json:"GBIF_ID,omitempty" example:"2206247" binding:"numeric"`
 	TaxonInner    `gel:"$inline"`
 	Authorship    geltypes.OptionalStr `gel:"authorship" json:"authorship,omitempty" example:"(Linnaeus, 1758)"`
-	Anchor        bool                 `gel:"anchor" json:"anchor"`
 	ChildrenCount int64                `gel:"children_count" json:"children_count"`
 	Comment       geltypes.OptionalStr `json:"comment,omitempty" gel:"comment"`
 	Meta          people.Meta          `gel:"meta" json:"meta" binding:"required"`

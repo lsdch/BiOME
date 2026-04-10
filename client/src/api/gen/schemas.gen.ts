@@ -3548,9 +3548,6 @@ export const $OptionalTaxon = {
       format: 'int64',
       type: 'integer'
     },
-    anchor: {
-      type: 'boolean'
-    },
     authorship: {
       examples: ['(Linnaeus, 1758)'],
       type: 'string'
@@ -3586,7 +3583,7 @@ export const $OptionalTaxon = {
       examples: ['Accepted']
     }
   },
-  required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['id', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: ['object', 'null']
 } as const
 
@@ -6289,9 +6286,6 @@ export const $Taxon = {
       format: 'int64',
       type: 'integer'
     },
-    anchor: {
-      type: 'boolean'
-    },
     authorship: {
       examples: ['(Linnaeus, 1758)'],
       type: 'string'
@@ -6327,7 +6321,7 @@ export const $Taxon = {
       examples: ['Accepted']
     }
   },
-  required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['id', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 
@@ -6444,9 +6438,6 @@ export const $TaxonWithLineage = {
       format: 'int64',
       type: 'integer'
     },
-    anchor: {
-      type: 'boolean'
-    },
     authorship: {
       examples: ['(Linnaeus, 1758)'],
       type: 'string'
@@ -6500,7 +6491,7 @@ export const $TaxonWithLineage = {
       type: 'array'
     }
   },
-  required: ['lineage', 'id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['lineage', 'id', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 
@@ -6511,9 +6502,6 @@ export const $TaxonWithParentRef = {
       examples: [2206247],
       format: 'int64',
       type: 'integer'
-    },
-    anchor: {
-      type: 'boolean'
     },
     authorship: {
       examples: ['(Linnaeus, 1758)'],
@@ -6553,7 +6541,7 @@ export const $TaxonWithParentRef = {
       examples: ['Accepted']
     }
   },
-  required: ['parent', 'id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['parent', 'id', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 
@@ -6571,9 +6559,6 @@ export const $TaxonWithRelatives = {
       examples: [2206247],
       format: 'int64',
       type: 'integer'
-    },
-    anchor: {
-      type: 'boolean'
     },
     authorship: {
       examples: ['(Linnaeus, 1758)'],
@@ -6625,7 +6610,7 @@ export const $TaxonWithRelatives = {
       type: 'array'
     }
   },
-  required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['id', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 
@@ -6636,9 +6621,6 @@ export const $TaxonomyItem = {
       examples: [2206247],
       format: 'int64',
       type: 'integer'
-    },
-    anchor: {
-      type: 'boolean'
     },
     authorship: {
       examples: ['(Linnaeus, 1758)'],
@@ -6684,7 +6666,7 @@ export const $TaxonomyItem = {
       type: 'array'
     }
   },
-  required: ['id', 'anchor', 'children_count', 'meta', 'name', 'status', 'rank'],
+  required: ['id', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 

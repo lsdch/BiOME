@@ -62,11 +62,6 @@ module taxonomy {
     required rank: Rank;
 
     required status: TaxonStatus;
-    # constraint expression on (exists .GBIF_ID) except (<TaxonStatus>.status != TaxonStatus.Accepted);
-    required anchor: bool {
-      annotation description := "Signals whether this taxon was manually imported";
-      default := false;
-    };
     authorship: str;
 
     kingdom: Taxon {
