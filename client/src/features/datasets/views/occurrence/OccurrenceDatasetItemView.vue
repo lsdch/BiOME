@@ -44,7 +44,7 @@
             <OccurrenceDatasetMap :sites="dataset.sites" style="min-height: 600px" />
           </v-tabs-window-item>
           <v-tabs-window-item value="sites" key="sites">
-            <SitesTable :sites="dataset.sites" />
+            <SitesTable :sites="dataset.sites.map(({ samplings, ...s }) => s)" />
           </v-tabs-window-item>
           <v-tabs-window-item value="occurrences" key="occurrences">
             <OccurrencesTable :with-site="true" :occurrences />
