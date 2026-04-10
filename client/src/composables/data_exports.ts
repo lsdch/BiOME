@@ -5,6 +5,8 @@ export type Delimiter = '\t' | ',' | ';'
 export type QuoteChar = '"' | "'"
 
 export type ExportOptions = {
+  includeUUID: boolean
+  includeModificationMetadata: boolean
   delimiter: Delimiter
   quotes: boolean
   quoteChar: QuoteChar
@@ -16,6 +18,8 @@ export function useExportOptions() {
 
   function defaults(): ExportOptions {
     return {
+      includeUUID: false,
+      includeModificationMetadata: false,
       delimiter: '\t',
       quotes: true,
       quoteChar: '"'
