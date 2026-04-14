@@ -5,7 +5,7 @@ export type ClientOptions = {
 }
 
 export type AbioticMeasurement = {
-  id: string
+  id: UUID
   meta: Meta
   param: AbioticParameter
   performed_by?: Array<string>
@@ -20,7 +20,7 @@ export type AbioticParameter = {
   readonly $schema?: string
   code: string
   description?: string
-  id: string
+  id: UUID
   label: string
   meta: Meta
   unit: string
@@ -57,7 +57,7 @@ export type Article = {
   code: string
   comments?: string
   doi?: string
-  id: string
+  id: UUID
   journal?: string
   meta: Meta
   title?: string
@@ -142,7 +142,7 @@ export type BaseOccurrenceSamplingInnerWithSite = {
   comments?: string
   content_description?: string
   has_sequences: boolean
-  id: string
+  id: UUID
   identification: Identification
   meta: Meta
   quantity?: OptionalQuantityRange
@@ -162,7 +162,7 @@ export type BaseOccurrenceSamplingOutline = {
   comments?: string
   content_description?: string
   has_sequences: boolean
-  id: string
+  id: UUID
   identification: Identification
   meta: Meta
   quantity?: OptionalQuantityRange
@@ -201,7 +201,7 @@ export type ClinicalTrailNumber = {
 export type CodeChange = {
   code: string
   code_history: Array<Item>
-  id: string
+  id: UUID
 }
 
 export type CodeHistory = {
@@ -263,7 +263,7 @@ export type Country = {
   readonly $schema?: string
   code: string
   continent: string
-  id: string
+  id: UUID
   name: string
   subcontinent: string
 }
@@ -271,7 +271,7 @@ export type Country = {
 export type CountrySummary = {
   code: string
   continent: string
-  id: string
+  id: UUID
   name: string
   occurrences_count: number
   sites_count: number
@@ -331,7 +331,7 @@ export type DataFeedSpec = {
    */
   readonly $schema?: string
   description?: string
-  id: string
+  id: UUID
   /**
    * Global settings are considered as part of the application.
    */
@@ -378,7 +378,7 @@ export type DataSource = {
   code: string
   contact?: string
   description?: string
-  id: string
+  id: UUID
   label: string
   link_template?: string
   meta: Meta
@@ -417,7 +417,7 @@ export type Dataset = {
   readonly $schema?: string
   category: DatasetCategory
   description: string
-  id: string
+  id: UUID
   label: string
   maintainers: Array<Person>
   meta: Meta
@@ -434,7 +434,7 @@ export type DatasetCategory = 'Site' | 'Occurrence' | 'Seq'
 export type DatasetInner = {
   category: DatasetCategory
   description: string
-  id: string
+  id: UUID
   label: string
   pinned: boolean
   slug: string
@@ -573,7 +573,7 @@ export type ExternalSequence = {
   code_history?: Array<CodeHistory>
   comments?: string
   gene: Gene
-  id: string
+  id: UUID
   is_identifying: boolean
   label?: string
   legacy?: OptionalLegacySeqId
@@ -602,7 +602,7 @@ export type Fixative = {
   readonly $schema?: string
   code: string
   description?: string
-  id: string
+  id: UUID
   label: string
   meta: Meta
 }
@@ -655,7 +655,7 @@ export type Gene = {
   readonly $schema?: string
   code: string
   description?: string
-  id: string
+  id: UUID
   is_MOTU_delimiter: boolean
   label: string
   meta: Meta
@@ -719,7 +719,7 @@ export type Habitat = {
    * Optional habitat description
    */
   description?: string
-  id: string
+  id: UUID
   incompatible: Array<HabitatInner>
   /**
    * A short label for the habitat.
@@ -736,7 +736,7 @@ export type HabitatGroup = {
   depends?: OptionalHabitatRecord
   elements: Array<HabitatRecord>
   exclusive_elements: boolean
-  id: string
+  id: UUID
   /**
    * Name for the group of habitat tags
    */
@@ -781,7 +781,7 @@ export type HabitatInner = {
    * Optional habitat description
    */
   description?: string
-  id: string
+  id: UUID
   /**
    * A short label for the habitat.
    */
@@ -804,7 +804,7 @@ export type HabitatRecord = {
    * Optional habitat description
    */
   description?: string
-  id: string
+  id: UUID
   incompatible: Array<HabitatInner>
   /**
    * A short label for the habitat.
@@ -820,7 +820,7 @@ export type HabitatUpdate = {
 export type Identification = {
   addendum?: string
   confer: boolean
-  id: string
+  id: UUID
   identified_by?: Array<string>
   identified_on?: OptionalDateWithPrecision
   meta: Meta
@@ -977,7 +977,7 @@ export type MapToolPreset = {
    */
   readonly $schema?: string
   description?: string
-  id: string
+  id: UUID
   /**
    * Global settings are considered as part of the application.
    */
@@ -1098,7 +1098,7 @@ export type Meta = {
 
 export type OccurrenceAtSite = {
   code: string
-  id: string
+  id: UUID
   identification: BaseIdentification
 }
 
@@ -1125,7 +1125,7 @@ export type OccurrenceDataset = {
   category: DatasetCategory
   contributors?: Array<string>
   description: string
-  id: string
+  id: UUID
   is_congruent: boolean
   label: string
   maintainers: Array<Person>
@@ -1139,7 +1139,7 @@ export type OccurrenceDataset = {
 export type OccurrenceDatasetListItem = {
   category: DatasetCategory
   description: string
-  id: string
+  id: UUID
   is_congruent: boolean
   label: string
   maintainers: Array<Person>
@@ -1193,7 +1193,7 @@ export type OccurrenceListItem = {
   comments?: string
   content_description?: string
   has_sequences: boolean
-  id: string
+  id: UUID
   identification: Identification
   meta: Meta
   quantity?: OptionalQuantityRange
@@ -1221,7 +1221,7 @@ export type OccurrenceSamplingWithSite = {
   content_description?: string
   datasets?: Array<Dataset>
   has_sequences: boolean
-  id: string
+  id: UUID
   identification: Identification
   meta: Meta
   published_in?: Array<Article>
@@ -1241,7 +1241,7 @@ export type OccurrenceStruct = {
   content_description?: string
   datasets?: Array<Dataset>
   has_sequences: boolean
-  id: string
+  id: UUID
   identification: Identification
   meta: Meta
   published_in?: Array<Article>
@@ -1269,7 +1269,7 @@ export type OccurrenceUpdate = {
   identification?: IdentificationUpdate
   published_in?: Array<string> | null
   quantity?: [number, number] | null
-  sampling_id: string
+  sampling_id: UUID
   sources?: string | null
   type_status?: TypeStatus | null
   verbatim_identification?: string | null
@@ -1287,7 +1287,7 @@ export type OptionalCountry = {
   readonly $schema?: string
   code: string
   continent: string
-  id: string
+  id: UUID
   name: string
   subcontinent: string
 } | null
@@ -1302,7 +1302,7 @@ export type OptionalHabitatRecord = {
    * Optional habitat description
    */
   description?: string
-  id: string
+  id: UUID
   incompatible: Array<HabitatInner>
   /**
    * A short label for the habitat.
@@ -1330,7 +1330,7 @@ export type OptionalTaxon = {
   authorship?: string
   children_count: number
   comment?: string
-  id: string
+  id: UUID
   meta: Meta
   name: string
   rank: TaxonRank
@@ -1343,14 +1343,14 @@ export type OptionalTypeStatus = TypeStatus | null
 export type OptionalUserInner = {
   email: string
   email_confirmed: boolean
-  id: string
+  id: UUID
   login: string
   role: UserRole
 } | null
 
 export type OptionalUserShortIdentity = {
   alias: string
-  id: string
+  id: UUID
   login: string
   name: string
 } | null
@@ -1367,7 +1367,7 @@ export type Organisation = {
   readonly $schema?: string
   code: string
   description?: string
-  id: string
+  id: UUID
   kind: OrgKind
   meta: Meta
   name: string
@@ -1380,7 +1380,7 @@ export type Organisation = {
 export type OrganisationInner = {
   code: string
   description?: string
-  id: string
+  id: UUID
   kind: OrgKind
   name: string
 }
@@ -1485,7 +1485,7 @@ export type Person = {
   contact: string
   first_name: string
   full_name: string
-  id: string
+  id: UUID
   last_name: string
   meta: Meta
   organisations?: Array<OrganisationInner>
@@ -1499,7 +1499,7 @@ export type PersonInner = {
   contact: string
   first_name: string
   full_name: string
-  id: string
+  id: UUID
   last_name: string
   role?: UserRole
 }
@@ -1541,7 +1541,7 @@ export type Program = {
   description?: string
   end_year?: number
   funding_agencies: Array<OrganisationInner>
-  id: string
+  id: UUID
   label: string
   managers: Array<PersonInner>
   meta: Meta
@@ -1666,7 +1666,7 @@ export type Sampling = {
   duration?: number
   fixatives?: Array<Fixative>
   habitats?: Array<Habitat>
-  id: string
+  id: UUID
   meta: Meta
   methods?: Array<SamplingMethod>
   /**
@@ -1690,7 +1690,7 @@ export type SamplingAtSite = {
   duration?: number
   fixatives?: Array<Fixative>
   habitats?: Array<Habitat>
-  id: string
+  id: UUID
   meta: Meta
   methods?: Array<SamplingMethod>
   /**
@@ -1706,7 +1706,7 @@ export type SamplingAtSite = {
 
 export type SamplingDateWithOccurrences = {
   date?: OptionalDateWithPrecision
-  id: string
+  id: UUID
   occurrences: Array<OccurrenceAtSite>
   occurring_taxa?: Array<Taxon>
 }
@@ -1721,7 +1721,7 @@ export type SamplingDetailsWithOccurrences = {
   duration?: number
   fixatives?: Array<Fixative>
   habitats?: Array<Habitat>
-  id: string
+  id: UUID
   meta?: Meta
   methods?: Array<SamplingMethod>
   /**
@@ -1744,7 +1744,7 @@ export type SamplingInnerWithSite = {
   duration?: number
   fixatives?: Array<Fixative>
   habitats?: Array<Habitat>
-  id: string
+  id: UUID
   methods?: Array<SamplingMethod>
   /**
    * Auto-incrementing number, unique per sampling
@@ -1802,7 +1802,7 @@ export type SamplingMethod = {
   readonly $schema?: string
   code: string
   description?: string
-  id: string
+  id: UUID
   label: string
   meta: Meta
 }
@@ -1828,7 +1828,7 @@ export type SamplingMethodUpdate = {
 }
 
 export type SamplingOutline = {
-  id: string
+  id: UUID
   /**
    * Auto-incrementing number, unique per sampling
    */
@@ -1867,7 +1867,7 @@ export type SamplingWithSite = {
   duration?: number
   fixatives?: Array<Fixative>
   habitats?: Array<Habitat>
-  id: string
+  id: UUID
   meta: Meta
   methods?: Array<SamplingMethod>
   /**
@@ -1923,7 +1923,7 @@ export type SecuritySettingsInput = {
 export type SeqReference = {
   accession: string
   db: DataSource
-  id: string
+  id: UUID
   is_origin: boolean
 }
 
@@ -1948,7 +1948,7 @@ export type Sequence = {
   code_history?: Array<CodeHistory>
   comments?: string
   gene: Gene
-  id: string
+  id: UUID
   is_identifying: boolean
   label?: string
   legacy?: OptionalLegacySeqId
@@ -1964,7 +1964,7 @@ export type SequenceDataset = {
   readonly $schema?: string
   category: DatasetCategory
   description: string
-  id: string
+  id: UUID
   label: string
   maintainers: Array<Person>
   meta: Meta
@@ -1978,7 +1978,7 @@ export type SequenceDataset = {
 export type SequenceDatasetListItem = {
   category: DatasetCategory
   description: string
-  id: string
+  id: UUID
   label: string
   pinned: boolean
   sequences: number
@@ -1996,7 +1996,7 @@ export type SequenceListItem = {
   code_history?: Array<CodeHistory>
   comments?: string
   gene: Gene
-  id: string
+  id: UUID
   identification: Identification
   is_identifying: boolean
   label?: string
@@ -2017,7 +2017,7 @@ export type SequenceWithDetails = {
   code_history?: Array<CodeHistory>
   comments?: string
   gene: Gene
-  id: string
+  id: UUID
   identification: Identification
   internal?: OptionalAssembledSequenceSpecifics
   is_identifying: boolean
@@ -2059,7 +2059,7 @@ export type Site = {
   datasets?: Array<DatasetInner>
   description?: string
   flaggings?: Array<Flagging>
-  id: string
+  id: UUID
   /**
    * Last visit date with precision. If not set, site has never been visited.
    */
@@ -2078,7 +2078,7 @@ export type SiteDataset = {
   readonly $schema?: string
   category: DatasetCategory
   description: string
-  id: string
+  id: UUID
   label: string
   maintainers: Array<Person>
   meta: Meta
@@ -2154,7 +2154,7 @@ export type SiteItem = {
   coordinates: Coordinates
   country?: OptionalCountry
   description?: string
-  id: string
+  id: UUID
   /**
    * Last visit date with precision. If not set, site has never been visited.
    */
@@ -2206,7 +2206,7 @@ export type SiteWithDistance = {
   country?: OptionalCountry
   description?: string
   distance: number
-  id: string
+  id: UUID
   /**
    * Last visit date with precision. If not set, site has never been visited.
    */
@@ -2223,7 +2223,7 @@ export type SiteWithOccurrences = {
   coordinates: Coordinates
   country?: OptionalCountry
   description?: string
-  id: string
+  id: UUID
   /**
    * Last visit date with precision. If not set, site has never been visited.
    */
@@ -2240,7 +2240,7 @@ export type SiteWithScore = {
   coordinates: Coordinates
   country?: OptionalCountry
   description?: string
-  id: string
+  id: UUID
   /**
    * Last visit date with precision. If not set, site has never been visited.
    */
@@ -2276,7 +2276,7 @@ export type Taxon = {
   authorship?: string
   children_count: number
   comment?: string
-  id: string
+  id: UUID
   meta: Meta
   name: string
   rank: TaxonRank
@@ -2341,7 +2341,7 @@ export type TaxonWithLineage = {
   children?: Array<Taxon>
   children_count: number
   comment?: string
-  id: string
+  id: UUID
   lineage: Lineage
   meta: Meta
   name: string
@@ -2357,7 +2357,7 @@ export type TaxonWithParentRef = {
   authorship?: string
   children_count: number
   comment?: string
-  id: string
+  id: UUID
   meta: Meta
   name: string
   parent: string
@@ -2376,7 +2376,7 @@ export type TaxonWithRelatives = {
   children?: Array<Taxon>
   children_count: number
   comment?: string
-  id: string
+  id: UUID
   meta: Meta
   name: string
   parent?: OptionalTaxon
@@ -2391,7 +2391,7 @@ export type TaxonomyItem = {
   authorship?: string
   children_count: number
   comment?: string
-  id: string
+  id: UUID
   meta: Meta
   name: string
   parent?: OptionalTaxon
@@ -2433,7 +2433,7 @@ export type Updated = {
 export type User = {
   email: string
   email_confirmed: boolean
-  id: string
+  id: UUID
   identity: PersonInner
   login: string
   role: UserRole
@@ -2451,7 +2451,7 @@ export type UserCredentials = {
 export type UserInner = {
   email: string
   email_confirmed: boolean
-  id: string
+  id: UUID
   login: string
   role: UserRole
 }
@@ -2480,7 +2480,7 @@ export type UserRole = 'Visitor' | 'Contributor' | 'Maintainer' | 'Admin'
 
 export type UserShortIdentity = {
   alias: string
-  id: string
+  id: UUID
   login: string
   name: string
 }
@@ -5318,7 +5318,7 @@ export type DeletePersonData = {
     Authorization?: string
   }
   path: {
-    id: string
+    id: UUID
   }
   query?: never
   url: '/persons/{id}'
@@ -5359,7 +5359,7 @@ export type UpdatePersonData = {
     Authorization?: string
   }
   path: {
-    id: string
+    id: UUID
   }
   query?: never
   url: '/persons/{id}'
@@ -5400,7 +5400,7 @@ export type InvitePersonData = {
     Authorization?: string
   }
   path: {
-    id: string
+    id: UUID
   }
   query?: never
   url: '/persons/{id}/invite'
@@ -5908,7 +5908,7 @@ export type DeleteSamplingData = {
     Authorization?: string
   }
   path: {
-    id: string
+    id: UUID
   }
   query?: never
   url: '/samplings/{id}'
@@ -5945,7 +5945,7 @@ export type UpdateSamplingData = {
     Authorization?: string
   }
   path: {
-    id: string
+    id: UUID
   }
   query?: never
   url: '/samplings/{id}'
