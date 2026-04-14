@@ -143,7 +143,7 @@ import AccessPointsPicker from '@/features/occurrences/components/sampling/Acces
 import OrganisationPicker from '@/features/people/components/OrganisationPicker.vue'
 import PersonPicker from '@/features/people/components/PersonPicker.vue'
 import FixativePicker from '@/features/registries/components/FixativePicker.vue'
-import HabitatPicker from '@/features/registries/components/habitat/HabitatPicker.vue'
+import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
 import SamplingMethodPicker from '@/features/registries/components/SamplingMethodPicker.vue'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { FormProps } from '@/lib/mutations'

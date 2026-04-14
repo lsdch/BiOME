@@ -132,7 +132,7 @@
 <script setup lang="ts">
 import { HabitatRecord, OccurrencesBySiteData } from '@/api'
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
-import HabitatPicker from '@/features/registries/components/habitat/HabitatPicker.vue'
+import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import TaxonRankPicker from '@/features/taxonomy/components/TaxonRankPicker'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'

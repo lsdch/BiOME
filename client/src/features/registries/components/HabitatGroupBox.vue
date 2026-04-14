@@ -70,17 +70,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import { HabitatGroup, HabitatRecord } from '@/api'
-
-export type HabitatNode = HabitatRecord & {
-  children?: HabitatGroupNode[]
-  type: 'habitat'
-}
-
-export type HabitatGroupNode = HabitatGroup & {
-  children: HabitatNode[]
-  type: 'group'
-}
+import { HabitatGroupNode } from '@/features/registries/composables/habitats'
 
 const { group, depth = 0 } = defineProps<{
   group: HabitatGroupNode

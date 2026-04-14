@@ -75,7 +75,7 @@
 import { HabitatRecord, OccurrencesBySiteData } from '@/api'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
-import HabitatPicker from '@/features/registries/components/habitat/HabitatPicker.vue'
+import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { reactive, ref, watch } from 'vue'
