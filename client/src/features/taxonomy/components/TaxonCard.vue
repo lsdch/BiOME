@@ -59,12 +59,6 @@
             </ActivableField>
           </v-col> -->
 
-        <div v-if="taxon.anchor" class="text-body-2">
-          <v-icon icon="mdi-pin" color="warning" />
-          This taxon was the origin of an import from GBIF on
-          {{ moment(taxon.meta.created).format('DD/MM/YYYY') }}
-        </div>
-
         <div>
           <ActivableField
             v-model="taxon.comment"

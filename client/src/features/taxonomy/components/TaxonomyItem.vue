@@ -12,7 +12,6 @@
         {{ item.name }}
       </span>
       <v-spacer />
-      <v-icon v-if="item.anchor" icon="mdi-pin" size="x-small" color="warning" />
       <v-chip
         v-if="item.children_count > 0"
         :color="expanded ? 'success' : 'primary'"
