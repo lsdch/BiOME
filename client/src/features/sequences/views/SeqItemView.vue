@@ -111,7 +111,11 @@
                 <IdentificationChip :identification="item.identification" class="my-1" />
                 <span v-if="item.identification.identified_by" class="text-no-wrap">
                   by
-                  <PersonChip :person="item.identification.identified_by" />
+                  <v-chip
+                    v-for="person in item.identification.identified_by"
+                    :text="person"
+                    :key="person"
+                  />
                 </span>
                 <span class="text-muted" v-else>Curator unspecified</span>
               </div>
@@ -258,7 +262,6 @@ import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import ClickableAvatarIcon from '@/components/toolkit/ui/ClickableAvatarIcon.vue'
 import PageErrors from '@/components/toolkit/ui/PageErrors.vue'
 import OccurrenceSamplingCard from '@/features/occurrences/components/OccurrenceSamplingCard.vue'
-import PersonChip from '@/features/people/components/PersonChip'
 import ArticleChip from '@/features/registries/components/ArticleChip'
 import GeneChip from '@/features/sequences/components/GeneChip'
 import SeqRefChip from '@/features/sequences/components/SeqRefChip'
