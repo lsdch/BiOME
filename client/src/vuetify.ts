@@ -1,4 +1,4 @@
-import "./styles/main.scss"
+import './styles/main.scss'
 
 // Vuetify
 import '@mdi/font/css/materialdesignicons.css'
@@ -10,34 +10,32 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 
-
 const light: ThemeDefinition = {
   dark: false,
   colors: {
     main: '#ebe9f3',
     primary: '#1071B0',
-    warning: '#ff6600',
-  },
+    warning: '#ff6600'
+  }
 }
 
 const dark: ThemeDefinition = {
   dark: true,
   colors: {
     main: '#161616',
-    primary: '#0693b9',
+    primary: '#0693b9'
   }
 }
-
 
 const { VTextField } = components
 
 export default createVuetify({
   blueprint: md3,
   components: {
-    ...components,
+    ...components
   },
   aliases: {
-    VInlineSearchBar: VTextField,
+    VInlineSearchBar: VTextField
   },
   directives,
   icons: {
@@ -46,12 +44,13 @@ export default createVuetify({
     sets: { mdi }
   },
   display: {
-    mobileBreakpoint: 'sm',
+    mobileBreakpoint: 'sm'
   },
   theme: {
-    defaultTheme: "light",
+    defaultTheme: 'light',
     themes: {
-      light, dark
+      light,
+      dark
     }
   },
   defaults: {
@@ -63,27 +62,27 @@ export default createVuetify({
     },
     VChip: { rounded: true },
     VTab: { rounded: false },
-    VCombobox: { variant: "outlined" },
-    VTextField: { variant: "outlined" },
-    VSelect: { variant: "outlined" },
-    VAutocomplete: { variant: "outlined" },
-    VTextarea: { variant: "outlined" },
-    VAlert: { variant: "tonal" },
+    VCombobox: { variant: 'outlined' },
+    VTextField: { variant: 'outlined' },
+    VSelect: { variant: 'outlined' },
+    VAutocomplete: { variant: 'outlined' },
+    VTextarea: { variant: 'outlined' },
+    VAlert: { variant: 'tonal' },
     VNumberInput: {
-      variant: "outlined",
-      controlVariant: "stacked",
+      variant: 'outlined',
+      controlVariant: 'stacked',
       VBtn: {
         color: undefined,
         rounded: 0
       }
     },
     VInlineSearchBar: {
-      density: "compact",
+      density: 'compact',
       clearable: true,
       hideDetails: true,
-      color: "primary",
-      variant: "outlined",
-      prependInnerIcon: "mdi-magnify"
+      color: 'primary',
+      variant: 'outlined',
+      prependInnerIcon: 'mdi-magnify'
     }
   }
 })
