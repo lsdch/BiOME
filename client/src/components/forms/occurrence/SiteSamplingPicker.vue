@@ -11,6 +11,7 @@
       :items
       item-value="id"
       return-object
+      v-bind="$attrs"
     >
       <template #selection="{ item: sampling }">
         <v-list-item :title="DateWithPrecision.format(sampling.performed_on)" class="px-0">

@@ -167,20 +167,18 @@
 </template>
 
 <script setup lang="ts">
-import { Gene, Sequence, Taxon } from '@/api'
+import { Gene, Sequence } from '@/api'
 import {
   CodeIdentifier,
   DateWithPrecision,
   Identification,
   OccurrenceCategory,
-  Person,
   SequenceListItem,
   SiteItem
 } from '@/api/adapters'
 import { deleteSequenceMutation, listSequencesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import OccurrenceCategorySelect from '@/features/occurrences/components/OccurrenceCategorySelect.vue'
-import PersonChip from '@/features/people/components/PersonChip'
 import GeneChip from '@/features/sequences/components/GeneChip'
 import GenePicker from '@/features/sequences/components/GenePicker.vue'
 import IdentificationChip from '@/features/taxonomy/components/IdentificationChip'

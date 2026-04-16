@@ -25,23 +25,13 @@
               </v-row>
               <v-row>
                 <v-col>
-                  <PersonPicker
+                  <v-combobox
                     label="Performed by"
-                    v-model="model.performed_by"
+                    v-model.trim="model.performed_by"
                     multiple
-                    return-object
+                    chips
+                    closable-chips
                     v-bind="schema('performed_by')"
-                  />
-                </v-col>
-              </v-row>
-              <v-row>
-                <v-col>
-                  <OrganisationPicker
-                    label="Performed by group(s)"
-                    v-model="model.performed_by_groups"
-                    multiple
-                    return-object
-                    v-bind="schema('performed_by_groups')"
                   />
                 </v-col>
               </v-row>
@@ -57,7 +47,6 @@
             label="Target taxa"
             item-value="name"
             return-object
-            :ranks="TaxonRank.ranksUpTo('Family')"
             multiple
             chips
             closable-chips

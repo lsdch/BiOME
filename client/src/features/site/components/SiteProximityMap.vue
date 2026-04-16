@@ -105,7 +105,6 @@ const mouse = useMousePressed({ target: map.value?.el })
 const draggingCoords = ref<LatLongCoords>()
 
 watch(mouse.pressed, (pressed, wasPressing) => {
-  console.log('pressed', pressed, wasPressing)
   if (wasPressing && !pressed) {
     nextTick(
       useDebounceFn(() => {

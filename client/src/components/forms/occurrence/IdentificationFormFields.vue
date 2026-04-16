@@ -1,6 +1,12 @@
 <template>
   <div class="d-flex">
-    <TaxonPicker v-model="model.taxon" :min-width="500" return-object v-bind="schema('taxon')">
+    <TaxonPicker
+      v-model="model.taxon"
+      :min-width="500"
+      return-object
+      :ranks="TaxonRank.ranksUpTo('Family')"
+      v-bind="schema('taxon')"
+    >
       <template #append-inner>
         <v-btn
           :active="model.confer"
@@ -28,20 +34,20 @@
       placeholder="e.g. form A, group B..."
     />
   </div>
-  <PersonPicker
-    v-model="model.identified_by"
-    label="Curator"
-    return-object
+  <v-combobox
+    v-model.trim="model.identified_by"
+    label="Curator(s)"
+    chips
+    closable-chips
     v-bind="schema('identified_by')"
   />
   <DateWithPrecisionField v-model="model.identified_on" v-bind="schema('identified_on')" />
 </template>
 
 <script setup lang="ts">
-import { $IdentificationInput, $IdentificationUpdate, PersonUser, Taxon } from '@/api'
+import { $IdentificationInput, $IdentificationUpdate, Taxon, TaxonRank } from '@/api'
 import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
 import { useSchema } from '@/composables/schema'
-import PersonPicker from '@/features/people/components/PersonPicker.vue'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
 import { FormProps } from '@/lib/mutations'
 import { DateWithPrecisionModel } from '@/models/date_with_precision'
@@ -49,7 +55,7 @@ import { reactiveComputed } from '@vueuse/core'
 
 export type IdentificationModel = {
   identified_on: DateWithPrecisionModel
-  identified_by?: PersonUser
+  identified_by?: string[]
   confer?: boolean
   addendum?: string
   taxon?: Taxon

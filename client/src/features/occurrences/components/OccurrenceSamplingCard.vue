@@ -88,7 +88,6 @@
 import { DateWithPrecision, Identification, SamplingWithSite } from '@/api/adapters'
 import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.vue'
 import SamplingListItems from '@/features/occurrences/components/sampling/SamplingListItems.vue'
-import PersonChip from '@/features/people/components/PersonChip'
 import CountryChip from '@/features/site/components/CountryChip'
 import { useUserStore } from '@/stores/user'
 import { useSorted } from '@vueuse/core'

@@ -54,7 +54,7 @@
           </template>
         </SitePreviewCard>
       </v-col>
-      <v-col cols="12" style="min-height: 400px">
+      <v-col cols="12" v-if="site" style="min-height: 400px">
         <SiteProximityMap
           :model-value="site?.coordinates ?? {}"
           :omit-codes="site ? [site.code] : undefined"

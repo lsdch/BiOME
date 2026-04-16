@@ -77,7 +77,7 @@
 import { SpecimenQuantityModel, SpecimenQuantityRangeModel } from '@/models/biomat'
 import { ref } from 'vue'
 const model = defineModel<SpecimenQuantityModel>()
-const pick = ref<'Exact' | 'Custom' | 'Unknown' | (typeof predefined)[number]['key']>()
+const pick = ref<'Exact' | 'Custom' | 'Unknown' | (typeof predefined)[number]['key']>('Unknown')
 const predefined = [
   { label: 'One', key: 'One', value: 1 },
   { label: 'Few (2-5)', key: 'Few', value: { lower: 2, upper: 5 } },

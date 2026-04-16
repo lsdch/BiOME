@@ -74,21 +74,28 @@
         </template>
       </SamplingFormDialog>
     </template>
-    <v-card-text>
+    <v-divider></v-divider>
+    <div class="px-3 mt-3">
       <SiteSamplingPicker
         v-if="hasID(site)"
         :siteCode="site.code"
         @update:model-value="updateSampling"
+        clearable
       />
-      <v-list v-if="!!sampling">
-        <SamplingListItems :sampling="sampling" />
-      </v-list>
-      <!-- <SamplingSelectCarousel
+    </div>
+    <template v-if="sampling">
+      <v-divider></v-divider>
+      <v-card-text>
+        <v-list v-if="!!sampling">
+          <SamplingListItems :sampling="sampling" />
+        </v-list>
+        <!-- <SamplingSelectCarousel
         v-else-if="hasID(site) && site.samplings"
         :samplings="site.samplings"
         @update:model-value="updateSampling"
-      /> -->
-    </v-card-text>
+        /> -->
+      </v-card-text>
+    </template>
     <template #actions v-if="showEdit && !!sampling">
       <v-spacer />
       <v-btn text="Cancel" @click="toggleEdit(false)" />
@@ -98,16 +105,14 @@
 
 <script setup lang="ts">
 import { Sampling, Site } from '@/api'
-import SamplingListItems from '@/features/occurrences/components/sampling/SamplingListItems.vue'
 import SamplingFormDialog from '@/components/forms/SamplingFormDialog.vue'
+import SamplingListItems from '@/features/occurrences/components/sampling/SamplingListItems.vue'
 import { hasID } from '@/lib/db'
 import { SamplingModel } from '@/models'
-import { EventModel } from '@/models/event'
 import { SamplingFormModel } from '@/models/sampling'
+import { SiteFormModel } from '@/models/site'
 import { useToggle } from '@vueuse/core'
 import { watch } from 'vue'
-import SamplingSelectCarousel from './SamplingSelectCarousel.vue'
-import { SiteFormModel } from '@/models/site'
 import SiteSamplingPicker from './SiteSamplingPicker.vue'
 
 const sampling = defineModel<Sampling | SamplingFormModel>()
