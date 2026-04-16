@@ -10,10 +10,10 @@
         item-title="param.label"
         return-object
       >
-        <template #item="{ item: { title, value, raw }, props }">
-          <v-list-item :title :value v-bind="props" :subtitle="raw.param.unit">
+        <template #item="{ item, props }">
+          <v-list-item :title="item.param.label" v-bind="props" :subtitle="item.param.unit">
             <template #append>
-              <v-chip :text="raw.points.length.toString()" />
+              <v-chip :text="item.points.length.toString()" />
             </template>
           </v-list-item>
         </template>
