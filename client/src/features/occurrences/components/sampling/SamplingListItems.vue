@@ -78,13 +78,17 @@
 <script setup lang="ts">
 import { DateWithPrecision, DateWithPrecisionInput, HabitatRecord, Sampling } from '@/api'
 import TaxonChip from '@/features/taxonomy/components/TaxonChip'
+import { DateWithPrecisionModel } from '@/models/date_with_precision'
 import { Duration } from 'luxon'
 import { Optional } from 'ts-toolbelt/out/Object/Optional'
 
 const { sampling } = defineProps<{
-  sampling: Omit<Optional<Sampling, 'id' | 'meta' | 'number'>, 'habitats' | 'performed_on'> & {
+  sampling: Omit<
+    Optional<Sampling, 'id' | 'meta' | 'number' | 'code'>,
+    'habitats' | 'performed_on'
+  > & {
     habitats?: Array<HabitatRecord>
-    performed_on?: DateWithPrecisionInput | DateWithPrecision
+    performed_on?: DateWithPrecisionInput | DateWithPrecisionModel | DateWithPrecision
   }
 }>()
 </script>
