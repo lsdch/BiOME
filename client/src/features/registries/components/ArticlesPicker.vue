@@ -46,10 +46,11 @@
         </template>
         <template #subtitle>
           <v-list-item-subtitle style="max-width: 100%">
-            <div class="d-flex flex-column">
+            <div class="d-flex flex-column" v-if="item.obj.title">
               <span v-html="highlight(item, 'title')"> </span>
               <div class="text-caption" v-html="highlight(item, 'journal')"></div>
             </div>
+            <div v-else class="text-caption" v-html="highlight(item, 'verbatim')"></div>
           </v-list-item-subtitle>
         </template>
         <template #append>
