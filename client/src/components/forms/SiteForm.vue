@@ -171,6 +171,7 @@ function setCoordsFromGPS(model: SiteModel.SiteFormModel) {
     (coords) => {
       model.coordinates.latitude = coords.latitude
       model.coordinates.longitude = coords.longitude
+      model.altitude = coords.altitude ?? model.altitude
       pauseGPS()
     }
   )
