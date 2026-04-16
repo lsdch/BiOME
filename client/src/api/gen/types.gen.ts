@@ -3182,6 +3182,41 @@ export type ClaimInvitationResponses = {
 
 export type ClaimInvitationResponse = ClaimInvitationResponses[keyof ClaimInvitationResponses]
 
+export type ListCollectionsData = {
+  body?: never
+  headers?: {
+    /**
+     * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
+     */
+    Authorization?: string
+  }
+  path?: never
+  query?: never
+  url: '/collections'
+}
+
+export type ListCollectionsErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListCollectionsError = ListCollectionsErrors[keyof ListCollectionsErrors]
+
+export type ListCollectionsResponses = {
+  /**
+   * OK
+   */
+  200: Array<string>
+}
+
+export type ListCollectionsResponse = ListCollectionsResponses[keyof ListCollectionsResponses]
+
 export type CrossRefData = {
   body?: never
   headers?: {

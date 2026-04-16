@@ -275,6 +275,9 @@ import type {
   ListArticlesData,
   ListArticlesErrors,
   ListArticlesResponses,
+  ListCollectionsData,
+  ListCollectionsErrors,
+  ListCollectionsResponses,
   ListCountriesData,
   ListCountriesErrors,
   ListCountriesResponses,
@@ -1467,6 +1470,263 @@ export class AccountService {
         }
       ],
       url: '/account/register/{token}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+}
+
+export class OccurrencesService {
+  /**
+   * List collections
+   */
+  public static listCollections<ThrowOnError extends boolean = false>(
+    options?: Options<ListCollectionsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListCollectionsResponses,
+      ListCollectionsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/collections',
+      ...options
+    })
+  }
+
+  /**
+   * List occurrences
+   */
+  public static listOccurrences<ThrowOnError extends boolean = false>(
+    options?: Options<ListOccurrencesData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListOccurrencesResponses,
+      ListOccurrencesErrors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        parameters: {
+          taxa: { array: { explode: false } },
+          datasets: { array: { explode: false } },
+          rank: { array: { explode: false } }
+        }
+      },
+      responseTransformer: listOccurrencesResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences',
+      ...options
+    })
+  }
+
+  /**
+   * Create occurrence
+   */
+  public static createOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<CreateOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      CreateOccurrenceResponses,
+      CreateOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: createOccurrenceResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Occurrences by site
+   */
+  public static occurrencesBySite<ThrowOnError extends boolean = false>(
+    options?: Options<OccurrencesBySiteData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      OccurrencesBySiteResponses,
+      OccurrencesBySiteErrors,
+      ThrowOnError
+    >({
+      querySerializer: {
+        parameters: {
+          datasets: { array: { explode: false } },
+          countries: { array: { explode: false } },
+          taxa: { array: { explode: false } },
+          habitats: { array: { explode: false } },
+          sampling_target_taxa: { array: { explode: false } }
+        }
+      },
+      responseTransformer: occurrencesBySiteResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/by-site',
+      ...options
+    })
+  }
+
+  /**
+   * Occurrences overview
+   */
+  public static occurrenceOverview<ThrowOnError extends boolean = false>(
+    options?: Options<OccurrenceOverviewData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      OccurrenceOverviewResponses,
+      OccurrenceOverviewErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/overview',
+      ...options
+    })
+  }
+
+  /**
+   * Delete occurrence
+   *
+   * Delete an occurrence record by its code
+   */
+  public static deleteOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<DeleteOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? client).delete<
+      DeleteOccurrenceResponses,
+      DeleteOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: deleteOccurrenceResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Get occurrence
+   */
+  public static getOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<GetOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      GetOccurrenceResponses,
+      GetOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: getOccurrenceResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Update occurrence
+   */
+  public static updateOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<UpdateOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      UpdateOccurrenceResponses,
+      UpdateOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: updateOccurrenceResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/{code}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Add occurrence at site
+   *
+   * Register new occurrence at site, including event + sampling specification and biomaterial identification
+   */
+  public static siteAddOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<SiteAddOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      SiteAddOccurrenceResponses,
+      SiteAddOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: siteAddOccurrenceResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/sites/{code}/occurrences',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -3117,239 +3377,6 @@ export class SettingsService {
         }
       ],
       url: '/settings/services',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-}
-
-export class OccurrencesService {
-  /**
-   * List occurrences
-   */
-  public static listOccurrences<ThrowOnError extends boolean = false>(
-    options?: Options<ListOccurrencesData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListOccurrencesResponses,
-      ListOccurrencesErrors,
-      ThrowOnError
-    >({
-      querySerializer: {
-        parameters: {
-          taxa: { array: { explode: false } },
-          datasets: { array: { explode: false } },
-          rank: { array: { explode: false } }
-        }
-      },
-      responseTransformer: listOccurrencesResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences',
-      ...options
-    })
-  }
-
-  /**
-   * Create occurrence
-   */
-  public static createOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<CreateOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateOccurrenceResponses,
-      CreateOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Occurrences by site
-   */
-  public static occurrencesBySite<ThrowOnError extends boolean = false>(
-    options?: Options<OccurrencesBySiteData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      OccurrencesBySiteResponses,
-      OccurrencesBySiteErrors,
-      ThrowOnError
-    >({
-      querySerializer: {
-        parameters: {
-          datasets: { array: { explode: false } },
-          countries: { array: { explode: false } },
-          taxa: { array: { explode: false } },
-          habitats: { array: { explode: false } },
-          sampling_target_taxa: { array: { explode: false } }
-        }
-      },
-      responseTransformer: occurrencesBySiteResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/by-site',
-      ...options
-    })
-  }
-
-  /**
-   * Occurrences overview
-   */
-  public static occurrenceOverview<ThrowOnError extends boolean = false>(
-    options?: Options<OccurrenceOverviewData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      OccurrenceOverviewResponses,
-      OccurrenceOverviewErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/overview',
-      ...options
-    })
-  }
-
-  /**
-   * Delete occurrence
-   *
-   * Delete an occurrence record by its code
-   */
-  public static deleteOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<DeleteOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteOccurrenceResponses,
-      DeleteOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Get occurrence
-   */
-  public static getOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<GetOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).get<
-      GetOccurrenceResponses,
-      GetOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: getOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update occurrence
-   */
-  public static updateOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<UpdateOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateOccurrenceResponses,
-      UpdateOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Add occurrence at site
-   *
-   * Register new occurrence at site, including event + sampling specification and biomaterial identification
-   */
-  public static siteAddOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SiteAddOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      SiteAddOccurrenceResponses,
-      SiteAddOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: siteAddOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sites/{code}/occurrences',
       ...options,
       headers: {
         'Content-Type': 'application/json',

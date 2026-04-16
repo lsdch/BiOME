@@ -199,6 +199,9 @@ import type {
   ListArticlesData,
   ListArticlesError,
   ListArticlesResponse,
+  ListCollectionsData,
+  ListCollectionsError,
+  ListCollectionsResponse,
   ListCountriesData,
   ListCountriesError,
   ListCountriesResponse,
@@ -955,6 +958,31 @@ export const claimInvitationMutation = (
   }
   return mutationOptions
 }
+
+export const listCollectionsQueryKey = (options?: Options<ListCollectionsData>) =>
+  createQueryKey('listCollections', options)
+
+/**
+ * List collections
+ */
+export const listCollectionsOptions = (options?: Options<ListCollectionsData>) =>
+  queryOptions<
+    ListCollectionsResponse,
+    ListCollectionsError,
+    ListCollectionsResponse,
+    ReturnType<typeof listCollectionsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.listCollections({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listCollectionsQueryKey(options)
+  })
 
 export const crossRefQueryKey = (options: Options<CrossRefData>) =>
   createQueryKey('crossRef', options)
@@ -3414,7 +3442,7 @@ export const siteAddOccurrenceMutation = (
     Options<SiteAddOccurrenceData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await LocationService.siteAddOccurrence({
+      const { data } = await OccurrencesService.siteAddOccurrence({
         ...options,
         ...fnOptions,
         throwOnError: true
