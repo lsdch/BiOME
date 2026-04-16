@@ -77,19 +77,18 @@
 </template>
 
 <script setup lang="ts">
-import { $UserRole, Organisation, Person } from '@/api'
+import { $UserRole, Person } from '@/api'
 
 import { UserRole } from '@/api'
 import { deletePersonMutation, listPersonsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import PersonFormDialogMutation from '@/components/forms/people/PersonFormDialogMutation.vue'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import OrgKindChip from './OrgKindChip'
+import OrgChip from './OrgChip'
 import type { AccountStatus, PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
-import PersonFormDialogMutation from '@/components/forms/people/PersonFormDialogMutation.vue'
-import OrgChip from './OrgChip'
 
 const { xs, smAndUp } = useDisplay()
 
@@ -102,8 +101,10 @@ function filterStatus(item: Person, status: AccountStatus) {
 const filter = computed(() => {
   const { status, organisations } = filters.value
   return (item: Person) =>
-    (!status || filterStatus(item, status)) &&
-    (!organisations || item.organisations.some(({ code }) => organisations.includes(code)))
+    Boolean(
+      (!status || filterStatus(item, status)) &&
+      (!organisations || item.organisations?.some(({ code }) => organisations.includes(code)))
+    )
 })
 
 const headers: CRUDTableHeader<Person>[] = [
