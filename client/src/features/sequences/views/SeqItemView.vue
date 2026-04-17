@@ -16,7 +16,6 @@
       <div class="d-flex align-center ga-2">
         <OccurrenceCategoryChip :category="item.category" size="small" />
         <GeneChip label size="small" :gene="item.gene" prepend-icon="mdi-tag" />
-        <!-- <ExternalSeqOriginChip v-if="item.external" :origin="item.external.origin" size="small" /> -->
         <v-chip
           v-if="item.sequence"
           prepend-icon="mdi-chevron-right"

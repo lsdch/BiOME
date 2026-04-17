@@ -89,11 +89,6 @@
         <v-list v-if="!!sampling">
           <SamplingListItems :sampling="sampling" />
         </v-list>
-        <!-- <SamplingSelectCarousel
-        v-else-if="hasID(site) && site.samplings"
-        :samplings="site.samplings"
-        @update:model-value="updateSampling"
-        /> -->
       </v-card-text>
     </template>
     <template #actions v-if="showEdit && !!sampling">
