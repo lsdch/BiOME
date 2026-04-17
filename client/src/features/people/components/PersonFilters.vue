@@ -18,7 +18,7 @@
             <template v-slot:item="{ props, item }">
               <v-list-item v-bind="props" density="compact">
                 <template v-slot:prepend>
-                  <v-icon v-bind="icon(item.value)" />
+                  <v-icon v-bind="icon(item)" />
                 </template>
               </v-list-item>
             </template>
