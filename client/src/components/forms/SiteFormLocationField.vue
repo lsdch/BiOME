@@ -136,7 +136,7 @@ const {
     enabled: !user_defined_locality.value && Coordinates.isValidCoordinates(props.coordinates),
     staleTime: Infinity,
     ...coordinatesToCountryOptions({
-      body: {
+      query: {
         latitude: props.coordinates.latitude!,
         longitude: props.coordinates.longitude!
       }
