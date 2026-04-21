@@ -264,7 +264,7 @@ export const $AssembledSequenceSpecifics = {
     },
     assembled_by: {
       items: {
-        $ref: '#/components/schemas/Person'
+        type: 'string'
       },
       type: 'array'
     }
@@ -3411,7 +3411,7 @@ export const $OptionalAssembledSequenceSpecifics = {
     },
     assembled_by: {
       items: {
-        $ref: '#/components/schemas/Person'
+        type: 'string'
       },
       type: 'array'
     }

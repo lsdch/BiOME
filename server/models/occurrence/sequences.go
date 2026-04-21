@@ -88,8 +88,8 @@ type SequenceListItem struct {
 }
 
 type AssembledSequenceSpecifics struct {
-	AlignmentCode string          `gel:"alignment_code" json:"alignment_code"`
-	AssembledBy   []people.Person `gel:"assembled_by" json:"assembled_by,omitempty"`
+	AlignmentCode string   `gel:"alignment_code" json:"alignment_code"`
+	AssembledBy   []string `gel:"assembled_by" json:"assembled_by,omitempty"`
 	// Not implemented yet
 	// Chromatograms []sequences.Chromatogram `gel:"chromatograms" json:"chromatograms,omitempty"`
 	// Specimen      samples.Specimen          `gel:"specimen" json:"specimen"`
@@ -130,7 +130,7 @@ func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, er
 				},
 				internal: {
 					alignment_code,
-					assembled_by: { * },
+					assembled_by,
 					# chromatograms: { * },
 					# specimen: { *, biomat: { *, sampling: { *, site: { *, country: { * } } } } }
 				}

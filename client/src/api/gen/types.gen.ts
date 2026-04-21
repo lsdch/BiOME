@@ -97,7 +97,7 @@ export type ArticleUpdate = {
 
 export type AssembledSequenceSpecifics = {
   alignment_code: string
-  assembled_by?: Array<Person>
+  assembled_by?: Array<string>
 }
 
 export type Assertion = {
@@ -1277,7 +1277,7 @@ export type OccurrenceUpdate = {
 
 export type OptionalAssembledSequenceSpecifics = {
   alignment_code: string
-  assembled_by?: Array<Person>
+  assembled_by?: Array<string>
 } | null
 
 export type OptionalCountry = {

@@ -314,7 +314,7 @@
 					},
 					"assembled_by": {
 						"items": {
-							"$ref": "#/components/schemas/Person"
+							"type": "string"
 						},
 						"type": "array"
 					}
@@ -3830,7 +3830,7 @@
 					},
 					"assembled_by": {
 						"items": {
-							"$ref": "#/components/schemas/Person"
+							"type": "string"
 						},
 						"type": "array"
 					}

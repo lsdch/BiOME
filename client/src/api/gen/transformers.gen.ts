@@ -1073,13 +1073,6 @@ export const deleteSequenceResponseTransformer = async (
   return data
 }
 
-const optionalAssembledSequenceSpecificsSchemaResponseTransformer = (data: any) => {
-  if (data.assembled_by) {
-    data.assembled_by = data.assembled_by.map((item: any) => personSchemaResponseTransformer(item))
-  }
-  return data
-}
-
 const sequenceWithDetailsSchemaResponseTransformer = (data: any) => {
   if (data.code_history) {
     data.code_history = data.code_history.map((item: any) =>
@@ -1088,9 +1081,6 @@ const sequenceWithDetailsSchemaResponseTransformer = (data: any) => {
   }
   data.gene = geneSchemaResponseTransformer(data.gene)
   data.identification = identificationSchemaResponseTransformer(data.identification)
-  if (data.internal) {
-    data.internal = optionalAssembledSequenceSpecificsSchemaResponseTransformer(data.internal)
-  }
   data.meta = metaSchemaResponseTransformer(data.meta)
   data.occurrence = occurrenceSamplingWithSiteSchemaResponseTransformer(data.occurrence)
   if (data.referenced_in) {
