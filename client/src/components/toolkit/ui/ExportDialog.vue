@@ -95,11 +95,15 @@ function generateFilename() {
 const blobString = ref('')
 const loading = ref(true)
 
-watch(() => props.items, unparse, { immediate: true })
-watch(() => options.value, unparse, { immediate: true, deep: true })
+watch(() => [props.items, options.value], unparse, { immediate: true })
 
 const buttonHref = ref()
 async function unparse() {
+  if (!props.items.length) {
+    blobString.value = ''
+    return
+  }
+
   console.log('Unparsing data with options', options.value)
   loading.value = true
 
