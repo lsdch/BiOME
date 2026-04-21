@@ -59,7 +59,7 @@
           color="primary"
           @click="rank == 'Subspecies' ? unfold(TaxonRank.parentRank(rank)!) : toggleFold(rank)"
         >
-          {{ countsByRank[rank] + (rank == "Species" ? countsByRank["Subgenus"] : 0) }}
+          {{ countsByRank[rank] + (rank == 'Species' ? countsByRank['Subgenus'] : 0) }}
           <template #append>
             <v-progress-circular
               v-if="isRankFetching(rank)"
@@ -83,11 +83,7 @@
         <v-container v-if="error" style="grid-column: start / span end">
           <v-alert type="error" icon="mdi-alert"> Failed to load taxonomy </v-alert>
         </v-container>
-        <FTaxaNestedList
-          v-else-if="filteredItems?.length"
-          :items="filteredItems"
-          rank="Kingdom"
-        />
+        <FTaxaNestedList v-else-if="filteredItems?.length" :items="filteredItems" rank="Kingdom" />
         <div v-else class="mx-auto my-5" style="grid-column: start / span end">
           {{ loading ? 'Loading...' : 'Nothing to display' }}
         </div>
@@ -96,9 +92,7 @@
     </div>
 
     <!-- FOOTER -->
-    <div class="taxonomy-footer bg-surface pa-3 border-t-thin d-flex">
-      
-    </div>
+    <div class="taxonomy-footer bg-surface pa-3 border-t-thin d-flex"></div>
 
     <!-- MODALS -->
     <TaxonCard
@@ -119,12 +113,7 @@
 </template>
 
 <script setup lang="ts">
-import {
-  $TaxonRank,
-  Taxon,
-  TaxonRank,
-  TaxonStatus
-} from '@/api'
+import { $TaxonRank, Taxon, TaxonRank, TaxonStatus } from '@/api'
 import { getTaxonomyAtRankOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import TaxonFormDialogMutation from '@/components/forms/TaxonFormDialogMutation.vue'
 import TableToolbar from '@/components/toolkit/tables/TableToolbar.vue'
@@ -155,12 +144,11 @@ function addDescendant(taxon: Taxon) {
   parentTaxon.value = taxon
 }
 
-
 const { selected, onSelect, select } = useTaxonSelection()
 onSelect((_taxon) => {
   showTaxonCard.value = true
 })
- 
+
 type Header = { rank: TaxonRank.NoSubgenus }
 
 const headers: Header[] = [
@@ -179,7 +167,6 @@ const { toggleFold, isFolded, unfold } = useRankFoldState()
 const RANKS_TO_LOAD = $TaxonRank.enum
 const TAXONOMY_STALE_MS = 5 * 60 * 1000
 const TAXONOMY_GC_MS = 30 * 60 * 1000
-
 
 // Helper to assemble tree structure from flat rank-filtered lists
 function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): TaxonomyElement[] {
@@ -201,9 +188,9 @@ function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): Tax
   RANKS_TO_LOAD.forEach((rank) => {
     const rankMapForRank = rankMap[rank]
     if (!rankMapForRank) return
-    
+
     const parentRank = TaxonRank.parentRank(rank)
-    rankMapForRank.values().forEach((taxon) => {
+    rankMapForRank.forEach((taxon) => {
       if (taxon.parent?.name) {
         try {
           const parent = parentRank ? rankMap[parentRank]?.get(taxon.parent.name) : null
@@ -212,14 +199,14 @@ function assembleTreeFromRanks(rankData: Record<string, TaxonomyElement[]>): Tax
             parent.children.push(taxon)
           }
         } catch (e) {
-          console.log("error:", e)
+          console.log('error:', e)
           // Continue if parent rank resolution fails
         }
       }
     })
   })
 
-  return Array.from(rankMap.Kingdom?.values() ?? []) 
+  return Array.from(rankMap.Kingdom?.values() ?? [])
 }
 
 // Create queries for each rank in parallel
@@ -252,7 +239,7 @@ const items = computed(() => {
     if (!query) return
 
     const data = query.data.value
-    const rankKey = String(rank)    
+    const rankKey = String(rank)
     rankData[rankKey] = data ?? []
   })
   return assembleTreeFromRanks(rankData)
@@ -332,7 +319,7 @@ const countsByRank = computed(() => {
     Species: 0,
     Subspecies: 0
   }
-  
+
   // Count items from parallel rank queries
   RANKS_TO_LOAD.forEach((rank, index) => {
     acc[rank as TaxonRank] = rankQueries[index]?.data.value?.length ?? 0

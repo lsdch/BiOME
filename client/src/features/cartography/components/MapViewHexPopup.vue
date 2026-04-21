@@ -1,27 +1,43 @@
 <template>
-  <OccurrencesOverviewDialog ref="dialog" :max-width="1200" :data="data?.flatMap(({ data }) => data) ?? []" />
+  <OccurrencesOverviewDialog
+    ref="dialog"
+    :max-width="1200"
+    :data="data?.flatMap(({ data }) => data) ?? []"
+  />
   <v-card :min-width="250">
     <v-list density="compact">
-      <v-list-item :title="pluralize(data?.length ?? 0, 'Site')" prepend-icon="mdi-map-marker-multiple"
-        @click="dialog?.open('sites')">
+      <v-list-item
+        :title="pluralize(data?.length ?? 0, 'Site')"
+        prepend-icon="mdi-map-marker-multiple"
+        @click="() => dialog?.open?.('sites')"
+      >
         <template #append>
           <v-badge inline :content="data?.length ?? 0" color="primary" />
         </template>
       </v-list-item>
-      <v-list-item :title="pluralize(samplingEventsCount, 'Sampling event')" prepend-icon="mdi-package-down"
-        @click="dialog?.open('samplings')">
+      <v-list-item
+        :title="pluralize(samplingEventsCount, 'Sampling event')"
+        prepend-icon="mdi-package-down"
+        @click="() => dialog?.open?.('samplings')"
+      >
         <template #append>
           <v-badge inline :content="samplingEventsCount" color="warning" />
         </template>
       </v-list-item>
-      <v-list-item :title="pluralize(occurrencesCount ?? 0, 'Occurrence')" prepend-icon="mdi-crosshairs-gps"
-        @click="dialog?.open('occurrences')">
+      <v-list-item
+        :title="pluralize(occurrencesCount ?? 0, 'Occurrence')"
+        prepend-icon="mdi-crosshairs-gps"
+        @click="() => dialog?.open?.('occurrences')"
+      >
         <template #append>
           <v-badge inline :content="occurrencesCount" color="success" />
         </template>
       </v-list-item>
-      <v-list-item :title="pluralize(occurringTaxaCount, 'Sampled taxon', 'Sampled taxa')"
-        prepend-icon="mdi-family-tree" @click="dialog?.open('sampled_taxa')">
+      <v-list-item
+        :title="pluralize(occurringTaxaCount, 'Sampled taxon', 'Sampled taxa')"
+        prepend-icon="mdi-family-tree"
+        @click="() => dialog?.open?.('sampled_taxa')"
+      >
         <template #append>
           <v-badge inline :content="occurringTaxaCount" color="" />
         </template>
@@ -36,6 +52,7 @@ import { HexPopupData } from '@/features/cartography/components/BaseMap.vue'
 import OccurrencesOverviewDialog from '@/features/occurrences/components/tables/OccurrencesOverviewDialog.vue'
 import { pluralize } from '@/lib/text'
 import { computed, useTemplateRef } from 'vue'
+import { ComponentExposed } from 'vue-component-type-helpers'
 
 const { data } = defineProps<{ data: HexPopupData<SiteWithOccurrences>[] | undefined }>()
 
@@ -62,7 +79,8 @@ const occurringTaxaCount = computed(() => {
     }, new Set()).size
 })
 
-const dialog = useTemplateRef<InstanceType<typeof OccurrencesOverviewDialog>>('dialog')
+type DialogType = ComponentExposed<typeof OccurrencesOverviewDialog>
+const dialog = useTemplateRef<DialogType>('dialog')
 </script>
 
 <style scoped lang="scss"></style>
