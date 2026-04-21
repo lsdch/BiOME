@@ -7,7 +7,7 @@ with module occurrence,
   year_end := <int32>json_get(params, 'year_end'),
   with_sequences := <bool>json_get(params, 'has_sequences'),
   confer := <bool>json_get(params, 'confer'),
-  status := <taxonomy::TaxonStatus>json_get(params, 'status'),
+  status := <taxonomy::TaxonStatus>json_array_unpack(json_get(params, 'status')),
   ranks := <taxonomy::Rank>json_array_unpack(json_get(params, 'rank')),
   type_status := <TypeStatus>json_array_unpack(json_get(params, 'type_status')),
   is_own := <bool>params['owned'],
@@ -42,7 +42,7 @@ items := (
       (.identification.taxon.rank in ranks) and
     {{ end }}
     {{- if .Status.IsSet }}
-      (.identification.taxon.status = status) and
+      (.identification.taxon.status in status) and
     {{ end }}
     {{- if .HasSequences.IsSet }}
       (.has_sequences = with_sequences) and

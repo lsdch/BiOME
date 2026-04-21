@@ -12632,7 +12632,10 @@
 						"in": "query",
 						"name": "type_status",
 						"schema": {
-							"$ref": "#/components/schemas/TypeStatus"
+							"items": {
+								"$ref": "#/components/schemas/TypeStatus"
+							},
+							"type": "array"
 						}
 					},
 					{

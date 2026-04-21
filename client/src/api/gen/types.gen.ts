@@ -4817,7 +4817,7 @@ export type ListOccurrencesData = {
     datasets?: Array<string>
     has_sequences?: boolean
     confer?: boolean
-    type_status?: TypeStatus
+    type_status?: Array<TypeStatus>
     status?: TaxonStatus
     rank?: Array<TaxonRank>
   }

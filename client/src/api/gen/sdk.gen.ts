@@ -1519,6 +1519,7 @@ export class OccurrencesService {
         parameters: {
           taxa: { array: { explode: false } },
           datasets: { array: { explode: false } },
+          type_status: { array: { explode: false } },
           rank: { array: { explode: false } }
         }
       },
