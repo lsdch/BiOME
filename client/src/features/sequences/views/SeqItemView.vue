@@ -270,11 +270,14 @@ import IdentificationChip from '@/features/taxonomy/components/IdentificationChi
 import { useUserStore } from '@/stores/user'
 import { useQuery } from '@tanstack/vue-query'
 import { useClipboard, useToggle } from '@vueuse/core'
-import { computed, useTemplateRef } from 'vue'
+import { computed, nextTick, useTemplateRef } from 'vue'
 
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
+nextTick(() => {
+  document.title = code
+})
 
 const { data: item, error, isPending, refetch } = useQuery(getSequenceOptions({ path: { code } }))
 

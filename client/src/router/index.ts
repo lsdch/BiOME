@@ -75,10 +75,7 @@ function setupRouter() {
         path: '/sequences/:code',
         name: 'sequence',
         component: () => import('@/features/sequences/views/SeqItemView.vue'),
-        props: true,
-        meta: {
-          title: 'API docs'
-        }
+        props: true
       },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       ...Object.values(routes),
