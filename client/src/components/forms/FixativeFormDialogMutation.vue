@@ -31,14 +31,16 @@ defineProps<FormDialogProps>()
 
 const create = defineFormCreate(createFixativeMutation(), {
   initial: FixativeModel.initialModel,
-  schema: $FixativeInput
+  schema: $FixativeInput,
+  requestData: (model) => ({ body: model })
 })
 
 const update = defineFormUpdate(updateFixativeMutation(), {
   itemToModel: FixativeModel.fromFixative,
   schema: $FixativeUpdate,
   requestData: ({ code }, model) => ({
-    path: { code }
+    path: { code },
+    body: model
   })
 })
 

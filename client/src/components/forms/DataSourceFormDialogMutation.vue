@@ -34,13 +34,14 @@ defineProps<FormDialogProps>()
 
 const create = defineFormCreate(createDataSourceMutation(), {
   initial: DataSourceModel.initialModel,
-  schema: $DataSourceInput
+  schema: $DataSourceInput,
+  requestData: (model) => ({ body: model })
 })
 
 const update = defineFormUpdate(updateDataSourceMutation(), {
   itemToModel: DataSourceModel.fromDataSource,
   schema: $DataSourceUpdate,
-  requestData: ({ code }, model) => ({ path: { code } })
+  requestData: ({ code }, model) => ({ path: { code }, body: model })
 })
 
 const { feedback } = useFeedback()

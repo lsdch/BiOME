@@ -1,11 +1,9 @@
-import { ErrorModel } from "@/api"
-import { joinPath, PathPrefix, Schema, useSchema } from "@/composables/schema"
-import { useMutation, UseMutationOptions } from "@tanstack/vue-query"
-import { reactiveComputed } from "@vueuse/core"
-import { StatusCodes } from "http-status-codes"
-import { Equals } from "ts-toolbelt/out/Any/Equals"
-import { Optional } from "ts-toolbelt/out/Object/Optional"
-import { computed, ModelRef, ref, watch } from "vue"
+import { ErrorModel } from '@/api'
+import { joinPath, PathPrefix, Schema, useSchema } from '@/composables/schema'
+import { useMutation, UseMutationOptions } from '@tanstack/vue-query'
+import { reactiveComputed } from '@vueuse/core'
+import { StatusCodes } from 'http-status-codes'
+import { computed, ModelRef, ref, watch } from 'vue'
 
 export type Mode = 'Create' | 'Edit'
 
@@ -13,12 +11,6 @@ export type FormProps = {
   mode?: Mode
   errors?: IndexedValidationErrors
 }
-
-/**
- * Extracts required keys from a request data type.
- * Applies recursively to nested objects, except for the 'body' key.
- */
-type PickRequired<T> = { [K in keyof T as (T[K] extends never ? never : (undefined extends T[K] ? never : K))]: 'body' extends K ? T[K] : PickRequired<T[K]> }
 
 export type FormEmits<ItemType> = {
   (evt: 'success', item: ItemType): void
@@ -45,8 +37,8 @@ export type FormCreateMutation<
   RData extends RequestData<ItemInput> = RequestData<ItemInput>
 > = {
   mutation: UseMutationOptions<Item, ErrorModel, RData, any>
-  schema: InputSchema,
-  initial: () => InputModel,
+  schema: InputSchema
+  initial: () => InputModel
   requestData: (model: InputModel) => RData
 }
 
@@ -62,12 +54,7 @@ export type FormUpdateMutation<
   ItemID,
   RData extends RequestData<ItemUpdate> & { path: ItemID }
 > = {
-  mutation: UseMutationOptions<
-    Item,
-    ErrorModel,
-    RData,
-    any
-  >
+  mutation: UseMutationOptions<Item, ErrorModel, RData, any>
   schema: UpdateSchema
   itemToModel(item: Item): UpdateModel
   requestData: (item: Item, model: UpdateModel) => RData
@@ -88,50 +75,30 @@ export function defineFormCreate<
   ItemInput extends {},
   S extends Schema,
   RData extends RequestData<ItemInput>,
-  InputModel extends {} = ItemInput,
->(mutation: UseMutationOptions<Item, ErrorModel, RData & RequestData<ItemInput>, any>,
+  InputModel extends {} = ItemInput
+>(
+  mutation: UseMutationOptions<Item, ErrorModel, RData, any>,
   opts: {
     /**
      * Initial form model, which is used to populate the form with default values.
      * It may differ from the request data model,
      * in which case a transformation must be applied in `requestData`.
      */
-    initial: () => InputModel,
+    initial: () => InputModel
     /**
      * OpenAPI JSON schema for input model.
      * Used for form validation and fields configuration
      */
-    schema: S,
-  } &
-    (
-      Equals<PickRequired<Omit<RData, 'url'>>, { body: InputModel }> extends true
-      ? {
-        /**
-         * Form model matches request data model and request does not require additional parameters:
-         * a transformer can optionally be provided to modify the request data.
-         * If not provided, the input model is sent in the request body as is.
-         */
-        requestData?: (model: InputModel) => RData
-      }
-      : {
-        /**
-         * Form model differs from request data model or request expects additional parameters:
-         * a transformer must be provided to create the request data from the input model.
-         */
-        requestData: (model: InputModel) => RData
-      }
-    )
+    schema: S
+    /**
+     * Create the request data from the input model.
+     */
+    requestData: (model: InputModel) => RData
+  }
 ): FormCreateMutation<Item, ItemInput, InputModel, S, RData> {
   return {
     mutation,
-    ...opts,
-    requestData: (
-      opts.requestData ?? ((model: InputModel) => ({
-        // `model` has the same shape as `ItemInput`
-        // since requestData was allowed to be omitted
-        body: model as unknown as ItemInput
-      }) as RData)
-    )
+    ...opts
   }
 }
 
@@ -152,36 +119,34 @@ export function defineFormUpdate<
   S extends Schema,
   RData extends RequestData<ItemUpdate> & { path: ItemID },
   UpdateModel extends {} = ItemUpdate,
-  ItemID = any,
->(mutation: UseMutationOptions<Item, ErrorModel, RData & RequestData<ItemUpdate> & { path: ItemID }, any>,
+  ItemID = any
+>(
+  mutation: UseMutationOptions<
+    Item,
+    ErrorModel,
+    RData & RequestData<ItemUpdate> & { path: ItemID },
+    any
+  >,
   opts: {
-    schema: S,
+    schema: S
     /**
      * Generate form model from existing item.
      * This is used to populate the form with the item's current values.
      * If the form model does not match the request data model, a body transformation must be applied in `requestData`.
      */
-    itemToModel(item: Item): UpdateModel,
-  } & ({
+    itemToModel(item: Item): UpdateModel
+  } & {
     /**
      * Generate request data from item and update model.
-     * If the form model exactly matches the request data model,
-     * `body` key can be omitted and the form model is added to the request body as is,
-     *  e.g. when `initToModel` generates a model of the same shape as `ItemUpdate`.
      */
-    requestData(item: Item, model: UpdateModel):
-      Equals<UpdateModel, ItemUpdate> extends true ? Optional<RData, 'body'> : RData
-  })
+    requestData(item: Item, model: UpdateModel): RData
+  }
 ): FormUpdateMutation<Item, ItemUpdate, UpdateModel, S, ItemID, RData> {
   return {
     mutation,
     ...opts,
     requestData: (item: Item, model: UpdateModel) => {
-      const data = opts.requestData(item, model)
-      return {
-        ...data,
-        body: data.body ?? model
-      } as RData
+      return opts.requestData(item, model)
     }
   }
 }
@@ -205,13 +170,23 @@ export function useMutationForm<
   UpdateModel = ItemUpdate
 >(
   item: ModelRef<Item | undefined>,
-  { create, update, onSuccess }: {
-    create: FormCreateMutation<Item, ItemInput, InputModel, InputSchema, InputRequestData>,
-    update: FormUpdateMutation<Item, ItemUpdate, UpdateModel, UpdateSchema, ItemID, UpdateRequestData>,
+  {
+    create,
+    update,
+    onSuccess
+  }: {
+    create: FormCreateMutation<Item, ItemInput, InputModel, InputSchema, InputRequestData>
+    update: FormUpdateMutation<
+      Item,
+      ItemUpdate,
+      UpdateModel,
+      UpdateSchema,
+      ItemID,
+      UpdateRequestData
+    >
     onSuccess?: (item: Item, mode: Mode) => any
   }
 ) {
-
   const model = ref<InputModel | UpdateModel>(initModel(item.value))
   watch(item, (item) => (model.value = initModel(item)), { immediate: true })
 
@@ -264,15 +239,18 @@ export function useMutationForm<
   }
 
   const errors = computed(() => {
-    return activeMutation.value.error.value?.errors?.reduce<IndexedValidationErrors>((acc, error) => {
-      if (error.location && error.location.startsWith('body.')) {
-        const loc = error.location.replace('body.', '')
-        acc[loc] = (acc[loc] ?? []).concat(error.message ?? 'Invalid value')
-      } else {
-        acc['rest'].push(error.message ?? 'Invalid value')
-      }
-      return acc
-    }, { rest: [] })
+    return activeMutation.value.error.value?.errors?.reduce<IndexedValidationErrors>(
+      (acc, error) => {
+        if (error.location && error.location.startsWith('body.')) {
+          const loc = error.location.replace('body.', '')
+          acc[loc] = (acc[loc] ?? []).concat(error.message ?? 'Invalid value')
+        } else {
+          acc['rest'].push(error.message ?? 'Invalid value')
+        }
+        return acc
+      },
+      { rest: [] }
+    )
   })
 
   function errorsWithPrefix(prefix: PathPrefix<typeof create.schema>) {
@@ -284,17 +262,17 @@ export function useMutationForm<
           acc[newKey] = value
         }
         return acc
-      },
-        {} as IndexedValidationErrors)
+      }, {} as IndexedValidationErrors)
     })
   }
 
   return {
-    model, mode,
+    model,
+    mode,
     schemaBindings,
     activeMutation,
     submit,
     reset,
-    errors,
+    errors
   }
 }

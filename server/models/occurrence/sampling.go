@@ -140,7 +140,7 @@ type SamplingInput struct {
 	AccessPoints []string `json:"access_points,omitempty"`
 }
 
-func (i *SamplingInput) QuickSave(e geltypes.Executor, siteCode string) (created SamplingOutline, err error) {
+func (i SamplingInput) QuickSave(e geltypes.Executor, siteCode string) (created SamplingOutline, err error) {
 	data, _ := json.Marshal(i)
 	logrus.Debugf("Inserting sampling event at site %s: %s", siteCode, string(data))
 	err = e.QuerySingle(context.Background(),
@@ -158,7 +158,7 @@ func (i *SamplingInput) QuickSave(e geltypes.Executor, siteCode string) (created
 	return
 }
 
-func (i *SamplingInput) Save(e geltypes.Executor, siteCode string) (created Sampling, err error) {
+func (i SamplingInput) Save(e geltypes.Executor, siteCode string) (created Sampling, err error) {
 	data, _ := json.Marshal(i)
 	logrus.Debugf("Inserting sampling event at site %s: %s", siteCode, string(data))
 	err = e.QuerySingle(

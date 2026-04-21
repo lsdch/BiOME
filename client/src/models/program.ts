@@ -1,10 +1,17 @@
-import { DatasetInner, OrganisationInner, Person, PersonInner, PersonInput, PersonUser, Program, ProgramInput, ProgramUpdate } from "@/api";
-import { reactive, Reactive } from "vue";
+import {
+  DatasetInner,
+  OrganisationInner,
+  PersonInner,
+  Program,
+  ProgramInput,
+  ProgramUpdate
+} from '@/api'
+import { reactive, Reactive } from 'vue'
 
-export type ProgramModel = Omit<ProgramInput, "funding_agencies" | "managers" | "datasets"> & {
-  funding_agencies: OrganisationInner[];
-  managers: PersonInner[];
-  datasets: DatasetInner[];
+export type ProgramModel = Omit<ProgramInput, 'funding_agencies' | 'managers' | 'datasets'> & {
+  funding_agencies: OrganisationInner[]
+  managers: PersonInner[]
+  datasets: DatasetInner[]
 }
 
 export function initialModel(): Reactive<ProgramModel> {
@@ -17,13 +24,16 @@ export function initialModel(): Reactive<ProgramModel> {
   })
 }
 
-export function fromProgram({
-  id, meta, $schema, ...rest
-}: Program): ProgramModel {
+export function fromProgram({ id, meta, $schema, ...rest }: Program): ProgramModel {
   return rest
 }
 
-export function toRequestBody({ managers, funding_agencies, datasets, ...model }: ProgramModel): ProgramInput {
+export function toRequestBody({
+  managers,
+  funding_agencies,
+  datasets,
+  ...model
+}: ProgramModel): ProgramInput {
   return {
     ...model,
     managers: managers.map(({ alias }) => alias),

@@ -29,13 +29,14 @@ defineProps<FormDialogProps>()
 
 const create = defineFormCreate(createOrganisationMutation(), {
   initial: OrganisationModel.initialModel,
-  schema: $OrganisationInput
+  schema: $OrganisationInput,
+  requestData: (model) => ({ body: model })
 })
 
 const update = defineFormUpdate(updateOrganisationMutation(), {
   schema: $OrganisationUpdate,
   itemToModel: OrganisationModel.fromOrganisation,
-  requestData: ({ code }) => ({ path: { code } })
+  requestData: ({ code }, model) => ({ path: { code }, body: model })
 })
 
 const { mode, model, errors, submit, activeMutation } = useMutationForm(item, {

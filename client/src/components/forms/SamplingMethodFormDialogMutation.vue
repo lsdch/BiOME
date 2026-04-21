@@ -34,13 +34,14 @@ defineProps<FormDialogProps>()
 
 const create = defineFormCreate(createSamplingMethodMutation(), {
   initial: SamplingMethodModel.initialModel,
-  schema: $SamplingMethodInput
+  schema: $SamplingMethodInput,
+  requestData: (model) => ({ body: model })
 })
 
 const update = defineFormUpdate(updateSamplingMethodMutation(), {
   itemToModel: SamplingMethodModel.fromSamplingMethod,
   schema: $SamplingMethodUpdate,
-  requestData: ({ code }, model) => ({ path: { code } })
+  requestData: ({ code }, model) => ({ path: { code }, body: model })
 })
 
 const { feedback } = useFeedback()

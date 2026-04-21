@@ -6727,7 +6727,7 @@ export type ListSiteSamplingsResponses = {
 export type ListSiteSamplingsResponse = ListSiteSamplingsResponses[keyof ListSiteSamplingsResponses]
 
 export type CreateSamplingAtSiteData = {
-  body?: SamplingInput
+  body: SamplingInput
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.

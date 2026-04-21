@@ -16579,7 +16579,8 @@
 								"$ref": "#/components/schemas/SamplingInput"
 							}
 						}
-					}
+					},
+					"required": true
 				},
 				"responses": {
 					"200": {

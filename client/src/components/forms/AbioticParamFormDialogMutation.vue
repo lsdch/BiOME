@@ -34,14 +34,16 @@ defineProps<FormDialogProps>()
 
 const create = defineFormCreate(createAbioticParameterMutation(), {
   initial: AbioticParamModel.initialModel,
-  schema: $AbioticParameterInput
+  schema: $AbioticParameterInput,
+  requestData: (model) => ({ body: model })
 })
 
 const update = defineFormUpdate(updateAbioticParameterMutation(), {
   itemToModel: AbioticParamModel.fromAbioticParam,
   schema: $AbioticParameterUpdate,
   requestData: ({ code }, model) => ({
-    path: { code }
+    path: { code },
+    body: model
   })
 })
 

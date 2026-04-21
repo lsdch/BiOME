@@ -31,13 +31,14 @@ defineProps<FormDialogProps>()
 
 const create = defineFormCreate(createGeneMutation(), {
   initial: GeneModel.initialModel,
-  schema: $GeneInput
+  schema: $GeneInput,
+  requestData: (model) => ({ body: model })
 })
 
 const update = defineFormUpdate(updateGeneMutation(), {
   itemToModel: GeneModel.fromGene,
   schema: $GeneUpdate,
-  requestData: ({ code }, model) => ({ path: { code } })
+  requestData: ({ code }, model) => ({ path: { code }, body: model })
 })
 
 const { feedback } = useFeedback()

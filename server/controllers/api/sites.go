@@ -86,7 +86,7 @@ func init() {
 			Summary:     "Create sampling at site",
 			Description: "Register sampling event on a site identified by its code",
 		},
-		controllers.UpdateByCodeHandler[*occurrence.SamplingInput])
+		controllers.UpdateByCodeHandler[occurrence.SamplingInput])
 
 	router.RegisterSpec(
 		sitesAPI,
