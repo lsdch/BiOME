@@ -1,6 +1,6 @@
 import { InstanceSettings, UserRole } from '@/api'
 import NotFound from '@/components/navigation/NotFound.vue'
-import { nextTick } from "vue"
+import { nextTick } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useGuards } from './guards'
@@ -13,7 +13,6 @@ import routes from './routes'
 
 export * from './nav'
 
-
 export type RouteNavDefinition = {
   label: string
   icon: string
@@ -21,15 +20,19 @@ export type RouteNavDefinition = {
   itemProps?: ComponentProps<typeof VListItem>
 }
 
-export type Divider = "divider"
+export type Divider = 'divider'
 export type RouteDefinition = RouteRecordRaw & RouteNavDefinition
 export type RouteSubgroup = { subgroup: string }
 export type Route = RouteDefinition & { routes?: undefined }
-export type RouteGroup = Readonly<RouteNavDefinition & { groupProps?: ComponentProps<typeof VListGroup>, routes: (RouteDefinition | RouteSubgroup)[] }>
+export type RouteGroup = Readonly<
+  RouteNavDefinition & {
+    groupProps?: ComponentProps<typeof VListGroup>
+    routes: (RouteDefinition | RouteSubgroup)[]
+  }
+>
 export type RouterItem = Route | RouteGroup
 
 const { guardRole } = useGuards()
-
 
 function setupRouter(settings: InstanceSettings) {
   function makeTitle(subtitle?: string) {
@@ -44,50 +47,41 @@ function setupRouter(settings: InstanceSettings) {
         name: 'api-docs',
         component: () => import('@/views/APIDocs.vue'),
         meta: {
-          title: makeTitle("API docs")
+          title: makeTitle('API docs')
         }
       },
-      guardRole('Contributor', {
-        path: "/import/dataset",
-        name: "import-dataset",
-        meta: {
-          drawer: {
-            temporary: true
-          }
-        },
-        component: () => import("@/views/import/SiteImportView.vue")
-      }),
       {
-        path: "/datasets/sites/:slug",
-        name: "site-dataset-item",
+        path: '/datasets/sites/:slug',
+        name: 'site-dataset-item',
         component: () => import('@/features/datasets/views/SiteDatasetItemView.vue'),
-        props: route => ({ slug: route.params.slug, query: getSiteDatasetOptions }),
+        props: (route) => ({ slug: route.params.slug, query: getSiteDatasetOptions })
       },
       {
-        path: "/datasets/occurrences/:slug",
-        name: "occurrence-dataset-item",
-        component: () => import('@/features/datasets/views/occurrence/OccurrenceDatasetItemView.vue'),
-        props: route => ({ slug: route.params.slug }),
+        path: '/datasets/occurrences/:slug',
+        name: 'occurrence-dataset-item',
+        component: () =>
+          import('@/features/datasets/views/occurrence/OccurrenceDatasetItemView.vue'),
+        props: (route) => ({ slug: route.params.slug })
       },
       {
-        path: "/sites/:code",
-        name: "site-item",
+        path: '/sites/:code',
+        name: 'site-item',
         component: () => import('@/features/site/views/SiteItemView.vue'),
         props: true
       },
       {
-        path: "/occurrences/:code",
-        name: "occurrence-item",
+        path: '/occurrences/:code',
+        name: 'occurrence-item',
         component: () => import('@/features/occurrences/views/OccurrenceItemView.vue'),
         props: true
       },
       {
-        path: "/sequences/:code",
-        name: "sequence",
+        path: '/sequences/:code',
+        name: 'sequence',
         component: () => import('@/features/sequences/views/SeqItemView.vue'),
         props: true,
         meta: {
-          title: makeTitle("API docs")
+          title: makeTitle('API docs')
         }
       },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
@@ -100,9 +94,9 @@ function setupRouter(settings: InstanceSettings) {
     // Use next tick to handle router history correctly
     // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
     nextTick(() => {
-      document.title = to.meta?.title ?? makeTitle(to.meta.subtitle);
-    });
-  });
+      document.title = to.meta?.title ?? makeTitle(to.meta.subtitle)
+    })
+  })
 
   return router
 }
