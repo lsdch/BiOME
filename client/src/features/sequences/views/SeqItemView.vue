@@ -25,8 +25,10 @@
           size="small"
           v-tooltip="`Sequence available`"
           @click="
-            (fasta?.groupItem.select(true),
-            $nextTick(() => fasta?.$el.scrollIntoView({ behavior: 'smooth', block: 'start' })))
+            () => {
+              fasta?.groupItem.select(true)
+              $nextTick(() => fasta?.$el.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+            }
           "
         />
         <MetaChip :meta="item.meta" size="small" />

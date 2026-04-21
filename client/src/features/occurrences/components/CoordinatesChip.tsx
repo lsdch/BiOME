@@ -15,7 +15,7 @@ export function CoordinatesChip({ coordinates, ...props }: Props, context: { att
   return (
     <v-chip
       class="font-monospace"
-      onClick={copy(`${coordinates.latitude}, ${coordinates.longitude}`)}
+      onClick={() => copy(`${coordinates.latitude}, ${coordinates.longitude}`)}
       {...props}
     >
       {coordinates.latitude}°, {coordinates.longitude}°
