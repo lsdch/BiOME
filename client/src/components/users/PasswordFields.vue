@@ -35,7 +35,7 @@
 <script setup lang="ts">
 import { PasswordInput } from '@/api'
 import { zxcvbn } from '@zxcvbn-ts/core'
-import { computed, defineModel } from 'vue'
+import { computed } from 'vue'
 import PasswordField from '@/components/toolkit/forms/PasswordField.vue'
 import PasswordStrengthMeter from './PasswordStrengthMeter.vue'
 

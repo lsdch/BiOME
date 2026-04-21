@@ -8,11 +8,7 @@
     :error-message="error?.detail"
   >
     <template #chip="{ item, props }">
-      <v-chip
-        v-bind="props"
-        :text="item.value"
-        :color="items?.includes(item.value) ? 'primary' : 'success'"
-      />
+      <v-chip v-bind="props" :text="item" :color="items?.includes(item) ? 'primary' : 'success'" />
     </template>
   </v-combobox>
 </template>

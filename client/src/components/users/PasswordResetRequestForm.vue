@@ -24,7 +24,7 @@
         text="Request password reset"
         class="mb-5"
         type="submit"
-        :disabled="!isValid.value"
+        :disabled="!isValid"
       />
     </template>
   </v-form>
