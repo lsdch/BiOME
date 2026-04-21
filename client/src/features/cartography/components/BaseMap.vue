@@ -217,7 +217,7 @@
               iconAnchor: [18, 33],
               shadowSize: [5, 5],
               html: `<i class='mdi-map-marker mdi marker-icon v-icon v-icon--size-x-large' style='color: ${marker.color ?? 'orangered'}; text-shadow: black 1px 0 5px;'></i>`
-            })
+            }) as L.Icon
           "
           v-bind="markerProps"
         />

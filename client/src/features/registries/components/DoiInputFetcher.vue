@@ -27,10 +27,9 @@ import { watch } from 'vue'
 
 const model = defineModel<string | null>({ default: '' })
 
-const { data, error, isFetching, refetch } = useQuery({
-  ...crossRefOptions({ query: { doi: model.value ?? '' } }),
-  enabled: false
-})
+const { data, error, isFetching, refetch } = useQuery(
+  crossRefOptions({ query: { doi: model.value ?? '' } })
+)
 
 const emit = defineEmits<{
   fetched: [article: ArticleFormModel]

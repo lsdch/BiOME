@@ -259,7 +259,7 @@ function toggleYearRange(v: boolean | null) {
 }
 
 type BiomatTableFilters = {
-  year?: number | null
+  year?: number
   year_end?: number | null
   datasets?: string[]
   type_status?: TypeStatus[]
