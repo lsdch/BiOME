@@ -1,5 +1,5 @@
-import { RouteRecordRaw } from "vue-router"
-import { useGuards } from "./guards"
+import { RouteRecordRaw } from 'vue-router'
+import { useGuards } from './guards'
 
 const { guardRole, guardAuth } = useGuards()
 
@@ -8,32 +8,32 @@ export const accountRoutes: Record<string, RouteRecordRaw> = {
     path: '/login',
     name: 'login',
     component: () => import('@/views/auth/LoginView.vue'),
-    meta: { subtitle: "Login" }
+    meta: { title: 'Login' }
   },
   signup: {
     path: '/signup',
     name: 'signup',
     component: () => import('@/views/auth/SignUpView.vue'),
-    meta: { subtitle: "Account request" }
+    meta: { title: 'Account request' }
   },
   pwdReset: {
     path: '/password-reset',
     name: 'password-reset',
     component: () => import('@/views/auth/PasswordResetView.vue'),
-    meta: { subtitle: "Password reset" }
+    meta: { title: 'Password reset' }
   },
   verifyEmail: {
     path: '/verify-email',
     name: 'verify-email',
     component: () => import('@/views/auth/EmailVerificationView.vue'),
-    meta: { subtitle: "E-mail verification" }
+    meta: { title: 'E-mail verification' }
   },
   account: guardAuth({
-    path: "/account",
-    name: "account",
-    component: () => import("@/views/accounts/AccountView.vue"),
-    meta: { subtitle: "Account infos" }
-  }),
+    path: '/account',
+    name: 'account',
+    component: () => import('@/views/accounts/AccountView.vue'),
+    meta: { title: 'Account infos' }
+  })
 }
 
 export default {
@@ -41,12 +41,12 @@ export default {
     label: 'Settings',
     icon: 'mdi-tools',
     path: '/settings/:category',
-    name: "app-settings",
-    params: { category: "instance" },
-    component: () => import("@/features/settings/views/AdminSettings.vue"),
+    name: 'app-settings',
+    params: { category: 'instance' },
+    component: () => import('@/features/settings/views/AdminSettings.vue'),
     props: true,
     meta: {
-      subtitle: "Settings",
+      title: 'Settings',
       drawer: {
         temporary: true
       }

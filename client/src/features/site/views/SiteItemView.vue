@@ -182,7 +182,7 @@ import TaxonChip from '@/features/taxonomy/components/TaxonChip'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
-import { computed } from 'vue'
+import { computed, nextTick } from 'vue'
 import { useDisplay } from 'vuetify'
 import SiteItemDetailTabs from '../components/SiteItemDetailTabs.vue'
 import SiteItemMap from '../components/ResponsiveSiteItemMap.vue'
@@ -193,6 +193,9 @@ const { mdAndDown, xlAndUp } = useDisplay()
 const [editDialog, toggleEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
+nextTick(() => {
+  document.title = code
+})
 
 const { data: site, error, isPending } = useQuery(getSiteOptions({ path: { code } }))
 

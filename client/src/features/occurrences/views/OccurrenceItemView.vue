@@ -354,7 +354,7 @@ import IdentificationChip from '@/features/taxonomy/components/IdentificationChi
 import { useFeedback } from '@/stores/feedback'
 import { useQuery } from '@tanstack/vue-query'
 import { useToggle } from '@vueuse/core'
-import { compile, ref } from 'vue'
+import { compile, nextTick, ref } from 'vue'
 import CodeHistoryCard from '../components/CodeHistoryCard.vue'
 import QuantityChip from '../components/QuantityChip'
 import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
@@ -362,6 +362,9 @@ import InlineHelp from '@/components/toolkit/ui/InlineHelp.vue'
 const [samplingEdit, toggleSamplingEdit] = useToggle(false)
 
 const { code } = defineProps<{ code: string }>()
+nextTick(() => {
+  document.title = code
+})
 
 const { data: item, error, isPending, refetch } = useQuery(getOccurrenceOptions({ path: { code } }))
 

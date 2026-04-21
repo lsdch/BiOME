@@ -112,6 +112,12 @@ router.afterEach((to) => {
     drawer.value = false
   }
   loading.value = false
+
+  // Use next tick to handle router history correctly
+  // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
+  nextTick(() => {
+    document.title = to.meta?.title ?? settings.instance.value?.name ?? 'BiOME'
+  })
 })
 
 const settings = useInstanceSettings()

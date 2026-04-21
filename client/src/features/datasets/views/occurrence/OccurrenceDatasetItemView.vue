@@ -79,7 +79,7 @@ import OccurrencesTable from '@/features/occurrences/components/tables/Occurrenc
 import SitesTable from '@/features/site/components/SitesTable.vue'
 import { useUserStore } from '@/stores/user'
 import { useQuery } from '@tanstack/vue-query'
-import { computed, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch, watchEffect } from 'vue'
 import { useDisplay } from 'vuetify/lib/composables/display.mjs'
 import OccurrenceDatasetAdministration from '../../components/OccurrenceDatasetAdministration.vue'
 
@@ -111,6 +111,16 @@ const {
   refetch,
   isPending
 } = useQuery(getOccurrenceDatasetOptions({ path: { slug } }))
+
+watch(
+  dataset,
+  (d) => {
+    nextTick(() => {
+      document.title = d ? d.label : 'Dataset'
+    })
+  },
+  { immediate: true }
+)
 
 // Occurrences table data
 const occurrences = computed(() => {

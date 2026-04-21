@@ -34,11 +34,7 @@ export type RouterItem = Route | RouteGroup
 
 const { guardRole } = useGuards()
 
-function setupRouter(settings: InstanceSettings) {
-  function makeTitle(subtitle?: string) {
-    return subtitle ? `${settings.name} | ${subtitle}` : settings.name
-  }
-
+function setupRouter() {
   const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -47,7 +43,7 @@ function setupRouter(settings: InstanceSettings) {
         name: 'api-docs',
         component: () => import('@/views/APIDocs.vue'),
         meta: {
-          title: makeTitle('API docs')
+          title: 'API docs'
         }
       },
       {
@@ -81,21 +77,13 @@ function setupRouter(settings: InstanceSettings) {
         component: () => import('@/features/sequences/views/SeqItemView.vue'),
         props: true,
         meta: {
-          title: makeTitle('API docs')
+          title: 'API docs'
         }
       },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       ...Object.values(routes),
       ...navRouteDefinitions
     ]
-  })
-
-  router.afterEach((to, _from) => {
-    // Use next tick to handle router history correctly
-    // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
-    nextTick(() => {
-      document.title = to.meta?.title ?? makeTitle(to.meta.subtitle)
-    })
   })
 
   return router
