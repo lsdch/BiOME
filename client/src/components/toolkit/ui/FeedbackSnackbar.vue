@@ -4,7 +4,7 @@
     variant="flat"
     :color="theme.color"
     :timeout="timeout"
-    timer="secondary"
+    timer="bottom"
   >
     <div class="text-overline mb-3 d-flex align-center">
       <v-icon class="mr-2" :icon="theme.icon" color="white" size="large" />
