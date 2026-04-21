@@ -46,6 +46,10 @@
           <slot name="text" />
         </v-card-text>
       </slot>
+      <template #actions v-if="$slots['actions']">
+        <!-- Default actions slot -->
+        <slot name="actions" />
+      </template>
     </v-card>
   </v-dialog>
 </template>

@@ -33,6 +33,10 @@
         <template #activator="slotData" v-if="slots.activator">
           <slot name="activator" v-bind="slotData" />
         </template>
+        <template #actions v-if="$slots['actions']">
+          <!-- Default actions slot -->
+          <slot name="actions" />
+        </template>
       </CardDialog>
     </template>
   </v-form>
