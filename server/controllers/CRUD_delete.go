@@ -69,3 +69,14 @@ func DeleteByNameHandler[Item any](
 ) router.Endpoint[DeleteByNameHandlerInput, DeleteHandlerOutput[Item]] {
 	return DeleteHandler[*DeleteByNameHandlerInput](deleteItem)
 }
+
+type DeleteByLabelHandlerInput struct {
+	resolvers.AuthRequired
+	LabelInput
+}
+
+func DeleteByLabelHandler[Item any](
+	deleteItem ItemDelete[string, Item],
+) router.Endpoint[DeleteByLabelHandlerInput, DeleteHandlerOutput[Item]] {
+	return DeleteHandler[*DeleteByLabelHandlerInput](deleteItem)
+}

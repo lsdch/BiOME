@@ -12,7 +12,7 @@ type UnwrapReadonlyArray<A> = A extends Readonly<Array<infer I>> ? I : never
 type ReadonlyHeaders = VDataTable['$props']['headers']
 
 declare global {
-  type UUID = string
+  type UUID = string & {}
 
   type IconValue = VIcon['$props']['icon']
 

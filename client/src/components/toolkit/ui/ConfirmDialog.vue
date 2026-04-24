@@ -9,7 +9,9 @@
           {{ title }}
         </v-toolbar-title>
       </v-toolbar>
-      <v-card-text v-if="message"> {{ message }} </v-card-text>
+      <slot>
+        <v-card-text v-if="message"> {{ message }} </v-card-text>
+      </slot>
       <v-card-actions>
         <v-spacer />
         <v-btn color="grey" variant="text" @click="cancel()" text="Cancel" />

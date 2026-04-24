@@ -805,7 +805,7 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      url: '/habitats/{code}',
+      url: '/habitats/{label}',
       ...options
     })
   }

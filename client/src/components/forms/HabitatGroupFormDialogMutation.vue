@@ -4,10 +4,11 @@
     v-model:dialog="dialog"
     :mode
     :errors
-    :title="title(mode)"
+    :title
     :loading="loading || activeMutation.isPending.value"
     :fullscreen="fullscreen || $vuetify.display.mdAndDown"
     @submit="submit()"
+    :depends
   >
     <template #activator="slotData">
       <slot name="activator" v-bind="slotData"></slot>
@@ -22,20 +23,21 @@ import {
   updateHabitatGroupMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
-import { defineFormCreate, defineFormUpdate, Mode, useMutationForm } from '@/lib/mutations'
+import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
 import { HabitatModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
+import { computed } from 'vue'
 import HabitatGroupFormDialog from './HabitatGroupFormDialog.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const item = defineModel<HabitatGroup>('item')
 
-defineProps<FormDialogProps>()
+const { depends } = defineProps<FormDialogProps & { depends?: string }>()
 
 const create = defineFormCreate(createHabitatGroupMutation(), {
   initial: HabitatModel.initialModel,
   schema: $HabitatGroupInput,
-  requestData: (model) => ({ body: HabitatModel.toCreateRequestBody(model) })
+  requestData: (model) => ({ body: HabitatModel.toCreateRequestBody({ ...model, depends }) })
 })
 
 const update = defineFormUpdate(updateHabitatGroupMutation(), {
@@ -48,7 +50,9 @@ const update = defineFormUpdate(updateHabitatGroupMutation(), {
 })
 
 const { feedback } = useFeedback()
-const emit = defineEmits<{ success: [item: HabitatGroup] }>()
+const emit = defineEmits<{
+  success: [item: HabitatGroup]
+}>()
 const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   create,
   update,
@@ -62,9 +66,10 @@ const { mode, model, activeMutation, submit, errors } = useMutationForm(item, {
   }
 })
 
-function title(mode: Mode) {
-  return mode == 'Create' ? 'Create habitat group' : `Edit habitats: ${item.value!.label}`
-}
+const title = computed(() => {
+  if (mode.value === 'Create') return 'Create habitat group'
+  return `Edit habitat group: ${item.value!.label}`
+})
 </script>
 
 <style scoped lang="scss"></style>

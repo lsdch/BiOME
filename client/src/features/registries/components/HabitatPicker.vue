@@ -39,7 +39,7 @@
           <span class="text-caption">{{ subtitle }}</span>
         </template>
         <template #append>
-          <v-chip class="text-overline" color="primary" :text="habitatGroupLabel(item.id)" />
+          <v-chip class="text-overline" color="primary" :text="getHabitat(item.id)?.group.label" />
         </template>
       </v-list-item>
     </template>
@@ -53,7 +53,11 @@
           </template>
           <v-chip class="ma-1" :text="item.label" color="primary" />
           <template #append>
-            <v-chip class="text-overline" color="primary" :text="habitatGroupLabel(item.id)" />
+            <v-chip
+              class="text-overline"
+              color="primary"
+              :text="getHabitat(item.id)?.group.label"
+            />
           </template>
         </v-list-item>
       </v-list>
@@ -69,7 +73,7 @@ import { computed, reactive, ref } from 'vue'
 const model = defineModel<HabitatRecord[]>({ default: () => reactive([]) })
 const searchTerm = ref<string | undefined>(undefined)
 
-const { groups: habitatGroups, habitatsMap, habitatDependencies, habitatGroupLabel } = useHabitats()
+const { groups: habitatGroups, habitatGraph, getHabitat, habitatDependencies } = useHabitats()
 
 function addWithDependencies(habitat: HabitatNode) {
   const existingIds = new Set(model.value.map(({ id }) => id))
@@ -94,18 +98,18 @@ function onDelete(item: HabitatRecord) {
 function compatibleHabitats(habitats: HabitatNode[], selected: HabitatRecord[]) {
   return habitats.filter(
     ({ id: habitatID, incompatible }) =>
-      !selected.find(({ id }) => habitatID == id || incompatible?.find((incomp) => incomp.id == id))
+      !selected.some(({ id }) => habitatID == id || incompatible?.some((incomp) => incomp.id == id))
   )
 }
 
 function isGroupReachable(group: HabitatGroup) {
-  return model.value.find(({ id }) => group.depends?.id == id)
+  return model.value.some(({ id }) => group.depends?.id == id)
 }
 
 const items = computed<HabitatRecord[]>(() => {
-  return habitatGroups.value.reduce((acc: HabitatRecord[], g) => {
+  return habitatGraph.value.groups.values().reduce((acc: HabitatRecord[], g) => {
     const habitats = g.elements
-      .map((habitat) => habitatsMap.value.get(habitat.id))
+      .map((habitat) => getHabitat(habitat.id))
       .filter((habitat): habitat is HabitatNode => Boolean(habitat))
 
     if (g.depends == undefined || isGroupReachable(g)) {
@@ -121,7 +125,7 @@ const items = computed<HabitatRecord[]>(() => {
 const quickSelect = computed(() => {
   if (searchTerm.value != undefined && searchTerm.value.length > 0) {
     const term = searchTerm.value.toLowerCase()
-    return habitatsMap.value
+    return habitatGraph.value.habitats
       .values()
       .filter(
         ({ label, upstream }) => (upstream?.length ?? 0) > 0 && label.toLowerCase().includes(term)

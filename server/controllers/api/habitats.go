@@ -44,11 +44,11 @@ func init() {
 		habitatsAPI,
 		"DeleteHabitatGroup",
 		huma.Operation{
-			Path:    "/{code}",
+			Path:    "/{label}",
 			Method:  http.MethodDelete,
 			Summary: "Delete habitat group",
 		},
-		controllers.DeleteByCodeHandler(occurrence.DeleteHabitatGroup))
+		controllers.DeleteByLabelHandler(occurrence.DeleteHabitatGroup))
 
 	router.RegisterSpec(
 		habitatsAPI,

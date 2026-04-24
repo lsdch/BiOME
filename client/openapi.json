@@ -11520,7 +11520,7 @@
 				]
 			}
 		},
-		"/habitats/{code}": {
+		"/habitats/{label}": {
 			"delete": {
 				"operationId": "DeleteHabitatGroup",
 				"parameters": [
@@ -11547,7 +11547,7 @@
 					},
 					{
 						"in": "path",
-						"name": "code",
+						"name": "label",
 						"required": true,
 						"schema": {
 							"type": "string"
@@ -11590,9 +11590,7 @@
 				"tags": [
 					"Sampling"
 				]
-			}
-		},
-		"/habitats/{label}": {
+			},
 			"patch": {
 				"operationId": "UpdateHabitatGroup",
 				"parameters": [

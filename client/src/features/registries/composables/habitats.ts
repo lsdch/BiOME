@@ -4,116 +4,103 @@ import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 
 export type HabitatNode = HabitatRecord & {
-  children?: HabitatGroupNode[]
-  upstream?: HabitatNode[]
+  children?: HabitatGroup[]
+  upstream?: HabitatRecord[]
+  group: HabitatGroup
 }
 
 export type HabitatGroupNode = HabitatGroup & {
-  children: HabitatNode[]
+  children: HabitatRecord[]
+}
+
+export type HabitatGraph = {
+  rootGroups: HabitatGroupNode[]
+  habitats: Map<UUID, HabitatNode>
+  groups: Map<UUID, HabitatGroupNode>
 }
 
 export function useHabitats() {
-  const { data: groups } = useQuery({
+  const { data: groups, refetch } = useQuery({
     ...listHabitatGroupsOptions(),
     initialData: []
   })
 
-  const habitatGraph = computed<HabitatGroupNode[]>(() => {
-    const habitatsById = new Map<string, HabitatNode>()
+  const habitatGraph = computed<HabitatGraph>(() => {
+    const graph: HabitatGraph = {
+      rootGroups: [],
+      habitats: new Map<UUID, HabitatNode>(),
+      groups: new Map<UUID, HabitatGroupNode>()
+    }
 
-    // Create and register all habitat nodes
+    // Initialize the graph with all groups and habitats, but without parent-child relationships
     groups.value.forEach((group) => {
+      graph.groups.set(group.id, {
+        ...group,
+        children: group.elements
+      })
       group.elements.forEach((habitat) => {
-        const node: HabitatNode = {
+        graph.habitats.set(habitat.id, {
           ...habitat,
-          children: []
-        }
-        habitatsById.set(habitat.id, node)
+          group: group
+        })
       })
     })
 
-    // Create group nodes and assign habitat nodes as their children
-    const groupNodes: HabitatGroupNode[] = groups.value.map((group) => ({
-      ...group,
-      children: group.elements.map((habitat) => habitatsById.get(habitat.id)!)
-    }))
-
-    const rootGroups: HabitatGroupNode[] = []
-
     // Build the tree by assigning group nodes to their parent habitats
-    groupNodes.forEach((groupNode) => {
-      const parentHabitatId = groupNode.depends?.id
-      const parentHabitat = parentHabitatId ? habitatsById.get(parentHabitatId) : undefined
-
-      if (!parentHabitat) {
-        rootGroups.push(groupNode)
+    graph.groups.forEach(({ ...groupNode }) => {
+      if (!groupNode.depends) {
+        graph.rootGroups.push(groupNode)
         return
       }
 
-      if (!parentHabitat.children) {
-        parentHabitat.children = []
+      const parent = graph.habitats.get(groupNode.depends.id)!
+      if (!parent.children) {
+        parent.children = []
       }
-      parentHabitat.children.push(groupNode)
+      parent.children.push(groupNode)
+      return
     })
 
     // Populate upstream habitats for each habitat in the tree
     const populateUpstream = (
       groupNode: HabitatGroupNode,
-      upstreamHabitats: HabitatNode[] = []
+      upstreamHabitats: HabitatRecord[] = []
     ) => {
       groupNode.children.forEach((habitat) => {
-        habitat.upstream = [...upstreamHabitats]
-        habitat.children?.forEach((childGroup) => {
-          populateUpstream(childGroup, [...upstreamHabitats, habitat])
+        const habitatNode = graph.habitats.get(habitat.id)!
+        habitatNode.upstream = [...upstreamHabitats]
+        habitatNode.children?.forEach((childGroup) => {
+          const childGroupNode = graph.groups.get(childGroup.id)!
+          populateUpstream(childGroupNode, [...upstreamHabitats, habitat])
         })
       })
     }
 
-    rootGroups.forEach((rootGroup) => {
+    graph.rootGroups.forEach((rootGroup) => {
       populateUpstream(rootGroup)
     })
 
-    return rootGroups
-  })
-
-  const habitatsMap = computed(() => {
-    const map = new Map<string, HabitatNode>()
-
-    const visitGroup = (group: HabitatGroupNode) => {
-      group.children.forEach((habitat) => {
-        map.set(habitat.id, habitat)
-        habitat.children?.forEach(visitGroup)
-      })
-    }
-
-    habitatGraph.value.forEach(visitGroup)
-
-    return map
-  })
-
-  const habitatGroupByHabitatId = computed(() => {
-    return groups.value.reduce((acc, group) => {
-      group.elements.forEach((habitat) => {
-        acc.set(habitat.id, group)
-      })
-      return acc
-    }, new Map<string, HabitatGroup>())
+    return graph
   })
 
   function habitatDependencies(habitatId: string) {
-    return habitatsMap.value.get(habitatId)?.upstream ?? []
+    return habitatGraph.value.habitats.get(habitatId)?.upstream ?? []
   }
 
-  function habitatGroupLabel(habitatId: string) {
-    return habitatGroupByHabitatId.value.get(habitatId)?.label ?? ''
+  function getGroup(id: UUID) {
+    return habitatGraph.value.groups.get(id)
+  }
+
+  function getHabitat(id: UUID) {
+    return habitatGraph.value.habitats.get(id)
   }
 
   return {
     groups,
     habitatGraph,
-    habitatsMap,
+    getGroup,
+    getHabitat,
     habitatDependencies,
-    habitatGroupByHabitatId,
-    habitatGroupLabel
+    refetch
   }
 }

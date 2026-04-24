@@ -4349,10 +4349,10 @@ export type DeleteHabitatGroupData = {
     Authorization?: string
   }
   path: {
-    code: string
+    label: string
   }
   query?: never
-  url: '/habitats/{code}'
+  url: '/habitats/{label}'
 }
 
 export type DeleteHabitatGroupErrors = {

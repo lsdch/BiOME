@@ -11,6 +11,13 @@
     </template>
     <v-container>
       <v-row>
+        <v-col>
+          <v-alert v-if="depends" type="info">
+            Creating habitat group as a specialisation of habitat: <v-chip>{{ depends }}</v-chip>
+          </v-alert>
+        </v-col>
+      </v-row>
+      <v-row>
         <v-col cols="12" md="8">
           <v-text-field label="Group label" v-model.trim="model.label" v-bind="schema('label')">
             <template #append>
@@ -126,7 +133,11 @@ const model = defineModel<HabitatModel.HabitatGroupModel>({
   default: HabitatModel.initialModel
 })
 
-const { mode = 'Create', ...props } = defineProps<FormProps & FormDialogProps>()
+const {
+  mode = 'Create',
+  depends,
+  ...props
+} = defineProps<FormProps & FormDialogProps & { depends?: string }>()
 
 const emit = defineEmits<{
   submit: [model: HabitatModel.HabitatGroupModel | undefined]

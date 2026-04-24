@@ -143,4 +143,8 @@ client.interceptors.response.use(async (response) => {
 const cookiesAccepted = useLocalStorage('cookies-accepted', false)
 </script>
 
-<style></style>
+<style lang="scss">
+#router-view-suspense-container {
+  position: relative;
+}
+</style>
