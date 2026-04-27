@@ -52,6 +52,7 @@
 import { Country, CountrySummary } from '@/api'
 import { useCountries } from '@/stores/countries'
 import { storeToRefs } from 'pinia'
+import { computed } from 'vue'
 import { InternalItem } from 'vuetify'
 import { Value } from 'vuetify/lib/components/VAutocomplete/VAutocomplete.mjs'
 
@@ -59,13 +60,24 @@ type Model = ItemValue extends 'code' | 'name' ? Country[ItemValue] : Country
 
 const model = defineModel<Value<CountrySummary, boolean, Multiple>>()
 
-const { countries: items, isPending, error } = storeToRefs(useCountries())
+const { countries, isPending, error } = storeToRefs(useCountries())
+const items = computed(() => {
+  if (typeof filter === 'function') {
+    return countries.value.filter(filter)
+  }
+  return countries.value
+})
 
-const { itemValue = 'code', loading } = defineProps<{
+const {
+  itemValue = 'code',
+  loading,
+  filter
+} = defineProps<{
   returnObject?: ReturnObject
   itemValue?: ItemValue
   loading?: boolean
   multiple?: Multiple
+  filter?: (item: CountrySummary) => boolean
 }>()
 </script>
 
