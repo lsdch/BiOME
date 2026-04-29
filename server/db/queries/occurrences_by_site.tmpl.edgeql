@@ -21,7 +21,11 @@ with module occurrence,
   ),
   sampling_target_whole_clade := <bool>json_get(params, 'sampling_target_whole_clade'),
   sampling_status := <str>json_get(params, 'include_sites'),
-select location::Site {
+select {{- if .Datasets }} (datasets[is datasets::SiteDataset].sites
+    ?? datasets[is datasets::OccurrenceDataset].sites)
+    {{- else }} 
+    location::Site
+    {{- end }} {
   *,
   country: { * },
   {{ if or .Habitats .SamplingTargetTaxa }}
@@ -72,17 +76,22 @@ filter (
 # 		sampling_status = "Occurrences" and exists .samplings.occurrences
 # 	)
 # ) and
+  {{ if eq .IncludeSites  "Occurrences" }}
+    exists .samplings.occurrences and
+  {{ else if eq .IncludeSites  "Sampled" }}
+    exists .samplings and
+  {{ end }}
   {{ if .Countries }}
     .country.code in country_codes and
   {{ end }}
   # (not exists habitats or exists .samplings) and
   # (not exists taxa or exists .samplings.occurrences) and
   # (not exists sampling_target_kinds or exists .samplings) and
-  {{ if .Datasets }}
-    (
-      location::Site in datasets[is datasets::SiteDataset].sites
-    ?? datasets[is datasets::OccurrenceDataset].sites
-    ) and
-  {{ end }}
+  # {{ if .Datasets }}
+  #   (
+  #     location::Site in datasets[is datasets::SiteDataset].sites
+  #   ?? datasets[is datasets::OccurrenceDataset].sites
+  #   ) and
+  # {{ end }}
   true
 )
