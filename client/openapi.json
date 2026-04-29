@@ -12931,7 +12931,7 @@
 						"name": "include_sites",
 						"schema": {
 							"$ref": "#/components/schemas/SiteSamplingStatus",
-							"default": "All",
+							"default": "Occurrences",
 							"description": "Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence."
 						}
 					}
