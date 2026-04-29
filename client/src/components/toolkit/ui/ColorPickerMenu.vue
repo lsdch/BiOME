@@ -14,16 +14,20 @@
       </v-input>
     </template>
     <v-card>
-      <v-color-picker v-model="model" hide-inputs />
+      <v-color-picker v-model="model" v-bind="props" />
     </v-card>
   </v-menu>
 </template>
 
 <script setup lang="ts">
+import { VColorPicker } from 'vuetify/components'
+
 const model = defineModel<string>()
-const props = defineProps<{
-  label?: string
-}>()
+const { label, ...props } = defineProps<
+  {
+    label?: string
+  } & Omit<VColorPicker['$props'], 'modelValue' | 'onUpdate:modelValue'>
+>()
 </script>
 
 <style scoped lang="scss">
