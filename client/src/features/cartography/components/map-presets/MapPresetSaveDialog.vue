@@ -13,8 +13,7 @@
     <v-card-text class="pt-1">
       <v-alert class="text-caption mb-3">
         Saving a preset allows you to quickly restore your current map configuration, including data
-        feeds, hexgrid settings, and marker layers. You can share presets with others or keep them
-        private.
+        all layers. You can share presets with others or keep them private.
       </v-alert>
       <v-text-field label="Name" v-model="preset.name" v-bind="schema('name')" />
       <v-textarea label="Description" v-model="preset.description" />
@@ -38,21 +37,14 @@
 
 <script setup lang="ts">
 import { $MapToolPresetInput, MapToolPresetInput } from '@/api'
-import { useSchema } from '@/composables/schema'
-import { reactive } from 'vue'
-import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
-import { DataFeed } from '../data-feeds'
-import { HexgridLayerSpec, MarkerLayerDefinition } from '../map-layers'
-import { useMutation } from '@tanstack/vue-query'
-import { useFeedback } from '@/stores/feedback'
 import { createUpdateMapPresetMutation } from '@/api/gen/@tanstack/vue-query.gen'
+import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
+import { useSchema } from '@/composables/schema'
+import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
-
-export type MapPreset = {
-  feeds: DataFeed[]
-  hexgrid: HexgridLayerSpec
-  markers: MarkerLayerDefinition[]
-}
+import { useMutation } from '@tanstack/vue-query'
+import { reactive } from 'vue'
+import { MapPresetSpec } from '.'
 
 const dialog = defineModel<boolean>('dialog', {
   default: false
@@ -63,7 +55,7 @@ const preset = defineModel<MapToolPresetInput>({
 })
 
 const { specs } = defineProps<{
-  specs: MapPreset
+  specs: MapPresetSpec
 }>()
 
 const {

@@ -20,7 +20,6 @@ import { useQuery } from '@tanstack/vue-query'
 import { storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { ParsedMapPreset, parseMapPreset } from '.'
-import MapPresetSummaryIcons from './MapPresetSummaryIcons.vue'
 
 const model = defineModel<ParsedMapPreset>()
 

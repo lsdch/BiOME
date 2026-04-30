@@ -66,7 +66,7 @@
 <script setup lang="ts">
 import { sitesProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { hasEventListener } from '@/components/toolkit/vue-utils'
-import { Coordinates, Geocoordinates, MaybeCoordinates } from '@/features/cartography/components'
+import { Coordinates, Geocoordinates, MaybeCoordinates } from '@/features/cartography/coordinates'
 import BaseMap from '@/features/cartography/components/BaseMap.vue'
 import ProximityRadiusSlider from '@/features/cartography/components/ProximityRadiusSlider.vue'
 import { useQuery } from '@tanstack/vue-query'

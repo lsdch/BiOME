@@ -54,11 +54,6 @@
         </v-text-field>
       </ActivableField>
     </template>
-    <template #item.overview="{ item }: { item: ParsedMapPreset }">
-      <div class="d-flex ga-5 justify-center">
-        <MapPresetSummaryIcons :spec="item.spec" />
-      </div>
-    </template>
     <template #item.is_public="{ item }: { item: ParsedMapPreset }">
       <v-confirm-edit v-model="item.is_public" v-slot="{ actions, model: proxy, cancel, save }">
         <v-switch
@@ -129,7 +124,6 @@ import {
   listMapPresetsResponseTransformer
 } from '@/api/gen/transformers.gen'
 import ActivableField from '@/components/toolkit/forms/ActivableField.vue'
-import MapPresetSummaryIcons from './MapPresetSummaryIcons.vue'
 import { useFeedback } from '@/stores/feedback'
 import { computed } from 'vue'
 import { computedWithControl } from '@vueuse/core'
@@ -162,7 +156,6 @@ const headers: CRUDTableHeader<ParsedMapPreset>[] = [
     sortable: true,
     align: 'start'
   },
-  { key: 'overview', title: '' },
   { key: 'is_public', title: 'Public', width: 0, align: 'center' }
 ]
 

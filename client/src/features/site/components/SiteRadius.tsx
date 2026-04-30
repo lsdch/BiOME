@@ -1,7 +1,7 @@
 import { CoordinatesPrecision } from '@/api'
 import { LCircle } from '@vue-leaflet/vue-leaflet'
 import { ComponentProps } from 'vue-component-type-helpers'
-import { Geocoordinates } from '@/features/cartography/components'
+import { Geocoordinates } from '@/features/cartography/coordinates'
 
 type SiteRadiusProps = {
   site: Geocoordinates

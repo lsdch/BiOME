@@ -12,9 +12,9 @@
 <script setup lang="ts">
 import { SiteWithOccurrences } from '@/api'
 import BaseMap from '@/features/cartography/components/BaseMap.vue'
-import { HexgridLayer } from '@/features/cartography/components/map-layers'
-import MapViewHexPopup from '@/features/cartography/components/MapViewHexPopup.vue'
-import MapViewSitePopup from '@/features/cartography/components/MapViewSitePopup.vue'
+import { HexgridLayer } from '@/features/cartography/components/layers-manager/map-layers'
+import MapViewHexPopup from '@/features/cartography/components/popups/MapViewHexPopup.vue'
+import MapViewSitePopup from '@/features/cartography/components/popups/MapViewSitePopup.vue'
 import { palette } from '@/lib/color_brewer'
 import { computed } from 'vue'
 

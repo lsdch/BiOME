@@ -37,27 +37,7 @@
           }}</v-card-text>
           <v-list>
             <v-divider />
-            <v-list-group value="feeds">
-              <template #activator="{ props }">
-                <v-list-item
-                  title="Data feeds"
-                  prepend-icon="mdi-database-arrow-right"
-                  v-bind="props"
-                >
-                  <template #title>
-                    Data feeds
-                    <v-badge color="purple" inline :content="model.spec.feeds.length" />
-                  </template>
-                </v-list-item>
-              </template>
-              <v-list-item v-for="feed in model.spec.feeds" :title="feed.name"></v-list-item>
-            </v-list-group>
-            <v-divider />
-            <v-list-item
-              title="Hexgrid layer"
-              prepend-icon="mdi-hexagon-multiple"
-              :subtitle="`${model.spec.hexgrid.filterType} sites`"
-            >
+            <v-list-item title="Hexgrid layer" prepend-icon="mdi-hexagon-multiple">
               <template v-if="model.spec.hexgrid.config.colorRange" #append>
                 <ColorPalettePreview :gradient="model.spec.hexgrid.config.colorRange" />
               </template>
@@ -79,7 +59,6 @@
               <v-list-item
                 v-for="(layer, i) in model.spec.markers"
                 :title="layer.name ?? `Unnamed layer #${i + 1}`"
-                :subtitle="`${layer.filterType} sites`"
               >
                 <template #prepend>
                   <SvgCircle

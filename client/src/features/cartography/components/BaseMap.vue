@@ -148,7 +148,7 @@
         :color-binding="hexgrid.bindings?.color"
         :opacity-binding="hexgrid.bindings?.opacity"
         :radius-binding="hexgrid.bindings?.radius"
-        @update:color-scale-extent="(range) => console.log(range)"
+        @update:color-scale-extent="(range) => console.log('color scale extent', range)"
         @click="
           (e) => {
             if (e.length === 1) selectSite(e[0]!.data)
@@ -192,7 +192,6 @@
             v-else
             pane="markerPane"
             v-for="item in unref(layer.data)"
-            :key="item.id"
             :latLng="[item.coordinates.latitude, item.coordinates.longitude]"
             v-bind="layer.config"
             :opacity="1"
@@ -287,7 +286,7 @@ export default {
 }
 </script>
 
-<script setup lang="ts" generic="Item extends { id: string } & Geocoordinates">
+<script setup lang="ts" generic="Item extends { id: UUID } & Geocoordinates">
 import 'leaflet/dist/leaflet.css'
 import LHexbinLayer from 'vue-leaflet-hexbin'
 import 'vue-leaflet-markercluster/dist/style.css'
@@ -318,12 +317,12 @@ import L, {
 
 import { nextTick, ref, unref, UnwrapRef, useTemplateRef, watch } from 'vue'
 import { LMarkerClusterGroup } from 'vue-leaflet-markercluster'
-import { Geocoordinates } from '.'
+import { Geocoordinates } from '../coordinates'
 
 import { Coordinates, CoordinatesPrecision } from '@/api'
 import MapColorLegend from '@/features/cartography/components/MapColorLegend.vue'
 import { vElementVisibility } from '@vueuse/components'
-import { HexgridLayer, MarkerLayer } from './map-layers'
+import { HexgridLayer, MarkerLayer } from './layers-manager/map-layers'
 
 export type HexPopupData<Item> = {
   data: Item

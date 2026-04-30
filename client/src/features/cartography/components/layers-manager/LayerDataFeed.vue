@@ -78,17 +78,12 @@ import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref } from 'vue'
 
 export type MappingFilters = Overwrite<
   NonNullable<OccurrencesBySiteData['query']>,
   { habitats?: HabitatRecord[] }
 >
-
-const sampledTaxa = ref({
-  rank: undefined,
-  sampledOnly: true
-})
 
 const filters = defineModel<MappingFilters>({ default: () => reactive({}) })
 </script>

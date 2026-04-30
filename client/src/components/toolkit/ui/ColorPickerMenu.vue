@@ -20,13 +20,16 @@
 </template>
 
 <script setup lang="ts">
+import { ComponentProps } from 'vue-component-type-helpers'
 import { VColorPicker } from 'vuetify/components'
 
 const model = defineModel<string>()
+
+interface ColorPickerProps extends /* @vue-ignore */ ComponentProps<VColorPicker> {}
 const { label, ...props } = defineProps<
   {
     label?: string
-  } & Omit<VColorPicker['$props'], 'modelValue' | 'onUpdate:modelValue'>
+  } & Omit<ColorPickerProps, 'modelValue' | 'onUpdate:modelValue'>
 >()
 </script>
 

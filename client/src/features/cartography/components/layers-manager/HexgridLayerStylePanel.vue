@@ -1,35 +1,12 @@
 <template>
-  <LayerOptionsCard
-    title="Hexgrid"
-    :subtitle="layer.filterType"
-    v-model="layer.active"
-    prepend-icon="mdi-hexagon-multiple-outline"
-    flat
-  >
-    <template #header>
-      <DataFeedPicker
-        v-model="layer.dataFeedID"
-        class="mx-3 mb-2"
-        density="compact"
-        hide-details
-        mandatory
-      />
-    </template>
-    <div class="bg-main">
-      <v-list class="bg-main">
-        <v-list-item>
-          <SiteSamplingStatusFilter
-            class="my-1"
-            density="compact"
-            v-model="layer.filterType"
-            hide-details
-          />
-        </v-list-item>
-        <div class="d-flex align-center">
-          <v-list-subheader>Color</v-list-subheader>
-          <v-divider />
-        </div>
-
+  <v-tabs v-model="tab" density="compact" class="ma-2" inset grow>
+    <v-tab value="color">Color</v-tab>
+    <v-tab value="radius">Radius</v-tab>
+    <v-tab value="hover">Hover</v-tab>
+  </v-tabs>
+  <v-tabs-window v-model="tab">
+    <v-tabs-window-item value="color">
+      <v-list>
         <v-list-item>
           <ScaleBindingSelect
             v-model="layer.bindings.color"
@@ -80,11 +57,10 @@
             <template #thumb-label="{ modelValue }"> {{ modelValue * 100 }}% </template>
           </v-slider>
         </ListItemInput>
-
-        <div class="d-flex align-center">
-          <v-list-subheader>Radius</v-list-subheader>
-          <v-divider />
-        </div>
+      </v-list>
+    </v-tabs-window-item>
+    <v-tabs-window-item value="radius">
+      <v-list>
         <v-list-item title="Grid cell">
           <template #append>
             <v-slider
@@ -125,11 +101,10 @@
             color="warning"
           />
         </ListItemInput>
-
-        <div class="d-flex align-center">
-          <v-list-subheader>Hover</v-list-subheader>
-          <v-divider />
-        </div>
+      </v-list>
+    </v-tabs-window-item>
+    <v-tabs-window-item value="hover">
+      <v-list>
         <v-list-item title="Fill cell">
           <template #prepend>
             <v-checkbox v-model="layer.config.hover.fill" hide-details />
@@ -157,20 +132,22 @@
           </template>
         </v-list-item>
       </v-list>
-    </div>
-  </LayerOptionsCard>
+    </v-tabs-window-item>
+  </v-tabs-window>
 </template>
 
 <script setup lang="ts">
-import LayerOptionsCard from '@/features/cartography/components/LayerOptionsCard.vue'
-import ScaleBindingSelect from '@/features/cartography/components/ScaleBindingSelect.vue'
-import SiteSamplingStatusFilter from '@/features/cartography/components/SiteSamplingStatusFilter.vue'
-import DataFeedPicker from '@/features/cartography/components/data-feeds/DataFeedPicker.vue'
 import ColorPalettePicker from '@/components/toolkit/ui/ColorPalettePicker.vue'
 import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
-import { HexgridLayerSpec } from './map-layers'
+import { ref } from 'vue'
+import { HexLayerSpec } from './map-layers'
+import ScaleBindingSelect from './ScaleBindingSelect.vue'
 
-const layer = defineModel<HexgridLayerSpec>({ required: true })
+const layer = defineModel<HexLayerSpec>({
+  required: true
+})
+
+const tab = ref<'color' | 'radius' | 'hover'>('color')
 </script>
 
 <style scoped lang="scss"></style>

@@ -55,19 +55,28 @@ onMounted(() => {
 })
 
 const items = [
-  { title: 'Sites', value: 'sites' },
-  { title: 'Sampling events', value: 'samplings' },
+  { title: 'Sites', value: 'sites', subtitle: 'Scale with the number of sites' },
   {
-    title: 'Occurrences',
-    value: 'occurrences'
+    title: 'Sampling events',
+    value: 'samplings',
+    subtitle: 'Scale with the number of sampling events'
   },
+  { title: 'Occurrences', value: 'occurrences', subtitle: 'Scale with the number of occurrences' },
   {
     title: 'Species richness',
     value: 'speciesRichness',
-    subtitle: 'Includes species and sub-species'
+    subtitle: 'Scale with the number of species and sub-species'
   },
-  { title: 'Genus richness', value: 'genusRichness' },
-  { title: 'Family richness', value: 'familyRichness' }
+  {
+    title: 'Genus richness',
+    value: 'genusRichness',
+    subtitle: 'Scale with the number of genus groups'
+  },
+  {
+    title: 'Family richness',
+    value: 'familyRichness',
+    subtitle: 'Scale with the number of family groups'
+  }
 ] as const
 </script>
 

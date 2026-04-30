@@ -11,7 +11,7 @@
 
 <script setup lang="ts">
 import { LCircle } from '@vue-leaflet/vue-leaflet'
-import { Geocoordinates } from '.'
+import { Geocoordinates } from '../coordinates'
 
 defineProps<{
   site?: Geocoordinates
