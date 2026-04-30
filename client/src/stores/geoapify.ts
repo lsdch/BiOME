@@ -1,17 +1,16 @@
-import { ErrorModel, GeoapifyResult } from "@/api";
-import { getGeoapifyStatusOptions, reverseGeocodeOptions } from "@/api/gen/@tanstack/vue-query.gen";
-import { Coordinates, MaybeCoordinates } from "@/features/cartography/components";
-import { QueryObserverOptions, useQuery, useQueryClient, UseQueryOptions } from "@tanstack/vue-query";
-import { defineStore } from "pinia";
-import { computed, MaybeRef, unref, watch } from "vue";
+import { ErrorModel, GeoapifyResult } from '@/api'
+import { getGeoapifyStatusOptions, reverseGeocodeOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { Coordinates, MaybeCoordinates } from '@/features/cartography/coordinates'
+import { QueryObserverOptions, useQuery, useQueryClient } from '@tanstack/vue-query'
+import { defineStore } from 'pinia'
+import { computed, MaybeRef, unref, watch } from 'vue'
 
-export const useGeoapify = defineStore("geoapify", () => {
-
+export const useGeoapify = defineStore('geoapify', () => {
   const client = useQueryClient()
 
   const { data: status, error } = useQuery({
     ...getGeoapifyStatusOptions(),
-    gcTime: Infinity,
+    gcTime: Infinity
   })
 
   const isAvailable = computed(() => !!status.value?.available)
@@ -25,18 +24,18 @@ export const useGeoapify = defineStore("geoapify", () => {
       enabled?: MaybeRef<boolean>
     }
   ) {
+    const q = useQuery(
+      computed(() => ({
+        enabled:
+          isAvailable.value &&
+          Coordinates.isValidCoordinates(unref(coords)) &&
+          (unref(options?.enabled) ?? true),
 
-    const q = useQuery(computed(() => ({
-      enabled: (
-        isAvailable.value &&
-        Coordinates.isValidCoordinates(unref(coords)) &&
-        (unref(options?.enabled) ?? true)
-      ),
-
-      ...reverseGeocodeOptions({
-        query: unref(coords) as Coordinates
-      }),
-    })))
+        ...reverseGeocodeOptions({
+          query: unref(coords) as Coordinates
+        })
+      }))
+    )
 
     // Update API usage
     watch(q.isFetching, (fetching, wasFetching) => {
@@ -50,9 +49,8 @@ export const useGeoapify = defineStore("geoapify", () => {
   }
 
   watch(error, (err) => {
-    console.error("Failed to get Geoapify status", err)
+    console.error('Failed to get Geoapify status', err)
   })
-
 
   return { status, reverseGeocodeQuery }
 })
