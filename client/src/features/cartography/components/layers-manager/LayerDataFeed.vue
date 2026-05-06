@@ -24,6 +24,7 @@
         multiple
         chips
         closable-chips
+        clearable
         hide-details
       />
     </v-list-item>
@@ -31,8 +32,8 @@
 
     <v-list-item>
       <TaxonFilterPicker
-        v-model:taxa="filters.sampling_target_taxa"
-        v-model:whole-clade="filters.sampling_target_whole_clade"
+        v-model:taxa="filters.sampling_target.taxa"
+        v-model:whole-clade="filters.sampling_target.whole_clade"
         label="Targeted taxa"
         item-value="name"
         density="compact"
@@ -72,18 +73,12 @@
 </template>
 
 <script setup lang="ts">
-import { HabitatRecord, OccurrencesBySiteData } from '@/api'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import DatasetPicker from '@/features/datasets/components/DatasetPicker.vue'
 import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
 import TaxonFilterPicker from '@/features/taxonomy/components/TaxonFilterPicker.vue'
-import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
-import { reactive, ref } from 'vue'
-
-export type MappingFilters = Overwrite<
-  NonNullable<OccurrencesBySiteData['query']>,
-  { habitats?: HabitatRecord[] }
->
+import { reactive } from 'vue'
+import { MappingFilters } from './map-layers'
 
 const filters = defineModel<MappingFilters>({ default: () => reactive({}) })
 </script>

@@ -52,6 +52,18 @@ type Taxon struct {
 	Meta          people.Meta          `gel:"meta" json:"meta" binding:"required"`
 }
 
+type TaxonWithLineageNames struct {
+	TaxonWithParentRef `gel:"$inline"`
+	Kingdom            geltypes.OptionalStr `gel:"kingdom_name" json:"kingdom,omitempty"`
+	Phylum             geltypes.OptionalStr `gel:"phylum_name" json:"phylum,omitempty"`
+	Class              geltypes.OptionalStr `gel:"class_name" json:"class,omitempty"`
+	Order              geltypes.OptionalStr `gel:"order_name" json:"order,omitempty"`
+	Family             geltypes.OptionalStr `gel:"family_name" json:"family,omitempty"`
+	Genus              geltypes.OptionalStr `gel:"genus_name" json:"genus,omitempty"`
+	Species            geltypes.OptionalStr `gel:"species_name" json:"species,omitempty"`
+	Subspecies         geltypes.OptionalStr `gel:"subspecies_name" json:"subspecies,omitempty"`
+}
+
 type TaxonWithParentRef struct {
 	Taxon  `gel:"$inline"`
 	Parent geltypes.OptionalStr `gel:"parent_name" json:"parent"`

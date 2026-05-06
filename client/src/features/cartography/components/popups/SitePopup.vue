@@ -63,9 +63,9 @@ import { SiteItem } from '@/api'
 import { LPopup } from '@vue-leaflet/vue-leaflet'
 import { useClipboard, useTimeoutFn, useToggle } from '@vueuse/core'
 import { PopupOptions } from 'leaflet'
-import CoordPrecisionChip from './CoordPrecisionChip'
-import SiteRadius from './SiteRadius'
-import CountryChip from './CountryChip'
+import CoordPrecisionChip from '@/features/site/components/CoordPrecisionChip'
+import SiteRadius from '@/features/cartography/components/SiteRadius'
+import CountryChip from '@/features/site/components/CountryChip'
 
 const { zoom = 1, item } = defineProps<{
   item: Item

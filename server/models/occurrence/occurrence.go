@@ -204,8 +204,9 @@ type OccurrenceAtSite struct {
 }
 
 type SiteWithOccurrences struct {
-	SiteItem  `gel:"$inline"`
-	Samplings []SamplingDateWithOccurrences `gel:"samplings" json:"samplings"`
+	SiteItem      `gel:"$inline"`
+	Samplings     []SamplingDateWithOccurrences    `gel:"samplings" json:"samplings"`
+	OccurringTaxa []taxonomy.TaxonWithLineageNames `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
 }
 
 func ListSamplingsAtSite(db geltypes.Executor, siteCode string) ([]SamplingDetailsWithOccurrences, error) {
@@ -248,10 +249,9 @@ const (
 type OccurrencesBySiteOptions struct {
 	ListSitesOptions
 	taxonomy.TaxaFilters
-	Habitats                 []string           `json:"habitats,omitempty" query:"habitats"`
-	SamplingTargetTaxa       []string           `json:"sampling_target_taxa,omitempty" query:"sampling_target_taxa"`
-	SamplingTargetWholeClade bool               `json:"sampling_target_whole_clade" query:"sampling_target_whole_clade"`
-	IncludeSites             SiteSamplingStatus `json:"include_sites,omitempty" query:"include_sites" default:"Occurrences" doc:"Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence."`
+	Habitats       []string             `json:"habitats,omitempty" query:"habitats"`
+	SamplingTarget taxonomy.TaxaFilters `json:"sampling_target" query:"sampling_target"`
+	IncludeSites   SiteSamplingStatus   `json:"include_sites,omitempty" query:"include_sites" default:"Occurrences" doc:"Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence."`
 }
 
 func (o OccurrencesBySiteOptions) Options() OccurrencesBySiteOptions {

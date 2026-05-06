@@ -3,7 +3,14 @@
     <template #activator="{ props }">
       <v-input v-bind="$attrs">
         <div class="color-picker-preview">
-          <v-avatar :color="model" v-bind="props"> </v-avatar>
+          <v-hover v-slot="{ isHovering, props: hoverProps }">
+            <v-avatar
+              :color="model"
+              v-bind="{ ...props, ...hoverProps }"
+              :border="isHovering ? 'md opacity-100' : undefined"
+            >
+            </v-avatar>
+          </v-hover>
         </div>
         <v-label
           v-if="label !== undefined"

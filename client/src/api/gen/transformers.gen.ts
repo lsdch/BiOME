@@ -281,6 +281,11 @@ const optionalDateWithPrecisionSchemaResponseTransformer = (data: any) => {
   return data
 }
 
+const taxonWithLineageNamesSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
+  return data
+}
+
 const taxonSchemaResponseTransformer = (data: any) => {
   data.meta = metaSchemaResponseTransformer(data.meta)
   return data
@@ -317,6 +322,11 @@ const samplingDateWithOccurrencesSchemaResponseTransformer = (data: any) => {
 const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
+  }
+  if (data.occurring_taxa) {
+    data.occurring_taxa = data.occurring_taxa.map((item: any) =>
+      taxonWithLineageNamesSchemaResponseTransformer(item)
+    )
   }
   data.samplings = data.samplings.map((item: any) =>
     samplingDateWithOccurrencesSchemaResponseTransformer(item)
@@ -549,6 +559,11 @@ export const updateHabitatGroupResponseTransformer = async (
 const siteWithDistanceSchemaResponseTransformer = (data: any) => {
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
+  }
+  if (data.occurring_taxa) {
+    data.occurring_taxa = data.occurring_taxa.map((item: any) =>
+      taxonWithLineageNamesSchemaResponseTransformer(item)
+    )
   }
   data.samplings = data.samplings.map((item: any) =>
     samplingDateWithOccurrencesSchemaResponseTransformer(item)

@@ -74,7 +74,7 @@ import { LCircle } from '@vue-leaflet/vue-leaflet'
 import { useDebounceFn, useMousePressed } from '@vueuse/core'
 import { LatLngLiteral } from 'leaflet'
 import { computed, nextTick, ref, useTemplateRef, watch } from 'vue'
-import SitePopup from './SitePopup.vue'
+import SitePopup from '../../cartography/components/popups/SitePopup.vue'
 import { LatLongCoords } from '@/api'
 
 const coords = defineModel<MaybeCoordinates>({ required: true })

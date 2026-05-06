@@ -58,7 +58,7 @@
           v-if="!layer.ready"
           icon="mdi-database-alert"
           size="small"
-          color=""
+          color="warning"
           v-tooltip="{ text: 'Waiting for data definition' }"
           @click="((expanded = true), (tab = 'data'))"
         >
@@ -130,7 +130,9 @@ const { index } = defineProps<{
 
 const layer = defineModel<MarkerLayerSpec>('layer', { required: true })
 
-const title = computed(() => (layer.value.name?.length ? layer.value.name : `Layer #${index + 1}`))
+const title = computed(() =>
+  layer.value.name?.length ? layer.value.name : `Markers #${index + 1}`
+)
 
 const tab = ref<'data' | 'layer' | 'stats'>('data')
 
@@ -146,7 +148,7 @@ const { registerLayer } = useLayerData()
 const remote = useQuery(
   computed(() =>
     occurrencesBySiteOptions({
-      query: {
+      body: {
         ...layer.value.filters,
         habitats: layer.value.filters.habitats?.map(({ label }) => label)
       }

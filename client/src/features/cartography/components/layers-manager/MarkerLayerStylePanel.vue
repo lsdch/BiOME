@@ -14,12 +14,6 @@
         thumb-label
       />
     </ListItemInput>
-    <ListItemInput label="Stroke color" subtitle="Hue and opacity">
-      <ColorPickerMenu v-model="layer.config.color" hide-details show-swatches />
-    </ListItemInput>
-    <ListItemInput label="Fill color" subtitle="Hue and opacity">
-      <ColorPickerMenu v-model="layer.config.fillColor" hide-details show-swatches />
-    </ListItemInput>
     <ListItemInput label="Stroke width">
       <v-slider
         :min="1"
@@ -30,6 +24,15 @@
         thumb-label
       />
     </ListItemInput>
+    <ListItemInput label="Color">
+      <MarkerColorPresetPicker v-model="layer" />
+    </ListItemInput>
+    <ListItemInput label="Stroke" subtitle="Hue and opacity">
+      <ColorPickerMenu v-model="layer.config.color" hide-details show-swatches />
+    </ListItemInput>
+    <ListItemInput label="Fill" subtitle="Hue and opacity">
+      <ColorPickerMenu v-model="layer.config.fillColor" hide-details show-swatches />
+    </ListItemInput>
   </v-list>
 </template>
 
@@ -37,6 +40,7 @@
 import ColorPickerMenu from '@/components/toolkit/ui/ColorPickerMenu.vue'
 import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
 import { LayerSpec } from './map-layers'
+import MarkerColorPresetPicker from './MarkerColorPresetPicker.vue'
 
 const layer = defineModel<Extract<LayerSpec, { type: 'markers' }>>({
   required: true

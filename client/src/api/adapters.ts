@@ -268,6 +268,7 @@ export namespace CodeIdentifier {
 
 export type CoordinatesPrecision = TCoordinatesPrecision
 export namespace CoordinatesPrecision {
+  // Returns a radius in meters corresponding to the precision, for use in map display
   export function radius(precision?: CoordinatesPrecision): number {
     switch (precision) {
       case '10-100km':

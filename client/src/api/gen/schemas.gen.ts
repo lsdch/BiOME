@@ -3403,6 +3403,64 @@ export const $OccurrenceUpdate = {
   type: 'object'
 } as const
 
+export const $OccurrencesBySiteOptions = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['/api/v1/schemas/OccurrencesBySiteOptions.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    countries: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    datasets: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    habitats: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    include_sites: {
+      $ref: '#/components/schemas/SiteSamplingStatus',
+      default: 'Occurrences',
+      description:
+        'Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence.'
+    },
+    sampling_target: {
+      $ref: '#/components/schemas/TaxaFilters'
+    },
+    site_codes: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    taxa: {
+      items: {
+        type: 'string'
+      },
+      type: 'array'
+    },
+    whole_clade: {
+      default: false,
+      type: 'boolean'
+    }
+  },
+  required: ['sampling_target'],
+  type: 'object'
+} as const
+
 export const $OptionalAssembledSequenceSpecifics = {
   additionalProperties: false,
   properties: {
@@ -6113,6 +6171,12 @@ export const $SiteWithDistance = {
       minLength: 4,
       type: 'string'
     },
+    occurring_taxa: {
+      items: {
+        $ref: '#/components/schemas/TaxonWithLineageNames'
+      },
+      type: 'array'
+    },
     samplings: {
       items: {
         $ref: '#/components/schemas/SamplingDateWithOccurrences'
@@ -6162,6 +6226,12 @@ export const $SiteWithOccurrences = {
     name: {
       minLength: 4,
       type: 'string'
+    },
+    occurring_taxa: {
+      items: {
+        $ref: '#/components/schemas/TaxonWithLineageNames'
+      },
+      type: 'array'
     },
     samplings: {
       items: {
@@ -6492,6 +6562,80 @@ export const $TaxonWithLineage = {
     }
   },
   required: ['lineage', 'id', 'children_count', 'meta', 'name', 'status', 'rank'],
+  type: 'object'
+} as const
+
+export const $TaxonWithLineageNames = {
+  additionalProperties: false,
+  properties: {
+    GBIF_ID: {
+      examples: [2206247],
+      format: 'int64',
+      type: 'integer'
+    },
+    authorship: {
+      examples: ['(Linnaeus, 1758)'],
+      type: 'string'
+    },
+    children_count: {
+      format: 'int64',
+      type: 'integer'
+    },
+    class: {
+      type: 'string'
+    },
+    comment: {
+      type: 'string'
+    },
+    family: {
+      type: 'string'
+    },
+    genus: {
+      type: 'string'
+    },
+    id: {
+      format: 'uuid',
+      type: 'string'
+    },
+    kingdom: {
+      type: 'string'
+    },
+    meta: {
+      $ref: '#/components/schemas/Meta'
+    },
+    name: {
+      examples: ['Asellus aquaticus'],
+      type: 'string'
+    },
+    order: {
+      type: 'string'
+    },
+    parent: {
+      type: 'string'
+    },
+    phylum: {
+      type: 'string'
+    },
+    rank: {
+      $ref: '#/components/schemas/TaxonRank',
+      examples: ['Species']
+    },
+    scientific_name: {
+      examples: ['Asellus aquaticus (Linnaeus, 1758)'],
+      type: 'string'
+    },
+    species: {
+      type: 'string'
+    },
+    status: {
+      $ref: '#/components/schemas/TaxonStatus',
+      examples: ['Accepted']
+    },
+    subspecies: {
+      type: 'string'
+    }
+  },
+  required: ['parent', 'id', 'children_count', 'meta', 'name', 'status', 'rank'],
   type: 'object'
 } as const
 

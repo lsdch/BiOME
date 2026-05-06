@@ -11,28 +11,22 @@
     v-bind="$attrs"
   >
     <template #append>
-      <v-btn-toggle
-        v-model="model.log"
-        :color="model.binding ? 'success' : ''"
+      <v-btn
+        icon="mdi-math-log"
+        :variant="model.log ? 'elevated' : 'text'"
         size="small"
-        :density
-        mandatory
-        divided
-        rounded="sm"
-        border="sm"
-        :disabled="!model.binding"
-      >
-        <v-btn class="text-caption" :density size="small" text="Linear" :value="false" />
-        <v-btn class="text-caption" :density size="small" text="Log" :value="true" />
-        <v-btn class="text-caption" :density size="small" :value="10"> Log<sub>10</sub> </v-btn>
-      </v-btn-toggle>
+        rounded="md"
+        :color="model.log ? 'success' : ''"
+        :active="!!model.log"
+        @click="model.log = !model.log"
+        v-tooltip="{ text: 'Toggle log scale', openDelay: 500 }"
+      />
     </template>
   </v-select>
 </template>
 
 <script setup lang="ts">
-import { ScaleBindingSpec } from '@/composables/occurrences'
-import { onMounted, reactive } from 'vue'
+import { ScaleBindingSpec } from '@/features/cartography/bindings'
 
 const { clearable } = defineProps<{
   label?: string
@@ -41,17 +35,7 @@ const { clearable } = defineProps<{
 }>()
 
 const model = defineModel<ScaleBindingSpec>({
-  default: () =>
-    reactive({
-      log: false,
-      binding: undefined
-    })
-})
-
-onMounted(() => {
-  if (!clearable) {
-    model.value.binding = items[0].value
-  }
+  required: true
 })
 
 const items = [

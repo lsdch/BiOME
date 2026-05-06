@@ -95,14 +95,20 @@ func init() {
 		"OccurrencesBySite",
 		huma.Operation{
 			Path:    "/by-site",
-			Method:  http.MethodGet,
+			Method:  http.MethodPost,
 			Summary: "Occurrences by site",
 		},
-		controllers.ListHandlerWithOpts[*struct {
-			resolvers.AuthResolver
-			occurrence.OccurrencesBySiteOptions
-		}](occurrence.OccurrencesBySite),
+		controllers.ListHandlerWithOpts[*OccurrencesBySiteInput](occurrence.OccurrencesBySite),
 	)
+}
+
+type OccurrencesBySiteInput struct {
+	resolvers.AuthResolver
+	Body occurrence.OccurrencesBySiteOptions `json:"options"`
+}
+
+func (input *OccurrencesBySiteInput) Options() occurrence.OccurrencesBySiteOptions {
+	return input.Body.Options()
 }
 
 type CreateOccurrenceInput struct {

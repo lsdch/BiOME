@@ -42,6 +42,7 @@
         <v-divider></v-divider>
         <v-tabs-window v-model="tab">
           <v-tabs-window-item value="data">
+            <SiteSamplingStatusFilter v-model="layer.include_sites" />
             <v-confirm-edit v-model="layer.filters" @save="register()">
               <template #default="{ model, actions, isPristine }">
                 <LayerDataFeed v-model="model.value" class="pa-2" />
@@ -79,6 +80,7 @@ import HexgridLayerStylePanel from './HexgridLayerStylePanel.vue'
 import { useLayerData } from './layer-data'
 import LayerDataFeed from './LayerDataFeed.vue'
 import { HexLayerSpec } from './map-layers'
+import SiteSamplingStatusFilter from './SiteSamplingStatusFilter.vue'
 
 const layer = defineModel<HexLayerSpec>('layer', { required: true })
 
@@ -96,14 +98,14 @@ const emit = defineEmits<{
 }>()
 
 const remote = useQuery(
-  computed(() =>
-    occurrencesBySiteOptions({
-      query: {
+  computed(() => {
+    return occurrencesBySiteOptions({
+      body: {
         ...layer.value.filters,
         habitats: layer.value.filters.habitats?.map(({ label }) => label)
       }
     })
-  )
+  })
 )
 
 function register() {

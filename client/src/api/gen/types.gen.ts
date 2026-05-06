@@ -1275,6 +1275,24 @@ export type OccurrenceUpdate = {
   verbatim_identification?: string | null
 }
 
+export type OccurrencesBySiteOptions = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  countries?: Array<string>
+  datasets?: Array<string>
+  habitats?: Array<string>
+  /**
+   * Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence.
+   */
+  include_sites?: SiteSamplingStatus
+  sampling_target: TaxaFilters
+  site_codes?: Array<string>
+  taxa?: Array<string>
+  whole_clade?: boolean
+}
+
 export type OptionalAssembledSequenceSpecifics = {
   alignment_code: string
   assembled_by?: Array<string>
@@ -2213,6 +2231,7 @@ export type SiteWithDistance = {
   last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
+  occurring_taxa?: Array<TaxonWithLineageNames>
   samplings: Array<SamplingDateWithOccurrences>
   user_defined_locality: boolean
 }
@@ -2230,6 +2249,7 @@ export type SiteWithOccurrences = {
   last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
+  occurring_taxa?: Array<TaxonWithLineageNames>
   samplings: Array<SamplingDateWithOccurrences>
   user_defined_locality: boolean
 }
@@ -2350,6 +2370,28 @@ export type TaxonWithLineage = {
   scientific_name?: string
   status: TaxonStatus
   synonyms?: Array<Taxon>
+}
+
+export type TaxonWithLineageNames = {
+  GBIF_ID?: number
+  authorship?: string
+  children_count: number
+  class?: string
+  comment?: string
+  family?: string
+  genus?: string
+  id: UUID
+  kingdom?: string
+  meta: Meta
+  name: string
+  order?: string
+  parent: string
+  phylum?: string
+  rank: TaxonRank
+  scientific_name?: string
+  species?: string
+  status: TaxonStatus
+  subspecies?: string
 }
 
 export type TaxonWithParentRef = {
@@ -4918,7 +4960,7 @@ export type OccurrencesDateRangeResponse =
   OccurrencesDateRangeResponses[keyof OccurrencesDateRangeResponses]
 
 export type OccurrencesBySiteData = {
-  body?: never
+  body: OccurrencesBySiteOptions
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.
@@ -4926,19 +4968,7 @@ export type OccurrencesBySiteData = {
     Authorization?: string
   }
   path?: never
-  query?: {
-    datasets?: Array<string>
-    countries?: Array<string>
-    taxa?: Array<string>
-    whole_clade?: boolean
-    habitats?: Array<string>
-    sampling_target_taxa?: Array<string>
-    sampling_target_whole_clade?: boolean
-    /**
-     * Include sites with occurrences, sampled sites or all sites. Defaults to sites with at least one occurrence.
-     */
-    include_sites?: SiteSamplingStatus
-  }
+  query?: never
   url: '/occurrences/by-site'
 }
 
@@ -6515,6 +6545,7 @@ export type ListSitesData = {
   }
   path?: never
   query?: {
+    site_codes?: Array<string>
     datasets?: Array<string>
     countries?: Array<string>
   }

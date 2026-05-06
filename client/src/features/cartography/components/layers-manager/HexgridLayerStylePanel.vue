@@ -2,6 +2,7 @@
   <v-tabs v-model="tab" density="compact" class="ma-2" inset grow>
     <v-tab value="color">Color</v-tab>
     <v-tab value="radius">Radius</v-tab>
+    <v-tab value="stroke">Stroke</v-tab>
     <v-tab value="hover">Hover</v-tab>
   </v-tabs>
   <v-tabs-window v-model="tab">
@@ -9,7 +10,7 @@
       <v-list>
         <v-list-item>
           <ScaleBindingSelect
-            v-model="layer.bindings.color"
+            v-model="layer.colorBinding"
             label="Color binding"
             density="compact"
             class="my-1"
@@ -18,34 +19,8 @@
         <v-list-item>
           <ColorPalettePicker v-model="layer.config.colorRange" label="Palette" class="my-1" />
         </v-list-item>
-        <v-list-item>
-          <ScaleBindingSelect
-            v-model="layer.bindings.opacity"
-            label="Opacity binding"
-            density="compact"
-            placeholder="Constant"
-            persistent-placeholder
-            clearable
-            hide-details
-            class="my-1"
-          />
-        </v-list-item>
-        <ListItemInput :title="layer.bindings.opacity ? 'Opacity range' : 'Opacity'">
-          <v-range-slider
-            v-if="layer.bindings.opacity?.binding"
-            v-model="layer.config.opacityRange"
-            :min="0"
-            :max="1"
-            :step="0.1"
-            :width="250"
-            hide-details
-            color="warning"
-            thumb-label
-          >
-            <template #thumb-label="{ modelValue }"> {{ modelValue * 100 }}% </template>
-          </v-range-slider>
+        <ListItemInput title="Opacity">
           <v-slider
-            v-else
             v-model="layer.config.opacity"
             :min="0"
             :max="1"
@@ -61,46 +36,69 @@
     </v-tabs-window-item>
     <v-tabs-window-item value="radius">
       <v-list>
-        <v-list-item title="Grid cell">
+        <v-list-item title="Radius" :subtitle="`${layer.config.radius} km`">
           <template #append>
             <v-slider
               v-model="layer.config.radius"
-              :min="2"
-              :max="20"
+              density="compact"
+              :min="5"
+              :max="200"
               :step="1"
               :width="250"
+              :ticks="[10, 50, 100, 150, 200]"
+              show-ticks
               hide-details
-              thumb-label
             />
           </template>
         </v-list-item>
-
-        <v-list-item>
-          <ScaleBindingSelect
-            v-model="layer.bindings.radius"
-            label="Radius binding"
-            density="compact"
-            placeholder="Constant"
-            persistent-placeholder
-            clearable
-            hide-details
-            class="my-1"
-          />
-        </v-list-item>
-        <ListItemInput title="Radius range" v-if="layer.bindings.radius?.binding">
-          <v-range-slider
-            v-model="layer.config.radiusRange"
-            :ticks="[layer.config.radius]"
-            show-ticks="always"
-            :min="2"
-            :max="20"
-            :step="0.5"
+        <ListItemInput title="Coverage">
+          <v-slider
+            v-model="layer.config.coverage"
+            :min="0.5"
+            :max="1"
+            :step="0.05"
             :width="250"
-            thumb-label
+            :ticks="{ 0.5: '50%', 0.75: '75%', 1: '100%' }"
+            show-ticks
             hide-details
-            color="warning"
           />
         </ListItemInput>
+      </v-list>
+    </v-tabs-window-item>
+    <v-tabs-window-item value="stroke">
+      <v-list>
+        <v-list-item title="Width">
+          <template #append>
+            <v-slider
+              v-model="layer.config.strokeWidth"
+              :min="0"
+              :max="5"
+              :step="0.5"
+              :width="250"
+              hide-details
+              thumb-label
+            >
+              <template #thumb-label="{ modelValue }"> {{ modelValue }}px </template>
+            </v-slider>
+          </template>
+        </v-list-item>
+        <v-list-item title="Opacity">
+          <template #append>
+            <v-slider
+              v-model="layer.config.strokeOpacity"
+              :min="0"
+              :max="1"
+              :step="0.1"
+              :width="250"
+              hide-details
+              thumb-label
+            >
+              <template #thumb-label="{ modelValue }">
+                {{ (modelValue * 100).toFixed(0) }}%
+              </template>
+            </v-slider>
+          </template>
+        </v-list-item>
       </v-list>
     </v-tabs-window-item>
     <v-tabs-window-item value="hover">
@@ -147,7 +145,7 @@ const layer = defineModel<HexLayerSpec>({
   required: true
 })
 
-const tab = ref<'color' | 'radius' | 'hover'>('color')
+const tab = ref<'color' | 'radius' | 'stroke' | 'hover'>('color')
 </script>
 
 <style scoped lang="scss"></style>

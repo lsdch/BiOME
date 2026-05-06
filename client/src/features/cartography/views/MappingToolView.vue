@@ -32,37 +32,19 @@
             />
           </v-tabs-window-item>
           <v-tabs-window-item value="sites">
-            <SiteSearchPanel v-model="siteMarkers" @focus-site="map?.fitViewToSite" />
+            <SiteSearchPanel
+              v-model="singleSitesSelection"
+              @focus-site="
+                (site) => {
+                  const info = siteMarkers?.find((s) => s.code === site.code)
+                  if (info) map?.select({ type: 'site', info })
+                  map?.fitViewToSite(site)
+                }
+              "
+            />
           </v-tabs-window-item>
           <v-tabs-window-item value="config">
-            <v-list>
-              <ListItemInput
-                label="Save map configuration"
-                subtitle="Restore last map configuration on next visit"
-              >
-                <v-switch color="primary" hide-details />
-              </ListItemInput>
-              <CardDialog v-if="userStore.isGranted('Contributor')" title="Map presets">
-                <template #append>
-                  <v-switch
-                    v-if="userStore.isGranted('Maintainer')"
-                    v-model="showAllPresets"
-                    label="Maintainer view"
-                    hide-details
-                    color="warning"
-                    v-tooltip="'Display all registered presets'"
-                  />
-                </template>
-                <template #activator="{ props }">
-                  <v-list-item
-                    title="Manage presets"
-                    prepend-icon="mdi-folder-star-multiple"
-                    v-bind="props"
-                  />
-                </template>
-                <MapPresetManager :all="showAllPresets" />
-              </CardDialog>
-            </v-list>
+            <MapViewConfig v-model:markerOptions="markerOptions" />
           </v-tabs-window-item>
         </v-tabs-window>
       </div>
@@ -154,13 +136,15 @@
     <div class="fill-height w-100 d-flex flex-column">
       <v-progress-linear v-if="allPending" indeterminate color="warning" />
       <div :class="['fill-height w-100 position-relative']">
-        <BaseMap
+        <DeckGlMap
           ref="map"
           auto-fit
           :markers="siteMarkers"
           :hexgrid="hexgridLayer"
-          :bounds="mapBounds"
+          @toggle-hexgrid="(v) => (hexLayerSpec.active = v)"
+          @toggle-markers="(i, v) => (markerLayerSpecs[i].active = v)"
           :marker-layers
+          :marker-options
         >
           <!-- <LControl v-if="isRefetching || isFetching" position="topleft">
             <v-progress-circular
@@ -181,50 +165,95 @@
           <!-- <LControl position="topright" v-if="sites">
             <v-btn icon="mdi-shape-polygon-plus" @click="togglePolygonMode(true)"></v-btn>
           </LControl> -->
-          <template #hex-popup="{ data }">
-            <MapViewHexPopup :data />
+          <template #cluster-popup="{ data }">
+            <SiteClusterPopup :data />
           </template>
-          <template #popup="{ item, popupOpen, zoom }">
+          <template #popup="{ item }">
             <KeepAlive>
-              <MapViewSitePopup :item="item" :popupOpen="popupOpen" :zoom="zoom" :key="item.code" />
+              <SingleSitePopup :item="item" :key="item.code">
+                <template #append-items="{ item }">
+                  <v-divider />
+                  <OccurrenceListDialog
+                    :occurrences="
+                      item.samplings.flatMap((s) =>
+                        s.occurrences.map((o) => ({ ...o, sampling_date: s.date }))
+                      )
+                    "
+                    :with-site="false"
+                    :max-width="1200"
+                  >
+                    <template #activator="{ props }">
+                      <v-list-item v-bind="props" title="Occurrences">
+                        <template #append>
+                          <v-badge
+                            inline
+                            :content="
+                              item.samplings.reduce((sum, s) => sum + s.occurrences.length, 0)
+                            "
+                            color="success"
+                          />
+                        </template>
+                      </v-list-item>
+                    </template>
+                  </OccurrenceListDialog>
+                  <SamplingTableDialog
+                    :samplings="item.samplings"
+                    :with-site="false"
+                    :max-width="1200"
+                  >
+                    <template #activator="{ props }">
+                      <v-list-item
+                        title="Sampling events"
+                        :subtitle="`Last visit: ${item.last_visited ? DateWithPrecision.format(item.last_visited) : item.samplings.length ? 'Unknown' : 'Never'}`"
+                        v-bind="props"
+                      >
+                        <template #append>
+                          <v-badge inline :content="item.samplings.length" color="warning" />
+                        </template>
+                      </v-list-item>
+                    </template>
+                  </SamplingTableDialog>
+                </template>
+              </SingleSitePopup>
             </KeepAlive>
           </template>
-        </BaseMap>
+        </DeckGlMap>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import BaseMap from '@/features/cartography/components/BaseMap.vue'
+import DeckGlMap, { MarkerOptions } from '@/features/cartography/components/DeckGlMap.vue'
 
-import { SiteItem, SiteWithOccurrences } from '@/api'
-import CardDialog from '@/components/toolkit/ui/CardDialog.vue'
-import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
-import { useScaleBinding } from '@/composables/occurrences'
+import { DateWithPrecision, SiteItem, SiteSamplingStatus, SiteWithOccurrences } from '@/api'
 import {
-  HexgridLayer,
+  HexgridLayerDeck,
   HexLayerSpec,
   makeHexLayer,
   MarkerLayer,
   MarkerLayerSpec
 } from '@/features/cartography/components/layers-manager/map-layers'
 import MapPresetLoadDialog from '@/features/cartography/components/map-presets/MapPresetLoadDialog.vue'
-import MapPresetManager from '@/features/cartography/components/map-presets/MapPresetManager.vue'
 import MapPresetSaveDialog from '@/features/cartography/components/map-presets/MapPresetSaveDialog.vue'
-import MapViewHexPopup from '@/features/cartography/components/popups/MapViewHexPopup.vue'
-import MapViewSitePopup from '@/features/cartography/components/popups/MapViewSitePopup.vue'
-import { palette } from '@/lib/color_brewer'
+import OccurrenceListDialog from '@/features/occurrences/components/OccurrenceListDialog.vue'
+import SamplingTableDialog from '@/features/occurrences/components/SamplingTableDialog.vue'
+import { paletteRGB } from '@/lib/color_brewer'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
-import { useClipboard, useLocalStorage, useToggle } from '@vueuse/core'
-import { LatLngExpression } from 'leaflet'
+import { computedWithControl, useClipboard, useLocalStorage, useToggle } from '@vueuse/core'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
 import { computed, ref, useTemplateRef } from 'vue'
+import { ComponentExposed } from 'vue-component-type-helpers'
 import { useRoute } from 'vue-router'
 import { useLayerData } from '../components/layers-manager/layer-data'
 import LayersManager from '../components/layers-manager/LayersManager.vue'
-import SiteSearchPanel from '../components/SiteSearchPanel.vue'
+import MapViewConfig from '../components/MapViewConfig.vue'
+import SingleSitePopup from '../components/popups/SingleSitePopup.vue'
+import SiteClusterPopup from '../components/popups/SiteClusterPopup.vue'
+import SiteSearchPanel, { SiteItemWithColor } from '../components/SiteSearchPanel.vue'
+import { useQuery } from '@tanstack/vue-query'
+import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 
 const route = useRoute()
 
@@ -234,26 +263,45 @@ function getSpecQueryValue() {
 }
 
 const initialSpecs = computed(() => {
-  const b64specs = getSpecQueryValue()
-  if (!b64specs) return
+  const encodedSpecs = getSpecQueryValue()
+  if (!encodedSpecs) return
   try {
-    const decoded = decompressFromEncodedURIComponent(b64specs)
+    const decoded = decompressFromEncodedURIComponent(encodedSpecs)
     return JSON.parse(decoded)
   } catch (e) {
     console.error('Failed to parse layer specs from URL', e)
   }
 })
 
-const siteMarkers = ref<SiteItem[]>([])
-const mapBounds = ref<[LatLngExpression, LatLngExpression]>()
-
-const showAllPresets = ref(false)
+const singleSitesSelection = ref<SiteItemWithColor[]>([])
+const singleSites = useQuery(
+  computed(() => {
+    return {
+      enabled: singleSitesSelection.value.length > 0,
+      ...occurrencesBySiteOptions({
+        body: {
+          site_codes: singleSitesSelection.value.map((s) => s.code),
+          sampling_target: {}
+        }
+      })
+    }
+  })
+)
+const siteMarkers = computed(() => {
+  if (!singleSitesSelection.value?.length) return []
+  const colorMap = new Map(singleSitesSelection.value.map((s) => [s.code, s.color]))
+  return singleSites.data.value?.map((site) => ({
+    ...site,
+    color: colorMap.get(site.code)
+  }))
+})
 
 const drawerPinned = useLocalStorage('mapping-tool-drawer-pinned', false, {
   initOnMounted: true
 })
 
-const map = useTemplateRef('map')
+type DeckGlMapExposed = ComponentExposed<typeof DeckGlMap>
+const map = useTemplateRef<DeckGlMapExposed>('map')
 const userStore = useUserStore()
 
 const [drawer, toggleDrawer] = useToggle(false)
@@ -268,28 +316,41 @@ function toggleTab(newTab: MappingToolTab) {
 }
 
 const { feedback } = useFeedback()
-
+const markerOptions = useLocalStorage<MarkerOptions>('mapping-tool-marker-options', {
+  cluster: {
+    radiusScaleFactor: 0.5,
+    labelZoomThreshold: 8
+  },
+  tooltips: true
+})
 const hexLayerSpec = ref<HexLayerSpec>(initialSpecs.value?.hexgrid ?? makeHexLayer())
 const markerLayerSpecs = ref<MarkerLayerSpec[]>(initialSpecs.value?.markers ?? [])
 
 const { allPending, anyLoading, layerData, data } = useLayerData()
 
-const hexgridLayer = computed<HexgridLayer<SiteWithOccurrences>>(() => {
-  const { id, name, active, config, bindings } = hexLayerSpec.value
+function applySiteFilter(sites: SiteWithOccurrences[] | undefined, filter: SiteSamplingStatus) {
+  if (filter === 'Sampled') {
+    return sites?.filter((site) => site.samplings.length > 0)
+  } else if (filter === 'Occurrences') {
+    return sites?.filter((site) => site.samplings.some((s) => s.occurrences.length > 0))
+  } else {
+    return sites
+  }
+}
+
+const hexgridLayer = computed<HexgridLayerDeck<SiteWithOccurrences>>(() => {
+  console.debug('Recomputing hexgrid layer with spec', hexLayerSpec.value)
+  const { id, name, active, config, colorBinding, include_sites } = hexLayerSpec.value
   const remote = data.get(id)
   return {
     name,
     active,
     config: {
       ...config,
-      colorRange: palette(config.colorRange ?? 'Viridis')
+      colorRange: paletteRGB(config.colorRange ?? 'Viridis')
     },
-    bindings: {
-      radius: useScaleBinding(bindings.radius),
-      color: useScaleBinding(bindings.color),
-      opacity: useScaleBinding(bindings.opacity)
-    },
-    data: remote?.data.value
+    colorBinding,
+    data: applySiteFilter(remote?.data.value, include_sites)
   }
 })
 
@@ -300,8 +361,8 @@ const markerLayers = computed<MarkerLayer<SiteWithOccurrences>[]>(() => {
       name: layer.name,
       config: layer.config,
       active: layer.active,
-      clustered: false,
-      data: remote?.data.value
+      clustered: layer.clustered,
+      data: applySiteFilter(remote?.data.value, layer.include_sites)
     }
   })
 })
@@ -313,7 +374,6 @@ function encodeLayerSpecs() {
     hexgrid: hexLayerSpec.value,
     markers: markerLayerSpecs.value
   }
-  console.log(compressToEncodedURIComponent(JSON.stringify(specs)))
   return compressToEncodedURIComponent(JSON.stringify(specs))
 }
 

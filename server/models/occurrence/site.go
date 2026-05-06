@@ -182,6 +182,7 @@ func (site *Site) AddAbioticMeasurement(db geltypes.Executor, measurements Abiot
 }
 
 type ListSitesOptions struct {
+	SiteCodes []string `json:"site_codes,omitempty" query:"site_codes"`
 	Datasets  []string `json:"datasets,omitempty" query:"datasets"`
 	Countries []string `json:"countries,omitempty" query:"countries"`
 	// Sampled bool `json:"sampled,omitempty" query:"sampled"`
@@ -196,15 +197,20 @@ func ListSites(db geltypes.Executor, options ListSitesOptions) ([]SiteItem, erro
 	opts, _ := json.Marshal(options)
 	err := db.Query(context.Background(),
 		`#edgeql
-			with opts := <json>$0,
-      countries := <str>json_array_unpack(json_get(opts, 'countries'))
+		with opts := <json>$0,
+		site_code := <str>json_array_unpack(json_get(opts, 'site_codes')),
+		countries := <str>json_array_unpack(json_get(opts, 'countries')),
 			select location::Site {
 				*,
 				meta: { * },
 				country: { * },
 			}
-			filter (not exists countries) or (.country.code in countries)
-    `,
+			filter (
+				(not exists countries) or (.country.code in countries)
+			) and (
+				(not exists site_code) or (.code in site_code)
+			)
+    	`,
 		&sites, opts)
 	return sites, err
 }

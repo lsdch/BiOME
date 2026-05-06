@@ -1,5 +1,5 @@
 <template>
-  <v-list-item :title="label" :subtitle>
+  <v-list-item :title="label" :subtitle :lines>
     <template #append>
       <slot></slot>
     </template>
@@ -10,6 +10,7 @@
 const { label } = defineProps<{
   label?: string
   subtitle?: string
+  lines?: false | 'one' | 'two' | 'three'
 }>()
 </script>
 

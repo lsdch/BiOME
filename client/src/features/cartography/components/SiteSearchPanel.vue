@@ -32,11 +32,11 @@ import { computed, reactive, ref } from 'vue'
 
 const site = ref<SiteWithDistance | SiteWithScore>()
 
-type SelectedSite = SiteItem & {
+export type SiteItemWithColor = SiteItem & {
   color?: string
 }
 
-const sites = defineModel<SelectedSite[]>({ default: reactive([]) })
+const sites = defineModel<SiteItemWithColor[]>({ default: reactive([]) })
 
 const siteColors = computed(() => {
   return new Set(sites.value.map((s, i) => s.color))

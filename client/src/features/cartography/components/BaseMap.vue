@@ -106,10 +106,6 @@
 
       <LControlLayers hide-single-base />
 
-      <LControl position="topleft" :options="{}" v-if="hexgrid.active && hexgridColorRange?.length">
-        <MapColorLegend class="mx-3" :range="hexgridColorRange" />
-      </LControl>
-
       <l-tile-layer
         :subdomains="['server', 'services']"
         url="https://{s}.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
@@ -143,7 +139,7 @@
         :opacity="hexgrid.bindings?.opacity ? hexgrid.config.opacityRange : hexgrid.config.opacity"
         :hover-fill="hexgrid.config.hover.fill"
         :hover-scale="hexgrid.config.hover.useScale ? hexgrid.config.hover.scale : undefined"
-        :color-range="hexgrid.config.colorRange"
+        :color-range="hexgrid.config.colorRange?.map(RGBtoHex)"
         style="cursor: pointer"
         :color-binding="hexgrid.bindings?.color"
         :opacity-binding="hexgrid.bindings?.opacity"
@@ -323,6 +319,7 @@ import { Coordinates, CoordinatesPrecision } from '@/api'
 import MapColorLegend from '@/features/cartography/components/MapColorLegend.vue'
 import { vElementVisibility } from '@vueuse/components'
 import { HexgridLayer, MarkerLayer } from './layers-manager/map-layers'
+import { RGBtoHex } from 'vuetify/lib/util/colorUtils.mjs'
 
 export type HexPopupData<Item> = {
   data: Item

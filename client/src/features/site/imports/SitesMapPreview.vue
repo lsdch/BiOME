@@ -32,7 +32,7 @@
 </template>
 
 <script setup lang="ts">
-import { Geocoordinates } from '@/features/cartography/components'
+import { Geocoordinates } from '@/features/cartography/coordinates'
 import BaseMap from '@/features/cartography/components/BaseMap.vue'
 import { LPopup } from '@vue-leaflet/vue-leaflet'
 import { computed } from 'vue'

@@ -59,7 +59,7 @@
 <script setup lang="tsx">
 import { DateWithPrecision, SiteWithOccurrences } from '@/api'
 import CountryChip from '@/features/site/components/CountryChip'
-import SitePopup from '@/features/site/components/SitePopup.vue'
+import SitePopup from '@/features/cartography/components/popups/SitePopup.vue'
 import { RouterLink } from 'vue-router'
 import OccurrenceListDialog from '@/features/occurrences/components/OccurrenceListDialog.vue'
 import SamplingTableDialog from '@/features/occurrences/components/SamplingTableDialog.vue'

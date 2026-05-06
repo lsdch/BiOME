@@ -1,15 +1,17 @@
-import { ScaleBindingSpec } from '@/composables/occurrences'
+import { HabitatRecord, OccurrencesBySiteData } from '@/api'
+import { ScaleBindingSpec } from '@/features/cartography/bindings'
 import { Geocoordinates } from '@/features/cartography/coordinates'
 import { brewerPalettes, withOpacity } from '@/lib/color_brewer'
+import { WithRequired } from '@tanstack/vue-query'
 import { UUID } from 'crypto'
 import { CircleMarkerOptions } from 'leaflet'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
 import { ScaleBinding } from 'vue-leaflet-hexbin'
-import { HabitatRecord, OccurrencesBySiteData } from '@/api'
+import { RGB } from 'vuetify/lib/util/colorUtils.mjs'
 
-export type MappingFilters = Overwrite<
-  NonNullable<OccurrencesBySiteData['query']>,
-  { habitats?: HabitatRecord[] }
+export type MappingFilters = WithRequired<
+  Overwrite<NonNullable<OccurrencesBySiteData['body']>, { habitats?: HabitatRecord[] }>,
+  'sampling_target'
 >
 
 /**
@@ -25,15 +27,12 @@ export type BaseLayerSpec = {
   name?: string
   active: boolean
   filters: MappingFilters
+  include_sites: SitesFilter
 }
 
 export type HexLayerSpec = BaseLayerSpec & {
   type: 'hexgrid'
-  bindings: {
-    color?: ScaleBindingSpec
-    radius?: ScaleBindingSpec
-    opacity?: ScaleBindingSpec
-  }
+  colorBinding: Required<ScaleBindingSpec>
   config: HexgridConfigSpec
 }
 
@@ -58,7 +57,7 @@ export type LayerSpec = BaseLayerSpec &
       }
   )
 
-const markerColorPalette = [
+export const markerColorPalette = [
   '#e41a1c',
   '#377eb8',
   '#4daf4a',
@@ -85,7 +84,11 @@ export function makeMarkerLayer(): MarkerLayerSpec {
   const baseLayer: BaseLayerSpec = {
     id: crypto.randomUUID(),
     active: true,
-    filters: {}
+    include_sites: 'Occurrences',
+    filters: {
+      sampling_target: {},
+      include_sites: 'Occurrences'
+    }
   }
   const markerColor = nextMarkerColor()
 
@@ -95,7 +98,7 @@ export function makeMarkerLayer(): MarkerLayerSpec {
     clustered: false,
     ready: false,
     config: {
-      radius: 8,
+      radius: 5,
       weight: 2,
       color: withOpacity(markerColor, 0.8),
       fillColor: withOpacity(markerColor, 0.3)
@@ -106,23 +109,26 @@ export function makeMarkerLayer(): MarkerLayerSpec {
 export function makeHexLayer(): HexLayerSpec {
   const baseLayer: BaseLayerSpec = {
     id: crypto.randomUUID(),
+    include_sites: 'Occurrences',
     active: true,
-    filters: {}
+    filters: {
+      sampling_target: {},
+      include_sites: 'Occurrences'
+    }
   }
 
   return {
     ...baseLayer,
     type: 'hexgrid',
     config: {
-      radius: 10,
+      radius: 50,
       opacity: 0.8,
-      hover: {}
+      strokeWidth: 1,
+      strokeOpacity: 1,
+      hover: {},
+      coverage: 0.95
     },
-    bindings: {
-      color: { log: false, binding: 'occurrences' },
-      opacity: { log: false },
-      radius: { log: false }
-    }
+    colorBinding: { log: false, binding: 'occurrences' }
   }
 }
 
@@ -175,7 +181,7 @@ export type HexgridScaleBindings<Item> = {
 export type HexgridConfig = {
   radius: number
   radiusRange?: [number, number]
-  colorRange?: string[]
+  colorRange?: RGB[]
   hover: {
     fill?: boolean
     useScale?: boolean
@@ -183,6 +189,9 @@ export type HexgridConfig = {
   }
   opacity: number
   opacityRange?: [number, number]
+  strokeWidth?: number
+  strokeOpacity?: number
+  coverage?: number
 }
 
 /**
@@ -206,4 +215,15 @@ export type HexgridLayer<Item extends Geocoordinates> = {
   config: HexgridConfig
   data?: Item[]
   bindings: HexgridScaleBindings<Item>
+}
+
+/**
+ * Type representing a hexgrid layer in the map.
+ */
+export type HexgridLayerDeck<Item extends Geocoordinates> = {
+  name?: string
+  active: boolean
+  config: HexgridConfig
+  data?: Item[]
+  colorBinding: Required<ScaleBindingSpec>
 }

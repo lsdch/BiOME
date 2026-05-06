@@ -1570,22 +1570,13 @@ export class OccurrencesService {
    * Occurrences by site
    */
   public static occurrencesBySite<ThrowOnError extends boolean = false>(
-    options?: Options<OccurrencesBySiteData, ThrowOnError>
+    options: Options<OccurrencesBySiteData, ThrowOnError>
   ) {
-    return (options?.client ?? client).get<
+    return (options.client ?? client).post<
       OccurrencesBySiteResponses,
       OccurrencesBySiteErrors,
       ThrowOnError
     >({
-      querySerializer: {
-        parameters: {
-          datasets: { array: { explode: false } },
-          countries: { array: { explode: false } },
-          taxa: { array: { explode: false } },
-          habitats: { array: { explode: false } },
-          sampling_target_taxa: { array: { explode: false } }
-        }
-      },
       responseTransformer: occurrencesBySiteResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
@@ -1596,7 +1587,11 @@ export class OccurrencesService {
         }
       ],
       url: '/occurrences/by-site',
-      ...options
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
     })
   }
 
@@ -2808,6 +2803,7 @@ export class LocationService {
     return (options?.client ?? client).get<ListSitesResponses, ListSitesErrors, ThrowOnError>({
       querySerializer: {
         parameters: {
+          site_codes: { array: { explode: false } },
           datasets: { array: { explode: false } },
           countries: { array: { explode: false } }
         }

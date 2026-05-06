@@ -12,6 +12,15 @@ const config: Promise<UserConfig> = defineConfig({
       readWrite: {
         enabled: false
       }
+    },
+    hooks: {
+      operations: {
+        isQuery(op) {
+          if (op.method === 'post' && op.path === '/occurrences/by-site') {
+            return true
+          }
+        }
+      }
     }
   },
   plugins: [

@@ -2251,13 +2251,13 @@ export const occurrencesDateRangeOptions = (options?: Options<OccurrencesDateRan
     queryKey: occurrencesDateRangeQueryKey(options)
   })
 
-export const occurrencesBySiteQueryKey = (options?: Options<OccurrencesBySiteData>) =>
+export const occurrencesBySiteQueryKey = (options: Options<OccurrencesBySiteData>) =>
   createQueryKey('occurrencesBySite', options)
 
 /**
  * Occurrences by site
  */
-export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData>) =>
+export const occurrencesBySiteOptions = (options: Options<OccurrencesBySiteData>) =>
   queryOptions<
     OccurrencesBySiteResponse,
     OccurrencesBySiteError,
@@ -2275,6 +2275,33 @@ export const occurrencesBySiteOptions = (options?: Options<OccurrencesBySiteData
     },
     queryKey: occurrencesBySiteQueryKey(options)
   })
+
+/**
+ * Occurrences by site
+ */
+export const occurrencesBySiteMutation = (
+  options?: Partial<Options<OccurrencesBySiteData>>
+): UseMutationOptions<
+  OccurrencesBySiteResponse,
+  OccurrencesBySiteError,
+  Options<OccurrencesBySiteData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    OccurrencesBySiteResponse,
+    OccurrencesBySiteError,
+    Options<OccurrencesBySiteData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await OccurrencesService.occurrencesBySite({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
 
 export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) =>
   createQueryKey('occurrenceOverview', options)
