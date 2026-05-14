@@ -6,7 +6,7 @@
       v-model="drawer"
       :temporary="!drawerPinned"
     >
-      <div class="fill-height d-flex flex-column"">
+      <div class="fill-height d-flex flex-column">
         <v-tabs v-model="tab" class="flex-shrink-0">
           <v-tab value="layers" prepend-icon="mdi-layers"> Layers </v-tab>
           <v-tab value="sites" prepend-icon="mdi-map-marker"> Sites </v-tab>
@@ -318,7 +318,7 @@ type LayerSpecs = {
 
 const layerSpecs = useSessionStorage<LayerSpecs>('map-tool-layer-specs', {
   hexgrid: makeHexLayer(),
-  markers:  []
+  markers: []
 })
 
 const { allPending, anyLoading, layerData, data } = useLayerData()
@@ -335,7 +335,8 @@ function applySiteFilter(sites: SiteWithOccurrences[] | undefined, filter: SiteS
 
 const hexgridLayer = computed<HexgridLayerDeck<SiteWithOccurrences>>(() => {
   console.debug('Recomputing hexgrid layer with spec', layerSpecs.value.hexgrid)
-  const { id, name, active, config, colorBinding, include_sites, markers } = layerSpecs.value.hexgrid
+  const { id, name, active, config, colorBinding, include_sites, markers } =
+    layerSpecs.value.hexgrid
   const remote = data.get(id)
   return {
     name,
