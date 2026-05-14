@@ -8,6 +8,7 @@
       v-for="(site, index) in sites"
       :key="site.code"
       :title="site.name ?? site.code"
+      :subtitle="site.name ? site.code : undefined"
       @click="emit('focusSite', site)"
     >
       <template #append>

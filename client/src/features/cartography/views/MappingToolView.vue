@@ -9,7 +9,16 @@
       <div class="fill-height d-flex flex-column">
         <v-tabs v-model="tab" class="flex-shrink-0">
           <v-tab value="layers" prepend-icon="mdi-layers"> Layers </v-tab>
-          <v-tab value="sites" prepend-icon="mdi-map-marker"> Sites </v-tab>
+          <v-tab value="sites" prepend-icon="mdi-map-marker">
+            Sites
+            <v-badge
+              v-if="layerSpecs.sites?.length"
+              :content="layerSpecs.sites.length"
+              color="primary"
+              inline
+              class="ml-1"
+            />
+          </v-tab>
           <v-tab value="config">
             <v-icon icon="mdi-cog" />
           </v-tab>
@@ -33,7 +42,7 @@
           </v-tabs-window-item>
           <v-tabs-window-item value="sites">
             <SiteSearchPanel
-              v-model="singleSitesSelection"
+              v-model="layerSpecs.sites"
               @focus-site="
                 (site) => {
                   const info = siteMarkers?.find((s) => s.code === site.code)
@@ -44,7 +53,7 @@
             />
           </v-tabs-window-item>
           <v-tabs-window-item value="config">
-            <MapViewConfig v-model:markerOptions="markerOptions" />
+            <MapViewConfig v-model:save-layers="saveLayers" v-model:markerOptions="markerOptions" />
           </v-tabs-window-item>
         </v-tabs-window>
       </div>
@@ -248,7 +257,7 @@ import { useUserStore } from '@/stores/user'
 import { useQuery } from '@tanstack/vue-query'
 import { useClipboard, useLocalStorage, useSessionStorage, useToggle } from '@vueuse/core'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
-import { computed, onMounted, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useRoute } from 'vue-router'
 import { useLayerData } from '../components/layers-manager/layer-data'
@@ -260,14 +269,48 @@ import SiteSearchPanel, { SiteItemWithColor } from '../components/SiteSearchPane
 
 const route = useRoute()
 
-const singleSitesSelection = ref<SiteItemWithColor[]>([])
+type LayerSpecs = {
+  hexgrid: HexLayerSpec
+  markers: MarkerLayerSpec[]
+  sites: SiteItemWithColor[]
+}
+
+const layerSpecs = useSessionStorage<LayerSpecs>(
+  'mapping-tool-layer-specs',
+  {
+    hexgrid: makeHexLayer(),
+    markers: [],
+    sites: []
+  },
+  { mergeDefaults: true, deep: true }
+)
+
+const saveLayers = useLocalStorage('mapping-tool-save-layers', false, {})
+const markerOptions = useLocalStorage<GlobalMarkerOptions>('mapping-tool-marker-options', {
+  cluster: {
+    radiusScaleFactor: 0.5,
+    labelZoomThreshold: 8
+  },
+  tooltips: true
+})
+
+watch(
+  () => [layerSpecs.value, saveLayers.value],
+  ([newSpecs, saveLayersValue]) => {
+    if (saveLayersValue) {
+      localStorage.setItem('mapping-tool-layer-specs', JSON.stringify(newSpecs))
+    }
+  },
+  { deep: true }
+)
+
 const singleSites = useQuery(
   computed(() => {
     return {
-      enabled: singleSitesSelection.value.length > 0,
+      enabled: layerSpecs.value.sites.length > 0,
       ...occurrencesBySiteOptions({
         body: {
-          site_codes: singleSitesSelection.value.map((s) => s.code),
+          site_codes: layerSpecs.value.sites.map((s) => s.code),
           sampling_target: {}
         }
       })
@@ -275,8 +318,8 @@ const singleSites = useQuery(
   })
 )
 const siteMarkers = computed(() => {
-  if (!singleSitesSelection.value?.length) return []
-  const colorMap = new Map(singleSitesSelection.value.map((s) => [s.code, s.color]))
+  if (!layerSpecs.value.sites?.length) return []
+  const colorMap = new Map(layerSpecs.value.sites.map((s) => [s.code, s.color]))
   return singleSites.data.value?.map((site) => ({
     ...site,
     color: colorMap.get(site.code)
@@ -303,27 +346,6 @@ function toggleTab(newTab: MappingToolTab) {
 }
 
 const { feedback } = useFeedback()
-const markerOptions = useLocalStorage<GlobalMarkerOptions>('mapping-tool-marker-options', {
-  cluster: {
-    radiusScaleFactor: 0.5,
-    labelZoomThreshold: 8
-  },
-  tooltips: true
-})
-
-type LayerSpecs = {
-  hexgrid: HexLayerSpec
-  markers: MarkerLayerSpec[]
-}
-
-const layerSpecs = useSessionStorage<LayerSpecs>(
-  'map-tool-layer-specs',
-  {
-    hexgrid: makeHexLayer(),
-    markers: []
-  },
-  { mergeDefaults: true, deep: true }
-)
 
 const { allPending, anyLoading, layerData, data } = useLayerData()
 
@@ -382,12 +404,22 @@ function getSpecQueryValue() {
 
 onMounted(() => {
   const encodedSpecs = getSpecQueryValue()
-  if (!encodedSpecs) return
-  try {
-    const decoded = decompressFromEncodedURIComponent(encodedSpecs)
-    layerSpecs.value = JSON.parse(decoded)
-  } catch (e) {
-    console.error('Failed to parse layer specs from URL', e)
+  if (encodedSpecs) {
+    try {
+      const decoded = decompressFromEncodedURIComponent(encodedSpecs)
+      layerSpecs.value = JSON.parse(decoded)
+    } catch (e) {
+      console.error('Failed to parse layer specs from URL', e)
+    }
+  } else if (saveLayers.value) {
+    const savedSpecs = localStorage.getItem('mapping-tool-layer-specs')
+    if (savedSpecs) {
+      try {
+        layerSpecs.value = JSON.parse(savedSpecs)
+      } catch (e) {
+        console.error('Failed to parse saved layer specs from localStorage', e)
+      }
+    }
   }
 })
 </script>

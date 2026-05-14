@@ -39,10 +39,10 @@
     <v-divider></v-divider>
     <v-list-subheader title="Presets"> </v-list-subheader>
     <ListItemInput
-      label="Save map configuration"
-      subtitle="Restore last map configuration on next visit"
+      label="Save map layers"
+      subtitle="Restore map layers configuration on next visit"
     >
-      <v-switch color="primary" hide-details />
+      <v-switch v-model="saveLayers" color="primary" hide-details />
     </ListItemInput>
     <CardDialog v-if="userStore.isGranted('Contributor')" title="Map presets">
       <template #append>
@@ -86,6 +86,8 @@ const markerOptions = defineModel<GlobalMarkerOptions>('markerOptions', {
     tooltips: true
   })
 })
+
+const saveLayers = defineModel<boolean>('saveLayers', { default: false })
 
 const showAllPresets = ref(false)
 </script>
