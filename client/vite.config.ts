@@ -4,12 +4,15 @@ import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { exec } from 'node:child_process'
 import { defineConfig, loadEnv } from 'vite'
-import mkcert from "vite-plugin-mkcert"
+import mkcert from 'vite-plugin-mkcert'
 import vuetify from 'vite-plugin-vuetify'
+import os from 'os'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
+  const hmrHost = env.VITE_HMR_HOST || os.hostname()
+
   return {
     optimizeDeps: {
       exclude: ['leaflet.fullscreen'],
@@ -22,19 +25,24 @@ export default defineConfig(({ mode }) => {
     server: {
       host: true,
       allowedHosts: env.VITE_ALLOWED_HOSTS?.split(','),
+      hmr: {
+        host: hmrHost,
+        protocol: 'wss',
+        port: 5173
+      },
       proxy: {
         // redirects API calls made on the client host towards the API server
         '^/api': {
-          target: "http://localhost:8080",
+          target: 'http://localhost:8080',
           changeOrigin: true
         },
-        "^/assets": {
-          target: "http://localhost:8080",
+        '^/assets': {
+          target: 'http://localhost:8080',
           changeOrigin: true
         }
       },
       watch: {
-        awaitWriteFinish: true,
+        awaitWriteFinish: true
         // ignored: path.resolve("openapi.json")
       }
     },
@@ -42,7 +50,7 @@ export default defineConfig(({ mode }) => {
       vue({
         template: {
           compilerOptions: {
-            isCustomElement: (tag) => ["elements-api"].includes(tag)
+            isCustomElement: (tag) => ['elements-api'].includes(tag)
           }
         }
       }),
@@ -50,10 +58,10 @@ export default defineConfig(({ mode }) => {
       vueJsx(),
       mkcert(),
       {
-        name: "openAPI-gen",
+        name: 'openAPI-gen',
         handleHotUpdate({ file, server }) {
           if (file.endsWith('openapi.json')) {
-            console.log("📃 OpenAPI spec written")
+            console.log('📃 OpenAPI spec written')
             exec('pnpm run --silent gen-client', (error, stdout, stderr) => {
               console.log(stdout)
               console.error(stderr)
@@ -65,8 +73,8 @@ export default defineConfig(({ mode }) => {
             })
             return []
           }
-        },
-      },
+        }
+      }
       // Generate API client when OpenAPI spec changes
       // watchAndRun([
       //   {
