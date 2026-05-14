@@ -316,10 +316,14 @@ type LayerSpecs = {
   markers: MarkerLayerSpec[]
 }
 
-const layerSpecs = useSessionStorage<LayerSpecs>('map-tool-layer-specs', {
-  hexgrid: makeHexLayer(),
-  markers: []
-})
+const layerSpecs = useSessionStorage<LayerSpecs>(
+  'map-tool-layer-specs',
+  {
+    hexgrid: makeHexLayer(),
+    markers: []
+  },
+  { mergeDefaults: true, deep: true }
+)
 
 const { allPending, anyLoading, layerData, data } = useLayerData()
 
