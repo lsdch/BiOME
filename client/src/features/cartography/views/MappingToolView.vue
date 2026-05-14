@@ -248,7 +248,7 @@ import { useUserStore } from '@/stores/user'
 import { useQuery } from '@tanstack/vue-query'
 import { useClipboard, useLocalStorage, useSessionStorage, useToggle } from '@vueuse/core'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
-import { computed, ref, useTemplateRef } from 'vue'
+import { computed, onMounted, ref, useTemplateRef } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
 import { useRoute } from 'vue-router'
 import { useLayerData } from '../components/layers-manager/layer-data'
@@ -259,22 +259,6 @@ import SiteClusterPopup from '../components/popups/SiteClusterPopup.vue'
 import SiteSearchPanel, { SiteItemWithColor } from '../components/SiteSearchPanel.vue'
 
 const route = useRoute()
-
-function getSpecQueryValue() {
-  const value = route.query.h
-  return Array.isArray(value) ? value[0] : value
-}
-
-const initialSpecs = computed(() => {
-  const encodedSpecs = getSpecQueryValue()
-  if (!encodedSpecs) return
-  try {
-    const decoded = decompressFromEncodedURIComponent(encodedSpecs)
-    return JSON.parse(decoded)
-  } catch (e) {
-    console.error('Failed to parse layer specs from URL', e)
-  }
-})
 
 const singleSitesSelection = ref<SiteItemWithColor[]>([])
 const singleSites = useQuery(
@@ -333,8 +317,8 @@ type LayerSpecs = {
 }
 
 const layerSpecs = useSessionStorage<LayerSpecs>('map-tool-layer-specs', {
-  hexgrid: initialSpecs.value?.hexgrid ?? makeHexLayer(),
-  markers: initialSpecs.value?.markers ?? []
+  hexgrid: makeHexLayer(),
+  markers:  []
 })
 
 const { allPending, anyLoading, layerData, data } = useLayerData()
@@ -385,6 +369,22 @@ function share() {
   copy(url)
   feedback({ message: 'Map configuration URL copied to clipboard', type: 'success' })
 }
+
+function getSpecQueryValue() {
+  const value = route.query.h
+  return Array.isArray(value) ? value[0] : value
+}
+
+onMounted(() => {
+  const encodedSpecs = getSpecQueryValue()
+  if (!encodedSpecs) return
+  try {
+    const decoded = decompressFromEncodedURIComponent(encodedSpecs)
+    layerSpecs.value = JSON.parse(decoded)
+  } catch (e) {
+    console.error('Failed to parse layer specs from URL', e)
+  }
+})
 </script>
 
 <style lang="scss">
