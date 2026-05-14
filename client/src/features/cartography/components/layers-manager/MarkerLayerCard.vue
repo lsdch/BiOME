@@ -49,7 +49,7 @@
           </v-card>
         </v-menu>
         <v-progress-circular
-          v-if="remote.isPending.value"
+          v-if="layer.ready && remote.isPending.value"
           indeterminate
           size="small"
           color="warning"
@@ -146,14 +146,17 @@ const emit = defineEmits<{
 const { registerLayer } = useLayerData()
 
 const remote = useQuery(
-  computed(() =>
-    occurrencesBySiteOptions({
-      body: {
-        ...layer.value.filters,
-        habitats: layer.value.filters.habitats?.map(({ label }) => label)
-      }
-    })
-  )
+  computed(() => {
+    return {
+      enabled: layer.value.ready,
+      ...occurrencesBySiteOptions({
+        body: {
+          ...layer.value.filters,
+          habitats: layer.value.filters.habitats?.map(({ label }) => label)
+        }
+      })
+    }
+  })
 )
 
 onMounted(() => {
