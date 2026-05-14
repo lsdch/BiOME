@@ -2,17 +2,24 @@
   <HexLayerCard :layer="hexLayer" flat class="ma-1" />
   <v-divider :thickness="5"></v-divider>
   <v-toolbar density="compact" class="bg-surface">
-    <template #prepend>
-      <v-btn
-        prepend-icon="mdi-delete"
-        text="Delete marker layers"
-        variant="text"
-        color="primary"
-        rounded="md"
-        size="small"
-        class="text-label-small"
-        @click="markerLayers.splice(0, markerLayers.length)"
-      ></v-btn>
+    <template #prepend v-if="!!markerLayers.length">
+      <ConfirmDialog
+        title="Delete all marker layers?"
+        @confirm="markerLayers.splice(0, markerLayers.length)"
+      >
+        <template #activator="{ props }">
+          <v-btn
+            v-bind="props"
+            prepend-icon="mdi-delete"
+            text="Delete marker layers"
+            variant="text"
+            color="primary"
+            rounded="md"
+            size="small"
+            class="text-label-small"
+          ></v-btn>
+        </template>
+      </ConfirmDialog>
     </template>
 
     <template #append>
@@ -82,6 +89,7 @@ import { VueDraggable } from 'vue-draggable-plus'
 import { HexLayerSpec, makeHexLayer, makeMarkerLayer, MarkerLayerSpec } from './map-layers'
 import MarkerLayerCard from './MarkerLayerCard.vue'
 import HexLayerCard from './HexLayerCard.vue'
+import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
 
 const hexLayer = defineModel<HexLayerSpec>('hex-layer', {
   default: () => {
