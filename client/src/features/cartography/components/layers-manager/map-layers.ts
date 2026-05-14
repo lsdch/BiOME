@@ -1,4 +1,4 @@
-import { HabitatRecord, OccurrencesBySiteData } from '@/api'
+import { HabitatRecord, OccurrencesBySiteData, SiteItem } from '@/api'
 import { ScaleBindingSpec } from '@/features/cartography/bindings'
 import { Geocoordinates } from '@/features/cartography/coordinates'
 import { brewerPalettes, withOpacity } from '@/lib/color_brewer'
@@ -34,6 +34,7 @@ export type HexLayerSpec = BaseLayerSpec & {
   type: 'hexgrid'
   colorBinding: Required<ScaleBindingSpec>
   config: HexgridConfigSpec
+  markers: MarkerLayerSpec & { minZoom: number }
 }
 
 export type MarkerLayerSpec = BaseLayerSpec & {
@@ -59,10 +60,10 @@ export type LayerSpec = BaseLayerSpec &
 
 export const markerColorPalette = [
   '#e41a1c',
-  '#377eb8',
   '#4daf4a',
   '#984ea3',
   '#ff7f00',
+  '#377eb8',
   '#ffff33',
   '#a65628',
   '#f781bf'
@@ -80,9 +81,10 @@ function createColorGenerator(palette: string[]) {
 
 const nextMarkerColor = createColorGenerator(markerColorPalette)
 
-export function makeMarkerLayer(): MarkerLayerSpec {
+export function makeMarkerLayer(name?: string): MarkerLayerSpec {
   const baseLayer: BaseLayerSpec = {
     id: crypto.randomUUID(),
+    name,
     active: true,
     include_sites: 'Occurrences',
     filters: {
@@ -103,6 +105,19 @@ export function makeMarkerLayer(): MarkerLayerSpec {
       color: withOpacity(markerColor, 0.8),
       fillColor: withOpacity(markerColor, 0.3)
     }
+  }
+}
+
+export function markerLayerFromSpec<Item extends Geocoordinates>(
+  spec: MarkerLayerSpec,
+  data?: Item[]
+): MarkerLayer<Item> {
+  return {
+    name: spec.name,
+    active: spec.active,
+    clustered: spec.clustered,
+    config: spec.config,
+    data
   }
 }
 
@@ -128,7 +143,8 @@ export function makeHexLayer(): HexLayerSpec {
       hover: {},
       coverage: 0.95
     },
-    colorBinding: { log: false, binding: 'occurrences' }
+    colorBinding: { log: false, binding: 'occurrences' },
+    markers: { ...makeMarkerLayer('hexgrid-markers'), minZoom: 8 }
   }
 }
 
@@ -226,4 +242,5 @@ export type HexgridLayerDeck<Item extends Geocoordinates> = {
   config: HexgridConfig
   data?: Item[]
   colorBinding: Required<ScaleBindingSpec>
+  markers: MarkerLayerSpec & { minZoom: number }
 }

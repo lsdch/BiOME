@@ -35,6 +35,7 @@
         <v-tabs v-model="tab" density="compact">
           <v-tab prepend-icon="mdi-database" value="data">Data</v-tab>
           <v-tab prepend-icon="mdi-hexagon-multiple-outline" value="layer">Style</v-tab>
+          <v-tab prepend-icon="mdi-circle-multiple-outline" value="markers">Markers</v-tab>
           <v-tab prepend-icon="mdi-chart-bar" value="stats" :disabled="remote.isFetching.value">
             Stats
           </v-tab>
@@ -55,6 +56,36 @@
           <v-tabs-window-item value="layer">
             <HexgridLayerStylePanel v-model="layer" />
           </v-tabs-window-item>
+          <v-tabs-window-item value="markers">
+            <MarkerLayerStylePanel v-model="layer.markers">
+              <template #prepend-item>
+                <v-list-subheader title="Markers can show up when zooming in on the hexgrid layer.">
+                </v-list-subheader>
+                <ListItemInput
+                  label="Zoom threshold"
+                  :subtitle="
+                    layer.markers.minZoom === 0
+                      ? 'Always'
+                      : layer.markers.minZoom === 18
+                        ? 'Never'
+                        : `Zoom ${layer.markers.minZoom}+`
+                  "
+                >
+                  <v-slider
+                    v-model="layer.markers.minZoom"
+                    :min="0"
+                    :max="18"
+                    :step="1"
+                    :width="250"
+                    hide-details
+                    thumb-label
+                  >
+                  </v-slider>
+                </ListItemInput>
+                <v-divider />
+              </template>
+            </MarkerLayerStylePanel>
+          </v-tabs-window-item>
           <v-tabs-window-item value="stats">
             <OccurrencesStats :sites="remote.data.value" />
           </v-tabs-window-item>
@@ -73,6 +104,7 @@
 
 <script setup lang="ts">
 import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
 import OccurrencesStats from '@/features/occurrences/components/OccurrencesStats.vue'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, onMounted, ref } from 'vue'
@@ -80,13 +112,14 @@ import HexgridLayerStylePanel from './HexgridLayerStylePanel.vue'
 import { useLayerData } from './layer-data'
 import LayerDataFeed from './LayerDataFeed.vue'
 import { HexLayerSpec } from './map-layers'
+import MarkerLayerStylePanel from './MarkerLayerStylePanel.vue'
 import SiteSamplingStatusFilter from './SiteSamplingStatusFilter.vue'
 
 const layer = defineModel<HexLayerSpec>('layer', { required: true })
 
 const title = computed(() => (layer.value.name?.length ? layer.value.name : 'Hexgrid layer'))
 
-const tab = ref<'data' | 'layer' | 'stats'>('data')
+const tab = ref<'data' | 'layer' | 'markers' | 'stats'>('data')
 
 const expanded = defineModel<boolean>('expanded', { default: false })
 

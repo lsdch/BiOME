@@ -6,8 +6,8 @@
       v-model="drawer"
       :temporary="!drawerPinned"
     >
-      <div class="fill-height d-flex flex-column">
-        <v-tabs v-model="tab">
+      <div class="fill-height d-flex flex-column"">
+        <v-tabs v-model="tab" class="flex-shrink-0">
           <v-tab value="layers" prepend-icon="mdi-layers"> Layers </v-tab>
           <v-tab value="sites" prepend-icon="mdi-map-marker"> Sites </v-tab>
           <v-tab value="config">
@@ -224,14 +224,16 @@
 </template>
 
 <script setup lang="ts">
-import DeckGlMap, { MarkerOptions } from '@/features/cartography/components/DeckGlMap.vue'
+import DeckGlMap, { GlobalMarkerOptions } from '@/features/cartography/components/DeckGlMap.vue'
 
-import { DateWithPrecision, SiteItem, SiteSamplingStatus, SiteWithOccurrences } from '@/api'
+import { DateWithPrecision, SiteSamplingStatus, SiteWithOccurrences } from '@/api'
+import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import {
   HexgridLayerDeck,
   HexLayerSpec,
   makeHexLayer,
   MarkerLayer,
+  markerLayerFromSpec,
   MarkerLayerSpec
 } from '@/features/cartography/components/layers-manager/map-layers'
 import MapPresetLoadDialog from '@/features/cartography/components/map-presets/MapPresetLoadDialog.vue'
@@ -241,7 +243,8 @@ import SamplingTableDialog from '@/features/occurrences/components/SamplingTable
 import { paletteRGB } from '@/lib/color_brewer'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
-import { computedWithControl, useClipboard, useLocalStorage, useToggle } from '@vueuse/core'
+import { useQuery } from '@tanstack/vue-query'
+import { useClipboard, useLocalStorage, useToggle } from '@vueuse/core'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
 import { computed, ref, useTemplateRef } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
@@ -252,8 +255,6 @@ import MapViewConfig from '../components/MapViewConfig.vue'
 import SingleSitePopup from '../components/popups/SingleSitePopup.vue'
 import SiteClusterPopup from '../components/popups/SiteClusterPopup.vue'
 import SiteSearchPanel, { SiteItemWithColor } from '../components/SiteSearchPanel.vue'
-import { useQuery } from '@tanstack/vue-query'
-import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 
 const route = useRoute()
 
@@ -316,7 +317,7 @@ function toggleTab(newTab: MappingToolTab) {
 }
 
 const { feedback } = useFeedback()
-const markerOptions = useLocalStorage<MarkerOptions>('mapping-tool-marker-options', {
+const markerOptions = useLocalStorage<GlobalMarkerOptions>('mapping-tool-marker-options', {
   cluster: {
     radiusScaleFactor: 0.5,
     labelZoomThreshold: 8
@@ -340,7 +341,7 @@ function applySiteFilter(sites: SiteWithOccurrences[] | undefined, filter: SiteS
 
 const hexgridLayer = computed<HexgridLayerDeck<SiteWithOccurrences>>(() => {
   console.debug('Recomputing hexgrid layer with spec', hexLayerSpec.value)
-  const { id, name, active, config, colorBinding, include_sites } = hexLayerSpec.value
+  const { id, name, active, config, colorBinding, include_sites, markers } = hexLayerSpec.value
   const remote = data.get(id)
   return {
     name,
@@ -350,20 +351,15 @@ const hexgridLayer = computed<HexgridLayerDeck<SiteWithOccurrences>>(() => {
       colorRange: paletteRGB(config.colorRange ?? 'Viridis')
     },
     colorBinding,
-    data: applySiteFilter(remote?.data.value, include_sites)
+    data: applySiteFilter(remote?.data.value, include_sites),
+    markers
   }
 })
 
 const markerLayers = computed<MarkerLayer<SiteWithOccurrences>[]>(() => {
   return markerLayerSpecs.value.map((layer) => {
     const remote = data.get(layer.id)
-    return {
-      name: layer.name,
-      config: layer.config,
-      active: layer.active,
-      clustered: layer.clustered,
-      data: applySiteFilter(remote?.data.value, layer.include_sites)
-    }
+    return markerLayerFromSpec(layer, applySiteFilter(remote?.data.value, layer.include_sites))
   })
 })
 

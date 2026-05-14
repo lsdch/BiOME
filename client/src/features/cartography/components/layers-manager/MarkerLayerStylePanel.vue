@@ -1,8 +1,9 @@
 <template>
   <v-list>
-    <ListItemInput label="Clustered" subtitle="Aggregate marker clusters">
+    <slot name="prepend-item"></slot>
+    <!-- <ListItemInput label="Clustered" subtitle="Aggregate marker clusters">
       <v-switch v-model="layer.clustered" color="primary" hide-details />
-    </ListItemInput>
+    </ListItemInput> -->
     <ListItemInput label="Radius">
       <v-slider
         :min="1"
@@ -33,6 +34,7 @@
     <ListItemInput label="Fill" subtitle="Hue and opacity">
       <ColorPickerMenu v-model="layer.config.fillColor" hide-details show-swatches />
     </ListItemInput>
+    <slot name="append-item"></slot>
   </v-list>
 </template>
 

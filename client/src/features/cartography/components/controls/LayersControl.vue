@@ -26,7 +26,7 @@
           <v-checkbox-btn color="primary" v-model="roadsVisible" hide-details />
         </template>
       </v-list-item>
-      <v-list-item v-if="hexgrid" title="Hex" prepend-icon="mdi-hexagon-multiple">
+      <v-list-item v-if="hexgrid" title="Hexagons" prepend-icon="mdi-hexagon-multiple">
         <template #append>
           <v-checkbox-btn
             color="primary"

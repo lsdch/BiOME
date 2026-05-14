@@ -73,12 +73,12 @@ import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
 import MapPresetManager from './map-presets/MapPresetManager.vue'
 import { useUserStore } from '@/stores/user'
 import { reactive, ref } from 'vue'
-import { MarkerOptions } from './DeckGlMap.vue'
+import { GlobalMarkerOptions } from './DeckGlMap.vue'
 
 const userStore = useUserStore()
 
-const markerOptions = defineModel<MarkerOptions>('markerOptions', {
-  default: reactive<MarkerOptions>({
+const markerOptions = defineModel<GlobalMarkerOptions>('markerOptions', {
+  default: reactive<GlobalMarkerOptions>({
     cluster: {
       radiusScaleFactor: 0.5,
       labelZoomThreshold: 8

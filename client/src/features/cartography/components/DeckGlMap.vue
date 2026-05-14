@@ -78,8 +78,7 @@
           :min="hexgridColorDomain.min"
           :max="hexgridColorDomain.max"
           :color-range="hexgridColorRange"
-          :binding-label="bindingLabels[hexgrid.colorBinding.binding]"
-          :log="hexgrid.colorBinding.log"
+          :binding-spec="hexgrid.colorBinding"
           :hidden="false"
         />
       </div>
@@ -131,13 +130,20 @@
 </template>
 
 <script lang="ts">
+const DEFAULT_MARKER_OPTIONS: GlobalMarkerOptions = {
+  cluster: {
+    radiusScaleFactor: 1,
+    labelZoomThreshold: 8
+  },
+  tooltips: true
+}
+
 export default {
   name: 'DeckGlMap'
 }
 </script>
 
 <script setup lang="ts" generic="Marker extends SiteWithOccurrences & { color?: string }">
-import { HexagonLayer } from '@deck.gl/aggregation-layers'
 import type { Layer } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
@@ -156,13 +162,13 @@ import {
 
 import { CoordinatesPrecision, type SiteWithOccurrences } from '@/api'
 import type { Geocoordinates } from '@/features/cartography/coordinates'
-import { paletteRGB, RGBToArray } from '@/lib/color_brewer'
-import { bindingLabels, getBindingFn, hexagonLayerColorBinding } from '../bindings'
+import { bindingLabels } from '../bindings'
 import { useMarkerLayers } from '../composables/useMarkerLayers'
 import type { HexgridLayerDeck, MarkerLayer } from './layers-manager/map-layers'
 
 import '@deck.gl/widgets/stylesheet.css'
 import { circle } from '@turf/turf'
+import { useHexgridLayer } from '../composables/hexgrid-layer'
 import { useMarkerSelection } from '../composables/marker-selection'
 import {
   createRegionLayers,
@@ -173,15 +179,15 @@ import {
 } from '../regions-overlay'
 import ColorScaleWidget from './controls/ColorScaleWidget.vue'
 import LayersControl from './controls/LayersControl.vue'
-import { useHexgridLayer } from '../composables/hexgrid-layer'
 
-export type MarkerOptions = {
+export type GlobalMarkerOptions = {
   cluster: {
     radiusScaleFactor: number
     labelZoomThreshold: number
   }
   tooltips?: boolean
 }
+
 type Item = SiteWithOccurrences
 type MarkerWithColor = Marker
 
@@ -203,6 +209,7 @@ const {
   autoFit = true,
   center = [0, 0],
   zoom = 2,
+  markerOptions = DEFAULT_MARKER_OPTIONS,
   ...props
 } = defineProps<{
   hexgrid?: HexgridLayerDeck<Item>
@@ -215,7 +222,7 @@ const {
   minZoom?: number
   maxZoom?: number
   zoom?: number
-  markerOptions?: MarkerOptions
+  markerOptions?: GlobalMarkerOptions
 }>()
 
 defineSlots<{
@@ -313,28 +320,38 @@ watch(selected, () => {
   if (selected.value?.type === 'item') displayRadius(selected.value.info.object!)
 })
 
-const { markerDeckLayers } = useMarkerLayers(props, {
-  currentZoom,
-  hoverTooltip,
-  selected,
-  select
-})
-
-const { hexgridLayer, hexgridColorDomain, hexgridColorRange } = useHexgridLayer<Item>(
-  { hexgrid: () => hexgrid },
+const { markerDeckLayers } = useMarkerLayers(
   {
-    selected,
-    select,
+    markerLayers: () => props.markerLayers ?? [],
+    markerOptions: () => markerOptions
+  },
+  {
     currentZoom,
-    hoverTooltip
+    hoverTooltip,
+    selected,
+    select
   }
 )
 
+const { hexgridLayer, hexgridMarkersLayer, hexgridColorDomain, hexgridColorRange } =
+  useHexgridLayer<Item>(
+    { hexgrid: () => hexgrid, markerOptions: () => markerOptions },
+    {
+      selected,
+      select,
+      currentZoom,
+      hoverTooltip
+    }
+  )
+
 const deckLayers = computed<Layer[]>(() => {
   console.debug('Recomputing deck layers')
-  const layers = [hexgridLayer.value, ...markerDeckLayers.value, ...highlightLayer.value].filter(
-    (layer) => layer !== undefined
-  )
+  const layers = [
+    hexgridLayer.value,
+    ...hexgridMarkersLayer.value,
+    ...markerDeckLayers.value,
+    ...highlightLayer.value
+  ].filter((layer) => layer !== undefined)
   return layers satisfies Layer[]
 })
 

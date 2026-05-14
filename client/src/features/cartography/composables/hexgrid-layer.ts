@@ -1,14 +1,17 @@
-import { computed, ref, Ref } from 'vue'
-import { HexgridLayerDeck } from '../components/layers-manager/map-layers'
-import { MarkerSelectionInfo } from './marker-selection'
-import { SiteItem, SiteWithOccurrences } from '@/api'
+import { SiteWithOccurrences } from '@/api'
 import { paletteRGB, RGBToArray } from '@/lib/color_brewer'
 import { HexagonLayer } from '@deck.gl/aggregation-layers'
+import { computed, ref, Ref } from 'vue'
 import { bindingLabels, getBindingFn, hexagonLayerColorBinding } from '../bindings'
+import { HexgridLayerDeck, markerLayerFromSpec } from '../components/layers-manager/map-layers'
+import { MarkerSelectionInfo } from './marker-selection'
+import { instanciateMarkerLayer } from './useMarkerLayers'
+import { GlobalMarkerOptions } from '../components/DeckGlMap.vue'
 
 export function useHexgridLayer<Item extends SiteWithOccurrences>(
   props: {
     hexgrid: () => HexgridLayerDeck<Item> | undefined
+    markerOptions?: () => GlobalMarkerOptions
   },
   ctx: {
     selected: Ref<MarkerSelectionInfo<Item> | undefined>
@@ -17,6 +20,16 @@ export function useHexgridLayer<Item extends SiteWithOccurrences>(
     hoverTooltip: Ref<{ x: number; y: number; text: string } | undefined>
   }
 ) {
+  const showMarkers = computed(() => {
+    const hexgrid = props.hexgrid()
+    return (
+      !!hexgrid &&
+      hexgrid.active &&
+      !!hexgrid.data?.length &&
+      ctx.currentZoom.value >= hexgrid.markers.minZoom
+    )
+  })
+
   const hexgridColorDomain = ref<{ min: number; max: number }>()
 
   const hexgridColorRange = computed<Array<[number, number, number]>>(() => {
@@ -52,8 +65,8 @@ export function useHexgridLayer<Item extends SiteWithOccurrences>(
       coverage: hexgrid.config.coverage,
       coordinateSystem: 'lnglat',
       highlightColor: [255, 0, 0, 128],
-      autoHighlight: true,
-      opacity: Number(hexgrid.config.opacity ?? 0.8),
+      autoHighlight: !showMarkers.value,
+      opacity: showMarkers.value ? 0.05 : Number(hexgrid.config.opacity ?? 0.8),
       radius: Math.max(100, Number(hexgrid.config.radius) * 1000),
       colorRange: colorRange,
       elevationScale: 100,
@@ -105,5 +118,20 @@ export function useHexgridLayer<Item extends SiteWithOccurrences>(
     return layer
   })
 
-  return { hexgridLayer, hexgridColorDomain, hexgridColorRange }
+  const showClusterText = computed(() => {
+    return ctx.currentZoom.value >= (props.markerOptions?.().cluster.labelZoomThreshold ?? 8)
+  })
+
+  const hexgridMarkersLayer = computed(() => {
+    const hexgrid = props.hexgrid()
+    if (!hexgrid?.active || !hexgrid.data?.length || !showMarkers.value) return []
+    const markerLayer = markerLayerFromSpec(hexgrid.markers, hexgrid.data)
+    return instanciateMarkerLayer(markerLayer, 'hexgrid', {
+      ...ctx,
+      markerOptions: props.markerOptions?.(),
+      showClusterText: showClusterText.value
+    })
+  })
+
+  return { hexgridLayer, hexgridMarkersLayer, hexgridColorDomain, hexgridColorRange }
 }
