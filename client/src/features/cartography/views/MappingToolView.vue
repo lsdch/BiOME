@@ -27,8 +27,8 @@
         <v-tabs-window v-model="tab" class="flex-grow-1 bg-main overflow-y-auto">
           <v-tabs-window-item eager value="layers">
             <LayersManager
-              v-model:hex-layer="hexLayerSpec"
-              v-model:marker-layers="markerLayerSpecs"
+              v-model:hex-layer="layerSpecs.hexgrid"
+              v-model:marker-layers="layerSpecs.markers"
             />
           </v-tabs-window-item>
           <v-tabs-window-item value="sites">
@@ -48,6 +48,8 @@
           </v-tabs-window-item>
         </v-tabs-window>
       </div>
+
+      <!-- DRAWER FOOTER-->
       <template #append>
         <v-divider />
         <div class="d-flex justify-space-between pa-2">
@@ -55,8 +57,8 @@
             <MapPresetSaveDialog
               v-if="userStore.isAuthenticated"
               :specs="{
-                hexgrid: hexLayerSpec,
-                markers: markerLayerSpecs
+                hexgrid: layerSpecs.hexgrid,
+                markers: layerSpecs.markers
               }"
             >
               <template #activator="{ props }">
@@ -71,8 +73,8 @@
             <MapPresetLoadDialog
               @apply="
                 ({ spec: { hexgrid, markers }, name }) => {
-                  hexLayerSpec = hexgrid
-                  markerLayerSpecs.splice(0, markers.length, ...markers)
+                  layerSpecs.hexgrid = hexgrid
+                  layerSpecs.markers.splice(0, markers.length, ...markers)
                   feedback({ message: `Loaded preset '${name}'`, type: 'success' })
                 }
               "
@@ -141,8 +143,8 @@
           auto-fit
           :markers="siteMarkers"
           :hexgrid="hexgridLayer"
-          @toggle-hexgrid="(v) => (hexLayerSpec.active = v)"
-          @toggle-markers="(i, v) => (markerLayerSpecs[i].active = v)"
+          @toggle-hexgrid="(v) => (layerSpecs.hexgrid.active = v)"
+          @toggle-markers="(i, v) => (layerSpecs.markers[i].active = v)"
           :marker-layers
           :marker-options
         >
@@ -244,7 +246,7 @@ import { paletteRGB } from '@/lib/color_brewer'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import { useQuery } from '@tanstack/vue-query'
-import { useClipboard, useLocalStorage, useToggle } from '@vueuse/core'
+import { useClipboard, useLocalStorage, useSessionStorage, useToggle } from '@vueuse/core'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
 import { computed, ref, useTemplateRef } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
@@ -324,8 +326,16 @@ const markerOptions = useLocalStorage<GlobalMarkerOptions>('mapping-tool-marker-
   },
   tooltips: true
 })
-const hexLayerSpec = ref<HexLayerSpec>(initialSpecs.value?.hexgrid ?? makeHexLayer())
-const markerLayerSpecs = ref<MarkerLayerSpec[]>(initialSpecs.value?.markers ?? [])
+
+type LayerSpecs = {
+  hexgrid: HexLayerSpec
+  markers: MarkerLayerSpec[]
+}
+
+const layerSpecs = useSessionStorage<LayerSpecs>('map-tool-layer-specs', {
+  hexgrid: initialSpecs.value?.hexgrid ?? makeHexLayer(),
+  markers: initialSpecs.value?.markers ?? []
+})
 
 const { allPending, anyLoading, layerData, data } = useLayerData()
 
@@ -340,8 +350,8 @@ function applySiteFilter(sites: SiteWithOccurrences[] | undefined, filter: SiteS
 }
 
 const hexgridLayer = computed<HexgridLayerDeck<SiteWithOccurrences>>(() => {
-  console.debug('Recomputing hexgrid layer with spec', hexLayerSpec.value)
-  const { id, name, active, config, colorBinding, include_sites, markers } = hexLayerSpec.value
+  console.debug('Recomputing hexgrid layer with spec', layerSpecs.value.hexgrid)
+  const { id, name, active, config, colorBinding, include_sites, markers } = layerSpecs.value.hexgrid
   const remote = data.get(id)
   return {
     name,
@@ -357,7 +367,7 @@ const hexgridLayer = computed<HexgridLayerDeck<SiteWithOccurrences>>(() => {
 })
 
 const markerLayers = computed<MarkerLayer<SiteWithOccurrences>[]>(() => {
-  return markerLayerSpecs.value.map((layer) => {
+  return layerSpecs.value.markers.map((layer) => {
     const remote = data.get(layer.id)
     return markerLayerFromSpec(layer, applySiteFilter(remote?.data.value, layer.include_sites))
   })
@@ -366,11 +376,7 @@ const markerLayers = computed<MarkerLayer<SiteWithOccurrences>[]>(() => {
 const { copy } = useClipboard()
 
 function encodeLayerSpecs() {
-  const specs = {
-    hexgrid: hexLayerSpec.value,
-    markers: markerLayerSpecs.value
-  }
-  return compressToEncodedURIComponent(JSON.stringify(specs))
+  return compressToEncodedURIComponent(JSON.stringify(layerSpecs.value))
 }
 
 function share() {
