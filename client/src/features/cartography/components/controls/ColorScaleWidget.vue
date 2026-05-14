@@ -1,7 +1,10 @@
 <template>
   <div v-if="!hidden" class="color-scale-widget">
     <v-card density="compact" class="pa-2 opacity-70" theme="light" rounded="0">
-      <div class="text-label-small mb-2">{{ bindingLabel }}</div>
+      <div class="text-label-small d-flex ga-1">
+        <span>{{ bindingLabels[bindingSpec.binding] }}</span>
+        <span v-if="bindingSpec.log">(log scale)</span>
+      </div>
 
       <div class="d-flex justify-space-between ga-2 text-label-small font-monospace">
         <span>{{ formatValue(min) }}</span>
@@ -53,6 +56,7 @@
 
 <script setup lang="ts">
 import { computed, ref, useTemplateRef } from 'vue'
+import { bindingLabels, ScaleBindingSpec } from '../../bindings'
 
 interface ColorStop {
   offset: number
@@ -61,22 +65,20 @@ interface ColorStop {
 
 const {
   colorRange = [],
-  bindingLabel = 'Value',
   hidden = false,
   gradientWidth = 150,
   gradientHeight = 15,
-  log = false,
   min,
-  max
+  max,
+  bindingSpec
 } = defineProps<{
   colorRange?: Array<[number, number, number] | { r: number; g: number; b: number }>
   min: number
   max: number
-  bindingLabel?: string
+  bindingSpec: Required<ScaleBindingSpec>
   hidden?: boolean
   gradientWidth?: number
   gradientHeight?: number
-  log?: boolean
 }>()
 
 const colorLegend = useTemplateRef<SVGElement>('colorLegend')
@@ -119,7 +121,7 @@ function handleMouseMove(event: MouseEvent) {
 
   // Calculate the value based on position
   let value: number
-  if (log) {
+  if (bindingSpec.log) {
     // Logarithmic scale
     const logMin = Math.log(Math.max(min, 0.001))
     const logMax = Math.log(max)
