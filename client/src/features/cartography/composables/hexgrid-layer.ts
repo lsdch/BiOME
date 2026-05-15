@@ -74,8 +74,8 @@ export function useHexgridLayer<Item extends SiteWithOccurrences>(
       // getElevationValue: hexagonLayerColorBinding(hexgrid.colorBinding).getColorValue,
       updateTriggers: {
         getColorWeight: [hexgrid.colorBinding.binding, hexgrid.colorBinding.log],
-        getColorValue: [hexgrid.colorBinding.binding, hexgrid.colorBinding.log],
-        getElevationValue: [hexgrid.colorBinding.binding, hexgrid.colorBinding.log]
+        getColorValue: [hexgrid.colorBinding.binding, hexgrid.colorBinding.log]
+        // getElevationValue: [hexgrid.colorBinding.binding, hexgrid.colorBinding.log]
       },
       getPosition: (item) => [item.coordinates.longitude, item.coordinates.latitude],
       onClick: (info) => {
