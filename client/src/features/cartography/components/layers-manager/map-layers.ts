@@ -140,7 +140,10 @@ export function makeHexLayer(): HexLayerSpec {
       opacity: 0.8,
       strokeWidth: 1,
       strokeOpacity: 1,
-      hover: {},
+      hover: {
+        showTooltip: true,
+        highlight: true
+      },
       coverage: 0.95
     },
     colorBinding: { log: false, binding: 'occurrences' },
@@ -202,6 +205,8 @@ export type HexgridConfig = {
     fill?: boolean
     useScale?: boolean
     scale?: number
+    showTooltip?: boolean
+    highlight?: boolean
   }
   opacity: number
   opacityRange?: [number, number]

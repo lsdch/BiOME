@@ -65,7 +65,7 @@ export function useHexgridLayer<Item extends SiteWithOccurrences>(
       coverage: hexgrid.config.coverage,
       coordinateSystem: 'lnglat',
       highlightColor: [255, 0, 0, 128],
-      autoHighlight: !showMarkers.value,
+      autoHighlight: hexgrid.config.hover.highlight && !showMarkers.value,
       opacity: showMarkers.value ? 0.05 : Number(hexgrid.config.opacity ?? 0.8),
       radius: Math.max(100, Number(hexgrid.config.radius) * 1000),
       colorRange: colorRange,
@@ -82,27 +82,29 @@ export function useHexgridLayer<Item extends SiteWithOccurrences>(
         ctx.select({ type: 'hexagon', info })
         return true
       },
-      onHover: (info) => {
-        const object = info.object as { count?: number; points?: Item[] } | undefined
+      onHover: hexgrid.config.hover.showTooltip
+        ? (info) => {
+            const object = info.object as { count?: number; points?: Item[] } | undefined
 
-        if (!object) {
-          ctx.hoverTooltip.value = undefined
-          return false
-        }
+            if (!object) {
+              ctx.hoverTooltip.value = undefined
+              return false
+            }
 
-        const count = getBindingFn(binding ?? 'sites')(object.points ?? []) ?? object.count ?? 0
-        if (!count) {
-          ctx.hoverTooltip.value = undefined
-          return false
-        }
+            const count = getBindingFn(binding ?? 'sites')(object.points ?? []) ?? object.count ?? 0
+            if (!count) {
+              ctx.hoverTooltip.value = undefined
+              return false
+            }
 
-        ctx.hoverTooltip.value = {
-          x: info.x,
-          y: info.y,
-          text: `${count} ${bindingLabels[binding ?? 'sites'] ?? binding}`
-        }
-        return true
-      },
+            ctx.hoverTooltip.value = {
+              x: info.x,
+              y: info.y,
+              text: `${count} ${bindingLabels[binding ?? 'sites'] ?? binding}`
+            }
+            return true
+          }
+        : undefined,
       onSetColorDomain([min, max]) {
         if (hexgrid.colorBinding.log) {
           hexgridColorDomain.value = {

@@ -2,6 +2,7 @@
   <v-tabs v-model="tab" density="compact" class="ma-2" inset grow>
     <v-tab value="color">Color</v-tab>
     <v-tab value="radius">Radius</v-tab>
+    <v-tab value="hover">Hover</v-tab>
   </v-tabs>
   <v-tabs-window v-model="tab">
     <v-tabs-window-item value="color">
@@ -67,6 +68,16 @@
         </ListItemInput>
       </v-list>
     </v-tabs-window-item>
+    <v-tabs-window-item value="hover">
+      <v-list density="compact">
+        <ListItemInput title="Show tooltip">
+          <v-switch v-model="layer.config.hover.showTooltip" color="primary" hide-details />
+        </ListItemInput>
+        <ListItemInput title="Highlight on hover">
+          <v-switch v-model="layer.config.hover.highlight" color="primary" hide-details />
+        </ListItemInput>
+      </v-list>
+    </v-tabs-window-item>
   </v-tabs-window>
 </template>
 
@@ -81,7 +92,7 @@ const layer = defineModel<HexLayerSpec>({
   required: true
 })
 
-const tab = ref<'color' | 'radius'>('color')
+const tab = ref<'color' | 'radius' | 'hover'>('color')
 
 function hexagonArea(radius: number) {
   return (3 * Math.sqrt(3) * radius ** 2) / 2
