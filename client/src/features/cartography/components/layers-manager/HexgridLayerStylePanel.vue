@@ -34,7 +34,11 @@
     </v-tabs-window-item>
     <v-tabs-window-item value="radius">
       <v-list>
-        <v-list-item title="Radius" :subtitle="`${layer.config.radius} km`">
+        <v-list-item
+          title="Radius"
+          :subtitle="`${layer.config.radius} km (area ${Math.round(hexagonArea(layer.config.radius))} km²)`"
+          lines="two"
+        >
           <template #append>
             <v-slider
               v-model="layer.config.radius"
@@ -49,7 +53,7 @@
             />
           </template>
         </v-list-item>
-        <ListItemInput title="Coverage">
+        <ListItemInput title="Coverage" :subtitle="`${(layer.config.coverage ?? 1) * 100}%`">
           <v-slider
             v-model="layer.config.coverage"
             :min="0.5"
@@ -78,6 +82,10 @@ const layer = defineModel<HexLayerSpec>({
 })
 
 const tab = ref<'color' | 'radius'>('color')
+
+function hexagonArea(radius: number) {
+  return (3 * Math.sqrt(3) * radius ** 2) / 2
+}
 </script>
 
 <style scoped lang="scss"></style>
