@@ -163,51 +163,7 @@
           </template>
           <template #popup="{ item }">
             <KeepAlive>
-              <SingleSitePopup :item="item" :key="item.code">
-                <template #append-items="{ item }">
-                  <v-divider />
-                  <OccurrenceListDialog
-                    :occurrences="
-                      item.samplings.flatMap((s) =>
-                        s.occurrences.map((o) => ({ ...o, sampling_date: s.date }))
-                      )
-                    "
-                    :with-site="false"
-                    :max-width="1200"
-                  >
-                    <template #activator="{ props }">
-                      <v-list-item v-bind="props" title="Occurrences">
-                        <template #append>
-                          <v-badge
-                            inline
-                            :content="
-                              item.samplings.reduce((sum, s) => sum + s.occurrences.length, 0)
-                            "
-                            color="success"
-                          />
-                        </template>
-                      </v-list-item>
-                    </template>
-                  </OccurrenceListDialog>
-                  <SamplingTableDialog
-                    :samplings="item.samplings"
-                    :with-site="false"
-                    :max-width="1200"
-                  >
-                    <template #activator="{ props }">
-                      <v-list-item
-                        title="Sampling events"
-                        :subtitle="`Last visit: ${item.last_visited ? DateWithPrecision.format(item.last_visited) : item.samplings.length ? 'Unknown' : 'Never'}`"
-                        v-bind="props"
-                      >
-                        <template #append>
-                          <v-badge inline :content="item.samplings.length" color="warning" />
-                        </template>
-                      </v-list-item>
-                    </template>
-                  </SamplingTableDialog>
-                </template>
-              </SingleSitePopup>
+              <SitePopupWithOccurrences :item />
             </KeepAlive>
           </template>
         </DeckGlMap>
@@ -219,7 +175,7 @@
 <script setup lang="ts">
 import DeckGlMap, { GlobalMarkerOptions } from '@/features/cartography/components/DeckGlMap.vue'
 
-import { DateWithPrecision, SiteSamplingStatus, SiteWithOccurrences } from '@/api'
+import { SiteSamplingStatus, SiteWithOccurrences } from '@/api'
 import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import {
   HexgridLayerDeck,
@@ -231,9 +187,6 @@ import {
 } from '@/features/cartography/components/layers-manager/map-layers'
 import MapPresetLoadDialog from '@/features/cartography/components/map-presets/MapPresetLoadDialog.vue'
 import MapPresetSaveDialog from '@/features/cartography/components/map-presets/MapPresetSaveDialog.vue'
-import OccurrenceListDialog from '@/features/occurrences/components/OccurrenceListDialog.vue'
-import SamplingTableDialog from '@/features/occurrences/components/SamplingTableDialog.vue'
-import { paletteRGB } from '@/lib/color_brewer'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import { useQuery } from '@tanstack/vue-query'
@@ -245,9 +198,10 @@ import { useRoute } from 'vue-router'
 import { useLayerData } from '../components/layers-manager/layer-data'
 import LayersManager from '../components/layers-manager/LayersManager.vue'
 import MapViewConfig from '../components/MapViewConfig.vue'
-import SingleSitePopup from '../components/popups/SingleSitePopup.vue'
 import SiteClusterPopup from '../components/popups/SiteClusterPopup.vue'
+import SitePopupWithOccurrences from '../components/popups/SitePopupWithOccurrences.vue'
 import SiteSearchPanel, { SiteItemWithColor } from '../components/SiteSearchPanel.vue'
+import { hexgridLayerFromSpec } from '../composables/hexgrid-layer'
 
 const route = useRoute()
 
@@ -343,20 +297,11 @@ function applySiteFilter(sites: SiteWithOccurrences[] | undefined, filter: SiteS
 
 const hexgridLayer = computed<HexgridLayerDeck<SiteWithOccurrences>>(() => {
   console.debug('Recomputing hexgrid layer with spec', layerSpecs.value.hexgrid)
-  const { id, name, active, config, colorBinding, include_sites, markers } =
-    layerSpecs.value.hexgrid
-  const remote = data.get(id)
-  return {
-    name,
-    active,
-    config: {
-      ...config,
-      colorRange: paletteRGB(config.colorRange ?? 'Viridis')
-    },
-    colorBinding,
-    data: applySiteFilter(remote?.data.value, include_sites),
-    markers
-  }
+  const remote = data.get(layerSpecs.value.hexgrid.id)
+  return hexgridLayerFromSpec(
+    layerSpecs.value.hexgrid,
+    applySiteFilter(remote?.data.value, layerSpecs.value.hexgrid.include_sites)
+  )
 })
 
 const markerLayers = computed<MarkerLayer<SiteWithOccurrences>[]>(() => {

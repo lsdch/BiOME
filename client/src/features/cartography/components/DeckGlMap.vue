@@ -39,7 +39,6 @@
           density="compact"
           @click="toggleFullscreen"
         />
-        />
       </div>
     </div>
 

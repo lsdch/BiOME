@@ -3,10 +3,31 @@ import { paletteRGB, RGBToArray } from '@/lib/color_brewer'
 import { HexagonLayer } from '@deck.gl/aggregation-layers'
 import { computed, ref, Ref } from 'vue'
 import { bindingLabels, getBindingFn, hexagonLayerColorBinding } from '../bindings'
-import { HexgridLayerDeck, markerLayerFromSpec } from '../components/layers-manager/map-layers'
+import {
+  HexgridLayerDeck,
+  HexLayerSpec,
+  markerLayerFromSpec
+} from '../components/layers-manager/map-layers'
 import { MarkerSelectionInfo } from './marker-selection'
 import { instanciateMarkerLayer } from './useMarkerLayers'
 import { GlobalMarkerOptions } from '../components/DeckGlMap.vue'
+
+export function hexgridLayerFromSpec<Item extends SiteWithOccurrences>(
+  { name, active, config, colorBinding, markers }: HexLayerSpec,
+  data?: Item[]
+): HexgridLayerDeck<Item> {
+  return {
+    name,
+    active,
+    config: {
+      ...config,
+      colorRange: paletteRGB(config.colorRange ?? 'Viridis')
+    },
+    colorBinding,
+    data,
+    markers
+  }
+}
 
 export function useHexgridLayer<Item extends SiteWithOccurrences>(
   props: {
