@@ -9,26 +9,6 @@
 
     <div class="map-control top-left">
       <div class="d-flex flex-column ga-1">
-        <v-btn
-          title="Fit view"
-          class="bg-white"
-          color="white"
-          :rounded="false"
-          icon="mdi-fit-to-screen"
-          :width="30"
-          density="compact"
-          @click="fitMapView()"
-        />
-        <v-btn
-          title="Toggle fullscreen"
-          color="white"
-          class="bg-white"
-          :rounded="false"
-          :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
-          :width="30"
-          density="compact"
-          @click="toggleFullscreen"
-        />
         <layers-control
           :hexgrid
           :marker-layers
@@ -38,6 +18,27 @@
           v-model:roads="roads"
           @toggleHexgrid="(v) => emit('toggleHexgrid', v)"
           @toggleMarkers="(index, v) => emit('toggleMarkers', index, v)"
+        />
+        <v-btn
+          v-tooltip="{ text: 'Fit view', openDelay: 300 }"
+          class="bg-white"
+          color="white"
+          :rounded="false"
+          icon="mdi-fit-to-screen"
+          :width="30"
+          density="compact"
+          @click="fitMapView()"
+        />
+        <v-btn
+          v-tooltip="{ text: 'Toggle fullscreen', openDelay: 300 }"
+          color="white"
+          class="bg-white"
+          :rounded="false"
+          :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
+          :width="30"
+          density="compact"
+          @click="toggleFullscreen"
+        />
         />
       </div>
     </div>
@@ -57,6 +58,18 @@
     </div>
 
     <div class="d-flex top-right ga-2 map-control">
+      <div v-if="hexgrid?.active && hexgridColorDomain">
+        <color-scale-widget
+          :min="hexgridColorDomain.min"
+          :max="hexgridColorDomain.max"
+          :color-range="hexgridColorRange"
+          :binding-spec="hexgrid.colorBinding"
+          :hidden="false"
+        />
+      </div>
+    </div>
+
+    <div class="d-flex bottom-right ga-2 map-control">
       <div v-if="cursorCoordinates" class="pointer-events-none">
         <v-card density="compact" class="pa-2 opacity-70" theme="light" rounded="0">
           <code class="text-label-small font-monospace d-block">
@@ -71,16 +84,6 @@
             </div>
           </code>
         </v-card>
-      </div>
-
-      <div v-if="hexgrid?.active && hexgridColorDomain">
-        <color-scale-widget
-          :min="hexgridColorDomain.min"
-          :max="hexgridColorDomain.max"
-          :color-range="hexgridColorRange"
-          :binding-spec="hexgrid.colorBinding"
-          :hidden="false"
-        />
       </div>
     </div>
 
@@ -162,7 +165,6 @@ import {
 
 import { CoordinatesPrecision, type SiteWithOccurrences } from '@/api'
 import type { Geocoordinates } from '@/features/cartography/coordinates'
-import { bindingLabels } from '../bindings'
 import { useMarkerLayers } from '../composables/useMarkerLayers'
 import type { HexgridLayerDeck, MarkerLayer } from './layers-manager/map-layers'
 
@@ -555,7 +557,7 @@ defineExpose({ fitMapView, fitViewToSite, select, clear, el: mapContainer })
 }
 
 .bottom-right {
-  bottom: 12px;
+  bottom: 48px; // leave space for the attribution control
   right: 12px;
 }
 .bottom-left {

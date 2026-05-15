@@ -144,6 +144,7 @@
         </v-tooltip>
       </v-list>
     </v-navigation-drawer>
+
     <div class="fill-height w-100 d-flex flex-column">
       <v-progress-linear v-if="allPending" indeterminate color="warning" />
       <div :class="['fill-height w-100 position-relative']">
@@ -157,25 +158,6 @@
           :marker-layers
           :marker-options
         >
-          <!-- <LControl v-if="isRefetching || isFetching" position="topleft">
-            <v-progress-circular
-              v-if="isPending || isRefetching"
-              indeterminate
-              color="warning"
-              size="32"
-              width="6"
-            />
-          </LControl> -->
-          <!-- <LControl position="topright" v-if="sites">
-            <MapStatsDialog :sites>
-              <template #activator="{ props }">
-                <v-btn v-bind="props" icon="mdi-poll" color="white" :width="45" :height="45" />
-              </template>
-            </MapStatsDialog>
-          </LControl> -->
-          <!-- <LControl position="topright" v-if="sites">
-            <v-btn icon="mdi-shape-polygon-plus" @click="togglePolygonMode(true)"></v-btn>
-          </LControl> -->
           <template #cluster-popup="{ data }">
             <SiteClusterPopup :data />
           </template>
