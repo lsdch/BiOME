@@ -58,8 +58,8 @@ export type PersonFilters = {
 </script>
 
 <script setup lang="ts">
-import { $UserRole, UserRole } from '@/api'
-import { roleIcon } from '@/components/icons/UserRoleIcon'
+import { $UserRole } from '@/api'
+import { getRoleIcon } from '@/components/icons/UserRoleIcon'
 import OrganisationPicker from './OrganisationPicker.vue'
 
 const model = defineModel<PersonFilters>({ required: true })
@@ -77,7 +77,7 @@ function icon(s: AccountStatus) {
         icon: 'mdi-account-key'
       }
     default:
-      return roleIcon(s as UserRole)
+      return getRoleIcon(s)
   }
 }
 </script>

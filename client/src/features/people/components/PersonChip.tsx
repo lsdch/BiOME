@@ -1,5 +1,5 @@
 import { Organisation, OrganisationInner, Person, PersonInner, UserRole } from '@/api'
-import { roleIcon } from '@/components/icons/UserRoleIcon'
+import { getRoleIcon } from '@/components/icons/UserRoleIcon'
 import OrgChip from '@/features/people/components/OrgChip'
 import { VChip } from 'vuetify/components'
 
@@ -22,7 +22,7 @@ export function PersonChip({ person, short, ...chipProps }: PersonChipProps) {
                 ? () => (
                     <v-icon
                       icon="mdi-circle-medium"
-                      color={roleIcon(person.role).color}
+                      color={getRoleIcon(person.role).color}
                       size="small"
                     />
                   )

@@ -9,7 +9,6 @@
         </RouterLink>
       </v-app-bar-title>
       <v-spacer />
-      <SettingsMenu v-if="!user" />
       <AccountNavMenu />
     </v-app-bar>
     <NavigationDrawer v-model="drawer" :temporary="lgAndDown && (drawerTemporary || smAndDown)" />
@@ -64,21 +63,20 @@ import { RouterView, useRouter } from 'vue-router'
 import colors from 'vuetify/util/colors'
 
 import AccountNavMenu from '@/components/navigation/AccountNavMenu.vue'
-import SettingsMenu from '@/components/navigation/SettingsMenu.vue'
 
-import { client } from '@/api/gen/client.gen'
 import { ErrorDetail } from '@/api'
-import { useLocalStorage, usePreferredDark } from '@vueuse/core'
-import { useDisplay } from 'vuetify'
+import { client } from '@/api/gen/client.gen'
 import AppIcon from '@/components/icons/AppIcon.vue'
-import { useInstanceSettings } from '@/features/settings/components'
 import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
 import ErrorSnackbar from '@/components/toolkit/ui/ErrorSnackbar.vue'
 import FeedbackSnackbar from '@/components/toolkit/ui/FeedbackSnackbar.vue'
 import { useAppConfirmDialog } from '@/composables/confirm_dialog'
-import { useTheme } from 'vuetify/lib/composables/theme.mjs'
-import { storeToRefs } from 'pinia'
+import { useInstanceSettings } from '@/features/settings/components'
 import { useUserStore } from '@/stores/user'
+import { useLocalStorage, usePreferredDark } from '@vueuse/core'
+import { storeToRefs } from 'pinia'
+import { useDisplay } from 'vuetify'
+import { useTheme } from 'vuetify/lib/composables/theme.mjs'
 
 const loading = ref(false)
 

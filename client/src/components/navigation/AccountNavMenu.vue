@@ -1,19 +1,5 @@
 <template>
-  <v-btn
-    v-if="user === undefined"
-    variant="outlined"
-    prepend-icon="mdi-account-circle"
-    text="Sign in"
-    :to="{
-      name: 'login',
-      query:
-        $router.currentRoute.value.name === 'login'
-          ? undefined
-          : { redirect: $router.currentRoute.value.path }
-    }"
-  />
   <v-menu
-    v-else
     location="bottom right"
     :close-on-content-click="false"
     target="#app-bar"
@@ -21,44 +7,70 @@
     :min-width="100"
   >
     <template v-slot:activator="{ props }">
-      <v-btn variant="outlined" v-bind="props" class="text-lg-body-1">
-        <template #prepend>
-          <UserRole.Icon :role="user.role" />
-        </template>
-        {{
-          user.identity.first_name
-            .split(/[ -]/)
-            .map((w) => w[0])
-            .join('')
-        }}
-        {{ user.identity.last_name }}
+      <v-btn icon v-bind="props" :rounded="100">
+        <v-avatar
+          color="surface-variant"
+          :badge="
+            user
+              ? {
+                  color: RoleIcon[usePrivilege ?? user.role].color,
+                  location: 'bottom end'
+                }
+              : undefined
+          "
+        >
+          <span v-if="!!user" class="on-surface font-weight-bold">
+            {{ userInitials }}
+          </span>
+          <v-icon v-else class="on-surface" icon="mdi-account" />
+        </v-avatar>
       </v-btn>
     </template>
     <v-list>
-      <v-list-subheader class="mb-3">
-        <div class="d-flex align-center">
-          <UserRole.Icon class="mr-5" :role="user.role" />
-          <div>
-            <span class="font-weight-bold">
-              {{ user.identity.full_name }}
-            </span>
-            <br />
-            <span class="text-caption">
-              {{ user.role }}
-            </span>
+      <template v-if="!!user">
+        <v-list-subheader class="mb-3">
+          <div class="d-flex align-center">
+            <UserRole.Icon class="mr-5" :role="user.role" />
+            <div>
+              <span class="font-weight-bold">
+                {{ user.identity.full_name }}
+              </span>
+              <br />
+              <span class="text-caption">
+                {{ user.role }}
+              </span>
+            </div>
           </div>
-        </div>
-      </v-list-subheader>
-      <v-divider />
-      <v-list-item>
-        <v-select
-          v-model="usePrivilege"
-          label="Use role privileges"
-          :items="UserRole.upTo(user.role, false)"
-          hide-details
-          variant="solo-filled"
-        />
-      </v-list-item>
+        </v-list-subheader>
+        <v-divider />
+        <v-list-item>
+          <v-select
+            v-model="usePrivilege"
+            label="Use role privileges"
+            :items="UserRole.upTo(user.role, false)"
+            hide-details
+            variant="solo-filled"
+          />
+        </v-list-item>
+        <v-divider />
+        <v-list-item prepend-icon="mdi-account" title="Account" :to="{ name: 'account' }">
+        </v-list-item>
+        <v-list-item prepend-icon="mdi-power" title="Logout" @click="logout()"> </v-list-item>
+      </template>
+      <template v-else>
+        <v-list-item
+          title="Sign in"
+          prepend-icon="mdi-login"
+          :to="{
+            name: 'login',
+            query:
+              $router.currentRoute.value.name === 'login'
+                ? undefined
+                : { redirect: $router.currentRoute.value.path }
+          }"
+        ></v-list-item>
+      </template>
+      <v-divider></v-divider>
       <v-list-item>
         <v-switch
           class="px-3"
@@ -72,25 +84,6 @@
           hide-details
         />
       </v-list-item>
-      <v-divider />
-      <v-list-item>
-        <v-btn
-          prepend-icon="mdi-account"
-          variant="plain"
-          density="compact"
-          text="Account"
-          :to="{ name: 'account' }"
-        />
-      </v-list-item>
-      <v-list-item>
-        <v-btn
-          prepend-icon="mdi-power"
-          variant="plain"
-          density="compact"
-          text="Logout"
-          @click="logout()"
-        />
-      </v-list-item>
     </v-list>
   </v-menu>
 </template>
@@ -100,14 +93,19 @@ import { UserRole } from '@/api'
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { useDisplay } from 'vuetify'
 
 const userStore = useUserStore()
 const { user, usePrivilege } = storeToRefs(userStore)
 
+const userInitials = computed(() => {
+  if (!user.value) return ''
+  return user.value.identity.first_name[0] + user.value.identity.last_name[0]
+})
+
 import { useTheme } from 'vuetify'
+import { RoleIcon } from '../icons/UserRoleIcon'
 const theme = useTheme()
 
 watch(theme.name, () => {
