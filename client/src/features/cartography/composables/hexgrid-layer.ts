@@ -4,7 +4,7 @@ import { HexagonLayer } from '@deck.gl/aggregation-layers'
 import { computed, ref, Ref } from 'vue'
 import { bindingLabels, getBindingFn, hexagonLayerColorBinding } from '../bindings'
 import {
-  HexgridLayerDeck,
+  HexgridLayer,
   HexLayerSpec,
   markerLayerFromSpec
 } from '../components/layers-manager/map-layers'
@@ -15,7 +15,7 @@ import { GlobalMarkerOptions } from '../components/DeckGlMap.vue'
 export function hexgridLayerFromSpec<Item extends SiteWithOccurrences>(
   { name, active, config, colorBinding, markers }: HexLayerSpec,
   data?: Item[]
-): HexgridLayerDeck<Item> {
+): HexgridLayer<Item> {
   return {
     name,
     active,
@@ -31,12 +31,12 @@ export function hexgridLayerFromSpec<Item extends SiteWithOccurrences>(
 
 export function useHexgridLayer<Item extends SiteWithOccurrences>(
   props: {
-    hexgrid: () => HexgridLayerDeck<Item> | undefined
+    hexgrid: () => HexgridLayer<Item> | undefined
     markerOptions?: () => GlobalMarkerOptions
   },
   ctx: {
-    selected: Ref<MarkerSelectionInfo<Item> | undefined>
-    select: (info: MarkerSelectionInfo<Item>) => void
+    selected: Ref<MarkerSelectionInfo<Item, any> | undefined>
+    select: (info: MarkerSelectionInfo<Item, any>) => void
     currentZoom: Ref<number>
     hoverTooltip: Ref<{ x: number; y: number; text: string } | undefined>
   }

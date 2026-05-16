@@ -45,7 +45,7 @@
               v-model="layerSpecs.sites"
               @focus-site="
                 (site) => {
-                  const info = siteMarkers?.find((s) => s.code === site.code)
+                  const info = siteMarkers?.find((s) => s.data.code === site.code)
                   if (info) map?.select({ type: 'site', info })
                   map?.fitViewToSite(site)
                 }
@@ -151,7 +151,7 @@
         <DeckGlMap
           ref="map"
           auto-fit
-          :markers="siteMarkers"
+          :pinMarkers="siteMarkers"
           :hexgrid="hexgridLayer"
           @toggle-hexgrid="(v) => (layerSpecs.hexgrid.active = v)"
           @toggle-markers="(i, v) => (layerSpecs.markers[i].active = v)"
@@ -160,6 +160,11 @@
         >
           <template #cluster-popup="{ data }">
             <SiteClusterPopup :data />
+          </template>
+          <template #pin-popup="{ item }">
+            <KeepAlive>
+              <SitePopupWithOccurrences :item="item.data" />
+            </KeepAlive>
           </template>
           <template #popup="{ item }">
             <KeepAlive>
@@ -175,15 +180,16 @@
 <script setup lang="ts">
 import DeckGlMap, { GlobalMarkerOptions } from '@/features/cartography/components/DeckGlMap.vue'
 
-import { SiteSamplingStatus, SiteWithOccurrences } from '@/api'
+import { SiteItem, SiteSamplingStatus, SiteWithOccurrences } from '@/api'
 import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import {
-  HexgridLayerDeck,
+  HexgridLayer,
   HexLayerSpec,
   makeHexLayer,
   MarkerLayer,
   markerLayerFromSpec,
-  MarkerLayerSpec
+  MarkerLayerSpec,
+  PinMarker
 } from '@/features/cartography/components/layers-manager/map-layers'
 import MapPresetLoadDialog from '@/features/cartography/components/map-presets/MapPresetLoadDialog.vue'
 import MapPresetSaveDialog from '@/features/cartography/components/map-presets/MapPresetSaveDialog.vue'
@@ -208,7 +214,7 @@ const route = useRoute()
 type LayerSpecs = {
   hexgrid: HexLayerSpec
   markers: MarkerLayerSpec[]
-  sites: SiteItemWithColor[]
+  sites: PinMarker<SiteItem>[]
 }
 
 const layerSpecs = useSessionStorage<LayerSpecs>(
@@ -246,7 +252,7 @@ const singleSites = useQuery(
       enabled: layerSpecs.value.sites.length > 0,
       ...occurrencesBySiteOptions({
         body: {
-          site_codes: layerSpecs.value.sites.map((s) => s.code),
+          site_codes: layerSpecs.value.sites.map((s) => s.data.code),
           sampling_target: {}
         }
       })
@@ -255,9 +261,10 @@ const singleSites = useQuery(
 )
 const siteMarkers = computed(() => {
   if (!layerSpecs.value.sites?.length) return []
-  const colorMap = new Map(layerSpecs.value.sites.map((s) => [s.code, s.color]))
-  return singleSites.data.value?.map((site) => ({
-    ...site,
+  const colorMap = new Map(layerSpecs.value.sites.map((s) => [s.data.code, s.options?.color]))
+  return singleSites.data.value?.map<PinMarker<SiteWithOccurrences>>((site) => ({
+    data: site,
+    coordinates: site.coordinates,
     color: colorMap.get(site.code)
   }))
 })
@@ -295,7 +302,7 @@ function applySiteFilter(sites: SiteWithOccurrences[] | undefined, filter: SiteS
   }
 }
 
-const hexgridLayer = computed<HexgridLayerDeck<SiteWithOccurrences>>(() => {
+const hexgridLayer = computed<HexgridLayer<SiteWithOccurrences>>(() => {
   console.debug('Recomputing hexgrid layer with spec', layerSpecs.value.hexgrid)
   const remote = data.get(layerSpecs.value.hexgrid.id)
   return hexgridLayerFromSpec(

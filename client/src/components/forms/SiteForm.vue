@@ -105,7 +105,13 @@
       </v-col>
       <v-col>
         <v-card height="300" class="d-flex flex-column">
-          <SiteProximityMap v-model="model.coordinates" />
+          <ItemLocationMap
+            v-model:item="model"
+            :marker-options="{
+              draggable: true
+            }"
+            class="flex-grow-1"
+          />
         </v-card>
       </v-col>
     </v-row>
@@ -123,13 +129,15 @@
 
 <script setup lang="ts">
 import { $SiteInput, $SiteUpdate } from '@/api'
+import FTextField from '@/components/toolkit/forms/FTextField'
+import { useSchema } from '@/composables/schema'
+import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.vue'
+import { Coordinates } from '@/features/cartography/coordinates'
+import CoordPrecisionPicker from '@/features/site/components/CoordPrecisionPicker.vue'
 import { FormProps } from '@/lib/mutations'
 import { SiteModel } from '@/models'
 import { useGeolocation, useToggle, watchOnce } from '@vueuse/core'
-import { useSchema } from '@/composables/schema'
-import FTextField from '@/components/toolkit/forms/FTextField'
-import CoordPrecisionPicker from '@/features/site/components/CoordPrecisionPicker.vue'
-import SiteProximityMap from '@/features/site/components/SiteProximityMap.vue'
+import { computed } from 'vue'
 import SiteFormLocationField from './SiteFormLocationField.vue'
 
 const model = defineModel<SiteModel.SiteFormModel>({

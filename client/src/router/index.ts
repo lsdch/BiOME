@@ -47,12 +47,6 @@ function setupRouter() {
         }
       },
       {
-        path: '/datasets/sites/:slug',
-        name: 'site-dataset-item',
-        component: () => import('@/features/datasets/views/SiteDatasetItemView.vue'),
-        props: (route) => ({ slug: route.params.slug, query: getSiteDatasetOptions })
-      },
-      {
         path: '/datasets/occurrences/:slug',
         name: 'occurrence-dataset-item',
         component: () =>

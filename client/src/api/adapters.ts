@@ -280,7 +280,7 @@ export namespace CoordinatesPrecision {
       case '<100m':
         return 100
       default:
-        return 0
+        return 100
     }
   }
 

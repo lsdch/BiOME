@@ -13,7 +13,7 @@
 import { SiteWithOccurrences } from '@/api'
 import DeckGlMap from '@/features/cartography/components/DeckGlMap.vue'
 import {
-  HexgridLayerDeck,
+  HexgridLayer,
   makeHexLayer
 } from '@/features/cartography/components/layers-manager/map-layers'
 import SiteClusterPopup from '@/features/cartography/components/popups/SiteClusterPopup.vue'
@@ -27,7 +27,7 @@ const { sites } = defineProps<{
 
 const hexLayerSpec = ref(makeHexLayer())
 
-const hexgrid = computed<HexgridLayerDeck<SiteWithOccurrences>>(() => {
+const hexgrid = computed<HexgridLayer<SiteWithOccurrences>>(() => {
   return hexgridLayerFromSpec(hexLayerSpec.value, sites)
 })
 </script>

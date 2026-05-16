@@ -73,7 +73,7 @@
 <script setup lang="ts" generic="Item extends Geocoordinates">
 import SvgCircle from '@/components/toolkit/ui/SvgCircle.vue'
 import { Geocoordinates } from '../../coordinates'
-import { HexgridLayerDeck, MarkerLayer } from '../layers-manager/map-layers'
+import { HexgridLayer, MarkerLayer } from '../layers-manager/map-layers'
 
 const regions = defineModel<boolean>('regions', {
   required: true
@@ -88,7 +88,7 @@ const siteMarkersVisible = defineModel<boolean>('siteMarkersVisible', {
 
 const { markerLayers, hexgrid } = defineProps<{
   markerLayers?: MarkerLayer<Item>[]
-  hexgrid?: HexgridLayerDeck<Item>
+  hexgrid?: HexgridLayer<Item>
   hasSiteMarkers?: boolean
 }>()
 

@@ -5,8 +5,8 @@ import { ColumnLayer, IconLayer } from '@deck.gl/layers'
 import { computed, ref } from 'vue'
 import { MarkerCluster } from './useMarkerLayers'
 
-export type MarkerSelectionInfo<Item> =
-  | { type: 'site'; info: Item }
+export type MarkerSelectionInfo<Item, SiteMarker = Item> =
+  | { type: 'site'; info: SiteMarker }
   | {
       type: 'item'
       info: PickingInfo<Item>
@@ -20,11 +20,11 @@ export type MarkerSelectionInfo<Item> =
       info: HexagonLayerPickingInfo<Item>
     }
 
-export function useMarkerSelection<Item extends SiteItem>() {
-  const selected = ref<MarkerSelectionInfo<Item>>()
+export function useMarkerSelection<Item extends SiteItem, SiteMarker = Item>() {
+  const selected = ref<MarkerSelectionInfo<Item, SiteMarker>>()
   const clickHandledByLayer = ref(false)
 
-  function select(info: MarkerSelectionInfo<Item>) {
+  function select(info: MarkerSelectionInfo<Item, SiteMarker>) {
     clickHandledByLayer.value = true
     console.debug('marker-selection: select()', info)
     selected.value = info

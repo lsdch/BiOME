@@ -1,36 +1,40 @@
 <template>
-  <teleport :to="$vuetify.display.mdAndDown ? '#inline-map-container' : '#map-container'">
-    <v-card
-      class="d-flex flex-column fill-height"
-      :min-height="400"
-      :flat="$vuetify.display.mdAndDown"
-      :rounded="$vuetify.display.mdAndDown ? 0 : undefined"
-    >
-      <ItemLocationMap v-model:radius="proximityRadius" :site :height="350" />
-      <template #actions v-if="site">
-        <!-- :href="`https://www.google.com/maps/place/${site.coordinates.latitude}+${site.coordinates.longitude}/@${site.coordinates.latitude},${site.coordinates.longitude},10z`" -->
-        <v-menu>
-          <template #activator="{ props }">
-            <v-btn prepend-icon="mdi-map" color="primary" v-bind="props" text="Open in" />
-          </template>
-          <v-list density="compact">
-            <v-list-item
-              title="Google Maps"
-              prepend-icon="mdi-google-maps"
-              :href="`http://maps.google.com/maps?&z=15&mrt=yp&t=k&q=${site.coordinates.latitude}+${site.coordinates.longitude}`"
-              target="_blank"
-            />
-            <v-list-item
-              title="Google Earth"
-              prepend-icon="mdi-google-earth"
-              :href="`https://earth.google.com/web/search/${site.coordinates.latitude},${site.coordinates.longitude}`"
-              target="_blank"
-            />
-          </v-list>
-        </v-menu>
-      </template>
-    </v-card>
-  </teleport>
+  <v-card
+    class="d-flex flex-column fill-height"
+    :min-height="400"
+    :flat="$vuetify.display.mdAndDown"
+    :rounded="$vuetify.display.mdAndDown ? 0 : undefined"
+  >
+    <ItemLocationMap
+      v-model:radius="proximityRadius"
+      :item="site"
+      :exclude-codes="[site.code]"
+      class="flex-grow-1"
+    />
+    <v-divider />
+    <template #actions>
+      <!-- :href="`https://www.google.com/maps/place/${site.coordinates.latitude}+${site.coordinates.longitude}/@${site.coordinates.latitude},${site.coordinates.longitude},10z`" -->
+      <v-menu>
+        <template #activator="{ props }">
+          <v-btn prepend-icon="mdi-map" color="primary" v-bind="props" text="Open in" />
+        </template>
+        <v-list density="compact">
+          <v-list-item
+            title="Google Maps"
+            prepend-icon="mdi-google-maps"
+            :href="`http://maps.google.com/maps?&z=15&mrt=yp&t=k&q=${site.coordinates.latitude}+${site.coordinates.longitude}`"
+            target="_blank"
+          />
+          <v-list-item
+            title="Google Earth"
+            prepend-icon="mdi-google-earth"
+            :href="`https://earth.google.com/web/search/${site.coordinates.latitude},${site.coordinates.longitude}`"
+            target="_blank"
+          />
+        </v-list>
+      </v-menu>
+    </template>
+  </v-card>
 </template>
 
 <script setup lang="ts">

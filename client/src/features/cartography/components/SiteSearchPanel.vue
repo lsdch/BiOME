@@ -5,20 +5,20 @@
     </v-list-item>
     <v-divider />
     <v-list-item
-      v-for="(site, index) in sites"
-      :key="site.code"
-      :title="site.name ?? site.code"
-      :subtitle="site.name ? site.code : undefined"
-      @click="emit('focusSite', site)"
+      v-for="(marker, index) in markers"
+      :key="marker.data.code"
+      :title="marker.data.name ?? marker.data.code"
+      :subtitle="marker.data.name ? marker.data.code : undefined"
+      @click="emit('focusSite', marker.data)"
     >
       <template #append>
-        <v-icon icon="mdi-map-marker" :color="site.color"></v-icon>
+        <v-icon icon="mdi-map-marker" :color="marker.options?.color"></v-icon>
         <v-btn
           variant="plain"
           icon="mdi-close-circle"
           size="small"
           color=""
-          @click="sites.splice(index, 1)"
+          @click="markers.splice(index, 1)"
         ></v-btn>
       </template>
     </v-list-item>
@@ -30,6 +30,7 @@ import { SiteItem, SiteWithDistance, SiteWithScore } from '@/api'
 import SiteAutocomplete from '@/features/site/components/SiteAutocomplete.vue'
 import { Hsluv } from 'hsluv'
 import { computed, reactive, ref } from 'vue'
+import { PinMarker } from './layers-manager/map-layers'
 
 const site = ref<SiteWithDistance | SiteWithScore>()
 
@@ -37,10 +38,10 @@ export type SiteItemWithColor = SiteItem & {
   color?: string
 }
 
-const sites = defineModel<SiteItemWithColor[]>({ default: reactive([]) })
+const markers = defineModel<PinMarker<SiteItem>[]>({ default: reactive([]) })
 
 const siteColors = computed(() => {
-  return new Set(sites.value.map((s, i) => s.color))
+  return new Set(markers.value.map((s, i) => s.options?.color))
 })
 
 const emit = defineEmits<{
@@ -50,7 +51,7 @@ const emit = defineEmits<{
 function addSite(s?: SiteItem) {
   if (!s) return
   site.value = undefined
-  sites.value.push({ ...s, color: generateColor() })
+  markers.value.push({ data: s, options: { color: generateColor() }, coordinates: s.coordinates })
 }
 
 function generateColor(index: number = 0): string {

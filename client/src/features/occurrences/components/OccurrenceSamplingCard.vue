@@ -31,7 +31,7 @@
         </div>
       </template>
     </v-list-item>
-    <ItemLocationMap :site="item.sampling.site" :height="300" />
+    <ItemLocationMap :item="item.sampling.site" :height="300" />
     <v-divider />
     <v-list>
       <v-list-item prepend-icon="mdi-account-multiple">

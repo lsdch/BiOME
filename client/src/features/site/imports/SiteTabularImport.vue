@@ -100,7 +100,7 @@
       />
       <v-spacer />
 
-      <SitesMapPreview :sites="itemsPreview">
+      <!-- <SitesMapPreview :sites="itemsPreview">
         <template #activator="{ open }">
           <v-btn
             color="primary"
@@ -110,7 +110,7 @@
             @click="open"
           />
         </template>
-      </SitesMapPreview>
+      </SitesMapPreview> -->
 
       <v-spacer />
     </template>
@@ -144,18 +144,17 @@
 <script setup lang="ts">
 import { $SiteInput } from '@/api'
 import DropZone from '@/components/toolkit/import/DropZone.vue'
-import { ParseError } from 'papaparse'
-import { computed, ref } from 'vue'
-import { useSchema } from '@/composables/schema'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
 import { Errors, indexErrors } from '@/components/toolkit/validation'
+import { useSchema } from '@/composables/schema'
+import { ParseError } from 'papaparse'
+import { computed, ref } from 'vue'
 // import SiteFormDialog from './SiteFormDialogLegacy.vue'
 import SiteImportDialog, { SiteRecord } from './SiteImportDialog.vue'
 import SiteImportSettingsDialog from './SiteImportSettingsDialog.vue'
 import SiteStatusIcon from './SiteStatusIcon'
 import SiteTableExpandedRow from './SiteTableExpandedRow.vue'
-import SitesMapPreview from '../imports/SitesMapPreview.vue'
 
 /**
  * RecordElement is a parsed CSV line before any validation is applied

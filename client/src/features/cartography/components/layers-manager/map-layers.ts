@@ -1,12 +1,11 @@
-import { HabitatRecord, OccurrencesBySiteData, SiteItem } from '@/api'
+import { HabitatRecord, OccurrencesBySiteData } from '@/api'
 import { ScaleBindingSpec } from '@/features/cartography/bindings'
 import { Geocoordinates } from '@/features/cartography/coordinates'
 import { brewerPalettes, withOpacity } from '@/lib/color_brewer'
 import { WithRequired } from '@tanstack/vue-query'
 import { UUID } from 'crypto'
-import { CircleMarkerOptions } from 'leaflet'
+import { MarkerOptions } from 'maplibre-gl'
 import { Overwrite } from 'ts-toolbelt/out/Object/Overwrite'
-import { ScaleBinding } from 'vue-leaflet-hexbin'
 import { RGB } from 'vuetify/lib/util/colorUtils.mjs'
 
 export type MappingFilters = WithRequired<
@@ -165,10 +164,12 @@ export function resetLayerStyle(layer: LayerSpec) {
  * Type representing the cosmetic settings for markers in the map layers.
  * Opacity can be controlled directly by 'color' and 'fill' properties.
  */
-export type MarkerConfig = Overwrite<
-  Omit<CircleMarkerOptions, 'opacity' | 'fillOpacity' | 'renderer'>,
-  { dashArray?: string | undefined }
->
+export type MarkerConfig = {
+  radius?: number
+  fillColor?: string
+  color?: string
+  weight?: number
+}
 
 /**
  * Type representing a marker layer in the map.
@@ -183,17 +184,6 @@ export type MarkerLayer<Item extends Geocoordinates> = {
 }
 
 /**
- * Type representing the bindings for hexgrid scales.
- * These bindings are used to define which value is used for each hexagon
- * to determine its color, radius, and opacity.
- */
-export type HexgridScaleBindings<Item> = {
-  color?: ScaleBinding<Item>
-  radius?: ScaleBinding<Item>
-  opacity?: ScaleBinding<Item>
-}
-
-/**
  * Type representing the configuration for a hexgrid layer in the map.
  * This configuration is used to define the appearance and behavior of the hexgrid layer.
  */
@@ -202,9 +192,6 @@ export type HexgridConfig = {
   radiusRange?: [number, number]
   colorRange?: RGB[]
   hover: {
-    fill?: boolean
-    useScale?: boolean
-    scale?: number
     showTooltip?: boolean
     highlight?: boolean
   }
@@ -235,17 +222,11 @@ export type HexgridLayer<Item extends Geocoordinates> = {
   active: boolean
   config: HexgridConfig
   data?: Item[]
-  bindings: HexgridScaleBindings<Item>
-}
-
-/**
- * Type representing a hexgrid layer in the map.
- */
-export type HexgridLayerDeck<Item extends Geocoordinates> = {
-  name?: string
-  active: boolean
-  config: HexgridConfig
-  data?: Item[]
   colorBinding: Required<ScaleBindingSpec>
   markers: MarkerLayerSpec & { minZoom: number }
+}
+
+export type PinMarker<Item> = Geocoordinates & {
+  options?: MarkerOptions
+  data: Item
 }

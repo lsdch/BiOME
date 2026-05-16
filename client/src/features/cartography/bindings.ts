@@ -1,5 +1,4 @@
 import { SiteWithOccurrences, TaxonRank } from '@/api'
-import { ScaleBinding } from 'vue-leaflet-hexbin'
 
 type WeightBindingName = 'sites' | 'samplings' | 'occurrences'
 type ColorBindingName = 'speciesRichness' | 'genusRichness' | 'familyRichness'
@@ -13,28 +12,6 @@ export const bindingLabels: Record<BindingName, string> = {
   speciesRichness: 'Species richness',
   genusRichness: 'Genus richness',
   familyRichness: 'Family richness'
-}
-
-const bindings: Record<BindingName, ScaleBinding<SiteWithOccurrences>> = {
-  sites: (d) => d.length,
-  samplings: (d) => d.reduce((acc, { data }) => acc + data.samplings.length, 0),
-  occurrences: (d) =>
-    d.reduce((acc, { data }) => acc + data.samplings.flatMap((s) => s.occurrences).length, 0),
-  speciesRichness: (d) =>
-    computeRichness(
-      d.map(({ data }) => data),
-      'Species'
-    ),
-  genusRichness: (d) =>
-    computeRichness(
-      d.map(({ data }) => data),
-      'Genus'
-    ),
-  familyRichness: (d) =>
-    computeRichness(
-      d.map(({ data }) => data),
-      'Family'
-    )
 }
 
 const bindingsWeightDeck: Record<WeightBindingName, (d: SiteWithOccurrences) => number> = {
@@ -92,16 +69,6 @@ export function hexagonLayerColorBinding(spec: ScaleBindingSpec | undefined) {
 export type ScaleBindingSpec = {
   binding?: BindingName
   log?: boolean
-}
-
-export function useScaleBinding(
-  spec: ScaleBindingSpec | undefined
-): ScaleBinding<SiteWithOccurrences> | undefined {
-  if (!spec) return undefined
-  const { binding, log } = spec
-  if (!binding) return undefined
-  const scaleBinding = bindings[binding]
-  return log ? (d) => Math.log(scaleBinding(d) + 1) : scaleBinding
 }
 
 export function computeRichness(data: SiteWithOccurrences[], rank: TaxonRank): number {

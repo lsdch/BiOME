@@ -66,7 +66,6 @@
             <span class="text-muted text-caption">Description</span>
           </template>
         </v-list-item>
-        <div id="inline-map-container" />
         <v-divider />
         <v-list-item>
           <span class="text-muted font-italic" v-if="!targeted_taxa?.length">Unknown</span>
@@ -98,16 +97,15 @@
     </v-card>
 
     <div id="map-container">
-      <v-card v-if="!site && !$vuetify.display.mdAndDown" height="100%">
+      <v-card v-if="!site" height="100%">
         <CenteredSpinner height="100%" :size="50" />
       </v-card>
+      <SiteItemMap v-else :site />
     </div>
 
     <SiteFormDialog v-model:item="site" v-model:dialog="editDialog"></SiteFormDialog>
 
     <SiteItemDetailTabs id="panels" :site> </SiteItemDetailTabs>
-
-    <SiteItemMap v-if="site" :site />
     <!-- <div id="panels">
       <v-expansion-panels :disabled="isPending">
         <v-expansion-panel>
@@ -263,6 +261,7 @@ const occurring_taxa = computed(() => {
   &.small {
     grid-template-areas:
       'info info'
+      'map map'
       'panels panels'
       'misc misc';
   }

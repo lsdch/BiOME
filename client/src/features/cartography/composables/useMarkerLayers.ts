@@ -160,8 +160,8 @@ export function useMarkerLayers<Item extends SiteItem>(
     markerOptions?: MaybeRefOrGetter<GlobalMarkerOptions>
   },
   ctx: {
-    selected: Ref<MarkerSelectionInfo<Item> | undefined>
-    select: (info: MarkerSelectionInfo<Item>) => void
+    selected: Ref<MarkerSelectionInfo<Item, any> | undefined>
+    select: (info: MarkerSelectionInfo<Item, any>) => void
     currentZoom: Ref<number>
     hoverTooltip: Ref<{ x: number; y: number; text: string } | undefined>
   }

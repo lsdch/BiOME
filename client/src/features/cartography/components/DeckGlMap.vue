@@ -12,7 +12,7 @@
         <layers-control
           :hexgrid
           :marker-layers
-          :hasSiteMarkers="!!markers?.length"
+          :hasSiteMarkers="!!pinMarkers?.length"
           v-model:site-markers-visible="siteMarkersVisible"
           v-model:regions="regions"
           v-model:roads="roads"
@@ -27,7 +27,7 @@
           icon="mdi-fit-to-screen"
           :width="30"
           density="compact"
-          @click="fitMapView()"
+          @click="fitMapView(typeof autoFit === 'number' ? autoFit : 0)"
         />
         <v-btn
           v-tooltip="{ text: 'Toggle fullscreen', openDelay: 300 }"
@@ -86,37 +86,29 @@
       </div>
     </div>
 
-    <div
-      v-if="selected?.type === 'item' && selected.info.object"
-      class="map-popup site-popup bottom-left"
-    >
-      <slot name="popup" :item="selected.info.object" :zoom="currentZoom" />
-    </div>
-    <div v-else-if="selected?.type === 'site'" class="map-popup site-popup bottom-left">
-      <slot name="popup" :item="selected.info" :zoom="currentZoom" />
-    </div>
-    <div
-      v-else-if="selected?.type === 'cluster' && selected?.info.object"
-      class="map-popup hex-popup"
-    >
-      <slot name="cluster-popup" :data="selected.info.object.items" :type="selected.type" />
-    </div>
-    <div
-      v-else-if="
-        selected?.type === 'hexagon' &&
-        selected?.info.object &&
-        selected.info.object.points?.length === 1
-      "
-      class="map-popup site-popup bottom-left"
-    >
-      <slot name="popup" :item="selected.info.object.points[0]" :zoom="currentZoom" />
-    </div>
+    <div class="map-popup bottom-left">
+      <div v-if="selected?.type === 'item' && selected.info.object">
+        <slot name="popup" :item="selected.info.object" :zoom="currentZoom" />
+      </div>
+      <div v-else-if="selected?.type === 'site'">
+        <slot name="pin-popup" :item="selected.info" :zoom="currentZoom" />
+      </div>
+      <div v-else-if="selected?.type === 'cluster' && selected?.info.object">
+        <slot name="cluster-popup" :data="selected.info.object.items" :type="selected.type" />
+      </div>
+      <div
+        v-else-if="
+          selected?.type === 'hexagon' &&
+          selected?.info.object &&
+          selected.info.object.points?.length === 1
+        "
+      >
+        <slot name="popup" :item="selected.info.object.points[0]" :zoom="currentZoom" />
+      </div>
 
-    <div
-      v-else-if="selected?.type === 'hexagon' && selected?.info.object"
-      class="map-popup hex-popup"
-    >
-      <slot name="cluster-popup" :data="selected.info.object.points" :type="selected.type" />
+      <div v-else-if="selected?.type === 'hexagon' && selected?.info.object">
+        <slot name="cluster-popup" :data="selected.info.object.points" :type="selected.type" />
+      </div>
     </div>
 
     <div
@@ -145,7 +137,7 @@ export default {
 }
 </script>
 
-<script setup lang="ts" generic="Marker extends SiteWithOccurrences & { color?: string }">
+<script setup lang="ts" generic="PinMarkerData">
 import type { Layer } from '@deck.gl/core'
 import { MapboxOverlay } from '@deck.gl/mapbox'
 import { onKeyStroke, useDebounceFn, useFullscreen, useThrottleFn } from '@vueuse/core'
@@ -163,12 +155,12 @@ import {
 } from 'vue'
 
 import { CoordinatesPrecision, type SiteWithOccurrences } from '@/api'
-import type { Geocoordinates } from '@/features/cartography/coordinates'
+import type { Coordinates, Geocoordinates } from '@/features/cartography/coordinates'
 import { useMarkerLayers } from '../composables/useMarkerLayers'
-import type { HexgridLayerDeck, MarkerLayer } from './layers-manager/map-layers'
+import type { HexgridLayer, MarkerLayer, PinMarker } from './layers-manager/map-layers'
 
 import '@deck.gl/widgets/stylesheet.css'
-import { circle } from '@turf/turf'
+import * as turf from '@turf/turf'
 import { useHexgridLayer } from '../composables/hexgrid-layer'
 import { useMarkerSelection } from '../composables/marker-selection'
 import {
@@ -190,7 +182,6 @@ export type GlobalMarkerOptions = {
 }
 
 type Item = SiteWithOccurrences
-type MarkerWithColor = Marker
 
 const mapContainer = ref<HTMLElement>()
 const mapHost = ref<HTMLElement>()
@@ -213,8 +204,8 @@ const {
   markerOptions = DEFAULT_MARKER_OPTIONS,
   ...props
 } = defineProps<{
-  hexgrid?: HexgridLayerDeck<Item>
-  markers?: MarkerWithColor[]
+  hexgrid?: HexgridLayer<Item>
+  pinMarkers?: PinMarker<PinMarkerData>[]
   markerLayers?: MarkerLayer<Item>[]
   autoFit?: boolean | number
   closable?: boolean
@@ -228,12 +219,14 @@ const {
 
 defineSlots<{
   popup: (props: { item: Item; zoom: number }) => any
+  'pin-popup': (props: { item: PinMarker<PinMarkerData>; zoom: number }) => any
   'cluster-popup': (props: { data?: Item[]; type: 'cluster' | 'hexagon' }) => any
 }>()
 
 const emit = defineEmits<{
   toggleHexgrid: [active: boolean]
   toggleMarkers: [layerIndex: number, active: boolean]
+  dragPin: [index: number, coords: Coordinates, marker: PinMarker<PinMarkerData>]
   close: []
 }>()
 
@@ -275,13 +268,16 @@ const mapStyle: StyleSpecification = {
   ]
 }
 
-const { selected, select, highlightLayer, clear } = useMarkerSelection<Item>()
+const { selected, select, highlightLayer, clear } = useMarkerSelection<
+  Item,
+  PinMarker<PinMarkerData>
+>()
 
-function displayRadius(site: Item) {
+function displaySiteRadius(site: Geocoordinates) {
   const precision = site.coordinates.precision
   if (precision === 'Unknown') return
   const radius = CoordinatesPrecision.radius(precision)
-  const c = circle([site.coordinates.longitude, site.coordinates.latitude], radius, {
+  const c = turf.circle([site.coordinates.longitude, site.coordinates.latitude], radius, {
     steps: 64,
     units: 'meters'
   })
@@ -309,7 +305,7 @@ function displayRadius(site: Item) {
   })
 }
 
-function removeRadius(mapInstance: maplibregl.Map) {
+function removeSiteRadius(mapInstance: maplibregl.Map) {
   mapInstance.getLayer(`site-radius`) && mapInstance.removeLayer(`site-radius`)
   mapInstance.getLayer(`site-radius-outline`) && mapInstance.removeLayer(`site-radius-outline`)
   mapInstance.getSource(`site-radius`) && mapInstance.removeSource(`site-radius`)
@@ -317,8 +313,9 @@ function removeRadius(mapInstance: maplibregl.Map) {
 
 watch(selected, () => {
   if (!map.value) return
-  removeRadius(map.value)
-  if (selected.value?.type === 'item') displayRadius(selected.value.info.object!)
+  removeSiteRadius(map.value)
+  if (selected.value?.type === 'item') displaySiteRadius(selected.value.info.object!)
+  else if (selected.value?.type === 'site') displaySiteRadius(selected.value.info)
 })
 
 const { markerDeckLayers } = useMarkerLayers(
@@ -375,9 +372,9 @@ const fitSignature = computed(() => {
     )
     .join('|')
 
-  const markerSignatureSingle = (props.markers ?? []).length
+  const markerSignatureSingle = (props.pinMarkers ?? []).length
 
-  return [hexSignature, markerSignature, markerSignatureSingle].join('::')
+  return [autoFit, hexSignature, markerSignature, markerSignatureSingle].join('::')
 })
 
 function computeAllPoints() {
@@ -385,7 +382,7 @@ function computeAllPoints() {
   const markerLayerPoints = (props.markerLayers ?? [])
     .filter((layer) => layer.active)
     .flatMap((layer) => layer.data ?? [])
-  const singleMarkers = props.markers ?? []
+  const singleMarkers = props.pinMarkers ?? []
 
   return [...hexPoints, ...markerLayerPoints, ...singleMarkers].map(({ coordinates }) => [
     coordinates.longitude,
@@ -396,13 +393,20 @@ function computeAllPoints() {
 function fitMapView(radiusMeters = 0) {
   if (autoFit === false || !map.value || !mapInitialized.value) return
 
+  console.debug('Fitting map view to data with radius', radiusMeters)
+
   const points = computeAllPoints()
   if (!points.length) return
 
-  const bounds = points.reduce((acc, [lng, lat]) => acc.extend([lng, lat]), new LngLatBounds())
-
-  map.value.fitBounds(bounds, {
-    padding: Math.max(40, radiusMeters ? Number(radiusMeters) / 200 : 40),
+  const geojsonPoints = turf.points(points)
+  let buffered =
+    radiusMeters > 0 && points.length > 0
+      ? turf.buffer(geojsonPoints, radiusMeters, { units: 'meters' })
+      : undefined
+  const [minLng, minLat, maxLng, maxLat] = turf.bbox(buffered ?? geojsonPoints)
+  let bufferedBounds = new LngLatBounds([minLng, minLat], [maxLng, maxLat])
+  map.value.fitBounds(bufferedBounds, {
+    padding: 40,
     duration: 350,
     maxZoom: maxZoom
   })
@@ -432,14 +436,20 @@ watchEffect(() => {
   if (!map.value) return
   mapMarkers.value?.forEach((marker) => marker.remove())
   if (!siteMarkersVisible.value) return
-  mapMarkers.value = props.markers?.map((marker) => {
-    const m = new maplibregl.Marker({ color: marker.color })
+  mapMarkers.value = props.pinMarkers?.map((marker, index) => {
+    const m = new maplibregl.Marker(marker.options)
       .setLngLat([marker.coordinates.longitude, marker.coordinates.latitude])
       .addTo(map.value!)
 
     m.on('click', () => {
       select({ type: 'site', info: marker })
     })
+    if (m.isDraggable()) {
+      m.on('dragend', () => {
+        const { lng, lat } = m.getLngLat()
+        emit('dragPin', index, { longitude: lng, latitude: lat }, marker)
+      })
+    }
     return m
   })
 })
@@ -524,7 +534,7 @@ onUnmounted(() => {
   mapInitialized.value = false
 })
 
-defineExpose({ fitMapView, fitViewToSite, select, clear, el: mapContainer })
+defineExpose({ fitMapView, fitViewToSite, select, clear, instance: map, el: mapContainer })
 </script>
 
 <style scoped lang="scss">
@@ -572,11 +582,6 @@ defineExpose({ fitMapView, fitViewToSite, select, clear, el: mapContainer })
   position: absolute;
   z-index: 11;
   max-width: min(480px, calc(100% - 24px));
-}
-
-.hex-popup {
-  left: 12px;
-  bottom: 12px;
 }
 
 .hex-hover-tooltip {

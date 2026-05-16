@@ -14,14 +14,6 @@ export default defineConfig(({ mode }) => {
   const hmrHost = env.VITE_HMR_HOST || os.hostname()
 
   return {
-    optimizeDeps: {
-      exclude: ['leaflet.fullscreen'],
-      esbuildOptions: {
-        define: {
-          global: 'globalThis'
-        }
-      }
-    },
     server: {
       host: true,
       allowedHosts: env.VITE_ALLOWED_HOSTS?.split(','),

@@ -41,8 +41,8 @@
               </template>
             </SiteFormDialog>
           </template>
-          <template #default>
-            <div v-if="!site || showEdit">
+          <template #default v-if="!site || showEdit">
+            <div>
               <v-card-text>
                 <SiteAutocomplete @update:model-value="updateSite" />
               </v-card-text>
@@ -55,10 +55,7 @@
         </SitePreviewCard>
       </v-col>
       <v-col cols="12" v-if="site" style="min-height: 400px">
-        <SiteProximityMap
-          :model-value="site?.coordinates ?? {}"
-          :omit-codes="site ? [site.code] : undefined"
-        />
+        <ItemLocationMap v-model:item="site" :exclude-codes="site ? [site.code] : undefined" />
       </v-col>
     </v-row>
   </v-card>
@@ -67,9 +64,9 @@
 <script setup lang="ts">
 import { SiteItem } from '@/api'
 import SiteFormDialog from '@/components/forms/SiteFormDialog.vue'
+import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.vue'
 import SiteAutocomplete from '@/features/site/components/SiteAutocomplete.vue'
 import SitePreviewCard from '@/features/site/components/SitePreviewCard.vue'
-import SiteProximityMap from '@/features/site/components/SiteProximityMap.vue'
 import { hasID } from '@/lib/db'
 import { SiteModel } from '@/models'
 import { useToggle } from '@vueuse/core'
