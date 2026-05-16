@@ -3,26 +3,21 @@
   <v-alert v-else-if="fetchError" color="error" icon="mdi-alert">
     Failed to load instance settings
   </v-alert>
-  <v-confirm-edit v-else v-model="instance">
-    <template #default="{ isPristine, save, cancel, model: proxy, actions: _ }">
-      <SettingsFormActions
-        :model-value="!isPristine"
-        @reset="cancel()"
-        @submit="submit(proxy.value).then(() => save())"
-        :loading="isUpdating"
-      />
-      <v-container>
-        <v-row>
-          <v-col>
-            <v-alert v-if="updateError" color="error" icon="mdi-alert">
-              Failed to update settings
-            </v-alert>
-          </v-col>
-        </v-row>
+  <v-container v-else-if="instance">
+    <v-row>
+      <v-col>
+        <v-alert v-if="updateError" color="error" icon="mdi-alert">
+          Failed to update settings
+        </v-alert>
+      </v-col>
+    </v-row>
+    <v-confirm-edit v-model="instance">
+      <template #default="{ isPristine, save, cancel, model: proxy, actions }">
         <v-row>
           <v-col cols="12" sm="3" class="px-3 d-flex align-center justify-center">
             <IconEditor />
           </v-col>
+
           <v-col cols="12" sm="9" variant="text" class="d-flex align-center">
             <div class="w-100">
               <v-text-field
@@ -33,59 +28,82 @@
                 persistent-hint
                 v-bind="schema('name')"
               />
-              <v-text-field
+              <v-textarea
                 v-model="proxy.value.description"
+                :rows="2"
                 label="Instance description"
                 hint="A short description of the database purpose to be displayed on the front page."
                 persistent-hint
-                clearable
                 v-bind="schema('description')"
+                :spellcheck="false"
               />
             </div>
           </v-col>
         </v-row>
+        <v-expand-transition>
+          <div class="w-100 d-flex justify-end" v-if="!isPristine">
+            <v-btn variant="plain" @click="cancel">Cancel</v-btn>
+            <v-btn
+              text="OK"
+              @click="
+                mutateAsync(
+                  { body: { name: proxy.value.name, description: proxy.value.description } },
+                  { onSuccess: save }
+                )
+              "
+            />
+          </div>
+        </v-expand-transition>
+      </template>
+    </v-confirm-edit>
+    <v-card>
+      <v-list>
+        <v-list-item>
+          <v-switch
+            :model-value="instance.public"
+            @update:model-value="(v) => mutateAsync({ body: { public: !!v } })"
+            label="Instance is public"
+            class="mb-5"
+            color="primary"
+            hint="A private instance requires user authentication to get access to any data. A public instance allows read-only access to anonymous users."
+            persistent-hint
+          />
+        </v-list-item>
         <v-divider />
-        <v-switch
-          v-model="proxy.value.public"
-          label="Instance is public"
-          class="mb-5"
-          color="primary"
-          hint="A private instance requires user authentication to get access to any data. A public instance allows read-only access to anonymous users on a subset of pages."
-          persistent-hint
-        />
-        <v-divider />
-        <v-switch
-          v-model="proxy.value.allow_contributor_signup"
-          label="Allow contributor registration"
-          color="primary"
-          hint="If enabled, visitors may apply for an account with Contributor privileges."
-          persistent-hint
-        />
-      </v-container>
-    </template>
-  </v-confirm-edit>
+        <v-list-item>
+          <v-switch
+            :model-value="instance.allow_contributor_signup"
+            @update:model-value="(v) => mutateAsync({ body: { allow_contributor_signup: !!v } })"
+            label="Allow contributor registration"
+            color="primary"
+            hint="If enabled, visitors may apply for an account with Contributor privileges."
+            persistent-hint
+          />
+        </v-list-item>
+      </v-list>
+    </v-card>
+  </v-container>
 </template>
 
 <script setup lang="ts">
-import { $InstanceSettingsInput, InstanceSettings } from '@/api'
+import { $InstanceSettingsUpdate, InstanceSettings } from '@/api'
 import {
   instanceSettingsQueryKey,
   updateInstanceSettingsMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
+import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
+import { useSchema } from '@/composables/schema'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation, useQueryClient } from '@tanstack/vue-query'
 import { useInstanceSettings } from '.'
-import { useSchema } from '@/composables/schema'
-import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import IconEditor from './InstanceIcon.vue'
-import SettingsFormActions from './SettingsFormActions.vue'
 
 const { instance, reload, isPending, error: fetchError } = useInstanceSettings()
 
 const {
-  bind: { schema },
+  bind: { schema, field },
   dispatchErrors
-} = useSchema($InstanceSettingsInput)
+} = useSchema($InstanceSettingsUpdate)
 
 const { feedback } = useFeedback()
 
@@ -104,6 +122,11 @@ const {
   },
   onError: dispatchErrors
 })
+
+async function setPublic(value: boolean | null) {
+  if (value === null) return
+  await mutateAsync({ body: { public: value } })
+}
 
 async function submit(model: InstanceSettings) {
   await mutateAsync({ body: model })

@@ -19,11 +19,14 @@ func GetInstanceSettings(ctx context.Context, input *struct{}) (*InstanceSetting
 func UpdateInstanceSettings(ctx context.Context,
 	input *struct {
 		resolvers.AccessRestricted[resolvers.Admin]
-		Body settings.InstanceSettingsInput
+		Body settings.InstanceSettingsUpdate
 	},
 ) (*InstanceSettings, error) {
 	updated, err := input.Body.Save(input.DB())
-	return &InstanceSettings{Body: *updated}, err
+	if err != nil {
+		return nil, err
+	}
+	return &InstanceSettings{Body: updated}, nil
 }
 
 type SecuritySettings struct{ Body settings.SecuritySettings }
@@ -39,7 +42,10 @@ func UpdateSecuritySettings(ctx context.Context,
 	},
 ) (*SecuritySettings, error) {
 	updated, err := input.Body.Save(input.DB())
-	return &SecuritySettings{Body: *updated}, err
+	if err != nil {
+		return nil, err
+	}
+	return &SecuritySettings{Body: *updated}, nil
 }
 
 type EmailSettings struct{ Body settings.EmailSettings }

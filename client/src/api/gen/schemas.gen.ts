@@ -2182,6 +2182,7 @@ export const $InstanceSettings = {
     },
     name: {
       description: 'The name of this database platform',
+      maxLength: 20,
       type: 'string'
     },
     public: {
@@ -2193,12 +2194,12 @@ export const $InstanceSettings = {
   type: 'object'
 } as const
 
-export const $InstanceSettingsInput = {
+export const $InstanceSettingsUpdate = {
   additionalProperties: false,
   properties: {
     $schema: {
       description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/InstanceSettingsInput.json'],
+      examples: ['/api/v1/schemas/InstanceSettingsUpdate.json'],
       format: 'uri',
       readOnly: true,
       type: 'string'
@@ -2211,7 +2212,7 @@ export const $InstanceSettingsInput = {
       type: ['string', 'null']
     },
     name: {
-      description: 'The name of this database platform',
+      maxLength: 20,
       type: 'string'
     },
     public: {
@@ -2219,7 +2220,6 @@ export const $InstanceSettingsInput = {
       type: 'boolean'
     }
   },
-  required: ['name', 'public', 'allow_contributor_signup'],
   type: 'object'
 } as const
 

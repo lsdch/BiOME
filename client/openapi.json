@@ -2496,6 +2496,7 @@
 					},
 					"name": {
 						"description": "The name of this database platform",
+						"maxLength": 20,
 						"type": "string"
 					},
 					"public": {
@@ -2511,13 +2512,13 @@
 				],
 				"type": "object"
 			},
-			"InstanceSettingsInput": {
+			"InstanceSettingsUpdate": {
 				"additionalProperties": false,
 				"properties": {
 					"$schema": {
 						"description": "A URL to the JSON Schema for this object.",
 						"examples": [
-							"/api/v1/schemas/InstanceSettingsInput.json"
+							"/api/v1/schemas/InstanceSettingsUpdate.json"
 						],
 						"format": "uri",
 						"readOnly": true,
@@ -2534,7 +2535,7 @@
 						]
 					},
 					"name": {
-						"description": "The name of this database platform",
+						"maxLength": 20,
 						"type": "string"
 					},
 					"public": {
@@ -2542,11 +2543,6 @@
 						"type": "boolean"
 					}
 				},
-				"required": [
-					"name",
-					"public",
-					"allow_contributor_signup"
-				],
 				"type": "object"
 			},
 			"InvitationInput": {
@@ -15840,7 +15836,7 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/InstanceSettingsInput"
+								"$ref": "#/components/schemas/InstanceSettingsUpdate"
 							}
 						}
 					},

@@ -1,17 +1,13 @@
-import { InstanceSettings, SettingsService } from "@/api";
-import { instanceSettingsOptions } from "@/api/gen/@tanstack/vue-query.gen";
-import { useErrorHandler } from "@/api/responses";
-import { useQuery } from "@tanstack/vue-query";
-import { computed, ref } from "vue";
+import { instanceSettingsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { useQuery } from '@tanstack/vue-query'
+import { computed, ref } from 'vue'
 
 const ICON_PATH = '/api/v1/assets/app_icon.png' as const
 const cacheKey = ref(Math.random())
 
-
 export function useInstanceSettings() {
-
   const { data, error, isPending, isSuccess, refetch, suspense } = useQuery({
-    ...instanceSettingsOptions(),
+    ...instanceSettingsOptions()
   })
 
   const iconImgProps = computed(() => ({

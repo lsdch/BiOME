@@ -871,7 +871,7 @@ export type InstanceSettings = {
   public: boolean
 }
 
-export type InstanceSettingsInput = {
+export type InstanceSettingsUpdate = {
   /**
    * A URL to the JSON Schema for this object.
    */
@@ -879,16 +879,13 @@ export type InstanceSettingsInput = {
   /**
    * Whether requests to contribute to the database can be made.
    */
-  allow_contributor_signup: boolean
+  allow_contributor_signup?: boolean
   description?: string | null
-  /**
-   * The name of this database platform
-   */
-  name: string
+  name?: string
   /**
    * Whether the platform is accessible to unauthenticated users
    */
-  public: boolean
+  public?: boolean
 }
 
 export type InvitationInput = {
@@ -6355,7 +6352,7 @@ export type InstanceSettingsResponses = {
 export type InstanceSettingsResponse = InstanceSettingsResponses[keyof InstanceSettingsResponses]
 
 export type UpdateInstanceSettingsData = {
-  body: InstanceSettingsInput
+  body: InstanceSettingsUpdate
   headers?: {
     /**
      * Authorization header formatted as "Bearer auth_token". Takes precedence over session cookie if set.

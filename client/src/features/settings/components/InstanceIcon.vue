@@ -6,7 +6,10 @@
     :max-width="120"
     alt="alt"
     rounded="circle"
-    :class="['border-lg', iconHover ? 'border-primary border-opacity-100' : 'border-opacity-10']"
+    :class="[
+      'border-lg bg-white',
+      iconHover ? 'border-primary border-opacity-100' : 'border-opacity-10'
+    ]"
     v-bind="iconImgProps"
   >
     <v-overlay
