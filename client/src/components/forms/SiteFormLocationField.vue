@@ -26,6 +26,7 @@
     <template #append>
       <div :class="['d-flex ga-2', { 'flex-column align-end': $vuetify.display.smAndDown }]">
         <v-switch
+          v-if="status?.available"
           v-model="user_defined_locality"
           :true-value="false"
           :false-value="true"
@@ -36,6 +37,7 @@
         />
         <div class="d-flex ga-2">
           <v-btn
+            v-if="status?.available"
             icon="mdi-restore"
             title="Auto-fill from coordinates"
             variant="tonal"
@@ -54,10 +56,8 @@
         indeterminate
         color="primary"
       />
-      <template v-if="user_defined_locality">
-        <div class="text-caption mb-3">
-          Manual input mode: please carefully review the provided informations
-        </div>
+      <template v-if="!status?.available || user_defined_locality">
+        <div class="text-caption mb-3"></div>
         <v-row>
           <v-col cols="12" sm="6">
             <v-text-field
@@ -98,6 +98,7 @@ import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import GeoapifyStatusButton from '@/components/toolkit/services/geoapify/GeoapifyStatusButton.vue'
 import CountryChip from '@/features/site/components/CountryChip'
 import { SchemaBinding } from '@/composables/schema'
+
 const locality = defineModel<string | null | undefined>('locality', { required: true })
 const country_code = defineModel<string | null | undefined>('country_code', { required: true })
 const user_defined_locality = defineModel<boolean | undefined>('user_defined_locality')
@@ -107,7 +108,7 @@ const props = defineProps<{
   schema: (...path: ['locality'] | ['country_code']) => SchemaBinding
 }>()
 
-const { reverseGeocodeQuery } = useGeoapify()
+const { reverseGeocodeQuery, status } = useGeoapify()
 
 const {
   data: reverseGeocodeResult,
