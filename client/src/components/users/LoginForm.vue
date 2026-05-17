@@ -3,8 +3,7 @@
     <v-text-field
       v-model="credentials.identifier"
       name="login"
-      label="Account"
-      placeholder="Login or email"
+      label="Login or email"
       variant="outlined"
       prepend-inner-icon="mdi-account"
     />
