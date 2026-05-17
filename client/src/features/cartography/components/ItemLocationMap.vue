@@ -21,7 +21,7 @@
         <v-progress-circular
           indeterminate
           color="primary"
-          v-if="!!item && isPending"
+          v-if="hasValidCoordinates && isPending"
           size="small"
           class="mr-2"
         />
@@ -82,7 +82,7 @@
               variant="plain"
               v-tooltip="`See list of sites and occurrences within radius`"
               v-bind="props"
-              :disabled="!item || nearbySites?.length === 0"
+              :disabled="!hasValidCoordinates || nearbySites?.length === 0"
             />
           </template>
         </OccurrencesOverviewDialog>
