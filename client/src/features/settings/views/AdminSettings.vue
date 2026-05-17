@@ -40,14 +40,13 @@
 <script setup lang="ts">
 import EmailSettings from '@/features/settings/components/EmailSettings.vue'
 import InstanceSettings from '@/features/settings/components/InstanceSettings.vue'
-import SecuritySettings from '@/features/settings/components/SecuritySettings.vue'
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 
 import NotFound from '@/components/navigation/NotFound.vue'
+import ServiceSettings from '@/features/settings/components/ServiceSettings.vue'
 import routes from '@/router/routes'
 import { useRouter } from 'vue-router'
-import ServiceSettings from '@/features/settings/components/ServiceSettings.vue'
 
 const { mobile } = useDisplay()
 
@@ -61,7 +60,6 @@ function resolveSubroute(category: string) {
 }
 const subroutes = [
   { title: 'Instance', category: 'instance', icon: 'mdi-application-settings-outline' },
-  { title: 'Security', category: 'security', icon: 'mdi-security' },
   { title: 'E-mailing', category: 'email', icon: 'mdi-email' },
   { title: 'Services', category: 'services', icon: 'mdi-network-pos' }
 ]
@@ -70,8 +68,6 @@ const component = computed(() => {
   switch (props.category) {
     case 'instance':
       return InstanceSettings
-    case 'security':
-      return SecuritySettings
     case 'email':
       return EmailSettings
     case 'services':
