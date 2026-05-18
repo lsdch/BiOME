@@ -123,7 +123,6 @@ func GetSequence(db geltypes.Executor, code string) (seq SequenceWithDetails, er
 						methods: { * },
 						habitats: { * },
 						occurrences: { * },
-						occurring_taxa: { * },
 						site: { *, country: { * } },
 						meta: { * }
 					},

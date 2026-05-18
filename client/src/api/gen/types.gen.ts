@@ -128,13 +128,6 @@ export type AuthenticationResponse = {
   user: User
 }
 
-export type BaseIdentification = {
-  addendum?: string
-  confer: boolean
-  identified_on?: OptionalDateWithPrecision
-  taxon: Taxon
-}
-
 export type BaseOccurrenceSamplingInnerWithSite = {
   code: string
   code_history?: Array<CodeHistory>
@@ -841,6 +834,13 @@ export type IdentificationUpdate = {
   taxon?: string
 }
 
+export type IdentificationWithLineageNames = {
+  addendum?: string
+  confer: boolean
+  identified_on?: OptionalDateWithPrecision
+  taxon: TaxonWithLineageNames
+}
+
 export type Identifier = {
   'asserted-by'?: string
   id?: string
@@ -1096,7 +1096,7 @@ export type Meta = {
 export type OccurrenceAtSite = {
   code: string
   id: UUID
-  identification: BaseIdentification
+  identification: IdentificationWithLineageNames
 }
 
 export type OccurrenceAtSiteInput = {
@@ -1689,7 +1689,6 @@ export type Sampling = {
    */
   number: number
   occurrences?: Array<OccurrenceStruct>
-  occurring_taxa?: Array<Taxon>
   performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
   target_taxa?: Array<Taxon>
@@ -1713,7 +1712,6 @@ export type SamplingAtSite = {
    */
   number: number
   occurrences?: Array<OccurrenceAtSite>
-  occurring_taxa?: Array<Taxon>
   performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
   target_taxa?: Array<Taxon>
@@ -1723,7 +1721,6 @@ export type SamplingDateWithOccurrences = {
   date?: OptionalDateWithPrecision
   id: UUID
   occurrences: Array<OccurrenceAtSite>
-  occurring_taxa?: Array<Taxon>
 }
 
 export type SamplingDetailsWithOccurrences = {
@@ -1890,7 +1887,6 @@ export type SamplingWithSite = {
    */
   number: number
   occurrences?: Array<OccurrenceStruct>
-  occurring_taxa?: Array<Taxon>
   performed_by?: Array<string>
   performed_on?: OptionalDateWithPrecision
   site: SiteItem
@@ -2228,7 +2224,6 @@ export type SiteWithDistance = {
   last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
-  occurring_taxa?: Array<TaxonWithLineageNames>
   samplings: Array<SamplingDateWithOccurrences>
   user_defined_locality: boolean
 }
@@ -2246,7 +2241,6 @@ export type SiteWithOccurrences = {
   last_visited?: OptionalDateWithPrecision
   locality?: string
   name?: string
-  occurring_taxa?: Array<TaxonWithLineageNames>
   samplings: Array<SamplingDateWithOccurrences>
   user_defined_locality: boolean
 }

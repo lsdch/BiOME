@@ -80,7 +80,6 @@ func GetOccurrence(db geltypes.Executor, code string) (occurrence Occurrence[Sam
 				methods: { * },
 				habitats: { * },
 				occurrences: { *, identification: { ** } },
-				occurring_taxa: { * },
 				site: { *, country: { * } }
 			},
 			identification: { ** },
@@ -184,10 +183,9 @@ func DeleteOccurrence(db geltypes.Executor, code string) (deleted OccurrenceList
 }
 
 type SamplingDateWithOccurrences struct {
-	ID            geltypes.UUID             `gel:"id" json:"id" format:"uuid"`
-	Date          OptionalDateWithPrecision `gel:"date" json:"date,omitzero"`
-	Occurrences   []OccurrenceAtSite        `gel:"occurrences" json:"occurrences"`
-	OccurringTaxa []taxonomy.Taxon          `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
+	ID          geltypes.UUID             `gel:"id" json:"id" format:"uuid"`
+	Date        OptionalDateWithPrecision `gel:"performed_on" json:"date,omitzero"`
+	Occurrences []OccurrenceAtSite        `gel:"occurrences" json:"occurrences"`
 }
 
 type SamplingDetailsWithOccurrences struct {
@@ -197,16 +195,15 @@ type SamplingDetailsWithOccurrences struct {
 }
 
 type OccurrenceAtSite struct {
-	ID             geltypes.UUID      `gel:"id" json:"id" format:"uuid"`
-	Code           string             `gel:"code" json:"code"`
-	Identification BaseIdentification `gel:"identification" json:"identification"`
+	ID             geltypes.UUID                  `gel:"id" json:"id" format:"uuid"`
+	Code           string                         `gel:"code" json:"code"`
+	Identification IdentificationWithLineageNames `gel:"identification" json:"identification"`
 	// SamplingDate      DateWithPrecision   `gel:"sampling_date" json:"sampling_date"`
 }
 
 type SiteWithOccurrences struct {
-	SiteItem      `gel:"$inline"`
-	Samplings     []SamplingDateWithOccurrences    `gel:"samplings" json:"samplings"`
-	OccurringTaxa []taxonomy.TaxonWithLineageNames `gel:"occurring_taxa" json:"occurring_taxa,omitempty"`
+	SiteItem  `gel:"$inline"`
+	Samplings []SamplingDateWithOccurrences `gel:"samplings" json:"samplings"`
 }
 
 func ListSamplingsAtSite(db geltypes.Executor, siteCode string) ([]SamplingDetailsWithOccurrences, error) {

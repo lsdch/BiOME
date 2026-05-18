@@ -134,14 +134,6 @@ module location {
       annotation title := "The site elevation in meters";
     };
 
-    single last_visited := (
-      assert_single((
-        select .samplings.performed_on
-        filter .date = max(__source__.samplings.performed_on.date)
-        limit 1
-      ))
-    );
-
     multi link samplings := .<site[is events::Sampling];
     multi link abiotic_measurements := .<site[is events::AbioticMeasurement];
     multi link flaggings := .<site[is events::Flagging];

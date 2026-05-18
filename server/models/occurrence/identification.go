@@ -11,7 +11,6 @@ import (
 )
 
 type BaseIdentification struct {
-	Taxon        taxonomy.Taxon            `gel:"taxon" json:"taxon"`
 	IdentifiedOn OptionalDateWithPrecision `gel:"identified_on" json:"identified_on,omitzero"`
 	Confer       bool                      `gel:"confer" json:"confer"`
 	Addendum     geltypes.OptionalStr      `gel:"addendum" json:"addendum,omitzero"`
@@ -19,9 +18,15 @@ type BaseIdentification struct {
 
 type Identification struct {
 	BaseIdentification `gel:"$inline"`
-	ID                 geltypes.UUID `gel:"id" json:"id" format:"uuid"`
-	IdentifiedBy       []string      `gel:"identified_by" json:"identified_by,omitempty"`
-	Meta               people.Meta   `gel:"meta" json:"meta"`
+	Taxon              taxonomy.Taxon `gel:"taxon" json:"taxon"`
+	ID                 geltypes.UUID  `gel:"id" json:"id" format:"uuid"`
+	IdentifiedBy       []string       `gel:"identified_by" json:"identified_by,omitempty"`
+	Meta               people.Meta    `gel:"meta" json:"meta"`
+}
+
+type IdentificationWithLineageNames struct {
+	BaseIdentification `gel:"$inline"`
+	Taxon              taxonomy.TaxonWithLineageNames `gel:"taxon" json:"taxon"`
 }
 
 type IdentificationInput struct {

@@ -26,9 +26,9 @@
     <template #item.country="{ value }">
       <CountryChip :country="value" size="small" />
     </template>
-    <template #item.last_visited="{ value }">
+    <template #item.last_visited="{ value, item }">
       <span class="font-monospace">
-        {{ DateWithPrecision.format(value) }}
+        {{ item.samplings.length ? DateWithPrecision.format(value) : 'Never' }}
       </span>
     </template>
     <template #expanded-row-inject="{ item }: { item: Data }">
@@ -56,6 +56,7 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import OccurrenceAtSiteList from '@/features/occurrences/components/OccurrencesAtSiteList.vue'
 import { HeaderExtension, mergeHeaders } from '@/features/occurrences/components/tables/headers'
 import CountryChip from '@/features/site/components/CountryChip'
+import { lastSamplingDate } from '@/lib/dates'
 import { computed, useSlots } from 'vue'
 
 const { sites, extendHeaders } = defineProps<{
@@ -86,7 +87,10 @@ const baseHeaders = [
   },
   {
     title: 'Last visited',
-    value: 'last_visited',
+    key: 'last_visited',
+    value: (item: Data) => {
+      return lastSamplingDate(item)
+    },
     sortable: true,
     align: 'end',
     sort: DateWithPrecision.compare

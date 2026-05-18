@@ -68,7 +68,6 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 					samplings: {
 						id,
 						date := .performed_on,
-						occurring_taxa: { * },
 						occurrences := (
 							select (dataset.occurrences) {
 								id,

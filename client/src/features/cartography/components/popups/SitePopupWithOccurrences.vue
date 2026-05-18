@@ -25,7 +25,7 @@
         <template #activator="{ props }">
           <v-list-item
             title="Sampling events"
-            :subtitle="`Last visit: ${item.last_visited ? DateWithPrecision.format(item.last_visited) : item.samplings.length ? 'Unknown' : 'Never'}`"
+            :subtitle="`Last visit: ${lastVisited}`"
             v-bind="props"
           >
             <template #append>
@@ -43,10 +43,21 @@ import { DateWithPrecision, SiteWithOccurrences } from '@/api'
 import SingleSitePopup from './SingleSitePopup.vue'
 import OccurrenceListDialog from '@/features/occurrences/components/OccurrenceListDialog.vue'
 import SamplingTableDialog from '@/features/occurrences/components/SamplingTableDialog.vue'
+import { lastSamplingDate } from '@/lib/dates'
+import { computed } from 'vue'
 
 const props = defineProps<{
   item: SiteWithOccurrences
 }>()
+
+const lastVisited = computed(() => {
+  const lastDate = lastSamplingDate(props.item)
+  return lastDate
+    ? DateWithPrecision.format(lastDate)
+    : props.item.samplings.length
+      ? 'Unknown'
+      : 'Never'
+})
 </script>
 
 <style scoped lang="scss"></style>

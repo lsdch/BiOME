@@ -74,9 +74,6 @@ module events {
 
     multi link occurrences := .<sampling[is occurrence::Occurrence];
 
-    multi link occurring_taxa := (
-      select distinct .occurrences.identification.taxon
-    );
   }
 
   function sampling_code(sampling: Sampling) -> str {

@@ -77,7 +77,6 @@ func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDis
 				samplings: {
 					id,
 					date := .performed_on,
-					occurring_taxa: { * },
 					occurrences: { id, code, identification: { confer, addendum, identified_on, taxon: { * } } }
 				}
 			}
@@ -245,7 +244,6 @@ func GetSite(db geltypes.Executor, identifier string) (Site, error) {
 							identification: { taxon: { * }, confer, addendum, identified_on },
 						}
 					),
-					occurring_taxa: { * },
 					meta: { * }
 				} order by .performed_on.date desc
 			} filter .code = <str>$0

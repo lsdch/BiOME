@@ -330,26 +330,6 @@ export const $AuthenticationResponse = {
   type: 'object'
 } as const
 
-export const $BaseIdentification = {
-  additionalProperties: false,
-  properties: {
-    addendum: {
-      type: 'string'
-    },
-    confer: {
-      type: 'boolean'
-    },
-    identified_on: {
-      $ref: '#/components/schemas/OptionalDateWithPrecision'
-    },
-    taxon: {
-      $ref: '#/components/schemas/Taxon'
-    }
-  },
-  required: ['taxon', 'confer'],
-  type: 'object'
-} as const
-
 export const $BaseOccurrenceSamplingInnerWithSite = {
   additionalProperties: false,
   properties: {
@@ -2086,7 +2066,7 @@ export const $Identification = {
       $ref: '#/components/schemas/Taxon'
     }
   },
-  required: ['id', 'meta', 'taxon', 'confer'],
+  required: ['taxon', 'id', 'meta', 'confer'],
   type: 'object'
 } as const
 
@@ -2132,6 +2112,26 @@ export const $IdentificationUpdate = {
       type: 'string'
     }
   },
+  type: 'object'
+} as const
+
+export const $IdentificationWithLineageNames = {
+  additionalProperties: false,
+  properties: {
+    addendum: {
+      type: 'string'
+    },
+    confer: {
+      type: 'boolean'
+    },
+    identified_on: {
+      $ref: '#/components/schemas/OptionalDateWithPrecision'
+    },
+    taxon: {
+      $ref: '#/components/schemas/TaxonWithLineageNames'
+    }
+  },
+  required: ['taxon', 'confer'],
   type: 'object'
 } as const
 
@@ -2831,7 +2831,7 @@ export const $OccurrenceAtSite = {
       type: 'string'
     },
     identification: {
-      $ref: '#/components/schemas/BaseIdentification'
+      $ref: '#/components/schemas/IdentificationWithLineageNames'
     }
   },
   required: ['id', 'code', 'identification'],
@@ -4654,12 +4654,6 @@ export const $Sampling = {
       },
       type: 'array'
     },
-    occurring_taxa: {
-      items: {
-        $ref: '#/components/schemas/Taxon'
-      },
-      type: 'array'
-    },
     performed_by: {
       items: {
         type: 'string'
@@ -4736,12 +4730,6 @@ export const $SamplingAtSite = {
       },
       type: 'array'
     },
-    occurring_taxa: {
-      items: {
-        $ref: '#/components/schemas/Taxon'
-      },
-      type: 'array'
-    },
     performed_by: {
       items: {
         type: 'string'
@@ -4775,12 +4763,6 @@ export const $SamplingDateWithOccurrences = {
     occurrences: {
       items: {
         $ref: '#/components/schemas/OccurrenceAtSite'
-      },
-      type: 'array'
-    },
-    occurring_taxa: {
-      items: {
-        $ref: '#/components/schemas/Taxon'
       },
       type: 'array'
     }
@@ -5285,12 +5267,6 @@ export const $SamplingWithSite = {
     occurrences: {
       items: {
         $ref: '#/components/schemas/OccurrenceStruct {}'
-      },
-      type: 'array'
-    },
-    occurring_taxa: {
-      items: {
-        $ref: '#/components/schemas/Taxon'
       },
       type: 'array'
     },
@@ -6171,12 +6147,6 @@ export const $SiteWithDistance = {
       minLength: 4,
       type: 'string'
     },
-    occurring_taxa: {
-      items: {
-        $ref: '#/components/schemas/TaxonWithLineageNames'
-      },
-      type: 'array'
-    },
     samplings: {
       items: {
         $ref: '#/components/schemas/SamplingDateWithOccurrences'
@@ -6226,12 +6196,6 @@ export const $SiteWithOccurrences = {
     name: {
       minLength: 4,
       type: 'string'
-    },
-    occurring_taxa: {
-      items: {
-        $ref: '#/components/schemas/TaxonWithLineageNames'
-      },
-      type: 'array'
     },
     samplings: {
       items: {

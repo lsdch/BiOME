@@ -217,14 +217,15 @@ const targeted_taxa = computed(() => {
 })
 
 const occurring_taxa = computed(() => {
-  return Object.values(
-    site.value?.samplings?.reduce<Record<string, Taxon>>((acc, { occurring_taxa }) => {
-      occurring_taxa?.forEach((t) => {
-        acc[t.name] = t
+  return site.value?.samplings
+    ?.reduce<Map<string, Taxon>>((acc, { occurrences }) => {
+      occurrences?.forEach(({ identification: { taxon: t } }) => {
+        acc.set(t.name, t)
       })
       return acc
-    }, {}) ?? {}
-  )
+    }, new Map<string, Taxon>())
+    ?.values()
+    .toArray()
 })
 </script>
 

@@ -25,27 +25,27 @@ with module occurrence,
 select location::Site {
   *,
   country: { * },
-  occurring_taxa := (
-    select distinct .samplings.occurrences.identification.taxon {
-      *,
-      kingdom_name := .kingdom.name,
-      phylum_name := .phylum.name,
-      class_name := .class.name,
-      order_name := .order.name,
-      family_name := .family.name ?? (.name if .rank = taxonomy::Rank.Family else <str>{}),
-      genus_name := .genus.name ?? (.name if .rank = taxonomy::Rank.Genus else <str>{}),
-      species_name := .species.name ?? (.name if .rank = taxonomy::Rank.Species else <str>{}),
-      subspecies_name := .name if .rank = taxonomy::Rank.Subspecies else <str>{},
-    }
-  ),
   samplings: {
     id,
-    date := .performed_on,
-    occurring_taxa: { * },
+    performed_on,
     occurrences: {
       id,
       code,
-      identification: { confer, addendum, identified_on, taxon: { * } },
+      identification: { 
+        confer, 
+        addendum, 
+        identified_on, 
+        taxon: { 
+          *,
+          kingdom_name := .kingdom.name,
+          phylum_name := .phylum.name,
+          class_name := .class.name,
+          order_name := .order.name,
+          family_name := .family.name ?? (.name if .rank = taxonomy::Rank.Family else <str>{}),
+          genus_name := .genus.name ?? (.name if .rank = taxonomy::Rank.Genus else <str>{}),
+          species_name := .species.name ?? (.name if .rank = taxonomy::Rank.Species else <str>{}),
+          subspecies_name := .name if .rank = taxonomy::Rank.Subspecies else <str>{},
+        } },
     }
     {{- if or .Taxa .Datasets }}
       filter (
@@ -57,6 +57,7 @@ select location::Site {
       )
     {{ end}}
   } 
+  {{- if or .SamplingTarget.Taxa .Habitats }}
     filter (
        {{- if .SamplingTarget.Taxa }}
         {{- if .SamplingTarget.WholeClade }}
@@ -75,7 +76,10 @@ select location::Site {
       {{ end }}
       true
     )
-} filter (
+  {{- end }}
+}
+{{ if or .SiteCodes .Countries }} 
+filter (
 # (
 # 	not exists sampling_status or sampling_status = "All" or (
 # 		sampling_status = "Sampled" and exists .samplings
@@ -105,3 +109,4 @@ select location::Site {
   # {{ end }}
   true
 )
+{{ end }}

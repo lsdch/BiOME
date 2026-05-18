@@ -286,21 +286,16 @@ const taxonWithLineageNamesSchemaResponseTransformer = (data: any) => {
   return data
 }
 
-const taxonSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  return data
-}
-
-const baseIdentificationSchemaResponseTransformer = (data: any) => {
+const identificationWithLineageNamesSchemaResponseTransformer = (data: any) => {
   if (data.identified_on) {
     data.identified_on = optionalDateWithPrecisionSchemaResponseTransformer(data.identified_on)
   }
-  data.taxon = taxonSchemaResponseTransformer(data.taxon)
+  data.taxon = taxonWithLineageNamesSchemaResponseTransformer(data.taxon)
   return data
 }
 
 const occurrenceAtSiteSchemaResponseTransformer = (data: any) => {
-  data.identification = baseIdentificationSchemaResponseTransformer(data.identification)
+  data.identification = identificationWithLineageNamesSchemaResponseTransformer(data.identification)
   return data
 }
 
@@ -311,22 +306,12 @@ const samplingDateWithOccurrencesSchemaResponseTransformer = (data: any) => {
   data.occurrences = data.occurrences.map((item: any) =>
     occurrenceAtSiteSchemaResponseTransformer(item)
   )
-  if (data.occurring_taxa) {
-    data.occurring_taxa = data.occurring_taxa.map((item: any) =>
-      taxonSchemaResponseTransformer(item)
-    )
-  }
   return data
 }
 
 const siteWithOccurrencesSchemaResponseTransformer = (data: any) => {
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
-  }
-  if (data.occurring_taxa) {
-    data.occurring_taxa = data.occurring_taxa.map((item: any) =>
-      taxonWithLineageNamesSchemaResponseTransformer(item)
-    )
   }
   data.samplings = data.samplings.map((item: any) =>
     samplingDateWithOccurrencesSchemaResponseTransformer(item)
@@ -560,11 +545,6 @@ const siteWithDistanceSchemaResponseTransformer = (data: any) => {
   if (data.last_visited) {
     data.last_visited = optionalDateWithPrecisionSchemaResponseTransformer(data.last_visited)
   }
-  if (data.occurring_taxa) {
-    data.occurring_taxa = data.occurring_taxa.map((item: any) =>
-      taxonWithLineageNamesSchemaResponseTransformer(item)
-    )
-  }
   data.samplings = data.samplings.map((item: any) =>
     samplingDateWithOccurrencesSchemaResponseTransformer(item)
   )
@@ -632,6 +612,11 @@ export const deleteMapPresetResponseTransformer = async (
   data: any
 ): Promise<DeleteMapPresetResponse> => {
   data = mapToolPresetSchemaResponseTransformer(data)
+  return data
+}
+
+const taxonSchemaResponseTransformer = (data: any) => {
+  data.meta = metaSchemaResponseTransformer(data.meta)
   return data
 }
 
@@ -793,11 +778,6 @@ const samplingWithSiteSchemaResponseTransformer = (data: any) => {
   if (data.occurrences) {
     data.occurrences = data.occurrences.map((item: any) =>
       occurrenceStructSchemaResponseTransformer(item)
-    )
-  }
-  if (data.occurring_taxa) {
-    data.occurring_taxa = data.occurring_taxa.map((item: any) =>
-      taxonSchemaResponseTransformer(item)
     )
   }
   if (data.performed_on) {
@@ -1007,11 +987,6 @@ const samplingSchemaResponseTransformer = (data: any) => {
       occurrenceStructSchemaResponseTransformer(item)
     )
   }
-  if (data.occurring_taxa) {
-    data.occurring_taxa = data.occurring_taxa.map((item: any) =>
-      taxonSchemaResponseTransformer(item)
-    )
-  }
   if (data.performed_on) {
     data.performed_on = optionalDateWithPrecisionSchemaResponseTransformer(data.performed_on)
   }
@@ -1151,11 +1126,6 @@ const samplingAtSiteSchemaResponseTransformer = (data: any) => {
   if (data.occurrences) {
     data.occurrences = data.occurrences.map((item: any) =>
       occurrenceAtSiteSchemaResponseTransformer(item)
-    )
-  }
-  if (data.occurring_taxa) {
-    data.occurring_taxa = data.occurring_taxa.map((item: any) =>
-      taxonSchemaResponseTransformer(item)
     )
   }
   if (data.performed_on) {

@@ -72,10 +72,13 @@ export type ScaleBindingSpec = {
 }
 
 export function computeRichness(data: SiteWithOccurrences[], rank: TaxonRank): number {
-  return data.reduce((acc, { occurring_taxa }) => {
-    occurring_taxa?.forEach((taxon) => {
-      const name = taxon[rank.toLowerCase() as keyof typeof taxon] as string | undefined
-      if (name) acc.add(name)
+  return data.reduce((acc, { samplings }) => {
+    samplings.forEach((sampling) => {
+      sampling.occurrences.forEach((occurrence) => {
+        const taxon = occurrence.identification.taxon
+        const name = taxon[rank.toLowerCase() as keyof typeof taxon] as string | undefined
+        if (name) acc.add(name)
+      })
     })
     return acc
   }, new Set<string>()).size

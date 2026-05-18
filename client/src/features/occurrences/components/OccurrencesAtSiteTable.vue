@@ -61,7 +61,7 @@ type OccurrenceTableItem = {
 
 const items = computed(
   () =>
-    samplings.reduce<OccurrenceTableItem[]>((acc, { occurrences, occurring_taxa, ...s }) => {
+    samplings.reduce<OccurrenceTableItem[]>((acc, { occurrences, ...s }) => {
       occurrences?.forEach((o) => {
         acc.push({ sampling: s, ...o })
       })

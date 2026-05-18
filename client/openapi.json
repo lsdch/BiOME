@@ -389,28 +389,6 @@
 				],
 				"type": "object"
 			},
-			"BaseIdentification": {
-				"additionalProperties": false,
-				"properties": {
-					"addendum": {
-						"type": "string"
-					},
-					"confer": {
-						"type": "boolean"
-					},
-					"identified_on": {
-						"$ref": "#/components/schemas/OptionalDateWithPrecision"
-					},
-					"taxon": {
-						"$ref": "#/components/schemas/Taxon"
-					}
-				},
-				"required": [
-					"taxon",
-					"confer"
-				],
-				"type": "object"
-			},
 			"BaseOccurrenceSamplingInnerWithSite": {
 				"additionalProperties": false,
 				"properties": {
@@ -2393,9 +2371,9 @@
 					}
 				},
 				"required": [
+					"taxon",
 					"id",
 					"meta",
-					"taxon",
 					"confer"
 				],
 				"type": "object"
@@ -2446,6 +2424,28 @@
 						"type": "string"
 					}
 				},
+				"type": "object"
+			},
+			"IdentificationWithLineageNames": {
+				"additionalProperties": false,
+				"properties": {
+					"addendum": {
+						"type": "string"
+					},
+					"confer": {
+						"type": "boolean"
+					},
+					"identified_on": {
+						"$ref": "#/components/schemas/OptionalDateWithPrecision"
+					},
+					"taxon": {
+						"$ref": "#/components/schemas/TaxonWithLineageNames"
+					}
+				},
+				"required": [
+					"taxon",
+					"confer"
+				],
 				"type": "object"
 			},
 			"Identifier": {
@@ -3181,7 +3181,7 @@
 						"type": "string"
 					},
 					"identification": {
-						"$ref": "#/components/schemas/BaseIdentification"
+						"$ref": "#/components/schemas/IdentificationWithLineageNames"
 					}
 				},
 				"required": [
@@ -5340,12 +5340,6 @@
 						},
 						"type": "array"
 					},
-					"occurring_taxa": {
-						"items": {
-							"$ref": "#/components/schemas/Taxon"
-						},
-						"type": "array"
-					},
 					"performed_by": {
 						"items": {
 							"type": "string"
@@ -5426,12 +5420,6 @@
 						},
 						"type": "array"
 					},
-					"occurring_taxa": {
-						"items": {
-							"$ref": "#/components/schemas/Taxon"
-						},
-						"type": "array"
-					},
 					"performed_by": {
 						"items": {
 							"type": "string"
@@ -5469,12 +5457,6 @@
 					"occurrences": {
 						"items": {
 							"$ref": "#/components/schemas/OccurrenceAtSite"
-						},
-						"type": "array"
-					},
-					"occurring_taxa": {
-						"items": {
-							"$ref": "#/components/schemas/Taxon"
 						},
 						"type": "array"
 					}
@@ -6034,12 +6016,6 @@
 					"occurrences": {
 						"items": {
 							"$ref": "#/components/schemas/OccurrenceStruct {}"
-						},
-						"type": "array"
-					},
-					"occurring_taxa": {
-						"items": {
-							"$ref": "#/components/schemas/Taxon"
 						},
 						"type": "array"
 					},
@@ -7012,12 +6988,6 @@
 						"minLength": 4,
 						"type": "string"
 					},
-					"occurring_taxa": {
-						"items": {
-							"$ref": "#/components/schemas/TaxonWithLineageNames"
-						},
-						"type": "array"
-					},
 					"samplings": {
 						"items": {
 							"$ref": "#/components/schemas/SamplingDateWithOccurrences"
@@ -7073,12 +7043,6 @@
 					"name": {
 						"minLength": 4,
 						"type": "string"
-					},
-					"occurring_taxa": {
-						"items": {
-							"$ref": "#/components/schemas/TaxonWithLineageNames"
-						},
-						"type": "array"
 					},
 					"samplings": {
 						"items": {
