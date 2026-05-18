@@ -113,10 +113,6 @@ export function useHexgridLayer<Item extends SiteWithOccurrences>(
             }
 
             const count = getBindingFn(binding ?? 'sites')(object.points ?? []) ?? object.count ?? 0
-            if (!count) {
-              ctx.hoverTooltip.value = undefined
-              return false
-            }
 
             ctx.hoverTooltip.value = {
               x: info.x,
