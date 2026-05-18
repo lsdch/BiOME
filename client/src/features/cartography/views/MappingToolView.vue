@@ -206,7 +206,7 @@ import LayersManager from '../components/layers-manager/LayersManager.vue'
 import MapViewConfig from '../components/MapViewConfig.vue'
 import SiteClusterPopup from '../components/popups/SiteClusterPopup.vue'
 import SitePopupWithOccurrences from '../components/popups/SitePopupWithOccurrences.vue'
-import SiteSearchPanel, { SiteItemWithColor } from '../components/SiteSearchPanel.vue'
+import SiteSearchPanel from '../components/SiteSearchPanel.vue'
 import { hexgridLayerFromSpec } from '../composables/hexgrid-layer'
 
 const route = useRoute()
@@ -265,7 +265,7 @@ const siteMarkers = computed(() => {
   return singleSites.data.value?.map<PinMarker<SiteWithOccurrences>>((site) => ({
     data: site,
     coordinates: site.coordinates,
-    color: colorMap.get(site.code)
+    options: { color: colorMap.get(site.code) }
   }))
 })
 

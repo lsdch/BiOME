@@ -34,10 +34,6 @@ import { PinMarker } from './layers-manager/map-layers'
 
 const site = ref<SiteWithDistance | SiteWithScore>()
 
-export type SiteItemWithColor = SiteItem & {
-  color?: string
-}
-
 const markers = defineModel<PinMarker<SiteItem>[]>({ default: reactive([]) })
 
 const siteColors = computed(() => {
