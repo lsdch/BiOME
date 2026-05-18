@@ -90,13 +90,6 @@
             <OccurrencesStats :sites="remote.data.value" />
           </v-tabs-window-item>
         </v-tabs-window>
-        <!-- <v-list-item prepend-icon="mdi-shape-polygon-plus" title="Polygon">
-          <template #append>
-            <v-btn icon="mdi-shape-polygon-plus" variant="text" />
-            <v-btn icon="mdi-eye-outline" variant="text" />
-            <v-switch color="primary" hide-details></v-switch>
-          </template>
-        </v-list-item> -->
       </div>
     </v-expand-transition>
   </v-card>
@@ -107,7 +100,7 @@ import { occurrencesBySiteOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ListItemInput from '@/components/toolkit/ui/ListItemInput.vue'
 import OccurrencesStats from '@/features/occurrences/components/OccurrencesStats.vue'
 import { useQuery } from '@tanstack/vue-query'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import HexgridLayerStylePanel from './HexgridLayerStylePanel.vue'
 import { useLayerData } from './layer-data'
 import LayerDataFeed from './LayerDataFeed.vue'
@@ -123,7 +116,7 @@ const tab = ref<'data' | 'layer' | 'markers' | 'stats'>('data')
 
 const expanded = defineModel<boolean>('expanded', { default: false })
 
-const { layerData, registerLayer } = useLayerData()
+const { layerData, registerLayer, deleteLayer } = useLayerData()
 
 const emit = defineEmits<{
   delete: []
@@ -141,7 +134,18 @@ const remote = useQuery(
   })
 )
 
+watch(
+  () => layer.value.id,
+  (previous, current) => {
+    if (previous !== current) {
+      deleteLayer(previous)
+      register()
+    }
+  }
+)
+
 function register() {
+  console.debug(`Registering hex layer ${layer.value.id}`)
   registerLayer(layer.value, remote)
 }
 
