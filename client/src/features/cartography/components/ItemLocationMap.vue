@@ -82,7 +82,7 @@
               variant="plain"
               v-tooltip="`See list of sites and occurrences within radius`"
               v-bind="props"
-              :disabled="!hasValidCoordinates || nearbySites?.length === 0"
+              :disabled="!hasValidCoordinates || nearbySites?.length === 0 || proximityRadius === 0"
             />
           </template>
         </OccurrencesOverviewDialog>
