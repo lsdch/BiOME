@@ -107,7 +107,7 @@ export function useHexgridLayer<Item extends SiteWithOccurrences>(
         ? (info) => {
             const object = info.object as { count?: number; points?: Item[] } | undefined
 
-            if (!object) {
+            if (!object || showMarkers.value) {
               ctx.hoverTooltip.value = undefined
               return false
             }
