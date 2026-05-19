@@ -80,16 +80,22 @@ function createColorGenerator(palette: string[]) {
 
 const nextMarkerColor = createColorGenerator(markerColorPalette)
 
-export function makeMarkerLayer(name?: string): MarkerLayerSpec {
+export type MarkerLayerParams = Partial<
+  Pick<MarkerLayerSpec, 'include_sites' | 'filters' | 'ready' | 'config'>
+>
+export function makeMarkerLayer(name?: string, params?: MarkerLayerParams): MarkerLayerSpec {
   const baseLayer: BaseLayerSpec = {
     id: crypto.randomUUID(),
     name,
     active: true,
     include_sites: 'Occurrences',
-    filters: {
-      sampling_target: {},
-      include_sites: 'Occurrences'
-    }
+    filters: Object.assign(
+      {
+        sampling_target: {},
+        include_sites: 'Occurrences'
+      },
+      params?.filters
+    )
   }
   const markerColor = nextMarkerColor()
 
@@ -97,13 +103,16 @@ export function makeMarkerLayer(name?: string): MarkerLayerSpec {
     ...baseLayer,
     type: 'markers',
     clustered: false,
-    ready: false,
-    config: {
-      radius: 5,
-      weight: 2,
-      color: withOpacity(markerColor, 0.8),
-      fillColor: withOpacity(markerColor, 0.3)
-    }
+    ready: params?.ready ?? false,
+    config: Object.assign(
+      {
+        radius: 5,
+        weight: 2,
+        color: withOpacity(markerColor, 0.8),
+        fillColor: withOpacity(markerColor, 0.3)
+      },
+      params?.config
+    )
   }
 }
 
