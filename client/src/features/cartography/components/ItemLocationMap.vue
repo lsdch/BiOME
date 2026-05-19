@@ -225,7 +225,7 @@ const pinMarker = computed<PinMarker<Item> | undefined>(() =>
       }
     : undefined
 )
-const proximalMarkersSpec = ref(makeMarkerLayer('Proximal sites'))
+const proximalMarkersSpec = ref(makeMarkerLayer('Proximal sites', { ready: true }))
 const proximalMarkers = computed(() => {
   return markerLayerFromSpec(
     proximalMarkersSpec.value,
