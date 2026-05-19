@@ -113,7 +113,7 @@ export function markerLayerFromSpec<Item extends Geocoordinates>(
 ): MarkerLayer<Item> {
   return {
     name: spec.name,
-    active: spec.active,
+    active: !!spec.ready && spec.active,
     clustered: spec.clustered,
     config: spec.config,
     data

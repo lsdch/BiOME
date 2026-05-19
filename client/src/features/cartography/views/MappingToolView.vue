@@ -150,7 +150,7 @@
       <div :class="['fill-height w-100 position-relative']">
         <DeckGlMap
           ref="map"
-          auto-fit
+          :auto-fit="!anyLoading"
           :pinMarkers="siteMarkers"
           :hexgrid="hexgridLayer"
           @toggle-hexgrid="(v) => (layerSpecs.hexgrid.active = v)"
@@ -196,7 +196,13 @@ import MapPresetSaveDialog from '@/features/cartography/components/map-presets/M
 import { useFeedback } from '@/stores/feedback'
 import { useUserStore } from '@/stores/user'
 import { useQuery } from '@tanstack/vue-query'
-import { useClipboard, useLocalStorage, useSessionStorage, useToggle } from '@vueuse/core'
+import {
+  computedAsync,
+  useClipboard,
+  useLocalStorage,
+  useSessionStorage,
+  useToggle
+} from '@vueuse/core'
 import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from 'lz-string'
 import { computed, onMounted, ref, useTemplateRef, watch } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
@@ -302,20 +308,24 @@ function applySiteFilter(sites: SiteWithOccurrences[] | undefined, filter: SiteS
   }
 }
 
-const hexgridLayer = computed<HexgridLayer<SiteWithOccurrences>>(() => {
+const hexgridLayer = computedAsync<HexgridLayer<SiteWithOccurrences>>(async () => {
   console.debug('Recomputing hexgrid layer with spec', layerSpecs.value.hexgrid)
   const remote = data.get(layerSpecs.value.hexgrid.id)
+  if (remote?.isFetching?.value) await remote?.suspense()
   return hexgridLayerFromSpec(
     layerSpecs.value.hexgrid,
     applySiteFilter(remote?.data.value, layerSpecs.value.hexgrid.include_sites)
   )
 })
 
-const markerLayers = computed<MarkerLayer<SiteWithOccurrences>[]>(() => {
-  return layerSpecs.value.markers.map((layer) => {
-    const remote = data.get(layer.id)
-    return markerLayerFromSpec(layer, applySiteFilter(remote?.data.value, layer.include_sites))
-  })
+const markerLayers = computedAsync<MarkerLayer<SiteWithOccurrences>[]>(async () => {
+  return Promise.all(
+    layerSpecs.value.markers.map(async (layer) => {
+      const remote = data.get(layer.id)
+      if (remote?.isFetching?.value) await remote?.suspense()
+      return markerLayerFromSpec(layer, applySiteFilter(remote?.data.value, layer.include_sites))
+    })
+  )
 })
 
 const { copy } = useClipboard()

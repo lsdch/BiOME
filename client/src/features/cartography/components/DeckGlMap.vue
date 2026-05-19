@@ -363,6 +363,7 @@ const fitSignature = computed(() => {
     : 'none'
 
   const markerSignature = (props.markerLayers ?? [])
+    .filter((layer) => layer.active)
     .map((layer) =>
       [
         layer.data?.length ?? 0,
