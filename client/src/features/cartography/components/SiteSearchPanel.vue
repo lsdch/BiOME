@@ -1,7 +1,11 @@
 <template>
   <v-list>
     <v-list-item>
-      <SiteAutocomplete :model-value="site" @update:model-value="addSite" class="pt-2" />
+      <SiteSearchInput
+        :model-value="site"
+        @update:model-value="addSite"
+        :disabled-codes="markers.map(({ data }) => data.code)"
+      />
     </v-list-item>
     <v-divider />
     <v-list-item
@@ -27,7 +31,7 @@
 
 <script setup lang="ts">
 import { SiteItem, SiteWithDistance, SiteWithScore } from '@/api'
-import SiteAutocomplete from '@/features/site/components/SiteAutocomplete.vue'
+import SiteSearchInput from '@/features/site/components/SiteSearchInput.vue'
 import { Hsluv } from 'hsluv'
 import { computed, reactive, ref } from 'vue'
 import { PinMarker } from './layers-manager/map-layers'

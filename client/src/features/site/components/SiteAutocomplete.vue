@@ -12,12 +12,12 @@
     clearable
     return-object
     label="Site search"
-    placeholder="WGS84 coords or search term..."
+    placeholder="Match by name, code or locality"
     persistent-placeholder
     v-bind="$attrs"
   >
     <template #item="{ item: site, props }">
-      <v-list-item :title="site.name" v-bind="props">
+      <v-list-item :title="site.name" v-bind="props" :disabled="disabledCodes?.includes(site.code)">
         <template #subtitle>
           <v-list-item-subtitle>
             {{ site.locality ?? 'Unspecified locality' }}
@@ -27,9 +27,6 @@
         <template #append>
           <div class="d-flex flex-column align-end">
             <v-chip :text="site.code" class="font-monospace" size="small" />
-            <div v-if="'distance' in site" class="text-caption font-monospace">
-              {{ Math.round(site.distance) }}m
-            </div>
           </div>
         </template>
       </v-list-item>
@@ -40,11 +37,9 @@
         :title="
           isFetching
             ? 'Loading...'
-            : isSearchCoordinates
-              ? `No sites found within ${radius}m radius`
-              : (searchValue?.length ?? 0) > 2
-                ? 'No matching sites'
-                : 'Waiting for query...'
+            : (searchValue?.length ?? 0) > 2
+              ? 'No matching sites'
+              : 'Waiting for query...'
         "
       >
         <template #prepend v-if="isFetching">
@@ -56,50 +51,23 @@
 </template>
 
 <script setup lang="ts">
-import { searchSitesOptions, sitesProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { SiteItem } from '@/api'
+import { searchSitesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
-import { reactiveComputed, toRefs } from '@vueuse/core'
 import { computed, ref } from 'vue'
 import CountryChip from './CountryChip'
-import { SiteWithDistance, SiteWithScore } from '@/api'
 
-const model = defineModel<SiteWithDistance | SiteWithScore>()
+const model = defineModel<SiteItem>()
 const searchValue = ref<string | undefined>('')
-const radius = ref<number>(20_000)
+const { disabledCodes } = defineProps<{
+  disabledCodes?: string[]
+}>()
 
-const isSearchCoordinates = computed(
-  () => !!searchValue.value && /^\s*\d+(\.\d+)?\s*,\s*\d+(\.\d+)?\s*$/.test(searchValue.value)
-)
-
-function asCoordinates(value: string): { latitude: number; longitude: number } {
-  const [latitude, longitude] = value.split(',').map((v) => parseFloat(v.trim())) as [
-    number,
-    number
-  ]
-  return { latitude, longitude }
-}
-
-const sitesMatching = useQuery(
+const { data: items, isFetching } = useQuery(
   computed(() => ({
-    enabled: !isSearchCoordinates.value && (searchValue.value?.length ?? 0) > 2,
+    enabled: (searchValue.value?.length ?? 0) > 2,
     ...searchSitesOptions({ query: { query: searchValue.value } })
   }))
-)
-
-const sitesAtProximity = useQuery(
-  computed(() => ({
-    enabled: isSearchCoordinates.value,
-    ...sitesProximityOptions({
-      query: {
-        radius: radius.value,
-        ...(searchValue.value ? asCoordinates(searchValue.value) : { latitude: 0, longitude: 0 })
-      }
-    })
-  }))
-)
-
-const { data: items, isFetching } = toRefs(
-  reactiveComputed(() => (isSearchCoordinates.value ? sitesAtProximity : sitesMatching))
 )
 </script>
 
