@@ -1,35 +1,42 @@
-import { AuthenticationResponse, Meta, User, UserCredentials, UserRole } from "@/api"
-import { loginMutation, logoutMutation, refreshSessionMutation } from "@/api/gen/@tanstack/vue-query.gen"
+import { AuthenticationResponse, Meta, User, UserCredentials, UserRole } from '@/api'
+import {
+  loginMutation,
+  logoutMutation,
+  refreshSessionMutation
+} from '@/api/gen/@tanstack/vue-query.gen'
 import { client } from '@/api/gen/client.gen'
-import { useMutation } from "@tanstack/vue-query"
-import { until, useLocalStorage } from "@vueuse/core"
-import { defineStore } from "pinia"
-import { computed, ref } from "vue"
+import { useMutation } from '@tanstack/vue-query'
+import { until, useLocalStorage } from '@vueuse/core'
+import { defineStore } from 'pinia'
+import { computed, ref } from 'vue'
 
-
-export const useUserStore = defineStore("user", () => {
-
-
+export const useUserStore = defineStore('user', () => {
   const user = ref<User>()
   const session_expires = ref<Date>()
-  const refresh_token = useLocalStorage<string | undefined>("refresh_token", undefined)
+  const refresh_token = useLocalStorage<string | undefined>('refresh_token', undefined)
   const isAuthenticated = computed(() => user.value !== undefined)
+  const authReady = ref(false)
+  const authBootstrap = ref<Promise<void>>()
   const usePrivilege = ref<UserRole>()
 
   // Session refresh using stored refresh token
-  const { mutate: refreshSession, error: refreshError, isPending: refreshPending } = useMutation({
+  const {
+    mutateAsync: refreshSession,
+    error: refreshError,
+    isPending: refreshPending
+  } = useMutation({
     ...refreshSessionMutation(),
     onSuccess: startSession,
     onError: clearSession
   })
   function refresh() {
     if (!refresh_token.value) {
-      console.info("Attempt to refresh user session without a refresh token")
+      console.info('Attempt to refresh user session without a refresh token')
       return
     }
     return refreshSession({
       body: { refresh_token: refresh_token.value },
-      priority: "high",
+      priority: 'high',
       // Prevent infinite refresh loop
       headers: { noAuthRefresh: true }
     })
@@ -38,6 +45,28 @@ export const useUserStore = defineStore("user", () => {
     error: refreshError.value,
     pending: refreshPending.value
   }))
+
+  async function bootstrapAuth() {
+    if (authReady.value) {
+      return
+    }
+
+    if (!authBootstrap.value) {
+      authBootstrap.value = (async () => {
+        try {
+          if (refresh_token.value) {
+            await refresh()
+          } else {
+            clearSession()
+          }
+        } finally {
+          authReady.value = true
+        }
+      })()
+    }
+
+    await authBootstrap.value
+  }
 
   // Intercept requests to refresh session if needed
   client.interceptors.request.use(async (request) => {
@@ -51,13 +80,16 @@ export const useUserStore = defineStore("user", () => {
     return request
   })
 
-
   // Login
-  const { mutate: mutateLogin, error: loginError, isPending: loginPending } = useMutation({
+  const {
+    mutate: mutateLogin,
+    error: loginError,
+    isPending: loginPending
+  } = useMutation({
     ...loginMutation(),
     onSuccess: startSession,
     onError(error) {
-      console.error("ERROR", error)
+      console.error('ERROR', error)
       clearSession()
     }
   })
@@ -70,7 +102,11 @@ export const useUserStore = defineStore("user", () => {
   }))
 
   // Logout
-  const { mutate: mutateLogout, error: logoutError, isPending: logoutPending } = useMutation({
+  const {
+    mutate: mutateLogout,
+    error: logoutError,
+    isPending: logoutPending
+  } = useMutation({
     ...logoutMutation({ body: { refresh_token: refresh_token.value } }),
     onSuccess: clearSession
   })
@@ -81,7 +117,6 @@ export const useUserStore = defineStore("user", () => {
     error: logoutError.value,
     pending: logoutPending.value
   }))
-
 
   function clearSession() {
     user.value = undefined
@@ -99,10 +134,8 @@ export const useUserStore = defineStore("user", () => {
   }
 
   function sessionExpired() {
-    return session_expires.value === undefined ||
-      (new Date() >= session_expires.value)
+    return session_expires.value === undefined || new Date() >= session_expires.value
   }
-
 
   function isGranted(role: UserRole) {
     return user.value
@@ -110,10 +143,7 @@ export const useUserStore = defineStore("user", () => {
       : false
   }
 
-
-  function isOwner<
-    Item extends { meta?: Meta }
-  >(item: Item) {
+  function isOwner<Item extends { meta?: Meta }>(item: Item) {
     return user.value && item.meta?.created_by?.id === user.value.id
   }
 
@@ -167,8 +197,16 @@ export const useUserStore = defineStore("user", () => {
      */
     isAuthenticated,
     /**
+     * Indicates whether the initial auth bootstrap has completed
+     */
+    authReady,
+    /**
+     * Bootstrap the current session state if possible
+     */
+    bootstrapAuth,
+    /**
      * Current user role, used to determine UI privileges
      */
-    usePrivilege,
+    usePrivilege
   }
 })

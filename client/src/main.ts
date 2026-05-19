@@ -31,6 +31,6 @@ import { useUserStore } from './stores/user'
 const pinia = createPinia()
 setActivePinia(pinia)
 app.use(pinia)
-useUserStore().refreshSession()
+useUserStore().bootstrapAuth()
 
 app.mount('#app')
