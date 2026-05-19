@@ -76,7 +76,7 @@ func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDis
 				distance := assert_exists(site_distance(Site, lat, lon)),
 				samplings: {
 					id,
-					date := .performed_on,
+					performed_on,
 					occurrences: { id, code, identification: { confer, addendum, identified_on, taxon: { * } } }
 				}
 			}
