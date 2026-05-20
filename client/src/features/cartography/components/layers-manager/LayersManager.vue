@@ -1,6 +1,5 @@
 <template>
   <HexLayerCard :layer="hexLayer" flat class="ma-1" />
-  <v-divider :thickness="5"></v-divider>
   <v-toolbar density="compact" class="bg-surface">
     <template #prepend v-if="!!markerLayers.length">
       <ConfirmDialog
