@@ -77,7 +77,7 @@ const baseHeaders = [
 ]
 
 const headers = computed(() => {
-  return mergeHeaders(baseHeaders, extendHeaders) satisfies CRUDTableHeader<Occurrence>[]
+  return mergeHeaders(baseHeaders, extendHeaders) satisfies CRUDTableHeader<OccurrenceItem>[]
 })
 
 const groupBy = [

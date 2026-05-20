@@ -1,8 +1,15 @@
 <template>
   <div v-if="(occurrences?.length ?? 0) > 10" class="d-flex align-center ga-2">
-    <v-text-field v-model="search.term" class="ma-2" hide-details label="Search" clearable />
+    <v-text-field
+      v-model="search.term"
+      class="ma-2"
+      hide-details
+      label="Search"
+      density="compact"
+      clearable
+    />
   </div>
-  <CRUDTable :items entity-name="Occurrences" :headers :search>
+  <CRUDTable :items entity-name="Occurrences" :headers :search filter-mode="some">
     <template #item.code="{ item, value }: { item: OccurrenceAtSite; value: string }">
       <RouterLink
         :to="{
@@ -14,16 +21,17 @@
         <span class="text-wrap">{{ CodeIdentifier.textWrap(value) }}</span>
       </RouterLink>
     </template>
-    <template #item.site.code="{ value }: { value: string }">
+    <template #item.site="{ value }: { value: SiteItem }">
       <RouterLink
         :to="{
           name: 'site-item',
-          params: { code: value }
+          params: { code: value.code }
         }"
         target="_blank"
+        v-tooltip="value.name"
       >
         <span class="text-wrap font-monospace">
-          {{ CodeIdentifier.textWrap(value) }}
+          {{ CodeIdentifier.textWrap(value.code) }}
         </span>
       </RouterLink>
     </template>
@@ -77,6 +85,7 @@ export type OccurrenceTableItem<
 } & (WithSite extends true ? { site: Site } : {})
 
 type Occurrence = OccurrenceTableItem<Data, WithSite, Site>
+type OccurrenceWithSite = OccurrenceTableItem<Data, true, Site>
 const { occurrences, ...props } = defineProps<{
   /**
    * If true, the site information is included with each occurrence.
@@ -104,9 +113,17 @@ const headersWithSites = [
   },
   {
     title: 'Site',
-    value: 'site.code',
+    value: 'site',
     width: 0,
-    sortable: true
+    sortable: true,
+    sort: (a, b) => a?.code.localeCompare(b?.code) || 0,
+    filter(value: SiteItem, query, item) {
+      if (!query) return true
+      return (
+        value.code.toLowerCase().includes(query.toLowerCase()) ||
+        !!value.name?.toLowerCase().includes(query.toLowerCase())
+      )
+    }
   },
   {
     title: 'Latitude',
@@ -128,14 +145,14 @@ const headersWithSites = [
     sort: DateWithPrecision.compare
   },
   Identification.tableHeader({ key: 'identification' })
-] as const satisfies CRUDTableHeader<Occurrence>[]
+] as const satisfies CRUDTableHeader<OccurrenceWithSite>[]
 
 const headers = computed(() => {
   const h = headersWithSites.filter(
     (header) =>
       props.withSite !== false ||
       !(typeof header.value === 'string' && header.value?.startsWith('site.'))
-  )
+  ) as CRUDTableHeader<Occurrence>[]
   return mergeHeaders(h, props.extendHeaders) satisfies CRUDTableHeader<Occurrence>[]
 })
 

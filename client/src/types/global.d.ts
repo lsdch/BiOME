@@ -35,7 +35,7 @@ declare global {
     HeaderDefinitionFor<Exclude<keyof Item, '$schema'>>,
     {
       key?: Exclude<keyof Item, '$schema'> | DataTableHeader['key']
-      readonly filter?: (value: any, query: string, item: DataTableItem<RowItem>) => boolean
+      readonly filter?: (value: any, query: string, item: DataTableItem<Item>) => boolean
       value?: Exclude<keyof Item, '$schema'> | DataTableHeader['value']
     }
   >

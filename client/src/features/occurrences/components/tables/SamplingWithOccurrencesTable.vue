@@ -2,25 +2,38 @@
   <v-text-field
     v-if="(samplings?.length ?? 0) > 10"
     v-model="search.term"
-    class="mx-5"
+    class="mx-5 mt-1"
     hide-details
     label="Search"
     clearable
     density="compact"
   />
   <CRUDTable :items="samplings" entity-name="Sampling" :headers :search filter-mode="some">
-    <template #item.site.code="{ value }: { value: string }">
-      <RouterLink
-        :to="{
-          name: 'site-item',
-          params: { code: value }
-        }"
-        target="_blank"
-      >
-        <span class="text-wrap font-monospace">
-          {{ CodeIdentifier.textWrap(value) }}
+    <template
+      #item.site.code="{
+        value,
+        item
+      }: {
+        value: string
+        item: SamplingTableItem<SamplingData, WithSite, Site>
+      }"
+    >
+      <div class="d-flex flex-column">
+        <RouterLink
+          :to="{
+            name: 'site-item',
+            params: { code: value }
+          }"
+          target="_blank"
+        >
+          <span class="text-wrap font-monospace">
+            {{ CodeIdentifier.textWrap(value) }}
+          </span>
+        </RouterLink>
+        <span class="text-muted" v-if="(item as SamplingWithSite).site.name">
+          {{ (item as SamplingWithSite).site.name }}
         </span>
-      </RouterLink>
+      </div>
     </template>
     <template #item.site.coordinates.latitude="{ value }">
       <span class="font-monospace">
@@ -70,6 +83,7 @@ export type SamplingTableItem<
   Site extends SiteItem
 > = S & (WithSite extends true ? { site: Site } : {})
 
+type SamplingWithSite = SamplingTableItem<SamplingDateWithOccurrences, true, SiteItem>
 type SamplingEvent = SamplingTableItem<SamplingData, WithSite, Site>
 
 const { samplings, ...props } = defineProps<{
@@ -84,12 +98,18 @@ const { samplings, ...props } = defineProps<{
 
 const search = ref({ term: undefined, owned: undefined })
 
-const headersWithSite = [
+const headersWithSite: CRUDTableHeader<SamplingWithSite>[] = [
   {
     title: 'Site',
     value: 'site.code',
-    width: 0,
-    sortable: true
+    sortable: true,
+    filter(value, query, item) {
+      if (!query) return true
+      return (
+        item.raw.site.code.toLowerCase().includes(query.toLowerCase()) ||
+        !!item.raw.site.name?.toLowerCase().includes(query.toLowerCase())
+      )
+    }
   },
   {
     title: 'Latitude',
@@ -129,14 +149,14 @@ const headersWithSite = [
     width: 0,
     align: 'end'
   }
-] as const satisfies CRUDTableHeader<SamplingEvent>[]
+] as const
 
 const headers = computed(() => {
   const h = headersWithSite.filter(
     (header) =>
       props.withSite !== false ||
       !(typeof header.value === 'string' && header.value?.startsWith('site.'))
-  )
+  ) as CRUDTableHeader<SamplingEvent>[]
   return mergeHeaders(h, props.extendHeaders) satisfies CRUDTableHeader<SamplingEvent>[]
 })
 
