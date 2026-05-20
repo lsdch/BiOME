@@ -1,11 +1,5 @@
 <template>
-  <v-range-slider
-    v-model="modelValue"
-    :ticks="{ ...$TaxonRank.enum }"
-    :max="$TaxonRank.enum.length - 1"
-    :step="1"
-    v-bind="$attrs"
-  >
+  <v-range-slider v-bind="props" :model-value @update:model-value="setValue" :max :step>
     <template #thumb-label="{ modelValue }">
       {{ $TaxonRank.enum[modelValue] }}
     </template>
@@ -13,9 +7,24 @@
 </template>
 
 <script setup lang="ts">
-import { $TaxonRank, TaxonRank } from '@/api'
+import { $Taxon, $TaxonRank, TaxonRank } from '@/api'
 import { computed } from 'vue'
-const model = defineModel<TaxonRank[]>()
+import { VRangeSlider } from 'vuetify/components'
+const model = defineModel<[TaxonRank, TaxonRank]>({ required: true })
+
+type RangeSliderProps = InstanceType<typeof VRangeSlider>['$props']
+type TaxonRankSliderProps = /* @vue-ignore */ Omit<RangeSliderProps, 'modelValue'>
+
+const {
+  step = 1,
+  max = $TaxonRank.enum.length - 1,
+  ...props
+} = defineProps<
+  {
+    step?: number
+    max?: number
+  } & TaxonRankSliderProps
+>()
 
 const inverseEnumIndex = computed(() => {
   const index: Record<string, number> = {}
@@ -25,12 +34,14 @@ const inverseEnumIndex = computed(() => {
   return index
 })
 
-const modelValue = computed({
-  get: () => model.value?.map((v) => inverseEnumIndex.value[v]),
-  set: (value: number[]) => {
-    model.value = value.map((v) => $TaxonRank.enum[v])
-  }
+const modelValue = computed(() => {
+  const [start, end] = model.value
+  return [inverseEnumIndex.value[start], inverseEnumIndex.value[end]]
 })
+
+function setValue([start, end]: [number, number]) {
+  model.value = [$TaxonRank.enum[start], $TaxonRank.enum[end]]
+}
 </script>
 
 <style scoped lang="scss"></style>

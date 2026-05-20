@@ -10,13 +10,8 @@
   />
   <CRUDTable :items="samplings" entity-name="Sampling" :headers :search filter-mode="some">
     <template
-      #item.site.code="{
-        value,
-        item
-      }: {
-        value: string
-        item: SamplingTableItem<SamplingData, WithSite, Site>
-      }"
+      v-if="withSite"
+      #item.site.code="{ value, item }: { value: string; item: SamplingWithSite }"
     >
       <div class="d-flex flex-column">
         <RouterLink
@@ -30,8 +25,8 @@
             {{ CodeIdentifier.textWrap(value) }}
           </span>
         </RouterLink>
-        <span class="text-muted" v-if="(item as SamplingWithSite).site.name">
-          {{ (item as SamplingWithSite).site.name }}
+        <span class="text-muted" v-if="item.site?.name">
+          {{ item.site.name }}
         </span>
       </div>
     </template>
@@ -50,7 +45,7 @@
         {{ DateWithPrecision.format(value) }}
       </span>
     </template>
-    <template #expanded-row-inject="{ item }: { item: SamplingEvent }">
+    <template #expanded-row-inject="{ item }: { item: SamplingWithSite }">
       <OccurrencesAtSiteList
         v-if="item.occurrences.length"
         :occurrences="item.occurrences.map((o) => ({ ...o, date: item.date }))"
@@ -65,11 +60,7 @@
 <script
   setup
   lang="ts"
-  generic="
-    WithSite extends boolean,
-    SamplingData extends SamplingDateWithOccurrences,
-    Site extends SiteItem
-  "
+  generic="SamplingData extends SamplingDateWithOccurrences, Site extends SiteItem"
 >
 import { CodeIdentifier, DateWithPrecision, SamplingDateWithOccurrences, SiteItem } from '@/api'
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
@@ -77,23 +68,16 @@ import OccurrencesAtSiteList from '@/features/occurrences/components/Occurrences
 import { HeaderExtension, mergeHeaders } from '@/features/occurrences/components/tables/headers'
 import { computed, ref, useSlots } from 'vue'
 
-export type SamplingTableItem<
-  S extends SamplingDateWithOccurrences,
-  WithSite extends boolean,
-  Site extends SiteItem
-> = S & (WithSite extends true ? { site: Site } : {})
-
-type SamplingWithSite = SamplingTableItem<SamplingDateWithOccurrences, true, SiteItem>
-type SamplingEvent = SamplingTableItem<SamplingData, WithSite, Site>
+type SamplingWithSite = SamplingDateWithOccurrences & { site?: SiteItem }
 
 const { samplings, ...props } = defineProps<{
   /**
    * If true, the site information is included with each occurrence.
    * If false, only the occurrence information is included.
    */
-  withSite: WithSite
-  samplings?: SamplingEvent[]
-  extendHeaders?: HeaderExtension<SamplingEvent>[]
+  withSite?: boolean
+  samplings?: SamplingWithSite[]
+  extendHeaders?: HeaderExtension<SamplingWithSite>[]
 }>()
 
 const search = ref({ term: undefined, owned: undefined })
@@ -106,8 +90,8 @@ const headersWithSite: CRUDTableHeader<SamplingWithSite>[] = [
     filter(value, query, item) {
       if (!query) return true
       return (
-        item.raw.site.code.toLowerCase().includes(query.toLowerCase()) ||
-        !!item.raw.site.name?.toLowerCase().includes(query.toLowerCase())
+        item.raw.site?.code.toLowerCase().includes(query.toLowerCase()) ||
+        !!item.raw.site?.name?.toLowerCase().includes(query.toLowerCase())
       )
     }
   },
@@ -141,7 +125,7 @@ const headersWithSite: CRUDTableHeader<SamplingWithSite>[] = [
   {
     title: 'Occurrences',
     key: 'occurrences',
-    value: (item: SamplingEvent) => {
+    value: (item: SamplingWithSite) => {
       return item.occurrences.length
     },
     cellProps: { class: 'font-monospace' },
@@ -156,8 +140,8 @@ const headers = computed(() => {
     (header) =>
       props.withSite !== false ||
       !(typeof header.value === 'string' && header.value?.startsWith('site.'))
-  ) as CRUDTableHeader<SamplingEvent>[]
-  return mergeHeaders(h, props.extendHeaders) satisfies CRUDTableHeader<SamplingEvent>[]
+  ) as CRUDTableHeader<SamplingWithSite>[]
+  return mergeHeaders(h, props.extendHeaders) satisfies CRUDTableHeader<SamplingWithSite>[]
 })
 
 const slots = useSlots()

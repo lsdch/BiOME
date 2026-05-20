@@ -2,7 +2,13 @@
   <v-container class="fill-height align-start" fluid>
     <v-row class="w-100">
       <v-col cols="12" lg="6">
-        <OccurrenceSunburst :items :error :loading="isPending"></OccurrenceSunburst>
+        <OccurrenceSunburst
+          :items
+          :error
+          :loading="isPending"
+          title="Occurrences overview"
+          compact
+        ></OccurrenceSunburst>
       </v-col>
       <v-col cols="12" lg="6">
         <CountryOverview></CountryOverview>

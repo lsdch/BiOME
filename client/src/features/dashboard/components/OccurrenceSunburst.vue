@@ -1,14 +1,14 @@
 <template>
   <ActivableCardDialog
     ref="sunburst"
-    title="Occurrences overview"
+    :title
     class="w-100 d-flex flex-column"
     v-model="fullscreen"
     fullscreen
     :min-height="300"
     :height="500"
   >
-    <template #append>
+    <template #append v-if="compact">
       <v-menu :close-on-content-click="false" location="bottom" origin="top center">
         <template #activator="{ props }">
           <v-btn icon="mdi-cog" variant="text" color="" v-bind="props" />
@@ -16,18 +16,14 @@
         <v-list :width="300" max-width="100vw">
           <v-list-item title="Taxonomic scope">
             <TaxonRankSlider
-              v-model="settings.scope"
+              v-model="scope"
               class="pt-8 px-7"
               density="compact"
               thumb-label="always"
             />
           </v-list-item>
           <v-list-item>
-            <v-switch
-              label="Use total clade occurrences"
-              v-model="settings.totalByClade"
-              color="primary"
-            />
+            <v-switch label="Use cumulative clade occurrences" v-model="cumulate" color="primary" />
           </v-list-item>
         </v-list>
       </v-menu>
@@ -48,7 +44,33 @@
         <v-alert color="error"> Failed to load occurrences </v-alert>
       </v-card-text>
     </slot>
-    <VChart v-else-if="items?.length" class="chart" :option autoresize />
+    <div v-else-if="items?.length" class="d-flex align-center fill-height">
+      <VChart class="chart" :option autoresize />
+      <div v-if="!compact" class="d-flex flex-column align-start flex-shrink-0 pe-4">
+        <v-btn
+          v-if="!fullscreen"
+          color=""
+          variant="text"
+          icon="mdi-fullscreen"
+          @click="toggleFullscreen()"
+        />
+        <TaxonRankSlider
+          label="Scope"
+          v-model="scope"
+          density="compact"
+          thumb-label="always"
+          direction="vertical"
+          reverse
+          show-ticks="always"
+        />
+        <v-switch
+          label="Cumulative"
+          class="text-no-wrap"
+          v-model="cumulate"
+          color="primary"
+        ></v-switch>
+      </div>
+    </div>
     <v-card-text v-else>
       <v-alert>No occurrences to display</v-alert>
     </v-card-text>
@@ -65,7 +87,7 @@ import { DataZoomComponent, TitleComponent, VisualMapComponent } from 'echarts/c
 import { use } from 'echarts/core'
 import { SVGRenderer } from 'echarts/renderers'
 import { ECBasicOption, VisualMapComponentOption } from 'echarts/types/dist/shared'
-import { computed, ref, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import VChart from 'vue-echarts'
 import TaxonRankSlider from './TaxonRankSlider.vue'
 
@@ -75,17 +97,16 @@ const [fullscreen, toggleFullscreen] = useToggle(false)
 
 const props = defineProps<{
   items?: OccurrenceOverviewItem[]
+  title?: string
   loading?: boolean
   error?: ErrorModel | string | null
+  compact?: boolean
 }>()
 
-const settings = ref<{
-  scope: [TaxonRank, TaxonRank]
-  totalByClade: boolean
-}>({
-  scope: ['Order', 'Species'],
-  totalByClade: false
+const scope = defineModel<[TaxonRank, TaxonRank]>('scope', {
+  default: () => ['Order', 'Species']
 })
+const cumulate = defineModel<boolean>('cumulate', { default: false })
 
 type SunburstData = {
   name: string
@@ -101,11 +122,10 @@ const data = ref<SunburstData[]>([])
 const maxOccurrences = ref({ byClade: 0, byTaxon: 0 })
 
 watch(
-  () => props.items,
-  (items) => (data.value = items ? buildPlotData(items) : []),
+  () => [props.items, scope.value, cumulate.value],
+  () => (data.value = props.items ? buildPlotData(props.items) : []),
   { immediate: true }
 )
-watch(settings, () => (data.value = buildPlotData(props.items ?? [])), { deep: true })
 
 function buildPlotData(items: OccurrenceOverviewItem[]) {
   const itemsByName = items.reduce<SunburstIndex>(
@@ -133,7 +153,7 @@ function buildPlotData(items: OccurrenceOverviewItem[]) {
   )
   maxOccurrences.value = { byClade: 0, byTaxon: 0 }
   computeTotalOccurrences(itemsByName['Animalia']!)
-  return trim([itemsByName['Animalia']!], settings.value.scope)
+  return trim([itemsByName['Animalia']!], scope.value)
 }
 
 // Trims sunburst data to show only the selected ranks
@@ -164,16 +184,14 @@ function computeTotalOccurrences(d: SunburstData) {
 
 const visualMap = computed<VisualMapComponentOption>(() => ({
   min: 0,
-  max: maxOccurrences.value[settings.value.totalByClade ? 'byClade' : 'byTaxon'],
-  text: [
-    maxOccurrences.value[settings.value.totalByClade ? 'byClade' : 'byTaxon']?.toString() ?? '0',
-    '0'
-  ],
-  dimension: settings.value.totalByClade ? 0 : 1,
+  max: maxOccurrences.value[cumulate.value ? 'byClade' : 'byTaxon'],
+  text: [maxOccurrences.value[cumulate.value ? 'byClade' : 'byTaxon']?.toString() ?? '0', '0'],
+  dimension: cumulate.value ? 0 : 1,
   top: 'center',
   left: 0,
   textStyle: {
-    color: 'rgb(var(--v-theme-on-surface))'
+    color: 'rgb(var(--v-theme-on-surface))',
+    fontWeight: 'bold'
   },
   // Map the score column to color
   inRange: {

@@ -20,6 +20,9 @@
       >
         <slot :name v-bind="(slotData as any) ?? {}" />
       </template>
+      <template #prepend>
+        <slot name="prepend" />
+      </template>
       <template #append>
         <slot name="append" />
         <v-btn

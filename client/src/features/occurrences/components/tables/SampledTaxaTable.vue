@@ -23,7 +23,7 @@
             </span>
           </div>
         </td>
-      </tr>
+      </tr> 
     </template>
 
     <template #item.code="{ item, value }: { item: OccurrenceAtSite; value: string }">
@@ -55,7 +55,7 @@
   </CRUDTable>
 </template>
 
-<script setup lang="ts" generic="Occurrence extends OccurrenceAtSite, Site extends SiteItem">
+<script setup lang="ts" generic="Site extends SiteItem">
 import { CodeIdentifier, DateWithPrecision, OccurrenceAtSite, SiteItem } from '@/api';
 import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue';
 import { HeaderExtension, mergeHeaders } from '@/features/occurrences/components/tables/headers';
@@ -63,18 +63,18 @@ import { OccurrenceTableItem } from '@/features/occurrences/components/tables/Oc
 import { computed, useSlots } from 'vue';
 import { Group } from 'vuetify/lib/components/VDataTable/composables/group.mjs';
 
-type OccurrenceItem = OccurrenceTableItem<Occurrence, true, Site>;
+type OccurrenceItem = OccurrenceTableItem<Site>;
 
 const { occurrences, extendHeaders } = defineProps<{
   occurrences: OccurrenceItem[];
   extendHeaders?: HeaderExtension<OccurrenceItem>[]
 }>();
 
-const baseHeaders = [
+const baseHeaders : CRUDTableHeader<OccurrenceItem>[] = [
   { key: 'code', title: 'Code' },
   { key: 'site.code', title: 'Site' },
   { key: 'sampling_date', title: 'Sampling date' }
-]
+] as const;
 
 const headers = computed(() => {
   return mergeHeaders(baseHeaders, extendHeaders) satisfies CRUDTableHeader<OccurrenceItem>[]

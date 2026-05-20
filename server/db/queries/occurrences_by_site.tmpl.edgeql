@@ -37,6 +37,7 @@ select location::Site {
         identified_on, 
         taxon: { 
           *,
+          parent_name := .parent.name,
           kingdom_name := .kingdom.name,
           phylum_name := .phylum.name,
           class_name := .class.name,

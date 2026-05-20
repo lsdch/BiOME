@@ -4,7 +4,7 @@
       <slot name="activator" v-bind="props" />
     </template>
     <template #title>
-      <v-tabs v-model="tab">
+      <v-tabs v-model="tab" class="text-body-large">
         <v-tab value="sites">
           Sites
           <template #append>
@@ -53,7 +53,8 @@
       </v-tabs-window-item>
       <v-tabs-window-item value="sampled_taxa">
         <slot name="sampled-taxa-table" :occurrences>
-          <SampledTaxaTable :occurrences />
+          <OccurringTaxa :occurrences />
+          <!-- <SampledTaxaTable :occurrences /> -->
         </slot>
       </v-tabs-window-item>
     </v-tabs-window>
@@ -61,17 +62,15 @@
 </template>
 
 <script setup lang="ts" generic="Data extends SiteWithOccurrences">
-import { OccurrenceAtSite, SiteWithOccurrences } from '@/api'
+import { OccurrenceAtSite, SamplingDateWithOccurrences, SiteItem, SiteWithOccurrences } from '@/api'
 import CardDialog, { CardDialogProps } from '@/components/toolkit/ui/CardDialog.vue'
 import OccurrencesTable, {
-  type OccurrenceTableItem
+  OccurrenceTableItem
 } from '@/features/occurrences/components/tables/OccurrencesTable.vue'
-import SampledTaxaTable from '@/features/occurrences/components/tables/SampledTaxaTable.vue'
-import SamplingWithOccurrencesTable, {
-  SamplingTableItem
-} from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
+import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
 import SiteWithOccurrencesTable from '@/features/occurrences/components/tables/SiteWithOccurrencesTable.vue'
 import { computed, useSlots } from 'vue'
+import OccurringTaxa from '../OccurringTaxa.vue'
 
 const dialog = defineModel<boolean>({ default: false })
 
@@ -84,15 +83,16 @@ const { data, ...props } = defineProps<
 type Tab = 'sites' | 'samplings' | 'occurrences' | 'sampled_taxa'
 const tab = defineModel<Tab>('tab', { default: 'sites' })
 
-type Sampling = SamplingTableItem<Data['samplings'][number], true, Omit<Data, 'samplings'>>
+type Sampling = SamplingDateWithOccurrences & { site: Omit<Data, 'samplings'> }
 const samplings = computed<Array<Sampling>>(() =>
   data.flatMap(({ samplings, ...site }) => samplings.map((s) => ({ ...s, site })))
 )
-type Occurrence = OccurrenceTableItem<OccurrenceAtSite, true, Omit<Data, 'samplings'>>
+
+type Occurrence = OccurrenceTableItem<Omit<Data, 'samplings'>>
 const occurrences = computed<Array<Occurrence>>(() =>
-  data.flatMap(({ samplings, ...site }) =>
+  data.flatMap<Occurrence>(({ samplings, ...site }) =>
     samplings.flatMap(({ occurrences, date }) =>
-      occurrences.map((o) => ({ sampling_date: date, site, ...o }))
+      occurrences.map<Occurrence>((o) => ({ sampling_date: date, site, ...o }))
     )
   )
 )

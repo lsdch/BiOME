@@ -69,7 +69,6 @@ const items = computed(
     }, []) ?? []
 )
 
-// const headers: CRUDTableHeader<OccurrenceTableItem>[] = [
 const headers: CRUDTableHeader<OccurrenceTableItem>[] = [
   { title: 'Code', key: 'code' },
   {
