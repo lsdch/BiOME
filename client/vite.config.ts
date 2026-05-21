@@ -6,22 +6,25 @@ import { exec } from 'node:child_process'
 import { defineConfig, loadEnv } from 'vite'
 import mkcert from 'vite-plugin-mkcert'
 import vuetify from 'vite-plugin-vuetify'
-import os from 'os'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd())
-  const hmrHost = env.VITE_HMR_HOST || os.hostname()
+  const hmrHost = env.VITE_HMR_HOST?.trim()
+  const allowedHosts = env.VITE_ALLOWED_HOSTS?.split(',')
+    .map((host) => host.trim())
+    .filter(Boolean)
 
   return {
     server: {
       host: true,
-      allowedHosts: env.VITE_ALLOWED_HOSTS?.split(','),
-      hmr: {
-        host: hmrHost,
-        protocol: 'wss',
-        port: 5173
-      },
+      allowedHosts: allowedHosts?.length ? allowedHosts : true,
+      hmr: hmrHost
+        ? {
+            host: hmrHost,
+            port: 5173
+          }
+        : undefined,
       proxy: {
         // redirects API calls made on the client host towards the API server
         '^/api': {
