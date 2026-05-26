@@ -113,28 +113,6 @@ export const navRoutes: (RouterItem | Divider)[] = [
     meta: { title: 'Taxonomy' }
   },
   {
-    label: 'People',
-    icon: 'mdi-account-group',
-    routes: [
-      {
-        label: 'Persons',
-        path: '/people',
-        name: 'people',
-        icon: 'mdi-account',
-        component: () => import('@/features/people/views/PersonView.vue'),
-        meta: { title: 'Persons' }
-      },
-      {
-        label: 'Organisations',
-        path: '/organisations',
-        name: 'organisations',
-        icon: 'mdi-domain',
-        component: () => import('@/features/people/views/OrganisationView.vue'),
-        meta: { title: 'Organisations' }
-      }
-    ]
-  },
-  {
     label: 'Metadata registries',
     icon: 'mdi-book-alphabet',
     routes: [
@@ -211,6 +189,15 @@ export const navRoutes: (RouterItem | Divider)[] = [
     icon: 'mdi-cog',
     granted: 'Admin',
     routes: [
+      routes.settings,
+      guardRole('Admin', {
+        label: 'Users',
+        path: '/users',
+        name: 'users',
+        icon: 'mdi-account',
+        component: () => import('@/features/people/views/PersonView.vue'),
+        meta: { title: 'Users' }
+      }),
       guardRole('Admin', {
         label: 'Account requests',
         path: '/admin/account-requests',
@@ -218,8 +205,7 @@ export const navRoutes: (RouterItem | Divider)[] = [
         icon: 'mdi-account-plus',
         component: () => import('@/views/accounts/AccountsPendingView.vue'),
         meta: { title: 'Account requests' }
-      }),
-      routes.settings
+      })
     ]
   }
 ]

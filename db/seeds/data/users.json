@@ -7,9 +7,7 @@
     "identity": {
       "first_name": "Mock",
       "last_name": "Admin",
-      "organisations": [
-        "DEVTEAM"
-      ],
+      "organisation": "DEVTEAM",
       "comment": "A test account with admin privileges."
     }
   },
@@ -21,9 +19,7 @@
     "identity": {
       "first_name": "Mock",
       "last_name": "Maintainer",
-      "organisations": [
-        "DEVTEAM"
-      ]
+      "organisation": "DEVTEAM"
     },
     "comment": "A test account with project member privileges."
   },
@@ -35,9 +31,7 @@
     "identity": {
       "first_name": "Mock",
       "last_name": "Contributor",
-      "organisations": [
-        "DEVTEAM"
-      ]
+      "organisation": "DEVTEAM"
     },
     "comment": "A test account with contributor privileges."
   },
@@ -49,9 +43,7 @@
     "identity": {
       "first_name": "Mock",
       "last_name": "Visitor",
-      "organisations": [
-        "DEVTEAM"
-      ]
+      "organisation": "DEVTEAM"
     },
     "comment": "A test account with visitor privileges."
   },
@@ -63,9 +55,7 @@
     "identity": {
       "first_name": "Florian",
       "last_name": "Malard",
-      "organisations": [
-        "LEHNA"
-      ]
+      "organisation": "LEHNA"
     }
   },
   {
@@ -76,9 +66,7 @@
     "identity": {
       "first_name": "Inactive",
       "last_name": "User",
-      "organisations": [
-        "LEHNA"
-      ]
+      "organisation": "LEHNA"
     }
   }
 ]

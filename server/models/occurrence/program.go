@@ -22,10 +22,10 @@ type ProgramInner struct {
 
 type Program struct {
 	ProgramInner    `gel:"$inline"`
-	Managers        []people.PersonInner       `gel:"managers" json:"managers" minItems:"1"`
-	FundingAgencies []people.OrganisationInner `gel:"funding_agencies" json:"funding_agencies"`
-	Datasets        []dataset.DatasetInner     `gel:"datasets" json:"datasets"`
-	Meta            people.Meta                `gel:"meta" json:"meta"`
+	Managers        []people.PersonInner   `gel:"managers" json:"managers" minItems:"1"`
+	FundingAgencies []string               `gel:"funding_agencies" json:"funding_agencies"`
+	Datasets        []dataset.DatasetInner `gel:"datasets" json:"datasets"`
+	Meta            people.Meta            `gel:"meta" json:"meta"`
 }
 
 func ListPrograms(db geltypes.Executor) ([]Program, error) {
@@ -66,15 +66,11 @@ func (i ProgramInput) Save(db geltypes.Executor) (created Program, err error) {
 				select people::Person
 				filter .alias in array_unpack(<array<str>>json_get(data, 'managers'))
 			),
-			organisations := (
-				select people::Organisation
-				filter .code in array_unpack(<array<str>>json_get(data, 'funding_agencies'))
-			),
 		select(insert events::Program {
 			label := <str>data['label'],
 			code := <str>data['code'],
 			managers := managers,
-			funding_agencies := organisations,
+			funding_agencies := <str>json_array_unpack(json_get(data, 'funding_agencies')),
 			start_year := <int32>json_get(data, 'start_year'),
 			end_year := <int32>json_get(data, 'end_year'),
 			description := <str>json_get(data, 'description'),
@@ -116,11 +112,7 @@ func (u ProgramUpdate) Save(e geltypes.Executor, code string) (updated Program, 
 					select people::Person
 					filter .alias in array_unpack(<array<str>>json_get(item, 'managers'))
 				)`,
-			"funding_agencies": `#edgeql
-				(
-					select people::Organisation
-					filter .code in array_unpack(<array<str>>json_get(item, 'funding_agencies'))
-				)`,
+			"funding_agencies": `<str>json_array_unpack(json_get(item, 'funding_agencies'))`,
 			"datasets": `#edgeql
 				(
 					select datasets::Dataset

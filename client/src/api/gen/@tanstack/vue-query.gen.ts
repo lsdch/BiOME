@@ -58,9 +58,6 @@ import type {
   CreateOccurrenceData,
   CreateOccurrenceError,
   CreateOccurrenceResponse,
-  CreateOrganisationData,
-  CreateOrganisationError,
-  CreateOrganisationResponse,
   CreatePersonData,
   CreatePersonError,
   CreatePersonResponse,
@@ -121,9 +118,6 @@ import type {
   DeleteOccurrenceData,
   DeleteOccurrenceError,
   DeleteOccurrenceResponse,
-  DeleteOrganisationData,
-  DeleteOrganisationError,
-  DeleteOrganisationResponse,
   DeletePendingUserRequestData,
   DeletePendingUserRequestError,
   DeletePendingUserRequestResponse,
@@ -235,9 +229,6 @@ import type {
   ListOccurrencesData,
   ListOccurrencesError,
   ListOccurrencesResponse,
-  ListOrganisationsData,
-  ListOrganisationsError,
-  ListOrganisationsResponse,
   ListPendingUserRequestsData,
   ListPendingUserRequestsError,
   ListPendingUserRequestsResponse,
@@ -361,9 +352,6 @@ import type {
   UpdateOccurrenceData,
   UpdateOccurrenceError,
   UpdateOccurrenceResponse,
-  UpdateOrganisationData,
-  UpdateOrganisationError,
-  UpdateOrganisationResponse,
   UpdatePasswordData,
   UpdatePasswordError,
   UpdatePasswordResponse,
@@ -2399,112 +2387,6 @@ export const updateOccurrenceMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await OccurrencesService.updateOccurrence({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listOrganisationsQueryKey = (options?: Options<ListOrganisationsData>) =>
-  createQueryKey('listOrganisations', options)
-
-/**
- * List organisations
- */
-export const listOrganisationsOptions = (options?: Options<ListOrganisationsData>) =>
-  queryOptions<
-    ListOrganisationsResponse,
-    ListOrganisationsError,
-    ListOrganisationsResponse,
-    ReturnType<typeof listOrganisationsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await PeopleService.listOrganisations({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listOrganisationsQueryKey(options)
-  })
-
-/**
- * Create organisation
- */
-export const createOrganisationMutation = (
-  options?: Partial<Options<CreateOrganisationData>>
-): UseMutationOptions<
-  CreateOrganisationResponse,
-  CreateOrganisationError,
-  Options<CreateOrganisationData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateOrganisationResponse,
-    CreateOrganisationError,
-    Options<CreateOrganisationData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.createOrganisation({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete organisation
- */
-export const deleteOrganisationMutation = (
-  options?: Partial<Options<DeleteOrganisationData>>
-): UseMutationOptions<
-  DeleteOrganisationResponse,
-  DeleteOrganisationError,
-  Options<DeleteOrganisationData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteOrganisationResponse,
-    DeleteOrganisationError,
-    Options<DeleteOrganisationData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.deleteOrganisation({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update organisation
- */
-export const updateOrganisationMutation = (
-  options?: Partial<Options<UpdateOrganisationData>>
-): UseMutationOptions<
-  UpdateOrganisationResponse,
-  UpdateOrganisationError,
-  Options<UpdateOrganisationData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateOrganisationResponse,
-    UpdateOrganisationError,
-    Options<UpdateOrganisationData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.updateOrganisation({
         ...options,
         ...fnOptions,
         throwOnError: true

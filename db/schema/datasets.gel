@@ -5,7 +5,7 @@ module datasets {
     required code: str { constraint exclusive };
 
     required multi managers: str;
-    multi funding_agencies: people::Organisation;
+    multi funding_agencies: str;
 
     start_year: int32 {
       constraint min_value(1900);

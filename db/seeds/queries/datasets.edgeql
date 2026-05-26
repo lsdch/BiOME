@@ -4,9 +4,6 @@ for item in json_array_unpack(data) union (
     label := <str>item['label'],
     slug := <str>item['slug'],
     description := <str>json_get(item, 'description'),
-    maintainers := (
-      select people::Person filter .alias in <str>json_array_unpack(item['maintainers'])
-    )
   }),
   sites := (for site in json_array_unpack(json_get(item, 'sites')) union (
     with created_site := (insert location::Site {
@@ -36,10 +33,7 @@ for item in json_array_unpack(data) union (
           select events::Program
           filter .code in <str>json_array_unpack(json_get(event, 'programs'))
         ),
-        performed_by := (
-          select people::Person
-          filter .alias in <str>json_array_unpack(json_get(event, 'performed_by'))
-        )
+        performed_by := <str>json_array_unpack(json_get(event, 'performed_by'))
       }),
 
       spotting := (

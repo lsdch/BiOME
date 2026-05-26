@@ -13,7 +13,7 @@ import (
 
 // Specifies a field in Gel and how to cast a value for its type
 type GelBinding struct {
-	ObjectName   string // e.g. 'people::Organisation'
+	ObjectName   string // e.g. 'people::Person'
 	PropertyName string // e.g. 'code'
 	TypeCast     string // e.g. 'str'
 }

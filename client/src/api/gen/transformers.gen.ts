@@ -10,7 +10,6 @@ import type {
   CreateGeneResponse,
   CreateHabitatGroupResponse,
   CreateOccurrenceResponse,
-  CreateOrganisationResponse,
   CreatePersonResponse,
   CreateProgramResponse,
   CreateSamplingAtSiteResponse,
@@ -29,7 +28,6 @@ import type {
   DeleteHabitatGroupResponse,
   DeleteMapPresetResponse,
   DeleteOccurrenceResponse,
-  DeleteOrganisationResponse,
   DeletePendingUserRequestResponse,
   DeletePersonResponse,
   DeleteProgramResponse,
@@ -58,7 +56,6 @@ import type {
   ListMapPresetsResponse,
   ListOccurrenceDatasetsResponse,
   ListOccurrencesResponse,
-  ListOrganisationsResponse,
   ListPendingUserRequestsResponse,
   ListPersonsResponse,
   ListProgramsResponse,
@@ -85,7 +82,6 @@ import type {
   UpdateHabitatGroupResponse,
   UpdateOccurrenceCodesInDatasetResponse,
   UpdateOccurrenceResponse,
-  UpdateOrganisationResponse,
   UpdatePersonResponse,
   UpdateProgramResponse,
   UpdateSamplingMethodResponse,
@@ -827,42 +823,6 @@ export const updateOccurrenceResponseTransformer = async (
   data: any
 ): Promise<UpdateOccurrenceResponse> => {
   data = baseOccurrenceSamplingOutlineSchemaResponseTransformer(data)
-  return data
-}
-
-const organisationSchemaResponseTransformer = (data: any) => {
-  data.meta = metaSchemaResponseTransformer(data.meta)
-  if (data.people) {
-    data.people = data.people.map((item: any) => personSchemaResponseTransformer(item))
-  }
-  return data
-}
-
-export const listOrganisationsResponseTransformer = async (
-  data: any
-): Promise<ListOrganisationsResponse> => {
-  data = data.map((item: any) => organisationSchemaResponseTransformer(item))
-  return data
-}
-
-export const createOrganisationResponseTransformer = async (
-  data: any
-): Promise<CreateOrganisationResponse> => {
-  data = organisationSchemaResponseTransformer(data)
-  return data
-}
-
-export const deleteOrganisationResponseTransformer = async (
-  data: any
-): Promise<DeleteOrganisationResponse> => {
-  data = organisationSchemaResponseTransformer(data)
-  return data
-}
-
-export const updateOrganisationResponseTransformer = async (
-  data: any
-): Promise<UpdateOrganisationResponse> => {
-  data = organisationSchemaResponseTransformer(data)
   return data
 }
 

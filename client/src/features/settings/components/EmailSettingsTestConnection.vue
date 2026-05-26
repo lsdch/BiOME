@@ -61,6 +61,9 @@ async function testConnection(settings: EmailSettingsInput) {
     body: settings,
     signal: abortController.value.signal
   }).finally(() => (testing.value = false))
+  if (error) {
+    console.error('Error testing SMTP connection', error)
+  }
   connectionOK.value = !error && ok
 }
 </script>

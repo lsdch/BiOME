@@ -2,38 +2,27 @@
   {
     "first_name": "Monkey D.",
     "last_name": "Luffy",
-    "organisations": [
-      "MELES"
-    ],
+    "organisation": "MELES",
     "comment": "The future king of pirates."
   },
   {
     "first_name": "Edward",
     "last_name": "Elric",
-    "organisations": [
-      "MELES"
-    ]
+    "organisation": "MELES"
   },
   {
     "first_name": "Edwy",
     "last_name": "Elric",
-    "alias": "eelric1",
-    "organisations": [
-      "ANR"
-    ]
+    "organisation": "ANR"
   },
   {
     "first_name": "Alphonse",
     "last_name": "Elric",
-    "organisations": [
-      "MELES"
-    ]
+    "organisation": "MELES"
   },
   {
     "first_name": "Portgas D.",
     "last_name": "Ace",
-    "organisations": [
-      "MELES"
-    ]
+    "organisation": "MELES"
   }
 ]

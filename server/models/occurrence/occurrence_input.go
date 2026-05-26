@@ -21,11 +21,10 @@ import (
 )
 
 type OccurrenceBatchMetadataInputs struct {
-	Organisations map[string]people.OrganisationInput   `json:"organisations,omitempty"`
-	People        map[string]people.PersonInput         `json:"people,omitempty"`
-	DataSources   map[string]references.DataSourceInput `json:"data_sources,omitempty"`
-	Taxa          []taxonomy.TaxonInput                 `json:"taxa,omitempty"`
-	Bibliography  map[string]references.ArticleInput    `json:"bibliography,omitempty"`
+	People       map[string]people.PersonInput         `json:"people,omitempty"`
+	DataSources  map[string]references.DataSourceInput `json:"data_sources,omitempty"`
+	Taxa         []taxonomy.TaxonInput                 `json:"taxa,omitempty"`
+	Bibliography map[string]references.ArticleInput    `json:"bibliography,omitempty"`
 }
 
 func (i OccurrenceBatchMetadataInputs) TaxaByName() map[string]taxonomy.TaxonInput {
@@ -37,11 +36,10 @@ func (i OccurrenceBatchMetadataInputs) TaxaByName() map[string]taxonomy.TaxonInp
 }
 
 type CreatedMetadata struct {
-	Organisations map[string]string `json:"organisations,omitempty"` // input string to code map
-	People        map[string]string `json:"people,omitempty"`        // input string to alias map
-	DataSources   map[string]string `json:"data_sources,omitempty"`  // input string to code map
-	Bibliography  map[string]string `json:"bibliography,omitempty"`  // input string to code map
-	Collections   map[string]string `json:"collections,omitempty"`   // input string to code map
+	People       map[string]string `json:"people,omitempty"`       // input string to alias map
+	DataSources  map[string]string `json:"data_sources,omitempty"` // input string to code map
+	Bibliography map[string]string `json:"bibliography,omitempty"` // input string to code map
+	Collections  map[string]string `json:"collections,omitempty"`  // input string to code map
 }
 
 func (i OccurrenceBatchMetadataInputs) saveNewDataSources(tx geltypes.Tx, trackers ...OccurrenceBatchTracker) (map[string]string, error) {
@@ -76,26 +74,10 @@ func (i OccurrenceBatchMetadataInputs) saveNewBibliography(tx geltypes.Tx, track
 	return codes, nil
 }
 
-func (i OccurrenceBatchMetadataInputs) saveNewOrganisations(tx geltypes.Tx, trackers ...OccurrenceBatchTracker) (map[string]string, error) {
-	codes := make(map[string]string)
-	for rawOrg, org := range i.Organisations {
-		logrus.Debugf("Creating organisation '%s' %+v", rawOrg, org)
-		created, err := org.Save(tx)
-		if err != nil {
-			return nil, models.WrapErrorPath(err, rawOrg)
-		}
-		codes[rawOrg] = created.Code
-		for _, tracker := range trackers {
-			tracker.Progress(1)
-		}
-	}
-	return codes, nil
-}
-
-func (i OccurrenceBatchMetadataInputs) saveNewPersons(tx geltypes.Tx, orgCodes map[string]string, trackers ...OccurrenceBatchTracker) (map[string]string, error) {
+func (i OccurrenceBatchMetadataInputs) saveNewPersons(tx geltypes.Tx, trackers ...OccurrenceBatchTracker) (map[string]string, error) {
 	personAliases := make(map[string]string)
 	for rawPerson, person := range i.People {
-		created, err := person.WithOrganisationCodes(orgCodes).Save(tx)
+		created, err := person.Save(tx)
 		if err != nil {
 			return nil, models.WrapErrorPath(err, rawPerson)
 		}
@@ -109,7 +91,7 @@ func (i OccurrenceBatchMetadataInputs) saveNewPersons(tx geltypes.Tx, orgCodes m
 
 func (i OccurrenceBatchMetadataInputs) Save(tx geltypes.Tx, trackers ...OccurrenceBatchTracker) (*CreatedMetadata, error) {
 
-	total := len(i.Taxa) + len(i.DataSources) + len(i.Bibliography) + len(i.Organisations) + len(i.People)
+	total := len(i.Taxa) + len(i.DataSources) + len(i.Bibliography) + len(i.People)
 	for _, tracker := range trackers {
 		if total > 0 {
 			tracker.Start(total).SetDescription("Saving associated metadata")
@@ -152,19 +134,10 @@ func (i OccurrenceBatchMetadataInputs) Save(tx geltypes.Tx, trackers ...Occurren
 	}
 
 	for _, tracker := range trackers {
-		tracker.SetDetail(fmt.Sprintf("Saving %d organisations", len(i.Organisations)))
-	}
-
-	organisations, err := i.saveNewOrganisations(tx, trackers...)
-	if err != nil {
-		return nil, models.WrapErrorPath(err, "organisations")
-	}
-
-	for _, tracker := range trackers {
 		tracker.SetDetail(fmt.Sprintf("Saving %d people", len(i.People)))
 	}
 
-	personAliases, err := i.saveNewPersons(tx, organisations, trackers...)
+	personAliases, err := i.saveNewPersons(tx, trackers...)
 	if err != nil {
 		return nil, models.WrapErrorPath(err, "people")
 	}
@@ -174,10 +147,9 @@ func (i OccurrenceBatchMetadataInputs) Save(tx geltypes.Tx, trackers ...Occurren
 	}
 
 	return &CreatedMetadata{
-		Organisations: organisations,
-		People:        personAliases,
-		DataSources:   dataSources,
-		Bibliography:  bibliography,
+		People:       personAliases,
+		DataSources:  dataSources,
+		Bibliography: bibliography,
 	}, nil
 }
 

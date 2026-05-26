@@ -123,14 +123,12 @@
 
 <script setup lang="ts">
 import { $SamplingInput, $SamplingUpdate } from '@/api'
-import { SiteItem, TaxonRank } from '@/api/adapters'
+import { SiteItem } from '@/api/adapters'
 import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import HoursMinutesInput from '@/components/toolkit/forms/HoursMinutesInput.vue'
 import { useSchema } from '@/composables/schema'
 import AccessPointsPicker from '@/features/occurrences/components/sampling/AccessPointsPicker.vue'
-import OrganisationPicker from '@/features/people/components/OrganisationPicker.vue'
-import PersonPicker from '@/features/people/components/PersonPicker.vue'
 import FixativePicker from '@/features/registries/components/FixativePicker.vue'
 import HabitatPicker from '@/features/registries/components/HabitatPicker.vue'
 import SamplingMethodPicker from '@/features/registries/components/SamplingMethodPicker.vue'

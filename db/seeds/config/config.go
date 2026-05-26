@@ -5,7 +5,6 @@ import (
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/go-viper/mapstructure/v2"
-	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models/people"
 	"github.com/lsdch/biome/models/settings"
 	"github.com/sirupsen/logrus"
@@ -13,33 +12,13 @@ import (
 )
 
 type InstanceConfig struct {
-	Instance     settings.InstanceSettingsInput `json:"instance" mapstructure:"instance"`
-	SuperAdmin   people.SuperAdminInput         `json:"superadmin" mapstructure:"superadmin"`
-	Email        settings.EmailSettingsInput    `json:"email" mapstructure:"email"`
-	Organisation people.OrganisationInput       `json:"organisation" mapstructure:"organisation"`
-	Services     settings.ServicesSettingsInput `json:"services" mapstructure:"services"`
-}
-
-func (c *InstanceConfig) saveOrganisation(tx geltypes.Tx) error {
-	maybeOrg, err := people.FindOrganisation(tx, c.Organisation.Code)
-	if err != nil {
-		if !db.IsNoData(err) {
-			return err
-		}
-		if _, err := c.Organisation.Save(tx); err != nil {
-			return fmt.Errorf("Organisation: %v", err)
-		}
-	} else {
-		logrus.Infof("✅ Found existing organisation: [%s] %s", maybeOrg.Code, maybeOrg.Name)
-	}
-	return nil
+	Instance   settings.InstanceSettingsInput `json:"instance" mapstructure:"instance"`
+	SuperAdmin people.SuperAdminInput         `json:"superadmin" mapstructure:"superadmin"`
+	Email      settings.EmailSettingsInput    `json:"email" mapstructure:"email"`
+	Services   settings.ServicesSettingsInput `json:"services" mapstructure:"services"`
 }
 
 func (c *InstanceConfig) SaveTx(tx geltypes.Tx) error {
-	if err := c.saveOrganisation(tx); err != nil {
-		return err
-	}
-
 	var appSettings = new(settings.Settings)
 	if settings.CheckSettingsInitialized(tx) {
 		logrus.Infof("✅ Instance settings already initialized, skipping.")

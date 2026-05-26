@@ -37,15 +37,10 @@
       </v-row>
       <v-row>
         <v-col>
-          <OrganisationPicker
-            label="Organisations (optional)"
-            v-model="model.organisations"
-            item-color="primary"
-            chips
-            closable-chips
-            multiple
-            item-value="code"
-            v-bind="schema('organisations')"
+          <v-text-field
+            label="Organisation (optional)"
+            v-model="model.organisation"
+            v-bind="schema('organisation')"
           />
         </v-col>
       </v-row>
@@ -64,13 +59,12 @@
 </template>
 
 <script setup lang="ts">
+import { $PersonInput, $PersonUpdate } from '@/api'
+import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
+import { useSchema } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
 import { PersonModel } from '@/models'
-import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { reactiveComputed } from '@vueuse/core'
-import { useSchema } from '@/composables/schema'
-import { $PersonInput, $PersonUpdate } from '@/api'
-import OrganisationPicker from '@/features/people/components/OrganisationPicker.vue'
 
 const dialog = defineModel<boolean>('dialog')
 const model = defineModel<PersonModel.PersonFormModel>({

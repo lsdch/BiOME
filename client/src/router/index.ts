@@ -1,11 +1,9 @@
-import { InstanceSettings, UserRole } from '@/api'
+import { UserRole } from '@/api'
 import NotFound from '@/components/navigation/NotFound.vue'
-import { nextTick } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useGuards } from './guards'
 
-import { getSiteDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { VListGroup, VListItem } from 'vuetify/components'
 import { navRouteDefinitions } from './nav'

@@ -182,16 +182,15 @@ func (i SamplingInput) Save(e geltypes.Executor, siteCode string) (created Sampl
 }
 
 type SamplingUpdate struct {
-	PerformedBy       models.OptionalNull[[]string]                `gel:"performed_by" json:"performed_by,omitempty"`
-	PerformedByGroups models.OptionalNull[[]string]                `gel:"performed_by_groups" json:"performed_by_groups,omitempty"`
-	PerformedOn       models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
-	Target            models.OptionalInput[[]string]               `gel:"target_taxa" json:"target_taxa,omitempty"`
-	Methods           models.OptionalNull[[]string]                `gel:"methods" json:"methods,omitempty"`
-	Fixatives         models.OptionalNull[[]string]                `gel:"fixatives" json:"fixatives,omitempty"`
-	Duration          models.OptionalNull[int32]                   `gel:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
-	Comments          models.OptionalNull[string]                  `gel:"comments" json:"comments,omitempty"`
-	Habitats          models.OptionalNull[[]string]                `gel:"habitats" json:"habitats,omitempty"`
-	AccessPoints      models.OptionalNull[[]string]                `gel:"access_points" json:"access_points,omitempty"`
+	PerformedBy  models.OptionalNull[[]string]                `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedOn  models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
+	Target       models.OptionalInput[[]string]               `gel:"target_taxa" json:"target_taxa,omitempty"`
+	Methods      models.OptionalNull[[]string]                `gel:"methods" json:"methods,omitempty"`
+	Fixatives    models.OptionalNull[[]string]                `gel:"fixatives" json:"fixatives,omitempty"`
+	Duration     models.OptionalNull[int32]                   `gel:"duration" json:"duration,omitempty" doc:"Sampling duration in minutes"`
+	Comments     models.OptionalNull[string]                  `gel:"comments" json:"comments,omitempty"`
+	Habitats     models.OptionalNull[[]string]                `gel:"habitats" json:"habitats,omitempty"`
+	AccessPoints models.OptionalNull[[]string]                `gel:"access_points" json:"access_points,omitempty"`
 }
 
 func (u SamplingUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Sampling, err error) {
@@ -204,8 +203,6 @@ func (u SamplingUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Sam
 			}) {
 				*,
 				site: {*, country: { *}},
-				performed_by: { * },
-				performed_by_groups: { * },
 				habitats: { * },
 				target_taxa: { * },
 				fixatives: { * },
@@ -214,16 +211,7 @@ func (u SamplingUpdate) Save(e geltypes.Executor, id geltypes.UUID) (updated Sam
 			}
 		`,
 		Mappings: map[string]string{
-			"performed_by": `#edgeql
-				(
-					select people::Person
-					filter .alias in <str>json_array_unpack(data['performed_by'])
-				)`,
-			"performed_by_groups": `#edgeql
-				(
-					select people::Organisation
-					filter .code in <str>json_array_unpack(data['performed_by_groups'])
-				)`,
+			"performed_by": `<str>json_array_unpack(data['performed_by'])`,
 			"performed_on": `#edgeql
 				date::from_json_with_precision(json_get(data,'performed_on'))
 			`,
@@ -276,8 +264,6 @@ func DeleteSampling(db geltypes.Executor, id geltypes.UUID) (deleted Sampling, e
 		 	) {
 			 	*,
 				site: { *, country: { * }},
-				performed_by: { * },
-				performed_by_groups: { * },
 				habitats: { * },
 				target_taxa: { * },
 				fixatives: { * },

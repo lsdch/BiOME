@@ -1,6 +1,5 @@
-import { Organisation, OrganisationInner, Person, PersonInner, UserRole } from '@/api'
+import { Person, UserRole } from '@/api'
 import { getRoleIcon } from '@/components/icons/UserRoleIcon'
-import OrgChip from '@/features/people/components/OrgChip'
 import { VChip } from 'vuetify/components'
 
 export type PersonChipProps = {
@@ -39,12 +38,10 @@ export function PersonChip({ person, short, ...chipProps }: PersonChipProps) {
           >
             {{
               default: () =>
-                person.organisations?.length ? (
+                person.organisation ? (
                   <div class="my-1 d-flex align-center gap-1 flex-wrap">
                     <v-icon class="mx-4" icon="mdi-domain" size="small" />
-                    {person.organisations.map((org: OrganisationInner) => (
-                      <OrgChip org={org} label size="small" cardProps={{ rounded: 'sm' }} />
-                    ))}
+                    {person.organisation}
                   </div>
                 ) : undefined,
               prepend: () => (

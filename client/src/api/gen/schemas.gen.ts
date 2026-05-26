@@ -3696,158 +3696,6 @@ export const $OptionalUserShortIdentity = {
   type: ['object', 'null']
 } as const
 
-export const $OrgKind = {
-  enum: ['Lab', 'FundingAgency', 'SequencingPlatform', 'Other'],
-  title: 'OrgKind',
-  type: 'string'
-} as const
-
-export const $Organisation = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/Organisation.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      examples: ['LEHNA'],
-      maxLength: 12,
-      minLength: 2,
-      type: 'string'
-    },
-    description: {
-      examples: ['Where this database was born.'],
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    kind: {
-      $ref: '#/components/schemas/OrgKind',
-      examples: ['Lab']
-    },
-    meta: {
-      $ref: '#/components/schemas/Meta'
-    },
-    name: {
-      examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
-      maxLength: 128,
-      minLength: 10,
-      type: 'string'
-    },
-    people: {
-      description: 'Known members of this organisation',
-      items: {
-        $ref: '#/components/schemas/Person'
-      },
-      type: 'array'
-    }
-  },
-  required: ['meta', 'id', 'name', 'code', 'kind'],
-  type: 'object'
-} as const
-
-export const $OrganisationInner = {
-  additionalProperties: false,
-  properties: {
-    code: {
-      examples: ['LEHNA'],
-      maxLength: 12,
-      minLength: 2,
-      type: 'string'
-    },
-    description: {
-      examples: ['Where this database was born.'],
-      type: 'string'
-    },
-    id: {
-      format: 'uuid',
-      type: 'string'
-    },
-    kind: {
-      $ref: '#/components/schemas/OrgKind',
-      examples: ['Lab']
-    },
-    name: {
-      examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
-      maxLength: 128,
-      minLength: 10,
-      type: 'string'
-    }
-  },
-  required: ['id', 'name', 'code', 'kind'],
-  type: 'object'
-} as const
-
-export const $OrganisationInput = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/OrganisationInput.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      examples: ['LEHNA'],
-      maxLength: 12,
-      minLength: 2,
-      type: 'string'
-    },
-    description: {
-      examples: ['Where this database was born.'],
-      type: 'string'
-    },
-    kind: {
-      $ref: '#/components/schemas/OrgKind',
-      examples: ['Lab']
-    },
-    name: {
-      examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
-      maxLength: 128,
-      minLength: 10,
-      type: 'string'
-    }
-  },
-  required: ['name', 'code', 'kind'],
-  type: 'object'
-} as const
-
-export const $OrganisationUpdate = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['/api/v1/schemas/OrganisationUpdate.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    code: {
-      examples: ['LEHNA'],
-      type: 'string'
-    },
-    description: {
-      examples: ['Where this database was born.'],
-      type: ['string', 'null']
-    },
-    kind: {
-      $ref: '#/components/schemas/OrgKind',
-      examples: ['Lab']
-    },
-    name: {
-      examples: ["Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés"],
-      type: 'string'
-    }
-  },
-  type: 'object'
-} as const
-
 export const $Organization = {
   additionalProperties: false,
   properties: {
@@ -4071,11 +3919,8 @@ export const $Person = {
     meta: {
       $ref: '#/components/schemas/Meta'
     },
-    organisations: {
-      items: {
-        $ref: '#/components/schemas/OrganisationInner'
-      },
-      type: 'array'
+    organisation: {
+      type: 'string'
     },
     role: {
       $ref: '#/components/schemas/UserRole'
@@ -4128,6 +3973,9 @@ export const $PersonInner = {
       minLength: 2,
       type: 'string'
     },
+    organisation: {
+      type: 'string'
+    },
     role: {
       $ref: '#/components/schemas/UserRole'
     }
@@ -4144,9 +3992,6 @@ export const $PersonInput = {
       examples: ['/api/v1/schemas/PersonInput.json'],
       format: 'uri',
       readOnly: true,
-      type: 'string'
-    },
-    alias: {
       type: 'string'
     },
     comment: {
@@ -4168,12 +4013,6 @@ export const $PersonInput = {
       maxLength: 32,
       minLength: 2,
       type: 'string'
-    },
-    organisations: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
     }
   },
   required: ['first_name', 'last_name'],
@@ -4209,11 +4048,8 @@ export const $PersonUpdate = {
       minLength: 2,
       type: 'string'
     },
-    organisations: {
-      items: {
-        type: 'string'
-      },
-      type: 'array'
+    organisation: {
+      type: ['string', 'null']
     }
   },
   type: 'object'
@@ -4248,7 +4084,7 @@ export const $Program = {
     },
     funding_agencies: {
       items: {
-        $ref: '#/components/schemas/OrganisationInner'
+        type: 'string'
       },
       type: 'array'
     },
@@ -5190,12 +5026,6 @@ export const $SamplingUpdate = {
       type: ['array', 'null']
     },
     performed_by: {
-      items: {
-        type: 'string'
-      },
-      type: ['array', 'null']
-    },
-    performed_by_groups: {
       items: {
         type: 'string'
       },

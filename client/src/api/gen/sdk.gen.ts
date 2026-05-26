@@ -17,7 +17,6 @@ import {
   createGeneResponseTransformer,
   createHabitatGroupResponseTransformer,
   createOccurrenceResponseTransformer,
-  createOrganisationResponseTransformer,
   createPersonResponseTransformer,
   createProgramResponseTransformer,
   createSamplingAtSiteResponseTransformer,
@@ -36,7 +35,6 @@ import {
   deleteHabitatGroupResponseTransformer,
   deleteMapPresetResponseTransformer,
   deleteOccurrenceResponseTransformer,
-  deleteOrganisationResponseTransformer,
   deletePendingUserRequestResponseTransformer,
   deletePersonResponseTransformer,
   deleteProgramResponseTransformer,
@@ -65,7 +63,6 @@ import {
   listMapPresetsResponseTransformer,
   listOccurrenceDatasetsResponseTransformer,
   listOccurrencesResponseTransformer,
-  listOrganisationsResponseTransformer,
   listPendingUserRequestsResponseTransformer,
   listPersonsResponseTransformer,
   listProgramsResponseTransformer,
@@ -92,7 +89,6 @@ import {
   updateHabitatGroupResponseTransformer,
   updateOccurrenceCodesInDatasetResponseTransformer,
   updateOccurrenceResponseTransformer,
-  updateOrganisationResponseTransformer,
   updatePersonResponseTransformer,
   updateProgramResponseTransformer,
   updateSamplingMethodResponseTransformer,
@@ -134,9 +130,6 @@ import type {
   CreateOccurrenceData,
   CreateOccurrenceErrors,
   CreateOccurrenceResponses,
-  CreateOrganisationData,
-  CreateOrganisationErrors,
-  CreateOrganisationResponses,
   CreatePersonData,
   CreatePersonErrors,
   CreatePersonResponses,
@@ -197,9 +190,6 @@ import type {
   DeleteOccurrenceData,
   DeleteOccurrenceErrors,
   DeleteOccurrenceResponses,
-  DeleteOrganisationData,
-  DeleteOrganisationErrors,
-  DeleteOrganisationResponses,
   DeletePendingUserRequestData,
   DeletePendingUserRequestErrors,
   DeletePendingUserRequestResponses,
@@ -311,9 +301,6 @@ import type {
   ListOccurrencesData,
   ListOccurrencesErrors,
   ListOccurrencesResponses,
-  ListOrganisationsData,
-  ListOrganisationsErrors,
-  ListOrganisationsResponses,
   ListPendingUserRequestsData,
   ListPendingUserRequestsErrors,
   ListPendingUserRequestsResponses,
@@ -437,9 +424,6 @@ import type {
   UpdateOccurrenceData,
   UpdateOccurrenceErrors,
   UpdateOccurrenceResponses,
-  UpdateOrganisationData,
-  UpdateOrganisationErrors,
-  UpdateOrganisationResponses,
   UpdatePasswordData,
   UpdatePasswordErrors,
   UpdatePasswordResponses,
@@ -3410,114 +3394,6 @@ export class DefaultService {
 }
 
 export class PeopleService {
-  /**
-   * List organisations
-   */
-  public static listOrganisations<ThrowOnError extends boolean = false>(
-    options?: Options<ListOrganisationsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListOrganisationsResponses,
-      ListOrganisationsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listOrganisationsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/organisations',
-      ...options
-    })
-  }
-
-  /**
-   * Create organisation
-   */
-  public static createOrganisation<ThrowOnError extends boolean = false>(
-    options: Options<CreateOrganisationData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateOrganisationResponses,
-      CreateOrganisationErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createOrganisationResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/organisations',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete organisation
-   */
-  public static deleteOrganisation<ThrowOnError extends boolean = false>(
-    options: Options<DeleteOrganisationData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteOrganisationResponses,
-      DeleteOrganisationErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteOrganisationResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/organisations/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update organisation
-   */
-  public static updateOrganisation<ThrowOnError extends boolean = false>(
-    options: Options<UpdateOrganisationData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateOrganisationResponses,
-      UpdateOrganisationErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateOrganisationResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/organisations/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
   /**
    * List persons
    */

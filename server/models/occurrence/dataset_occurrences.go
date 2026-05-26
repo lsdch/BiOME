@@ -59,7 +59,7 @@ func GetOccurrenceDataset(db geltypes.Executor, slug string) (dataset Occurrence
 			select dataset {
 				*,
 				meta: { * },
-				maintainers: { *, user: { * }, organisations: { * } },
+				maintainers: { *, user: { * } },
 				contributors := distinct (.occurrences.identification.identified_by union .occurrences.sampling.performed_by),
 				bibliography := distinct .occurrences.published_in { *, meta: { * } },
 				sites: {

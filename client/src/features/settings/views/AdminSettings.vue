@@ -23,8 +23,8 @@
       />
     </v-list>
   </v-navigation-drawer>
-  <div class="bg-surface d-flex fill-height flex-column">
-    <v-container :max-width="1200">
+  <div class="bg-main d-flex fill-height flex-column">
+    <v-container :max-width="1000">
       <Suspense>
         <template #default>
           <component :is="component" />

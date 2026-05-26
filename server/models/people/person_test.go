@@ -28,10 +28,8 @@ func TestPerson(t *testing.T) {
 	client := db.Client()
 	t.Run("Create person", func(t *testing.T) {
 		input := FakePersonInput(t)
-		alias := input.GenerateAlias()
-		p, err := input.Save(client)
+		_, err := input.Save(client)
 		require.NoError(t, err)
-		assert.Equal(t, p.Alias, alias)
 	})
 
 	t.Run("Delete person", func(t *testing.T) {

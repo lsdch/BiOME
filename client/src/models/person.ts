@@ -1,39 +1,31 @@
-import { OrganisationInner, Person, PersonInput, PersonUpdate } from "@/api";
-import { reactive, Reactive } from "vue";
+import { Person, PersonInput, PersonUpdate } from '@/api'
+import { reactive, Reactive } from 'vue'
 
-export type PersonFormModel = Omit<PersonInput, "organisations"> & {
-  organisations?: OrganisationInner[]
-}
+export type PersonFormModel = PersonInput
 
 export function initialModel(): Reactive<PersonFormModel> {
   return reactive({
-    first_name: "",
-    last_name: "",
-    organisations: []
+    first_name: '',
+    last_name: ''
   })
 }
 
 export function fromPerson({
-  alias,
   comment,
   contact,
   first_name,
   last_name,
-  organisations
+  organisation
 }: Person): PersonFormModel {
   return {
     first_name,
     last_name,
-    alias,
     contact,
     comment,
-    organisations
+    organisation
   }
 }
 
-export function toRequestBody({ organisations, ...model }: PersonFormModel): PersonInput {
-  return {
-    ...model,
-    organisations: organisations?.map(({ code }) => code)
-  } satisfies PersonUpdate
+export function toRequestBody(model: PersonFormModel): PersonInput {
+  return model satisfies PersonUpdate
 }

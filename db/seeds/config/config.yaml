@@ -13,7 +13,6 @@ organisation:
     kind: Lab
     name: Laboratoire d'Écologie des Hydrosystèmes Naturels et Anthropisés
 superadmin:
-    alias: lsdch
     email: louis.duchemin@univ-lyon1.fr
     first_name: Louis
     last_name: Duchemin

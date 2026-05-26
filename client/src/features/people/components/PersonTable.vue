@@ -34,19 +34,12 @@
     <template #[`header.role`]="slotProps">
       <IconTableHeader v-bind="slotProps" icon="mdi-account-badge" />
     </template>
-    <template #[`header.organisations`]="slotProps">
+    <!-- <template #[`header.organisation`]="slotProps">
       <IconTableHeader v-bind="slotProps" icon="mdi-domain" :expanded="smAndUp" />
-    </template>
+    </template> -->
 
     <template #[`item.role`]="{ value }">
       <UserRole.Icon :role="value" size="x-small" />
-    </template>
-
-    <template #[`item.alias`]="{ value }">
-      <span class="font-weight-light"> {{ `@${value}` }}</span>
-    </template>
-    <template #[`item.organisations`]="{ value }">
-      <OrgChip v-for="org in value" :org label size="x-small" />
     </template>
 
     <template #[`expanded-row-inject`]="{ item }">
@@ -86,7 +79,6 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 import IconTableHeader from '@/components/toolkit/tables/IconTableHeader.vue'
 import { computed, ref } from 'vue'
 import { useDisplay } from 'vuetify'
-import OrgChip from './OrgChip'
 import type { AccountStatus, PersonFilters as Filters } from './PersonFilters.vue'
 import PersonFilters from './PersonFilters.vue'
 
@@ -99,12 +91,8 @@ function filterStatus(item: Person, status: AccountStatus) {
 }
 
 const filter = computed(() => {
-  const { status, organisations } = filters.value
-  return (item: Person) =>
-    Boolean(
-      (!status || filterStatus(item, status)) &&
-      (!organisations || item.organisations?.some(({ code }) => organisations.includes(code)))
-    )
+  const { status } = filters.value
+  return (item: Person) => Boolean(!status || filterStatus(item, status))
 })
 
 const headers: CRUDTableHeader<Person>[] = [
@@ -119,14 +107,13 @@ const headers: CRUDTableHeader<Person>[] = [
     }
   },
   { title: 'Name', key: 'full_name' },
+  { title: 'Login', key: 'user.login' },
+  { title: 'E-mail', key: 'user.email' },
   {
-    title: 'Alias',
-    key: 'alias'
-  },
-  {
-    title: 'Organisations',
-    key: 'organisations',
-    sortable: false
+    title: 'Organisation',
+    key: 'organisation',
+    align: 'start',
+    sortable: true
   }
 ]
 </script>

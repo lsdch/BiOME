@@ -14,7 +14,6 @@ module default {
       id := .created_by_user.id,
       login := .created_by_user.login,
       name := .created_by_user.identity.full_name,
-      alias := .created_by_user.identity.alias
     );
 
 
@@ -26,7 +25,6 @@ module default {
       id := .modified_by_user.id,
       login := .modified_by_user.login,
       name := .modified_by_user.identity.full_name,
-      alias := .modified_by_user.identity.alias
     );
 
     property lastUpdated := (.modified ?? .created);

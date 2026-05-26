@@ -22,7 +22,6 @@ import (
 )
 
 var entities = []string{
-	"organisations",
 	"persons",
 	"users",
 	"articles",
