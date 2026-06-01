@@ -43,8 +43,8 @@ func (q UpdateQuery) structFragments(itemValue reflect.Value) []string {
 		}
 
 		// Only consider fields that can capture not provided / null state
-		if f.Type.Implements(reflect.TypeFor[models.OptionalNullable]()) {
-			value := v.Interface().(models.OptionalNullable)
+		if f.Type.Implements(reflect.TypeFor[models.OptionalNullable[any]]()) {
+			value := v.Interface().(models.OptionalNullable[any])
 			// No value provided in JSON: do not update DB value
 			if !value.HasValue() {
 				continue

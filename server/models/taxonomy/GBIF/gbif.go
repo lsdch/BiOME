@@ -200,13 +200,15 @@ func FetchByName(client *GBIFClient, args SearchParams) (*TaxonGBIF, error) {
 	args.DatasetKey = GBIF_BACKBONE_DATASET_KEY
 	args.Status = "ACCEPTED"
 
-	switch len(strings.Split(args.Query, " ")) {
-	case 1:
-		args.Rank = "GENUS"
-	case 2:
-		args.Rank = "SPECIES"
-	default:
-		// Chance of an exact match is very low for names with more than 2 parts
+	if args.Rank == "" {
+		switch len(strings.Split(args.Query, " ")) {
+		case 1:
+			args.Rank = "GENUS"
+		case 2:
+			args.Rank = "SPECIES"
+		default:
+			// Chance of an exact match is very low for names with more than 2 parts
+		}
 	}
 
 	logrus.Debugf("Searching GBIF for taxon name '%s'", args.Query)

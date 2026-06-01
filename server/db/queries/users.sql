@@ -1,0 +1,273 @@
+-- name: CreateInvitation :one
+INSERT INTO invitations (
+        email,
+        invitee_name,
+        organisation,
+        role,
+        message,
+        inviter_id,
+        expires_at
+    )
+VALUES (
+        sqlc.arg(email),
+        sqlc.narg(invitee_name),
+        sqlc.narg(organisation),
+        sqlc.arg(role),
+        sqlc.narg(message),
+        sqlc.narg(inviter_id),
+        sqlc.arg(expires_at)
+    )
+RETURNING *;
+
+-- name: CreateInvitationToken :one
+INSERT INTO invitation_tokens (invitation_id, token_hash)
+VALUES (
+        sqlc.arg(invitation_id),
+        sqlc.arg(token_hash)
+    )
+RETURNING *;
+
+-- name: GetInvitationByTokenHash :one
+SELECT i.*
+FROM invitations i
+    JOIN invitation_tokens t ON t.invitation_id = i.id
+WHERE t.token_hash = sqlc.arg(token_hash)
+    AND t.consumed = false
+    AND i.status = 'pending'
+    AND i.expires_at > now()
+LIMIT 1;
+
+-- name: CreateUserFromInvitationToken :one
+WITH invitation_row AS (
+    SELECT i.id,
+        i.email,
+        i.role
+    FROM invitations i
+        JOIN invitation_tokens t ON t.invitation_id = i.id
+    WHERE t.token_hash = sqlc.arg(token_hash)
+        AND t.consumed = false
+        AND i.status = 'pending'
+        AND i.expires_at > now()
+    LIMIT 1
+), inserted_user AS (
+    INSERT INTO users (
+            login,
+            email,
+            password_hash,
+            role,
+            first_name,
+            last_name,
+            organisation,
+            contact,
+            comments,
+            email_verified_at
+        )
+    SELECT sqlc.arg(login),
+        invitation_row.email,
+        sqlc.arg(password_hash),
+        invitation_row.role,
+        sqlc.arg(first_name),
+        sqlc.arg(last_name),
+        sqlc.narg(organisation),
+        sqlc.narg(contact),
+        sqlc.narg(comments),
+        now()
+    FROM invitation_row
+    RETURNING *
+),
+updated_invitation AS (
+    UPDATE invitations
+    SET status = 'redeemed',
+        redeemed_at = now()
+    WHERE id = (
+            SELECT id
+            FROM invitation_row
+        )
+    RETURNING id
+),
+updated_token AS (
+    UPDATE invitation_tokens
+    SET consumed = true,
+        consumed_at = now(),
+        consumed_by = (
+            SELECT id
+            FROM inserted_user
+        )
+    WHERE token_hash = sqlc.arg(token_hash)
+    RETURNING id
+)
+SELECT *
+FROM inserted_user;
+
+-- name: UpdateUserPassword :exec
+UPDATE users
+SET password_hash = sqlc.arg(password_hash)
+WHERE id = sqlc.arg(user_id);
+
+-- name: UpdateUserRole :exec
+UPDATE users
+SET role = sqlc.arg(role)
+WHERE id = sqlc.arg(user_id);
+
+-- name: UpdateUserPersonalInfo :one
+UPDATE users
+SET first_name = CASE
+        WHEN sqlc.arg(first_name_set)::boolean THEN sqlc.narg(first_name)
+        ELSE first_name
+    END,
+    last_name = CASE
+        WHEN sqlc.arg(last_name_set)::boolean THEN sqlc.narg(last_name)
+        ELSE last_name
+    END,
+    contact = CASE
+        WHEN sqlc.arg(contact_set)::boolean THEN sqlc.narg(contact)
+        ELSE contact
+    END,
+    organisation = CASE
+        WHEN sqlc.arg(organisation_set)::boolean THEN sqlc.narg(organisation)
+        ELSE organisation
+    END
+WHERE id = sqlc.arg(user_id)
+RETURNING *;
+
+-- name: AuthenticateUser :one
+SELECT *
+FROM users
+WHERE active = true
+    AND password_hash = sqlc.arg(password_hash)
+    AND (
+        login = sqlc.arg(identifier)
+        OR email = sqlc.arg(identifier)
+    )
+LIMIT 1;
+
+-- name: CreateUserAccountRequest :one
+INSERT INTO user_account_requests (email, name, motivations, expires_at)
+VALUES (
+        sqlc.arg(email),
+        sqlc.arg(name),
+        sqlc.narg(motivations),
+        sqlc.arg(expires_at)
+    )
+RETURNING *;
+
+-- name: CreateUserAccountRequestToken :one
+INSERT INTO user_account_request_tokens (user_account_request_id, token_hash)
+VALUES (
+        sqlc.arg(user_account_request_id),
+        sqlc.arg(token_hash)
+    )
+RETURNING *;
+
+-- name: GetUserAccountRequestByTokenHash :one
+SELECT r.*
+FROM user_account_requests r
+    JOIN user_account_request_tokens t ON t.user_account_request_id = r.id
+WHERE t.token_hash = sqlc.arg(token_hash)
+    AND t.consumed = false
+    AND r.status = 'pending'
+    AND r.expires_at > now()
+LIMIT 1;
+
+-- name: VerifyUserAccountRequest :one
+UPDATE user_account_requests
+SET status = 'verified',
+    verified_at = now()
+WHERE id = sqlc.arg(user_account_request_id)
+    AND status = 'pending'
+RETURNING *;
+
+-- name: CancelUserAccountRequest :one
+UPDATE user_account_requests
+SET status = 'cancelled',
+    cancelled_at = now()
+WHERE id = sqlc.arg(user_account_request_id)
+    AND status = 'pending'
+RETURNING *;
+
+-- name: ConsumeUserAccountRequestToken :exec
+UPDATE user_account_request_tokens
+SET consumed = true,
+    consumed_at = now()
+WHERE token_hash = sqlc.arg(token_hash)
+    AND consumed = false;
+
+-- name: CreateUserEmailChangeRequest :one
+INSERT INTO user_email_change_requests (user_id, email, expires_at)
+VALUES (
+        sqlc.arg(user_id),
+        sqlc.arg(email),
+        sqlc.arg(expires_at)
+    )
+RETURNING *;
+
+-- name: CreateUserEmailChangeRequestToken :one
+INSERT INTO user_email_change_request_tokens (user_email_change_request_id, token_hash)
+VALUES (
+        sqlc.arg(user_email_change_request_id),
+        sqlc.arg(token_hash)
+    )
+RETURNING *;
+
+-- name: GetUserEmailChangeRequestByTokenHash :one
+SELECT r.*
+FROM user_email_change_requests r
+    JOIN user_email_change_request_tokens t ON t.user_email_change_request_id = r.id
+WHERE t.token_hash = sqlc.arg(token_hash)
+    AND t.consumed = false
+    AND r.status = 'pending'
+    AND r.expires_at > now()
+LIMIT 1;
+
+-- name: VerifyUserEmailChangeRequest :one
+UPDATE user_email_change_requests
+SET status = 'verified',
+    verified_at = now()
+WHERE id = sqlc.arg(user_email_change_request_id)
+    AND status = 'pending'
+RETURNING *;
+
+-- name: ApplyUserEmailChangeRequest :one
+WITH request_row AS (
+    SELECT r.id,
+        r.user_id,
+        r.email
+    FROM user_email_change_requests r
+    WHERE r.id = sqlc.arg(user_email_change_request_id)
+        AND r.status IN ('pending', 'verified')
+        AND r.expires_at > now()
+    LIMIT 1
+), updated_user AS (
+    UPDATE users
+    SET email = (
+            SELECT email
+            FROM request_row
+        ),
+        email_verified_at = now()
+    WHERE id = (
+            SELECT user_id
+            FROM request_row
+        )
+    RETURNING *
+),
+updated_request AS (
+    UPDATE user_email_change_requests
+    SET status = 'applied',
+        verified_at = COALESCE(verified_at, now()),
+        applied_at = now()
+    WHERE id = (
+            SELECT id
+            FROM request_row
+        )
+    RETURNING id
+)
+SELECT *
+FROM updated_user;
+
+-- name: ConsumeUserEmailChangeRequestToken :exec
+UPDATE user_email_change_request_tokens
+SET consumed = true,
+    consumed_at = now(),
+    consumed_by = sqlc.arg(consumed_by)
+WHERE token_hash = sqlc.arg(token_hash)
+    AND consumed = false;

@@ -1,0 +1,29 @@
+version: 3
+
+env: 
+  DB_URL: postgres://dev:dev@localhost:5432/biomedb?sslmode=disable
+
+tasks:
+  generate:
+    cmds: 
+      - go generate ./
+      - go tool sqlc generate
+      - go run generators/enums/generate_enums.go ./biomedb
+  init:
+    cmds: 
+      - mkdir -p migrations
+      - cat schema/*.sql > migrations/001_init.up.sql
+      - echo "DROP SCHEMA public CASCADE;" > migrations/001_init.down.sql
+      - psql $DB_URL -f migrations/001_init.up.sql
+  reset:
+    cmds:
+      - psql $DB_URL -c "DROP SCHEMA public CASCADE; CREATE SCHEMA public;"
+      - psql $DB_URL -f migrations/001_init.up.sql
+  new-migration:
+    cmd: go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate create -ext sql -dir migrations -seq {{.CLI_ARGS}}
+  migrate:
+    env:
+      MIGRATIONS_SCHEMA: migrations
+    cmds:
+      - psql $DB_URL -c "CREATE SCHEMA IF NOT EXISTS $MIGRATIONS_SCHEMA"
+      - go run -tags 'postgres' github.com/golang-migrate/migrate/v4/cmd/migrate -database "$DB_URL&search_path=public,migrations&x-migrations-table=\"migrations\".\"schema_migrations\"&x-migrations-table-quoted" -path ./migrations {{.CLI_ARGS}}

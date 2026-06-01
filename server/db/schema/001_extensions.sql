@@ -1,0 +1,10 @@
+CREATE EXTENSION IF NOT EXISTS postgis;
+
+CREATE EXTENSION IF NOT EXISTS h3;
+
+CREATE EXTENSION IF NOT EXISTS pgcrypto;
+
+-- used for case-insensitive text type and trigram indexes
+CREATE EXTENSION IF NOT EXISTS citext;
+
+CREATE EXTENSION IF NOT EXISTS pg_trgm;

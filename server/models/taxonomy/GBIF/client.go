@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/lsdch/biome/models/settings"
@@ -39,12 +40,15 @@ type GBIFClient struct {
 	concurrency chan struct{}
 }
 
-var client *GBIFClient
+var (
+	client *GBIFClient
+	once   sync.Once
+)
 
 func Client() *GBIFClient {
-	if client == nil {
+	once.Do(func() {
 		client = NewClient()
-	}
+	})
 	return client
 }
 

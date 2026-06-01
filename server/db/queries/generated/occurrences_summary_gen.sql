@@ -1,0 +1,165 @@
+
+
+-- name: FetchOccurrencesSortByEventDateASC :many
+SELECT o.id,
+    s.id as sampling_id,
+    s.latitude,
+    s.longitude,
+    s.coordinates_precision,
+    s.altitude,
+    s.site_code,
+    s.site_name,
+    s.site_locality,
+    c.code as country_code,
+    c.name as country_name,
+    s.event_date,
+    s.event_date_precision,
+    t.id AS taxon_id,
+    t.name AS taxon_name,
+    t.authorship AS taxon_authorship,
+    t.rank AS taxon_rank,
+    t.GBIF_ID AS taxon_gbif_id,
+    t.status AS taxon_status,
+    o.identification_confer,
+    o.identification_addendum,
+    o.identification_date,
+    o.identification_date_precision,
+    o.identified_by,
+    o.type_status
+FROM occurrences o
+INNER JOIN samplings s ON s.id = o.sampling_id
+LEFT JOIN countries c ON c.code = s.site_country_code
+INNER JOIN taxa t ON t.id = o.taxon_id
+WHERE (
+    sqlc.arg(occurrence_ids)::uuid[] IS NULL
+    OR o.id = ANY(sqlc.arg(occurrence_ids))
+)
+ORDER BY s.event_date ASC, t.name ASC, c.name ASC, o.id ASC
+LIMIT CASE
+    WHEN sqlc.narg(page_limit)::INTEGER IS NULL THEN NULL
+    ELSE sqlc.narg(page_limit)::INTEGER
+END
+OFFSET COALESCE(sqlc.narg(page_offset)::INTEGER, 0);
+
+-- name: FetchOccurrencesSortByEventDateDESC :many
+SELECT o.id,
+    s.id as sampling_id,
+    s.latitude,
+    s.longitude,
+    s.coordinates_precision,
+    s.altitude,
+    s.site_code,
+    s.site_name,
+    s.site_locality,
+    c.code as country_code,
+    c.name as country_name,
+    s.event_date,
+    s.event_date_precision,
+    t.id AS taxon_id,
+    t.name AS taxon_name,
+    t.authorship AS taxon_authorship,
+    t.rank AS taxon_rank,
+    t.GBIF_ID AS taxon_gbif_id,
+    t.status AS taxon_status,
+    o.identification_confer,
+    o.identification_addendum,
+    o.identification_date,
+    o.identification_date_precision,
+    o.identified_by,
+    o.type_status
+FROM occurrences o
+INNER JOIN samplings s ON s.id = o.sampling_id
+LEFT JOIN countries c ON c.code = s.site_country_code
+INNER JOIN taxa t ON t.id = o.taxon_id
+WHERE (
+    sqlc.arg(occurrence_ids)::uuid[] IS NULL
+    OR o.id = ANY(sqlc.arg(occurrence_ids))
+)
+ORDER BY s.event_date DESC, t.name ASC, c.name ASC, o.id ASC
+LIMIT CASE
+    WHEN sqlc.narg(page_limit)::INTEGER IS NULL THEN NULL
+    ELSE sqlc.narg(page_limit)::INTEGER
+END
+OFFSET COALESCE(sqlc.narg(page_offset)::INTEGER, 0);
+
+-- name: FetchOccurrencesByTaxon :many
+SELECT o.id,
+    s.id as sampling_id,
+    s.latitude,
+    s.longitude,
+    s.coordinates_precision,
+    s.altitude,
+    s.site_code,
+    s.site_name,
+    s.site_locality,
+    c.code as country_code,
+    c.name as country_name,
+    s.event_date,
+    s.event_date_precision,
+    t.id AS taxon_id,
+    t.name AS taxon_name,
+    t.authorship AS taxon_authorship,
+    t.rank AS taxon_rank,
+    t.GBIF_ID AS taxon_gbif_id,
+    t.status AS taxon_status,
+    o.identification_confer,
+    o.identification_addendum,
+    o.identification_date,
+    o.identification_date_precision,
+    o.identified_by,
+    o.type_status
+FROM occurrences o
+INNER JOIN samplings s ON s.id = o.sampling_id
+LEFT JOIN countries c ON c.code = s.site_country_code
+INNER JOIN taxa t ON t.id = o.taxon_id
+WHERE (
+    sqlc.arg(occurrence_ids)::uuid[] IS NULL
+    OR o.id = ANY(sqlc.arg(occurrence_ids))
+)
+ORDER BY t.name ASC, s.event_date DESC, c.name ASC, o.id ASC
+LIMIT CASE
+    WHEN sqlc.narg(page_limit)::INTEGER IS NULL THEN NULL
+    ELSE sqlc.narg(page_limit)::INTEGER
+END
+OFFSET COALESCE(sqlc.narg(page_offset)::INTEGER, 0);
+
+-- name: FetchOccurrencesByCountry :many
+SELECT o.id,
+    s.id as sampling_id,
+    s.latitude,
+    s.longitude,
+    s.coordinates_precision,
+    s.altitude,
+    s.site_code,
+    s.site_name,
+    s.site_locality,
+    c.code as country_code,
+    c.name as country_name,
+    s.event_date,
+    s.event_date_precision,
+    t.id AS taxon_id,
+    t.name AS taxon_name,
+    t.authorship AS taxon_authorship,
+    t.rank AS taxon_rank,
+    t.GBIF_ID AS taxon_gbif_id,
+    t.status AS taxon_status,
+    o.identification_confer,
+    o.identification_addendum,
+    o.identification_date,
+    o.identification_date_precision,
+    o.identified_by,
+    o.type_status
+FROM occurrences o
+INNER JOIN samplings s ON s.id = o.sampling_id
+LEFT JOIN countries c ON c.code = s.site_country_code
+INNER JOIN taxa t ON t.id = o.taxon_id
+WHERE (
+    sqlc.arg(occurrence_ids)::uuid[] IS NULL
+    OR o.id = ANY(sqlc.arg(occurrence_ids))
+)
+ORDER BY c.name ASC, s.event_date DESC, t.name ASC, o.id ASC
+LIMIT CASE
+    WHEN sqlc.narg(page_limit)::INTEGER IS NULL THEN NULL
+    ELSE sqlc.narg(page_limit)::INTEGER
+END
+OFFSET COALESCE(sqlc.narg(page_offset)::INTEGER, 0);

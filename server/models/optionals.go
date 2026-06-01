@@ -48,14 +48,19 @@ func (m *Optional[T]) UnmarshalEdgeDBStr(data []byte) error {
 	return nil
 }
 
-type OptionalNullable interface {
+type OptionalNullable[T any] interface {
 	HasValue() bool
 	IsNull() bool
+	Get() (T, bool)
 }
 
 type Nullable[T any] struct {
 	Null  bool
 	Value T
+}
+
+func (n Nullable[T]) Get() (T, bool) {
+	return n.Value, !n.Null
 }
 
 func (n Nullable[T]) HasValue() bool {
@@ -218,6 +223,14 @@ func NewOptionalNull[T any](value T) OptionalNull[T] {
 		},
 		Null: false,
 	}
+}
+
+func (o OptionalNull[T]) Get() (T, bool) {
+	if o.IsSet && !o.Null {
+		return o.Value, true
+	}
+	var zero T
+	return zero, false
 }
 
 func (o OptionalNull[T]) IsNull() bool {

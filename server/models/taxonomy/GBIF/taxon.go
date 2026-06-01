@@ -5,8 +5,12 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"maps"
+	"slices"
 
 	"github.com/geldata/gel-go/geltypes"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/taxonomy"
 
@@ -16,38 +20,15 @@ import (
 	"golang.org/x/text/language"
 )
 
-type TaxonInnerGBIF struct {
-	Key            int32  `json:"key" gel:"GBIF_ID"`
-	Parent         string `json:"parent"`
-	ParentKey      int32  `json:"parentKey" gel:"parentID"`
-	Name           string `json:"canonicalName" gel:"name"`
-	ScientificName string `json:"scientificName" gel:"scientific_name"`
-	Status         string `json:"taxonomicStatus" gel:"status"`
-	Rank           string `json:"rank" gel:"rank"`
-	NameType       string `json:"nameType" gel:"name_type"`
-}
-
-func (taxon *TaxonInnerGBIF) GetRank() taxonomy.TaxonRank {
-	return taxonomy.TaxonRank(cases.Title(language.English).String(taxon.Rank))
-}
-
-func (t *TaxonInnerGBIF) normalize() *TaxonInnerGBIF {
-	switch t.Status {
-	case "ACCEPTED":
-		t.Status = "Accepted"
-	case "SYNONYM", "HETEROTYPIC_SYNONYM", "HOMOTYPIC_SYNONYM", "PROPARTE_SYNONYM":
-		t.Status = "Synonym"
-	case "DOUBTFUL":
-		t.Status = "Doubtful"
-	default:
-		t.Status = "Unclassified"
-	}
-	t.Rank = string(t.GetRank())
-	return t
-}
-
 type TaxonGBIF struct {
-	TaxonInnerGBIF          `gel:"$inline"`
+	Key                     int32                        `json:"key" gel:"GBIF_ID"`
+	Parent                  string                       `json:"parent"`
+	ParentKey               int32                        `json:"parentKey" gel:"parentID"`
+	Name                    string                       `json:"canonicalName" gel:"name"`
+	ScientificName          string                       `json:"scientificName" gel:"scientific_name"`
+	Status                  string                       `json:"taxonomicStatus" gel:"status"`
+	Rank                    string                       `json:"rank" gel:"rank"`
+	NameType                string                       `json:"nameType" gel:"name_type"`
 	KingdomKey              int32                        `json:"kingdomKey"`
 	PhylumKey               int32                        `json:"phylumKey"`
 	ClassKey                int32                        `json:"classKey"`
@@ -57,7 +38,7 @@ type TaxonGBIF struct {
 	SpeciesKey              int32                        `json:"speciesKey"`
 	HigherClassificationMap map[int32]string             `json:"higherClassificationMap"`
 	Authorship              models.OptionalInput[string] `json:"authorship,omitempty" gel:"authorship,omitempty"`
-	NumDescendants          int                          `json:"numDescendants" gel:"-"`
+	NumDescendants          int32                        `json:"numDescendants" gel:"-"`
 	AcceptedKey             int32                        `json:"acceptedKey"`
 	AcceptedName            string                       `json:"accepted"`
 }
@@ -87,11 +68,89 @@ func (taxon *TaxonGBIF) GetParentKeysList() []int32 {
 	return parents
 }
 
-func (taxon *TaxonGBIF) normalize() *TaxonGBIF {
+func (taxon *TaxonGBIF) GetRank() taxonomy.TaxonRank {
+	return taxonomy.TaxonRank(cases.Title(language.English).String(taxon.Rank))
+}
+
+func (taxon *TaxonGBIF) GetStatus() taxonomy.TaxonStatus {
+	switch taxon.Status {
+	case "Accepted":
+		return taxonomy.Accepted
+	case "Synonym":
+		return taxonomy.Synonym
+	case "Doubtful":
+		return taxonomy.Doubtful
+	default:
+		return taxonomy.Unclassified
+	}
+}
+
+func (taxon *TaxonGBIF) ToStaging() biomedb.InsertGBIFBatchParams {
+	return biomedb.InsertGBIFBatchParams{
+		Key:              taxon.Key,
+		Parent:           taxon.Parent,
+		ParentKey:        taxon.ParentKey,
+		CanonicalName:    taxon.Name,
+		ScientificName:   taxon.ScientificName,
+		Status:           string(taxon.GetStatus()),
+		Rank:             string(taxon.GetRank()),
+		NameType:         taxon.NameType,
+		KingdomKey:       taxon.KingdomKey,
+		PhylumKey:        taxon.PhylumKey,
+		ClassKey:         taxon.ClassKey,
+		OrderKey:         taxon.OrderKey,
+		FamilyKey:        taxon.FamilyKey,
+		GenusKey:         taxon.GenusKey,
+		SpeciesKey:       taxon.SpeciesKey,
+		HigherTaxonKeys:  slices.Collect(maps.Keys(taxon.HigherClassificationMap)),
+		HigherTaxonNames: slices.Collect(maps.Values(taxon.HigherClassificationMap)),
+		Authorship:       taxon.Authorship.GetWithDefault(""),
+		NumDescendants:   taxon.NumDescendants,
+		AcceptedKey:      taxon.AcceptedKey,
+		AcceptedName:     taxon.AcceptedName,
+	}
+}
+
+func (taxon *TaxonGBIF) ToCandidate(inputName string) biomedb.InsertTaxonCandidatesBatchParams {
+	var priority int32
+	if taxon.Name == inputName || taxon.ScientificName == inputName {
+		if taxon.GetStatus() == taxonomy.Accepted {
+			// Accepted exact matches
+			priority = 100
+		} else {
+			// Synonyms and other non-accepted exact matches
+			priority = 80
+		}
+	} else {
+		// Non-exact matches
+		priority = 50
+	}
+
+	return biomedb.InsertTaxonCandidatesBatchParams{
+		InputName: inputName,
+		Name:      taxon.Name,
+		Authorship: pgtype.Text{
+			String: taxon.Authorship.Value,
+			Valid:  taxon.Authorship.IsSet,
+		},
+		Rank:      biomedb.TaxonRank(taxon.GetRank()),
+		Status:    biomedb.TaxonStatus(taxon.GetStatus()),
+		Source:    biomedb.TaxonMatchSourceGbif,
+		MatchType: biomedb.TaxonMatchTypeExact,
+		Priority:  priority,
+		GbifID: pgtype.Int4{
+			Int32: taxon.Key,
+			Valid: true,
+		},
+	}
+}
+
+func (taxon *TaxonGBIF) Normalize() *TaxonGBIF {
 	if authorship, isSet := taxon.Authorship.Get(); isSet && authorship == "" {
 		taxon.Authorship.Clear()
 	}
-	taxon.TaxonInnerGBIF.normalize()
+	taxon.Status = string(taxon.GetStatus())
+	taxon.Rank = string(taxon.GetRank())
 	return taxon
 }
 
@@ -100,7 +159,7 @@ func UpsertTaxa(tx geltypes.Tx, taxa []TaxonGBIF) (n int, err error) {
 	ctx := context.Background()
 
 	for _, taxon := range taxa {
-		taxon.normalize()
+		taxon.Normalize()
 		logrus.Debugf("Inserting taxon from GBIF %+v", &taxon)
 		args, _ := json.Marshal(&taxon)
 		if err = tx.Execute(ctx,
