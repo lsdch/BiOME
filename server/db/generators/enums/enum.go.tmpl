@@ -59,4 +59,10 @@ func (u {{ .EnumType }}) Schema(r huma.Registry) *huma.Schema {
 	}
 }
 
+{{- if .HasNull }}
+func (u Null{{ .EnumType }}) Get() ({{ .EnumType }}, bool) {
+	return u.{{ .EnumType }}, u.Valid
+}
+{{- end }}
+
 {{ end }}

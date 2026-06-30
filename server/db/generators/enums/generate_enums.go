@@ -21,6 +21,7 @@ import (
 type Enum struct {
 	EnumType   string
 	EnumValues []string
+	HasNull    bool
 }
 
 type FileData struct {
@@ -110,6 +111,8 @@ func generate(pkgPattern string) error {
 func findEnums(pkg *packages.Package) ([]Enum, error) {
 	enumMap := map[string]*Enum{}
 
+	scope := pkg.Types.Scope()
+
 	for _, file := range pkg.Syntax {
 		filename := pkg.Fset.Position(file.Pos()).Filename
 
@@ -155,6 +158,14 @@ func findEnums(pkg *packages.Package) ([]Enum, error) {
 
 			return true
 		})
+	}
+
+	// detect Null<EnumType> existence
+	for name, enum := range enumMap {
+		nullTypeName := "Null" + name
+		if scope.Lookup(nullTypeName) != nil {
+			enum.HasNull = true
+		}
 	}
 
 	result := make([]Enum, 0, len(enumMap))

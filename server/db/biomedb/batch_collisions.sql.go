@@ -8,7 +8,9 @@ package biomedb
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	ulid "github.com/oklog/ulid/v2"
 )
 
 const detectBatchOccurrenceCollisions = `-- name: DetectBatchOccurrenceCollisions :many
@@ -199,29 +201,29 @@ type DetectBatchOccurrenceCollisionsParams struct {
 }
 
 type DetectBatchOccurrenceCollisionsRow struct {
-	DuplicateSource           DuplicateSource        `json:"duplicate_source"`
-	ImportHash                string                 `json:"import_hash"`
-	RowNumber                 int32                  `json:"row_number"`
-	TaxonName                 string                 `json:"taxon_name"`
-	TaxonAuthorship           pgtype.Text            `json:"taxon_authorship"`
-	Latitude                  float32                `json:"latitude"`
-	Longitude                 float32                `json:"longitude"`
-	EventDate                 pgtype.Date            `json:"event_date"`
-	EventDatePrecision        NullEventDatePrecision `json:"event_date_precision"`
-	CoordinatesPrecision      pgtype.Int4            `json:"coordinates_precision"`
-	ResolvedTaxonKey          interface{}            `json:"resolved_taxon_key"`
-	OccurrenceID              string                 `json:"occurrence_id"`
-	ExistingTaxonID           pgtype.UUID            `json:"existing_taxon_id"`
-	MatchTaxonName            string                 `json:"match_taxon_name"`
-	MatchTaxonAuthorship      pgtype.Text            `json:"match_taxon_authorship"`
-	SamplingID                pgtype.UUID            `json:"sampling_id"`
-	MatchRowNumber            pgtype.Int4            `json:"match_row_number"`
-	MatchLatitude             float32                `json:"match_latitude"`
-	MatchLongitude            float32                `json:"match_longitude"`
-	MatchEventDate            pgtype.Date            `json:"match_event_date"`
-	MatchEventDatePrecision   NullEventDatePrecision `json:"match_event_date_precision"`
-	MatchCoordinatesPrecision pgtype.Int4            `json:"match_coordinates_precision"`
-	DistanceMeters            int32                  `json:"distance_meters"`
+	DuplicateSource           DuplicateSource     `json:"duplicate_source"`
+	ImportHash                string              `json:"import_hash"`
+	RowNumber                 int32               `json:"row_number"`
+	TaxonName                 string              `json:"taxon_name"`
+	TaxonAuthorship           *string             `json:"taxon_authorship"`
+	Latitude                  float32             `json:"latitude"`
+	Longitude                 float32             `json:"longitude"`
+	EventDate                 pgtype.Date         `json:"event_date"`
+	EventDatePrecision        *EventDatePrecision `json:"event_date_precision"`
+	CoordinatesPrecision      *int32              `json:"coordinates_precision"`
+	ResolvedTaxonKey          interface{}         `json:"resolved_taxon_key"`
+	OccurrenceID              ulid.ULID           `json:"occurrence_id"`
+	ExistingTaxonID           uuid.UUID           `json:"existing_taxon_id"`
+	MatchTaxonName            string              `json:"match_taxon_name"`
+	MatchTaxonAuthorship      *string             `json:"match_taxon_authorship"`
+	SamplingID                uuid.UUID           `json:"sampling_id"`
+	MatchRowNumber            *int32              `json:"match_row_number"`
+	MatchLatitude             float32             `json:"match_latitude"`
+	MatchLongitude            float32             `json:"match_longitude"`
+	MatchEventDate            pgtype.Date         `json:"match_event_date"`
+	MatchEventDatePrecision   *EventDatePrecision `json:"match_event_date_precision"`
+	MatchCoordinatesPrecision *int32              `json:"match_coordinates_precision"`
+	DistanceMeters            int32               `json:"distance_meters"`
 }
 
 // 5. UNIFIED OUTPUT
@@ -348,23 +350,23 @@ type DetectBatchSamplingCollisionsParams struct {
 }
 
 type DetectBatchSamplingCollisionsRow struct {
-	ImportHash                string                 `json:"import_hash"`
-	SamplingHash              string                 `json:"sampling_hash"`
-	RowNumber                 int32                  `json:"row_number"`
-	EventDate                 pgtype.Date            `json:"event_date"`
-	EventDatePrecision        NullEventDatePrecision `json:"event_date_precision"`
-	Latitude                  float32                `json:"latitude"`
-	Longitude                 float32                `json:"longitude"`
-	CoordinatesPrecision      pgtype.Int4            `json:"coordinates_precision"`
-	DuplicateSource           DuplicateSource        `json:"duplicate_source"`
-	MatchImportHash           pgtype.Text            `json:"match_import_hash"`
-	MatchRowNumber            pgtype.Int4            `json:"match_row_number"`
-	MatchLatitude             float32                `json:"match_latitude"`
-	MatchLongitude            float32                `json:"match_longitude"`
-	MatchEventDate            pgtype.Date            `json:"match_event_date"`
-	MatchEventDatePrecision   NullEventDatePrecision `json:"match_event_date_precision"`
-	MatchCoordinatesPrecision pgtype.Int4            `json:"match_coordinates_precision"`
-	DistanceMeters            int32                  `json:"distance_meters"`
+	ImportHash                string              `json:"import_hash"`
+	SamplingHash              string              `json:"sampling_hash"`
+	RowNumber                 int32               `json:"row_number"`
+	EventDate                 pgtype.Date         `json:"event_date"`
+	EventDatePrecision        *EventDatePrecision `json:"event_date_precision"`
+	Latitude                  float32             `json:"latitude"`
+	Longitude                 float32             `json:"longitude"`
+	CoordinatesPrecision      *int32              `json:"coordinates_precision"`
+	DuplicateSource           DuplicateSource     `json:"duplicate_source"`
+	MatchImportHash           *string             `json:"match_import_hash"`
+	MatchRowNumber            *int32              `json:"match_row_number"`
+	MatchLatitude             float32             `json:"match_latitude"`
+	MatchLongitude            float32             `json:"match_longitude"`
+	MatchEventDate            pgtype.Date         `json:"match_event_date"`
+	MatchEventDatePrecision   *EventDatePrecision `json:"match_event_date_precision"`
+	MatchCoordinatesPrecision *int32              `json:"match_coordinates_precision"`
+	DistanceMeters            int32               `json:"distance_meters"`
 }
 
 func (q *Queries) DetectBatchSamplingCollisions(ctx context.Context, arg DetectBatchSamplingCollisionsParams) ([]DetectBatchSamplingCollisionsRow, error) {

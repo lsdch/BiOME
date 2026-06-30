@@ -7,8 +7,12 @@ package biomedb
 import (
 	"database/sql/driver"
 	"fmt"
+	"net/netip"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	ulid "github.com/oklog/ulid/v2"
 )
 
 type CoordinatesPrecision string
@@ -194,67 +198,67 @@ func AllEventDatePrecisionValues() []EventDatePrecision {
 	}
 }
 
-type GbifImportStatus string
+type GBIFImportStatus string
 
 const (
-	GbifImportStatusPending    GbifImportStatus = "pending"
-	GbifImportStatusInProgress GbifImportStatus = "in_progress"
-	GbifImportStatusCompleted  GbifImportStatus = "completed"
-	GbifImportStatusFailed     GbifImportStatus = "failed"
+	GBIFImportStatusPending    GBIFImportStatus = "pending"
+	GBIFImportStatusInProgress GBIFImportStatus = "in_progress"
+	GBIFImportStatusCompleted  GBIFImportStatus = "completed"
+	GBIFImportStatusFailed     GBIFImportStatus = "failed"
 )
 
-func (e *GbifImportStatus) Scan(src interface{}) error {
+func (e *GBIFImportStatus) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = GbifImportStatus(s)
+		*e = GBIFImportStatus(s)
 	case string:
-		*e = GbifImportStatus(s)
+		*e = GBIFImportStatus(s)
 	default:
-		return fmt.Errorf("unsupported scan type for GbifImportStatus: %T", src)
+		return fmt.Errorf("unsupported scan type for GBIFImportStatus: %T", src)
 	}
 	return nil
 }
 
-type NullGbifImportStatus struct {
-	GbifImportStatus GbifImportStatus `json:"gbif_import_status"`
-	Valid            bool             `json:"valid"` // Valid is true if GbifImportStatus is not NULL
+type NullGBIFImportStatus struct {
+	GBIFImportStatus GBIFImportStatus `json:"gbif_import_status"`
+	Valid            bool             `json:"valid"` // Valid is true if GBIFImportStatus is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullGbifImportStatus) Scan(value interface{}) error {
+func (ns *NullGBIFImportStatus) Scan(value interface{}) error {
 	if value == nil {
-		ns.GbifImportStatus, ns.Valid = "", false
+		ns.GBIFImportStatus, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.GbifImportStatus.Scan(value)
+	return ns.GBIFImportStatus.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullGbifImportStatus) Value() (driver.Value, error) {
+func (ns NullGBIFImportStatus) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.GbifImportStatus), nil
+	return string(ns.GBIFImportStatus), nil
 }
 
-func (e GbifImportStatus) Valid() bool {
+func (e GBIFImportStatus) Valid() bool {
 	switch e {
-	case GbifImportStatusPending,
-		GbifImportStatusInProgress,
-		GbifImportStatusCompleted,
-		GbifImportStatusFailed:
+	case GBIFImportStatusPending,
+		GBIFImportStatusInProgress,
+		GBIFImportStatusCompleted,
+		GBIFImportStatusFailed:
 		return true
 	}
 	return false
 }
 
-func AllGbifImportStatusValues() []GbifImportStatus {
-	return []GbifImportStatus{
-		GbifImportStatusPending,
-		GbifImportStatusInProgress,
-		GbifImportStatusCompleted,
-		GbifImportStatusFailed,
+func AllGBIFImportStatusValues() []GBIFImportStatus {
+	return []GBIFImportStatus{
+		GBIFImportStatusPending,
+		GBIFImportStatusInProgress,
+		GBIFImportStatusCompleted,
+		GBIFImportStatusFailed,
 	}
 }
 
@@ -322,70 +326,76 @@ func AllInvitationStatusValues() []InvitationStatus {
 	}
 }
 
-type MethodResolutionStatus string
+type OccurrenceOrderBy string
 
 const (
-	MethodResolutionStatusAuto            MethodResolutionStatus = "auto"
-	MethodResolutionStatusSelected        MethodResolutionStatus = "selected"
-	MethodResolutionStatusPending         MethodResolutionStatus = "pending"
-	MethodResolutionStatusRequestCreation MethodResolutionStatus = "request_creation"
-	MethodResolutionStatusDiscard         MethodResolutionStatus = "discard"
+	OccurrenceOrderByCode      OccurrenceOrderBy = "code"
+	OccurrenceOrderBySiteName  OccurrenceOrderBy = "site_name"
+	OccurrenceOrderBySiteCode  OccurrenceOrderBy = "site_code"
+	OccurrenceOrderByEventDate OccurrenceOrderBy = "event_date"
+	OccurrenceOrderByTaxonName OccurrenceOrderBy = "taxon_name"
+	OccurrenceOrderByCreatedAt OccurrenceOrderBy = "created_at"
+	OccurrenceOrderByUpdatedAt OccurrenceOrderBy = "updated_at"
 )
 
-func (e *MethodResolutionStatus) Scan(src interface{}) error {
+func (e *OccurrenceOrderBy) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = MethodResolutionStatus(s)
+		*e = OccurrenceOrderBy(s)
 	case string:
-		*e = MethodResolutionStatus(s)
+		*e = OccurrenceOrderBy(s)
 	default:
-		return fmt.Errorf("unsupported scan type for MethodResolutionStatus: %T", src)
+		return fmt.Errorf("unsupported scan type for OccurrenceOrderBy: %T", src)
 	}
 	return nil
 }
 
-type NullMethodResolutionStatus struct {
-	MethodResolutionStatus MethodResolutionStatus `json:"method_resolution_status"`
-	Valid                  bool                   `json:"valid"` // Valid is true if MethodResolutionStatus is not NULL
+type NullOccurrenceOrderBy struct {
+	OccurrenceOrderBy OccurrenceOrderBy `json:"occurrence_order_by"`
+	Valid             bool              `json:"valid"` // Valid is true if OccurrenceOrderBy is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullMethodResolutionStatus) Scan(value interface{}) error {
+func (ns *NullOccurrenceOrderBy) Scan(value interface{}) error {
 	if value == nil {
-		ns.MethodResolutionStatus, ns.Valid = "", false
+		ns.OccurrenceOrderBy, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.MethodResolutionStatus.Scan(value)
+	return ns.OccurrenceOrderBy.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullMethodResolutionStatus) Value() (driver.Value, error) {
+func (ns NullOccurrenceOrderBy) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.MethodResolutionStatus), nil
+	return string(ns.OccurrenceOrderBy), nil
 }
 
-func (e MethodResolutionStatus) Valid() bool {
+func (e OccurrenceOrderBy) Valid() bool {
 	switch e {
-	case MethodResolutionStatusAuto,
-		MethodResolutionStatusSelected,
-		MethodResolutionStatusPending,
-		MethodResolutionStatusRequestCreation,
-		MethodResolutionStatusDiscard:
+	case OccurrenceOrderByCode,
+		OccurrenceOrderBySiteName,
+		OccurrenceOrderBySiteCode,
+		OccurrenceOrderByEventDate,
+		OccurrenceOrderByTaxonName,
+		OccurrenceOrderByCreatedAt,
+		OccurrenceOrderByUpdatedAt:
 		return true
 	}
 	return false
 }
 
-func AllMethodResolutionStatusValues() []MethodResolutionStatus {
-	return []MethodResolutionStatus{
-		MethodResolutionStatusAuto,
-		MethodResolutionStatusSelected,
-		MethodResolutionStatusPending,
-		MethodResolutionStatusRequestCreation,
-		MethodResolutionStatusDiscard,
+func AllOccurrenceOrderByValues() []OccurrenceOrderBy {
+	return []OccurrenceOrderBy{
+		OccurrenceOrderByCode,
+		OccurrenceOrderBySiteName,
+		OccurrenceOrderBySiteCode,
+		OccurrenceOrderByEventDate,
+		OccurrenceOrderByTaxonName,
+		OccurrenceOrderByCreatedAt,
+		OccurrenceOrderByUpdatedAt,
 	}
 }
 
@@ -514,67 +524,125 @@ func AllResolutionStatusValues() []ResolutionStatus {
 	}
 }
 
-type TaxonGbifStatus string
+type SortDirection string
 
 const (
-	TaxonGbifStatusSkipped   TaxonGbifStatus = "skipped"
-	TaxonGbifStatusPending   TaxonGbifStatus = "pending"
-	TaxonGbifStatusCompleted TaxonGbifStatus = "completed"
-	TaxonGbifStatusFailed    TaxonGbifStatus = "failed"
+	SortDirectionAsc  SortDirection = "asc"
+	SortDirectionDesc SortDirection = "desc"
 )
 
-func (e *TaxonGbifStatus) Scan(src interface{}) error {
+func (e *SortDirection) Scan(src interface{}) error {
 	switch s := src.(type) {
 	case []byte:
-		*e = TaxonGbifStatus(s)
+		*e = SortDirection(s)
 	case string:
-		*e = TaxonGbifStatus(s)
+		*e = SortDirection(s)
 	default:
-		return fmt.Errorf("unsupported scan type for TaxonGbifStatus: %T", src)
+		return fmt.Errorf("unsupported scan type for SortDirection: %T", src)
 	}
 	return nil
 }
 
-type NullTaxonGbifStatus struct {
-	TaxonGbifStatus TaxonGbifStatus `json:"taxon_gbif_status"`
-	Valid           bool            `json:"valid"` // Valid is true if TaxonGbifStatus is not NULL
+type NullSortDirection struct {
+	SortDirection SortDirection `json:"sort_direction"`
+	Valid         bool          `json:"valid"` // Valid is true if SortDirection is not NULL
 }
 
 // Scan implements the Scanner interface.
-func (ns *NullTaxonGbifStatus) Scan(value interface{}) error {
+func (ns *NullSortDirection) Scan(value interface{}) error {
 	if value == nil {
-		ns.TaxonGbifStatus, ns.Valid = "", false
+		ns.SortDirection, ns.Valid = "", false
 		return nil
 	}
 	ns.Valid = true
-	return ns.TaxonGbifStatus.Scan(value)
+	return ns.SortDirection.Scan(value)
 }
 
 // Value implements the driver Valuer interface.
-func (ns NullTaxonGbifStatus) Value() (driver.Value, error) {
+func (ns NullSortDirection) Value() (driver.Value, error) {
 	if !ns.Valid {
 		return nil, nil
 	}
-	return string(ns.TaxonGbifStatus), nil
+	return string(ns.SortDirection), nil
 }
 
-func (e TaxonGbifStatus) Valid() bool {
+func (e SortDirection) Valid() bool {
 	switch e {
-	case TaxonGbifStatusSkipped,
-		TaxonGbifStatusPending,
-		TaxonGbifStatusCompleted,
-		TaxonGbifStatusFailed:
+	case SortDirectionAsc,
+		SortDirectionDesc:
 		return true
 	}
 	return false
 }
 
-func AllTaxonGbifStatusValues() []TaxonGbifStatus {
-	return []TaxonGbifStatus{
-		TaxonGbifStatusSkipped,
-		TaxonGbifStatusPending,
-		TaxonGbifStatusCompleted,
-		TaxonGbifStatusFailed,
+func AllSortDirectionValues() []SortDirection {
+	return []SortDirection{
+		SortDirectionAsc,
+		SortDirectionDesc,
+	}
+}
+
+type TaxonGBIFStatus string
+
+const (
+	TaxonGBIFStatusSkipped   TaxonGBIFStatus = "skipped"
+	TaxonGBIFStatusPending   TaxonGBIFStatus = "pending"
+	TaxonGBIFStatusCompleted TaxonGBIFStatus = "completed"
+	TaxonGBIFStatusFailed    TaxonGBIFStatus = "failed"
+)
+
+func (e *TaxonGBIFStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = TaxonGBIFStatus(s)
+	case string:
+		*e = TaxonGBIFStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for TaxonGBIFStatus: %T", src)
+	}
+	return nil
+}
+
+type NullTaxonGBIFStatus struct {
+	TaxonGBIFStatus TaxonGBIFStatus `json:"taxon_gbif_status"`
+	Valid           bool            `json:"valid"` // Valid is true if TaxonGBIFStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullTaxonGBIFStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.TaxonGBIFStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.TaxonGBIFStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullTaxonGBIFStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.TaxonGBIFStatus), nil
+}
+
+func (e TaxonGBIFStatus) Valid() bool {
+	switch e {
+	case TaxonGBIFStatusSkipped,
+		TaxonGBIFStatusPending,
+		TaxonGBIFStatusCompleted,
+		TaxonGBIFStatusFailed:
+		return true
+	}
+	return false
+}
+
+func AllTaxonGBIFStatusValues() []TaxonGBIFStatus {
+	return []TaxonGBIFStatus{
+		TaxonGBIFStatusSkipped,
+		TaxonGBIFStatusPending,
+		TaxonGBIFStatusCompleted,
+		TaxonGBIFStatusFailed,
 	}
 }
 
@@ -582,7 +650,7 @@ type TaxonMatchSource string
 
 const (
 	TaxonMatchSourceInternal TaxonMatchSource = "internal"
-	TaxonMatchSourceGbif     TaxonMatchSource = "gbif"
+	TaxonMatchSourceGBIF     TaxonMatchSource = "gbif"
 	TaxonMatchSourceManual   TaxonMatchSource = "manual"
 )
 
@@ -624,7 +692,7 @@ func (ns NullTaxonMatchSource) Value() (driver.Value, error) {
 func (e TaxonMatchSource) Valid() bool {
 	switch e {
 	case TaxonMatchSourceInternal,
-		TaxonMatchSourceGbif,
+		TaxonMatchSourceGBIF,
 		TaxonMatchSourceManual:
 		return true
 	}
@@ -634,7 +702,7 @@ func (e TaxonMatchSource) Valid() bool {
 func AllTaxonMatchSourceValues() []TaxonMatchSource {
 	return []TaxonMatchSource{
 		TaxonMatchSourceInternal,
-		TaxonMatchSourceGbif,
+		TaxonMatchSourceGBIF,
 		TaxonMatchSourceManual,
 	}
 }
@@ -1041,307 +1109,412 @@ func AllUserRoleValues() []UserRole {
 	}
 }
 
+type VocabResolutionStatus string
+
+const (
+	VocabResolutionStatusAuto            VocabResolutionStatus = "auto"
+	VocabResolutionStatusSelected        VocabResolutionStatus = "selected"
+	VocabResolutionStatusPending         VocabResolutionStatus = "pending"
+	VocabResolutionStatusRequestCreation VocabResolutionStatus = "request_creation"
+	VocabResolutionStatusDiscard         VocabResolutionStatus = "discard"
+)
+
+func (e *VocabResolutionStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = VocabResolutionStatus(s)
+	case string:
+		*e = VocabResolutionStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for VocabResolutionStatus: %T", src)
+	}
+	return nil
+}
+
+type NullVocabResolutionStatus struct {
+	VocabResolutionStatus VocabResolutionStatus `json:"vocab_resolution_status"`
+	Valid                 bool                  `json:"valid"` // Valid is true if VocabResolutionStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullVocabResolutionStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.VocabResolutionStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.VocabResolutionStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullVocabResolutionStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.VocabResolutionStatus), nil
+}
+
+func (e VocabResolutionStatus) Valid() bool {
+	switch e {
+	case VocabResolutionStatusAuto,
+		VocabResolutionStatusSelected,
+		VocabResolutionStatusPending,
+		VocabResolutionStatusRequestCreation,
+		VocabResolutionStatusDiscard:
+		return true
+	}
+	return false
+}
+
+func AllVocabResolutionStatusValues() []VocabResolutionStatus {
+	return []VocabResolutionStatus{
+		VocabResolutionStatusAuto,
+		VocabResolutionStatusSelected,
+		VocabResolutionStatusPending,
+		VocabResolutionStatusRequestCreation,
+		VocabResolutionStatusDiscard,
+	}
+}
+
+type AbioticMeasurement struct {
+	SamplingID uuid.UUID      `json:"sampling_id"`
+	ParamID    uuid.UUID      `json:"param_id"`
+	Value      pgtype.Numeric `json:"value"`
+}
+
+type AbioticParam struct {
+	ID          uuid.UUID `json:"id"`
+	Name        string    `json:"name"`
+	Code        string    `json:"code"`
+	Description *string   `json:"description"`
+	Unit        string    `json:"unit"`
+}
+
 type Article struct {
-	ID       pgtype.UUID `json:"id"`
-	Authors  []string    `json:"authors"`
-	Year     int32       `json:"year"`
-	Title    pgtype.Text `json:"title"`
-	Journal  pgtype.Text `json:"journal"`
-	Verbatim pgtype.Text `json:"verbatim"`
-	Doi      pgtype.Text `json:"doi"`
-	Comments pgtype.Text `json:"comments"`
-	Code     string      `json:"code"`
+	ID       uuid.UUID `json:"id"`
+	Authors  []string  `json:"authors"`
+	Year     int32     `json:"year"`
+	Title    *string   `json:"title"`
+	Journal  *string   `json:"journal"`
+	Verbatim *string   `json:"verbatim"`
+	Doi      *string   `json:"doi"`
+	Comments *string   `json:"comments"`
 }
 
 type Country struct {
-	Code         string `json:"code"`
-	Name         string `json:"name"`
-	Continent    string `json:"continent"`
-	Subcontinent string `json:"subcontinent"`
+	Code         string      `json:"code"`
+	Name         string      `json:"name"`
+	Continent    string      `json:"continent"`
+	Subcontinent string      `json:"subcontinent"`
+	Geom         interface{} `json:"geom"`
 }
 
 type Dataset struct {
-	ID          pgtype.UUID `json:"id"`
-	ImportHash  string      `json:"import_hash"`
-	Label       string      `json:"label"`
-	Slug        string      `json:"slug"`
-	Description pgtype.Text `json:"description"`
-	SubmittedBy pgtype.Text `json:"submitted_by"`
-	AssembledBy []string    `json:"assembled_by"`
-	Pinned      bool        `json:"pinned"`
+	ID          ulid.ULID `json:"id"`
+	Label       string    `json:"label"`
+	Slug        string    `json:"slug"`
+	Description *string   `json:"description"`
+	Pinned      bool      `json:"pinned"`
+	CreatedAt   time.Time `json:"created_at"`
 }
 
-type DatasetCurator struct {
-	DatasetID pgtype.UUID `json:"dataset_id"`
-	UserID    pgtype.UUID `json:"user_id"`
+type DatasetsCurator struct {
+	DatasetID ulid.ULID `json:"dataset_id"`
+	UserID    uuid.UUID `json:"user_id"`
 }
 
 type DatasetsPublication struct {
-	DatasetID pgtype.UUID `json:"dataset_id"`
-	ArticleID pgtype.UUID `json:"article_id"`
+	DatasetID ulid.ULID `json:"dataset_id"`
+	ArticleID uuid.UUID `json:"article_id"`
 }
 
 type EventsSamplingMethod struct {
-	SamplingID pgtype.UUID `json:"sampling_id"`
-	MethodID   pgtype.UUID `json:"method_id"`
+	SamplingID uuid.UUID `json:"sampling_id"`
+	MethodID   uuid.UUID `json:"method_id"`
 }
 
 type Fixative struct {
-	ID          pgtype.UUID `json:"id"`
-	Code        string      `json:"code"`
-	Name        string      `json:"name"`
-	Description pgtype.Text `json:"description"`
+	ID          uuid.UUID `json:"id"`
+	Code        string    `json:"code"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description"`
 }
 
-type GbifDependency struct {
+type GBIFDependency struct {
 	ImportHash string `json:"import_hash"`
 	Key        int32  `json:"key"`
 }
 
-type GbifStaging struct {
-	Key              int32       `json:"key"`
-	Parent           pgtype.Text `json:"parent"`
-	ParentKey        pgtype.Int4 `json:"parent_key"`
-	CanonicalName    string      `json:"canonical_name"`
-	ScientificName   string      `json:"scientific_name"`
-	Status           string      `json:"status"`
-	Rank             string      `json:"rank"`
-	NameType         string      `json:"name_type"`
-	KingdomKey       pgtype.Int4 `json:"kingdom_key"`
-	PhylumKey        pgtype.Int4 `json:"phylum_key"`
-	ClassKey         pgtype.Int4 `json:"class_key"`
-	OrderKey         pgtype.Int4 `json:"order_key"`
-	FamilyKey        pgtype.Int4 `json:"family_key"`
-	GenusKey         pgtype.Int4 `json:"genus_key"`
-	SpeciesKey       pgtype.Int4 `json:"species_key"`
-	HigherTaxonKeys  []int32     `json:"higher_taxon_keys"`
-	HigherTaxonNames []string    `json:"higher_taxon_names"`
-	Authorship       pgtype.Text `json:"authorship"`
-	NumDescendants   pgtype.Int4 `json:"num_descendants"`
-	AcceptedKey      pgtype.Int4 `json:"accepted_key"`
-	AcceptedName     pgtype.Text `json:"accepted_name"`
+type GBIFStaging struct {
+	Key              int32    `json:"key"`
+	Parent           *string  `json:"parent"`
+	ParentKey        *int32   `json:"parent_key"`
+	CanonicalName    string   `json:"canonical_name"`
+	ScientificName   string   `json:"scientific_name"`
+	Status           string   `json:"status"`
+	Rank             string   `json:"rank"`
+	NameType         string   `json:"name_type"`
+	KingdomKey       *int32   `json:"kingdom_key"`
+	PhylumKey        *int32   `json:"phylum_key"`
+	ClassKey         *int32   `json:"class_key"`
+	OrderKey         *int32   `json:"order_key"`
+	FamilyKey        *int32   `json:"family_key"`
+	GenusKey         *int32   `json:"genus_key"`
+	SpeciesKey       *int32   `json:"species_key"`
+	HigherTaxonKeys  []int32  `json:"higher_taxon_keys"`
+	HigherTaxonNames []string `json:"higher_taxon_names"`
+	Authorship       *string  `json:"authorship"`
+	NumDescendants   *int32   `json:"num_descendants"`
+	AcceptedKey      *int32   `json:"accepted_key"`
+	AcceptedName     *string  `json:"accepted_name"`
+}
+
+type GeoapifyUsage struct {
+	ID            int32     `json:"id"`
+	UsageDate     time.Time `json:"usage_date"`
+	RequestsCount int32     `json:"requests_count"`
 }
 
 type Habitat struct {
-	ID             pgtype.UUID `json:"id"`
-	Label          string      `json:"label"`
-	Description    pgtype.Text `json:"description"`
-	HabitatGroupID pgtype.UUID `json:"habitat_group_id"`
+	ID             uuid.UUID `json:"id"`
+	Label          string    `json:"label"`
+	Description    *string   `json:"description"`
+	HabitatGroupID uuid.UUID `json:"habitat_group_id"`
 }
 
 type HabitatGroup struct {
-	ID                pgtype.UUID `json:"id"`
+	ID                uuid.UUID   `json:"id"`
 	Label             string      `json:"label"`
-	Description       pgtype.Text `json:"description"`
+	Description       *string     `json:"description"`
 	ExclusiveElements bool        `json:"exclusive_elements"`
 	ParentHabitatID   pgtype.UUID `json:"parent_habitat_id"`
 }
 
+type ImportBatch struct {
+	ID          ulid.ULID `json:"id"`
+	Label       string    `json:"label"`
+	Slug        string    `json:"slug"`
+	Description *string   `json:"description"`
+	SubmittedBy *string   `json:"submitted_by"`
+	AssembledBy []string  `json:"assembled_by"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
 type ImportSamplingsOccurrence struct {
-	ImportHash                  string                   `json:"import_hash"`
-	ImportedAt                  pgtype.Timestamptz       `json:"imported_at"`
-	RowNumber                   int32                    `json:"row_number"`
-	SamplingHash                string                   `json:"sampling_hash"`
-	SamplingComments            pgtype.Text              `json:"sampling_comments"`
-	SiteCode                    pgtype.Text              `json:"site_code"`
-	SiteName                    pgtype.Text              `json:"site_name"`
-	SiteLocality                pgtype.Text              `json:"site_locality"`
-	SiteCountryCode             pgtype.Text              `json:"site_country_code"`
-	CoordinatesPrecision        pgtype.Int4              `json:"coordinates_precision"`
-	Longitude                   float32                  `json:"longitude"`
-	Latitude                    float32                  `json:"latitude"`
-	Coordinates                 interface{}              `json:"coordinates"`
-	Altitude                    pgtype.Int4              `json:"altitude"`
-	EventDate                   pgtype.Date              `json:"event_date"`
-	EventDatePrecision          NullEventDatePrecision   `json:"event_date_precision"`
-	PerformedBy                 []string                 `json:"performed_by"`
-	Duration                    pgtype.Int4              `json:"duration"`
-	AccessPoints                []string                 `json:"access_points"`
-	SamplingTargets             []string                 `json:"sampling_targets"`
-	SamplingFixatives           []string                 `json:"sampling_fixatives"`
-	SamplingMethods             []string                 `json:"sampling_methods"`
-	Habitats                    []string                 `json:"habitats"`
-	OccurrenceCode              pgtype.Text              `json:"occurrence_code"`
-	TypeStatus                  NullOccurrenceTypeStatus `json:"type_status"`
-	TaxonName                   string                   `json:"taxon_name"`
-	TaxonAuthorship             pgtype.Text              `json:"taxon_authorship"`
-	TaxonScientificName         string                   `json:"taxon_scientific_name"`
-	TaxonRank                   pgtype.Text              `json:"taxon_rank"`
-	VerbatimIdentification      pgtype.Text              `json:"verbatim_identification"`
-	IdentifiedBy                []string                 `json:"identified_by"`
-	IdentificationDate          pgtype.Date              `json:"identification_date"`
-	IdentificationDatePrecision NullEventDatePrecision   `json:"identification_date_precision"`
-	IdentificationConfer        bool                     `json:"identification_confer"`
-	IdentificationAddendum      pgtype.Text              `json:"identification_addendum"`
-	ContentDescription          pgtype.Text              `json:"content_description"`
-	QuantityExact               pgtype.Int4              `json:"quantity_exact"`
-	QuantityLower               pgtype.Int4              `json:"quantity_lower"`
-	QuantityUpper               pgtype.Int4              `json:"quantity_upper"`
-	Sources                     []string                 `json:"sources"`
-	OccurrenceComments          pgtype.Text              `json:"occurrence_comments"`
+	ImportHash                  string                `json:"import_hash"`
+	ImportedAt                  time.Time             `json:"imported_at"`
+	RowNumber                   int32                 `json:"row_number"`
+	SamplingHash                string                `json:"sampling_hash"`
+	SamplingComments            *string               `json:"sampling_comments"`
+	SiteCode                    *string               `json:"site_code"`
+	SiteName                    *string               `json:"site_name"`
+	SiteLocality                *string               `json:"site_locality"`
+	SiteCountryCode             string                `json:"site_country_code"`
+	CoordinatesPrecision        *int32                `json:"coordinates_precision"`
+	Longitude                   float32               `json:"longitude"`
+	Latitude                    float32               `json:"latitude"`
+	Coordinates                 interface{}           `json:"coordinates"`
+	Altitude                    *int32                `json:"altitude"`
+	EventDate                   pgtype.Date           `json:"event_date"`
+	EventDatePrecision          *EventDatePrecision   `json:"event_date_precision"`
+	PerformedBy                 []string              `json:"performed_by"`
+	Duration                    *int32                `json:"duration"`
+	AccessPoints                []string              `json:"access_points"`
+	SamplingTargets             []string              `json:"sampling_targets"`
+	SamplingFixatives           []string              `json:"sampling_fixatives"`
+	SamplingMethods             []string              `json:"sampling_methods"`
+	Habitats                    []string              `json:"habitats"`
+	OccurrenceCode              *string               `json:"occurrence_code"`
+	TypeStatus                  *OccurrenceTypeStatus `json:"type_status"`
+	TaxonName                   string                `json:"taxon_name"`
+	TaxonAuthorship             *string               `json:"taxon_authorship"`
+	TaxonScientificName         string                `json:"taxon_scientific_name"`
+	TaxonRank                   *string               `json:"taxon_rank"`
+	VerbatimIdentification      *string               `json:"verbatim_identification"`
+	IdentifiedBy                []string              `json:"identified_by"`
+	IdentificationDate          pgtype.Date           `json:"identification_date"`
+	IdentificationDatePrecision *EventDatePrecision   `json:"identification_date_precision"`
+	IdentificationConfer        bool                  `json:"identification_confer"`
+	IdentificationAddendum      *string               `json:"identification_addendum"`
+	ContentDescription          *string               `json:"content_description"`
+	QuantityExact               *int32                `json:"quantity_exact"`
+	QuantityLower               *int32                `json:"quantity_lower"`
+	QuantityUpper               *int32                `json:"quantity_upper"`
+	Sources                     []string              `json:"sources"`
+	OccurrenceComments          *string               `json:"occurrence_comments"`
 }
 
 type ImportWorkflow struct {
 	ImportHash            string             `json:"import_hash"`
-	Label                 pgtype.Text        `json:"label"`
-	GbifStatus            GbifImportStatus   `json:"gbif_status"`
-	GbifCandidatesTotal   pgtype.Int4        `json:"gbif_candidates_total"`
-	GbifCandidatesFetched pgtype.Int4        `json:"gbif_candidates_fetched"`
-	GbifClaimedAt         pgtype.Timestamptz `json:"gbif_claimed_at"`
-	GbifUpdatedAt         pgtype.Timestamptz `json:"gbif_updated_at"`
-	CreatedAt             pgtype.Timestamptz `json:"created_at"`
+	Label                 *string            `json:"label"`
+	GBIFStatus            GBIFImportStatus   `json:"gbif_status"`
+	GBIFCandidatesTotal   *int32             `json:"gbif_candidates_total"`
+	GBIFCandidatesFetched *int32             `json:"gbif_candidates_fetched"`
+	GBIFClaimedAt         pgtype.Timestamptz `json:"gbif_claimed_at"`
+	GBIFUpdatedAt         pgtype.Timestamptz `json:"gbif_updated_at"`
+	CreatedAt             time.Time          `json:"created_at"`
 	CompletedAt           pgtype.Timestamptz `json:"completed_at"`
 }
 
 type Invitation struct {
-	ID           pgtype.UUID        `json:"id"`
-	Email        string             `json:"email"`
-	InviteeName  pgtype.Text        `json:"invitee_name"`
-	Organisation pgtype.Text        `json:"organisation"`
-	Role         UserRole           `json:"role"`
-	Message      pgtype.Text        `json:"message"`
-	InviterID    pgtype.UUID        `json:"inviter_id"`
-	Status       InvitationStatus   `json:"status"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
-	ExpiresAt    pgtype.Timestamptz `json:"expires_at"`
-	RedeemedAt   pgtype.Timestamptz `json:"redeemed_at"`
-	RevokedAt    pgtype.Timestamptz `json:"revoked_at"`
-	RevokedBy    pgtype.UUID        `json:"revoked_by"`
+	ID          uuid.UUID          `json:"id"`
+	Email       string             `json:"email"`
+	InviteeName string             `json:"invitee_name"`
+	Role        UserRole           `json:"role"`
+	Message     *string            `json:"message"`
+	InviterID   pgtype.UUID        `json:"inviter_id"`
+	Status      InvitationStatus   `json:"status"`
+	CreatedAt   time.Time          `json:"created_at"`
+	ExpiresAt   time.Time          `json:"expires_at"`
+	RedeemedAt  pgtype.Timestamptz `json:"redeemed_at"`
+	RevokedAt   pgtype.Timestamptz `json:"revoked_at"`
+	RevokedBy   pgtype.UUID        `json:"revoked_by"`
 }
 
 type InvitationToken struct {
-	ID           pgtype.UUID        `json:"id"`
-	InvitationID pgtype.UUID        `json:"invitation_id"`
+	ID           uuid.UUID          `json:"id"`
+	InvitationID uuid.UUID          `json:"invitation_id"`
 	TokenHash    string             `json:"token_hash"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	CreatedAt    time.Time          `json:"created_at"`
 	Consumed     bool               `json:"consumed"`
 	ConsumedBy   pgtype.UUID        `json:"consumed_by"`
 	ConsumedAt   pgtype.Timestamptz `json:"consumed_at"`
 }
 
 type Occurrence struct {
-	ID                          string                   `json:"id"`
-	Code                        string                   `json:"code"`
-	SamplingID                  pgtype.UUID              `json:"sampling_id"`
-	TypeStatus                  NullOccurrenceTypeStatus `json:"type_status"`
-	Comments                    pgtype.Text              `json:"comments"`
-	TaxonID                     pgtype.UUID              `json:"taxon_id"`
-	VerbatimIdentification      pgtype.Text              `json:"verbatim_identification"`
-	IdentifiedBy                []string                 `json:"identified_by"`
-	IdentificationDate          pgtype.Date              `json:"identification_date"`
-	IdentificationDatePrecision NullEventDatePrecision   `json:"identification_date_precision"`
-	IdentificationConfer        bool                     `json:"identification_confer"`
-	IdentificationAddendum      pgtype.Text              `json:"identification_addendum"`
-	ContentDescription          pgtype.Text              `json:"content_description"`
-	QuantityExact               pgtype.Int4              `json:"quantity_exact"`
-	QuantityLower               pgtype.Int4              `json:"quantity_lower"`
-	QuantityUpper               pgtype.Int4              `json:"quantity_upper"`
-	Sources                     []string                 `json:"sources"`
-}
-
-type OccurrenceArticle struct {
-	OccurrenceID string      `json:"occurrence_id"`
-	ArticleID    pgtype.UUID `json:"article_id"`
+	ID                          ulid.ULID             `json:"id"`
+	Code                        string                `json:"code"`
+	SamplingID                  uuid.UUID             `json:"sampling_id"`
+	TypeStatus                  *OccurrenceTypeStatus `json:"type_status"`
+	Comments                    *string               `json:"comments"`
+	TaxonID                     uuid.UUID             `json:"taxon_id"`
+	VerbatimIdentification      *string               `json:"verbatim_identification"`
+	IdentifiedBy                []string              `json:"identified_by"`
+	IdentificationDate          pgtype.Date           `json:"identification_date"`
+	IdentificationDatePrecision *EventDatePrecision   `json:"identification_date_precision"`
+	IdentificationConfer        bool                  `json:"identification_confer"`
+	IdentificationAddendum      *string               `json:"identification_addendum"`
+	ContentDescription          *string               `json:"content_description"`
+	QuantityExact               *int32                `json:"quantity_exact"`
+	QuantityLower               *int32                `json:"quantity_lower"`
+	QuantityUpper               *int32                `json:"quantity_upper"`
+	Sources                     []string              `json:"sources"`
+	CreatedAt                   time.Time             `json:"created_at"`
+	UpdatedAt                   time.Time             `json:"updated_at"`
+	ImportBatchID               interface{}           `json:"import_batch_id"`
 }
 
 type OccurrenceCodeHistory struct {
-	ID           pgtype.UUID        `json:"id"`
-	OccurrenceID string             `json:"occurrence_id"`
-	Code         string             `json:"code"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	ID           uuid.UUID `json:"id"`
+	OccurrenceID ulid.ULID `json:"occurrence_id"`
+	Code         string    `json:"code"`
+	CreatedAt    time.Time `json:"created_at"`
 }
 
 type OccurrenceCollection struct {
-	OccurrenceID string   `json:"occurrence_id"`
-	Name         string   `json:"name"`
-	Vouchers     []string `json:"vouchers"`
+	OccurrenceID ulid.ULID `json:"occurrence_id"`
+	Name         string    `json:"name"`
+	Vouchers     []string  `json:"vouchers"`
+}
+
+type OccurrencesArticle struct {
+	OccurrenceID ulid.ULID `json:"occurrence_id"`
+	ArticleID    uuid.UUID `json:"article_id"`
 }
 
 type OccurrencesDataset struct {
-	DatasetID    pgtype.UUID `json:"dataset_id"`
-	OccurrenceID string      `json:"occurrence_id"`
+	DatasetID    ulid.ULID `json:"dataset_id"`
+	OccurrenceID ulid.ULID `json:"occurrence_id"`
 }
 
 type Sampling struct {
-	ID                   pgtype.UUID            `json:"id"`
-	SamplingHash         string                 `json:"sampling_hash"`
-	Notes                pgtype.Text            `json:"notes"`
-	SiteCode             pgtype.Text            `json:"site_code"`
-	SiteName             pgtype.Text            `json:"site_name"`
-	SiteLocality         pgtype.Text            `json:"site_locality"`
-	SiteCountryCode      pgtype.Text            `json:"site_country_code"`
-	CoordinatesPrecision pgtype.Int4            `json:"coordinates_precision"`
-	Coordinates          interface{}            `json:"coordinates"`
-	Latitude             float32                `json:"latitude"`
-	Longitude            float32                `json:"longitude"`
-	Altitude             pgtype.Int4            `json:"altitude"`
-	EventDate            pgtype.Date            `json:"event_date"`
-	EventDatePrecision   NullEventDatePrecision `json:"event_date_precision"`
-	PerformedBy          []string               `json:"performed_by"`
-	Duration             pgtype.Int4            `json:"duration"`
-	AccessPoints         []string               `json:"access_points"`
-	H3Res8               interface{}            `json:"h3_res8"`
-	H3Res7               interface{}            `json:"h3_res7"`
-	H3Res6               interface{}            `json:"h3_res6"`
-	H3Res5               interface{}            `json:"h3_res5"`
-	H3Res4               interface{}            `json:"h3_res4"`
-	H3Res3               interface{}            `json:"h3_res3"`
-	H3Res2               interface{}            `json:"h3_res2"`
+	ID                   uuid.UUID           `json:"id"`
+	SamplingHash         string              `json:"sampling_hash"`
+	Notes                *string             `json:"notes"`
+	SiteCode             *string             `json:"site_code"`
+	SiteName             *string             `json:"site_name"`
+	SiteLocality         *string             `json:"site_locality"`
+	SiteCountryCode      *string             `json:"site_country_code"`
+	CoordinatesPrecision *int32              `json:"coordinates_precision"`
+	Coordinates          interface{}         `json:"coordinates"`
+	Latitude             float32             `json:"latitude"`
+	Longitude            float32             `json:"longitude"`
+	Altitude             *int32              `json:"altitude"`
+	EventDate            pgtype.Date         `json:"event_date"`
+	EventDatePrecision   *EventDatePrecision `json:"event_date_precision"`
+	PerformedBy          []string            `json:"performed_by"`
+	Duration             *int32              `json:"duration"`
+	AccessPoints         []string            `json:"access_points"`
+	H3Index              int64               `json:"h3_index"`
+	SearchVector         interface{}         `json:"search_vector"`
 }
 
 type SamplingMethod struct {
-	ID          pgtype.UUID `json:"id"`
-	Code        string      `json:"code"`
-	Name        string      `json:"name"`
-	Description pgtype.Text `json:"description"`
+	ID          uuid.UUID `json:"id"`
+	Code        string    `json:"code"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description"`
 }
 
 type SamplingMethodsResolution struct {
-	ImportHash       string                 `json:"import_hash"`
-	InputText        string                 `json:"input_text"`
-	ResolvedMethodID pgtype.UUID            `json:"resolved_method_id"`
-	Status           MethodResolutionStatus `json:"status"`
+	ImportHash       string                `json:"import_hash"`
+	InputText        string                `json:"input_text"`
+	ResolvedMethodID pgtype.UUID           `json:"resolved_method_id"`
+	Status           VocabResolutionStatus `json:"status"`
 }
 
 type SamplingTargetTaxa struct {
-	SamplingID pgtype.UUID `json:"sampling_id"`
-	TaxonID    pgtype.UUID `json:"taxon_id"`
+	SamplingID uuid.UUID `json:"sampling_id"`
+	TaxonID    uuid.UUID `json:"taxon_id"`
 }
 
 type SamplingsFixative struct {
-	SamplingID pgtype.UUID `json:"sampling_id"`
-	FixativeID pgtype.UUID `json:"fixative_id"`
+	SamplingID uuid.UUID `json:"sampling_id"`
+	FixativeID uuid.UUID `json:"fixative_id"`
 }
 
 type SamplingsHabitat struct {
-	SamplingID pgtype.UUID `json:"sampling_id"`
-	HabitatID  pgtype.UUID `json:"habitat_id"`
+	SamplingID uuid.UUID `json:"sampling_id"`
+	HabitatID  uuid.UUID `json:"habitat_id"`
+}
+
+type Setting struct {
+	ID                     int32   `json:"id"`
+	AppName                string  `json:"app_name"`
+	AppSubtitle            *string `json:"app_subtitle"`
+	AppDescription         *string `json:"app_description"`
+	IsPublic               bool    `json:"is_public"`
+	AccountRequestsEnabled bool    `json:"account_requests_enabled"`
+	AdminEmail             string  `json:"admin_email"`
+	MailFromAddress        string  `json:"mail_from_address"`
+	MailFromName           string  `json:"mail_from_name"`
 }
 
 type TaxaStaging struct {
-	ID              pgtype.UUID      `json:"id"`
+	ID              uuid.UUID        `json:"id"`
 	ImportHash      string           `json:"import_hash"`
 	Name            string           `json:"name"`
-	Authorship      pgtype.Text      `json:"authorship"`
+	Authorship      *string          `json:"authorship"`
 	Rank            TaxonRank        `json:"rank"`
 	Status          TaxonStatus      `json:"status"`
 	ParentSource    TaxonMatchSource `json:"parent_source"`
 	ParentTaxaID    pgtype.UUID      `json:"parent_taxa_id"`
-	ParentGbifID    pgtype.Int4      `json:"parent_gbif_id"`
-	ParentInputName pgtype.Text      `json:"parent_input_name"`
+	ParentGBIFID    *int32           `json:"parent_gbif_id"`
+	ParentInputName *string          `json:"parent_input_name"`
 }
 
 type Taxon struct {
-	ID              pgtype.UUID `json:"id"`
-	GbifID          pgtype.Int4 `json:"gbif_id"`
+	ID              uuid.UUID   `json:"id"`
+	GBIFID          *int32      `json:"gbif_id"`
 	Name            string      `json:"name"`
-	ScientificName  pgtype.Text `json:"scientific_name"`
+	ScientificName  string      `json:"scientific_name"`
 	Rank            TaxonRank   `json:"rank"`
 	Status          TaxonStatus `json:"status"`
-	Authorship      pgtype.Text `json:"authorship"`
+	Authorship      *string     `json:"authorship"`
 	AcceptedTaxonID pgtype.UUID `json:"accepted_taxon_id"`
 	ParentID        pgtype.UUID `json:"parent_id"`
-	Comments        pgtype.Text `json:"comments"`
+	SearchVector    interface{} `json:"search_vector"`
+	Comments        *string     `json:"comments"`
 }
 
 type TaxonCandidate struct {
@@ -1350,107 +1523,119 @@ type TaxonCandidate struct {
 	Source     TaxonMatchSource `json:"source"`
 	MatchType  TaxonMatchType   `json:"match_type"`
 	TaxonID    pgtype.UUID      `json:"taxon_id"`
-	GbifID     pgtype.Int4      `json:"gbif_id"`
-	Score      pgtype.Float8    `json:"score"`
+	GBIFID     *int32           `json:"gbif_id"`
+	Score      *float64         `json:"score"`
 	Priority   int32            `json:"priority"`
 	Name       string           `json:"name"`
-	Authorship pgtype.Text      `json:"authorship"`
+	Authorship *string          `json:"authorship"`
 	Rank       TaxonRank        `json:"rank"`
 	Status     TaxonStatus      `json:"status"`
 }
 
 type TaxonClosure struct {
-	AncestorID   pgtype.UUID `json:"ancestor_id"`
-	DescendantID pgtype.UUID `json:"descendant_id"`
-	Depth        int32       `json:"depth"`
+	AncestorID   uuid.UUID `json:"ancestor_id"`
+	DescendantID uuid.UUID `json:"descendant_id"`
+	Depth        int32     `json:"depth"`
 }
 
 type TaxonHierarchy struct {
-	ID         pgtype.UUID `json:"id"`
+	ID         uuid.UUID   `json:"id"`
 	ParentID   pgtype.UUID `json:"parent_id"`
 	Name       string      `json:"name"`
-	Authorship pgtype.Text `json:"authorship"`
+	Authorship *string     `json:"authorship"`
 	Rank       TaxonRank   `json:"rank"`
 	Status     TaxonStatus `json:"status"`
-	Comments   pgtype.Text `json:"comments"`
-	RootID     pgtype.UUID `json:"root_id"`
+	Comments   *string     `json:"comments"`
+	RootID     uuid.UUID   `json:"root_id"`
 	Path       interface{} `json:"path"`
 	Depth      int32       `json:"depth"`
 }
 
 type TaxonResolution struct {
-	ImportHash string               `json:"import_hash"`
-	InputName  string               `json:"input_name"`
-	Source     NullTaxonMatchSource `json:"source"`
-	GbifID     pgtype.Int4          `json:"gbif_id"`
-	TaxonID    pgtype.UUID          `json:"taxon_id"`
-	StagingID  pgtype.UUID          `json:"staging_id"`
-	Status     NullResolutionStatus `json:"status"`
-	GbifStatus NullTaxonGbifStatus  `json:"gbif_status"`
+	ImportHash string            `json:"import_hash"`
+	InputName  string            `json:"input_name"`
+	Source     *TaxonMatchSource `json:"source"`
+	GBIFID     *int32            `json:"gbif_id"`
+	TaxonID    pgtype.UUID       `json:"taxon_id"`
+	StagingID  pgtype.UUID       `json:"staging_id"`
+	Status     *ResolutionStatus `json:"status"`
+	GBIFStatus *TaxonGBIFStatus  `json:"gbif_status"`
 }
 
 type TaxonSynonym struct {
-	AcceptedTaxonID   pgtype.UUID `json:"accepted_taxon_id"`
-	AcceptedTaxonName string      `json:"accepted_taxon_name"`
-	SynonymTaxonID    pgtype.UUID `json:"synonym_taxon_id"`
-	SynonymTaxonName  string      `json:"synonym_taxon_name"`
+	AcceptedTaxonID   uuid.UUID `json:"accepted_taxon_id"`
+	AcceptedTaxonName string    `json:"accepted_taxon_name"`
+	SynonymTaxonID    uuid.UUID `json:"synonym_taxon_id"`
+	SynonymTaxonName  string    `json:"synonym_taxon_name"`
 }
 
 type User struct {
-	ID              pgtype.UUID        `json:"id"`
+	ID              uuid.UUID          `json:"id"`
 	Login           string             `json:"login"`
 	Email           string             `json:"email"`
 	PasswordHash    string             `json:"password_hash"`
 	Role            UserRole           `json:"role"`
 	FirstName       string             `json:"first_name"`
 	LastName        string             `json:"last_name"`
-	Organisation    pgtype.Text        `json:"organisation"`
-	Contact         pgtype.Text        `json:"contact"`
-	Comments        pgtype.Text        `json:"comments"`
-	FullName        pgtype.Text        `json:"full_name"`
+	Organisation    *string            `json:"organisation"`
+	Contact         *string            `json:"contact"`
+	Bio             *string            `json:"bio"`
+	FullName        string             `json:"full_name"`
 	Active          bool               `json:"active"`
 	EmailVerifiedAt pgtype.Timestamptz `json:"email_verified_at"`
 }
 
 type UserAccountRequest struct {
-	ID          pgtype.UUID              `json:"id"`
+	ID          uuid.UUID                `json:"id"`
 	Email       string                   `json:"email"`
 	Name        string                   `json:"name"`
-	Motivations pgtype.Text              `json:"motivations"`
+	Motivations *string                  `json:"motivations"`
 	Status      UserAccountRequestStatus `json:"status"`
-	CreatedAt   pgtype.Timestamptz       `json:"created_at"`
-	ExpiresAt   pgtype.Timestamptz       `json:"expires_at"`
+	CreatedAt   time.Time                `json:"created_at"`
+	ExpiresAt   time.Time                `json:"expires_at"`
 	VerifiedAt  pgtype.Timestamptz       `json:"verified_at"`
 	CancelledAt pgtype.Timestamptz       `json:"cancelled_at"`
 }
 
 type UserAccountRequestToken struct {
-	ID                   pgtype.UUID        `json:"id"`
-	UserAccountRequestID pgtype.UUID        `json:"user_account_request_id"`
+	ID                   uuid.UUID          `json:"id"`
+	UserAccountRequestID uuid.UUID          `json:"user_account_request_id"`
 	TokenHash            string             `json:"token_hash"`
-	CreatedAt            pgtype.Timestamptz `json:"created_at"`
+	CreatedAt            time.Time          `json:"created_at"`
 	Consumed             bool               `json:"consumed"`
 	ConsumedAt           pgtype.Timestamptz `json:"consumed_at"`
 }
 
 type UserEmailChangeRequest struct {
-	ID          pgtype.UUID                  `json:"id"`
-	UserID      pgtype.UUID                  `json:"user_id"`
+	ID          uuid.UUID                    `json:"id"`
+	UserID      uuid.UUID                    `json:"user_id"`
 	Email       string                       `json:"email"`
 	Status      UserEmailChangeRequestStatus `json:"status"`
-	CreatedAt   pgtype.Timestamptz           `json:"created_at"`
-	ExpiresAt   pgtype.Timestamptz           `json:"expires_at"`
+	CreatedAt   time.Time                    `json:"created_at"`
+	ExpiresAt   time.Time                    `json:"expires_at"`
 	VerifiedAt  pgtype.Timestamptz           `json:"verified_at"`
 	AppliedAt   pgtype.Timestamptz           `json:"applied_at"`
 	CancelledAt pgtype.Timestamptz           `json:"cancelled_at"`
 }
 
 type UserEmailChangeRequestToken struct {
-	ID                       pgtype.UUID        `json:"id"`
-	UserEmailChangeRequestID pgtype.UUID        `json:"user_email_change_request_id"`
+	ID                       uuid.UUID          `json:"id"`
+	UserEmailChangeRequestID uuid.UUID          `json:"user_email_change_request_id"`
 	TokenHash                string             `json:"token_hash"`
-	CreatedAt                pgtype.Timestamptz `json:"created_at"`
+	CreatedAt                time.Time          `json:"created_at"`
 	Consumed                 bool               `json:"consumed"`
 	ConsumedBy               pgtype.UUID        `json:"consumed_by"`
 	ConsumedAt               pgtype.Timestamptz `json:"consumed_at"`
+}
+
+type UserSession struct {
+	ID               uuid.UUID          `json:"id"`
+	UserID           uuid.UUID          `json:"user_id"`
+	RefreshTokenHash string             `json:"refresh_token_hash"`
+	CreatedAt        time.Time          `json:"created_at"`
+	ExpiresAt        time.Time          `json:"expires_at"`
+	LastUsedAt       pgtype.Timestamptz `json:"last_used_at"`
+	RevokedAt        pgtype.Timestamptz `json:"revoked_at"`
+	UserAgent        *string            `json:"user_agent"`
+	IPAddress        *netip.Addr        `json:"ip_address"`
 }

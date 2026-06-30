@@ -34,7 +34,7 @@ CREATE TABLE import_samplings_occurrences (
     site_code TEXT CHECK (site_code ~ '^[A-Za-z0-9.-]{3,32}$'),
     site_name TEXT,
     site_locality TEXT,
-    site_country_code CHAR(3),
+    site_country_code CHAR(3) NOT NULL REFERENCES countries (code),
     coordinates_precision INTEGER,
     longitude REAL NOT NULL,
     latitude REAL NOT NULL,

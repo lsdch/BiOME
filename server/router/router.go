@@ -13,9 +13,10 @@ import (
 	"time"
 
 	"github.com/geldata/gel-go/geltypes"
+	"github.com/lsdch/biome/lib/auth"
+	"github.com/lsdch/biome/middleware"
 	"github.com/lsdch/biome/models/occurrence"
 	"github.com/lsdch/biome/services/crossref"
-	"github.com/sirupsen/logrus"
 
 	"github.com/caltechlibrary/crossrefapi"
 	"github.com/danielgtaylor/huma/v2"
@@ -85,18 +86,24 @@ func (r *Router) WriteSpecJSON(outputPath string) error {
 
 func (r *Router) RouteGroup(prefix string) Group {
 
-	return Group{r, r.API, prefix, []string{}}
+	return Group{r, r.API, prefix, []string{}, auth.Public()}
 }
 
 type Group struct {
-	router *Router
-	API    huma.API
-	Prefix string
-	Tags   []string
+	router       *Router
+	API          huma.API
+	Prefix       string
+	Tags         []string
+	AccessPolicy auth.Policy
 }
 
 func (g Group) WithTags(tags []string) Group {
 	g.Tags = tags
+	return g
+}
+
+func (g Group) WithAccessPolicy(policy auth.Policy) Group {
+	g.AccessPolicy = policy
 	return g
 }
 
@@ -117,6 +124,10 @@ func Register[I, O any](
 	ingroupOp.Path = path.Join(group.Prefix, op.Path)
 	ingroupOp.Tags = slices.Concat(ingroupOp.Tags, group.Tags)
 	ingroupOp.Errors = append(op.Errors, http.StatusInternalServerError)
+	// If the operation doesn't have an access policy, use the group's access policy
+	if _, ok := middleware.GetAccessPolicy(ingroupOp); !ok && group.AccessPolicy != nil {
+		ingroupOp = middleware.WithAccessPolicy(ingroupOp, group.AccessPolicy)
+	}
 	huma.Register(group.API, ingroupOp, handler)
 	return path.Join(group.router.BasePath, ingroupOp.Path)
 }
@@ -124,6 +135,7 @@ func Register[I, O any](
 type RouteSpec interface {
 	Register(r *Router) RouteSpec
 	Path(r *Router) string
+	WithAccessPolicy(policy auth.Policy) RouteSpec
 }
 
 type routeSpec[I, O any] struct {
@@ -135,6 +147,11 @@ type routeSpec[I, O any] struct {
 
 func (spec routeSpec[I, O]) Register(r *Router) RouteSpec {
 	Register(spec.Group(r), spec.OperationID, spec.Operation, spec.Handler)
+	return spec
+}
+
+func (spec routeSpec[I, O]) WithAccessPolicy(policy auth.Policy) RouteSpec {
+	spec.Operation = middleware.WithAccessPolicy(spec.Operation, policy)
 	return spec
 }
 
@@ -167,24 +184,6 @@ func RegisterSpec[I, O any](
 	spec := NewSpec(groupFunc, operationID, op, handler)
 	routeSpecs = append(routeSpecs, spec)
 	return spec
-}
-
-type customRouteSpec struct {
-	registerFunc func(r *Router)
-}
-
-func (spec customRouteSpec) Register(r *Router) RouteSpec {
-	spec.registerFunc(r)
-	return spec
-}
-
-func (spec customRouteSpec) Path(r *Router) string {
-	logrus.Warn("custom route specs do not have a defined path")
-	return ""
-}
-
-func RegisterCustom(fn func(r *Router)) {
-	routeSpecs = append(routeSpecs, customRouteSpec{registerFunc: fn})
 }
 
 /*

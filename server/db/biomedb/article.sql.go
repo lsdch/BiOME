@@ -8,7 +8,7 @@ package biomedb
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const createArticle = `-- name: CreateArticle :one
@@ -19,8 +19,7 @@ INSERT INTO articles (
         journal,
         verbatim,
         doi,
-        comments,
-        code
+        comments
     )
 VALUES (
         $1,
@@ -29,21 +28,19 @@ VALUES (
         $4,
         $5,
         $6,
-        $7,
-        $8
+        $7
     )
-RETURNING id, authors, year, title, journal, verbatim, doi, comments, code
+RETURNING id, authors, year, title, journal, verbatim, doi, comments
 `
 
 type CreateArticleParams struct {
-	Authors  []string    `json:"authors"`
-	Year     int32       `json:"year"`
-	Title    pgtype.Text `json:"title"`
-	Journal  pgtype.Text `json:"journal"`
-	Verbatim pgtype.Text `json:"verbatim"`
-	Doi      pgtype.Text `json:"doi"`
-	Comments pgtype.Text `json:"comments"`
-	Code     string      `json:"code"`
+	Authors  []string `json:"authors"`
+	Year     int32    `json:"year"`
+	Title    *string  `json:"title"`
+	Journal  *string  `json:"journal"`
+	Verbatim *string  `json:"verbatim"`
+	Doi      *string  `json:"doi"`
+	Comments *string  `json:"comments"`
 }
 
 func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (Article, error) {
@@ -55,7 +52,6 @@ func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (A
 		arg.Verbatim,
 		arg.Doi,
 		arg.Comments,
-		arg.Code,
 	)
 	var i Article
 	err := row.Scan(
@@ -67,30 +63,6 @@ func (q *Queries) CreateArticle(ctx context.Context, arg CreateArticleParams) (A
 		&i.Verbatim,
 		&i.Doi,
 		&i.Comments,
-		&i.Code,
-	)
-	return i, err
-}
-
-const deleteArticleByCode = `-- name: DeleteArticleByCode :one
-DELETE FROM articles
-WHERE code = $1
-RETURNING id, authors, year, title, journal, verbatim, doi, comments, code
-`
-
-func (q *Queries) DeleteArticleByCode(ctx context.Context, code string) (Article, error) {
-	row := q.db.QueryRow(ctx, deleteArticleByCode, code)
-	var i Article
-	err := row.Scan(
-		&i.ID,
-		&i.Authors,
-		&i.Year,
-		&i.Title,
-		&i.Journal,
-		&i.Verbatim,
-		&i.Doi,
-		&i.Comments,
-		&i.Code,
 	)
 	return i, err
 }
@@ -98,10 +70,10 @@ func (q *Queries) DeleteArticleByCode(ctx context.Context, code string) (Article
 const deleteArticleByID = `-- name: DeleteArticleByID :one
 DELETE FROM articles
 WHERE id = $1
-RETURNING id, authors, year, title, journal, verbatim, doi, comments, code
+RETURNING id, authors, year, title, journal, verbatim, doi, comments
 `
 
-func (q *Queries) DeleteArticleByID(ctx context.Context, id pgtype.UUID) (Article, error) {
+func (q *Queries) DeleteArticleByID(ctx context.Context, id uuid.UUID) (Article, error) {
 	row := q.db.QueryRow(ctx, deleteArticleByID, id)
 	var i Article
 	err := row.Scan(
@@ -113,20 +85,19 @@ func (q *Queries) DeleteArticleByID(ctx context.Context, id pgtype.UUID) (Articl
 		&i.Verbatim,
 		&i.Doi,
 		&i.Comments,
-		&i.Code,
 	)
 	return i, err
 }
 
-const getArticleByCode = `-- name: GetArticleByCode :one
-SELECT id, authors, year, title, journal, verbatim, doi, comments, code
+const getArticleByDOI = `-- name: GetArticleByDOI :one
+SELECT id, authors, year, title, journal, verbatim, doi, comments
 FROM articles
-WHERE code = $1
+WHERE doi = $1
 LIMIT 1
 `
 
-func (q *Queries) GetArticleByCode(ctx context.Context, code string) (Article, error) {
-	row := q.db.QueryRow(ctx, getArticleByCode, code)
+func (q *Queries) GetArticleByDOI(ctx context.Context, doi *string) (Article, error) {
+	row := q.db.QueryRow(ctx, getArticleByDOI, doi)
 	var i Article
 	err := row.Scan(
 		&i.ID,
@@ -137,19 +108,18 @@ func (q *Queries) GetArticleByCode(ctx context.Context, code string) (Article, e
 		&i.Verbatim,
 		&i.Doi,
 		&i.Comments,
-		&i.Code,
 	)
 	return i, err
 }
 
 const getArticleByID = `-- name: GetArticleByID :one
-SELECT id, authors, year, title, journal, verbatim, doi, comments, code
+SELECT id, authors, year, title, journal, verbatim, doi, comments
 FROM articles
 WHERE id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetArticleByID(ctx context.Context, id pgtype.UUID) (Article, error) {
+func (q *Queries) GetArticleByID(ctx context.Context, id uuid.UUID) (Article, error) {
 	row := q.db.QueryRow(ctx, getArticleByID, id)
 	var i Article
 	err := row.Scan(
@@ -161,17 +131,15 @@ func (q *Queries) GetArticleByID(ctx context.Context, id pgtype.UUID) (Article, 
 		&i.Verbatim,
 		&i.Doi,
 		&i.Comments,
-		&i.Code,
 	)
 	return i, err
 }
 
 const listArticles = `-- name: ListArticles :many
-SELECT id, authors, year, title, journal, verbatim, doi, comments, code
+SELECT id, authors, year, title, journal, verbatim, doi, comments
 FROM articles
 ORDER BY authors [1] ASC,
-    year DESC,
-    code ASC
+    year DESC
 `
 
 func (q *Queries) ListArticles(ctx context.Context) ([]Article, error) {
@@ -192,7 +160,6 @@ func (q *Queries) ListArticles(ctx context.Context) ([]Article, error) {
 			&i.Verbatim,
 			&i.Doi,
 			&i.Comments,
-			&i.Code,
 		); err != nil {
 			return nil, err
 		}
@@ -204,95 +171,64 @@ func (q *Queries) ListArticles(ctx context.Context) ([]Article, error) {
 	return items, nil
 }
 
-const updateArticleByCode = `-- name: UpdateArticleByCode :one
-UPDATE articles
-SET authors = $1,
-    year = $2,
-    title = $3,
-    journal = $4,
-    verbatim = $5,
-    doi = $6,
-    comments = $7,
-    code = $8
-WHERE code = $9
-RETURNING id, authors, year, title, journal, verbatim, doi, comments, code
-`
-
-type UpdateArticleByCodeParams struct {
-	Authors  []string    `json:"authors"`
-	Year     int32       `json:"year"`
-	Title    pgtype.Text `json:"title"`
-	Journal  pgtype.Text `json:"journal"`
-	Verbatim pgtype.Text `json:"verbatim"`
-	Doi      pgtype.Text `json:"doi"`
-	Comments pgtype.Text `json:"comments"`
-	Code     string      `json:"code"`
-	OldCode  string      `json:"old_code"`
-}
-
-func (q *Queries) UpdateArticleByCode(ctx context.Context, arg UpdateArticleByCodeParams) (Article, error) {
-	row := q.db.QueryRow(ctx, updateArticleByCode,
-		arg.Authors,
-		arg.Year,
-		arg.Title,
-		arg.Journal,
-		arg.Verbatim,
-		arg.Doi,
-		arg.Comments,
-		arg.Code,
-		arg.OldCode,
-	)
-	var i Article
-	err := row.Scan(
-		&i.ID,
-		&i.Authors,
-		&i.Year,
-		&i.Title,
-		&i.Journal,
-		&i.Verbatim,
-		&i.Doi,
-		&i.Comments,
-		&i.Code,
-	)
-	return i, err
-}
-
 const updateArticleByID = `-- name: UpdateArticleByID :one
 UPDATE articles
-SET authors = $1,
-    year = $2,
-    title = $3,
-    journal = $4,
-    verbatim = $5,
-    doi = $6,
-    comments = $7,
-    code = $8
-WHERE id = $9
-RETURNING id, authors, year, title, journal, verbatim, doi, comments, code
+SET authors = COALESCE($1, authors),
+    year = COALESCE($2, year),
+    title = CASE
+        WHEN $3::bool THEN $4
+        ELSE title
+    END,
+    journal = CASE
+        WHEN $5::bool THEN $6
+        ELSE journal
+    END,
+    verbatim = CASE
+        WHEN $7::bool THEN $8
+        ELSE verbatim
+    END,
+    doi = CASE
+        WHEN $9::bool THEN $10
+        ELSE doi
+    END,
+    comments = CASE
+        WHEN $11::bool THEN $12
+        ELSE comments
+    END
+WHERE id = $13
+RETURNING id, authors, year, title, journal, verbatim, doi, comments
 `
 
 type UpdateArticleByIDParams struct {
-	Authors  []string    `json:"authors"`
-	Year     int32       `json:"year"`
-	Title    pgtype.Text `json:"title"`
-	Journal  pgtype.Text `json:"journal"`
-	Verbatim pgtype.Text `json:"verbatim"`
-	Doi      pgtype.Text `json:"doi"`
-	Comments pgtype.Text `json:"comments"`
-	Code     string      `json:"code"`
-	ID       pgtype.UUID `json:"id"`
+	Authors     []string  `json:"authors"`
+	Year        *int32    `json:"year"`
+	SetTitle    bool      `json:"set_title"`
+	Title       *string   `json:"title"`
+	SetJournal  bool      `json:"set_journal"`
+	Journal     *string   `json:"journal"`
+	SetVerbatim bool      `json:"set_verbatim"`
+	Verbatim    *string   `json:"verbatim"`
+	SetDoi      bool      `json:"set_doi"`
+	Doi         *string   `json:"doi"`
+	SetComments bool      `json:"set_comments"`
+	Comments    *string   `json:"comments"`
+	ID          uuid.UUID `json:"id"`
 }
 
 func (q *Queries) UpdateArticleByID(ctx context.Context, arg UpdateArticleByIDParams) (Article, error) {
 	row := q.db.QueryRow(ctx, updateArticleByID,
 		arg.Authors,
 		arg.Year,
+		arg.SetTitle,
 		arg.Title,
+		arg.SetJournal,
 		arg.Journal,
+		arg.SetVerbatim,
 		arg.Verbatim,
+		arg.SetDoi,
 		arg.Doi,
+		arg.SetComments,
 		arg.Comments,
-		arg.Code,
 		arg.ID,
 	)
 	var i Article
@@ -305,7 +241,6 @@ func (q *Queries) UpdateArticleByID(ctx context.Context, arg UpdateArticleByIDPa
 		&i.Verbatim,
 		&i.Doi,
 		&i.Comments,
-		&i.Code,
 	)
 	return i, err
 }

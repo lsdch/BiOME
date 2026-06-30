@@ -11,7 +11,6 @@ import (
 	"github.com/geldata/gel-go"
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
-	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/models/settings"
 	"github.com/lsdch/biome/models/tokens"
 	"github.com/lsdch/biome/services/email"
@@ -210,42 +209,4 @@ func VerifyEmail(edb *gel.Client, token tokens.Token) (ok bool, err error) {
 
 	// Email successfully verified
 	return true, nil
-}
-
-// @mapstructure
-type SuperAdminInput struct {
-	UserInput      `gel:"$inline" mapstructure:",squash"`
-	PersonIdentity `gel:"$inline" mapstructure:",squash"`
-	Alias          models.OptionalInput[string] `json:"alias,omitempty" fake:"-" mapstructure:"alias"`
-	Organisation   models.OptionalInput[string] `gel:"organisation" json:"organisation" mapstructure:"organisation"`
-}
-
-func (i SuperAdminInput) Save(e geltypes.Executor) (created User, err error) {
-	data, _ := json.Marshal(i)
-	if !i.Alias.IsSet {
-		i.Alias.Value = i.GenerateAlias()
-	}
-	err = e.QuerySingle(context.Background(),
-		`#edgeql
-			with module people,
-			data := <json>$0,
-			user := (insert User {
-				login := <str>data['login'],
-				email := <str>data['email'],
-				password := <str>data['password'],
-				role := UserRole.Admin,
-				identity := (insert Person {
-					first_name := <str>data['first_name'],
-					last_name := <str>data['last_name'],
-					contact := <str>data['email'],
-					alias := <str>json_get(data, 'alias') ?? {},
-					organisations := (
-						select Organisation
-						filter any({.name, .code} = <str>json_get(data, 'organisation'))
-					)
-				})
-			}),
-			select user { ** }
-		`, &created, data)
-	return
 }

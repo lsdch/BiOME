@@ -3,74 +3,8 @@ package resolvers
 import (
 	"fmt"
 
-	"github.com/lsdch/biome/models/people"
-
 	"github.com/danielgtaylor/huma/v2"
 )
-
-type RoleSpecifier interface {
-	Role() people.UserRole
-}
-
-type Contributor struct{}
-
-func (r Contributor) Role() people.UserRole {
-	return people.Contributor
-}
-
-var _ RoleSpecifier = (*Contributor)(nil)
-
-type Maintainer struct{}
-
-func (r Maintainer) Role() people.UserRole {
-	return people.Maintainer
-}
-
-var _ RoleSpecifier = (*Maintainer)(nil)
-
-type Admin struct{}
-
-func (r Admin) Role() people.UserRole {
-	return people.Admin
-}
-
-var _ RoleSpecifier = (*Admin)(nil)
-
-type AccessResolver interface {
-	UserResolver
-	IsGranted() bool
-	RoleRequired() people.UserRole
-}
-
-type AccessRestricted[R RoleSpecifier] struct {
-	AuthResolver
-	RoleSpec R
-}
-
-func (a *AccessRestricted[R]) IsGranted() bool {
-	if user, ok := a.AuthUser(); ok {
-		return user.Role.IsGreaterEqual(a.RoleSpec.Role())
-	}
-	return false
-}
-
-func (a *AccessRestricted[RV]) Resolve(ctx huma.Context) []error {
-	a.AuthResolver.ResolveAuth(ctx)
-	if !a.IsGranted() {
-		return []error{
-			huma.Error401Unauthorized(
-				fmt.Sprintf("Access restricted to %s users", a.RoleSpec.Role()),
-			),
-		}
-	}
-	return nil
-}
-
-func (a *AccessRestricted[R]) RoleRequired() people.UserRole {
-	return a.RoleSpec.Role()
-}
-
-var _ AccessResolver = (*AccessRestricted[Contributor])(nil)
 
 type OwnershipResolver interface {
 	IsOwner() bool

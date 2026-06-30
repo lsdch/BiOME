@@ -20,33 +20,15 @@ CREATE TABLE samplings (
 	duration INTEGER,
 	access_points TEXT [],
 	-- R ~ 500m
-	h3_res8 h3index GENERATED ALWAYS AS (
-		h3_lat_lng_to_cell(point(ST_X(coordinates), ST_Y(coordinates)), 8)
+	h3_index BIGINT NOT NULL GENERATED ALWAYS AS (
+		h3_lat_lng_to_cell (
+			point(ST_X (coordinates), ST_Y (coordinates)),
+			12
+		)::BIGINT
 	) STORED,
-	-- R ~ 1km
-	h3_res7 h3index GENERATED ALWAYS AS (
-		h3_lat_lng_to_cell(point(ST_X(coordinates), ST_Y(coordinates)), 7)
-	) STORED,
-	-- R ~ 3 km
-	h3_res6 h3index GENERATED ALWAYS AS (
-		h3_lat_lng_to_cell(point(ST_X(coordinates), ST_Y(coordinates)), 6)
-	) STORED,
-	-- R ~ 10km
-	h3_res5 h3index GENERATED ALWAYS AS (
-		h3_lat_lng_to_cell(point(ST_X(coordinates), ST_Y(coordinates)), 5)
-	) STORED,
-	-- R ~ 25km
-	h3_res4 h3index GENERATED ALWAYS AS (
-		h3_lat_lng_to_cell(point(ST_X(coordinates), ST_Y(coordinates)), 4)
-	) STORED,
-	-- R ~ 60km
-	h3_res3 h3index GENERATED ALWAYS AS (
-		h3_lat_lng_to_cell(point(ST_X(coordinates), ST_Y(coordinates)), 3)
-	) STORED,
-	-- R ~ 166km
-	h3_res2 h3index GENERATED ALWAYS AS (
-		h3_lat_lng_to_cell(point(ST_X(coordinates), ST_Y(coordinates)), 2)
-	) STORED,
+	-- UTILITY FIELDS
+	search_vector tsvector,
+	-- CONSTRAINTS
 	CONSTRAINT samplings_coordinates_precision_range CHECK (
 		coordinates_precision IS NULL
 		OR (
@@ -56,15 +38,24 @@ CREATE TABLE samplings (
 	)
 );
 
-CREATE INDEX idx_samplings_hash ON samplings(sampling_hash);
+CREATE INDEX idx_samplings_hash ON samplings (sampling_hash);
+
 CREATE INDEX samplings_coordinates_gist_idx ON samplings USING GIST (coordinates);
-CREATE INDEX samplings_h3_r8_idx ON samplings (h3_res8);
-CREATE INDEX samplings_h3_r7_idx ON samplings (h3_res7);
-CREATE INDEX samplings_h3_r6_idx ON samplings (h3_res6);
-CREATE INDEX samplings_h3_r5_idx ON samplings (h3_res5);
-CREATE INDEX samplings_h3_r4_idx ON samplings (h3_res4);
-CREATE INDEX samplings_h3_r3_idx ON samplings (h3_res3);
-CREATE INDEX samplings_h3_r2_idx ON samplings (h3_res2);
+
+CREATE INDEX samplings_h3_idx ON samplings (h3_index);
+
+CREATE INDEX samplings_site_name_idx ON samplings (site_name text_pattern_ops);
+
+-- TRIGGERS
+CREATE FUNCTION samplings_search_vector_update () RETURNS trigger AS $$ --
+BEGIN NEW.search_vector := to_tsvector('simple', coalesce(NEW.site_name, ''));
+RETURN NEW;
+END $$ LANGUAGE plpgsql;
+
+CREATE TRIGGER samplings_search_vector_trigger BEFORE
+INSERT
+	OR
+UPDATE ON samplings FOR EACH ROW EXECUTE FUNCTION samplings_search_vector_update ();
 
 -- Association table linking samplings to taxa targets
 CREATE TABLE sampling_target_taxa (
@@ -74,3 +65,4 @@ CREATE TABLE sampling_target_taxa (
 );
 
 CREATE INDEX sampling_target_taxa_taxon_idx ON sampling_target_taxa (taxon_id);
+CREATE INDEX sampling_search_vector_idx ON samplings USING gin (search_vector);

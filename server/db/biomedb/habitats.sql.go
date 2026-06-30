@@ -8,6 +8,7 @@ package biomedb
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -18,6 +19,16 @@ WHERE label = $1
 
 func (q *Queries) DeleteHabitatByName(ctx context.Context, label string) error {
 	_, err := q.db.Exec(ctx, deleteHabitatByName, label)
+	return err
+}
+
+const deleteHabitatGroupByName = `-- name: DeleteHabitatGroupByName :exec
+DELETE FROM habitat_groups
+WHERE label = $1
+`
+
+func (q *Queries) DeleteHabitatGroupByName(ctx context.Context, label string) error {
+	_, err := q.db.Exec(ctx, deleteHabitatGroupByName, label)
 	return err
 }
 
@@ -33,9 +44,9 @@ RETURNING id, label, description, exclusive_elements, parent_habitat_id
 `
 
 type InsertHabitatGroupParams struct {
-	ID              pgtype.UUID `json:"id"`
+	ID              uuid.UUID   `json:"id"`
 	Label           string      `json:"label"`
-	Description     pgtype.Text `json:"description"`
+	Description     *string     `json:"description"`
 	ParentHabitatID pgtype.UUID `json:"parent_habitat_id"`
 }
 
@@ -69,10 +80,10 @@ RETURNING id, label, description, habitat_group_id
 `
 
 type InsertHabitatInGroupParams struct {
-	ID             pgtype.UUID `json:"id"`
-	Label          string      `json:"label"`
-	Description    pgtype.Text `json:"description"`
-	HabitatGroupID pgtype.UUID `json:"habitat_group_id"`
+	ID             uuid.UUID `json:"id"`
+	Label          string    `json:"label"`
+	Description    *string   `json:"description"`
+	HabitatGroupID uuid.UUID `json:"habitat_group_id"`
 }
 
 func (q *Queries) InsertHabitatInGroup(ctx context.Context, arg InsertHabitatInGroupParams) (Habitat, error) {
@@ -93,34 +104,25 @@ func (q *Queries) InsertHabitatInGroup(ctx context.Context, arg InsertHabitatInG
 }
 
 const listHabitatGroups = `-- name: ListHabitatGroups :many
-SELECT id,
-    label,
-    description,
-    parent_habitat_id
-FROM habitat_groups
+SELECT g.id, g.label, g.description, g.exclusive_elements, g.parent_habitat_id
+FROM habitat_groups g
 ORDER BY label
 `
 
-type ListHabitatGroupsRow struct {
-	ID              pgtype.UUID `json:"id"`
-	Label           string      `json:"label"`
-	Description     pgtype.Text `json:"description"`
-	ParentHabitatID pgtype.UUID `json:"parent_habitat_id"`
-}
-
-func (q *Queries) ListHabitatGroups(ctx context.Context) ([]ListHabitatGroupsRow, error) {
+func (q *Queries) ListHabitatGroups(ctx context.Context) ([]HabitatGroup, error) {
 	rows, err := q.db.Query(ctx, listHabitatGroups)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListHabitatGroupsRow
+	var items []HabitatGroup
 	for rows.Next() {
-		var i ListHabitatGroupsRow
+		var i HabitatGroup
 		if err := rows.Scan(
 			&i.ID,
 			&i.Label,
 			&i.Description,
+			&i.ExclusiveElements,
 			&i.ParentHabitatID,
 		); err != nil {
 			return nil, err
@@ -134,10 +136,7 @@ func (q *Queries) ListHabitatGroups(ctx context.Context) ([]ListHabitatGroupsRow
 }
 
 const listHabitats = `-- name: ListHabitats :many
-SELECT id,
-    label,
-    description,
-    habitat_group_id
+SELECT id, label, description, habitat_group_id
 FROM habitats
 ORDER BY habitat_group_id,
     label

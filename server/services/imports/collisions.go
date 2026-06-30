@@ -4,37 +4,23 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
-	"github.com/lsdch/biome/db/stores"
+	md "github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/stores"
 )
 
 type OccurrenceCollisionsService struct {
 	q *stores.CollisionStore
 }
 
-func NewOccurrenceCollisionsService(q *biomedb.Queries) *OccurrenceCollisionsService {
-	return &OccurrenceCollisionsService{q: stores.NewCollisionStore(q)}
-}
-
-type Coordinates struct {
-	Latitude  float32 `json:"latitude"`
-	Longitude float32 `json:"longitude"`
-}
-
-type CoordinatesWithPrecision struct {
-	Coordinates
-	PrecisionM pgtype.Int4 `json:"precision"`
-}
-
-type EventDate struct {
-	Date      pgtype.Date                    `json:"date"`
-	Precision biomedb.NullEventDatePrecision `json:"precision"`
+func NewOccurrenceCollisionsService(q db.Querier) *OccurrenceCollisionsService {
+	return &OccurrenceCollisionsService{q: stores.NewCollisionStore(q.Queries())}
 }
 
 type SamplingBaseProps struct {
-	Coordinates CoordinatesWithPrecision `json:"coordinates"`
-	EventDate   EventDate                `json:"event_date"`
+	Coordinates md.CoordinatesWithPrecision       `json:"coordinates"`
+	PerformedOn md.Optional[md.DateWithPrecision] `json:"event_date,omitempty"`
 }
 
 type SamplingCollision struct {
@@ -42,22 +28,20 @@ type SamplingCollision struct {
 	DistanceMeters int32 `json:"distance_meters"`
 }
 
+type StagingCollision struct {
+	RowNumber int32 `json:"row_number"`
+	SamplingCollision
+}
 type StagingSamplingWithCollisions struct {
 	SamplingBaseProps
-	OccurrenceRows    []int32 `json:"row_numbers"`
-	StagingCollisions []struct {
-		RowNumber pgtype.Int4 `json:"row_number"`
-		SamplingCollision
-	} `json:"staging_collisions" nameHint:"SamplingCollisionStaging"`
+	OccurrenceRows     []int32             `json:"row_numbers"`
+	StagingCollisions  []StagingCollision  `json:"staging_collisions"`
 	ExistingCollisions []SamplingCollision `json:"existing_collisions"`
 }
 
 func (c *StagingSamplingWithCollisions) AddStagingCollision(collision biomedb.DetectBatchSamplingCollisionsRow, rowNumber int32) {
-	c.StagingCollisions = append(c.StagingCollisions, struct {
-		RowNumber pgtype.Int4 `json:"row_number"`
-		SamplingCollision
-	}{
-		RowNumber:         collision.MatchRowNumber,
+	c.StagingCollisions = append(c.StagingCollisions, StagingCollision{
+		RowNumber:         rowNumber,
 		SamplingCollision: samplingCollisionFromRow(collision),
 	})
 }
@@ -69,17 +53,12 @@ func (c *StagingSamplingWithCollisions) AddExistingCollision(collision biomedb.D
 func samplingCollisionFromRow(row biomedb.DetectBatchSamplingCollisionsRow) SamplingCollision {
 	return SamplingCollision{
 		SamplingBaseProps: SamplingBaseProps{
-			Coordinates: CoordinatesWithPrecision{
-				Coordinates: Coordinates{
-					Latitude:  row.MatchLatitude,
-					Longitude: row.MatchLongitude,
-				},
-				PrecisionM: row.MatchCoordinatesPrecision,
-			},
-			EventDate: EventDate{
-				Date:      row.MatchEventDate,
-				Precision: row.MatchEventDatePrecision,
-			},
+			Coordinates: md.CoordinatesWithPrecisionFromDB(
+				row.MatchLatitude,
+				row.MatchLongitude,
+				row.MatchCoordinatesPrecision,
+			),
+			PerformedOn: md.MaybeDateWithPrecisionFromDB(row.MatchEventDate, row.MatchEventDatePrecision),
 		},
 		DistanceMeters: row.DistanceMeters,
 	}
@@ -97,17 +76,12 @@ func (r *OccurrenceCollisionsService) DetectSamplingCollisions(ctx context.Conte
 		if _, exists := collisionsMap[hash]; !exists {
 			collisionsMap[hash] = &StagingSamplingWithCollisions{
 				SamplingBaseProps: SamplingBaseProps{
-					Coordinates: CoordinatesWithPrecision{
-						Coordinates: Coordinates{
-							Latitude:  collision.Latitude,
-							Longitude: collision.Longitude,
-						},
-						PrecisionM: collision.CoordinatesPrecision,
-					},
-					EventDate: EventDate{
-						Date:      collision.EventDate,
-						Precision: collision.EventDatePrecision,
-					},
+					Coordinates: md.CoordinatesWithPrecisionFromDB(
+						collision.Latitude,
+						collision.Longitude,
+						collision.CoordinatesPrecision,
+					),
+					PerformedOn: md.MaybeDateWithPrecisionFromDB(collision.EventDate, collision.EventDatePrecision),
 				},
 				OccurrenceRows: []int32{collision.RowNumber},
 			}
@@ -125,17 +99,15 @@ func (r *OccurrenceCollisionsService) DetectSamplingCollisions(ctx context.Conte
 
 type OccurrenceCollisionsAtRow struct {
 	RowNumber int32 `json:"row_number"`
-	SamplingBaseProps
-	TaxonName          string                       `json:"taxon_name"`
-	TaxonAuthorship    pgtype.Text                  `json:"taxon_authorship"`
+	OccurrenceCollision
 	StagingCollisions  []OccurrenceCollisionStaging `json:"staging_collisions"`
 	ExistingCollisions []OccurrenceCollision        `json:"existing_collisions"`
 }
 
 type OccurrenceCollision struct {
 	SamplingCollision
-	TaxonName       string      `json:"taxon_name"`
-	TaxonAuthorship pgtype.Text `json:"taxon_authorship"`
+	TaxonName       string              `json:"taxon_name"`
+	TaxonAuthorship md.Optional[string] `json:"taxon_authorship,omitempty"`
 }
 
 type OccurrenceCollisionStaging struct {
@@ -147,22 +119,17 @@ func occurrenceCollisionFromRow(row biomedb.DetectBatchOccurrenceCollisionsRow) 
 	return OccurrenceCollision{
 		SamplingCollision: SamplingCollision{
 			SamplingBaseProps: SamplingBaseProps{
-				Coordinates: CoordinatesWithPrecision{
-					Coordinates: Coordinates{
-						Latitude:  row.MatchLatitude,
-						Longitude: row.MatchLongitude,
-					},
-					PrecisionM: row.MatchCoordinatesPrecision,
-				},
-				EventDate: EventDate{
-					Date:      row.MatchEventDate,
-					Precision: row.MatchEventDatePrecision,
-				},
+				Coordinates: md.CoordinatesWithPrecisionFromDB(
+					row.MatchLatitude,
+					row.MatchLongitude,
+					row.MatchCoordinatesPrecision,
+				),
+				PerformedOn: md.MaybeDateWithPrecisionFromDB(row.MatchEventDate, row.MatchEventDatePrecision),
 			},
 			DistanceMeters: row.DistanceMeters,
 		},
 		TaxonName:       row.MatchTaxonName,
-		TaxonAuthorship: row.MatchTaxonAuthorship,
+		TaxonAuthorship: md.NewOptionalFromPtr(row.MatchTaxonAuthorship),
 	}
 }
 
@@ -176,30 +143,31 @@ func (r *OccurrenceCollisionsService) DetectOccurrenceCollisions(ctx context.Con
 	for _, row := range collisionRows {
 		collision := OccurrenceCollisionsAtRow{
 			RowNumber: row.RowNumber,
-			SamplingBaseProps: SamplingBaseProps{
-				Coordinates: CoordinatesWithPrecision{
-					Coordinates: Coordinates{
-						Latitude:  row.Latitude,
-						Longitude: row.Longitude,
+			OccurrenceCollision: OccurrenceCollision{
+				SamplingCollision: SamplingCollision{
+					SamplingBaseProps: SamplingBaseProps{
+						Coordinates: md.CoordinatesWithPrecisionFromDB(
+							row.Latitude,
+							row.Longitude,
+							row.CoordinatesPrecision,
+						),
+						PerformedOn: md.MaybeDateWithPrecisionFromDB(row.EventDate, row.EventDatePrecision),
 					},
-					PrecisionM: row.CoordinatesPrecision,
+					DistanceMeters: row.DistanceMeters,
 				},
-				EventDate: EventDate{
-					Date:      row.EventDate,
-					Precision: row.EventDatePrecision,
-				},
+				TaxonName:       row.TaxonName,
+				TaxonAuthorship: md.NewOptionalFromPtr(row.TaxonAuthorship),
 			},
-			TaxonName:       row.TaxonName,
-			TaxonAuthorship: row.TaxonAuthorship,
 		}
+
 		if row.DuplicateSource == biomedb.DuplicateSourceExisting {
 			collision.ExistingCollisions = append(collision.ExistingCollisions, occurrenceCollisionFromRow(row))
 		} else {
-			if !row.MatchRowNumber.Valid {
+			if row.MatchRowNumber == nil {
 				return nil, fmt.Errorf("staging collision without match row number for row %d", row.RowNumber)
 			}
 			collision.StagingCollisions = append(collision.StagingCollisions, OccurrenceCollisionStaging{
-				RowNumber:           row.MatchRowNumber.Int32,
+				RowNumber:           *row.MatchRowNumber,
 				OccurrenceCollision: occurrenceCollisionFromRow(row),
 			})
 		}

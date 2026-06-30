@@ -7,7 +7,9 @@ package biomedb
 
 import (
 	"context"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -32,7 +34,7 @@ WITH request_row AS (
             SELECT user_id
             FROM request_row
         )
-    RETURNING id, login, email, password_hash, role, first_name, last_name, organisation, contact, comments, full_name, active, email_verified_at
+    RETURNING id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at
 ),
 updated_request AS (
     UPDATE user_email_change_requests
@@ -45,27 +47,27 @@ updated_request AS (
         )
     RETURNING id
 )
-SELECT id, login, email, password_hash, role, first_name, last_name, organisation, contact, comments, full_name, active, email_verified_at
+SELECT id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at
 FROM updated_user
 `
 
 type ApplyUserEmailChangeRequestRow struct {
-	ID              pgtype.UUID        `json:"id"`
+	ID              uuid.UUID          `json:"id"`
 	Login           string             `json:"login"`
 	Email           string             `json:"email"`
 	PasswordHash    string             `json:"password_hash"`
 	Role            UserRole           `json:"role"`
 	FirstName       string             `json:"first_name"`
 	LastName        string             `json:"last_name"`
-	Organisation    pgtype.Text        `json:"organisation"`
-	Contact         pgtype.Text        `json:"contact"`
-	Comments        pgtype.Text        `json:"comments"`
-	FullName        pgtype.Text        `json:"full_name"`
+	Organisation    *string            `json:"organisation"`
+	Contact         *string            `json:"contact"`
+	Bio             *string            `json:"bio"`
+	FullName        string             `json:"full_name"`
 	Active          bool               `json:"active"`
 	EmailVerifiedAt pgtype.Timestamptz `json:"email_verified_at"`
 }
 
-func (q *Queries) ApplyUserEmailChangeRequest(ctx context.Context, userEmailChangeRequestID pgtype.UUID) (ApplyUserEmailChangeRequestRow, error) {
+func (q *Queries) ApplyUserEmailChangeRequest(ctx context.Context, userEmailChangeRequestID uuid.UUID) (ApplyUserEmailChangeRequestRow, error) {
 	row := q.db.QueryRow(ctx, applyUserEmailChangeRequest, userEmailChangeRequestID)
 	var i ApplyUserEmailChangeRequestRow
 	err := row.Scan(
@@ -78,40 +80,7 @@ func (q *Queries) ApplyUserEmailChangeRequest(ctx context.Context, userEmailChan
 		&i.LastName,
 		&i.Organisation,
 		&i.Contact,
-		&i.Comments,
-		&i.FullName,
-		&i.Active,
-		&i.EmailVerifiedAt,
-	)
-	return i, err
-}
-
-const authenticateUser = `-- name: AuthenticateUser :one
-SELECT id, login, email, password_hash, role, first_name, last_name, organisation, contact, comments, full_name, active, email_verified_at
-FROM users
-WHERE active = true
-    AND password_hash = $1
-    AND (
-        login = $2
-        OR email = $2
-    )
-LIMIT 1
-`
-
-func (q *Queries) AuthenticateUser(ctx context.Context, passwordHash string, identifier string) (User, error) {
-	row := q.db.QueryRow(ctx, authenticateUser, passwordHash, identifier)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.Login,
-		&i.Email,
-		&i.PasswordHash,
-		&i.Role,
-		&i.FirstName,
-		&i.LastName,
-		&i.Organisation,
-		&i.Contact,
-		&i.Comments,
+		&i.Bio,
 		&i.FullName,
 		&i.Active,
 		&i.EmailVerifiedAt,
@@ -128,7 +97,7 @@ WHERE id = $1
 RETURNING id, email, name, motivations, status, created_at, expires_at, verified_at, cancelled_at
 `
 
-func (q *Queries) CancelUserAccountRequest(ctx context.Context, userAccountRequestID pgtype.UUID) (UserAccountRequest, error) {
+func (q *Queries) CancelUserAccountRequest(ctx context.Context, userAccountRequestID uuid.UUID) (UserAccountRequest, error) {
 	row := q.db.QueryRow(ctx, cancelUserAccountRequest, userAccountRequestID)
 	var i UserAccountRequest
 	err := row.Scan(
@@ -172,91 +141,6 @@ func (q *Queries) ConsumeUserEmailChangeRequestToken(ctx context.Context, consum
 	return err
 }
 
-const createInvitation = `-- name: CreateInvitation :one
-INSERT INTO invitations (
-        email,
-        invitee_name,
-        organisation,
-        role,
-        message,
-        inviter_id,
-        expires_at
-    )
-VALUES (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
-        $6,
-        $7
-    )
-RETURNING id, email, invitee_name, organisation, role, message, inviter_id, status, created_at, expires_at, redeemed_at, revoked_at, revoked_by
-`
-
-type CreateInvitationParams struct {
-	Email        string             `json:"email"`
-	InviteeName  pgtype.Text        `json:"invitee_name"`
-	Organisation pgtype.Text        `json:"organisation"`
-	Role         UserRole           `json:"role"`
-	Message      pgtype.Text        `json:"message"`
-	InviterID    pgtype.UUID        `json:"inviter_id"`
-	ExpiresAt    pgtype.Timestamptz `json:"expires_at"`
-}
-
-func (q *Queries) CreateInvitation(ctx context.Context, arg CreateInvitationParams) (Invitation, error) {
-	row := q.db.QueryRow(ctx, createInvitation,
-		arg.Email,
-		arg.InviteeName,
-		arg.Organisation,
-		arg.Role,
-		arg.Message,
-		arg.InviterID,
-		arg.ExpiresAt,
-	)
-	var i Invitation
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.InviteeName,
-		&i.Organisation,
-		&i.Role,
-		&i.Message,
-		&i.InviterID,
-		&i.Status,
-		&i.CreatedAt,
-		&i.ExpiresAt,
-		&i.RedeemedAt,
-		&i.RevokedAt,
-		&i.RevokedBy,
-	)
-	return i, err
-}
-
-const createInvitationToken = `-- name: CreateInvitationToken :one
-INSERT INTO invitation_tokens (invitation_id, token_hash)
-VALUES (
-        $1,
-        $2
-    )
-RETURNING id, invitation_id, token_hash, created_at, consumed, consumed_by, consumed_at
-`
-
-func (q *Queries) CreateInvitationToken(ctx context.Context, invitationID pgtype.UUID, tokenHash string) (InvitationToken, error) {
-	row := q.db.QueryRow(ctx, createInvitationToken, invitationID, tokenHash)
-	var i InvitationToken
-	err := row.Scan(
-		&i.ID,
-		&i.InvitationID,
-		&i.TokenHash,
-		&i.CreatedAt,
-		&i.Consumed,
-		&i.ConsumedBy,
-		&i.ConsumedAt,
-	)
-	return i, err
-}
-
 const createUserAccountRequest = `-- name: CreateUserAccountRequest :one
 INSERT INTO user_account_requests (email, name, motivations, expires_at)
 VALUES (
@@ -269,10 +153,10 @@ RETURNING id, email, name, motivations, status, created_at, expires_at, verified
 `
 
 type CreateUserAccountRequestParams struct {
-	Email       string             `json:"email"`
-	Name        string             `json:"name"`
-	Motivations pgtype.Text        `json:"motivations"`
-	ExpiresAt   pgtype.Timestamptz `json:"expires_at"`
+	Email       string    `json:"email"`
+	Name        string    `json:"name"`
+	Motivations *string   `json:"motivations"`
+	ExpiresAt   time.Time `json:"expires_at"`
 }
 
 func (q *Queries) CreateUserAccountRequest(ctx context.Context, arg CreateUserAccountRequestParams) (UserAccountRequest, error) {
@@ -306,7 +190,7 @@ VALUES (
 RETURNING id, user_account_request_id, token_hash, created_at, consumed, consumed_at
 `
 
-func (q *Queries) CreateUserAccountRequestToken(ctx context.Context, userAccountRequestID pgtype.UUID, tokenHash string) (UserAccountRequestToken, error) {
+func (q *Queries) CreateUserAccountRequestToken(ctx context.Context, userAccountRequestID uuid.UUID, tokenHash string) (UserAccountRequestToken, error) {
 	row := q.db.QueryRow(ctx, createUserAccountRequestToken, userAccountRequestID, tokenHash)
 	var i UserAccountRequestToken
 	err := row.Scan(
@@ -331,9 +215,9 @@ RETURNING id, user_id, email, status, created_at, expires_at, verified_at, appli
 `
 
 type CreateUserEmailChangeRequestParams struct {
-	UserID    pgtype.UUID        `json:"user_id"`
-	Email     string             `json:"email"`
-	ExpiresAt pgtype.Timestamptz `json:"expires_at"`
+	UserID    uuid.UUID `json:"user_id"`
+	Email     string    `json:"email"`
+	ExpiresAt time.Time `json:"expires_at"`
 }
 
 func (q *Queries) CreateUserEmailChangeRequest(ctx context.Context, arg CreateUserEmailChangeRequestParams) (UserEmailChangeRequest, error) {
@@ -362,7 +246,7 @@ VALUES (
 RETURNING id, user_email_change_request_id, token_hash, created_at, consumed, consumed_by, consumed_at
 `
 
-func (q *Queries) CreateUserEmailChangeRequestToken(ctx context.Context, userEmailChangeRequestID pgtype.UUID, tokenHash string) (UserEmailChangeRequestToken, error) {
+func (q *Queries) CreateUserEmailChangeRequestToken(ctx context.Context, userEmailChangeRequestID uuid.UUID, tokenHash string) (UserEmailChangeRequestToken, error) {
 	row := q.db.QueryRow(ctx, createUserEmailChangeRequestToken, userEmailChangeRequestID, tokenHash)
 	var i UserEmailChangeRequestToken
 	err := row.Scan(
@@ -373,158 +257,6 @@ func (q *Queries) CreateUserEmailChangeRequestToken(ctx context.Context, userEma
 		&i.Consumed,
 		&i.ConsumedBy,
 		&i.ConsumedAt,
-	)
-	return i, err
-}
-
-const createUserFromInvitationToken = `-- name: CreateUserFromInvitationToken :one
-WITH invitation_row AS (
-    SELECT i.id,
-        i.email,
-        i.role
-    FROM invitations i
-        JOIN invitation_tokens t ON t.invitation_id = i.id
-    WHERE t.token_hash = $1
-        AND t.consumed = false
-        AND i.status = 'pending'
-        AND i.expires_at > now()
-    LIMIT 1
-), inserted_user AS (
-    INSERT INTO users (
-            login,
-            email,
-            password_hash,
-            role,
-            first_name,
-            last_name,
-            organisation,
-            contact,
-            comments,
-            email_verified_at
-        )
-    SELECT $2,
-        invitation_row.email,
-        $3,
-        invitation_row.role,
-        $4,
-        $5,
-        $6,
-        $7,
-        $8,
-        now()
-    FROM invitation_row
-    RETURNING id, login, email, password_hash, role, first_name, last_name, organisation, contact, comments, full_name, active, email_verified_at
-),
-updated_invitation AS (
-    UPDATE invitations
-    SET status = 'redeemed',
-        redeemed_at = now()
-    WHERE id = (
-            SELECT id
-            FROM invitation_row
-        )
-    RETURNING id
-),
-updated_token AS (
-    UPDATE invitation_tokens
-    SET consumed = true,
-        consumed_at = now(),
-        consumed_by = (
-            SELECT id
-            FROM inserted_user
-        )
-    WHERE token_hash = $1
-    RETURNING id
-)
-SELECT id, login, email, password_hash, role, first_name, last_name, organisation, contact, comments, full_name, active, email_verified_at
-FROM inserted_user
-`
-
-type CreateUserFromInvitationTokenParams struct {
-	TokenHash    string      `json:"token_hash"`
-	Login        string      `json:"login"`
-	PasswordHash string      `json:"password_hash"`
-	FirstName    string      `json:"first_name"`
-	LastName     string      `json:"last_name"`
-	Organisation pgtype.Text `json:"organisation"`
-	Contact      pgtype.Text `json:"contact"`
-	Comments     pgtype.Text `json:"comments"`
-}
-
-type CreateUserFromInvitationTokenRow struct {
-	ID              pgtype.UUID        `json:"id"`
-	Login           string             `json:"login"`
-	Email           string             `json:"email"`
-	PasswordHash    string             `json:"password_hash"`
-	Role            UserRole           `json:"role"`
-	FirstName       string             `json:"first_name"`
-	LastName        string             `json:"last_name"`
-	Organisation    pgtype.Text        `json:"organisation"`
-	Contact         pgtype.Text        `json:"contact"`
-	Comments        pgtype.Text        `json:"comments"`
-	FullName        pgtype.Text        `json:"full_name"`
-	Active          bool               `json:"active"`
-	EmailVerifiedAt pgtype.Timestamptz `json:"email_verified_at"`
-}
-
-func (q *Queries) CreateUserFromInvitationToken(ctx context.Context, arg CreateUserFromInvitationTokenParams) (CreateUserFromInvitationTokenRow, error) {
-	row := q.db.QueryRow(ctx, createUserFromInvitationToken,
-		arg.TokenHash,
-		arg.Login,
-		arg.PasswordHash,
-		arg.FirstName,
-		arg.LastName,
-		arg.Organisation,
-		arg.Contact,
-		arg.Comments,
-	)
-	var i CreateUserFromInvitationTokenRow
-	err := row.Scan(
-		&i.ID,
-		&i.Login,
-		&i.Email,
-		&i.PasswordHash,
-		&i.Role,
-		&i.FirstName,
-		&i.LastName,
-		&i.Organisation,
-		&i.Contact,
-		&i.Comments,
-		&i.FullName,
-		&i.Active,
-		&i.EmailVerifiedAt,
-	)
-	return i, err
-}
-
-const getInvitationByTokenHash = `-- name: GetInvitationByTokenHash :one
-SELECT i.id, i.email, i.invitee_name, i.organisation, i.role, i.message, i.inviter_id, i.status, i.created_at, i.expires_at, i.redeemed_at, i.revoked_at, i.revoked_by
-FROM invitations i
-    JOIN invitation_tokens t ON t.invitation_id = i.id
-WHERE t.token_hash = $1
-    AND t.consumed = false
-    AND i.status = 'pending'
-    AND i.expires_at > now()
-LIMIT 1
-`
-
-func (q *Queries) GetInvitationByTokenHash(ctx context.Context, tokenHash string) (Invitation, error) {
-	row := q.db.QueryRow(ctx, getInvitationByTokenHash, tokenHash)
-	var i Invitation
-	err := row.Scan(
-		&i.ID,
-		&i.Email,
-		&i.InviteeName,
-		&i.Organisation,
-		&i.Role,
-		&i.Message,
-		&i.InviterID,
-		&i.Status,
-		&i.CreatedAt,
-		&i.ExpiresAt,
-		&i.RedeemedAt,
-		&i.RevokedAt,
-		&i.RevokedBy,
 	)
 	return i, err
 }
@@ -557,6 +289,63 @@ func (q *Queries) GetUserAccountRequestByTokenHash(ctx context.Context, tokenHas
 	return i, err
 }
 
+const getUserByID = `-- name: GetUserByID :one
+SELECT id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at
+FROM users
+WHERE id = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByID(ctx context.Context, userID uuid.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByID, userID)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Login,
+		&i.Email,
+		&i.PasswordHash,
+		&i.Role,
+		&i.FirstName,
+		&i.LastName,
+		&i.Organisation,
+		&i.Contact,
+		&i.Bio,
+		&i.FullName,
+		&i.Active,
+		&i.EmailVerifiedAt,
+	)
+	return i, err
+}
+
+const getUserByLoginOrEmail = `-- name: GetUserByLoginOrEmail :one
+SELECT id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at
+FROM users
+WHERE login = $1
+    OR email = $1
+LIMIT 1
+`
+
+func (q *Queries) GetUserByLoginOrEmail(ctx context.Context, identifier string) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByLoginOrEmail, identifier)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Login,
+		&i.Email,
+		&i.PasswordHash,
+		&i.Role,
+		&i.FirstName,
+		&i.LastName,
+		&i.Organisation,
+		&i.Contact,
+		&i.Bio,
+		&i.FullName,
+		&i.Active,
+		&i.EmailVerifiedAt,
+	)
+	return i, err
+}
+
 const getUserEmailChangeRequestByTokenHash = `-- name: GetUserEmailChangeRequestByTokenHash :one
 SELECT r.id, r.user_id, r.email, r.status, r.created_at, r.expires_at, r.verified_at, r.applied_at, r.cancelled_at
 FROM user_email_change_requests r
@@ -585,13 +374,22 @@ func (q *Queries) GetUserEmailChangeRequestByTokenHash(ctx context.Context, toke
 	return i, err
 }
 
+const setCurrentUser = `-- name: SetCurrentUser :exec
+SELECT set_config('app.current_user_id', $1, true)
+`
+
+func (q *Queries) SetCurrentUser(ctx context.Context, userID string) error {
+	_, err := q.db.Exec(ctx, setCurrentUser, userID)
+	return err
+}
+
 const updateUserPassword = `-- name: UpdateUserPassword :exec
 UPDATE users
 SET password_hash = $1
 WHERE id = $2
 `
 
-func (q *Queries) UpdateUserPassword(ctx context.Context, passwordHash string, userID pgtype.UUID) error {
+func (q *Queries) UpdateUserPassword(ctx context.Context, passwordHash string, userID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, updateUserPassword, passwordHash, userID)
 	return err
 }
@@ -615,19 +413,19 @@ SET first_name = CASE
         ELSE organisation
     END
 WHERE id = $9
-RETURNING id, login, email, password_hash, role, first_name, last_name, organisation, contact, comments, full_name, active, email_verified_at
+RETURNING id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at
 `
 
 type UpdateUserPersonalInfoParams struct {
-	FirstNameSet    bool        `json:"first_name_set"`
-	FirstName       pgtype.Text `json:"first_name"`
-	LastNameSet     bool        `json:"last_name_set"`
-	LastName        pgtype.Text `json:"last_name"`
-	ContactSet      bool        `json:"contact_set"`
-	Contact         pgtype.Text `json:"contact"`
-	OrganisationSet bool        `json:"organisation_set"`
-	Organisation    pgtype.Text `json:"organisation"`
-	UserID          pgtype.UUID `json:"user_id"`
+	FirstNameSet    bool      `json:"first_name_set"`
+	FirstName       *string   `json:"first_name"`
+	LastNameSet     bool      `json:"last_name_set"`
+	LastName        *string   `json:"last_name"`
+	ContactSet      bool      `json:"contact_set"`
+	Contact         *string   `json:"contact"`
+	OrganisationSet bool      `json:"organisation_set"`
+	Organisation    *string   `json:"organisation"`
+	UserID          uuid.UUID `json:"user_id"`
 }
 
 func (q *Queries) UpdateUserPersonalInfo(ctx context.Context, arg UpdateUserPersonalInfoParams) (User, error) {
@@ -653,7 +451,7 @@ func (q *Queries) UpdateUserPersonalInfo(ctx context.Context, arg UpdateUserPers
 		&i.LastName,
 		&i.Organisation,
 		&i.Contact,
-		&i.Comments,
+		&i.Bio,
 		&i.FullName,
 		&i.Active,
 		&i.EmailVerifiedAt,
@@ -667,7 +465,7 @@ SET role = $1
 WHERE id = $2
 `
 
-func (q *Queries) UpdateUserRole(ctx context.Context, role UserRole, userID pgtype.UUID) error {
+func (q *Queries) UpdateUserRole(ctx context.Context, role UserRole, userID uuid.UUID) error {
 	_, err := q.db.Exec(ctx, updateUserRole, role, userID)
 	return err
 }
@@ -681,7 +479,7 @@ WHERE id = $1
 RETURNING id, email, name, motivations, status, created_at, expires_at, verified_at, cancelled_at
 `
 
-func (q *Queries) VerifyUserAccountRequest(ctx context.Context, userAccountRequestID pgtype.UUID) (UserAccountRequest, error) {
+func (q *Queries) VerifyUserAccountRequest(ctx context.Context, userAccountRequestID uuid.UUID) (UserAccountRequest, error) {
 	row := q.db.QueryRow(ctx, verifyUserAccountRequest, userAccountRequestID)
 	var i UserAccountRequest
 	err := row.Scan(
@@ -707,7 +505,7 @@ WHERE id = $1
 RETURNING id, user_id, email, status, created_at, expires_at, verified_at, applied_at, cancelled_at
 `
 
-func (q *Queries) VerifyUserEmailChangeRequest(ctx context.Context, userEmailChangeRequestID pgtype.UUID) (UserEmailChangeRequest, error) {
+func (q *Queries) VerifyUserEmailChangeRequest(ctx context.Context, userEmailChangeRequestID uuid.UUID) (UserEmailChangeRequest, error) {
 	row := q.db.QueryRow(ctx, verifyUserEmailChangeRequest, userEmailChangeRequestID)
 	var i UserEmailChangeRequest
 	err := row.Scan(

@@ -67,7 +67,7 @@ SELECT $1,
     CASE
         WHEN resolved_method_id IS NOT NULL THEN 'auto'
         ELSE 'pending'
-    END::method_resolution_status
+    END::vocab_resolution_status
 FROM resolved
 RETURNING import_hash, input_text, resolved_method_id, status
 `
@@ -107,10 +107,10 @@ RETURNING import_hash, input_text, resolved_method_id, status
 `
 
 type ResolveMethodParams struct {
-	ResolvedMethodID pgtype.UUID            `json:"resolved_method_id"`
-	Status           MethodResolutionStatus `json:"status"`
-	ImportHash       string                 `json:"import_hash"`
-	InputText        string                 `json:"input_text"`
+	ResolvedMethodID pgtype.UUID           `json:"resolved_method_id"`
+	Status           VocabResolutionStatus `json:"status"`
+	ImportHash       string                `json:"import_hash"`
+	InputText        string                `json:"input_text"`
 }
 
 func (q *Queries) ResolveMethod(ctx context.Context, arg ResolveMethodParams) (SamplingMethodsResolution, error) {

@@ -57,6 +57,9 @@ func (u CoordinatesPrecision) Schema(r huma.Registry) *huma.Schema {
 		Ref: "#/components/schemas/CoordinatesPrecision",
 	}
 }
+func (u NullCoordinatesPrecision) Get() (CoordinatesPrecision, bool) {
+	return u.CoordinatesPrecision, u.Valid
+}
 
 var DuplicateSourceValues = []DuplicateSource{
 	DuplicateSourceExisting,
@@ -101,6 +104,9 @@ func (u DuplicateSource) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{
 		Ref: "#/components/schemas/DuplicateSource",
 	}
+}
+func (u NullDuplicateSource) Get() (DuplicateSource, bool) {
+	return u.DuplicateSource, u.Valid
 }
 
 var EventDatePrecisionValues = []EventDatePrecision{
@@ -149,54 +155,60 @@ func (u EventDatePrecision) Schema(r huma.Registry) *huma.Schema {
 		Ref: "#/components/schemas/EventDatePrecision",
 	}
 }
-
-var GbifImportStatusValues = []GbifImportStatus{
-	GbifImportStatusPending,
-	GbifImportStatusInProgress,
-	GbifImportStatusCompleted,
-	GbifImportStatusFailed,
+func (u NullEventDatePrecision) Get() (EventDatePrecision, bool) {
+	return u.EventDatePrecision, u.Valid
 }
 
-var GbifImportStatusHierarchy = map[GbifImportStatus]int{
-	GbifImportStatusPending:    0,
-	GbifImportStatusInProgress: 1,
-	GbifImportStatusCompleted:  2,
-	GbifImportStatusFailed:     3,
+var GBIFImportStatusValues = []GBIFImportStatus{
+	GBIFImportStatusPending,
+	GBIFImportStatusInProgress,
+	GBIFImportStatusCompleted,
+	GBIFImportStatusFailed,
 }
 
-func (u *GbifImportStatus) UnmarshalCSV(v []byte) error {
-	e := GbifImportStatus(v)
+var GBIFImportStatusHierarchy = map[GBIFImportStatus]int{
+	GBIFImportStatusPending:    0,
+	GBIFImportStatusInProgress: 1,
+	GBIFImportStatusCompleted:  2,
+	GBIFImportStatusFailed:     3,
+}
+
+func (u *GBIFImportStatus) UnmarshalCSV(v []byte) error {
+	e := GBIFImportStatus(v)
 	if e.Valid() {
 		*u = e
 		return nil
 	}
-	return fmt.Errorf("invalid GbifImportStatus value: %s", v)
+	return fmt.Errorf("invalid GBIFImportStatus value: %s", v)
 }
 
-func (u GbifImportStatus) IsGreater(v GbifImportStatus) bool {
-	return GbifImportStatusHierarchy[u] > GbifImportStatusHierarchy[v]
+func (u GBIFImportStatus) IsGreater(v GBIFImportStatus) bool {
+	return GBIFImportStatusHierarchy[u] > GBIFImportStatusHierarchy[v]
 }
 
-func (u GbifImportStatus) IsGreaterEqual(v GbifImportStatus) bool {
-	return GbifImportStatusHierarchy[u] >= GbifImportStatusHierarchy[v]
+func (u GBIFImportStatus) IsGreaterEqual(v GBIFImportStatus) bool {
+	return GBIFImportStatusHierarchy[u] >= GBIFImportStatusHierarchy[v]
 }
 
 // Register enum in OpenAPI specification.
-func (u GbifImportStatus) Schema(r huma.Registry) *huma.Schema {
-	if r.Map()["GbifImportStatus"] == nil {
-		schemaRef := r.Schema(reflect.TypeOf(""), true, "GbifImportStatus")
-		schemaRef.Title = "GbifImportStatus"
+func (u GBIFImportStatus) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["GBIFImportStatus"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "GBIFImportStatus")
+		schemaRef.Title = "GBIFImportStatus"
 
-		for _, v := range GbifImportStatusValues {
+		for _, v := range GBIFImportStatusValues {
 			schemaRef.Enum = append(schemaRef.Enum, string(v))
 		}
 
-		r.Map()["GbifImportStatus"] = schemaRef
+		r.Map()["GBIFImportStatus"] = schemaRef
 	}
 
 	return &huma.Schema{
-		Ref: "#/components/schemas/GbifImportStatus",
+		Ref: "#/components/schemas/GBIFImportStatus",
 	}
+}
+func (u NullGBIFImportStatus) Get() (GBIFImportStatus, bool) {
+	return u.GBIFImportStatus, u.Valid
 }
 
 var InvitationStatusValues = []InvitationStatus{
@@ -247,56 +259,66 @@ func (u InvitationStatus) Schema(r huma.Registry) *huma.Schema {
 		Ref: "#/components/schemas/InvitationStatus",
 	}
 }
-
-var MethodResolutionStatusValues = []MethodResolutionStatus{
-	MethodResolutionStatusAuto,
-	MethodResolutionStatusSelected,
-	MethodResolutionStatusPending,
-	MethodResolutionStatusRequestCreation,
-	MethodResolutionStatusDiscard,
+func (u NullInvitationStatus) Get() (InvitationStatus, bool) {
+	return u.InvitationStatus, u.Valid
 }
 
-var MethodResolutionStatusHierarchy = map[MethodResolutionStatus]int{
-	MethodResolutionStatusAuto:            0,
-	MethodResolutionStatusSelected:        1,
-	MethodResolutionStatusPending:         2,
-	MethodResolutionStatusRequestCreation: 3,
-	MethodResolutionStatusDiscard:         4,
+var OccurrenceOrderByValues = []OccurrenceOrderBy{
+	OccurrenceOrderByCode,
+	OccurrenceOrderBySiteName,
+	OccurrenceOrderBySiteCode,
+	OccurrenceOrderByEventDate,
+	OccurrenceOrderByTaxonName,
+	OccurrenceOrderByCreatedAt,
+	OccurrenceOrderByUpdatedAt,
 }
 
-func (u *MethodResolutionStatus) UnmarshalCSV(v []byte) error {
-	e := MethodResolutionStatus(v)
+var OccurrenceOrderByHierarchy = map[OccurrenceOrderBy]int{
+	OccurrenceOrderByCode:      0,
+	OccurrenceOrderBySiteName:  1,
+	OccurrenceOrderBySiteCode:  2,
+	OccurrenceOrderByEventDate: 3,
+	OccurrenceOrderByTaxonName: 4,
+	OccurrenceOrderByCreatedAt: 5,
+	OccurrenceOrderByUpdatedAt: 6,
+}
+
+func (u *OccurrenceOrderBy) UnmarshalCSV(v []byte) error {
+	e := OccurrenceOrderBy(v)
 	if e.Valid() {
 		*u = e
 		return nil
 	}
-	return fmt.Errorf("invalid MethodResolutionStatus value: %s", v)
+	return fmt.Errorf("invalid OccurrenceOrderBy value: %s", v)
 }
 
-func (u MethodResolutionStatus) IsGreater(v MethodResolutionStatus) bool {
-	return MethodResolutionStatusHierarchy[u] > MethodResolutionStatusHierarchy[v]
+func (u OccurrenceOrderBy) IsGreater(v OccurrenceOrderBy) bool {
+	return OccurrenceOrderByHierarchy[u] > OccurrenceOrderByHierarchy[v]
 }
 
-func (u MethodResolutionStatus) IsGreaterEqual(v MethodResolutionStatus) bool {
-	return MethodResolutionStatusHierarchy[u] >= MethodResolutionStatusHierarchy[v]
+func (u OccurrenceOrderBy) IsGreaterEqual(v OccurrenceOrderBy) bool {
+	return OccurrenceOrderByHierarchy[u] >= OccurrenceOrderByHierarchy[v]
 }
 
 // Register enum in OpenAPI specification.
-func (u MethodResolutionStatus) Schema(r huma.Registry) *huma.Schema {
-	if r.Map()["MethodResolutionStatus"] == nil {
-		schemaRef := r.Schema(reflect.TypeOf(""), true, "MethodResolutionStatus")
-		schemaRef.Title = "MethodResolutionStatus"
+func (u OccurrenceOrderBy) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["OccurrenceOrderBy"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "OccurrenceOrderBy")
+		schemaRef.Title = "OccurrenceOrderBy"
 
-		for _, v := range MethodResolutionStatusValues {
+		for _, v := range OccurrenceOrderByValues {
 			schemaRef.Enum = append(schemaRef.Enum, string(v))
 		}
 
-		r.Map()["MethodResolutionStatus"] = schemaRef
+		r.Map()["OccurrenceOrderBy"] = schemaRef
 	}
 
 	return &huma.Schema{
-		Ref: "#/components/schemas/MethodResolutionStatus",
+		Ref: "#/components/schemas/OccurrenceOrderBy",
 	}
+}
+func (u NullOccurrenceOrderBy) Get() (OccurrenceOrderBy, bool) {
+	return u.OccurrenceOrderBy, u.Valid
 }
 
 var OccurrenceTypeStatusValues = []OccurrenceTypeStatus{
@@ -344,6 +366,9 @@ func (u OccurrenceTypeStatus) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{
 		Ref: "#/components/schemas/OccurrenceTypeStatus",
 	}
+}
+func (u NullOccurrenceTypeStatus) Get() (OccurrenceTypeStatus, bool) {
+	return u.OccurrenceTypeStatus, u.Valid
 }
 
 var ResolutionStatusValues = []ResolutionStatus{
@@ -394,65 +419,119 @@ func (u ResolutionStatus) Schema(r huma.Registry) *huma.Schema {
 		Ref: "#/components/schemas/ResolutionStatus",
 	}
 }
-
-var TaxonGbifStatusValues = []TaxonGbifStatus{
-	TaxonGbifStatusSkipped,
-	TaxonGbifStatusPending,
-	TaxonGbifStatusCompleted,
-	TaxonGbifStatusFailed,
+func (u NullResolutionStatus) Get() (ResolutionStatus, bool) {
+	return u.ResolutionStatus, u.Valid
 }
 
-var TaxonGbifStatusHierarchy = map[TaxonGbifStatus]int{
-	TaxonGbifStatusSkipped:   0,
-	TaxonGbifStatusPending:   1,
-	TaxonGbifStatusCompleted: 2,
-	TaxonGbifStatusFailed:    3,
+var SortDirectionValues = []SortDirection{
+	SortDirectionAsc,
+	SortDirectionDesc,
 }
 
-func (u *TaxonGbifStatus) UnmarshalCSV(v []byte) error {
-	e := TaxonGbifStatus(v)
+var SortDirectionHierarchy = map[SortDirection]int{
+	SortDirectionAsc:  0,
+	SortDirectionDesc: 1,
+}
+
+func (u *SortDirection) UnmarshalCSV(v []byte) error {
+	e := SortDirection(v)
 	if e.Valid() {
 		*u = e
 		return nil
 	}
-	return fmt.Errorf("invalid TaxonGbifStatus value: %s", v)
+	return fmt.Errorf("invalid SortDirection value: %s", v)
 }
 
-func (u TaxonGbifStatus) IsGreater(v TaxonGbifStatus) bool {
-	return TaxonGbifStatusHierarchy[u] > TaxonGbifStatusHierarchy[v]
+func (u SortDirection) IsGreater(v SortDirection) bool {
+	return SortDirectionHierarchy[u] > SortDirectionHierarchy[v]
 }
 
-func (u TaxonGbifStatus) IsGreaterEqual(v TaxonGbifStatus) bool {
-	return TaxonGbifStatusHierarchy[u] >= TaxonGbifStatusHierarchy[v]
+func (u SortDirection) IsGreaterEqual(v SortDirection) bool {
+	return SortDirectionHierarchy[u] >= SortDirectionHierarchy[v]
 }
 
 // Register enum in OpenAPI specification.
-func (u TaxonGbifStatus) Schema(r huma.Registry) *huma.Schema {
-	if r.Map()["TaxonGbifStatus"] == nil {
-		schemaRef := r.Schema(reflect.TypeOf(""), true, "TaxonGbifStatus")
-		schemaRef.Title = "TaxonGbifStatus"
+func (u SortDirection) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["SortDirection"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "SortDirection")
+		schemaRef.Title = "SortDirection"
 
-		for _, v := range TaxonGbifStatusValues {
+		for _, v := range SortDirectionValues {
 			schemaRef.Enum = append(schemaRef.Enum, string(v))
 		}
 
-		r.Map()["TaxonGbifStatus"] = schemaRef
+		r.Map()["SortDirection"] = schemaRef
 	}
 
 	return &huma.Schema{
-		Ref: "#/components/schemas/TaxonGbifStatus",
+		Ref: "#/components/schemas/SortDirection",
 	}
+}
+func (u NullSortDirection) Get() (SortDirection, bool) {
+	return u.SortDirection, u.Valid
+}
+
+var TaxonGBIFStatusValues = []TaxonGBIFStatus{
+	TaxonGBIFStatusSkipped,
+	TaxonGBIFStatusPending,
+	TaxonGBIFStatusCompleted,
+	TaxonGBIFStatusFailed,
+}
+
+var TaxonGBIFStatusHierarchy = map[TaxonGBIFStatus]int{
+	TaxonGBIFStatusSkipped:   0,
+	TaxonGBIFStatusPending:   1,
+	TaxonGBIFStatusCompleted: 2,
+	TaxonGBIFStatusFailed:    3,
+}
+
+func (u *TaxonGBIFStatus) UnmarshalCSV(v []byte) error {
+	e := TaxonGBIFStatus(v)
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+	return fmt.Errorf("invalid TaxonGBIFStatus value: %s", v)
+}
+
+func (u TaxonGBIFStatus) IsGreater(v TaxonGBIFStatus) bool {
+	return TaxonGBIFStatusHierarchy[u] > TaxonGBIFStatusHierarchy[v]
+}
+
+func (u TaxonGBIFStatus) IsGreaterEqual(v TaxonGBIFStatus) bool {
+	return TaxonGBIFStatusHierarchy[u] >= TaxonGBIFStatusHierarchy[v]
+}
+
+// Register enum in OpenAPI specification.
+func (u TaxonGBIFStatus) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["TaxonGBIFStatus"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "TaxonGBIFStatus")
+		schemaRef.Title = "TaxonGBIFStatus"
+
+		for _, v := range TaxonGBIFStatusValues {
+			schemaRef.Enum = append(schemaRef.Enum, string(v))
+		}
+
+		r.Map()["TaxonGBIFStatus"] = schemaRef
+	}
+
+	return &huma.Schema{
+		Ref: "#/components/schemas/TaxonGBIFStatus",
+	}
+}
+func (u NullTaxonGBIFStatus) Get() (TaxonGBIFStatus, bool) {
+	return u.TaxonGBIFStatus, u.Valid
 }
 
 var TaxonMatchSourceValues = []TaxonMatchSource{
 	TaxonMatchSourceInternal,
-	TaxonMatchSourceGbif,
+	TaxonMatchSourceGBIF,
 	TaxonMatchSourceManual,
 }
 
 var TaxonMatchSourceHierarchy = map[TaxonMatchSource]int{
 	TaxonMatchSourceInternal: 0,
-	TaxonMatchSourceGbif:     1,
+	TaxonMatchSourceGBIF:     1,
 	TaxonMatchSourceManual:   2,
 }
 
@@ -489,6 +568,9 @@ func (u TaxonMatchSource) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{
 		Ref: "#/components/schemas/TaxonMatchSource",
 	}
+}
+func (u NullTaxonMatchSource) Get() (TaxonMatchSource, bool) {
+	return u.TaxonMatchSource, u.Valid
 }
 
 var TaxonMatchTypeValues = []TaxonMatchType{
@@ -536,6 +618,9 @@ func (u TaxonMatchType) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{
 		Ref: "#/components/schemas/TaxonMatchType",
 	}
+}
+func (u NullTaxonMatchType) Get() (TaxonMatchType, bool) {
+	return u.TaxonMatchType, u.Valid
 }
 
 var TaxonRankValues = []TaxonRank{
@@ -596,6 +681,9 @@ func (u TaxonRank) Schema(r huma.Registry) *huma.Schema {
 		Ref: "#/components/schemas/TaxonRank",
 	}
 }
+func (u NullTaxonRank) Get() (TaxonRank, bool) {
+	return u.TaxonRank, u.Valid
+}
 
 var TaxonStatusValues = []TaxonStatus{
 	TaxonStatusACCEPTED,
@@ -647,6 +735,9 @@ func (u TaxonStatus) Schema(r huma.Registry) *huma.Schema {
 		Ref: "#/components/schemas/TaxonStatus",
 	}
 }
+func (u NullTaxonStatus) Get() (TaxonStatus, bool) {
+	return u.TaxonStatus, u.Valid
+}
 
 var UserAccountRequestStatusValues = []UserAccountRequestStatus{
 	UserAccountRequestStatusPending,
@@ -695,6 +786,9 @@ func (u UserAccountRequestStatus) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{
 		Ref: "#/components/schemas/UserAccountRequestStatus",
 	}
+}
+func (u NullUserAccountRequestStatus) Get() (UserAccountRequestStatus, bool) {
+	return u.UserAccountRequestStatus, u.Valid
 }
 
 var UserEmailChangeRequestStatusValues = []UserEmailChangeRequestStatus{
@@ -747,6 +841,9 @@ func (u UserEmailChangeRequestStatus) Schema(r huma.Registry) *huma.Schema {
 		Ref: "#/components/schemas/UserEmailChangeRequestStatus",
 	}
 }
+func (u NullUserEmailChangeRequestStatus) Get() (UserEmailChangeRequestStatus, bool) {
+	return u.UserEmailChangeRequestStatus, u.Valid
+}
 
 var UserRoleValues = []UserRole{
 	UserRoleVisitor,
@@ -795,4 +892,61 @@ func (u UserRole) Schema(r huma.Registry) *huma.Schema {
 	return &huma.Schema{
 		Ref: "#/components/schemas/UserRole",
 	}
+}
+func (u NullUserRole) Get() (UserRole, bool) {
+	return u.UserRole, u.Valid
+}
+
+var VocabResolutionStatusValues = []VocabResolutionStatus{
+	VocabResolutionStatusAuto,
+	VocabResolutionStatusSelected,
+	VocabResolutionStatusPending,
+	VocabResolutionStatusRequestCreation,
+	VocabResolutionStatusDiscard,
+}
+
+var VocabResolutionStatusHierarchy = map[VocabResolutionStatus]int{
+	VocabResolutionStatusAuto:            0,
+	VocabResolutionStatusSelected:        1,
+	VocabResolutionStatusPending:         2,
+	VocabResolutionStatusRequestCreation: 3,
+	VocabResolutionStatusDiscard:         4,
+}
+
+func (u *VocabResolutionStatus) UnmarshalCSV(v []byte) error {
+	e := VocabResolutionStatus(v)
+	if e.Valid() {
+		*u = e
+		return nil
+	}
+	return fmt.Errorf("invalid VocabResolutionStatus value: %s", v)
+}
+
+func (u VocabResolutionStatus) IsGreater(v VocabResolutionStatus) bool {
+	return VocabResolutionStatusHierarchy[u] > VocabResolutionStatusHierarchy[v]
+}
+
+func (u VocabResolutionStatus) IsGreaterEqual(v VocabResolutionStatus) bool {
+	return VocabResolutionStatusHierarchy[u] >= VocabResolutionStatusHierarchy[v]
+}
+
+// Register enum in OpenAPI specification.
+func (u VocabResolutionStatus) Schema(r huma.Registry) *huma.Schema {
+	if r.Map()["VocabResolutionStatus"] == nil {
+		schemaRef := r.Schema(reflect.TypeOf(""), true, "VocabResolutionStatus")
+		schemaRef.Title = "VocabResolutionStatus"
+
+		for _, v := range VocabResolutionStatusValues {
+			schemaRef.Enum = append(schemaRef.Enum, string(v))
+		}
+
+		r.Map()["VocabResolutionStatus"] = schemaRef
+	}
+
+	return &huma.Schema{
+		Ref: "#/components/schemas/VocabResolutionStatus",
+	}
+}
+func (u NullVocabResolutionStatus) Get() (VocabResolutionStatus, bool) {
+	return u.VocabResolutionStatus, u.Valid
 }

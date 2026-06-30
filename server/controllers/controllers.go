@@ -10,8 +10,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type ResponseBody[T any] struct {
-	Body T
+type BodyTransporter[Item any] struct {
+	Body Item
 }
 
 type IdentifierInput[T any] interface {

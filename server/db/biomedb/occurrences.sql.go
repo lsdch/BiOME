@@ -8,65 +8,89 @@ package biomedb
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
+	ulid "github.com/oklog/ulid/v2"
 )
 
+const getOccurrenceArticles = `-- name: GetOccurrenceArticles :many
+SELECT a.id, a.authors, a.year, a.title, a.journal, a.verbatim, a.doi, a.comments
+FROM articles a
+    JOIN occurrences_articles oa ON oa.article_id = a.id
+WHERE oa.occurrence_id = $1
+`
+
+func (q *Queries) GetOccurrenceArticles(ctx context.Context, occurrenceID ulid.ULID) ([]Article, error) {
+	rows, err := q.db.Query(ctx, getOccurrenceArticles, occurrenceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Article
+	for rows.Next() {
+		var i Article
+		if err := rows.Scan(
+			&i.ID,
+			&i.Authors,
+			&i.Year,
+			&i.Title,
+			&i.Journal,
+			&i.Verbatim,
+			&i.Doi,
+			&i.Comments,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOccurrenceByID = `-- name: GetOccurrenceByID :one
-SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources,
-    s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_res8, s.h3_res7, s.h3_res6, s.h3_res5, s.h3_res4, s.h3_res3, s.h3_res2,
-    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.comments,
-    c.code, c.name, c.continent, c.subcontinent
+SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
+    s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
+    c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM occurrences o
     JOIN samplings s ON s.id = o.sampling_id
     JOIN taxa t ON t.id = o.taxon_id
     JOIN countries c ON c.code = s.site_country_code
-WHERE o.id = $1::uuid
+WHERE o.id = $1
 `
 
 type GetOccurrenceByIDRow struct {
-	ID                          string                   `json:"id"`
-	Code                        string                   `json:"code"`
-	SamplingID                  pgtype.UUID              `json:"sampling_id"`
-	TypeStatus                  NullOccurrenceTypeStatus `json:"type_status"`
-	Comments                    pgtype.Text              `json:"comments"`
-	TaxonID                     pgtype.UUID              `json:"taxon_id"`
-	VerbatimIdentification      pgtype.Text              `json:"verbatim_identification"`
-	IdentifiedBy                []string                 `json:"identified_by"`
-	IdentificationDate          pgtype.Date              `json:"identification_date"`
-	IdentificationDatePrecision NullEventDatePrecision   `json:"identification_date_precision"`
-	IdentificationConfer        bool                     `json:"identification_confer"`
-	IdentificationAddendum      pgtype.Text              `json:"identification_addendum"`
-	ContentDescription          pgtype.Text              `json:"content_description"`
-	QuantityExact               pgtype.Int4              `json:"quantity_exact"`
-	QuantityLower               pgtype.Int4              `json:"quantity_lower"`
-	QuantityUpper               pgtype.Int4              `json:"quantity_upper"`
-	Sources                     []string                 `json:"sources"`
-	Sampling                    Sampling                 `json:"sampling"`
-	Taxon                       Taxon                    `json:"taxon"`
-	Country                     Country                  `json:"country"`
+	Occurrence Occurrence `json:"occurrence"`
+	Sampling   Sampling   `json:"sampling"`
+	Taxon      Taxon      `json:"taxon"`
+	Country    Country    `json:"country"`
 }
 
-func (q *Queries) GetOccurrenceByID(ctx context.Context, occurrenceID pgtype.UUID) (GetOccurrenceByIDRow, error) {
+func (q *Queries) GetOccurrenceByID(ctx context.Context, occurrenceID ulid.ULID) (GetOccurrenceByIDRow, error) {
 	row := q.db.QueryRow(ctx, getOccurrenceByID, occurrenceID)
 	var i GetOccurrenceByIDRow
 	err := row.Scan(
-		&i.ID,
-		&i.Code,
-		&i.SamplingID,
-		&i.TypeStatus,
-		&i.Comments,
-		&i.TaxonID,
-		&i.VerbatimIdentification,
-		&i.IdentifiedBy,
-		&i.IdentificationDate,
-		&i.IdentificationDatePrecision,
-		&i.IdentificationConfer,
-		&i.IdentificationAddendum,
-		&i.ContentDescription,
-		&i.QuantityExact,
-		&i.QuantityLower,
-		&i.QuantityUpper,
-		&i.Sources,
+		&i.Occurrence.ID,
+		&i.Occurrence.Code,
+		&i.Occurrence.SamplingID,
+		&i.Occurrence.TypeStatus,
+		&i.Occurrence.Comments,
+		&i.Occurrence.TaxonID,
+		&i.Occurrence.VerbatimIdentification,
+		&i.Occurrence.IdentifiedBy,
+		&i.Occurrence.IdentificationDate,
+		&i.Occurrence.IdentificationDatePrecision,
+		&i.Occurrence.IdentificationConfer,
+		&i.Occurrence.IdentificationAddendum,
+		&i.Occurrence.ContentDescription,
+		&i.Occurrence.QuantityExact,
+		&i.Occurrence.QuantityLower,
+		&i.Occurrence.QuantityUpper,
+		&i.Occurrence.Sources,
+		&i.Occurrence.CreatedAt,
+		&i.Occurrence.UpdatedAt,
+		&i.Occurrence.ImportBatchID,
 		&i.Sampling.ID,
 		&i.Sampling.SamplingHash,
 		&i.Sampling.Notes,
@@ -84,15 +108,10 @@ func (q *Queries) GetOccurrenceByID(ctx context.Context, occurrenceID pgtype.UUI
 		&i.Sampling.PerformedBy,
 		&i.Sampling.Duration,
 		&i.Sampling.AccessPoints,
-		&i.Sampling.H3Res8,
-		&i.Sampling.H3Res7,
-		&i.Sampling.H3Res6,
-		&i.Sampling.H3Res5,
-		&i.Sampling.H3Res4,
-		&i.Sampling.H3Res3,
-		&i.Sampling.H3Res2,
+		&i.Sampling.H3Index,
+		&i.Sampling.SearchVector,
 		&i.Taxon.ID,
-		&i.Taxon.GbifID,
+		&i.Taxon.GBIFID,
 		&i.Taxon.Name,
 		&i.Taxon.ScientificName,
 		&i.Taxon.Rank,
@@ -100,24 +119,84 @@ func (q *Queries) GetOccurrenceByID(ctx context.Context, occurrenceID pgtype.UUI
 		&i.Taxon.Authorship,
 		&i.Taxon.AcceptedTaxonID,
 		&i.Taxon.ParentID,
+		&i.Taxon.SearchVector,
 		&i.Taxon.Comments,
 		&i.Country.Code,
 		&i.Country.Name,
 		&i.Country.Continent,
 		&i.Country.Subcontinent,
+		&i.Country.Geom,
 	)
 	return i, err
 }
 
+const getOccurrenceCodeHistory = `-- name: GetOccurrenceCodeHistory :many
+SELECT h.id, h.occurrence_id, h.code, h.created_at
+FROM occurrence_code_history h
+WHERE h.occurrence_id = $1
+ORDER BY h.created_at DESC
+`
+
+func (q *Queries) GetOccurrenceCodeHistory(ctx context.Context, occurrenceID ulid.ULID) ([]OccurrenceCodeHistory, error) {
+	rows, err := q.db.Query(ctx, getOccurrenceCodeHistory, occurrenceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OccurrenceCodeHistory
+	for rows.Next() {
+		var i OccurrenceCodeHistory
+		if err := rows.Scan(
+			&i.ID,
+			&i.OccurrenceID,
+			&i.Code,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOccurrenceCollections = `-- name: GetOccurrenceCollections :many
+SELECT c.occurrence_id, c.name, c.vouchers
+FROM occurrence_collections c
+WHERE c.occurrence_id = $1
+`
+
+func (q *Queries) GetOccurrenceCollections(ctx context.Context, occurrenceID ulid.ULID) ([]OccurrenceCollection, error) {
+	rows, err := q.db.Query(ctx, getOccurrenceCollections, occurrenceID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []OccurrenceCollection
+	for rows.Next() {
+		var i OccurrenceCollection
+		if err := rows.Scan(&i.OccurrenceID, &i.Name, &i.Vouchers); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getOccurrenceDatasets = `-- name: GetOccurrenceDatasets :many
-SELECT d.id, d.import_hash, d.label, d.slug, d.description, d.submitted_by, d.assembled_by, d.pinned
+SELECT d.id, d.label, d.slug, d.description, d.pinned, d.created_at
 FROM datasets d
     JOIN occurrences_datasets od ON od.dataset_id = d.id
     JOIN occurrences o ON o.id = od.occurrence_id
-WHERE o.id = $1::uuid
+WHERE o.id = $1
 `
 
-func (q *Queries) GetOccurrenceDatasets(ctx context.Context, occurrenceID pgtype.UUID) ([]Dataset, error) {
+func (q *Queries) GetOccurrenceDatasets(ctx context.Context, occurrenceID ulid.ULID) ([]Dataset, error) {
 	rows, err := q.db.Query(ctx, getOccurrenceDatasets, occurrenceID)
 	if err != nil {
 		return nil, err
@@ -128,85 +207,11 @@ func (q *Queries) GetOccurrenceDatasets(ctx context.Context, occurrenceID pgtype
 		var i Dataset
 		if err := rows.Scan(
 			&i.ID,
-			&i.ImportHash,
 			&i.Label,
 			&i.Slug,
 			&i.Description,
-			&i.SubmittedBy,
-			&i.AssembledBy,
 			&i.Pinned,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getOccurrenceHabitats = `-- name: GetOccurrenceHabitats :many
-SELECT h.id, h.label, h.description, h.habitat_group_id
-FROM habitats h
-    JOIN samplings_habitats sh ON sh.habitat_id = h.id
-    JOIN samplings s ON s.id = sh.sampling_id
-    JOIN occurrences o ON o.sampling_id = s.id
-WHERE o.id = $1::uuid
-`
-
-func (q *Queries) GetOccurrenceHabitats(ctx context.Context, occurrenceID pgtype.UUID) ([]Habitat, error) {
-	rows, err := q.db.Query(ctx, getOccurrenceHabitats, occurrenceID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Habitat
-	for rows.Next() {
-		var i Habitat
-		if err := rows.Scan(
-			&i.ID,
-			&i.Label,
-			&i.Description,
-			&i.HabitatGroupID,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getSamplingTargetTaxa = `-- name: GetSamplingTargetTaxa :many
-SELECT t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.comments
-FROM taxa t
-    JOIN sampling_target_taxa st ON st.taxon_id = t.id
-WHERE st.sampling_id = $1::uuid
-`
-
-func (q *Queries) GetSamplingTargetTaxa(ctx context.Context, samplingID pgtype.UUID) ([]Taxon, error) {
-	rows, err := q.db.Query(ctx, getSamplingTargetTaxa, samplingID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Taxon
-	for rows.Next() {
-		var i Taxon
-		if err := rows.Scan(
-			&i.ID,
-			&i.GbifID,
-			&i.Name,
-			&i.ScientificName,
-			&i.Rank,
-			&i.Status,
-			&i.Authorship,
-			&i.AcceptedTaxonID,
-			&i.ParentID,
-			&i.Comments,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -288,7 +293,7 @@ dataset_filtered_occurrences AS (
         AND d.slug = ANY($8)
 ),
 filtered_occurrences AS (
-    SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources
+    SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id
     FROM occurrences o
         JOIN taxa t ON t.id = o.taxon_id
     WHERE (
@@ -305,6 +310,27 @@ filtered_occurrences AS (
                 FROM dataset_filtered_occurrences
             )
         )
+),
+filtered_sampling_with_occurrences AS (
+    SELECT DISTINCT s.id
+    FROM samplings s
+        JOIN filtered_occurrences fo ON fo.sampling_id = s.id
+),
+samplings_without_occurrences AS (
+    SELECT s.id
+    FROM samplings s
+    WHERE NOT EXISTS (
+            SELECT 1
+            FROM occurrences o
+            WHERE o.sampling_id = s.id
+        )
+),
+valid_samplings AS (
+    SELECT id
+    FROM filtered_sampling_with_occurrences
+    UNION ALL
+    SELECT id
+    FROM samplings_without_occurrences
 )
 SELECT s.coordinates,
     ARRAY_AGG(DISTINCT s.coordinates_precision) AS coordinates_precision,
@@ -317,6 +343,7 @@ SELECT s.coordinates,
         WHERE o.id IS NOT NULL
     )::uuid [] AS occurrence_ids
 FROM samplings s
+    JOIN valid_samplings vs ON vs.id = s.id
     LEFT JOIN filtered_occurrences o ON o.sampling_id = s.id
     LEFT JOIN samplings_habitats sh ON sh.sampling_id = s.id
     LEFT JOIN habitats h ON h.id = sh.habitat_id
@@ -354,12 +381,12 @@ type ListSamplingSitesParams struct {
 }
 
 type ListSamplingSitesRow struct {
-	Coordinates          interface{}   `json:"coordinates"`
-	CoordinatesPrecision interface{}   `json:"coordinates_precision"`
-	SamplingsCount       int32         `json:"samplings_count"`
-	OccurrencesCount     int32         `json:"occurrences_count"`
-	SamplingIds          []pgtype.UUID `json:"sampling_ids"`
-	OccurrenceIds        []pgtype.UUID `json:"occurrence_ids"`
+	Coordinates          interface{} `json:"coordinates"`
+	CoordinatesPrecision interface{} `json:"coordinates_precision"`
+	SamplingsCount       int32       `json:"samplings_count"`
+	OccurrencesCount     int32       `json:"occurrences_count"`
+	SamplingIDs          []uuid.UUID `json:"sampling_ids"`
+	OccurrenceIDs        []uuid.UUID `json:"occurrence_ids"`
 }
 
 func (q *Queries) ListSamplingSites(ctx context.Context, arg ListSamplingSitesParams) ([]ListSamplingSitesRow, error) {
@@ -385,8 +412,8 @@ func (q *Queries) ListSamplingSites(ctx context.Context, arg ListSamplingSitesPa
 			&i.CoordinatesPrecision,
 			&i.SamplingsCount,
 			&i.OccurrencesCount,
-			&i.SamplingIds,
-			&i.OccurrenceIds,
+			&i.SamplingIDs,
+			&i.OccurrenceIDs,
 		); err != nil {
 			return nil, err
 		}
@@ -464,11 +491,11 @@ dataset_filtered_occurrences AS (
     SELECT od.occurrence_id
     FROM occurrences_datasets od
         JOIN datasets d ON d.id = od.dataset_id
-    WHERE $8::text [] IS NOT NULL
-        AND d.slug = ANY($8)
+    WHERE $8::ulid [] IS NOT NULL
+        AND d.id = ANY($8)
 ),
 filtered_occurrences AS (
-    SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources
+    SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id
     FROM occurrences o
         JOIN taxa t ON t.id = o.taxon_id
     WHERE (
@@ -479,14 +506,14 @@ filtered_occurrences AS (
             )
         )
         AND (
-            $8::text [] IS NULL
+            $8::ulid [] IS NULL
             OR o.id IN (
                 SELECT occurrence_id
                 FROM dataset_filtered_occurrences
             )
         )
 )
-SELECT s.h3_res8 AS h3_index,
+SELECT s.h3_index AS h3_index,
     COUNT(DISTINCT s.id)::int AS samplings_count,
     COUNT(DISTINCT o.id)::int AS occurrences_count,
     ARRAY_AGG(DISTINCT s.id) FILTER (
@@ -500,8 +527,8 @@ FROM samplings s
     LEFT JOIN samplings_habitats sh ON sh.sampling_id = s.id
     LEFT JOIN habitats h ON h.id = sh.habitat_id
 WHERE (
-        $1::text IS NULL
-        OR s.site_country_code = $1
+        $1::text [] IS NULL
+        OR s.site_country_code = ANY($1)
     )
     AND (
         $2::text [] IS NULL
@@ -514,7 +541,7 @@ WHERE (
             FROM filtered_sampling_ids
         )
     )
-GROUP BY s.h3_res8
+GROUP BY s.h3_index
 HAVING (
         $4::int IS NULL
         OR COUNT(DISTINCT o.id) > $4
@@ -522,34 +549,36 @@ HAVING (
 `
 
 type OccurrencesGroupsH3Params struct {
-	CountryCode              string   `json:"country_code"`
-	Habitats                 []string `json:"habitats"`
-	TargetTaxaSciNames       []string `json:"target_taxa_sci_names"`
-	MinOccurrences           int32    `json:"min_occurrences"`
-	TaxaSciNames             []string `json:"taxa_sci_names"`
-	IncludeDescendants       bool     `json:"include_descendants"`
-	TargetIncludeDescendants bool     `json:"target_include_descendants"`
-	DatasetSlugs             []string `json:"dataset_slugs"`
+	CountryCodes             []string    `json:"country_codes"`
+	Habitats                 []string    `json:"habitats"`
+	TargetTaxaSciNames       []string    `json:"target_taxa_sci_names"`
+	MinOccurrences           int32       `json:"min_occurrences"`
+	TaxaSciNames             []string    `json:"taxa_sci_names"`
+	IncludeDescendants       bool        `json:"include_descendants"`
+	TargetIncludeDescendants bool        `json:"target_include_descendants"`
+	DatasetIds               []ulid.ULID `json:"dataset_ids"`
 }
 
 type OccurrencesGroupsH3Row struct {
-	H3Index          interface{}   `json:"h3_index"`
-	SamplingsCount   int32         `json:"samplings_count"`
-	OccurrencesCount int32         `json:"occurrences_count"`
-	SamplingIds      []pgtype.UUID `json:"sampling_ids"`
-	OccurrenceIds    []pgtype.UUID `json:"occurrence_ids"`
+	H3Index          int64       `json:"h3_index"`
+	SamplingsCount   int32       `json:"samplings_count"`
+	OccurrencesCount int32       `json:"occurrences_count"`
+	SamplingIDs      []uuid.UUID `json:"sampling_ids"`
+	OccurrenceIDs    []uuid.UUID `json:"occurrence_ids"`
 }
 
+// This query aggregates occurrences and samplings by H3 index,
+// allowing for filtering by taxa, datasets, country, habitats, and minimum occurrences.
 func (q *Queries) OccurrencesGroupsH3(ctx context.Context, arg OccurrencesGroupsH3Params) ([]OccurrencesGroupsH3Row, error) {
 	rows, err := q.db.Query(ctx, occurrencesGroupsH3,
-		arg.CountryCode,
+		arg.CountryCodes,
 		arg.Habitats,
 		arg.TargetTaxaSciNames,
 		arg.MinOccurrences,
 		arg.TaxaSciNames,
 		arg.IncludeDescendants,
 		arg.TargetIncludeDescendants,
-		arg.DatasetSlugs,
+		arg.DatasetIds,
 	)
 	if err != nil {
 		return nil, err
@@ -562,8 +591,8 @@ func (q *Queries) OccurrencesGroupsH3(ctx context.Context, arg OccurrencesGroups
 			&i.H3Index,
 			&i.SamplingsCount,
 			&i.OccurrencesCount,
-			&i.SamplingIds,
-			&i.OccurrenceIds,
+			&i.SamplingIDs,
+			&i.OccurrenceIDs,
 		); err != nil {
 			return nil, err
 		}

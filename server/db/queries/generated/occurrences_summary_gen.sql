@@ -1,31 +1,10 @@
 
 
--- name: FetchOccurrencesSortByEventDateASC :many
-SELECT o.id,
-    s.id as sampling_id,
-    s.latitude,
-    s.longitude,
-    s.coordinates_precision,
-    s.altitude,
-    s.site_code,
-    s.site_name,
-    s.site_locality,
-    c.code as country_code,
-    c.name as country_name,
-    s.event_date,
-    s.event_date_precision,
-    t.id AS taxon_id,
-    t.name AS taxon_name,
-    t.authorship AS taxon_authorship,
-    t.rank AS taxon_rank,
-    t.GBIF_ID AS taxon_gbif_id,
-    t.status AS taxon_status,
-    o.identification_confer,
-    o.identification_addendum,
-    o.identification_date,
-    o.identification_date_precision,
-    o.identified_by,
-    o.type_status
+-- name: ListOccurrencesSortByEventDateASC :many
+SELECT sqlc.embed(o),
+    sqlc.embed(s),
+    sqlc.embed(t),
+    sqlc.embed(c)
 FROM occurrences o
 INNER JOIN samplings s ON s.id = o.sampling_id
 LEFT JOIN countries c ON c.code = s.site_country_code
@@ -41,32 +20,11 @@ LIMIT CASE
 END
 OFFSET COALESCE(sqlc.narg(page_offset)::INTEGER, 0);
 
--- name: FetchOccurrencesSortByEventDateDESC :many
-SELECT o.id,
-    s.id as sampling_id,
-    s.latitude,
-    s.longitude,
-    s.coordinates_precision,
-    s.altitude,
-    s.site_code,
-    s.site_name,
-    s.site_locality,
-    c.code as country_code,
-    c.name as country_name,
-    s.event_date,
-    s.event_date_precision,
-    t.id AS taxon_id,
-    t.name AS taxon_name,
-    t.authorship AS taxon_authorship,
-    t.rank AS taxon_rank,
-    t.GBIF_ID AS taxon_gbif_id,
-    t.status AS taxon_status,
-    o.identification_confer,
-    o.identification_addendum,
-    o.identification_date,
-    o.identification_date_precision,
-    o.identified_by,
-    o.type_status
+-- name: ListOccurrencesSortByEventDateDESC :many
+SELECT sqlc.embed(o),
+    sqlc.embed(s),
+    sqlc.embed(t),
+    sqlc.embed(c)
 FROM occurrences o
 INNER JOIN samplings s ON s.id = o.sampling_id
 LEFT JOIN countries c ON c.code = s.site_country_code
@@ -82,32 +40,11 @@ LIMIT CASE
 END
 OFFSET COALESCE(sqlc.narg(page_offset)::INTEGER, 0);
 
--- name: FetchOccurrencesByTaxon :many
-SELECT o.id,
-    s.id as sampling_id,
-    s.latitude,
-    s.longitude,
-    s.coordinates_precision,
-    s.altitude,
-    s.site_code,
-    s.site_name,
-    s.site_locality,
-    c.code as country_code,
-    c.name as country_name,
-    s.event_date,
-    s.event_date_precision,
-    t.id AS taxon_id,
-    t.name AS taxon_name,
-    t.authorship AS taxon_authorship,
-    t.rank AS taxon_rank,
-    t.GBIF_ID AS taxon_gbif_id,
-    t.status AS taxon_status,
-    o.identification_confer,
-    o.identification_addendum,
-    o.identification_date,
-    o.identification_date_precision,
-    o.identified_by,
-    o.type_status
+-- name: ListOccurrencesByTaxon :many
+SELECT sqlc.embed(o),
+    sqlc.embed(s),
+    sqlc.embed(t),
+    sqlc.embed(c)
 FROM occurrences o
 INNER JOIN samplings s ON s.id = o.sampling_id
 LEFT JOIN countries c ON c.code = s.site_country_code
@@ -123,32 +60,11 @@ LIMIT CASE
 END
 OFFSET COALESCE(sqlc.narg(page_offset)::INTEGER, 0);
 
--- name: FetchOccurrencesByCountry :many
-SELECT o.id,
-    s.id as sampling_id,
-    s.latitude,
-    s.longitude,
-    s.coordinates_precision,
-    s.altitude,
-    s.site_code,
-    s.site_name,
-    s.site_locality,
-    c.code as country_code,
-    c.name as country_name,
-    s.event_date,
-    s.event_date_precision,
-    t.id AS taxon_id,
-    t.name AS taxon_name,
-    t.authorship AS taxon_authorship,
-    t.rank AS taxon_rank,
-    t.GBIF_ID AS taxon_gbif_id,
-    t.status AS taxon_status,
-    o.identification_confer,
-    o.identification_addendum,
-    o.identification_date,
-    o.identification_date_precision,
-    o.identified_by,
-    o.type_status
+-- name: ListOccurrencesByCountry :many
+SELECT sqlc.embed(o),
+    sqlc.embed(s),
+    sqlc.embed(t),
+    sqlc.embed(c)
 FROM occurrences o
 INNER JOIN samplings s ON s.id = o.sampling_id
 LEFT JOIN countries c ON c.code = s.site_country_code

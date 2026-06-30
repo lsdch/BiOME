@@ -15,11 +15,42 @@ sql:
         query_parameter_limit: 2
         emit_enum_valid_method: true
         emit_all_enum_values: true
+        emit_pointers_for_null_enum_types: true
+        emit_pointers_for_null_types: true
+        initialisms: 
+          - "id"
+          - "uuid"
+          - "ulid"
+          - "gbif"
+          - "ip"
+          - "url"
+          - "api"
+          - "http"
+          - "https"
+          - "json"
         rename: 
           taxa: "Taxon"
           taxa_closure: "TaxonClosure"
+          sampling_ids: "SamplingIDs"
+          occurrence_ids: "OccurrenceIDs"
         overrides:
+        - db_type: "uuid"
+          go_type:
+            import: "github.com/google/uuid"
+            type: "UUID"
+        - db_type: "timestamptz"
+          go_type:
+            import: "time"
+            type: "Time"
+        - db_type: "date"
+          go_type:
+            import: "time"
+            type: "Time"
         - db_type: "h3index"
           go_type:
             import: "github.com/uber/h3-go/v4"
             type: "Cell"
+        - db_type: "ulid"
+          go_type:
+            import: "github.com/oklog/ulid/v2"
+            type: "ULID"

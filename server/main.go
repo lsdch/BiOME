@@ -1,102 +1,58 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/lsdch/biome/config"
-
 	// Required to register API routes
 	_ "github.com/lsdch/biome/controllers/api"
-	"github.com/lsdch/biome/db"
-	"github.com/lsdch/biome/router"
-
-	"github.com/danielgtaylor/huma/v2"
-	"github.com/gin-gonic/gin"
-	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 )
 
 //go:generate go run generators/enums/generate_enums.go
 //go:generate go run generators/mapstructure/generate_mapstructure.go models
 
-func apiConfig(basePath string) huma.Config {
-	title := "BiOME API"
-	description := "Biodiversity and Occurrences for Molecular Ecology"
+// func setupRoutes(r *gin.Engine, basePath string) *gin.RouterGroup {
+// 	apiConfig := apiConfig(basePath)
+// 	router := router.New(r, basePath, apiConfig)
 
-	var cfg = huma.DefaultConfig(title, "0.0")
-	cfg.Info.Description = fmt.Sprintf("%s: %s", title, description)
-	cfg.Components.SecuritySchemes = map[string]*huma.SecurityScheme{
-		"bearer": {
-			Type:         "http",
-			Scheme:       "bearer",
-			BearerFormat: "JWT",
-		},
-		"cookieAuth": {
-			Type: "apiKey",
-			In:   "cookie",
-			Name: "auth_token",
-		},
-	}
-	cfg.Info.Contact = &huma.Contact{
-		Name:  "Louis Duchemin",
-		Email: "louis.duchemin@univ-lyon1.fr",
-	}
-	cfg.OpenAPI.Servers = []*huma.Server{
-		{URL: basePath},
-	}
-	cfg.Security = []map[string][]string{
-		{"bearer": {}},
-		{"cookieAuth": {}},
-	}
+// 	router.CollectRoutes()
 
-	return cfg
-}
+// 	if err := router.WriteSpecJSON("../client/openapi.json"); err != nil {
+// 		panic(err)
+// 	}
 
-func setupRoutes(r *gin.Engine, basePath string) *gin.RouterGroup {
-	apiConfig := apiConfig(basePath)
-	router := router.New(r, basePath, apiConfig)
+// 	return router.BaseAPI
+// }
 
-	router.CollectRoutes()
+// func setupRouter() *gin.Engine {
+// 	r := gin.Default()
+// 	r.Use(gin.Recovery())
 
-	if err := router.WriteSpecJSON("../client/openapi.json"); err != nil {
-		panic(err)
-	}
+// 	ginAPI := setupRoutes(r, "/api/v1")
+// 	ginAPI.Static("/assets/", "./assets")
+// 	return r
+// }
 
-	return router.BaseAPI
-}
+// func main() {
 
-func setupRouter() *gin.Engine {
-	r := gin.Default()
-	r.Use(gin.Recovery())
+// 	huma.DefaultArrayNullable = false
 
-	ginAPI := setupRoutes(r, "/api/v1")
-	ginAPI.Static("/assets/", "./assets")
-	return r
-}
+// 	if config, err := config.LoadConfig(".", "config"); err != nil {
+// 		log.Fatalf("Failed to load config file: %v", err)
+// 	} else {
+// 		logrus.Infof("Loaded backend configuration: %+v", config)
+// 	}
 
-func main() {
+// 	if gin.Mode() == gin.DebugMode {
+// 		log.SetLevel(log.DebugLevel)
+// 	}
+// 	// Disable logging all routes
+// 	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {}
 
-	huma.DefaultArrayNullable = false
+// 	// if err := location.SetupCountries(db.Client()); err != nil {
+// 	// 	logrus.Fatalf("Failed to setup countries in database: %v", err)
+// 	// }
 
-	if config, err := config.LoadConfig(".", "config"); err != nil {
-		log.Fatalf("Failed to load config file: %v", err)
-	} else {
-		logrus.Infof("Loaded backend configuration: %+v", config)
-	}
-
-	if gin.Mode() == gin.DebugMode {
-		log.SetLevel(log.DebugLevel)
-	}
-	// Disable logging all routes
-	gin.DebugPrintRouteFunc = func(httpMethod, absolutePath, handlerName string, nuHandlers int) {}
-
-	// if err := location.SetupCountries(db.Client()); err != nil {
-	// 	logrus.Fatalf("Failed to setup countries in database: %v", err)
-	// }
-
-	r := setupRouter()
-	if err := r.Run(":8080"); err != nil {
-		log.Fatalf("Failed to start Gin router: %v", err)
-	}
-	defer db.Client().Close()
-}
+// 	r := setupRouter()
+// 	if err := r.Run(":8080"); err != nil {
+// 		log.Fatalf("Failed to start Gin router: %v", err)
+// 	}
+// 	defer db.Client().Close()
+// }

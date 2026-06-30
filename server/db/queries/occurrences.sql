@@ -1,5 +1,5 @@
 -- name: GetOccurrenceByID :one
-SELECT o.*,
+SELECT sqlc.embed(o),
     sqlc.embed(s),
     sqlc.embed(t),
     sqlc.embed(c)
@@ -7,49 +7,52 @@ FROM occurrences o
     JOIN samplings s ON s.id = o.sampling_id
     JOIN taxa t ON t.id = o.taxon_id
     JOIN countries c ON c.code = s.site_country_code
-WHERE o.id = sqlc.arg(occurrence_id)::uuid;
-
--- name: GetOccurrenceHabitats :many
-SELECT h.*
-FROM habitats h
-    JOIN samplings_habitats sh ON sh.habitat_id = h.id
-    JOIN samplings s ON s.id = sh.sampling_id
-    JOIN occurrences o ON o.sampling_id = s.id
-WHERE o.id = sqlc.arg(occurrence_id)::uuid;
+WHERE o.id = @occurrence_id;
 
 -- name: GetOccurrenceDatasets :many
 SELECT d.*
 FROM datasets d
     JOIN occurrences_datasets od ON od.dataset_id = d.id
     JOIN occurrences o ON o.id = od.occurrence_id
-WHERE o.id = sqlc.arg(occurrence_id)::uuid; 
+WHERE o.id = @occurrence_id; 
 
--- name: GetSamplingTargetTaxa :many
-SELECT t.*
-FROM taxa t
-    JOIN sampling_target_taxa st ON st.taxon_id = t.id
-WHERE st.sampling_id = sqlc.arg(sampling_id)::uuid; 
+-- name: GetOccurrenceArticles :many
+SELECT a.*
+FROM articles a
+    JOIN occurrences_articles oa ON oa.article_id = a.id
+WHERE oa.occurrence_id = @occurrence_id;
+
+-- name: GetOccurrenceCodeHistory :many
+SELECT h.*
+FROM occurrence_code_history h
+WHERE h.occurrence_id = @occurrence_id
+ORDER BY h.created_at DESC;
+
+-- name: GetOccurrenceCollections :many
+SELECT c.*
+FROM occurrence_collections c
+WHERE c.occurrence_id = @occurrence_id;
 
 -- name: ListSamplingSites :many
 WITH base_taxa AS (
     SELECT id
     FROM taxa
-    WHERE sqlc.arg(taxa_sci_names)::text [] IS NULL
-        OR scientific_name = ANY(sqlc.arg(taxa_sci_names))
+    WHERE @taxa_sci_names::text [] IS NULL
+        OR scientific_name = ANY(@taxa_sci_names)
 ),
 occurring_taxa AS (
     SELECT t.id
     FROM taxa t
-    WHERE sqlc.arg(taxa_sci_names)::text [] IS NULL
+    WHERE @taxa_sci_names::text [] IS NULL
         OR (
-            sqlc.arg(include_descendants)::boolean = false
+            @include_descendants::boolean = false
             AND t.id IN (
                 SELECT id
                 FROM base_taxa
             )
         )
         OR (
-            sqlc.arg(include_descendants)::boolean = true
+            @include_descendants::boolean = true
             AND t.id IN (
                 SELECT tc.descendant_id
                 FROM taxa_closure tc
@@ -60,22 +63,22 @@ occurring_taxa AS (
 target_base_taxa AS (
     SELECT id
     FROM taxa
-    WHERE sqlc.arg(target_taxa_sci_names)::text [] IS NULL
-        OR scientific_name = ANY(sqlc.arg(target_taxa_sci_names))
+    WHERE @target_taxa_sci_names::text [] IS NULL
+        OR scientific_name = ANY(@target_taxa_sci_names)
 ),
 target_sampling_taxa AS (
     SELECT t.id
     FROM taxa t
-    WHERE sqlc.arg(target_taxa_sci_names)::text [] IS NULL
+    WHERE @target_taxa_sci_names::text [] IS NULL
         OR (
-            sqlc.arg(target_include_descendants)::boolean = false
+            @target_include_descendants::boolean = false
             AND t.id IN (
                 SELECT id
                 FROM target_base_taxa
             )
         )
         OR (
-            sqlc.arg(target_include_descendants)::boolean = true
+            @target_include_descendants::boolean = true
             AND t.id IN (
                 SELECT tc.descendant_id
                 FROM taxa_closure tc
@@ -86,7 +89,7 @@ target_sampling_taxa AS (
 filtered_sampling_ids AS (
     SELECT DISTINCT st.sampling_id
     FROM sampling_target_taxa st
-    WHERE sqlc.arg(target_taxa_sci_names)::text [] IS NULL
+    WHERE @target_taxa_sci_names::text [] IS NULL
         OR st.taxon_id IN (
             SELECT id
             FROM target_sampling_taxa
@@ -96,27 +99,48 @@ dataset_filtered_occurrences AS (
     SELECT od.occurrence_id
     FROM occurrences_datasets od
         JOIN datasets d ON d.id = od.dataset_id
-    WHERE sqlc.arg(dataset_slugs)::text [] IS NOT NULL
-        AND d.slug = ANY(sqlc.arg(dataset_slugs))
+    WHERE @dataset_slugs::text [] IS NOT NULL
+        AND d.slug = ANY(@dataset_slugs)
 ),
 filtered_occurrences AS (
     SELECT o.*
     FROM occurrences o
         JOIN taxa t ON t.id = o.taxon_id
     WHERE (
-            sqlc.arg(taxa_sci_names)::text [] IS NULL
+            @taxa_sci_names::text [] IS NULL
             OR t.id IN (
                 SELECT id
                 FROM occurring_taxa
             )
         )
         AND (
-            sqlc.arg(dataset_slugs)::text [] IS NULL
+            @dataset_slugs::text [] IS NULL
             OR o.id IN (
                 SELECT occurrence_id
                 FROM dataset_filtered_occurrences
             )
         )
+),
+filtered_sampling_with_occurrences AS (
+    SELECT DISTINCT s.id
+    FROM samplings s
+        JOIN filtered_occurrences fo ON fo.sampling_id = s.id
+),
+samplings_without_occurrences AS (
+    SELECT s.id
+    FROM samplings s
+    WHERE NOT EXISTS (
+            SELECT 1
+            FROM occurrences o
+            WHERE o.sampling_id = s.id
+        )
+),
+valid_samplings AS (
+    SELECT id
+    FROM filtered_sampling_with_occurrences
+    UNION ALL
+    SELECT id
+    FROM samplings_without_occurrences
 )
 SELECT s.coordinates,
     ARRAY_AGG(DISTINCT s.coordinates_precision) AS coordinates_precision,
@@ -129,19 +153,20 @@ SELECT s.coordinates,
         WHERE o.id IS NOT NULL
     )::uuid [] AS occurrence_ids
 FROM samplings s
+    JOIN valid_samplings vs ON vs.id = s.id
     LEFT JOIN filtered_occurrences o ON o.sampling_id = s.id
     LEFT JOIN samplings_habitats sh ON sh.sampling_id = s.id
     LEFT JOIN habitats h ON h.id = sh.habitat_id
 WHERE (
-        sqlc.arg(country_code)::text IS NULL
-        OR s.site_country_code = sqlc.arg(country_code)
+        @country_code::text IS NULL
+        OR s.site_country_code = @country_code
     )
     AND (
-        sqlc.arg(habitats)::text [] IS NULL
-        OR h.label = ANY(sqlc.arg(habitats))
+        @habitats::text [] IS NULL
+        OR h.label = ANY(@habitats)
     )
     AND (
-        sqlc.arg(target_taxa_sci_names)::text [] IS NULL
+        @target_taxa_sci_names::text [] IS NULL
         OR s.id IN (
             SELECT sampling_id
             FROM filtered_sampling_ids
@@ -149,32 +174,34 @@ WHERE (
     )
 GROUP BY s.coordinates
 HAVING (
-        sqlc.arg(min_occurrences)::int IS NULL
-        OR COUNT(DISTINCT o.id) > sqlc.arg(min_occurrences)
+        @min_occurrences::int IS NULL
+        OR COUNT(DISTINCT o.id) > @min_occurrences
     );
 
 
 
 -- name: OccurrencesGroupsH3 :many
+-- This query aggregates occurrences and samplings by H3 index, 
+-- allowing for filtering by taxa, datasets, country, habitats, and minimum occurrences.
 WITH base_taxa AS (
     SELECT id
     FROM taxa
-    WHERE sqlc.arg(taxa_sci_names)::text [] IS NULL
-        OR scientific_name = ANY(sqlc.arg(taxa_sci_names))
+    WHERE @taxa_sci_names::text [] IS NULL
+        OR scientific_name = ANY(@taxa_sci_names)
 ),
 occurring_taxa AS (
     SELECT t.id
     FROM taxa t
-    WHERE sqlc.arg(taxa_sci_names)::text [] IS NULL
+    WHERE @taxa_sci_names::text [] IS NULL
         OR (
-            sqlc.arg(include_descendants)::boolean = false
+            @include_descendants::boolean = false
             AND t.id IN (
                 SELECT id
                 FROM base_taxa
             )
         )
         OR (
-            sqlc.arg(include_descendants)::boolean = true
+            @include_descendants::boolean = true
             AND t.id IN (
                 SELECT tc.descendant_id
                 FROM taxa_closure tc
@@ -185,22 +212,22 @@ occurring_taxa AS (
 target_base_taxa AS (
     SELECT id
     FROM taxa
-    WHERE sqlc.arg(target_taxa_sci_names)::text [] IS NULL
-        OR scientific_name = ANY(sqlc.arg(target_taxa_sci_names))
+    WHERE @target_taxa_sci_names::text [] IS NULL
+        OR scientific_name = ANY(@target_taxa_sci_names)
 ),
 target_sampling_taxa AS (
     SELECT t.id
     FROM taxa t
-    WHERE sqlc.arg(target_taxa_sci_names)::text [] IS NULL
+    WHERE @target_taxa_sci_names::text [] IS NULL
         OR (
-            sqlc.arg(target_include_descendants)::boolean = false
+            @target_include_descendants::boolean = false
             AND t.id IN (
                 SELECT id
                 FROM target_base_taxa
             )
         )
         OR (
-            sqlc.arg(target_include_descendants)::boolean = true
+            @target_include_descendants::boolean = true
             AND t.id IN (
                 SELECT tc.descendant_id
                 FROM taxa_closure tc
@@ -211,7 +238,7 @@ target_sampling_taxa AS (
 filtered_sampling_ids AS (
     SELECT DISTINCT st.sampling_id
     FROM sampling_target_taxa st
-    WHERE sqlc.arg(target_taxa_sci_names)::text [] IS NULL
+    WHERE @target_taxa_sci_names::text [] IS NULL
         OR st.taxon_id IN (
             SELECT id
             FROM target_sampling_taxa
@@ -221,29 +248,29 @@ dataset_filtered_occurrences AS (
     SELECT od.occurrence_id
     FROM occurrences_datasets od
         JOIN datasets d ON d.id = od.dataset_id
-    WHERE sqlc.arg(dataset_slugs)::text [] IS NOT NULL
-        AND d.slug = ANY(sqlc.arg(dataset_slugs))
+    WHERE @dataset_ids::ulid [] IS NOT NULL
+        AND d.id = ANY(@dataset_ids)
 ),
 filtered_occurrences AS (
     SELECT o.*
     FROM occurrences o
         JOIN taxa t ON t.id = o.taxon_id
     WHERE (
-            sqlc.arg(taxa_sci_names)::text [] IS NULL
+            @taxa_sci_names::text [] IS NULL
             OR t.id IN (
                 SELECT id
                 FROM occurring_taxa
             )
         )
         AND (
-            sqlc.arg(dataset_slugs)::text [] IS NULL
+            @dataset_ids::ulid [] IS NULL
             OR o.id IN (
                 SELECT occurrence_id
                 FROM dataset_filtered_occurrences
             )
         )
 )
-SELECT s.h3_res8 AS h3_index,
+SELECT s.h3_index AS h3_index,
     COUNT(DISTINCT s.id)::int AS samplings_count,
     COUNT(DISTINCT o.id)::int AS occurrences_count,
     ARRAY_AGG(DISTINCT s.id) FILTER (
@@ -257,22 +284,22 @@ FROM samplings s
     LEFT JOIN samplings_habitats sh ON sh.sampling_id = s.id
     LEFT JOIN habitats h ON h.id = sh.habitat_id
 WHERE (
-        sqlc.arg(country_code)::text IS NULL
-        OR s.site_country_code = sqlc.arg(country_code)
+        @country_codes::text [] IS NULL
+        OR s.site_country_code = ANY(@country_codes)
     )
     AND (
-        sqlc.arg(habitats)::text [] IS NULL
-        OR h.label = ANY(sqlc.arg(habitats))
+        @habitats::text [] IS NULL
+        OR h.label = ANY(@habitats)
     )
     AND (
-        sqlc.arg(target_taxa_sci_names)::text [] IS NULL
+        @target_taxa_sci_names::text [] IS NULL
         OR s.id IN (
             SELECT sampling_id
             FROM filtered_sampling_ids
         )
     )
-GROUP BY s.h3_res8
+GROUP BY s.h3_index
 HAVING (
-        sqlc.arg(min_occurrences)::int IS NULL
-        OR COUNT(DISTINCT o.id) > sqlc.arg(min_occurrences)
+        @min_occurrences::int IS NULL
+        OR COUNT(DISTINCT o.id) > @min_occurrences
     );

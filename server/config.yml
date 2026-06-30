@@ -1,4 +1,27 @@
+
+TOKEN_LENGTH: 32
+
 JWT_LIFETIME_MINUTES: 30
 ACCOUNT_TOKEN_LIFETIME_HOURS: 24
-TOKEN_LENGTH: 32
-GEOAPIFY_API_KEY: ""
+
+auth_tokens: 
+  VERSION: 0.0
+  AUTH_TOKEN_COOKIE_NAME: auth_token
+  AUTH_TOKEN_LIFETIME: 30m
+  REFRESH_TOKEN_COOKIE_NAME: refresh_token
+  REFRESH_TOKEN_LIFETIME: 24h
+
+API: 
+  BASE_PATH: /api/v1
+  API_TITLE: BiOME API
+  API_DESCRIPTION: Biodiversity and Occurrences for Molecular Ecology
+
+bootstrap: 
+  COUNTRIES_JSON_URL: https://github.com/lsdch/countries-boundaries/releases/latest/download/countries.json
+  COUNTRY_NAME_KEY: name
+  COUNTRY_CODE_KEY: code
+  COUNTRY_CONTINENT_KEY: region
+  COUNTRY_SUBCONTINENT_KEY: sub-region
+
+GBIF_MAX_CONCURRENT: 20
+GBIF_BACKBONE_DATASET_KEY: d7dddbf4-2cf0-4f39-9b2a-bb099caae36c

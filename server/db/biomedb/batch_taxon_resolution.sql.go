@@ -8,6 +8,7 @@ package biomedb
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -188,11 +189,11 @@ func (q *Queries) GetTaxonResolution(ctx context.Context, importHash string) ([]
 			&i.ImportHash,
 			&i.InputName,
 			&i.Source,
-			&i.GbifID,
+			&i.GBIFID,
 			&i.TaxonID,
 			&i.StagingID,
 			&i.Status,
-			&i.GbifStatus,
+			&i.GBIFStatus,
 		); err != nil {
 			return nil, err
 		}
@@ -226,11 +227,11 @@ func (q *Queries) InitTaxonResolution(ctx context.Context, importHash string) ([
 			&i.ImportHash,
 			&i.InputName,
 			&i.Source,
-			&i.GbifID,
+			&i.GBIFID,
 			&i.TaxonID,
 			&i.StagingID,
 			&i.Status,
-			&i.GbifStatus,
+			&i.GBIFStatus,
 		); err != nil {
 			return nil, err
 		}
@@ -248,11 +249,11 @@ type InsertTaxonCandidatesBatchParams struct {
 	Source     TaxonMatchSource `json:"source"`
 	MatchType  TaxonMatchType   `json:"match_type"`
 	TaxonID    pgtype.UUID      `json:"taxon_id"`
-	GbifID     pgtype.Int4      `json:"gbif_id"`
-	Score      pgtype.Float8    `json:"score"`
+	GBIFID     *int32           `json:"gbif_id"`
+	Score      *float64         `json:"score"`
 	Priority   int32            `json:"priority"`
 	Name       string           `json:"name"`
-	Authorship pgtype.Text      `json:"authorship"`
+	Authorship *string          `json:"authorship"`
 	Rank       TaxonRank        `json:"rank"`
 	Status     TaxonStatus      `json:"status"`
 }
@@ -305,19 +306,19 @@ FROM candidates
 
 type ListAllTaxonCandidatesRow struct {
 	TaxonName          string           `json:"taxon_name"`
-	TaxonAuthorship    pgtype.Text      `json:"taxon_authorship"`
-	TaxonRank          pgtype.Text      `json:"taxon_rank"`
+	TaxonAuthorship    *string          `json:"taxon_authorship"`
+	TaxonRank          *string          `json:"taxon_rank"`
 	InputName          string           `json:"input_name"`
 	Source             TaxonMatchSource `json:"source"`
 	MatchType          TaxonMatchType   `json:"match_type"`
-	Score              pgtype.Float8    `json:"score"`
+	Score              *float64         `json:"score"`
 	Priority           int32            `json:"priority"`
 	ResolvedName       string           `json:"resolved_name"`
-	ResolvedAuthorship pgtype.Text      `json:"resolved_authorship"`
+	ResolvedAuthorship *string          `json:"resolved_authorship"`
 	ResolvedRank       TaxonRank        `json:"resolved_rank"`
 	ResolvedStatus     TaxonStatus      `json:"resolved_status"`
 	ResolvedTaxonID    pgtype.UUID      `json:"resolved_taxon_id"`
-	ResolvedGbifID     pgtype.Int4      `json:"resolved_gbif_id"`
+	ResolvedGBIFID     *int32           `json:"resolved_gbif_id"`
 	Rank               int64            `json:"rank"`
 }
 
@@ -344,7 +345,7 @@ func (q *Queries) ListAllTaxonCandidates(ctx context.Context, importHash string)
 			&i.ResolvedRank,
 			&i.ResolvedStatus,
 			&i.ResolvedTaxonID,
-			&i.ResolvedGbifID,
+			&i.ResolvedGBIFID,
 			&i.Rank,
 		); err != nil {
 			return nil, err
@@ -370,9 +371,9 @@ ORDER BY i.taxon_scientific_name
 `
 
 type ListTaxaToFetchGBIFCandidatesRow struct {
-	TaxonName     string      `json:"taxon_name"`
-	FullInputName string      `json:"full_input_name"`
-	TaxonRank     pgtype.Text `json:"taxon_rank"`
+	TaxonName     string  `json:"taxon_name"`
+	FullInputName string  `json:"full_input_name"`
+	TaxonRank     *string `json:"taxon_rank"`
 }
 
 func (q *Queries) ListTaxaToFetchGBIFCandidates(ctx context.Context, importHash string) ([]ListTaxaToFetchGBIFCandidatesRow, error) {
@@ -450,9 +451,9 @@ WHERE import_hash = $7
 type ResolveTaxonParams struct {
 	Source     TaxonMatchSource `json:"source"`
 	MatchType  TaxonMatchType   `json:"match_type"`
-	TaxonID    pgtype.UUID      `json:"taxon_id"`
-	GbifID     int32            `json:"gbif_id"`
-	StagingID  pgtype.UUID      `json:"staging_id"`
+	TaxonID    uuid.UUID        `json:"taxon_id"`
+	GBIFID     int32            `json:"gbif_id"`
+	StagingID  uuid.UUID        `json:"staging_id"`
 	Status     ResolutionStatus `json:"status"`
 	ImportHash string           `json:"import_hash"`
 	InputName  string           `json:"input_name"`
@@ -463,7 +464,7 @@ func (q *Queries) ResolveTaxon(ctx context.Context, arg ResolveTaxonParams) erro
 		arg.Source,
 		arg.MatchType,
 		arg.TaxonID,
-		arg.GbifID,
+		arg.GBIFID,
 		arg.StagingID,
 		arg.Status,
 		arg.ImportHash,
@@ -492,13 +493,13 @@ SELECT $1,
 `
 
 type UpsertTaxonResolutionParams struct {
-	ImportHash string               `json:"import_hash"`
-	InputName  string               `json:"input_name"`
-	Source     NullTaxonMatchSource `json:"source"`
-	TaxonID    pgtype.UUID          `json:"taxon_id"`
-	GbifID     pgtype.Int4          `json:"gbif_id"`
-	StagingID  pgtype.UUID          `json:"staging_id"`
-	Status     NullResolutionStatus `json:"status"`
+	ImportHash string            `json:"import_hash"`
+	InputName  string            `json:"input_name"`
+	Source     *TaxonMatchSource `json:"source"`
+	TaxonID    pgtype.UUID       `json:"taxon_id"`
+	GBIFID     *int32            `json:"gbif_id"`
+	StagingID  pgtype.UUID       `json:"staging_id"`
+	Status     *ResolutionStatus `json:"status"`
 }
 
 func (q *Queries) UpsertTaxonResolution(ctx context.Context, arg UpsertTaxonResolutionParams) error {
@@ -507,7 +508,7 @@ func (q *Queries) UpsertTaxonResolution(ctx context.Context, arg UpsertTaxonReso
 		arg.InputName,
 		arg.Source,
 		arg.TaxonID,
-		arg.GbifID,
+		arg.GBIFID,
 		arg.StagingID,
 		arg.Status,
 	)

@@ -28,7 +28,7 @@ SELECT @import_hash,
     CASE
         WHEN resolved_method_id IS NOT NULL THEN 'auto'
         ELSE 'pending'
-    END::method_resolution_status
+    END::vocab_resolution_status
 FROM resolved
 RETURNING *;
 

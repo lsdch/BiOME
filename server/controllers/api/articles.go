@@ -54,12 +54,12 @@ func init() {
 			Method:  http.MethodGet,
 			Summary: "Retrieve article infos from DOI",
 		},
-		func(ctx context.Context, i *SearchDoiInput) (*controllers.BodyResponse[*crossrefapi.Works], error) {
+		func(ctx context.Context, i *SearchDoiInput) (*controllers.BodyTransporter[*crossrefapi.Works], error) {
 			ref, err := crossref.RetrieveDOI(i.DOI)
 			if err != nil {
 				return nil, err
 			}
-			return &controllers.BodyResponse[*crossrefapi.Works]{Body: ref}, err
+			return &controllers.BodyTransporter[*crossrefapi.Works]{Body: ref}, err
 		},
 	)
 

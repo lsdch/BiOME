@@ -169,13 +169,13 @@ SELECT $1,
 type InsertTaxonStagingParams struct {
 	ImportHash      string           `json:"import_hash"`
 	Name            string           `json:"name"`
-	Authorship      pgtype.Text      `json:"authorship"`
+	Authorship      *string          `json:"authorship"`
 	Rank            TaxonRank        `json:"rank"`
 	Status          TaxonStatus      `json:"status"`
 	ParentSource    TaxonMatchSource `json:"parent_source"`
 	ParentTaxaID    pgtype.UUID      `json:"parent_taxa_id"`
-	ParentGbifID    pgtype.Int4      `json:"parent_gbif_id"`
-	ParentInputName pgtype.Text      `json:"parent_input_name"`
+	ParentGBIFID    *int32           `json:"parent_gbif_id"`
+	ParentInputName *string          `json:"parent_input_name"`
 }
 
 func (q *Queries) InsertTaxonStaging(ctx context.Context, arg InsertTaxonStagingParams) error {
@@ -187,7 +187,7 @@ func (q *Queries) InsertTaxonStaging(ctx context.Context, arg InsertTaxonStaging
 		arg.Status,
 		arg.ParentSource,
 		arg.ParentTaxaID,
-		arg.ParentGbifID,
+		arg.ParentGBIFID,
 		arg.ParentInputName,
 	)
 	return err

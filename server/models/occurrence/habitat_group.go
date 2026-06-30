@@ -159,12 +159,12 @@ func DeleteHabitatGroup(db geltypes.Executor, label string) (deleted HabitatGrou
 }
 
 type HabitatGroupUpdate struct {
-	Label      models.OptionalInput[string]                   `gel:"label" json:"label,omitempty"`
-	Depends    models.OptionalNull[string]                    `gel:"depends" json:"depends,omitempty"`
-	Exclusive  models.OptionalInput[bool]                     `gel:"exclusive_elements" json:"exclusive_elements,omitempty"`
-	CreateTags models.OptionalInput[[]HabitatInput]           `json:"create_tags,omitempty"`
-	UpdateTags models.OptionalInput[map[string]HabitatUpdate] `json:"update_tags,omitempty"`
-	DeleteTags models.OptionalInput[[]string]                 `json:"delete_tags,omitempty"`
+	Label      models.Optional[string]                   `gel:"label" json:"label,omitempty"`
+	Depends    models.OptionalNull[string]               `gel:"depends" json:"depends,omitempty"`
+	Exclusive  models.Optional[bool]                     `gel:"exclusive_elements" json:"exclusive_elements,omitempty"`
+	CreateTags models.Optional[[]HabitatInput]           `json:"create_tags,omitempty"`
+	UpdateTags models.Optional[map[string]HabitatUpdate] `json:"update_tags,omitempty"`
+	DeleteTags models.Optional[[]string]                 `json:"delete_tags,omitempty"`
 }
 
 func (u HabitatGroupUpdate) Save(e geltypes.Executor, label string) (updated HabitatGroup, err error) {

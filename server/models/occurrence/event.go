@@ -44,8 +44,8 @@ type Action struct {
 }
 
 type ActionInput struct {
-	PerformedBy []string                                     `json:"performed_by,omitempty"`
-	PerformedOn models.OptionalInput[DateWithPrecisionInput] `json:"performed_on,omitzero"`
+	PerformedBy []string                                `json:"performed_by,omitempty"`
+	PerformedOn models.Optional[DateWithPrecisionInput] `json:"performed_on,omitzero"`
 }
 
 // func (ev *ActionInput) WithPersonAliases(aliases map[string]string) *ActionInput {
@@ -58,6 +58,6 @@ type ActionInput struct {
 // }
 
 type ActionUpdate struct {
-	PerformedBy models.OptionalNull[[]string]                `gel:"performed_by" json:"performed_by,omitempty"`
-	PerformedOn models.OptionalInput[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
+	PerformedBy models.OptionalNull[[]string]           `gel:"performed_by" json:"performed_by,omitempty"`
+	PerformedOn models.Optional[DateWithPrecisionInput] `gel:"performed_on" json:"performed_on,omitempty"`
 }

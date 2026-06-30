@@ -1,5 +1,5 @@
 CREATE TABLE occurrence_collections (
-	occurrence_id CHAR(26) NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
+	occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
 	name TEXT NOT NULL,
 	vouchers TEXT [],
 	CONSTRAINT occurrence_collections_name_not_empty CHECK (char_length(btrim(name)) >= 2),

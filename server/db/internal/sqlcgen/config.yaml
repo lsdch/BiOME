@@ -2,14 +2,14 @@ templates:
   - template: occurrences_summary.sql.tmpl
     output: occurrences_summary_gen.sql
     queries:
-      - name: FetchOccurrencesSortByEventDateASC
+      - name: ListOccurrencesSortByEventDateASC
         order_by: "s.event_date ASC, t.name ASC, c.name ASC, o.id ASC"
         
-      - name: FetchOccurrencesSortByEventDateDESC
+      - name: ListOccurrencesSortByEventDateDESC
         order_by: "s.event_date DESC, t.name ASC, c.name ASC, o.id ASC"
 
-      - name: FetchOccurrencesByTaxon
+      - name: ListOccurrencesByTaxon
         order_by: "t.name ASC, s.event_date DESC, c.name ASC, o.id ASC"
 
-      - name: FetchOccurrencesByCountry
+      - name: ListOccurrencesByCountry
         order_by: "c.name ASC, s.event_date DESC, t.name ASC, o.id ASC"

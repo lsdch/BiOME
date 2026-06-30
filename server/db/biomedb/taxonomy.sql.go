@@ -8,7 +8,7 @@ package biomedb
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
 const checkMissingOrDuplicateTaxonNamesBulk = `-- name: CheckMissingOrDuplicateTaxonNamesBulk :many
@@ -95,8 +95,8 @@ DELETE FROM taxa
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTaxonByID(ctx context.Context, id pgtype.UUID) error {
-	_, err := q.db.Exec(ctx, deleteTaxonByID, id)
+func (q *Queries) DeleteTaxonByID(ctx context.Context, taxonID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteTaxonByID, taxonID)
 	return err
 }
 
@@ -105,60 +105,39 @@ DELETE FROM taxa
 WHERE scientific_name = $1
 `
 
-func (q *Queries) DeleteTaxonByScientificName(ctx context.Context, scientificName pgtype.Text) error {
+func (q *Queries) DeleteTaxonByScientificName(ctx context.Context, scientificName string) error {
 	_, err := q.db.Exec(ctx, deleteTaxonByScientificName, scientificName)
 	return err
 }
 
 const getTaxaByRank = `-- name: GetTaxaByRank :many
-SELECT id,
-    gbif_id,
-    name,
-    scientific_name,
-    authorship,
-    rank,
-    status,
-    accepted_taxon_id,
-    parent_id,
-    comments
+SELECT id, gbif_id, name, scientific_name, rank, status, authorship, accepted_taxon_id, parent_id, search_vector, comments
 FROM taxa
 WHERE rank = $1
 ORDER BY scientific_name ASC,
     name ASC
 `
 
-type GetTaxaByRankRow struct {
-	ID              pgtype.UUID `json:"id"`
-	GbifID          pgtype.Int4 `json:"gbif_id"`
-	Name            string      `json:"name"`
-	ScientificName  pgtype.Text `json:"scientific_name"`
-	Authorship      pgtype.Text `json:"authorship"`
-	Rank            TaxonRank   `json:"rank"`
-	Status          TaxonStatus `json:"status"`
-	AcceptedTaxonID pgtype.UUID `json:"accepted_taxon_id"`
-	ParentID        pgtype.UUID `json:"parent_id"`
-	Comments        pgtype.Text `json:"comments"`
-}
-
-func (q *Queries) GetTaxaByRank(ctx context.Context, rank TaxonRank) ([]GetTaxaByRankRow, error) {
+func (q *Queries) GetTaxaByRank(ctx context.Context, rank TaxonRank) ([]Taxon, error) {
 	rows, err := q.db.Query(ctx, getTaxaByRank, rank)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetTaxaByRankRow
+	var items []Taxon
 	for rows.Next() {
-		var i GetTaxaByRankRow
+		var i Taxon
 		if err := rows.Scan(
 			&i.ID,
-			&i.GbifID,
+			&i.GBIFID,
 			&i.Name,
 			&i.ScientificName,
-			&i.Authorship,
 			&i.Rank,
 			&i.Status,
+			&i.Authorship,
 			&i.AcceptedTaxonID,
 			&i.ParentID,
+			&i.SearchVector,
 			&i.Comments,
 		); err != nil {
 			return nil, err
@@ -172,18 +151,18 @@ func (q *Queries) GetTaxaByRank(ctx context.Context, rank TaxonRank) ([]GetTaxaB
 }
 
 const getTaxonByID = `-- name: GetTaxonByID :one
-SELECT id, gbif_id, name, scientific_name, rank, status, authorship, accepted_taxon_id, parent_id, comments
+SELECT id, gbif_id, name, scientific_name, rank, status, authorship, accepted_taxon_id, parent_id, search_vector, comments
 FROM taxa t
 WHERE t.id = $1
 LIMIT 1
 `
 
-func (q *Queries) GetTaxonByID(ctx context.Context, id pgtype.UUID) (Taxon, error) {
-	row := q.db.QueryRow(ctx, getTaxonByID, id)
+func (q *Queries) GetTaxonByID(ctx context.Context, taxonID uuid.UUID) (Taxon, error) {
+	row := q.db.QueryRow(ctx, getTaxonByID, taxonID)
 	var i Taxon
 	err := row.Scan(
 		&i.ID,
-		&i.GbifID,
+		&i.GBIFID,
 		&i.Name,
 		&i.ScientificName,
 		&i.Rank,
@@ -191,24 +170,25 @@ func (q *Queries) GetTaxonByID(ctx context.Context, id pgtype.UUID) (Taxon, erro
 		&i.Authorship,
 		&i.AcceptedTaxonID,
 		&i.ParentID,
+		&i.SearchVector,
 		&i.Comments,
 	)
 	return i, err
 }
 
-const getTaxonByName = `-- name: GetTaxonByName :one
-SELECT id, gbif_id, name, scientific_name, rank, status, authorship, accepted_taxon_id, parent_id, comments
+const getTaxonByScientificName = `-- name: GetTaxonByScientificName :one
+SELECT id, gbif_id, name, scientific_name, rank, status, authorship, accepted_taxon_id, parent_id, search_vector, comments
 FROM taxa t
 WHERE t.scientific_name = $1
 LIMIT 1
 `
 
-func (q *Queries) GetTaxonByName(ctx context.Context, scientificName pgtype.Text) (Taxon, error) {
-	row := q.db.QueryRow(ctx, getTaxonByName, scientificName)
+func (q *Queries) GetTaxonByScientificName(ctx context.Context, scientificName string) (Taxon, error) {
+	row := q.db.QueryRow(ctx, getTaxonByScientificName, scientificName)
 	var i Taxon
 	err := row.Scan(
 		&i.ID,
-		&i.GbifID,
+		&i.GBIFID,
 		&i.Name,
 		&i.ScientificName,
 		&i.Rank,
@@ -216,9 +196,54 @@ func (q *Queries) GetTaxonByName(ctx context.Context, scientificName pgtype.Text
 		&i.Authorship,
 		&i.AcceptedTaxonID,
 		&i.ParentID,
+		&i.SearchVector,
 		&i.Comments,
 	)
 	return i, err
+}
+
+const getTaxonLineage = `-- name: GetTaxonLineage :many
+With parents AS (
+    SELECT ancestor_id AS id
+    FROM taxa_closure
+    WHERE descendant_id = $1
+)
+SELECT t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments
+FROM taxa t
+    JOIN parents p ON p.id = t.id
+ORDER BY t.rank DESC
+`
+
+func (q *Queries) GetTaxonLineage(ctx context.Context, taxonID uuid.UUID) ([]Taxon, error) {
+	rows, err := q.db.Query(ctx, getTaxonLineage, taxonID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Taxon
+	for rows.Next() {
+		var i Taxon
+		if err := rows.Scan(
+			&i.ID,
+			&i.GBIFID,
+			&i.Name,
+			&i.ScientificName,
+			&i.Rank,
+			&i.Status,
+			&i.Authorship,
+			&i.AcceptedTaxonID,
+			&i.ParentID,
+			&i.SearchVector,
+			&i.Comments,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const insertTaxon = `-- name: InsertTaxon :one
@@ -231,7 +256,7 @@ INSERT INTO taxa (
         accepted_taxon_id,
         parent_id,
         comments
-    ) -- params: gbif_id, name, authorship, rank, status, accepted_scientific_or_name, parent_scientific_or_name, comments
+    )
 VALUES (
         $1,
         $2,
@@ -241,14 +266,14 @@ VALUES (
         (
             SELECT id
             FROM taxa t
-            WHERE t.scientific_name = $7::text
+            WHERE t.scientific_name = $6::text
             LIMIT 1
         ), (
             SELECT id
             FROM taxa t
-            WHERE t.scientific_name = $8::text
+            WHERE t.scientific_name = $7::text
             LIMIT 1
-        ), $6
+        ), $8
     ) ON CONFLICT ON CONSTRAINT taxon_name_authorship_uidx DO
 UPDATE
 SET gbif_id = EXCLUDED.gbif_id,
@@ -257,35 +282,35 @@ SET gbif_id = EXCLUDED.gbif_id,
     accepted_taxon_id = EXCLUDED.accepted_taxon_id,
     parent_id = EXCLUDED.parent_id,
     comments = EXCLUDED.comments
-RETURNING id, gbif_id, name, scientific_name, rank, status, authorship, accepted_taxon_id, parent_id, comments
+RETURNING id, gbif_id, name, scientific_name, rank, status, authorship, accepted_taxon_id, parent_id, search_vector, comments
 `
 
 type InsertTaxonParams struct {
-	GbifID                pgtype.Int4 `json:"gbif_id"`
+	GBIFID                *int32      `json:"gbif_id"`
 	Name                  string      `json:"name"`
-	Authorship            pgtype.Text `json:"authorship"`
+	Authorship            *string     `json:"authorship"`
 	Rank                  TaxonRank   `json:"rank"`
 	Status                TaxonStatus `json:"status"`
-	Comments              pgtype.Text `json:"comments"`
 	SynonymScientificName string      `json:"synonym_scientific_name"`
 	ParentScientificName  string      `json:"parent_scientific_name"`
+	Comments              *string     `json:"comments"`
 }
 
 func (q *Queries) InsertTaxon(ctx context.Context, arg InsertTaxonParams) (Taxon, error) {
 	row := q.db.QueryRow(ctx, insertTaxon,
-		arg.GbifID,
+		arg.GBIFID,
 		arg.Name,
 		arg.Authorship,
 		arg.Rank,
 		arg.Status,
-		arg.Comments,
 		arg.SynonymScientificName,
 		arg.ParentScientificName,
+		arg.Comments,
 	)
 	var i Taxon
 	err := row.Scan(
 		&i.ID,
-		&i.GbifID,
+		&i.GBIFID,
 		&i.Name,
 		&i.ScientificName,
 		&i.Rank,
@@ -293,6 +318,7 @@ func (q *Queries) InsertTaxon(ctx context.Context, arg InsertTaxonParams) (Taxon
 		&i.Authorship,
 		&i.AcceptedTaxonID,
 		&i.ParentID,
+		&i.SearchVector,
 		&i.Comments,
 	)
 	return i, err

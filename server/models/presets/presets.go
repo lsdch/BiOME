@@ -17,9 +17,9 @@ type PresetsInner struct {
 }
 
 type PresetsInput struct {
-	ID           models.OptionalInput[geltypes.UUID] `json:"id,omitempty" gel:"id"`
+	ID           models.Optional[geltypes.UUID] `json:"id,omitempty" gel:"id"`
 	PresetsInner `gel:"$inline"`
-	Description  models.OptionalInput[string] `json:"description,omitempty" gel:"description"`
+	Description  models.Optional[string] `json:"description,omitempty" gel:"description"`
 }
 
 type DataFeedSpecInput PresetsInput

@@ -60,8 +60,8 @@ func (i HabitatInput) Save(db geltypes.Executor) (Habitat, error) {
 }
 
 type HabitatUpdate struct {
-	Label       models.OptionalInput[string] `gel:"label" json:"label,omitempty"`
-	Description models.OptionalNull[string]  `gel:"description" json:"description,omitempty"`
+	Label       models.Optional[string]     `gel:"label" json:"label,omitempty"`
+	Description models.OptionalNull[string] `gel:"description" json:"description,omitempty"`
 }
 
 func ListHabitats(db geltypes.Executor) ([]Habitat, error) {

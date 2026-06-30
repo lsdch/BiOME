@@ -116,8 +116,8 @@ func SitesProximity(ctx context.Context, input *SitesProximityInput) (*SitesProx
 
 type SiteSearchInput struct {
 	resolvers.AuthResolver
-	Query     string                        `query:"query"`
-	Threshold models.OptionalInput[float32] `query:"threshold"`
+	Query     string                   `query:"query"`
+	Threshold models.Optional[float32] `query:"threshold"`
 }
 type SiteSearchOutput struct {
 	Body []occurrence.SiteWithScore

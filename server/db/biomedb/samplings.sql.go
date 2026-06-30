@@ -8,7 +8,9 @@ package biomedb
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	ulid "github.com/oklog/ulid/v2"
 )
 
 const detectExistingSamplings = `-- name: DetectExistingSamplings :many
@@ -53,12 +55,12 @@ type DetectExistingSamplingsParams struct {
 }
 
 type DetectExistingSamplingsRow struct {
-	Latitude             float32                `json:"latitude"`
-	Longitude            float32                `json:"longitude"`
-	EventDate            pgtype.Date            `json:"event_date"`
-	EventDatePrecision   NullEventDatePrecision `json:"event_date_precision"`
-	CoordinatesPrecision pgtype.Int4            `json:"coordinates_precision"`
-	DistanceMeters       int32                  `json:"distance_meters"`
+	Latitude             float32             `json:"latitude"`
+	Longitude            float32             `json:"longitude"`
+	EventDate            pgtype.Date         `json:"event_date"`
+	EventDatePrecision   *EventDatePrecision `json:"event_date_precision"`
+	CoordinatesPrecision *int32              `json:"coordinates_precision"`
+	DistanceMeters       int32               `json:"distance_meters"`
 }
 
 func (q *Queries) DetectExistingSamplings(ctx context.Context, arg DetectExistingSamplingsParams) ([]DetectExistingSamplingsRow, error) {
@@ -82,6 +84,280 @@ func (q *Queries) DetectExistingSamplings(ctx context.Context, arg DetectExistin
 			&i.EventDatePrecision,
 			&i.CoordinatesPrecision,
 			&i.DistanceMeters,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getHabitatsAtEvent = `-- name: GetHabitatsAtEvent :many
+SELECT h.id, h.label, h.description, h.habitat_group_id,
+    hg.id, hg.label, hg.description, hg.exclusive_elements, hg.parent_habitat_id
+FROM habitats h
+    JOIN samplings_habitats sh ON sh.habitat_id = h.id
+    JOIN habitat_groups hg ON hg.id = h.group_id
+WHERE sh.sampling_id = $1::uuid
+`
+
+type GetHabitatsAtEventRow struct {
+	Habitat      Habitat      `json:"habitat"`
+	HabitatGroup HabitatGroup `json:"habitat_group"`
+}
+
+func (q *Queries) GetHabitatsAtEvent(ctx context.Context, samplingID uuid.UUID) ([]GetHabitatsAtEventRow, error) {
+	rows, err := q.db.Query(ctx, getHabitatsAtEvent, samplingID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetHabitatsAtEventRow
+	for rows.Next() {
+		var i GetHabitatsAtEventRow
+		if err := rows.Scan(
+			&i.Habitat.ID,
+			&i.Habitat.Label,
+			&i.Habitat.Description,
+			&i.Habitat.HabitatGroupID,
+			&i.HabitatGroup.ID,
+			&i.HabitatGroup.Label,
+			&i.HabitatGroup.Description,
+			&i.HabitatGroup.ExclusiveElements,
+			&i.HabitatGroup.ParentHabitatID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getOccurrencesAtSamplingsBatch = `-- name: GetOccurrencesAtSamplingsBatch :many
+SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments
+FROM occurrences o
+    LEFT JOIN taxa t ON t.id = o.taxon_id
+WHERE o.sampling_id = ANY($1::uuid [])
+    AND (
+        $2::ulid [] IS NULL
+        OR o.id = ANY($2::ulid [])
+    )
+`
+
+type GetOccurrencesAtSamplingsBatchRow struct {
+	Occurrence Occurrence `json:"occurrence"`
+	Taxon      Taxon      `json:"taxon"`
+}
+
+func (q *Queries) GetOccurrencesAtSamplingsBatch(ctx context.Context, samplingIDs []uuid.UUID, occurrenceIDs []ulid.ULID) ([]GetOccurrencesAtSamplingsBatchRow, error) {
+	rows, err := q.db.Query(ctx, getOccurrencesAtSamplingsBatch, samplingIDs, occurrenceIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetOccurrencesAtSamplingsBatchRow
+	for rows.Next() {
+		var i GetOccurrencesAtSamplingsBatchRow
+		if err := rows.Scan(
+			&i.Occurrence.ID,
+			&i.Occurrence.Code,
+			&i.Occurrence.SamplingID,
+			&i.Occurrence.TypeStatus,
+			&i.Occurrence.Comments,
+			&i.Occurrence.TaxonID,
+			&i.Occurrence.VerbatimIdentification,
+			&i.Occurrence.IdentifiedBy,
+			&i.Occurrence.IdentificationDate,
+			&i.Occurrence.IdentificationDatePrecision,
+			&i.Occurrence.IdentificationConfer,
+			&i.Occurrence.IdentificationAddendum,
+			&i.Occurrence.ContentDescription,
+			&i.Occurrence.QuantityExact,
+			&i.Occurrence.QuantityLower,
+			&i.Occurrence.QuantityUpper,
+			&i.Occurrence.Sources,
+			&i.Occurrence.CreatedAt,
+			&i.Occurrence.UpdatedAt,
+			&i.Occurrence.ImportBatchID,
+			&i.Taxon.ID,
+			&i.Taxon.GBIFID,
+			&i.Taxon.Name,
+			&i.Taxon.ScientificName,
+			&i.Taxon.Rank,
+			&i.Taxon.Status,
+			&i.Taxon.Authorship,
+			&i.Taxon.AcceptedTaxonID,
+			&i.Taxon.ParentID,
+			&i.Taxon.SearchVector,
+			&i.Taxon.Comments,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSamplingBatch = `-- name: GetSamplingBatch :many
+SELECT s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    c.code, c.name, c.continent, c.subcontinent, c.geom
+FROM samplings s
+    JOIN countries c ON c.code = s.site_country_code
+WHERE s.id = ANY($1::uuid [])
+`
+
+type GetSamplingBatchRow struct {
+	Sampling Sampling `json:"sampling"`
+	Country  Country  `json:"country"`
+}
+
+func (q *Queries) GetSamplingBatch(ctx context.Context, samplingIds []uuid.UUID) ([]GetSamplingBatchRow, error) {
+	rows, err := q.db.Query(ctx, getSamplingBatch, samplingIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetSamplingBatchRow
+	for rows.Next() {
+		var i GetSamplingBatchRow
+		if err := rows.Scan(
+			&i.Sampling.ID,
+			&i.Sampling.SamplingHash,
+			&i.Sampling.Notes,
+			&i.Sampling.SiteCode,
+			&i.Sampling.SiteName,
+			&i.Sampling.SiteLocality,
+			&i.Sampling.SiteCountryCode,
+			&i.Sampling.CoordinatesPrecision,
+			&i.Sampling.Coordinates,
+			&i.Sampling.Latitude,
+			&i.Sampling.Longitude,
+			&i.Sampling.Altitude,
+			&i.Sampling.EventDate,
+			&i.Sampling.EventDatePrecision,
+			&i.Sampling.PerformedBy,
+			&i.Sampling.Duration,
+			&i.Sampling.AccessPoints,
+			&i.Sampling.H3Index,
+			&i.Sampling.SearchVector,
+			&i.Country.Code,
+			&i.Country.Name,
+			&i.Country.Continent,
+			&i.Country.Subcontinent,
+			&i.Country.Geom,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSamplingFixativesAtEvent = `-- name: GetSamplingFixativesAtEvent :many
+SELECT f.id, f.code, f.name, f.description
+FROM fixatives f
+    JOIN samplings_fixatives ef ON ef.fixative_id = f.id
+WHERE ef.sampling_id = $1::uuid
+`
+
+func (q *Queries) GetSamplingFixativesAtEvent(ctx context.Context, samplingID uuid.UUID) ([]Fixative, error) {
+	rows, err := q.db.Query(ctx, getSamplingFixativesAtEvent, samplingID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Fixative
+	for rows.Next() {
+		var i Fixative
+		if err := rows.Scan(
+			&i.ID,
+			&i.Code,
+			&i.Name,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSamplingMethodsAtEvent = `-- name: GetSamplingMethodsAtEvent :many
+SELECT sm.id, sm.code, sm.name, sm.description
+FROM sampling_methods sm
+    JOIN events_sampling_methods esm ON esm.method_id = sm.id
+WHERE esm.sampling_id = $1::uuid
+`
+
+func (q *Queries) GetSamplingMethodsAtEvent(ctx context.Context, samplingID uuid.UUID) ([]SamplingMethod, error) {
+	rows, err := q.db.Query(ctx, getSamplingMethodsAtEvent, samplingID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SamplingMethod
+	for rows.Next() {
+		var i SamplingMethod
+		if err := rows.Scan(
+			&i.ID,
+			&i.Code,
+			&i.Name,
+			&i.Description,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getSamplingTargetTaxa = `-- name: GetSamplingTargetTaxa :many
+SELECT t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments
+FROM taxa t
+    JOIN sampling_target_taxa st ON st.taxon_id = t.id
+WHERE st.sampling_id = $1::uuid
+`
+
+func (q *Queries) GetSamplingTargetTaxa(ctx context.Context, samplingID uuid.UUID) ([]Taxon, error) {
+	rows, err := q.db.Query(ctx, getSamplingTargetTaxa, samplingID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Taxon
+	for rows.Next() {
+		var i Taxon
+		if err := rows.Scan(
+			&i.ID,
+			&i.GBIFID,
+			&i.Name,
+			&i.ScientificName,
+			&i.Rank,
+			&i.Status,
+			&i.Authorship,
+			&i.AcceptedTaxonID,
+			&i.ParentID,
+			&i.SearchVector,
+			&i.Comments,
 		); err != nil {
 			return nil, err
 		}

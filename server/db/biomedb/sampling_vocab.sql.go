@@ -8,7 +8,7 @@ package biomedb
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 const createFixative = `-- name: CreateFixative :one
@@ -29,9 +29,9 @@ RETURNING id,
 `
 
 type CreateFixativeParams struct {
-	Code        string      `json:"code"`
-	Name        string      `json:"name"`
-	Description pgtype.Text `json:"description"`
+	Code        string  `json:"code"`
+	Name        string  `json:"name"`
+	Description *string `json:"description"`
 }
 
 func (q *Queries) CreateFixative(ctx context.Context, arg CreateFixativeParams) (Fixative, error) {
@@ -64,9 +64,9 @@ RETURNING id,
 `
 
 type CreateSamplingMethodParams struct {
-	Code        string      `json:"code"`
-	Name        string      `json:"name"`
-	Description pgtype.Text `json:"description"`
+	Code        string  `json:"code"`
+	Name        string  `json:"name"`
+	Description *string `json:"description"`
 }
 
 func (q *Queries) CreateSamplingMethod(ctx context.Context, arg CreateSamplingMethodParams) (SamplingMethod, error) {
@@ -81,25 +81,13 @@ func (q *Queries) CreateSamplingMethod(ctx context.Context, arg CreateSamplingMe
 	return i, err
 }
 
-const deleteFixative = `-- name: DeleteFixative :one
+const deleteFixative = `-- name: DeleteFixative :execresult
 DELETE FROM fixatives
 WHERE code = $1
-RETURNING id,
-    code,
-    name,
-    description
 `
 
-func (q *Queries) DeleteFixative(ctx context.Context, code string) (Fixative, error) {
-	row := q.db.QueryRow(ctx, deleteFixative, code)
-	var i Fixative
-	err := row.Scan(
-		&i.ID,
-		&i.Code,
-		&i.Name,
-		&i.Description,
-	)
-	return i, err
+func (q *Queries) DeleteFixative(ctx context.Context, code string) (pgconn.CommandTag, error) {
+	return q.db.Exec(ctx, deleteFixative, code)
 }
 
 const deleteSamplingMethod = `-- name: DeleteSamplingMethod :exec
@@ -235,7 +223,7 @@ UPDATE fixatives
 SET code = COALESCE($1, code),
     name = COALESCE($2, name),
     description = CASE
-        WHEN $3 THEN $4
+        WHEN $3::bool THEN $4
         ELSE description
     END
 WHERE code = $5
@@ -246,11 +234,11 @@ RETURNING id,
 `
 
 type UpdateFixativeParams struct {
-	Code           string      `json:"code"`
-	Name           string      `json:"name"`
-	SetDescription pgtype.Text `json:"set_description"`
-	Description    pgtype.Text `json:"description"`
-	OldCode        string      `json:"old_code"`
+	Code           *string `json:"code"`
+	Name           *string `json:"name"`
+	SetDescription bool    `json:"set_description"`
+	Description    *string `json:"description"`
+	OldCode        string  `json:"old_code"`
 }
 
 func (q *Queries) UpdateFixative(ctx context.Context, arg UpdateFixativeParams) (Fixative, error) {
@@ -287,11 +275,11 @@ RETURNING id,
 `
 
 type UpdateSamplingMethodParams struct {
-	Code           pgtype.Text `json:"code"`
-	Name           pgtype.Text `json:"name"`
-	SetDescription bool        `json:"set_description"`
-	Description    pgtype.Text `json:"description"`
-	OldCode        string      `json:"old_code"`
+	Code           *string `json:"code"`
+	Name           *string `json:"name"`
+	SetDescription bool    `json:"set_description"`
+	Description    *string `json:"description"`
+	OldCode        string  `json:"old_code"`
 }
 
 func (q *Queries) UpdateSamplingMethod(ctx context.Context, arg UpdateSamplingMethodParams) (SamplingMethod, error) {

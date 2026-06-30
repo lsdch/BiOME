@@ -1,6 +1,6 @@
-CREATE TABLE occurrences (
+CREATE TABLE IF NOT EXISTS occurrences (
 	-- ULID
-	id CHAR(26) PRIMARY KEY,
+	id ULID PRIMARY KEY,
 	code TEXT NOT NULL,
 	sampling_id UUID NOT NULL REFERENCES samplings (id) ON DELETE CASCADE,
 	type_status occurrence_type_status,
@@ -20,34 +20,45 @@ CREATE TABLE occurrences (
 	quantity_lower INTEGER,
 	quantity_upper INTEGER,
 	sources TEXT [],
-	CONSTRAINT occurrence_quantity_shape CHECK (
-		(
-			quantity_exact IS NOT NULL
-			AND quantity_lower IS NULL
-			AND quantity_upper IS NULL
-		)
-		OR (
-			quantity_exact IS NULL
-			AND (
-				quantity_lower IS NOT NULL
-				OR quantity_upper IS NOT NULL
+	-- Metadata fields
+	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+	import_batch_id ULID REFERENCES import_batches (id) ON DELETE
+	SET NULL,
+		-- Constraints
+		CONSTRAINT occurrence_quantity_shape CHECK (
+			(
+				quantity_exact IS NOT NULL
+				AND quantity_lower IS NULL
+				AND quantity_upper IS NULL
 			)
-			AND (
-				quantity_lower IS NULL
-				OR quantity_upper IS NULL
-				OR quantity_lower <= quantity_upper
+			OR (
+				quantity_exact IS NULL
+				AND (
+					quantity_lower IS NOT NULL
+					OR quantity_upper IS NOT NULL
+				)
+				AND (
+					quantity_lower IS NULL
+					OR quantity_upper IS NULL
+					OR quantity_lower <= quantity_upper
+				)
 			)
 		)
-	)
 );
 
 CREATE INDEX occurrences_sampling_id_idx ON occurrences (sampling_id);
 
 CREATE INDEX occurrences_type_status_idx ON occurrences (type_status);
 
+CREATE INDEX occurrences_code_idx ON occurrences (code text_pattern_ops);
+
+CREATE TRIGGER occurrences_set_updated_at BEFORE
+UPDATE ON occurrences FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
 CREATE TABLE IF NOT EXISTS occurrence_code_history (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	occurrence_id CHAR(26) NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
+	occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
 	code TEXT NOT NULL,
 	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

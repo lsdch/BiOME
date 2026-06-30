@@ -8,20 +8,23 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jackc/pgx/v5"
+	"github.com/google/uuid"
+	"github.com/gosimple/slug"
 	"github.com/jszwec/csvutil"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
-	"github.com/lsdch/biome/db/stores"
-	gbif "github.com/lsdch/biome/models/taxonomy/GBIF"
+	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/services"
+	gbif "github.com/lsdch/biome/services/gbif"
+	"github.com/lsdch/biome/stores"
 )
 
 type ImportService struct {
-	db         *pgx.Conn
+	db         *db.DB
 	gbifClient *gbif.GBIFClient
 }
 
-func NewImportService(db *pgx.Conn, gbifClient *gbif.GBIFClient) *ImportService {
+func NewImportService(db *db.DB, gbifClient *gbif.GBIFClient) *ImportService {
 	return &ImportService{
 		db:         db,
 		gbifClient: gbifClient,
@@ -36,17 +39,22 @@ type CSVImportParams struct {
 type ImportResolutionState struct {
 	Workflow biomedb.ImportWorkflow `json:"workflow"`
 	// Taxon resolution state
-	Taxonomy *stores.TaxonResolutionState `json:"taxonomy"`
+	Taxonomy *models.TaxonResolutionState `json:"taxonomy"`
 	// Sampling methods resolution state
 	SamplingMethods []biomedb.SamplingMethodsResolution `json:"sampling_methods"`
 }
 
+func (r *ImportService) ComputeImportHash(label string, userID uuid.UUID) string {
+	return fmt.Sprintf("%s:%s", slug.Make(label), userID.String())
+}
+
 func (r *ImportService) InitImportWorkflow(
 	ctx context.Context,
-	importHash,
 	label string,
 	params CSVImportParams,
 ) (state *ImportResolutionState, err error) {
+
+	importHash := r.ComputeImportHash(label, ctx.Value(db.CTX_USER_KEY).(uuid.UUID))
 
 	occurrencesData, err := r.ParseCSV(params.Reader, params.Separator)
 	if err != nil {
@@ -58,16 +66,13 @@ func (r *ImportService) InitImportWorkflow(
 		occurrencesStaging[i] = row.ToStaging(importHash)
 	}
 
-	tx, err := r.db.Begin(ctx)
+	tx, err := r.db.BeginTx(ctx)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to begin transaction: %w", err)
 	}
 	defer tx.Rollback(ctx)
 
-	qtx := biomedb.New(tx)
-
-	storeTx := stores.NewImportStore(qtx)
-
+	storeTx := stores.NewImportStore(tx.Queries())
 	workflow, err := storeTx.InitBatchImport(ctx, importHash, label)
 	if err != nil {
 		return nil, err
@@ -79,13 +84,13 @@ func (r *ImportService) InitImportWorkflow(
 		return nil, err
 	}
 
-	resolver := NewTaxonResolutionService(qtx, r.gbifClient)
+	resolver := NewTaxonResolutionService(tx, r.gbifClient)
 	resolutionState, err := resolver.InitResolution(ctx, importHash)
 	if err != nil {
 		return nil, err
 	}
 
-	samplingService := services.NewSamplingService(qtx)
+	samplingService := services.NewSamplingService(tx)
 	methodsResolution, err := samplingService.InitMethodResolution(ctx, importHash)
 	if err != nil {
 		return nil, err
@@ -96,7 +101,7 @@ func (r *ImportService) InitImportWorkflow(
 	}
 
 	go func(importHash string) {
-		resolver := NewTaxonResolutionService(biomedb.New(r.db), r.gbifClient)
+		resolver := NewTaxonResolutionService(r.db, r.gbifClient)
 		bgCtx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 		defer cancel()
 		resolver.EnrichTaxonResolutionWithGBIF(bgCtx, importHash)
@@ -110,22 +115,22 @@ func (r *ImportService) InitImportWorkflow(
 }
 
 func (r *ImportService) EnrichTaxonomyGBIF(ctx context.Context, importHash string) (err error) {
-	resolver := NewTaxonResolutionService(biomedb.New(r.db), r.gbifClient)
+	resolver := NewTaxonResolutionService(r.db, r.gbifClient)
 	_, err = resolver.EnrichTaxonResolutionWithGBIF(ctx, importHash)
 	return err
 }
 
 func (r *ImportService) DetectSamplingCollisions(ctx context.Context, importHash string, params stores.CollisionDetectionParams) (collisionsMap map[string]*StagingSamplingWithCollisions, err error) {
-	collisionService := NewOccurrenceCollisionsService(biomedb.New(r.db))
+	collisionService := NewOccurrenceCollisionsService(r.db)
 	return collisionService.DetectSamplingCollisions(ctx, importHash, params)
 }
 
 func (r *ImportService) DetectOccurrenceCollisions(ctx context.Context, importHash string, params stores.CollisionDetectionParams) (collisions []OccurrenceCollisionsAtRow, err error) {
-	collisionService := NewOccurrenceCollisionsService(biomedb.New(r.db))
+	collisionService := NewOccurrenceCollisionsService(r.db)
 	return collisionService.DetectOccurrenceCollisions(ctx, importHash, params)
 }
 
-func (s *ImportService) ParseCSV(r io.Reader, sep rune) ([]OccurrenceImportRow, error) {
+func (s *ImportService) ParseCSV(r io.Reader, sep rune) ([]models.OccurrenceImportRow, error) {
 	csvReader := csv.NewReader(r)
 	csvReader.Comma = sep
 	dec, err := csvutil.NewDecoder(csvReader)
@@ -142,12 +147,12 @@ func (s *ImportService) ParseCSV(r io.Reader, sep rune) ([]OccurrenceImportRow, 
 		return s
 	}
 
-	var rows []OccurrenceImportRow
+	var rows []models.OccurrenceImportRow
 
 	_ = dec.Header()
 	row := int32(2) // Start counting from 2 to account for the header row
 	for {
-		u := OccurrenceImportRow{}
+		u := models.OccurrenceImportRow{}
 
 		if err := dec.Decode(&u); err == io.EOF {
 			break

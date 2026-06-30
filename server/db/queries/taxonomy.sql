@@ -8,13 +8,13 @@ INSERT INTO taxa (
         accepted_taxon_id,
         parent_id,
         comments
-    ) -- params: gbif_id, name, authorship, rank, status, accepted_scientific_or_name, parent_scientific_or_name, comments
+    )
 VALUES (
-        $1,
-        $2,
-        $3,
-        $4,
-        $5,
+        @gbif_id,
+        @name,
+        @authorship,
+        @rank,
+        @status,
         (
             SELECT id
             FROM taxa t
@@ -25,7 +25,7 @@ VALUES (
             FROM taxa t
             WHERE t.scientific_name = sqlc.arg (parent_scientific_name)::text
             LIMIT 1
-        ), $6
+        ), @comments
     ) ON CONFLICT ON CONSTRAINT taxon_name_authorship_uidx DO
 UPDATE
 SET gbif_id = EXCLUDED.gbif_id,
@@ -36,25 +36,25 @@ SET gbif_id = EXCLUDED.gbif_id,
     comments = EXCLUDED.comments
 RETURNING *;
 
--- name: GetTaxonByName :one
+-- name: GetTaxonByScientificName :one
 SELECT *
 FROM taxa t
-WHERE t.scientific_name = $1
+WHERE t.scientific_name = @scientific_name
 LIMIT 1;
 
 -- name: GetTaxonByID :one
 SELECT *
 FROM taxa t
-WHERE t.id = $1
+WHERE t.id = @taxon_id
 LIMIT 1;
 
 -- name: DeleteTaxonByScientificName :exec
 DELETE FROM taxa
-WHERE scientific_name = $1;
+WHERE scientific_name = @scientific_name;
 
 -- name: DeleteTaxonByID :exec
 DELETE FROM taxa
-WHERE id = $1;
+WHERE id = @taxon_id;
 
 -- name: CheckMissingTaxonScientificNamesBulk :many
 WITH input AS (
@@ -89,17 +89,19 @@ HAVING COUNT(t.id) != 1
 ORDER BY i.input_name;
 
 -- name: GetTaxaByRank :many
-SELECT id,
-    gbif_id,
-    name,
-    scientific_name,
-    authorship,
-    rank,
-    status,
-    accepted_taxon_id,
-    parent_id,
-    comments
+SELECT *
 FROM taxa
-WHERE rank = $1
+WHERE rank = @rank
 ORDER BY scientific_name ASC,
     name ASC;
+
+-- name: GetTaxonLineage :many
+With parents AS (
+    SELECT ancestor_id AS id
+    FROM taxa_closure
+    WHERE descendant_id = @taxon_id
+)
+SELECT t.*
+FROM taxa t
+    JOIN parents p ON p.id = t.id
+ORDER BY t.rank DESC;

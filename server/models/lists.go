@@ -1,8 +1,12 @@
 package models
 
+import (
+	. "github.com/go-jet/jet/v2/postgres"
+)
+
 type Pagination struct {
-	Limit  int `query:"limit" json:"limit,omitzero"`
-	Offset int `query:"offset" json:"offset,omitzero"`
+	Limit  int64 `query:"limit" json:"limit,omitzero"`
+	Offset int64 `query:"offset" json:"offset,omitzero"`
 }
 
 type SortOrder string
@@ -12,9 +16,20 @@ const (
 	SortDesc SortOrder = "desc"
 )
 
-type SortBy[T ~string] struct {
-	Key   T         `query:"sort" json:"key,omitempty"`
-	Order SortOrder `query:"order" json:"order,omitempty"`
+type SortKey interface {
+	Column() Column
+}
+
+type SortBy[T SortKey] struct {
+	Key      T    `query:"sort" json:"key,omitempty"`
+	OrderAsc bool `query:"sortAsc" json:"order,omitempty" doc:"ASC if true, default is DESC"`
+}
+
+func (s SortBy[T]) ToOrderByClause() OrderByClause {
+	if s.OrderAsc == false {
+		return s.Key.Column().DESC()
+	}
+	return s.Key.Column().ASC()
 }
 
 type Filter struct {

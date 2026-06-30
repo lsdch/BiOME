@@ -4,8 +4,7 @@ CREATE TYPE invitation_status AS ENUM('pending', 'redeemed', 'cancelled', 'expir
 CREATE TABLE invitations (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
 	email CITEXT NOT NULL,
-	invitee_name TEXT,
-	organisation TEXT,
+	invitee_name TEXT NOT NULL,
 	role user_role NOT NULL DEFAULT 'Visitor',
 	message TEXT,
 	inviter_id UUID REFERENCES users (id) ON DELETE

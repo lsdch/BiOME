@@ -1,103 +1,19 @@
--- name: CreateInvitation :one
-INSERT INTO invitations (
-        email,
-        invitee_name,
-        organisation,
-        role,
-        message,
-        inviter_id,
-        expires_at
-    )
-VALUES (
-        sqlc.arg(email),
-        sqlc.narg(invitee_name),
-        sqlc.narg(organisation),
-        sqlc.arg(role),
-        sqlc.narg(message),
-        sqlc.narg(inviter_id),
-        sqlc.arg(expires_at)
-    )
-RETURNING *;
+-- name: SetCurrentUser :exec
+SELECT set_config('app.current_user_id', @user_id, true);
 
--- name: CreateInvitationToken :one
-INSERT INTO invitation_tokens (invitation_id, token_hash)
-VALUES (
-        sqlc.arg(invitation_id),
-        sqlc.arg(token_hash)
-    )
-RETURNING *;
 
--- name: GetInvitationByTokenHash :one
-SELECT i.*
-FROM invitations i
-    JOIN invitation_tokens t ON t.invitation_id = i.id
-WHERE t.token_hash = sqlc.arg(token_hash)
-    AND t.consumed = false
-    AND i.status = 'pending'
-    AND i.expires_at > now()
+-- name: GetUserByID :one
+SELECT *
+FROM users
+WHERE id = @user_id
 LIMIT 1;
 
--- name: CreateUserFromInvitationToken :one
-WITH invitation_row AS (
-    SELECT i.id,
-        i.email,
-        i.role
-    FROM invitations i
-        JOIN invitation_tokens t ON t.invitation_id = i.id
-    WHERE t.token_hash = sqlc.arg(token_hash)
-        AND t.consumed = false
-        AND i.status = 'pending'
-        AND i.expires_at > now()
-    LIMIT 1
-), inserted_user AS (
-    INSERT INTO users (
-            login,
-            email,
-            password_hash,
-            role,
-            first_name,
-            last_name,
-            organisation,
-            contact,
-            comments,
-            email_verified_at
-        )
-    SELECT sqlc.arg(login),
-        invitation_row.email,
-        sqlc.arg(password_hash),
-        invitation_row.role,
-        sqlc.arg(first_name),
-        sqlc.arg(last_name),
-        sqlc.narg(organisation),
-        sqlc.narg(contact),
-        sqlc.narg(comments),
-        now()
-    FROM invitation_row
-    RETURNING *
-),
-updated_invitation AS (
-    UPDATE invitations
-    SET status = 'redeemed',
-        redeemed_at = now()
-    WHERE id = (
-            SELECT id
-            FROM invitation_row
-        )
-    RETURNING id
-),
-updated_token AS (
-    UPDATE invitation_tokens
-    SET consumed = true,
-        consumed_at = now(),
-        consumed_by = (
-            SELECT id
-            FROM inserted_user
-        )
-    WHERE token_hash = sqlc.arg(token_hash)
-    RETURNING id
-)
+-- name: GetUserByLoginOrEmail :one
 SELECT *
-FROM inserted_user;
+FROM users
+WHERE login = @identifier
+    OR email = @identifier
+LIMIT 1;
 
 -- name: UpdateUserPassword :exec
 UPDATE users
@@ -130,16 +46,6 @@ SET first_name = CASE
 WHERE id = sqlc.arg(user_id)
 RETURNING *;
 
--- name: AuthenticateUser :one
-SELECT *
-FROM users
-WHERE active = true
-    AND password_hash = sqlc.arg(password_hash)
-    AND (
-        login = sqlc.arg(identifier)
-        OR email = sqlc.arg(identifier)
-    )
-LIMIT 1;
 
 -- name: CreateUserAccountRequest :one
 INSERT INTO user_account_requests (email, name, motivations, expires_at)

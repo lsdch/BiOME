@@ -2,72 +2,50 @@ package models
 
 import (
 	"bytes"
-	"encoding/binary"
 	"encoding/json"
-	"fmt"
 	"reflect"
+	"time"
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/geldata/gel-go/geltypes"
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sirupsen/logrus"
 )
 
-type StrUnmarshaler interface {
-	UnmarshalEdgeDBStr(data []byte) error
-}
-
-type Optional[T any] struct {
-	geltypes.Optional `json:"-"`
-	Value             T `gel:"$inline"`
-}
-
-func (o Optional[T]) MarshalJSON() ([]byte, error) {
-	if o.Missing() {
-		return json.Marshal(nil)
-	}
-	return json.Marshal(o.Value)
-}
-
-func (o *Optional[T]) Schema(r huma.Registry) *huma.Schema {
-	contentName := huma.DefaultSchemaNamer(reflect.TypeOf(o.Value), "")
-	name := fmt.Sprintf("Optional%s", contentName)
-	if r.Map()[name] == nil {
-		s := *r.Schema(reflect.TypeOf(o.Value), false, "")
-		s.Nullable = true
-		r.Map()[name] = &s
-	}
-	return &huma.Schema{Ref: fmt.Sprintf("#/components/schemas/%s", name)}
-}
-
-// Gel Marshalling
-func (m *Optional[T]) UnmarshalEdgeDBStr(data []byte) error {
-	if s, ok := any(&m.Value).(StrUnmarshaler); ok {
-		return s.UnmarshalEdgeDBStr(data)
-	}
-	return nil
+type MaybeGet[T any] interface {
+	Get() (T, bool)
 }
 
 type OptionalNullable[T any] interface {
 	HasValue() bool
 	IsNull() bool
-	Get() (T, bool)
+	MaybeGet[T]
+}
+
+type Null struct {
+	isNull bool
+}
+
+func (n Null) IsNull() bool {
+	return n.isNull
+}
+
+func (n Null) SetNull(isNull bool) {
+	n.isNull = isNull
 }
 
 type Nullable[T any] struct {
-	Null  bool
+	Null
 	Value T
 }
 
 func (n Nullable[T]) Get() (T, bool) {
-	return n.Value, !n.Null
+	return n.Value, !n.IsNull()
 }
 
 func (n Nullable[T]) HasValue() bool {
 	return true
-}
-func (n Nullable[T]) IsNull() bool {
-	return n.Null
 }
 
 func (n Nullable[T]) Schema(r huma.Registry) *huma.Schema {
@@ -79,7 +57,7 @@ func (n Nullable[T]) Schema(r huma.Registry) *huma.Schema {
 }
 
 func (n Nullable[T]) MarshalJSON() ([]byte, error) {
-	if n.Null {
+	if n.IsNull() {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(n.Value)
@@ -88,7 +66,7 @@ func (n Nullable[T]) MarshalJSON() ([]byte, error) {
 func (o *Nullable[T]) UnmarshalJSON(b []byte) error {
 	if len(b) > 0 {
 		if bytes.Equal(b, []byte("null")) || bytes.Equal(b, []byte("")) {
-			o.Null = true
+			o.SetNull(true)
 			return nil
 		}
 		return json.Unmarshal(b, &o.Value)
@@ -96,79 +74,144 @@ func (o *Nullable[T]) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-type OptionalInput[T any] struct {
+type Optional[T any] struct {
 	Value T
 	IsSet bool
 }
 
-func NewOptionalInput[T any](value T) OptionalInput[T] {
-	return OptionalInput[T]{
+func NewOptional[T any](value T) Optional[T] {
+	return Optional[T]{
 		Value: value,
 		IsSet: true,
 	}
 }
 
-func (o OptionalInput[T]) Get() (T, bool) {
+func NewOptionalFromPtr[T any](ptr *T) Optional[T] {
+	if ptr == nil {
+		var zero T
+		return Optional[T]{
+			Value: zero,
+			IsSet: false,
+		}
+	}
+	return Optional[T]{
+		Value: *ptr,
+		IsSet: true,
+	}
+}
+
+func NewOptionalFromUUID(u pgtype.UUID) Optional[uuid.UUID] {
+	if !u.Valid {
+		var zero uuid.UUID
+		return Optional[uuid.UUID]{
+			Value: zero,
+			IsSet: false,
+		}
+	}
+	UUID, _ := uuid.FromBytes(u.Bytes[:16])
+	return Optional[uuid.UUID]{
+		Value: UUID,
+		IsSet: true,
+	}
+}
+
+func NewOptionalFromTimestamp(t pgtype.Timestamptz) Optional[time.Time] {
+	if !t.Valid {
+		var zero time.Time
+		return Optional[time.Time]{
+			Value: zero,
+			IsSet: false,
+		}
+	}
+	return Optional[time.Time]{
+		Value: t.Time,
+		IsSet: true,
+	}
+}
+
+func NewOptionalFromGetter[T any](getter MaybeGet[T]) Optional[T] {
+	if getter == nil {
+		var zero T
+		return Optional[T]{
+			Value: zero,
+			IsSet: false,
+		}
+	}
+	value, ok := getter.Get()
+	return Optional[T]{
+		Value: value,
+		IsSet: ok,
+	}
+}
+
+func (o Optional[T]) Get() (T, bool) {
 	return o.Value, o.IsSet
 }
 
-func (o OptionalInput[T]) GetWithDefault(value T) T {
+func (o Optional[T]) ToPtr() *T {
+	if o.IsSet {
+		return &o.Value
+	}
+	return nil
+}
+
+func (o Optional[T]) GetWithDefault(value T) T {
 	if o.IsSet {
 		return o.Value
 	}
 	return value
 }
 
-func (o OptionalInput[T]) HasValue() bool {
+func (o Optional[T]) HasValue() bool {
 	return o.IsSet
 }
 
-func (o *OptionalInput[T]) SetValue(value T) OptionalInput[T] {
+func (o *Optional[T]) SetValue(value T) Optional[T] {
 	o.IsSet = true
 	o.Value = value
 	return *o
 }
 
-func (o *OptionalInput[T]) Clear() OptionalInput[T] {
+func (o *Optional[T]) Clear() Optional[T] {
 	o.IsSet = false
 	var zero T
 	o.Value = zero
 	return *o
 }
 
-func (o OptionalInput[T]) IsZero() bool {
+func (o Optional[T]) IsZero() bool {
 	return !o.IsSet
 }
 
-func (o OptionalInput[T]) IsNull() bool {
+func (o Optional[T]) IsNull() bool {
 	return false
 }
 
-func (o *OptionalInput[T]) Fake(f *gofakeit.Faker) (any, error) {
+func (o *Optional[T]) Fake(f *gofakeit.Faker) (any, error) {
 	var value T
 	if err := f.Struct(&value); err != nil {
 		return nil, err
 	}
-	return OptionalInput[T]{
+	return Optional[T]{
 		IsSet: f.Bool(),
 		Value: value,
 	}, nil
 }
 
-var _ gofakeit.Fakeable = (*OptionalInput[any])(nil)
+var _ gofakeit.Fakeable = (*Optional[any])(nil)
 
-func (o OptionalInput[T]) Schema(r huma.Registry) *huma.Schema {
+func (o Optional[T]) Schema(r huma.Registry) *huma.Schema {
 	return r.Schema(reflect.TypeOf(o.Value), true, "")
 }
 
-func (o OptionalInput[T]) MarshalJSON() ([]byte, error) {
+func (o Optional[T]) MarshalJSON() ([]byte, error) {
 	if !o.IsSet {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(o.Value)
 }
 
-func (o *OptionalInput[T]) UnmarshalJSON(b []byte) error {
+func (o *Optional[T]) UnmarshalJSON(b []byte) error {
 	if len(b) > 0 && string(b) != `""` {
 		o.IsSet = true
 		return json.Unmarshal(b, &o.Value)
@@ -177,33 +220,17 @@ func (o *OptionalInput[T]) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
-func (o OptionalInput[T]) Missing() bool {
+func (o Optional[T]) Missing() bool {
 	return !o.IsSet
 }
 
-func (o OptionalInput[T]) MarshalEdgeDBStr() ([]byte, error) {
-	return json.Marshal(o.Value)
-}
-
-func (o OptionalInput[T]) MarshalEdgeDBFloat32() ([]byte, error) {
-	b := make([]byte, 4)
-	_, err := binary.Encode(b, binary.BigEndian, o.Value)
-	return b, err
-}
-
-func (o OptionalInput[T]) MarshalEdgeDBInt64() ([]byte, error) {
-	b := make([]byte, 8)
-	_, err := binary.Encode(b, binary.BigEndian, o.Value)
-	return b, err
-}
-
 // Implementation of huma.ParamWrapper interface for request parameters binding
-func (o *OptionalInput[T]) Receiver() reflect.Value {
+func (o *Optional[T]) Receiver() reflect.Value {
 	return reflect.ValueOf(o).Elem().Field(0)
 }
 
 // Implementation of huma.ParamReactor interface for request parameters binding
-func (o *OptionalInput[T]) OnParamSet(isSet bool, parsed any) {
+func (o *Optional[T]) OnParamSet(isSet bool, parsed any) {
 	o.IsSet = isSet
 }
 
@@ -211,30 +238,26 @@ func (o *OptionalInput[T]) OnParamSet(isSet bool, parsed any) {
 // set to `null`, or set to a value. Each state is tracked and can
 // be checked for in handling code.
 type OptionalNull[T any] struct {
-	Null bool
-	OptionalInput[T]
+	Null
+	Optional[T]
 }
 
 func NewOptionalNull[T any](value T) OptionalNull[T] {
 	return OptionalNull[T]{
-		OptionalInput: OptionalInput[T]{
+		Optional: Optional[T]{
 			Value: value,
 			IsSet: true,
 		},
-		Null: false,
+		Null: Null{isNull: false},
 	}
 }
 
 func (o OptionalNull[T]) Get() (T, bool) {
-	if o.IsSet && !o.Null {
+	if o.IsSet && !o.Null.IsNull() {
 		return o.Value, true
 	}
 	var zero T
 	return zero, false
-}
-
-func (o OptionalNull[T]) IsNull() bool {
-	return o.Null
 }
 
 func (o OptionalNull[T]) Schema(r huma.Registry) *huma.Schema {
@@ -256,7 +279,7 @@ func (o OptionalNull[T]) Schema(r huma.Registry) *huma.Schema {
 }
 
 func (o OptionalNull[T]) MarshalJSON() ([]byte, error) {
-	if (!o.IsSet) || o.Null {
+	if (!o.IsSet) || o.Null.IsNull() {
 		return json.Marshal(nil)
 	}
 	return json.Marshal(o.Value)
@@ -266,7 +289,7 @@ func (o *OptionalNull[T]) UnmarshalJSON(b []byte) error {
 	if len(b) > 0 {
 		o.IsSet = true
 		if bytes.Equal(b, []byte("null")) || bytes.Equal(b, []byte("")) {
-			o.Null = true
+			o.Null.SetNull(true)
 			return nil
 		}
 		return json.Unmarshal(b, &o.Value)
@@ -275,11 +298,11 @@ func (o *OptionalNull[T]) UnmarshalJSON(b []byte) error {
 }
 
 func (o *OptionalNull[T]) Fake(f *gofakeit.Faker) (any, error) {
-	v, err := o.OptionalInput.Fake(f)
+	v, err := o.Optional.Fake(f)
 	if err != nil {
 		return nil, err
 	}
 	return OptionalNull[T]{
-		OptionalInput: v.(OptionalInput[T]),
+		Optional: v.(Optional[T]),
 	}, nil
 }

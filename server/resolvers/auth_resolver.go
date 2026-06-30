@@ -7,8 +7,10 @@ import (
 	"github.com/geldata/gel-go"
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models/people"
-	"github.com/lsdch/biome/services/auth_tokens"
+	"github.com/lsdch/biome/models/users"
+	"github.com/lsdch/biome/services"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/sirupsen/logrus"
@@ -21,43 +23,36 @@ type AuthDBProvider interface {
 
 type UserResolver interface {
 	AuthDBProvider
-	AuthUser() (*people.User, bool)
+	AuthUser() (*users.User, bool)
 	ResolveAuth(huma.Context)
 }
 
 type AuthResolver struct {
-	*people.User
+	User            *users.User
 	AuthToken       string      // Auth token parsed from session cookie or authorization header
 	AuthTokenHeader string      `header:"Authorization" doc:"Authorization header formatted as \"Bearer auth_token\". Takes precedence over session cookie if set." example:"Bearer <JWT string>"`
 	Session         http.Cookie `cookie:"auth_token" doc:"Session cookie containing JWT"`
 }
 
-func (p *AuthResolver) IsGranted(role people.UserRole) bool {
+func (p *AuthResolver) IsGranted(role biomedb.UserRole) bool {
 	if p.User == nil {
 		return false
 	}
 	return p.User.IsGranted(role)
 }
 
-func (p *AuthResolver) AuthUser() (*people.User, bool) {
+func (p *AuthResolver) AuthUser() (*users.User, bool) {
 	if p.User != nil {
 		return p.User, true
 	}
 	return nil, false
 }
 
-func (p *AuthResolver) DB() *gel.Client {
-	if p.User != nil {
-		return db.WithCurrentUser(p.User.ID)
-	} else {
-		return db.Client()
-	}
-}
-
 func (p *AuthResolver) Resolve(ctx huma.Context) []error {
 	p.ResolveAuth(ctx)
 	return nil
 }
+
 func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 	p.User = nil
 	p.AuthToken = ""
@@ -74,7 +69,7 @@ func (p *AuthResolver) ResolveAuth(ctx huma.Context) {
 		return
 	}
 
-	sub, err := auth_tokens.ValidateJWT(accessToken)
+	sub, err := services.ValidateJWT(accessToken)
 	if err != nil {
 		logrus.Debugf("Auth middleware: Invalid token received [%v]", err)
 		return

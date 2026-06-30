@@ -124,14 +124,14 @@ type ListOccurrencesOptions struct {
 	models.SortBy[BioMatSortKey]
 	models.Filter
 	taxonomy.TaxaFilters
-	Year         models.OptionalInput[int32]                `query:"year" json:"year,omitzero"`
-	YearEnd      models.OptionalNull[int32]                 `query:"year_end" json:"year_end,omitzero"`
-	Datasets     []string                                   `query:"datasets" json:"datasets,omitzero"`
-	HasSequences models.OptionalInput[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
-	Confer       models.OptionalInput[bool]                 `query:"confer" json:"confer,omitzero"`
-	TypeStatus   models.OptionalInput[[]TypeStatus]         `query:"type_status" json:"type_status,omitzero"`
-	Status       models.OptionalInput[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
-	Rank         []taxonomy.TaxonRank                       `query:"rank" json:"rank,omitzero"`
+	Year         models.Optional[int32]                `query:"year" json:"year,omitzero"`
+	YearEnd      models.OptionalNull[int32]            `query:"year_end" json:"year_end,omitzero"`
+	Datasets     []string                              `query:"datasets" json:"datasets,omitzero"`
+	HasSequences models.Optional[bool]                 `query:"has_sequences" json:"has_sequences,omitzero"`
+	Confer       models.Optional[bool]                 `query:"confer" json:"confer,omitzero"`
+	TypeStatus   models.Optional[[]TypeStatus]         `query:"type_status" json:"type_status,omitzero"`
+	Status       models.Optional[taxonomy.TaxonStatus] `query:"status" json:"status,omitzero"`
+	Rank         []taxonomy.TaxonRank                  `query:"rank" json:"rank,omitzero"`
 }
 
 func (o ListOccurrencesOptions) Options() ListOccurrencesOptions {
@@ -268,19 +268,19 @@ func OccurrencesBySite(db geltypes.Executor, opts OccurrencesBySiteOptions) ([]S
 }
 
 type OccurrenceInput struct {
-	Identification         IdentificationInput              `json:"identification" doc:"Occurrence identification"`
-	PublishedIn            []string                         `json:"published_in,omitempty"`
-	DOIs                   []references.DOI                 `json:"dois,omitempty"`
-	Code                   models.OptionalInput[string]     `gel:"code" json:"code,omitzero" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
-	TypeStatus             models.OptionalInput[TypeStatus] `gel:"type_status" json:"type_status,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
-	Sources                []string                         `json:"sources,omitzero"`
-	VerbatimIdentification models.OptionalInput[string]     `json:"verbatim_identification,omitzero"`
+	Identification         IdentificationInput         `json:"identification" doc:"Occurrence identification"`
+	PublishedIn            []string                    `json:"published_in,omitempty"`
+	DOIs                   []references.DOI            `json:"dois,omitempty"`
+	Code                   models.Optional[string]     `gel:"code" json:"code,omitzero" doc:"Unique code identifier for the bio material. Generated from taxon and sampling if not provided." example:"Genus_sp[SITE|2001-01]"`
+	TypeStatus             models.Optional[TypeStatus] `gel:"type_status" json:"type_status,omitzero" doc:"Flag indicating if the bio material is a type specimen, i.e. the reference specimen used to describe a new species."`
+	Sources                []string                    `json:"sources,omitzero"`
+	VerbatimIdentification models.Optional[string]     `json:"verbatim_identification,omitzero"`
 	// OriginalLink       models.OptionalInput[string]  `json:"external_link,omitzero"`
-	Quantity           models.OptionalInput[[]int32] `json:"quantity,omitzero" minItems:"1" maxItems:"2"`
-	ContentDescription models.OptionalInput[string]  `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
-	Collections        []CollectionField             `json:"collections,omitzero"`
-	Comments           models.OptionalInput[string]  `json:"comments,omitzero"`
-	Sequences          []ExternalSequenceInput       `json:"sequences,omitzero"`
+	Quantity           models.Optional[[]int32] `json:"quantity,omitzero" minItems:"1" maxItems:"2"`
+	ContentDescription models.Optional[string]  `json:"content_description,omitzero" doc:"Description of the content of the bio material" example:"2 females, 1 juvenile male"`
+	Collections        []CollectionField        `json:"collections,omitzero"`
+	Comments           models.Optional[string]  `json:"comments,omitzero"`
+	Sequences          []ExternalSequenceInput  `json:"sequences,omitzero"`
 }
 
 func (i *OccurrenceInput) FetchDOIs(db geltypes.Executor) error {
@@ -403,11 +403,11 @@ func (i *OccurrenceInput) Save(e geltypes.Executor, samplingNumber int64) (creat
 }
 
 type OccurrenceUpdate struct {
-	SamplingID     models.OptionalInput[geltypes.UUID]        `json:"sampling_id" format:"uuid"`
-	Identification models.OptionalInput[IdentificationUpdate] `gel:"identification" json:"identification,omitempty"`
-	Code           models.OptionalInput[string]               `gel:"code" json:"code,omitempty"`
-	TypeStatus     models.OptionalNull[TypeStatus]            `gel:"type_status" json:"type_status,omitzero"`
-	OriginalSource models.OptionalNull[string]                `gel:"sources" json:"sources,omitempty"`
+	SamplingID     models.Optional[geltypes.UUID]        `json:"sampling_id" format:"uuid"`
+	Identification models.Optional[IdentificationUpdate] `gel:"identification" json:"identification,omitempty"`
+	Code           models.Optional[string]               `gel:"code" json:"code,omitempty"`
+	TypeStatus     models.OptionalNull[TypeStatus]       `gel:"type_status" json:"type_status,omitzero"`
+	OriginalSource models.OptionalNull[string]           `gel:"sources" json:"sources,omitempty"`
 	// OriginalLink       models.OptionalNull[string]    `gel:"external_link" json:"external_link,omitempty"`
 	VerbatimIdentification models.OptionalNull[string]            `gel:"verbatim_identification" json:"verbatim_identification,omitempty"`
 	Quantity               models.OptionalNull[[]int32]           `gel:"quantity" json:"quantity,omitempty" minItems:"2" maxItems:"2"`

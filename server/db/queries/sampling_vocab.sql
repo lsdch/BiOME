@@ -90,10 +90,10 @@ RETURNING id,
 
 -- name: UpdateFixative :one
 UPDATE fixatives
-SET code = COALESCE(@code, code),
-    name = COALESCE(@name, name),
+SET code = COALESCE(sqlc.narg('code'), code),
+    name = COALESCE(sqlc.narg('name'), name),
     description = CASE
-        WHEN @set_description THEN sqlc.narg('description')
+        WHEN @set_description::bool THEN sqlc.narg('description')
         ELSE description
     END
 WHERE code = @old_code
@@ -102,10 +102,6 @@ RETURNING id,
     name,
     description;
 
--- name: DeleteFixative :one
+-- name: DeleteFixative :execresult
 DELETE FROM fixatives
-WHERE code = @code
-RETURNING id,
-    code,
-    name,
-    description;
+WHERE code = @code;

@@ -156,7 +156,7 @@ func (r iteratorForInsertTaxonCandidatesBatch) Values() ([]interface{}, error) {
 		r.rows[0].Source,
 		r.rows[0].MatchType,
 		r.rows[0].TaxonID,
-		r.rows[0].GbifID,
+		r.rows[0].GBIFID,
 		r.rows[0].Score,
 		r.rows[0].Priority,
 		r.rows[0].Name,

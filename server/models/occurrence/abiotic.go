@@ -47,7 +47,7 @@ func (i AbioticParameterInput) Save(e geltypes.Executor) (created AbioticParamet
 
 type AbioticParameterUpdate struct {
 	vocabulary.VocabularyUpdate `gel:"$inline"`
-	Unit                        models.OptionalInput[string] `gel:"unit" json:"unit"`
+	Unit                        models.Optional[string] `gel:"unit" json:"unit"`
 }
 
 func (u AbioticParameterUpdate) Save(e geltypes.Executor, code string) (updated AbioticParameter, err error) {

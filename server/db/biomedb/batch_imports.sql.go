@@ -8,6 +8,7 @@ package biomedb
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -52,52 +53,52 @@ WHERE import_hash = $1::text
 RETURNING gbif_status
 `
 
-func (q *Queries) CompleteGBIFImport(ctx context.Context, importHash string) (GbifImportStatus, error) {
+func (q *Queries) CompleteGBIFImport(ctx context.Context, importHash string) (GBIFImportStatus, error) {
 	row := q.db.QueryRow(ctx, completeGBIFImport, importHash)
-	var gbif_status GbifImportStatus
+	var gbif_status GBIFImportStatus
 	err := row.Scan(&gbif_status)
 	return gbif_status, err
 }
 
 type CopyImportStagingParams struct {
-	ImportHash                  string                   `json:"import_hash"`
-	SamplingHash                string                   `json:"sampling_hash"`
-	RowNumber                   int32                    `json:"row_number"`
-	SamplingComments            pgtype.Text              `json:"sampling_comments"`
-	SiteCode                    pgtype.Text              `json:"site_code"`
-	SiteName                    pgtype.Text              `json:"site_name"`
-	SiteLocality                pgtype.Text              `json:"site_locality"`
-	SiteCountryCode             pgtype.Text              `json:"site_country_code"`
-	CoordinatesPrecision        pgtype.Int4              `json:"coordinates_precision"`
-	Longitude                   float32                  `json:"longitude"`
-	Latitude                    float32                  `json:"latitude"`
-	Altitude                    pgtype.Int4              `json:"altitude"`
-	EventDate                   pgtype.Date              `json:"event_date"`
-	EventDatePrecision          NullEventDatePrecision   `json:"event_date_precision"`
-	PerformedBy                 []string                 `json:"performed_by"`
-	Duration                    pgtype.Int4              `json:"duration"`
-	AccessPoints                []string                 `json:"access_points"`
-	SamplingTargets             []string                 `json:"sampling_targets"`
-	SamplingFixatives           []string                 `json:"sampling_fixatives"`
-	SamplingMethods             []string                 `json:"sampling_methods"`
-	Habitats                    []string                 `json:"habitats"`
-	OccurrenceCode              pgtype.Text              `json:"occurrence_code"`
-	TypeStatus                  NullOccurrenceTypeStatus `json:"type_status"`
-	OccurrenceComments          pgtype.Text              `json:"occurrence_comments"`
-	TaxonName                   string                   `json:"taxon_name"`
-	TaxonRank                   pgtype.Text              `json:"taxon_rank"`
-	TaxonAuthorship             pgtype.Text              `json:"taxon_authorship"`
-	VerbatimIdentification      pgtype.Text              `json:"verbatim_identification"`
-	IdentifiedBy                []string                 `json:"identified_by"`
-	IdentificationDate          pgtype.Date              `json:"identification_date"`
-	IdentificationDatePrecision NullEventDatePrecision   `json:"identification_date_precision"`
-	IdentificationConfer        bool                     `json:"identification_confer"`
-	IdentificationAddendum      pgtype.Text              `json:"identification_addendum"`
-	ContentDescription          pgtype.Text              `json:"content_description"`
-	QuantityExact               pgtype.Int4              `json:"quantity_exact"`
-	QuantityLower               pgtype.Int4              `json:"quantity_lower"`
-	QuantityUpper               pgtype.Int4              `json:"quantity_upper"`
-	Sources                     []string                 `json:"sources"`
+	ImportHash                  string                `json:"import_hash"`
+	SamplingHash                string                `json:"sampling_hash"`
+	RowNumber                   int32                 `json:"row_number"`
+	SamplingComments            *string               `json:"sampling_comments"`
+	SiteCode                    *string               `json:"site_code"`
+	SiteName                    *string               `json:"site_name"`
+	SiteLocality                *string               `json:"site_locality"`
+	SiteCountryCode             string                `json:"site_country_code"`
+	CoordinatesPrecision        *int32                `json:"coordinates_precision"`
+	Longitude                   float32               `json:"longitude"`
+	Latitude                    float32               `json:"latitude"`
+	Altitude                    *int32                `json:"altitude"`
+	EventDate                   pgtype.Date           `json:"event_date"`
+	EventDatePrecision          *EventDatePrecision   `json:"event_date_precision"`
+	PerformedBy                 []string              `json:"performed_by"`
+	Duration                    *int32                `json:"duration"`
+	AccessPoints                []string              `json:"access_points"`
+	SamplingTargets             []string              `json:"sampling_targets"`
+	SamplingFixatives           []string              `json:"sampling_fixatives"`
+	SamplingMethods             []string              `json:"sampling_methods"`
+	Habitats                    []string              `json:"habitats"`
+	OccurrenceCode              *string               `json:"occurrence_code"`
+	TypeStatus                  *OccurrenceTypeStatus `json:"type_status"`
+	OccurrenceComments          *string               `json:"occurrence_comments"`
+	TaxonName                   string                `json:"taxon_name"`
+	TaxonRank                   *string               `json:"taxon_rank"`
+	TaxonAuthorship             *string               `json:"taxon_authorship"`
+	VerbatimIdentification      *string               `json:"verbatim_identification"`
+	IdentifiedBy                []string              `json:"identified_by"`
+	IdentificationDate          pgtype.Date           `json:"identification_date"`
+	IdentificationDatePrecision *EventDatePrecision   `json:"identification_date_precision"`
+	IdentificationConfer        bool                  `json:"identification_confer"`
+	IdentificationAddendum      *string               `json:"identification_addendum"`
+	ContentDescription          *string               `json:"content_description"`
+	QuantityExact               *int32                `json:"quantity_exact"`
+	QuantityLower               *int32                `json:"quantity_lower"`
+	QuantityUpper               *int32                `json:"quantity_upper"`
+	Sources                     []string              `json:"sources"`
 }
 
 const failGBIFImport = `-- name: FailGBIFImport :one
@@ -108,9 +109,9 @@ WHERE import_hash = $1::text
 RETURNING gbif_status
 `
 
-func (q *Queries) FailGBIFImport(ctx context.Context, importHash string) (GbifImportStatus, error) {
+func (q *Queries) FailGBIFImport(ctx context.Context, importHash string) (GBIFImportStatus, error) {
 	row := q.db.QueryRow(ctx, failGBIFImport, importHash)
-	var gbif_status GbifImportStatus
+	var gbif_status GBIFImportStatus
 	err := row.Scan(&gbif_status)
 	return gbif_status, err
 }
@@ -123,14 +124,14 @@ WHERE import_hash = $1::TEXT
 `
 
 type GetGBIFImportStatusRow struct {
-	GbifStatus    GbifImportStatus   `json:"gbif_status"`
-	GbifClaimedAt pgtype.Timestamptz `json:"gbif_claimed_at"`
+	GBIFStatus    GBIFImportStatus   `json:"gbif_status"`
+	GBIFClaimedAt pgtype.Timestamptz `json:"gbif_claimed_at"`
 }
 
 func (q *Queries) GetGBIFImportStatus(ctx context.Context, importHash string) (GetGBIFImportStatusRow, error) {
 	row := q.db.QueryRow(ctx, getGBIFImportStatus, importHash)
 	var i GetGBIFImportStatusRow
-	err := row.Scan(&i.GbifStatus, &i.GbifClaimedAt)
+	err := row.Scan(&i.GBIFStatus, &i.GBIFClaimedAt)
 	return i, err
 }
 
@@ -146,11 +147,11 @@ func (q *Queries) GetImportState(ctx context.Context, importHash string) (Import
 	err := row.Scan(
 		&i.ImportHash,
 		&i.Label,
-		&i.GbifStatus,
-		&i.GbifCandidatesTotal,
-		&i.GbifCandidatesFetched,
-		&i.GbifClaimedAt,
-		&i.GbifUpdatedAt,
+		&i.GBIFStatus,
+		&i.GBIFCandidatesTotal,
+		&i.GBIFCandidatesFetched,
+		&i.GBIFClaimedAt,
+		&i.GBIFUpdatedAt,
 		&i.CreatedAt,
 		&i.CompletedAt,
 	)
@@ -168,14 +169,14 @@ RETURNING gbif_candidates_fetched,
 `
 
 type IncrementGBIFCandidatesProgressRow struct {
-	GbifCandidatesFetched pgtype.Int4 `json:"gbif_candidates_fetched"`
-	GbifCandidatesTotal   pgtype.Int4 `json:"gbif_candidates_total"`
+	GBIFCandidatesFetched *int32 `json:"gbif_candidates_fetched"`
+	GBIFCandidatesTotal   *int32 `json:"gbif_candidates_total"`
 }
 
 func (q *Queries) IncrementGBIFCandidatesProgress(ctx context.Context, importHash string) (IncrementGBIFCandidatesProgressRow, error) {
 	row := q.db.QueryRow(ctx, incrementGBIFCandidatesProgress, importHash)
 	var i IncrementGBIFCandidatesProgressRow
-	err := row.Scan(&i.GbifCandidatesFetched, &i.GbifCandidatesTotal)
+	err := row.Scan(&i.GBIFCandidatesFetched, &i.GBIFCandidatesTotal)
 	return i, err
 }
 
@@ -191,11 +192,11 @@ func (q *Queries) InitBatchImport(ctx context.Context, importHash string, label 
 	err := row.Scan(
 		&i.ImportHash,
 		&i.Label,
-		&i.GbifStatus,
-		&i.GbifCandidatesTotal,
-		&i.GbifCandidatesFetched,
-		&i.GbifClaimedAt,
-		&i.GbifUpdatedAt,
+		&i.GBIFStatus,
+		&i.GBIFCandidatesTotal,
+		&i.GBIFCandidatesFetched,
+		&i.GBIFClaimedAt,
+		&i.GBIFUpdatedAt,
 		&i.CreatedAt,
 		&i.CompletedAt,
 	)
@@ -305,8 +306,8 @@ RETURNING id,
 `
 
 type UpsertSamplingsFromStagingRow struct {
-	ID           pgtype.UUID `json:"id"`
-	SamplingHash string      `json:"sampling_hash"`
+	ID           uuid.UUID `json:"id"`
+	SamplingHash string    `json:"sampling_hash"`
 }
 
 func (q *Queries) UpsertSamplingsFromStaging(ctx context.Context, importHash string) ([]UpsertSamplingsFromStagingRow, error) {

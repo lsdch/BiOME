@@ -50,9 +50,9 @@ func (c LatLongCoords) SitesProximity(db geltypes.Executor, radius int32) ([]Sit
 
 type SitesProximityQuery struct {
 	LatLongCoords
-	Radius  int32                       `query:"radius" json:"radius" doc:"Radius in meters" example:"20000"`
-	Limit   models.OptionalInput[int64] `query:"limit" json:"limit,omitempty"`
-	Exclude []string                    `query:"exclude" json:"exclude,omitempty" doc:"List of site codes to exclude from the result"`
+	Radius  int32                  `query:"radius" json:"radius" doc:"Radius in meters" example:"20000"`
+	Limit   models.Optional[int64] `query:"limit" json:"limit,omitempty"`
+	Exclude []string               `query:"exclude" json:"exclude,omitempty" doc:"List of site codes to exclude from the result"`
 }
 
 func (c SitesProximityQuery) SitesProximity(db geltypes.Executor) ([]SiteWithDistance, error) {
@@ -99,7 +99,7 @@ type SiteWithScore struct {
 	Score    float32 `gel:"score" json:"score"`
 }
 
-func SearchSites(db geltypes.Executor, query string, threshold models.OptionalInput[float32]) ([]SiteWithScore, error) {
+func SearchSites(db geltypes.Executor, query string, threshold models.Optional[float32]) ([]SiteWithScore, error) {
 	var site []SiteWithScore
 	err := db.Query(context.Background(),
 		`#edgeql
@@ -122,15 +122,15 @@ type Coordinates struct {
 }
 
 type SiteInput struct {
-	Name                models.OptionalInput[string] `json:"name,omitzero" minLength:"4" doc:"A short descriptive name"`
-	Code                string                       `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
-	Description         models.OptionalInput[string] `json:"description,omitzero"`
-	Coordinates         Coordinates                  `json:"coordinates" doc:"Site coordinates in decimal degrees"`
-	Altitude            models.OptionalInput[int32]  `json:"altitude,omitzero" doc:"Site altitude in meters"`
-	Locality            models.OptionalInput[string] `json:"locality,omitzero" doc:"Nearest populated place"`
-	UserDefinedLocality bool                         `json:"user_defined_locality,omitzero" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
+	Name                models.Optional[string] `json:"name,omitzero" minLength:"4" doc:"A short descriptive name"`
+	Code                string                  `json:"code" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
+	Description         models.Optional[string] `json:"description,omitzero"`
+	Coordinates         Coordinates             `json:"coordinates" doc:"Site coordinates in decimal degrees"`
+	Altitude            models.Optional[int32]  `json:"altitude,omitzero" doc:"Site altitude in meters"`
+	Locality            models.Optional[string] `json:"locality,omitzero" doc:"Nearest populated place"`
+	UserDefinedLocality bool                    `json:"user_defined_locality,omitzero" doc:"Signals if locality was manually entered by user, and automatically inferred from coordinates"`
 	// If country code is not provided, country is inferred from coordinates
-	CountryCode models.OptionalInput[string] `json:"country,omitzero" format:"country-code" pattern:"[A-Z]{3}" example:"FRA" doc:"ISO 3166-1 alpha-3 country code"`
+	CountryCode models.Optional[string] `json:"country,omitzero" format:"country-code" pattern:"[A-Z]{3}" example:"FRA" doc:"ISO 3166-1 alpha-3 country code"`
 }
 
 func (c SiteInput) LatLong() (float32, float32) {
@@ -264,14 +264,14 @@ func (i SiteInput) Save(db geltypes.Executor) (*Site, error) {
 }
 
 type SiteUpdate struct {
-	Name                models.OptionalNull[string]       `gel:"name" json:"name,omitempty" minLength:"4"`
-	Code                models.OptionalInput[string]      `gel:"code" json:"code,omitempty" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
-	Description         models.OptionalNull[string]       `gel:"description" json:"description,omitempty"`
-	Coordinates         models.OptionalInput[Coordinates] `gel:"coordinates" json:"coordinates,omitempty" doc:"Site coordinates in decimal degrees"`
-	Altitude            models.OptionalNull[int32]        `gel:"altitude" json:"altitude,omitempty" doc:"Site altitude in meters"`
-	Locality            models.OptionalNull[string]       `gel:"locality" json:"locality,omitempty" doc:"Nearest populated place"`
-	UserDefinedLocality models.OptionalInput[bool]        `gel:"user_defined_locality" json:"user_defined_locality,omitempty" doc:"Signals whether locality was manually entered by user, and automatically inferred from coordinates"`
-	CountryCode         models.OptionalNull[string]       `gel:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
+	Name                models.OptionalNull[string]  `gel:"name" json:"name,omitempty" minLength:"4"`
+	Code                models.Optional[string]      `gel:"code" json:"code,omitempty" pattern:"[A-Z0-9]+" patternDescription:"alphanum" minLength:"4" maxLength:"10" example:"SITE89" doc:"A short unique uppercase alphanumeric identifier"`
+	Description         models.OptionalNull[string]  `gel:"description" json:"description,omitempty"`
+	Coordinates         models.Optional[Coordinates] `gel:"coordinates" json:"coordinates,omitempty" doc:"Site coordinates in decimal degrees"`
+	Altitude            models.OptionalNull[int32]   `gel:"altitude" json:"altitude,omitempty" doc:"Site altitude in meters"`
+	Locality            models.OptionalNull[string]  `gel:"locality" json:"locality,omitempty" doc:"Nearest populated place"`
+	UserDefinedLocality models.Optional[bool]        `gel:"user_defined_locality" json:"user_defined_locality,omitempty" doc:"Signals whether locality was manually entered by user, and automatically inferred from coordinates"`
+	CountryCode         models.OptionalNull[string]  `gel:"country" json:"country_code,omitempty" format:"country-code" pattern:"[A-Z]{2}" example:"FR"`
 }
 
 func (u SiteUpdate) Save(e geltypes.Executor, code string) (updated Site, err error) {

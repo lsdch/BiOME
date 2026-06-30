@@ -8,35 +8,14 @@ package biomedb
 import (
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 )
 
-const fetchOccurrencesByCountry = `-- name: FetchOccurrencesByCountry :many
-SELECT o.id,
-    s.id as sampling_id,
-    s.latitude,
-    s.longitude,
-    s.coordinates_precision,
-    s.altitude,
-    s.site_code,
-    s.site_name,
-    s.site_locality,
-    c.code as country_code,
-    c.name as country_name,
-    s.event_date,
-    s.event_date_precision,
-    t.id AS taxon_id,
-    t.name AS taxon_name,
-    t.authorship AS taxon_authorship,
-    t.rank AS taxon_rank,
-    t.GBIF_ID AS taxon_gbif_id,
-    t.status AS taxon_status,
-    o.identification_confer,
-    o.identification_addendum,
-    o.identification_date,
-    o.identification_date_precision,
-    o.identified_by,
-    o.type_status
+const listOccurrencesByCountry = `-- name: ListOccurrencesByCountry :many
+SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
+    s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
+    c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM occurrences o
 INNER JOIN samplings s ON s.id = o.sampling_id
 LEFT JOIN countries c ON c.code = s.site_country_code
@@ -53,75 +32,84 @@ END
 OFFSET COALESCE($2::INTEGER, 0)
 `
 
-type FetchOccurrencesByCountryParams struct {
-	OccurrenceIds []pgtype.UUID `json:"occurrence_ids"`
-	PageOffset    pgtype.Int4   `json:"page_offset"`
-	PageLimit     pgtype.Int4   `json:"page_limit"`
+type ListOccurrencesByCountryParams struct {
+	OccurrenceIDs []uuid.UUID `json:"occurrence_ids"`
+	PageOffset    *int32      `json:"page_offset"`
+	PageLimit     *int32      `json:"page_limit"`
 }
 
-type FetchOccurrencesByCountryRow struct {
-	ID                          string                   `json:"id"`
-	SamplingID                  pgtype.UUID              `json:"sampling_id"`
-	Latitude                    float32                  `json:"latitude"`
-	Longitude                   float32                  `json:"longitude"`
-	CoordinatesPrecision        pgtype.Int4              `json:"coordinates_precision"`
-	Altitude                    pgtype.Int4              `json:"altitude"`
-	SiteCode                    pgtype.Text              `json:"site_code"`
-	SiteName                    pgtype.Text              `json:"site_name"`
-	SiteLocality                pgtype.Text              `json:"site_locality"`
-	CountryCode                 pgtype.Text              `json:"country_code"`
-	CountryName                 pgtype.Text              `json:"country_name"`
-	EventDate                   pgtype.Date              `json:"event_date"`
-	EventDatePrecision          NullEventDatePrecision   `json:"event_date_precision"`
-	TaxonID                     pgtype.UUID              `json:"taxon_id"`
-	TaxonName                   string                   `json:"taxon_name"`
-	TaxonAuthorship             pgtype.Text              `json:"taxon_authorship"`
-	TaxonRank                   TaxonRank                `json:"taxon_rank"`
-	TaxonGbifID                 pgtype.Int4              `json:"taxon_gbif_id"`
-	TaxonStatus                 TaxonStatus              `json:"taxon_status"`
-	IdentificationConfer        bool                     `json:"identification_confer"`
-	IdentificationAddendum      pgtype.Text              `json:"identification_addendum"`
-	IdentificationDate          pgtype.Date              `json:"identification_date"`
-	IdentificationDatePrecision NullEventDatePrecision   `json:"identification_date_precision"`
-	IdentifiedBy                []string                 `json:"identified_by"`
-	TypeStatus                  NullOccurrenceTypeStatus `json:"type_status"`
+type ListOccurrencesByCountryRow struct {
+	Occurrence Occurrence `json:"occurrence"`
+	Sampling   Sampling   `json:"sampling"`
+	Taxon      Taxon      `json:"taxon"`
+	Country    Country    `json:"country"`
 }
 
-func (q *Queries) FetchOccurrencesByCountry(ctx context.Context, arg FetchOccurrencesByCountryParams) ([]FetchOccurrencesByCountryRow, error) {
-	rows, err := q.db.Query(ctx, fetchOccurrencesByCountry, arg.OccurrenceIds, arg.PageOffset, arg.PageLimit)
+func (q *Queries) ListOccurrencesByCountry(ctx context.Context, arg ListOccurrencesByCountryParams) ([]ListOccurrencesByCountryRow, error) {
+	rows, err := q.db.Query(ctx, listOccurrencesByCountry, arg.OccurrenceIDs, arg.PageOffset, arg.PageLimit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []FetchOccurrencesByCountryRow
+	var items []ListOccurrencesByCountryRow
 	for rows.Next() {
-		var i FetchOccurrencesByCountryRow
+		var i ListOccurrencesByCountryRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.SamplingID,
-			&i.Latitude,
-			&i.Longitude,
-			&i.CoordinatesPrecision,
-			&i.Altitude,
-			&i.SiteCode,
-			&i.SiteName,
-			&i.SiteLocality,
-			&i.CountryCode,
-			&i.CountryName,
-			&i.EventDate,
-			&i.EventDatePrecision,
-			&i.TaxonID,
-			&i.TaxonName,
-			&i.TaxonAuthorship,
-			&i.TaxonRank,
-			&i.TaxonGbifID,
-			&i.TaxonStatus,
-			&i.IdentificationConfer,
-			&i.IdentificationAddendum,
-			&i.IdentificationDate,
-			&i.IdentificationDatePrecision,
-			&i.IdentifiedBy,
-			&i.TypeStatus,
+			&i.Occurrence.ID,
+			&i.Occurrence.Code,
+			&i.Occurrence.SamplingID,
+			&i.Occurrence.TypeStatus,
+			&i.Occurrence.Comments,
+			&i.Occurrence.TaxonID,
+			&i.Occurrence.VerbatimIdentification,
+			&i.Occurrence.IdentifiedBy,
+			&i.Occurrence.IdentificationDate,
+			&i.Occurrence.IdentificationDatePrecision,
+			&i.Occurrence.IdentificationConfer,
+			&i.Occurrence.IdentificationAddendum,
+			&i.Occurrence.ContentDescription,
+			&i.Occurrence.QuantityExact,
+			&i.Occurrence.QuantityLower,
+			&i.Occurrence.QuantityUpper,
+			&i.Occurrence.Sources,
+			&i.Occurrence.CreatedAt,
+			&i.Occurrence.UpdatedAt,
+			&i.Occurrence.ImportBatchID,
+			&i.Sampling.ID,
+			&i.Sampling.SamplingHash,
+			&i.Sampling.Notes,
+			&i.Sampling.SiteCode,
+			&i.Sampling.SiteName,
+			&i.Sampling.SiteLocality,
+			&i.Sampling.SiteCountryCode,
+			&i.Sampling.CoordinatesPrecision,
+			&i.Sampling.Coordinates,
+			&i.Sampling.Latitude,
+			&i.Sampling.Longitude,
+			&i.Sampling.Altitude,
+			&i.Sampling.EventDate,
+			&i.Sampling.EventDatePrecision,
+			&i.Sampling.PerformedBy,
+			&i.Sampling.Duration,
+			&i.Sampling.AccessPoints,
+			&i.Sampling.H3Index,
+			&i.Sampling.SearchVector,
+			&i.Taxon.ID,
+			&i.Taxon.GBIFID,
+			&i.Taxon.Name,
+			&i.Taxon.ScientificName,
+			&i.Taxon.Rank,
+			&i.Taxon.Status,
+			&i.Taxon.Authorship,
+			&i.Taxon.AcceptedTaxonID,
+			&i.Taxon.ParentID,
+			&i.Taxon.SearchVector,
+			&i.Taxon.Comments,
+			&i.Country.Code,
+			&i.Country.Name,
+			&i.Country.Continent,
+			&i.Country.Subcontinent,
+			&i.Country.Geom,
 		); err != nil {
 			return nil, err
 		}
@@ -133,32 +121,11 @@ func (q *Queries) FetchOccurrencesByCountry(ctx context.Context, arg FetchOccurr
 	return items, nil
 }
 
-const fetchOccurrencesByTaxon = `-- name: FetchOccurrencesByTaxon :many
-SELECT o.id,
-    s.id as sampling_id,
-    s.latitude,
-    s.longitude,
-    s.coordinates_precision,
-    s.altitude,
-    s.site_code,
-    s.site_name,
-    s.site_locality,
-    c.code as country_code,
-    c.name as country_name,
-    s.event_date,
-    s.event_date_precision,
-    t.id AS taxon_id,
-    t.name AS taxon_name,
-    t.authorship AS taxon_authorship,
-    t.rank AS taxon_rank,
-    t.GBIF_ID AS taxon_gbif_id,
-    t.status AS taxon_status,
-    o.identification_confer,
-    o.identification_addendum,
-    o.identification_date,
-    o.identification_date_precision,
-    o.identified_by,
-    o.type_status
+const listOccurrencesByTaxon = `-- name: ListOccurrencesByTaxon :many
+SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
+    s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
+    c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM occurrences o
 INNER JOIN samplings s ON s.id = o.sampling_id
 LEFT JOIN countries c ON c.code = s.site_country_code
@@ -175,75 +142,84 @@ END
 OFFSET COALESCE($2::INTEGER, 0)
 `
 
-type FetchOccurrencesByTaxonParams struct {
-	OccurrenceIds []pgtype.UUID `json:"occurrence_ids"`
-	PageOffset    pgtype.Int4   `json:"page_offset"`
-	PageLimit     pgtype.Int4   `json:"page_limit"`
+type ListOccurrencesByTaxonParams struct {
+	OccurrenceIDs []uuid.UUID `json:"occurrence_ids"`
+	PageOffset    *int32      `json:"page_offset"`
+	PageLimit     *int32      `json:"page_limit"`
 }
 
-type FetchOccurrencesByTaxonRow struct {
-	ID                          string                   `json:"id"`
-	SamplingID                  pgtype.UUID              `json:"sampling_id"`
-	Latitude                    float32                  `json:"latitude"`
-	Longitude                   float32                  `json:"longitude"`
-	CoordinatesPrecision        pgtype.Int4              `json:"coordinates_precision"`
-	Altitude                    pgtype.Int4              `json:"altitude"`
-	SiteCode                    pgtype.Text              `json:"site_code"`
-	SiteName                    pgtype.Text              `json:"site_name"`
-	SiteLocality                pgtype.Text              `json:"site_locality"`
-	CountryCode                 pgtype.Text              `json:"country_code"`
-	CountryName                 pgtype.Text              `json:"country_name"`
-	EventDate                   pgtype.Date              `json:"event_date"`
-	EventDatePrecision          NullEventDatePrecision   `json:"event_date_precision"`
-	TaxonID                     pgtype.UUID              `json:"taxon_id"`
-	TaxonName                   string                   `json:"taxon_name"`
-	TaxonAuthorship             pgtype.Text              `json:"taxon_authorship"`
-	TaxonRank                   TaxonRank                `json:"taxon_rank"`
-	TaxonGbifID                 pgtype.Int4              `json:"taxon_gbif_id"`
-	TaxonStatus                 TaxonStatus              `json:"taxon_status"`
-	IdentificationConfer        bool                     `json:"identification_confer"`
-	IdentificationAddendum      pgtype.Text              `json:"identification_addendum"`
-	IdentificationDate          pgtype.Date              `json:"identification_date"`
-	IdentificationDatePrecision NullEventDatePrecision   `json:"identification_date_precision"`
-	IdentifiedBy                []string                 `json:"identified_by"`
-	TypeStatus                  NullOccurrenceTypeStatus `json:"type_status"`
+type ListOccurrencesByTaxonRow struct {
+	Occurrence Occurrence `json:"occurrence"`
+	Sampling   Sampling   `json:"sampling"`
+	Taxon      Taxon      `json:"taxon"`
+	Country    Country    `json:"country"`
 }
 
-func (q *Queries) FetchOccurrencesByTaxon(ctx context.Context, arg FetchOccurrencesByTaxonParams) ([]FetchOccurrencesByTaxonRow, error) {
-	rows, err := q.db.Query(ctx, fetchOccurrencesByTaxon, arg.OccurrenceIds, arg.PageOffset, arg.PageLimit)
+func (q *Queries) ListOccurrencesByTaxon(ctx context.Context, arg ListOccurrencesByTaxonParams) ([]ListOccurrencesByTaxonRow, error) {
+	rows, err := q.db.Query(ctx, listOccurrencesByTaxon, arg.OccurrenceIDs, arg.PageOffset, arg.PageLimit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []FetchOccurrencesByTaxonRow
+	var items []ListOccurrencesByTaxonRow
 	for rows.Next() {
-		var i FetchOccurrencesByTaxonRow
+		var i ListOccurrencesByTaxonRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.SamplingID,
-			&i.Latitude,
-			&i.Longitude,
-			&i.CoordinatesPrecision,
-			&i.Altitude,
-			&i.SiteCode,
-			&i.SiteName,
-			&i.SiteLocality,
-			&i.CountryCode,
-			&i.CountryName,
-			&i.EventDate,
-			&i.EventDatePrecision,
-			&i.TaxonID,
-			&i.TaxonName,
-			&i.TaxonAuthorship,
-			&i.TaxonRank,
-			&i.TaxonGbifID,
-			&i.TaxonStatus,
-			&i.IdentificationConfer,
-			&i.IdentificationAddendum,
-			&i.IdentificationDate,
-			&i.IdentificationDatePrecision,
-			&i.IdentifiedBy,
-			&i.TypeStatus,
+			&i.Occurrence.ID,
+			&i.Occurrence.Code,
+			&i.Occurrence.SamplingID,
+			&i.Occurrence.TypeStatus,
+			&i.Occurrence.Comments,
+			&i.Occurrence.TaxonID,
+			&i.Occurrence.VerbatimIdentification,
+			&i.Occurrence.IdentifiedBy,
+			&i.Occurrence.IdentificationDate,
+			&i.Occurrence.IdentificationDatePrecision,
+			&i.Occurrence.IdentificationConfer,
+			&i.Occurrence.IdentificationAddendum,
+			&i.Occurrence.ContentDescription,
+			&i.Occurrence.QuantityExact,
+			&i.Occurrence.QuantityLower,
+			&i.Occurrence.QuantityUpper,
+			&i.Occurrence.Sources,
+			&i.Occurrence.CreatedAt,
+			&i.Occurrence.UpdatedAt,
+			&i.Occurrence.ImportBatchID,
+			&i.Sampling.ID,
+			&i.Sampling.SamplingHash,
+			&i.Sampling.Notes,
+			&i.Sampling.SiteCode,
+			&i.Sampling.SiteName,
+			&i.Sampling.SiteLocality,
+			&i.Sampling.SiteCountryCode,
+			&i.Sampling.CoordinatesPrecision,
+			&i.Sampling.Coordinates,
+			&i.Sampling.Latitude,
+			&i.Sampling.Longitude,
+			&i.Sampling.Altitude,
+			&i.Sampling.EventDate,
+			&i.Sampling.EventDatePrecision,
+			&i.Sampling.PerformedBy,
+			&i.Sampling.Duration,
+			&i.Sampling.AccessPoints,
+			&i.Sampling.H3Index,
+			&i.Sampling.SearchVector,
+			&i.Taxon.ID,
+			&i.Taxon.GBIFID,
+			&i.Taxon.Name,
+			&i.Taxon.ScientificName,
+			&i.Taxon.Rank,
+			&i.Taxon.Status,
+			&i.Taxon.Authorship,
+			&i.Taxon.AcceptedTaxonID,
+			&i.Taxon.ParentID,
+			&i.Taxon.SearchVector,
+			&i.Taxon.Comments,
+			&i.Country.Code,
+			&i.Country.Name,
+			&i.Country.Continent,
+			&i.Country.Subcontinent,
+			&i.Country.Geom,
 		); err != nil {
 			return nil, err
 		}
@@ -255,32 +231,11 @@ func (q *Queries) FetchOccurrencesByTaxon(ctx context.Context, arg FetchOccurren
 	return items, nil
 }
 
-const fetchOccurrencesSortByEventDateASC = `-- name: FetchOccurrencesSortByEventDateASC :many
-SELECT o.id,
-    s.id as sampling_id,
-    s.latitude,
-    s.longitude,
-    s.coordinates_precision,
-    s.altitude,
-    s.site_code,
-    s.site_name,
-    s.site_locality,
-    c.code as country_code,
-    c.name as country_name,
-    s.event_date,
-    s.event_date_precision,
-    t.id AS taxon_id,
-    t.name AS taxon_name,
-    t.authorship AS taxon_authorship,
-    t.rank AS taxon_rank,
-    t.GBIF_ID AS taxon_gbif_id,
-    t.status AS taxon_status,
-    o.identification_confer,
-    o.identification_addendum,
-    o.identification_date,
-    o.identification_date_precision,
-    o.identified_by,
-    o.type_status
+const listOccurrencesSortByEventDateASC = `-- name: ListOccurrencesSortByEventDateASC :many
+SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
+    s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
+    c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM occurrences o
 INNER JOIN samplings s ON s.id = o.sampling_id
 LEFT JOIN countries c ON c.code = s.site_country_code
@@ -297,75 +252,84 @@ END
 OFFSET COALESCE($2::INTEGER, 0)
 `
 
-type FetchOccurrencesSortByEventDateASCParams struct {
-	OccurrenceIds []pgtype.UUID `json:"occurrence_ids"`
-	PageOffset    pgtype.Int4   `json:"page_offset"`
-	PageLimit     pgtype.Int4   `json:"page_limit"`
+type ListOccurrencesSortByEventDateASCParams struct {
+	OccurrenceIDs []uuid.UUID `json:"occurrence_ids"`
+	PageOffset    *int32      `json:"page_offset"`
+	PageLimit     *int32      `json:"page_limit"`
 }
 
-type FetchOccurrencesSortByEventDateASCRow struct {
-	ID                          string                   `json:"id"`
-	SamplingID                  pgtype.UUID              `json:"sampling_id"`
-	Latitude                    float32                  `json:"latitude"`
-	Longitude                   float32                  `json:"longitude"`
-	CoordinatesPrecision        pgtype.Int4              `json:"coordinates_precision"`
-	Altitude                    pgtype.Int4              `json:"altitude"`
-	SiteCode                    pgtype.Text              `json:"site_code"`
-	SiteName                    pgtype.Text              `json:"site_name"`
-	SiteLocality                pgtype.Text              `json:"site_locality"`
-	CountryCode                 pgtype.Text              `json:"country_code"`
-	CountryName                 pgtype.Text              `json:"country_name"`
-	EventDate                   pgtype.Date              `json:"event_date"`
-	EventDatePrecision          NullEventDatePrecision   `json:"event_date_precision"`
-	TaxonID                     pgtype.UUID              `json:"taxon_id"`
-	TaxonName                   string                   `json:"taxon_name"`
-	TaxonAuthorship             pgtype.Text              `json:"taxon_authorship"`
-	TaxonRank                   TaxonRank                `json:"taxon_rank"`
-	TaxonGbifID                 pgtype.Int4              `json:"taxon_gbif_id"`
-	TaxonStatus                 TaxonStatus              `json:"taxon_status"`
-	IdentificationConfer        bool                     `json:"identification_confer"`
-	IdentificationAddendum      pgtype.Text              `json:"identification_addendum"`
-	IdentificationDate          pgtype.Date              `json:"identification_date"`
-	IdentificationDatePrecision NullEventDatePrecision   `json:"identification_date_precision"`
-	IdentifiedBy                []string                 `json:"identified_by"`
-	TypeStatus                  NullOccurrenceTypeStatus `json:"type_status"`
+type ListOccurrencesSortByEventDateASCRow struct {
+	Occurrence Occurrence `json:"occurrence"`
+	Sampling   Sampling   `json:"sampling"`
+	Taxon      Taxon      `json:"taxon"`
+	Country    Country    `json:"country"`
 }
 
-func (q *Queries) FetchOccurrencesSortByEventDateASC(ctx context.Context, arg FetchOccurrencesSortByEventDateASCParams) ([]FetchOccurrencesSortByEventDateASCRow, error) {
-	rows, err := q.db.Query(ctx, fetchOccurrencesSortByEventDateASC, arg.OccurrenceIds, arg.PageOffset, arg.PageLimit)
+func (q *Queries) ListOccurrencesSortByEventDateASC(ctx context.Context, arg ListOccurrencesSortByEventDateASCParams) ([]ListOccurrencesSortByEventDateASCRow, error) {
+	rows, err := q.db.Query(ctx, listOccurrencesSortByEventDateASC, arg.OccurrenceIDs, arg.PageOffset, arg.PageLimit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []FetchOccurrencesSortByEventDateASCRow
+	var items []ListOccurrencesSortByEventDateASCRow
 	for rows.Next() {
-		var i FetchOccurrencesSortByEventDateASCRow
+		var i ListOccurrencesSortByEventDateASCRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.SamplingID,
-			&i.Latitude,
-			&i.Longitude,
-			&i.CoordinatesPrecision,
-			&i.Altitude,
-			&i.SiteCode,
-			&i.SiteName,
-			&i.SiteLocality,
-			&i.CountryCode,
-			&i.CountryName,
-			&i.EventDate,
-			&i.EventDatePrecision,
-			&i.TaxonID,
-			&i.TaxonName,
-			&i.TaxonAuthorship,
-			&i.TaxonRank,
-			&i.TaxonGbifID,
-			&i.TaxonStatus,
-			&i.IdentificationConfer,
-			&i.IdentificationAddendum,
-			&i.IdentificationDate,
-			&i.IdentificationDatePrecision,
-			&i.IdentifiedBy,
-			&i.TypeStatus,
+			&i.Occurrence.ID,
+			&i.Occurrence.Code,
+			&i.Occurrence.SamplingID,
+			&i.Occurrence.TypeStatus,
+			&i.Occurrence.Comments,
+			&i.Occurrence.TaxonID,
+			&i.Occurrence.VerbatimIdentification,
+			&i.Occurrence.IdentifiedBy,
+			&i.Occurrence.IdentificationDate,
+			&i.Occurrence.IdentificationDatePrecision,
+			&i.Occurrence.IdentificationConfer,
+			&i.Occurrence.IdentificationAddendum,
+			&i.Occurrence.ContentDescription,
+			&i.Occurrence.QuantityExact,
+			&i.Occurrence.QuantityLower,
+			&i.Occurrence.QuantityUpper,
+			&i.Occurrence.Sources,
+			&i.Occurrence.CreatedAt,
+			&i.Occurrence.UpdatedAt,
+			&i.Occurrence.ImportBatchID,
+			&i.Sampling.ID,
+			&i.Sampling.SamplingHash,
+			&i.Sampling.Notes,
+			&i.Sampling.SiteCode,
+			&i.Sampling.SiteName,
+			&i.Sampling.SiteLocality,
+			&i.Sampling.SiteCountryCode,
+			&i.Sampling.CoordinatesPrecision,
+			&i.Sampling.Coordinates,
+			&i.Sampling.Latitude,
+			&i.Sampling.Longitude,
+			&i.Sampling.Altitude,
+			&i.Sampling.EventDate,
+			&i.Sampling.EventDatePrecision,
+			&i.Sampling.PerformedBy,
+			&i.Sampling.Duration,
+			&i.Sampling.AccessPoints,
+			&i.Sampling.H3Index,
+			&i.Sampling.SearchVector,
+			&i.Taxon.ID,
+			&i.Taxon.GBIFID,
+			&i.Taxon.Name,
+			&i.Taxon.ScientificName,
+			&i.Taxon.Rank,
+			&i.Taxon.Status,
+			&i.Taxon.Authorship,
+			&i.Taxon.AcceptedTaxonID,
+			&i.Taxon.ParentID,
+			&i.Taxon.SearchVector,
+			&i.Taxon.Comments,
+			&i.Country.Code,
+			&i.Country.Name,
+			&i.Country.Continent,
+			&i.Country.Subcontinent,
+			&i.Country.Geom,
 		); err != nil {
 			return nil, err
 		}
@@ -377,32 +341,11 @@ func (q *Queries) FetchOccurrencesSortByEventDateASC(ctx context.Context, arg Fe
 	return items, nil
 }
 
-const fetchOccurrencesSortByEventDateDESC = `-- name: FetchOccurrencesSortByEventDateDESC :many
-SELECT o.id,
-    s.id as sampling_id,
-    s.latitude,
-    s.longitude,
-    s.coordinates_precision,
-    s.altitude,
-    s.site_code,
-    s.site_name,
-    s.site_locality,
-    c.code as country_code,
-    c.name as country_name,
-    s.event_date,
-    s.event_date_precision,
-    t.id AS taxon_id,
-    t.name AS taxon_name,
-    t.authorship AS taxon_authorship,
-    t.rank AS taxon_rank,
-    t.GBIF_ID AS taxon_gbif_id,
-    t.status AS taxon_status,
-    o.identification_confer,
-    o.identification_addendum,
-    o.identification_date,
-    o.identification_date_precision,
-    o.identified_by,
-    o.type_status
+const listOccurrencesSortByEventDateDESC = `-- name: ListOccurrencesSortByEventDateDESC :many
+SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
+    s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
+    c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM occurrences o
 INNER JOIN samplings s ON s.id = o.sampling_id
 LEFT JOIN countries c ON c.code = s.site_country_code
@@ -419,75 +362,84 @@ END
 OFFSET COALESCE($2::INTEGER, 0)
 `
 
-type FetchOccurrencesSortByEventDateDESCParams struct {
-	OccurrenceIds []pgtype.UUID `json:"occurrence_ids"`
-	PageOffset    pgtype.Int4   `json:"page_offset"`
-	PageLimit     pgtype.Int4   `json:"page_limit"`
+type ListOccurrencesSortByEventDateDESCParams struct {
+	OccurrenceIDs []uuid.UUID `json:"occurrence_ids"`
+	PageOffset    *int32      `json:"page_offset"`
+	PageLimit     *int32      `json:"page_limit"`
 }
 
-type FetchOccurrencesSortByEventDateDESCRow struct {
-	ID                          string                   `json:"id"`
-	SamplingID                  pgtype.UUID              `json:"sampling_id"`
-	Latitude                    float32                  `json:"latitude"`
-	Longitude                   float32                  `json:"longitude"`
-	CoordinatesPrecision        pgtype.Int4              `json:"coordinates_precision"`
-	Altitude                    pgtype.Int4              `json:"altitude"`
-	SiteCode                    pgtype.Text              `json:"site_code"`
-	SiteName                    pgtype.Text              `json:"site_name"`
-	SiteLocality                pgtype.Text              `json:"site_locality"`
-	CountryCode                 pgtype.Text              `json:"country_code"`
-	CountryName                 pgtype.Text              `json:"country_name"`
-	EventDate                   pgtype.Date              `json:"event_date"`
-	EventDatePrecision          NullEventDatePrecision   `json:"event_date_precision"`
-	TaxonID                     pgtype.UUID              `json:"taxon_id"`
-	TaxonName                   string                   `json:"taxon_name"`
-	TaxonAuthorship             pgtype.Text              `json:"taxon_authorship"`
-	TaxonRank                   TaxonRank                `json:"taxon_rank"`
-	TaxonGbifID                 pgtype.Int4              `json:"taxon_gbif_id"`
-	TaxonStatus                 TaxonStatus              `json:"taxon_status"`
-	IdentificationConfer        bool                     `json:"identification_confer"`
-	IdentificationAddendum      pgtype.Text              `json:"identification_addendum"`
-	IdentificationDate          pgtype.Date              `json:"identification_date"`
-	IdentificationDatePrecision NullEventDatePrecision   `json:"identification_date_precision"`
-	IdentifiedBy                []string                 `json:"identified_by"`
-	TypeStatus                  NullOccurrenceTypeStatus `json:"type_status"`
+type ListOccurrencesSortByEventDateDESCRow struct {
+	Occurrence Occurrence `json:"occurrence"`
+	Sampling   Sampling   `json:"sampling"`
+	Taxon      Taxon      `json:"taxon"`
+	Country    Country    `json:"country"`
 }
 
-func (q *Queries) FetchOccurrencesSortByEventDateDESC(ctx context.Context, arg FetchOccurrencesSortByEventDateDESCParams) ([]FetchOccurrencesSortByEventDateDESCRow, error) {
-	rows, err := q.db.Query(ctx, fetchOccurrencesSortByEventDateDESC, arg.OccurrenceIds, arg.PageOffset, arg.PageLimit)
+func (q *Queries) ListOccurrencesSortByEventDateDESC(ctx context.Context, arg ListOccurrencesSortByEventDateDESCParams) ([]ListOccurrencesSortByEventDateDESCRow, error) {
+	rows, err := q.db.Query(ctx, listOccurrencesSortByEventDateDESC, arg.OccurrenceIDs, arg.PageOffset, arg.PageLimit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []FetchOccurrencesSortByEventDateDESCRow
+	var items []ListOccurrencesSortByEventDateDESCRow
 	for rows.Next() {
-		var i FetchOccurrencesSortByEventDateDESCRow
+		var i ListOccurrencesSortByEventDateDESCRow
 		if err := rows.Scan(
-			&i.ID,
-			&i.SamplingID,
-			&i.Latitude,
-			&i.Longitude,
-			&i.CoordinatesPrecision,
-			&i.Altitude,
-			&i.SiteCode,
-			&i.SiteName,
-			&i.SiteLocality,
-			&i.CountryCode,
-			&i.CountryName,
-			&i.EventDate,
-			&i.EventDatePrecision,
-			&i.TaxonID,
-			&i.TaxonName,
-			&i.TaxonAuthorship,
-			&i.TaxonRank,
-			&i.TaxonGbifID,
-			&i.TaxonStatus,
-			&i.IdentificationConfer,
-			&i.IdentificationAddendum,
-			&i.IdentificationDate,
-			&i.IdentificationDatePrecision,
-			&i.IdentifiedBy,
-			&i.TypeStatus,
+			&i.Occurrence.ID,
+			&i.Occurrence.Code,
+			&i.Occurrence.SamplingID,
+			&i.Occurrence.TypeStatus,
+			&i.Occurrence.Comments,
+			&i.Occurrence.TaxonID,
+			&i.Occurrence.VerbatimIdentification,
+			&i.Occurrence.IdentifiedBy,
+			&i.Occurrence.IdentificationDate,
+			&i.Occurrence.IdentificationDatePrecision,
+			&i.Occurrence.IdentificationConfer,
+			&i.Occurrence.IdentificationAddendum,
+			&i.Occurrence.ContentDescription,
+			&i.Occurrence.QuantityExact,
+			&i.Occurrence.QuantityLower,
+			&i.Occurrence.QuantityUpper,
+			&i.Occurrence.Sources,
+			&i.Occurrence.CreatedAt,
+			&i.Occurrence.UpdatedAt,
+			&i.Occurrence.ImportBatchID,
+			&i.Sampling.ID,
+			&i.Sampling.SamplingHash,
+			&i.Sampling.Notes,
+			&i.Sampling.SiteCode,
+			&i.Sampling.SiteName,
+			&i.Sampling.SiteLocality,
+			&i.Sampling.SiteCountryCode,
+			&i.Sampling.CoordinatesPrecision,
+			&i.Sampling.Coordinates,
+			&i.Sampling.Latitude,
+			&i.Sampling.Longitude,
+			&i.Sampling.Altitude,
+			&i.Sampling.EventDate,
+			&i.Sampling.EventDatePrecision,
+			&i.Sampling.PerformedBy,
+			&i.Sampling.Duration,
+			&i.Sampling.AccessPoints,
+			&i.Sampling.H3Index,
+			&i.Sampling.SearchVector,
+			&i.Taxon.ID,
+			&i.Taxon.GBIFID,
+			&i.Taxon.Name,
+			&i.Taxon.ScientificName,
+			&i.Taxon.Rank,
+			&i.Taxon.Status,
+			&i.Taxon.Authorship,
+			&i.Taxon.AcceptedTaxonID,
+			&i.Taxon.ParentID,
+			&i.Taxon.SearchVector,
+			&i.Taxon.Comments,
+			&i.Country.Code,
+			&i.Country.Name,
+			&i.Country.Continent,
+			&i.Country.Subcontinent,
+			&i.Country.Geom,
 		); err != nil {
 			return nil, err
 		}

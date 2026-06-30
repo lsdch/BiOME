@@ -22,19 +22,17 @@ RETURNING *;
 DELETE FROM habitats
 WHERE label = $1;
 
+-- name: DeleteHabitatGroupByName :exec
+DELETE FROM habitat_groups
+WHERE label = $1;
+
 -- name: ListHabitatGroups :many
-SELECT id,
-    label,
-    description,
-    parent_habitat_id
-FROM habitat_groups
+SELECT g.*
+FROM habitat_groups g
 ORDER BY label;
 
 -- name: ListHabitats :many
-SELECT id,
-    label,
-    description,
-    habitat_group_id
+SELECT *
 FROM habitats
 ORDER BY habitat_group_id,
     label;

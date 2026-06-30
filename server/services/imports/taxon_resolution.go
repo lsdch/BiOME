@@ -8,12 +8,12 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/google/uuid"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
-	"github.com/lsdch/biome/db/pgutils"
-	"github.com/lsdch/biome/db/stores"
+	"github.com/lsdch/biome/stores"
+
 	"github.com/lsdch/biome/models"
-	gbif "github.com/lsdch/biome/models/taxonomy/GBIF"
+	gbif "github.com/lsdch/biome/services/gbif"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -24,25 +24,25 @@ type taxonResolutionService struct {
 }
 
 type TaxonResolutionService interface {
-	InitResolution(ctx context.Context, importHash string) (state *stores.TaxonResolutionState, err error)
-	GetTaxonResolutionState(ctx context.Context, importHash string) (state *stores.TaxonResolutionState, err error)
+	InitResolution(ctx context.Context, importHash string) (state *models.TaxonResolutionState, err error)
+	GetTaxonResolutionState(ctx context.Context, importHash string) (state *models.TaxonResolutionState, err error)
 	MaterializeTaxa(ctx context.Context, importHash string) (err error)
-	EnrichTaxonResolutionWithGBIF(ctx context.Context, importHash string) (status biomedb.GbifImportStatus, err error)
+	EnrichTaxonResolutionWithGBIF(ctx context.Context, importHash string) (status biomedb.GBIFImportStatus, err error)
 	// FetchCandidatesFromGBIF(ctx context.Context, importHash string, toFetch []biomedb.ListTaxaWithoutExactCandidateRow) (candidates map[string][]gbif.TaxonGBIF, err error)
 	// InsertGBIFCandidates(ctx context.Context, candidates map[string][]gbif.TaxonGBIF) (err error)
-	FetchKeysFromGBIF(ctx context.Context, toFetch []int32) ([]gbif.TaxonGBIF, error)
+	FetchKeysFromGBIF(ctx context.Context, toFetch []int32) ([]models.TaxonGBIF, error)
 }
 
-func NewTaxonResolutionService(q *biomedb.Queries, gbif *gbif.GBIFClient) TaxonResolutionService {
+func NewTaxonResolutionService(q db.Querier, gbif *gbif.GBIFClient) TaxonResolutionService {
 	return &taxonResolutionService{
-		store: stores.NewTaxonResolutionStore(q),
+		store: stores.NewTaxonResolutionStore(q.Queries()),
 		gbif:  gbif,
 	}
 }
 
 // Initializes the taxon resolution state for a given import hash. This is typically called when starting a new import workflow.
 // It fetches the current resolution state, generates local candidates, and identifies any missing GBIF dependencies that need to be fetched.
-func (r *taxonResolutionService) InitResolution(ctx context.Context, importHash string) (state *stores.TaxonResolutionState, err error) {
+func (r *taxonResolutionService) InitResolution(ctx context.Context, importHash string) (state *models.TaxonResolutionState, err error) {
 	resolution, err := r.store.InitTaxonResolution(ctx, importHash)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (r *taxonResolutionService) InitResolution(ctx context.Context, importHash 
 	if err != nil {
 		return nil, err
 	}
-	return &stores.TaxonResolutionState{
+	return &models.TaxonResolutionState{
 		Resolution: resolution,
 		Candidates: candidates,
 	}, nil
@@ -63,7 +63,7 @@ func (r *taxonResolutionService) InitResolution(ctx context.Context, importHash 
 
 // Fetches missing GBIF dependencies for taxa that have already been resolved to a GBIF taxon,
 // to ensure that all necessary GBIF data is available before materialization.
-func (r *taxonResolutionService) FetchKeysFromGBIF(ctx context.Context, toFetch []int32) ([]gbif.TaxonGBIF, error) {
+func (r *taxonResolutionService) FetchKeysFromGBIF(ctx context.Context, toFetch []int32) ([]models.TaxonGBIF, error) {
 
 	if len(toFetch) == 0 {
 		return nil, nil
@@ -72,7 +72,7 @@ func (r *taxonResolutionService) FetchKeysFromGBIF(ctx context.Context, toFetch 
 	g, ctx := errgroup.WithContext(ctx)
 	var (
 		mu   sync.Mutex
-		taxa = make([]gbif.TaxonGBIF, 0, len(toFetch))
+		taxa = make([]models.TaxonGBIF, 0, len(toFetch))
 	)
 
 	for i := range toFetch {
@@ -100,7 +100,7 @@ func (r *taxonResolutionService) FetchKeysFromGBIF(ctx context.Context, toFetch 
 	return taxa, nil
 }
 
-func (r *taxonResolutionService) FetchCandidatesFromGBIF(ctx context.Context, importHash string, toFetch []biomedb.ListTaxaToFetchGBIFCandidatesRow) (candidates map[string][]gbif.TaxonGBIF, err error) {
+func (r *taxonResolutionService) FetchCandidatesFromGBIF(ctx context.Context, importHash string, toFetch []biomedb.ListTaxaToFetchGBIFCandidatesRow) (candidates map[string][]models.TaxonGBIF, err error) {
 	if len(toFetch) == 0 {
 		return nil, nil
 	}
@@ -111,7 +111,7 @@ func (r *taxonResolutionService) FetchCandidatesFromGBIF(ctx context.Context, im
 
 	var mutex sync.Mutex
 	g, ctx := errgroup.WithContext(ctx)
-	candidatesMap := make(map[string][]gbif.TaxonGBIF, len(toFetch))
+	candidatesMap := make(map[string][]models.TaxonGBIF, len(toFetch))
 	for i := range toFetch {
 		taxon := toFetch[i]
 		query := taxon.FullInputName
@@ -121,11 +121,11 @@ func (r *taxonResolutionService) FetchCandidatesFromGBIF(ctx context.Context, im
 		g.Go(func() error {
 			params := gbif.SearchParams{
 				Query:      query,
-				Rank:       taxon.TaxonRank.String,
+				Rank:       "",
 				Limit:      5,
-				DatasetKey: gbif.GBIF_BACKBONE_DATASET_KEY,
+				DatasetKey: r.gbif.BackboneDatasetKey,
 			}
-			if !taxon.TaxonRank.Valid {
+			if taxon.TaxonRank == nil {
 				switch len(strings.Split(taxon.TaxonName, " ")) {
 				case 1:
 					params.Rank = "GENUS"
@@ -160,11 +160,11 @@ func (r *taxonResolutionService) FetchCandidatesFromGBIF(ctx context.Context, im
 	return candidatesMap, nil
 }
 
-func (r *taxonResolutionService) InsertGBIFCandidates(ctx context.Context, candidates map[string][]gbif.TaxonGBIF) (err error) {
+func (r *taxonResolutionService) InsertGBIFCandidates(ctx context.Context, candidates map[string][]models.TaxonGBIF) (err error) {
 	if len(candidates) == 0 {
 		return nil
 	}
-	stagingParams := make([]gbif.TaxonGBIF, 0, len(candidates))
+	stagingParams := make([]models.TaxonGBIF, 0, len(candidates))
 	for _, matches := range candidates {
 		for _, match := range matches {
 			stagingParams = append(stagingParams, match)
@@ -187,7 +187,7 @@ const (
 	ErrGBIFAlreadyRunning string = "GBIF import is already in progress for this import hash"
 )
 
-func (r *taxonResolutionService) EnrichTaxonResolutionWithGBIF(ctx context.Context, importHash string) (status biomedb.GbifImportStatus, err error) {
+func (r *taxonResolutionService) EnrichTaxonResolutionWithGBIF(ctx context.Context, importHash string) (status models.GBIFImportStatus, err error) {
 
 	claimed, err := r.store.ClaimGBIFImport(ctx, importHash)
 	if err != nil {
@@ -224,7 +224,7 @@ func (r *taxonResolutionService) EnrichTaxonResolutionWithGBIF(ctx context.Conte
 	return r.store.CompleteGBIFImport(ctx, importHash)
 }
 
-func (r *taxonResolutionService) GetTaxonResolutionState(ctx context.Context, importHash string) (state *stores.TaxonResolutionState, err error) {
+func (r *taxonResolutionService) GetTaxonResolutionState(ctx context.Context, importHash string) (state *models.TaxonResolutionState, err error) {
 	state, err = r.store.GetTaxonResolutionState(ctx, importHash)
 	if err != nil {
 		return nil, err
@@ -267,40 +267,22 @@ func (r *taxonResolutionService) MaterializeTaxa(ctx context.Context, importHash
 	return nil
 }
 
-type TaxonStagingParams struct {
-	Name            string                          `json:"name"`
-	Authorship      models.OptionalInput[string]    `json:"authorship,omitempty"`
-	Rank            biomedb.TaxonRank               `json:"rank"`
-	Status          biomedb.TaxonStatus             `json:"status"`
-	ParentSource    biomedb.TaxonMatchSource        `json:"parent_source"`
-	ParentID        models.OptionalInput[uuid.UUID] `json:"parent_taxa_id,omitempty"`
-	ParentGbifID    models.OptionalInput[int32]     `json:"parent_gbif_id,omitempty"`
-	ParentInputName models.OptionalInput[string]    `json:"parent_input_name,omitempty"`
-}
-
-func (r *taxonResolutionService) ResolveToManualTaxon(ctx context.Context, importHash string, params TaxonStagingParams) (err error) {
+func (r *taxonResolutionService) ResolveToManualTaxon(ctx context.Context, importHash string, params models.TaxonStagingParams) (err error) {
 	if params.ParentSource == biomedb.TaxonMatchSourceManual {
 
 		if parentName, ok := params.ParentInputName.Get(); !ok || parentName == "" {
 			return fmt.Errorf("parent source is %s but parent name is not provided for manual taxon %s", params.ParentSource, params.Name)
 		} else {
-			r.store.UpsertTaxonResolution(ctx, biomedb.UpsertTaxonResolutionParams{
+			err = r.store.UpsertTaxonResolution(ctx, biomedb.UpsertTaxonResolutionParams{
 				ImportHash: importHash,
 				InputName:  parentName,
 			})
+			if err != nil {
+				return fmt.Errorf("failed to upsert parent taxon resolution for manual taxon %s: %v", params.Name, err)
+			}
 		}
 
 	}
-	err = r.store.InsertTaxonStaging(ctx, biomedb.InsertTaxonStagingParams{
-		ImportHash:      importHash,
-		Name:            params.Name,
-		Authorship:      pgutils.TextOpt(params.Authorship),
-		Rank:            params.Rank,
-		Status:          params.Status,
-		ParentSource:    params.ParentSource,
-		ParentTaxaID:    pgutils.UUIDOpt(params.ParentID),
-		ParentGbifID:    pgutils.Int4Opt(params.ParentGbifID),
-		ParentInputName: pgutils.TextOpt(params.ParentInputName),
-	})
+	err = r.store.InsertTaxonStaging(ctx, importHash, params)
 	return err
 }

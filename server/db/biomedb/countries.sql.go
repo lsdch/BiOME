@@ -9,14 +9,15 @@ import (
 	"context"
 )
 
-const insertCountry = `-- name: InsertCountry :one
-INSERT INTO countries (code, name, continent, subcontinent)
-VALUES ($1, $2, $3, $4) ON CONFLICT (code) DO
-UPDATE
-SET name = EXCLUDED.name,
-    continent = EXCLUDED.continent,
-    subcontinent = EXCLUDED.subcontinent
-RETURNING code, name, continent, subcontinent
+const insertCountry = `-- name: InsertCountry :exec
+INSERT INTO countries (code, name, continent, subcontinent, geom)
+VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        ST_SetSRID(ST_GeomFromGeoJSON($5::json), 4326)
+    )
 `
 
 type InsertCountryParams struct {
@@ -24,46 +25,100 @@ type InsertCountryParams struct {
 	Name         string `json:"name"`
 	Continent    string `json:"continent"`
 	Subcontinent string `json:"subcontinent"`
+	Geom         []byte `json:"geom"`
 }
 
-func (q *Queries) InsertCountry(ctx context.Context, arg InsertCountryParams) (Country, error) {
-	row := q.db.QueryRow(ctx, insertCountry,
+func (q *Queries) InsertCountry(ctx context.Context, arg InsertCountryParams) error {
+	_, err := q.db.Exec(ctx, insertCountry,
 		arg.Code,
 		arg.Name,
 		arg.Continent,
 		arg.Subcontinent,
+		arg.Geom,
 	)
-	var i Country
-	err := row.Scan(
-		&i.Code,
-		&i.Name,
-		&i.Continent,
-		&i.Subcontinent,
-	)
-	return i, err
+	return err
 }
 
 const listCountries = `-- name: ListCountries :many
-SELECT code, name, continent, subcontinent
+SELECT name,
+    code,
+    continent,
+    subcontinent
 FROM countries
-ORDER BY name,
-    code
+ORDER BY name
 `
 
-func (q *Queries) ListCountries(ctx context.Context) ([]Country, error) {
+type ListCountriesRow struct {
+	Name         string `json:"name"`
+	Code         string `json:"code"`
+	Continent    string `json:"continent"`
+	Subcontinent string `json:"subcontinent"`
+}
+
+func (q *Queries) ListCountries(ctx context.Context) ([]ListCountriesRow, error) {
 	rows, err := q.db.Query(ctx, listCountries)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Country
+	var items []ListCountriesRow
 	for rows.Next() {
-		var i Country
+		var i ListCountriesRow
 		if err := rows.Scan(
-			&i.Code,
 			&i.Name,
+			&i.Code,
 			&i.Continent,
 			&i.Subcontinent,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listCountriesSummary = `-- name: ListCountriesSummary :many
+SELECT c.name,
+    c.code,
+    c.continent,
+    c.subcontinent,
+    COUNT(s.id) AS sampling_count,
+    COUNT(o.id) AS occurrence_count
+FROM countries c
+    LEFT JOIN samplings s ON s.site_country_code = c.code
+    LEFT JOIN occurrences o ON o.site_country_code = c.code
+GROUP BY c.code
+ORDER BY c.name
+`
+
+type ListCountriesSummaryRow struct {
+	Name            string `json:"name"`
+	Code            string `json:"code"`
+	Continent       string `json:"continent"`
+	Subcontinent    string `json:"subcontinent"`
+	SamplingCount   int64  `json:"sampling_count"`
+	OccurrenceCount int64  `json:"occurrence_count"`
+}
+
+func (q *Queries) ListCountriesSummary(ctx context.Context) ([]ListCountriesSummaryRow, error) {
+	rows, err := q.db.Query(ctx, listCountriesSummary)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListCountriesSummaryRow
+	for rows.Next() {
+		var i ListCountriesSummaryRow
+		if err := rows.Scan(
+			&i.Name,
+			&i.Code,
+			&i.Continent,
+			&i.Subcontinent,
+			&i.SamplingCount,
+			&i.OccurrenceCount,
 		); err != nil {
 			return nil, err
 		}
