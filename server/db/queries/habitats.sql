@@ -1,30 +1,24 @@
 -- name: InsertHabitatGroup :one
-INSERT INTO habitat_groups (
-        id,
-        label,
-        description,
-        parent_habitat_id
-    )
-VALUES ($1, $2, $3, $4)
+INSERT INTO habitat_groups (label, exclusive_elements, parent_habitat_id)
+VALUES (@label, @exclusive_elements, @parent_habitat_id)
 RETURNING *;
 
 -- name: InsertHabitatInGroup :one
 INSERT INTO habitats (
-        id,
         label,
         description,
         habitat_group_id
     )
-VALUES ($1, $2, $3, $4)
+VALUES (@label, @description, @habitat_group_id)
 RETURNING *;
 
--- name: DeleteHabitatByName :exec
+-- name: DeleteHabitatByID :exec
 DELETE FROM habitats
-WHERE label = $1;
+WHERE id = @id;
 
--- name: DeleteHabitatGroupByName :exec
+-- name: DeleteHabitatGroup :exec
 DELETE FROM habitat_groups
-WHERE label = $1;
+WHERE id = @id;
 
 -- name: ListHabitatGroups :many
 SELECT g.*
@@ -36,3 +30,25 @@ SELECT *
 FROM habitats
 ORDER BY habitat_group_id,
     label;
+
+-- name: UpdateHabitat :exec
+UPDATE habitats
+SET label = COALESCE(sqlc.narg('label'), label),
+    description = CASE
+        WHEN @set_description::boolean THEN sqlc.narg('description')
+        ELSE description
+    END
+WHERE id = @habitat_id;
+
+-- name: UpdateHabitatGroupInfo :exec
+UPDATE habitat_groups
+SET label = COALESCE(sqlc.narg('label'), label),
+    exclusive_elements = COALESCE(
+        sqlc.narg('exclusive_elements'),
+        exclusive_elements
+    ),
+    parent_habitat_id = CASE
+        WHEN @set_parent_habitat_id::boolean THEN sqlc.narg('parent_habitat_id')
+        ELSE parent_habitat_id
+    END
+WHERE id = @group_id;

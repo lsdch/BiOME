@@ -252,6 +252,10 @@ func NewOptionalNull[T any](value T) OptionalNull[T] {
 	}
 }
 
+func (o OptionalNull[T]) IsNull() bool {
+	return o.IsSet && o.Null.IsNull()
+}
+
 func (o OptionalNull[T]) Get() (T, bool) {
 	if o.IsSet && !o.Null.IsNull() {
 		return o.Value, true

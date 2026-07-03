@@ -2,9 +2,9 @@
 CREATE TABLE habitat_groups (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
 	label CITEXT NOT NULL,
-	CONSTRAINT habitat_group_label_unique UNIQUE (label),
 	description TEXT,
 	exclusive_elements BOOLEAN NOT NULL DEFAULT true,
+	CONSTRAINT habitat_group_label_unique UNIQUE (label),
 	CONSTRAINT habitat_group_label_not_empty CHECK (btrim(label) <> '')
 );
 

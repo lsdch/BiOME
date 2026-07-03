@@ -3,7 +3,7 @@ package controllers
 import (
 	"reflect"
 
-	"github.com/geldata/gel-go/geltypes"
+	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 
 	"github.com/danielgtaylor/huma/v2"
@@ -29,10 +29,10 @@ func (o StrIdentifier) Schema(r huma.Registry) *huma.Schema {
 }
 
 type UUIDInput struct {
-	ID geltypes.UUID `path:"id" format:"uuid"`
+	ID uuid.UUID `path:"id" format:"uuid"`
 }
 
-func (i UUIDInput) Identifier() geltypes.UUID {
+func (i UUIDInput) Identifier() uuid.UUID {
 	return i.ID
 }
 
@@ -85,7 +85,6 @@ func (i NumberInput) Identifier() int64 {
 }
 
 // Implementation assertions
-var _ IdentifierInput[geltypes.UUID] = (*UUIDInput)(nil)
 var _ IdentifierInput[string] = (*CodeInput)(nil)
 
 // A simple response output that carries a message

@@ -12,51 +12,40 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteHabitatByName = `-- name: DeleteHabitatByName :exec
+const deleteHabitatByID = `-- name: DeleteHabitatByID :exec
 DELETE FROM habitats
-WHERE label = $1
+WHERE id = $1
 `
 
-func (q *Queries) DeleteHabitatByName(ctx context.Context, label string) error {
-	_, err := q.db.Exec(ctx, deleteHabitatByName, label)
+func (q *Queries) DeleteHabitatByID(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteHabitatByID, id)
 	return err
 }
 
-const deleteHabitatGroupByName = `-- name: DeleteHabitatGroupByName :exec
+const deleteHabitatGroup = `-- name: DeleteHabitatGroup :exec
 DELETE FROM habitat_groups
-WHERE label = $1
+WHERE id = $1
 `
 
-func (q *Queries) DeleteHabitatGroupByName(ctx context.Context, label string) error {
-	_, err := q.db.Exec(ctx, deleteHabitatGroupByName, label)
+func (q *Queries) DeleteHabitatGroup(ctx context.Context, id uuid.UUID) error {
+	_, err := q.db.Exec(ctx, deleteHabitatGroup, id)
 	return err
 }
 
 const insertHabitatGroup = `-- name: InsertHabitatGroup :one
-INSERT INTO habitat_groups (
-        id,
-        label,
-        description,
-        parent_habitat_id
-    )
-VALUES ($1, $2, $3, $4)
+INSERT INTO habitat_groups (label, exclusive_elements, parent_habitat_id)
+VALUES ($1, $2, $3)
 RETURNING id, label, description, exclusive_elements, parent_habitat_id
 `
 
 type InsertHabitatGroupParams struct {
-	ID              uuid.UUID   `json:"id"`
-	Label           string      `json:"label"`
-	Description     *string     `json:"description"`
-	ParentHabitatID pgtype.UUID `json:"parent_habitat_id"`
+	Label             string      `json:"label"`
+	ExclusiveElements bool        `json:"exclusive_elements"`
+	ParentHabitatID   pgtype.UUID `json:"parent_habitat_id"`
 }
 
 func (q *Queries) InsertHabitatGroup(ctx context.Context, arg InsertHabitatGroupParams) (HabitatGroup, error) {
-	row := q.db.QueryRow(ctx, insertHabitatGroup,
-		arg.ID,
-		arg.Label,
-		arg.Description,
-		arg.ParentHabitatID,
-	)
+	row := q.db.QueryRow(ctx, insertHabitatGroup, arg.Label, arg.ExclusiveElements, arg.ParentHabitatID)
 	var i HabitatGroup
 	err := row.Scan(
 		&i.ID,
@@ -70,29 +59,22 @@ func (q *Queries) InsertHabitatGroup(ctx context.Context, arg InsertHabitatGroup
 
 const insertHabitatInGroup = `-- name: InsertHabitatInGroup :one
 INSERT INTO habitats (
-        id,
         label,
         description,
         habitat_group_id
     )
-VALUES ($1, $2, $3, $4)
+VALUES ($1, $2, $3)
 RETURNING id, label, description, habitat_group_id
 `
 
 type InsertHabitatInGroupParams struct {
-	ID             uuid.UUID `json:"id"`
 	Label          string    `json:"label"`
 	Description    *string   `json:"description"`
 	HabitatGroupID uuid.UUID `json:"habitat_group_id"`
 }
 
 func (q *Queries) InsertHabitatInGroup(ctx context.Context, arg InsertHabitatInGroupParams) (Habitat, error) {
-	row := q.db.QueryRow(ctx, insertHabitatInGroup,
-		arg.ID,
-		arg.Label,
-		arg.Description,
-		arg.HabitatGroupID,
-	)
+	row := q.db.QueryRow(ctx, insertHabitatInGroup, arg.Label, arg.Description, arg.HabitatGroupID)
 	var i Habitat
 	err := row.Scan(
 		&i.ID,
@@ -165,4 +147,64 @@ func (q *Queries) ListHabitats(ctx context.Context) ([]Habitat, error) {
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateHabitat = `-- name: UpdateHabitat :exec
+UPDATE habitats
+SET label = COALESCE($1, label),
+    description = CASE
+        WHEN $2::boolean THEN $3
+        ELSE description
+    END
+WHERE id = $4
+`
+
+type UpdateHabitatParams struct {
+	Label          *string   `json:"label"`
+	SetDescription bool      `json:"set_description"`
+	Description    *string   `json:"description"`
+	HabitatID      uuid.UUID `json:"habitat_id"`
+}
+
+func (q *Queries) UpdateHabitat(ctx context.Context, arg UpdateHabitatParams) error {
+	_, err := q.db.Exec(ctx, updateHabitat,
+		arg.Label,
+		arg.SetDescription,
+		arg.Description,
+		arg.HabitatID,
+	)
+	return err
+}
+
+const updateHabitatGroupInfo = `-- name: UpdateHabitatGroupInfo :exec
+UPDATE habitat_groups
+SET label = COALESCE($1, label),
+    exclusive_elements = COALESCE(
+        $2,
+        exclusive_elements
+    ),
+    parent_habitat_id = CASE
+        WHEN $3::boolean THEN $4
+        ELSE parent_habitat_id
+    END
+WHERE id = $5
+`
+
+type UpdateHabitatGroupInfoParams struct {
+	Label              *string     `json:"label"`
+	ExclusiveElements  *bool       `json:"exclusive_elements"`
+	SetParentHabitatID bool        `json:"set_parent_habitat_id"`
+	ParentHabitatID    pgtype.UUID `json:"parent_habitat_id"`
+	GroupID            uuid.UUID   `json:"group_id"`
+}
+
+func (q *Queries) UpdateHabitatGroupInfo(ctx context.Context, arg UpdateHabitatGroupInfoParams) error {
+	_, err := q.db.Exec(ctx, updateHabitatGroupInfo,
+		arg.Label,
+		arg.ExclusiveElements,
+		arg.SetParentHabitatID,
+		arg.ParentHabitatID,
+		arg.GroupID,
+	)
+	return err
 }
