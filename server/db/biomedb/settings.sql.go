@@ -10,7 +10,7 @@ import (
 )
 
 const getSettings = `-- name: GetSettings :one
-SELECT id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name
+SELECT id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name, molecular_data_enabled
 FROM settings
 `
 
@@ -27,6 +27,7 @@ func (q *Queries) GetSettings(ctx context.Context) (Setting, error) {
 		&i.AdminEmail,
 		&i.MailFromAddress,
 		&i.MailFromName,
+		&i.MolecularDataEnabled,
 	)
 	return i, err
 }
@@ -41,7 +42,8 @@ INSERT INTO settings (
         account_requests_enabled,
         admin_email,
         mail_from_address,
-        mail_from_name
+        mail_from_name,
+        molecular_data_enabled
     )
 VALUES (
         1,
@@ -52,7 +54,8 @@ VALUES (
         $5,
         $6,
         $7,
-        $8
+        $8,
+        $9
     ) ON CONFLICT (id) DO NOTHING
 `
 
@@ -65,6 +68,7 @@ type InitSettingsParams struct {
 	AdminEmail             string  `json:"admin_email"`
 	MailFromAddress        string  `json:"mail_from_address"`
 	MailFromName           string  `json:"mail_from_name"`
+	MolecularDataEnabled   bool    `json:"molecular_data_enabled"`
 }
 
 func (q *Queries) InitSettings(ctx context.Context, arg InitSettingsParams) error {
@@ -77,6 +81,7 @@ func (q *Queries) InitSettings(ctx context.Context, arg InitSettingsParams) erro
 		arg.AdminEmail,
 		arg.MailFromAddress,
 		arg.MailFromName,
+		arg.MolecularDataEnabled,
 	)
 	return err
 }
@@ -107,7 +112,7 @@ SET app_name = COALESCE($1, app_name),
         mail_from_name
     )
 WHERE id = 1
-RETURNING id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name
+RETURNING id, app_name, app_subtitle, app_description, is_public, account_requests_enabled, admin_email, mail_from_address, mail_from_name, molecular_data_enabled
 `
 
 type UpdateInstanceSettingsParams struct {
@@ -147,6 +152,7 @@ func (q *Queries) UpdateInstanceSettings(ctx context.Context, arg UpdateInstance
 		&i.AdminEmail,
 		&i.MailFromAddress,
 		&i.MailFromName,
+		&i.MolecularDataEnabled,
 	)
 	return i, err
 }

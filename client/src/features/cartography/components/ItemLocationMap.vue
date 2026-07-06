@@ -7,7 +7,7 @@
       :min-zoom="0.1"
       :pinMarkers="pinMarker ? [pinMarker] : undefined"
       :marker-layers="proximityRadius ? [proximalMarkers] : undefined"
-      :auto-fit="proximityRadius || CoordinatesPrecision.radius(item?.coordinates?.precision)"
+      :auto-fit="proximityRadius || item?.coordinates?.precision"
       @drag-pin="(_index, { latitude, longitude }) => setCoordinates(latitude, longitude)"
     >
       <template #popup="{ item }">
@@ -27,7 +27,9 @@
         />
         <OccurrencesOverviewDialog
           v-else
-          :data="nearbySites?.filter(({ distance }) => distance <= proximityRadius) ?? []"
+          :data="
+            nearbySites?.filter(({ distance_meters }) => distance_meters <= proximityRadius) ?? []
+          "
           :max-width="1400"
         >
           <template #sites-table="{ sites }">
@@ -91,9 +93,8 @@
   </v-sheet>
 </template>
 
-<script setup lang="tsx" generic="Item extends DeepPartial<Geocoordinates>">
-import { CoordinatesPrecision } from '@/api'
-import { sitesProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
+<script setup lang="tsx" generic="Item extends DeepPartial<ItemWithCoordinates>">
+import { listSamplingsAtProximityOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import OccurrencesOverviewDialog from '@/features/occurrences/components/tables/OccurrencesOverviewDialog.vue'
 import OccurrencesTable from '@/features/occurrences/components/tables/OccurrencesTable.vue'
 import SampledTaxaTable from '@/features/occurrences/components/tables/SampledTaxaTable.vue'
@@ -102,14 +103,14 @@ import SiteWithOccurrencesTable from '@/features/occurrences/components/tables/S
 import { formatDistance } from '@/lib/distances'
 import { useQuery } from '@tanstack/vue-query'
 import { circle } from '@turf/turf'
+import { MarkerOptions } from 'maplibre-gl'
 import { computed, ref, useTemplateRef, watch } from 'vue'
 import { ComponentExposed } from 'vue-component-type-helpers'
-import { Coordinates, Geocoordinates } from '../coordinates'
+import { Coordinates, ItemWithCoordinates } from '../coordinates'
 import DeckGlMap from './DeckGlMap.vue'
 import { makeMarkerLayer, markerLayerFromSpec, PinMarker } from './layers-manager/map-layers'
 import SingleSitePopup from './popups/SingleSitePopup.vue'
 import ProximityRadiusSlider from './ProximityRadiusSlider.vue'
-import { MarkerOptions } from 'maplibre-gl'
 
 const distanceHeader = {
   direct: {
@@ -130,7 +131,11 @@ const DistanceDisplay = (props: { distance: number }) => {
 
 const item = defineModel<Item>('item')
 
-const { height, markerOptions, excludeCodes } = defineProps<{
+const {
+  height,
+  markerOptions,
+  excludeCodes: excludeIDs
+} = defineProps<{
   height?: number
   markerOptions?: MarkerOptions
   excludeCodes?: string[]
@@ -205,12 +210,12 @@ const {
 } = useQuery(
   computed(() => ({
     enabled: hasValidCoordinates.value,
-    ...sitesProximityOptions({
+    ...listSamplingsAtProximityOptions({
       query: {
-        latitude: item.value?.coordinates?.latitude,
-        longitude: item.value?.coordinates?.longitude,
-        radius: 100_000,
-        exclude: excludeCodes
+        latitude: item.value?.coordinates?.latitude ?? 0,
+        longitude: item.value?.coordinates?.longitude ?? 0,
+        radius_meters: 100_000,
+        exclude_ids: excludeIDs
       }
     })
   }))
@@ -229,7 +234,8 @@ const proximalMarkersSpec = ref(makeMarkerLayer('Proximal sites', { ready: true 
 const proximalMarkers = computed(() => {
   return markerLayerFromSpec(
     proximalMarkersSpec.value,
-    nearbySites.value?.filter(({ distance }) => distance <= proximityRadius.value) ?? []
+    nearbySites.value?.filter(({ distance_meters }) => distance_meters <= proximityRadius.value) ??
+      []
   )
 })
 </script>

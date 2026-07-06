@@ -75,14 +75,6 @@
       </SamplingFormDialog>
     </template>
     <v-divider></v-divider>
-    <div class="px-3 mt-3">
-      <SiteSamplingPicker
-        v-if="hasID(site)"
-        :siteCode="site.code"
-        @update:model-value="updateSampling"
-        clearable
-      />
-    </div>
     <template v-if="sampling">
       <v-divider></v-divider>
       <v-card-text>

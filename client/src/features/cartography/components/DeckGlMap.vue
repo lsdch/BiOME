@@ -154,8 +154,8 @@ import {
   watchEffect
 } from 'vue'
 
-import { CoordinatesPrecision, type SiteWithOccurrences } from '@/api'
-import type { Coordinates, Geocoordinates } from '@/features/cartography/coordinates'
+import { type SiteWithOccurrences } from '@/api'
+import type { Coordinates, ItemWithCoordinates } from '@/features/cartography/coordinates'
 import { useMarkerLayers } from '../composables/useMarkerLayers'
 import type { HexgridLayer, MarkerLayer, PinMarker } from './layers-manager/map-layers'
 
@@ -273,10 +273,9 @@ const { selected, select, highlightLayer, clear } = useMarkerSelection<
   PinMarker<PinMarkerData>
 >()
 
-function displaySiteRadius(site: Geocoordinates) {
-  const precision = site.coordinates.precision
-  if (precision === 'Unknown') return
-  const radius = CoordinatesPrecision.radius(precision)
+function displaySiteRadius(site: ItemWithCoordinates) {
+  if (!site.coordinates.precision) return
+  const radius = site.coordinates.precision
   const c = turf.circle([site.coordinates.longitude, site.coordinates.latitude], radius, {
     steps: 64,
     units: 'meters'
@@ -413,7 +412,7 @@ function fitMapView(radiusMeters = 0) {
   })
 }
 
-function fitViewToSite({ coordinates: { latitude, longitude } }: Geocoordinates) {
+function fitViewToSite({ coordinates: { latitude, longitude } }: ItemWithCoordinates) {
   map.value?.easeTo({
     center: [longitude, latitude],
     zoom: Math.max(10, currentZoom.value),

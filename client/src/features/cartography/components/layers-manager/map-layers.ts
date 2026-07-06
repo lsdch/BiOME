@@ -1,6 +1,6 @@
 import { HabitatRecord, OccurrencesBySiteData } from '@/api'
 import { ScaleBindingSpec } from '@/features/cartography/bindings'
-import { Geocoordinates } from '@/features/cartography/coordinates'
+import { ItemWithCoordinates } from '@/features/cartography/coordinates'
 import { brewerPalettes, withOpacity } from '@/lib/color_brewer'
 import { WithRequired } from '@tanstack/vue-query'
 import { UUID } from 'crypto'
@@ -116,7 +116,7 @@ export function makeMarkerLayer(name?: string, params?: MarkerLayerParams): Mark
   }
 }
 
-export function markerLayerFromSpec<Item extends Geocoordinates>(
+export function markerLayerFromSpec<Item extends ItemWithCoordinates>(
   spec: MarkerLayerSpec,
   data?: Item[]
 ): MarkerLayer<Item> {
@@ -183,7 +183,7 @@ export type MarkerConfig = {
 /**
  * Type representing a marker layer in the map.
  */
-export type MarkerLayer<Item extends Geocoordinates> = {
+export type MarkerLayer<Item extends ItemWithCoordinates> = {
   name?: string
   active: boolean
   config: MarkerConfig
@@ -226,7 +226,7 @@ export type HexgridConfigSpec = Overwrite<
 /**
  * Type representing a hexgrid layer in the map.
  */
-export type HexgridLayer<Item extends Geocoordinates> = {
+export type HexgridLayer<Item extends ItemWithCoordinates> = {
   name?: string
   active: boolean
   config: HexgridConfig
@@ -235,7 +235,7 @@ export type HexgridLayer<Item extends Geocoordinates> = {
   markers: MarkerLayerSpec & { minZoom: number }
 }
 
-export type PinMarker<Item> = Geocoordinates & {
+export type PinMarker<Item> = ItemWithCoordinates & {
   options?: MarkerOptions
   data: Item
 }

@@ -9,391 +9,166 @@ import {
 
 import { client } from '../client.gen'
 import {
-  AccountService,
+  AccountsService,
+  AuthenticationService,
+  BatchImportsService,
+  BibliographyService,
   DatasetsService,
-  DataSourcesService,
-  DefaultService,
+  HabitatsService,
   LocationService,
   OccurrencesService,
   type Options,
-  PeopleService,
-  ReferencesService,
   SamplingService,
-  SequencesService,
+  SamplingsService,
   ServicesService,
   SettingsService,
   TaxonomyService
 } from '../sdk.gen'
 import type {
-  ClaimInvitationData,
-  ClaimInvitationError,
-  ClaimInvitationResponse,
-  ConfirmEmailData,
-  ConfirmEmailError,
-  ConfirmEmailResponse,
+  BatchReverseGeocodeData,
+  BatchReverseGeocodeError,
+  BatchReverseGeocodeResponse,
   CoordinatesToCountryData,
   CoordinatesToCountryError,
   CoordinatesToCountryResponse,
-  CreateAbioticParameterData,
-  CreateAbioticParameterError,
-  CreateAbioticParameterResponse,
   CreateArticleData,
   CreateArticleError,
   CreateArticleResponse,
-  CreateDataFeedData,
-  CreateDataFeedError,
-  CreateDataFeedResponse,
-  CreateDataSourceData,
-  CreateDataSourceError,
-  CreateDataSourceResponse,
   CreateFixativeData,
   CreateFixativeError,
   CreateFixativeResponse,
-  CreateGeneData,
-  CreateGeneError,
-  CreateGeneResponse,
   CreateHabitatGroupData,
   CreateHabitatGroupError,
   CreateHabitatGroupResponse,
+  CreateOccurrenceAtSamplingData,
+  CreateOccurrenceAtSamplingError,
+  CreateOccurrenceAtSamplingResponse,
   CreateOccurrenceData,
   CreateOccurrenceError,
   CreateOccurrenceResponse,
-  CreateOrganisationData,
-  CreateOrganisationError,
-  CreateOrganisationResponse,
-  CreatePersonData,
-  CreatePersonError,
-  CreatePersonResponse,
-  CreateProgramData,
-  CreateProgramError,
-  CreateProgramResponse,
-  CreateSamplingAtSiteData,
-  CreateSamplingAtSiteError,
-  CreateSamplingAtSiteResponse,
   CreateSamplingData,
   CreateSamplingError,
   CreateSamplingMethodData,
   CreateSamplingMethodError,
   CreateSamplingMethodResponse,
   CreateSamplingResponse,
-  CreateSiteData,
-  CreateSiteDatasetData,
-  CreateSiteDatasetError,
-  CreateSiteDatasetResponse,
-  CreateSiteError,
-  CreateSiteResponse,
-  CreateTaxonData,
-  CreateTaxonError,
-  CreateTaxonResponse,
-  CreateUpdateMapPresetData,
-  CreateUpdateMapPresetError,
-  CreateUpdateMapPresetResponse,
-  CrossRefBibSearchData,
-  CrossRefBibSearchError,
-  CrossRefBibSearchResponse,
-  CrossRefData,
-  CrossRefError,
-  CrossRefResponse,
-  CurrentUserData,
-  CurrentUserError,
-  CurrentUserResponse2,
-  DeleteAbioticParameterData,
-  DeleteAbioticParameterError,
-  DeleteAbioticParameterResponse,
   DeleteArticleData,
   DeleteArticleError,
   DeleteArticleResponse,
-  DeleteDataSourceData,
-  DeleteDataSourceError,
-  DeleteDataSourceResponse,
   DeleteFixativeData,
   DeleteFixativeError,
   DeleteFixativeResponse,
-  DeleteGeneData,
-  DeleteGeneError,
-  DeleteGeneResponse,
   DeleteHabitatGroupData,
   DeleteHabitatGroupError,
   DeleteHabitatGroupResponse,
-  DeleteMapPresetData,
-  DeleteMapPresetError,
-  DeleteMapPresetResponse,
-  DeleteOccurrenceData,
-  DeleteOccurrenceError,
-  DeleteOccurrenceResponse,
-  DeleteOrganisationData,
-  DeleteOrganisationError,
-  DeleteOrganisationResponse,
-  DeletePendingUserRequestData,
-  DeletePendingUserRequestError,
-  DeletePendingUserRequestResponse,
-  DeletePersonData,
-  DeletePersonError,
-  DeletePersonResponse,
-  DeleteProgramData,
-  DeleteProgramError,
-  DeleteProgramResponse,
-  DeleteSamplingData,
-  DeleteSamplingError,
   DeleteSamplingMethodData,
   DeleteSamplingMethodError,
   DeleteSamplingMethodResponse,
-  DeleteSamplingResponse,
-  DeleteSequenceData,
-  DeleteSequenceError,
-  DeleteSequenceResponse,
-  DeleteTaxonData,
-  DeleteTaxonError,
-  DeleteTaxonResponse,
-  EmailSettingsData,
-  EmailSettingsError,
-  EmailSettingsResponse,
-  GetCountriesSummaryData,
-  GetCountriesSummaryError,
-  GetCountriesSummaryResponse,
-  GetDatasetData,
-  GetDatasetError,
-  GetDatasetResponse,
+  GetCurrentUserData,
+  GetCurrentUserError,
+  GetCurrentUserResponse,
+  GetDatasetByIdData,
+  GetDatasetByIdError,
+  GetDatasetByIdResponse,
   GetGeoapifyStatusData,
   GetGeoapifyStatusError,
   GetGeoapifyStatusResponse,
-  GetOccurrenceData,
-  GetOccurrenceDatasetData,
-  GetOccurrenceDatasetError,
-  GetOccurrenceDatasetResponse,
-  GetOccurrenceError,
-  GetOccurrenceResponse,
-  GetPendingUserRequestData,
-  GetPendingUserRequestError,
-  GetPendingUserRequestResponse,
-  GetSequenceData,
-  GetSequenceDatasetData,
-  GetSequenceDatasetError,
-  GetSequenceDatasetResponse,
-  GetSequenceError,
-  GetSequenceResponse,
-  GetSiteData,
-  GetSiteDatasetData,
-  GetSiteDatasetError,
-  GetSiteDatasetResponse,
-  GetSiteError,
-  GetSiteResponse,
-  GetTaxonData,
-  GetTaxonError,
-  GetTaxonomyAtRankData,
-  GetTaxonomyAtRankError,
-  GetTaxonomyAtRankResponse,
-  GetTaxonResponse,
-  InstanceSettingsData,
-  InstanceSettingsError,
-  InstanceSettingsResponse,
-  InvitePersonData,
-  InvitePersonError,
-  InvitePersonResponse,
-  ListAbioticParametersData,
-  ListAbioticParametersError,
-  ListAbioticParametersResponse,
+  GetHabitatGroupsData,
+  GetHabitatGroupsError,
+  GetHabitatGroupsResponse,
+  GetInstanceSettingsData,
+  GetInstanceSettingsError,
+  GetInstanceSettingsResponse,
+  GetOccurrencesData,
+  GetOccurrencesError,
+  GetOccurrencesResponse,
+  ImportOccurrencesData,
+  ImportOccurrencesError,
+  ImportOccurrencesResponse,
   ListAccessPointsData,
   ListAccessPointsError,
   ListAccessPointsResponse,
   ListArticlesData,
   ListArticlesError,
   ListArticlesResponse,
-  ListCollectionsData,
-  ListCollectionsError,
-  ListCollectionsResponse,
+  ListCollectionNamesData,
+  ListCollectionNamesError,
+  ListCollectionNamesResponse,
   ListCountriesData,
   ListCountriesError,
   ListCountriesResponse,
-  ListDataFeedsData,
-  ListDataFeedsError,
-  ListDataFeedsResponse,
+  ListCountriesSummaryData,
+  ListCountriesSummaryError,
+  ListCountriesSummaryResponse,
   ListDatasetsData,
   ListDatasetsError,
   ListDatasetsResponse,
-  ListDataSourcesData,
-  ListDataSourcesError,
-  ListDataSourcesResponse,
   ListFixativesData,
   ListFixativesError,
   ListFixativesResponse,
-  ListGenesData,
-  ListGenesError,
-  ListGenesResponse,
   ListGeoapifyUsageData,
   ListGeoapifyUsageError,
   ListGeoapifyUsageResponse,
-  ListHabitatGroupsData,
-  ListHabitatGroupsError,
-  ListHabitatGroupsResponse,
-  ListMapPresetsData,
-  ListMapPresetsError,
-  ListMapPresetsResponse,
-  ListOccurrenceDatasetsData,
-  ListOccurrenceDatasetsError,
-  ListOccurrenceDatasetsResponse,
   ListOccurrencesData,
   ListOccurrencesError,
   ListOccurrencesResponse,
-  ListOrganisationsData,
-  ListOrganisationsError,
-  ListOrganisationsResponse,
-  ListPendingUserRequestsData,
-  ListPendingUserRequestsError,
-  ListPendingUserRequestsResponse,
-  ListPersonsData,
-  ListPersonsError,
-  ListPersonsResponse,
-  ListProgramsData,
-  ListProgramsError,
-  ListProgramsResponse,
   ListSamplingMethodsData,
   ListSamplingMethodsError,
   ListSamplingMethodsResponse,
-  ListSequenceDatasetsData,
-  ListSequenceDatasetsError,
-  ListSequenceDatasetsResponse,
-  ListSequencesData,
-  ListSequencesError,
-  ListSequencesResponse,
-  ListSiteDatasetsData,
-  ListSiteDatasetsError,
-  ListSiteDatasetsResponse,
-  ListSiteSamplingsData,
-  ListSiteSamplingsError,
-  ListSiteSamplingsResponse,
-  ListSitesData,
-  ListSitesError,
-  ListSitesResponse,
-  ListTaxaData,
-  ListTaxaError,
-  ListTaxaResponse,
+  ListSamplingsAtProximityData,
+  ListSamplingsAtProximityError,
+  ListSamplingsAtProximityResponse,
+  ListUsersData,
+  ListUsersError,
+  ListUsersResponse,
+  LoadDatasetsForOccurrenceData,
+  LoadDatasetsForOccurrenceError,
+  LoadDatasetsForOccurrenceResponse,
+  LoadOccurrencesForDatasetData,
+  LoadOccurrencesForDatasetError,
+  LoadOccurrencesForDatasetResponse,
   LoginData,
   LoginError,
   LoginResponse,
   LogoutData,
   LogoutError,
   LogoutResponse,
-  OccurrenceOverviewData,
-  OccurrenceOverviewError,
-  OccurrenceOverviewResponse,
-  OccurrencesBySiteData,
-  OccurrencesBySiteError,
-  OccurrencesBySiteResponse,
-  OccurrencesDateRangeData,
-  OccurrencesDateRangeError,
-  OccurrencesDateRangeResponse,
+  OccurrencesTaxaOverviewData,
+  OccurrencesTaxaOverviewError,
+  OccurrencesTaxaOverviewResponse,
   RefreshSessionData,
   RefreshSessionError,
   RefreshSessionResponse,
-  RegisterData,
-  RegisterError,
-  RegisterResponse,
-  RequestPasswordResetData,
-  RequestPasswordResetError,
-  RequestPasswordResetResponse,
-  ResendEmailVerificationData,
-  ResendEmailVerificationError,
-  ResendEmailVerificationResponse,
-  ResetPasswordData,
-  ResetPasswordError,
-  ResetPasswordResponse,
   ReverseGeocodeData,
   ReverseGeocodeError,
   ReverseGeocodeResponse,
-  SamplingAddOccurrenceData,
-  SamplingAddOccurrenceError,
-  SamplingAddOccurrenceResponse,
-  SearchSitesData,
-  SearchSitesError,
-  SearchSitesResponse,
-  SecuritySettingsData,
-  SecuritySettingsError,
-  SecuritySettingsResponse,
-  ServiceSettingsData,
-  ServiceSettingsError,
-  ServiceSettingsResponse,
+  SearchTaxaData,
+  SearchTaxaError,
+  SearchTaxaResponse,
   SetAppIconData,
   SetAppIconError,
   SetAppIconResponse,
-  SiteAddOccurrenceData,
-  SiteAddOccurrenceError,
-  SiteAddOccurrenceResponse,
-  SitesProximityData,
-  SitesProximityError,
-  SitesProximityResponse,
-  TestSmtpData,
-  TestSmtpError,
-  TestSmtpResponse,
-  TogglePinDatasetData,
-  TogglePinDatasetError,
-  TogglePinDatasetResponse,
-  UpdateAbioticParameterData,
-  UpdateAbioticParameterError,
-  UpdateAbioticParameterResponse,
-  UpdateArticleData,
-  UpdateArticleError,
-  UpdateArticleResponse,
-  UpdateDatasetData,
-  UpdateDatasetError,
-  UpdateDatasetResponse,
-  UpdateDataSourceData,
-  UpdateDataSourceError,
-  UpdateDataSourceResponse,
-  UpdateEmailSettingsData,
-  UpdateEmailSettingsError,
-  UpdateEmailSettingsResponse,
+  TestSmtpConnectionData,
+  TestSmtpConnectionError,
+  TestSmtpConnectionResponse,
+  TogglePublicAccessData,
+  TogglePublicAccessError,
+  TogglePublicAccessResponse,
+  TogglePublicRegistrationData,
+  TogglePublicRegistrationError,
+  TogglePublicRegistrationResponse,
   UpdateFixativeData,
   UpdateFixativeError,
   UpdateFixativeResponse,
-  UpdateGeneData,
-  UpdateGeneError,
-  UpdateGeneResponse,
   UpdateHabitatGroupData,
   UpdateHabitatGroupError,
   UpdateHabitatGroupResponse,
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsError,
   UpdateInstanceSettingsResponse,
-  UpdateOccurrenceCodesInDatasetData,
-  UpdateOccurrenceCodesInDatasetError,
-  UpdateOccurrenceCodesInDatasetResponse,
-  UpdateOccurrenceData,
-  UpdateOccurrenceError,
-  UpdateOccurrenceResponse,
-  UpdateOrganisationData,
-  UpdateOrganisationError,
-  UpdateOrganisationResponse,
-  UpdatePasswordData,
-  UpdatePasswordError,
-  UpdatePasswordResponse,
-  UpdatePersonData,
-  UpdatePersonError,
-  UpdatePersonResponse,
-  UpdateProgramData,
-  UpdateProgramError,
-  UpdateProgramResponse,
-  UpdateSamplingData,
-  UpdateSamplingError,
   UpdateSamplingMethodData,
   UpdateSamplingMethodError,
-  UpdateSamplingMethodResponse,
-  UpdateSamplingResponse,
-  UpdateSecuritySettingsData,
-  UpdateSecuritySettingsError,
-  UpdateSecuritySettingsResponse,
-  UpdateServiceSettingsData,
-  UpdateServiceSettingsError,
-  UpdateServiceSettingsResponse,
-  UpdateSiteData,
-  UpdateSiteError,
-  UpdateSiteResponse,
-  UpdateTaxonData,
-  UpdateTaxonError,
-  UpdateTaxonResponse,
-  ValidatePasswordTokenData,
-  ValidatePasswordTokenError,
-  ValidatePasswordTokenResponse
+  UpdateSamplingMethodResponse
 } from '../types.gen'
 
 export type QueryKey<TOptions extends Options> = [
@@ -435,117 +210,13 @@ const createQueryKey = <TOptions extends Options>(
   return [params]
 }
 
-export const listAbioticParametersQueryKey = (options?: Options<ListAbioticParametersData>) =>
-  createQueryKey('listAbioticParameters', options)
-
-/**
- * List abiotic parameters
- */
-export const listAbioticParametersOptions = (options?: Options<ListAbioticParametersData>) =>
-  queryOptions<
-    ListAbioticParametersResponse,
-    ListAbioticParametersError,
-    ListAbioticParametersResponse,
-    ReturnType<typeof listAbioticParametersQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SamplingService.listAbioticParameters({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listAbioticParametersQueryKey(options)
-  })
-
-/**
- * Create abiotic parameter
- */
-export const createAbioticParameterMutation = (
-  options?: Partial<Options<CreateAbioticParameterData>>
-): UseMutationOptions<
-  CreateAbioticParameterResponse,
-  CreateAbioticParameterError,
-  Options<CreateAbioticParameterData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateAbioticParameterResponse,
-    CreateAbioticParameterError,
-    Options<CreateAbioticParameterData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.createAbioticParameter({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete abiotic parameter
- */
-export const deleteAbioticParameterMutation = (
-  options?: Partial<Options<DeleteAbioticParameterData>>
-): UseMutationOptions<
-  DeleteAbioticParameterResponse,
-  DeleteAbioticParameterError,
-  Options<DeleteAbioticParameterData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteAbioticParameterResponse,
-    DeleteAbioticParameterError,
-    Options<DeleteAbioticParameterData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.deleteAbioticParameter({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update abiotic parameter
- */
-export const updateAbioticParameterMutation = (
-  options?: Partial<Options<UpdateAbioticParameterData>>
-): UseMutationOptions<
-  UpdateAbioticParameterResponse,
-  UpdateAbioticParameterError,
-  Options<UpdateAbioticParameterData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateAbioticParameterResponse,
-    UpdateAbioticParameterError,
-    Options<UpdateAbioticParameterData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.updateAbioticParameter({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
 export const listAccessPointsQueryKey = (options?: Options<ListAccessPointsData>) =>
   createQueryKey('listAccessPoints', options)
 
 /**
  * List access points
+ *
+ * List all unique access points for samplings.
  */
 export const listAccessPointsOptions = (options?: Options<ListAccessPointsData>) =>
   queryOptions<
@@ -555,7 +226,7 @@ export const listAccessPointsOptions = (options?: Options<ListAccessPointsData>)
     ReturnType<typeof listAccessPointsQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SamplingService.listAccessPoints({
+      const { data } = await SamplingsService.listAccessPoints({
         ...options,
         ...queryKey[0],
         signal,
@@ -566,23 +237,21 @@ export const listAccessPointsOptions = (options?: Options<ListAccessPointsData>)
     queryKey: listAccessPointsQueryKey(options)
   })
 
-export const currentUserQueryKey = (options?: Options<CurrentUserData>) =>
-  createQueryKey('currentUser', options)
+export const listUsersQueryKey = (options?: Options<ListUsersData>) =>
+  createQueryKey('listUsers', options)
 
 /**
- * Current user
- *
- * Get infos of currently authenticated user account
+ * List all users
  */
-export const currentUserOptions = (options?: Options<CurrentUserData>) =>
+export const listUsersOptions = (options?: Options<ListUsersData>) =>
   queryOptions<
-    CurrentUserResponse2,
-    CurrentUserError,
-    CurrentUserResponse2,
-    ReturnType<typeof currentUserQueryKey>
+    ListUsersResponse,
+    ListUsersError,
+    ListUsersResponse,
+    ReturnType<typeof listUsersQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await AccountService.currentUser({
+      const { data } = await AccountsService.listUsers({
         ...options,
         ...queryKey[0],
         signal,
@@ -590,26 +259,24 @@ export const currentUserOptions = (options?: Options<CurrentUserData>) =>
       })
       return data
     },
-    queryKey: currentUserQueryKey(options)
+    queryKey: listUsersQueryKey(options)
   })
 
-export const confirmEmailQueryKey = (options?: Options<ConfirmEmailData>) =>
-  createQueryKey('confirmEmail', options)
+export const listArticlesQueryKey = (options?: Options<ListArticlesData>) =>
+  createQueryKey('listArticles', options)
 
 /**
- * Confirm e-mail
- *
- * Confirms the validity of an e-mail address associated to an account, using a token issued at the end of user registration.
+ * List bibliography
  */
-export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) =>
+export const listArticlesOptions = (options?: Options<ListArticlesData>) =>
   queryOptions<
-    ConfirmEmailResponse,
-    ConfirmEmailError,
-    ConfirmEmailResponse,
-    ReturnType<typeof confirmEmailQueryKey>
+    ListArticlesResponse,
+    ListArticlesError,
+    ListArticlesResponse,
+    ReturnType<typeof listArticlesQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await AccountService.confirmEmail({
+      const { data } = await BibliographyService.listArticles({
         ...options,
         ...queryKey[0],
         signal,
@@ -617,28 +284,22 @@ export const confirmEmailOptions = (options?: Options<ConfirmEmailData>) =>
       })
       return data
     },
-    queryKey: confirmEmailQueryKey(options)
+    queryKey: listArticlesQueryKey(options)
   })
 
 /**
- * Resend e-mail verification link
- *
- * Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.
+ * Create a new article
  */
-export const resendEmailVerificationMutation = (
-  options?: Partial<Options<ResendEmailVerificationData>>
-): UseMutationOptions<
-  ResendEmailVerificationResponse,
-  ResendEmailVerificationError,
-  Options<ResendEmailVerificationData>
-> => {
+export const createArticleMutation = (
+  options?: Partial<Options<CreateArticleData>>
+): UseMutationOptions<CreateArticleResponse, CreateArticleError, Options<CreateArticleData>> => {
   const mutationOptions: UseMutationOptions<
-    ResendEmailVerificationResponse,
-    ResendEmailVerificationError,
-    Options<ResendEmailVerificationData>
+    CreateArticleResponse,
+    CreateArticleError,
+    Options<CreateArticleData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.resendEmailVerification({
+      const { data } = await BibliographyService.createArticle({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -650,24 +311,18 @@ export const resendEmailVerificationMutation = (
 }
 
 /**
- * Request password reset
- *
- * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
+ * Delete an article by ID
  */
-export const requestPasswordResetMutation = (
-  options?: Partial<Options<RequestPasswordResetData>>
-): UseMutationOptions<
-  RequestPasswordResetResponse,
-  RequestPasswordResetError,
-  Options<RequestPasswordResetData>
-> => {
+export const deleteArticleMutation = (
+  options?: Partial<Options<DeleteArticleData>>
+): UseMutationOptions<DeleteArticleResponse, DeleteArticleError, Options<DeleteArticleData>> => {
   const mutationOptions: UseMutationOptions<
-    RequestPasswordResetResponse,
-    RequestPasswordResetError,
-    Options<RequestPasswordResetData>
+    DeleteArticleResponse,
+    DeleteArticleError,
+    Options<DeleteArticleData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.requestPasswordReset({
+      const { data } = await BibliographyService.deleteArticle({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -679,16 +334,14 @@ export const requestPasswordResetMutation = (
 }
 
 /**
- * Login
- *
- * Authenticate using user credentials
+ * Authenticate a user and return a JWT token
  */
 export const loginMutation = (
   options?: Partial<Options<LoginData>>
 ): UseMutationOptions<LoginResponse, LoginError, Options<LoginData>> => {
   const mutationOptions: UseMutationOptions<LoginResponse, LoginError, Options<LoginData>> = {
     mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.login({
+      const { data } = await AuthenticationService.login({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -700,16 +353,14 @@ export const loginMutation = (
 }
 
 /**
- * Logout
- *
- * Logout from current user session by revoking session cookies
+ * Invalidate the current user's session
  */
 export const logoutMutation = (
   options?: Partial<Options<LogoutData>>
 ): UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> => {
   const mutationOptions: UseMutationOptions<LogoutResponse, LogoutError, Options<LogoutData>> = {
     mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.logout({
+      const { data } = await AuthenticationService.logout({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -720,48 +371,21 @@ export const logoutMutation = (
   return mutationOptions
 }
 
-/**
- * Update password
- *
- * Updates password of currently authenticated user
- */
-export const updatePasswordMutation = (
-  options?: Partial<Options<UpdatePasswordData>>
-): UseMutationOptions<UpdatePasswordResponse, UpdatePasswordError, Options<UpdatePasswordData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdatePasswordResponse,
-    UpdatePasswordError,
-    Options<UpdatePasswordData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.updatePassword({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const validatePasswordTokenQueryKey = (options: Options<ValidatePasswordTokenData>) =>
-  createQueryKey('validatePasswordToken', options)
+export const getCurrentUserQueryKey = (options?: Options<GetCurrentUserData>) =>
+  createQueryKey('getCurrentUser', options)
 
 /**
- * Validate password token
- *
- * Verifies that the password token is valid and can be used to reset a password
+ * Get the current authenticated user's information
  */
-export const validatePasswordTokenOptions = (options: Options<ValidatePasswordTokenData>) =>
+export const getCurrentUserOptions = (options?: Options<GetCurrentUserData>) =>
   queryOptions<
-    ValidatePasswordTokenResponse,
-    ValidatePasswordTokenError,
-    ValidatePasswordTokenResponse,
-    ReturnType<typeof validatePasswordTokenQueryKey>
+    GetCurrentUserResponse,
+    GetCurrentUserError,
+    GetCurrentUserResponse,
+    ReturnType<typeof getCurrentUserQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await AccountService.validatePasswordToken({
+      const { data } = await AuthenticationService.getCurrentUser({
         ...options,
         ...queryKey[0],
         signal,
@@ -769,121 +393,11 @@ export const validatePasswordTokenOptions = (options: Options<ValidatePasswordTo
       })
       return data
     },
-    queryKey: validatePasswordTokenQueryKey(options)
+    queryKey: getCurrentUserQueryKey(options)
   })
 
 /**
- * Reset password
- *
- * Set a new password using a previously issued reset token
- */
-export const resetPasswordMutation = (
-  options?: Partial<Options<ResetPasswordData>>
-): UseMutationOptions<ResetPasswordResponse, ResetPasswordError, Options<ResetPasswordData>> => {
-  const mutationOptions: UseMutationOptions<
-    ResetPasswordResponse,
-    ResetPasswordError,
-    Options<ResetPasswordData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.resetPassword({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listPendingUserRequestsQueryKey = (options?: Options<ListPendingUserRequestsData>) =>
-  createQueryKey('listPendingUserRequests', options)
-
-/**
- * List pending user requests
- *
- * Lists all account requests pending validation from an administrator
- */
-export const listPendingUserRequestsOptions = (options?: Options<ListPendingUserRequestsData>) =>
-  queryOptions<
-    ListPendingUserRequestsResponse,
-    ListPendingUserRequestsError,
-    ListPendingUserRequestsResponse,
-    ReturnType<typeof listPendingUserRequestsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await AccountService.listPendingUserRequests({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listPendingUserRequestsQueryKey(options)
-  })
-
-/**
- * Delete pending user request
- *
- * Delete account request pending validation using the associated email
- */
-export const deletePendingUserRequestMutation = (
-  options?: Partial<Options<DeletePendingUserRequestData>>
-): UseMutationOptions<
-  DeletePendingUserRequestResponse,
-  DeletePendingUserRequestError,
-  Options<DeletePendingUserRequestData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeletePendingUserRequestResponse,
-    DeletePendingUserRequestError,
-    Options<DeletePendingUserRequestData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.deletePendingUserRequest({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const getPendingUserRequestQueryKey = (options?: Options<GetPendingUserRequestData>) =>
-  createQueryKey('getPendingUserRequest', options)
-
-/**
- * Get pending user request
- *
- * Get account request pending validation using the associated email
- */
-export const getPendingUserRequestOptions = (options?: Options<GetPendingUserRequestData>) =>
-  queryOptions<
-    GetPendingUserRequestResponse,
-    GetPendingUserRequestError,
-    GetPendingUserRequestResponse,
-    ReturnType<typeof getPendingUserRequestQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await AccountService.getPendingUserRequest({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getPendingUserRequestQueryKey(options)
-  })
-
-/**
- * Refresh auth token
- *
- * Refresh session using refresh token
+ * Refresh the current user's session
  */
 export const refreshSessionMutation = (
   options?: Partial<Options<RefreshSessionData>>
@@ -894,244 +408,7 @@ export const refreshSessionMutation = (
     Options<RefreshSessionData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.refreshSession({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Register new account
- *
- * Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link.
- */
-export const registerMutation = (
-  options?: Partial<Options<RegisterData>>
-): UseMutationOptions<RegisterResponse, RegisterError, Options<RegisterData>> => {
-  const mutationOptions: UseMutationOptions<
-    RegisterResponse,
-    RegisterError,
-    Options<RegisterData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.register({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Claim invitation
- *
- * Register an account with pre-assigned role and identity, using an invitation token
- */
-export const claimInvitationMutation = (
-  options?: Partial<Options<ClaimInvitationData>>
-): UseMutationOptions<
-  ClaimInvitationResponse,
-  ClaimInvitationError,
-  Options<ClaimInvitationData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    ClaimInvitationResponse,
-    ClaimInvitationError,
-    Options<ClaimInvitationData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await AccountService.claimInvitation({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listCollectionsQueryKey = (options?: Options<ListCollectionsData>) =>
-  createQueryKey('listCollections', options)
-
-/**
- * List collections
- */
-export const listCollectionsOptions = (options?: Options<ListCollectionsData>) =>
-  queryOptions<
-    ListCollectionsResponse,
-    ListCollectionsError,
-    ListCollectionsResponse,
-    ReturnType<typeof listCollectionsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await OccurrencesService.listCollections({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listCollectionsQueryKey(options)
-  })
-
-export const crossRefQueryKey = (options: Options<CrossRefData>) =>
-  createQueryKey('crossRef', options)
-
-/**
- * Retrieve article infos from DOI
- */
-export const crossRefOptions = (options: Options<CrossRefData>) =>
-  queryOptions<
-    CrossRefResponse,
-    CrossRefError,
-    CrossRefResponse,
-    ReturnType<typeof crossRefQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await ReferencesService.crossRef({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: crossRefQueryKey(options)
-  })
-
-/**
- * Retrieve article infos from query string
- */
-export const crossRefBibSearchMutation = (
-  options?: Partial<Options<CrossRefBibSearchData>>
-): UseMutationOptions<
-  CrossRefBibSearchResponse,
-  CrossRefBibSearchError,
-  Options<CrossRefBibSearchData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CrossRefBibSearchResponse,
-    CrossRefBibSearchError,
-    Options<CrossRefBibSearchData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await ReferencesService.crossRefBibSearch({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listDataSourcesQueryKey = (options?: Options<ListDataSourcesData>) =>
-  createQueryKey('listDataSources', options)
-
-/**
- * List external data sources
- */
-export const listDataSourcesOptions = (options?: Options<ListDataSourcesData>) =>
-  queryOptions<
-    ListDataSourcesResponse,
-    ListDataSourcesError,
-    ListDataSourcesResponse,
-    ReturnType<typeof listDataSourcesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DataSourcesService.listDataSources({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listDataSourcesQueryKey(options)
-  })
-
-/**
- * Register external data source
- */
-export const createDataSourceMutation = (
-  options?: Partial<Options<CreateDataSourceData>>
-): UseMutationOptions<
-  CreateDataSourceResponse,
-  CreateDataSourceError,
-  Options<CreateDataSourceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateDataSourceResponse,
-    CreateDataSourceError,
-    Options<CreateDataSourceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DataSourcesService.createDataSource({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete external data source
- */
-export const deleteDataSourceMutation = (
-  options?: Partial<Options<DeleteDataSourceData>>
-): UseMutationOptions<
-  DeleteDataSourceResponse,
-  DeleteDataSourceError,
-  Options<DeleteDataSourceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteDataSourceResponse,
-    DeleteDataSourceError,
-    Options<DeleteDataSourceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DataSourcesService.deleteDataSource({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update external data source
- */
-export const updateDataSourceMutation = (
-  options?: Partial<Options<UpdateDataSourceData>>
-): UseMutationOptions<
-  UpdateDataSourceResponse,
-  UpdateDataSourceError,
-  Options<UpdateDataSourceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateDataSourceResponse,
-    UpdateDataSourceError,
-    Options<UpdateDataSourceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DataSourcesService.updateDataSource({
+      const { data } = await AuthenticationService.refreshSession({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -1146,9 +423,7 @@ export const listDatasetsQueryKey = (options?: Options<ListDatasetsData>) =>
   createQueryKey('listDatasets', options)
 
 /**
- * List all datasets
- *
- * List all datasets with optional filters and category discriminator
+ * List datasets
  */
 export const listDatasetsOptions = (options?: Options<ListDatasetsData>) =>
   queryOptions<
@@ -1169,48 +444,21 @@ export const listDatasetsOptions = (options?: Options<ListDatasetsData>) =>
     queryKey: listDatasetsQueryKey(options)
   })
 
-/**
- * Update dataset
- *
- * Update dataset metadata
- */
-export const updateDatasetMutation = (
-  options?: Partial<Options<UpdateDatasetData>>
-): UseMutationOptions<UpdateDatasetResponse, UpdateDatasetError, Options<UpdateDatasetData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateDatasetResponse,
-    UpdateDatasetError,
-    Options<UpdateDatasetData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DatasetsService.updateDataset({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listOccurrenceDatasetsQueryKey = (options?: Options<ListOccurrenceDatasetsData>) =>
-  createQueryKey('listOccurrenceDatasets', options)
+export const getDatasetByIdQueryKey = (options: Options<GetDatasetByIdData>) =>
+  createQueryKey('getDatasetById', options)
 
 /**
- * List occurrence datasets
- *
- * List all occurrence datasets
+ * Get dataset by ID
  */
-export const listOccurrenceDatasetsOptions = (options?: Options<ListOccurrenceDatasetsData>) =>
+export const getDatasetByIdOptions = (options: Options<GetDatasetByIdData>) =>
   queryOptions<
-    ListOccurrenceDatasetsResponse,
-    ListOccurrenceDatasetsError,
-    ListOccurrenceDatasetsResponse,
-    ReturnType<typeof listOccurrenceDatasetsQueryKey>
+    GetDatasetByIdResponse,
+    GetDatasetByIdError,
+    GetDatasetByIdResponse,
+    ReturnType<typeof getDatasetByIdQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DatasetsService.listOccurrenceDatasets({
+      const { data } = await DatasetsService.getDatasetById({
         ...options,
         ...queryKey[0],
         signal,
@@ -1218,26 +466,25 @@ export const listOccurrenceDatasetsOptions = (options?: Options<ListOccurrenceDa
       })
       return data
     },
-    queryKey: listOccurrenceDatasetsQueryKey(options)
+    queryKey: getDatasetByIdQueryKey(options)
   })
 
-export const getOccurrenceDatasetQueryKey = (options: Options<GetOccurrenceDatasetData>) =>
-  createQueryKey('getOccurrenceDataset', options)
+export const loadOccurrencesForDatasetQueryKey = (
+  options: Options<LoadOccurrencesForDatasetData>
+) => createQueryKey('loadOccurrencesForDataset', options)
 
 /**
- * Get occurrence dataset
- *
- * Get infos for an occurrence dataset
+ * Load occurrences for dataset
  */
-export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatasetData>) =>
+export const loadOccurrencesForDatasetOptions = (options: Options<LoadOccurrencesForDatasetData>) =>
   queryOptions<
-    GetOccurrenceDatasetResponse,
-    GetOccurrenceDatasetError,
-    GetOccurrenceDatasetResponse,
-    ReturnType<typeof getOccurrenceDatasetQueryKey>
+    LoadOccurrencesForDatasetResponse,
+    LoadOccurrencesForDatasetError,
+    LoadOccurrencesForDatasetResponse,
+    ReturnType<typeof loadOccurrencesForDatasetQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DatasetsService.getOccurrenceDataset({
+      const { data } = await DatasetsService.loadOccurrencesForDataset({
         ...options,
         ...queryKey[0],
         signal,
@@ -1245,236 +492,14 @@ export const getOccurrenceDatasetOptions = (options: Options<GetOccurrenceDatase
       })
       return data
     },
-    queryKey: getOccurrenceDatasetQueryKey(options)
-  })
-
-/**
- * Update occurrence codes in dataset
- *
- * Update occurrence codes based on the current taxon and sampling data
- */
-export const updateOccurrenceCodesInDatasetMutation = (
-  options?: Partial<Options<UpdateOccurrenceCodesInDatasetData>>
-): UseMutationOptions<
-  UpdateOccurrenceCodesInDatasetResponse,
-  UpdateOccurrenceCodesInDatasetError,
-  Options<UpdateOccurrenceCodesInDatasetData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateOccurrenceCodesInDatasetResponse,
-    UpdateOccurrenceCodesInDatasetError,
-    Options<UpdateOccurrenceCodesInDatasetData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DatasetsService.updateOccurrenceCodesInDataset({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Pin/unpin dataset
- *
- * Pin or unpin dataset from from dashboard priority display
- */
-export const togglePinDatasetMutation = (
-  options?: Partial<Options<TogglePinDatasetData>>
-): UseMutationOptions<
-  TogglePinDatasetResponse,
-  TogglePinDatasetError,
-  Options<TogglePinDatasetData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    TogglePinDatasetResponse,
-    TogglePinDatasetError,
-    Options<TogglePinDatasetData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DatasetsService.togglePinDataset({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listSequenceDatasetsQueryKey = (options?: Options<ListSequenceDatasetsData>) =>
-  createQueryKey('listSequenceDatasets', options)
-
-/**
- * List sequence datasets
- *
- * List all sequence datasets
- */
-export const listSequenceDatasetsOptions = (options?: Options<ListSequenceDatasetsData>) =>
-  queryOptions<
-    ListSequenceDatasetsResponse,
-    ListSequenceDatasetsError,
-    ListSequenceDatasetsResponse,
-    ReturnType<typeof listSequenceDatasetsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DatasetsService.listSequenceDatasets({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listSequenceDatasetsQueryKey(options)
-  })
-
-export const getSequenceDatasetQueryKey = (options: Options<GetSequenceDatasetData>) =>
-  createQueryKey('getSequenceDataset', options)
-
-/**
- * Get sequence dataset
- *
- * Get infos for an sequence dataset
- */
-export const getSequenceDatasetOptions = (options: Options<GetSequenceDatasetData>) =>
-  queryOptions<
-    GetSequenceDatasetResponse,
-    GetSequenceDatasetError,
-    GetSequenceDatasetResponse,
-    ReturnType<typeof getSequenceDatasetQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DatasetsService.getSequenceDataset({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getSequenceDatasetQueryKey(options)
-  })
-
-export const listSiteDatasetsQueryKey = (options?: Options<ListSiteDatasetsData>) =>
-  createQueryKey('listSiteDatasets', options)
-
-/**
- * List site datasets
- *
- * List all site datasets
- */
-export const listSiteDatasetsOptions = (options?: Options<ListSiteDatasetsData>) =>
-  queryOptions<
-    ListSiteDatasetsResponse,
-    ListSiteDatasetsError,
-    ListSiteDatasetsResponse,
-    ReturnType<typeof listSiteDatasetsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DatasetsService.listSiteDatasets({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listSiteDatasetsQueryKey(options)
-  })
-
-/**
- * Create site dataset
- *
- * Create a new site dataset with new or existing sites
- */
-export const createSiteDatasetMutation = (
-  options?: Partial<Options<CreateSiteDatasetData>>
-): UseMutationOptions<
-  CreateSiteDatasetResponse,
-  CreateSiteDatasetError,
-  Options<CreateSiteDatasetData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateSiteDatasetResponse,
-    CreateSiteDatasetError,
-    Options<CreateSiteDatasetData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DatasetsService.createSiteDataset({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const getSiteDatasetQueryKey = (options: Options<GetSiteDatasetData>) =>
-  createQueryKey('getSiteDataset', options)
-
-/**
- * Get site dataset
- *
- * Get infos for a site dataset
- */
-export const getSiteDatasetOptions = (options: Options<GetSiteDatasetData>) =>
-  queryOptions<
-    GetSiteDatasetResponse,
-    GetSiteDatasetError,
-    GetSiteDatasetResponse,
-    ReturnType<typeof getSiteDatasetQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DatasetsService.getSiteDataset({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getSiteDatasetQueryKey(options)
-  })
-
-export const getDatasetQueryKey = (options: Options<GetDatasetData>) =>
-  createQueryKey('getDataset', options)
-
-/**
- * Get dataset
- *
- * Retrieve dataset infos by slug
- */
-export const getDatasetOptions = (options: Options<GetDatasetData>) =>
-  queryOptions<
-    GetDatasetResponse,
-    GetDatasetError,
-    GetDatasetResponse,
-    ReturnType<typeof getDatasetQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DatasetsService.getDataset({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getDatasetQueryKey(options)
+    queryKey: loadOccurrencesForDatasetQueryKey(options)
   })
 
 export const listFixativesQueryKey = (options?: Options<ListFixativesData>) =>
   createQueryKey('listFixatives', options)
 
 /**
- * List fixatives
+ * List sampling fixatives
  */
 export const listFixativesOptions = (options?: Options<ListFixativesData>) =>
   queryOptions<
@@ -1496,7 +521,7 @@ export const listFixativesOptions = (options?: Options<ListFixativesData>) =>
   })
 
 /**
- * Create fixative
+ * Create a new sampling fixative
  */
 export const createFixativeMutation = (
   options?: Partial<Options<CreateFixativeData>>
@@ -1519,7 +544,7 @@ export const createFixativeMutation = (
 }
 
 /**
- * Delete fixative
+ * Delete a sampling fixative by code
  */
 export const deleteFixativeMutation = (
   options?: Partial<Options<DeleteFixativeData>>
@@ -1542,7 +567,7 @@ export const deleteFixativeMutation = (
 }
 
 /**
- * Update fixative
+ * Update a sampling fixative by code
  */
 export const updateFixativeMutation = (
   options?: Partial<Options<UpdateFixativeData>>
@@ -1554,100 +579,6 @@ export const updateFixativeMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await SamplingService.updateFixative({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listGenesQueryKey = (options?: Options<ListGenesData>) =>
-  createQueryKey('listGenes', options)
-
-/**
- * List genes
- */
-export const listGenesOptions = (options?: Options<ListGenesData>) =>
-  queryOptions<
-    ListGenesResponse,
-    ListGenesError,
-    ListGenesResponse,
-    ReturnType<typeof listGenesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SequencesService.listGenes({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listGenesQueryKey(options)
-  })
-
-/**
- * Create gene
- */
-export const createGeneMutation = (
-  options?: Partial<Options<CreateGeneData>>
-): UseMutationOptions<CreateGeneResponse, CreateGeneError, Options<CreateGeneData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreateGeneResponse,
-    CreateGeneError,
-    Options<CreateGeneData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SequencesService.createGene({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete gene
- */
-export const deleteGeneMutation = (
-  options?: Partial<Options<DeleteGeneData>>
-): UseMutationOptions<DeleteGeneResponse, DeleteGeneError, Options<DeleteGeneData>> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteGeneResponse,
-    DeleteGeneError,
-    Options<DeleteGeneData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SequencesService.deleteGene({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update gene
- */
-export const updateGeneMutation = (
-  options?: Partial<Options<UpdateGeneData>>
-): UseMutationOptions<UpdateGeneResponse, UpdateGeneError, Options<UpdateGeneData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateGeneResponse,
-    UpdateGeneError,
-    Options<UpdateGeneData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SequencesService.updateGene({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -1683,6 +614,33 @@ export const reverseGeocodeOptions = (options?: Options<ReverseGeocodeData>) =>
     queryKey: reverseGeocodeQueryKey(options)
   })
 
+/**
+ * Batch reverse geocode coordinates using Geoapify API
+ */
+export const batchReverseGeocodeMutation = (
+  options?: Partial<Options<BatchReverseGeocodeData>>
+): UseMutationOptions<
+  BatchReverseGeocodeResponse,
+  BatchReverseGeocodeError,
+  Options<BatchReverseGeocodeData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    BatchReverseGeocodeResponse,
+    BatchReverseGeocodeError,
+    Options<BatchReverseGeocodeData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await ServicesService.batchReverseGeocode({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
 export const getGeoapifyStatusQueryKey = (options?: Options<GetGeoapifyStatusData>) =>
   createQueryKey('getGeoapifyStatus', options)
 
@@ -1712,7 +670,7 @@ export const listGeoapifyUsageQueryKey = (options?: Options<ListGeoapifyUsageDat
   createQueryKey('listGeoapifyUsage', options)
 
 /**
- * List Geoapify usage
+ * List Geoapify usage history
  */
 export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData>) =>
   queryOptions<
@@ -1733,21 +691,21 @@ export const listGeoapifyUsageOptions = (options?: Options<ListGeoapifyUsageData
     queryKey: listGeoapifyUsageQueryKey(options)
   })
 
-export const listHabitatGroupsQueryKey = (options?: Options<ListHabitatGroupsData>) =>
-  createQueryKey('listHabitatGroups', options)
+export const getHabitatGroupsQueryKey = (options?: Options<GetHabitatGroupsData>) =>
+  createQueryKey('getHabitatGroups', options)
 
 /**
- * List habitats
+ * Get all habitat groups with their elements
  */
-export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData>) =>
+export const getHabitatGroupsOptions = (options?: Options<GetHabitatGroupsData>) =>
   queryOptions<
-    ListHabitatGroupsResponse,
-    ListHabitatGroupsError,
-    ListHabitatGroupsResponse,
-    ReturnType<typeof listHabitatGroupsQueryKey>
+    GetHabitatGroupsResponse,
+    GetHabitatGroupsError,
+    GetHabitatGroupsResponse,
+    ReturnType<typeof getHabitatGroupsQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SamplingService.listHabitatGroups({
+      const { data } = await HabitatsService.getHabitatGroups({
         ...options,
         ...queryKey[0],
         signal,
@@ -1755,11 +713,11 @@ export const listHabitatGroupsOptions = (options?: Options<ListHabitatGroupsData
       })
       return data
     },
-    queryKey: listHabitatGroupsQueryKey(options)
+    queryKey: getHabitatGroupsQueryKey(options)
   })
 
 /**
- * Create habitat group
+ * Create a new habitat group with its elements
  */
 export const createHabitatGroupMutation = (
   options?: Partial<Options<CreateHabitatGroupData>>
@@ -1774,7 +732,7 @@ export const createHabitatGroupMutation = (
     Options<CreateHabitatGroupData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.createHabitatGroup({
+      const { data } = await HabitatsService.createHabitatGroup({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -1786,7 +744,7 @@ export const createHabitatGroupMutation = (
 }
 
 /**
- * Delete habitat group
+ * Delete a habitat group by its ID
  */
 export const deleteHabitatGroupMutation = (
   options?: Partial<Options<DeleteHabitatGroupData>>
@@ -1801,7 +759,7 @@ export const deleteHabitatGroupMutation = (
     Options<DeleteHabitatGroupData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.deleteHabitatGroup({
+      const { data } = await HabitatsService.deleteHabitatGroup({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -1813,7 +771,7 @@ export const deleteHabitatGroupMutation = (
 }
 
 /**
- * Update habitat group
+ * Update a habitat group by its ID
  */
 export const updateHabitatGroupMutation = (
   options?: Partial<Options<UpdateHabitatGroupData>>
@@ -1828,7 +786,7 @@ export const updateHabitatGroupMutation = (
     Options<UpdateHabitatGroupData>
   > = {
     mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.updateHabitatGroup({
+      const { data } = await HabitatsService.updateHabitatGroup({
         ...options,
         ...fnOptions,
         throwOnError: true
@@ -1839,55 +797,32 @@ export const updateHabitatGroupMutation = (
   return mutationOptions
 }
 
-export const coordinatesToCountryQueryKey = (options?: Options<CoordinatesToCountryData>) =>
-  createQueryKey('coordinatesToCountry', options)
-
 /**
- * Get country from WGS84 coordinates
+ * Import occurrence data
  */
-export const coordinatesToCountryOptions = (options?: Options<CoordinatesToCountryData>) =>
-  queryOptions<
-    CoordinatesToCountryResponse,
-    CoordinatesToCountryError,
-    CoordinatesToCountryResponse,
-    ReturnType<typeof coordinatesToCountryQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.coordinatesToCountry({
+export const importOccurrencesMutation = (
+  options?: Partial<Options<ImportOccurrencesData>>
+): UseMutationOptions<
+  ImportOccurrencesResponse,
+  ImportOccurrencesError,
+  Options<ImportOccurrencesData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ImportOccurrencesResponse,
+    ImportOccurrencesError,
+    Options<ImportOccurrencesData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await BatchImportsService.importOccurrences({
         ...options,
-        ...queryKey[0],
-        signal,
+        ...fnOptions,
         throwOnError: true
       })
       return data
-    },
-    queryKey: coordinatesToCountryQueryKey(options)
-  })
-
-export const sitesProximityQueryKey = (options?: Options<SitesProximityData>) =>
-  createQueryKey('sitesProximity', options)
-
-/**
- * List sites within a radius of a point
- */
-export const sitesProximityOptions = (options?: Options<SitesProximityData>) =>
-  queryOptions<
-    SitesProximityResponse,
-    SitesProximityError,
-    SitesProximityResponse,
-    ReturnType<typeof sitesProximityQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.sitesProximity({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: sitesProximityQueryKey(options)
-  })
+    }
+  }
+  return mutationOptions
+}
 
 export const listCountriesQueryKey = (options?: Options<ListCountriesData>) =>
   createQueryKey('listCountries', options)
@@ -1914,21 +849,21 @@ export const listCountriesOptions = (options?: Options<ListCountriesData>) =>
     queryKey: listCountriesQueryKey(options)
   })
 
-export const getCountriesSummaryQueryKey = (options?: Options<GetCountriesSummaryData>) =>
-  createQueryKey('getCountriesSummary', options)
+export const coordinatesToCountryQueryKey = (options?: Options<CoordinatesToCountryData>) =>
+  createQueryKey('coordinatesToCountry', options)
 
 /**
- * Get country list with sites and occurrences count
+ * Get country from coordinates
  */
-export const getCountriesSummaryOptions = (options?: Options<GetCountriesSummaryData>) =>
+export const coordinatesToCountryOptions = (options?: Options<CoordinatesToCountryData>) =>
   queryOptions<
-    GetCountriesSummaryResponse,
-    GetCountriesSummaryError,
-    GetCountriesSummaryResponse,
-    ReturnType<typeof getCountriesSummaryQueryKey>
+    CoordinatesToCountryResponse,
+    CoordinatesToCountryError,
+    CoordinatesToCountryResponse,
+    ReturnType<typeof coordinatesToCountryQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.getCountriesSummary({
+      const { data } = await LocationService.coordinatesToCountry({
         ...options,
         ...queryKey[0],
         signal,
@@ -1936,26 +871,24 @@ export const getCountriesSummaryOptions = (options?: Options<GetCountriesSummary
       })
       return data
     },
-    queryKey: getCountriesSummaryQueryKey(options)
+    queryKey: coordinatesToCountryQueryKey(options)
   })
 
-export const searchSitesQueryKey = (options?: Options<SearchSitesData>) =>
-  createQueryKey('searchSites', options)
+export const listCountriesSummaryQueryKey = (options?: Options<ListCountriesSummaryData>) =>
+  createQueryKey('listCountriesSummary', options)
 
 /**
- * Search sites
- *
- * Search sites by name, code or locality fuzzy matching a query. Returns a list of sites sorted by similarity.
+ * List countries summary
  */
-export const searchSitesOptions = (options?: Options<SearchSitesData>) =>
+export const listCountriesSummaryOptions = (options?: Options<ListCountriesSummaryData>) =>
   queryOptions<
-    SearchSitesResponse,
-    SearchSitesError,
-    SearchSitesResponse,
-    ReturnType<typeof searchSitesQueryKey>
+    ListCountriesSummaryResponse,
+    ListCountriesSummaryError,
+    ListCountriesSummaryResponse,
+    ReturnType<typeof listCountriesSummaryQueryKey>
   >({
     queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.searchSites({
+      const { data } = await LocationService.listCountriesSummary({
         ...options,
         ...queryKey[0],
         signal,
@@ -1963,145 +896,14 @@ export const searchSitesOptions = (options?: Options<SearchSitesData>) =>
       })
       return data
     },
-    queryKey: searchSitesQueryKey(options)
+    queryKey: listCountriesSummaryQueryKey(options)
   })
-
-export const listDataFeedsQueryKey = (options?: Options<ListDataFeedsData>) =>
-  createQueryKey('listDataFeeds', options)
-
-/**
- * List saved data feeds
- */
-export const listDataFeedsOptions = (options?: Options<ListDataFeedsData>) =>
-  queryOptions<
-    ListDataFeedsResponse,
-    ListDataFeedsError,
-    ListDataFeedsResponse,
-    ReturnType<typeof listDataFeedsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SettingsService.listDataFeeds({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listDataFeedsQueryKey(options)
-  })
-
-/**
- * Save data feed
- */
-export const createDataFeedMutation = (
-  options?: Partial<Options<CreateDataFeedData>>
-): UseMutationOptions<CreateDataFeedResponse, CreateDataFeedError, Options<CreateDataFeedData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreateDataFeedResponse,
-    CreateDataFeedError,
-    Options<CreateDataFeedData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.createDataFeed({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listMapPresetsQueryKey = (options?: Options<ListMapPresetsData>) =>
-  createQueryKey('listMapPresets', options)
-
-/**
- * List saved map presets
- */
-export const listMapPresetsOptions = (options?: Options<ListMapPresetsData>) =>
-  queryOptions<
-    ListMapPresetsResponse,
-    ListMapPresetsError,
-    ListMapPresetsResponse,
-    ReturnType<typeof listMapPresetsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SettingsService.listMapPresets({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listMapPresetsQueryKey(options)
-  })
-
-/**
- * Save map preset
- *
- * Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.
- */
-export const createUpdateMapPresetMutation = (
-  options?: Partial<Options<CreateUpdateMapPresetData>>
-): UseMutationOptions<
-  CreateUpdateMapPresetResponse,
-  CreateUpdateMapPresetError,
-  Options<CreateUpdateMapPresetData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateUpdateMapPresetResponse,
-    CreateUpdateMapPresetError,
-    Options<CreateUpdateMapPresetData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.createUpdateMapPreset({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete map preset
- *
- * Deletes a map preset by name. Only the owner of the preset or an admin can delete it.
- */
-export const deleteMapPresetMutation = (
-  options?: Partial<Options<DeleteMapPresetData>>
-): UseMutationOptions<
-  DeleteMapPresetResponse,
-  DeleteMapPresetError,
-  Options<DeleteMapPresetData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteMapPresetResponse,
-    DeleteMapPresetError,
-    Options<DeleteMapPresetData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.deleteMapPreset({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
 
 export const listOccurrencesQueryKey = (options?: Options<ListOccurrencesData>) =>
   createQueryKey('listOccurrences', options)
 
 /**
- * List occurrences
+ * List occurrences with optional filters and pagination
  */
 export const listOccurrencesOptions = (options?: Options<ListOccurrencesData>) =>
   queryOptions<
@@ -2120,6 +922,498 @@ export const listOccurrencesOptions = (options?: Options<ListOccurrencesData>) =
       return data
     },
     queryKey: listOccurrencesQueryKey(options)
+  })
+
+/**
+ * Create a new occurrence with its sampling and taxon
+ */
+export const createOccurrenceMutation = (
+  options?: Partial<Options<CreateOccurrenceData>>
+): UseMutationOptions<
+  CreateOccurrenceResponse,
+  CreateOccurrenceError,
+  Options<CreateOccurrenceData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateOccurrenceResponse,
+    CreateOccurrenceError,
+    Options<CreateOccurrenceData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await OccurrencesService.createOccurrence({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const listCollectionNamesQueryKey = (options?: Options<ListCollectionNamesData>) =>
+  createQueryKey('listCollectionNames', options)
+
+/**
+ * List all unique collection names
+ */
+export const listCollectionNamesOptions = (options?: Options<ListCollectionNamesData>) =>
+  queryOptions<
+    ListCollectionNamesResponse,
+    ListCollectionNamesError,
+    ListCollectionNamesResponse,
+    ReturnType<typeof listCollectionNamesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.listCollectionNames({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listCollectionNamesQueryKey(options)
+  })
+
+export const getOccurrencesQueryKey = (options: Options<GetOccurrencesData>) =>
+  createQueryKey('getOccurrences', options)
+
+/**
+ * Get Occurrence with all relevant metadata
+ */
+export const getOccurrencesOptions = (options: Options<GetOccurrencesData>) =>
+  queryOptions<
+    GetOccurrencesResponse,
+    GetOccurrencesError,
+    GetOccurrencesResponse,
+    ReturnType<typeof getOccurrencesQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.getOccurrences({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getOccurrencesQueryKey(options)
+  })
+
+/**
+ * Create a new occurrence at a specific sampling point
+ */
+export const createOccurrenceAtSamplingMutation = (
+  options?: Partial<Options<CreateOccurrenceAtSamplingData>>
+): UseMutationOptions<
+  CreateOccurrenceAtSamplingResponse,
+  CreateOccurrenceAtSamplingError,
+  Options<CreateOccurrenceAtSamplingData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateOccurrenceAtSamplingResponse,
+    CreateOccurrenceAtSamplingError,
+    Options<CreateOccurrenceAtSamplingData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await OccurrencesService.createOccurrenceAtSampling({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const occurrencesTaxaOverviewQueryKey = (options?: Options<OccurrencesTaxaOverviewData>) =>
+  createQueryKey('occurrencesTaxaOverview', options)
+
+/**
+ * Get an overview of occurrences count by taxa
+ */
+export const occurrencesTaxaOverviewOptions = (options?: Options<OccurrencesTaxaOverviewData>) =>
+  queryOptions<
+    OccurrencesTaxaOverviewResponse,
+    OccurrencesTaxaOverviewError,
+    OccurrencesTaxaOverviewResponse,
+    ReturnType<typeof occurrencesTaxaOverviewQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.occurrencesTaxaOverview({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: occurrencesTaxaOverviewQueryKey(options)
+  })
+
+export const loadDatasetsForOccurrenceQueryKey = (
+  options: Options<LoadDatasetsForOccurrenceData>
+) => createQueryKey('loadDatasetsForOccurrence', options)
+
+/**
+ * Load datasets for occurrence
+ */
+export const loadDatasetsForOccurrenceOptions = (options: Options<LoadDatasetsForOccurrenceData>) =>
+  queryOptions<
+    LoadDatasetsForOccurrenceResponse,
+    LoadDatasetsForOccurrenceError,
+    LoadDatasetsForOccurrenceResponse,
+    ReturnType<typeof loadDatasetsForOccurrenceQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await OccurrencesService.loadDatasetsForOccurrence({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: loadDatasetsForOccurrenceQueryKey(options)
+  })
+
+export const listSamplingsAtProximityQueryKey = (options: Options<ListSamplingsAtProximityData>) =>
+  createQueryKey('listSamplingsAtProximity', options)
+
+/**
+ * List samplings at proximity
+ *
+ * List samplings at proximity to a given point, within a given radius and date range.
+ */
+export const listSamplingsAtProximityOptions = (options: Options<ListSamplingsAtProximityData>) =>
+  queryOptions<
+    ListSamplingsAtProximityResponse,
+    ListSamplingsAtProximityError,
+    ListSamplingsAtProximityResponse,
+    ReturnType<typeof listSamplingsAtProximityQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SamplingsService.listSamplingsAtProximity({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listSamplingsAtProximityQueryKey(options)
+  })
+
+export const listSamplingMethodsQueryKey = (options?: Options<ListSamplingMethodsData>) =>
+  createQueryKey('listSamplingMethods', options)
+
+/**
+ * List sampling methods
+ */
+export const listSamplingMethodsOptions = (options?: Options<ListSamplingMethodsData>) =>
+  queryOptions<
+    ListSamplingMethodsResponse,
+    ListSamplingMethodsError,
+    ListSamplingMethodsResponse,
+    ReturnType<typeof listSamplingMethodsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SamplingService.listSamplingMethods({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listSamplingMethodsQueryKey(options)
+  })
+
+/**
+ * Create a new sampling method
+ */
+export const createSamplingMethodMutation = (
+  options?: Partial<Options<CreateSamplingMethodData>>
+): UseMutationOptions<
+  CreateSamplingMethodResponse,
+  CreateSamplingMethodError,
+  Options<CreateSamplingMethodData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    CreateSamplingMethodResponse,
+    CreateSamplingMethodError,
+    Options<CreateSamplingMethodData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SamplingService.createSamplingMethod({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Delete a sampling method by code
+ */
+export const deleteSamplingMethodMutation = (
+  options?: Partial<Options<DeleteSamplingMethodData>>
+): UseMutationOptions<
+  DeleteSamplingMethodResponse,
+  DeleteSamplingMethodError,
+  Options<DeleteSamplingMethodData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    DeleteSamplingMethodResponse,
+    DeleteSamplingMethodError,
+    Options<DeleteSamplingMethodData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SamplingService.deleteSamplingMethod({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Update a sampling method by code
+ */
+export const updateSamplingMethodMutation = (
+  options?: Partial<Options<UpdateSamplingMethodData>>
+): UseMutationOptions<
+  UpdateSamplingMethodResponse,
+  UpdateSamplingMethodError,
+  Options<UpdateSamplingMethodData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateSamplingMethodResponse,
+    UpdateSamplingMethodError,
+    Options<UpdateSamplingMethodData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SamplingService.updateSamplingMethod({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Create a new sampling
+ *
+ * Create a new sampling with the provided details.
+ */
+export const createSamplingMutation = (
+  options?: Partial<Options<CreateSamplingData>>
+): UseMutationOptions<CreateSamplingResponse, CreateSamplingError, Options<CreateSamplingData>> => {
+  const mutationOptions: UseMutationOptions<
+    CreateSamplingResponse,
+    CreateSamplingError,
+    Options<CreateSamplingData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SamplingsService.createSampling({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const getInstanceSettingsQueryKey = (options?: Options<GetInstanceSettingsData>) =>
+  createQueryKey('getInstanceSettings', options)
+
+/**
+ * Get instance settings
+ */
+export const getInstanceSettingsOptions = (options?: Options<GetInstanceSettingsData>) =>
+  queryOptions<
+    GetInstanceSettingsResponse,
+    GetInstanceSettingsError,
+    GetInstanceSettingsResponse,
+    ReturnType<typeof getInstanceSettingsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.getInstanceSettings({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: getInstanceSettingsQueryKey(options)
+  })
+
+/**
+ * Update instance settings
+ */
+export const updateInstanceSettingsMutation = (
+  options?: Partial<Options<UpdateInstanceSettingsData>>
+): UseMutationOptions<
+  UpdateInstanceSettingsResponse,
+  UpdateInstanceSettingsError,
+  Options<UpdateInstanceSettingsData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    UpdateInstanceSettingsResponse,
+    UpdateInstanceSettingsError,
+    Options<UpdateInstanceSettingsData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.updateInstanceSettings({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Set the application icon
+ */
+export const setAppIconMutation = (
+  options?: Partial<Options<SetAppIconData>>
+): UseMutationOptions<SetAppIconResponse, SetAppIconError, Options<SetAppIconData>> => {
+  const mutationOptions: UseMutationOptions<
+    SetAppIconResponse,
+    SetAppIconError,
+    Options<SetAppIconData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.setAppIcon({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Toggle public access to the instance
+ */
+export const togglePublicAccessMutation = (
+  options?: Partial<Options<TogglePublicAccessData>>
+): UseMutationOptions<
+  TogglePublicAccessResponse,
+  TogglePublicAccessError,
+  Options<TogglePublicAccessData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    TogglePublicAccessResponse,
+    TogglePublicAccessError,
+    Options<TogglePublicAccessData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.togglePublicAccess({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+/**
+ * Toggle public registration for the instance
+ */
+export const togglePublicRegistrationMutation = (
+  options?: Partial<Options<TogglePublicRegistrationData>>
+): UseMutationOptions<
+  TogglePublicRegistrationResponse,
+  TogglePublicRegistrationError,
+  Options<TogglePublicRegistrationData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    TogglePublicRegistrationResponse,
+    TogglePublicRegistrationError,
+    Options<TogglePublicRegistrationData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await SettingsService.togglePublicRegistration({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const testSmtpConnectionQueryKey = (options?: Options<TestSmtpConnectionData>) =>
+  createQueryKey('testSmtpConnection', options)
+
+/**
+ * Test SMTP connection
+ */
+export const testSmtpConnectionOptions = (options?: Options<TestSmtpConnectionData>) =>
+  queryOptions<
+    TestSmtpConnectionResponse,
+    TestSmtpConnectionError,
+    TestSmtpConnectionResponse,
+    ReturnType<typeof testSmtpConnectionQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await SettingsService.testSmtpConnection({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: testSmtpConnectionQueryKey(options)
+  })
+
+export const searchTaxaQueryKey = (options?: Options<SearchTaxaData>) =>
+  createQueryKey('searchTaxa', options)
+
+/**
+ * Search for taxa
+ */
+export const searchTaxaOptions = (options?: Options<SearchTaxaData>) =>
+  queryOptions<
+    SearchTaxaResponse,
+    SearchTaxaError,
+    SearchTaxaResponse,
+    ReturnType<typeof searchTaxaQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await TaxonomyService.searchTaxa({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: searchTaxaQueryKey(options)
   })
 
 const createInfiniteParams = <
@@ -2156,27 +1450,27 @@ const createInfiniteParams = <
   return params as unknown as typeof page
 }
 
-export const listOccurrencesInfiniteQueryKey = (
-  options?: Options<ListOccurrencesData>
-): QueryKey<Options<ListOccurrencesData>> => createQueryKey('listOccurrences', options, true)
+export const searchTaxaInfiniteQueryKey = (
+  options?: Options<SearchTaxaData>
+): QueryKey<Options<SearchTaxaData>> => createQueryKey('searchTaxa', options, true)
 
 /**
- * List occurrences
+ * Search for taxa
  */
-export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrencesData>) =>
+export const searchTaxaInfiniteOptions = (options?: Options<SearchTaxaData>) =>
   infiniteQueryOptions<
-    ListOccurrencesResponse,
-    ListOccurrencesError,
-    InfiniteData<ListOccurrencesResponse>,
-    QueryKey<Options<ListOccurrencesData>>,
-    number | Pick<QueryKey<Options<ListOccurrencesData>>[0], 'body' | 'headers' | 'path' | 'query'>
+    SearchTaxaResponse,
+    SearchTaxaError,
+    InfiniteData<SearchTaxaResponse>,
+    QueryKey<Options<SearchTaxaData>>,
+    number | Pick<QueryKey<Options<SearchTaxaData>>[0], 'body' | 'headers' | 'path' | 'query'>
   >(
     // @ts-ignore
     {
       queryFn: async ({ pageParam, queryKey, signal }) => {
         // @ts-ignore
         const page: Pick<
-          QueryKey<Options<ListOccurrencesData>>[0],
+          QueryKey<Options<SearchTaxaData>>[0],
           'body' | 'headers' | 'path' | 'query'
         > =
           typeof pageParam === 'object'
@@ -2187,7 +1481,7 @@ export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrences
                 }
               }
         const params = createInfiniteParams(queryKey, page)
-        const { data } = await OccurrencesService.listOccurrences({
+        const { data } = await TaxonomyService.searchTaxa({
           ...options,
           ...params,
           signal,
@@ -2195,1485 +1489,6 @@ export const listOccurrencesInfiniteOptions = (options?: Options<ListOccurrences
         })
         return data
       },
-      queryKey: listOccurrencesInfiniteQueryKey(options)
+      queryKey: searchTaxaInfiniteQueryKey(options)
     }
   )
-
-/**
- * Create occurrence
- */
-export const createOccurrenceMutation = (
-  options?: Partial<Options<CreateOccurrenceData>>
-): UseMutationOptions<
-  CreateOccurrenceResponse,
-  CreateOccurrenceError,
-  Options<CreateOccurrenceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateOccurrenceResponse,
-    CreateOccurrenceError,
-    Options<CreateOccurrenceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.createOccurrence({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const occurrencesDateRangeQueryKey = (options?: Options<OccurrencesDateRangeData>) =>
-  createQueryKey('occurrencesDateRange', options)
-
-/**
- * Get the min and max year for occurrence sampling dates
- */
-export const occurrencesDateRangeOptions = (options?: Options<OccurrencesDateRangeData>) =>
-  queryOptions<
-    OccurrencesDateRangeResponse,
-    OccurrencesDateRangeError,
-    OccurrencesDateRangeResponse,
-    ReturnType<typeof occurrencesDateRangeQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DefaultService.occurrencesDateRange({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: occurrencesDateRangeQueryKey(options)
-  })
-
-export const occurrencesBySiteQueryKey = (options: Options<OccurrencesBySiteData>) =>
-  createQueryKey('occurrencesBySite', options)
-
-/**
- * Occurrences by site
- */
-export const occurrencesBySiteOptions = (options: Options<OccurrencesBySiteData>) =>
-  queryOptions<
-    OccurrencesBySiteResponse,
-    OccurrencesBySiteError,
-    OccurrencesBySiteResponse,
-    ReturnType<typeof occurrencesBySiteQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await OccurrencesService.occurrencesBySite({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: occurrencesBySiteQueryKey(options)
-  })
-
-/**
- * Occurrences by site
- */
-export const occurrencesBySiteMutation = (
-  options?: Partial<Options<OccurrencesBySiteData>>
-): UseMutationOptions<
-  OccurrencesBySiteResponse,
-  OccurrencesBySiteError,
-  Options<OccurrencesBySiteData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    OccurrencesBySiteResponse,
-    OccurrencesBySiteError,
-    Options<OccurrencesBySiteData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.occurrencesBySite({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const occurrenceOverviewQueryKey = (options?: Options<OccurrenceOverviewData>) =>
-  createQueryKey('occurrenceOverview', options)
-
-/**
- * Occurrences overview
- */
-export const occurrenceOverviewOptions = (options?: Options<OccurrenceOverviewData>) =>
-  queryOptions<
-    OccurrenceOverviewResponse,
-    OccurrenceOverviewError,
-    OccurrenceOverviewResponse,
-    ReturnType<typeof occurrenceOverviewQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await OccurrencesService.occurrenceOverview({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: occurrenceOverviewQueryKey(options)
-  })
-
-/**
- * Delete occurrence
- *
- * Delete an occurrence record by its code
- */
-export const deleteOccurrenceMutation = (
-  options?: Partial<Options<DeleteOccurrenceData>>
-): UseMutationOptions<
-  DeleteOccurrenceResponse,
-  DeleteOccurrenceError,
-  Options<DeleteOccurrenceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteOccurrenceResponse,
-    DeleteOccurrenceError,
-    Options<DeleteOccurrenceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.deleteOccurrence({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const getOccurrenceQueryKey = (options: Options<GetOccurrenceData>) =>
-  createQueryKey('getOccurrence', options)
-
-/**
- * Get occurrence
- */
-export const getOccurrenceOptions = (options: Options<GetOccurrenceData>) =>
-  queryOptions<
-    GetOccurrenceResponse,
-    GetOccurrenceError,
-    GetOccurrenceResponse,
-    ReturnType<typeof getOccurrenceQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await OccurrencesService.getOccurrence({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getOccurrenceQueryKey(options)
-  })
-
-/**
- * Update occurrence
- */
-export const updateOccurrenceMutation = (
-  options?: Partial<Options<UpdateOccurrenceData>>
-): UseMutationOptions<
-  UpdateOccurrenceResponse,
-  UpdateOccurrenceError,
-  Options<UpdateOccurrenceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateOccurrenceResponse,
-    UpdateOccurrenceError,
-    Options<UpdateOccurrenceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.updateOccurrence({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listOrganisationsQueryKey = (options?: Options<ListOrganisationsData>) =>
-  createQueryKey('listOrganisations', options)
-
-/**
- * List organisations
- */
-export const listOrganisationsOptions = (options?: Options<ListOrganisationsData>) =>
-  queryOptions<
-    ListOrganisationsResponse,
-    ListOrganisationsError,
-    ListOrganisationsResponse,
-    ReturnType<typeof listOrganisationsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await PeopleService.listOrganisations({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listOrganisationsQueryKey(options)
-  })
-
-/**
- * Create organisation
- */
-export const createOrganisationMutation = (
-  options?: Partial<Options<CreateOrganisationData>>
-): UseMutationOptions<
-  CreateOrganisationResponse,
-  CreateOrganisationError,
-  Options<CreateOrganisationData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateOrganisationResponse,
-    CreateOrganisationError,
-    Options<CreateOrganisationData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.createOrganisation({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete organisation
- */
-export const deleteOrganisationMutation = (
-  options?: Partial<Options<DeleteOrganisationData>>
-): UseMutationOptions<
-  DeleteOrganisationResponse,
-  DeleteOrganisationError,
-  Options<DeleteOrganisationData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteOrganisationResponse,
-    DeleteOrganisationError,
-    Options<DeleteOrganisationData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.deleteOrganisation({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update organisation
- */
-export const updateOrganisationMutation = (
-  options?: Partial<Options<UpdateOrganisationData>>
-): UseMutationOptions<
-  UpdateOrganisationResponse,
-  UpdateOrganisationError,
-  Options<UpdateOrganisationData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateOrganisationResponse,
-    UpdateOrganisationError,
-    Options<UpdateOrganisationData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.updateOrganisation({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listPersonsQueryKey = (options?: Options<ListPersonsData>) =>
-  createQueryKey('listPersons', options)
-
-/**
- * List persons
- */
-export const listPersonsOptions = (options?: Options<ListPersonsData>) =>
-  queryOptions<
-    ListPersonsResponse,
-    ListPersonsError,
-    ListPersonsResponse,
-    ReturnType<typeof listPersonsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await PeopleService.listPersons({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listPersonsQueryKey(options)
-  })
-
-/**
- * Create person
- */
-export const createPersonMutation = (
-  options?: Partial<Options<CreatePersonData>>
-): UseMutationOptions<CreatePersonResponse, CreatePersonError, Options<CreatePersonData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreatePersonResponse,
-    CreatePersonError,
-    Options<CreatePersonData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.createPerson({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete person
- */
-export const deletePersonMutation = (
-  options?: Partial<Options<DeletePersonData>>
-): UseMutationOptions<DeletePersonResponse, DeletePersonError, Options<DeletePersonData>> => {
-  const mutationOptions: UseMutationOptions<
-    DeletePersonResponse,
-    DeletePersonError,
-    Options<DeletePersonData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.deletePerson({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update person
- */
-export const updatePersonMutation = (
-  options?: Partial<Options<UpdatePersonData>>
-): UseMutationOptions<UpdatePersonResponse, UpdatePersonError, Options<UpdatePersonData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdatePersonResponse,
-    UpdatePersonError,
-    Options<UpdatePersonData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.updatePerson({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Invite person
- *
- * Sends an invitation link to a person at the address provided in `dest`, allowing them to register an account assigned with a specified `role`.
- */
-export const invitePersonMutation = (
-  options?: Partial<Options<InvitePersonData>>
-): UseMutationOptions<InvitePersonResponse, InvitePersonError, Options<InvitePersonData>> => {
-  const mutationOptions: UseMutationOptions<
-    InvitePersonResponse,
-    InvitePersonError,
-    Options<InvitePersonData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await PeopleService.invitePerson({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listProgramsQueryKey = (options?: Options<ListProgramsData>) =>
-  createQueryKey('listPrograms', options)
-
-/**
- * List programs
- */
-export const listProgramsOptions = (options?: Options<ListProgramsData>) =>
-  queryOptions<
-    ListProgramsResponse,
-    ListProgramsError,
-    ListProgramsResponse,
-    ReturnType<typeof listProgramsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await DatasetsService.listPrograms({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listProgramsQueryKey(options)
-  })
-
-/**
- * Create program
- */
-export const createProgramMutation = (
-  options?: Partial<Options<CreateProgramData>>
-): UseMutationOptions<CreateProgramResponse, CreateProgramError, Options<CreateProgramData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreateProgramResponse,
-    CreateProgramError,
-    Options<CreateProgramData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DatasetsService.createProgram({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete program
- */
-export const deleteProgramMutation = (
-  options?: Partial<Options<DeleteProgramData>>
-): UseMutationOptions<DeleteProgramResponse, DeleteProgramError, Options<DeleteProgramData>> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteProgramResponse,
-    DeleteProgramError,
-    Options<DeleteProgramData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DatasetsService.deleteProgram({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update program
- */
-export const updateProgramMutation = (
-  options?: Partial<Options<UpdateProgramData>>
-): UseMutationOptions<UpdateProgramResponse, UpdateProgramError, Options<UpdateProgramData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateProgramResponse,
-    UpdateProgramError,
-    Options<UpdateProgramData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await DatasetsService.updateProgram({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listArticlesQueryKey = (options?: Options<ListArticlesData>) =>
-  createQueryKey('listArticles', options)
-
-/**
- * List articles
- */
-export const listArticlesOptions = (options?: Options<ListArticlesData>) =>
-  queryOptions<
-    ListArticlesResponse,
-    ListArticlesError,
-    ListArticlesResponse,
-    ReturnType<typeof listArticlesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await ReferencesService.listArticles({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listArticlesQueryKey(options)
-  })
-
-/**
- * Create article
- */
-export const createArticleMutation = (
-  options?: Partial<Options<CreateArticleData>>
-): UseMutationOptions<CreateArticleResponse, CreateArticleError, Options<CreateArticleData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreateArticleResponse,
-    CreateArticleError,
-    Options<CreateArticleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await ReferencesService.createArticle({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete article
- */
-export const deleteArticleMutation = (
-  options?: Partial<Options<DeleteArticleData>>
-): UseMutationOptions<DeleteArticleResponse, DeleteArticleError, Options<DeleteArticleData>> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteArticleResponse,
-    DeleteArticleError,
-    Options<DeleteArticleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await ReferencesService.deleteArticle({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update article
- */
-export const updateArticleMutation = (
-  options?: Partial<Options<UpdateArticleData>>
-): UseMutationOptions<UpdateArticleResponse, UpdateArticleError, Options<UpdateArticleData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateArticleResponse,
-    UpdateArticleError,
-    Options<UpdateArticleData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await ReferencesService.updateArticle({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listSamplingMethodsQueryKey = (options?: Options<ListSamplingMethodsData>) =>
-  createQueryKey('listSamplingMethods', options)
-
-/**
- * List sampling methods
- */
-export const listSamplingMethodsOptions = (options?: Options<ListSamplingMethodsData>) =>
-  queryOptions<
-    ListSamplingMethodsResponse,
-    ListSamplingMethodsError,
-    ListSamplingMethodsResponse,
-    ReturnType<typeof listSamplingMethodsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SamplingService.listSamplingMethods({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listSamplingMethodsQueryKey(options)
-  })
-
-/**
- * Create sampling method
- */
-export const createSamplingMethodMutation = (
-  options?: Partial<Options<CreateSamplingMethodData>>
-): UseMutationOptions<
-  CreateSamplingMethodResponse,
-  CreateSamplingMethodError,
-  Options<CreateSamplingMethodData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateSamplingMethodResponse,
-    CreateSamplingMethodError,
-    Options<CreateSamplingMethodData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.createSamplingMethod({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete sampling method
- */
-export const deleteSamplingMethodMutation = (
-  options?: Partial<Options<DeleteSamplingMethodData>>
-): UseMutationOptions<
-  DeleteSamplingMethodResponse,
-  DeleteSamplingMethodError,
-  Options<DeleteSamplingMethodData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteSamplingMethodResponse,
-    DeleteSamplingMethodError,
-    Options<DeleteSamplingMethodData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.deleteSamplingMethod({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update sampling method
- */
-export const updateSamplingMethodMutation = (
-  options?: Partial<Options<UpdateSamplingMethodData>>
-): UseMutationOptions<
-  UpdateSamplingMethodResponse,
-  UpdateSamplingMethodError,
-  Options<UpdateSamplingMethodData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateSamplingMethodResponse,
-    UpdateSamplingMethodError,
-    Options<UpdateSamplingMethodData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.updateSamplingMethod({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Create sampling action
- */
-export const createSamplingMutation = (
-  options?: Partial<Options<CreateSamplingData>>
-): UseMutationOptions<CreateSamplingResponse, CreateSamplingError, Options<CreateSamplingData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreateSamplingResponse,
-    CreateSamplingError,
-    Options<CreateSamplingData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.createSampling({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete sampling action
- */
-export const deleteSamplingMutation = (
-  options?: Partial<Options<DeleteSamplingData>>
-): UseMutationOptions<DeleteSamplingResponse, DeleteSamplingError, Options<DeleteSamplingData>> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteSamplingResponse,
-    DeleteSamplingError,
-    Options<DeleteSamplingData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.deleteSampling({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Update sampling action
- */
-export const updateSamplingMutation = (
-  options?: Partial<Options<UpdateSamplingData>>
-): UseMutationOptions<UpdateSamplingResponse, UpdateSamplingError, Options<UpdateSamplingData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateSamplingResponse,
-    UpdateSamplingError,
-    Options<UpdateSamplingData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.updateSampling({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Add occurrence from sampling
- *
- * Register new occurrence resulting from the sampling action
- */
-export const samplingAddOccurrenceMutation = (
-  options?: Partial<Options<SamplingAddOccurrenceData>>
-): UseMutationOptions<
-  SamplingAddOccurrenceResponse,
-  SamplingAddOccurrenceError,
-  Options<SamplingAddOccurrenceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SamplingAddOccurrenceResponse,
-    SamplingAddOccurrenceError,
-    Options<SamplingAddOccurrenceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SamplingService.samplingAddOccurrence({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listSequencesQueryKey = (options?: Options<ListSequencesData>) =>
-  createQueryKey('listSequences', options)
-
-/**
- * List sequences
- */
-export const listSequencesOptions = (options?: Options<ListSequencesData>) =>
-  queryOptions<
-    ListSequencesResponse,
-    ListSequencesError,
-    ListSequencesResponse,
-    ReturnType<typeof listSequencesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SequencesService.listSequences({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listSequencesQueryKey(options)
-  })
-
-/**
- * Delete sequence
- */
-export const deleteSequenceMutation = (
-  options?: Partial<Options<DeleteSequenceData>>
-): UseMutationOptions<DeleteSequenceResponse, DeleteSequenceError, Options<DeleteSequenceData>> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteSequenceResponse,
-    DeleteSequenceError,
-    Options<DeleteSequenceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SequencesService.deleteSequence({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const getSequenceQueryKey = (options: Options<GetSequenceData>) =>
-  createQueryKey('getSequence', options)
-
-/**
- * Get sequence
- */
-export const getSequenceOptions = (options: Options<GetSequenceData>) =>
-  queryOptions<
-    GetSequenceResponse,
-    GetSequenceError,
-    GetSequenceResponse,
-    ReturnType<typeof getSequenceQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SequencesService.getSequence({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getSequenceQueryKey(options)
-  })
-
-export const emailSettingsQueryKey = (options?: Options<EmailSettingsData>) =>
-  createQueryKey('emailSettings', options)
-
-/**
- * Email settings
- */
-export const emailSettingsOptions = (options?: Options<EmailSettingsData>) =>
-  queryOptions<
-    EmailSettingsResponse,
-    EmailSettingsError,
-    EmailSettingsResponse,
-    ReturnType<typeof emailSettingsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SettingsService.emailSettings({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: emailSettingsQueryKey(options)
-  })
-
-/**
- * Update email settings
- */
-export const updateEmailSettingsMutation = (
-  options?: Partial<Options<UpdateEmailSettingsData>>
-): UseMutationOptions<
-  UpdateEmailSettingsResponse,
-  UpdateEmailSettingsError,
-  Options<UpdateEmailSettingsData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateEmailSettingsResponse,
-    UpdateEmailSettingsError,
-    Options<UpdateEmailSettingsData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.updateEmailSettings({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Test SMTP connection
- */
-export const testSmtpMutation = (
-  options?: Partial<Options<TestSmtpData>>
-): UseMutationOptions<TestSmtpResponse, TestSmtpError, Options<TestSmtpData>> => {
-  const mutationOptions: UseMutationOptions<
-    TestSmtpResponse,
-    TestSmtpError,
-    Options<TestSmtpData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.testSmtp({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Set app icon
- */
-export const setAppIconMutation = (
-  options?: Partial<Options<SetAppIconData>>
-): UseMutationOptions<SetAppIconResponse, SetAppIconError, Options<SetAppIconData>> => {
-  const mutationOptions: UseMutationOptions<
-    SetAppIconResponse,
-    SetAppIconError,
-    Options<SetAppIconData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.setAppIcon({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const instanceSettingsQueryKey = (options?: Options<InstanceSettingsData>) =>
-  createQueryKey('instanceSettings', options)
-
-/**
- * Instance settings
- */
-export const instanceSettingsOptions = (options?: Options<InstanceSettingsData>) =>
-  queryOptions<
-    InstanceSettingsResponse,
-    InstanceSettingsError,
-    InstanceSettingsResponse,
-    ReturnType<typeof instanceSettingsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SettingsService.instanceSettings({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: instanceSettingsQueryKey(options)
-  })
-
-/**
- * Update instance settings
- */
-export const updateInstanceSettingsMutation = (
-  options?: Partial<Options<UpdateInstanceSettingsData>>
-): UseMutationOptions<
-  UpdateInstanceSettingsResponse,
-  UpdateInstanceSettingsError,
-  Options<UpdateInstanceSettingsData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateInstanceSettingsResponse,
-    UpdateInstanceSettingsError,
-    Options<UpdateInstanceSettingsData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.updateInstanceSettings({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const securitySettingsQueryKey = (options?: Options<SecuritySettingsData>) =>
-  createQueryKey('securitySettings', options)
-
-/**
- * Security settings
- */
-export const securitySettingsOptions = (options?: Options<SecuritySettingsData>) =>
-  queryOptions<
-    SecuritySettingsResponse,
-    SecuritySettingsError,
-    SecuritySettingsResponse,
-    ReturnType<typeof securitySettingsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SettingsService.securitySettings({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: securitySettingsQueryKey(options)
-  })
-
-/**
- * Update security settings
- */
-export const updateSecuritySettingsMutation = (
-  options?: Partial<Options<UpdateSecuritySettingsData>>
-): UseMutationOptions<
-  UpdateSecuritySettingsResponse,
-  UpdateSecuritySettingsError,
-  Options<UpdateSecuritySettingsData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateSecuritySettingsResponse,
-    UpdateSecuritySettingsError,
-    Options<UpdateSecuritySettingsData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.updateSecuritySettings({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const serviceSettingsQueryKey = (options?: Options<ServiceSettingsData>) =>
-  createQueryKey('serviceSettings', options)
-
-/**
- * Service settings
- */
-export const serviceSettingsOptions = (options?: Options<ServiceSettingsData>) =>
-  queryOptions<
-    ServiceSettingsResponse,
-    ServiceSettingsError,
-    ServiceSettingsResponse,
-    ReturnType<typeof serviceSettingsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await SettingsService.serviceSettings({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: serviceSettingsQueryKey(options)
-  })
-
-/**
- * Update service settings
- */
-export const updateServiceSettingsMutation = (
-  options?: Partial<Options<UpdateServiceSettingsData>>
-): UseMutationOptions<
-  UpdateServiceSettingsResponse,
-  UpdateServiceSettingsError,
-  Options<UpdateServiceSettingsData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateServiceSettingsResponse,
-    UpdateServiceSettingsError,
-    Options<UpdateServiceSettingsData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await SettingsService.updateServiceSettings({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listSitesQueryKey = (options?: Options<ListSitesData>) =>
-  createQueryKey('listSites', options)
-
-/**
- * List sites
- *
- * List all registered sites
- */
-export const listSitesOptions = (options?: Options<ListSitesData>) =>
-  queryOptions<
-    ListSitesResponse,
-    ListSitesError,
-    ListSitesResponse,
-    ReturnType<typeof listSitesQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.listSites({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listSitesQueryKey(options)
-  })
-
-/**
- * Create site
- *
- * Create site infos using its code
- */
-export const createSiteMutation = (
-  options?: Partial<Options<CreateSiteData>>
-): UseMutationOptions<CreateSiteResponse, CreateSiteError, Options<CreateSiteData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreateSiteResponse,
-    CreateSiteError,
-    Options<CreateSiteData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await LocationService.createSite({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const getSiteQueryKey = (options: Options<GetSiteData>) => createQueryKey('getSite', options)
-
-/**
- * Get site
- *
- * Get site infos using its code
- */
-export const getSiteOptions = (options: Options<GetSiteData>) =>
-  queryOptions<GetSiteResponse, GetSiteError, GetSiteResponse, ReturnType<typeof getSiteQueryKey>>({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.getSite({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getSiteQueryKey(options)
-  })
-
-/**
- * Update site
- *
- * Update site infos using its code
- */
-export const updateSiteMutation = (
-  options?: Partial<Options<UpdateSiteData>>
-): UseMutationOptions<UpdateSiteResponse, UpdateSiteError, Options<UpdateSiteData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateSiteResponse,
-    UpdateSiteError,
-    Options<UpdateSiteData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await LocationService.updateSite({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Add occurrence at site
- *
- * Register new occurrence at site, including event + sampling specification and biomaterial identification
- */
-export const siteAddOccurrenceMutation = (
-  options?: Partial<Options<SiteAddOccurrenceData>>
-): UseMutationOptions<
-  SiteAddOccurrenceResponse,
-  SiteAddOccurrenceError,
-  Options<SiteAddOccurrenceData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    SiteAddOccurrenceResponse,
-    SiteAddOccurrenceError,
-    Options<SiteAddOccurrenceData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await OccurrencesService.siteAddOccurrence({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const listSiteSamplingsQueryKey = (options: Options<ListSiteSamplingsData>) =>
-  createQueryKey('listSiteSamplings', options)
-
-/**
- * List samplings at site
- */
-export const listSiteSamplingsOptions = (options: Options<ListSiteSamplingsData>) =>
-  queryOptions<
-    ListSiteSamplingsResponse,
-    ListSiteSamplingsError,
-    ListSiteSamplingsResponse,
-    ReturnType<typeof listSiteSamplingsQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await LocationService.listSiteSamplings({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listSiteSamplingsQueryKey(options)
-  })
-
-/**
- * Create sampling at site
- *
- * Register sampling event on a site identified by its code
- */
-export const createSamplingAtSiteMutation = (
-  options?: Partial<Options<CreateSamplingAtSiteData>>
-): UseMutationOptions<
-  CreateSamplingAtSiteResponse,
-  CreateSamplingAtSiteError,
-  Options<CreateSamplingAtSiteData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    CreateSamplingAtSiteResponse,
-    CreateSamplingAtSiteError,
-    Options<CreateSamplingAtSiteData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await LocationService.createSamplingAtSite({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const getTaxonomyAtRankQueryKey = (options: Options<GetTaxonomyAtRankData>) =>
-  createQueryKey('getTaxonomyAtRank', options)
-
-/**
- * Get taxonomy
- */
-export const getTaxonomyAtRankOptions = (options: Options<GetTaxonomyAtRankData>) =>
-  queryOptions<
-    GetTaxonomyAtRankResponse,
-    GetTaxonomyAtRankError,
-    GetTaxonomyAtRankResponse,
-    ReturnType<typeof getTaxonomyAtRankQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await TaxonomyService.getTaxonomyAtRank({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getTaxonomyAtRankQueryKey(options)
-  })
-
-export const listTaxaQueryKey = (options?: Options<ListTaxaData>) =>
-  createQueryKey('listTaxa', options)
-
-/**
- * List taxa
- */
-export const listTaxaOptions = (options?: Options<ListTaxaData>) =>
-  queryOptions<
-    ListTaxaResponse,
-    ListTaxaError,
-    ListTaxaResponse,
-    ReturnType<typeof listTaxaQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await TaxonomyService.listTaxa({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: listTaxaQueryKey(options)
-  })
-
-/**
- * Create taxon
- */
-export const createTaxonMutation = (
-  options?: Partial<Options<CreateTaxonData>>
-): UseMutationOptions<CreateTaxonResponse, CreateTaxonError, Options<CreateTaxonData>> => {
-  const mutationOptions: UseMutationOptions<
-    CreateTaxonResponse,
-    CreateTaxonError,
-    Options<CreateTaxonData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await TaxonomyService.createTaxon({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Delete taxon
- */
-export const deleteTaxonMutation = (
-  options?: Partial<Options<DeleteTaxonData>>
-): UseMutationOptions<DeleteTaxonResponse, DeleteTaxonError, Options<DeleteTaxonData>> => {
-  const mutationOptions: UseMutationOptions<
-    DeleteTaxonResponse,
-    DeleteTaxonError,
-    Options<DeleteTaxonData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await TaxonomyService.deleteTaxon({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-export const getTaxonQueryKey = (options: Options<GetTaxonData>) =>
-  createQueryKey('getTaxon', options)
-
-/**
- * Get taxon
- */
-export const getTaxonOptions = (options: Options<GetTaxonData>) =>
-  queryOptions<
-    GetTaxonResponse,
-    GetTaxonError,
-    GetTaxonResponse,
-    ReturnType<typeof getTaxonQueryKey>
-  >({
-    queryFn: async ({ queryKey, signal }) => {
-      const { data } = await TaxonomyService.getTaxon({
-        ...options,
-        ...queryKey[0],
-        signal,
-        throwOnError: true
-      })
-      return data
-    },
-    queryKey: getTaxonQueryKey(options)
-  })
-
-/**
- * Update taxon
- */
-export const updateTaxonMutation = (
-  options?: Partial<Options<UpdateTaxonData>>
-): UseMutationOptions<UpdateTaxonResponse, UpdateTaxonError, Options<UpdateTaxonData>> => {
-  const mutationOptions: UseMutationOptions<
-    UpdateTaxonResponse,
-    UpdateTaxonError,
-    Options<UpdateTaxonData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await TaxonomyService.updateTaxon({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}

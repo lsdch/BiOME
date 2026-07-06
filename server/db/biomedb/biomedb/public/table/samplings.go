@@ -18,7 +18,6 @@ type samplingsTable struct {
 
 	// Columns
 	ID                   postgres.ColumnString
-	SamplingHash         postgres.ColumnString
 	Notes                postgres.ColumnString
 	SiteCode             postgres.ColumnString
 	SiteName             postgres.ColumnString
@@ -77,7 +76,6 @@ func newSamplingsTable(schemaName, tableName, alias string) *SamplingsTable {
 func newSamplingsTableImpl(schemaName, tableName, alias string) samplingsTable {
 	var (
 		IDColumn                   = postgres.StringColumn("id")
-		SamplingHashColumn         = postgres.StringColumn("sampling_hash")
 		NotesColumn                = postgres.StringColumn("notes")
 		SiteCodeColumn             = postgres.StringColumn("site_code")
 		SiteNameColumn             = postgres.StringColumn("site_name")
@@ -94,8 +92,8 @@ func newSamplingsTableImpl(schemaName, tableName, alias string) samplingsTable {
 		AccessPointsColumn         = postgres.StringArrayColumn("access_points")
 		H3IndexColumn              = postgres.IntegerColumn("h3_index")
 		SearchVectorColumn         = postgres.StringColumn("search_vector")
-		allColumns                 = postgres.ColumnList{IDColumn, SamplingHashColumn, NotesColumn, SiteCodeColumn, SiteNameColumn, SiteLocalityColumn, SiteCountryCodeColumn, CoordinatesPrecisionColumn, LatitudeColumn, LongitudeColumn, AltitudeColumn, EventDateColumn, EventDatePrecisionColumn, PerformedByColumn, DurationColumn, AccessPointsColumn, H3IndexColumn, SearchVectorColumn}
-		mutableColumns             = postgres.ColumnList{SamplingHashColumn, NotesColumn, SiteCodeColumn, SiteNameColumn, SiteLocalityColumn, SiteCountryCodeColumn, CoordinatesPrecisionColumn, AltitudeColumn, EventDateColumn, EventDatePrecisionColumn, PerformedByColumn, DurationColumn, AccessPointsColumn, SearchVectorColumn}
+		allColumns                 = postgres.ColumnList{IDColumn, NotesColumn, SiteCodeColumn, SiteNameColumn, SiteLocalityColumn, SiteCountryCodeColumn, CoordinatesPrecisionColumn, LatitudeColumn, LongitudeColumn, AltitudeColumn, EventDateColumn, EventDatePrecisionColumn, PerformedByColumn, DurationColumn, AccessPointsColumn, H3IndexColumn, SearchVectorColumn}
+		mutableColumns             = postgres.ColumnList{NotesColumn, SiteCodeColumn, SiteNameColumn, SiteLocalityColumn, SiteCountryCodeColumn, CoordinatesPrecisionColumn, AltitudeColumn, EventDateColumn, EventDatePrecisionColumn, PerformedByColumn, DurationColumn, AccessPointsColumn, SearchVectorColumn}
 		defaultColumns             = postgres.ColumnList{IDColumn, LatitudeColumn, LongitudeColumn, H3IndexColumn}
 	)
 
@@ -104,7 +102,6 @@ func newSamplingsTableImpl(schemaName, tableName, alias string) samplingsTable {
 
 		//Columns
 		ID:                   IDColumn,
-		SamplingHash:         SamplingHashColumn,
 		Notes:                NotesColumn,
 		SiteCode:             SiteCodeColumn,
 		SiteName:             SiteNameColumn,

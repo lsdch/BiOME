@@ -42,7 +42,7 @@ func (q *Queries) CheckMissingOrDuplicateTaxonNamesBulk(ctx context.Context, nam
 		return nil, err
 	}
 	defer rows.Close()
-	var items []CheckMissingOrDuplicateTaxonNamesBulkRow
+	items := []CheckMissingOrDuplicateTaxonNamesBulkRow{}
 	for rows.Next() {
 		var i CheckMissingOrDuplicateTaxonNamesBulkRow
 		if err := rows.Scan(&i.InputName, &i.MatchingNames); err != nil {
@@ -76,7 +76,7 @@ func (q *Queries) CheckMissingTaxonScientificNamesBulk(ctx context.Context, name
 		return nil, err
 	}
 	defer rows.Close()
-	var items []string
+	items := []string{}
 	for rows.Next() {
 		var input_name string
 		if err := rows.Scan(&input_name); err != nil {
@@ -124,7 +124,7 @@ func (q *Queries) GetTaxaByRank(ctx context.Context, rank TaxonRank) ([]Taxon, e
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Taxon
+	items := []Taxon{}
 	for rows.Next() {
 		var i Taxon
 		if err := rows.Scan(
@@ -220,7 +220,7 @@ func (q *Queries) GetTaxonLineage(ctx context.Context, taxonID uuid.UUID) ([]Tax
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Taxon
+	items := []Taxon{}
 	for rows.Next() {
 		var i Taxon
 		if err := rows.Scan(

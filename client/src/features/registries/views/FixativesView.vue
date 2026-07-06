@@ -7,7 +7,7 @@
     :fetch-items="listFixativesOptions()"
     :delete="{
       mutation: deleteFixativeMutation,
-      params: ({ code }: Fixative) => ({ path: { code } })
+      params: ({ code }) => ({ path: { code } })
     }"
     appendActions
   >
@@ -31,7 +31,7 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<Fixative>[] = [
   { key: 'code', title: 'Code', cellProps: { class: 'text-overline' } },
-  { key: 'label', title: 'Label' }
+  { key: 'name', title: 'Name' }
 ]
 </script>
 

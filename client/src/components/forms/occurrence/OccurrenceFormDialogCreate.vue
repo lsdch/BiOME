@@ -17,16 +17,15 @@
 </template>
 
 <script setup lang="ts">
-import { ErrorModel, BaseOccurrenceSamplingOutline } from '@/api'
+import { BaseOccurrence, ErrorModel } from '@/api'
 import {
-  createOccurrenceMutation,
-  samplingAddOccurrenceMutation,
-  siteAddOccurrenceMutation
+  createOccurrenceAtSamplingMutation,
+  createOccurrenceMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { hasID } from '@/lib/db'
 import { IndexedValidationErrors } from '@/lib/mutations'
-import { BiomatModel, OccurrenceModel, SamplingModel, SiteModel } from '@/models'
+import { OccurrenceModel } from '@/models'
 import { useFeedback } from '@/stores/feedback'
 import { useMutation } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
@@ -37,13 +36,11 @@ const model = ref<OccurrenceModel.OccurrenceModel>(OccurrenceModel.initialModel(
 
 defineProps<FormDialogProps>()
 
-const addFromSampling = useMutation(samplingAddOccurrenceMutation())
-const addFromSite = useMutation(siteAddOccurrenceMutation())
+const addFromSampling = useMutation(createOccurrenceAtSamplingMutation())
 const createFromScratch = useMutation(createOccurrenceMutation())
 
 function getActiveMutation() {
   if (hasID(model.value?.sampling)) return addFromSampling
-  else if (hasID(model.value?.site)) return addFromSite
   else return createFromScratch
 }
 
@@ -67,7 +64,7 @@ const errors = computed<IndexedValidationErrors | undefined>(() => {
 const { feedback } = useFeedback()
 
 const mutationCallbacks = {
-  onSuccess: (data: BaseOccurrenceSamplingOutline) => {
+  onSuccess: (data: BaseOccurrence) => {
     feedback({
       type: 'success',
       message: `Occurrence ${data.code} created`
@@ -80,33 +77,18 @@ const mutationCallbacks = {
 }
 
 function submit() {
-  if (hasID(model.value?.sampling))
+  if (typeof model.value?.sampling === 'string')
     return addFromSampling.mutate(
       {
-        path: { number: model.value.sampling.number },
-        body: BiomatModel.toRequestData(model.value.biomaterial!)
-      },
-      mutationCallbacks
-    )
-  else if (hasID(model.value?.site))
-    return addFromSite.mutate(
-      {
-        path: { code: model.value.site.code },
-        body: {
-          sampling: SamplingModel.toRequestBody(model.value.sampling!),
-          biomaterial: BiomatModel.toRequestData(model.value.biomaterial!)
-        }
+        path: { id: model.value.sampling },
+        body: model.value
       },
       mutationCallbacks
     )
   else
     return createFromScratch.mutate(
       {
-        body: {
-          site: SiteModel.toRequestBody(model.value.site!),
-          sampling: SamplingModel.toRequestBody(model.value.sampling!),
-          bio_material: BiomatModel.toRequestData(model.value.biomaterial!)
-        }
+        body: model.value
       },
       mutationCallbacks
     )

@@ -87,7 +87,7 @@ import { DataZoomComponent, TitleComponent, VisualMapComponent } from 'echarts/c
 import { use } from 'echarts/core'
 import { SVGRenderer } from 'echarts/renderers'
 import { ECBasicOption, VisualMapComponentOption } from 'echarts/types/dist/shared'
-import { computed, reactive, ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import VChart from 'vue-echarts'
 import TaxonRankSlider from './TaxonRankSlider.vue'
 

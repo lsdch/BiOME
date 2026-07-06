@@ -1,16 +1,16 @@
-import { HabitatGroup, HabitatRecord } from '@/api'
-import { listHabitatGroupsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { HabitatGroupWithElements, Habitat } from '@/api'
+import { getHabitatGroupsOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
 import { computed } from 'vue'
 
-export type HabitatNode = HabitatRecord & {
-  children?: HabitatGroup[]
-  upstream?: HabitatRecord[]
-  group: HabitatGroup
+export type HabitatNode = Habitat & {
+  children?: HabitatGroupWithElements[]
+  upstream?: Habitat[]
+  group: HabitatGroupWithElements
 }
 
-export type HabitatGroupNode = HabitatGroup & {
-  children: HabitatRecord[]
+export type HabitatGroupNode = HabitatGroupWithElements & {
+  children: Habitat[]
 }
 
 export type HabitatGraph = {
@@ -21,7 +21,7 @@ export type HabitatGraph = {
 
 export function useHabitats() {
   const { data: groups, refetch } = useQuery({
-    ...listHabitatGroupsOptions(),
+    ...getHabitatGroupsOptions(),
     initialData: []
   })
 
@@ -48,12 +48,12 @@ export function useHabitats() {
 
     // Build the tree by assigning group nodes to their parent habitats
     graph.groups.forEach(({ ...groupNode }) => {
-      if (!groupNode.depends) {
+      if (!groupNode.parent_id) {
         graph.rootGroups.push(groupNode)
         return
       }
 
-      const parent = graph.habitats.get(groupNode.depends.id)!
+      const parent = graph.habitats.get(groupNode.parent_id)!
       if (!parent.children) {
         parent.children = []
       }
@@ -62,10 +62,7 @@ export function useHabitats() {
     })
 
     // Populate upstream habitats for each habitat in the tree
-    const populateUpstream = (
-      groupNode: HabitatGroupNode,
-      upstreamHabitats: HabitatRecord[] = []
-    ) => {
+    const populateUpstream = (groupNode: HabitatGroupNode, upstreamHabitats: Habitat[] = []) => {
       groupNode.children.forEach((habitat) => {
         const habitatNode = graph.habitats.get(habitat.id)!
         habitatNode.upstream = [...upstreamHabitats]

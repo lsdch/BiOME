@@ -141,6 +141,79 @@ func (q *Queries) ConsumeUserEmailChangeRequestToken(ctx context.Context, consum
 	return err
 }
 
+const createUser = `-- name: CreateUser :one
+INSERT INTO users (
+        login,
+        email,
+        password_hash,
+        role,
+        first_name,
+        last_name,
+        organisation,
+        contact,
+        bio,
+        email_verified_at
+    )
+VALUES (
+        $1,
+        $2,
+        $3,
+        $4,
+        $5,
+        $6,
+        $7,
+        $8,
+        $9,
+        $10
+    )
+RETURNING id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at
+`
+
+type CreateUserParams struct {
+	Login           string             `json:"login"`
+	Email           string             `json:"email"`
+	PasswordHash    string             `json:"password_hash"`
+	Role            UserRole           `json:"role"`
+	FirstName       string             `json:"first_name"`
+	LastName        string             `json:"last_name"`
+	Organisation    *string            `json:"organisation"`
+	Contact         *string            `json:"contact"`
+	Bio             *string            `json:"bio"`
+	EmailVerifiedAt pgtype.Timestamptz `json:"email_verified_at"`
+}
+
+func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, createUser,
+		arg.Login,
+		arg.Email,
+		arg.PasswordHash,
+		arg.Role,
+		arg.FirstName,
+		arg.LastName,
+		arg.Organisation,
+		arg.Contact,
+		arg.Bio,
+		arg.EmailVerifiedAt,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.Login,
+		&i.Email,
+		&i.PasswordHash,
+		&i.Role,
+		&i.FirstName,
+		&i.LastName,
+		&i.Organisation,
+		&i.Contact,
+		&i.Bio,
+		&i.FullName,
+		&i.Active,
+		&i.EmailVerifiedAt,
+	)
+	return i, err
+}
+
 const createUserAccountRequest = `-- name: CreateUserAccountRequest :one
 INSERT INTO user_account_requests (email, name, motivations, expires_at)
 VALUES (
@@ -372,6 +445,46 @@ func (q *Queries) GetUserEmailChangeRequestByTokenHash(ctx context.Context, toke
 		&i.CancelledAt,
 	)
 	return i, err
+}
+
+const listUsers = `-- name: ListUsers :many
+SELECT id, login, email, password_hash, role, first_name, last_name, organisation, contact, bio, full_name, active, email_verified_at
+FROM users
+ORDER BY login ASC
+`
+
+func (q *Queries) ListUsers(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsers)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Login,
+			&i.Email,
+			&i.PasswordHash,
+			&i.Role,
+			&i.FirstName,
+			&i.LastName,
+			&i.Organisation,
+			&i.Contact,
+			&i.Bio,
+			&i.FullName,
+			&i.Active,
+			&i.EmailVerifiedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const setCurrentUser = `-- name: SetCurrentUser :exec

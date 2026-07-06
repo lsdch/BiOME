@@ -1,11 +1,9 @@
 import { InstanceSettings, UserRole } from '@/api'
 import NotFound from '@/components/navigation/NotFound.vue'
-import { nextTick } from 'vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useGuards } from './guards'
 
-import { getSiteDatasetOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { ComponentProps } from 'vue-component-type-helpers'
 import { VListGroup, VListItem } from 'vuetify/components'
 import { navRouteDefinitions } from './nav'
@@ -17,12 +15,13 @@ export type RouteNavDefinition = {
   label: string
   icon: string
   granted?: UserRole
+  hidden?: boolean
   itemProps?: ComponentProps<typeof VListItem>
 }
 
 export type Divider = 'divider'
 export type RouteDefinition = RouteRecordRaw & RouteNavDefinition
-export type RouteSubgroup = { subgroup: string }
+export type RouteSubgroup = { subgroup: string; hidden?: boolean }
 export type Route = RouteDefinition & { routes?: undefined }
 export type RouteGroup = Readonly<
   RouteNavDefinition & {
@@ -34,7 +33,7 @@ export type RouterItem = Route | RouteGroup
 
 const { guardRole } = useGuards()
 
-function setupRouter() {
+function setupRouter(settings: InstanceSettings) {
   const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -73,7 +72,7 @@ function setupRouter() {
       },
       { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
       ...Object.values(routes),
-      ...navRouteDefinitions
+      ...navRouteDefinitions(settings)
     ]
   })
 

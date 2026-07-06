@@ -15,17 +15,17 @@
       </v-col>
     </v-row>
   </v-container>
-  <DatasetsDrawer />
+  <!-- <DatasetsDrawer /> -->
 </template>
 
 <script setup lang="ts">
 import { useQuery } from '@tanstack/vue-query'
 import CountryOverview from '../components/CountryOverview.vue'
-import DatasetsDrawer from '../components/DatasetsDrawer.vue'
+// import DatasetsDrawer from '../components/DatasetsDrawer.vue'
 import OccurrenceSunburst from '../components/OccurrenceSunburst.vue'
-import { occurrenceOverviewOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { occurrencesTaxaOverviewOptions } from '@/api/gen/@tanstack/vue-query.gen'
 
-const { data: items, error, isPending } = useQuery(occurrenceOverviewOptions())
+const { data: items, error, isPending } = useQuery(occurrencesTaxaOverviewOptions())
 </script>
 
 <style scoped></style>

@@ -1,10 +1,9 @@
-import { CoordinatesPrecision } from '@/api'
 import { FunctionalComponent } from 'vue'
 import { ComponentProps } from 'vue-component-type-helpers'
-import { VChip, VTooltip } from 'vuetify/components'
+import { VChip } from 'vuetify/components'
 
 type CoordPrecisionChipProps = {
-  precision: CoordinatesPrecision
+  precision?: number
   noIcon?: boolean
 } & ComponentProps<typeof VChip>
 
@@ -23,7 +22,7 @@ export const CoordPrecisionChip: FunctionalComponent<CoordPrecisionChipProps> = 
             class="font-monospace"
           />
         ),
-        default: () => CoordinatesPrecision.description[precision]
+        default: () => precision ? `Within ${precision} m` : 'Unknown precision'
       }}
     </v-tooltip>
   )

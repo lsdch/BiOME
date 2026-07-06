@@ -16,11 +16,6 @@ FROM datasets d
     JOIN occurrences o ON o.id = od.occurrence_id
 WHERE o.id = @occurrence_id; 
 
--- name: GetOccurrenceArticles :many
-SELECT a.*
-FROM articles a
-    JOIN occurrences_articles oa ON oa.article_id = a.id
-WHERE oa.occurrence_id = @occurrence_id;
 
 -- name: GetOccurrenceCodeHistory :many
 SELECT h.*
@@ -28,10 +23,79 @@ FROM occurrence_code_history h
 WHERE h.occurrence_id = @occurrence_id
 ORDER BY h.created_at DESC;
 
--- name: GetOccurrenceCollections :many
-SELECT c.*
-FROM occurrence_collections c
-WHERE c.occurrence_id = @occurrence_id;
+
+-- name: OccurrencesByTaxaOverview :many
+SELECT t.id AS id,
+    t.name AS name,
+    t.authorship AS authorship,
+    t.rank AS rank,
+    parent.name AS parent_name,
+    COUNT(DISTINCT o.id)::int AS occurrences_count,
+    COUNT(DISTINCT s.id)::int AS samplings_count,
+    ARRAY_AGG(DISTINCT s.id) FILTER (
+        WHERE s.id IS NOT NULL
+    )::uuid [] AS sampling_ids,
+    ARRAY_AGG(DISTINCT o.id) FILTER (
+        WHERE o.id IS NOT NULL
+    )::uuid [] AS occurrence_ids
+FROM taxa t
+    LEFT JOIN taxa parent ON parent.id = t.parent_id
+    LEFT JOIN occurrences o ON o.taxon_id = t.id
+    LEFT JOIN samplings s ON s.id = o.sampling_id
+GROUP BY t.id,
+    t.name,
+    t.authorship,
+    t.rank,
+    parent.name;
+
+
+-- name: AddOccurrenceToSampling :one
+WITH inserted_occurrence AS (
+    INSERT INTO occurrences (
+            id,
+            code,
+            sampling_id,
+            type_status,
+            comments,
+            taxon_id,
+            verbatim_identification,
+            identified_by,
+            identification_date,
+            identification_date_precision,
+            identification_confer,
+            identification_addendum,
+            content_description,
+            quantity_exact,
+            quantity_lower,
+            quantity_upper,
+            sources
+        )
+    VALUES (
+            @id,
+            @code,
+            @sampling_id,
+            @type_status,
+            @comments,
+            @taxon_id,
+            @verbatim_identification,
+            @identified_by,
+            @identification_date,
+            @identification_date_precision,
+            @identification_confer,
+            @identification_addendum,
+            @content_description,
+            @quantity_exact,
+            @quantity_lower,
+            @quantity_upper,
+            @sources
+        )
+)
+SELECT sqlc.embed(o),
+    sqlc.embed(t)
+FROM occurrences o
+    JOIN taxa t ON t.id = o.taxon_id
+WHERE o.id = @id;
+
 
 -- name: ListSamplingSites :many
 WITH base_taxa AS (

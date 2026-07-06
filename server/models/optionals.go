@@ -8,6 +8,7 @@ import (
 
 	"github.com/brianvoe/gofakeit/v7"
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/goccy/go-yaml"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/sirupsen/logrus"
@@ -218,6 +219,18 @@ func (o *Optional[T]) UnmarshalJSON(b []byte) error {
 	}
 	o.IsSet = false
 	return nil
+}
+
+func (o *Optional[T]) UnmarshalYAML(b []byte) error {
+	if len(b) == 0 || bytes.Equal(b, []byte("null")) {
+		o.IsSet = false
+		var zero T
+		o.Value = zero
+		return nil
+	}
+
+	o.IsSet = true
+	return yaml.Unmarshal(b, &o.Value)
 }
 
 func (o Optional[T]) Missing() bool {

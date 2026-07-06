@@ -15,57 +15,41 @@ import (
 )
 
 type RegistrationService struct {
-	db           *db.DB
 	config       config.Config
 	emailService *EmailService
 }
 
-func NewRegistrationService(db *db.DB, config config.Config, emailService *EmailService) *RegistrationService {
-	return &RegistrationService{db: db, config: config, emailService: emailService}
+func NewRegistrationService(config config.Config, emailService *EmailService) *RegistrationService {
+	return &RegistrationService{config: config, emailService: emailService}
 }
 
 func (s *RegistrationService) CreateInvitation(
 	ctx context.Context,
+	tx *db.Tx,
 	params models.CreateInvitationParams,
 ) (models.InvitationResult, error) {
 
-	var result models.InvitationResult
-
-	err := s.db.WithTx(ctx, func(q *biomedb.Queries) error {
-
-		invitation, err := q.CreateInvitation(ctx, biomedb.CreateInvitationParams{
-			Email:       params.Email,
-			InviteeName: params.InviteeName,
-			Role:        params.Role,
-			Message:     params.Message.ToPtr(),
-			InviterID:   models.UUIDToPg(params.InviterID),
-			ExpiresAt:   params.ExpiresAt,
-		})
-		if err != nil {
-			return err
-		}
-
-		rawToken, err := GenerateSecureToken()
-		if err != nil {
-			return err
-		}
-
-		hash := HashToken(rawToken)
-
-		_, err = q.CreateInvitationToken(ctx, invitation.ID, hash)
-		if err != nil {
-			return err
-		}
-
-		result = models.InvitationResult{
-			Invitation: invitation,
-			Token:      rawToken,
-		}
-
-		return nil
+	invitation, err := tx.Queries().CreateInvitation(ctx, biomedb.CreateInvitationParams{
+		Email:       params.Email,
+		InviteeName: params.InviteeName,
+		Role:        params.Role,
+		Message:     params.Message.ToPtr(),
+		InviterID:   models.UUIDToPg(params.InviterID),
+		ExpiresAt:   params.ExpiresAt,
 	})
+	rawToken, err := GenerateSecureToken()
+	if err != nil {
+		return models.InvitationResult{}, err
+	}
 
-	return result, err
+	hash := HashToken(rawToken)
+
+	_, err = tx.Queries().CreateInvitationToken(ctx, invitation.ID, hash)
+	if err != nil {
+		return models.InvitationResult{}, err
+	}
+
+	return models.InvitationResult{Invitation: invitation, Token: rawToken}, nil
 }
 
 func (s *RegistrationService) InvitationURL(clientPath string, token string) *url.URL {
@@ -114,24 +98,26 @@ func HashToken(token string) string {
 }
 
 func (s *RegistrationService) GetInvitationByToken(
+	q db.Querier,
 	ctx context.Context,
 	token string,
 ) (biomedb.Invitation, error) {
 
-	return s.db.Queries().GetInvitationByTokenHash(
+	return q.Queries().GetInvitationByTokenHash(
 		ctx,
 		HashToken(token),
 	)
 }
 
 func (s *RegistrationService) RegisterFromInvitation(
+	q db.Querier,
 	ctx context.Context,
 	token string,
 	params models.RegisterFromInvitationParams,
 ) (biomedb.User, error) {
 
 	tokenHash := HashToken(token)
-	u, err := s.db.Queries().CreateUserFromInvitationToken(
+	u, err := q.Queries().CreateUserFromInvitationToken(
 		ctx,
 		params.ToParams(tokenHash),
 	)

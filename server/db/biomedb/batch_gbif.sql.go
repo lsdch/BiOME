@@ -215,7 +215,7 @@ func (q *Queries) ListMissingGBIFKeys(ctx context.Context, importHash string) ([
 		return nil, err
 	}
 	defer rows.Close()
-	var items []int32
+	items := []int32{}
 	for rows.Next() {
 		var key int32
 		if err := rows.Scan(&key); err != nil {

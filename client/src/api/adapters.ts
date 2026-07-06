@@ -2,25 +2,18 @@
 
 import UserRoleIcon from '@/components/icons/UserRoleIcon'
 import { DateTime } from 'luxon'
-import { $CoordinatesPrecision, $TaxonRank, $UserRole } from './gen/schemas.gen'
+import { $TaxonRank, $UserRole } from './gen/schemas.gen'
 import {
   CompositeDate as CompositeDateType,
-  DatePrecision,
-  DateWithPrecisionInput,
-  OptionalDateWithPrecision as TOptionalDateWithPrecision,
+  EventDatePrecision,
+  DateWithPrecision as TDateWithPrecision,
+  EventDateInput,
   Article as TArticle,
-  OrgKind as TOrgKind,
-  OccurrenceCategory as TOccurrenceCategory,
-  SeqReference as TSeqReference,
   Taxon as TTaxon,
   TaxonRank as TTaxonRank,
   UserRole as TUserRole,
   User as TUser,
-  Meta as TMeta,
-  CoordinatesPrecision as TCoordinatesPrecision,
-  ArticleInput,
-  DatasetCategory as TDatasetCategory,
-  Status as GeoapifyStatus,
+  GeoapifyStatus,
   GeoapifyResult,
   Identification as TIdentification
 } from './gen/types.gen'
@@ -34,23 +27,23 @@ export type CompositeDate = CompositeDateType
 export namespace CompositeDate {
   export function fromDateWithPrecision({ precision, date }: DateWithPrecision): CompositeDate {
     switch (precision) {
-      case 'Year':
+      case 'year':
         return { year: date.getFullYear() }
-      case 'Month':
+      case 'month':
         // JS months start at 0, because ✨ JS ✨
         return { month: date.getMonth() + 1, year: date.getFullYear() }
-      case 'Day':
+      case 'day':
         return { day: date.getDate(), month: date.getMonth() + 1, year: date?.getFullYear() }
     }
   }
 }
 
-export type DateWithPrecision = TOptionalDateWithPrecision
+export type DateWithPrecision = TDateWithPrecision
 export namespace DateWithPrecision {
-  const formats: Record<DatePrecision, string> = {
-    Day: 'dd LLL yyyy',
-    Month: 'LLL yyyy',
-    Year: 'yyyy'
+  const formats: Record<EventDatePrecision, string> = {
+    day: 'dd LLL yyyy',
+    month: 'LLL yyyy',
+    year: 'yyyy'
   }
   export function compare(a?: DateWithPrecision, b?: DateWithPrecision) {
     if (!a && !b) return 0
@@ -59,25 +52,23 @@ export namespace DateWithPrecision {
     return (DateWithPrecision.toDateTime(b) ?? 0) > (DateWithPrecision.toDateTime(a) ?? 0) ? -1 : 1
   }
 
-  export function toInput(d?: DateWithPrecision): DateWithPrecisionInput | undefined {
+  export function toInput(d?: DateWithPrecision): EventDateInput | undefined {
     if (!d) return undefined
     return { date: CompositeDate.fromDateWithPrecision(d), precision: d.precision }
   }
 
-  export function fromInput({ date, precision }: DateWithPrecisionInput): DateWithPrecision {
+  export function fromInput({ date, precision }: EventDateInput): DateWithPrecision {
     return {
       date: new Date(date.year!, (date.month ?? 1) - 1, date.day ?? 1),
       precision
     }
   }
 
-  export function maybeFromInput(
-    input: DateWithPrecisionInput | DateWithPrecision
-  ): DateWithPrecision {
+  export function maybeFromInput(input: EventDateInput | DateWithPrecision): DateWithPrecision {
     if (input.date instanceof Date) {
       return input as DateWithPrecision
     }
-    return fromInput(input as DateWithPrecisionInput)
+    return fromInput(input as EventDateInput)
   }
 
   export function toDateTime({ date, precision }: DateWithPrecision): DateTime | null {
@@ -89,29 +80,6 @@ export namespace DateWithPrecision {
     return DateTime.fromJSDate(d.date)
       .setLocale('en-gb')
       .toFormat(format ?? formats[d.precision])
-  }
-}
-
-export type OccurrenceCategory = TOccurrenceCategory
-export namespace OccurrenceCategory {
-  export const props: Record<
-    OccurrenceCategory,
-    { icon: string; color: string; prependIcon: string }
-  > = {
-    Internal: {
-      icon: 'mdi-cube-scan',
-      prependIcon: 'mdi-cube-scan',
-      color: 'primary'
-    },
-    External: {
-      icon: 'mdi-arrow-collapse-all',
-      prependIcon: 'mdi-arrow-collapse-all',
-      color: 'warning'
-    }
-  }
-
-  export function icon(t: OccurrenceCategory) {
-    return props[t].icon
   }
 }
 
@@ -150,39 +118,13 @@ export namespace Article {
 //   }
 // }
 
-export type SeqReference = TSeqReference
-export namespace SeqReference {
-  export function link({ accession, db }: SeqReference) {
-    return db.link_template?.replace('{accession}', accession)
-  }
-}
-
-export type OrgKind = TOrgKind
-export namespace OrgKind {
-  export const props: Record<OrgKind, { icon: string; color: string }> = {
-    Lab: { icon: 'mdi-flask', color: 'primary' },
-    FundingAgency: { icon: 'mdi-file-certificate', color: 'green' },
-    SequencingPlatform: { icon: 'mdi-dna', color: 'orange' },
-    Other: { icon: 'mdi-home-modern', color: 'grey' }
-  }
-  export function icon(kind: OrgKind) {
-    return props[kind].icon
-  }
-  export function color(kind: OrgKind) {
-    return props[kind].color
-  }
-  export function humanize(kind: OrgKind) {
-    return kind.replace(/([a-z])([A-Z])/g, '$1 $2').trim()
-  }
-}
-
 export type TaxonRank = TTaxonRank
 export namespace TaxonRank {
   export type LowerCase = Lowercase<TaxonRank>
 
-  export const extensibleRanks: TaxonRank[] = ['Order', 'Family', 'Genus', 'Species']
+  export const extensibleRanks: TaxonRank[] = ['ORDER', 'FAMILY', 'GENUS', 'SPECIES']
 
-  export type NoSubgenus = Exclude<TaxonRank, 'Subgenus'>
+  export type NoSubgenus = Exclude<TaxonRank, 'SUBGENUS'>
 
   const taxonRankOrder = Object.fromEntries($TaxonRank.enum.map((rank, i) => [rank, i])) as {
     [k in TaxonRank]: number
@@ -205,16 +147,16 @@ export namespace TaxonRank {
   }
 
   export function parentRank(rank: TaxonRank): TaxonRank | undefined {
-    if (rank === 'Species') return 'Genus'
-    if (rank === 'Subgenus') return 'Genus'
+    if (rank === 'SPECIES') return 'GENUS'
+    if (rank === 'SUBGENUS') return 'GENUS'
     return $TaxonRank.enum[index(rank) - 1]
   }
 
   export function childRank(rank: TaxonRank): TaxonRank | undefined {
     switch (rank) {
-      case 'Genus':
-        return 'Species'
-      case 'Subgenus':
+      case 'GENUS':
+        return 'SPECIES'
+      case 'SUBGENUS':
         return undefined
       default:
         return $TaxonRank.enum[index(rank) + 1]
@@ -272,62 +214,6 @@ export namespace CodeIdentifier {
   }
 }
 
-export type CoordinatesPrecision = TCoordinatesPrecision
-export namespace CoordinatesPrecision {
-  // Returns a radius in meters corresponding to the precision, for use in map display
-  export function radius(precision?: CoordinatesPrecision): number {
-    switch (precision) {
-      case '10-100km':
-        return 100_000
-      case '<10km':
-        return 10_000
-      case '<1km':
-        return 1000
-      case '<100m':
-        return 100
-      default:
-        return 100
-    }
-  }
-
-  export const description: Record<(typeof $CoordinatesPrecision.enum)[number], string> = {
-    Unknown: 'Coordinates referential is unknown',
-    '<100m': 'Actual location',
-    '<1km': 'Approximate location',
-    '<10km': 'Nearest city or town',
-    '10-100km': 'Province or country level'
-  }
-}
-
-export type ArticleLocalInput = Omit<ArticleInput, 'year'> & { year?: number }
-
-export type DatasetCategory = TDatasetCategory
-export namespace DatasetCategory {
-  export function icon(category: DatasetCategory) {
-    switch (category) {
-      case 'Occurrence':
-        return 'mdi-crosshairs-gps'
-      case 'Seq':
-        return 'mdi-dna'
-      case 'Site':
-        return 'mdi-map-marker'
-      default:
-        return 'mdi-folder-table'
-    }
-  }
-}
-
-export type Meta = TMeta
-export namespace Meta {
-  export function toString({ last_updated }: Meta) {
-    return DateTime.fromJSDate(last_updated).toRelative({ locale: 'en-gb' })?.toString()
-  }
-
-  export function icon({ modified }: Meta) {
-    return modified ? 'mdi-update' : 'mdi-content-save'
-  }
-}
-
 export namespace Geoapify {
   export type Status = GeoapifyStatus
   export type Result = GeoapifyResult
@@ -363,7 +249,7 @@ export namespace Identification {
   }: Pick<Identification, 'taxon' | 'confer' | 'addendum'>) {
     const interspersed = intersperseConfer(taxon, confer)
     return (
-      (taxon.rank == 'Genus' ? `${interspersed} sp.` : interspersed) +
+      (taxon.rank == 'GENUS' ? `${interspersed} sp.` : interspersed) +
       (addendum ? ` ${addendum}` : '')
     )
   }

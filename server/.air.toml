@@ -3,10 +3,10 @@ testdata_dir = "testdata"
 tmp_dir = "tmp"
 
 [build]
-exclude_dir = ["assets", "tmp", "vendor", "testdata"]
+exclude_dir = ["assets", "tmp", "vendor", "testdata", "db/biomedb"]
 args_bin = []
 bin = "./tmp/main"
-cmd = "go build -o ./tmp/main ."
+cmd = "go build -o ./tmp/main ./app"
 delay = 3000
 exclude_file = ["docs/docs.go"]
 exclude_regex = [
@@ -19,8 +19,8 @@ exclude_unchanged = true
 follow_symlink = false
 full_bin = ""
 include_dir = []
-include_ext = ["go", "tpl", "templ", "html", "edgeql"]
-include_file = ["./config.yml"]
+include_ext = ["go", "tpl", "templ", "html", "sql"]
+include_file = ["./config.yml", "./config.dev.yml", "./config.local.yml"]
 kill_delay = "0s"
 log = "build-errors.log"
 poll = false
@@ -29,8 +29,9 @@ post_cmd = []
 # run code generation
 pre_cmd = [
   "go tool templ generate",
-  "go get",
-  "go generate",
+  # "go get",
+  "task db:generate",
+  "go generate ./app",
   # "cd ../client && pnpm gen-client"
 ]
 rerun = false

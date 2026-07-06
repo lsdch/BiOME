@@ -9,17 +9,14 @@ import (
 )
 
 type DatasetsService struct {
-	db db.Querier
 }
 
-func NewDatasetsService(db db.Querier) *DatasetsService {
-	return &DatasetsService{
-		db: db,
-	}
+func NewDatasetsService() *DatasetsService {
+	return &DatasetsService{}
 }
 
-func (s *DatasetsService) LoadDatasetsForOccurrence(ctx context.Context, occurrenceID ulid.ULID) ([]models.Dataset, error) {
-	datasets, err := s.db.Queries().GetDatasetsForOccurrence(ctx, occurrenceID)
+func (s *DatasetsService) LoadDatasetsForOccurrence(ctx context.Context, q db.Querier, occurrenceID ulid.ULID) ([]models.Dataset, error) {
+	datasets, err := q.Queries().GetDatasetsForOccurrence(ctx, occurrenceID)
 	if err != nil {
 		return nil, err
 	}
@@ -30,8 +27,8 @@ func (s *DatasetsService) LoadDatasetsForOccurrence(ctx context.Context, occurre
 	return result, nil
 }
 
-func (s *DatasetsService) GetDatasetByID(ctx context.Context, datasetID ulid.ULID) (*models.Dataset, error) {
-	d, err := s.db.Queries().GetDatasetByID(ctx, datasetID)
+func (s *DatasetsService) GetDatasetByID(ctx context.Context, q db.Querier, datasetID ulid.ULID) (*models.Dataset, error) {
+	d, err := q.Queries().GetDatasetByID(ctx, datasetID)
 	if err != nil {
 		return nil, err
 	}
@@ -39,8 +36,8 @@ func (s *DatasetsService) GetDatasetByID(ctx context.Context, datasetID ulid.ULI
 	return &dataset, nil
 }
 
-func (s *DatasetsService) ListDatasets(ctx context.Context) ([]models.Dataset, error) {
-	datasets, err := s.db.Queries().ListDatasets(ctx)
+func (s *DatasetsService) ListDatasets(ctx context.Context, q db.Querier) ([]models.Dataset, error) {
+	datasets, err := q.Queries().ListDatasets(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -51,8 +48,8 @@ func (s *DatasetsService) ListDatasets(ctx context.Context) ([]models.Dataset, e
 	return result, nil
 }
 
-func (s *DatasetsService) LoadOccurrencesForDataset(ctx context.Context, datasetID ulid.ULID) ([]models.Occurrence, error) {
-	occurrences, err := s.db.Queries().ListOccurrencesForDataset(ctx, datasetID)
+func (s *DatasetsService) LoadOccurrencesForDataset(ctx context.Context, q db.Querier, datasetID ulid.ULID) ([]models.Occurrence, error) {
+	occurrences, err := q.Queries().ListOccurrencesForDataset(ctx, datasetID)
 	if err != nil {
 		return nil, err
 	}
@@ -61,4 +58,12 @@ func (s *DatasetsService) LoadOccurrencesForDataset(ctx context.Context, dataset
 		result[i] = models.OccurrenceFromDB(o.Occurrence, o.Taxon, o.Sampling, o.Country)
 	}
 	return result, nil
+}
+
+func (s *DatasetsService) AddOccurrenceToDataset(ctx context.Context, q db.Querier, datasetID ulid.ULID, occurrenceID ulid.ULID) error {
+	return q.Queries().AddOccurrenceToDataset(ctx, occurrenceID, datasetID)
+}
+
+func (s *DatasetsService) RemoveOccurrenceFromDataset(ctx context.Context, q db.Querier, datasetID ulid.ULID, occurrenceID ulid.ULID) error {
+	return q.Queries().RemoveOccurrenceFromDataset(ctx, occurrenceID, datasetID)
 }

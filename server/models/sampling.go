@@ -9,13 +9,28 @@ import (
 	"github.com/uber/h3-go/v4"
 )
 
+type ErrUnknownCode struct {
+	Entity string
+	Code   string
+}
+
+func (e ErrUnknownCode) Error() string {
+	return fmt.Sprintf("unknown %s code: %s", e.Entity, e.Code)
+}
+
+func ErrUnknownSamplingMethodCode(code string) ErrUnknownCode {
+	return ErrUnknownCode{Entity: "sampling method", Code: code}
+}
+
+func ErrUnknownFixativeCode(code string) ErrUnknownCode {
+	return ErrUnknownCode{Entity: "fixative", Code: code}
+}
+
 type Site struct {
-	Name        Optional[string]         `json:"name,omitempty"`
-	Code        Optional[string]         `json:"code,omitempty"`
-	Locality    Optional[string]         `json:"locality,omitempty"`
-	Country     Country                  `json:"country"`
-	Coordinates CoordinatesWithPrecision `json:"coordinates"`
-	Altitude    Optional[int32]          `json:"altitude,omitempty"`
+	Name     Optional[string] `json:"name,omitempty"`
+	Code     Optional[string] `json:"code,omitempty"`
+	Locality Optional[string] `json:"locality,omitempty"`
+	Country  Country          `json:"country"`
 }
 
 func OptionalDateWithPrecisionFromDB(date pgtype.Date, precision *biomedb.EventDatePrecision) Optional[DateWithPrecision] {
@@ -29,11 +44,22 @@ func OptionalDateWithPrecisionFromDB(date pgtype.Date, precision *biomedb.EventD
 type Sampling struct {
 	ID           uuid.UUID
 	Site         Site                        `json:"site"`
+	Coordinates  CoordinatesWithPrecision    `json:"coordinates"`
+	Altitude     Optional[int32]             `json:"altitude,omitempty"`
 	PerformedOn  Optional[DateWithPrecision] `json:"performed_on,omitempty"`
 	PerformedBy  []string                    `json:"performed_by,omitempty"`
 	Duration     Optional[int32]             `json:"duration,omitempty"`
 	AccessPoints []string                    `json:"access_points,omitempty"`
 	H3Cell       h3.Cell                     `json:"h3_cell"`
+}
+
+func (s Sampling) Code() string {
+	codePart := s.Site.Code.GetWithDefault(s.Coordinates.ToCode())
+	datePart := "NA"
+	if s.PerformedOn.IsSet {
+		datePart = s.PerformedOn.Value.ToCode()
+	}
+	return fmt.Sprintf("%s|%s", codePart, datePart)
 }
 
 func NewSamplingFromDB(s biomedb.Sampling, c biomedb.Country) Sampling {
@@ -44,15 +70,15 @@ func NewSamplingFromDB(s biomedb.Sampling, c biomedb.Country) Sampling {
 			Code:     NewOptionalFromPtr(s.SiteCode),
 			Locality: NewOptionalFromPtr(s.SiteLocality),
 			Country:  Country(c),
-			Coordinates: CoordinatesWithPrecision{
-				Coordinates: Coordinates{
-					Latitude:  s.Latitude,
-					Longitude: s.Longitude,
-				},
-				Precision: NewOptionalFromPtr(s.CoordinatesPrecision),
-			},
-			Altitude: NewOptionalFromPtr(s.Altitude),
 		},
+		Coordinates: CoordinatesWithPrecision{
+			Coordinates: Coordinates{
+				Latitude:  s.Latitude,
+				Longitude: s.Longitude,
+			},
+			Precision: NewOptionalFromPtr(s.CoordinatesPrecision),
+		},
+		Altitude:     NewOptionalFromPtr(s.Altitude),
 		PerformedOn:  OptionalDateWithPrecisionFromDB(s.EventDate, s.EventDatePrecision),
 		PerformedBy:  s.PerformedBy,
 		Duration:     NewOptionalFromPtr(s.Duration),
@@ -68,32 +94,139 @@ func (s Sampling) WithDetails(metadata SamplingMetadata) SamplingWithDetails {
 	}
 }
 
+func (s Sampling) WithDistance(distanceMeters int32) SamplingWithDistance {
+	return SamplingWithDistance{
+		Sampling:       s,
+		DistanceMeters: distanceMeters,
+	}
+}
+
+type SamplingInput struct {
+	Site         SiteInput              `json:"site"`
+	PerformedOn  DateWithPrecisionInput `json:"performed_on"`
+	PerformedBy  []string               `json:"performed_by,omitempty"`
+	Duration     Optional[int32]        `json:"duration,omitempty"`
+	AccessPoints []string               `json:"access_points,omitempty"`
+	Methods      []string               `json:"methods,omitempty"`
+	Fixatives    []string               `json:"fixatives,omitempty"`
+	TargetTaxa   []uuid.UUID            `json:"target_taxa,omitempty"`
+}
+
+func (i SamplingInput) ToParams() biomedb.CreateSamplingParams {
+	var (
+		eventDate          pgtype.Date
+		eventDatePrecision *EventDatePrecision = nil
+	)
+	eventDate = i.PerformedOn.Date.ToPgDate()
+	eventDatePrecision = &i.PerformedOn.Precision
+	return biomedb.CreateSamplingParams{
+		SiteCode:             i.Site.Code.ToPtr(),
+		SiteName:             i.Site.Name.ToPtr(),
+		SiteLocality:         i.Site.Locality.ToPtr(),
+		SiteCountryCode:      i.Site.CountryCode.ToPtr(),
+		Coordinates:          i.Site.Coordinates.Coordinates,
+		CoordinatesPrecision: i.Site.Coordinates.Precision.ToPtr(),
+		Altitude:             i.Site.Altitude.ToPtr(),
+		EventDate:            eventDate,
+		EventDatePrecision:   eventDatePrecision,
+		PerformedBy:          i.PerformedBy,
+		Duration:             i.Duration.ToPtr(),
+		AccessPoints:         i.AccessPoints,
+	}
+}
+
+type SiteInput struct {
+	Name        Optional[string]         `json:"name,omitempty"`
+	Code        Optional[string]         `json:"code,omitempty"`
+	Locality    Optional[string]         `json:"locality,omitempty"`
+	CountryCode Optional[string]         `json:"country_code,omitempty"`
+	Coordinates CoordinatesWithPrecision `json:"coordinates"`
+	Altitude    Optional[int32]          `json:"altitude,omitempty"`
+}
+
+type ListSamplingsAtProximityInput struct {
+	Latitude         float32                 `json:"latitude" query:"latitude" required:"true"`
+	Longitude        float32                 `json:"longitude" query:"longitude" required:"true"`
+	RadiusMeters     int32                   `json:"radius_meters" query:"radius_meters" required:"true"`
+	EventDate        Optional[CompositeDate] `json:"event_date,omitempty" query:"event_date"`
+	DateIntervalDays Optional[int32]         `json:"date_interval_days,omitempty" query:"date_interval_days"`
+	ExcludeIds       []uuid.UUID             `json:"exclude_ids,omitempty" query:"exclude_ids"`
+}
+
+func (i ListSamplingsAtProximityInput) ToParams() biomedb.ListSamplingsAtProximityParams {
+	var eventDate pgtype.Date
+	if i.EventDate.IsSet {
+		eventDate = i.EventDate.Value.ToPgDate()
+	}
+	return biomedb.ListSamplingsAtProximityParams{
+		Latitude:           i.Latitude,
+		Longitude:          i.Longitude,
+		RadiusMeters:       i.RadiusMeters,
+		EventDate:          eventDate,
+		DateIntervalDays:   i.DateIntervalDays.GetWithDefault(30),
+		ExcludeSamplingIds: i.ExcludeIds,
+	}
+}
+
+type SamplingWithDistance struct {
+	Sampling
+	DistanceMeters int32 `json:"distance_meters"`
+}
+
 type samplingVocab struct {
-	ID          uuid.UUID        `json:"id"`
+	ID uuid.UUID `json:"id"`
+	SamplingVocabInput
+}
+
+type SamplingVocabInput struct {
 	Code        string           `json:"code"`
 	Name        string           `json:"name"`
 	Description Optional[string] `json:"description,omitempty"`
 }
 
-type SamplingMethod = samplingVocab
+type SamplingMethod samplingVocab
 
 func SamplingMethodFromDB(m biomedb.SamplingMethod) SamplingMethod {
 	return SamplingMethod{
-		ID:          m.ID,
-		Code:        m.Code,
-		Name:        m.Name,
-		Description: NewOptionalFromPtr(m.Description),
+		ID: m.ID,
+		SamplingVocabInput: SamplingVocabInput{
+			Code:        m.Code,
+			Name:        m.Name,
+			Description: NewOptionalFromPtr(m.Description),
+		},
 	}
 }
 
-type Fixative = samplingVocab
+type SamplingMethodInput SamplingVocabInput
+
+func (i SamplingMethodInput) ToDBParams() biomedb.CreateSamplingMethodParams {
+	return biomedb.CreateSamplingMethodParams{
+		Code:        i.Code,
+		Name:        i.Name,
+		Description: i.Description.ToPtr(),
+	}
+}
+
+type Fixative samplingVocab
 
 func FixativeFromDB(f biomedb.Fixative) Fixative {
 	return Fixative{
-		ID:          f.ID,
-		Code:        f.Code,
-		Name:        f.Name,
-		Description: NewOptionalFromPtr(f.Description),
+		ID: f.ID,
+		SamplingVocabInput: SamplingVocabInput{
+			Code:        f.Code,
+			Name:        f.Name,
+			Description: NewOptionalFromPtr(f.Description),
+		},
+	}
+}
+
+type FixativeInput SamplingVocabInput
+
+func (i FixativeInput) ToDBParams() biomedb.CreateFixativeParams {
+	return biomedb.CreateFixativeParams{
+		Code:        i.Code,
+		Name:        i.Name,
+		Description: i.Description.ToPtr(),
 	}
 }
 
@@ -115,9 +248,9 @@ type SamplingWithOccurrences struct {
 }
 
 type SamplingVocabUpdateParams struct {
-	Name        Optional[string]     `json:"name"`
-	Code        Optional[string]     `json:"code"`
-	Description OptionalNull[string] `json:"description"`
+	Name        Optional[string]     `json:"name,omitempty"`
+	Code        Optional[string]     `json:"code,omitempty"`
+	Description OptionalNull[string] `json:"description,omitempty"`
 }
 
 type SamplingMethodUpdateParams SamplingVocabUpdateParams
@@ -132,9 +265,9 @@ func (s *SamplingMethodUpdateParams) ToParams(oldCode string) biomedb.UpdateSamp
 	}
 }
 
-type SamplingFixativeUpdateParams SamplingVocabUpdateParams
+type FixativeUpdateParams SamplingVocabUpdateParams
 
-func (s *SamplingFixativeUpdateParams) ToParams(oldCode string) biomedb.UpdateFixativeParams {
+func (s *FixativeUpdateParams) ToParams(oldCode string) biomedb.UpdateFixativeParams {
 	return biomedb.UpdateFixativeParams{
 		Code:           s.Code.ToPtr(),
 		Name:           s.Name.ToPtr(),

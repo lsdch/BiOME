@@ -35,18 +35,18 @@
 </template>
 
 <script setup lang="ts">
-import { $CollectionField, CollectionField } from '@/api'
-import { listCollectionsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { $CollectionInput, CollectionInput } from '@/api'
+import { listCollectionNamesOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useSchema } from '@/composables/schema'
 import { useQuery } from '@tanstack/vue-query'
 
-const { data: collections } = useQuery(listCollectionsOptions())
+const { data: collections } = useQuery(listCollectionNamesOptions())
 
-const model = defineModel<CollectionField>({ required: true })
+const model = defineModel<CollectionInput>({ required: true })
 
 const {
   bind: { schema }
-} = useSchema($CollectionField)
+} = useSchema($CollectionInput)
 </script>
 
 <style scoped lang="scss"></style>

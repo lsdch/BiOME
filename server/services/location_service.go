@@ -8,17 +8,14 @@ import (
 )
 
 type LocationService struct {
-	db *db.DB
 }
 
-func NewLocationService(db *db.DB) *LocationService {
-	return &LocationService{
-		db: db,
-	}
+func NewLocationService() *LocationService {
+	return &LocationService{}
 }
 
-func (s *LocationService) ListCountries(ctx context.Context) ([]models.Country, error) {
-	countries, err := s.db.Queries().ListCountries(ctx)
+func (s *LocationService) ListCountries(ctx context.Context, q db.Querier) ([]models.Country, error) {
+	countries, err := q.Queries().ListCountries(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -29,8 +26,8 @@ func (s *LocationService) ListCountries(ctx context.Context) ([]models.Country, 
 	return result, nil
 }
 
-func (s *LocationService) ListCountriesSummary(ctx context.Context) ([]models.CountrySummary, error) {
-	countries, err := s.db.Queries().ListCountriesSummary(ctx)
+func (s *LocationService) ListCountriesSummary(ctx context.Context, q db.Querier) ([]models.CountrySummary, error) {
+	countries, err := q.Queries().ListCountriesSummary(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -39,4 +36,16 @@ func (s *LocationService) ListCountriesSummary(ctx context.Context) ([]models.Co
 		result[i] = models.CountrySummaryFromDB(c)
 	}
 	return result, nil
+}
+
+func (s *LocationService) CoordinatesToCountry(ctx context.Context, q db.Querier, latitude, longitude float32) (*models.Country, error) {
+	countryDB, err := q.Queries().CoordinatesToCountry(ctx, latitude, longitude)
+	if err != nil {
+		return nil, err
+	}
+	if len(countryDB) == 0 {
+		return nil, nil
+	}
+	country := models.CountryFromDB(countryDB[0])
+	return &country, nil
 }

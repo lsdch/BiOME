@@ -3,7 +3,7 @@
     v-model="model"
     :items
     :loading
-    item-title="label"
+    item-title="name"
     item-value="code"
     item-subtitle="description"
     prepend-inner-icon="mdi-snowflake"

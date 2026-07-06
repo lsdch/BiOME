@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,9 +12,10 @@ import (
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/jackc/pgx/v5"
 	"github.com/lsdch/biome/config"
 	"github.com/lsdch/biome/db"
-	"github.com/lsdch/biome/db/biomedb"
+	"github.com/lsdch/biome/models"
 	"github.com/sirupsen/logrus"
 )
 
@@ -23,106 +25,54 @@ const (
 	BATCH_REVERSE_GEOCODE_URL = "https://api.geoapify.com/v1/batch/geocode/reverse"
 )
 
-type GeoapifyUsage biomedb.GeoapifyUsage
-
-type GeoapifyStatus struct {
-	APIKey        string `json:"-"`
-	Available     bool   `json:"available"`
-	HasApiKey     bool   `json:"has_api_key"`
-	TodayRequests int32  `json:"requests"`
-	Limit         int32  `json:"limit"`
-}
-
-type GeoapifyRequestDenial error
-
-var (
-	ErrNoAPIKey      = GeoapifyRequestDenial(fmt.Errorf("Geoapify API key is not set"))
-	ErrLimitExceeded = GeoapifyRequestDenial(fmt.Errorf("Geoapify usage limit exceeded"))
-)
-
-func (s *GeoapifyStatus) AllowRequests(n int32) GeoapifyRequestDenial {
-	if !s.HasApiKey {
-		return ErrNoAPIKey
-	}
-	if s.TodayRequests+n > s.Limit {
-		return ErrLimitExceeded
-	}
-	return nil
-}
-
-type GeoapifyPendingResponse struct {
-	ID     string `json:"id"`
-	Status string `json:"status"`
-	URL    string `json:"url"`
-}
-
-type GeoapifyResult struct {
-	Formatted    string  `json:"formatted"`
-	Municipality string  `json:"municipality"`
-	City         string  `json:"city"`
-	County       string  `json:"county"`
-	State        string  `json:"state"`
-	Country      string  `json:"country"`
-	CountryCode  string  `json:"country_code"`
-	Lat          float64 `json:"lat"`
-	Lon          float64 `json:"lon"`
-	PostalCode   string  `json:"postcode"`
-	Street       string  `json:"street"`
-	HouseNumber  string  `json:"housenumber"`
-	Suburb       string  `json:"suburb"`
-}
-
-type ReverseGeoCodeResponse struct {
-	Results []GeoapifyResult       `json:"results"`
-	Query   map[string]interface{} `json:"query"`
-}
-
 type GeoapifyService struct {
-	db     *db.DB
 	cfg    config.GeoapifyConfig
 	client *http.Client
 }
 
-func NewGeoapifyService(db *db.DB, client *http.Client, cfg config.GeoapifyConfig) *GeoapifyService {
-	return &GeoapifyService{db: db, cfg: cfg, client: client}
+func NewGeoapifyService(client *http.Client, cfg config.GeoapifyConfig) *GeoapifyService {
+	return &GeoapifyService{cfg: cfg, client: client}
 }
 
-func (s *GeoapifyService) ListUsage(ctx context.Context) (usage []GeoapifyUsage, err error) {
-	res, err := s.db.Queries().ListGeoapifyUsage(ctx)
+func (s *GeoapifyService) ListUsage(ctx context.Context, q db.Querier) (usage []models.GeoapifyUsage, err error) {
+	res, err := q.Queries().ListGeoapifyUsage(ctx)
 	if err != nil {
 		return nil, err
 	}
 	for _, u := range res {
-		usage = append(usage, GeoapifyUsage(u))
+		usage = append(usage, models.GeoapifyUsageFromDB(u))
 	}
 
 	return usage, nil
 }
 
-func (s *GeoapifyService) GetTodayUsage(ctx context.Context) (int32, error) {
-	settings, err := s.db.Queries().GetTodayGeoapifyUsage(ctx)
+func (s *GeoapifyService) GetTodayUsage(ctx context.Context, q db.Querier) (int32, error) {
+	settings, err := q.Queries().GetTodayGeoapifyUsage(ctx)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return 0, nil
+	}
 	if err != nil {
 		return 0, err
 	}
 	return settings.RequestsCount, nil
 }
 
-func (s *GeoapifyService) IncrementUsage(ctx context.Context, requestsCount int32) (total int32, err error) {
-	usage, err := s.db.Queries().IncrementTodayGeoapifyUsage(ctx, requestsCount)
+func (s *GeoapifyService) IncrementUsage(ctx context.Context, q db.Querier, requestsCount int32) (total int32, err error) {
+	usage, err := q.Queries().IncrementTodayGeoapifyUsage(ctx, requestsCount)
 	if err != nil {
 		return 0, err
 	}
 	return usage.RequestsCount, nil
 }
 
-func (s *GeoapifyService) GetStatus(ctx context.Context) (GeoapifyStatus, error) {
+func (s *GeoapifyService) GetStatus(ctx context.Context, q db.Querier) (models.GeoapifyStatus, error) {
 	hasKey := s.cfg.GeoApifyApiKey != ""
-	todayUsage, err := s.GetTodayUsage(ctx)
+	todayUsage, err := s.GetTodayUsage(ctx, q)
 	if err != nil {
-		return GeoapifyStatus{}, err
+		return models.GeoapifyStatus{}, err
 	}
 	limitExceeded := todayUsage >= s.cfg.DailyUsageLimit
-	return GeoapifyStatus{
+	return models.GeoapifyStatus{
 		APIKey:        s.cfg.GeoApifyApiKey,
 		Available:     !limitExceeded && hasKey,
 		HasApiKey:     hasKey,
@@ -131,8 +81,8 @@ func (s *GeoapifyService) GetStatus(ctx context.Context) (GeoapifyStatus, error)
 	}, nil
 }
 
-func (s *GeoapifyService) ReverseGeocode(ctx context.Context, lat float32, lon float32) (*GeoapifyResult, error) {
-	status, err := s.GetStatus(ctx)
+func (s *GeoapifyService) ReverseGeocode(ctx context.Context, q db.Querier, lat float32, lon float32) (*models.GeoapifyResult, error) {
+	status, err := s.GetStatus(ctx, q)
 	if err != nil {
 		return nil, err
 	}
@@ -146,12 +96,12 @@ func (s *GeoapifyService) ReverseGeocode(ctx context.Context, lat float32, lon f
 		return nil, fmt.Errorf("failed to parse URL: %w", err)
 	}
 
-	q := u.Query()
-	q.Set("lat", fmt.Sprintf("%f", lat))
-	q.Set("lon", fmt.Sprintf("%f", lon))
-	q.Set("apiKey", status.APIKey)
-	q.Set("format", "json")
-	u.RawQuery = q.Encode()
+	query := u.Query()
+	query.Set("lat", fmt.Sprintf("%f", lat))
+	query.Set("lon", fmt.Sprintf("%f", lon))
+	query.Set("apiKey", status.APIKey)
+	query.Set("format", "json")
+	u.RawQuery = query.Encode()
 
 	logrus.Debugf("Geoapify reverse geocode URL: %s", u.String())
 
@@ -171,13 +121,13 @@ func (s *GeoapifyService) ReverseGeocode(ctx context.Context, lat float32, lon f
 		)
 	}
 
-	_, err = s.IncrementUsage(ctx, 1)
+	_, err = s.IncrementUsage(ctx, q, 1)
 	if err != nil {
 		return nil, fmt.Errorf("failed to track Geoapify usage: %w", err)
 	}
 
 	// Parse the response
-	var result ReverseGeoCodeResponse
+	var result models.ReverseGeoCodeResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -189,18 +139,13 @@ func (s *GeoapifyService) ReverseGeocode(ctx context.Context, lat float32, lon f
 	return &result.Results[0], nil
 }
 
-type LatLonCoords struct {
-	Lat float32 `json:"lat"`
-	Lon float32 `json:"lon"`
-}
-
-func (s *GeoapifyService) BatchReverseGeocode(ctx context.Context, locations []LatLonCoords) ([]GeoapifyResult, error) {
+func (s *GeoapifyService) BatchReverseGeocode(ctx context.Context, q db.Querier, locations []models.GeoapifyCoords) ([]models.GeoapifyResult, error) {
 
 	if len(locations) > MAX_BATCH_SIZE {
 		return nil, fmt.Errorf("Geoapify batch request exceeds max allowed size (%d/%d)", len(locations), MAX_BATCH_SIZE)
 	}
 
-	status, err := s.GetStatus(ctx)
+	status, err := s.GetStatus(ctx, q)
 	if err != nil {
 		return nil, fmt.Errorf("failed to get Geoapify status: %w", err)
 	}
@@ -222,9 +167,9 @@ func (s *GeoapifyService) BatchReverseGeocode(ctx context.Context, locations []L
 		return nil, fmt.Errorf("failed to parse URL: %w", err)
 	}
 
-	q := u.Query()
-	q.Set("apiKey", status.APIKey)
-	u.RawQuery = q.Encode()
+	query := u.Query()
+	query.Set("apiKey", status.APIKey)
+	u.RawQuery = query.Encode()
 
 	// Make the request
 	resp, err := s.client.Post(
@@ -246,13 +191,13 @@ func (s *GeoapifyService) BatchReverseGeocode(ctx context.Context, locations []L
 		)
 	}
 
-	_, err = s.IncrementUsage(ctx, int32(len(locations)))
+	_, err = s.IncrementUsage(ctx, q, int32(len(locations)))
 	if err != nil {
 		return nil, fmt.Errorf("failed to track Geoapify usage: %w", err)
 	}
 
 	// Parse the response
-	var pending GeoapifyPendingResponse
+	var pending models.GeoapifyPendingResponse
 	if err := json.NewDecoder(resp.Body).Decode(&pending); err != nil {
 		return nil, fmt.Errorf("failed to decode response: %w", err)
 	}
@@ -260,7 +205,7 @@ func (s *GeoapifyService) BatchReverseGeocode(ctx context.Context, locations []L
 	return s.AwaitResult(pending)
 }
 
-func (s *GeoapifyService) AwaitResult(p GeoapifyPendingResponse) ([]GeoapifyResult, error) {
+func (s *GeoapifyService) AwaitResult(p models.GeoapifyPendingResponse) ([]models.GeoapifyResult, error) {
 	time.Sleep(5 * time.Second)
 	for {
 		resp, err := s.client.Get(p.URL)
@@ -268,7 +213,7 @@ func (s *GeoapifyService) AwaitResult(p GeoapifyPendingResponse) ([]GeoapifyResu
 			return nil, err
 		}
 
-		var result []GeoapifyResult
+		var result []models.GeoapifyResult
 		body, err := io.ReadAll(resp.Body)
 		switch resp.StatusCode {
 		case 200:

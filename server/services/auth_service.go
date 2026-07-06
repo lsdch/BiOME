@@ -24,23 +24,19 @@ var (
 )
 
 type AuthService struct {
-	db     *db.DB
 	config config.AuthTokensConfig
 }
 
-func NewAuthService(db *db.DB, config config.AuthTokensConfig) *AuthService {
-	return &AuthService{
-		db:     db,
-		config: config,
-	}
+func NewAuthService(config config.AuthTokensConfig) *AuthService {
+	return &AuthService{config: config}
 }
 
 func (s *AuthService) RefreshTokenExpiresAt() time.Time {
 	return time.Now().Add(s.config.RefreshTokenLifetime)
 }
 
-func (s *AuthService) Login(ctx context.Context, credentials models.UserCredentials, origin models.AuthOrigin) (models.LoginResult, error) {
-	user, err := s.AuthenticateCredentials(ctx, credentials)
+func (s *AuthService) Login(ctx context.Context, db db.Querier, credentials models.UserCredentials, origin models.AuthOrigin) (models.LoginResult, error) {
+	user, err := s.AuthenticateCredentials(ctx, db, credentials)
 	if err != nil {
 		return models.LoginResult{}, err
 	}
@@ -50,8 +46,9 @@ func (s *AuthService) Login(ctx context.Context, credentials models.UserCredenti
 		return models.LoginResult{}, err
 	}
 
-	session, err := s.db.Queries().CreateSession(ctx, biomedb.CreateSessionParams{
-		SessionID:        uuid.New(),
+	sessionID := uuid.New()
+	session, err := db.Queries().CreateSession(ctx, biomedb.CreateSessionParams{
+		SessionID:        sessionID,
 		UserID:           user.ID,
 		RefreshTokenHash: s.HashRefreshToken(refreshToken),
 		ExpiresAt:        s.RefreshTokenExpiresAt(),
@@ -68,11 +65,12 @@ func (s *AuthService) Login(ctx context.Context, credentials models.UserCredenti
 	}
 
 	return models.LoginResult{
-		User:      models.UserFromDB(user),
-		SessionID: session.ID,
-		SessionTokens: models.SessionTokens{
-			AuthToken:    authToken,
-			RefreshToken: refreshToken,
+		User: models.UserFromDB(user),
+		Session: models.SessionTokens{
+			SessionID:           session.ID,
+			AuthToken:           authToken,
+			AuthTokenExpiration: time.Now().Add(s.config.AuthTokenLifetime),
+			RefreshToken:        refreshToken,
 		},
 	}, nil
 }
@@ -81,8 +79,8 @@ func (s *AuthService) HashPassword(password string) ([]byte, error) {
 	return bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 }
 
-func (s *AuthService) AuthenticateCredentials(ctx context.Context, credentials models.UserCredentials) (biomedb.User, error) {
-	user, err := s.db.Queries().GetUserByLoginOrEmail(ctx, credentials.Identifier)
+func (s *AuthService) AuthenticateCredentials(ctx context.Context, q db.Querier, credentials models.UserCredentials) (biomedb.User, error) {
+	user, err := q.Queries().GetUserByLoginOrEmail(ctx, credentials.Identifier)
 	if err != nil {
 		return biomedb.User{}, fmt.Errorf("invalid credentials")
 	}
@@ -95,13 +93,13 @@ func (s *AuthService) AuthenticateCredentials(ctx context.Context, credentials m
 	return user, nil
 }
 
-func (s *AuthService) AuthenticateJWT(ctx context.Context, token string) (*models.SessionContext, error) {
+func (s *AuthService) AuthenticateJWT(ctx context.Context, q db.Querier, token string) (*models.SessionContext, error) {
 	auth_ctx, err := s.ValidateJWT(token)
 	if err != nil {
 		return nil, err
 	}
 
-	u, err := s.db.Queries().GetUserByID(ctx, auth_ctx.UserID)
+	u, err := q.Queries().GetUserByID(ctx, auth_ctx.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -175,7 +173,7 @@ func (s *AuthService) ValidateJWT(token string) (*models.AuthContext, error) {
 	}, nil
 }
 
-func (s *AuthService) RefreshSession(ctx context.Context, sessionID uuid.UUID, refreshToken string) (models.SessionTokens, error) {
+func (s *AuthService) RefreshSession(ctx context.Context, q db.Querier, sessionID uuid.UUID, refreshToken string) (models.SessionTokens, error) {
 
 	newRefreshToken, err := GenerateRefreshToken()
 	if err != nil {
@@ -184,7 +182,7 @@ func (s *AuthService) RefreshSession(ctx context.Context, sessionID uuid.UUID, r
 
 	oldHash := s.HashRefreshToken(refreshToken)
 
-	session, err := s.db.Queries().RotateSessionRefreshToken(ctx, biomedb.RotateSessionRefreshTokenParams{
+	session, err := q.Queries().RotateSessionRefreshToken(ctx, biomedb.RotateSessionRefreshTokenParams{
 		SessionID:           sessionID,
 		NewRefreshTokenHash: s.HashRefreshToken(newRefreshToken),
 		OldRefreshTokenHash: oldHash,
@@ -198,36 +196,38 @@ func (s *AuthService) RefreshSession(ctx context.Context, sessionID uuid.UUID, r
 		}
 
 		return models.SessionTokens{
-			AuthToken:    token,
-			RefreshToken: newRefreshToken,
+			SessionID:           session.ID,
+			AuthToken:           token,
+			AuthTokenExpiration: time.Now().Add(s.config.AuthTokenLifetime),
+			RefreshToken:        newRefreshToken,
 		}, nil
 	}
 
 	// Check token reuse
-	sessionCheck, err2 := s.db.Queries().GetSession(ctx, sessionID)
+	sessionCheck, err2 := q.Queries().GetSession(ctx, sessionID)
 	if err2 != nil {
 		return models.SessionTokens{}, ErrInvalidRefreshToken
 	}
 
 	// session still active : session compromised, revoke it and return error
 	if sessionCheck.RevokedAt.Valid == false {
-		_ = s.Logout(ctx, sessionID)
+		_ = s.Logout(ctx, q, sessionID)
 		return models.SessionTokens{}, ErrRefreshTokenReuse
 	}
 
 	return models.SessionTokens{}, ErrInvalidRefreshToken
 }
 
-func (s *AuthService) Logout(ctx context.Context, sessionID uuid.UUID) error {
-	_, err := s.db.Queries().RevokeSession(ctx, sessionID)
+func (s *AuthService) Logout(ctx context.Context, q db.Querier, sessionID uuid.UUID) error {
+	_, err := q.Queries().RevokeSession(ctx, sessionID)
 	if err != nil {
 		return fmt.Errorf("failed to revoke session: %w", err)
 	}
 	return nil
 }
 
-func (s *AuthService) RevokeAllSessions(ctx context.Context, userID uuid.UUID) error {
-	err := s.db.Queries().RevokeAllSessionsForUser(ctx, userID)
+func (s *AuthService) RevokeAllSessions(ctx context.Context, q db.Querier, userID uuid.UUID) error {
+	err := q.Queries().RevokeAllSessionsForUser(ctx, userID)
 	if err != nil {
 		return fmt.Errorf("failed to revoke sessions: %w", err)
 	}

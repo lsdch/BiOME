@@ -1,23 +1,26 @@
-import { AuthenticationResponse, Meta, User, UserCredentials, UserRole } from '@/api'
+import { LoginResult, Meta, SessionTokens, User, UserCredentials, UserRole } from '@/api'
 import {
+  getCurrentUserOptions,
   loginMutation,
   logoutMutation,
   refreshSessionMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import { client } from '@/api/gen/client.gen'
+import { QueryClient, useQuery } from '@tanstack/vue-query'
 import { useMutation } from '@tanstack/vue-query'
-import { until, useLocalStorage } from '@vueuse/core'
+import { until, useLocalStorage, useSessionStorage } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
 
 export const useUserStore = defineStore('user', () => {
-  const user = ref<User>()
-  const session_expires = ref<Date>()
   const refresh_token = useLocalStorage<string | undefined>('refresh_token', undefined)
-  const isAuthenticated = computed(() => user.value !== undefined)
-  const authReady = ref(false)
+  const session_id = useLocalStorage<string | undefined>('session_id', undefined)
+  const user = useSessionStorage<User | undefined>('user', undefined)
+  const session_expires = useSessionStorage<Date | undefined>('session_expires', undefined)
+  const authReady = ref<boolean>(false)
+  const usePrivilege = useSessionStorage<UserRole | undefined>('usePrivilege', undefined)
   const authBootstrap = ref<Promise<void>>()
-  const usePrivilege = ref<UserRole>()
+  const isAuthenticated = computed(() => user.value !== undefined)
 
   // Session refresh using stored refresh token
   const {
@@ -26,19 +29,28 @@ export const useUserStore = defineStore('user', () => {
     isPending: refreshPending
   } = useMutation({
     ...refreshSessionMutation(),
-    onSuccess: startSession,
+    onSuccess(d) {
+      useTokens(d)
+    },
     onError: clearSession
   })
+
   function refresh() {
+    if (!session_id.value) {
+      return
+    }
     if (!refresh_token.value) {
       console.info('Attempt to refresh user session without a refresh token')
       return
     }
     return refreshSession({
-      body: { refresh_token: refresh_token.value },
       priority: 'high',
       // Prevent infinite refresh loop
-      headers: { noAuthRefresh: true }
+      headers: {
+        noAuthRefresh: true,
+        'X-Refresh-Token': refresh_token.value,
+        'X-Session-ID': session_id.value
+      }
     })
   }
   const refreshState = computed(() => ({
@@ -46,31 +58,43 @@ export const useUserStore = defineStore('user', () => {
     pending: refreshPending.value
   }))
 
-  async function bootstrapAuth() {
+  async function bootstrapAuth(client: QueryClient) {
     if (authReady.value) {
       return
     }
+    console.debug('Bootstrapping auth state...')
 
-    if (!authBootstrap.value) {
-      authBootstrap.value = (async () => {
-        try {
-          if (refresh_token.value) {
-            await refresh()
-          } else {
-            clearSession()
-          }
-        } finally {
-          authReady.value = true
+    await client
+      .fetchQuery(getCurrentUserOptions())
+      .then((u) => {
+        console.log('Bootstrapped auth state with user', u)
+        user.value = u
+        usePrivilege.value = u.role
+        authReady.value = true
+        return
+      })
+      .catch((err) => {
+        console.log('Using refresh token to bootstrap auth state', err)
+        if (!authBootstrap.value) {
+          authBootstrap.value = (async () => {
+            try {
+              if (refresh_token.value) {
+                await refresh()
+              } else {
+                clearSession()
+              }
+            } finally {
+              authReady.value = true
+            }
+          })()
         }
-      })()
-    }
-
-    await authBootstrap.value
+        return authBootstrap.value
+      })
   }
 
   // Intercept requests to refresh session if needed
   client.interceptors.request.use(async (request) => {
-    if (isAuthenticated && sessionExpired() && !request.headers.has('noAuthRefresh')) {
+    if (isAuthenticated.value && sessionExpired() && !request.headers.has('noAuthRefresh')) {
       // Prevent concurrent refresh requests
       if (!refreshPending.value) {
         refresh()
@@ -107,11 +131,11 @@ export const useUserStore = defineStore('user', () => {
     error: logoutError,
     isPending: logoutPending
   } = useMutation({
-    ...logoutMutation({ body: { refresh_token: refresh_token.value } }),
+    ...logoutMutation({ headers: { 'X-Refresh-Token': refresh_token.value } }),
     onSuccess: clearSession
   })
   function logout() {
-    return mutateLogout({ body: { refresh_token: refresh_token.value } })
+    return mutateLogout({ headers: { 'X-Refresh-Token': refresh_token.value } })
   }
   const logoutState = computed(() => ({
     error: logoutError.value,
@@ -124,13 +148,18 @@ export const useUserStore = defineStore('user', () => {
     session_expires.value = undefined
   }
 
-  function startSession(data: AuthenticationResponse) {
+  function startSession(data: LoginResult) {
     user.value = data.user
-    refresh_token.value = data.refresh_token
-    session_expires.value = data.auth_token_expiration
     usePrivilege.value = data.user.role
+    useTokens(data.session)
+  }
+
+  function useTokens(tokens: SessionTokens) {
+    refresh_token.value = tokens.refresh_token
+    session_expires.value = tokens.auth_token_expiration
+    session_id.value = tokens.session_id
     // Refresh session before it expires
-    setTimeout(refresh, data.auth_token_expiration.getTime() - Date.now() - 30_000)
+    setTimeout(refresh, tokens.auth_token_expiration.getTime() - Date.now() - 30_000)
   }
 
   function sessionExpired() {

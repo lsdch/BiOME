@@ -56,7 +56,7 @@ func (q *Queries) ListGeoapifyUsage(ctx context.Context) ([]GeoapifyUsage, error
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GeoapifyUsage
+	items := []GeoapifyUsage{}
 	for rows.Next() {
 		var i GeoapifyUsage
 		if err := rows.Scan(&i.ID, &i.UsageDate, &i.RequestsCount); err != nil {

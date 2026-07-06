@@ -1,6 +1,5 @@
 CREATE TABLE samplings (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	sampling_hash TEXT NOT NULL UNIQUE,
 	notes TEXT,
 	-- LOCATION FIELDS
 	site_code TEXT CHECK (site_code ~ '^[A-Za-z0-9.-]{3,32}$'),

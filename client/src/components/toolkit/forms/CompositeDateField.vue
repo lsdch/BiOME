@@ -7,8 +7,8 @@
     :focused="focused.day.value || focused.month.value || focused.year.value"
     :rules="[
       () => !!model.year || `Date is required`,
-      () => !precisionAtLeast('Month') || !!model.month || `Incomplete date`,
-      () => precision !== 'Day' || !!model.day || `Incomplete date`,
+      () => !precisionAtLeast('month') || !!model.month || `Incomplete date`,
+      () => precision !== 'day' || !!model.day || `Incomplete date`,
       () =>
         DateTime.fromObject(model).isValid ||
         `Invalid date : ${DateTime.fromObject(model).invalidExplanation}`
@@ -34,7 +34,7 @@
         <template #="{}">
           <div class="v-field__input">
             <div
-              v-show="precisionAtLeast('Day')"
+              v-show="precisionAtLeast('day')"
               :class="['padded-input', { pad: model.day && model.day < 10 }]"
             >
               <input
@@ -59,7 +59,7 @@
             </div>
 
             <div
-              v-show="precisionAtLeast('Month')"
+              v-show="precisionAtLeast('month')"
               :class="['padded-input', { pad: model.month && model.month < 10 }]"
             >
               <input
@@ -84,7 +84,7 @@
               />
               <span class="mx-1">-</span>
             </div>
-            <div v-show="precisionAtLeast('Year')" :class="['padded-input']">
+            <div v-show="precisionAtLeast('year')" :class="['padded-input']">
               <input
                 v-model.number="model.year"
                 :ref="inputs.year"
@@ -129,7 +129,7 @@
 </template>
 
 <script setup lang="ts">
-import { $CompositeDate, $DatePrecision, DatePrecision } from '@/api'
+import { $CompositeDate, $EventDatePrecision, EventDatePrecision } from '@/api'
 import { CompositeDate } from '@/api/adapters'
 import { useFocus } from '@vueuse/core'
 import { DateTime } from 'luxon'
@@ -140,7 +140,7 @@ const model = defineModel<CompositeDate>({ default: reactive({}) })
 
 const props = withDefaults(
   defineProps<{
-    precision?: DatePrecision
+    precision?: EventDatePrecision
     clearable?: boolean
     variant?: VTextField['$props']['variant']
     rules?: VTextField['$props']['rules']
@@ -148,7 +148,7 @@ const props = withDefaults(
     errorMessages?: VTextField['$props']['errorMessages']
     rounded?: boolean | string | number
   }>(),
-  { variant: 'outlined', precision: 'Day', hint: '⇅ : increment/decrement' }
+  { variant: 'outlined', precision: 'day', hint: '⇅ : increment/decrement' }
 )
 
 const inputs = {
@@ -162,8 +162,10 @@ const focused = {
   year: useFocus(inputs.year, { initialValue: false }).focused
 }
 
-function precisionAtLeast(precision: DatePrecision) {
-  return $DatePrecision.enum.indexOf(precision) >= $DatePrecision.enum.indexOf(props.precision)
+function precisionAtLeast(precision: EventDatePrecision) {
+  return (
+    $EventDatePrecision.enum.indexOf(precision) >= $EventDatePrecision.enum.indexOf(props.precision)
+  )
 }
 
 type Subfield = 'day' | 'month' | 'year'

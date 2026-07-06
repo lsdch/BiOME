@@ -1,3 +1,62 @@
+-- name: CreateSampling :one
+WITH inserted AS (
+    INSERT INTO samplings (
+            site_code,
+            site_name,
+            site_locality,
+            site_country_code,
+            coordinates,
+            coordinates_precision,
+            altitude,
+            event_date,
+            event_date_precision,
+            performed_by,
+            duration,
+            access_points,
+            notes
+        )
+    VALUES (
+            @site_code,
+            @site_name,
+            @site_locality,
+            @site_country_code,
+            @coordinates,
+            @coordinates_precision,
+            @altitude,
+            @event_date,
+            @event_date_precision,
+            @performed_by,
+            @duration,
+            @access_points,
+            @notes
+        )
+)
+SELECT sqlc.embed(s),
+    sqlc.embed(c)
+FROM samplings s
+    JOIN countries c ON c.code = s.site_country_code
+WHERE s.id = (
+        SELECT id
+        FROM inserted
+    );
+
+-- name: ReplaceSamplingTargetTaxa :exec
+WITH deleted AS (
+    DELETE FROM sampling_target_taxa
+    WHERE sampling_id = @sampling_id::uuid
+)
+INSERT INTO sampling_target_taxa (sampling_id, taxon_id)
+SELECT @sampling_id::uuid,
+    t.taxon_id
+FROM UNNEST(@taxon_ids::uuid []) AS t(taxon_id);
+
+-- name: GetSampling :one
+SELECT sqlc.embed(s),
+    sqlc.embed(c)
+FROM samplings s
+    JOIN countries c ON c.code = s.site_country_code
+WHERE s.id = @sampling_id::uuid;
+
 -- name: GetSamplingBatch :many
 SELECT sqlc.embed(s),
     sqlc.embed(c)
@@ -44,35 +103,46 @@ FROM habitats h
 WHERE sh.sampling_id = @sampling_id::uuid;
 
 
--- name: DetectExistingSamplings :many 
-SELECT latitude,
-    longitude,
-    event_date,
-    event_date_precision,
-    coordinates_precision,
+-- name: ListSamplingsAtProximity :many 
+SELECT sqlc.embed(s),
+    sqlc.embed(c),
     ST_Distance(
         coordinates::geography,
         ST_SetSRID(
-            ST_MakePoint(@longitude::float8, @latitude::float8),
+            ST_MakePoint(@longitude::real, @latitude::real),
             4326
         )::geography
     )::integer AS distance_meters
-FROM samplings
+FROM samplings s
+    LEFT JOIN countries c ON c.code = s.site_country_code
 WHERE ST_DWithin(
         coordinates::geography,
         ST_SetSRID(
-            ST_MakePoint(@longitude::float8, @latitude::float8),
+            ST_MakePoint(@longitude::real, @latitude::real),
             4326
         )::geography,
         @radius_meters::integer
     )
     AND (
-        event_date_precision IS NOT NULL
-        AND event_date IS NOT NULL
-        AND event_date BETWEEN (
-            @event_date::date - INTERVAL @date_interval_days::integer || 'day'
+        sqlc.narg('event_date')::date IS NULL
+        OR (
+            event_date_precision IS NOT NULL
+            AND event_date IS NOT NULL
+            AND event_date BETWEEN (
+                sqlc.narg('event_date')::date - (@date_interval_days::integer) * INTERVAL '1 day'
+            )
+            AND (
+                sqlc.narg('event_date')::date + (@date_interval_days::integer) * INTERVAL '1 day'
+            )
         )
-        AND (
-            @event_date::date + INTERVAL @date_interval_days::integer || 'day'
-        )
-    );
+    )
+    AND NOT s.id = ANY(sqlc.narg('exclude_sampling_ids')::uuid []);
+
+-- name: ListSamplingAccessPoints :many
+SELECT ap
+FROM (
+        SELECT unnest(s.access_points)::TEXT AS ap
+        FROM samplings s
+    ) sub
+GROUP BY ap
+ORDER BY ap;

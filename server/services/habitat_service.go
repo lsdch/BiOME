@@ -2,28 +2,29 @@ package services
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/goccy/go-yaml"
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
+	"github.com/sirupsen/logrus"
 )
 
-type HabitatService struct {
-	db *db.DB
+type HabitatService struct{}
+
+func NewHabitatService() *HabitatService {
+	return &HabitatService{}
 }
 
-func NewHabitatService(db *db.DB) *HabitatService {
-	return &HabitatService{db: db}
-}
-
-func (s *HabitatService) GetHabitatGroups(ctx context.Context) ([]models.HabitatGroupWithElements, error) {
-	groups, err := s.db.Queries().ListHabitatGroups(ctx)
+func (s *HabitatService) GetHabitatGroups(ctx context.Context, q db.Querier) ([]models.HabitatGroupWithElements, error) {
+	groups, err := q.Queries().ListHabitatGroups(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	habitats, err := s.db.Queries().ListHabitats(ctx)
+	habitats, err := q.Queries().ListHabitats(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -62,39 +63,24 @@ func (s *HabitatService) DeleteHabitat(ctx context.Context, q *biomedb.Queries, 
 	return q.DeleteHabitatByID(ctx, habitatID)
 }
 
-func (s *HabitatService) CreateHabitatGroup(ctx context.Context, group models.HabitatGroupInput) error {
-	return s.db.WithTx(ctx, func(q *biomedb.Queries) error {
-		created, err := q.InsertHabitatGroup(ctx, group.ToDBParams())
-		if err != nil {
-			return err
-		}
-		for _, element := range group.Elements {
-			err = s.AddHabitatToGroup(ctx, q, created.ID, element)
-			if err != nil {
-				return err
-			}
-		}
-		return nil
-
-	})
-}
-
-func (s *HabitatService) DeleteHabitatGroup(ctx context.Context, groupID uuid.UUID) error {
-	return s.db.Queries().DeleteHabitatGroup(ctx, groupID)
-}
-
-func (s *HabitatService) UpdateHabitatGroup(ctx context.Context, groupID uuid.UUID, update models.HabitatGroupUpdate) error {
-
-	tx, err := s.db.BeginTx(ctx)
+func (s *HabitatService) CreateHabitatGroup(ctx context.Context, tx *db.Tx, group models.HabitatGroupInput) error {
+	created, err := tx.Queries().InsertHabitatGroup(ctx, group.ToDBParams())
 	if err != nil {
 		return err
 	}
-	defer func() {
-		if err != nil {
-			tx.Rollback(ctx)
+	for _, element := range group.Elements {
+		if err := s.AddHabitatToGroup(ctx, tx.Queries(), created.ID, element); err != nil {
+			return err
 		}
-	}()
+	}
+	return nil
+}
 
+func (s *HabitatService) DeleteHabitatGroup(ctx context.Context, q db.Querier, groupID uuid.UUID) error {
+	return q.Queries().DeleteHabitatGroup(ctx, groupID)
+}
+
+func (s *HabitatService) UpdateHabitatGroup(ctx context.Context, tx *db.Tx, groupID uuid.UUID, update models.HabitatGroupUpdate) error {
 	if update.HasUpdateInfos() {
 		if err := tx.Queries().UpdateHabitatGroupInfo(ctx, update.ToDBParams(groupID)); err != nil {
 			return err
@@ -119,6 +105,31 @@ func (s *HabitatService) UpdateHabitatGroup(ctx context.Context, groupID uuid.UU
 		}
 	}
 
-	err = tx.Commit(ctx)
-	return err
+	return nil
+}
+
+func (s *HabitatService) BootstrapHabitats(ctx context.Context, tx *db.Tx, yamlBytes []byte) error {
+	if groups, err := s.GetHabitatGroups(ctx, tx); err != nil {
+		return fmt.Errorf("failed to list habitat groups: %w", err)
+	} else if len(groups) > 0 {
+		logrus.Infof("Found existing habitat groups, skipping bootstrap")
+		return nil
+	}
+
+	var groups []models.HabitatGroupInput
+	err := yaml.Unmarshal(yamlBytes, &groups)
+	if err != nil {
+		return fmt.Errorf("failed to unmarshal habitat groups: %w", err)
+	}
+
+	logrus.Infof("Bootstrapping %d habitat groups from YAML", len(groups))
+
+	for _, group := range groups {
+		err = s.CreateHabitatGroup(ctx, tx, group)
+		if err != nil {
+			return fmt.Errorf("failed to create habitat group %s: %w", group.Label, err)
+		}
+	}
+
+	return nil
 }

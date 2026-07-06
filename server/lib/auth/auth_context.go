@@ -4,18 +4,18 @@ import (
 	"context"
 
 	"github.com/danielgtaylor/huma/v2"
-	"github.com/lsdch/biome/services"
+	"github.com/lsdch/biome/models"
 )
 
 type ctxKey int
 
 const sessionCtxKey ctxKey = iota
 
-func WithSession(ctx huma.Context, session *services.SessionContext) huma.Context {
+func WithSession(ctx huma.Context, session *models.SessionContext) huma.Context {
 	return huma.WithValue(ctx, sessionCtxKey, session)
 }
 
-func SessionFromContext(ctx context.Context) (*services.SessionContext, bool) {
-	user, ok := ctx.Value(sessionCtxKey).(*services.SessionContext)
-	return user, ok
+func SessionFromContext(ctx context.Context) (*models.SessionContext, bool) {
+	session, ok := ctx.Value(sessionCtxKey).(*models.SessionContext)
+	return session, ok
 }

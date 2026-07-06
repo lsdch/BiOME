@@ -1,36 +1,50 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+import { App, createApp } from 'vue'
+import AppComponent from './App.vue'
+
+import vuetify from './vuetify'
+import { createPinia, setActivePinia } from 'pinia'
+import { useUserStore } from './stores/user'
+import { settingsKey } from './lib/injection.ts'
+import setupRouter from './router'
+import { getInstanceSettingsOptions, listCountriesOptions } from './api/gen/@tanstack/vue-query.gen'
+import { QueryClient, VueQueryPlugin, VueQueryPluginOptions } from '@tanstack/vue-query'
 
 // Create app instance
-const app = createApp(App)
+const app = createApp(AppComponent)
+
+// Setup vuetify
+app.use(vuetify)
 
 // Setup TanStack VueQuery
-import { QueryClient, VueQueryPlugin, VueQueryPluginOptions } from '@tanstack/vue-query'
 const queryClient = new QueryClient()
 const vueQueryPluginOptions: VueQueryPluginOptions = { queryClient }
 app.use(VueQueryPlugin, vueQueryPluginOptions)
 
-// Prefetch countries
-import { listCountriesOptions } from './api/gen/@tanstack/vue-query.gen'
-queryClient.prefetchQuery({
-  ...listCountriesOptions(),
-  gcTime: Infinity
-})
-
-// Setup router
-import setupRouter from './router'
-app.use(setupRouter())
-
-// Setup vuetify
-import vuetify from './vuetify'
-app.use(vuetify)
-
 // Setup pinia stores
-import { createPinia, setActivePinia } from 'pinia'
-import { useUserStore } from './stores/user'
 const pinia = createPinia()
 setActivePinia(pinia)
 app.use(pinia)
-useUserStore().bootstrapAuth()
+
+// Prefetch countries
+queryClient.prefetchQuery({ ...listCountriesOptions(), gcTime: Infinity })
+
+// Bootstrap authentication and instance settings
+await Promise.all([
+  useUserStore().bootstrapAuth(queryClient),
+  initSettings(queryClient).then((settings) => {
+    app.provide(settingsKey, settings)
+    app.use(setupRouter(settings))
+  })
+])
 
 app.mount('#app')
+
+async function initSettings(client: QueryClient) {
+  return client
+    .fetchQuery({
+      ...getInstanceSettingsOptions()
+    })
+    .catch((err) => {
+      throw new Error(`Failed to fetch instance settings: ${err}`)
+    })
+}

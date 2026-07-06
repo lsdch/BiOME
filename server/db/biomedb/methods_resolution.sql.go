@@ -23,7 +23,7 @@ func (q *Queries) GetMethodsResolution(ctx context.Context, importHash string) (
 		return nil, err
 	}
 	defer rows.Close()
-	var items []SamplingMethodsResolution
+	items := []SamplingMethodsResolution{}
 	for rows.Next() {
 		var i SamplingMethodsResolution
 		if err := rows.Scan(
@@ -78,7 +78,7 @@ func (q *Queries) InitMethodsResolution(ctx context.Context, importHash string) 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []SamplingMethodsResolution
+	items := []SamplingMethodsResolution{}
 	for rows.Next() {
 		var i SamplingMethodsResolution
 		if err := rows.Scan(

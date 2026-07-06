@@ -21,12 +21,12 @@
           <v-col cols="12" sm="9" variant="text" class="d-flex align-center">
             <div class="w-100">
               <v-text-field
-                v-model="proxy.value.name"
+                v-model="proxy.value.title"
                 label="Instance name"
                 class="pb-4"
                 hint="The name that is displayed in the navbar and front page"
                 persistent-hint
-                v-bind="schema('name')"
+                v-bind="schema('title')"
               />
               <v-textarea
                 v-model="proxy.value.description"
@@ -47,7 +47,7 @@
               text="OK"
               @click="
                 mutateAsync(
-                  { body: { name: proxy.value.name, description: proxy.value.description } },
+                  { body: { title: proxy.value.title, description: proxy.value.description } },
                   { onSuccess: save }
                 )
               "
@@ -60,8 +60,8 @@
       <v-list>
         <v-list-item>
           <v-switch
-            :model-value="instance.public"
-            @update:model-value="(v) => mutateAsync({ body: { public: !!v } })"
+            :model-value="instance.is_public"
+            @update:model-value="(v) => togglePublicAccess({ body: !!v })"
             label="Instance is public"
             class="mb-5"
             color="primary"
@@ -72,8 +72,8 @@
         <v-divider />
         <v-list-item>
           <v-switch
-            :model-value="instance.allow_contributor_signup"
-            @update:model-value="(v) => mutateAsync({ body: { allow_contributor_signup: !!v } })"
+            :model-value="instance.account_requests_enabled"
+            @update:model-value="(v) => togglePublicRegistration({ body: !!v })"
             label="Allow contributor registration"
             color="primary"
             hint="If enabled, visitors may apply for an account with Contributor privileges."
@@ -88,7 +88,9 @@
 <script setup lang="ts">
 import { $InstanceSettingsUpdate, InstanceSettings } from '@/api'
 import {
-  instanceSettingsQueryKey,
+  getInstanceSettingsQueryKey,
+  togglePublicAccessMutation,
+  togglePublicRegistrationMutation,
   updateInstanceSettingsMutation
 } from '@/api/gen/@tanstack/vue-query.gen'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
@@ -116,17 +118,45 @@ const {
 } = useMutation({
   ...updateInstanceSettingsMutation(),
   onSuccess: () => {
-    queryClient.invalidateQueries({ queryKey: instanceSettingsQueryKey() })
+    // queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
     reload()
     feedback({ message: 'Updated settings', type: 'success' })
   },
   onError: dispatchErrors
 })
 
-async function setPublic(value: boolean | null) {
-  if (value === null) return
-  await mutateAsync({ body: { public: value } })
-}
+const {
+  mutateAsync: togglePublicAccess,
+  error: togglePublicAccessError,
+  isPending: isTogglingPublicAccess
+} = useMutation({
+  ...togglePublicAccessMutation(),
+  onSuccess: () => {
+    // queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
+    reload()
+    feedback({ message: 'Updated settings', type: 'success' })
+  },
+  onError: dispatchErrors
+})
+
+const {
+  mutateAsync: togglePublicRegistration,
+  error: togglePublicRegistrationError,
+  isPending: isTogglingPublicRegistration
+} = useMutation({
+  ...togglePublicRegistrationMutation(),
+  onSuccess: () => {
+    // queryClient.invalidateQueries({ queryKey: getInstanceSettingsQueryKey() })
+    reload()
+    feedback({ message: 'Updated settings', type: 'success' })
+  },
+  onError: dispatchErrors
+})
+
+// async function setPublic(value: boolean | null) {
+//   if (value === null) return
+//   await mutateAsync({ body: { public: value } })
+// }
 
 async function submit(model: InstanceSettings) {
   await mutateAsync({ body: model })

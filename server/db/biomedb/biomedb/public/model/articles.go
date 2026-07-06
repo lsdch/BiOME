@@ -21,5 +21,4 @@ type Articles struct {
 	Verbatim *string
 	Doi      *string
 	Comments *string
-	Code     string
 }

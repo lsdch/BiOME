@@ -6,7 +6,6 @@ import (
 
 	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/models"
-	"github.com/lsdch/biome/models/people"
 )
 
 type PresetsInner struct {
@@ -29,7 +28,6 @@ type Presets struct {
 	ID           geltypes.UUID        `edgedb:"id" json:"id" format:"uuid"`
 	Description  geltypes.OptionalStr `json:"description,omitempty" gel:"description"`
 	PresetsInput `gel:"$inline"`
-	Meta         people.Meta `json:"meta" gel:"meta"`
 }
 
 type DataFeedSpec Presets

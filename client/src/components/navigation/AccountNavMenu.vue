@@ -33,7 +33,7 @@
             <UserRole.Icon class="mr-5" :role="user.role" />
             <div>
               <span class="font-weight-bold">
-                {{ user.identity.full_name }}
+                {{ user.full_name }}
               </span>
               <br />
               <span class="text-caption">
@@ -101,7 +101,7 @@ const { user, usePrivilege } = storeToRefs(userStore)
 
 const userInitials = computed(() => {
   if (!user.value) return ''
-  return user.value.identity.first_name[0] + user.value.identity.last_name[0]
+  return user.value.first_name[0] + user.value.last_name[0]
 })
 
 import { useTheme } from 'vuetify'

@@ -10,7 +10,7 @@
     chips
     clearable
     closable-chips
-    item-title="label"
+    item-title="name"
     item-subtitle="description"
     auto-select-first
     clear-on-select
@@ -18,14 +18,14 @@
     return-object
   >
     <template #chip="{ item, props }">
-      <v-chip closable v-bind="props" @click:close="onDelete(item)" :text="item.label" />
+      <v-chip closable v-bind="props" @click:close="onDelete(item)" :text="item.name" />
     </template>
     <template #item="{ item, props }">
       <v-list-item
-        :title="item.label"
+        :title="item.name"
         :subtitle="
           habitatDependencies(item.id)
-            .map(({ label }) => label)
+            .map(({ name }) => name)
             .join(' › ')
         "
         v-bind="props"
@@ -39,7 +39,7 @@
           <span class="text-caption">{{ subtitle }}</span>
         </template>
         <template #append>
-          <v-chip class="text-overline" color="primary" :text="getHabitat(item.id)?.group.label" />
+          <v-chip class="text-overline" color="primary" :text="getHabitat(item.id)?.group.name" />
         </template>
       </v-list-item>
     </template>
@@ -48,16 +48,12 @@
         <v-list-subheader> Quick select </v-list-subheader>
         <v-list-item v-for="item in quickSelect" :key="item.id" @click="addWithDependencies(item)">
           <template v-for="dep in item.upstream ?? []" :key="dep.id">
-            <v-chip class="" :text="dep.label" variant="text" />
+            <v-chip class="" :text="dep.name" variant="text" />
             <v-icon icon="mdi-chevron-right" />
           </template>
-          <v-chip class="ma-1" :text="item.label" color="primary" />
+          <v-chip class="ma-1" :text="item.name" color="primary" />
           <template #append>
-            <v-chip
-              class="text-overline"
-              color="primary"
-              :text="getHabitat(item.id)?.group.label"
-            />
+            <v-chip class="text-overline" color="primary" :text="getHabitat(item.id)?.group.name" />
           </template>
         </v-list-item>
       </v-list>
@@ -66,11 +62,11 @@
 </template>
 
 <script setup lang="ts">
-import { HabitatGroup, HabitatRecord } from '@/api'
+import { HabitatGroupWithElements, Habitat } from '@/api'
 import { HabitatNode, useHabitats } from '../composables/habitats'
 import { computed, reactive, ref } from 'vue'
 
-const model = defineModel<HabitatRecord[]>({ default: () => reactive([]) })
+const model = defineModel<Habitat[]>({ default: () => reactive([]) })
 const searchTerm = ref<string | undefined>(undefined)
 
 const { groups: habitatGroups, habitatGraph, getHabitat, habitatDependencies } = useHabitats()
@@ -89,30 +85,30 @@ function addWithDependencies(habitat: HabitatNode) {
   searchTerm.value = undefined
 }
 
-function onDelete(item: HabitatRecord) {
+function onDelete(item: Habitat) {
   model.value = model.value.filter(
     ({ id }) => id != item.id && !habitatDependencies(id).some(({ id: depId }) => depId == item.id)
   )
 }
 
-function compatibleHabitats(habitats: HabitatNode[], selected: HabitatRecord[]) {
+function compatibleHabitats(habitats: HabitatNode[], selected: Habitat[]) {
   return habitats.filter(
     ({ id: habitatID, incompatible }) =>
       !selected.some(({ id }) => habitatID == id || incompatible?.some((incomp) => incomp.id == id))
   )
 }
 
-function isGroupReachable(group: HabitatGroup) {
-  return model.value.some(({ id }) => group.depends?.id == id)
+function isGroupReachable(group: HabitatGroupWithElements) {
+  return model.value.some(({ id }) => group.parent_id == id)
 }
 
-const items = computed<HabitatRecord[]>(() => {
-  return habitatGraph.value.groups.values().reduce((acc: HabitatRecord[], g) => {
+const items = computed<Habitat[]>(() => {
+  return habitatGraph.value.groups.values().reduce((acc: Habitat[], g) => {
     const habitats = g.elements
       .map((habitat) => getHabitat(habitat.id))
       .filter((habitat): habitat is HabitatNode => Boolean(habitat))
 
-    if (g.depends == undefined || isGroupReachable(g)) {
+    if (g.parent_id == undefined || isGroupReachable(g)) {
       acc = acc.concat(compatibleHabitats(habitats, model.value))
     }
     return acc
@@ -128,7 +124,7 @@ const quickSelect = computed(() => {
     return habitatGraph.value.habitats
       .values()
       .filter(
-        ({ label, upstream }) => (upstream?.length ?? 0) > 0 && label.toLowerCase().includes(term)
+        ({ name, upstream }) => (upstream?.length ?? 0) > 0 && name.toLowerCase().includes(term)
       )
       .take(5)
       .toArray()

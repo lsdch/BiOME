@@ -9,48 +9,143 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	ulid "github.com/oklog/ulid/v2"
 )
 
-const getOccurrenceArticles = `-- name: GetOccurrenceArticles :many
-SELECT a.id, a.authors, a.year, a.title, a.journal, a.verbatim, a.doi, a.comments
-FROM articles a
-    JOIN occurrences_articles oa ON oa.article_id = a.id
-WHERE oa.occurrence_id = $1
+const addOccurrenceToSampling = `-- name: AddOccurrenceToSampling :one
+WITH inserted_occurrence AS (
+    INSERT INTO occurrences (
+            id,
+            code,
+            sampling_id,
+            type_status,
+            comments,
+            taxon_id,
+            verbatim_identification,
+            identified_by,
+            identification_date,
+            identification_date_precision,
+            identification_confer,
+            identification_addendum,
+            content_description,
+            quantity_exact,
+            quantity_lower,
+            quantity_upper,
+            sources
+        )
+    VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13,
+            $14,
+            $15,
+            $16,
+            $17
+        )
+)
+SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
+    t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments
+FROM occurrences o
+    JOIN taxa t ON t.id = o.taxon_id
+WHERE o.id = $1
 `
 
-func (q *Queries) GetOccurrenceArticles(ctx context.Context, occurrenceID ulid.ULID) ([]Article, error) {
-	rows, err := q.db.Query(ctx, getOccurrenceArticles, occurrenceID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []Article
-	for rows.Next() {
-		var i Article
-		if err := rows.Scan(
-			&i.ID,
-			&i.Authors,
-			&i.Year,
-			&i.Title,
-			&i.Journal,
-			&i.Verbatim,
-			&i.Doi,
-			&i.Comments,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+type AddOccurrenceToSamplingParams struct {
+	ID                          ulid.ULID             `json:"id"`
+	Code                        string                `json:"code"`
+	SamplingID                  uuid.UUID             `json:"sampling_id"`
+	TypeStatus                  *OccurrenceTypeStatus `json:"type_status"`
+	Comments                    *string               `json:"comments"`
+	TaxonID                     uuid.UUID             `json:"taxon_id"`
+	VerbatimIdentification      *string               `json:"verbatim_identification"`
+	IdentifiedBy                []string              `json:"identified_by"`
+	IdentificationDate          pgtype.Date           `json:"identification_date"`
+	IdentificationDatePrecision *EventDatePrecision   `json:"identification_date_precision"`
+	IdentificationConfer        bool                  `json:"identification_confer"`
+	IdentificationAddendum      *string               `json:"identification_addendum"`
+	ContentDescription          *string               `json:"content_description"`
+	QuantityExact               *int32                `json:"quantity_exact"`
+	QuantityLower               *int32                `json:"quantity_lower"`
+	QuantityUpper               *int32                `json:"quantity_upper"`
+	Sources                     []string              `json:"sources"`
+}
+
+type AddOccurrenceToSamplingRow struct {
+	Occurrence Occurrence `json:"occurrence"`
+	Taxon      Taxon      `json:"taxon"`
+}
+
+func (q *Queries) AddOccurrenceToSampling(ctx context.Context, arg AddOccurrenceToSamplingParams) (AddOccurrenceToSamplingRow, error) {
+	row := q.db.QueryRow(ctx, addOccurrenceToSampling,
+		arg.ID,
+		arg.Code,
+		arg.SamplingID,
+		arg.TypeStatus,
+		arg.Comments,
+		arg.TaxonID,
+		arg.VerbatimIdentification,
+		arg.IdentifiedBy,
+		arg.IdentificationDate,
+		arg.IdentificationDatePrecision,
+		arg.IdentificationConfer,
+		arg.IdentificationAddendum,
+		arg.ContentDescription,
+		arg.QuantityExact,
+		arg.QuantityLower,
+		arg.QuantityUpper,
+		arg.Sources,
+	)
+	var i AddOccurrenceToSamplingRow
+	err := row.Scan(
+		&i.Occurrence.ID,
+		&i.Occurrence.Code,
+		&i.Occurrence.SamplingID,
+		&i.Occurrence.TypeStatus,
+		&i.Occurrence.Comments,
+		&i.Occurrence.TaxonID,
+		&i.Occurrence.VerbatimIdentification,
+		&i.Occurrence.IdentifiedBy,
+		&i.Occurrence.IdentificationDate,
+		&i.Occurrence.IdentificationDatePrecision,
+		&i.Occurrence.IdentificationConfer,
+		&i.Occurrence.IdentificationAddendum,
+		&i.Occurrence.ContentDescription,
+		&i.Occurrence.QuantityExact,
+		&i.Occurrence.QuantityLower,
+		&i.Occurrence.QuantityUpper,
+		&i.Occurrence.Sources,
+		&i.Occurrence.CreatedAt,
+		&i.Occurrence.UpdatedAt,
+		&i.Occurrence.ImportBatchID,
+		&i.Taxon.ID,
+		&i.Taxon.GBIFID,
+		&i.Taxon.Name,
+		&i.Taxon.ScientificName,
+		&i.Taxon.Rank,
+		&i.Taxon.Status,
+		&i.Taxon.Authorship,
+		&i.Taxon.AcceptedTaxonID,
+		&i.Taxon.ParentID,
+		&i.Taxon.SearchVector,
+		&i.Taxon.Comments,
+	)
+	return i, err
 }
 
 const getOccurrenceByID = `-- name: GetOccurrenceByID :one
 SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
-    s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    s.id, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
     t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
     c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM occurrences o
@@ -92,7 +187,6 @@ func (q *Queries) GetOccurrenceByID(ctx context.Context, occurrenceID ulid.ULID)
 		&i.Occurrence.UpdatedAt,
 		&i.Occurrence.ImportBatchID,
 		&i.Sampling.ID,
-		&i.Sampling.SamplingHash,
 		&i.Sampling.Notes,
 		&i.Sampling.SiteCode,
 		&i.Sampling.SiteName,
@@ -143,7 +237,7 @@ func (q *Queries) GetOccurrenceCodeHistory(ctx context.Context, occurrenceID uli
 		return nil, err
 	}
 	defer rows.Close()
-	var items []OccurrenceCodeHistory
+	items := []OccurrenceCodeHistory{}
 	for rows.Next() {
 		var i OccurrenceCodeHistory
 		if err := rows.Scan(
@@ -152,32 +246,6 @@ func (q *Queries) GetOccurrenceCodeHistory(ctx context.Context, occurrenceID uli
 			&i.Code,
 			&i.CreatedAt,
 		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
-}
-
-const getOccurrenceCollections = `-- name: GetOccurrenceCollections :many
-SELECT c.occurrence_id, c.name, c.vouchers
-FROM occurrence_collections c
-WHERE c.occurrence_id = $1
-`
-
-func (q *Queries) GetOccurrenceCollections(ctx context.Context, occurrenceID ulid.ULID) ([]OccurrenceCollection, error) {
-	rows, err := q.db.Query(ctx, getOccurrenceCollections, occurrenceID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []OccurrenceCollection
-	for rows.Next() {
-		var i OccurrenceCollection
-		if err := rows.Scan(&i.OccurrenceID, &i.Name, &i.Vouchers); err != nil {
 			return nil, err
 		}
 		items = append(items, i)
@@ -202,7 +270,7 @@ func (q *Queries) GetOccurrenceDatasets(ctx context.Context, occurrenceID ulid.U
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Dataset
+	items := []Dataset{}
 	for rows.Next() {
 		var i Dataset
 		if err := rows.Scan(
@@ -404,7 +472,7 @@ func (q *Queries) ListSamplingSites(ctx context.Context, arg ListSamplingSitesPa
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListSamplingSitesRow
+	items := []ListSamplingSitesRow{}
 	for rows.Next() {
 		var i ListSamplingSitesRow
 		if err := rows.Scan(
@@ -412,6 +480,73 @@ func (q *Queries) ListSamplingSites(ctx context.Context, arg ListSamplingSitesPa
 			&i.CoordinatesPrecision,
 			&i.SamplingsCount,
 			&i.OccurrencesCount,
+			&i.SamplingIDs,
+			&i.OccurrenceIDs,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const occurrencesByTaxaOverview = `-- name: OccurrencesByTaxaOverview :many
+SELECT t.id AS id,
+    t.name AS name,
+    t.authorship AS authorship,
+    t.rank AS rank,
+    parent.name AS parent_name,
+    COUNT(DISTINCT o.id)::int AS occurrences_count,
+    COUNT(DISTINCT s.id)::int AS samplings_count,
+    ARRAY_AGG(DISTINCT s.id) FILTER (
+        WHERE s.id IS NOT NULL
+    )::uuid [] AS sampling_ids,
+    ARRAY_AGG(DISTINCT o.id) FILTER (
+        WHERE o.id IS NOT NULL
+    )::uuid [] AS occurrence_ids
+FROM taxa t
+    LEFT JOIN taxa parent ON parent.id = t.parent_id
+    LEFT JOIN occurrences o ON o.taxon_id = t.id
+    LEFT JOIN samplings s ON s.id = o.sampling_id
+GROUP BY t.id,
+    t.name,
+    t.authorship,
+    t.rank,
+    parent.name
+`
+
+type OccurrencesByTaxaOverviewRow struct {
+	ID               uuid.UUID   `json:"id"`
+	Name             string      `json:"name"`
+	Authorship       *string     `json:"authorship"`
+	Rank             TaxonRank   `json:"rank"`
+	ParentName       *string     `json:"parent_name"`
+	OccurrencesCount int32       `json:"occurrences_count"`
+	SamplingsCount   int32       `json:"samplings_count"`
+	SamplingIDs      []uuid.UUID `json:"sampling_ids"`
+	OccurrenceIDs    []uuid.UUID `json:"occurrence_ids"`
+}
+
+func (q *Queries) OccurrencesByTaxaOverview(ctx context.Context) ([]OccurrencesByTaxaOverviewRow, error) {
+	rows, err := q.db.Query(ctx, occurrencesByTaxaOverview)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []OccurrencesByTaxaOverviewRow{}
+	for rows.Next() {
+		var i OccurrencesByTaxaOverviewRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Authorship,
+			&i.Rank,
+			&i.ParentName,
+			&i.OccurrencesCount,
+			&i.SamplingsCount,
 			&i.SamplingIDs,
 			&i.OccurrenceIDs,
 		); err != nil {
@@ -584,7 +719,7 @@ func (q *Queries) OccurrencesGroupsH3(ctx context.Context, arg OccurrencesGroups
 		return nil, err
 	}
 	defer rows.Close()
-	var items []OccurrencesGroupsH3Row
+	items := []OccurrencesGroupsH3Row{}
 	for rows.Next() {
 		var i OccurrencesGroupsH3Row
 		if err := rows.Scan(

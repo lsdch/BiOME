@@ -12,7 +12,7 @@
     <template #append>
       <v-chip-group v-model="facet" mandatory color="primary">
         <v-chip value="occurrences">Occurrences</v-chip>
-        <v-chip value="sites">Sites</v-chip>
+        <v-chip value="samplings">Samplings</v-chip>
       </v-chip-group>
       <v-btn
         v-if="!fullscreen"
@@ -24,14 +24,14 @@
     </template>
     <CenteredSpinner v-if="isPending" :height="200" size="large" color="primary" />
     <v-card-text v-else-if="error">
-      <v-alert color="error"> Failed to load occurrences </v-alert>
+      <v-alert color="error"> Failed to load {{ facet }} </v-alert>
     </v-card-text>
     <VChart v-else class="chart" :option autoresize />
   </ActivableCardDialog>
 </template>
 
 <script setup lang="ts">
-import { getCountriesSummaryOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { listCountriesSummaryOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import ActivableCardDialog from '@/components/toolkit/ui/ActivableCardDialog.vue'
 import CenteredSpinner from '@/components/toolkit/ui/CenteredSpinner'
 import { useQuery } from '@tanstack/vue-query'
@@ -48,9 +48,9 @@ use([SVGRenderer, TitleComponent, TreemapChart, VisualMapComponent, TooltipCompo
 
 const [fullscreen, toggleFullscreen] = useToggle(false)
 
-const { data: items, error, isPending } = useQuery(getCountriesSummaryOptions())
+const { data: items, error, isPending } = useQuery(listCountriesSummaryOptions())
 
-type Facet = 'sites' | 'occurrences'
+type Facet = 'samplings' | 'occurrences'
 const facet = ref<Facet>('occurrences')
 
 type TreeMapData = {
@@ -61,10 +61,10 @@ type TreeMapData = {
 
 const data = computed<TreeMapData[]>(() => {
   return (
-    items.value?.map(({ code, name, sites_count, occurrences_count }) => ({
+    items.value?.map(({ code, name, sampling_count, occurrence_count }) => ({
       code,
       name,
-      value: facet.value === 'sites' ? sites_count : occurrences_count
+      value: facet.value === 'samplings' ? sampling_count : occurrence_count
     })) ?? []
   )
 })

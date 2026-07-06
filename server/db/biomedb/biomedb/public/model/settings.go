@@ -15,14 +15,7 @@ type Settings struct {
 	IsPublic               bool
 	AccountRequestsEnabled bool
 	AdminEmail             string
-	SMTPSettingsValid      bool
-	SMTPHost               *string
-	SMTPPort               *int32
-	SMTPUser               *string
-	SMTPPassword           *string
-	SMTPFromEmail          *string
-	SMTPFromName           *string
-	GeoapifyAPIKey         *string
-	GeoapifyUsageLimit     int32
-	GbifContactEmail       string
+	MailFromAddress        string
+	MailFromName           string
+	MolecularDataEnabled   bool
 }

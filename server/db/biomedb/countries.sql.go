@@ -9,6 +9,48 @@ import (
 	"context"
 )
 
+const coordinatesToCountry = `-- name: CoordinatesToCountry :many
+SELECT c.code, c.name, c.continent, c.subcontinent, c.geom
+FROM countries c
+WHERE ST_Contains(
+        c.geom,
+        ST_SetSRID(
+            ST_Point(
+                $1::real,
+                $2::real
+            ),
+            4326
+        )
+    )
+LIMIT 1
+`
+
+func (q *Queries) CoordinatesToCountry(ctx context.Context, latitude float32, longitude float32) ([]Country, error) {
+	rows, err := q.db.Query(ctx, coordinatesToCountry, latitude, longitude)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []Country{}
+	for rows.Next() {
+		var i Country
+		if err := rows.Scan(
+			&i.Code,
+			&i.Name,
+			&i.Continent,
+			&i.Subcontinent,
+			&i.Geom,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const insertCountry = `-- name: InsertCountry :exec
 INSERT INTO countries (code, name, continent, subcontinent, geom)
 VALUES (
@@ -40,35 +82,26 @@ func (q *Queries) InsertCountry(ctx context.Context, arg InsertCountryParams) er
 }
 
 const listCountries = `-- name: ListCountries :many
-SELECT name,
-    code,
-    continent,
-    subcontinent
+SELECT code, name, continent, subcontinent, geom
 FROM countries
 ORDER BY name
 `
 
-type ListCountriesRow struct {
-	Name         string `json:"name"`
-	Code         string `json:"code"`
-	Continent    string `json:"continent"`
-	Subcontinent string `json:"subcontinent"`
-}
-
-func (q *Queries) ListCountries(ctx context.Context) ([]ListCountriesRow, error) {
+func (q *Queries) ListCountries(ctx context.Context) ([]Country, error) {
 	rows, err := q.db.Query(ctx, listCountries)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListCountriesRow
+	items := []Country{}
 	for rows.Next() {
-		var i ListCountriesRow
+		var i Country
 		if err := rows.Scan(
-			&i.Name,
 			&i.Code,
+			&i.Name,
 			&i.Continent,
 			&i.Subcontinent,
+			&i.Geom,
 		); err != nil {
 			return nil, err
 		}
@@ -85,11 +118,11 @@ SELECT c.name,
     c.code,
     c.continent,
     c.subcontinent,
-    COUNT(s.id) AS sampling_count,
-    COUNT(o.id) AS occurrence_count
+    COUNT(DISTINCT s.id) AS sampling_count,
+    COUNT(DISTINCT o.id) AS occurrence_count
 FROM countries c
     LEFT JOIN samplings s ON s.site_country_code = c.code
-    LEFT JOIN occurrences o ON o.site_country_code = c.code
+    LEFT JOIN occurrences o ON o.sampling_id = s.id
 GROUP BY c.code
 ORDER BY c.name
 `
@@ -109,7 +142,7 @@ func (q *Queries) ListCountriesSummary(ctx context.Context) ([]ListCountriesSumm
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListCountriesSummaryRow
+	items := []ListCountriesSummaryRow{}
 	for rows.Next() {
 		var i ListCountriesSummaryRow
 		if err := rows.Scan(

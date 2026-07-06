@@ -1,3 +1,35 @@
+-- name: ListUsers :many
+SELECT *
+FROM users
+ORDER BY login ASC;
+
+-- name: CreateUser :one
+INSERT INTO users (
+        login,
+        email,
+        password_hash,
+        role,
+        first_name,
+        last_name,
+        organisation,
+        contact,
+        bio,
+        email_verified_at
+    )
+VALUES (
+        @login,
+        @email,
+        @password_hash,
+        @role,
+        @first_name,
+        @last_name,
+        @organisation,
+        @contact,
+        @bio,
+        @email_verified_at
+    )
+RETURNING *;
+
 -- name: SetCurrentUser :exec
 SELECT set_config('app.current_user_id', @user_id, true);
 

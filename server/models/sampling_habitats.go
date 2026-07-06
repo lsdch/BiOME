@@ -53,16 +53,16 @@ type HabitatInput struct {
 }
 
 type HabitatGroupInput struct {
-	Label     string              `json:"label" doc:"Name for the group of habitat tags" example:"Water flow" minLength:"3" maxLength:"32"`
-	Depends   Optional[uuid.UUID] `json:"depends,omitempty" doc:"Habitat tag that this group is a refinement of" example:"Aquatic, Surface"`
-	Exclusive Optional[bool]      `json:"exclusive_elements,omitempty"`
-	Elements  []HabitatInput      `json:"elements" minItems:"1"`
+	Label     string           `json:"label" doc:"Name for the group of habitat tags" example:"Water flow" minLength:"3" maxLength:"32"`
+	Depends   Optional[string] `json:"depends,omitempty" doc:"Habitat tag that this group is a refinement of" example:"Aquatic, Surface"`
+	Exclusive Optional[bool]   `json:"exclusive_elements,omitempty"`
+	Elements  []HabitatInput   `json:"elements" minItems:"1"`
 }
 
 func (i HabitatGroupInput) ToDBParams() biomedb.InsertHabitatGroupParams {
 	return biomedb.InsertHabitatGroupParams{
 		Label:             i.Label,
-		ParentHabitatID:   UUIDOpt(i.Depends),
+		Depends:           i.Depends.ToPtr(),
 		ExclusiveElements: i.Exclusive.Value,
 	}
 }

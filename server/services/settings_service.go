@@ -13,21 +13,22 @@ import (
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
+	"github.com/sirupsen/logrus"
 	"gopkg.in/gomail.v2"
 )
 
 type SettingsService struct {
-	db       *db.DB
 	settings atomic.Pointer[models.InstanceSettings]
 	Config   config.Config
 }
 
-func NewSettingsService(db *db.DB, config config.Config) *SettingsService {
-	return &SettingsService{db: db, Config: config}
+func NewSettingsService(config config.Config) *SettingsService {
+	return &SettingsService{Config: config}
 }
 
-func (s *SettingsService) Bootstrap(ctx context.Context) error {
-	err := s.db.Queries().InitSettings(ctx, biomedb.InitSettingsParams{
+func (s *SettingsService) Bootstrap(ctx context.Context, q db.Querier) error {
+	logrus.Infof("Bootstrapping settings from config")
+	err := q.Queries().InitSettings(ctx, biomedb.InitSettingsParams{
 		AppName:                s.Config.Instance.AppName,
 		AppSubtitle:            s.Config.Instance.AppSubtitle,
 		AppDescription:         s.Config.Instance.AppDescription,
@@ -40,15 +41,15 @@ func (s *SettingsService) Bootstrap(ctx context.Context) error {
 	if err != nil {
 		return fmt.Errorf("failed to bootstrap settings: %v", err)
 	}
-	return s.Reload(ctx)
+	return s.Reload(ctx, q)
 }
 
 func (s *SettingsService) GetSettings() models.InstanceSettings {
 	return *s.settings.Load()
 }
 
-func (s *SettingsService) Reload(ctx context.Context) error {
-	settingsDB, err := s.db.Queries().GetSettings(ctx)
+func (s *SettingsService) Reload(ctx context.Context, q db.Querier) error {
+	settingsDB, err := q.Queries().GetSettings(ctx)
 	if err != nil {
 		return fmt.Errorf("failed to reload settings: %v", err)
 	}
@@ -57,10 +58,10 @@ func (s *SettingsService) Reload(ctx context.Context) error {
 	return nil
 }
 
-func (s *SettingsService) UpdateInstanceSettings(ctx context.Context, input models.InstanceSettingsUpdate) error {
-	_, err := s.db.Queries().UpdateInstanceSettings(ctx, input.ToParams())
+func (s *SettingsService) UpdateInstanceSettings(ctx context.Context, q db.Querier, input models.InstanceSettingsUpdate) error {
+	_, err := q.Queries().UpdateInstanceSettings(ctx, input.ToParams())
 	if err == nil {
-		err = s.Reload(ctx)
+		err = s.Reload(ctx, q)
 	}
 	return err
 }
@@ -75,22 +76,22 @@ func (s *SettingsService) TestSMTPConnection(ctx context.Context) (bool, error) 
 	return true, nil
 }
 
-func (s *SettingsService) TogglePublicAccess(ctx context.Context, isPublic bool) error {
-	_, err := s.db.Queries().UpdateInstanceSettings(ctx, biomedb.UpdateInstanceSettingsParams{
+func (s *SettingsService) TogglePublicAccess(ctx context.Context, q db.Querier, isPublic bool) error {
+	_, err := q.Queries().UpdateInstanceSettings(ctx, biomedb.UpdateInstanceSettingsParams{
 		IsPublic: &isPublic,
 	})
 	if err == nil {
-		err = s.Reload(ctx)
+		err = s.Reload(ctx, q)
 	}
 	return err
 }
 
-func (s *SettingsService) TogglePublicRegistration(ctx context.Context, enabled bool) error {
-	_, err := s.db.Queries().UpdateInstanceSettings(ctx, biomedb.UpdateInstanceSettingsParams{
+func (s *SettingsService) TogglePublicRegistration(ctx context.Context, q db.Querier, enabled bool) error {
+	_, err := q.Queries().UpdateInstanceSettings(ctx, biomedb.UpdateInstanceSettingsParams{
 		AccountRequestsEnabled: &enabled,
 	})
 	if err == nil {
-		err = s.Reload(ctx)
+		err = s.Reload(ctx, q)
 	}
 	return err
 }

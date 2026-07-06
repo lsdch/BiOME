@@ -25,26 +25,27 @@
   </v-navigation-drawer>
   <div class="bg-surface d-flex fill-height flex-column">
     <v-container :max-width="1200">
-      <Suspense>
+      <InstanceSettings />
+      <!-- <Suspense>
         <template #default>
           <component :is="component" />
         </template>
         <template #fallback>
           <v-skeleton-loader type="article, article, article" />
         </template>
-      </Suspense>
+      </Suspense> -->
     </v-container>
   </div>
 </template>
 
 <script setup lang="ts">
-import EmailSettings from '@/features/settings/components/EmailSettings.vue'
+// import EmailSettings from '@/features/settings/components/EmailSettings.vue'
 import InstanceSettings from '@/features/settings/components/InstanceSettings.vue'
 import { computed } from 'vue'
 import { useDisplay } from 'vuetify'
 
-import NotFound from '@/components/navigation/NotFound.vue'
-import ServiceSettings from '@/features/settings/components/ServiceSettings.vue'
+// import NotFound from '@/components/navigation/NotFound.vue'
+// import ServiceSettings from '@/features/settings/components/ServiceSettings.vue'
 import routes from '@/router/routes'
 import { useRouter } from 'vue-router'
 
@@ -64,18 +65,18 @@ const subroutes = [
   { title: 'Services', category: 'services', icon: 'mdi-network-pos' }
 ]
 
-const component = computed(() => {
-  switch (props.category) {
-    case 'instance':
-      return InstanceSettings
-    case 'email':
-      return EmailSettings
-    case 'services':
-      return ServiceSettings
-    default:
-      return NotFound
-  }
-})
+// const component = computed(() => {
+//   switch (props.category) {
+//     case 'instance':
+//       return InstanceSettings
+//     case 'email':
+//       return EmailSettings
+//     case 'services':
+//       return ServiceSettings
+//     default:
+//       return NotFound
+//   }
+// })
 </script>
 
 <style scoped></style>

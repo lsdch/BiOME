@@ -11,11 +11,11 @@ import (
 )
 
 type OccurrenceCollisionsService struct {
-	q *stores.CollisionStore
+	store *stores.CollisionStore
 }
 
-func NewOccurrenceCollisionsService(q db.Querier) *OccurrenceCollisionsService {
-	return &OccurrenceCollisionsService{q: stores.NewCollisionStore(q.Queries())}
+func NewOccurrenceCollisionsService() *OccurrenceCollisionsService {
+	return &OccurrenceCollisionsService{store: stores.NewCollisionStore()}
 }
 
 type SamplingBaseProps struct {
@@ -64,10 +64,10 @@ func samplingCollisionFromRow(row biomedb.DetectBatchSamplingCollisionsRow) Samp
 	}
 }
 
-func (r *OccurrenceCollisionsService) DetectSamplingCollisions(ctx context.Context, importHash string, params stores.CollisionDetectionParams) (collisionsMap map[string]*StagingSamplingWithCollisions, err error) {
+func (r *OccurrenceCollisionsService) DetectSamplingCollisions(ctx context.Context, q db.Querier, importHash string, params stores.CollisionDetectionParams) (collisionsMap map[string]*StagingSamplingWithCollisions, err error) {
 
 	collisionsMap = make(map[string]*StagingSamplingWithCollisions)
-	collisions, err := r.q.DetectBatchSamplingCollisions(ctx, importHash, params)
+	collisions, err := r.store.DetectBatchSamplingCollisions(ctx, q, importHash, params)
 	if err != nil {
 		return nil, err
 	}
@@ -133,10 +133,10 @@ func occurrenceCollisionFromRow(row biomedb.DetectBatchOccurrenceCollisionsRow) 
 	}
 }
 
-func (r *OccurrenceCollisionsService) DetectOccurrenceCollisions(ctx context.Context, importHash string, params stores.CollisionDetectionParams) (collisions []OccurrenceCollisionsAtRow, err error) {
+func (r *OccurrenceCollisionsService) DetectOccurrenceCollisions(ctx context.Context, q db.Querier, importHash string, params stores.CollisionDetectionParams) (collisions []OccurrenceCollisionsAtRow, err error) {
 	collisions = make([]OccurrenceCollisionsAtRow, 0)
 
-	collisionRows, err := r.q.DetectBatchOccurrencesCollisions(ctx, importHash, params)
+	collisionRows, err := stores.NewCollisionStore().DetectBatchOccurrencesCollisions(ctx, q, importHash, params)
 	if err != nil {
 		return nil, err
 	}

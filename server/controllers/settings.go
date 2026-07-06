@@ -12,6 +12,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/disintegration/imaging"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/lib/auth"
 	"github.com/lsdch/biome/models"
@@ -20,11 +21,12 @@ import (
 )
 
 type SettingsController struct {
+	db      *db.DB
 	service *services.SettingsService
 }
 
-func NewSettingsController(service *services.SettingsService) *SettingsController {
-	return &SettingsController{service: service}
+func NewSettingsController(db *db.DB, service *services.SettingsService) *SettingsController {
+	return &SettingsController{db: db, service: service}
 }
 
 func (c *SettingsController) GetInstanceSettings(
@@ -39,7 +41,7 @@ func (c *SettingsController) UpdateInstanceSettings(
 	ctx context.Context,
 	input *BodyTransporter[models.InstanceSettingsUpdate],
 ) (*struct{}, error) {
-	err := c.service.UpdateInstanceSettings(ctx, input.Body)
+	err := c.service.UpdateInstanceSettings(ctx, c.db, input.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -61,7 +63,7 @@ func (c *SettingsController) TogglePublicAccess(
 	ctx context.Context,
 	input *BodyTransporter[bool],
 ) (*struct{}, error) {
-	err := c.service.TogglePublicAccess(ctx, input.Body)
+	err := c.service.TogglePublicAccess(ctx, c.db, input.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +74,7 @@ func (c *SettingsController) TogglePublicRegistration(
 	ctx context.Context,
 	input *BodyTransporter[bool],
 ) (*struct{}, error) {
-	err := c.service.TogglePublicRegistration(ctx, input.Body)
+	err := c.service.TogglePublicRegistration(ctx, c.db, input.Body)
 	if err != nil {
 		return nil, err
 	}
@@ -123,11 +125,8 @@ func (c *SettingsController) SetAppIcon(ctx context.Context, input *AppIconInput
 	}, nil
 }
 
-func (c *SettingsController) RegisterRouter(r *router.Router) {
-	settingsAPI := func(r *router.Router) router.Group {
-		return r.RouteGroup("/settings").
-			WithTags([]string{"Settings"})
-	}
+func (c *SettingsController) RegisterRoutes(r *router.Router) {
+	settingsAPI := r.RouteGroup("/settings").WithTags([]string{"Settings"})
 
 	router.NewSpec(
 		settingsAPI,
@@ -139,7 +138,7 @@ func (c *SettingsController) RegisterRouter(r *router.Router) {
 		},
 		c.GetInstanceSettings,
 	).
-		WithAccessPolicy(auth.Authenticated()).
+		WithAccessPolicy(auth.Public()).
 		Register(r)
 
 	router.NewSpec(

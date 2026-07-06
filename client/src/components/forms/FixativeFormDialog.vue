@@ -12,7 +12,7 @@
     <v-container fluid>
       <v-row>
         <v-col>
-          <v-text-field label="Label" v-model="model.label" v-bind="schema('label')" />
+          <v-text-field label="Label" v-model="model.name" v-bind="schema('name')" />
         </v-col>
       </v-row>
       <v-row>
@@ -34,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { $FixativeInput, $FixativeUpdate } from '@/api'
+import { $FixativeInput, $FixativeUpdateParams } from '@/api'
 import FormDialog, { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { useSchema } from '@/composables/schema'
 import { FormProps } from '@/lib/mutations'
@@ -54,7 +54,7 @@ const emit = defineEmits<{
 
 const {
   bind: { schema }
-} = reactiveComputed(() => useSchema(mode === 'Create' ? $FixativeInput : $FixativeUpdate))
+} = reactiveComputed(() => useSchema(mode === 'Create' ? $FixativeInput : $FixativeUpdateParams))
 </script>
 
 <style scoped lang="scss"></style>

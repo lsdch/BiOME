@@ -148,7 +148,7 @@ func (q *Queries) ListArticles(ctx context.Context) ([]Article, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Article
+	items := []Article{}
 	for rows.Next() {
 		var i Article
 		if err := rows.Scan(

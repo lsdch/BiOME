@@ -1,21 +1,14 @@
-import { Sampling, Site } from "@/api"
-import { reactive, Reactive } from "vue"
-import { BiomatModel } from "."
-import { SamplingFormModel } from "./sampling"
-import { SiteFormModel } from "./site"
+import { BaseOccurrenceInput, OccurrenceInput, SamplingInput } from '@/api'
+import { reactive, Reactive } from 'vue'
 
-
-
-export type OccurrenceModel = {
-  site: SiteFormModel | Site | undefined,
-  sampling: SamplingFormModel | Sampling | undefined,
-  biomaterial: BiomatModel.BiomatModel | undefined
+export type OccurrenceModel = DeepPartial<OccurrenceInput> & {
+  sampling: SamplingInput
+  useSamplingID?: UUID
 }
 
 export function initialModel(): Reactive<OccurrenceModel> {
   return reactive({
-    site: undefined,
-    sampling: undefined,
-    biomaterial: BiomatModel.initialModel(),
+    sampling: { site: { coordinates: {} }, performed_on: { date: {}, precision: 'Day' } },
+    identification: {}
   })
 }

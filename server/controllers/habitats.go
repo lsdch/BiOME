@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/lib/auth"
 	"github.com/lsdch/biome/models"
@@ -13,15 +14,16 @@ import (
 )
 
 type HabitatsController struct {
+	db      *db.DB
 	service *services.HabitatService
 }
 
-func NewHabitatsController(service *services.HabitatService) *HabitatsController {
-	return &HabitatsController{service: service}
+func NewHabitatsController(db *db.DB, service *services.HabitatService) *HabitatsController {
+	return &HabitatsController{db: db, service: service}
 }
 
 func (c *HabitatsController) GetHabitatGroups(ctx context.Context, _ *struct{}) (*BodyTransporter[[]models.HabitatGroupWithElements], error) {
-	groups, err := c.service.GetHabitatGroups(ctx)
+	groups, err := c.service.GetHabitatGroups(ctx, c.db)
 	if err != nil {
 		return nil, err
 	}
@@ -29,11 +31,15 @@ func (c *HabitatsController) GetHabitatGroups(ctx context.Context, _ *struct{}) 
 }
 
 func (c *HabitatsController) AddHabitatGroup(ctx context.Context, group *BodyTransporter[models.HabitatGroupInput]) (*struct{}, error) {
-	return &struct{}{}, c.service.CreateHabitatGroup(ctx, group.Body)
+	return &struct{}{}, c.db.WithTx(ctx, func(tx *db.Tx) error {
+		return c.service.CreateHabitatGroup(ctx, tx, group.Body)
+	})
 }
 
 func (c *HabitatsController) DeleteHabitatGroup(ctx context.Context, input *UUIDInput) (*struct{}, error) {
-	return &struct{}{}, c.service.DeleteHabitatGroup(ctx, input.ID)
+	return &struct{}{}, c.db.WithTx(ctx, func(tx *db.Tx) error {
+		return c.service.DeleteHabitatGroup(ctx, tx, input.ID)
+	})
 }
 
 type UpdateHabitatGroupInput struct {
@@ -42,14 +48,13 @@ type UpdateHabitatGroupInput struct {
 }
 
 func (c *HabitatsController) UpdateHabitatGroup(ctx context.Context, input *UpdateHabitatGroupInput) (*struct{}, error) {
-	return &struct{}{}, c.service.UpdateHabitatGroup(ctx, input.ID, input.Body)
+	return &struct{}{}, c.db.WithTx(ctx, func(tx *db.Tx) error {
+		return c.service.UpdateHabitatGroup(ctx, tx, input.ID, input.Body)
+	})
 }
 
 func (c *HabitatsController) RegisterRoutes(r *router.Router) {
-	habitatsAPI := func(r *router.Router) router.Group {
-		return r.RouteGroup("/habitats").
-			WithTags([]string{"Habitats"})
-	}
+	habitatsAPI := r.RouteGroup("/habitats").WithTags([]string{"Habitats"})
 
 	router.NewSpec(
 		habitatsAPI,

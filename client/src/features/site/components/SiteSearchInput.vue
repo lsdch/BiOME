@@ -8,14 +8,14 @@
 </template>
 
 <script setup lang="ts">
-import { SiteItem } from '@/api'
+import { Site } from '@/api'
 import SiteAutocomplete from './SiteAutocomplete.vue'
 import SiteSearchCoordinates from './SiteSearchCoordinates.vue'
 import { ref } from 'vue'
 
 const searchBy = ref<'name' | 'coordinates'>('name')
 
-const model = defineModel<SiteItem>()
+const model = defineModel<Site>()
 
 const { disabledCodes } = defineProps<{
   disabledCodes?: string[]

@@ -93,7 +93,11 @@
             <div class="gps-link lower mb-5" />
           </div>
         </div>
-        <CoordPrecisionPicker
+        <v-number-input
+          label="Precision (m)"
+          :step="1"
+          :min="0"
+          :max="100000"
           v-model="model.coordinates.precision"
           v-bind="schema('coordinates', 'precision')"
         />
@@ -132,12 +136,9 @@ import { $SiteInput, $SiteUpdate } from '@/api'
 import FTextField from '@/components/toolkit/forms/FTextField'
 import { useSchema } from '@/composables/schema'
 import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.vue'
-import { Coordinates } from '@/features/cartography/coordinates'
-import CoordPrecisionPicker from '@/features/site/components/CoordPrecisionPicker.vue'
 import { FormProps } from '@/lib/mutations'
 import { SiteModel } from '@/models'
 import { useGeolocation, useToggle, watchOnce } from '@vueuse/core'
-import { computed } from 'vue'
 import SiteFormLocationField from './SiteFormLocationField.vue'
 
 const model = defineModel<SiteModel.SiteFormModel>({

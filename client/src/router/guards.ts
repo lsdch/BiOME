@@ -19,7 +19,6 @@ export function useGuards() {
         if (store.isAuthenticated) {
           return true
         } else {
-          await store.bootstrapAuth()
           return store.isAuthenticated || { name: 'login', query: { redirect: route.path } }
         }
       }
@@ -31,7 +30,6 @@ export function useGuards() {
       ...route,
       beforeEnter: async (route) => {
         const store = useUserStore()
-        await store.bootstrapAuth()
         const { isAuthenticated, isGranted } = store
         if (isAuthenticated) {
           return isGranted(role) ? true : denyAccess(`Access requires ${role} privileges`)

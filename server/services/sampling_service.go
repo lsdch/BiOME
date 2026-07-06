@@ -2,43 +2,91 @@ package services
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
-	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/stores"
 	"github.com/oklog/ulid/v2"
 )
 
 type SamplingService struct {
-	q *biomedb.Queries
+	store *stores.SamplingStore
 }
 
-func NewSamplingService(db db.Querier) *SamplingService {
-	return &SamplingService{q: db.Queries()}
+func NewSamplingService() *SamplingService {
+	return &SamplingService{
+		store: stores.NewSamplingStore(),
+	}
 }
 
-func (s *SamplingService) GetSamplingBatchWithOccurrences(ctx context.Context, samplingIDs []uuid.UUID, occurrenceIDs []ulid.ULID) (map[uuid.UUID]*models.SamplingWithOccurrences, error) {
-	sBatch, err := s.q.GetSamplingBatch(ctx, samplingIDs)
+func (s *SamplingService) ListSamplingsAtProximity(ctx context.Context, q db.Querier, input models.ListSamplingsAtProximityInput) ([]models.SamplingWithDistance, error) {
+	return s.store.ListSamplingsAtProximity(ctx, q, input)
+}
+
+func (s *SamplingService) CreateSampling(ctx context.Context, tx *db.Tx, input models.SamplingInput) (*models.SamplingWithDetails, error) {
+	sampling, err := s.store.CreateSampling(ctx, tx, input)
 	if err != nil {
 		return nil, err
 	}
-	oBatch, err := s.q.GetOccurrencesAtSamplingsBatch(ctx, samplingIDs, occurrenceIDs)
+
+	var samplingDetails = models.SamplingMetadata{}
+
+	if len(input.Methods) > 0 {
+		err = s.SetMethodsAtSampling(ctx, tx, sampling.ID, input.Methods)
+		if err != nil {
+			return nil, err
+		}
+		samplingDetails.SamplingMethods, err = s.LoadSamplingMethods(ctx, tx, sampling.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if len(input.Fixatives) > 0 {
+		err = s.SetFixativesAtSampling(ctx, tx, sampling.ID, input.Fixatives)
+		if err != nil {
+			return nil, err
+		}
+		samplingDetails.Fixatives, err = s.LoadSamplingFixatives(ctx, tx, sampling.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if len(input.TargetTaxa) > 0 {
+		err = s.ReplaceSamplingTargetTaxa(ctx, tx, sampling.ID, input.TargetTaxa)
+		if err != nil {
+			return nil, err
+		}
+		samplingDetails.TargetTaxa, err = s.LoadSamplingTargetTaxa(ctx, tx, sampling.ID)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	res := sampling.WithDetails(samplingDetails)
+	return &res, nil
+}
+
+func (s *SamplingService) GetSampling(ctx context.Context, q db.Querier, samplingID uuid.UUID) (*models.Sampling, error) {
+	return s.store.GetSampling(ctx, q, samplingID)
+}
+
+func (s *SamplingService) GetSamplingBatchWithOccurrences(ctx context.Context, q db.Querier, samplingIDs []uuid.UUID, occurrenceIDs []ulid.ULID) (map[uuid.UUID]*models.SamplingWithOccurrences, error) {
+	sBatch, err := s.store.GetSamplingBatch(ctx, q, samplingIDs)
+	if err != nil {
+		return nil, err
+	}
+	oBatch, err := s.store.GetOccurrencesAtSamplingsBatch(ctx, q, samplingIDs, occurrenceIDs)
 	if err != nil {
 		return nil, err
 	}
 	res := make(map[uuid.UUID]*models.SamplingWithOccurrences, len(sBatch))
-	for _, s := range sBatch {
-		res[s.Sampling.ID] = &models.SamplingWithOccurrences{
-			Sampling: models.NewSamplingFromDB(s.Sampling, s.Country),
-			// preallocate with capacity 1, as we expect most samplings to have a single occurrence
-			Occurrences: make([]models.BaseOccurrence, 0, 1),
-		}
-	}
-	for _, o := range oBatch {
-		if s, ok := res[o.Occurrence.SamplingID]; ok {
-			s.Occurrences = append(s.Occurrences, models.BaseOccurrenceFromDB(o.Occurrence, o.Taxon))
+	for _, sampling := range sBatch {
+		res[sampling.ID] = &models.SamplingWithOccurrences{
+			Sampling:    sampling,
+			Occurrences: oBatch[sampling.ID],
 		}
 	}
 	if len(res) == 0 {
@@ -47,68 +95,41 @@ func (s *SamplingService) GetSamplingBatchWithOccurrences(ctx context.Context, s
 	return res, nil
 }
 
-func (s *SamplingService) LoadSamplingMethods(ctx context.Context, samplingID uuid.UUID) ([]models.SamplingMethod, error) {
-	methods, err := s.q.GetSamplingMethodsAtEvent(ctx, samplingID)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]models.SamplingMethod, len(methods))
-	for i, m := range methods {
-		result[i] = models.SamplingMethodFromDB(m)
-	}
-	return result, nil
+func (s *SamplingService) ReplaceSamplingTargetTaxa(ctx context.Context, q db.Querier, samplingID uuid.UUID, taxonIDs []uuid.UUID) error {
+	return q.Queries().ReplaceSamplingTargetTaxa(ctx, samplingID, taxonIDs)
 }
 
-func (s *SamplingService) LoadSamplingFixatives(ctx context.Context, samplingID uuid.UUID) ([]models.Fixative, error) {
-	fixatives, err := s.q.GetSamplingFixativesAtEvent(ctx, samplingID)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]models.Fixative, len(fixatives))
-	for i, f := range fixatives {
-		result[i] = models.FixativeFromDB(f)
-	}
-	return result, nil
+func (s *SamplingService) LoadSamplingMethods(ctx context.Context, q db.Querier, samplingID uuid.UUID) ([]models.SamplingMethod, error) {
+	return s.store.GetSamplingMethodsAtEvent(ctx, q, samplingID)
+
 }
 
-func (s *SamplingService) LoadSamplingHabitats(ctx context.Context, samplingID uuid.UUID) ([]models.HabitatWithGroupName, error) {
-	habitats, err := s.q.GetHabitatsAtEvent(ctx, samplingID)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]models.HabitatWithGroupName, len(habitats))
-	for i, h := range habitats {
-		result[i] = models.HabitatWithGroupNameFromDB(h.Habitat, h.HabitatGroup.Label)
-	}
-	return result, nil
+func (s *SamplingService) LoadSamplingFixatives(ctx context.Context, q db.Querier, samplingID uuid.UUID) ([]models.Fixative, error) {
+	return s.store.GetSamplingFixativesAtEvent(ctx, q, samplingID)
 }
 
-func (s *SamplingService) LoadSamplingTargetTaxa(ctx context.Context, samplingID uuid.UUID) ([]models.Taxon, error) {
-	taxa, err := s.q.GetSamplingTargetTaxa(ctx, samplingID)
-	if err != nil {
-		return nil, err
-	}
-	result := make([]models.Taxon, len(taxa))
-	for i, t := range taxa {
-		result[i] = *models.TaxonFromDB(&t)
-	}
-	return result, nil
+func (s *SamplingService) LoadSamplingHabitats(ctx context.Context, q db.Querier, samplingID uuid.UUID) ([]models.HabitatWithGroupName, error) {
+	return s.store.GetHabitatsAtEvent(ctx, q, samplingID)
 }
 
-func (s *SamplingService) LoadSamplingMetadata(ctx context.Context, samplingID uuid.UUID) (models.SamplingMetadata, error) {
-	methods, err := s.LoadSamplingMethods(ctx, samplingID)
+func (s *SamplingService) LoadSamplingTargetTaxa(ctx context.Context, q db.Querier, samplingID uuid.UUID) ([]models.Taxon, error) {
+	return s.store.GetSamplingTargetTaxa(ctx, q, samplingID)
+}
+
+func (s *SamplingService) LoadSamplingMetadata(ctx context.Context, q db.Querier, samplingID uuid.UUID) (models.SamplingMetadata, error) {
+	methods, err := s.LoadSamplingMethods(ctx, q, samplingID)
 	if err != nil {
 		return models.SamplingMetadata{}, err
 	}
-	fixatives, err := s.LoadSamplingFixatives(ctx, samplingID)
+	fixatives, err := s.LoadSamplingFixatives(ctx, q, samplingID)
 	if err != nil {
 		return models.SamplingMetadata{}, err
 	}
-	habitats, err := s.LoadSamplingHabitats(ctx, samplingID)
+	habitats, err := s.LoadSamplingHabitats(ctx, q, samplingID)
 	if err != nil {
 		return models.SamplingMetadata{}, err
 	}
-	taxa, err := s.LoadSamplingTargetTaxa(ctx, samplingID)
+	taxa, err := s.LoadSamplingTargetTaxa(ctx, q, samplingID)
 	if err != nil {
 		return models.SamplingMetadata{}, err
 	}
@@ -120,61 +141,6 @@ func (s *SamplingService) LoadSamplingMetadata(ctx context.Context, samplingID u
 	}, nil
 }
 
-func (s *SamplingService) ListSamplingFixatives(ctx context.Context) ([]biomedb.Fixative, error) {
-	return s.q.ListFixatives(ctx)
-}
-
-func (s *SamplingService) CreateSamplingFixative(ctx context.Context, input biomedb.CreateFixativeParams) (biomedb.Fixative, error) {
-	return s.q.CreateFixative(ctx, input)
-}
-
-func (s *SamplingService) UpdateSamplingFixative(ctx context.Context, code string, input models.SamplingFixativeUpdateParams) (biomedb.Fixative, error) {
-	return s.q.UpdateFixative(ctx, input.ToParams(code))
-}
-
-func (s *SamplingService) DeleteSamplingFixative(ctx context.Context, code string) error {
-	tag, err := s.q.DeleteFixative(ctx, code)
-	if err != nil {
-		return err
-	}
-	if tag.RowsAffected() == 0 {
-		return fmt.Errorf("fixative with code %s not found", code)
-	}
-	return nil
-}
-
-func (s *SamplingService) ListSamplingMethods(ctx context.Context) ([]biomedb.SamplingMethod, error) {
-	return s.q.ListSamplingMethods(ctx)
-}
-
-func (s *SamplingService) CreateSamplingMethod(ctx context.Context, input biomedb.CreateSamplingMethodParams) (biomedb.SamplingMethod, error) {
-	return s.q.CreateSamplingMethod(ctx, input)
-}
-
-func (s *SamplingService) UpdateSamplingMethod(ctx context.Context, code string, input models.SamplingMethodUpdateParams) (biomedb.SamplingMethod, error) {
-	return s.q.UpdateSamplingMethod(ctx, input.ToParams(code))
-}
-
-func (s *SamplingService) DeleteSamplingMethod(ctx context.Context, code string) error {
-	return s.q.DeleteSamplingMethod(ctx, code)
-}
-
-// Initializes the sampling methods resolution state for a given import hash. This is typically called when starting a new import workflow.
-func (s *SamplingService) InitMethodResolution(ctx context.Context, importHash string) (state []biomedb.SamplingMethodsResolution, err error) {
-	resolution, err := s.q.InitMethodsResolution(ctx, importHash)
-	if err != nil {
-		return nil, err
-	}
-	return resolution, nil
-}
-
-func (s *SamplingService) GetMethodsResolution(ctx context.Context, importHash string) (state []biomedb.SamplingMethodsResolution, err error) {
-	return s.q.GetMethodsResolution(ctx, importHash)
-}
-
-func (s *SamplingService) ResolveMethod(ctx context.Context, importHash string, input models.SamplingMethodResolutionInput) (biomedb.SamplingMethodsResolution, error) {
-	if err := input.Validate(); err != nil {
-		return biomedb.SamplingMethodsResolution{}, err
-	}
-	return s.q.ResolveMethod(ctx, input.ToParams(importHash))
+func (s *SamplingService) ListSamplingAccessPoints(ctx context.Context, q db.Querier) ([]string, error) {
+	return q.Queries().ListSamplingAccessPoints(ctx)
 }

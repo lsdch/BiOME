@@ -10,10 +10,12 @@ package table
 // UseSchema sets a new schema name for all generated table SQL builder types. It is recommended to invoke
 // this method only once at the beginning of the program.
 func UseSchema(schema string) {
+	AbioticMeasurements = AbioticMeasurements.FromSchema(schema)
+	AbioticParams = AbioticParams.FromSchema(schema)
 	Articles = Articles.FromSchema(schema)
 	Countries = Countries.FromSchema(schema)
-	DatasetCurator = DatasetCurator.FromSchema(schema)
 	Datasets = Datasets.FromSchema(schema)
+	DatasetsCurators = DatasetsCurators.FromSchema(schema)
 	DatasetsPublications = DatasetsPublications.FromSchema(schema)
 	EventsSamplingMethods = EventsSamplingMethods.FromSchema(schema)
 	Fixatives = Fixatives.FromSchema(schema)

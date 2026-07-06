@@ -2,6 +2,7 @@ package models
 
 import (
 	"net/netip"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -23,17 +24,18 @@ type UserCredentials struct {
 }
 
 type AuthOrigin struct {
-	UserAgent Optional[string]
-	IP        *netip.Addr
+	UserAgent Optional[string] `header:"User-Agent"`
+	IP        *netip.Addr      `header:"client-ip"`
 }
 
 type SessionTokens struct {
-	AuthToken    string
-	RefreshToken string
+	SessionID           uuid.UUID `json:"session_id"`
+	AuthToken           string    `json:"auth_token"`
+	AuthTokenExpiration time.Time `json:"auth_token_expiration"`
+	RefreshToken        string    `json:"refresh_token"`
 }
 
 type LoginResult struct {
-	User      User
-	SessionID uuid.UUID
-	SessionTokens
+	User    User          `json:"user"`
+	Session SessionTokens `json:"session"`
 }

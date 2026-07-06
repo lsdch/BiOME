@@ -15,7 +15,6 @@ import (
 
 type Samplings struct {
 	ID                   uuid.UUID `sql:"primary_key"`
-	SamplingHash         string
 	Notes                *string
 	SiteCode             *string
 	SiteName             *string

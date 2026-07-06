@@ -10,10 +10,9 @@ import (
 
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
-	"github.com/lsdch/biome/stores"
-
 	"github.com/lsdch/biome/models"
 	gbif "github.com/lsdch/biome/services/gbif"
+	"github.com/lsdch/biome/stores"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/sync/errgroup"
 )
@@ -24,34 +23,27 @@ type taxonResolutionService struct {
 }
 
 type TaxonResolutionService interface {
-	InitResolution(ctx context.Context, importHash string) (state *models.TaxonResolutionState, err error)
-	GetTaxonResolutionState(ctx context.Context, importHash string) (state *models.TaxonResolutionState, err error)
-	MaterializeTaxa(ctx context.Context, importHash string) (err error)
-	EnrichTaxonResolutionWithGBIF(ctx context.Context, importHash string) (status biomedb.GBIFImportStatus, err error)
-	// FetchCandidatesFromGBIF(ctx context.Context, importHash string, toFetch []biomedb.ListTaxaWithoutExactCandidateRow) (candidates map[string][]gbif.TaxonGBIF, err error)
-	// InsertGBIFCandidates(ctx context.Context, candidates map[string][]gbif.TaxonGBIF) (err error)
+	InitResolution(ctx context.Context, q db.Querier, importHash string) (state *models.TaxonResolutionState, err error)
+	GetTaxonResolutionState(ctx context.Context, q db.Querier, importHash string) (state *models.TaxonResolutionState, err error)
+	MaterializeTaxa(ctx context.Context, q db.Querier, importHash string) (err error)
+	EnrichTaxonResolutionWithGBIF(ctx context.Context, q db.Querier, importHash string) (status biomedb.GBIFImportStatus, err error)
 	FetchKeysFromGBIF(ctx context.Context, toFetch []int32) ([]models.TaxonGBIF, error)
 }
 
-func NewTaxonResolutionService(q db.Querier, gbif *gbif.GBIFClient) TaxonResolutionService {
-	return &taxonResolutionService{
-		store: stores.NewTaxonResolutionStore(q.Queries()),
-		gbif:  gbif,
-	}
+func NewTaxonResolutionService(gbif *gbif.GBIFClient) TaxonResolutionService {
+	return &taxonResolutionService{gbif: gbif, store: stores.NewTaxonResolutionStore()}
 }
 
-// Initializes the taxon resolution state for a given import hash. This is typically called when starting a new import workflow.
-// It fetches the current resolution state, generates local candidates, and identifies any missing GBIF dependencies that need to be fetched.
-func (r *taxonResolutionService) InitResolution(ctx context.Context, importHash string) (state *models.TaxonResolutionState, err error) {
-	resolution, err := r.store.InitTaxonResolution(ctx, importHash)
+func (r *taxonResolutionService) InitResolution(ctx context.Context, q db.Querier, importHash string) (state *models.TaxonResolutionState, err error) {
+	store := stores.NewTaxonResolutionStore()
+	resolution, err := store.InitTaxonResolution(ctx, q, importHash)
 	if err != nil {
 		return nil, err
 	}
-	err = r.GenerateLocalCandidates(ctx, importHash)
-	if err != nil {
+	if err = r.GenerateLocalCandidates(ctx, q, importHash); err != nil {
 		return nil, err
 	}
-	candidates, err := r.store.ListTaxonCandidates(ctx, importHash)
+	candidates, err := store.ListTaxonCandidates(ctx, q, importHash)
 	if err != nil {
 		return nil, err
 	}
@@ -64,7 +56,6 @@ func (r *taxonResolutionService) InitResolution(ctx context.Context, importHash 
 // Fetches missing GBIF dependencies for taxa that have already been resolved to a GBIF taxon,
 // to ensure that all necessary GBIF data is available before materialization.
 func (r *taxonResolutionService) FetchKeysFromGBIF(ctx context.Context, toFetch []int32) ([]models.TaxonGBIF, error) {
-
 	if len(toFetch) == 0 {
 		return nil, nil
 	}
@@ -100,12 +91,12 @@ func (r *taxonResolutionService) FetchKeysFromGBIF(ctx context.Context, toFetch 
 	return taxa, nil
 }
 
-func (r *taxonResolutionService) FetchCandidatesFromGBIF(ctx context.Context, importHash string, toFetch []biomedb.ListTaxaToFetchGBIFCandidatesRow) (candidates map[string][]models.TaxonGBIF, err error) {
+func (r *taxonResolutionService) FetchCandidatesFromGBIF(ctx context.Context, q db.Querier, importHash string, toFetch []biomedb.ListTaxaToFetchGBIFCandidatesRow) (candidates map[string][]models.TaxonGBIF, err error) {
 	if len(toFetch) == 0 {
 		return nil, nil
 	}
 
-	if err = r.store.InitGBIFCandidatesProgress(ctx, int32(len(toFetch)), importHash); err != nil {
+	if err = r.store.InitGBIFCandidatesProgress(ctx, q, int32(len(toFetch)), importHash); err != nil {
 		return nil, fmt.Errorf("failed to initialize GBIF candidates fetching progress : %v", err)
 	}
 
@@ -147,7 +138,7 @@ func (r *taxonResolutionService) FetchCandidatesFromGBIF(ctx context.Context, im
 			for _, match := range resp.Results {
 				candidatesMap[taxon.FullInputName] = append(candidatesMap[taxon.FullInputName], match)
 			}
-			if _, err = r.store.IncrementGBIFCandidatesProgress(ctx, importHash); err != nil {
+			if _, err = r.store.IncrementGBIFCandidatesProgress(ctx, q, importHash); err != nil {
 				logrus.Errorf("error incrementing GBIF candidates progress for import '%s': %v", importHash, err)
 			}
 			return nil
@@ -160,7 +151,7 @@ func (r *taxonResolutionService) FetchCandidatesFromGBIF(ctx context.Context, im
 	return candidatesMap, nil
 }
 
-func (r *taxonResolutionService) InsertGBIFCandidates(ctx context.Context, candidates map[string][]models.TaxonGBIF) (err error) {
+func (r *taxonResolutionService) InsertGBIFCandidates(ctx context.Context, q db.Querier, candidates map[string][]models.TaxonGBIF) (err error) {
 	if len(candidates) == 0 {
 		return nil
 	}
@@ -170,71 +161,71 @@ func (r *taxonResolutionService) InsertGBIFCandidates(ctx context.Context, candi
 			stagingParams = append(stagingParams, match)
 		}
 	}
-	if err = r.store.InsertGBIFBatch(ctx, stagingParams); err != nil {
+	if err = r.store.InsertGBIFBatch(ctx, q, stagingParams); err != nil {
 		return err
 	}
-	if err = r.store.InsertGBIFCandidatesBatch(ctx, candidates); err != nil {
+	if err = r.store.InsertGBIFCandidatesBatch(ctx, q, candidates); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *taxonResolutionService) GenerateLocalCandidates(ctx context.Context, importHash string) error {
-	return r.store.GenerateLocalTaxonCandidates(ctx, importHash)
+func (r *taxonResolutionService) GenerateLocalCandidates(ctx context.Context, q db.Querier, importHash string) error {
+	return r.store.GenerateLocalTaxonCandidates(ctx, q, importHash)
 }
 
 const (
 	ErrGBIFAlreadyRunning string = "GBIF import is already in progress for this import hash"
 )
 
-func (r *taxonResolutionService) EnrichTaxonResolutionWithGBIF(ctx context.Context, importHash string) (status models.GBIFImportStatus, err error) {
+func (r *taxonResolutionService) EnrichTaxonResolutionWithGBIF(ctx context.Context, q db.Querier, importHash string) (status models.GBIFImportStatus, err error) {
 
-	claimed, err := r.store.ClaimGBIFImport(ctx, importHash)
+	claimed, err := r.store.ClaimGBIFImport(ctx, q, importHash)
 	if err != nil {
 		return
 	}
 	if !claimed {
-		s, err := r.store.GetGBIFImportStatus(ctx, importHash)
+		s, err := r.store.GetGBIFImportStatus(ctx, q, importHash)
 		if err != nil {
 			return status, fmt.Errorf("failed to get GBIF import status for %s", importHash)
 		}
 		return s.Status, fmt.Errorf(ErrGBIFAlreadyRunning)
 	}
 
-	if err = r.store.MarkTaxaNeedingGBIFCandidates(ctx, importHash); err != nil {
+	if err = r.store.MarkTaxaNeedingGBIFCandidates(ctx, q, importHash); err != nil {
 		return status, fmt.Errorf("failed to mark taxa needing GBIF candidates for %s", importHash)
 	}
-	toFetch, err := r.store.ListTaxnamesToFetchFromGBIF(ctx, importHash)
+	toFetch, err := r.store.ListTaxnamesToFetchFromGBIF(ctx, q, importHash)
 	if err != nil {
 		return status, fmt.Errorf("failed to list taxa to fetch from GBIF for %s", importHash)
 	}
-	taxa, err := r.FetchCandidatesFromGBIF(ctx, importHash, toFetch)
+	taxa, err := r.FetchCandidatesFromGBIF(ctx, q, importHash, toFetch)
 	if err != nil {
-		status, err = r.store.FailGBIFImport(ctx, importHash)
+		status, err = r.store.FailGBIFImport(ctx, q, importHash)
 		return status, err
 	}
-	if err = r.InsertGBIFCandidates(ctx, taxa); err != nil {
-		status, err = r.store.FailGBIFImport(ctx, importHash)
+	if err = r.InsertGBIFCandidates(ctx, q, taxa); err != nil {
+		status, err = r.store.FailGBIFImport(ctx, q, importHash)
 		return status, err
 	}
-	if err = r.store.MarkTaxaGBIFImportCompleted(ctx, importHash, slices.Collect(maps.Keys(taxa))); err != nil {
+	if err = r.store.MarkTaxaGBIFImportCompleted(ctx, q, importHash, slices.Collect(maps.Keys(taxa))); err != nil {
 		return status, fmt.Errorf("failed to mark taxa needing GBIF candidates for %s", importHash)
 	}
 
-	return r.store.CompleteGBIFImport(ctx, importHash)
+	return r.store.CompleteGBIFImport(ctx, q, importHash)
 }
 
-func (r *taxonResolutionService) GetTaxonResolutionState(ctx context.Context, importHash string) (state *models.TaxonResolutionState, err error) {
-	state, err = r.store.GetTaxonResolutionState(ctx, importHash)
+func (r *taxonResolutionService) GetTaxonResolutionState(ctx context.Context, q db.Querier, importHash string) (state *models.TaxonResolutionState, err error) {
+	state, err = r.store.GetTaxonResolutionState(ctx, q, importHash)
 	if err != nil {
 		return nil, err
 	}
 	return state, nil
 }
 
-func (r *taxonResolutionService) MaterializeTaxaGBIF(ctx context.Context, importHash string) (err error) {
+func (r *taxonResolutionService) MaterializeTaxaGBIF(ctx context.Context, q db.Querier, importHash string) (err error) {
 
-	gbifDepsKeys, err := r.store.ListMissingGBIFDependencies(ctx, importHash)
+	gbifDepsKeys, err := r.store.ListMissingGBIFDependencies(ctx, q, importHash)
 	if err != nil {
 		return err
 	}
@@ -244,12 +235,12 @@ func (r *taxonResolutionService) MaterializeTaxaGBIF(ctx context.Context, import
 		return err
 	}
 
-	if err = r.store.InsertGBIFBatch(ctx, gbifDeps); err != nil {
+	if err = r.store.InsertGBIFBatch(ctx, q, gbifDeps); err != nil {
 		return err
 	}
 
 	for _, rank := range biomedb.AllTaxonRankValues() {
-		err = r.store.InsertTaxaFromGBIF(ctx, importHash, rank)
+		err = r.store.InsertTaxaFromGBIF(ctx, q, importHash, rank)
 		if err != nil {
 			return err
 		}
@@ -257,32 +248,26 @@ func (r *taxonResolutionService) MaterializeTaxaGBIF(ctx context.Context, import
 	return err
 }
 
-func (r *taxonResolutionService) MaterializeTaxa(ctx context.Context, importHash string) (err error) {
-	// For now we only materialize GBIF-resolved taxa, but in the future we may want to also materialize manually resolved taxa that are not in GBIF
-	if err = r.MaterializeTaxaGBIF(ctx, importHash); err != nil {
+func (r *taxonResolutionService) MaterializeTaxa(ctx context.Context, q db.Querier, importHash string) (err error) {
+	if err = r.MaterializeTaxaGBIF(ctx, q, importHash); err != nil {
 		return err
 	}
-
-	// TODO : materialize manually resolved taxa that are not in GBIF
 	return nil
 }
 
-func (r *taxonResolutionService) ResolveToManualTaxon(ctx context.Context, importHash string, params models.TaxonStagingParams) (err error) {
+func (r *taxonResolutionService) ResolveToManualTaxon(ctx context.Context, q db.Querier, importHash string, params models.TaxonStagingParams) (err error) {
 	if params.ParentSource == biomedb.TaxonMatchSourceManual {
-
-		if parentName, ok := params.ParentInputName.Get(); !ok || parentName == "" {
+		parentName, ok := params.ParentInputName.Get()
+		if !ok || parentName == "" {
 			return fmt.Errorf("parent source is %s but parent name is not provided for manual taxon %s", params.ParentSource, params.Name)
-		} else {
-			err = r.store.UpsertTaxonResolution(ctx, biomedb.UpsertTaxonResolutionParams{
-				ImportHash: importHash,
-				InputName:  parentName,
-			})
-			if err != nil {
-				return fmt.Errorf("failed to upsert parent taxon resolution for manual taxon %s: %v", params.Name, err)
-			}
 		}
-
+		err = r.store.UpsertTaxonResolution(ctx, q, biomedb.UpsertTaxonResolutionParams{
+			ImportHash: importHash,
+			InputName:  parentName,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to upsert parent taxon resolution for manual taxon %s: %v", params.Name, err)
+		}
 	}
-	err = r.store.InsertTaxonStaging(ctx, importHash, params)
-	return err
+	return r.store.InsertTaxonStaging(ctx, q, importHash, params)
 }

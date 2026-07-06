@@ -5,71 +5,68 @@ import (
 	"net/http"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/lib/auth"
+	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/router"
 	"github.com/lsdch/biome/services/geoapify"
 )
 
 type GeoapifyController struct {
+	db      *db.DB
 	service *geoapify.GeoapifyService
 }
 
-func NewGeoapifyController(service *geoapify.GeoapifyService) *GeoapifyController {
-	return &GeoapifyController{service: service}
+func NewGeoapifyController(db *db.DB, service *geoapify.GeoapifyService) *GeoapifyController {
+	return &GeoapifyController{db: db, service: service}
 }
 
 func (c *GeoapifyController) GetStatus(
 	ctx context.Context,
 	input *struct{},
-) (*BodyTransporter[geoapify.GeoapifyStatus], error) {
-	status, err := c.service.GetStatus(ctx)
+) (*BodyTransporter[models.GeoapifyStatus], error) {
+	status, err := c.service.GetStatus(ctx, c.db)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[geoapify.GeoapifyStatus]{Body: status}, nil
+	return &BodyTransporter[models.GeoapifyStatus]{Body: status}, nil
 }
 
 func (c *GeoapifyController) ListUsage(
 	ctx context.Context,
 	input *struct{},
-) (*BodyTransporter[[]geoapify.GeoapifyUsage], error) {
-	usage, err := c.service.ListUsage(ctx)
+) (*BodyTransporter[[]models.GeoapifyUsage], error) {
+	usage, err := c.service.ListUsage(ctx, c.db)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[[]geoapify.GeoapifyUsage]{Body: usage}, nil
+	return &BodyTransporter[[]models.GeoapifyUsage]{Body: usage}, nil
 }
 
 func (c *GeoapifyController) ReverseGeocode(
 	ctx context.Context,
-	input *struct {
-		Latitude  float32 `query:"lat" required:"true"`
-		Longitude float32 `query:"lon" required:"true"`
-	},
-) (*BodyTransporter[geoapify.GeoapifyResult], error) {
-	result, err := c.service.ReverseGeocode(ctx, input.Latitude, input.Longitude)
+	input *models.Coordinates,
+) (*BodyTransporter[models.GeoapifyResult], error) {
+	result, err := c.service.ReverseGeocode(ctx, c.db, input.Latitude, input.Longitude)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[geoapify.GeoapifyResult]{Body: *result}, nil
+	return &BodyTransporter[models.GeoapifyResult]{Body: *result}, nil
 }
 
 func (c *GeoapifyController) BatchReverseGeocode(
 	ctx context.Context,
-	input *BodyTransporter[[]geoapify.LatLonCoords],
-) (*BodyTransporter[[]geoapify.GeoapifyResult], error) {
-	results, err := c.service.BatchReverseGeocode(ctx, input.Body)
+	input *BodyTransporter[[]models.GeoapifyCoords],
+) (*BodyTransporter[[]models.GeoapifyResult], error) {
+	results, err := c.service.BatchReverseGeocode(ctx, c.db, input.Body)
 	if err != nil {
 		return nil, err
 	}
-	return &BodyTransporter[[]geoapify.GeoapifyResult]{Body: results}, nil
+	return &BodyTransporter[[]models.GeoapifyResult]{Body: results}, nil
 }
 
 func (c *GeoapifyController) RegisterRoutes(r *router.Router) {
-	geoapifyAPI := func(r *router.Router) router.Group {
-		return r.RouteGroup("/geoapify").
-			WithTags([]string{"Services"})
-	}
+	geoapifyAPI := r.RouteGroup("/geoapify").WithTags([]string{"Services"})
 
 	router.NewSpec(
 		geoapifyAPI,

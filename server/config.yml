@@ -1,4 +1,22 @@
 
+instance: 
+  APP_NAME: BiOME
+  APP_SUBTITLE: Biodiversity and Occurrences for Molecular Ecology
+  APP_DESCRIPTION: ""
+  IS_PUBLIC: false
+  ACCOUNT_REQUESTS_ENABLED: false
+  # MAIL_FROM_ADDRESS: ""
+  # MAIL_FROM_NAME: ""
+
+
+DB:
+ # DSN: "postgres://biome:biome@localhost:5432/biome?sslmode=disable"
+  MAX_CONNS: 10
+  MIN_CONNS: 5
+  MAX_CONN_LIFETIME: 5m
+  MAX_CONN_IDLE_TIME: 2m
+  HEALTH_TIMEOUT: 5s
+
 TOKEN_LENGTH: 32
 
 JWT_LIFETIME_MINUTES: 30
@@ -17,11 +35,25 @@ API:
   API_DESCRIPTION: Biodiversity and Occurrences for Molecular Ecology
 
 bootstrap: 
-  COUNTRIES_JSON_URL: https://github.com/lsdch/countries-boundaries/releases/latest/download/countries.json
-  COUNTRY_NAME_KEY: name
-  COUNTRY_CODE_KEY: code
-  COUNTRY_CONTINENT_KEY: region
-  COUNTRY_SUBCONTINENT_KEY: sub-region
+  countries: 
+    COUNTRIES_JSON_URL: https://github.com/lsdch/countries-boundaries/releases/latest/download/countries.json
+    COUNTRY_NAME_KEY: name
+    COUNTRY_CODE_KEY: alpha-3
+    COUNTRY_CONTINENT_KEY: region
+    COUNTRY_SUBCONTINENT_KEY: sub-region
+  # users: 
+  #   - login: admin
+  #     email: "admin@example.com"
+  #     password: "admin123"
+  #     role: "admin"
+  #     first_name: "Admin"
+  #     last_name: "User"
 
+
+geoapify: 
+  # GEOAPIFY_API_KEY: "YOUR_GEOAPIFY_API_KEY"
+  GEOAPIFY_DAILY_USAGE_LIMIT: 3000
+
+CROSSREF_MAX_CONCURRENT: 20
 GBIF_MAX_CONCURRENT: 20
 GBIF_BACKBONE_DATASET_KEY: d7dddbf4-2cf0-4f39-9b2a-bb099caae36c

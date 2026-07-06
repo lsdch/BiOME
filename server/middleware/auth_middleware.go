@@ -2,8 +2,11 @@ package middleware
 
 import (
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/lsdch/biome/config"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/lib/auth"
 	"github.com/lsdch/biome/services"
+	"github.com/sirupsen/logrus"
 )
 
 const ACCESS_POLICY_EXTENSION = "policy"
@@ -27,11 +30,13 @@ func GetAccessPolicy(op huma.Operation) (auth.Policy, bool) {
 
 type AuthMiddleware struct {
 	api         huma.API
-	authService services.AuthService
+	db          *db.DB
+	authService *services.AuthService
+	config      config.AuthTokensConfig
 }
 
-func NewAuthMiddleware(api huma.API, as services.AuthService) *AuthMiddleware {
-	return &AuthMiddleware{authService: as, api: api}
+func NewAuthMiddleware(api huma.API, db *db.DB, cfg config.AuthTokensConfig, as *services.AuthService) *AuthMiddleware {
+	return &AuthMiddleware{authService: as, api: api, db: db, config: cfg}
 }
 
 // Authentication middleware that validates the JWT token from the Authorization header or session cookie.
@@ -40,24 +45,29 @@ func (m *AuthMiddleware) AuthN(ctx huma.Context, next func(huma.Context)) {
 	authHeader := ctx.Header("Authorization")
 	token := extractBearer(authHeader)
 	if token == "" {
-		cookie, err := huma.ReadCookie(ctx, "auth_token")
+		logrus.Infof("Reading cookie for authentication token: %s", m.config.AuthTokenCookieName)
+		cookie, err := huma.ReadCookie(ctx, m.config.AuthTokenCookieName)
 		if err == nil {
 			token = cookie.Value
+		} else {
+			logrus.Warnf("Failed to read cookie for authentication token: %v", err)
 		}
 	}
 
 	if token == "" {
-		huma.WriteErr(m.api, ctx, 401, "Invalid authentication token")
+		next(ctx)
 		return
 	}
 
-	user, err := m.authService.AuthenticateJWT(ctx.Context(), token)
+	session, err := m.authService.AuthenticateJWT(ctx.Context(), m.db, token)
 	if err != nil {
-		huma.WriteErr(m.api, ctx, 401, "Invalid authentication token")
+		logrus.Warnf("Failed to authenticate JWT token: %v", err)
+		next(ctx)
 		return
 	}
 
-	ctx = auth.WithSession(ctx, user)
+	logrus.Debugf("Authenticated user: %s", session.User.Login)
+	ctx = auth.WithSession(ctx, session)
 
 	next(ctx)
 }
@@ -69,14 +79,8 @@ func extractBearer(authHeader string) string {
 	return ""
 }
 
-// Authentication middleware that validates the JWT token from the Authorization header or session cookie.
+// Authorization middleware that checks if the authenticated user has the required permissions to access the endpoint.
 func (m *AuthMiddleware) AuthZ(ctx huma.Context, next func(huma.Context)) {
-
-	session, ok := auth.SessionFromContext(ctx.Context())
-	if !ok || session == nil {
-		huma.WriteErr(m.api, ctx, 401, "authentication required")
-		return
-	}
 
 	op := ctx.Operation()
 	rawPolicy := op.Extensions["policy"]
@@ -91,9 +95,16 @@ func (m *AuthMiddleware) AuthZ(ctx huma.Context, next func(huma.Context)) {
 		return
 	}
 
-	if !policy.Eval(&session.User) {
-		huma.WriteErr(m.api, ctx, 403, "access denied: insufficient permissions")
-		return
+	if policy.IsAuthRequired() {
+		session, ok := auth.SessionFromContext(ctx.Context())
+		if !ok || session == nil {
+			huma.WriteErr(m.api, ctx, 401, "authentication required")
+			return
+		}
+		if !policy.Eval(&session.User) {
+			huma.WriteErr(m.api, ctx, 403, "access denied: insufficient permissions")
+			return
+		}
 	}
 
 	next(ctx)

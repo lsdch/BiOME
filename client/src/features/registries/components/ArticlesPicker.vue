@@ -4,7 +4,7 @@
     v-model:search="searchTerms"
     :items="filteredItems"
     :loading
-    item-value="code"
+    item-value="id"
     :multiple
     :chips="multiple"
     :closable-chips="multiple"

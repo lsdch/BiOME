@@ -6,6 +6,7 @@ import (
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/danielgtaylor/huma/v2/sse"
+	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/lib/auth"
 	"github.com/lsdch/biome/middleware"
@@ -14,11 +15,13 @@ import (
 )
 
 type ImportController struct {
+	db            *db.DB
 	importService *imports.ImportService
 }
 
-func NewImportController(importService *imports.ImportService) *ImportController {
+func NewImportController(db *db.DB, importService *imports.ImportService) *ImportController {
 	return &ImportController{
+		db:            db,
 		importService: importService,
 	}
 }
@@ -45,9 +48,14 @@ func (c *ImportController) ImportOccurrences(ctx context.Context, input *Occurre
 	formData := input.RawBody.Data()
 	file := formData.File
 
-	state, err := c.importService.InitImportWorkflow(ctx, input.Body.Label, imports.CSVImportParams{
-		Reader:    file,
-		Separator: input.Body.Separator,
+	var state *imports.ImportResolutionState
+	err := c.db.WithTx(ctx, func(tx *db.Tx) error {
+		var txErr error
+		state, txErr = c.importService.InitImportWorkflow(ctx, tx, input.Body.Label, imports.CSVImportParams{
+			Reader:    file,
+			Separator: input.Body.Separator,
+		})
+		return txErr
 	})
 	if err != nil {
 		return nil, err
@@ -60,10 +68,7 @@ func (c *ImportController) TrackImportStatus(ctx context.Context, input *ImportH
 }
 
 func (c *ImportController) RegisterRoutes(r *router.Router) {
-	importsAPI := func(r *router.Router) router.Group {
-		return r.RouteGroup("/imports/").
-			WithTags([]string{"Batch Imports"})
-	}
+	importsAPI := r.RouteGroup("/imports/").WithTags([]string{"Batch Imports"})
 
 	router.NewSpec(
 		importsAPI,

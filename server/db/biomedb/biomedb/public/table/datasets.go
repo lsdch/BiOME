@@ -21,7 +21,6 @@ type datasetsTable struct {
 	Label       postgres.ColumnString
 	Slug        postgres.ColumnString
 	Description postgres.ColumnString
-	AssembledBy postgres.ColumnStringArray
 	Pinned      postgres.ColumnBool
 	CreatedAt   postgres.ColumnTimestampz
 
@@ -69,11 +68,10 @@ func newDatasetsTableImpl(schemaName, tableName, alias string) datasetsTable {
 		LabelColumn       = postgres.StringColumn("label")
 		SlugColumn        = postgres.StringColumn("slug")
 		DescriptionColumn = postgres.StringColumn("description")
-		AssembledByColumn = postgres.StringArrayColumn("assembled_by")
 		PinnedColumn      = postgres.BoolColumn("pinned")
 		CreatedAtColumn   = postgres.TimestampzColumn("created_at")
-		allColumns        = postgres.ColumnList{IDColumn, LabelColumn, SlugColumn, DescriptionColumn, AssembledByColumn, PinnedColumn, CreatedAtColumn}
-		mutableColumns    = postgres.ColumnList{LabelColumn, SlugColumn, DescriptionColumn, AssembledByColumn, PinnedColumn, CreatedAtColumn}
+		allColumns        = postgres.ColumnList{IDColumn, LabelColumn, SlugColumn, DescriptionColumn, PinnedColumn, CreatedAtColumn}
+		mutableColumns    = postgres.ColumnList{LabelColumn, SlugColumn, DescriptionColumn, PinnedColumn, CreatedAtColumn}
 		defaultColumns    = postgres.ColumnList{IDColumn, PinnedColumn, CreatedAtColumn}
 	)
 
@@ -85,7 +83,6 @@ func newDatasetsTableImpl(schemaName, tableName, alias string) datasetsTable {
 		Label:       LabelColumn,
 		Slug:        SlugColumn,
 		Description: DescriptionColumn,
-		AssembledBy: AssembledByColumn,
 		Pinned:      PinnedColumn,
 		CreatedAt:   CreatedAtColumn,
 

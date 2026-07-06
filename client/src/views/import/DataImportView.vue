@@ -1,7 +1,7 @@
 <template>
   <v-container class="fill-height">
     <div class="import-cards-container d-flex flex-column align-center w-100">
-      <v-card title="Sites" prepend-icon="mdi-map-marker">
+      <!-- <v-card title="Sites" prepend-icon="mdi-map-marker">
         <v-divider />
         <v-list>
           <SiteMutationFormDialog>
@@ -17,7 +17,7 @@
           </SiteMutationFormDialog>
           <v-list-item prepend-icon="mdi-file-upload-outline">Bulk import</v-list-item>
         </v-list>
-      </v-card>
+      </v-card> -->
       <v-card title="Occurrences" prepend-icon="mdi-crosshairs-gps">
         <v-divider />
         <!-- <v-card-text class="d-flex justify-space-around">
@@ -55,7 +55,7 @@
         </v-list>
       </v-card>
 
-      <v-card title="Sequences" prepend-icon="mdi-dna">
+      <v-card v-if="instance.molecular_data_enabled" title="Sequences" prepend-icon="mdi-dna">
         <v-divider />
         <v-list>
           <v-list-item prepend-icon="mdi-plus-circle-outline">Create record</v-list-item>
@@ -68,7 +68,10 @@
 
 <script setup lang="ts">
 import OccurrenceFormDialogCreate from '@/components/forms/occurrence/OccurrenceFormDialogCreate.vue'
-import SiteMutationFormDialog from '@/components/forms/SiteFormDialogMutation.vue'
+import { useInstanceSettings } from '@/features/settings/components'
+// import SiteMutationFormDialog from '@/components/forms/SiteFormDialogMutation.vue'
+
+const { instance } = useInstanceSettings()
 </script>
 
 <style scoped lang="scss">

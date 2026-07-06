@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { $FixativeInput, $FixativeUpdate, Fixative } from '@/api'
+import { $FixativeInput, $FixativeUpdateParams, Fixative } from '@/api'
 import { createFixativeMutation, updateFixativeMutation } from '@/api/gen/@tanstack/vue-query.gen'
 import { FormDialogProps } from '@/components/toolkit/forms/FormDialog.vue'
 import { defineFormCreate, defineFormUpdate, useMutationForm } from '@/lib/mutations'
@@ -37,7 +37,7 @@ const create = defineFormCreate(createFixativeMutation(), {
 
 const update = defineFormUpdate(updateFixativeMutation(), {
   itemToModel: FixativeModel.fromFixative,
-  schema: $FixativeUpdate,
+  schema: $FixativeUpdateParams,
   requestData: ({ code }, model) => ({
     path: { code },
     body: model

@@ -11,7 +11,7 @@
           @click.stop
           @add-group="(parent) => openForm(undefined, parent)"
           @edit="(group) => openForm(group)"
-          @delete="({ label }) => deleteHabitatGroup({ path: { label } })"
+          @delete="({ id }) => deleteHabitatGroup({ path: { id } })"
         />
 
         <HabitatGroupFormDialogMutation
@@ -19,7 +19,7 @@
           @success="refetch()"
           v-model:dialog="formDialog"
           :item="selectedGroup"
-          :depends="parentHabitat?.label"
+          :depends="parentHabitat?.name"
         >
         </HabitatGroupFormDialogMutation>
       </v-container>
@@ -46,16 +46,16 @@
             :title="
               activeHabitat.upstream
                 ?.concat(activeHabitat)
-                .map((u) => u.label)
+                .map((u) => u.name)
                 .join(' 〉 ')
             "
           >
             <template #title>
-              {{ activeHabitat.upstream?.map((u) => u.label).join(' 〉 ') }}
-              <span> 〉 <v-chip :text="activeHabitat.label"></v-chip></span>
+              {{ activeHabitat.upstream?.map((u) => u.name).join(' 〉 ') }}
+              <span> 〉 <v-chip :text="activeHabitat.name"></v-chip></span>
             </template>
             <template #append>
-              <span class="text-muted text-caption"> {{ activeHabitat.group.label }} </span>
+              <span class="text-muted text-caption"> {{ activeHabitat.group.name }} </span>
             </template>
           </v-list-item>
           <template v-if="isGranted('Maintainer')">

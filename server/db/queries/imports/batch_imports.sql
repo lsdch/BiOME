@@ -176,8 +176,7 @@ FROM import_samplings_occurrences
 WHERE import_hash = $1 ON CONFLICT (sampling_hash) DO
 UPDATE
 SET notes = EXCLUDED.notes
-RETURNING id,
-    sampling_hash;
+RETURNING id;
 
 
 -- name: InsertOccurrencesFromStaging :exec

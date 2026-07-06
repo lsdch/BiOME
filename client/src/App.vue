@@ -5,7 +5,7 @@
       <v-app-bar-title>
         <RouterLink :to="{ name: 'home' }" class="app-title d-flex align-center ga-3">
           <AppIcon :size="28" />
-          <span>{{ settings.instance.value?.name }}</span>
+          <span>{{ settings.instance.value?.title }}</span>
         </RouterLink>
       </v-app-bar-title>
       <v-spacer />
@@ -114,7 +114,7 @@ router.afterEach((to) => {
   // Use next tick to handle router history correctly
   // see: https://github.com/vuejs/vue-router/issues/914#issuecomment-384477609
   nextTick(() => {
-    document.title = to.meta?.title ?? settings.instance.value?.name ?? 'BiOME'
+    document.title = to.meta?.title ?? settings.instance.value?.title ?? 'BiOME'
   })
 })
 

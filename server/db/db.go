@@ -24,6 +24,8 @@ type Querier interface {
 	Queries() *biomedb.Queries
 	Query(ctx context.Context, sql string, args ...interface{}) (pgx.Rows, error)
 	QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row
+	EnsureTx(ctx context.Context) (txdb *Tx, err error)
+	WithTx(ctx context.Context, fn func(tx *Tx) error) error
 }
 
 type DB struct {
@@ -54,7 +56,7 @@ func (d *DB) QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.
 	return d.pool.QueryRow(ctx, sql, args...)
 }
 
-func (d *DB) BeginTx(ctx context.Context) (txdb *Tx, err error) {
+func (d *DB) EnsureTx(ctx context.Context) (txdb *Tx, err error) {
 	tx, err := d.pool.BeginTx(ctx, pgx.TxOptions{})
 	if err != nil {
 		return nil, err
@@ -72,8 +74,8 @@ func (d *DB) BeginTx(ctx context.Context) (txdb *Tx, err error) {
 	return &Tx{tx: tx, queries: q, UserID: userID}, nil
 }
 
-func (d *DB) WithTx(ctx context.Context, fn func(q *biomedb.Queries) error) error {
-	tx, err := d.BeginTx(ctx)
+func (d *DB) WithTx(ctx context.Context, fn func(tx *Tx) error) error {
+	tx, err := d.EnsureTx(ctx)
 	if err != nil {
 		return err
 	}
@@ -83,7 +85,7 @@ func (d *DB) WithTx(ctx context.Context, fn func(q *biomedb.Queries) error) erro
 		}
 	}()
 
-	err = fn(tx.queries)
+	err = fn(tx)
 	if err != nil {
 		return err
 	}
@@ -115,6 +117,19 @@ func (t *Tx) Query(ctx context.Context, sql string, args ...interface{}) (pgx.Ro
 
 func (t *Tx) QueryRow(ctx context.Context, sql string, args ...interface{}) pgx.Row {
 	return t.tx.QueryRow(ctx, sql, args...)
+}
+
+func (t *Tx) EnsureTx(ctx context.Context) (txdb *Tx, err error) {
+	return t, nil
+}
+
+func (t *Tx) WithTx(ctx context.Context, fn func(q *Tx) error) error {
+	err := fn(t)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Opens a new connection to Gel instance

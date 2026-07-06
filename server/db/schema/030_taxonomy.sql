@@ -33,6 +33,7 @@ CREATE INDEX taxa_name_rank_status_idx ON taxa (name, rank, status);
 CREATE UNIQUE INDEX taxa_name_authorship_uidx ON taxa (name, COALESCE(authorship, ''));
 CREATE INDEX taxa_parent_id_idx ON taxa (parent_id);
 CREATE INDEX taxa_accepted_taxon_id_idx ON taxa (accepted_taxon_id);
+-- Fuzzy search indexes
 CREATE INDEX taxa_name_trgm_idx ON taxa USING gin (name gin_trgm_ops);
 CREATE INDEX taxa_scientific_trgm_idx ON taxa USING gin (scientific_name gin_trgm_ops);
 CREATE INDEX taxa_name_idx ON taxa (name text_pattern_ops);

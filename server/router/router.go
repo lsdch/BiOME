@@ -10,12 +10,9 @@ import (
 	"path/filepath"
 	"reflect"
 	"slices"
-	"time"
 
-	"github.com/geldata/gel-go/geltypes"
 	"github.com/lsdch/biome/lib/auth"
 	"github.com/lsdch/biome/middleware"
-	"github.com/lsdch/biome/models/occurrence"
 	"github.com/lsdch/biome/services/crossref"
 
 	"github.com/caltechlibrary/crossrefapi"
@@ -41,17 +38,9 @@ func New(r *gin.Engine, basePath string, config huma.Config) Router {
 	API := humagin.NewWithGroup(r, baseAPI, config)
 
 	registry := huma.NewMapRegistry("#/components/schemas/", SchemaNamer)
-	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalStr](), reflect.TypeOf(""))
-	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalInt32](), reflect.TypeOf(0))
-	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalBool](), reflect.TypeOf(true))
-	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalDateTime](), reflect.TypeFor[time.Time]())
-	registry.RegisterTypeAlias(reflect.TypeFor[geltypes.OptionalDuration](), reflect.TypeFor[geltypes.Duration]())
-	registry.RegisterTypeAlias(reflect.TypeFor[occurrence.OptionalHabitatRecord](), reflect.TypeFor[occurrence.HabitatRecord]())
 
 	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.Person](), reflect.TypeFor[crossref.CrossRefPerson]())
 	registry.RegisterTypeAlias(reflect.TypeFor[crossrefapi.DateRange](), reflect.TypeFor[crossref.CrossRefDateRange]())
-
-	registry.Map()[SchemaNamer(reflect.TypeFor[occurrence.LatLongCoords](), "LatLongCoords")] = huma.SchemaFromType(registry, reflect.TypeFor[occurrence.LatLongCoords]())
 
 	API.OpenAPI().Components.Schemas = registry
 
@@ -85,7 +74,6 @@ func (r *Router) WriteSpecJSON(outputPath string) error {
 }
 
 func (r *Router) RouteGroup(prefix string) Group {
-
 	return Group{r, r.API, prefix, []string{}, auth.Public()}
 }
 
@@ -139,14 +127,14 @@ type RouteSpec interface {
 }
 
 type routeSpec[I, O any] struct {
-	Group       func(r *Router) Group
+	Group       Group
 	OperationID string
 	huma.Operation
 	Handler func(context.Context, *I) (*O, error)
 }
 
 func (spec routeSpec[I, O]) Register(r *Router) RouteSpec {
-	Register(spec.Group(r), spec.OperationID, spec.Operation, spec.Handler)
+	Register(spec.Group, spec.OperationID, spec.Operation, spec.Handler)
 	return spec
 }
 
@@ -156,42 +144,19 @@ func (spec routeSpec[I, O]) WithAccessPolicy(policy auth.Policy) RouteSpec {
 }
 
 func (spec routeSpec[I, O]) Path(r *Router) string {
-	return path.Join(spec.Group(r).router.BasePath, spec.Group(r).Prefix, spec.Operation.Path)
+	return path.Join(spec.Group.router.BasePath, spec.Group.Prefix, spec.Operation.Path)
 }
 
-var routeSpecs = make([]RouteSpec, 0)
-
 func NewSpec[I, O any](
-	groupFunc func(r *Router) Group,
+	group Group,
 	operationID string,
 	op huma.Operation,
 	handler func(context.Context, *I) (*O, error),
 ) RouteSpec {
 	return routeSpec[I, O]{
-		Group:       groupFunc,
+		Group:       group,
 		OperationID: operationID,
 		Operation:   op,
 		Handler:     handler,
-	}
-}
-
-func RegisterSpec[I, O any](
-	groupFunc func(r *Router) Group,
-	operationID string,
-	op huma.Operation,
-	handler func(context.Context, *I) (*O, error),
-) RouteSpec {
-	spec := NewSpec(groupFunc, operationID, op, handler)
-	routeSpecs = append(routeSpecs, spec)
-	return spec
-}
-
-/*
-CollectRoutes registers all route specs to the given router.
-Must be called after all route specs have been registered, typically at the end of controller/api package init, during server start-up.
-*/
-func (r *Router) CollectRoutes() {
-	for _, spec := range routeSpecs {
-		spec.Register(r)
 	}
 }

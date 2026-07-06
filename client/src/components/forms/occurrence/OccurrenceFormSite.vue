@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12">
         <SitePreviewCard :site rounded="0" flat @edit="toggleEdit(true)">
-          <template #append>
+          <!-- <template #append>
             <v-btn
               v-if="!!site && !showEdit"
               icon="mdi-pencil"
@@ -40,11 +40,11 @@
                 </v-btn>
               </template>
             </SiteFormDialog>
-          </template>
+          </template> -->
           <template #default v-if="!site || showEdit">
             <div>
               <v-card-text>
-                <SiteSearchInput @update:model-value="updateSite" />
+                <!-- <SiteSearchInput @update:model-value="updateSite" /> -->
               </v-card-text>
             </div>
           </template>
@@ -55,28 +55,28 @@
         </SitePreviewCard>
       </v-col>
       <v-col cols="12" v-if="site" style="min-height: 400px">
-        <ItemLocationMap
+        <!-- <ItemLocationMap
           v-model:item="site"
           :exclude-codes="site ? [site.code] : undefined"
           class="fill-height"
-        />
+        /> -->
       </v-col>
     </v-row>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import { SiteItem } from '@/api'
+import { Site } from '@/api'
 import SiteFormDialog from '@/components/forms/SiteFormDialog.vue'
 import ItemLocationMap from '@/features/cartography/components/ItemLocationMap.vue'
-import SiteAutocomplete from '@/features/site/components/SiteAutocomplete.vue'
+// import SiteAutocomplete from '@/features/site/components/SiteAutocomplete.vue'
 import SitePreviewCard from '@/features/site/components/SitePreviewCard.vue'
-import SiteSearchInput from '@/features/site/components/SiteSearchInput.vue'
+// import SiteSearchInput from '@/features/site/components/SiteSearchInput.vue'
 import { hasID } from '@/lib/db'
-import { SiteModel } from '@/models'
+// import { SiteModel } from '@/models'
 import { useToggle } from '@vueuse/core'
 
-const site = defineModel<SiteItem | SiteModel.SiteFormModel>()
+const site = defineModel<Site>()
 
 defineProps<{
   class?: any
@@ -85,7 +85,7 @@ defineProps<{
 const dialog = defineModel<boolean>('dialog')
 const [showEdit, toggleEdit] = useToggle(false)
 
-function updateSite(s: SiteItem | SiteModel.SiteFormModel | undefined) {
+function updateSite(s: Site | undefined) {
   site.value = s
   dialog.value = false
   toggleEdit(!s)

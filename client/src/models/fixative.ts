@@ -1,16 +1,15 @@
-import { Fixative, FixativeInput, FixativeUpdate } from "@/api";
-import { reactive, Reactive } from "vue";
+import { Fixative, FixativeInput, FixativeUpdateParams } from '@/api'
+import { reactive, Reactive } from 'vue'
 
-export type FixativeFormModel = FixativeInput | FixativeUpdate
+export type FixativeFormModel = FixativeInput | FixativeUpdateParams
 
 export function initialModel(): Reactive<FixativeInput> {
   return reactive({
     code: '',
-    label: '',
+    name: ''
   })
 }
 
-export function fromFixative({ id, $schema, meta, ...rest }: Fixative): FixativeUpdate {
+export function fromFixative({ id, $schema, ...rest }: Fixative): FixativeUpdateParams {
   return rest satisfies FixativeFormModel
 }
-

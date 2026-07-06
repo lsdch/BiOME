@@ -13,86 +13,113 @@ import (
 	ulid "github.com/oklog/ulid/v2"
 )
 
-const detectExistingSamplings = `-- name: DetectExistingSamplings :many
-SELECT latitude,
-    longitude,
-    event_date,
-    event_date_precision,
-    coordinates_precision,
-    ST_Distance(
-        coordinates::geography,
-        ST_SetSRID(
-            ST_MakePoint($1::float8, $2::float8),
-            4326
-        )::geography
-    )::integer AS distance_meters
-FROM samplings
-WHERE ST_DWithin(
-        coordinates::geography,
-        ST_SetSRID(
-            ST_MakePoint($1::float8, $2::float8),
-            4326
-        )::geography,
-        $3::integer
-    )
-    AND (
-        event_date_precision IS NOT NULL
-        AND event_date IS NOT NULL
-        AND event_date BETWEEN (
-            @event_date::date - INTERVAL $4::integer || 'day'
+const createSampling = `-- name: CreateSampling :one
+WITH inserted AS (
+    INSERT INTO samplings (
+            site_code,
+            site_name,
+            site_locality,
+            site_country_code,
+            coordinates,
+            coordinates_precision,
+            altitude,
+            event_date,
+            event_date_precision,
+            performed_by,
+            duration,
+            access_points,
+            notes
         )
-        AND (
-            @event_date::date + INTERVAL $4::integer || 'day'
+    VALUES (
+            $1,
+            $2,
+            $3,
+            $4,
+            $5,
+            $6,
+            $7,
+            $8,
+            $9,
+            $10,
+            $11,
+            $12,
+            $13
         )
+)
+SELECT s.id, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    c.code, c.name, c.continent, c.subcontinent, c.geom
+FROM samplings s
+    JOIN countries c ON c.code = s.site_country_code
+WHERE s.id = (
+        SELECT id
+        FROM inserted
     )
 `
 
-type DetectExistingSamplingsParams struct {
-	Longitude        float64 `json:"longitude"`
-	Latitude         float64 `json:"latitude"`
-	RadiusMeters     int32   `json:"radius_meters"`
-	DateIntervalDays int32   `json:"date_interval_days"`
-}
-
-type DetectExistingSamplingsRow struct {
-	Latitude             float32             `json:"latitude"`
-	Longitude            float32             `json:"longitude"`
+type CreateSamplingParams struct {
+	SiteCode             *string             `json:"site_code"`
+	SiteName             *string             `json:"site_name"`
+	SiteLocality         *string             `json:"site_locality"`
+	SiteCountryCode      *string             `json:"site_country_code"`
+	Coordinates          interface{}         `json:"coordinates"`
+	CoordinatesPrecision *int32              `json:"coordinates_precision"`
+	Altitude             *int32              `json:"altitude"`
 	EventDate            pgtype.Date         `json:"event_date"`
 	EventDatePrecision   *EventDatePrecision `json:"event_date_precision"`
-	CoordinatesPrecision *int32              `json:"coordinates_precision"`
-	DistanceMeters       int32               `json:"distance_meters"`
+	PerformedBy          []string            `json:"performed_by"`
+	Duration             *int32              `json:"duration"`
+	AccessPoints         []string            `json:"access_points"`
+	Notes                *string             `json:"notes"`
 }
 
-func (q *Queries) DetectExistingSamplings(ctx context.Context, arg DetectExistingSamplingsParams) ([]DetectExistingSamplingsRow, error) {
-	rows, err := q.db.Query(ctx, detectExistingSamplings,
-		arg.Longitude,
-		arg.Latitude,
-		arg.RadiusMeters,
-		arg.DateIntervalDays,
+type CreateSamplingRow struct {
+	Sampling Sampling `json:"sampling"`
+	Country  Country  `json:"country"`
+}
+
+func (q *Queries) CreateSampling(ctx context.Context, arg CreateSamplingParams) (CreateSamplingRow, error) {
+	row := q.db.QueryRow(ctx, createSampling,
+		arg.SiteCode,
+		arg.SiteName,
+		arg.SiteLocality,
+		arg.SiteCountryCode,
+		arg.Coordinates,
+		arg.CoordinatesPrecision,
+		arg.Altitude,
+		arg.EventDate,
+		arg.EventDatePrecision,
+		arg.PerformedBy,
+		arg.Duration,
+		arg.AccessPoints,
+		arg.Notes,
 	)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	var items []DetectExistingSamplingsRow
-	for rows.Next() {
-		var i DetectExistingSamplingsRow
-		if err := rows.Scan(
-			&i.Latitude,
-			&i.Longitude,
-			&i.EventDate,
-			&i.EventDatePrecision,
-			&i.CoordinatesPrecision,
-			&i.DistanceMeters,
-		); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+	var i CreateSamplingRow
+	err := row.Scan(
+		&i.Sampling.ID,
+		&i.Sampling.Notes,
+		&i.Sampling.SiteCode,
+		&i.Sampling.SiteName,
+		&i.Sampling.SiteLocality,
+		&i.Sampling.SiteCountryCode,
+		&i.Sampling.CoordinatesPrecision,
+		&i.Sampling.Coordinates,
+		&i.Sampling.Latitude,
+		&i.Sampling.Longitude,
+		&i.Sampling.Altitude,
+		&i.Sampling.EventDate,
+		&i.Sampling.EventDatePrecision,
+		&i.Sampling.PerformedBy,
+		&i.Sampling.Duration,
+		&i.Sampling.AccessPoints,
+		&i.Sampling.H3Index,
+		&i.Sampling.SearchVector,
+		&i.Country.Code,
+		&i.Country.Name,
+		&i.Country.Continent,
+		&i.Country.Subcontinent,
+		&i.Country.Geom,
+	)
+	return i, err
 }
 
 const getHabitatsAtEvent = `-- name: GetHabitatsAtEvent :many
@@ -115,7 +142,7 @@ func (q *Queries) GetHabitatsAtEvent(ctx context.Context, samplingID uuid.UUID) 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetHabitatsAtEventRow
+	items := []GetHabitatsAtEventRow{}
 	for rows.Next() {
 		var i GetHabitatsAtEventRow
 		if err := rows.Scan(
@@ -162,7 +189,7 @@ func (q *Queries) GetOccurrencesAtSamplingsBatch(ctx context.Context, samplingID
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetOccurrencesAtSamplingsBatchRow
+	items := []GetOccurrencesAtSamplingsBatchRow{}
 	for rows.Next() {
 		var i GetOccurrencesAtSamplingsBatchRow
 		if err := rows.Scan(
@@ -208,8 +235,52 @@ func (q *Queries) GetOccurrencesAtSamplingsBatch(ctx context.Context, samplingID
 	return items, nil
 }
 
+const getSampling = `-- name: GetSampling :one
+SELECT s.id, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    c.code, c.name, c.continent, c.subcontinent, c.geom
+FROM samplings s
+    JOIN countries c ON c.code = s.site_country_code
+WHERE s.id = $1::uuid
+`
+
+type GetSamplingRow struct {
+	Sampling Sampling `json:"sampling"`
+	Country  Country  `json:"country"`
+}
+
+func (q *Queries) GetSampling(ctx context.Context, samplingID uuid.UUID) (GetSamplingRow, error) {
+	row := q.db.QueryRow(ctx, getSampling, samplingID)
+	var i GetSamplingRow
+	err := row.Scan(
+		&i.Sampling.ID,
+		&i.Sampling.Notes,
+		&i.Sampling.SiteCode,
+		&i.Sampling.SiteName,
+		&i.Sampling.SiteLocality,
+		&i.Sampling.SiteCountryCode,
+		&i.Sampling.CoordinatesPrecision,
+		&i.Sampling.Coordinates,
+		&i.Sampling.Latitude,
+		&i.Sampling.Longitude,
+		&i.Sampling.Altitude,
+		&i.Sampling.EventDate,
+		&i.Sampling.EventDatePrecision,
+		&i.Sampling.PerformedBy,
+		&i.Sampling.Duration,
+		&i.Sampling.AccessPoints,
+		&i.Sampling.H3Index,
+		&i.Sampling.SearchVector,
+		&i.Country.Code,
+		&i.Country.Name,
+		&i.Country.Continent,
+		&i.Country.Subcontinent,
+		&i.Country.Geom,
+	)
+	return i, err
+}
+
 const getSamplingBatch = `-- name: GetSamplingBatch :many
-SELECT s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+SELECT s.id, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
     c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM samplings s
     JOIN countries c ON c.code = s.site_country_code
@@ -227,12 +298,11 @@ func (q *Queries) GetSamplingBatch(ctx context.Context, samplingIds []uuid.UUID)
 		return nil, err
 	}
 	defer rows.Close()
-	var items []GetSamplingBatchRow
+	items := []GetSamplingBatchRow{}
 	for rows.Next() {
 		var i GetSamplingBatchRow
 		if err := rows.Scan(
 			&i.Sampling.ID,
-			&i.Sampling.SamplingHash,
 			&i.Sampling.Notes,
 			&i.Sampling.SiteCode,
 			&i.Sampling.SiteName,
@@ -279,7 +349,7 @@ func (q *Queries) GetSamplingFixativesAtEvent(ctx context.Context, samplingID uu
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Fixative
+	items := []Fixative{}
 	for rows.Next() {
 		var i Fixative
 		if err := rows.Scan(
@@ -311,7 +381,7 @@ func (q *Queries) GetSamplingMethodsAtEvent(ctx context.Context, samplingID uuid
 		return nil, err
 	}
 	defer rows.Close()
-	var items []SamplingMethod
+	items := []SamplingMethod{}
 	for rows.Next() {
 		var i SamplingMethod
 		if err := rows.Scan(
@@ -343,7 +413,7 @@ func (q *Queries) GetSamplingTargetTaxa(ctx context.Context, samplingID uuid.UUI
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Taxon
+	items := []Taxon{}
 	for rows.Next() {
 		var i Taxon
 		if err := rows.Scan(
@@ -367,4 +437,153 @@ func (q *Queries) GetSamplingTargetTaxa(ctx context.Context, samplingID uuid.UUI
 		return nil, err
 	}
 	return items, nil
+}
+
+const listSamplingAccessPoints = `-- name: ListSamplingAccessPoints :many
+SELECT ap
+FROM (
+        SELECT unnest(s.access_points)::TEXT AS ap
+        FROM samplings s
+    ) sub
+GROUP BY ap
+ORDER BY ap
+`
+
+func (q *Queries) ListSamplingAccessPoints(ctx context.Context) ([]string, error) {
+	rows, err := q.db.Query(ctx, listSamplingAccessPoints)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []string{}
+	for rows.Next() {
+		var ap string
+		if err := rows.Scan(&ap); err != nil {
+			return nil, err
+		}
+		items = append(items, ap)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listSamplingsAtProximity = `-- name: ListSamplingsAtProximity :many
+SELECT s.id, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    c.code, c.name, c.continent, c.subcontinent, c.geom,
+    ST_Distance(
+        coordinates::geography,
+        ST_SetSRID(
+            ST_MakePoint($1::real, $2::real),
+            4326
+        )::geography
+    )::integer AS distance_meters
+FROM samplings s
+    LEFT JOIN countries c ON c.code = s.site_country_code
+WHERE ST_DWithin(
+        coordinates::geography,
+        ST_SetSRID(
+            ST_MakePoint($1::real, $2::real),
+            4326
+        )::geography,
+        $3::integer
+    )
+    AND (
+        $4::date IS NULL
+        OR (
+            event_date_precision IS NOT NULL
+            AND event_date IS NOT NULL
+            AND event_date BETWEEN (
+                $4::date - ($5::integer) * INTERVAL '1 day'
+            )
+            AND (
+                $4::date + ($5::integer) * INTERVAL '1 day'
+            )
+        )
+    )
+    AND NOT s.id = ANY($6::uuid [])
+`
+
+type ListSamplingsAtProximityParams struct {
+	Longitude          float32     `json:"longitude"`
+	Latitude           float32     `json:"latitude"`
+	RadiusMeters       int32       `json:"radius_meters"`
+	EventDate          pgtype.Date `json:"event_date"`
+	DateIntervalDays   int32       `json:"date_interval_days"`
+	ExcludeSamplingIds []uuid.UUID `json:"exclude_sampling_ids"`
+}
+
+type ListSamplingsAtProximityRow struct {
+	Sampling       Sampling `json:"sampling"`
+	Country        Country  `json:"country"`
+	DistanceMeters int32    `json:"distance_meters"`
+}
+
+func (q *Queries) ListSamplingsAtProximity(ctx context.Context, arg ListSamplingsAtProximityParams) ([]ListSamplingsAtProximityRow, error) {
+	rows, err := q.db.Query(ctx, listSamplingsAtProximity,
+		arg.Longitude,
+		arg.Latitude,
+		arg.RadiusMeters,
+		arg.EventDate,
+		arg.DateIntervalDays,
+		arg.ExcludeSamplingIds,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListSamplingsAtProximityRow{}
+	for rows.Next() {
+		var i ListSamplingsAtProximityRow
+		if err := rows.Scan(
+			&i.Sampling.ID,
+			&i.Sampling.Notes,
+			&i.Sampling.SiteCode,
+			&i.Sampling.SiteName,
+			&i.Sampling.SiteLocality,
+			&i.Sampling.SiteCountryCode,
+			&i.Sampling.CoordinatesPrecision,
+			&i.Sampling.Coordinates,
+			&i.Sampling.Latitude,
+			&i.Sampling.Longitude,
+			&i.Sampling.Altitude,
+			&i.Sampling.EventDate,
+			&i.Sampling.EventDatePrecision,
+			&i.Sampling.PerformedBy,
+			&i.Sampling.Duration,
+			&i.Sampling.AccessPoints,
+			&i.Sampling.H3Index,
+			&i.Sampling.SearchVector,
+			&i.Country.Code,
+			&i.Country.Name,
+			&i.Country.Continent,
+			&i.Country.Subcontinent,
+			&i.Country.Geom,
+			&i.DistanceMeters,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const replaceSamplingTargetTaxa = `-- name: ReplaceSamplingTargetTaxa :exec
+WITH deleted AS (
+    DELETE FROM sampling_target_taxa
+    WHERE sampling_id = $1::uuid
+)
+INSERT INTO sampling_target_taxa (sampling_id, taxon_id)
+SELECT $1::uuid,
+    t.taxon_id
+FROM UNNEST($2::uuid []) AS t(taxon_id)
+`
+
+func (q *Queries) ReplaceSamplingTargetTaxa(ctx context.Context, samplingID uuid.UUID, taxonIds []uuid.UUID) error {
+	_, err := q.db.Exec(ctx, replaceSamplingTargetTaxa, samplingID, taxonIds)
+	return err
 }

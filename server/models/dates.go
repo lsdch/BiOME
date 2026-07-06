@@ -16,12 +16,42 @@ type DateWithPrecision struct {
 	Precision EventDatePrecision `json:"precision"`
 }
 
+func (d DateWithPrecision) ToCode() string {
+	switch d.Precision {
+	case biomedb.EventDatePrecisionYear:
+		return d.Date.Format("2006")
+	case biomedb.EventDatePrecisionMonth:
+		return d.Date.Format("2006-01")
+	default:
+		return d.Date.Format("2006-01-02")
+	}
+}
+
 func MaybeDateWithPrecisionFromDB(date pgtype.Date, precision *biomedb.EventDatePrecision) Optional[DateWithPrecision] {
 	d := Optional[DateWithPrecision]{}
 	if date.Valid && precision.Valid() {
 		d = NewOptional(DateWithPrecision{Date: date.Time, Precision: *precision})
 	}
 	return d
+}
+
+type CompositeDate struct {
+	Day   int32 `json:"day,omitempty" minimum:"1" maximum:"31" default:"1"`
+	Month int32 `json:"month,omitempty" minimum:"1" maximum:"12" default:"1"`
+	Year  int32 `json:"year,omitempty" minimum:"1500" maximum:"3000"`
+}
+
+func (d CompositeDate) ToTime() time.Time {
+	return time.Date(int(d.Year), time.Month(d.Month), int(d.Day), 0, 0, 0, 0, time.UTC)
+}
+
+func (d CompositeDate) ToPgDate() pgtype.Date {
+	return pgtype.Date{Valid: true, Time: d.ToTime()}
+}
+
+type DateWithPrecisionInput struct {
+	Date      CompositeDate      `json:"date"`
+	Precision EventDatePrecision `json:"precision"`
 }
 
 type EventDateInput struct {

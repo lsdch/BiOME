@@ -1,12 +1,18 @@
 package models
 
 import (
+	"fmt"
+
 	"github.com/uber/h3-go/v4"
 )
 
 type Coordinates struct {
-	Latitude  float32 `json:"latitude" csv:"latitude"`
-	Longitude float32 `json:"longitude" csv:"longitude"`
+	Latitude  float32 `json:"latitude" csv:"latitude" query:"latitude"`
+	Longitude float32 `json:"longitude" csv:"longitude" query:"longitude"`
+}
+
+func (c Coordinates) ToCode() string {
+	return fmt.Sprintf("%fN%fE", c.Latitude, c.Longitude)
 }
 
 func (c Coordinates) ToH3GeoCoord() h3.LatLng {

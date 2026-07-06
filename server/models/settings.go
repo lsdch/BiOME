@@ -11,6 +11,7 @@ type InstanceSettings struct {
 	AccountRequestsEnabled bool             `json:"account_requests_enabled"`
 	MailFromAddress        string           `json:"mail_from_address"`
 	MailFromName           string           `json:"mail_from_name"`
+	MolecularDataEnabled   bool             `json:"molecular_data_enabled"`
 }
 
 func SettingsFromDB(s biomedb.Setting) InstanceSettings {
@@ -23,6 +24,7 @@ func SettingsFromDB(s biomedb.Setting) InstanceSettings {
 		AccountRequestsEnabled: s.AccountRequestsEnabled,
 		MailFromAddress:        s.MailFromAddress,
 		MailFromName:           s.MailFromName,
+		MolecularDataEnabled:   s.MolecularDataEnabled,
 	}
 }
 

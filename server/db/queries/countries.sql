@@ -9,10 +9,7 @@ VALUES (
     );
 
 -- name: ListCountries :many
-SELECT name,
-    code,
-    continent,
-    subcontinent
+SELECT *
 FROM countries
 ORDER BY name;
 
@@ -21,10 +18,25 @@ SELECT c.name,
     c.code,
     c.continent,
     c.subcontinent,
-    COUNT(s.id) AS sampling_count,
-    COUNT(o.id) AS occurrence_count
+    COUNT(DISTINCT s.id) AS sampling_count,
+    COUNT(DISTINCT o.id) AS occurrence_count
 FROM countries c
     LEFT JOIN samplings s ON s.site_country_code = c.code
-    LEFT JOIN occurrences o ON o.site_country_code = c.code
+    LEFT JOIN occurrences o ON o.sampling_id = s.id
 GROUP BY c.code
 ORDER BY c.name;
+
+-- name: CoordinatesToCountry :many
+SELECT c.*
+FROM countries c
+WHERE ST_Contains(
+        c.geom,
+        ST_SetSRID(
+            ST_Point(
+                @latitude::real,
+                @longitude::real
+            ),
+            4326
+        )
+    )
+LIMIT 1;

@@ -1,4 +1,5 @@
-import { instanceSettingsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { getInstanceSettingsOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { injectSettings } from '@/lib/injection'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 
@@ -7,7 +8,10 @@ const cacheKey = ref(Math.random())
 
 export function useInstanceSettings() {
   const { data, error, isPending, isSuccess, refetch, suspense } = useQuery({
-    ...instanceSettingsOptions()
+    ...getInstanceSettingsOptions(),
+    initialData: () => {
+      return injectSettings()
+    }
   })
 
   const iconImgProps = computed(() => ({

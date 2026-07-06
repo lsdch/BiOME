@@ -12,7 +12,8 @@ INSERT INTO settings (
         account_requests_enabled,
         admin_email,
         mail_from_address,
-        mail_from_name
+        mail_from_name,
+        molecular_data_enabled
     )
 VALUES (
         1,
@@ -23,7 +24,8 @@ VALUES (
         @account_requests_enabled,
         @admin_email,
         @mail_from_address,
-        @mail_from_name
+        @mail_from_name,
+        @molecular_data_enabled
     ) ON CONFLICT (id) DO NOTHING;
 
 -- name: UpdateInstanceSettings :one

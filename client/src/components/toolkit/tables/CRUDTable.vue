@@ -186,7 +186,7 @@
                 </div>
                 <slot name="expanded-row-footer" :item>
                   <div class="d-flex flex-wrap align-center">
-                    <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" />
+                    <!-- <MetaChip v-if="item.meta" :meta="item.meta" class="ma-1" /> -->
                     <v-btn
                       prepend-icon="mdi-content-copy"
                       text="UUID"
@@ -203,8 +203,10 @@
                     <template
                       v-if="
                         !!currentUser &&
-                        (UserRole.isGranted(currentUser, 'Maintainer') ||
-                          User.isOwner(currentUser, item))
+                        // (
+                        UserRole.isGranted(currentUser, 'Maintainer')
+                        // || User.isOwner(currentUser, item))
+                        // )
                       "
                     >
                       <v-btn
@@ -255,13 +257,13 @@
   setup
   lang="ts"
   generic="
-    ItemType extends { id: string; meta?: Meta },
+    ItemType extends { id: string },
     ItemsQueryData extends {},
     ItemsDeleteData extends {},
     Filters extends { owned?: boolean; term?: string }
   "
 >
-import { Meta, User, UserRole } from '@/api'
+import { User, UserRole } from '@/api'
 import CRUDFeedback from '@/components/toolkit/CRUDFeedback.vue'
 import MetaChip from '@/components/toolkit/MetaChip'
 import ExportDialog from '@/components/toolkit/ui/ExportDialog.vue'
@@ -323,9 +325,9 @@ const slots = defineSlots<
 const { sortBy, toggleSort } = useTableSort()
 
 function ownedItemFilter(item: ItemType) {
-  return search.value.owned && currentUser.value !== undefined
-    ? User.isOwner(currentUser.value, item)
-    : true
+  return search.value.owned ? currentUser.value !== undefined : true
+  // ? User.isOwner(currentUser.value, item)
+  // : true
 }
 
 const filteredItems = useArrayFilter(items as Ref<ItemType[]>, (item) => {

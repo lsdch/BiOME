@@ -6,23 +6,18 @@ import (
 	"errors"
 
 	"github.com/lsdch/biome/db"
-	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
 	"github.com/oklog/ulid/v2"
 )
 
-type ImportBatchService struct {
-	db *db.DB
+type ImportBatchService struct{}
+
+func NewImportBatchService() *ImportBatchService {
+	return &ImportBatchService{}
 }
 
-func NewImportBatchService(db *db.DB) *ImportBatchService {
-	return &ImportBatchService{
-		db: db,
-	}
-}
-
-func (s *ImportBatchService) GetImportBatch(ctx context.Context, id ulid.ULID) (*models.ImportBatch, error) {
-	ib, err := s.db.Queries().GetImportBatch(ctx, id)
+func (s *ImportBatchService) GetImportBatch(ctx context.Context, q db.Querier, id ulid.ULID) (*models.ImportBatch, error) {
+	ib, err := q.Queries().GetImportBatch(ctx, id)
 	if err != nil {
 		return nil, err
 	}
@@ -30,8 +25,8 @@ func (s *ImportBatchService) GetImportBatch(ctx context.Context, id ulid.ULID) (
 	return &importBatch, nil
 }
 
-func (s *ImportBatchService) GetImportBatchForOccurrence(ctx context.Context, occurrenceID ulid.ULID) (models.Optional[models.ImportBatch], error) {
-	ib, err := s.db.Queries().GetImportBatchForOccurrence(ctx, occurrenceID)
+func (s *ImportBatchService) GetImportBatchForOccurrence(ctx context.Context, q db.Querier, occurrenceID ulid.ULID) (models.Optional[models.ImportBatch], error) {
+	ib, err := q.Queries().GetImportBatchForOccurrence(ctx, occurrenceID)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Optional[models.ImportBatch]{}, nil
@@ -42,8 +37,8 @@ func (s *ImportBatchService) GetImportBatchForOccurrence(ctx context.Context, oc
 	return models.NewOptional(importBatch), nil
 }
 
-func (s *ImportBatchService) ListImportBatches(ctx context.Context) ([]models.ImportBatch, error) {
-	ibs, err := s.db.Queries().ListImportBatches(ctx)
+func (s *ImportBatchService) ListImportBatches(ctx context.Context, q db.Querier) ([]models.ImportBatch, error) {
+	ibs, err := q.Queries().ListImportBatches(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -54,24 +49,21 @@ func (s *ImportBatchService) ListImportBatches(ctx context.Context) ([]models.Im
 	return result, nil
 }
 
-func (s *ImportBatchService) DeleteImportBatch(ctx context.Context, id ulid.ULID) error {
-	err := s.db.Queries().DeleteImportBatch(ctx, id)
+func (s *ImportBatchService) DeleteImportBatch(ctx context.Context, q db.Querier, id ulid.ULID) error {
+	err := q.Queries().DeleteImportBatch(ctx, id)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (s *ImportBatchService) DeleteImportBatchWithOccurrences(ctx context.Context, id ulid.ULID) error {
-	return s.db.WithTx(ctx, func(q *biomedb.Queries) error {
-		err := q.DeleteOccurrencesFromBatch(ctx, id)
-		if err != nil {
-			return err
-		}
-		err = q.DeleteImportBatch(ctx, id)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
+func (s *ImportBatchService) DeleteImportBatchWithOccurrences(ctx context.Context, tx *db.Tx, id ulid.ULID) error {
+	q := tx.Queries()
+	if err := q.DeleteOccurrencesFromBatch(ctx, id); err != nil {
+		return err
+	}
+	if err := q.DeleteImportBatch(ctx, id); err != nil {
+		return err
+	}
+	return nil
 }

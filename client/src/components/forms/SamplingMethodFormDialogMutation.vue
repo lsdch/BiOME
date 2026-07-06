@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { $SamplingMethodInput, $SamplingMethodUpdate, SamplingMethod } from '@/api'
+import { $SamplingMethodInput, $SamplingMethodUpdateParams, SamplingMethod } from '@/api'
 import {
   createSamplingMethodMutation,
   updateSamplingMethodMutation
@@ -40,7 +40,7 @@ const create = defineFormCreate(createSamplingMethodMutation(), {
 
 const update = defineFormUpdate(updateSamplingMethodMutation(), {
   itemToModel: SamplingMethodModel.fromSamplingMethod,
-  schema: $SamplingMethodUpdate,
+  schema: $SamplingMethodUpdateParams,
   requestData: ({ code }, model) => ({ path: { code }, body: model })
 })
 

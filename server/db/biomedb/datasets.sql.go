@@ -11,6 +11,19 @@ import (
 	ulid "github.com/oklog/ulid/v2"
 )
 
+const addOccurrenceToDataset = `-- name: AddOccurrenceToDataset :exec
+INSERT INTO occurrences_datasets (occurrence_id, dataset_id)
+VALUES (
+        $1::ulid,
+        $2::ulid
+    )
+`
+
+func (q *Queries) AddOccurrenceToDataset(ctx context.Context, occurrenceID ulid.ULID, datasetID ulid.ULID) error {
+	_, err := q.db.Exec(ctx, addOccurrenceToDataset, occurrenceID, datasetID)
+	return err
+}
+
 const getDatasetByID = `-- name: GetDatasetByID :one
 SELECT id, label, slug, description, pinned, created_at
 FROM datasets d
@@ -44,7 +57,7 @@ func (q *Queries) GetDatasetsForOccurrence(ctx context.Context, occurrenceID uli
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Dataset
+	items := []Dataset{}
 	for rows.Next() {
 		var i Dataset
 		if err := rows.Scan(
@@ -77,7 +90,7 @@ func (q *Queries) ListDatasets(ctx context.Context) ([]Dataset, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Dataset
+	items := []Dataset{}
 	for rows.Next() {
 		var i Dataset
 		if err := rows.Scan(
@@ -100,7 +113,7 @@ func (q *Queries) ListDatasets(ctx context.Context) ([]Dataset, error) {
 
 const listOccurrencesForDataset = `-- name: ListOccurrencesForDataset :many
 SELECT o.id, o.code, o.sampling_id, o.type_status, o.comments, o.taxon_id, o.verbatim_identification, o.identified_by, o.identification_date, o.identification_date_precision, o.identification_confer, o.identification_addendum, o.content_description, o.quantity_exact, o.quantity_lower, o.quantity_upper, o.sources, o.created_at, o.updated_at, o.import_batch_id,
-    s.id, s.sampling_hash, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
+    s.id, s.notes, s.site_code, s.site_name, s.site_locality, s.site_country_code, s.coordinates_precision, s.coordinates, s.latitude, s.longitude, s.altitude, s.event_date, s.event_date_precision, s.performed_by, s.duration, s.access_points, s.h3_index, s.search_vector,
     t.id, t.gbif_id, t.name, t.scientific_name, t.rank, t.status, t.authorship, t.accepted_taxon_id, t.parent_id, t.search_vector, t.comments,
     c.code, c.name, c.continent, c.subcontinent, c.geom
 FROM occurrences o
@@ -124,7 +137,7 @@ func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID ulid.
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListOccurrencesForDatasetRow
+	items := []ListOccurrencesForDatasetRow{}
 	for rows.Next() {
 		var i ListOccurrencesForDatasetRow
 		if err := rows.Scan(
@@ -149,7 +162,6 @@ func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID ulid.
 			&i.Occurrence.UpdatedAt,
 			&i.Occurrence.ImportBatchID,
 			&i.Sampling.ID,
-			&i.Sampling.SamplingHash,
 			&i.Sampling.Notes,
 			&i.Sampling.SiteCode,
 			&i.Sampling.SiteName,
@@ -192,4 +204,15 @@ func (q *Queries) ListOccurrencesForDataset(ctx context.Context, datasetID ulid.
 		return nil, err
 	}
 	return items, nil
+}
+
+const removeOccurrenceFromDataset = `-- name: RemoveOccurrenceFromDataset :exec
+DELETE FROM occurrences_datasets
+WHERE occurrence_id = $1::ulid
+    AND dataset_id = $2::ulid
+`
+
+func (q *Queries) RemoveOccurrenceFromDataset(ctx context.Context, occurrenceID ulid.ULID, datasetID ulid.ULID) error {
+	_, err := q.db.Exec(ctx, removeOccurrenceFromDataset, occurrenceID, datasetID)
+	return err
 }

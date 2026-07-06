@@ -92,7 +92,7 @@ func (q *Queries) ListAbioticParams(ctx context.Context) ([]AbioticParam, error)
 		return nil, err
 	}
 	defer rows.Close()
-	var items []AbioticParam
+	items := []AbioticParam{}
 	for rows.Next() {
 		var i AbioticParam
 		if err := rows.Scan(

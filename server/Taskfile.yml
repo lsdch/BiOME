@@ -2,9 +2,8 @@ version: 3
 
 includes:
   db:
-    internal: true
-    taskfile: ../db
-    dir: ../db
+    taskfile: ./db
+    dir: ./db
 
 tasks:
   install-linter:

@@ -1,12 +1,15 @@
 package config
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"path/filepath"
 	"time"
 
 	"github.com/danielgtaylor/huma/v2"
+	"github.com/lsdch/biome/models"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -47,8 +50,13 @@ func (c APIConfig) ToHumaConfig() huma.Config {
 		Name:  c.ContactName,
 		Email: c.ContactEmail,
 	}
+
+	serverURL := url.URL{
+		Host: fmt.Sprintf("%s:%d", c.Host, 5173),
+		Path: c.BasePath,
+	}
 	cfg.OpenAPI.Servers = []*huma.Server{
-		{URL: c.BasePath},
+		{URL: serverURL.String()},
 	}
 	cfg.Security = []map[string][]string{
 		{"bearer": {}},
@@ -67,12 +75,25 @@ type DBConfig struct {
 	HealthTimeout   time.Duration `mapstructure:"HEALTH_TIMEOUT"`
 }
 
-type BootstrapConfig struct {
+type UserBootstrap struct {
+	Login     string          `mapstructure:"login"`
+	Email     string          `mapstructure:"email"`
+	Password  string          `mapstructure:"password"`
+	Role      models.UserRole `mapstructure:"role"`
+	FirstName string          `mapstructure:"first_name"`
+	LastName  string          `mapstructure:"last_name"`
+}
+
+type CountriesBootstrap struct {
 	CountriesJSON_URL      string `mapstructure:"COUNTRIES_JSON_URL"`
 	CountryNameKey         string `mapstructure:"COUNTRY_NAME_KEY"`
 	CountryCodeKey         string `mapstructure:"COUNTRY_CODE_KEY"`
 	CountryContinentKey    string `mapstructure:"COUNTRY_CONTINENT_KEY"`
 	CountrySubcontinentKey string `mapstructure:"COUNTRY_SUBCONTINENT_KEY"`
+}
+type BootstrapConfig struct {
+	Countries CountriesBootstrap `mapstructure:"countries"`
+	Users     []UserBootstrap    `mapstructure:"users"`
 }
 
 type AuthTokensConfig struct {
@@ -92,15 +113,15 @@ type SMTPConfig struct {
 }
 
 type InstanceConfig struct {
-	AppName        string  `mapstructure:"APP_NAME"`
-	AppSubtitle    *string `mapstructure:"APP_SUBTITLE"`
-	AppDescription *string `mapstructure:"APP_DESCRIPTION"`
-	AdminEmail     string  `mapstructure:"ADMIN_EMAIL"`
-	IsPublic       bool    `mapstructure:"IS_PUBLIC"`
-
-	AccountRequestsEnabled bool   `mapstructure:"ACCOUNT_REQUESTS_ENABLED"`
-	MailFromAddress        string `mapstructure:"MAIL_FROM_ADDRESS"`
-	MailFromName           string `mapstructure:"MAIL_FROM_NAME"`
+	AppName                string  `mapstructure:"APP_NAME"`
+	AppSubtitle            *string `mapstructure:"APP_SUBTITLE"`
+	AppDescription         *string `mapstructure:"APP_DESCRIPTION"`
+	AdminEmail             string  `mapstructure:"ADMIN_EMAIL"`
+	IsPublic               bool    `mapstructure:"IS_PUBLIC"`
+	AccountRequestsEnabled bool    `mapstructure:"ACCOUNT_REQUESTS_ENABLED"`
+	MailFromAddress        string  `mapstructure:"MAIL_FROM_ADDRESS"`
+	MailFromName           string  `mapstructure:"MAIL_FROM_NAME"`
+	MolecularDataEnabled   bool    `mapstructure:"MOLECULAR_DATA_ENABLED"`
 }
 
 type GeoapifyConfig struct {
@@ -110,7 +131,8 @@ type GeoapifyConfig struct {
 
 type Config struct {
 	Instance               InstanceConfig   `mapstructure:"instance"`
-	AppPublicBaseURL       url.URL          `mapstructure:"APP_PUBLIC_BASE_URL"`
+	appPublicBaseURL       string           `mapstructure:"APP_PUBLIC_BASE_URL"`
+	AppPublicBaseURL       url.URL          `json:"-"`
 	DB                     DBConfig         `mapstructure:"DB"`
 	SMTP                   SMTPConfig       `mapstructure:"SMTP"`
 	Env                    AppEnv           `mapstructure:"ENV"`
@@ -125,9 +147,26 @@ type Config struct {
 	Bootstrap              BootstrapConfig  `mapstructure:"bootstrap"`
 }
 
-func (c Config) Validate() error {
+func (c *Config) Validate() error {
 	if c.AuthTokens.SecretKey == "" {
 		return fmt.Errorf("missing JWT_SECRET_KEY")
+	}
+	if u, err := url.Parse(c.appPublicBaseURL); err != nil {
+		return fmt.Errorf("invalid APP_PUBLIC_BASE_URL: %w", err)
+	} else {
+		c.AppPublicBaseURL = *u
+	}
+	if c.GeneratedTokenLength < 16 {
+		return fmt.Errorf("TOKEN_LENGTH must be at least 16")
+	}
+	if c.Geoapify.DailyUsageLimit <= 0 {
+		return fmt.Errorf("GEOAPIFY_DAILY_USAGE_LIMIT must be greater than 0")
+	}
+	if c.GBIFMaxConcurrent <= 0 {
+		return fmt.Errorf("GBIF_MAX_CONCURRENT must be greater than 0")
+	}
+	if c.CrossRefMaxConcurrent <= 0 {
+		return fmt.Errorf("CROSSREF_MAX_CONCURRENT must be greater than 0")
 	}
 	return nil
 }
@@ -150,17 +189,25 @@ func LoadConfig(dir string, name string) (Config, error) {
 
 	// 3. env config (dev/prod)
 	env := v.GetString("ENV")
-	if err := readFile(v, fmt.Sprintf("%s.%s", name, env)); err != nil {
+	if env == "" {
+		env = string(EnvDev)
+	}
+	if err := tryMerge(v, fmt.Sprintf("%s.%s.yml", name, env)); err != nil {
 		return Config{}, fmt.Errorf("env config: %w", err)
 	}
 
 	// 4. local override (optional)
-	_ = tryMerge(v, filepath.Join(dir, fmt.Sprintf("%s.%s.local.yaml", name, env)))
+	_ = tryMerge(v, filepath.Join(dir, fmt.Sprintf("%s.local.yml", name)))
+
+	// fmt.Printf("%#v\n", v.AllSettings())
 
 	var cfg Config
 	if err := v.Unmarshal(&cfg); err != nil {
 		return Config{}, err
 	}
+
+	cfgJSON, _ := json.MarshalIndent(cfg, "", "\t")
+	logrus.Infof("Loaded config :\n%s", cfgJSON)
 
 	return cfg, cfg.Validate()
 }
@@ -172,11 +219,13 @@ func setDefaults(v *viper.Viper) {
 }
 
 func readFile(v *viper.Viper, name string) error {
+	logrus.Infof("Loading config file: %s", name)
 	v.SetConfigName(name)
 	return v.ReadInConfig()
 }
 
 func tryMerge(v *viper.Viper, file string) error {
+	logrus.Infof("Attempting to merge config file: %s", file)
 	v.SetConfigFile(file)
 
 	err := v.MergeInConfig()

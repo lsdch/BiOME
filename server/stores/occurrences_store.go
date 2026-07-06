@@ -17,13 +17,10 @@ import (
 const MIN_FULL_TEXT_SEARCH_TERM_LENGTH = 3
 
 type OccurrenceStore struct {
-	q db.Querier
 }
 
-func NewOccurrenceStore(q db.Querier) *OccurrenceStore {
-	return &OccurrenceStore{
-		q: q,
-	}
+func NewOccurrenceStore() *OccurrenceStore {
+	return &OccurrenceStore{}
 }
 
 func (s *OccurrenceStore) fromOccurrenceCoreTables(stmt SelectStatement) SelectStatement {
@@ -39,13 +36,13 @@ func (s *OccurrenceStore) fromOccurrenceCoreTables(stmt SelectStatement) SelectS
 		)
 }
 
-func (s *OccurrenceStore) ListOccurrencesCount(ctx context.Context, params ListOccurrencesParams) (int64, error) {
+func (s *OccurrenceStore) ListOccurrencesCount(ctx context.Context, q db.Querier, params ListOccurrencesParams) (int64, error) {
 	stmt := s.fromOccurrenceCoreTables(SELECT(COUNT(Int(1))))
 	searchParts := buildSearchParts(params.SearchTerm)
 	stmt = params.ApplyFilters(stmt, searchParts)
 
 	sql, args := stmt.Sql()
-	row := s.q.QueryRow(ctx, sql, args...)
+	row := q.QueryRow(ctx, sql, args...)
 	var count int64
 	err := row.Scan(&count)
 	if err != nil {
@@ -54,7 +51,7 @@ func (s *OccurrenceStore) ListOccurrencesCount(ctx context.Context, params ListO
 	return count, nil
 }
 
-func (s *OccurrenceStore) ListOccurrences(ctx context.Context, params ListOccurrencesParams) ([]models.Occurrence, error) {
+func (s *OccurrenceStore) ListOccurrences(ctx context.Context, q db.Querier, params ListOccurrencesParams) ([]models.Occurrence, error) {
 	score := Float(0)
 	searchParts := buildSearchParts(strings.TrimSpace(params.SearchTerm))
 	score = searchParts.toScoreProjection()
@@ -71,7 +68,7 @@ func (s *OccurrenceStore) ListOccurrences(ctx context.Context, params ListOccurr
 	stmt = params.ApplyPagination(stmt)
 
 	sql, args := stmt.Sql()
-	occurrencesRows, err := s.q.Query(ctx, sql, args...)
+	occurrencesRows, err := q.Query(ctx, sql, args...)
 	if err != nil {
 		return nil, err
 	}
@@ -112,7 +109,6 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 			&i.Occurrence.UpdatedAt,
 			&i.Occurrence.ImportBatchID,
 			&i.Sampling.ID,
-			&i.Sampling.SamplingHash,
 			&i.Sampling.Notes,
 			&i.Sampling.SiteCode,
 			&i.Sampling.SiteName,
@@ -158,13 +154,13 @@ func (s *OccurrenceStore) ScanOccurrenceRow(rows pgx.Rows) ([]models.Occurrence,
 }
 
 type ListOccurrencesParams struct {
-	SearchTerm  string                                                   `json:"search_term,omitempty"`
-	Datasets    []ulid.ULID                                              `json:"datasets,omitempty"`
-	Taxa        []uuid.UUID                                              `json:"taxa,omitempty"`
-	WholeClade  bool                                                     `json:"whole_clade,omitempty"`
-	Confer      models.Optional[bool]                                    `json:"confer,omitempty"`
-	TaxonRank   models.Optional[biomedb.TaxonRank]                       `json:"taxon_rank,omitempty"`
-	TaxonStatus models.Optional[biomedb.TaxonStatus]                     `json:"taxon_status,omitempty"`
+	SearchTerm  string                                                   `json:"search_term,omitempty" query:"search_term"`
+	Datasets    []ulid.ULID                                              `json:"datasets,omitempty" query:"datasets"`
+	Taxa        []uuid.UUID                                              `json:"taxa,omitempty" query:"taxa"`
+	WholeClade  bool                                                     `json:"whole_clade,omitempty" query:"whole_clade"`
+	Confer      models.Optional[bool]                                    `json:"confer,omitempty" query:"confer"`
+	TaxonRank   models.Optional[biomedb.TaxonRank]                       `json:"taxon_rank,omitempty" query:"taxon_rank"`
+	TaxonStatus models.Optional[biomedb.TaxonStatus]                     `json:"taxon_status,omitempty" query:"taxon_status"`
 	Pagination  models.Pagination                                        `json:"pagination"`
 	OrderBy     models.Optional[models.SortBy[models.OccurrenceSortKey]] `json:"order_by"`
 }
@@ -189,9 +185,9 @@ func (p *ListOccurrencesParams) ApplySorting(stmt SelectStatement, score FloatEx
 
 func (p *ListOccurrencesParams) ApplyPagination(stmt SelectStatement) SelectStatement {
 	if p.Pagination.Limit > 0 {
-		stmt = stmt.LIMIT(p.Pagination.Limit)
+		stmt = stmt.LIMIT(int64(p.Pagination.Limit))
 	}
-	stmt = stmt.OFFSET(p.Pagination.Offset)
+	stmt = stmt.OFFSET(int64(p.Pagination.Offset))
 	return stmt
 }
 

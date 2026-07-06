@@ -18,7 +18,7 @@
 </template>
 
 <script setup lang="ts">
-import { $DatePrecision, DateWithPrecisionInput } from '@/api'
+import { $EventDatePrecision, DateWithPrecisionInput } from '@/api'
 import { useSchema } from '@/composables/schema'
 import { $schema, DateWithPrecisionModel } from '@/models/date_with_precision'
 import CompositeDateField from './CompositeDateField.vue'
@@ -32,7 +32,7 @@ const {
 } = useSchema($schema)
 
 const items: Array<DateWithPrecisionInput['precision'] | 'Unknown'> = [
-  ...$DatePrecision.enum,
+  ...$EventDatePrecision.enum,
   'Unknown'
 ]
 </script>

@@ -1,6 +1,19 @@
 -- name: InsertHabitatGroup :one
 INSERT INTO habitat_groups (label, exclusive_elements, parent_habitat_id)
-VALUES (@label, @exclusive_elements, @parent_habitat_id)
+VALUES (
+        @label,
+        @exclusive_elements,
+        (
+            CASE
+                WHEN sqlc.narg('depends')::text IS NULL THEN NULL
+                ELSE (
+                    SELECT id
+                    FROM habitats h
+                    WHERE h.label = sqlc.narg('depends')::text
+                )
+            END
+        )
+    )
 RETURNING *;
 
 -- name: InsertHabitatInGroup :one

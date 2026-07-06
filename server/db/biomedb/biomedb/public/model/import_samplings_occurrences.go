@@ -21,7 +21,7 @@ type ImportSamplingsOccurrences struct {
 	SiteCode                    *string
 	SiteName                    *string
 	SiteLocality                *string
-	SiteCountryCode             *string
+	SiteCountryCode             string
 	CoordinatesPrecision        *int32
 	Longitude                   float32
 	Latitude                    float32

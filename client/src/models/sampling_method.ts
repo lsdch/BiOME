@@ -1,15 +1,19 @@
-import { Organisation, OrganisationInner, OrganisationInput, OrganisationUpdate, SamplingMethod, SamplingMethodInput, SamplingMethodUpdate } from "@/api";
-import { reactive, Reactive } from "vue";
+import { SamplingMethod, SamplingMethodInput, SamplingMethodUpdateParams } from '@/api'
+import { reactive, Reactive } from 'vue'
 
-export type SamplingMethodFormModel = SamplingMethodInput | SamplingMethodUpdate
+export type SamplingMethodFormModel = SamplingMethodInput | SamplingMethodUpdateParams
 
 export function initialModel(): Reactive<SamplingMethodInput> {
   return reactive({
     code: '',
-    label: ''
+    name: ''
   })
 }
 
-export function fromSamplingMethod({ code, label, description }: SamplingMethod): SamplingMethodUpdate {
-  return { code, label, description }
+export function fromSamplingMethod({
+  code,
+  name,
+  description
+}: SamplingMethod): SamplingMethodUpdateParams {
+  return { code, name, description }
 }

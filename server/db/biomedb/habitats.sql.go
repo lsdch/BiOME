@@ -34,18 +34,31 @@ func (q *Queries) DeleteHabitatGroup(ctx context.Context, id uuid.UUID) error {
 
 const insertHabitatGroup = `-- name: InsertHabitatGroup :one
 INSERT INTO habitat_groups (label, exclusive_elements, parent_habitat_id)
-VALUES ($1, $2, $3)
+VALUES (
+        $1,
+        $2,
+        (
+            CASE
+                WHEN $3::text IS NULL THEN NULL
+                ELSE (
+                    SELECT id
+                    FROM habitats h
+                    WHERE h.label = $3::text
+                )
+            END
+        )
+    )
 RETURNING id, label, description, exclusive_elements, parent_habitat_id
 `
 
 type InsertHabitatGroupParams struct {
-	Label             string      `json:"label"`
-	ExclusiveElements bool        `json:"exclusive_elements"`
-	ParentHabitatID   pgtype.UUID `json:"parent_habitat_id"`
+	Label             string  `json:"label"`
+	ExclusiveElements bool    `json:"exclusive_elements"`
+	Depends           *string `json:"depends"`
 }
 
 func (q *Queries) InsertHabitatGroup(ctx context.Context, arg InsertHabitatGroupParams) (HabitatGroup, error) {
-	row := q.db.QueryRow(ctx, insertHabitatGroup, arg.Label, arg.ExclusiveElements, arg.ParentHabitatID)
+	row := q.db.QueryRow(ctx, insertHabitatGroup, arg.Label, arg.ExclusiveElements, arg.Depends)
 	var i HabitatGroup
 	err := row.Scan(
 		&i.ID,
@@ -97,7 +110,7 @@ func (q *Queries) ListHabitatGroups(ctx context.Context) ([]HabitatGroup, error)
 		return nil, err
 	}
 	defer rows.Close()
-	var items []HabitatGroup
+	items := []HabitatGroup{}
 	for rows.Next() {
 		var i HabitatGroup
 		if err := rows.Scan(
@@ -130,7 +143,7 @@ func (q *Queries) ListHabitats(ctx context.Context) ([]Habitat, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []Habitat
+	items := []Habitat{}
 	for rows.Next() {
 		var i Habitat
 		if err := rows.Scan(

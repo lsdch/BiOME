@@ -1,6 +1,6 @@
 <template>
   <v-container fluid>
-    <v-card v-if="instance" :title="instance.description">
+    <v-card v-if="instance" :title="instance.subtitle" :subtitle="instance.description">
       <template #append>
         <img src="https://img.shields.io/badge/status-in%20development-orange" />
       </template>

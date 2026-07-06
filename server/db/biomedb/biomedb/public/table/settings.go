@@ -24,16 +24,9 @@ type settingsTable struct {
 	IsPublic               postgres.ColumnBool
 	AccountRequestsEnabled postgres.ColumnBool
 	AdminEmail             postgres.ColumnString
-	SMTPSettingsValid      postgres.ColumnBool
-	SMTPHost               postgres.ColumnString
-	SMTPPort               postgres.ColumnInteger
-	SMTPUser               postgres.ColumnString
-	SMTPPassword           postgres.ColumnString
-	SMTPFromEmail          postgres.ColumnString
-	SMTPFromName           postgres.ColumnString
-	GeoapifyAPIKey         postgres.ColumnString
-	GeoapifyUsageLimit     postgres.ColumnInteger
-	GbifContactEmail       postgres.ColumnString
+	MailFromAddress        postgres.ColumnString
+	MailFromName           postgres.ColumnString
+	MolecularDataEnabled   postgres.ColumnBool
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -82,19 +75,12 @@ func newSettingsTableImpl(schemaName, tableName, alias string) settingsTable {
 		IsPublicColumn               = postgres.BoolColumn("is_public")
 		AccountRequestsEnabledColumn = postgres.BoolColumn("account_requests_enabled")
 		AdminEmailColumn             = postgres.StringColumn("admin_email")
-		SMTPSettingsValidColumn      = postgres.BoolColumn("smtp_settings_valid")
-		SMTPHostColumn               = postgres.StringColumn("smtp_host")
-		SMTPPortColumn               = postgres.IntegerColumn("smtp_port")
-		SMTPUserColumn               = postgres.StringColumn("smtp_user")
-		SMTPPasswordColumn           = postgres.StringColumn("smtp_password")
-		SMTPFromEmailColumn          = postgres.StringColumn("smtp_from_email")
-		SMTPFromNameColumn           = postgres.StringColumn("smtp_from_name")
-		GeoapifyAPIKeyColumn         = postgres.StringColumn("geoapify_api_key")
-		GeoapifyUsageLimitColumn     = postgres.IntegerColumn("geoapify_usage_limit")
-		GbifContactEmailColumn       = postgres.StringColumn("gbif_contact_email")
-		allColumns                   = postgres.ColumnList{IDColumn, AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, SMTPSettingsValidColumn, SMTPHostColumn, SMTPPortColumn, SMTPUserColumn, SMTPPasswordColumn, SMTPFromEmailColumn, SMTPFromNameColumn, GeoapifyAPIKeyColumn, GeoapifyUsageLimitColumn, GbifContactEmailColumn}
-		mutableColumns               = postgres.ColumnList{AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, SMTPSettingsValidColumn, SMTPHostColumn, SMTPPortColumn, SMTPUserColumn, SMTPPasswordColumn, SMTPFromEmailColumn, SMTPFromNameColumn, GeoapifyAPIKeyColumn, GeoapifyUsageLimitColumn, GbifContactEmailColumn}
-		defaultColumns               = postgres.ColumnList{IDColumn, AppNameColumn, IsPublicColumn, AccountRequestsEnabledColumn, SMTPSettingsValidColumn, GeoapifyUsageLimitColumn}
+		MailFromAddressColumn        = postgres.StringColumn("mail_from_address")
+		MailFromNameColumn           = postgres.StringColumn("mail_from_name")
+		MolecularDataEnabledColumn   = postgres.BoolColumn("molecular_data_enabled")
+		allColumns                   = postgres.ColumnList{IDColumn, AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, MailFromAddressColumn, MailFromNameColumn, MolecularDataEnabledColumn}
+		mutableColumns               = postgres.ColumnList{AppNameColumn, AppSubtitleColumn, AppDescriptionColumn, IsPublicColumn, AccountRequestsEnabledColumn, AdminEmailColumn, MailFromAddressColumn, MailFromNameColumn, MolecularDataEnabledColumn}
+		defaultColumns               = postgres.ColumnList{IDColumn, AppNameColumn, IsPublicColumn, AccountRequestsEnabledColumn, MolecularDataEnabledColumn}
 	)
 
 	return settingsTable{
@@ -108,16 +94,9 @@ func newSettingsTableImpl(schemaName, tableName, alias string) settingsTable {
 		IsPublic:               IsPublicColumn,
 		AccountRequestsEnabled: AccountRequestsEnabledColumn,
 		AdminEmail:             AdminEmailColumn,
-		SMTPSettingsValid:      SMTPSettingsValidColumn,
-		SMTPHost:               SMTPHostColumn,
-		SMTPPort:               SMTPPortColumn,
-		SMTPUser:               SMTPUserColumn,
-		SMTPPassword:           SMTPPasswordColumn,
-		SMTPFromEmail:          SMTPFromEmailColumn,
-		SMTPFromName:           SMTPFromNameColumn,
-		GeoapifyAPIKey:         GeoapifyAPIKeyColumn,
-		GeoapifyUsageLimit:     GeoapifyUsageLimitColumn,
-		GbifContactEmail:       GbifContactEmailColumn,
+		MailFromAddress:        MailFromAddressColumn,
+		MailFromName:           MailFromNameColumn,
+		MolecularDataEnabled:   MolecularDataEnabledColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

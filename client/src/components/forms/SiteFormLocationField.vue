@@ -88,7 +88,7 @@
 </template>
 
 <script setup lang="ts">
-import { Geoapify } from '@/api'
+import { $SiteInput, Geoapify } from '@/api'
 import { coordinatesToCountryOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useGeoapify } from '@/stores/geoapify'
 import { useQuery } from '@tanstack/vue-query'
@@ -97,7 +97,7 @@ import { Coordinates } from '@/features/cartography/coordinates'
 import CountryPicker from '@/components/toolkit/forms/CountryPicker.vue'
 import GeoapifyStatusButton from '@/components/toolkit/services/geoapify/GeoapifyStatusButton.vue'
 import CountryChip from '@/features/site/components/CountryChip'
-import { SchemaBinding } from '@/composables/schema'
+import { SchemaBinding, useSchema } from '@/composables/schema'
 
 const locality = defineModel<string | null | undefined>('locality', { required: true })
 const country_code = defineModel<string | null | undefined>('country_code', { required: true })
@@ -105,7 +105,6 @@ const user_defined_locality = defineModel<boolean | undefined>('user_defined_loc
 
 const props = defineProps<{
   coordinates: Partial<Coordinates>
-  schema: (...path: ['locality'] | ['country_code']) => SchemaBinding
 }>()
 
 const { reverseGeocodeQuery, status } = useGeoapify()
@@ -148,6 +147,10 @@ const {
 function useCountryFromCoords() {
   country_code.value = unref(countryFromCoords)?.code ?? null
 }
+
+const {
+  bind: { schema }
+} = useSchema($SiteInput)
 
 watch(
   countryIsPending,

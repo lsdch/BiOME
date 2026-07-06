@@ -234,7 +234,7 @@ func (q *Queries) DetectBatchOccurrenceCollisions(ctx context.Context, arg Detec
 		return nil, err
 	}
 	defer rows.Close()
-	var items []DetectBatchOccurrenceCollisionsRow
+	items := []DetectBatchOccurrenceCollisionsRow{}
 	for rows.Next() {
 		var i DetectBatchOccurrenceCollisionsRow
 		if err := rows.Scan(
@@ -375,7 +375,7 @@ func (q *Queries) DetectBatchSamplingCollisions(ctx context.Context, arg DetectB
 		return nil, err
 	}
 	defer rows.Close()
-	var items []DetectBatchSamplingCollisionsRow
+	items := []DetectBatchSamplingCollisionsRow{}
 	for rows.Next() {
 		var i DetectBatchSamplingCollisionsRow
 		if err := rows.Scan(

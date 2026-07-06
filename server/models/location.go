@@ -8,7 +8,7 @@ import (
 
 type Country biomedb.Country
 
-func CountryFromDB(c biomedb.ListCountriesRow) Country {
+func CountryFromDB(c biomedb.Country) Country {
 	return Country{
 		Name:         c.Name,
 		Code:         c.Code,

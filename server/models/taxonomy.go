@@ -1,6 +1,8 @@
 package models
 
 import (
+	"strings"
+
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db/biomedb"
 )
@@ -18,6 +20,10 @@ type Taxon struct {
 	Comments   Optional[string]    `json:"comments,omitempty"`
 	ParentID   Optional[uuid.UUID] `json:"parent_id,omitempty"`
 	AcceptedID Optional[uuid.UUID] `json:"accepted_id,omitempty"`
+}
+
+func (t Taxon) Code() string {
+	return strings.ReplaceAll(t.Name, " ", "_")
 }
 
 func TaxonFromDB(t *biomedb.Taxon) *Taxon {
@@ -72,4 +78,11 @@ func (t *Taxon) WithLineage(parent *Taxon, accepted *Taxon, lineage []Taxon) Tax
 		},
 		Lineage: lineage,
 	}
+}
+
+type ListTaxaParams struct {
+	SearchTerm  Optional[string] `query:"search_term"`
+	Ranks       []TaxonRank      `query:"ranks"`
+	SampledOnly bool             `query:"sampled_only"`
+	Pagination
 }

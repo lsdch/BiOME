@@ -1,11 +1,11 @@
 <template>
   <div class="d-flex">
     <TaxonPicker
-      v-model="model.taxon"
+      v-model="model.taxon_id"
       :min-width="500"
-      return-object
-      :ranks="TaxonRank.ranksUpTo('Family')"
-      v-bind="schema('taxon')"
+      item-value="id"
+      :ranks="TaxonRank.ranksUpTo('FAMILY')"
+      v-bind="schema('taxon_id')"
     >
       <template #append-inner>
         <v-btn
@@ -45,7 +45,7 @@
 </template>
 
 <script setup lang="ts">
-import { $IdentificationInput, $IdentificationUpdate, Taxon, TaxonRank } from '@/api'
+import { $IdentificationInput, IdentificationInput, Taxon, TaxonRank } from '@/api'
 import DateWithPrecisionField from '@/components/toolkit/forms/DateWithPrecisionField.vue'
 import { useSchema } from '@/composables/schema'
 import TaxonPicker from '@/features/taxonomy/components/TaxonPicker.vue'
@@ -61,15 +61,13 @@ export type IdentificationModel = {
   taxon?: Taxon
 }
 
-const model = defineModel<IdentificationModel>({ required: true })
+const model = defineModel<Partial<IdentificationInput>>({ required: true })
 
 const { mode = 'Create' } = defineProps<FormProps>()
 
 const {
   bind: { schema }
-} = reactiveComputed(() =>
-  useSchema(mode === 'Create' ? $IdentificationInput : $IdentificationUpdate)
-)
+} = reactiveComputed(() => useSchema($IdentificationInput))
 </script>
 
 <style scoped lang="scss"></style>

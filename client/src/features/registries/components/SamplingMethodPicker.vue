@@ -2,7 +2,7 @@
   <v-autocomplete
     :items
     :loading="isPending"
-    item-title="label"
+    item-title="name"
     item-value="code"
     item-subtitle="description"
     v-bind="$attrs"

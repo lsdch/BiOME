@@ -8,468 +8,169 @@ import {
 } from './client'
 import { client } from './client.gen'
 import {
-  claimInvitationResponseTransformer,
-  createAbioticParameterResponseTransformer,
-  createArticleResponseTransformer,
-  createDataFeedResponseTransformer,
-  createDataSourceResponseTransformer,
-  createFixativeResponseTransformer,
-  createGeneResponseTransformer,
-  createHabitatGroupResponseTransformer,
+  createOccurrenceAtSamplingResponseTransformer,
   createOccurrenceResponseTransformer,
-  createOrganisationResponseTransformer,
-  createPersonResponseTransformer,
-  createProgramResponseTransformer,
-  createSamplingAtSiteResponseTransformer,
-  createSamplingMethodResponseTransformer,
   createSamplingResponseTransformer,
-  createSiteDatasetResponseTransformer,
-  createSiteResponseTransformer,
-  createTaxonResponseTransformer,
-  createUpdateMapPresetResponseTransformer,
-  currentUserResponseTransformer,
-  deleteAbioticParameterResponseTransformer,
-  deleteArticleResponseTransformer,
-  deleteDataSourceResponseTransformer,
-  deleteFixativeResponseTransformer,
-  deleteGeneResponseTransformer,
-  deleteHabitatGroupResponseTransformer,
-  deleteMapPresetResponseTransformer,
-  deleteOccurrenceResponseTransformer,
-  deleteOrganisationResponseTransformer,
-  deletePendingUserRequestResponseTransformer,
-  deletePersonResponseTransformer,
-  deleteProgramResponseTransformer,
-  deleteSamplingMethodResponseTransformer,
-  deleteSamplingResponseTransformer,
-  deleteSequenceResponseTransformer,
-  deleteTaxonResponseTransformer,
-  getDatasetResponseTransformer,
-  getOccurrenceDatasetResponseTransformer,
-  getOccurrenceResponseTransformer,
-  getPendingUserRequestResponseTransformer,
-  getSequenceDatasetResponseTransformer,
-  getSequenceResponseTransformer,
-  getSiteDatasetResponseTransformer,
-  getSiteResponseTransformer,
-  getTaxonomyAtRankResponseTransformer,
-  getTaxonResponseTransformer,
-  listAbioticParametersResponseTransformer,
-  listArticlesResponseTransformer,
-  listDataFeedsResponseTransformer,
+  getDatasetByIdResponseTransformer,
+  getOccurrencesResponseTransformer,
   listDatasetsResponseTransformer,
-  listDataSourcesResponseTransformer,
-  listFixativesResponseTransformer,
-  listGenesResponseTransformer,
-  listHabitatGroupsResponseTransformer,
-  listMapPresetsResponseTransformer,
-  listOccurrenceDatasetsResponseTransformer,
+  listGeoapifyUsageResponseTransformer,
   listOccurrencesResponseTransformer,
-  listOrganisationsResponseTransformer,
-  listPendingUserRequestsResponseTransformer,
-  listPersonsResponseTransformer,
-  listProgramsResponseTransformer,
-  listSamplingMethodsResponseTransformer,
-  listSequencesResponseTransformer,
-  listSiteDatasetsResponseTransformer,
-  listSiteSamplingsResponseTransformer,
-  listSitesResponseTransformer,
-  listTaxaResponseTransformer,
+  listSamplingsAtProximityResponseTransformer,
+  loadDatasetsForOccurrenceResponseTransformer,
+  loadOccurrencesForDatasetResponseTransformer,
   loginResponseTransformer,
-  occurrencesBySiteResponseTransformer,
-  refreshSessionResponseTransformer,
-  samplingAddOccurrenceResponseTransformer,
-  searchSitesResponseTransformer,
-  siteAddOccurrenceResponseTransformer,
-  sitesProximityResponseTransformer,
-  togglePinDatasetResponseTransformer,
-  updateAbioticParameterResponseTransformer,
-  updateArticleResponseTransformer,
-  updateDatasetResponseTransformer,
-  updateDataSourceResponseTransformer,
-  updateFixativeResponseTransformer,
-  updateGeneResponseTransformer,
-  updateHabitatGroupResponseTransformer,
-  updateOccurrenceCodesInDatasetResponseTransformer,
-  updateOccurrenceResponseTransformer,
-  updateOrganisationResponseTransformer,
-  updatePersonResponseTransformer,
-  updateProgramResponseTransformer,
-  updateSamplingMethodResponseTransformer,
-  updateSamplingResponseTransformer,
-  updateSiteResponseTransformer,
-  updateTaxonResponseTransformer
+  refreshSessionResponseTransformer
 } from './transformers.gen'
 import type {
-  ClaimInvitationData,
-  ClaimInvitationErrors,
-  ClaimInvitationResponses,
-  ConfirmEmailData,
-  ConfirmEmailErrors,
-  ConfirmEmailResponses,
+  BatchReverseGeocodeData,
+  BatchReverseGeocodeErrors,
+  BatchReverseGeocodeResponses,
   CoordinatesToCountryData,
   CoordinatesToCountryErrors,
   CoordinatesToCountryResponses,
-  CreateAbioticParameterData,
-  CreateAbioticParameterErrors,
-  CreateAbioticParameterResponses,
   CreateArticleData,
   CreateArticleErrors,
   CreateArticleResponses,
-  CreateDataFeedData,
-  CreateDataFeedErrors,
-  CreateDataFeedResponses,
-  CreateDataSourceData,
-  CreateDataSourceErrors,
-  CreateDataSourceResponses,
   CreateFixativeData,
   CreateFixativeErrors,
   CreateFixativeResponses,
-  CreateGeneData,
-  CreateGeneErrors,
-  CreateGeneResponses,
   CreateHabitatGroupData,
   CreateHabitatGroupErrors,
   CreateHabitatGroupResponses,
+  CreateOccurrenceAtSamplingData,
+  CreateOccurrenceAtSamplingErrors,
+  CreateOccurrenceAtSamplingResponses,
   CreateOccurrenceData,
   CreateOccurrenceErrors,
   CreateOccurrenceResponses,
-  CreateOrganisationData,
-  CreateOrganisationErrors,
-  CreateOrganisationResponses,
-  CreatePersonData,
-  CreatePersonErrors,
-  CreatePersonResponses,
-  CreateProgramData,
-  CreateProgramErrors,
-  CreateProgramResponses,
-  CreateSamplingAtSiteData,
-  CreateSamplingAtSiteErrors,
-  CreateSamplingAtSiteResponses,
   CreateSamplingData,
   CreateSamplingErrors,
   CreateSamplingMethodData,
   CreateSamplingMethodErrors,
   CreateSamplingMethodResponses,
   CreateSamplingResponses,
-  CreateSiteData,
-  CreateSiteDatasetData,
-  CreateSiteDatasetErrors,
-  CreateSiteDatasetResponses,
-  CreateSiteErrors,
-  CreateSiteResponses,
-  CreateTaxonData,
-  CreateTaxonErrors,
-  CreateTaxonResponses,
-  CreateUpdateMapPresetData,
-  CreateUpdateMapPresetErrors,
-  CreateUpdateMapPresetResponses,
-  CrossRefBibSearchData,
-  CrossRefBibSearchErrors,
-  CrossRefBibSearchResponses,
-  CrossRefData,
-  CrossRefErrors,
-  CrossRefResponses,
-  CurrentUserData,
-  CurrentUserErrors,
-  CurrentUserResponses,
-  DeleteAbioticParameterData,
-  DeleteAbioticParameterErrors,
-  DeleteAbioticParameterResponses,
   DeleteArticleData,
   DeleteArticleErrors,
   DeleteArticleResponses,
-  DeleteDataSourceData,
-  DeleteDataSourceErrors,
-  DeleteDataSourceResponses,
   DeleteFixativeData,
   DeleteFixativeErrors,
   DeleteFixativeResponses,
-  DeleteGeneData,
-  DeleteGeneErrors,
-  DeleteGeneResponses,
   DeleteHabitatGroupData,
   DeleteHabitatGroupErrors,
   DeleteHabitatGroupResponses,
-  DeleteMapPresetData,
-  DeleteMapPresetErrors,
-  DeleteMapPresetResponses,
-  DeleteOccurrenceData,
-  DeleteOccurrenceErrors,
-  DeleteOccurrenceResponses,
-  DeleteOrganisationData,
-  DeleteOrganisationErrors,
-  DeleteOrganisationResponses,
-  DeletePendingUserRequestData,
-  DeletePendingUserRequestErrors,
-  DeletePendingUserRequestResponses,
-  DeletePersonData,
-  DeletePersonErrors,
-  DeletePersonResponses,
-  DeleteProgramData,
-  DeleteProgramErrors,
-  DeleteProgramResponses,
-  DeleteSamplingData,
-  DeleteSamplingErrors,
   DeleteSamplingMethodData,
   DeleteSamplingMethodErrors,
   DeleteSamplingMethodResponses,
-  DeleteSamplingResponses,
-  DeleteSequenceData,
-  DeleteSequenceErrors,
-  DeleteSequenceResponses,
-  DeleteTaxonData,
-  DeleteTaxonErrors,
-  DeleteTaxonResponses,
-  EmailSettingsData,
-  EmailSettingsErrors,
-  EmailSettingsResponses,
-  GetCountriesSummaryData,
-  GetCountriesSummaryErrors,
-  GetCountriesSummaryResponses,
-  GetDatasetData,
-  GetDatasetErrors,
-  GetDatasetResponses,
+  GetCurrentUserData,
+  GetCurrentUserErrors,
+  GetCurrentUserResponses,
+  GetDatasetByIdData,
+  GetDatasetByIdErrors,
+  GetDatasetByIdResponses,
   GetGeoapifyStatusData,
   GetGeoapifyStatusErrors,
   GetGeoapifyStatusResponses,
-  GetOccurrenceData,
-  GetOccurrenceDatasetData,
-  GetOccurrenceDatasetErrors,
-  GetOccurrenceDatasetResponses,
-  GetOccurrenceErrors,
-  GetOccurrenceResponses,
-  GetPendingUserRequestData,
-  GetPendingUserRequestErrors,
-  GetPendingUserRequestResponses,
-  GetSequenceData,
-  GetSequenceDatasetData,
-  GetSequenceDatasetErrors,
-  GetSequenceDatasetResponses,
-  GetSequenceErrors,
-  GetSequenceResponses,
-  GetSiteData,
-  GetSiteDatasetData,
-  GetSiteDatasetErrors,
-  GetSiteDatasetResponses,
-  GetSiteErrors,
-  GetSiteResponses,
-  GetTaxonData,
-  GetTaxonErrors,
-  GetTaxonomyAtRankData,
-  GetTaxonomyAtRankErrors,
-  GetTaxonomyAtRankResponses,
-  GetTaxonResponses,
-  InstanceSettingsData,
-  InstanceSettingsErrors,
-  InstanceSettingsResponses,
-  InvitePersonData,
-  InvitePersonErrors,
-  InvitePersonResponses,
-  ListAbioticParametersData,
-  ListAbioticParametersErrors,
-  ListAbioticParametersResponses,
+  GetHabitatGroupsData,
+  GetHabitatGroupsErrors,
+  GetHabitatGroupsResponses,
+  GetInstanceSettingsData,
+  GetInstanceSettingsErrors,
+  GetInstanceSettingsResponses,
+  GetOccurrencesData,
+  GetOccurrencesErrors,
+  GetOccurrencesResponses,
+  ImportOccurrencesData,
+  ImportOccurrencesErrors,
+  ImportOccurrencesResponses,
+  ImportStatusData,
+  ImportStatusErrors,
+  ImportStatusResponse,
+  ImportStatusResponses,
   ListAccessPointsData,
   ListAccessPointsErrors,
   ListAccessPointsResponses,
   ListArticlesData,
   ListArticlesErrors,
   ListArticlesResponses,
-  ListCollectionsData,
-  ListCollectionsErrors,
-  ListCollectionsResponses,
+  ListCollectionNamesData,
+  ListCollectionNamesErrors,
+  ListCollectionNamesResponses,
   ListCountriesData,
   ListCountriesErrors,
   ListCountriesResponses,
-  ListDataFeedsData,
-  ListDataFeedsErrors,
-  ListDataFeedsResponses,
+  ListCountriesSummaryData,
+  ListCountriesSummaryErrors,
+  ListCountriesSummaryResponses,
   ListDatasetsData,
   ListDatasetsErrors,
   ListDatasetsResponses,
-  ListDataSourcesData,
-  ListDataSourcesErrors,
-  ListDataSourcesResponses,
   ListFixativesData,
   ListFixativesErrors,
   ListFixativesResponses,
-  ListGenesData,
-  ListGenesErrors,
-  ListGenesResponses,
   ListGeoapifyUsageData,
   ListGeoapifyUsageErrors,
   ListGeoapifyUsageResponses,
-  ListHabitatGroupsData,
-  ListHabitatGroupsErrors,
-  ListHabitatGroupsResponses,
-  ListMapPresetsData,
-  ListMapPresetsErrors,
-  ListMapPresetsResponses,
-  ListOccurrenceDatasetsData,
-  ListOccurrenceDatasetsErrors,
-  ListOccurrenceDatasetsResponses,
   ListOccurrencesData,
   ListOccurrencesErrors,
   ListOccurrencesResponses,
-  ListOrganisationsData,
-  ListOrganisationsErrors,
-  ListOrganisationsResponses,
-  ListPendingUserRequestsData,
-  ListPendingUserRequestsErrors,
-  ListPendingUserRequestsResponses,
-  ListPersonsData,
-  ListPersonsErrors,
-  ListPersonsResponses,
-  ListProgramsData,
-  ListProgramsErrors,
-  ListProgramsResponses,
   ListSamplingMethodsData,
   ListSamplingMethodsErrors,
   ListSamplingMethodsResponses,
-  ListSequenceDatasetsData,
-  ListSequenceDatasetsErrors,
-  ListSequenceDatasetsResponses,
-  ListSequencesData,
-  ListSequencesErrors,
-  ListSequencesResponses,
-  ListSiteDatasetsData,
-  ListSiteDatasetsErrors,
-  ListSiteDatasetsResponses,
-  ListSiteSamplingsData,
-  ListSiteSamplingsErrors,
-  ListSiteSamplingsResponses,
-  ListSitesData,
-  ListSitesErrors,
-  ListSitesResponses,
-  ListTaxaData,
-  ListTaxaErrors,
-  ListTaxaResponses,
+  ListSamplingsAtProximityData,
+  ListSamplingsAtProximityErrors,
+  ListSamplingsAtProximityResponses,
+  ListUsersData,
+  ListUsersErrors,
+  ListUsersResponses,
+  LoadDatasetsForOccurrenceData,
+  LoadDatasetsForOccurrenceErrors,
+  LoadDatasetsForOccurrenceResponses,
+  LoadOccurrencesForDatasetData,
+  LoadOccurrencesForDatasetErrors,
+  LoadOccurrencesForDatasetResponses,
   LoginData,
   LoginErrors,
   LoginResponses,
   LogoutData,
   LogoutErrors,
   LogoutResponses,
-  OccurrenceOverviewData,
-  OccurrenceOverviewErrors,
-  OccurrenceOverviewResponses,
-  OccurrencesBySiteData,
-  OccurrencesBySiteErrors,
-  OccurrencesBySiteResponses,
-  OccurrencesDateRangeData,
-  OccurrencesDateRangeErrors,
-  OccurrencesDateRangeResponses,
+  OccurrencesTaxaOverviewData,
+  OccurrencesTaxaOverviewErrors,
+  OccurrencesTaxaOverviewResponses,
   RefreshSessionData,
   RefreshSessionErrors,
   RefreshSessionResponses,
-  RegisterData,
-  RegisterErrors,
-  RegisterResponses,
-  RequestPasswordResetData,
-  RequestPasswordResetErrors,
-  RequestPasswordResetResponses,
-  ResendEmailVerificationData,
-  ResendEmailVerificationErrors,
-  ResendEmailVerificationResponses,
-  ResetPasswordData,
-  ResetPasswordErrors,
-  ResetPasswordResponses,
   ReverseGeocodeData,
   ReverseGeocodeErrors,
   ReverseGeocodeResponses,
-  SamplingAddOccurrenceData,
-  SamplingAddOccurrenceErrors,
-  SamplingAddOccurrenceResponses,
-  SearchSitesData,
-  SearchSitesErrors,
-  SearchSitesResponses,
-  SecuritySettingsData,
-  SecuritySettingsErrors,
-  SecuritySettingsResponses,
-  ServiceSettingsData,
-  ServiceSettingsErrors,
-  ServiceSettingsResponses,
+  SearchTaxaData,
+  SearchTaxaErrors,
+  SearchTaxaResponses,
   SetAppIconData,
   SetAppIconErrors,
   SetAppIconResponses,
-  SiteAddOccurrenceData,
-  SiteAddOccurrenceErrors,
-  SiteAddOccurrenceResponses,
-  SitesProximityData,
-  SitesProximityErrors,
-  SitesProximityResponses,
-  TestSmtpData,
-  TestSmtpErrors,
-  TestSmtpResponses,
-  TogglePinDatasetData,
-  TogglePinDatasetErrors,
-  TogglePinDatasetResponses,
-  UpdateAbioticParameterData,
-  UpdateAbioticParameterErrors,
-  UpdateAbioticParameterResponses,
-  UpdateArticleData,
-  UpdateArticleErrors,
-  UpdateArticleResponses,
-  UpdateDatasetData,
-  UpdateDatasetErrors,
-  UpdateDatasetResponses,
-  UpdateDataSourceData,
-  UpdateDataSourceErrors,
-  UpdateDataSourceResponses,
-  UpdateEmailSettingsData,
-  UpdateEmailSettingsErrors,
-  UpdateEmailSettingsResponses,
+  TestSmtpConnectionData,
+  TestSmtpConnectionErrors,
+  TestSmtpConnectionResponses,
+  TogglePublicAccessData,
+  TogglePublicAccessErrors,
+  TogglePublicAccessResponses,
+  TogglePublicRegistrationData,
+  TogglePublicRegistrationErrors,
+  TogglePublicRegistrationResponses,
   UpdateFixativeData,
   UpdateFixativeErrors,
   UpdateFixativeResponses,
-  UpdateGeneData,
-  UpdateGeneErrors,
-  UpdateGeneResponses,
   UpdateHabitatGroupData,
   UpdateHabitatGroupErrors,
   UpdateHabitatGroupResponses,
   UpdateInstanceSettingsData,
   UpdateInstanceSettingsErrors,
   UpdateInstanceSettingsResponses,
-  UpdateOccurrenceCodesInDatasetData,
-  UpdateOccurrenceCodesInDatasetErrors,
-  UpdateOccurrenceCodesInDatasetResponses,
-  UpdateOccurrenceData,
-  UpdateOccurrenceErrors,
-  UpdateOccurrenceResponses,
-  UpdateOrganisationData,
-  UpdateOrganisationErrors,
-  UpdateOrganisationResponses,
-  UpdatePasswordData,
-  UpdatePasswordErrors,
-  UpdatePasswordResponses,
-  UpdatePersonData,
-  UpdatePersonErrors,
-  UpdatePersonResponses,
-  UpdateProgramData,
-  UpdateProgramErrors,
-  UpdateProgramResponses,
-  UpdateSamplingData,
-  UpdateSamplingErrors,
   UpdateSamplingMethodData,
   UpdateSamplingMethodErrors,
-  UpdateSamplingMethodResponses,
-  UpdateSamplingResponses,
-  UpdateSecuritySettingsData,
-  UpdateSecuritySettingsErrors,
-  UpdateSecuritySettingsResponses,
-  UpdateServiceSettingsData,
-  UpdateServiceSettingsErrors,
-  UpdateServiceSettingsResponses,
-  UpdateSiteData,
-  UpdateSiteErrors,
-  UpdateSiteResponses,
-  UpdateTaxonData,
-  UpdateTaxonErrors,
-  UpdateTaxonResponses,
-  ValidatePasswordTokenData,
-  ValidatePasswordTokenErrors,
-  ValidatePasswordTokenResponses
+  UpdateSamplingMethodResponses
 } from './types.gen'
 
 export type Options<
@@ -490,117 +191,11 @@ export type Options<
   meta?: Record<string, unknown>
 }
 
-export class SamplingService {
-  /**
-   * List abiotic parameters
-   */
-  public static listAbioticParameters<ThrowOnError extends boolean = false>(
-    options?: Options<ListAbioticParametersData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListAbioticParametersResponses,
-      ListAbioticParametersErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listAbioticParametersResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/abiotic',
-      ...options
-    })
-  }
-
-  /**
-   * Create abiotic parameter
-   */
-  public static createAbioticParameter<ThrowOnError extends boolean = false>(
-    options: Options<CreateAbioticParameterData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateAbioticParameterResponses,
-      CreateAbioticParameterErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createAbioticParameterResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/abiotic',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete abiotic parameter
-   */
-  public static deleteAbioticParameter<ThrowOnError extends boolean = false>(
-    options: Options<DeleteAbioticParameterData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteAbioticParameterResponses,
-      DeleteAbioticParameterErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteAbioticParameterResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/abiotic/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update abiotic parameter
-   */
-  public static updateAbioticParameter<ThrowOnError extends boolean = false>(
-    options: Options<UpdateAbioticParameterData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateAbioticParameterResponses,
-      UpdateAbioticParameterErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateAbioticParameterResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/abiotic/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
+export class SamplingsService {
   /**
    * List access points
+   *
+   * List all unique access points for samplings.
    */
   public static listAccessPoints<ThrowOnError extends boolean = false>(
     options?: Options<ListAccessPointsData, ThrowOnError>
@@ -624,17 +219,20 @@ export class SamplingService {
   }
 
   /**
-   * List fixatives
+   * List samplings at proximity
+   *
+   * List samplings at proximity to a given point, within a given radius and date range.
    */
-  public static listFixatives<ThrowOnError extends boolean = false>(
-    options?: Options<ListFixativesData, ThrowOnError>
+  public static listSamplingsAtProximity<ThrowOnError extends boolean = false>(
+    options: Options<ListSamplingsAtProximityData, ThrowOnError>
   ) {
-    return (options?.client ?? client).get<
-      ListFixativesResponses,
-      ListFixativesErrors,
+    return (options.client ?? client).get<
+      ListSamplingsAtProximityResponses,
+      ListSamplingsAtProximityErrors,
       ThrowOnError
     >({
-      responseTransformer: listFixativesResponseTransformer,
+      querySerializer: { parameters: { exclude_ids: { array: { explode: false } } } },
+      responseTransformer: listSamplingsAtProximityResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -643,312 +241,15 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      url: '/fixatives',
+      url: '/proximity',
       ...options
     })
   }
 
   /**
-   * Create fixative
-   */
-  public static createFixative<ThrowOnError extends boolean = false>(
-    options: Options<CreateFixativeData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateFixativeResponses,
-      CreateFixativeErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createFixativeResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/fixatives',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete fixative
-   */
-  public static deleteFixative<ThrowOnError extends boolean = false>(
-    options: Options<DeleteFixativeData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteFixativeResponses,
-      DeleteFixativeErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteFixativeResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/fixatives/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update fixative
-   */
-  public static updateFixative<ThrowOnError extends boolean = false>(
-    options: Options<UpdateFixativeData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateFixativeResponses,
-      UpdateFixativeErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateFixativeResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/fixatives/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List habitats
-   */
-  public static listHabitatGroups<ThrowOnError extends boolean = false>(
-    options?: Options<ListHabitatGroupsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListHabitatGroupsResponses,
-      ListHabitatGroupsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listHabitatGroupsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/habitats',
-      ...options
-    })
-  }
-
-  /**
-   * Create habitat group
-   */
-  public static createHabitatGroup<ThrowOnError extends boolean = false>(
-    options: Options<CreateHabitatGroupData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateHabitatGroupResponses,
-      CreateHabitatGroupErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createHabitatGroupResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/habitats',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete habitat group
-   */
-  public static deleteHabitatGroup<ThrowOnError extends boolean = false>(
-    options: Options<DeleteHabitatGroupData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteHabitatGroupResponses,
-      DeleteHabitatGroupErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteHabitatGroupResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/habitats/{label}',
-      ...options
-    })
-  }
-
-  /**
-   * Update habitat group
-   */
-  public static updateHabitatGroup<ThrowOnError extends boolean = false>(
-    options: Options<UpdateHabitatGroupData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateHabitatGroupResponses,
-      UpdateHabitatGroupErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateHabitatGroupResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/habitats/{label}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List sampling methods
-   */
-  public static listSamplingMethods<ThrowOnError extends boolean = false>(
-    options?: Options<ListSamplingMethodsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListSamplingMethodsResponses,
-      ListSamplingMethodsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listSamplingMethodsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sampling-methods',
-      ...options
-    })
-  }
-
-  /**
-   * Create sampling method
-   */
-  public static createSamplingMethod<ThrowOnError extends boolean = false>(
-    options: Options<CreateSamplingMethodData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateSamplingMethodResponses,
-      CreateSamplingMethodErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createSamplingMethodResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sampling-methods',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete sampling method
-   */
-  public static deleteSamplingMethod<ThrowOnError extends boolean = false>(
-    options: Options<DeleteSamplingMethodData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteSamplingMethodResponses,
-      DeleteSamplingMethodErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteSamplingMethodResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sampling-methods/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update sampling method
-   */
-  public static updateSamplingMethod<ThrowOnError extends boolean = false>(
-    options: Options<UpdateSamplingMethodData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateSamplingMethodResponses,
-      UpdateSamplingMethodErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateSamplingMethodResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sampling-methods/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Create sampling action
+   * Create a new sampling
+   *
+   * Create a new sampling with the provided details.
    */
   public static createSampling<ThrowOnError extends boolean = false>(
     options: Options<CreateSamplingData, ThrowOnError>
@@ -975,19 +276,16 @@ export class SamplingService {
       }
     })
   }
+}
 
+export class AccountsService {
   /**
-   * Delete sampling action
+   * List all users
    */
-  public static deleteSampling<ThrowOnError extends boolean = false>(
-    options: Options<DeleteSamplingData, ThrowOnError>
+  public static listUsers<ThrowOnError extends boolean = false>(
+    options?: Options<ListUsersData, ThrowOnError>
   ) {
-    return (options.client ?? client).delete<
-      DeleteSamplingResponses,
-      DeleteSamplingErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteSamplingResponseTransformer,
+    return (options?.client ?? client).get<ListUsersResponses, ListUsersErrors, ThrowOnError>({
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -996,105 +294,20 @@ export class SamplingService {
           type: 'apiKey'
         }
       ],
-      url: '/samplings/{id}',
+      url: '/accounts',
       ...options
-    })
-  }
-
-  /**
-   * Update sampling action
-   */
-  public static updateSampling<ThrowOnError extends boolean = false>(
-    options: Options<UpdateSamplingData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateSamplingResponses,
-      UpdateSamplingErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateSamplingResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/samplings/{id}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Add occurrence from sampling
-   *
-   * Register new occurrence resulting from the sampling action
-   */
-  public static samplingAddOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SamplingAddOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      SamplingAddOccurrenceResponses,
-      SamplingAddOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: samplingAddOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/samplings/{id}/occurrences',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
     })
   }
 }
 
-export class AccountService {
+export class BibliographyService {
   /**
-   * Current user
-   *
-   * Get infos of currently authenticated user account
+   * List bibliography
    */
-  public static currentUser<ThrowOnError extends boolean = false>(
-    options?: Options<CurrentUserData, ThrowOnError>
+  public static listArticles<ThrowOnError extends boolean = false>(
+    options?: Options<ListArticlesData, ThrowOnError>
   ) {
-    return (options?.client ?? client).get<CurrentUserResponses, CurrentUserErrors, ThrowOnError>({
-      responseTransformer: currentUserResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account',
-      ...options
-    })
-  }
-
-  /**
-   * Confirm e-mail
-   *
-   * Confirms the validity of an e-mail address associated to an account, using a token issued at the end of user registration.
-   */
-  public static confirmEmail<ThrowOnError extends boolean = false>(
-    options?: Options<ConfirmEmailData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ConfirmEmailResponses, ConfirmEmailErrors, ThrowOnError>(
+    return (options?.client ?? client).get<ListArticlesResponses, ListArticlesErrors, ThrowOnError>(
       {
         security: [
           { scheme: 'bearer', type: 'http' },
@@ -1104,23 +317,21 @@ export class AccountService {
             type: 'apiKey'
           }
         ],
-        url: '/account/email-confirmation',
+        url: '/articles',
         ...options
       }
     )
   }
 
   /**
-   * Resend e-mail verification link
-   *
-   * Sends again a verification link for the provided e-mail address, if it matches a currently not verified user account.
+   * Create a new article
    */
-  public static resendEmailVerification<ThrowOnError extends boolean = false>(
-    options: Options<ResendEmailVerificationData, ThrowOnError>
+  public static createArticle<ThrowOnError extends boolean = false>(
+    options: Options<CreateArticleData, ThrowOnError>
   ) {
     return (options.client ?? client).post<
-      ResendEmailVerificationResponses,
-      ResendEmailVerificationErrors,
+      CreateArticleResponses,
+      CreateArticleErrors,
       ThrowOnError
     >({
       security: [
@@ -1131,7 +342,7 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      url: '/account/email-confirmation/resend',
+      url: '/articles',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -1141,16 +352,14 @@ export class AccountService {
   }
 
   /**
-   * Request password reset
-   *
-   * Requests sending a link containing a password reset token to your account email address. The link target can be provided by the client in the request body, or defaults to the API endpoint: `/api/v1/account/password-reset`. In this case, setting the new password is expected to be done programatically, e.g. through a curl request.
+   * Delete an article by ID
    */
-  public static requestPasswordReset<ThrowOnError extends boolean = false>(
-    options: Options<RequestPasswordResetData, ThrowOnError>
+  public static deleteArticle<ThrowOnError extends boolean = false>(
+    options: Options<DeleteArticleData, ThrowOnError>
   ) {
-    return (options.client ?? client).post<
-      RequestPasswordResetResponses,
-      RequestPasswordResetErrors,
+    return (options.client ?? client).delete<
+      DeleteArticleResponses,
+      DeleteArticleErrors,
       ThrowOnError
     >({
       security: [
@@ -1161,19 +370,15 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      url: '/account/forgotten-password',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
+      url: '/articles/{id}',
+      ...options
     })
   }
+}
 
+export class AuthenticationService {
   /**
-   * Login
-   *
-   * Authenticate using user credentials
+   * Authenticate a user and return a JWT token
    */
   public static login<ThrowOnError extends boolean = false>(
     options: Options<LoginData, ThrowOnError>
@@ -1188,7 +393,7 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      url: '/account/login',
+      url: '/auth/login',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -1198,14 +403,12 @@ export class AccountService {
   }
 
   /**
-   * Logout
-   *
-   * Logout from current user session by revoking session cookies
+   * Invalidate the current user's session
    */
   public static logout<ThrowOnError extends boolean = false>(
-    options: Options<LogoutData, ThrowOnError>
+    options?: Options<LogoutData, ThrowOnError>
   ) {
-    return (options.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({
+    return (options?.client ?? client).post<LogoutResponses, LogoutErrors, ThrowOnError>({
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -1214,115 +417,22 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      url: '/account/logout',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Update password
-   *
-   * Updates password of currently authenticated user
-   */
-  public static updatePassword<ThrowOnError extends boolean = false>(
-    options: Options<UpdatePasswordData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      UpdatePasswordResponses,
-      UpdatePasswordErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/password',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Validate password token
-   *
-   * Verifies that the password token is valid and can be used to reset a password
-   */
-  public static validatePasswordToken<ThrowOnError extends boolean = false>(
-    options: Options<ValidatePasswordTokenData, ThrowOnError>
-  ) {
-    return (options.client ?? client).get<
-      ValidatePasswordTokenResponses,
-      ValidatePasswordTokenErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/password-reset',
+      url: '/auth/logout',
       ...options
     })
   }
 
   /**
-   * Reset password
-   *
-   * Set a new password using a previously issued reset token
+   * Get the current authenticated user's information
    */
-  public static resetPassword<ThrowOnError extends boolean = false>(
-    options: Options<ResetPasswordData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      ResetPasswordResponses,
-      ResetPasswordErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/password-reset',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List pending user requests
-   *
-   * Lists all account requests pending validation from an administrator
-   */
-  public static listPendingUserRequests<ThrowOnError extends boolean = false>(
-    options?: Options<ListPendingUserRequestsData, ThrowOnError>
+  public static getCurrentUser<ThrowOnError extends boolean = false>(
+    options?: Options<GetCurrentUserData, ThrowOnError>
   ) {
     return (options?.client ?? client).get<
-      ListPendingUserRequestsResponses,
-      ListPendingUserRequestsErrors,
+      GetCurrentUserResponses,
+      GetCurrentUserErrors,
       ThrowOnError
     >({
-      responseTransformer: listPendingUserRequestsResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -1331,69 +441,13 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      url: '/account/pending',
+      url: '/auth/me',
       ...options
     })
   }
 
   /**
-   * Delete pending user request
-   *
-   * Delete account request pending validation using the associated email
-   */
-  public static deletePendingUserRequest<ThrowOnError extends boolean = false>(
-    options: Options<DeletePendingUserRequestData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeletePendingUserRequestResponses,
-      DeletePendingUserRequestErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deletePendingUserRequestResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/pending/{email}',
-      ...options
-    })
-  }
-
-  /**
-   * Get pending user request
-   *
-   * Get account request pending validation using the associated email
-   */
-  public static getPendingUserRequest<ThrowOnError extends boolean = false>(
-    options?: Options<GetPendingUserRequestData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      GetPendingUserRequestResponses,
-      GetPendingUserRequestErrors,
-      ThrowOnError
-    >({
-      responseTransformer: getPendingUserRequestResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/pending/{email}',
-      ...options
-    })
-  }
-
-  /**
-   * Refresh auth token
-   *
-   * Refresh session using refresh token
+   * Refresh the current user's session
    */
   public static refreshSession<ThrowOnError extends boolean = false>(
     options: Options<RefreshSessionData, ThrowOnError>
@@ -1412,597 +466,15 @@ export class AccountService {
           type: 'apiKey'
         }
       ],
-      url: '/account/refresh',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Register new account
-   *
-   * Register a new account that is initially pending, and needs to be activated by an administrator. An email is sent to the registered e-mail address with a verification link.
-   */
-  public static register<ThrowOnError extends boolean = false>(
-    options: Options<RegisterData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<RegisterResponses, RegisterErrors, ThrowOnError>({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/register',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Claim invitation
-   *
-   * Register an account with pre-assigned role and identity, using an invitation token
-   */
-  public static claimInvitation<ThrowOnError extends boolean = false>(
-    options: Options<ClaimInvitationData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      ClaimInvitationResponses,
-      ClaimInvitationErrors,
-      ThrowOnError
-    >({
-      responseTransformer: claimInvitationResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/account/register/{token}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-}
-
-export class OccurrencesService {
-  /**
-   * List collections
-   */
-  public static listCollections<ThrowOnError extends boolean = false>(
-    options?: Options<ListCollectionsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListCollectionsResponses,
-      ListCollectionsErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/collections',
+      url: '/auth/refresh',
       ...options
-    })
-  }
-
-  /**
-   * List occurrences
-   */
-  public static listOccurrences<ThrowOnError extends boolean = false>(
-    options?: Options<ListOccurrencesData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListOccurrencesResponses,
-      ListOccurrencesErrors,
-      ThrowOnError
-    >({
-      querySerializer: {
-        parameters: {
-          taxa: { array: { explode: false } },
-          datasets: { array: { explode: false } },
-          type_status: { array: { explode: false } },
-          rank: { array: { explode: false } }
-        }
-      },
-      responseTransformer: listOccurrencesResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences',
-      ...options
-    })
-  }
-
-  /**
-   * Create occurrence
-   */
-  public static createOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<CreateOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateOccurrenceResponses,
-      CreateOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Occurrences by site
-   */
-  public static occurrencesBySite<ThrowOnError extends boolean = false>(
-    options: Options<OccurrencesBySiteData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      OccurrencesBySiteResponses,
-      OccurrencesBySiteErrors,
-      ThrowOnError
-    >({
-      responseTransformer: occurrencesBySiteResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/by-site',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Occurrences overview
-   */
-  public static occurrenceOverview<ThrowOnError extends boolean = false>(
-    options?: Options<OccurrenceOverviewData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      OccurrenceOverviewResponses,
-      OccurrenceOverviewErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/overview',
-      ...options
-    })
-  }
-
-  /**
-   * Delete occurrence
-   *
-   * Delete an occurrence record by its code
-   */
-  public static deleteOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<DeleteOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteOccurrenceResponses,
-      DeleteOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Get occurrence
-   */
-  public static getOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<GetOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).get<
-      GetOccurrenceResponses,
-      GetOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: getOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update occurrence
-   */
-  public static updateOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<UpdateOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateOccurrenceResponses,
-      UpdateOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Add occurrence at site
-   *
-   * Register new occurrence at site, including event + sampling specification and biomaterial identification
-   */
-  public static siteAddOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SiteAddOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      SiteAddOccurrenceResponses,
-      SiteAddOccurrenceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: siteAddOccurrenceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sites/{code}/occurrences',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-}
-
-export class ReferencesService {
-  /**
-   * Retrieve article infos from DOI
-   */
-  public static crossRef<ThrowOnError extends boolean = false>(
-    options: Options<CrossRefData, ThrowOnError>
-  ) {
-    return (options.client ?? client).get<CrossRefResponses, CrossRefErrors, ThrowOnError>({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/crossref',
-      ...options
-    })
-  }
-
-  /**
-   * Retrieve article infos from query string
-   */
-  public static crossRefBibSearch<ThrowOnError extends boolean = false>(
-    options: Options<CrossRefBibSearchData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CrossRefBibSearchResponses,
-      CrossRefBibSearchErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/crossref',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List articles
-   */
-  public static listArticles<ThrowOnError extends boolean = false>(
-    options?: Options<ListArticlesData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ListArticlesResponses, ListArticlesErrors, ThrowOnError>(
-      {
-        responseTransformer: listArticlesResponseTransformer,
-        security: [
-          { scheme: 'bearer', type: 'http' },
-          {
-            in: 'cookie',
-            name: 'auth_token',
-            type: 'apiKey'
-          }
-        ],
-        url: '/references',
-        ...options
-      }
-    )
-  }
-
-  /**
-   * Create article
-   */
-  public static createArticle<ThrowOnError extends boolean = false>(
-    options: Options<CreateArticleData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateArticleResponses,
-      CreateArticleErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createArticleResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/references',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete article
-   */
-  public static deleteArticle<ThrowOnError extends boolean = false>(
-    options: Options<DeleteArticleData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteArticleResponses,
-      DeleteArticleErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteArticleResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/references/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update article
-   */
-  public static updateArticle<ThrowOnError extends boolean = false>(
-    options: Options<UpdateArticleData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateArticleResponses,
-      UpdateArticleErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateArticleResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/references/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-}
-
-export class DataSourcesService {
-  /**
-   * List external data sources
-   */
-  public static listDataSources<ThrowOnError extends boolean = false>(
-    options?: Options<ListDataSourcesData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListDataSourcesResponses,
-      ListDataSourcesErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listDataSourcesResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/data-sources',
-      ...options
-    })
-  }
-
-  /**
-   * Register external data source
-   */
-  public static createDataSource<ThrowOnError extends boolean = false>(
-    options: Options<CreateDataSourceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateDataSourceResponses,
-      CreateDataSourceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createDataSourceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/data-sources',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete external data source
-   */
-  public static deleteDataSource<ThrowOnError extends boolean = false>(
-    options: Options<DeleteDataSourceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteDataSourceResponses,
-      DeleteDataSourceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteDataSourceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/data-sources/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update external data source
-   */
-  public static updateDataSource<ThrowOnError extends boolean = false>(
-    options: Options<UpdateDataSourceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateDataSourceResponses,
-      UpdateDataSourceErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateDataSourceResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/data-sources/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
     })
   }
 }
 
 export class DatasetsService {
   /**
-   * List all datasets
-   *
-   * List all datasets with optional filters and category discriminator
+   * List datasets
    */
   public static listDatasets<ThrowOnError extends boolean = false>(
     options?: Options<ListDatasetsData, ThrowOnError>
@@ -2025,77 +497,17 @@ export class DatasetsService {
   }
 
   /**
-   * Update dataset
-   *
-   * Update dataset metadata
+   * Get dataset by ID
    */
-  public static updateDataset<ThrowOnError extends boolean = false>(
-    options: Options<UpdateDatasetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateDatasetResponses,
-      UpdateDatasetErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateDatasetResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/datasets/edit/{slug}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List occurrence datasets
-   *
-   * List all occurrence datasets
-   */
-  public static listOccurrenceDatasets<ThrowOnError extends boolean = false>(
-    options?: Options<ListOccurrenceDatasetsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListOccurrenceDatasetsResponses,
-      ListOccurrenceDatasetsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listOccurrenceDatasetsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/datasets/occurrence',
-      ...options
-    })
-  }
-
-  /**
-   * Get occurrence dataset
-   *
-   * Get infos for an occurrence dataset
-   */
-  public static getOccurrenceDataset<ThrowOnError extends boolean = false>(
-    options: Options<GetOccurrenceDatasetData, ThrowOnError>
+  public static getDatasetById<ThrowOnError extends boolean = false>(
+    options: Options<GetDatasetByIdData, ThrowOnError>
   ) {
     return (options.client ?? client).get<
-      GetOccurrenceDatasetResponses,
-      GetOccurrenceDatasetErrors,
+      GetDatasetByIdResponses,
+      GetDatasetByIdErrors,
       ThrowOnError
     >({
-      responseTransformer: getOccurrenceDatasetResponseTransformer,
+      responseTransformer: getDatasetByIdResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -2104,105 +516,23 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      url: '/datasets/occurrence/{slug}',
+      url: '/datasets/{ulid}',
       ...options
     })
   }
 
   /**
-   * Update occurrence codes in dataset
-   *
-   * Update occurrence codes based on the current taxon and sampling data
+   * Load occurrences for dataset
    */
-  public static updateOccurrenceCodesInDataset<ThrowOnError extends boolean = false>(
-    options: Options<UpdateOccurrenceCodesInDatasetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateOccurrenceCodesInDatasetResponses,
-      UpdateOccurrenceCodesInDatasetErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateOccurrenceCodesInDatasetResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/datasets/occurrence/{slug}/update-codes',
-      ...options
-    })
-  }
-
-  /**
-   * Pin/unpin dataset
-   *
-   * Pin or unpin dataset from from dashboard priority display
-   */
-  public static togglePinDataset<ThrowOnError extends boolean = false>(
-    options: Options<TogglePinDatasetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      TogglePinDatasetResponses,
-      TogglePinDatasetErrors,
-      ThrowOnError
-    >({
-      responseTransformer: togglePinDatasetResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/datasets/pin/{slug}',
-      ...options
-    })
-  }
-
-  /**
-   * List sequence datasets
-   *
-   * List all sequence datasets
-   */
-  public static listSequenceDatasets<ThrowOnError extends boolean = false>(
-    options?: Options<ListSequenceDatasetsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListSequenceDatasetsResponses,
-      ListSequenceDatasetsErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/datasets/sequence',
-      ...options
-    })
-  }
-
-  /**
-   * Get sequence dataset
-   *
-   * Get infos for an sequence dataset
-   */
-  public static getSequenceDataset<ThrowOnError extends boolean = false>(
-    options: Options<GetSequenceDatasetData, ThrowOnError>
+  public static loadOccurrencesForDataset<ThrowOnError extends boolean = false>(
+    options: Options<LoadOccurrencesForDatasetData, ThrowOnError>
   ) {
     return (options.client ?? client).get<
-      GetSequenceDatasetResponses,
-      GetSequenceDatasetErrors,
+      LoadOccurrencesForDatasetResponses,
+      LoadOccurrencesForDatasetErrors,
       ThrowOnError
     >({
-      responseTransformer: getSequenceDatasetResponseTransformer,
+      responseTransformer: loadOccurrencesForDatasetResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -2211,331 +541,24 @@ export class DatasetsService {
           type: 'apiKey'
         }
       ],
-      url: '/datasets/sequence/{slug}',
+      url: '/datasets/{ulid}/occurrences',
       ...options
-    })
-  }
-
-  /**
-   * List site datasets
-   *
-   * List all site datasets
-   */
-  public static listSiteDatasets<ThrowOnError extends boolean = false>(
-    options?: Options<ListSiteDatasetsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListSiteDatasetsResponses,
-      ListSiteDatasetsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listSiteDatasetsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/datasets/site',
-      ...options
-    })
-  }
-
-  /**
-   * Create site dataset
-   *
-   * Create a new site dataset with new or existing sites
-   */
-  public static createSiteDataset<ThrowOnError extends boolean = false>(
-    options: Options<CreateSiteDatasetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateSiteDatasetResponses,
-      CreateSiteDatasetErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createSiteDatasetResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/datasets/site',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Get site dataset
-   *
-   * Get infos for a site dataset
-   */
-  public static getSiteDataset<ThrowOnError extends boolean = false>(
-    options: Options<GetSiteDatasetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).get<
-      GetSiteDatasetResponses,
-      GetSiteDatasetErrors,
-      ThrowOnError
-    >({
-      responseTransformer: getSiteDatasetResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/datasets/site/{slug}',
-      ...options
-    })
-  }
-
-  /**
-   * Get dataset
-   *
-   * Retrieve dataset infos by slug
-   */
-  public static getDataset<ThrowOnError extends boolean = false>(
-    options: Options<GetDatasetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).get<GetDatasetResponses, GetDatasetErrors, ThrowOnError>({
-      responseTransformer: getDatasetResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/datasets/{slug}',
-      ...options
-    })
-  }
-
-  /**
-   * List programs
-   */
-  public static listPrograms<ThrowOnError extends boolean = false>(
-    options?: Options<ListProgramsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ListProgramsResponses, ListProgramsErrors, ThrowOnError>(
-      {
-        responseTransformer: listProgramsResponseTransformer,
-        security: [
-          { scheme: 'bearer', type: 'http' },
-          {
-            in: 'cookie',
-            name: 'auth_token',
-            type: 'apiKey'
-          }
-        ],
-        url: '/programs',
-        ...options
-      }
-    )
-  }
-
-  /**
-   * Create program
-   */
-  public static createProgram<ThrowOnError extends boolean = false>(
-    options: Options<CreateProgramData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateProgramResponses,
-      CreateProgramErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createProgramResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/programs',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete program
-   */
-  public static deleteProgram<ThrowOnError extends boolean = false>(
-    options: Options<DeleteProgramData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteProgramResponses,
-      DeleteProgramErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteProgramResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/programs/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update program
-   */
-  public static updateProgram<ThrowOnError extends boolean = false>(
-    options: Options<UpdateProgramData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateProgramResponses,
-      UpdateProgramErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateProgramResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/programs/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
     })
   }
 }
 
-export class SequencesService {
+export class SamplingService {
   /**
-   * List genes
+   * List sampling fixatives
    */
-  public static listGenes<ThrowOnError extends boolean = false>(
-    options?: Options<ListGenesData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ListGenesResponses, ListGenesErrors, ThrowOnError>({
-      responseTransformer: listGenesResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/genes',
-      ...options
-    })
-  }
-
-  /**
-   * Create gene
-   */
-  public static createGene<ThrowOnError extends boolean = false>(
-    options: Options<CreateGeneData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<CreateGeneResponses, CreateGeneErrors, ThrowOnError>({
-      responseTransformer: createGeneResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/genes',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete gene
-   */
-  public static deleteGene<ThrowOnError extends boolean = false>(
-    options: Options<DeleteGeneData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<DeleteGeneResponses, DeleteGeneErrors, ThrowOnError>({
-      responseTransformer: deleteGeneResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/genes/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update gene
-   */
-  public static updateGene<ThrowOnError extends boolean = false>(
-    options: Options<UpdateGeneData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<UpdateGeneResponses, UpdateGeneErrors, ThrowOnError>({
-      responseTransformer: updateGeneResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/genes/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List sequences
-   */
-  public static listSequences<ThrowOnError extends boolean = false>(
-    options?: Options<ListSequencesData, ThrowOnError>
+  public static listFixatives<ThrowOnError extends boolean = false>(
+    options?: Options<ListFixativesData, ThrowOnError>
   ) {
     return (options?.client ?? client).get<
-      ListSequencesResponses,
-      ListSequencesErrors,
+      ListFixativesResponses,
+      ListFixativesErrors,
       ThrowOnError
     >({
-      responseTransformer: listSequencesResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -2544,23 +567,50 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      url: '/sequences',
+      url: '/fixatives',
       ...options
     })
   }
 
   /**
-   * Delete sequence
+   * Create a new sampling fixative
    */
-  public static deleteSequence<ThrowOnError extends boolean = false>(
-    options: Options<DeleteSequenceData, ThrowOnError>
+  public static createFixative<ThrowOnError extends boolean = false>(
+    options: Options<CreateFixativeData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      CreateFixativeResponses,
+      CreateFixativeErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/fixatives',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Delete a sampling fixative by code
+   */
+  public static deleteFixative<ThrowOnError extends boolean = false>(
+    options: Options<DeleteFixativeData, ThrowOnError>
   ) {
     return (options.client ?? client).delete<
-      DeleteSequenceResponses,
-      DeleteSequenceErrors,
+      DeleteFixativeResponses,
+      DeleteFixativeErrors,
       ThrowOnError
     >({
-      responseTransformer: deleteSequenceResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -2569,19 +619,22 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      url: '/sequences/{code}',
+      url: '/fixatives/{code}',
       ...options
     })
   }
 
   /**
-   * Get sequence
+   * Update a sampling fixative by code
    */
-  public static getSequence<ThrowOnError extends boolean = false>(
-    options: Options<GetSequenceData, ThrowOnError>
+  public static updateFixative<ThrowOnError extends boolean = false>(
+    options: Options<UpdateFixativeData, ThrowOnError>
   ) {
-    return (options.client ?? client).get<GetSequenceResponses, GetSequenceErrors, ThrowOnError>({
-      responseTransformer: getSequenceResponseTransformer,
+    return (options.client ?? client).patch<
+      UpdateFixativeResponses,
+      UpdateFixativeErrors,
+      ThrowOnError
+    >({
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -2590,8 +643,116 @@ export class SequencesService {
           type: 'apiKey'
         }
       ],
-      url: '/sequences/{code}',
+      url: '/fixatives/{code}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * List sampling methods
+   */
+  public static listSamplingMethods<ThrowOnError extends boolean = false>(
+    options?: Options<ListSamplingMethodsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListSamplingMethodsResponses,
+      ListSamplingMethodsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/sampling-methods',
       ...options
+    })
+  }
+
+  /**
+   * Create a new sampling method
+   */
+  public static createSamplingMethod<ThrowOnError extends boolean = false>(
+    options: Options<CreateSamplingMethodData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      CreateSamplingMethodResponses,
+      CreateSamplingMethodErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/sampling-methods',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Delete a sampling method by code
+   */
+  public static deleteSamplingMethod<ThrowOnError extends boolean = false>(
+    options: Options<DeleteSamplingMethodData, ThrowOnError>
+  ) {
+    return (options.client ?? client).delete<
+      DeleteSamplingMethodResponses,
+      DeleteSamplingMethodErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/sampling-methods/{code}',
+      ...options
+    })
+  }
+
+  /**
+   * Update a sampling method by code
+   */
+  public static updateSamplingMethod<ThrowOnError extends boolean = false>(
+    options: Options<UpdateSamplingMethodData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      UpdateSamplingMethodResponses,
+      UpdateSamplingMethodErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/sampling-methods/{code}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
     })
   }
 }
@@ -2622,6 +783,34 @@ export class ServicesService {
   }
 
   /**
+   * Batch reverse geocode coordinates using Geoapify API
+   */
+  public static batchReverseGeocode<ThrowOnError extends boolean = false>(
+    options: Options<BatchReverseGeocodeData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      BatchReverseGeocodeResponses,
+      BatchReverseGeocodeErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/geoapify/reverse-geocode/batch',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
    * Get Geoapify API status
    */
   public static getGeoapifyStatus<ThrowOnError extends boolean = false>(
@@ -2646,7 +835,7 @@ export class ServicesService {
   }
 
   /**
-   * List Geoapify usage
+   * List Geoapify usage history
    */
   public static listGeoapifyUsage<ThrowOnError extends boolean = false>(
     options?: Options<ListGeoapifyUsageData, ThrowOnError>
@@ -2656,6 +845,7 @@ export class ServicesService {
       ListGeoapifyUsageErrors,
       ThrowOnError
     >({
+      responseTransformer: listGeoapifyUsageResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -2664,63 +854,175 @@ export class ServicesService {
           type: 'apiKey'
         }
       ],
-      url: '/geoapify/usage',
+      url: '/geoapify/usage/history',
+      ...options
+    })
+  }
+}
+
+export class HabitatsService {
+  /**
+   * Get all habitat groups with their elements
+   */
+  public static getHabitatGroups<ThrowOnError extends boolean = false>(
+    options?: Options<GetHabitatGroupsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      GetHabitatGroupsResponses,
+      GetHabitatGroupsErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/habitats',
+      ...options
+    })
+  }
+
+  /**
+   * Create a new habitat group with its elements
+   */
+  public static createHabitatGroup<ThrowOnError extends boolean = false>(
+    options: Options<CreateHabitatGroupData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      CreateHabitatGroupResponses,
+      CreateHabitatGroupErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/habitats',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Delete a habitat group by its ID
+   */
+  public static deleteHabitatGroup<ThrowOnError extends boolean = false>(
+    options: Options<DeleteHabitatGroupData, ThrowOnError>
+  ) {
+    return (options.client ?? client).delete<
+      DeleteHabitatGroupResponses,
+      DeleteHabitatGroupErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/habitats/{id}',
+      ...options
+    })
+  }
+
+  /**
+   * Update a habitat group by its ID
+   */
+  public static updateHabitatGroup<ThrowOnError extends boolean = false>(
+    options: Options<UpdateHabitatGroupData, ThrowOnError>
+  ) {
+    return (options.client ?? client).patch<
+      UpdateHabitatGroupResponses,
+      UpdateHabitatGroupErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/habitats/{id}',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+}
+
+export class BatchImportsService {
+  /**
+   * Import occurrence data
+   */
+  public static importOccurrences<ThrowOnError extends boolean = false>(
+    options?: Options<ImportOccurrencesData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).post<
+      ImportOccurrencesResponses,
+      ImportOccurrencesErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options?.headers
+      }
+    })
+  }
+}
+
+export class DefaultService {
+  /**
+   * Get import status updates via Server-Sent Events (SSE)
+   */
+  public static importStatus<ThrowOnError extends boolean = false>(
+    options: Options<ImportStatusData, ThrowOnError, ImportStatusResponse>
+  ) {
+    return (options.client ?? client).sse.get<
+      ImportStatusResponses,
+      ImportStatusErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/{hash}/status',
       ...options
     })
   }
 }
 
 export class LocationService {
-  /**
-   * Get country from WGS84 coordinates
-   */
-  public static coordinatesToCountry<ThrowOnError extends boolean = false>(
-    options?: Options<CoordinatesToCountryData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      CoordinatesToCountryResponses,
-      CoordinatesToCountryErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/locations/coordinates',
-      ...options
-    })
-  }
-
-  /**
-   * List sites within a radius of a point
-   */
-  public static sitesProximity<ThrowOnError extends boolean = false>(
-    options?: Options<SitesProximityData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      SitesProximityResponses,
-      SitesProximityErrors,
-      ThrowOnError
-    >({
-      querySerializer: { parameters: { exclude: { array: { explode: false } } } },
-      responseTransformer: sitesProximityResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/locations/coordinates/proximity',
-      ...options
-    })
-  }
-
   /**
    * List countries
    */
@@ -2746,14 +1048,38 @@ export class LocationService {
   }
 
   /**
-   * Get country list with sites and occurrences count
+   * Get country from coordinates
    */
-  public static getCountriesSummary<ThrowOnError extends boolean = false>(
-    options?: Options<GetCountriesSummaryData, ThrowOnError>
+  public static coordinatesToCountry<ThrowOnError extends boolean = false>(
+    options?: Options<CoordinatesToCountryData, ThrowOnError>
   ) {
     return (options?.client ?? client).get<
-      GetCountriesSummaryResponses,
-      GetCountriesSummaryErrors,
+      CoordinatesToCountryResponses,
+      CoordinatesToCountryErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/locations/countries/from-coordinates',
+      ...options
+    })
+  }
+
+  /**
+   * List countries summary
+   */
+  public static listCountriesSummary<ThrowOnError extends boolean = false>(
+    options?: Options<ListCountriesSummaryData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListCountriesSummaryResponses,
+      ListCountriesSummaryErrors,
       ThrowOnError
     >({
       security: [
@@ -2768,151 +1094,24 @@ export class LocationService {
       ...options
     })
   }
+}
 
+export class OccurrencesService {
   /**
-   * Search sites
-   *
-   * Search sites by name, code or locality fuzzy matching a query. Returns a list of sites sorted by similarity.
+   * List occurrences with optional filters and pagination
    */
-  public static searchSites<ThrowOnError extends boolean = false>(
-    options?: Options<SearchSitesData, ThrowOnError>
+  public static listOccurrences<ThrowOnError extends boolean = false>(
+    options?: Options<ListOccurrencesData, ThrowOnError>
   ) {
-    return (options?.client ?? client).get<SearchSitesResponses, SearchSitesErrors, ThrowOnError>({
-      responseTransformer: searchSitesResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/locations/search',
-      ...options
-    })
-  }
-
-  /**
-   * List sites
-   *
-   * List all registered sites
-   */
-  public static listSites<ThrowOnError extends boolean = false>(
-    options?: Options<ListSitesData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ListSitesResponses, ListSitesErrors, ThrowOnError>({
-      querySerializer: {
-        parameters: {
-          site_codes: { array: { explode: false } },
-          datasets: { array: { explode: false } },
-          countries: { array: { explode: false } }
-        }
-      },
-      responseTransformer: listSitesResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sites',
-      ...options
-    })
-  }
-
-  /**
-   * Create site
-   *
-   * Create site infos using its code
-   */
-  public static createSite<ThrowOnError extends boolean = false>(
-    options: Options<CreateSiteData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<CreateSiteResponses, CreateSiteErrors, ThrowOnError>({
-      responseTransformer: createSiteResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sites',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Get site
-   *
-   * Get site infos using its code
-   */
-  public static getSite<ThrowOnError extends boolean = false>(
-    options: Options<GetSiteData, ThrowOnError>
-  ) {
-    return (options.client ?? client).get<GetSiteResponses, GetSiteErrors, ThrowOnError>({
-      responseTransformer: getSiteResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sites/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update site
-   *
-   * Update site infos using its code
-   */
-  public static updateSite<ThrowOnError extends boolean = false>(
-    options: Options<UpdateSiteData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<UpdateSiteResponses, UpdateSiteErrors, ThrowOnError>({
-      responseTransformer: updateSiteResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/sites/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Add occurrence at site
-   *
-   * Register new occurrence at site, including event + sampling specification and biomaterial identification
-   */
-  public static siteAddOccurrence<ThrowOnError extends boolean = false>(
-    options: Options<SiteAddOccurrenceData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      SiteAddOccurrenceResponses,
-      SiteAddOccurrenceErrors,
+    return (options?.client ?? client).get<
+      ListOccurrencesResponses,
+      ListOccurrencesErrors,
       ThrowOnError
     >({
-      responseTransformer: siteAddOccurrenceResponseTransformer,
+      querySerializer: {
+        parameters: { datasets: { array: { explode: false } }, taxa: { array: { explode: false } } }
+      },
+      responseTransformer: listOccurrencesResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -2921,7 +1120,32 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      url: '/sites/{code}/occurrences',
+      url: '/occurrences',
+      ...options
+    })
+  }
+
+  /**
+   * Create a new occurrence with its sampling and taxon
+   */
+  public static createOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<CreateOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? client).post<
+      CreateOccurrenceResponses,
+      CreateOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: createOccurrenceResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences',
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -2931,17 +1155,41 @@ export class LocationService {
   }
 
   /**
-   * List samplings at site
+   * List all unique collection names
    */
-  public static listSiteSamplings<ThrowOnError extends boolean = false>(
-    options: Options<ListSiteSamplingsData, ThrowOnError>
+  public static listCollectionNames<ThrowOnError extends boolean = false>(
+    options?: Options<ListCollectionNamesData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      ListCollectionNamesResponses,
+      ListCollectionNamesErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/collection-names',
+      ...options
+    })
+  }
+
+  /**
+   * Get Occurrence with all relevant metadata
+   */
+  public static getOccurrences<ThrowOnError extends boolean = false>(
+    options: Options<GetOccurrencesData, ThrowOnError>
   ) {
     return (options.client ?? client).get<
-      ListSiteSamplingsResponses,
-      ListSiteSamplingsErrors,
+      GetOccurrencesResponses,
+      GetOccurrencesErrors,
       ThrowOnError
     >({
-      responseTransformer: listSiteSamplingsResponseTransformer,
+      responseTransformer: getOccurrencesResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -2950,25 +1198,23 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      url: '/sites/{code}/samplings',
+      url: '/occurrences/item/{ulid}',
       ...options
     })
   }
 
   /**
-   * Create sampling at site
-   *
-   * Register sampling event on a site identified by its code
+   * Create a new occurrence at a specific sampling point
    */
-  public static createSamplingAtSite<ThrowOnError extends boolean = false>(
-    options: Options<CreateSamplingAtSiteData, ThrowOnError>
+  public static createOccurrenceAtSampling<ThrowOnError extends boolean = false>(
+    options: Options<CreateOccurrenceAtSamplingData, ThrowOnError>
   ) {
     return (options.client ?? client).post<
-      CreateSamplingAtSiteResponses,
-      CreateSamplingAtSiteErrors,
+      CreateOccurrenceAtSamplingResponses,
+      CreateOccurrenceAtSamplingErrors,
       ThrowOnError
     >({
-      responseTransformer: createSamplingAtSiteResponseTransformer,
+      responseTransformer: createOccurrenceAtSamplingResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -2977,264 +1223,75 @@ export class LocationService {
           type: 'apiKey'
         }
       ],
-      url: '/sites/{code}/samplings',
+      url: '/occurrences/samplings/{uuid}',
       ...options,
       headers: {
         'Content-Type': 'application/json',
         ...options.headers
       }
+    })
+  }
+
+  /**
+   * Get an overview of occurrences count by taxa
+   */
+  public static occurrencesTaxaOverview<ThrowOnError extends boolean = false>(
+    options?: Options<OccurrencesTaxaOverviewData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<
+      OccurrencesTaxaOverviewResponses,
+      OccurrencesTaxaOverviewErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/taxa-overview',
+      ...options
+    })
+  }
+
+  /**
+   * Load datasets for occurrence
+   */
+  public static loadDatasetsForOccurrence<ThrowOnError extends boolean = false>(
+    options: Options<LoadDatasetsForOccurrenceData, ThrowOnError>
+  ) {
+    return (options.client ?? client).get<
+      LoadDatasetsForOccurrenceResponses,
+      LoadDatasetsForOccurrenceErrors,
+      ThrowOnError
+    >({
+      responseTransformer: loadDatasetsForOccurrenceResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/occurrences/{ulid}/datasets',
+      ...options
     })
   }
 }
 
 export class SettingsService {
   /**
-   * List saved data feeds
+   * Get instance settings
    */
-  public static listDataFeeds<ThrowOnError extends boolean = false>(
-    options?: Options<ListDataFeedsData, ThrowOnError>
+  public static getInstanceSettings<ThrowOnError extends boolean = false>(
+    options?: Options<GetInstanceSettingsData, ThrowOnError>
   ) {
     return (options?.client ?? client).get<
-      ListDataFeedsResponses,
-      ListDataFeedsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listDataFeedsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/mapping/data-feeds',
-      ...options
-    })
-  }
-
-  /**
-   * Save data feed
-   */
-  public static createDataFeed<ThrowOnError extends boolean = false>(
-    options: Options<CreateDataFeedData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateDataFeedResponses,
-      CreateDataFeedErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createDataFeedResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/mapping/data-feeds',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List saved map presets
-   */
-  public static listMapPresets<ThrowOnError extends boolean = false>(
-    options?: Options<ListMapPresetsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListMapPresetsResponses,
-      ListMapPresetsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listMapPresetsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/mapping/map-presets',
-      ...options
-    })
-  }
-
-  /**
-   * Save map preset
-   *
-   * Creates a new map preset or updates an existing one. If the preset already exists and is owned by the current user, it will be updated. Admins can update global presets.
-   */
-  public static createUpdateMapPreset<ThrowOnError extends boolean = false>(
-    options: Options<CreateUpdateMapPresetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).put<
-      CreateUpdateMapPresetResponses,
-      CreateUpdateMapPresetErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createUpdateMapPresetResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/mapping/map-presets',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete map preset
-   *
-   * Deletes a map preset by name. Only the owner of the preset or an admin can delete it.
-   */
-  public static deleteMapPreset<ThrowOnError extends boolean = false>(
-    options: Options<DeleteMapPresetData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteMapPresetResponses,
-      DeleteMapPresetErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteMapPresetResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/mapping/map-presets/{name}',
-      ...options
-    })
-  }
-
-  /**
-   * Email settings
-   */
-  public static emailSettings<ThrowOnError extends boolean = false>(
-    options?: Options<EmailSettingsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      EmailSettingsResponses,
-      EmailSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/emailing',
-      ...options
-    })
-  }
-
-  /**
-   * Update email settings
-   */
-  public static updateEmailSettings<ThrowOnError extends boolean = false>(
-    options: Options<UpdateEmailSettingsData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      UpdateEmailSettingsResponses,
-      UpdateEmailSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/emailing',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Test SMTP connection
-   */
-  public static testSmtp<ThrowOnError extends boolean = false>(
-    options: Options<TestSmtpData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<TestSmtpResponses, TestSmtpErrors, ThrowOnError>({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/emailing/test-dial',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Set app icon
-   */
-  public static setAppIcon<ThrowOnError extends boolean = false>(
-    options?: Options<SetAppIconData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).post<SetAppIconResponses, SetAppIconErrors, ThrowOnError>({
-      ...formDataBodySerializer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/icon',
-      ...options,
-      headers: {
-        'Content-Type': null,
-        ...options?.headers
-      }
-    })
-  }
-
-  /**
-   * Instance settings
-   */
-  public static instanceSettings<ThrowOnError extends boolean = false>(
-    options?: Options<InstanceSettingsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      InstanceSettingsResponses,
-      InstanceSettingsErrors,
+      GetInstanceSettingsResponses,
+      GetInstanceSettingsErrors,
       ThrowOnError
     >({
       security: [
@@ -3256,7 +1313,7 @@ export class SettingsService {
   public static updateInstanceSettings<ThrowOnError extends boolean = false>(
     options: Options<UpdateInstanceSettingsData, ThrowOnError>
   ) {
-    return (options.client ?? client).post<
+    return (options.client ?? client).put<
       UpdateInstanceSettingsResponses,
       UpdateInstanceSettingsErrors,
       ThrowOnError
@@ -3279,14 +1336,95 @@ export class SettingsService {
   }
 
   /**
-   * Security settings
+   * Set the application icon
    */
-  public static securitySettings<ThrowOnError extends boolean = false>(
-    options?: Options<SecuritySettingsData, ThrowOnError>
+  public static setAppIcon<ThrowOnError extends boolean = false>(
+    options?: Options<SetAppIconData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).post<SetAppIconResponses, SetAppIconErrors, ThrowOnError>({
+      ...formDataBodySerializer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/instance/app-icon',
+      ...options,
+      headers: {
+        'Content-Type': null,
+        ...options?.headers
+      }
+    })
+  }
+
+  /**
+   * Toggle public access to the instance
+   */
+  public static togglePublicAccess<ThrowOnError extends boolean = false>(
+    options: Options<TogglePublicAccessData, ThrowOnError>
+  ) {
+    return (options.client ?? client).put<
+      TogglePublicAccessResponses,
+      TogglePublicAccessErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/instance/public-access',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Toggle public registration for the instance
+   */
+  public static togglePublicRegistration<ThrowOnError extends boolean = false>(
+    options: Options<TogglePublicRegistrationData, ThrowOnError>
+  ) {
+    return (options.client ?? client).put<
+      TogglePublicRegistrationResponses,
+      TogglePublicRegistrationErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/settings/instance/public-registration',
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers
+      }
+    })
+  }
+
+  /**
+   * Test SMTP connection
+   */
+  public static testSmtpConnection<ThrowOnError extends boolean = false>(
+    options?: Options<TestSmtpConnectionData, ThrowOnError>
   ) {
     return (options?.client ?? client).get<
-      SecuritySettingsResponses,
-      SecuritySettingsErrors,
+      TestSmtpConnectionResponses,
+      TestSmtpConnectionErrors,
       ThrowOnError
     >({
       security: [
@@ -3297,393 +1435,21 @@ export class SettingsService {
           type: 'apiKey'
         }
       ],
-      url: '/settings/security',
+      url: '/settings/smtp/test',
       ...options
     })
-  }
-
-  /**
-   * Update security settings
-   */
-  public static updateSecuritySettings<ThrowOnError extends boolean = false>(
-    options: Options<UpdateSecuritySettingsData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      UpdateSecuritySettingsResponses,
-      UpdateSecuritySettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/security',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Service settings
-   */
-  public static serviceSettings<ThrowOnError extends boolean = false>(
-    options?: Options<ServiceSettingsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ServiceSettingsResponses,
-      ServiceSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/services',
-      ...options
-    })
-  }
-
-  /**
-   * Update service settings
-   */
-  public static updateServiceSettings<ThrowOnError extends boolean = false>(
-    options: Options<UpdateServiceSettingsData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateServiceSettingsResponses,
-      UpdateServiceSettingsErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/settings/services',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-}
-
-export class DefaultService {
-  /**
-   * Get the min and max year for occurrence sampling dates
-   */
-  public static occurrencesDateRange<ThrowOnError extends boolean = false>(
-    options?: Options<OccurrencesDateRangeData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      OccurrencesDateRangeResponses,
-      OccurrencesDateRangeErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/occurrences-date-range',
-      ...options
-    })
-  }
-}
-
-export class PeopleService {
-  /**
-   * List organisations
-   */
-  public static listOrganisations<ThrowOnError extends boolean = false>(
-    options?: Options<ListOrganisationsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<
-      ListOrganisationsResponses,
-      ListOrganisationsErrors,
-      ThrowOnError
-    >({
-      responseTransformer: listOrganisationsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/organisations',
-      ...options
-    })
-  }
-
-  /**
-   * Create organisation
-   */
-  public static createOrganisation<ThrowOnError extends boolean = false>(
-    options: Options<CreateOrganisationData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<
-      CreateOrganisationResponses,
-      CreateOrganisationErrors,
-      ThrowOnError
-    >({
-      responseTransformer: createOrganisationResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/organisations',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete organisation
-   */
-  public static deleteOrganisation<ThrowOnError extends boolean = false>(
-    options: Options<DeleteOrganisationData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeleteOrganisationResponses,
-      DeleteOrganisationErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deleteOrganisationResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/organisations/{code}',
-      ...options
-    })
-  }
-
-  /**
-   * Update organisation
-   */
-  public static updateOrganisation<ThrowOnError extends boolean = false>(
-    options: Options<UpdateOrganisationData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdateOrganisationResponses,
-      UpdateOrganisationErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updateOrganisationResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/organisations/{code}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * List persons
-   */
-  public static listPersons<ThrowOnError extends boolean = false>(
-    options?: Options<ListPersonsData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ListPersonsResponses, ListPersonsErrors, ThrowOnError>({
-      responseTransformer: listPersonsResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/persons',
-      ...options
-    })
-  }
-
-  /**
-   * Create person
-   */
-  public static createPerson<ThrowOnError extends boolean = false>(
-    options: Options<CreatePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<CreatePersonResponses, CreatePersonErrors, ThrowOnError>(
-      {
-        responseTransformer: createPersonResponseTransformer,
-        security: [
-          { scheme: 'bearer', type: 'http' },
-          {
-            in: 'cookie',
-            name: 'auth_token',
-            type: 'apiKey'
-          }
-        ],
-        url: '/persons',
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers
-        }
-      }
-    )
-  }
-
-  /**
-   * Delete person
-   */
-  public static deletePerson<ThrowOnError extends boolean = false>(
-    options: Options<DeletePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<
-      DeletePersonResponses,
-      DeletePersonErrors,
-      ThrowOnError
-    >({
-      responseTransformer: deletePersonResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/persons/{id}',
-      ...options
-    })
-  }
-
-  /**
-   * Update person
-   */
-  public static updatePerson<ThrowOnError extends boolean = false>(
-    options: Options<UpdatePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<
-      UpdatePersonResponses,
-      UpdatePersonErrors,
-      ThrowOnError
-    >({
-      responseTransformer: updatePersonResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/persons/{id}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Invite person
-   *
-   * Sends an invitation link to a person at the address provided in `dest`, allowing them to register an account assigned with a specified `role`.
-   */
-  public static invitePerson<ThrowOnError extends boolean = false>(
-    options: Options<InvitePersonData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<InvitePersonResponses, InvitePersonErrors, ThrowOnError>(
-      {
-        security: [
-          { scheme: 'bearer', type: 'http' },
-          {
-            in: 'cookie',
-            name: 'auth_token',
-            type: 'apiKey'
-          }
-        ],
-        url: '/persons/{id}/invite',
-        ...options,
-        headers: {
-          'Content-Type': 'application/json',
-          ...options.headers
-        }
-      }
-    )
   }
 }
 
 export class TaxonomyService {
   /**
-   * Get taxonomy
+   * Search for taxa
    */
-  public static getTaxonomyAtRank<ThrowOnError extends boolean = false>(
-    options: Options<GetTaxonomyAtRankData, ThrowOnError>
+  public static searchTaxa<ThrowOnError extends boolean = false>(
+    options?: Options<SearchTaxaData, ThrowOnError>
   ) {
-    return (options.client ?? client).get<
-      GetTaxonomyAtRankResponses,
-      GetTaxonomyAtRankErrors,
-      ThrowOnError
-    >({
-      responseTransformer: getTaxonomyAtRankResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/taxonomy/by-rank/{rank}',
-      ...options
-    })
-  }
-
-  /**
-   * List taxa
-   */
-  public static listTaxa<ThrowOnError extends boolean = false>(
-    options?: Options<ListTaxaData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).get<ListTaxaResponses, ListTaxaErrors, ThrowOnError>({
+    return (options?.client ?? client).get<SearchTaxaResponses, SearchTaxaErrors, ThrowOnError>({
       querySerializer: { parameters: { ranks: { array: { explode: false } } } },
-      responseTransformer: listTaxaResponseTransformer,
       security: [
         { scheme: 'bearer', type: 'http' },
         {
@@ -3692,102 +1458,8 @@ export class TaxonomyService {
           type: 'apiKey'
         }
       ],
-      url: '/taxonomy/taxa',
+      url: '/taxonomy/search',
       ...options
-    })
-  }
-
-  /**
-   * Create taxon
-   */
-  public static createTaxon<ThrowOnError extends boolean = false>(
-    options: Options<CreateTaxonData, ThrowOnError>
-  ) {
-    return (options.client ?? client).post<CreateTaxonResponses, CreateTaxonErrors, ThrowOnError>({
-      responseTransformer: createTaxonResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/taxonomy/taxa',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
-    })
-  }
-
-  /**
-   * Delete taxon
-   */
-  public static deleteTaxon<ThrowOnError extends boolean = false>(
-    options: Options<DeleteTaxonData, ThrowOnError>
-  ) {
-    return (options.client ?? client).delete<DeleteTaxonResponses, DeleteTaxonErrors, ThrowOnError>(
-      {
-        responseTransformer: deleteTaxonResponseTransformer,
-        security: [
-          { scheme: 'bearer', type: 'http' },
-          {
-            in: 'cookie',
-            name: 'auth_token',
-            type: 'apiKey'
-          }
-        ],
-        url: '/taxonomy/taxa/{name}',
-        ...options
-      }
-    )
-  }
-
-  /**
-   * Get taxon
-   */
-  public static getTaxon<ThrowOnError extends boolean = false>(
-    options: Options<GetTaxonData, ThrowOnError>
-  ) {
-    return (options.client ?? client).get<GetTaxonResponses, GetTaxonErrors, ThrowOnError>({
-      responseTransformer: getTaxonResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/taxonomy/taxa/{name}',
-      ...options
-    })
-  }
-
-  /**
-   * Update taxon
-   */
-  public static updateTaxon<ThrowOnError extends boolean = false>(
-    options: Options<UpdateTaxonData, ThrowOnError>
-  ) {
-    return (options.client ?? client).patch<UpdateTaxonResponses, UpdateTaxonErrors, ThrowOnError>({
-      responseTransformer: updateTaxonResponseTransformer,
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/taxonomy/taxa/{name}',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options.headers
-      }
     })
   }
 }

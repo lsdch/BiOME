@@ -25,7 +25,6 @@ type articlesTable struct {
 	Verbatim postgres.ColumnString
 	Doi      postgres.ColumnString
 	Comments postgres.ColumnString
-	Code     postgres.ColumnString
 
 	AllColumns     postgres.ColumnList
 	MutableColumns postgres.ColumnList
@@ -75,9 +74,8 @@ func newArticlesTableImpl(schemaName, tableName, alias string) articlesTable {
 		VerbatimColumn = postgres.StringColumn("verbatim")
 		DoiColumn      = postgres.StringColumn("doi")
 		CommentsColumn = postgres.StringColumn("comments")
-		CodeColumn     = postgres.StringColumn("code")
-		allColumns     = postgres.ColumnList{IDColumn, AuthorsColumn, YearColumn, TitleColumn, JournalColumn, VerbatimColumn, DoiColumn, CommentsColumn, CodeColumn}
-		mutableColumns = postgres.ColumnList{AuthorsColumn, YearColumn, TitleColumn, JournalColumn, VerbatimColumn, DoiColumn, CommentsColumn, CodeColumn}
+		allColumns     = postgres.ColumnList{IDColumn, AuthorsColumn, YearColumn, TitleColumn, JournalColumn, VerbatimColumn, DoiColumn, CommentsColumn}
+		mutableColumns = postgres.ColumnList{AuthorsColumn, YearColumn, TitleColumn, JournalColumn, VerbatimColumn, DoiColumn, CommentsColumn}
 		defaultColumns = postgres.ColumnList{IDColumn}
 	)
 
@@ -93,7 +91,6 @@ func newArticlesTableImpl(schemaName, tableName, alias string) articlesTable {
 		Verbatim: VerbatimColumn,
 		Doi:      DoiColumn,
 		Comments: CommentsColumn,
-		Code:     CodeColumn,
 
 		AllColumns:     allColumns,
 		MutableColumns: mutableColumns,

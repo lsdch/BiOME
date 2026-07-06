@@ -25,3 +25,15 @@ SELECT d.*
 FROM datasets d
     JOIN occurrences_datasets od ON od.dataset_id = d.id
 WHERE od.occurrence_id = @occurrence_id;
+
+-- name: AddOccurrenceToDataset :exec
+INSERT INTO occurrences_datasets (occurrence_id, dataset_id)
+VALUES (
+        @occurrence_id::ulid,
+        @dataset_id::ulid
+    );
+
+-- name: RemoveOccurrenceFromDataset :exec
+DELETE FROM occurrences_datasets
+WHERE occurrence_id = @occurrence_id::ulid
+    AND dataset_id = @dataset_id::ulid;

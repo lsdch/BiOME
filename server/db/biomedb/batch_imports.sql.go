@@ -301,28 +301,22 @@ FROM import_samplings_occurrences
 WHERE import_hash = $1 ON CONFLICT (sampling_hash) DO
 UPDATE
 SET notes = EXCLUDED.notes
-RETURNING id,
-    sampling_hash
+RETURNING id
 `
 
-type UpsertSamplingsFromStagingRow struct {
-	ID           uuid.UUID `json:"id"`
-	SamplingHash string    `json:"sampling_hash"`
-}
-
-func (q *Queries) UpsertSamplingsFromStaging(ctx context.Context, importHash string) ([]UpsertSamplingsFromStagingRow, error) {
+func (q *Queries) UpsertSamplingsFromStaging(ctx context.Context, importHash string) ([]uuid.UUID, error) {
 	rows, err := q.db.Query(ctx, upsertSamplingsFromStaging, importHash)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []UpsertSamplingsFromStagingRow
+	items := []uuid.UUID{}
 	for rows.Next() {
-		var i UpsertSamplingsFromStagingRow
-		if err := rows.Scan(&i.ID, &i.SamplingHash); err != nil {
+		var id uuid.UUID
+		if err := rows.Scan(&id); err != nil {
 			return nil, err
 		}
-		items = append(items, i)
+		items = append(items, id)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err

@@ -6,45 +6,48 @@ import (
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/models"
+	"github.com/lsdch/biome/stores"
 )
 
 type TaxonomyService struct {
-	db db.Querier
 }
 
-func NewTaxonomyService(db db.Querier) *TaxonomyService {
-	return &TaxonomyService{
-		db: db,
-	}
+func NewTaxonomyService() *TaxonomyService {
+	return &TaxonomyService{}
 }
 
-func (s *TaxonomyService) GetTaxonByID(ctx context.Context, taxonID uuid.UUID) (*models.Taxon, error) {
-	t, err := s.db.Queries().GetTaxonByID(ctx, taxonID)
+func (s *TaxonomyService) ListTaxa(ctx context.Context, q db.Querier, params models.ListTaxaParams) ([]models.Taxon, error) {
+	store := stores.NewTaxonomyStore()
+	return store.SearchTaxa(ctx, q, params)
+}
+
+func (s *TaxonomyService) GetTaxonByID(ctx context.Context, q db.Querier, taxonID uuid.UUID) (*models.Taxon, error) {
+	t, err := q.Queries().GetTaxonByID(ctx, taxonID)
 	if err != nil {
 		return nil, err
 	}
 	return models.TaxonFromDB(&t), nil
 }
 
-func (s *TaxonomyService) GetTaxonByScientificName(ctx context.Context, scientificName string) (*models.Taxon, error) {
-	t, err := s.db.Queries().GetTaxonByScientificName(ctx, scientificName)
+func (s *TaxonomyService) GetTaxonByScientificName(ctx context.Context, q db.Querier, scientificName string) (*models.Taxon, error) {
+	t, err := q.Queries().GetTaxonByScientificName(ctx, scientificName)
 	if err != nil {
 		return nil, err
 	}
 	return models.TaxonFromDB(&t), nil
 }
 
-func (s *TaxonomyService) LoadTaxonRelations(ctx context.Context, taxon *models.Taxon) (*models.TaxonRelations, error) {
+func (s *TaxonomyService) LoadTaxonRelations(ctx context.Context, q db.Querier, taxon *models.Taxon) (*models.TaxonRelations, error) {
 	taxonRelations := &models.TaxonRelations{}
 	if parentID, ok := taxon.ParentID.Get(); ok {
-		parent, err := s.GetTaxonByID(ctx, parentID)
+		parent, err := s.GetTaxonByID(ctx, q, parentID)
 		if err != nil {
 			return nil, err
 		}
 		taxonRelations.ParentTaxon = models.NewOptionalFromPtr(parent)
 	}
 	if acceptedID, ok := taxon.AcceptedID.Get(); ok {
-		accepted, err := s.GetTaxonByID(ctx, acceptedID)
+		accepted, err := s.GetTaxonByID(ctx, q, acceptedID)
 		if err != nil {
 			return nil, err
 		}
@@ -53,12 +56,12 @@ func (s *TaxonomyService) LoadTaxonRelations(ctx context.Context, taxon *models.
 	return taxonRelations, nil
 }
 
-func (s *TaxonomyService) GetTaxonWithRelations(ctx context.Context, taxonID uuid.UUID) (*models.TaxonWithRelations, error) {
-	taxon, err := s.GetTaxonByID(ctx, taxonID)
+func (s *TaxonomyService) GetTaxonWithRelations(ctx context.Context, q db.Querier, taxonID uuid.UUID) (*models.TaxonWithRelations, error) {
+	taxon, err := s.GetTaxonByID(ctx, q, taxonID)
 	if err != nil {
 		return nil, err
 	}
-	taxonRelations, err := s.LoadTaxonRelations(ctx, taxon)
+	taxonRelations, err := s.LoadTaxonRelations(ctx, q, taxon)
 	if err != nil {
 		return nil, err
 	}
@@ -68,8 +71,8 @@ func (s *TaxonomyService) GetTaxonWithRelations(ctx context.Context, taxonID uui
 	}, nil
 }
 
-func (s *TaxonomyService) LoadTaxonLineage(ctx context.Context, taxon *models.Taxon) ([]models.Taxon, error) {
-	lineage, err := s.db.Queries().GetTaxonLineage(ctx, taxon.ID)
+func (s *TaxonomyService) LoadTaxonLineage(ctx context.Context, q db.Querier, taxon *models.Taxon) ([]models.Taxon, error) {
+	lineage, err := q.Queries().GetTaxonLineage(ctx, taxon.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -80,16 +83,16 @@ func (s *TaxonomyService) LoadTaxonLineage(ctx context.Context, taxon *models.Ta
 	return result, nil
 }
 
-func (s *TaxonomyService) GetTaxonWithLineage(ctx context.Context, taxonID uuid.UUID) (*models.TaxonWithLineage, error) {
-	taxon, err := s.GetTaxonByID(ctx, taxonID)
+func (s *TaxonomyService) GetTaxonWithLineage(ctx context.Context, q db.Querier, taxonID uuid.UUID) (*models.TaxonWithLineage, error) {
+	taxon, err := s.GetTaxonByID(ctx, q, taxonID)
 	if err != nil {
 		return nil, err
 	}
-	taxonRelations, err := s.LoadTaxonRelations(ctx, taxon)
+	taxonRelations, err := s.LoadTaxonRelations(ctx, q, taxon)
 	if err != nil {
 		return nil, err
 	}
-	lineage, err := s.LoadTaxonLineage(ctx, taxon)
+	lineage, err := s.LoadTaxonLineage(ctx, q, taxon)
 	if err != nil {
 		return nil, err
 	}
@@ -100,8 +103,8 @@ func (s *TaxonomyService) GetTaxonWithLineage(ctx context.Context, taxonID uuid.
 	}, nil
 }
 
-func (s *TaxonomyService) GetTaxaByRank(ctx context.Context, rank models.TaxonRank) ([]models.Taxon, error) {
-	taxa, err := s.db.Queries().GetTaxaByRank(ctx, rank)
+func (s *TaxonomyService) GetTaxaByRank(ctx context.Context, q db.Querier, rank models.TaxonRank) ([]models.Taxon, error) {
+	taxa, err := q.Queries().GetTaxaByRank(ctx, rank)
 	if err != nil {
 		return nil, err
 	}
@@ -112,8 +115,8 @@ func (s *TaxonomyService) GetTaxaByRank(ctx context.Context, rank models.TaxonRa
 	return result, nil
 }
 
-func (s *TaxonomyService) DeleteTaxon(ctx context.Context, taxonID uuid.UUID) error {
-	err := s.db.Queries().DeleteTaxonByID(ctx, taxonID)
+func (s *TaxonomyService) DeleteTaxon(ctx context.Context, q db.Querier, taxonID uuid.UUID) error {
+	err := q.Queries().DeleteTaxonByID(ctx, taxonID)
 	if err != nil {
 		return err
 	}

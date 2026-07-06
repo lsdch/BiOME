@@ -11,7 +11,7 @@
       <div class="d-flex justify-space-between pa-3 cursor-pointer" v-ripple @click="toggleOpen()">
         <div>
           <span class="text-muted text-label-medium">
-            {{ group.label }}
+            {{ group.name }}
           </span>
           <v-badge
             inline
@@ -43,10 +43,7 @@
             <v-list>
               <v-list-item title="Edit" prepend-icon="mdi-pencil" @click.stop="emit('edit', group)">
               </v-list-item>
-              <ConfirmDialog
-                :title="`Delete group ${group.label}`"
-                @confirm="emit('delete', group)"
-              >
+              <ConfirmDialog :title="`Delete group ${group.name}`" @confirm="emit('delete', group)">
                 <v-card-text>
                   Are you sure that you want to delete this habitat group?
                   <ul>
@@ -83,17 +80,17 @@
         <v-list v-if="isOpen">
           <template v-for="(child, index) in children" :key="child.id">
             <v-divider v-if="index > 0"></v-divider>
-            <v-list-group v-if="child.children?.length" :title="child.label">
+            <v-list-group v-if="child.children?.length" :title="child.name">
               <template #activator="{ props }">
                 <v-list-item
-                  :title="child.label"
+                  :title="child.name"
                   :active="activeHabitat?.id === child.id"
                   color="primary"
                   @click="activeHabitat = child"
                   v-bind="props"
                 >
                   <template #title>
-                    {{ child.label }}
+                    {{ child.name }}
                     <v-badge
                       inline
                       :content="child.children.length"
@@ -143,7 +140,7 @@
               <template #activator="{ props, isActive }"> -->
             <v-list-item
               v-else
-              :title="child.label"
+              :title="child.name"
               color="primary"
               :active="activeHabitat?.id === child.id"
               @click="activeHabitat = child"
@@ -162,7 +159,6 @@
 </template>
 
 <script setup lang="ts">
-import { HabitatGroup, HabitatRecord } from '@/api'
 import ConfirmDialog from '@/components/toolkit/ui/ConfirmDialog.vue'
 import {
   HabitatGroupNode,

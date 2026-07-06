@@ -8,15 +8,14 @@ import (
 )
 
 type AbioticService struct {
-	db *db.DB
 }
 
 func NewAbioticService(db *db.DB) *AbioticService {
-	return &AbioticService{db: db}
+	return &AbioticService{}
 }
 
-func (s *AbioticService) ListAbioticParameters(ctx context.Context) ([]models.AbioticParam, error) {
-	paramsDB, err := s.db.Queries().ListAbioticParams(ctx)
+func (s *AbioticService) ListAbioticParameters(ctx context.Context, q db.Querier) ([]models.AbioticParam, error) {
+	paramsDB, err := q.Queries().ListAbioticParams(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -28,8 +27,8 @@ func (s *AbioticService) ListAbioticParameters(ctx context.Context) ([]models.Ab
 	return params, nil
 }
 
-func (s *AbioticService) CreateAbioticParam(ctx context.Context, input models.AbioticParamInput) (models.AbioticParam, error) {
-	paramDB, err := s.db.Queries().CreateAbioticParam(ctx, input.ToDB())
+func (s *AbioticService) CreateAbioticParam(ctx context.Context, q db.Querier, input models.AbioticParamInput) (models.AbioticParam, error) {
+	paramDB, err := q.Queries().CreateAbioticParam(ctx, input.ToDB())
 	if err != nil {
 		return models.AbioticParam{}, err
 	}

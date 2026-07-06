@@ -5,8 +5,8 @@ import (
 )
 
 type Pagination struct {
-	Limit  int64 `query:"limit" json:"limit,omitzero"`
-	Offset int64 `query:"offset" json:"offset,omitzero"`
+	Limit  int32 `query:"limit" json:"limit,omitzero"`
+	Offset int32 `query:"offset" json:"offset,omitzero"`
 }
 
 type SortOrder string

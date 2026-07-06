@@ -22,9 +22,9 @@ func NewOptionalOccurrenceQuantity(exact, lower, upper *int32) Optional[Occurren
 }
 
 type QuantityInput struct {
-	Exact Optional[int32]
-	Lower Optional[int32]
-	Upper Optional[int32]
+	Exact Optional[int32] `json:"exact,omitempty"`
+	Lower Optional[int32] `json:"lower,omitzero"`
+	Upper Optional[int32] `json:"upper,omitzero"`
 }
 
 func (q *QuantityInput) UnmarshalCSV(data []byte) error {

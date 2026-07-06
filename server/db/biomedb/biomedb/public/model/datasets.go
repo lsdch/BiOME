@@ -8,7 +8,6 @@
 package model
 
 import (
-	"github.com/lib/pq"
 	"time"
 )
 
@@ -17,7 +16,6 @@ type Datasets struct {
 	Label       string
 	Slug        string
 	Description *string
-	AssembledBy *pq.StringArray
 	Pinned      bool
 	CreatedAt   time.Time
 }

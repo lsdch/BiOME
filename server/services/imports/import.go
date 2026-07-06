@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"strings"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/gosimple/slug"
@@ -20,14 +19,21 @@ import (
 )
 
 type ImportService struct {
-	db         *db.DB
-	gbifClient *gbif.GBIFClient
+	gbifClient      *gbif.GBIFClient
+	samplings       *services.SamplingService
+	taxonResolution TaxonResolutionService
+	store           *stores.ImportStore
 }
 
-func NewImportService(db *db.DB, gbifClient *gbif.GBIFClient) *ImportService {
+func NewImportService(gbifClient *gbif.GBIFClient,
+	samplings *services.SamplingService,
+	taxonResolution TaxonResolutionService,
+) *ImportService {
 	return &ImportService{
-		db:         db,
-		gbifClient: gbifClient,
+		gbifClient:      gbifClient,
+		samplings:       samplings,
+		taxonResolution: taxonResolution,
+		store:           stores.NewImportStore(),
 	}
 }
 
@@ -41,7 +47,7 @@ type ImportResolutionState struct {
 	// Taxon resolution state
 	Taxonomy *models.TaxonResolutionState `json:"taxonomy"`
 	// Sampling methods resolution state
-	SamplingMethods []biomedb.SamplingMethodsResolution `json:"sampling_methods"`
+	SamplingMethods []models.SamplingMethodResolution `json:"sampling_methods"`
 }
 
 func (r *ImportService) ComputeImportHash(label string, userID uuid.UUID) string {
@@ -50,6 +56,7 @@ func (r *ImportService) ComputeImportHash(label string, userID uuid.UUID) string
 
 func (r *ImportService) InitImportWorkflow(
 	ctx context.Context,
+	tx *db.Tx,
 	label string,
 	params CSVImportParams,
 ) (state *ImportResolutionState, err error) {
@@ -66,68 +73,35 @@ func (r *ImportService) InitImportWorkflow(
 		occurrencesStaging[i] = row.ToStaging(importHash)
 	}
 
-	tx, err := r.db.BeginTx(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("failed to begin transaction: %w", err)
-	}
-	defer tx.Rollback(ctx)
+	state = &ImportResolutionState{}
 
-	storeTx := stores.NewImportStore(tx.Queries())
-	workflow, err := storeTx.InitBatchImport(ctx, importHash, label)
+	state.Workflow, err = r.store.InitBatchImport(ctx, tx, importHash, label)
 	if err != nil {
 		return nil, err
 	}
-	if err = storeTx.Bootstrap(ctx, importHash); err != nil {
+	if err = r.store.Bootstrap(ctx, tx, importHash); err != nil {
 		return nil, err
 	}
-	if err = storeTx.InsertStaging(ctx, importHash, occurrencesStaging); err != nil {
+	if err = r.store.InsertStaging(ctx, tx, importHash, occurrencesStaging); err != nil {
 		return nil, err
 	}
 
-	resolver := NewTaxonResolutionService(tx, r.gbifClient)
-	resolutionState, err := resolver.InitResolution(ctx, importHash)
+	state.Taxonomy, err = r.taxonResolution.InitResolution(ctx, tx, importHash)
 	if err != nil {
 		return nil, err
 	}
 
-	samplingService := services.NewSamplingService(tx)
-	methodsResolution, err := samplingService.InitMethodResolution(ctx, importHash)
+	state.SamplingMethods, err = r.samplings.InitMethodResolution(ctx, tx, importHash)
 	if err != nil {
 		return nil, err
 	}
 
-	if err = tx.Commit(ctx); err != nil {
-		return nil, err
-	}
-
-	go func(importHash string) {
-		resolver := NewTaxonResolutionService(r.db, r.gbifClient)
-		bgCtx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
-		defer cancel()
-		resolver.EnrichTaxonResolutionWithGBIF(bgCtx, importHash)
-	}(importHash)
-
-	return &ImportResolutionState{
-		Workflow:        workflow,
-		Taxonomy:        resolutionState,
-		SamplingMethods: methodsResolution,
-	}, nil
+	return state, nil
 }
 
-func (r *ImportService) EnrichTaxonomyGBIF(ctx context.Context, importHash string) (err error) {
-	resolver := NewTaxonResolutionService(r.db, r.gbifClient)
-	_, err = resolver.EnrichTaxonResolutionWithGBIF(ctx, importHash)
+func (r *ImportService) EnrichTaxonomyGBIF(ctx context.Context, q db.Querier, importHash string) (err error) {
+	_, err = r.taxonResolution.EnrichTaxonResolutionWithGBIF(ctx, q, importHash)
 	return err
-}
-
-func (r *ImportService) DetectSamplingCollisions(ctx context.Context, importHash string, params stores.CollisionDetectionParams) (collisionsMap map[string]*StagingSamplingWithCollisions, err error) {
-	collisionService := NewOccurrenceCollisionsService(r.db)
-	return collisionService.DetectSamplingCollisions(ctx, importHash, params)
-}
-
-func (r *ImportService) DetectOccurrenceCollisions(ctx context.Context, importHash string, params stores.CollisionDetectionParams) (collisions []OccurrenceCollisionsAtRow, err error) {
-	collisionService := NewOccurrenceCollisionsService(r.db)
-	return collisionService.DetectOccurrenceCollisions(ctx, importHash, params)
 }
 
 func (s *ImportService) ParseCSV(r io.Reader, sep rune) ([]models.OccurrenceImportRow, error) {

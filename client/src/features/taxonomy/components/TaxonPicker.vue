@@ -5,7 +5,7 @@
     :label
     :loading
     :chips
-    :items="items as Taxon[] | undefined"
+    :items
     :item-value
     :multiple
     :return-object
@@ -54,8 +54,8 @@
   lang="ts"
   generic="Multiple extends boolean, ReturnObject extends boolean, ItemValue extends keyof Taxon"
 >
-import { Taxon, TaxonRank, TaxonWithParentRef } from '@/api'
-import { listTaxaOptions } from '@/api/gen/@tanstack/vue-query.gen'
+import { Taxon, TaxonRank } from '@/api'
+import { searchTaxaOptions } from '@/api/gen/@tanstack/vue-query.gen'
 import { useQuery } from '@tanstack/vue-query'
 import { computed, ref } from 'vue'
 import { Value } from 'vuetify/lib/components/VAutocomplete/VAutocomplete.mjs'
@@ -95,10 +95,11 @@ const {
   error
 } = useQuery(
   computed(() => ({
-    initialData: Array<TaxonWithParentRef>(),
-    ...listTaxaOptions({
+    initialData: Array<Taxon>(),
+    enabled: search.value.length > 2,
+    ...searchTaxaOptions({
       query: {
-        pattern: search.value,
+        search_term: search.value,
         limit: 20,
         ranks: Array.isArray(ranks) || !ranks ? ranks : [ranks],
         sampled_only: sampledOnly

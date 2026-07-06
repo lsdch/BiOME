@@ -5,10 +5,16 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/router"
+	"github.com/oklog/ulid/v2"
 
 	"github.com/danielgtaylor/huma/v2"
 	"github.com/sirupsen/logrus"
 )
+
+type Controller interface {
+	RegisterRoutes(r *router.Router)
+}
 
 type BodyTransporter[Item any] struct {
 	Body Item
@@ -36,11 +42,15 @@ func (i UUIDInput) Identifier() uuid.UUID {
 	return i.ID
 }
 
-type CodeInput struct {
+type ULIDPath struct {
+	ULID ulid.ULID `path:"ulid" format:"ulid"`
+}
+
+type CodePath struct {
 	Code string `path:"code"`
 }
 
-func (i CodeInput) Identifier() string {
+func (i CodePath) Identifier() string {
 	return i.Code
 }
 
@@ -85,7 +95,7 @@ func (i NumberInput) Identifier() int64 {
 }
 
 // Implementation assertions
-var _ IdentifierInput[string] = (*CodeInput)(nil)
+var _ IdentifierInput[string] = (*CodePath)(nil)
 
 // A simple response output that carries a message
 type Message struct {

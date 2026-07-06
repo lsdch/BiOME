@@ -70,9 +70,9 @@
   </v-menu>
 </template>
 
-<script setup lang="ts" generic="Item extends Geocoordinates">
+<script setup lang="ts" generic="Item extends ItemWithCoordinates">
 import SvgCircle from '@/components/toolkit/ui/SvgCircle.vue'
-import { Geocoordinates } from '../../coordinates'
+import { ItemWithCoordinates } from '../../coordinates'
 import { HexgridLayer, MarkerLayer } from '../layers-manager/map-layers'
 
 const regions = defineModel<boolean>('regions', {

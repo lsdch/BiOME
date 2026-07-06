@@ -182,7 +182,7 @@ func (q *Queries) GetTaxonResolution(ctx context.Context, importHash string) ([]
 		return nil, err
 	}
 	defer rows.Close()
-	var items []TaxonResolution
+	items := []TaxonResolution{}
 	for rows.Next() {
 		var i TaxonResolution
 		if err := rows.Scan(
@@ -220,7 +220,7 @@ func (q *Queries) InitTaxonResolution(ctx context.Context, importHash string) ([
 		return nil, err
 	}
 	defer rows.Close()
-	var items []TaxonResolution
+	items := []TaxonResolution{}
 	for rows.Next() {
 		var i TaxonResolution
 		if err := rows.Scan(
@@ -328,7 +328,7 @@ func (q *Queries) ListAllTaxonCandidates(ctx context.Context, importHash string)
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListAllTaxonCandidatesRow
+	items := []ListAllTaxonCandidatesRow{}
 	for rows.Next() {
 		var i ListAllTaxonCandidatesRow
 		if err := rows.Scan(
@@ -382,7 +382,7 @@ func (q *Queries) ListTaxaToFetchGBIFCandidates(ctx context.Context, importHash 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListTaxaToFetchGBIFCandidatesRow
+	items := []ListTaxaToFetchGBIFCandidatesRow{}
 	for rows.Next() {
 		var i ListTaxaToFetchGBIFCandidatesRow
 		if err := rows.Scan(&i.TaxonName, &i.FullInputName, &i.TaxonRank); err != nil {

@@ -103,7 +103,7 @@ func (q *Queries) ListImportBatches(ctx context.Context) ([]ImportBatch, error) 
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ImportBatch
+	items := []ImportBatch{}
 	for rows.Next() {
 		var i ImportBatch
 		if err := rows.Scan(

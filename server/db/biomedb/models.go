@@ -1412,6 +1412,7 @@ type OccurrenceCodeHistory struct {
 }
 
 type OccurrenceCollection struct {
+	CollectionID uuid.UUID `json:"collection_id"`
 	OccurrenceID ulid.ULID `json:"occurrence_id"`
 	Name         string    `json:"name"`
 	Vouchers     []string  `json:"vouchers"`
@@ -1429,7 +1430,6 @@ type OccurrencesDataset struct {
 
 type Sampling struct {
 	ID                   uuid.UUID           `json:"id"`
-	SamplingHash         string              `json:"sampling_hash"`
 	Notes                *string             `json:"notes"`
 	SiteCode             *string             `json:"site_code"`
 	SiteName             *string             `json:"site_name"`
@@ -1488,6 +1488,7 @@ type Setting struct {
 	AdminEmail             string  `json:"admin_email"`
 	MailFromAddress        string  `json:"mail_from_address"`
 	MailFromName           string  `json:"mail_from_name"`
+	MolecularDataEnabled   bool    `json:"molecular_data_enabled"`
 }
 
 type TaxaStaging struct {

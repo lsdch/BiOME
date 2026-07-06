@@ -27,7 +27,7 @@ import CRUDTable from '@/components/toolkit/tables/CRUDTable.vue'
 
 const headers: CRUDTableHeader<SamplingMethod>[] = [
   { key: 'code', title: 'Code', cellProps: { class: 'text-overline' } },
-  { key: 'label', title: 'Label' }
+  { key: 'name', title: 'Name' }
 ]
 </script>
 

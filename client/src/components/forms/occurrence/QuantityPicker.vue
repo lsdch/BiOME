@@ -45,7 +45,7 @@
         label="Quantity"
         class="required mt-2"
         :rules="[(v) => v || 'Strictly positive quantity required']"
-        @update:model-value="(v) => (model = v)"
+        @update:model-value="(v) => (model = { exact: v })"
       />
       <div v-else-if="pick === 'Custom'" class="d-flex mt-2">
         <v-number-input
@@ -74,12 +74,13 @@
 </template>
 
 <script setup lang="ts">
+import { QuantityInput } from '@/api'
 import { SpecimenQuantityModel, SpecimenQuantityRangeModel } from '@/models/biomat'
 import { ref } from 'vue'
-const model = defineModel<SpecimenQuantityModel>()
+const model = defineModel<QuantityInput>()
 const pick = ref<'Exact' | 'Custom' | 'Unknown' | (typeof predefined)[number]['key']>('Unknown')
 const predefined = [
-  { label: 'One', key: 'One', value: 1 },
+  { label: 'One', key: 'One', value: { exact: 1 } },
   { label: 'Few (2-5)', key: 'Few', value: { lower: 2, upper: 5 } },
   { label: 'Several (6-20)', key: 'Several', value: { lower: 6, upper: 20 } },
   { label: 'Many (21-100)', key: 'Many', value: { lower: 21, upper: 100 } },

@@ -53,7 +53,7 @@
       </v-tabs-window-item>
       <v-tabs-window-item value="sampled_taxa">
         <slot name="sampled-taxa-table" :occurrences>
-          <OccurringTaxa :occurrences />
+          <!-- <OccurringTaxa :occurrences /> -->
           <!-- <SampledTaxaTable :occurrences /> -->
         </slot>
       </v-tabs-window-item>
@@ -70,7 +70,7 @@ import OccurrencesTable, {
 import SamplingWithOccurrencesTable from '@/features/occurrences/components/tables/SamplingWithOccurrencesTable.vue'
 import SiteWithOccurrencesTable from '@/features/occurrences/components/tables/SiteWithOccurrencesTable.vue'
 import { computed, useSlots } from 'vue'
-import OccurringTaxa from '../OccurringTaxa.vue'
+// import OccurringTaxa from '../OccurringTaxa.vue'
 
 const dialog = defineModel<boolean>({ default: false })
 

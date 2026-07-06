@@ -1,4 +1,4 @@
-import { CoordinatesPrecision } from '@/api'
+import { CoordinatesWithPrecision } from '@/api'
 
 export interface Coordinates {
   latitude: number
@@ -19,10 +19,6 @@ export namespace Coordinates {
   }
 }
 
-export interface Geocoordinates {
-  coordinates: {
-    latitude: number
-    longitude: number
-    precision?: CoordinatesPrecision
-  }
+export interface ItemWithCoordinates {
+  coordinates: CoordinatesWithPrecision
 }

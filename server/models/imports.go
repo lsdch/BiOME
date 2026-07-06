@@ -115,3 +115,20 @@ func (p TaxonStagingParams) ToParams(importHash string) biomedb.InsertTaxonStagi
 		ParentInputName: p.ParentInputName.ToPtr(),
 	}
 }
+
+type VocabResolutionStatus = biomedb.VocabResolutionStatus
+type SamplingMethodResolution struct {
+	ImportHash       string                `json:"import_hash"`
+	InputText        string                `json:"input_text"`
+	ResolvedMethodID Optional[uuid.UUID]   `json:"resolved_method_id,omitempty"`
+	Status           VocabResolutionStatus `json:"status"`
+}
+
+func SamplingMethodResolutionFromDB(res biomedb.SamplingMethodsResolution) SamplingMethodResolution {
+	return SamplingMethodResolution{
+		ImportHash:       res.ImportHash,
+		InputText:        res.InputText,
+		ResolvedMethodID: NewOptionalFromUUID(res.ResolvedMethodID),
+		Status:           res.Status,
+	}
+}
