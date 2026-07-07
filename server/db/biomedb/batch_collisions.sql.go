@@ -30,7 +30,7 @@ WITH resolved_staging AS (
     -- across heterogeneous taxonomic sources.
     --
     SELECT
-    i.import_hash, i.imported_at, i.row_number, i.sampling_hash, i.sampling_comments, i.site_code, i.site_name, i.site_locality, i.site_country_code, i.coordinates_precision, i.longitude, i.latitude, i.coordinates, i.altitude, i.event_date, i.event_date_precision, i.performed_by, i.duration, i.access_points, i.sampling_targets, i.sampling_fixatives, i.sampling_methods, i.habitats, i.occurrence_code, i.type_status, i.taxon_name, i.taxon_authorship, i.taxon_scientific_name, i.taxon_rank, i.verbatim_identification, i.identified_by, i.identification_date, i.identification_date_precision, i.identification_confer, i.identification_addendum, i.content_description, i.quantity_exact, i.quantity_lower, i.quantity_upper, i.sources, i.occurrence_comments,
+    i.import_id, i.imported_at, i.row_number, i.sampling_hash, i.sampling_comments, i.site_code, i.site_name, i.site_locality, i.site_country_code, i.coordinates_precision, i.longitude, i.latitude, i.coordinates, i.altitude, i.event_date, i.event_date_precision, i.performed_by, i.duration, i.access_points, i.sampling_targets, i.sampling_fixatives, i.sampling_methods, i.habitats, i.occurrence_code, i.type_status, i.taxon_name, i.taxon_authorship, i.taxon_scientific_name, i.taxon_rank, i.verbatim_identification, i.identified_by, i.identification_date, i.identification_date_precision, i.identification_confer, i.identification_addendum, i.content_description, i.quantity_exact, i.quantity_lower, i.quantity_upper, i.sources, i.occurrence_comments,
     r.source,
     r.gbif_id,
     r.taxon_id,
@@ -41,9 +41,9 @@ WITH resolved_staging AS (
         WHEN r.source = 'manual' THEN 'm:' || r.staging_id::text
     END AS resolved_taxon_key
     FROM import_samplings_occurrences i
-        JOIN taxon_resolution r ON r.import_hash = i.import_hash
+        JOIN taxon_resolution r ON r.import_id = i.import_id
         AND r.input_name = i.taxon_scientific_name
-    WHERE i.import_hash = $1
+    WHERE i.import_id = $1
 ),
 existing_occurrences AS (
     -- =========================================================
@@ -137,7 +137,7 @@ staging_existing_collisions AS (
         AND s.event_date BETWEEN i.event_date - make_interval(days => $3::int) AND i.event_date + make_interval(days => $3::int)
 ) -- =============================================================
 SELECT 'existing'::duplicate_source AS duplicate_source,
-    i.import_hash,
+    i.import_id,
     i.row_number,
     i.taxon_name,
     i.taxon_authorship,
@@ -163,7 +163,7 @@ FROM staging_existing_collisions e
     JOIN resolved_staging i ON i.row_number = e.row_number
 UNION ALL
 SELECT 'staging'::duplicate_source AS duplicate_source,
-    i.import_hash,
+    i.import_id,
     a.row_a AS row_number,
     i.taxon_name,
     i.taxon_authorship,
@@ -195,14 +195,14 @@ FROM staging_staging_collisions a
 `
 
 type DetectBatchOccurrenceCollisionsParams struct {
-	ImportHash       string `json:"import_hash"`
-	RadiusMeters     int32  `json:"radius_meters"`
-	DateIntervalDays int32  `json:"date_interval_days"`
+	ImportID         uuid.UUID `json:"import_id"`
+	RadiusMeters     int32     `json:"radius_meters"`
+	DateIntervalDays int32     `json:"date_interval_days"`
 }
 
 type DetectBatchOccurrenceCollisionsRow struct {
 	DuplicateSource           DuplicateSource     `json:"duplicate_source"`
-	ImportHash                string              `json:"import_hash"`
+	ImportID                  uuid.UUID           `json:"import_id"`
 	RowNumber                 int32               `json:"row_number"`
 	TaxonName                 string              `json:"taxon_name"`
 	TaxonAuthorship           *string             `json:"taxon_authorship"`
@@ -229,7 +229,7 @@ type DetectBatchOccurrenceCollisionsRow struct {
 // 5. UNIFIED OUTPUT
 // =============================================================
 func (q *Queries) DetectBatchOccurrenceCollisions(ctx context.Context, arg DetectBatchOccurrenceCollisionsParams) ([]DetectBatchOccurrenceCollisionsRow, error) {
-	rows, err := q.db.Query(ctx, detectBatchOccurrenceCollisions, arg.ImportHash, arg.RadiusMeters, arg.DateIntervalDays)
+	rows, err := q.db.Query(ctx, detectBatchOccurrenceCollisions, arg.ImportID, arg.RadiusMeters, arg.DateIntervalDays)
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +239,7 @@ func (q *Queries) DetectBatchOccurrenceCollisions(ctx context.Context, arg Detec
 		var i DetectBatchOccurrenceCollisionsRow
 		if err := rows.Scan(
 			&i.DuplicateSource,
-			&i.ImportHash,
+			&i.ImportID,
 			&i.RowNumber,
 			&i.TaxonName,
 			&i.TaxonAuthorship,
@@ -274,14 +274,14 @@ func (q *Queries) DetectBatchOccurrenceCollisions(ctx context.Context, arg Detec
 
 const detectBatchSamplingCollisions = `-- name: DetectBatchSamplingCollisions :many
 WITH i AS (
-    SELECT import_hash, imported_at, row_number, sampling_hash, sampling_comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, longitude, latitude, coordinates, altitude, event_date, event_date_precision, performed_by, duration, access_points, sampling_targets, sampling_fixatives, sampling_methods, habitats, occurrence_code, type_status, taxon_name, taxon_authorship, taxon_scientific_name, taxon_rank, verbatim_identification, identified_by, identification_date, identification_date_precision, identification_confer, identification_addendum, content_description, quantity_exact, quantity_lower, quantity_upper, sources, occurrence_comments
+    SELECT import_id, imported_at, row_number, sampling_hash, sampling_comments, site_code, site_name, site_locality, site_country_code, coordinates_precision, longitude, latitude, coordinates, altitude, event_date, event_date_precision, performed_by, duration, access_points, sampling_targets, sampling_fixatives, sampling_methods, habitats, occurrence_code, type_status, taxon_name, taxon_authorship, taxon_scientific_name, taxon_rank, verbatim_identification, identified_by, identification_date, identification_date_precision, identification_confer, identification_addendum, content_description, quantity_exact, quantity_lower, quantity_upper, sources, occurrence_comments
     FROM import_samplings_occurrences i
-    WHERE i.import_hash = $3
+    WHERE i.import_id = $3
 ),
 s AS (
     -- existing samplings
     SELECT 'existing'::duplicate_source AS source,
-        NULL::text AS import_hash,
+        NULL::text AS import_id,
         NULL::int AS row_number,
         s.latitude,
         s.longitude,
@@ -293,7 +293,7 @@ s AS (
     UNION ALL
     -- staging samplings (self comparison)
     SELECT 'staging'::duplicate_source AS source,
-        i2.import_hash,
+        i2.import_id,
         i2.row_number,
         i2.latitude,
         i2.longitude,
@@ -302,9 +302,9 @@ s AS (
         i2.coordinates_precision,
         i2.coordinates
     FROM import_samplings_occurrences i2
-    WHERE i2.import_hash = $3
+    WHERE i2.import_id = $3
 )
-SELECT i.import_hash,
+SELECT i.import_id,
     i.sampling_hash,
     i.row_number,
     i.event_date,
@@ -313,7 +313,7 @@ SELECT i.import_hash,
     i.longitude,
     i.coordinates_precision,
     s.source AS duplicate_source,
-    s.import_hash AS match_import_hash,
+    s.import_id AS match_import_id,
     s.row_number AS match_row_number,
     s.latitude AS match_latitude,
     s.longitude AS match_longitude,
@@ -344,13 +344,13 @@ FROM i
 `
 
 type DetectBatchSamplingCollisionsParams struct {
-	RadiusMeters     int32  `json:"radius_meters"`
-	DateIntervalDays int32  `json:"date_interval_days"`
-	ImportHash       string `json:"import_hash"`
+	RadiusMeters     int32     `json:"radius_meters"`
+	DateIntervalDays int32     `json:"date_interval_days"`
+	ImportID         uuid.UUID `json:"import_id"`
 }
 
 type DetectBatchSamplingCollisionsRow struct {
-	ImportHash                string              `json:"import_hash"`
+	ImportID                  uuid.UUID           `json:"import_id"`
 	SamplingHash              string              `json:"sampling_hash"`
 	RowNumber                 int32               `json:"row_number"`
 	EventDate                 pgtype.Date         `json:"event_date"`
@@ -359,7 +359,7 @@ type DetectBatchSamplingCollisionsRow struct {
 	Longitude                 float32             `json:"longitude"`
 	CoordinatesPrecision      *int32              `json:"coordinates_precision"`
 	DuplicateSource           DuplicateSource     `json:"duplicate_source"`
-	MatchImportHash           *string             `json:"match_import_hash"`
+	MatchImportID             *string             `json:"match_import_id"`
 	MatchRowNumber            *int32              `json:"match_row_number"`
 	MatchLatitude             float32             `json:"match_latitude"`
 	MatchLongitude            float32             `json:"match_longitude"`
@@ -370,7 +370,7 @@ type DetectBatchSamplingCollisionsRow struct {
 }
 
 func (q *Queries) DetectBatchSamplingCollisions(ctx context.Context, arg DetectBatchSamplingCollisionsParams) ([]DetectBatchSamplingCollisionsRow, error) {
-	rows, err := q.db.Query(ctx, detectBatchSamplingCollisions, arg.RadiusMeters, arg.DateIntervalDays, arg.ImportHash)
+	rows, err := q.db.Query(ctx, detectBatchSamplingCollisions, arg.RadiusMeters, arg.DateIntervalDays, arg.ImportID)
 	if err != nil {
 		return nil, err
 	}
@@ -379,7 +379,7 @@ func (q *Queries) DetectBatchSamplingCollisions(ctx context.Context, arg DetectB
 	for rows.Next() {
 		var i DetectBatchSamplingCollisionsRow
 		if err := rows.Scan(
-			&i.ImportHash,
+			&i.ImportID,
 			&i.SamplingHash,
 			&i.RowNumber,
 			&i.EventDate,
@@ -388,7 +388,7 @@ func (q *Queries) DetectBatchSamplingCollisions(ctx context.Context, arg DetectB
 			&i.Longitude,
 			&i.CoordinatesPrecision,
 			&i.DuplicateSource,
-			&i.MatchImportHash,
+			&i.MatchImportID,
 			&i.MatchRowNumber,
 			&i.MatchLatitude,
 			&i.MatchLongitude,

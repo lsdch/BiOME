@@ -14,9 +14,7 @@ import (
 	"github.com/lsdch/biome/middleware"
 	"github.com/lsdch/biome/router"
 	"github.com/lsdch/biome/services"
-	"github.com/lsdch/biome/services/gbif"
 	"github.com/lsdch/biome/services/geoapify"
-	"github.com/lsdch/biome/services/imports"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -70,8 +68,6 @@ func NewApp(config config.Config) *App {
 	database := db.NewDB(dbPool)
 	router := makeRouter(config.API)
 
-	gbifClient := gbif.NewClient(config)
-
 	appServices := &AppServices{
 		ImportBatchService: services.NewImportBatchService(),
 		AuthService:        services.NewAuthService(config.AuthTokens),
@@ -85,7 +81,6 @@ func NewApp(config config.Config) *App {
 		GeoapifyService:    geoapify.NewGeoapifyService(http.DefaultClient, config.Geoapify),
 	}
 
-	appServices.ImportService = imports.NewImportService(gbifClient, appServices.SamplingsService, imports.NewTaxonResolutionService(gbifClient))
 	appServices.AccountsService = services.NewAccountService(appServices.AuthService, config.Bootstrap)
 
 	appServices.OccurrencesService = services.NewOccurrencesService(
@@ -117,7 +112,7 @@ func (a *App) Bootstrap() {
 func (a *App) RegisterRoutes() {
 
 	a.Controllers = []controllers.Controller{
-		controllers.NewImportController(a.DB, a.Services.ImportService),
+		// controllers.NewImportController(a.DB, a.Services.ImportService),
 		controllers.NewArticlesController(a.DB, a.Services.ArticleService),
 		controllers.NewGeoapifyController(a.DB, a.Services.GeoapifyService),
 		controllers.NewHabitatsController(a.DB, a.Services.HabitatService),

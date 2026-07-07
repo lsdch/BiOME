@@ -8,17 +8,18 @@ package biomedb
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const getMethodsResolution = `-- name: GetMethodsResolution :many
-SELECT import_hash, input_text, resolved_method_id, status
+SELECT import_id, input_text, resolved_method_id, status
 FROM sampling_methods_resolution
-WHERE import_hash = $1
+WHERE import_id = $1
 `
 
-func (q *Queries) GetMethodsResolution(ctx context.Context, importHash string) ([]SamplingMethodsResolution, error) {
-	rows, err := q.db.Query(ctx, getMethodsResolution, importHash)
+func (q *Queries) GetMethodsResolution(ctx context.Context, importID uuid.UUID) ([]SamplingMethodsResolution, error) {
+	rows, err := q.db.Query(ctx, getMethodsResolution, importID)
 	if err != nil {
 		return nil, err
 	}
@@ -27,7 +28,7 @@ func (q *Queries) GetMethodsResolution(ctx context.Context, importHash string) (
 	for rows.Next() {
 		var i SamplingMethodsResolution
 		if err := rows.Scan(
-			&i.ImportHash,
+			&i.ImportID,
 			&i.InputText,
 			&i.ResolvedMethodID,
 			&i.Status,
@@ -46,7 +47,7 @@ const initMethodsResolution = `-- name: InitMethodsResolution :many
 WITH input_methods AS (
     SELECT DISTINCT UNNEST(sampling_methods) AS input_text
     FROM import_samplings_occurrences
-    WHERE import_hash = $1
+    WHERE import_id = $1
 ),
 resolved AS (
     SELECT i.input_text,
@@ -56,7 +57,7 @@ resolved AS (
         OR lower(unaccent(i.input_text)) = lower(unaccent(m.code))
 )
 INSERT INTO sampling_methods_resolution (
-        import_hash,
+        import_id,
         input_text,
         resolved_method_id,
         status
@@ -69,11 +70,11 @@ SELECT $1,
         ELSE 'pending'
     END::vocab_resolution_status
 FROM resolved
-RETURNING import_hash, input_text, resolved_method_id, status
+RETURNING import_id, input_text, resolved_method_id, status
 `
 
-func (q *Queries) InitMethodsResolution(ctx context.Context, importHash string) ([]SamplingMethodsResolution, error) {
-	rows, err := q.db.Query(ctx, initMethodsResolution, importHash)
+func (q *Queries) InitMethodsResolution(ctx context.Context, importID uuid.UUID) ([]SamplingMethodsResolution, error) {
+	rows, err := q.db.Query(ctx, initMethodsResolution, importID)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +83,7 @@ func (q *Queries) InitMethodsResolution(ctx context.Context, importHash string) 
 	for rows.Next() {
 		var i SamplingMethodsResolution
 		if err := rows.Scan(
-			&i.ImportHash,
+			&i.ImportID,
 			&i.InputText,
 			&i.ResolvedMethodID,
 			&i.Status,
@@ -101,15 +102,15 @@ const resolveMethod = `-- name: ResolveMethod :one
 UPDATE sampling_methods_resolution
 SET resolved_method_id = $1,
     status = $2
-WHERE import_hash = $3
+WHERE import_id = $3
     AND input_text = $4
-RETURNING import_hash, input_text, resolved_method_id, status
+RETURNING import_id, input_text, resolved_method_id, status
 `
 
 type ResolveMethodParams struct {
 	ResolvedMethodID pgtype.UUID           `json:"resolved_method_id"`
 	Status           VocabResolutionStatus `json:"status"`
-	ImportHash       string                `json:"import_hash"`
+	ImportID         uuid.UUID             `json:"import_id"`
 	InputText        string                `json:"input_text"`
 }
 
@@ -117,12 +118,12 @@ func (q *Queries) ResolveMethod(ctx context.Context, arg ResolveMethodParams) (S
 	row := q.db.QueryRow(ctx, resolveMethod,
 		arg.ResolvedMethodID,
 		arg.Status,
-		arg.ImportHash,
+		arg.ImportID,
 		arg.InputText,
 	)
 	var i SamplingMethodsResolution
 	err := row.Scan(
-		&i.ImportHash,
+		&i.ImportID,
 		&i.InputText,
 		&i.ResolvedMethodID,
 		&i.Status,

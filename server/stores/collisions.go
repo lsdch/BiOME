@@ -3,6 +3,7 @@ package stores
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 )
@@ -19,17 +20,17 @@ type CollisionDetectionParams struct {
 	DateIntervalDays int32
 }
 
-func (s *CollisionStore) DetectBatchSamplingCollisions(ctx context.Context, q db.Querier, importHash string, params CollisionDetectionParams) (existing []biomedb.DetectBatchSamplingCollisionsRow, err error) {
+func (s *CollisionStore) DetectBatchSamplingCollisions(ctx context.Context, q db.Querier, importID uuid.UUID, params CollisionDetectionParams) (existing []biomedb.DetectBatchSamplingCollisionsRow, err error) {
 	return q.Queries().DetectBatchSamplingCollisions(ctx, biomedb.DetectBatchSamplingCollisionsParams{
-		ImportHash:       importHash,
+		ImportID:         importID,
 		RadiusMeters:     params.RadiusMeters,
 		DateIntervalDays: params.DateIntervalDays,
 	})
 }
 
-func (s *CollisionStore) DetectBatchOccurrencesCollisions(ctx context.Context, q db.Querier, importHash string, params CollisionDetectionParams) (existing []biomedb.DetectBatchOccurrenceCollisionsRow, err error) {
+func (s *CollisionStore) DetectBatchOccurrencesCollisions(ctx context.Context, q db.Querier, importID uuid.UUID, params CollisionDetectionParams) (existing []biomedb.DetectBatchOccurrenceCollisionsRow, err error) {
 	return q.Queries().DetectBatchOccurrenceCollisions(ctx, biomedb.DetectBatchOccurrenceCollisionsParams{
-		ImportHash:       importHash,
+		ImportID:         importID,
 		RadiusMeters:     params.RadiusMeters,
 		DateIntervalDays: params.DateIntervalDays,
 	})

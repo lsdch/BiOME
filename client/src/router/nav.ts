@@ -95,6 +95,29 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
       component: () => import('@/views/import/DataImportView.vue'),
       meta: { title: 'Data import' }
     }),
+    {
+      label: 'Data inputs',
+      icon: 'mdi-file-upload',
+      granted: 'Contributor',
+      routes: [
+        guardRole('Contributor', {
+          label: 'Register item',
+          path: '/import/item',
+          name: 'import-item',
+          icon: 'mdi-package-variant-plus',
+          component: () => import('@/views/import/CreateOccurrencesView.vue'),
+          meta: { title: 'Create sampling/occurrences' }
+        }),
+        guardRole('Contributor', {
+          label: 'Import batch',
+          path: '/import/batch',
+          name: 'import-batch',
+          icon: 'mdi-file-upload',
+          component: () => import('@/views/import/ImportBatchView.vue'),
+          meta: { title: 'Import batch' }
+        })
+      ]
+    },
     'divider',
     // {
     //   label: "DNA sequencing",

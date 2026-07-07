@@ -80,13 +80,6 @@ import type {
   GetOccurrencesData,
   GetOccurrencesErrors,
   GetOccurrencesResponses,
-  ImportOccurrencesData,
-  ImportOccurrencesErrors,
-  ImportOccurrencesResponses,
-  ImportStatusData,
-  ImportStatusErrors,
-  ImportStatusResponse,
-  ImportStatusResponses,
   ListAccessPointsData,
   ListAccessPointsErrors,
   ListAccessPointsResponses,
@@ -962,62 +955,6 @@ export class HabitatsService {
         'Content-Type': 'application/json',
         ...options.headers
       }
-    })
-  }
-}
-
-export class BatchImportsService {
-  /**
-   * Import occurrence data
-   */
-  public static importOccurrences<ThrowOnError extends boolean = false>(
-    options?: Options<ImportOccurrencesData, ThrowOnError>
-  ) {
-    return (options?.client ?? client).post<
-      ImportOccurrencesResponses,
-      ImportOccurrencesErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/imports',
-      ...options,
-      headers: {
-        'Content-Type': 'application/json',
-        ...options?.headers
-      }
-    })
-  }
-}
-
-export class DefaultService {
-  /**
-   * Get import status updates via Server-Sent Events (SSE)
-   */
-  public static importStatus<ThrowOnError extends boolean = false>(
-    options: Options<ImportStatusData, ThrowOnError, ImportStatusResponse>
-  ) {
-    return (options.client ?? client).sse.get<
-      ImportStatusResponses,
-      ImportStatusErrors,
-      ThrowOnError
-    >({
-      security: [
-        { scheme: 'bearer', type: 'http' },
-        {
-          in: 'cookie',
-          name: 'auth_token',
-          type: 'apiKey'
-        }
-      ],
-      url: '/imports/{hash}/status',
-      ...options
     })
   }
 }

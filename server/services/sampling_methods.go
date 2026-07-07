@@ -47,19 +47,19 @@ func (s *SamplingService) SetMethodsAtSampling(ctx context.Context, tx *db.Tx, s
 }
 
 // Initializes the sampling methods resolution state for a given import hash. This is typically called when starting a new import workflow.
-func (s *SamplingService) InitMethodResolution(ctx context.Context, q db.Querier, importHash string) (state []models.SamplingMethodResolution, err error) {
-	return s.store.InitMethodResolution(ctx, q, importHash)
+func (s *SamplingService) InitMethodResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (state []models.SamplingMethodResolution, err error) {
+	return s.store.InitMethodResolution(ctx, q, importID)
 }
 
-func (s *SamplingService) GetMethodsResolution(ctx context.Context, q db.Querier, importHash string) (state []models.SamplingMethodResolution, err error) {
-	return s.store.GetMethodsResolution(ctx, q, importHash)
+func (s *SamplingService) GetMethodsResolution(ctx context.Context, q db.Querier, importID uuid.UUID) (state []models.SamplingMethodResolution, err error) {
+	return s.store.GetMethodsResolution(ctx, q, importID)
 }
 
-func (s *SamplingService) ResolveMethod(ctx context.Context, q db.Querier, importHash string, input models.SamplingMethodResolutionInput) (models.SamplingMethodResolution, error) {
+func (s *SamplingService) ResolveMethod(ctx context.Context, q db.Querier, importID uuid.UUID, input models.SamplingMethodResolutionInput) (models.SamplingMethodResolution, error) {
 	if err := input.Validate(); err != nil {
 		return models.SamplingMethodResolution{}, err
 	}
-	return s.store.ResolveMethod(ctx, q, importHash, input)
+	return s.store.ResolveMethod(ctx, q, importID, input)
 }
 
 func (s *SamplingService) BootstrapSamplingMethods(ctx context.Context, q db.Querier, yamlBytes []byte) error {

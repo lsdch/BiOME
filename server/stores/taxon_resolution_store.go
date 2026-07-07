@@ -3,6 +3,7 @@ package stores
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	"github.com/lsdch/biome/models"
@@ -15,40 +16,12 @@ func NewTaxonResolutionStore() *TaxonResolutionStore {
 	return &TaxonResolutionStore{}
 }
 
-func (r *TaxonResolutionStore) InitTaxonResolution(ctx context.Context, q db.Querier, importHash string) ([]models.TaxonResolution, error) {
-	resolution, err := q.Queries().InitTaxonResolution(ctx, importHash)
+func (r *TaxonResolutionStore) InitTaxonResolution(ctx context.Context, q db.Querier, importID uuid.UUID) ([]models.TaxonResolution, error) {
+	resolution, err := q.Queries().InitTaxonResolution(ctx, importID)
 	if err != nil {
 		return nil, err
 	}
 	return models.TaxonResolutionFromDBSlice(resolution), nil
-}
-
-func (r *TaxonResolutionStore) ClaimGBIFImport(ctx context.Context, q db.Querier, importHash string) (ok bool, err error) {
-	rowsAffected, err := q.Queries().ClaimGBIFImport(ctx, importHash)
-	return rowsAffected > 0, err
-}
-
-func (r *TaxonResolutionStore) CompleteGBIFImport(ctx context.Context, q db.Querier, importHash string) (status models.GBIFImportStatus, err error) {
-	return q.Queries().CompleteGBIFImport(ctx, importHash)
-}
-
-func (r *TaxonResolutionStore) FailGBIFImport(ctx context.Context, q db.Querier, importHash string) (status models.GBIFImportStatus, err error) {
-	return q.Queries().FailGBIFImport(ctx, importHash)
-}
-
-func (r *TaxonResolutionStore) InitGBIFCandidatesProgress(ctx context.Context, q db.Querier, total int32, importHash string) error {
-	return q.Queries().InitGBIFCandidatesProgress(ctx, total, importHash)
-}
-func (r *TaxonResolutionStore) IncrementGBIFCandidatesProgress(ctx context.Context, q db.Querier, importHash string) (biomedb.IncrementGBIFCandidatesProgressRow, error) {
-	return q.Queries().IncrementGBIFCandidatesProgress(ctx, importHash)
-}
-
-func (r *TaxonResolutionStore) GetGBIFImportStatus(ctx context.Context, q db.Querier, importHash string) (state models.GBIFImportState, err error) {
-	res, err := q.Queries().GetGBIFImportStatus(ctx, importHash)
-	if err != nil {
-		return models.GBIFImportState{}, err
-	}
-	return models.GBIFImportStateFromDB(res), nil
 }
 
 func (r *TaxonResolutionStore) InsertGBIFBatch(ctx context.Context, q db.Querier, taxa []models.TaxonGBIF) (err error) {
@@ -73,8 +46,8 @@ func (r *TaxonResolutionStore) InsertGBIFCandidatesBatch(ctx context.Context, q 
 	return err
 }
 
-func (r *TaxonResolutionStore) InsertTaxonStaging(ctx context.Context, q db.Querier, importHash string, params models.TaxonStagingParams) (err error) {
-	return q.Queries().InsertTaxonStaging(ctx, params.ToParams(importHash))
+func (r *TaxonResolutionStore) InsertTaxonStaging(ctx context.Context, q db.Querier, importID uuid.UUID, params models.TaxonStagingParams) (err error) {
+	return q.Queries().InsertTaxonStaging(ctx, params.ToParams(importID))
 }
 
 func (r *TaxonResolutionStore) UpsertTaxonResolution(ctx context.Context, q db.Querier, params biomedb.UpsertTaxonResolutionParams) (err error) {
@@ -86,48 +59,48 @@ func (r *TaxonResolutionStore) UpsertTaxonResolution(ctx context.Context, q db.Q
 // to ensure that all necessary GBIF data is available before materialization.
 //
 // Returns the list of missing GBIF keys that need to be fetched.
-func (r *TaxonResolutionStore) ListMissingGBIFDependencies(ctx context.Context, q db.Querier, importHash string) (missingKeys []int32, err error) {
-	if err = q.Queries().ExpandGBIFDependencies(ctx, importHash); err != nil {
+func (r *TaxonResolutionStore) ListMissingGBIFDependencies(ctx context.Context, q db.Querier, importID uuid.UUID) (missingKeys []int32, err error) {
+	if err = q.Queries().ExpandGBIFDependencies(ctx, importID); err != nil {
 		return nil, err
 	}
-	missingKeys, err = q.Queries().ListMissingGBIFKeys(ctx, importHash)
+	missingKeys, err = q.Queries().ListMissingGBIFKeys(ctx, importID)
 	return missingKeys, err
 }
 
 // Inserts taxa from GBIF staging into the main taxa table, for a given import and rank.
 // This is done in two steps: first insert non-synonyms, then insert synonyms (which depend on the accepted taxa being present).
-func (r *TaxonResolutionStore) InsertTaxaFromGBIF(ctx context.Context, q db.Querier, importHash string, rank models.TaxonRank) (err error) {
-	err = q.Queries().InsertTaxaFromGBIF(ctx, biomedb.InsertTaxaFromGBIFParams{ImportHash: importHash, Rank: string(rank), IsSynonym: false})
+func (r *TaxonResolutionStore) InsertTaxaFromGBIF(ctx context.Context, q db.Querier, importID uuid.UUID, rank models.TaxonRank) (err error) {
+	err = q.Queries().InsertTaxaFromGBIF(ctx, biomedb.InsertTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: false})
 	if err != nil {
 		return err
 	}
-	err = q.Queries().InsertTaxaFromGBIF(ctx, biomedb.InsertTaxaFromGBIFParams{ImportHash: importHash, Rank: string(rank), IsSynonym: true})
+	err = q.Queries().InsertTaxaFromGBIF(ctx, biomedb.InsertTaxaFromGBIFParams{ImportID: importID, Rank: string(rank), IsSynonym: true})
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (r *TaxonResolutionStore) MarkTaxaNeedingGBIFCandidates(ctx context.Context, q db.Querier, importHash string) (err error) {
-	return q.Queries().MarkTaxaNeedingGBIFCandidates(ctx, importHash)
+func (r *TaxonResolutionStore) MarkTaxaNeedingGBIFCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
+	return q.Queries().MarkTaxaNeedingGBIFCandidates(ctx, importID)
 }
 
-func (r *TaxonResolutionStore) MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importHash string, inputNames []string) (err error) {
-	return q.Queries().MarkTaxaGBIFImportCompleted(ctx, importHash, inputNames)
+func (r *TaxonResolutionStore) MarkTaxaGBIFImportCompleted(ctx context.Context, q db.Querier, importID uuid.UUID, inputNames []string) (err error) {
+	return q.Queries().MarkTaxaGBIFImportCompleted(ctx, importID, inputNames)
 }
 
-func (r *TaxonResolutionStore) ListTaxnamesToFetchFromGBIF(ctx context.Context, q db.Querier, importHash string) (toFetch []biomedb.ListTaxaToFetchGBIFCandidatesRow, err error) {
-	return q.Queries().ListTaxaToFetchGBIFCandidates(ctx, importHash)
+func (r *TaxonResolutionStore) ListTaxnamesToFetchFromGBIF(ctx context.Context, q db.Querier, importID uuid.UUID) (toFetch []biomedb.ListTaxaToFetchGBIFCandidatesRow, err error) {
+	return q.Queries().ListTaxaToFetchGBIFCandidates(ctx, importID)
 }
 
-func (r *TaxonResolutionStore) GenerateLocalTaxonCandidates(ctx context.Context, q db.Querier, importHash string) (err error) {
+func (r *TaxonResolutionStore) GenerateLocalTaxonCandidates(ctx context.Context, q db.Querier, importID uuid.UUID) (err error) {
 
-	err = q.Queries().CreateCandidateTaxaNameExact(ctx, importHash)
+	err = q.Queries().CreateCandidateTaxaNameExact(ctx, importID)
 	if err != nil {
 		return err
 	}
 
-	err = q.Queries().CreateCandidateTaxaFuzzy(ctx, 0.6, importHash)
+	err = q.Queries().CreateCandidateTaxaFuzzy(ctx, 0.6, importID)
 	if err != nil {
 		return err
 	}
@@ -135,10 +108,10 @@ func (r *TaxonResolutionStore) GenerateLocalTaxonCandidates(ctx context.Context,
 }
 
 func (r *TaxonResolutionStore) ListTaxonCandidates(
-	ctx context.Context, q db.Querier, importHash string,
+	ctx context.Context, q db.Querier, importID uuid.UUID,
 ) (candidatesByName map[string][]models.TaxonCandidate, err error) {
 
-	candidates, err := q.Queries().ListAllTaxonCandidates(ctx, importHash)
+	candidates, err := q.Queries().ListAllTaxonCandidates(ctx, importID)
 	if err != nil {
 		return nil, err
 	}
@@ -150,12 +123,12 @@ func (r *TaxonResolutionStore) ListTaxonCandidates(
 	return candidatesByName, nil
 }
 
-func (r *TaxonResolutionStore) GetTaxonResolutionState(ctx context.Context, q db.Querier, importHash string) (state *models.TaxonResolutionState, err error) {
-	resolutions, err := q.Queries().GetTaxonResolution(ctx, importHash)
+func (r *TaxonResolutionStore) GetTaxonResolutionState(ctx context.Context, q db.Querier, importID uuid.UUID) (state *models.TaxonResolutionState, err error) {
+	resolutions, err := q.Queries().GetTaxonResolution(ctx, importID)
 	if err != nil {
 		return nil, err
 	}
-	candidates, err := r.ListTaxonCandidates(ctx, q, importHash)
+	candidates, err := r.ListTaxonCandidates(ctx, q, importID)
 	if err != nil {
 		return nil, err
 	}

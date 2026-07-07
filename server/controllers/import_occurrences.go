@@ -8,26 +8,23 @@ import (
 	"github.com/danielgtaylor/huma/v2/sse"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
+	"github.com/lsdch/biome/imports"
 	"github.com/lsdch/biome/lib/auth"
 	"github.com/lsdch/biome/middleware"
+	"github.com/lsdch/biome/models"
 	"github.com/lsdch/biome/router"
-	"github.com/lsdch/biome/services/imports"
 )
 
 type ImportController struct {
-	db            *db.DB
-	importService *imports.ImportService
+	db      *db.DB
+	manager *imports.ImportManager
 }
 
-func NewImportController(db *db.DB, importService *imports.ImportService) *ImportController {
+func NewImportController(db *db.DB, manager *imports.ImportManager) *ImportController {
 	return &ImportController{
-		db:            db,
-		importService: importService,
+		db:      db,
+		manager: manager,
 	}
-}
-
-type ImportHashInput struct {
-	Hash string `path:"hash" required:"true" doc:"The unique hash of an import."`
 }
 
 type OccurrenceInputCSV struct {
@@ -44,31 +41,95 @@ type OccurrenceBatchInput struct {
 	Body    OccurrenceBatchInputMetadata
 }
 
-func (c *ImportController) ImportOccurrences(ctx context.Context, input *OccurrenceBatchInput) (*imports.ImportResolutionState, error) {
+func (c *ImportController) ImportOccurrences(
+	ctx context.Context,
+	input *OccurrenceBatchInput,
+) (*BodyTransporter[models.ImportWorkflow], error) {
 	formData := input.RawBody.Data()
 	file := formData.File
 
-	var state *imports.ImportResolutionState
-	err := c.db.WithTx(ctx, func(tx *db.Tx) error {
-		var txErr error
-		state, txErr = c.importService.InitImportWorkflow(ctx, tx, input.Body.Label, imports.CSVImportParams{
-			Reader:    file,
-			Separator: input.Body.Separator,
-		})
-		return txErr
-	})
+	runner, err := c.manager.NewWorkflow(ctx, input.Body.Label)
 	if err != nil {
 		return nil, err
 	}
 
-	return state, nil
+	err = runner.StartWorkflowCSV(file, input.Body.Separator)
+	if err != nil {
+		return nil, err
+	}
+
+	return &BodyTransporter[models.ImportWorkflow]{Body: runner.Workflow()}, nil
 }
 
-func (c *ImportController) TrackImportStatus(ctx context.Context, input *ImportHashInput, send sse.Sender) {
+func (c *ImportController) ListImports(ctx context.Context, _ *struct{}) (*BodyTransporter[[]imports.ImportEvent], error) {
+	return &BodyTransporter[[]imports.ImportEvent]{Body: c.manager.Snapshots()}, nil
+}
+
+func (c *ImportController) TrackImports(ctx context.Context, _ *struct{}, send sse.Sender) {
+	events, unsubscribe := c.manager.Subscribe()
+	defer unsubscribe()
+
+	// initial state
+	for _, runner := range c.manager.Snapshots() {
+		send(sse.Message{Data: runner})
+	}
+
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case event, ok := <-events:
+			if !ok {
+				return
+			}
+			send(sse.Message{Data: event})
+		}
+	}
+}
+
+func (c *ImportController) TrackImportStatus(ctx context.Context, input *UUIDInput, send sse.Sender) {
+	runner, ok := c.manager.GetRunner(input.ID)
+	if !ok {
+		return
+	}
+
+	events, unsubscribe := c.manager.Subscribe()
+	defer unsubscribe()
+
+	// initial state
+	send(sse.Message{Data: runner.Snapshot()})
+	for {
+		select {
+		case <-ctx.Done():
+			return
+
+		case event, ok := <-events:
+			if !ok {
+				return
+			}
+			if event.Workflow.ImportID == input.ID {
+				send(sse.Message{Data: event})
+			}
+		}
+	}
 }
 
 func (c *ImportController) RegisterRoutes(r *router.Router) {
 	importsAPI := r.RouteGroup("/imports/").WithTags([]string{"Batch Imports"})
+
+	router.NewSpec(
+		importsAPI,
+		"ListImports",
+		huma.Operation{
+			Path:    "/",
+			Method:  http.MethodGet,
+			Summary: "List import workflows",
+		},
+		c.ListImports,
+	).
+		WithAccessPolicy(auth.Role(biomedb.UserRoleContributor)).
+		Register(r)
 
 	router.NewSpec(
 		importsAPI,
@@ -88,7 +149,7 @@ func (c *ImportController) RegisterRoutes(r *router.Router) {
 			huma.Operation{
 				OperationID: "ImportStatus",
 				Method:      http.MethodGet,
-				Path:        "/imports/{hash}/status",
+				Path:        "/imports/{id}/status",
 				Summary:     "Get import status updates via Server-Sent Events (SSE)",
 			},
 			auth.Role(biomedb.UserRoleContributor),

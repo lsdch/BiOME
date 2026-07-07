@@ -14,9 +14,9 @@ import (
 
 const autoResolveUnambiguousCandidates = `-- name: AutoResolveUnambiguousCandidates :exec
 WITH ranked AS (
-    SELECT c.import_hash, c.input_name, c.source, c.match_type, c.taxon_id, c.gbif_id, c.score, c.priority, c.name, c.authorship, c.rank, c.status,
+    SELECT c.import_id, c.input_name, c.source, c.match_type, c.taxon_id, c.gbif_id, c.score, c.priority, c.name, c.authorship, c.rank, c.status,
         ROW_NUMBER() OVER (
-            PARTITION BY c.import_hash,
+            PARTITION BY c.import_id,
             c.input_name
             ORDER BY c.priority DESC,
                 c.score DESC
@@ -24,19 +24,19 @@ WITH ranked AS (
         COUNT(*) FILTER (
             WHERE c.priority = (
                     MAX(c.priority) OVER (
-                        PARTITION BY c.import_hash,
+                        PARTITION BY c.import_id,
                         c.input_name
                     )
                 )
         ) OVER (
-            PARTITION BY c.import_hash,
+            PARTITION BY c.import_id,
             c.input_name
         ) AS best_count
     FROM taxon_candidates c
-    WHERE c.import_hash = $1
+    WHERE c.import_id = $1
 ),
 winners AS (
-    SELECT import_hash, input_name, source, match_type, taxon_id, gbif_id, score, priority, name, authorship, rank, status, rn, best_count
+    SELECT import_id, input_name, source, match_type, taxon_id, gbif_id, score, priority, name, authorship, rank, status, rn, best_count
     FROM ranked
     WHERE rn = 1
         AND best_count = 1
@@ -50,40 +50,40 @@ SET source = w.source,
     staging_id = w.staging_id,
     status = 'resolved'
 FROM winners w
-WHERE r.import_hash = w.import_hash
+WHERE r.import_id = w.import_id
     AND r.input_name = w.input_name
     AND r.status = 'pending'
 `
 
 // Automatically resolve candidates where there is a single best match above the priority threshold.
-func (q *Queries) AutoResolveUnambiguousCandidates(ctx context.Context, importHash string) error {
-	_, err := q.db.Exec(ctx, autoResolveUnambiguousCandidates, importHash)
+func (q *Queries) AutoResolveUnambiguousCandidates(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, autoResolveUnambiguousCandidates, importID)
 	return err
 }
 
 const cleanUpTaxonResolution = `-- name: CleanUpTaxonResolution :exec
 DELETE FROM taxon_resolution
-WHERE import_hash = $1
+WHERE import_id = $1
 `
 
-func (q *Queries) CleanUpTaxonResolution(ctx context.Context, importHash string) error {
-	_, err := q.db.Exec(ctx, cleanUpTaxonResolution, importHash)
+func (q *Queries) CleanUpTaxonResolution(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, cleanUpTaxonResolution, importID)
 	return err
 }
 
 const cleanupTaxonCandidates = `-- name: CleanupTaxonCandidates :exec
 DELETE FROM taxon_candidates
-WHERE import_hash = $1
+WHERE import_id = $1
 `
 
-func (q *Queries) CleanupTaxonCandidates(ctx context.Context, importHash string) error {
-	_, err := q.db.Exec(ctx, cleanupTaxonCandidates, importHash)
+func (q *Queries) CleanupTaxonCandidates(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, cleanupTaxonCandidates, importID)
 	return err
 }
 
 const createCandidateTaxaFuzzy = `-- name: CreateCandidateTaxaFuzzy :exec
 WITH candidates AS (
-    SELECT i.import_hash,
+    SELECT i.import_id,
         i.input_name,
         t.id AS taxon_id,
         similarity(t.scientific_name, i.input_name) AS score,
@@ -93,10 +93,10 @@ WITH candidates AS (
         t.status
     FROM taxon_resolution i
         JOIN taxa t ON t.scientific_name % i.input_name
-    WHERE i.import_hash = $2
+    WHERE i.import_id = $2
 )
 INSERT INTO taxon_candidates (
-        import_hash,
+        import_id,
         input_name,
         source,
         match_type,
@@ -109,7 +109,7 @@ INSERT INTO taxon_candidates (
         rank,
         status
     )
-SELECT c.import_hash,
+SELECT c.import_id,
     c.input_name,
     'internal',
     'fuzzy',
@@ -125,14 +125,14 @@ FROM candidates c
 WHERE c.score > COALESCE(NULLIF($1::double precision, 0), 0.6)
 `
 
-func (q *Queries) CreateCandidateTaxaFuzzy(ctx context.Context, threshold float64, importHash string) error {
-	_, err := q.db.Exec(ctx, createCandidateTaxaFuzzy, threshold, importHash)
+func (q *Queries) CreateCandidateTaxaFuzzy(ctx context.Context, threshold float64, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, createCandidateTaxaFuzzy, threshold, importID)
 	return err
 }
 
 const createCandidateTaxaNameExact = `-- name: CreateCandidateTaxaNameExact :exec
 INSERT INTO taxon_candidates (
-        import_hash,
+        import_id,
         input_name,
         source,
         match_type,
@@ -145,7 +145,7 @@ INSERT INTO taxon_candidates (
         rank,
         status
     )
-SELECT i.import_hash,
+SELECT i.import_id,
     i.input_name,
     'internal',
     'exact',
@@ -160,24 +160,24 @@ SELECT i.import_hash,
 FROM taxon_resolution i
     JOIN taxa t ON i.input_name % t.scientific_name
     OR i.input_name % t.name
-WHERE i.import_hash = $1
+WHERE i.import_id = $1
 `
 
 // Create candidate matches based on exact name matches,
 // using either the scientific name or the canonical name.
-func (q *Queries) CreateCandidateTaxaNameExact(ctx context.Context, importHash string) error {
-	_, err := q.db.Exec(ctx, createCandidateTaxaNameExact, importHash)
+func (q *Queries) CreateCandidateTaxaNameExact(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, createCandidateTaxaNameExact, importID)
 	return err
 }
 
 const getTaxonResolution = `-- name: GetTaxonResolution :many
-SELECT import_hash, input_name, source, gbif_id, taxon_id, staging_id, status, gbif_status
+SELECT import_id, input_name, source, gbif_id, taxon_id, staging_id, status, gbif_status
 FROM taxon_resolution
-WHERE import_hash = $1
+WHERE import_id = $1
 `
 
-func (q *Queries) GetTaxonResolution(ctx context.Context, importHash string) ([]TaxonResolution, error) {
-	rows, err := q.db.Query(ctx, getTaxonResolution, importHash)
+func (q *Queries) GetTaxonResolution(ctx context.Context, importID uuid.UUID) ([]TaxonResolution, error) {
+	rows, err := q.db.Query(ctx, getTaxonResolution, importID)
 	if err != nil {
 		return nil, err
 	}
@@ -186,7 +186,7 @@ func (q *Queries) GetTaxonResolution(ctx context.Context, importHash string) ([]
 	for rows.Next() {
 		var i TaxonResolution
 		if err := rows.Scan(
-			&i.ImportHash,
+			&i.ImportID,
 			&i.InputName,
 			&i.Source,
 			&i.GBIFID,
@@ -206,16 +206,16 @@ func (q *Queries) GetTaxonResolution(ctx context.Context, importHash string) ([]
 }
 
 const initTaxonResolution = `-- name: InitTaxonResolution :many
-INSERT INTO taxon_resolution (import_hash, input_name)
-SELECT DISTINCT i.import_hash,
+INSERT INTO taxon_resolution (import_id, input_name)
+SELECT DISTINCT i.import_id,
     i.scientific_name
 FROM import_samplings_occurrences i
-WHERE i.import_hash = $1
-RETURNING import_hash, input_name, source, gbif_id, taxon_id, staging_id, status, gbif_status
+WHERE i.import_id = $1
+RETURNING import_id, input_name, source, gbif_id, taxon_id, staging_id, status, gbif_status
 `
 
-func (q *Queries) InitTaxonResolution(ctx context.Context, importHash string) ([]TaxonResolution, error) {
-	rows, err := q.db.Query(ctx, initTaxonResolution, importHash)
+func (q *Queries) InitTaxonResolution(ctx context.Context, importID uuid.UUID) ([]TaxonResolution, error) {
+	rows, err := q.db.Query(ctx, initTaxonResolution, importID)
 	if err != nil {
 		return nil, err
 	}
@@ -224,7 +224,7 @@ func (q *Queries) InitTaxonResolution(ctx context.Context, importHash string) ([
 	for rows.Next() {
 		var i TaxonResolution
 		if err := rows.Scan(
-			&i.ImportHash,
+			&i.ImportID,
 			&i.InputName,
 			&i.Source,
 			&i.GBIFID,
@@ -244,7 +244,7 @@ func (q *Queries) InitTaxonResolution(ctx context.Context, importHash string) ([
 }
 
 type InsertTaxonCandidatesBatchParams struct {
-	ImportHash string           `json:"import_hash"`
+	ImportID   uuid.UUID        `json:"import_id"`
 	InputName  string           `json:"input_name"`
 	Source     TaxonMatchSource `json:"source"`
 	MatchType  TaxonMatchType   `json:"match_type"`
@@ -266,7 +266,7 @@ WITH staging AS (
         i.taxon_authorship,
         ARRAY_AGG(i.row_number) AS row_numbers
     FROM import_samplings_occurrences i
-    WHERE i.import_hash = $1
+    WHERE i.import_id = $1
     GROUP BY i.taxon_name,
         i.taxon_scientific_name,
         i.taxon_rank,
@@ -289,7 +289,7 @@ candidates AS (
         r.gbif_id AS resolved_gbif_id
     FROM staging s
         JOIN taxon_candidates r ON r.input_name = s.taxon_scientific_name
-        AND r.import_hash = $1
+        AND r.import_id = $1
         LEFT JOIN taxa t ON r.source = 'internal'
         AND t.id = r.taxon_id
         LEFT JOIN gbif_staging g ON r.source = 'gbif'
@@ -322,8 +322,8 @@ type ListAllTaxonCandidatesRow struct {
 	Rank               int64            `json:"rank"`
 }
 
-func (q *Queries) ListAllTaxonCandidates(ctx context.Context, importHash string) ([]ListAllTaxonCandidatesRow, error) {
-	rows, err := q.db.Query(ctx, listAllTaxonCandidates, importHash)
+func (q *Queries) ListAllTaxonCandidates(ctx context.Context, importID uuid.UUID) ([]ListAllTaxonCandidatesRow, error) {
+	rows, err := q.db.Query(ctx, listAllTaxonCandidates, importID)
 	if err != nil {
 		return nil, err
 	}
@@ -363,9 +363,9 @@ SELECT DISTINCT i.taxon_name,
     i.taxon_scientific_name as full_input_name,
     i.taxon_rank
 FROM import_samplings_occurrences i
-    JOIN taxon_resolution r ON r.import_hash = i.import_hash
+    JOIN taxon_resolution r ON r.import_id = i.import_id
     AND r.input_name = i.taxon_scientific_name
-WHERE i.import_hash = $1
+WHERE i.import_id = $1
     AND r.gbif_status IN ('pending', 'failed')
 ORDER BY i.taxon_scientific_name
 `
@@ -376,8 +376,8 @@ type ListTaxaToFetchGBIFCandidatesRow struct {
 	TaxonRank     *string `json:"taxon_rank"`
 }
 
-func (q *Queries) ListTaxaToFetchGBIFCandidates(ctx context.Context, importHash string) ([]ListTaxaToFetchGBIFCandidatesRow, error) {
-	rows, err := q.db.Query(ctx, listTaxaToFetchGBIFCandidates, importHash)
+func (q *Queries) ListTaxaToFetchGBIFCandidates(ctx context.Context, importID uuid.UUID) ([]ListTaxaToFetchGBIFCandidatesRow, error) {
+	rows, err := q.db.Query(ctx, listTaxaToFetchGBIFCandidates, importID)
 	if err != nil {
 		return nil, err
 	}
@@ -399,25 +399,25 @@ func (q *Queries) ListTaxaToFetchGBIFCandidates(ctx context.Context, importHash 
 const markTaxaGBIFImportCompleted = `-- name: MarkTaxaGBIFImportCompleted :exec
 UPDATE taxon_resolution r
 SET gbif_status = 'completed'
-WHERE r.import_hash = $1
+WHERE r.import_id = $1
     AND r.gbif_status NOT IN ('skipped', 'completed')
     AND r.input_name = ANY($2::TEXT [])
 `
 
-func (q *Queries) MarkTaxaGBIFImportCompleted(ctx context.Context, importHash string, inputNames []string) error {
-	_, err := q.db.Exec(ctx, markTaxaGBIFImportCompleted, importHash, inputNames)
+func (q *Queries) MarkTaxaGBIFImportCompleted(ctx context.Context, importID uuid.UUID, inputNames []string) error {
+	_, err := q.db.Exec(ctx, markTaxaGBIFImportCompleted, importID, inputNames)
 	return err
 }
 
 const markTaxaNeedingGBIFCandidates = `-- name: MarkTaxaNeedingGBIFCandidates :exec
 UPDATE taxon_resolution r
 SET gbif_status = 'pending'
-WHERE r.import_hash = $1
+WHERE r.import_id = $1
     AND r.gbif_status NOT IN ('skipped', 'completed')
     AND NOT EXISTS (
         SELECT 1
         FROM taxon_candidates c
-        WHERE c.import_hash = r.import_hash
+        WHERE c.import_id = r.import_id
             AND c.input_name = r.input_name
             AND c.source = 'internal'
             AND c.match_type = 'exact'
@@ -425,14 +425,14 @@ WHERE r.import_hash = $1
     AND NOT EXISTS (
         SELECT 1
         FROM taxon_candidates c
-        WHERE c.import_hash = r.import_hash
+        WHERE c.import_id = r.import_id
             AND c.input_name = r.input_name
             AND c.source = 'gbif'
     )
 `
 
-func (q *Queries) MarkTaxaNeedingGBIFCandidates(ctx context.Context, importHash string) error {
-	_, err := q.db.Exec(ctx, markTaxaNeedingGBIFCandidates, importHash)
+func (q *Queries) MarkTaxaNeedingGBIFCandidates(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, markTaxaNeedingGBIFCandidates, importID)
 	return err
 }
 
@@ -444,19 +444,19 @@ SET source = $1::taxon_match_source,
     gbif_id = $4::INTEGER,
     staging_id = $5::UUID,
     status = $6::resolution_status
-WHERE import_hash = $7
+WHERE import_id = $7
     AND input_name = $8
 `
 
 type ResolveTaxonParams struct {
-	Source     TaxonMatchSource `json:"source"`
-	MatchType  TaxonMatchType   `json:"match_type"`
-	TaxonID    uuid.UUID        `json:"taxon_id"`
-	GBIFID     int32            `json:"gbif_id"`
-	StagingID  uuid.UUID        `json:"staging_id"`
-	Status     ResolutionStatus `json:"status"`
-	ImportHash string           `json:"import_hash"`
-	InputName  string           `json:"input_name"`
+	Source    TaxonMatchSource `json:"source"`
+	MatchType TaxonMatchType   `json:"match_type"`
+	TaxonID   uuid.UUID        `json:"taxon_id"`
+	GBIFID    int32            `json:"gbif_id"`
+	StagingID uuid.UUID        `json:"staging_id"`
+	Status    ResolutionStatus `json:"status"`
+	ImportID  uuid.UUID        `json:"import_id"`
+	InputName string           `json:"input_name"`
 }
 
 func (q *Queries) ResolveTaxon(ctx context.Context, arg ResolveTaxonParams) error {
@@ -467,7 +467,7 @@ func (q *Queries) ResolveTaxon(ctx context.Context, arg ResolveTaxonParams) erro
 		arg.GBIFID,
 		arg.StagingID,
 		arg.Status,
-		arg.ImportHash,
+		arg.ImportID,
 		arg.InputName,
 	)
 	return err
@@ -475,7 +475,7 @@ func (q *Queries) ResolveTaxon(ctx context.Context, arg ResolveTaxonParams) erro
 
 const upsertTaxonResolution = `-- name: UpsertTaxonResolution :exec
 INSERT INTO taxon_resolution (
-        import_hash,
+        import_id,
         input_name,
         source,
         taxon_id,
@@ -489,22 +489,22 @@ SELECT $1,
     $4,
     $5,
     $6,
-    $7 ON CONFLICT (import_hash, input_name) DO NOTHING
+    $7 ON CONFLICT (import_id, input_name) DO NOTHING
 `
 
 type UpsertTaxonResolutionParams struct {
-	ImportHash string            `json:"import_hash"`
-	InputName  string            `json:"input_name"`
-	Source     *TaxonMatchSource `json:"source"`
-	TaxonID    pgtype.UUID       `json:"taxon_id"`
-	GBIFID     *int32            `json:"gbif_id"`
-	StagingID  pgtype.UUID       `json:"staging_id"`
-	Status     *ResolutionStatus `json:"status"`
+	ImportID  uuid.UUID         `json:"import_id"`
+	InputName string            `json:"input_name"`
+	Source    *TaxonMatchSource `json:"source"`
+	TaxonID   pgtype.UUID       `json:"taxon_id"`
+	GBIFID    *int32            `json:"gbif_id"`
+	StagingID pgtype.UUID       `json:"staging_id"`
+	Status    *ResolutionStatus `json:"status"`
 }
 
 func (q *Queries) UpsertTaxonResolution(ctx context.Context, arg UpsertTaxonResolutionParams) error {
 	_, err := q.db.Exec(ctx, upsertTaxonResolution,
-		arg.ImportHash,
+		arg.ImportID,
 		arg.InputName,
 		arg.Source,
 		arg.TaxonID,

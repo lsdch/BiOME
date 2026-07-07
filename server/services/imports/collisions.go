@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/lsdch/biome/db"
 	"github.com/lsdch/biome/db/biomedb"
 	md "github.com/lsdch/biome/models"
@@ -64,10 +65,10 @@ func samplingCollisionFromRow(row biomedb.DetectBatchSamplingCollisionsRow) Samp
 	}
 }
 
-func (r *OccurrenceCollisionsService) DetectSamplingCollisions(ctx context.Context, q db.Querier, importHash string, params stores.CollisionDetectionParams) (collisionsMap map[string]*StagingSamplingWithCollisions, err error) {
+func (r *OccurrenceCollisionsService) DetectSamplingCollisions(ctx context.Context, q db.Querier, importID uuid.UUID, params stores.CollisionDetectionParams) (collisionsMap map[string]*StagingSamplingWithCollisions, err error) {
 
 	collisionsMap = make(map[string]*StagingSamplingWithCollisions)
-	collisions, err := r.store.DetectBatchSamplingCollisions(ctx, q, importHash, params)
+	collisions, err := r.store.DetectBatchSamplingCollisions(ctx, q, importID, params)
 	if err != nil {
 		return nil, err
 	}
@@ -133,10 +134,10 @@ func occurrenceCollisionFromRow(row biomedb.DetectBatchOccurrenceCollisionsRow) 
 	}
 }
 
-func (r *OccurrenceCollisionsService) DetectOccurrenceCollisions(ctx context.Context, q db.Querier, importHash string, params stores.CollisionDetectionParams) (collisions []OccurrenceCollisionsAtRow, err error) {
+func (r *OccurrenceCollisionsService) DetectOccurrenceCollisions(ctx context.Context, q db.Querier, importID uuid.UUID, params stores.CollisionDetectionParams) (collisions []OccurrenceCollisionsAtRow, err error) {
 	collisions = make([]OccurrenceCollisionsAtRow, 0)
 
-	collisionRows, err := stores.NewCollisionStore().DetectBatchOccurrencesCollisions(ctx, q, importHash, params)
+	collisionRows, err := stores.NewCollisionStore().DetectBatchOccurrencesCollisions(ctx, q, importID, params)
 	if err != nil {
 		return nil, err
 	}

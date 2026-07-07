@@ -1,23 +1,23 @@
 -- name: InitTaxonResolution :many
-INSERT INTO taxon_resolution (import_hash, input_name)
-SELECT DISTINCT i.import_hash,
+INSERT INTO taxon_resolution (import_id, input_name)
+SELECT DISTINCT i.import_id,
     i.scientific_name
 FROM import_samplings_occurrences i
-WHERE i.import_hash = @import_hash
+WHERE i.import_id = @import_id
 RETURNING *;
 
 -- name: CleanUpTaxonResolution :exec
 DELETE FROM taxon_resolution
-WHERE import_hash = @import_hash;
+WHERE import_id = @import_id;
 
 -- name: GetTaxonResolution :many
 SELECT *
 FROM taxon_resolution
-WHERE import_hash = @import_hash;
+WHERE import_id = @import_id;
 
 -- name: UpsertTaxonResolution :exec
 INSERT INTO taxon_resolution (
-        import_hash,
+        import_id,
         input_name,
         source,
         taxon_id,
@@ -25,13 +25,13 @@ INSERT INTO taxon_resolution (
         staging_id,
         status
     )
-SELECT @import_hash,
+SELECT @import_id,
     @input_name,
     @source,
     @taxon_id,
     @gbif_id,
     @staging_id,
-    @status ON CONFLICT (import_hash, input_name) DO NOTHING;
+    @status ON CONFLICT (import_id, input_name) DO NOTHING;
 
 -- name: ResolveTaxon :exec
 UPDATE taxon_resolution
@@ -41,14 +41,14 @@ SET source = @source::taxon_match_source,
     gbif_id = @gbif_id::INTEGER,
     staging_id = @staging_id::UUID,
     status = @status::resolution_status
-WHERE import_hash = @import_hash
+WHERE import_id = @import_id
     AND input_name = @input_name;
 
 -- name: CreateCandidateTaxaNameExact :exec
 -- Create candidate matches based on exact name matches, 
 -- using either the scientific name or the canonical name.
 INSERT INTO taxon_candidates (
-        import_hash,
+        import_id,
         input_name,
         source,
         match_type,
@@ -61,7 +61,7 @@ INSERT INTO taxon_candidates (
         rank,
         status
     )
-SELECT i.import_hash,
+SELECT i.import_id,
     i.input_name,
     'internal',
     'exact',
@@ -76,11 +76,11 @@ SELECT i.import_hash,
 FROM taxon_resolution i
     JOIN taxa t ON i.input_name % t.scientific_name
     OR i.input_name % t.name
-WHERE i.import_hash = @import_hash;
+WHERE i.import_id = @import_id;
 
 -- name: CreateCandidateTaxaFuzzy :exec
 WITH candidates AS (
-    SELECT i.import_hash,
+    SELECT i.import_id,
         i.input_name,
         t.id AS taxon_id,
         similarity(t.scientific_name, i.input_name) AS score,
@@ -90,10 +90,10 @@ WITH candidates AS (
         t.status
     FROM taxon_resolution i
         JOIN taxa t ON t.scientific_name % i.input_name
-    WHERE i.import_hash = @import_hash
+    WHERE i.import_id = @import_id
 )
 INSERT INTO taxon_candidates (
-        import_hash,
+        import_id,
         input_name,
         source,
         match_type,
@@ -106,7 +106,7 @@ INSERT INTO taxon_candidates (
         rank,
         status
     )
-SELECT c.import_hash,
+SELECT c.import_id,
     c.input_name,
     'internal',
     'fuzzy',
@@ -124,12 +124,12 @@ WHERE c.score > COALESCE(NULLIF(@threshold::double precision, 0), 0.6);
 -- name: MarkTaxaNeedingGBIFCandidates :exec
 UPDATE taxon_resolution r
 SET gbif_status = 'pending'
-WHERE r.import_hash = @import_hash
+WHERE r.import_id = @import_id
     AND r.gbif_status NOT IN ('skipped', 'completed')
     AND NOT EXISTS (
         SELECT 1
         FROM taxon_candidates c
-        WHERE c.import_hash = r.import_hash
+        WHERE c.import_id = r.import_id
             AND c.input_name = r.input_name
             AND c.source = 'internal'
             AND c.match_type = 'exact'
@@ -137,7 +137,7 @@ WHERE r.import_hash = @import_hash
     AND NOT EXISTS (
         SELECT 1
         FROM taxon_candidates c
-        WHERE c.import_hash = r.import_hash
+        WHERE c.import_id = r.import_id
             AND c.input_name = r.input_name
             AND c.source = 'gbif'
     );
@@ -145,7 +145,7 @@ WHERE r.import_hash = @import_hash
 -- name: MarkTaxaGBIFImportCompleted :exec
 UPDATE taxon_resolution r
 SET gbif_status = 'completed'
-WHERE r.import_hash = @import_hash
+WHERE r.import_id = @import_id
     AND r.gbif_status NOT IN ('skipped', 'completed')
     AND r.input_name = ANY(@input_names::TEXT []);
 
@@ -154,15 +154,15 @@ SELECT DISTINCT i.taxon_name,
     i.taxon_scientific_name as full_input_name,
     i.taxon_rank
 FROM import_samplings_occurrences i
-    JOIN taxon_resolution r ON r.import_hash = i.import_hash
+    JOIN taxon_resolution r ON r.import_id = i.import_id
     AND r.input_name = i.taxon_scientific_name
-WHERE i.import_hash = @import_hash
+WHERE i.import_id = @import_id
     AND r.gbif_status IN ('pending', 'failed')
 ORDER BY i.taxon_scientific_name;
 
 -- name: CleanupTaxonCandidates :exec
 DELETE FROM taxon_candidates
-WHERE import_hash = @import_hash;
+WHERE import_id = @import_id;
 
 -- name: ListAllTaxonCandidates :many
 WITH staging AS (
@@ -172,7 +172,7 @@ WITH staging AS (
         i.taxon_authorship,
         ARRAY_AGG(i.row_number) AS row_numbers
     FROM import_samplings_occurrences i
-    WHERE i.import_hash = @import_hash
+    WHERE i.import_id = @import_id
     GROUP BY i.taxon_name,
         i.taxon_scientific_name,
         i.taxon_rank,
@@ -195,7 +195,7 @@ candidates AS (
         r.gbif_id AS resolved_gbif_id
     FROM staging s
         JOIN taxon_candidates r ON r.input_name = s.taxon_scientific_name
-        AND r.import_hash = @import_hash
+        AND r.import_id = @import_id
         LEFT JOIN taxa t ON r.source = 'internal'
         AND t.id = r.taxon_id
         LEFT JOIN gbif_staging g ON r.source = 'gbif'
@@ -211,7 +211,7 @@ FROM candidates;
 
 -- name: InsertTaxonCandidatesBatch :copyfrom
 INSERT INTO taxon_candidates (
-        import_hash,
+        import_id,
         input_name,
         source,
         match_type,
@@ -225,7 +225,7 @@ INSERT INTO taxon_candidates (
         status
     )
 VALUES (
-        @import_hash,
+        @import_id,
         @input_name,
         @source,
         @match_type,
@@ -244,7 +244,7 @@ VALUES (
 WITH ranked AS (
     SELECT c.*,
         ROW_NUMBER() OVER (
-            PARTITION BY c.import_hash,
+            PARTITION BY c.import_id,
             c.input_name
             ORDER BY c.priority DESC,
                 c.score DESC
@@ -252,16 +252,16 @@ WITH ranked AS (
         COUNT(*) FILTER (
             WHERE c.priority = (
                     MAX(c.priority) OVER (
-                        PARTITION BY c.import_hash,
+                        PARTITION BY c.import_id,
                         c.input_name
                     )
                 )
         ) OVER (
-            PARTITION BY c.import_hash,
+            PARTITION BY c.import_id,
             c.input_name
         ) AS best_count
     FROM taxon_candidates c
-    WHERE c.import_hash = @import_hash
+    WHERE c.import_id = @import_id
 ),
 winners AS (
     SELECT *
@@ -278,6 +278,6 @@ SET source = w.source,
     staging_id = w.staging_id,
     status = 'resolved'
 FROM winners w
-WHERE r.import_hash = w.import_hash
+WHERE r.import_id = w.import_id
     AND r.input_name = w.input_name
     AND r.status = 'pending';

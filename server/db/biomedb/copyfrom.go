@@ -29,7 +29,7 @@ func (r *iteratorForCopyImportStaging) Next() bool {
 
 func (r iteratorForCopyImportStaging) Values() ([]interface{}, error) {
 	return []interface{}{
-		r.rows[0].ImportHash,
+		r.rows[0].ImportID,
 		r.rows[0].SamplingHash,
 		r.rows[0].RowNumber,
 		r.rows[0].SamplingComments,
@@ -75,7 +75,7 @@ func (r iteratorForCopyImportStaging) Err() error {
 }
 
 func (q *Queries) CopyImportStaging(ctx context.Context, arg []CopyImportStagingParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"import_samplings_occurrences"}, []string{"import_hash", "sampling_hash", "row_number", "sampling_comments", "site_code", "site_name", "site_locality", "site_country_code", "coordinates_precision", "longitude", "latitude", "altitude", "event_date", "event_date_precision", "performed_by", "duration", "access_points", "sampling_targets", "sampling_fixatives", "sampling_methods", "habitats", "occurrence_code", "type_status", "occurrence_comments", "taxon_name", "taxon_rank", "taxon_authorship", "verbatim_identification", "identified_by", "identification_date", "identification_date_precision", "identification_confer", "identification_addendum", "content_description", "quantity_exact", "quantity_lower", "quantity_upper", "sources"}, &iteratorForCopyImportStaging{rows: arg})
+	return q.db.CopyFrom(ctx, []string{"import_samplings_occurrences"}, []string{"import_id", "sampling_hash", "row_number", "sampling_comments", "site_code", "site_name", "site_locality", "site_country_code", "coordinates_precision", "longitude", "latitude", "altitude", "event_date", "event_date_precision", "performed_by", "duration", "access_points", "sampling_targets", "sampling_fixatives", "sampling_methods", "habitats", "occurrence_code", "type_status", "occurrence_comments", "taxon_name", "taxon_rank", "taxon_authorship", "verbatim_identification", "identified_by", "identification_date", "identification_date_precision", "identification_confer", "identification_addendum", "content_description", "quantity_exact", "quantity_lower", "quantity_upper", "sources"}, &iteratorForCopyImportStaging{rows: arg})
 }
 
 // iteratorForInsertGBIFBatch implements pgx.CopyFromSource.
@@ -151,7 +151,7 @@ func (r *iteratorForInsertTaxonCandidatesBatch) Next() bool {
 
 func (r iteratorForInsertTaxonCandidatesBatch) Values() ([]interface{}, error) {
 	return []interface{}{
-		r.rows[0].ImportHash,
+		r.rows[0].ImportID,
 		r.rows[0].InputName,
 		r.rows[0].Source,
 		r.rows[0].MatchType,
@@ -171,5 +171,5 @@ func (r iteratorForInsertTaxonCandidatesBatch) Err() error {
 }
 
 func (q *Queries) InsertTaxonCandidatesBatch(ctx context.Context, arg []InsertTaxonCandidatesBatchParams) (int64, error) {
-	return q.db.CopyFrom(ctx, []string{"taxon_candidates"}, []string{"import_hash", "input_name", "source", "match_type", "taxon_id", "gbif_id", "score", "priority", "name", "authorship", "rank", "status"}, &iteratorForInsertTaxonCandidatesBatch{rows: arg})
+	return q.db.CopyFrom(ctx, []string{"taxon_candidates"}, []string{"import_id", "input_name", "source", "match_type", "taxon_id", "gbif_id", "score", "priority", "name", "authorship", "rank", "status"}, &iteratorForInsertTaxonCandidatesBatch{rows: arg})
 }

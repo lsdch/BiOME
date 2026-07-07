@@ -3,11 +3,9 @@ package main
 import (
 	"github.com/lsdch/biome/services"
 	"github.com/lsdch/biome/services/geoapify"
-	"github.com/lsdch/biome/services/imports"
 )
 
 type AppServices struct {
-	ImportService      *imports.ImportService
 	ImportBatchService *services.ImportBatchService
 	AuthService        *services.AuthService
 	SettingsService    *services.SettingsService

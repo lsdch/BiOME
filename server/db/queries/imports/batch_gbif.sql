@@ -50,57 +50,57 @@ VALUES (
 
 -- name: CleanUpGBIFDependencies :exec
 DELETE FROM gbif_dependencies d
-WHERE d.import_hash = @import_hash;
+WHERE d.import_id = @import_id;
 
 -- name: ExpandGBIFDependencies :exec
 WITH resolution AS (
-    SELECT DISTINCT r.import_hash,
+    SELECT DISTINCT r.import_id,
         r.gbif_id
     FROM taxon_resolution r
         JOIN gbif_staging g ON g.key = taxon_resolution.gbif_id
-    WHERE r.import_hash = @import_hash
+    WHERE r.import_id = @import_id
         AND gbif_id IS NOT NULL
 ),
 expanded AS (
     -- 1. direct gbif_id
-    SELECT r.import_hash,
+    SELECT r.import_id,
         r.gbif_id AS key
     FROM resolution r
     UNION ALL
     -- 2. accepted key
-    SELECT r.import_hash,
+    SELECT r.import_id,
         g.accepted_key AS key
     FROM resolution r
         JOIN gbif_staging g ON g.key = r.gbif_id
     WHERE g.accepted_key IS NOT NULL
     UNION ALL
     -- 3. higher taxonomy expansion
-    SELECT r.import_hash,
+    SELECT r.import_id,
         h.key
     FROM resolution r
         JOIN gbif_staging g ON g.key = r.gbif_id
         CROSS JOIN LATERAL unnest(g.higher_taxon_keys) AS h(key)
 ),
 deduplicated AS (
-    SELECT DISTINCT import_hash,
+    SELECT DISTINCT import_id,
         key
     FROM expanded
     WHERE key IS NOT NULL
 )
-INSERT INTO gbif_dependencies (import_hash, key)
-SELECT import_hash,
+INSERT INTO gbif_dependencies (import_id, key)
+SELECT import_id,
     key
 FROM deduplicated
 WHERE NOT EXISTS (
         SELECT 1
         FROM taxa t
         WHERE t.gbif_key = key
-    ) ON CONFLICT (import_hash, key) DO NOTHING;
+    ) ON CONFLICT (import_id, key) DO NOTHING;
 
 -- name: ListMissingGBIFKeys :many
 SELECT d.key
 FROM gbif_dependencies d
-WHERE d.import_hash = @import_hash
+WHERE d.import_id = @import_id
     AND NOT EXISTS (
         SELECT 1
         FROM taxa t
@@ -133,7 +133,7 @@ FROM gbif_staging g
     JOIN gbif_dependencies d ON d.key = g.key
     LEFT JOIN taxa parent ON parent.gbif_key = g.parent_key
     LEFT JOIN taxa accepted ON accepted.gbif_key = g.accepted_key
-WHERE d.import_hash = @import_hash
+WHERE d.import_id = @import_id
     AND g.rank = @rank
     AND (
         (
@@ -148,7 +148,7 @@ WHERE d.import_hash = @import_hash
 
 -- name: InsertTaxonStaging :exec
 INSERT INTO taxa_staging (
-        import_hash,
+        import_id,
         name,
         authorship,
         rank,
@@ -158,7 +158,7 @@ INSERT INTO taxa_staging (
         parent_gbif_id,
         parent_input_name
     )
-SELECT @import_hash,
+SELECT @import_id,
     @name,
     @authorship,
     @rank,
@@ -185,6 +185,6 @@ SELECT @import_hash,
 --     JOIN taxon_resolution r ON r.staging_id = s.id
 --     LEFT JOIN taxa parent ON parent.id = s.parent_taxa_id
 --     OR parent.gbif_id = s.parent_gbif_id
--- WHERE r.import_hash = @import_hash
+-- WHERE r.import_id = @import_id
 --     AND r.source = 'manual'
 --     AND s.rank = @rank

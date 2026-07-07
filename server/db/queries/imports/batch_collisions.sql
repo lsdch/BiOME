@@ -2,12 +2,12 @@
 WITH i AS (
     SELECT *
     FROM import_samplings_occurrences i
-    WHERE i.import_hash = @import_hash
+    WHERE i.import_id = @import_id
 ),
 s AS (
     -- existing samplings
     SELECT 'existing'::duplicate_source AS source,
-        NULL::text AS import_hash,
+        NULL::text AS import_id,
         NULL::int AS row_number,
         s.latitude,
         s.longitude,
@@ -19,7 +19,7 @@ s AS (
     UNION ALL
     -- staging samplings (self comparison)
     SELECT 'staging'::duplicate_source AS source,
-        i2.import_hash,
+        i2.import_id,
         i2.row_number,
         i2.latitude,
         i2.longitude,
@@ -28,9 +28,9 @@ s AS (
         i2.coordinates_precision,
         i2.coordinates
     FROM import_samplings_occurrences i2
-    WHERE i2.import_hash = @import_hash
+    WHERE i2.import_id = @import_id
 )
-SELECT i.import_hash,
+SELECT i.import_id,
     i.sampling_hash,
     i.row_number,
     i.event_date,
@@ -39,7 +39,7 @@ SELECT i.import_hash,
     i.longitude,
     i.coordinates_precision,
     s.source AS duplicate_source,
-    s.import_hash AS match_import_hash,
+    s.import_id AS match_import_id,
     s.row_number AS match_row_number,
     s.latitude AS match_latitude,
     s.longitude AS match_longitude,
@@ -97,9 +97,9 @@ WITH resolved_staging AS (
         WHEN r.source = 'manual' THEN 'm:' || r.staging_id::text
     END AS resolved_taxon_key
     FROM import_samplings_occurrences i
-        JOIN taxon_resolution r ON r.import_hash = i.import_hash
+        JOIN taxon_resolution r ON r.import_id = i.import_id
         AND r.input_name = i.taxon_scientific_name
-    WHERE i.import_hash = @import_hash
+    WHERE i.import_id = @import_id
 ),
 existing_occurrences AS (
     -- =========================================================
@@ -195,7 +195,7 @@ staging_existing_collisions AS (
 -- 5. UNIFIED OUTPUT
 -- =============================================================
 SELECT 'existing'::duplicate_source AS duplicate_source,
-    i.import_hash,
+    i.import_id,
     i.row_number,
     i.taxon_name,
     i.taxon_authorship,
@@ -221,7 +221,7 @@ FROM staging_existing_collisions e
     JOIN resolved_staging i ON i.row_number = e.row_number
 UNION ALL
 SELECT 'staging'::duplicate_source AS duplicate_source,
-    i.import_hash,
+    i.import_id,
     a.row_a AS row_number,
     i.taxon_name,
     i.taxon_authorship,
@@ -254,7 +254,7 @@ FROM staging_staging_collisions a
 
 
 -- -- name: DetectBatchOccurrenceCollisions :many
--- SELECT i.import_hash,
+-- SELECT i.import_id,
 --     i.row_number,
 --     i.event_date,
 --     i.event_date_precision,
@@ -272,7 +272,7 @@ FROM staging_staging_collisions a
 --     )::integer AS distance_meters
 -- FROM import_samplings_occurrences i
 --     JOIN taxon_resolution r ON r.input_name = i.taxon_scientific_name
---     AND r.import_hash = i.import_hash
+--     AND r.import_id = i.import_id
 --     JOIN samplings s ON ST_DWithin(
 --         s.coordinates::geography,
 --         i.coordinates::geography,
@@ -290,4 +290,4 @@ FROM staging_staging_collisions a
 --     )
 --     JOIN occurrences o ON o.sampling_id = s.id
 --     AND o.taxon_id = r.taxon_id
--- WHERE i.import_hash = $1;
+-- WHERE i.import_id = $1;

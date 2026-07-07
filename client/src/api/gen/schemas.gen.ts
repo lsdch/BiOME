@@ -515,12 +515,6 @@ export const $FullOccurrenceInput = {
   type: 'object'
 } as const
 
-export const $GBIFImportStatus = {
-  enum: ['pending', 'in_progress', 'completed', 'failed'],
-  title: 'GBIFImportStatus',
-  type: 'string'
-} as const
-
 export const $GeoapifyCoords = {
   additionalProperties: false,
   properties: {
@@ -917,54 +911,6 @@ export const $ImportBatch = {
   type: 'object'
 } as const
 
-export const $ImportWorkflow = {
-  additionalProperties: false,
-  properties: {
-    completed_at: {
-      $ref: '#/components/schemas/Timestamptz'
-    },
-    created_at: {
-      format: 'date-time',
-      type: 'string'
-    },
-    gbif_candidates_fetched: {
-      format: 'int32',
-      type: ['integer', 'null']
-    },
-    gbif_candidates_total: {
-      format: 'int32',
-      type: ['integer', 'null']
-    },
-    gbif_claimed_at: {
-      $ref: '#/components/schemas/Timestamptz'
-    },
-    gbif_status: {
-      $ref: '#/components/schemas/GBIFImportStatus'
-    },
-    gbif_updated_at: {
-      $ref: '#/components/schemas/Timestamptz'
-    },
-    import_hash: {
-      type: 'string'
-    },
-    label: {
-      type: ['string', 'null']
-    }
-  },
-  required: [
-    'import_hash',
-    'label',
-    'gbif_status',
-    'gbif_candidates_total',
-    'gbif_candidates_fetched',
-    'gbif_claimed_at',
-    'gbif_updated_at',
-    'created_at',
-    'completed_at'
-  ],
-  type: 'object'
-} as const
-
 export const $InstanceSettings = {
   additionalProperties: false,
   properties: {
@@ -1103,28 +1049,6 @@ export const $Occurrence = {
     }
   },
   required: ['sampling', 'id', 'code', 'identification'],
-  type: 'object'
-} as const
-
-export const $OccurrenceBatchInputMetadata = {
-  additionalProperties: false,
-  properties: {
-    $schema: {
-      description: 'A URL to the JSON Schema for this object.',
-      examples: ['//localhost:5173/api/v1/schemas/OccurrenceBatchInputMetadata.json'],
-      format: 'uri',
-      readOnly: true,
-      type: 'string'
-    },
-    label: {
-      type: 'string'
-    },
-    separator: {
-      format: 'int32',
-      type: 'integer'
-    }
-  },
-  required: ['label', 'separator'],
   type: 'object'
 } as const
 
@@ -1469,12 +1393,6 @@ export const $QuantityInput = {
   type: 'object'
 } as const
 
-export const $ResolutionStatus = {
-  enum: ['pending', 'auto_resolved', 'user_resolved', 'needs_decision'],
-  title: 'ResolutionStatus',
-  type: 'string'
-} as const
-
 export const $Sampling = {
   additionalProperties: false,
   properties: {
@@ -1621,26 +1539,6 @@ export const $SamplingMethodInput = {
     }
   },
   required: ['code', 'name'],
-  type: 'object'
-} as const
-
-export const $SamplingMethodResolution = {
-  additionalProperties: false,
-  properties: {
-    import_hash: {
-      type: 'string'
-    },
-    input_text: {
-      type: 'string'
-    },
-    resolved_method_id: {
-      type: 'string'
-    },
-    status: {
-      $ref: '#/components/schemas/VocabResolutionStatus'
-    }
-  },
-  required: ['import_hash', 'input_text', 'status'],
   type: 'object'
 } as const
 
@@ -1899,61 +1797,6 @@ export const $Taxon = {
   type: 'object'
 } as const
 
-export const $TaxonCandidate = {
-  additionalProperties: false,
-  properties: {
-    authorship: {
-      type: 'string'
-    },
-    gbif_id: {
-      format: 'int32',
-      type: 'integer'
-    },
-    match_type: {
-      $ref: '#/components/schemas/TaxonMatchType'
-    },
-    name: {
-      type: 'string'
-    },
-    rank: {
-      $ref: '#/components/schemas/TaxonRank'
-    },
-    score: {
-      format: 'double',
-      type: 'number'
-    },
-    source: {
-      $ref: '#/components/schemas/TaxonMatchSource'
-    },
-    status: {
-      $ref: '#/components/schemas/TaxonStatus'
-    },
-    taxon_id: {
-      type: 'string'
-    }
-  },
-  required: ['name', 'rank', 'status', 'source', 'match_type'],
-  type: 'object'
-} as const
-
-export const $TaxonGBIFStatus = {
-  enum: ['skipped', 'pending', 'completed', 'failed'],
-  title: 'TaxonGBIFStatus',
-  type: 'string'
-} as const
-
-export const $TaxonMatchSource = {
-  enum: ['internal', 'gbif', 'manual'],
-  title: 'TaxonMatchSource',
-  type: 'string'
-} as const
-
-export const $TaxonMatchType = {
-  enum: ['exact', 'fuzzy', 'name_only'],
-  title: 'TaxonMatchType',
-  type: 'string'
-} as const
-
 export const $TaxonRank = {
   enum: [
     'SUBSPECIES',
@@ -1970,85 +1813,10 @@ export const $TaxonRank = {
   type: 'string'
 } as const
 
-export const $TaxonResolution = {
-  additionalProperties: false,
-  properties: {
-    gbif_id: {
-      format: 'int32',
-      type: 'integer'
-    },
-    gbif_status: {
-      $ref: '#/components/schemas/TaxonGBIFStatus'
-    },
-    import_hash: {
-      type: 'string'
-    },
-    input_name: {
-      type: 'string'
-    },
-    source: {
-      $ref: '#/components/schemas/TaxonMatchSource'
-    },
-    staging_id: {
-      type: 'string'
-    },
-    status: {
-      $ref: '#/components/schemas/ResolutionStatus'
-    },
-    taxon_id: {
-      type: 'string'
-    }
-  },
-  required: ['import_hash', 'input_name'],
-  type: 'object'
-} as const
-
-export const $TaxonResolutionState = {
-  additionalProperties: false,
-  properties: {
-    candidates: {
-      additionalProperties: {
-        items: {
-          $ref: '#/components/schemas/TaxonCandidate'
-        },
-        type: 'array'
-      },
-      type: 'object'
-    },
-    resolution: {
-      items: {
-        $ref: '#/components/schemas/TaxonResolution'
-      },
-      type: 'array'
-    }
-  },
-  required: ['resolution', 'candidates'],
-  type: 'object'
-} as const
-
 export const $TaxonStatus = {
   enum: ['ACCEPTED', 'SYNONYM', 'DOUBTFUL', 'UNREFERENCED', 'UNCLASSIFIED'],
   title: 'TaxonStatus',
   type: 'string'
-} as const
-
-export const $Timestamptz = {
-  additionalProperties: false,
-  properties: {
-    InfinityModifier: {
-      format: 'int32',
-      type: 'integer'
-    },
-    Time: {
-      format: 'date-time',
-      type: 'string'
-    },
-    Valid: {
-      type: 'boolean'
-    }
-  },
-  required: ['Time', 'InfinityModifier', 'Valid'],
-  type: 'object'
 } as const
 
 export const $User = {
@@ -2123,11 +1891,5 @@ export const $UserCredentials = {
 export const $UserRole = {
   enum: ['Visitor', 'Contributor', 'Maintainer', 'Admin'],
   title: 'UserRole',
-  type: 'string'
-} as const
-
-export const $VocabResolutionStatus = {
-  enum: ['auto', 'selected', 'pending', 'request_creation', 'discard'],
-  title: 'VocabResolutionStatus',
   type: 'string'
 } as const

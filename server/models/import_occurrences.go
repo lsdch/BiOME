@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/lsdch/biome/db/biomedb"
 )
 
@@ -102,11 +103,11 @@ func (r *OccurrenceImportRow) SamplingHash() string {
 	}, "|")
 }
 
-func (r *OccurrenceImportRow) ToStaging(importHash string) biomedb.CopyImportStagingParams {
+func (r *OccurrenceImportRow) ToStaging(importID uuid.UUID) biomedb.CopyImportStagingParams {
 
 	return biomedb.CopyImportStagingParams{
-		RowNumber:  r.RowNumber,
-		ImportHash: importHash,
+		RowNumber: r.RowNumber,
+		ImportID:  importID,
 
 		// Sampling fields
 

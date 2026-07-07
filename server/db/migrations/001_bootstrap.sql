@@ -22,23 +22,23 @@ CREATE TYPE event_date_precision AS ENUM('day', 'month', 'year');
 CREATE TYPE duplicate_source AS ENUM('existing', 'staging');
 
 CREATE TYPE taxon_rank AS ENUM(
-	'SUBSPECIES',
-	'SPECIES',
-	'SUBGENUS',
-	'GENUS',
-	'FAMILY',
-	'ORDER',
-	'CLASS',
-	'PHYLUM',
-	'KINGDOM'
+    'SUBSPECIES',
+    'SPECIES',
+    'SUBGENUS',
+    'GENUS',
+    'FAMILY',
+    'ORDER',
+    'CLASS',
+    'PHYLUM',
+    'KINGDOM'
 );
 
 CREATE TYPE taxon_status AS ENUM(
-	'ACCEPTED',
-	'SYNONYM',
-	'DOUBTFUL',
-	'UNREFERENCED',
-	'UNCLASSIFIED'
+    'ACCEPTED',
+    'SYNONYM',
+    'DOUBTFUL',
+    'UNREFERENCED',
+    'UNCLASSIFIED'
 );
 
 CREATE TYPE occurrence_type_status AS ENUM('HOLOTYPE', 'NEOTYPE', 'TOPOTYPE');
@@ -50,20 +50,20 @@ CREATE TYPE user_role AS ENUM('Visitor', 'Contributor', 'Maintainer', 'Admin');
 CREATE TYPE sort_direction AS ENUM('asc', 'desc');
 
 CREATE TYPE occurrence_order_by AS ENUM(
-	'code',
-	'site_name',
-	'site_code',
-	'event_date',
-	'taxon_name',
-	'created_at',
-	'updated_at'
+    'code',
+    'site_name',
+    'site_code',
+    'event_date',
+    'taxon_name',
+    'created_at',
+    'updated_at'
 );
 
 CREATE TABLE countries (
-	code TEXT PRIMARY KEY CHECK (code ~ '^[A-Z]{3}$'),
-	name TEXT NOT NULL UNIQUE,
-	continent TEXT NOT NULL,
-	subcontinent TEXT NOT NULL
+    code TEXT PRIMARY KEY CHECK (code ~ '^[A-Z]{3}$'),
+    name TEXT NOT NULL UNIQUE,
+    continent TEXT NOT NULL,
+    subcontinent TEXT NOT NULL
 );
 
 CREATE TYPE vocab_resolution AS (
@@ -118,15 +118,12 @@ CREATE TABLE IF NOT EXISTS settings (
     -- GBIF contact email for occurrence downloads
     -- is sent along GBIF requests to identify the user and allow GBIF to contact them if needed
     gbif_contact_email TEXT NOT NULL
-)
-
-CREATE TABLE IF NOT EXISTS geoapify_usage (
+) CREATE TABLE IF NOT EXISTS geoapify_usage (
     id SERIAL PRIMARY KEY,
     usage_date DATE NOT NULL,
     requests_count INTEGER NOT NULL,
     UNIQUE (usage_date)
 )
-
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS trigger AS $$ BEGIN NEW.updated_at = now();
 RETURN NEW;
 END;
@@ -134,24 +131,24 @@ $$ LANGUAGE plpgsql;
 
 -- Users table
 CREATE TABLE users (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	login CITEXT NOT NULL UNIQUE,
-	email CITEXT NOT NULL,
-	password_hash TEXT NOT NULL,
-	role user_role NOT NULL DEFAULT 'Visitor',
-	first_name TEXT NOT NULL,
-	last_name TEXT NOT NULL,
-	organisation TEXT,
-	contact TEXT,
-	bio TEXT,
-	full_name TEXT NOT NULL GENERATED ALWAYS AS (first_name || ' ' || last_name) STORED,
-	active BOOLEAN NOT NULL DEFAULT true,
-	email_verified_at TIMESTAMPTZ,
-	CONSTRAINT users_login_unique UNIQUE (login),
-	CONSTRAINT users_email_unique UNIQUE (email),
-	CONSTRAINT users_login_length CHECK (char_length(btrim(login)) >= 2),
-	CONSTRAINT users_first_name_length CHECK (char_length(btrim(first_name)) >= 2),
-	CONSTRAINT users_last_name_length CHECK (char_length(btrim(last_name)) >= 2)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    login CITEXT NOT NULL UNIQUE,
+    email CITEXT NOT NULL,
+    password_hash TEXT NOT NULL,
+    role user_role NOT NULL DEFAULT 'Visitor',
+    first_name TEXT NOT NULL,
+    last_name TEXT NOT NULL,
+    organisation TEXT,
+    contact TEXT,
+    bio TEXT,
+    full_name TEXT NOT NULL GENERATED ALWAYS AS (first_name || ' ' || last_name) STORED,
+    active BOOLEAN NOT NULL DEFAULT true,
+    email_verified_at TIMESTAMPTZ,
+    CONSTRAINT users_login_unique UNIQUE (login),
+    CONSTRAINT users_email_unique UNIQUE (email),
+    CONSTRAINT users_login_length CHECK (char_length(btrim(login)) >= 2),
+    CONSTRAINT users_first_name_length CHECK (char_length(btrim(first_name)) >= 2),
+    CONSTRAINT users_last_name_length CHECK (char_length(btrim(last_name)) >= 2)
 );
 
 CREATE INDEX users_full_name_idx ON users (full_name);
@@ -160,9 +157,9 @@ CREATE INDEX users_full_name_idx ON users (full_name);
 -- The application can set `biome.current_user_id` for the current transaction/session.
 CREATE OR REPLACE FUNCTION current_request_user_id () RETURNS UUID LANGUAGE SQL STABLE AS $$
 SELECT nullif(
-		current_setting('biome.current_user_id', true),
-		''
-	)::uuid;
+        current_setting('biome.current_user_id', true),
+        ''
+    )::uuid;
 $$;
 
 CREATE OR REPLACE FUNCTION current_request_user () RETURNS users LANGUAGE SQL STABLE AS $$
@@ -175,21 +172,21 @@ $$;
 -- This design separates invitation metadata from token hashes and allows multiple tokens per invitation (rotation).
 CREATE TYPE invitation_status AS ENUM('pending', 'redeemed', 'cancelled', 'expired');
 CREATE TABLE invitations (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	email CITEXT NOT NULL,
-	invitee_name TEXT NOT NULL,
-	role user_role NOT NULL DEFAULT 'Visitor',
-	message TEXT,
-	inviter_id UUID REFERENCES users (id) ON DELETE
-	SET NULL,
-		status invitation_status NOT NULL DEFAULT 'pending',
-		created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-		expires_at TIMESTAMPTZ NOT NULL,
-		redeemed_at TIMESTAMPTZ,
-		revoked_at TIMESTAMPTZ,
-		revoked_by UUID REFERENCES users (id) ON DELETE
-	SET NULL,
-		CONSTRAINT invitations_dates CHECK (expires_at > created_at)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    email CITEXT NOT NULL,
+    invitee_name TEXT NOT NULL,
+    role user_role NOT NULL DEFAULT 'Visitor',
+    message TEXT,
+    inviter_id UUID REFERENCES users (id) ON DELETE
+    SET NULL,
+        status invitation_status NOT NULL DEFAULT 'pending',
+        created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+        expires_at TIMESTAMPTZ NOT NULL,
+        redeemed_at TIMESTAMPTZ,
+        revoked_at TIMESTAMPTZ,
+        revoked_by UUID REFERENCES users (id) ON DELETE
+    SET NULL,
+        CONSTRAINT invitations_dates CHECK (expires_at > created_at)
 );
 
 -- Only one pending invitation per email
@@ -203,19 +200,19 @@ CREATE INDEX invitations_inviter_idx ON invitations (inviter_id);
 -- Tokens table: store only a hash of the raw token for verification.
 -- Redeeming an invitation implicitly verifies the invited email.
 CREATE TABLE invitation_tokens (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	invitation_id UUID NOT NULL REFERENCES invitations (id) ON DELETE CASCADE,
-	token_hash TEXT NOT NULL,
-	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-	consumed BOOLEAN NOT NULL DEFAULT false,
-	consumed_by UUID REFERENCES users (id) ON DELETE
-	SET NULL,
-		consumed_at TIMESTAMPTZ,
-		CONSTRAINT invitation_tokens_hash_unique UNIQUE (token_hash),
-		CONSTRAINT invitation_tokens_consumed_time CHECK (
-			(consumed = false)
-			OR (consumed_at IS NOT NULL)
-		)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    invitation_id UUID NOT NULL REFERENCES invitations (id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    consumed BOOLEAN NOT NULL DEFAULT false,
+    consumed_by UUID REFERENCES users (id) ON DELETE
+    SET NULL,
+        consumed_at TIMESTAMPTZ,
+        CONSTRAINT invitation_tokens_hash_unique UNIQUE (token_hash),
+        CONSTRAINT invitation_tokens_consumed_time CHECK (
+            (consumed = false)
+            OR (consumed_at IS NOT NULL)
+        )
 );
 CREATE INDEX invitation_tokens_hash_idx ON invitation_tokens (token_hash);
 CREATE INDEX invitation_tokens_invitation_idx ON invitation_tokens (invitation_id);
@@ -228,37 +225,36 @@ $$;
 --   VALUES (..., now() + interval '7 days') RETURNING id;
 -- INSERT INTO invitation_tokens (invitation_id, token_hash)
 --   VALUES (:inv_id, token_sha256(:raw_token));
-
 -- User account requests and email-change requests.
 -- Both flows require explicit email verification; invitation-based accounts bypass these tables.
 CREATE TYPE user_account_request_status AS ENUM('pending', 'verified', 'cancelled', 'expired');
 CREATE TYPE user_email_change_request_status AS ENUM(
-	'pending',
-	'verified',
-	'applied',
-	'cancelled',
-	'expired'
+    'pending',
+    'verified',
+    'applied',
+    'cancelled',
+    'expired'
 );
 
 CREATE TABLE user_account_requests (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	email CITEXT NOT NULL,
-	name TEXT NOT NULL,
-	motivations TEXT,
-	status user_account_request_status NOT NULL DEFAULT 'pending',
-	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-	expires_at TIMESTAMPTZ NOT NULL,
-	verified_at TIMESTAMPTZ,
-	cancelled_at TIMESTAMPTZ,
-	CONSTRAINT user_account_requests_dates CHECK (expires_at > created_at),
-	CONSTRAINT user_account_requests_verified_time CHECK (
-		verified_at IS NULL
-		OR verified_at >= created_at
-	),
-	CONSTRAINT user_account_requests_cancelled_time CHECK (
-		cancelled_at IS NULL
-		OR cancelled_at >= created_at
-	)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    email CITEXT NOT NULL,
+    name TEXT NOT NULL,
+    motivations TEXT,
+    status user_account_request_status NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at TIMESTAMPTZ NOT NULL,
+    verified_at TIMESTAMPTZ,
+    cancelled_at TIMESTAMPTZ,
+    CONSTRAINT user_account_requests_dates CHECK (expires_at > created_at),
+    CONSTRAINT user_account_requests_verified_time CHECK (
+        verified_at IS NULL
+        OR verified_at >= created_at
+    ),
+    CONSTRAINT user_account_requests_cancelled_time CHECK (
+        cancelled_at IS NULL
+        OR cancelled_at >= created_at
+    )
 );
 
 CREATE UNIQUE INDEX user_account_requests_one_active_per_email_idx ON user_account_requests (email)
@@ -268,17 +264,17 @@ CREATE INDEX user_account_requests_expires_idx ON user_account_requests (expires
 
 -- Tokens table: store only a hash of the raw token for verification.
 CREATE TABLE user_account_request_tokens (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	user_account_request_id UUID NOT NULL REFERENCES user_account_requests (id) ON DELETE CASCADE,
-	token_hash TEXT NOT NULL,
-	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-	consumed BOOLEAN NOT NULL DEFAULT false,
-	consumed_at TIMESTAMPTZ,
-	CONSTRAINT user_account_request_tokens_hash_unique UNIQUE (token_hash),
-	CONSTRAINT user_account_request_tokens_consumed_time CHECK (
-		(consumed = false)
-		OR (consumed_at IS NOT NULL)
-	)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    user_account_request_id UUID NOT NULL REFERENCES user_account_requests (id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    consumed BOOLEAN NOT NULL DEFAULT false,
+    consumed_at TIMESTAMPTZ,
+    CONSTRAINT user_account_request_tokens_hash_unique UNIQUE (token_hash),
+    CONSTRAINT user_account_request_tokens_consumed_time CHECK (
+        (consumed = false)
+        OR (consumed_at IS NOT NULL)
+    )
 );
 
 CREATE INDEX user_account_request_tokens_hash_idx ON user_account_request_tokens (token_hash);
@@ -286,31 +282,31 @@ CREATE INDEX user_account_request_tokens_request_idx ON user_account_request_tok
 
 
 CREATE TABLE user_email_change_requests (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-	email CITEXT NOT NULL,
-	status user_email_change_request_status NOT NULL DEFAULT 'pending',
-	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-	expires_at TIMESTAMPTZ NOT NULL,
-	verified_at TIMESTAMPTZ,
-	applied_at TIMESTAMPTZ,
-	cancelled_at TIMESTAMPTZ,
-	CONSTRAINT user_email_change_requests_dates CHECK (expires_at > created_at),
-	CONSTRAINT user_email_change_requests_verified_time CHECK (
-		verified_at IS NULL
-		OR verified_at >= created_at
-	),
-	CONSTRAINT user_email_change_requests_applied_time CHECK (
-		applied_at IS NULL
-		OR (
-			verified_at IS NOT NULL
-			AND applied_at >= verified_at
-		)
-	),
-	CONSTRAINT user_email_change_requests_cancelled_time CHECK (
-		cancelled_at IS NULL
-		OR cancelled_at >= created_at
-	)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    email CITEXT NOT NULL,
+    status user_email_change_request_status NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    expires_at TIMESTAMPTZ NOT NULL,
+    verified_at TIMESTAMPTZ,
+    applied_at TIMESTAMPTZ,
+    cancelled_at TIMESTAMPTZ,
+    CONSTRAINT user_email_change_requests_dates CHECK (expires_at > created_at),
+    CONSTRAINT user_email_change_requests_verified_time CHECK (
+        verified_at IS NULL
+        OR verified_at >= created_at
+    ),
+    CONSTRAINT user_email_change_requests_applied_time CHECK (
+        applied_at IS NULL
+        OR (
+            verified_at IS NOT NULL
+            AND applied_at >= verified_at
+        )
+    ),
+    CONSTRAINT user_email_change_requests_cancelled_time CHECK (
+        cancelled_at IS NULL
+        OR cancelled_at >= created_at
+    )
 );
 
 CREATE UNIQUE INDEX user_email_change_requests_one_active_per_user_idx ON user_email_change_requests (user_id)
@@ -325,19 +321,19 @@ CREATE INDEX user_email_change_requests_email_idx ON user_email_change_requests 
 
 -- Tokens table: store only a hash of the raw token for verification.
 CREATE TABLE user_email_change_request_tokens (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	user_email_change_request_id UUID NOT NULL REFERENCES user_email_change_requests (id) ON DELETE CASCADE,
-	token_hash TEXT NOT NULL,
-	created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-	consumed BOOLEAN NOT NULL DEFAULT false,
-	consumed_by UUID REFERENCES users (id) ON DELETE
-	SET NULL,
-		consumed_at TIMESTAMPTZ,
-		CONSTRAINT user_email_change_request_tokens_hash_unique UNIQUE (token_hash),
-		CONSTRAINT user_email_change_request_tokens_consumed_time CHECK (
-			(consumed = false)
-			OR (consumed_at IS NOT NULL)
-		)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    user_email_change_request_id UUID NOT NULL REFERENCES user_email_change_requests (id) ON DELETE CASCADE,
+    token_hash TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    consumed BOOLEAN NOT NULL DEFAULT false,
+    consumed_by UUID REFERENCES users (id) ON DELETE
+    SET NULL,
+        consumed_at TIMESTAMPTZ,
+        CONSTRAINT user_email_change_request_tokens_hash_unique UNIQUE (token_hash),
+        CONSTRAINT user_email_change_request_tokens_consumed_time CHECK (
+            (consumed = false)
+            OR (consumed_at IS NOT NULL)
+        )
 );
 
 CREATE INDEX user_email_change_request_tokens_hash_idx ON user_email_change_request_tokens (token_hash);
@@ -529,75 +525,75 @@ UPDATE ON taxa FOR EACH ROW EXECUTE FUNCTION check_taxa_no_cycle ();
 -- View to easily query synonyms and their accepted taxa
 CREATE VIEW taxon_synonyms AS
 SELECT accepted.id AS accepted_taxon_id,
-	accepted.name AS accepted_taxon_name,
-	synonym.id AS synonym_taxon_id,
-	synonym.name AS synonym_taxon_name
+    accepted.name AS accepted_taxon_name,
+    synonym.id AS synonym_taxon_id,
+    synonym.name AS synonym_taxon_name
 FROM taxa accepted
-	JOIN taxa synonym ON synonym.accepted_taxon_id = accepted.id;
+    JOIN taxa synonym ON synonym.accepted_taxon_id = accepted.id;
 
 -- Taxonomic hierarchy view for efficient querying of ancestor-descendant relationships
 CREATE VIEW taxon_hierarchy AS WITH RECURSIVE tree AS (
-	SELECT t.id,
-		t.parent_id,
-		t.name,
-		t.authorship,
-		t.rank,
-		t.status,
-		t.comments,
-		t.id AS root_id,
-		ARRAY [t.id] AS path,
-		0 AS depth
-	FROM taxa t
-	WHERE t.parent_id IS NULL
-	UNION ALL
-	SELECT c.id,
-		c.parent_id,
-		c.name,
-		c.authorship,
-		c.rank,
-		c.status,
-		c.comments,
-		tree.root_id,
-		tree.path || c.id,
-		tree.depth + 1
-	FROM taxa c
-		JOIN tree ON c.parent_id = tree.id
+    SELECT t.id,
+        t.parent_id,
+        t.name,
+        t.authorship,
+        t.rank,
+        t.status,
+        t.comments,
+        t.id AS root_id,
+        ARRAY [t.id] AS path,
+        0 AS depth
+    FROM taxa t
+    WHERE t.parent_id IS NULL
+    UNION ALL
+    SELECT c.id,
+        c.parent_id,
+        c.name,
+        c.authorship,
+        c.rank,
+        c.status,
+        c.comments,
+        tree.root_id,
+        tree.path || c.id,
+        tree.depth + 1
+    FROM taxa c
+        JOIN tree ON c.parent_id = tree.id
 )
 SELECT *
 FROM tree;
 
 CREATE TABLE samplings (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	sampling_hash TEXT NOT NULL UNIQUE,
-	notes TEXT,
-	-- LOCATION FIELDS
-	site_code TEXT CHECK (site_code ~ '^[A-Za-z0-9.-]{3,32}$'),
-	site_name TEXT,
-	site_locality TEXT,
-	site_country_code CHAR(3) REFERENCES countries (code),
-	coordinates_precision INTEGER,
-	coordinates geometry (Point, 4326) NOT NULL,
-	latitude REAL NOT NULL GENERATED ALWAYS AS (ST_Y (coordinates)) STORED,
-	longitude REAL NOT NULL GENERATED ALWAYS AS (ST_X (coordinates)) STORED,
-	altitude INTEGER,
-	-- DATE FIELDS
-	event_date DATE,
-	event_date_precision event_date_precision,
-	-- METADATA FIELDS
-	performed_by TEXT [],
-	duration INTEGER,
-	access_points TEXT [],
-	-- R ~ 500m
-	h3_index BIGINT NOT NULL GENERATED ALWAYS AS (
-		h3_lat_lng_to_cell(point(ST_X(coordinates), ST_Y(coordinates)), 12)::BIGINT
-	) STORED,
-	CONSTRAINT samplings_coordinates_precision_range CHECK (
-		coordinates_precision IS NULL
-		OR (
-			coordinates_precision >= 0
-			AND coordinates_precision <= 100000
-		)
-	)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    sampling_hash TEXT NOT NULL UNIQUE,
+    notes TEXT,
+    -- LOCATION FIELDS
+    site_code TEXT CHECK (site_code ~ '^[A-Za-z0-9.-]{3,32}$'),
+    site_name TEXT,
+    site_locality TEXT,
+    site_country_code CHAR(3) REFERENCES countries (code),
+    coordinates_precision INTEGER,
+    coordinates geometry (Point, 4326) NOT NULL,
+    latitude REAL NOT NULL GENERATED ALWAYS AS (ST_Y (coordinates)) STORED,
+    longitude REAL NOT NULL GENERATED ALWAYS AS (ST_X (coordinates)) STORED,
+    altitude INTEGER,
+    -- DATE FIELDS
+    event_date DATE,
+    event_date_precision event_date_precision,
+    -- METADATA FIELDS
+    performed_by TEXT [],
+    duration INTEGER,
+    access_points TEXT [],
+    -- R ~ 500m
+    h3_index BIGINT NOT NULL GENERATED ALWAYS AS (
+        h3_lat_lng_to_cell(point(ST_X(coordinates), ST_Y(coordinates)), 12)::BIGINT
+    ) STORED,
+    CONSTRAINT samplings_coordinates_precision_range CHECK (
+        coordinates_precision IS NULL
+        OR (
+            coordinates_precision >= 0
+            AND coordinates_precision <= 100000
+        )
+    )
 );
 
 CREATE INDEX idx_samplings_hash ON samplings(sampling_hash);
@@ -612,34 +608,34 @@ CREATE INDEX samplings_h3_r2_idx ON samplings (h3_res2);
 
 -- Association table linking samplings to taxa targets
 CREATE TABLE sampling_target_taxa (
-	sampling_id UUID NOT NULL REFERENCES samplings (id) ON DELETE CASCADE,
-	taxon_id UUID NOT NULL REFERENCES taxa (id) ON DELETE RESTRICT,
-	PRIMARY KEY (sampling_id, taxon_id)
+    sampling_id UUID NOT NULL REFERENCES samplings (id) ON DELETE CASCADE,
+    taxon_id UUID NOT NULL REFERENCES taxa (id) ON DELETE RESTRICT,
+    PRIMARY KEY (sampling_id, taxon_id)
 );
 
 CREATE INDEX sampling_target_taxa_taxon_idx ON sampling_target_taxa (taxon_id);
 
 -- Habitat groups and habitat tags
 CREATE TABLE habitat_groups (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	label CITEXT NOT NULL,
-	CONSTRAINT habitat_group_label_unique UNIQUE (label),
-	description TEXT,
-	exclusive_elements BOOLEAN NOT NULL DEFAULT true,
-	CONSTRAINT habitat_group_label_not_empty CHECK (btrim(label) <> '')
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    label CITEXT NOT NULL,
+    CONSTRAINT habitat_group_label_unique UNIQUE (label),
+    description TEXT,
+    exclusive_elements BOOLEAN NOT NULL DEFAULT true,
+    CONSTRAINT habitat_group_label_not_empty CHECK (btrim(label) <> '')
 );
 
 CREATE UNIQUE INDEX idx_habitat_group_label_uq ON habitat_groups (label);
 
 -- Habitats belong to a group and may form a hierarchy (parent)
 CREATE TABLE habitats (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	label CITEXT NOT NULL,
-	description TEXT,
-	habitat_group_id UUID NOT NULL REFERENCES habitat_groups (id) ON DELETE CASCADE,
-	CONSTRAINT habitat_label_not_empty CHECK (btrim(label) <> ''),
-	CONSTRAINT habitat_description_length CHECK (char_length(coalesce(description, '')) <= 4000),
-	CONSTRAINT uq_habitat_label UNIQUE (label)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    label CITEXT NOT NULL,
+    description TEXT,
+    habitat_group_id UUID NOT NULL REFERENCES habitat_groups (id) ON DELETE CASCADE,
+    CONSTRAINT habitat_label_not_empty CHECK (btrim(label) <> ''),
+    CONSTRAINT habitat_description_length CHECK (char_length(coalesce(description, '')) <= 4000),
+    CONSTRAINT uq_habitat_label UNIQUE (label)
 );
 
 ALTER TABLE habitat_groups
@@ -659,9 +655,9 @@ CREATE INDEX habitat_group_idx ON habitats (habitat_group_id);
 -- CREATE INDEX habitat_document_idx ON habitats USING GIN (document);
 -- Association table linking samplings to habitats
 CREATE TABLE samplings_habitats (
-	sampling_id UUID NOT NULL REFERENCES samplings (id) ON DELETE CASCADE,
-	habitat_id UUID NOT NULL REFERENCES habitats (id) ON DELETE CASCADE,
-	PRIMARY KEY (sampling_id, habitat_id)
+    sampling_id UUID NOT NULL REFERENCES samplings (id) ON DELETE CASCADE,
+    habitat_id UUID NOT NULL REFERENCES habitats (id) ON DELETE CASCADE,
+    PRIMARY KEY (sampling_id, habitat_id)
 );
 CREATE INDEX samplings_habitats_habitat_idx ON samplings_habitats (habitat_id);
 
@@ -676,15 +672,15 @@ BEGIN IF NEW.parent_habitat_id IS NULL THEN RETURN NEW;
 END IF;
 
     WITH RECURSIVE descendants AS (
-	-- tous les habitats du groupe
-	SELECT h.id
-	FROM habitats h
-	WHERE h.habitat_group_id = NEW.id
-	UNION ALL
-	-- descendance récursive
-	SELECT child.id
-	FROM habitats child
-		JOIN descendants d ON child.parent_id = d.id
+    -- tous les habitats du groupe
+    SELECT h.id
+    FROM habitats h
+    WHERE h.habitat_group_id = NEW.id
+    UNION ALL
+    -- descendance récursive
+    SELECT child.id
+    FROM habitats child
+        JOIN descendants d ON child.parent_id = d.id
 )
 SELECT TRUE INTO is_invalid
 FROM descendants
@@ -861,52 +857,52 @@ END;
 $$;
 
 CREATE TABLE IF NOT EXISTS occurrences (
-	-- ULID
-	id ULID PRIMARY KEY,
-	code TEXT NOT NULL,
-	sampling_id UUID NOT NULL REFERENCES samplings (id) ON DELETE CASCADE,
-	type_status occurrence_type_status,
-	comments TEXT,
-	-- Identification fields
-	taxon_id UUID NOT NULL REFERENCES taxa (id) ON DELETE RESTRICT,
-	verbatim_identification TEXT,
-	identified_by TEXT [],
-	identification_date DATE,
-	identification_date_precision event_date_precision,
-	-- whether the identification is a confer (i.e. tentative) identification
-	identification_confer BOOLEAN NOT NULL DEFAULT FALSE,
-	identification_addendum TEXT,
-	-- Content fields
-	content_description TEXT,
-	quantity_exact INTEGER,
-	quantity_lower INTEGER,
-	quantity_upper INTEGER,
-	sources TEXT [],
-	-- Metadata fields
-	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	import_batch_id ULID REFERENCES import_batches (id) ON DELETE
-	SET NULL,
-		-- Constraints
-		CONSTRAINT occurrence_quantity_shape CHECK (
-			(
-				quantity_exact IS NOT NULL
-				AND quantity_lower IS NULL
-				AND quantity_upper IS NULL
-			)
-			OR (
-				quantity_exact IS NULL
-				AND (
-					quantity_lower IS NOT NULL
-					OR quantity_upper IS NOT NULL
-				)
-				AND (
-					quantity_lower IS NULL
-					OR quantity_upper IS NULL
-					OR quantity_lower <= quantity_upper
-				)
-			)
-		)
+    -- ULID
+    id ULID PRIMARY KEY,
+    code TEXT NOT NULL,
+    sampling_id UUID NOT NULL REFERENCES samplings (id) ON DELETE CASCADE,
+    type_status occurrence_type_status,
+    comments TEXT,
+    -- Identification fields
+    taxon_id UUID NOT NULL REFERENCES taxa (id) ON DELETE RESTRICT,
+    verbatim_identification TEXT,
+    identified_by TEXT [],
+    identification_date DATE,
+    identification_date_precision event_date_precision,
+    -- whether the identification is a confer (i.e. tentative) identification
+    identification_confer BOOLEAN NOT NULL DEFAULT FALSE,
+    identification_addendum TEXT,
+    -- Content fields
+    content_description TEXT,
+    quantity_exact INTEGER,
+    quantity_lower INTEGER,
+    quantity_upper INTEGER,
+    sources TEXT [],
+    -- Metadata fields
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    import_batch_id ULID REFERENCES import_batches (id) ON DELETE
+    SET NULL,
+        -- Constraints
+        CONSTRAINT occurrence_quantity_shape CHECK (
+            (
+                quantity_exact IS NOT NULL
+                AND quantity_lower IS NULL
+                AND quantity_upper IS NULL
+            )
+            OR (
+                quantity_exact IS NULL
+                AND (
+                    quantity_lower IS NOT NULL
+                    OR quantity_upper IS NOT NULL
+                )
+                AND (
+                    quantity_lower IS NULL
+                    OR quantity_upper IS NULL
+                    OR quantity_lower <= quantity_upper
+                )
+            )
+        )
 );
 
 CREATE INDEX occurrences_sampling_id_idx ON occurrences (sampling_id);
@@ -917,86 +913,86 @@ CREATE TRIGGER occurrences_set_updated_at BEFORE
 UPDATE ON occurrences FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
 CREATE TABLE IF NOT EXISTS occurrence_code_history (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
-	code TEXT NOT NULL,
-	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
+    code TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE occurrence_collections (
-	occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
-	name TEXT NOT NULL,
-	vouchers TEXT [],
-	CONSTRAINT occurrence_collections_name_not_empty CHECK (char_length(btrim(name)) >= 2),
-	PRIMARY KEY (occurrence_id, name)
+    occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
+    name TEXT NOT NULL,
+    vouchers TEXT [],
+    CONSTRAINT occurrence_collections_name_not_empty CHECK (char_length(btrim(name)) >= 2),
+    PRIMARY KEY (occurrence_id, name)
 );
 CREATE INDEX occurrence_collections_name_idx ON occurrence_collections (name);
 
 -- Articles (bibliographic references)
 CREATE TABLE articles (
-	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	authors TEXT [] NOT NULL,
-	year INTEGER NOT NULL,
-	title TEXT,
-	journal TEXT,
-	verbatim TEXT,
-	doi TEXT,
-	comments TEXT,
-	code TEXT NOT NULL,
-	CONSTRAINT article_code_unique UNIQUE (code)
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
+    authors TEXT [] NOT NULL,
+    year INTEGER NOT NULL,
+    title TEXT,
+    journal TEXT,
+    verbatim TEXT,
+    doi TEXT,
+    comments TEXT,
+    code TEXT NOT NULL,
+    CONSTRAINT article_code_unique UNIQUE (code)
 );
 
 CREATE INDEX article_code_year_idx ON articles (code, year);
 
 -- Association table linking occurrences to articles (published_in)
 CREATE TABLE occurrences_articles (
-	occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
-	article_id UUID NOT NULL REFERENCES articles (id) ON DELETE CASCADE,
-	PRIMARY KEY (occurrence_id, article_id)
+    occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
+    article_id UUID NOT NULL REFERENCES articles (id) ON DELETE CASCADE,
+    PRIMARY KEY (occurrence_id, article_id)
 );
 
 CREATE INDEX occurrences_articles_article_idx ON occurrences_articles (article_id);
 
 -- Minimal dataset and associations
 CREATE TABLE datasets (
-	id ULID PRIMARY KEY DEFAULT gen_random_uuid (),
-	label TEXT NOT NULL,
-	slug TEXT NOT NULL,
-	description TEXT,
-	assembled_by TEXT [],
-	pinned BOOLEAN NOT NULL DEFAULT FALSE,
-	created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-	CONSTRAINT dataset_slug_unique UNIQUE (slug),
-	CONSTRAINT dataset_label_length CHECK (
-		CHAR_LENGTH(BTRIM(label)) BETWEEN 4 AND 40
-	)
+    id ULID PRIMARY KEY DEFAULT gen_random_uuid (),
+    label TEXT NOT NULL,
+    slug TEXT NOT NULL,
+    description TEXT,
+    assembled_by TEXT [],
+    pinned BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    CONSTRAINT dataset_slug_unique UNIQUE (slug),
+    CONSTRAINT dataset_label_length CHECK (
+        CHAR_LENGTH(BTRIM(label)) BETWEEN 4 AND 40
+    )
 );
 
 CREATE INDEX dataset_slug_idx ON datasets (slug);
 
 -- association dataset <-> occurrence
 CREATE TABLE occurrences_datasets (
-	dataset_id ULID NOT NULL REFERENCES datasets (id) ON DELETE CASCADE,
-	occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
-	PRIMARY KEY (dataset_id, occurrence_id)
+    dataset_id ULID NOT NULL REFERENCES datasets (id) ON DELETE CASCADE,
+    occurrence_id ULID NOT NULL REFERENCES occurrences (id) ON DELETE CASCADE,
+    PRIMARY KEY (dataset_id, occurrence_id)
 );
 
 CREATE INDEX occurrences_datasets_occurrence_idx ON occurrences_datasets (occurrence_id);
 
 -- association dataset <-> article (publications)
 CREATE TABLE datasets_publications (
-	dataset_id ULID NOT NULL REFERENCES datasets (id) ON DELETE CASCADE,
-	article_id UUID NOT NULL REFERENCES articles (id) ON DELETE RESTRICT,
-	PRIMARY KEY (dataset_id, article_id)
+    dataset_id ULID NOT NULL REFERENCES datasets (id) ON DELETE CASCADE,
+    article_id UUID NOT NULL REFERENCES articles (id) ON DELETE RESTRICT,
+    PRIMARY KEY (dataset_id, article_id)
 );
 
 CREATE INDEX datasets_publications_article_idx ON datasets_publications (article_id);
 
 -- association dataset <-> users (curators)
 CREATE TABLE dataset_curator (
-	dataset_id ULID NOT NULL REFERENCES datasets (id) ON DELETE CASCADE,
-	user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
-	PRIMARY KEY (dataset_id, user_id)
+    dataset_id ULID NOT NULL REFERENCES datasets (id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users (id) ON DELETE CASCADE,
+    PRIMARY KEY (dataset_id, user_id)
 );
 
 CREATE INDEX dataset_curator_user_idx ON dataset_curator (user_id);
@@ -1041,7 +1037,7 @@ CREATE TABLE import_samplings_occurrences (
     -- =========================
     -- INGESTION CONTEXT
     -- =========================
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     imported_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     row_number INTEGER NOT NULL,
     PRIMARY KEY (import_hash, row_number),
@@ -1159,7 +1155,7 @@ CREATE TABLE IF NOT EXISTS gbif_staging (
 );
 
 CREATE TABLE IF NOT EXISTS gbif_dependencies (
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     key INTEGER NOT NULL,
     PRIMARY KEY (import_hash, key)
 );
@@ -1168,7 +1164,7 @@ CREATE TYPE taxon_match_type AS ENUM ('exact', 'fuzzy', 'name_only');
 CREATE TYPE taxon_match_source AS ENUM ('internal', 'gbif', 'manual');
 
 CREATE TABLE IF NOT EXISTS taxon_candidates (
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     input_name CITEXT NOT NULL,
     source taxon_match_source NOT NULL,
     match_type taxon_match_type NOT NULL,
@@ -1201,7 +1197,7 @@ WHERE source = 'gbif';
 
 CREATE TABLE taxa_staging (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     name CITEXT NOT NULL,
     authorship TEXT,
     rank taxon_rank NOT NULL,
@@ -1241,7 +1237,7 @@ CREATE TYPE taxon_gbif_status AS ENUM (
 );
 
 CREATE TABLE IF NOT EXISTS taxon_resolution (
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     input_name CITEXT NOT NULL,
     source taxon_match_source,
     gbif_id INTEGER REFERENCES gbif_staging(key),
@@ -1262,10 +1258,9 @@ CREATE TYPE vocab_resolution_status AS ENUM (
 
 
 CREATE TABLE IF NOT EXISTS sampling_methods_resolution (
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     input_text TEXT NOT NULL,
     resolved_method_id UUID REFERENCES sampling_methods (id) ON DELETE CASCADE,
     status vocab_resolution_status NOT NULL DEFAULT 'pending',
     PRIMARY KEY (import_hash, input_text)
 )
-

@@ -6,13 +6,8 @@ CREATE TYPE gbif_import_status AS ENUM (
 );
 
 CREATE TABLE import_workflows (
-    import_hash TEXT PRIMARY KEY,
-    label TEXT,
-    gbif_status gbif_import_status NOT NULL DEFAULT 'pending',
-    gbif_candidates_total INTEGER,
-    gbif_candidates_fetched INTEGER,
-    gbif_claimed_at TIMESTAMPTZ,
-    gbif_updated_at TIMESTAMPTZ,
+    import_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    label TEXT NOT NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     completed_at TIMESTAMPTZ
 );
@@ -22,10 +17,10 @@ CREATE TABLE import_samplings_occurrences (
     -- =========================
     -- INGESTION CONTEXT
     -- =========================
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     imported_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     row_number INTEGER NOT NULL,
-    PRIMARY KEY (import_hash, row_number),
+    PRIMARY KEY (import_id, row_number),
     -- =========================
     -- SAMPLING
     -- =========================
@@ -111,6 +106,6 @@ CREATE TABLE import_samplings_occurrences (
     )
 );
 
-CREATE INDEX idx_staging_import ON import_samplings_occurrences(import_hash);
+CREATE INDEX idx_staging_import ON import_samplings_occurrences(import_id);
 
-CREATE INDEX idx_staging_hash ON import_samplings_occurrences(import_hash, sampling_hash);
+CREATE INDEX idx_staging_hash ON import_samplings_occurrences(import_id, sampling_hash);

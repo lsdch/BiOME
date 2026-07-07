@@ -582,16 +582,6 @@
 				],
 				"type": "object"
 			},
-			"GBIFImportStatus": {
-				"enum": [
-					"pending",
-					"in_progress",
-					"completed",
-					"failed"
-				],
-				"title": "GBIFImportStatus",
-				"type": "string"
-			},
 			"GeoapifyCoords": {
 				"additionalProperties": false,
 				"properties": {
@@ -1033,62 +1023,6 @@
 				],
 				"type": "object"
 			},
-			"ImportWorkflow": {
-				"additionalProperties": false,
-				"properties": {
-					"completed_at": {
-						"$ref": "#/components/schemas/Timestamptz"
-					},
-					"created_at": {
-						"format": "date-time",
-						"type": "string"
-					},
-					"gbif_candidates_fetched": {
-						"format": "int32",
-						"type": [
-							"integer",
-							"null"
-						]
-					},
-					"gbif_candidates_total": {
-						"format": "int32",
-						"type": [
-							"integer",
-							"null"
-						]
-					},
-					"gbif_claimed_at": {
-						"$ref": "#/components/schemas/Timestamptz"
-					},
-					"gbif_status": {
-						"$ref": "#/components/schemas/GBIFImportStatus"
-					},
-					"gbif_updated_at": {
-						"$ref": "#/components/schemas/Timestamptz"
-					},
-					"import_hash": {
-						"type": "string"
-					},
-					"label": {
-						"type": [
-							"string",
-							"null"
-						]
-					}
-				},
-				"required": [
-					"import_hash",
-					"label",
-					"gbif_status",
-					"gbif_candidates_total",
-					"gbif_candidates_fetched",
-					"gbif_claimed_at",
-					"gbif_updated_at",
-					"created_at",
-					"completed_at"
-				],
-				"type": "object"
-			},
 			"InstanceSettings": {
 				"additionalProperties": false,
 				"properties": {
@@ -1243,32 +1177,6 @@
 					"id",
 					"code",
 					"identification"
-				],
-				"type": "object"
-			},
-			"OccurrenceBatchInputMetadata": {
-				"additionalProperties": false,
-				"properties": {
-					"$schema": {
-						"description": "A URL to the JSON Schema for this object.",
-						"examples": [
-							"//localhost:5173/api/v1/schemas/OccurrenceBatchInputMetadata.json"
-						],
-						"format": "uri",
-						"readOnly": true,
-						"type": "string"
-					},
-					"label": {
-						"type": "string"
-					},
-					"separator": {
-						"format": "int32",
-						"type": "integer"
-					}
-				},
-				"required": [
-					"label",
-					"separator"
 				],
 				"type": "object"
 			},
@@ -1637,16 +1545,6 @@
 				},
 				"type": "object"
 			},
-			"ResolutionStatus": {
-				"enum": [
-					"pending",
-					"auto_resolved",
-					"user_resolved",
-					"needs_decision"
-				],
-				"title": "ResolutionStatus",
-				"type": "string"
-			},
 			"Sampling": {
 				"additionalProperties": false,
 				"properties": {
@@ -1810,29 +1708,6 @@
 				"required": [
 					"code",
 					"name"
-				],
-				"type": "object"
-			},
-			"SamplingMethodResolution": {
-				"additionalProperties": false,
-				"properties": {
-					"import_hash": {
-						"type": "string"
-					},
-					"input_text": {
-						"type": "string"
-					},
-					"resolved_method_id": {
-						"type": "string"
-					},
-					"status": {
-						"$ref": "#/components/schemas/VocabResolutionStatus"
-					}
-				},
-				"required": [
-					"import_hash",
-					"input_text",
-					"status"
 				],
 				"type": "object"
 			},
@@ -2119,76 +1994,6 @@
 				],
 				"type": "object"
 			},
-			"TaxonCandidate": {
-				"additionalProperties": false,
-				"properties": {
-					"authorship": {
-						"type": "string"
-					},
-					"gbif_id": {
-						"format": "int32",
-						"type": "integer"
-					},
-					"match_type": {
-						"$ref": "#/components/schemas/TaxonMatchType"
-					},
-					"name": {
-						"type": "string"
-					},
-					"rank": {
-						"$ref": "#/components/schemas/TaxonRank"
-					},
-					"score": {
-						"format": "double",
-						"type": "number"
-					},
-					"source": {
-						"$ref": "#/components/schemas/TaxonMatchSource"
-					},
-					"status": {
-						"$ref": "#/components/schemas/TaxonStatus"
-					},
-					"taxon_id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"name",
-					"rank",
-					"status",
-					"source",
-					"match_type"
-				],
-				"type": "object"
-			},
-			"TaxonGBIFStatus": {
-				"enum": [
-					"skipped",
-					"pending",
-					"completed",
-					"failed"
-				],
-				"title": "TaxonGBIFStatus",
-				"type": "string"
-			},
-			"TaxonMatchSource": {
-				"enum": [
-					"internal",
-					"gbif",
-					"manual"
-				],
-				"title": "TaxonMatchSource",
-				"type": "string"
-			},
-			"TaxonMatchType": {
-				"enum": [
-					"exact",
-					"fuzzy",
-					"name_only"
-				],
-				"title": "TaxonMatchType",
-				"type": "string"
-			},
 			"TaxonRank": {
 				"enum": [
 					"SUBSPECIES",
@@ -2204,66 +2009,6 @@
 				"title": "TaxonRank",
 				"type": "string"
 			},
-			"TaxonResolution": {
-				"additionalProperties": false,
-				"properties": {
-					"gbif_id": {
-						"format": "int32",
-						"type": "integer"
-					},
-					"gbif_status": {
-						"$ref": "#/components/schemas/TaxonGBIFStatus"
-					},
-					"import_hash": {
-						"type": "string"
-					},
-					"input_name": {
-						"type": "string"
-					},
-					"source": {
-						"$ref": "#/components/schemas/TaxonMatchSource"
-					},
-					"staging_id": {
-						"type": "string"
-					},
-					"status": {
-						"$ref": "#/components/schemas/ResolutionStatus"
-					},
-					"taxon_id": {
-						"type": "string"
-					}
-				},
-				"required": [
-					"import_hash",
-					"input_name"
-				],
-				"type": "object"
-			},
-			"TaxonResolutionState": {
-				"additionalProperties": false,
-				"properties": {
-					"candidates": {
-						"additionalProperties": {
-							"items": {
-								"$ref": "#/components/schemas/TaxonCandidate"
-							},
-							"type": "array"
-						},
-						"type": "object"
-					},
-					"resolution": {
-						"items": {
-							"$ref": "#/components/schemas/TaxonResolution"
-						},
-						"type": "array"
-					}
-				},
-				"required": [
-					"resolution",
-					"candidates"
-				],
-				"type": "object"
-			},
 			"TaxonStatus": {
 				"enum": [
 					"ACCEPTED",
@@ -2274,28 +2019,6 @@
 				],
 				"title": "TaxonStatus",
 				"type": "string"
-			},
-			"Timestamptz": {
-				"additionalProperties": false,
-				"properties": {
-					"InfinityModifier": {
-						"format": "int32",
-						"type": "integer"
-					},
-					"Time": {
-						"format": "date-time",
-						"type": "string"
-					},
-					"Valid": {
-						"type": "boolean"
-					}
-				},
-				"required": [
-					"Time",
-					"InfinityModifier",
-					"Valid"
-				],
-				"type": "object"
 			},
 			"User": {
 				"additionalProperties": false,
@@ -2388,17 +2111,6 @@
 					"Admin"
 				],
 				"title": "UserRole",
-				"type": "string"
-			},
-			"VocabResolutionStatus": {
-				"enum": [
-					"auto",
-					"selected",
-					"pending",
-					"request_creation",
-					"discard"
-				],
-				"title": "VocabResolutionStatus",
 				"type": "string"
 			}
 		},
@@ -3537,138 +3249,6 @@
 				"tags": [
 					"Habitats"
 				]
-			}
-		},
-		"/imports": {
-			"post": {
-				"operationId": "ImportOccurrences",
-				"policy": {
-					"Role": "Contributor"
-				},
-				"requestBody": {
-					"content": {
-						"application/json": {
-							"schema": {
-								"$ref": "#/components/schemas/OccurrenceBatchInputMetadata"
-							}
-						},
-						"multipart/form-data": {
-							"encoding": {
-								"occurrences": {
-									"contentType": "text/csv"
-								}
-							},
-							"schema": {
-								"properties": {
-									"occurrences": {
-										"contentEncoding": "binary",
-										"contentMediaType": "application/octet-stream",
-										"format": "binary",
-										"type": "string"
-									}
-								},
-								"required": [
-									"occurrences"
-								],
-								"type": "object"
-							}
-						}
-					}
-				},
-				"responses": {
-					"204": {
-						"description": "No Content",
-						"headers": {
-							"SamplingMethods": {
-								"schema": {
-									"$ref": "#/components/schemas/SamplingMethodResolution"
-								}
-							},
-							"Taxonomy": {
-								"schema": {
-									"$ref": "#/components/schemas/TaxonResolutionState"
-								}
-							},
-							"Workflow": {
-								"schema": {
-									"$ref": "#/components/schemas/ImportWorkflow"
-								}
-							}
-						}
-					},
-					"422": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Unprocessable Entity"
-					},
-					"500": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Internal Server Error"
-					}
-				},
-				"summary": "Import occurrence data",
-				"tags": [
-					"Batch Imports"
-				]
-			}
-		},
-		"/imports/{hash}/status": {
-			"get": {
-				"operationId": "ImportStatus",
-				"parameters": [
-					{
-						"description": "The unique hash of an import.",
-						"in": "path",
-						"name": "hash",
-						"required": true,
-						"schema": {
-							"description": "The unique hash of an import.",
-							"type": "string"
-						}
-					}
-				],
-				"policy": {
-					"Role": "Contributor"
-				},
-				"responses": {
-					"200": {
-						"content": {
-							"text/event-stream": {
-								"schema": {
-									"description": "Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.",
-									"items": {
-										"oneOf": []
-									},
-									"title": "Server Sent Events",
-									"type": "array"
-								}
-							}
-						},
-						"description": "OK"
-					},
-					"default": {
-						"content": {
-							"application/problem+json": {
-								"schema": {
-									"$ref": "#/components/schemas/ErrorModel"
-								}
-							}
-						},
-						"description": "Error"
-					}
-				},
-				"summary": "Get import status updates via Server-Sent Events (SSE)"
 			}
 		},
 		"/locations/countries": {

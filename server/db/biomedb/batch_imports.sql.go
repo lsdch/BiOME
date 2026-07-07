@@ -12,56 +12,18 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const claimGBIFImport = `-- name: ClaimGBIFImport :execrows
-UPDATE import_workflows
-SET gbif_status = 'in_progress',
-    gbif_claimed_at = now()
-WHERE import_hash = $1::text
-    AND (
-        gbif_status IN ('pending', 'failed')
-        OR (
-            gbif_status = 'in_progress'
-            AND gbif_claimed_at < now() - INTERVAL '10 minutes'
-        )
-    )
-`
-
-func (q *Queries) ClaimGBIFImport(ctx context.Context, importHash string) (int64, error) {
-	result, err := q.db.Exec(ctx, claimGBIFImport, importHash)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
-}
-
 const cleanUpStagingImport = `-- name: CleanUpStagingImport :exec
 DELETE FROM import_samplings_occurrences
-WHERE import_hash = $1
+WHERE import_id = $1
 `
 
-func (q *Queries) CleanUpStagingImport(ctx context.Context, importHash string) error {
-	_, err := q.db.Exec(ctx, cleanUpStagingImport, importHash)
+func (q *Queries) CleanUpStagingImport(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, cleanUpStagingImport, importID)
 	return err
 }
 
-const completeGBIFImport = `-- name: CompleteGBIFImport :one
-UPDATE import_workflows
-SET gbif_status = 'completed',
-    completed_at = now()
-WHERE import_hash = $1::text
-    AND gbif_status = 'in_progress'
-RETURNING gbif_status
-`
-
-func (q *Queries) CompleteGBIFImport(ctx context.Context, importHash string) (GBIFImportStatus, error) {
-	row := q.db.QueryRow(ctx, completeGBIFImport, importHash)
-	var gbif_status GBIFImportStatus
-	err := row.Scan(&gbif_status)
-	return gbif_status, err
-}
-
 type CopyImportStagingParams struct {
-	ImportHash                  string                `json:"import_hash"`
+	ImportID                    uuid.UUID             `json:"import_id"`
 	SamplingHash                string                `json:"sampling_hash"`
 	RowNumber                   int32                 `json:"row_number"`
 	SamplingComments            *string               `json:"sampling_comments"`
@@ -101,120 +63,40 @@ type CopyImportStagingParams struct {
 	Sources                     []string              `json:"sources"`
 }
 
-const failGBIFImport = `-- name: FailGBIFImport :one
-UPDATE import_workflows
-SET gbif_status = 'failed'
-WHERE import_hash = $1::text
-    AND gbif_status = 'in_progress'
-RETURNING gbif_status
-`
-
-func (q *Queries) FailGBIFImport(ctx context.Context, importHash string) (GBIFImportStatus, error) {
-	row := q.db.QueryRow(ctx, failGBIFImport, importHash)
-	var gbif_status GBIFImportStatus
-	err := row.Scan(&gbif_status)
-	return gbif_status, err
-}
-
-const getGBIFImportStatus = `-- name: GetGBIFImportStatus :one
-SELECT gbif_status,
-    gbif_claimed_at
-FROM import_workflows
-WHERE import_hash = $1::TEXT
-`
-
-type GetGBIFImportStatusRow struct {
-	GBIFStatus    GBIFImportStatus   `json:"gbif_status"`
-	GBIFClaimedAt pgtype.Timestamptz `json:"gbif_claimed_at"`
-}
-
-func (q *Queries) GetGBIFImportStatus(ctx context.Context, importHash string) (GetGBIFImportStatusRow, error) {
-	row := q.db.QueryRow(ctx, getGBIFImportStatus, importHash)
-	var i GetGBIFImportStatusRow
-	err := row.Scan(&i.GBIFStatus, &i.GBIFClaimedAt)
-	return i, err
-}
-
 const getImportState = `-- name: GetImportState :one
-SELECT import_hash, label, gbif_status, gbif_candidates_total, gbif_candidates_fetched, gbif_claimed_at, gbif_updated_at, created_at, completed_at
+SELECT import_id, label, created_at, completed_at
 FROM import_workflows
-WHERE import_hash = $1::TEXT
+WHERE import_id = $1::uuid
 `
 
-func (q *Queries) GetImportState(ctx context.Context, importHash string) (ImportWorkflow, error) {
-	row := q.db.QueryRow(ctx, getImportState, importHash)
+func (q *Queries) GetImportState(ctx context.Context, importID uuid.UUID) (ImportWorkflow, error) {
+	row := q.db.QueryRow(ctx, getImportState, importID)
 	var i ImportWorkflow
 	err := row.Scan(
-		&i.ImportHash,
+		&i.ImportID,
 		&i.Label,
-		&i.GBIFStatus,
-		&i.GBIFCandidatesTotal,
-		&i.GBIFCandidatesFetched,
-		&i.GBIFClaimedAt,
-		&i.GBIFUpdatedAt,
 		&i.CreatedAt,
 		&i.CompletedAt,
 	)
-	return i, err
-}
-
-const incrementGBIFCandidatesProgress = `-- name: IncrementGBIFCandidatesProgress :one
-UPDATE import_workflows
-SET gbif_candidates_fetched = gbif_candidates_fetched + 1,
-    gbif_updated_at = now()
-WHERE import_hash = $1::text
-    AND gbif_status = 'in_progress'
-RETURNING gbif_candidates_fetched,
-    gbif_candidates_total
-`
-
-type IncrementGBIFCandidatesProgressRow struct {
-	GBIFCandidatesFetched *int32 `json:"gbif_candidates_fetched"`
-	GBIFCandidatesTotal   *int32 `json:"gbif_candidates_total"`
-}
-
-func (q *Queries) IncrementGBIFCandidatesProgress(ctx context.Context, importHash string) (IncrementGBIFCandidatesProgressRow, error) {
-	row := q.db.QueryRow(ctx, incrementGBIFCandidatesProgress, importHash)
-	var i IncrementGBIFCandidatesProgressRow
-	err := row.Scan(&i.GBIFCandidatesFetched, &i.GBIFCandidatesTotal)
 	return i, err
 }
 
 const initBatchImport = `-- name: InitBatchImport :one
-INSERT INTO import_workflows (import_hash, label)
-VALUES ($1::TEXT, $2::TEXT) ON CONFLICT (import_hash) DO NOTHING
-RETURNING import_hash, label, gbif_status, gbif_candidates_total, gbif_candidates_fetched, gbif_claimed_at, gbif_updated_at, created_at, completed_at
+INSERT INTO import_workflows (label)
+VALUES ($1::TEXT)
+RETURNING import_id, label, created_at, completed_at
 `
 
-func (q *Queries) InitBatchImport(ctx context.Context, importHash string, label string) (ImportWorkflow, error) {
-	row := q.db.QueryRow(ctx, initBatchImport, importHash, label)
+func (q *Queries) InitBatchImport(ctx context.Context, label string) (ImportWorkflow, error) {
+	row := q.db.QueryRow(ctx, initBatchImport, label)
 	var i ImportWorkflow
 	err := row.Scan(
-		&i.ImportHash,
+		&i.ImportID,
 		&i.Label,
-		&i.GBIFStatus,
-		&i.GBIFCandidatesTotal,
-		&i.GBIFCandidatesFetched,
-		&i.GBIFClaimedAt,
-		&i.GBIFUpdatedAt,
 		&i.CreatedAt,
 		&i.CompletedAt,
 	)
 	return i, err
-}
-
-const initGBIFCandidatesProgress = `-- name: InitGBIFCandidatesProgress :exec
-UPDATE import_workflows
-SET gbif_candidates_total = $1::INTEGER,
-    gbif_candidates_fetched = 0,
-    gbif_updated_at = now()
-WHERE import_hash = $2::text
-    AND gbif_status = 'in_progress'
-`
-
-func (q *Queries) InitGBIFCandidatesProgress(ctx context.Context, total int32, importHash string) error {
-	_, err := q.db.Exec(ctx, initGBIFCandidatesProgress, total, importHash)
-	return err
 }
 
 const insertOccurrencesFromStaging = `-- name: InsertOccurrencesFromStaging :exec
@@ -256,14 +138,45 @@ SELECT i.occurrence_id,
     i.sources
 FROM import_samplings_occurrences i
     JOIN samplings s ON s.sampling_hash = i.sampling_hash
-    JOIN taxon_candidates r ON r.import_hash = i.import_hash
+    JOIN taxon_candidates r ON r.import_id = i.import_id
     AND r.input_name = i.taxon_scientific_name
-WHERE i.import_hash = $1
+WHERE i.import_id = $1
 `
 
-func (q *Queries) InsertOccurrencesFromStaging(ctx context.Context, importHash string) error {
-	_, err := q.db.Exec(ctx, insertOccurrencesFromStaging, importHash)
+func (q *Queries) InsertOccurrencesFromStaging(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, insertOccurrencesFromStaging, importID)
 	return err
+}
+
+const listImportWorkflows = `-- name: ListImportWorkflows :many
+SELECT import_id, label, created_at, completed_at
+FROM import_workflows
+ORDER BY created_at DESC
+`
+
+func (q *Queries) ListImportWorkflows(ctx context.Context) ([]ImportWorkflow, error) {
+	rows, err := q.db.Query(ctx, listImportWorkflows)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ImportWorkflow{}
+	for rows.Next() {
+		var i ImportWorkflow
+		if err := rows.Scan(
+			&i.ImportID,
+			&i.Label,
+			&i.CreatedAt,
+			&i.CompletedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const upsertSamplingsFromStaging = `-- name: UpsertSamplingsFromStaging :many
@@ -298,14 +211,14 @@ SELECT DISTINCT sampling_hash,
     duration,
     access_points
 FROM import_samplings_occurrences
-WHERE import_hash = $1 ON CONFLICT (sampling_hash) DO
+WHERE import_id = $1 ON CONFLICT (sampling_hash) DO
 UPDATE
 SET notes = EXCLUDED.notes
 RETURNING id
 `
 
-func (q *Queries) UpsertSamplingsFromStaging(ctx context.Context, importHash string) ([]uuid.UUID, error) {
-	rows, err := q.db.Query(ctx, upsertSamplingsFromStaging, importHash)
+func (q *Queries) UpsertSamplingsFromStaging(ctx context.Context, importID uuid.UUID) ([]uuid.UUID, error) {
+	rows, err := q.db.Query(ctx, upsertSamplingsFromStaging, importID)
 	if err != nil {
 		return nil, err
 	}

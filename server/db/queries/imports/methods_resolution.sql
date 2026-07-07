@@ -1,13 +1,13 @@
 -- name: GetMethodsResolution :many
 SELECT *
 FROM sampling_methods_resolution
-WHERE import_hash = @import_hash;
+WHERE import_id = @import_id;
 
 -- name: InitMethodsResolution :many
 WITH input_methods AS (
     SELECT DISTINCT UNNEST(sampling_methods) AS input_text
     FROM import_samplings_occurrences
-    WHERE import_hash = @import_hash
+    WHERE import_id = @import_id
 ),
 resolved AS (
     SELECT i.input_text,
@@ -17,12 +17,12 @@ resolved AS (
         OR lower(unaccent(i.input_text)) = lower(unaccent(m.code))
 )
 INSERT INTO sampling_methods_resolution (
-        import_hash,
+        import_id,
         input_text,
         resolved_method_id,
         status
     )
-SELECT @import_hash,
+SELECT @import_id,
     input_text,
     resolved_method_id,
     CASE
@@ -36,6 +36,6 @@ RETURNING *;
 UPDATE sampling_methods_resolution
 SET resolved_method_id = @resolved_method_id,
     status = @status
-WHERE import_hash = @import_hash
+WHERE import_id = @import_id
     AND input_text = @input_text
 RETURNING *;

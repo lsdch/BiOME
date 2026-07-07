@@ -8,67 +8,68 @@ package biomedb
 import (
 	"context"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const cleanUpGBIFDependencies = `-- name: CleanUpGBIFDependencies :exec
 DELETE FROM gbif_dependencies d
-WHERE d.import_hash = $1
+WHERE d.import_id = $1
 `
 
-func (q *Queries) CleanUpGBIFDependencies(ctx context.Context, importHash string) error {
-	_, err := q.db.Exec(ctx, cleanUpGBIFDependencies, importHash)
+func (q *Queries) CleanUpGBIFDependencies(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, cleanUpGBIFDependencies, importID)
 	return err
 }
 
 const expandGBIFDependencies = `-- name: ExpandGBIFDependencies :exec
 WITH resolution AS (
-    SELECT DISTINCT r.import_hash,
+    SELECT DISTINCT r.import_id,
         r.gbif_id
     FROM taxon_resolution r
         JOIN gbif_staging g ON g.key = taxon_resolution.gbif_id
-    WHERE r.import_hash = $1
+    WHERE r.import_id = $1
         AND gbif_id IS NOT NULL
 ),
 expanded AS (
     -- 1. direct gbif_id
-    SELECT r.import_hash,
+    SELECT r.import_id,
         r.gbif_id AS key
     FROM resolution r
     UNION ALL
     -- 2. accepted key
-    SELECT r.import_hash,
+    SELECT r.import_id,
         g.accepted_key AS key
     FROM resolution r
         JOIN gbif_staging g ON g.key = r.gbif_id
     WHERE g.accepted_key IS NOT NULL
     UNION ALL
     -- 3. higher taxonomy expansion
-    SELECT r.import_hash,
+    SELECT r.import_id,
         h.key
     FROM resolution r
         JOIN gbif_staging g ON g.key = r.gbif_id
         CROSS JOIN LATERAL unnest(g.higher_taxon_keys) AS h(key)
 ),
 deduplicated AS (
-    SELECT DISTINCT import_hash,
+    SELECT DISTINCT import_id,
         key
     FROM expanded
     WHERE key IS NOT NULL
 )
-INSERT INTO gbif_dependencies (import_hash, key)
-SELECT import_hash,
+INSERT INTO gbif_dependencies (import_id, key)
+SELECT import_id,
     key
 FROM deduplicated
 WHERE NOT EXISTS (
         SELECT 1
         FROM taxa t
         WHERE t.gbif_key = key
-    ) ON CONFLICT (import_hash, key) DO NOTHING
+    ) ON CONFLICT (import_id, key) DO NOTHING
 `
 
-func (q *Queries) ExpandGBIFDependencies(ctx context.Context, importHash string) error {
-	_, err := q.db.Exec(ctx, expandGBIFDependencies, importHash)
+func (q *Queries) ExpandGBIFDependencies(ctx context.Context, importID uuid.UUID) error {
+	_, err := q.db.Exec(ctx, expandGBIFDependencies, importID)
 	return err
 }
 
@@ -118,7 +119,7 @@ FROM gbif_staging g
     JOIN gbif_dependencies d ON d.key = g.key
     LEFT JOIN taxa parent ON parent.gbif_key = g.parent_key
     LEFT JOIN taxa accepted ON accepted.gbif_key = g.accepted_key
-WHERE d.import_hash = $1
+WHERE d.import_id = $1
     AND g.rank = $2
     AND (
         (
@@ -133,19 +134,19 @@ WHERE d.import_hash = $1
 `
 
 type InsertTaxaFromGBIFParams struct {
-	ImportHash string      `json:"import_hash"`
-	Rank       string      `json:"rank"`
-	IsSynonym  interface{} `json:"is_synonym"`
+	ImportID  uuid.UUID   `json:"import_id"`
+	Rank      string      `json:"rank"`
+	IsSynonym interface{} `json:"is_synonym"`
 }
 
 func (q *Queries) InsertTaxaFromGBIF(ctx context.Context, arg InsertTaxaFromGBIFParams) error {
-	_, err := q.db.Exec(ctx, insertTaxaFromGBIF, arg.ImportHash, arg.Rank, arg.IsSynonym)
+	_, err := q.db.Exec(ctx, insertTaxaFromGBIF, arg.ImportID, arg.Rank, arg.IsSynonym)
 	return err
 }
 
 const insertTaxonStaging = `-- name: InsertTaxonStaging :exec
 INSERT INTO taxa_staging (
-        import_hash,
+        import_id,
         name,
         authorship,
         rank,
@@ -167,7 +168,7 @@ SELECT $1,
 `
 
 type InsertTaxonStagingParams struct {
-	ImportHash      string           `json:"import_hash"`
+	ImportID        uuid.UUID        `json:"import_id"`
 	Name            string           `json:"name"`
 	Authorship      *string          `json:"authorship"`
 	Rank            TaxonRank        `json:"rank"`
@@ -180,7 +181,7 @@ type InsertTaxonStagingParams struct {
 
 func (q *Queries) InsertTaxonStaging(ctx context.Context, arg InsertTaxonStagingParams) error {
 	_, err := q.db.Exec(ctx, insertTaxonStaging,
-		arg.ImportHash,
+		arg.ImportID,
 		arg.Name,
 		arg.Authorship,
 		arg.Rank,
@@ -196,7 +197,7 @@ func (q *Queries) InsertTaxonStaging(ctx context.Context, arg InsertTaxonStaging
 const listMissingGBIFKeys = `-- name: ListMissingGBIFKeys :many
 SELECT d.key
 FROM gbif_dependencies d
-WHERE d.import_hash = $1
+WHERE d.import_id = $1
     AND NOT EXISTS (
         SELECT 1
         FROM taxa t
@@ -209,8 +210,8 @@ WHERE d.import_hash = $1
     )
 `
 
-func (q *Queries) ListMissingGBIFKeys(ctx context.Context, importHash string) ([]int32, error) {
-	rows, err := q.db.Query(ctx, listMissingGBIFKeys, importHash)
+func (q *Queries) ListMissingGBIFKeys(ctx context.Context, importID uuid.UUID) ([]int32, error) {
+	rows, err := q.db.Query(ctx, listMissingGBIFKeys, importID)
 	if err != nil {
 		return nil, err
 	}

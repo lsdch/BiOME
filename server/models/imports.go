@@ -16,20 +16,24 @@ type ResolutionStatus = biomedb.ResolutionStatus
 
 type TaxonGBIFStatus = biomedb.TaxonGBIFStatus
 
-type GBIFImportState struct {
-	Status    GBIFImportStatus    `json:"status"`
-	ClaimedAt Optional[time.Time] `json:"claimed_at,omitempty"`
+type ImportWorkflow struct {
+	ImportID    uuid.UUID           `json:"import_id"`
+	Label       string              `json:"label"`
+	CreatedAt   time.Time           `json:"created_at"`
+	CompletedAt Optional[time.Time] `json:"completed_at,omitempty"`
 }
 
-func GBIFImportStateFromDB(res biomedb.GetGBIFImportStatusRow) GBIFImportState {
-	return GBIFImportState{
-		Status:    res.GBIFStatus,
-		ClaimedAt: NewOptionalFromTimestamp(res.GBIFClaimedAt),
+func ImportWorkflowFromDB(res biomedb.ImportWorkflow) ImportWorkflow {
+	return ImportWorkflow{
+		ImportID:    res.ImportID,
+		Label:       res.Label,
+		CreatedAt:   res.CreatedAt,
+		CompletedAt: NewOptionalFromTimestamp(res.CompletedAt),
 	}
 }
 
 type TaxonResolution struct {
-	ImportHash string                     `json:"import_hash"`
+	ImportID   uuid.UUID                  `json:"import_id"`
 	InputName  string                     `json:"input_name"`
 	Source     Optional[TaxonMatchSource] `json:"source,omitempty"`
 	GBIFID     Optional[int32]            `json:"gbif_id,omitempty"`
@@ -41,7 +45,7 @@ type TaxonResolution struct {
 
 func TaxonResolutionFromDB(res biomedb.TaxonResolution) TaxonResolution {
 	return TaxonResolution{
-		ImportHash: res.ImportHash,
+		ImportID:   res.ImportID,
 		InputName:  res.InputName,
 		Source:     NewOptionalFromPtr(res.Source),
 		GBIFID:     NewOptionalFromPtr(res.GBIFID),
@@ -102,9 +106,9 @@ type TaxonStagingParams struct {
 	ParentInputName Optional[string]    `json:"parent_input_name,omitempty"`
 }
 
-func (p TaxonStagingParams) ToParams(importHash string) biomedb.InsertTaxonStagingParams {
+func (p TaxonStagingParams) ToParams(importID uuid.UUID) biomedb.InsertTaxonStagingParams {
 	return biomedb.InsertTaxonStagingParams{
-		ImportHash:      importHash,
+		ImportID:        importID,
 		Name:            p.Name,
 		Authorship:      p.Authorship.ToPtr(),
 		Rank:            p.Rank,
@@ -118,7 +122,7 @@ func (p TaxonStagingParams) ToParams(importHash string) biomedb.InsertTaxonStagi
 
 type VocabResolutionStatus = biomedb.VocabResolutionStatus
 type SamplingMethodResolution struct {
-	ImportHash       string                `json:"import_hash"`
+	ImportID         uuid.UUID             `json:"import_id"`
 	InputText        string                `json:"input_text"`
 	ResolvedMethodID Optional[uuid.UUID]   `json:"resolved_method_id,omitempty"`
 	Status           VocabResolutionStatus `json:"status"`
@@ -126,7 +130,7 @@ type SamplingMethodResolution struct {
 
 func SamplingMethodResolutionFromDB(res biomedb.SamplingMethodsResolution) SamplingMethodResolution {
 	return SamplingMethodResolution{
-		ImportHash:       res.ImportHash,
+		ImportID:         res.ImportID,
 		InputText:        res.InputText,
 		ResolvedMethodID: NewOptionalFromUUID(res.ResolvedMethodID),
 		Status:           res.Status,

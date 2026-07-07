@@ -1241,8 +1241,8 @@ type Fixative struct {
 }
 
 type GBIFDependency struct {
-	ImportHash string `json:"import_hash"`
-	Key        int32  `json:"key"`
+	ImportID uuid.UUID `json:"import_id"`
+	Key      int32     `json:"key"`
 }
 
 type GBIFStaging struct {
@@ -1301,7 +1301,7 @@ type ImportBatch struct {
 }
 
 type ImportSamplingsOccurrence struct {
-	ImportHash                  string                `json:"import_hash"`
+	ImportID                    uuid.UUID             `json:"import_id"`
 	ImportedAt                  time.Time             `json:"imported_at"`
 	RowNumber                   int32                 `json:"row_number"`
 	SamplingHash                string                `json:"sampling_hash"`
@@ -1345,15 +1345,10 @@ type ImportSamplingsOccurrence struct {
 }
 
 type ImportWorkflow struct {
-	ImportHash            string             `json:"import_hash"`
-	Label                 *string            `json:"label"`
-	GBIFStatus            GBIFImportStatus   `json:"gbif_status"`
-	GBIFCandidatesTotal   *int32             `json:"gbif_candidates_total"`
-	GBIFCandidatesFetched *int32             `json:"gbif_candidates_fetched"`
-	GBIFClaimedAt         pgtype.Timestamptz `json:"gbif_claimed_at"`
-	GBIFUpdatedAt         pgtype.Timestamptz `json:"gbif_updated_at"`
-	CreatedAt             time.Time          `json:"created_at"`
-	CompletedAt           pgtype.Timestamptz `json:"completed_at"`
+	ImportID    uuid.UUID          `json:"import_id"`
+	Label       string             `json:"label"`
+	CreatedAt   time.Time          `json:"created_at"`
+	CompletedAt pgtype.Timestamptz `json:"completed_at"`
 }
 
 type Invitation struct {
@@ -1457,7 +1452,7 @@ type SamplingMethod struct {
 }
 
 type SamplingMethodsResolution struct {
-	ImportHash       string                `json:"import_hash"`
+	ImportID         uuid.UUID             `json:"import_id"`
 	InputText        string                `json:"input_text"`
 	ResolvedMethodID pgtype.UUID           `json:"resolved_method_id"`
 	Status           VocabResolutionStatus `json:"status"`
@@ -1493,7 +1488,7 @@ type Setting struct {
 
 type TaxaStaging struct {
 	ID              uuid.UUID        `json:"id"`
-	ImportHash      string           `json:"import_hash"`
+	ImportID        uuid.UUID        `json:"import_id"`
 	Name            string           `json:"name"`
 	Authorship      *string          `json:"authorship"`
 	Rank            TaxonRank        `json:"rank"`
@@ -1519,7 +1514,7 @@ type Taxon struct {
 }
 
 type TaxonCandidate struct {
-	ImportHash string           `json:"import_hash"`
+	ImportID   uuid.UUID        `json:"import_id"`
 	InputName  string           `json:"input_name"`
 	Source     TaxonMatchSource `json:"source"`
 	MatchType  TaxonMatchType   `json:"match_type"`
@@ -1553,7 +1548,7 @@ type TaxonHierarchy struct {
 }
 
 type TaxonResolution struct {
-	ImportHash string            `json:"import_hash"`
+	ImportID   uuid.UUID         `json:"import_id"`
 	InputName  string            `json:"input_name"`
 	Source     *TaxonMatchSource `json:"source"`
 	GBIFID     *int32            `json:"gbif_id"`

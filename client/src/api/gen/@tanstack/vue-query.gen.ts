@@ -11,7 +11,6 @@ import { client } from '../client.gen'
 import {
   AccountsService,
   AuthenticationService,
-  BatchImportsService,
   BibliographyService,
   DatasetsService,
   HabitatsService,
@@ -82,9 +81,6 @@ import type {
   GetOccurrencesData,
   GetOccurrencesError,
   GetOccurrencesResponse,
-  ImportOccurrencesData,
-  ImportOccurrencesError,
-  ImportOccurrencesResponse,
   ListAccessPointsData,
   ListAccessPointsError,
   ListAccessPointsResponse,
@@ -787,33 +783,6 @@ export const updateHabitatGroupMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await HabitatsService.updateHabitatGroup({
-        ...options,
-        ...fnOptions,
-        throwOnError: true
-      })
-      return data
-    }
-  }
-  return mutationOptions
-}
-
-/**
- * Import occurrence data
- */
-export const importOccurrencesMutation = (
-  options?: Partial<Options<ImportOccurrencesData>>
-): UseMutationOptions<
-  ImportOccurrencesResponse,
-  ImportOccurrencesError,
-  Options<ImportOccurrencesData>
-> => {
-  const mutationOptions: UseMutationOptions<
-    ImportOccurrencesResponse,
-    ImportOccurrencesError,
-    Options<ImportOccurrencesData>
-  > = {
-    mutationFn: async (fnOptions) => {
-      const { data } = await BatchImportsService.importOccurrences({
         ...options,
         ...fnOptions,
         throwOnError: true

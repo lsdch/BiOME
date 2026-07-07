@@ -882,7 +882,7 @@ CREATE INDEX occurrence_article_article_idx ON occurrence_article (article_id);
 -- Minimal dataset and associations
 CREATE TABLE datasets (
 	id UUID PRIMARY KEY DEFAULT gen_random_uuid (),
-	import_hash TEXT NOT NULL UNIQUE,
+	import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE UNIQUE,
 	label TEXT NOT NULL,
 	slug TEXT NOT NULL,
 	description TEXT,
@@ -928,7 +928,7 @@ CREATE TABLE import_samplings_occurrences (
 	-- =========================
 	-- INGESTION CONTEXT
 	-- =========================
-	import_hash TEXT NOT NULL,
+	import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
 	imported_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 	-- =========================
 	-- SAMPLING
@@ -1004,7 +1004,7 @@ CREATE INDEX idx_staging_hash ON import_samplings_occurrences(import_hash, sampl
 CREATE TYPE taxon_match_type AS ENUM ('exact', 'name_auth', 'fuzzy', 'name_only');
 
 CREATE TABLE IF NOT EXISTS taxon_candidates (
-	import_hash TEXT NOT NULL,
+	import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
 	input_name TEXT NOT NULL,
 	taxon_id UUID,
 	match_type taxon_match_type,

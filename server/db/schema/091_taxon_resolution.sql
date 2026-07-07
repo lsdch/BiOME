@@ -23,16 +23,16 @@ CREATE TABLE IF NOT EXISTS gbif_staging (
 );
 
 CREATE TABLE IF NOT EXISTS gbif_dependencies (
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     key INTEGER NOT NULL,
-    PRIMARY KEY (import_hash, key)
+    PRIMARY KEY (import_id, key)
 );
 
 CREATE TYPE taxon_match_type AS ENUM ('exact', 'fuzzy', 'name_only');
 CREATE TYPE taxon_match_source AS ENUM ('internal', 'gbif', 'manual');
 
 CREATE TABLE IF NOT EXISTS taxon_candidates (
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     input_name CITEXT NOT NULL,
     source taxon_match_source NOT NULL,
     match_type taxon_match_type NOT NULL,
@@ -57,15 +57,15 @@ CREATE TABLE IF NOT EXISTS taxon_candidates (
     )
 );
 
-CREATE UNIQUE INDEX taxon_candidates_internal_unique ON taxon_candidates (import_hash, input_name, taxon_id)
+CREATE UNIQUE INDEX taxon_candidates_internal_unique ON taxon_candidates (import_id, input_name, taxon_id)
 WHERE source = 'internal';
 
-CREATE UNIQUE INDEX taxon_candidates_gbif_unique ON taxon_candidates (import_hash, input_name, gbif_id)
+CREATE UNIQUE INDEX taxon_candidates_gbif_unique ON taxon_candidates (import_id, input_name, gbif_id)
 WHERE source = 'gbif';
 
 CREATE TABLE taxa_staging (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     name CITEXT NOT NULL,
     authorship TEXT,
     rank taxon_rank NOT NULL,
@@ -105,7 +105,7 @@ CREATE TYPE taxon_gbif_status AS ENUM (
 );
 
 CREATE TABLE IF NOT EXISTS taxon_resolution (
-    import_hash TEXT NOT NULL,
+    import_id UUID NOT NULL REFERENCES import_workflows (import_id) ON DELETE CASCADE,
     input_name CITEXT NOT NULL,
     source taxon_match_source,
     gbif_id INTEGER REFERENCES gbif_staging(key),
@@ -113,5 +113,5 @@ CREATE TABLE IF NOT EXISTS taxon_resolution (
     staging_id UUID REFERENCES taxa_staging(id),
     status resolution_status DEFAULT 'pending',
     gbif_status taxon_gbif_status DEFAULT 'skipped',
-    PRIMARY KEY (import_hash, input_name)
+    PRIMARY KEY (import_id, input_name)
 );

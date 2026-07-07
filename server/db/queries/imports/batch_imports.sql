@@ -1,67 +1,21 @@
 -- name: InitBatchImport :one
-INSERT INTO import_workflows (import_hash, label)
-VALUES (@import_hash::TEXT, @label::TEXT) ON CONFLICT (import_hash) DO NOTHING
+INSERT INTO import_workflows (label)
+VALUES (@label::TEXT)
 RETURNING *;
+
+-- name: ListImportWorkflows :many
+SELECT *
+FROM import_workflows
+ORDER BY created_at DESC;
 
 -- name: GetImportState :one
 SELECT *
 FROM import_workflows
-WHERE import_hash = @import_hash::TEXT;
-
--- name: ClaimGBIFImport :execrows
-UPDATE import_workflows
-SET gbif_status = 'in_progress',
-    gbif_claimed_at = now()
-WHERE import_hash = @import_hash::text
-    AND (
-        gbif_status IN ('pending', 'failed')
-        OR (
-            gbif_status = 'in_progress'
-            AND gbif_claimed_at < now() - INTERVAL '10 minutes'
-        )
-    );
-
--- name: InitGBIFCandidatesProgress :exec
-UPDATE import_workflows
-SET gbif_candidates_total = @total::INTEGER,
-    gbif_candidates_fetched = 0,
-    gbif_updated_at = now()
-WHERE import_hash = @import_hash::text
-    AND gbif_status = 'in_progress';
-
--- name: IncrementGBIFCandidatesProgress :one
-UPDATE import_workflows
-SET gbif_candidates_fetched = gbif_candidates_fetched + 1,
-    gbif_updated_at = now()
-WHERE import_hash = @import_hash::text
-    AND gbif_status = 'in_progress'
-RETURNING gbif_candidates_fetched,
-    gbif_candidates_total;
-
--- name: CompleteGBIFImport :one
-UPDATE import_workflows
-SET gbif_status = 'completed',
-    completed_at = now()
-WHERE import_hash = @import_hash::text
-    AND gbif_status = 'in_progress'
-RETURNING gbif_status;
-
--- name: FailGBIFImport :one
-UPDATE import_workflows
-SET gbif_status = 'failed'
-WHERE import_hash = @import_hash::text
-    AND gbif_status = 'in_progress'
-RETURNING gbif_status;
-
--- name: GetGBIFImportStatus :one
-SELECT gbif_status,
-    gbif_claimed_at
-FROM import_workflows
-WHERE import_hash = @import_hash::TEXT;
+WHERE import_id = @import_id::uuid;
 
 -- name: CopyImportStaging :copyfrom
 INSERT INTO import_samplings_occurrences (
-        import_hash,
+        import_id,
         sampling_hash,
         row_number,
         sampling_comments,
@@ -101,7 +55,7 @@ INSERT INTO import_samplings_occurrences (
         sources
     )
 VALUES (
-        @import_hash,
+        @import_id,
         @sampling_hash,
         @row_number,
         @sampling_comments,
@@ -173,7 +127,7 @@ SELECT DISTINCT sampling_hash,
     duration,
     access_points
 FROM import_samplings_occurrences
-WHERE import_hash = $1 ON CONFLICT (sampling_hash) DO
+WHERE import_id = $1 ON CONFLICT (sampling_hash) DO
 UPDATE
 SET notes = EXCLUDED.notes
 RETURNING id;
@@ -218,10 +172,10 @@ SELECT i.occurrence_id,
     i.sources
 FROM import_samplings_occurrences i
     JOIN samplings s ON s.sampling_hash = i.sampling_hash
-    JOIN taxon_candidates r ON r.import_hash = i.import_hash
+    JOIN taxon_candidates r ON r.import_id = i.import_id
     AND r.input_name = i.taxon_scientific_name
-WHERE i.import_hash = $1;
+WHERE i.import_id = $1;
 
 -- name: CleanUpStagingImport :exec
 DELETE FROM import_samplings_occurrences
-WHERE import_hash = $1;
+WHERE import_id = $1;

@@ -211,11 +211,6 @@ export type FullOccurrenceInput = {
   sampling: SamplingInput
 }
 
-/**
- * GBIFImportStatus
- */
-export type GbifImportStatus = 'pending' | 'in_progress' | 'completed' | 'failed'
-
 export type GeoapifyCoords = {
   lat: number
   lon: number
@@ -354,18 +349,6 @@ export type ImportBatch = {
   submitted_by?: string
 }
 
-export type ImportWorkflow = {
-  completed_at: Timestamptz
-  created_at: Date
-  gbif_candidates_fetched: number | null
-  gbif_candidates_total: number | null
-  gbif_claimed_at: Timestamptz
-  gbif_status: GbifImportStatus
-  gbif_updated_at: Timestamptz
-  import_hash: string
-  label: string | null
-}
-
 export type InstanceSettings = {
   /**
    * A URL to the JSON Schema for this object.
@@ -414,15 +397,6 @@ export type Occurrence = {
   sampling: Sampling
   sources?: Array<string>
   type_status?: OccurrenceTypeStatus
-}
-
-export type OccurrenceBatchInputMetadata = {
-  /**
-   * A URL to the JSON Schema for this object.
-   */
-  readonly $schema?: string
-  label: string
-  separator: number
 }
 
 export type OccurrenceInput = {
@@ -527,11 +501,6 @@ export type QuantityInput = {
   upper?: number
 }
 
-/**
- * ResolutionStatus
- */
-export type ResolutionStatus = 'pending' | 'auto_resolved' | 'user_resolved' | 'needs_decision'
-
 export type Sampling = {
   ID: string
   access_points?: Array<string>
@@ -578,13 +547,6 @@ export type SamplingMethodInput = {
   code: string
   description?: string
   name: string
-}
-
-export type SamplingMethodResolution = {
-  import_hash: string
-  input_text: string
-  resolved_method_id?: string
-  status: VocabResolutionStatus
 }
 
 export type SamplingMethodUpdateParams = {
@@ -669,33 +631,6 @@ export type Taxon = {
   status: TaxonStatus
 }
 
-export type TaxonCandidate = {
-  authorship?: string
-  gbif_id?: number
-  match_type: TaxonMatchType
-  name: string
-  rank: TaxonRank
-  score?: number
-  source: TaxonMatchSource
-  status: TaxonStatus
-  taxon_id?: string
-}
-
-/**
- * TaxonGBIFStatus
- */
-export type TaxonGbifStatus = 'skipped' | 'pending' | 'completed' | 'failed'
-
-/**
- * TaxonMatchSource
- */
-export type TaxonMatchSource = 'internal' | 'gbif' | 'manual'
-
-/**
- * TaxonMatchType
- */
-export type TaxonMatchType = 'exact' | 'fuzzy' | 'name_only'
-
 /**
  * TaxonRank
  */
@@ -710,34 +645,10 @@ export type TaxonRank =
   | 'PHYLUM'
   | 'KINGDOM'
 
-export type TaxonResolution = {
-  gbif_id?: number
-  gbif_status?: TaxonGbifStatus
-  import_hash: string
-  input_name: string
-  source?: TaxonMatchSource
-  staging_id?: string
-  status?: ResolutionStatus
-  taxon_id?: string
-}
-
-export type TaxonResolutionState = {
-  candidates: {
-    [key: string]: Array<TaxonCandidate>
-  }
-  resolution: Array<TaxonResolution>
-}
-
 /**
  * TaxonStatus
  */
 export type TaxonStatus = 'ACCEPTED' | 'SYNONYM' | 'DOUBTFUL' | 'UNREFERENCED' | 'UNCLASSIFIED'
-
-export type Timestamptz = {
-  InfinityModifier: number
-  Time: Date
-  Valid: boolean
-}
 
 export type User = {
   /**
@@ -770,11 +681,6 @@ export type UserCredentials = {
  * UserRole
  */
 export type UserRole = 'Visitor' | 'Contributor' | 'Maintainer' | 'Admin'
-
-/**
- * VocabResolutionStatus
- */
-export type VocabResolutionStatus = 'auto' | 'selected' | 'pending' | 'request_creation' | 'discard'
 
 export type ListAccessPointsData = {
   body?: never
@@ -1458,67 +1364,6 @@ export type UpdateHabitatGroupResponses = {
 
 export type UpdateHabitatGroupResponse =
   UpdateHabitatGroupResponses[keyof UpdateHabitatGroupResponses]
-
-export type ImportOccurrencesData = {
-  body?: OccurrenceBatchInputMetadata
-  path?: never
-  query?: never
-  url: '/imports'
-}
-
-export type ImportOccurrencesErrors = {
-  /**
-   * Unprocessable Entity
-   */
-  422: ErrorModel
-  /**
-   * Internal Server Error
-   */
-  500: ErrorModel
-}
-
-export type ImportOccurrencesError = ImportOccurrencesErrors[keyof ImportOccurrencesErrors]
-
-export type ImportOccurrencesResponses = {
-  /**
-   * No Content
-   */
-  204: void
-}
-
-export type ImportOccurrencesResponse = ImportOccurrencesResponses[keyof ImportOccurrencesResponses]
-
-export type ImportStatusData = {
-  body?: never
-  path: {
-    /**
-     * The unique hash of an import.
-     */
-    hash: string
-  }
-  query?: never
-  url: '/imports/{hash}/status'
-}
-
-export type ImportStatusErrors = {
-  /**
-   * Error
-   */
-  default: ErrorModel
-}
-
-export type ImportStatusError = ImportStatusErrors[keyof ImportStatusErrors]
-
-export type ImportStatusResponses = {
-  /**
-   * Server Sent Events
-   *
-   * Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.
-   */
-  200: Array<unknown>
-}
-
-export type ImportStatusResponse = ImportStatusResponses[keyof ImportStatusResponses]
 
 export type ListCountriesData = {
   body?: never

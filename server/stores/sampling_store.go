@@ -312,10 +312,10 @@ func (s *SamplingStore) DeleteSamplingMethod(
 func (s *SamplingStore) InitMethodResolution(
 	ctx context.Context,
 	q db.Querier,
-	importHash string,
+	importID uuid.UUID,
 ) ([]models.SamplingMethodResolution, error) {
 
-	rows, err := q.Queries().InitMethodsResolution(ctx, importHash)
+	rows, err := q.Queries().InitMethodsResolution(ctx, importID)
 	if err != nil {
 		return nil, err
 	}
@@ -331,10 +331,10 @@ func (s *SamplingStore) InitMethodResolution(
 func (s *SamplingStore) GetMethodsResolution(
 	ctx context.Context,
 	q db.Querier,
-	importHash string,
+	importID uuid.UUID,
 ) ([]models.SamplingMethodResolution, error) {
 
-	rows, err := q.Queries().GetMethodsResolution(ctx, importHash)
+	rows, err := q.Queries().GetMethodsResolution(ctx, importID)
 	if err != nil {
 		return nil, err
 	}
@@ -350,11 +350,11 @@ func (s *SamplingStore) GetMethodsResolution(
 func (s *SamplingStore) ResolveMethod(
 	ctx context.Context,
 	q db.Querier,
-	importHash string,
+	importID uuid.UUID,
 	input models.SamplingMethodResolutionInput,
 ) (models.SamplingMethodResolution, error) {
 
-	row, err := q.Queries().ResolveMethod(ctx, input.ToParams(importHash))
+	row, err := q.Queries().ResolveMethod(ctx, input.ToParams(importID))
 	if err != nil {
 		return models.SamplingMethodResolution{}, err
 	}
