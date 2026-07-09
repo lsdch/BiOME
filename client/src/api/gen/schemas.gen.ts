@@ -911,6 +911,53 @@ export const $ImportBatch = {
   type: 'object'
 } as const
 
+export const $ImportEvent = {
+  additionalProperties: false,
+  properties: {
+    Error: {},
+    GBIF: {
+      $ref: '#/components/schemas/ProgressSnapshot'
+    },
+    Status: {
+      type: 'string'
+    },
+    Workflow: {
+      $ref: '#/components/schemas/ImportWorkflow'
+    }
+  },
+  required: ['Workflow', 'Status', 'GBIF', 'Error'],
+  type: 'object'
+} as const
+
+export const $ImportWorkflow = {
+  additionalProperties: false,
+  properties: {
+    $schema: {
+      description: 'A URL to the JSON Schema for this object.',
+      examples: ['//localhost:5173/api/v1/schemas/ImportWorkflow.json'],
+      format: 'uri',
+      readOnly: true,
+      type: 'string'
+    },
+    completed_at: {
+      format: 'date-time',
+      type: 'string'
+    },
+    created_at: {
+      format: 'date-time',
+      type: 'string'
+    },
+    import_id: {
+      type: 'string'
+    },
+    label: {
+      type: 'string'
+    }
+  },
+  required: ['import_id', 'label', 'created_at'],
+  type: 'object'
+} as const
+
 export const $InstanceSettings = {
   additionalProperties: false,
   properties: {
@@ -1371,6 +1418,36 @@ export const $PaginatedListOccurrence = {
     }
   },
   required: ['items', 'total_count'],
+  type: 'object'
+} as const
+
+export const $ProgressSnapshot = {
+  additionalProperties: false,
+  properties: {
+    Completed: {
+      format: 'int32',
+      type: 'integer'
+    },
+    CompletedAt: {
+      format: 'date-time',
+      type: 'string'
+    },
+    Error: {
+      type: 'string'
+    },
+    StartedAt: {
+      format: 'date-time',
+      type: 'string'
+    },
+    Status: {
+      type: 'string'
+    },
+    Total: {
+      format: 'int32',
+      type: 'integer'
+    }
+  },
+  required: ['Status', 'Total', 'Completed', 'StartedAt', 'CompletedAt', 'Error'],
   type: 'object'
 } as const
 

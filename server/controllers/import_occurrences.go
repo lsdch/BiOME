@@ -27,33 +27,28 @@ func NewImportController(db *db.DB, manager *imports.ImportManager) *ImportContr
 	}
 }
 
-type OccurrenceInputCSV struct {
-	File huma.FormFile `form:"occurrences" contentType:"text/csv" required:"true"`
-}
-
-type OccurrenceBatchInputMetadata struct {
-	Label     string `json:"label"`
-	Separator rune   `json:"separator"`
-}
-
 type OccurrenceBatchInput struct {
-	RawBody huma.MultipartFormFiles[OccurrenceInputCSV]
-	Body    OccurrenceBatchInputMetadata
+	RawBody huma.MultipartFormFiles[struct {
+		Label     string        `form:"label"`
+		File      huma.FormFile `form:"file" contentType:"text/csv" required:"true"`
+		Separator string        `form:"separator"`
+		QuoteChar string        `form:"quotes"`
+	}]
 }
 
-func (c *ImportController) ImportOccurrences(
+func (c *ImportController) ImportOccurrencesCSV(
 	ctx context.Context,
 	input *OccurrenceBatchInput,
 ) (*BodyTransporter[models.ImportWorkflow], error) {
 	formData := input.RawBody.Data()
 	file := formData.File
 
-	runner, err := c.manager.NewWorkflow(ctx, input.Body.Label)
+	runner, err := c.manager.NewWorkflow(ctx, input.RawBody.Data().Label)
 	if err != nil {
 		return nil, err
 	}
 
-	err = runner.StartWorkflowCSV(file, input.Body.Separator)
+	err = runner.StartWorkflowCSV(file, rune(input.RawBody.Data().Separator[0]))
 	if err != nil {
 		return nil, err
 	}
@@ -116,7 +111,7 @@ func (c *ImportController) TrackImportStatus(ctx context.Context, input *UUIDInp
 }
 
 func (c *ImportController) RegisterRoutes(r *router.Router) {
-	importsAPI := r.RouteGroup("/imports/").WithTags([]string{"Batch Imports"})
+	importsAPI := r.RouteGroup("/imports/batch").WithTags([]string{"Batch Imports"})
 
 	router.NewSpec(
 		importsAPI,
@@ -133,13 +128,13 @@ func (c *ImportController) RegisterRoutes(r *router.Router) {
 
 	router.NewSpec(
 		importsAPI,
-		"ImportOccurrences",
+		"ImportOccurrencesCSV",
 		huma.Operation{
 			Path:    "/",
 			Method:  http.MethodPost,
-			Summary: "Import occurrence data",
+			Summary: "Import occurrence data from CSV",
 		},
-		c.ImportOccurrences,
+		c.ImportOccurrencesCSV,
 	).
 		WithAccessPolicy(auth.Role(biomedb.UserRoleContributor)).
 		Register(r)
@@ -149,7 +144,7 @@ func (c *ImportController) RegisterRoutes(r *router.Router) {
 			huma.Operation{
 				OperationID: "ImportStatus",
 				Method:      http.MethodGet,
-				Path:        "/imports/{id}/status",
+				Path:        "/imports/batch/{id}/status",
 				Summary:     "Get import status updates via Server-Sent Events (SSE)",
 			},
 			auth.Role(biomedb.UserRoleContributor),

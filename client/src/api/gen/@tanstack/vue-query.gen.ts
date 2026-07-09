@@ -11,6 +11,7 @@ import { client } from '../client.gen'
 import {
   AccountsService,
   AuthenticationService,
+  BatchImportsService,
   BibliographyService,
   DatasetsService,
   HabitatsService,
@@ -81,6 +82,9 @@ import type {
   GetOccurrencesData,
   GetOccurrencesError,
   GetOccurrencesResponse,
+  ImportOccurrencesCsvData,
+  ImportOccurrencesCsvError,
+  ImportOccurrencesCsvResponse,
   ListAccessPointsData,
   ListAccessPointsError,
   ListAccessPointsResponse,
@@ -105,6 +109,9 @@ import type {
   ListGeoapifyUsageData,
   ListGeoapifyUsageError,
   ListGeoapifyUsageResponse,
+  ListImportsData,
+  ListImportsError,
+  ListImportsResponse,
   ListOccurrencesData,
   ListOccurrencesError,
   ListOccurrencesResponse,
@@ -783,6 +790,58 @@ export const updateHabitatGroupMutation = (
   > = {
     mutationFn: async (fnOptions) => {
       const { data } = await HabitatsService.updateHabitatGroup({
+        ...options,
+        ...fnOptions,
+        throwOnError: true
+      })
+      return data
+    }
+  }
+  return mutationOptions
+}
+
+export const listImportsQueryKey = (options?: Options<ListImportsData>) =>
+  createQueryKey('listImports', options)
+
+/**
+ * List import workflows
+ */
+export const listImportsOptions = (options?: Options<ListImportsData>) =>
+  queryOptions<
+    ListImportsResponse,
+    ListImportsError,
+    ListImportsResponse,
+    ReturnType<typeof listImportsQueryKey>
+  >({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await BatchImportsService.listImports({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true
+      })
+      return data
+    },
+    queryKey: listImportsQueryKey(options)
+  })
+
+/**
+ * Import occurrence data from CSV
+ */
+export const importOccurrencesCsvMutation = (
+  options?: Partial<Options<ImportOccurrencesCsvData>>
+): UseMutationOptions<
+  ImportOccurrencesCsvResponse,
+  ImportOccurrencesCsvError,
+  Options<ImportOccurrencesCsvData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    ImportOccurrencesCsvResponse,
+    ImportOccurrencesCsvError,
+    Options<ImportOccurrencesCsvData>
+  > = {
+    mutationFn: async (fnOptions) => {
+      const { data } = await BatchImportsService.importOccurrencesCsv({
         ...options,
         ...fnOptions,
         throwOnError: true

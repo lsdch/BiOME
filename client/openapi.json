@@ -1023,6 +1023,62 @@
 				],
 				"type": "object"
 			},
+			"ImportEvent": {
+				"additionalProperties": false,
+				"properties": {
+					"Error": {},
+					"GBIF": {
+						"$ref": "#/components/schemas/ProgressSnapshot"
+					},
+					"Status": {
+						"type": "string"
+					},
+					"Workflow": {
+						"$ref": "#/components/schemas/ImportWorkflow"
+					}
+				},
+				"required": [
+					"Workflow",
+					"Status",
+					"GBIF",
+					"Error"
+				],
+				"type": "object"
+			},
+			"ImportWorkflow": {
+				"additionalProperties": false,
+				"properties": {
+					"$schema": {
+						"description": "A URL to the JSON Schema for this object.",
+						"examples": [
+							"//localhost:5173/api/v1/schemas/ImportWorkflow.json"
+						],
+						"format": "uri",
+						"readOnly": true,
+						"type": "string"
+					},
+					"completed_at": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"created_at": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"import_id": {
+						"type": "string"
+					},
+					"label": {
+						"type": "string"
+					}
+				},
+				"required": [
+					"import_id",
+					"label",
+					"created_at"
+				],
+				"type": "object"
+			},
 			"InstanceSettings": {
 				"additionalProperties": false,
 				"properties": {
@@ -1524,6 +1580,42 @@
 				"required": [
 					"items",
 					"total_count"
+				],
+				"type": "object"
+			},
+			"ProgressSnapshot": {
+				"additionalProperties": false,
+				"properties": {
+					"Completed": {
+						"format": "int32",
+						"type": "integer"
+					},
+					"CompletedAt": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"Error": {
+						"type": "string"
+					},
+					"StartedAt": {
+						"format": "date-time",
+						"type": "string"
+					},
+					"Status": {
+						"type": "string"
+					},
+					"Total": {
+						"format": "int32",
+						"type": "integer"
+					}
+				},
+				"required": [
+					"Status",
+					"Total",
+					"Completed",
+					"StartedAt",
+					"CompletedAt",
+					"Error"
 				],
 				"type": "object"
 			},
@@ -2128,7 +2220,10 @@
 		}
 	},
 	"info": {
-		"contact": {},
+		"contact": {
+			"email": "ls.duchemin@gmail.com",
+			"name": "Louis Duchemin"
+		},
 		"description": "BiOME API: Biodiversity and Occurrences for Molecular Ecology",
 		"title": "BiOME API",
 		"version": ""
@@ -3249,6 +3344,178 @@
 				"tags": [
 					"Habitats"
 				]
+			}
+		},
+		"/imports/batch": {
+			"get": {
+				"operationId": "ListImports",
+				"policy": {
+					"Role": "Contributor"
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"items": {
+										"$ref": "#/components/schemas/ImportEvent"
+									},
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "List import workflows",
+				"tags": [
+					"Batch Imports"
+				]
+			},
+			"post": {
+				"operationId": "ImportOccurrencesCSV",
+				"policy": {
+					"Role": "Contributor"
+				},
+				"requestBody": {
+					"content": {
+						"multipart/form-data": {
+							"encoding": {
+								"file": {
+									"contentType": "text/csv"
+								},
+								"label": {
+									"contentType": "text/plain"
+								},
+								"quotes": {
+									"contentType": "text/plain"
+								},
+								"separator": {
+									"contentType": "text/plain"
+								}
+							},
+							"schema": {
+								"properties": {
+									"file": {
+										"contentEncoding": "binary",
+										"contentMediaType": "application/octet-stream",
+										"format": "binary",
+										"type": "string"
+									},
+									"label": {
+										"type": "string"
+									},
+									"quotes": {
+										"type": "string"
+									},
+									"separator": {
+										"type": "string"
+									}
+								},
+								"required": [
+									"label",
+									"file",
+									"separator",
+									"quotes"
+								],
+								"type": "object"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/ImportWorkflow"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"422": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Unprocessable Entity"
+					},
+					"500": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Internal Server Error"
+					}
+				},
+				"summary": "Import occurrence data from CSV",
+				"tags": [
+					"Batch Imports"
+				]
+			}
+		},
+		"/imports/batch/{id}/status": {
+			"get": {
+				"operationId": "ImportStatus",
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"format": "uuid",
+							"type": "string"
+						}
+					}
+				],
+				"policy": {
+					"Role": "Contributor"
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"text/event-stream": {
+								"schema": {
+									"description": "Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.",
+									"items": {
+										"oneOf": []
+									},
+									"title": "Server Sent Events",
+									"type": "array"
+								}
+							}
+						},
+						"description": "OK"
+					},
+					"default": {
+						"content": {
+							"application/problem+json": {
+								"schema": {
+									"$ref": "#/components/schemas/ErrorModel"
+								}
+							}
+						},
+						"description": "Error"
+					}
+				},
+				"summary": "Get import status updates via Server-Sent Events (SSE)"
 			}
 		},
 		"/locations/countries": {

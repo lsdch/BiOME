@@ -8,11 +8,13 @@
 package model
 
 import (
+	"github.com/google/uuid"
 	"github.com/lib/pq"
 )
 
 type OccurrenceCollections struct {
-	OccurrenceID string `sql:"primary_key"`
-	Name         string `sql:"primary_key"`
+	CollectionID uuid.UUID `sql:"primary_key"`
+	OccurrenceID string
+	Name         string
 	Vouchers     *pq.StringArray
 }

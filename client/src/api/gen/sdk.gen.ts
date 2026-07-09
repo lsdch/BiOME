@@ -13,8 +13,10 @@ import {
   createSamplingResponseTransformer,
   getDatasetByIdResponseTransformer,
   getOccurrencesResponseTransformer,
+  importOccurrencesCsvResponseTransformer,
   listDatasetsResponseTransformer,
   listGeoapifyUsageResponseTransformer,
+  listImportsResponseTransformer,
   listOccurrencesResponseTransformer,
   listSamplingsAtProximityResponseTransformer,
   loadDatasetsForOccurrenceResponseTransformer,
@@ -80,6 +82,13 @@ import type {
   GetOccurrencesData,
   GetOccurrencesErrors,
   GetOccurrencesResponses,
+  ImportOccurrencesCsvData,
+  ImportOccurrencesCsvErrors,
+  ImportOccurrencesCsvResponses,
+  ImportStatusData,
+  ImportStatusErrors,
+  ImportStatusResponse,
+  ImportStatusResponses,
   ListAccessPointsData,
   ListAccessPointsErrors,
   ListAccessPointsResponses,
@@ -104,6 +113,9 @@ import type {
   ListGeoapifyUsageData,
   ListGeoapifyUsageErrors,
   ListGeoapifyUsageResponses,
+  ListImportsData,
+  ListImportsErrors,
+  ListImportsResponses,
   ListOccurrencesData,
   ListOccurrencesErrors,
   ListOccurrencesResponses,
@@ -955,6 +967,85 @@ export class HabitatsService {
         'Content-Type': 'application/json',
         ...options.headers
       }
+    })
+  }
+}
+
+export class BatchImportsService {
+  /**
+   * List import workflows
+   */
+  public static listImports<ThrowOnError extends boolean = false>(
+    options?: Options<ListImportsData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).get<ListImportsResponses, ListImportsErrors, ThrowOnError>({
+      responseTransformer: listImportsResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch',
+      ...options
+    })
+  }
+
+  /**
+   * Import occurrence data from CSV
+   */
+  public static importOccurrencesCsv<ThrowOnError extends boolean = false>(
+    options?: Options<ImportOccurrencesCsvData, ThrowOnError>
+  ) {
+    return (options?.client ?? client).post<
+      ImportOccurrencesCsvResponses,
+      ImportOccurrencesCsvErrors,
+      ThrowOnError
+    >({
+      ...formDataBodySerializer,
+      responseTransformer: importOccurrencesCsvResponseTransformer,
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch',
+      ...options,
+      headers: {
+        'Content-Type': null,
+        ...options?.headers
+      }
+    })
+  }
+}
+
+export class DefaultService {
+  /**
+   * Get import status updates via Server-Sent Events (SSE)
+   */
+  public static importStatus<ThrowOnError extends boolean = false>(
+    options: Options<ImportStatusData, ThrowOnError, ImportStatusResponse>
+  ) {
+    return (options.client ?? client).sse.get<
+      ImportStatusResponses,
+      ImportStatusErrors,
+      ThrowOnError
+    >({
+      security: [
+        { scheme: 'bearer', type: 'http' },
+        {
+          in: 'cookie',
+          name: 'auth_token',
+          type: 'apiKey'
+        }
+      ],
+      url: '/imports/batch/{id}/status',
+      ...options
     })
   }
 }

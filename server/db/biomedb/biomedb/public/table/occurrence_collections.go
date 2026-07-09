@@ -17,6 +17,7 @@ type occurrenceCollectionsTable struct {
 	postgres.Table
 
 	// Columns
+	CollectionID postgres.ColumnString
 	OccurrenceID postgres.ColumnString
 	Name         postgres.ColumnString
 	Vouchers     postgres.ColumnStringArray
@@ -61,18 +62,20 @@ func newOccurrenceCollectionsTable(schemaName, tableName, alias string) *Occurre
 
 func newOccurrenceCollectionsTableImpl(schemaName, tableName, alias string) occurrenceCollectionsTable {
 	var (
+		CollectionIDColumn = postgres.StringColumn("collection_id")
 		OccurrenceIDColumn = postgres.StringColumn("occurrence_id")
 		NameColumn         = postgres.StringColumn("name")
 		VouchersColumn     = postgres.StringArrayColumn("vouchers")
-		allColumns         = postgres.ColumnList{OccurrenceIDColumn, NameColumn, VouchersColumn}
-		mutableColumns     = postgres.ColumnList{VouchersColumn}
-		defaultColumns     = postgres.ColumnList{}
+		allColumns         = postgres.ColumnList{CollectionIDColumn, OccurrenceIDColumn, NameColumn, VouchersColumn}
+		mutableColumns     = postgres.ColumnList{OccurrenceIDColumn, NameColumn, VouchersColumn}
+		defaultColumns     = postgres.ColumnList{CollectionIDColumn}
 	)
 
 	return occurrenceCollectionsTable{
 		Table: postgres.NewTable(schemaName, tableName, alias, allColumns...),
 
 		//Columns
+		CollectionID: CollectionIDColumn,
 		OccurrenceID: OccurrenceIDColumn,
 		Name:         NameColumn,
 		Vouchers:     VouchersColumn,

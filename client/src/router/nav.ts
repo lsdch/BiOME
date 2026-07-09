@@ -92,7 +92,7 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
       path: '/import',
       name: 'import',
       icon: 'mdi-file-upload',
-      component: () => import('@/views/import/DataImportView.vue'),
+      component: () => import('@/features/import/views/DataImportView.vue'),
       meta: { title: 'Data import' }
     }),
     {
@@ -105,7 +105,7 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
           path: '/import/item',
           name: 'import-item',
           icon: 'mdi-package-variant-plus',
-          component: () => import('@/views/import/CreateOccurrencesView.vue'),
+          component: () => import('@/features/import/views/CreateOccurrencesView.vue'),
           meta: { title: 'Create sampling/occurrences' }
         }),
         guardRole('Contributor', {
@@ -113,7 +113,7 @@ export function navRoutes(settings: InstanceSettings): (RouterItem | Divider)[] 
           path: '/import/batch',
           name: 'import-batch',
           icon: 'mdi-file-upload',
-          component: () => import('@/views/import/ImportBatchView.vue'),
+          component: () => import('@/features/import/views/ImportBatchView.vue'),
           meta: { title: 'Import batch' }
         })
       ]

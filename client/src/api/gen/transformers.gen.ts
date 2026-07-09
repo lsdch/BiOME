@@ -6,8 +6,10 @@ import type {
   CreateSamplingResponse,
   GetDatasetByIdResponse,
   GetOccurrencesResponse,
+  ImportOccurrencesCsvResponse,
   ListDatasetsResponse,
   ListGeoapifyUsageResponse,
+  ListImportsResponse,
   ListOccurrencesResponse,
   ListSamplingsAtProximityResponse,
   LoadDatasetsForOccurrenceResponse,
@@ -96,6 +98,38 @@ export const listGeoapifyUsageResponseTransformer = async (
   data: any
 ): Promise<ListGeoapifyUsageResponse> => {
   data = data.map((item: any) => geoapifyUsageSchemaResponseTransformer(item))
+  return data
+}
+
+const progressSnapshotSchemaResponseTransformer = (data: any) => {
+  data.CompletedAt = new Date(data.CompletedAt)
+  data.StartedAt = new Date(data.StartedAt)
+  return data
+}
+
+const importWorkflowSchemaResponseTransformer = (data: any) => {
+  if (data.completed_at) {
+    data.completed_at = new Date(data.completed_at)
+  }
+  data.created_at = new Date(data.created_at)
+  return data
+}
+
+const importEventSchemaResponseTransformer = (data: any) => {
+  data.GBIF = progressSnapshotSchemaResponseTransformer(data.GBIF)
+  data.Workflow = importWorkflowSchemaResponseTransformer(data.Workflow)
+  return data
+}
+
+export const listImportsResponseTransformer = async (data: any): Promise<ListImportsResponse> => {
+  data = data.map((item: any) => importEventSchemaResponseTransformer(item))
+  return data
+}
+
+export const importOccurrencesCsvResponseTransformer = async (
+  data: any
+): Promise<ImportOccurrencesCsvResponse> => {
+  data = importWorkflowSchemaResponseTransformer(data)
   return data
 }
 

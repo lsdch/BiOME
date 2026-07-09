@@ -349,6 +349,24 @@ export type ImportBatch = {
   submitted_by?: string
 }
 
+export type ImportEvent = {
+  Error: unknown
+  GBIF: ProgressSnapshot
+  Status: string
+  Workflow: ImportWorkflow
+}
+
+export type ImportWorkflow = {
+  /**
+   * A URL to the JSON Schema for this object.
+   */
+  readonly $schema?: string
+  completed_at?: Date
+  created_at: Date
+  import_id: string
+  label: string
+}
+
 export type InstanceSettings = {
   /**
    * A URL to the JSON Schema for this object.
@@ -493,6 +511,15 @@ export type PaginatedListOccurrence = {
   readonly $schema?: string
   items: Array<Occurrence>
   total_count: number
+}
+
+export type ProgressSnapshot = {
+  Completed: number
+  CompletedAt: Date
+  Error: string
+  StartedAt: Date
+  Status: string
+  Total: number
 }
 
 export type QuantityInput = {
@@ -1364,6 +1391,95 @@ export type UpdateHabitatGroupResponses = {
 
 export type UpdateHabitatGroupResponse =
   UpdateHabitatGroupResponses[keyof UpdateHabitatGroupResponses]
+
+export type ListImportsData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/imports/batch'
+}
+
+export type ListImportsErrors = {
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ListImportsError = ListImportsErrors[keyof ListImportsErrors]
+
+export type ListImportsResponses = {
+  /**
+   * OK
+   */
+  200: Array<ImportEvent>
+}
+
+export type ListImportsResponse = ListImportsResponses[keyof ListImportsResponses]
+
+export type ImportOccurrencesCsvData = {
+  body?: {
+    file: Blob | File
+    label: string
+    quotes: string
+    separator: string
+  }
+  path?: never
+  query?: never
+  url: '/imports/batch'
+}
+
+export type ImportOccurrencesCsvErrors = {
+  /**
+   * Unprocessable Entity
+   */
+  422: ErrorModel
+  /**
+   * Internal Server Error
+   */
+  500: ErrorModel
+}
+
+export type ImportOccurrencesCsvError = ImportOccurrencesCsvErrors[keyof ImportOccurrencesCsvErrors]
+
+export type ImportOccurrencesCsvResponses = {
+  /**
+   * OK
+   */
+  200: ImportWorkflow
+}
+
+export type ImportOccurrencesCsvResponse =
+  ImportOccurrencesCsvResponses[keyof ImportOccurrencesCsvResponses]
+
+export type ImportStatusData = {
+  body?: never
+  path: {
+    id: UUID
+  }
+  query?: never
+  url: '/imports/batch/{id}/status'
+}
+
+export type ImportStatusErrors = {
+  /**
+   * Error
+   */
+  default: ErrorModel
+}
+
+export type ImportStatusError = ImportStatusErrors[keyof ImportStatusErrors]
+
+export type ImportStatusResponses = {
+  /**
+   * Server Sent Events
+   *
+   * Each oneOf object in the array represents one possible Server Sent Events (SSE) message, serialized as UTF-8 text according to the SSE specification.
+   */
+  200: Array<unknown>
+}
+
+export type ImportStatusResponse = ImportStatusResponses[keyof ImportStatusResponses]
 
 export type ListCountriesData = {
   body?: never

@@ -11,7 +11,7 @@ import (
 
 type WorkflowStore struct{}
 
-func NewImportStore() *WorkflowStore {
+func NewWorkflowStore() *WorkflowStore {
 	return &WorkflowStore{}
 }
 

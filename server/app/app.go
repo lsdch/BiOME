@@ -11,10 +11,13 @@ import (
 	"github.com/lsdch/biome/config"
 	"github.com/lsdch/biome/controllers"
 	"github.com/lsdch/biome/db"
+	"github.com/lsdch/biome/imports"
 	"github.com/lsdch/biome/middleware"
 	"github.com/lsdch/biome/router"
 	"github.com/lsdch/biome/services"
+	"github.com/lsdch/biome/services/gbif"
 	"github.com/lsdch/biome/services/geoapify"
+	"github.com/lsdch/biome/stores"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -51,12 +54,13 @@ func NewPgxPool(ctx context.Context, cfg config.DBConfig) (*pgxpool.Pool, error)
 }
 
 type App struct {
-	DB          *db.DB
-	Config      config.Config
-	Router      *router.Router
-	Services    *AppServices
-	Controllers []controllers.Controller
-	bootstrap   *AppBootstrap
+	DB             *db.DB
+	Config         config.Config
+	Router         *router.Router
+	Services       *AppServices
+	Controllers    []controllers.Controller
+	bootstrap      *AppBootstrap
+	importsManager *imports.ImportManager
 }
 
 func NewApp(config config.Config) *App {
@@ -93,12 +97,16 @@ func NewApp(config config.Config) *App {
 	authMiddleware := middleware.NewAuthMiddleware(router.API, database, config.AuthTokens, appServices.AuthService)
 	router.API.UseMiddleware(authMiddleware.AuthN, authMiddleware.AuthZ)
 
+	gbifClient := gbif.NewClient(config)
+	taxonResolver := imports.NewTaxonResolutionService(gbifClient)
+
 	return &App{
-		DB:        database,
-		Config:    config,
-		Router:    router,
-		Services:  appServices,
-		bootstrap: NewAppBootstrap(database, config.Bootstrap, appServices),
+		DB:             database,
+		Config:         config,
+		Router:         router,
+		Services:       appServices,
+		bootstrap:      NewAppBootstrap(database, config.Bootstrap, appServices),
+		importsManager: imports.NewImportManager(database, stores.NewWorkflowStore(), taxonResolver, appServices.SamplingsService),
 	}
 }
 
@@ -112,7 +120,7 @@ func (a *App) Bootstrap() {
 func (a *App) RegisterRoutes() {
 
 	a.Controllers = []controllers.Controller{
-		// controllers.NewImportController(a.DB, a.Services.ImportService),
+		controllers.NewImportController(a.DB, a.importsManager),
 		controllers.NewArticlesController(a.DB, a.Services.ArticleService),
 		controllers.NewGeoapifyController(a.DB, a.Services.GeoapifyService),
 		controllers.NewHabitatsController(a.DB, a.Services.HabitatService),
